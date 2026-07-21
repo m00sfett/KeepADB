@@ -15,7 +15,7 @@ Neustart überlebt. Mit dieser App genügt nach jedem Reboot ein Tipp, um es wie
   vergeben wird (überlebt Reboots):
 
   ```
-  adb shell pm grant de.moos.wifiadb android.permission.WRITE_SECURE_SETTINGS
+  android-target s20 -- shell pm grant de.moos.wifiadb android.permission.WRITE_SECURE_SETTINGS
   ```
 
 - Der Schalterzustand selbst wird von Android beim Reboot zurückgesetzt → nach Neustart
@@ -35,8 +35,8 @@ JDK 17 unter `/usr/lib/jvm/java-17-openjdk`.
 
 ```bash
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-adb shell pm grant de.moos.wifiadb android.permission.WRITE_SECURE_SETTINGS
+android-target s20 -- install -r app/build/outputs/apk/debug/app-debug.apk
+android-target s20 -- shell pm grant de.moos.wifiadb android.permission.WRITE_SECURE_SETTINGS
 ```
 
 ## Technik
