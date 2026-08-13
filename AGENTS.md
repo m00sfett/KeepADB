@@ -37,7 +37,7 @@ android-target s20 -- shell cmd statusbar remove-tile de.moos.wifiadb/.AdbWifiTi
 
 ---
 
-<!-- BEGIN shared-core v1 adf6b88c28b6 — generiert, nicht von Hand ändern -->
+<!-- BEGIN shared-core v1 6bc760f8b8c2 — generiert, nicht von Hand ändern -->
 ## Kern-Regelwerk (`shared-core`)
 
 Übernommen aus `~/AGENTS.md`, damit dieses Projekt ohne übergeordnete Instruktionsdateien
@@ -82,9 +82,16 @@ ein Dateisystempfad.
 - **Bei Code-Änderungen bevorzugt PR/Merge:** wo ein Branch sinnvoll ist, direkt einen Pull
   Request öffnen und nach grünen Checks mergen. Auch bei einem ausnahmsweise direkten Push auf
   `main` gelten Atomizität und sofortiges Pushen unverändert.
-- **Lokale Repo-Instruktionsdateien bleiben lokal:** `AGENTS.md`, `CLAUDE.md`, `GEMINI.md` und
-  vergleichbare Steuerdateien in Code-Repos sind Arbeitskopie-only; nie bewusst tracken oder
-  pushen. Tauchen sie im `git status` auf, erst untracken/ignorieren, dann weiterarbeiten.
+- **Lokale Repo-Instruktionsdateien bleiben standardmäßig lokal:** `AGENTS.md`, `CLAUDE.md`,
+  `GEMINI.md`, Agy-/Codex-/Claude-Varianten und vergleichbare Steuerdateien in Code-Repos sind
+  Arbeitskopie-only; nie bewusst tracken, committen oder pushen. Vor jedem Commit müssen
+  `git status --short`, `git diff --cached --name-only` und bei Unsicherheit `git ls-files` auf
+  solche Dateien geprüft werden. Taucht eine solche Datei auf, den Vorgang stoppen, sie aus dem
+  Index entfernen und ignorieren, die lokale Datei aber erhalten.
+- **Ausnahmen sind explizit und eng:** Eine Ausnahme gilt nur, wenn die eigene Projektanweisung
+  genau die absichtlich getrackte Datei, Zweck und Begründung dokumentiert und der Nutzer sie
+  freigegeben hat. Die bloße Existenz, ein privates Repository oder autonome Lesbarkeit sind
+  keine Freigabe. Eine Ausnahme eines Projekts gilt niemals automatisch für andere Repositories.
 
 ### Delegation, Modelle, Tests
 
