@@ -4,20 +4,44 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="32dp">
+    android:padding="24dp"
+    android:background="@color/ground">
 
     <TextView
-        android:id="@+id/status"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:textSize="20sp"
-        android:text="WLAN-ADB" />
+        android:background="@color/banner_red"
+        android:padding="16dp"
+        android:text="WLAN-ADB"
+        android:textColor="@color/title_yellow"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/fira_sans_condensed" />
 
-    <Switch
-        android:id="@+id/toggle"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:text="WLAN-ADB" />
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_panel"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="WLAN-ADB"
+            android:textColor="@color/night_text"
+            android:textSize="20sp"
+            android:fontFamily="@font/fira_sans" />
+
+        <Switch
+            android:id="@+id/toggle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="WLAN-ADB"
+            android:textColor="@color/text_yellow"
+            android:textSize="18sp"
+            android:fontFamily="@font/fira_sans_condensed" />
+    </LinearLayout>
 </LinearLayout>
