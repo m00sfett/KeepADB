@@ -1,5 +1,29 @@
 # Issue-Orchestrator-Plan
 
+## Neuer Nutzerauftrag: WLAN-ADB-Endpoint
+
+- Issues: [#3](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/3) Notification mit
+  aktuellem Port/IP; [#4](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/4) zentrales
+  Register auf `moosgames2020`, ausschließlich über Tailscale.
+- Ziel: Den lokal aktiven WLAN-ADB-Endpoint sichtbar machen und anschließend für private Tools
+  zentral lesbar hinterlegen.
+- Paketgrenze: getrennte Issues wegen unterschiedlichem Risiko und Rückrollpfad; #3 ist lokal
+  direkt umsetzbar, #4 enthält Architektur-, Netzwerk- und Betriebsentscheidungen.
+- Nicht-Ziele: keine öffentliche Discovery, kein Internet-Endpoint, keine Portfreigabe, keine
+  dauerhafte Historie und keine stillschweigende Kopplung der App an einen Server.
+- Architektur-Optionen für #4: SSH/Dateiablage, kleiner HTTP-Registry-Dienst mit atomischer
+  JSON-Datei, oder Tailscale Serve vor einem lokalen Dienst. Der Issue-Text empfiehlt als
+  Arbeitshypothese den kleinen Registry-Dienst; die Entscheidung bleibt ein Akzeptanzkriterium.
+- Abhängigkeit: #4 kann Datenmodell und Dienst unabhängig vorbereiten, die App-Kopplung darf
+  erst nach expliziter Festlegung von Transport und Authentisierung erfolgen.
+- Freigabe: Issues anlegen und Plan aktualisieren; keine Implementierung, kein Build, kein
+  Gerätezugriff und keine Betriebsänderung freigegeben.
+- Validierung: GitHub-Issue-Liste und beide URLs im selben Lauf abgefragt; keine Workflows im
+  Repository konfiguriert. Arbeitsbaum vorbestehend verändert (`README.md`, `FRONTMATTER.md`)
+  und unverändert zu bewahren.
+- Status: `complete` für diesen Planungs-/Issue-Anlegeauftrag; Serverstatus #3/#4 offen,
+  Commitstatus unverändert, Review nicht anwendbar, Implementierungsscope offen.
+
 ## Aktuelles Paket
 
 - Issue: #1 — CI-Designsystem für WiFi-ADB
