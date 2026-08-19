@@ -22,7 +22,7 @@
 
 ## Status
 
-- Ausgang: `master` entspricht `origin/master`; Issue #1 ist offen; kein offener PR und keine CI-Runs.
+- Ausgang: `master` entsprach `origin/master`; Issue #1 ist offen.
 - Vorhandene fremde Änderungen: `README.md` geändert, `FRONTMATTER.md` untracked; unverändert zu
   bewahren.
 - Validierung: Build bestanden; Emulator-Smoke `blocked`.
@@ -61,5 +61,6 @@
 
 ## Abschlussstatus
 
-`blocked` — Commit-/Server-/Reviewabschluss ausstehend; Issue #1 bleibt offen, weil die UI-Abnahme
-nicht vollständig nachgewiesen ist.
+`blocked` — Commit `6357d34` ist auf `origin/issue-1-ci-designsystem` vorhanden. PR #2 ist offen als
+Draft gegen `master`; es gibt keine konfigurierten Checks/Runs. Issue #1 bleibt offen, weil die
+UI-Abnahme auf dem Emulator nicht vollständig nachgewiesen ist.
