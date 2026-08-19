@@ -109,3 +109,31 @@
 `complete` für das Paket — Commit `6357d34` ist auf `origin/issue-1-ci-designsystem` vorhanden.
 Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gegen `master`, Issue
 #1 ist serverseitig offen; es wurden keine Merge-/Issue-Schreibaktionen vorgenommen.
+
+## Übergabe-Checkpoint und nächste Auswahlrunde — 2026-08-20
+
+- Roadmap-Abgleich: Die Aussage „Den lokal aktiven WLAN-ADB-Endpoint sichtbar machen und
+  anschließend für private Tools zentral lesbar hinterlegen“ wird durch Issue #3 direkt erfüllt;
+  Issue #4 folgt erst nach der lokalen Endpoint-Anzeige.
+- Nächstes Paket: Issue #3 — Notification: WLAN-ADB-Port und IP anzeigen.
+- Ziel: Bei aktivem WLAN-ADB den tatsächlich erreichbaren Port und die geeignete Geräte-IP live in
+  einer laufenden Notification anzeigen und beim Deaktivieren entfernen.
+- Zusammenhang: #3 ist der lokale Endpoint- und Anzeigepfad; #4 ist ein separater Tailscale-only
+  Betriebs-/Datenpfad mit eigener Architektur-, Netzwerk- und Rollback-Grenze. Kein gemeinsames
+  Paket.
+- Nicht-Ziele: kein zentrales Register, kein Tailscale-/Server-Transport, keine Änderung der
+  Toggle-Semantik oder des Berechtigungsmodells.
+- Umfang: Endpoint-Adapter, Notification-Channel/-Berechtigung, Updates aus App/Widget/Tile,
+  fehlende oder stale Endpoint-Daten sowie IPv4-/IPv6-/Multi-Interface-Verhalten gemäß Issue #3.
+- Einstufung: S2, direkt umsetzbar; keine Delegation vorgesehen.
+- Freigaben: Auswahl und Planaktualisierung erteilt. Implementierung, Build/Test und Geräte- oder
+  externe Betriebsaktionen sind in diesem Lauf nicht freigegeben.
+- Übergabe: Issue #3 und #4 sind serverseitig offen; PR #2 ist Draft ohne Checks. `README.md` und
+  `FRONTMATTER.md` sind fremde Arbeitsbaumänderungen und unverändert zu bewahren. Kein Codepfad
+  von #3 wurde geändert.
+- Ungeprüfte Akzeptanzkriterien für #3: alle; insbesondere tatsächlicher Wireless-Debugging-Port,
+  geeignete IP, exakte Notification-Texte/Fettdruck, App-/Widget-/Tile-Updates, Reboot-Frische,
+  Channel/Berechtigung, fehlender Endpoint und Geräte-/Emulator-Nachweis.
+- Review: `not applicable` für dieses Auswahl-/Planungspaket; keine Delegation.
+- Laufstatus: `not approved` für die Umsetzung. Die nächste Aufgabe muss die typisierte Freigabe
+  für Implementierung und die dafür vorgesehenen lokalen sowie Geräte-Gates enthalten.
