@@ -6,3 +6,7 @@ local.properties
 .idea/
 captures/
 .DS_Store
+
+AGENTS.md
+CLAUDE.md
+GEMINI.md
