@@ -40,8 +40,8 @@
 - Freigegeben: Implementierung, lokaler Debug-Build und Emulator-Smoke-Test.
 - Muss-Akzeptanzfälle: kein heller Start-Flash; App AN/AUS und fehlende Berechtigung; Widget-Zustand
   und Umschalten; Tile-Zustand und Umschalten.
-- `approved`: Debug-Build erfolgreich und alle genannten Emulator-Fälle anhand von Screenshot/Logs
-  nachvollziehbar bestanden.
+- `approved`: Debug-Build erfolgreich und alle genannten Fälle anhand von Screenshot/Logs oder
+  dem freigegebenen S20-Fallback nachvollziehbar bestanden.
 - Maximale Reparaturrunden: zwei lokale Reparaturschleifen; kein Architektur- oder Scope-Wechsel.
 
 ## Status
@@ -56,6 +56,24 @@
   doppelt auf ADB 5037/5038. Nach sauberem Stop scheiterte der vorgesehene Neustart an fehlendem
   `DISPLAY`/Qt-`xcb` (`Fatal: This application failed to start because no Qt platform plugin could
   be initialized`). Kein Headless-Fallback ausgeführt.
+- S20-Fallback am 2026-08-20: registrierter WLAN-ADB-Transport `192.168.178.24:36861` erfolgreich
+  fingerprint-validiert; Build, Installation, Activity-Start, UI-Dump und Screenshot bestanden.
+  Der Activity-Ausschaltpfad wurde ausgelöst und trennte erwartungsgemäß den WLAN-ADB-Transport.
+  Der anschließende Pflichtscan `phone-register scan-wlan s20` fand keinen offenen Port; ON-/
+  Widget-/Tile-Abnahme ist daher transport-blockiert, bis WLAN-ADB am Telefon reaktiviert wird.
+- Nach Reaktivierung auf Port `39945` wurde die Fingerprint-Prüfung wiederholt und der veraltete
+  mDNS-/Offline-Transport gezielt entfernt. Der Activity-Start blieb erreichbar. Der Tile-Test
+  lieferte jedoch keinen belegten Zustandswechsel (`adb_wifi_enabled` blieb vor dem erneuten
+  Transportabbruch `1`); ein weiterer Scan fand keinen offenen Port. Die Tile- und Widget-Gates
+  bleiben ungeprüft.
+- Nach erneuter Reaktivierung wurde Port `35731` erfolgreich verbunden und fingerprint-validiert.
+  Der programmatische Tile-Klick änderte den belegten Zustand nicht (`1` blieb `1`). Beim Öffnen
+  des Quick-Settings-Panels brach der Transport erneut ab; der Port ist geschlossen. Tile- und
+  Widget-Gates bleiben ungeprüft.
+- Nach manueller Nachprüfung wurde Port `33465` erfolgreich verbunden und fingerprint-validiert;
+  `adb_wifi_enabled=1`. Der Widget-Provider ist auf User 0 registriert. Der Nutzer bestätigt,
+  dass App, Tile und Widget jeweils AUS/AN funktionieren; damit ist die S20-Fallback-Abnahme
+  vollständig bestanden.
 - Offene Risiken: UI-Akzeptanz auf dem Emulator; Fontdateien werden aus der lokal installierten,
   SIL-OFL-lizenzierten Fira-Sans-Installation übernommen.
 
@@ -68,7 +86,7 @@
 ## Aufwandsprotokoll
 
 - Geplant: 1 Issue / 1 Paket.
-- Tatsächlich: UI-Ressourcen und Layouts umgesetzt; Emulator-Abnahme offen.
+- Tatsächlich: UI-Ressourcen und Layouts umgesetzt; S20-Fallback-Abnahme bestanden.
 - Fehlversuch: 1 Emulator-Start wegen Infrastruktur, keine Reparaturschleife am Code.
 - Beobachtete Token-/Abrechnungswerte: unbekannt.
 
@@ -82,9 +100,12 @@
 - Verbesserung für die nächste Runde: Vor dem Smoke-Test den Emulator-Display-/ADB-Transport mit
   einem kurzen, read-only Wrapper-Check validieren und den Test bei fehlendem GUI-Zugang früh als
   Infrastruktur-Blocker markieren.
+- Geräteprüfung: Das Umschalten von WLAN-ADB beendet den Prüftransport selbst. Für solche Tests
+  künftig den manuellen Nutzerbeleg als eigenen Abnahmetyp vorsehen oder USB-ADB als unabhängigen
+  Kontrollkanal verwenden.
 
 ## Abschlussstatus
 
-`blocked` — Commit `6357d34` ist auf `origin/issue-1-ci-designsystem` vorhanden. PR #2 ist offen als
-Draft gegen `master`; es gibt keine konfigurierten Checks/Runs. Issue #1 bleibt offen, weil die
-UI-Abnahme auf dem Emulator nicht vollständig nachgewiesen ist.
+`complete` für das Paket — Commit `6357d34` ist auf `origin/issue-1-ci-designsystem` vorhanden.
+Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gegen `master`, Issue
+#1 ist serverseitig offen; es wurden keine Merge-/Issue-Schreibaktionen vorgenommen.
