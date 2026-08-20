@@ -4,6 +4,8 @@ import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
+import android.os.Looper;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -13,6 +15,7 @@ import java.util.Queue;
 /** Discovers the active secure wireless-debugging endpoint advertised by adbd. */
 final class AdbWifiEndpoint {
     static final String SERVICE_TYPE = "_adb-tls-connect._tcp.";
+    private static final long RESOLVE_TIMEOUT_MS = 1500;
 
     interface Listener {
         void onEndpoint(String host, int port);
@@ -21,9 +24,11 @@ final class AdbWifiEndpoint {
 
     private final NsdManager nsdManager;
     private final WifiManager.MulticastLock multicastLock;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private NsdManager.DiscoveryListener discoveryListener;
     private final Queue<NsdServiceInfo> resolveQueue = new ArrayDeque<>();
     private boolean resolving;
+    private Runnable resolveWatchdogRunnable;
     private long discoveryGeneration;
 
     AdbWifiEndpoint(Context context) {
@@ -107,6 +112,13 @@ final class AdbWifiEndpoint {
         }
     }
 
+    private void cancelResolveWatchdogLocked() {
+        if (resolveWatchdogRunnable != null) {
+            mainHandler.removeCallbacks(resolveWatchdogRunnable);
+            resolveWatchdogRunnable = null;
+        }
+    }
+
     private void processNextResolveLocked(long generation, Listener listener) {
         if (resolving || resolveQueue.isEmpty() || !isCurrent(generation)) {
             return;
@@ -116,11 +128,22 @@ final class AdbWifiEndpoint {
             return;
         }
         resolving = true;
+        cancelResolveWatchdogLocked();
+        resolveWatchdogRunnable = () -> {
+            synchronized (AdbWifiEndpoint.this) {
+                if (!isCurrent(generation) || !resolving) return;
+                resolving = false;
+                processNextResolveLocked(generation, listener);
+            }
+        };
+        mainHandler.postDelayed(resolveWatchdogRunnable, RESOLVE_TIMEOUT_MS);
+
         try {
             nsdManager.resolveService(nextService, new NsdManager.ResolveListener() {
                 @Override
                 public void onResolveFailed(NsdServiceInfo ignored, int errorCode) {
                     synchronized (AdbWifiEndpoint.this) {
+                        cancelResolveWatchdogLocked();
                         resolving = false;
                         if (!isCurrent(generation)) return;
                         processNextResolveLocked(generation, listener);
@@ -129,53 +152,49 @@ final class AdbWifiEndpoint {
 
                 @Override
                 public void onServiceResolved(NsdServiceInfo resolved) {
-                    if (!isCurrent(generation)) {
-                        synchronized (AdbWifiEndpoint.this) {
+                    synchronized (AdbWifiEndpoint.this) {
+                        cancelResolveWatchdogLocked();
+                        if (!isCurrent(generation)) {
                             resolving = false;
+                            return;
                         }
-                        return;
-                    }
-                    if (resolved.getHost() == null || resolved.getPort() <= 0) {
-                        synchronized (AdbWifiEndpoint.this) {
+                        if (resolved.getHost() == null || resolved.getPort() <= 0) {
                             resolving = false;
-                            if (!isCurrent(generation)) return;
                             processNextResolveLocked(generation, listener);
+                            return;
                         }
-                        return;
-                    }
-                    final String host = resolved.getHost().getHostAddress();
-                    if (host == null || host.isEmpty()) {
-                        synchronized (AdbWifiEndpoint.this) {
+                        final String host = resolved.getHost().getHostAddress();
+                        if (host == null || host.isEmpty()) {
                             resolving = false;
-                            if (!isCurrent(generation)) return;
                             processNextResolveLocked(generation, listener);
+                            return;
                         }
-                        return;
-                    }
-                    final int port = resolved.getPort();
-                    final InetAddress addr = resolved.getHost();
-                    new Thread(() -> {
-                        boolean reachable = false;
-                        try (Socket socket = new Socket()) {
-                            socket.connect(new InetSocketAddress(addr, port), 600);
-                            reachable = true;
-                        } catch (Exception ignored) {
-                        }
-                        synchronized (AdbWifiEndpoint.this) {
-                            resolving = false;
-                            if (!isCurrent(generation)) return;
-                            if (reachable) {
-                                resolveQueue.clear();
-                                stop();
-                                listener.onEndpoint(host, port);
-                            } else {
-                                processNextResolveLocked(generation, listener);
+                        final int port = resolved.getPort();
+                        final InetAddress addr = resolved.getHost();
+                        new Thread(() -> {
+                            boolean reachable = false;
+                            try (Socket socket = new Socket()) {
+                                socket.connect(new InetSocketAddress(addr, port), 600);
+                                reachable = true;
+                            } catch (Exception ignored) {
                             }
-                        }
-                    }, "AdbWifiEndpointCheck").start();
+                            synchronized (AdbWifiEndpoint.this) {
+                                resolving = false;
+                                if (!isCurrent(generation)) return;
+                                if (reachable) {
+                                    resolveQueue.clear();
+                                    stop();
+                                    listener.onEndpoint(host, port);
+                                } else {
+                                    processNextResolveLocked(generation, listener);
+                                }
+                            }
+                        }, "AdbWifiEndpointCheck").start();
+                    }
                 }
             });
         } catch (RuntimeException ignored) {
+            cancelResolveWatchdogLocked();
             resolving = false;
             processNextResolveLocked(generation, listener);
         }
@@ -183,6 +202,7 @@ final class AdbWifiEndpoint {
 
     synchronized void stop() {
         discoveryGeneration++;
+        cancelResolveWatchdogLocked();
         resolveQueue.clear();
         resolving = false;
         NsdManager.DiscoveryListener listener = discoveryListener;
