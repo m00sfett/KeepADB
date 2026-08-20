@@ -64,6 +64,7 @@ final class AdbWifiNotification {
                 currentPort = port;
                 if (endpointListener != null) endpointListener.onEndpoint(host, port);
                 show(appContext, manager, host, port);
+                AdbWifiRegisterClient.updateEndpointAsync(host, port);
             }
 
             @Override
