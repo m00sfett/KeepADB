@@ -246,6 +246,13 @@ final class AdbWifiEndpoint {
         if (wifiIp == null) {
             return;
         }
+        final InetAddress wifiAddr;
+        try {
+            wifiAddr = InetAddress.getByName(wifiIp);
+        } catch (Exception e) {
+            return;
+        }
+
         new Thread(() -> {
             if (!isCurrent(generation)) return;
             final int totalPorts = PROBE_END_PORT - PROBE_START_PORT + 1;
@@ -260,28 +267,20 @@ final class AdbWifiEndpoint {
                         if (found.get() || !isCurrent(generation)) {
                             break;
                         }
-                        boolean loopbackOpen = false;
+                        boolean open = false;
                         try (Socket s = new Socket()) {
-                            s.connect(new InetSocketAddress("127.0.0.1", port), 50);
-                            loopbackOpen = true;
+                            s.connect(new InetSocketAddress(wifiAddr, port), 50);
+                            open = true;
                         } catch (Exception ignored) {
                         }
-                        if (loopbackOpen && !found.get() && isCurrent(generation)) {
-                            boolean wifiOpen = false;
-                            try (Socket s = new Socket()) {
-                                s.connect(new InetSocketAddress(wifiIp, port), 300);
-                                wifiOpen = true;
-                            } catch (Exception ignored) {
+                        if (open && found.compareAndSet(false, true)) {
+                            synchronized (AdbWifiEndpoint.this) {
+                                if (!isCurrent(generation)) return;
+                                resolveQueue.clear();
+                                stop();
+                                listener.onEndpoint(wifiIp, port);
                             }
-                            if (wifiOpen && found.compareAndSet(false, true)) {
-                                synchronized (AdbWifiEndpoint.this) {
-                                    if (!isCurrent(generation)) return;
-                                    resolveQueue.clear();
-                                    stop();
-                                    listener.onEndpoint(wifiIp, port);
-                                }
-                                break;
-                            }
+                            break;
                         }
                     }
                 }, "AdbWifiFastProbe-" + i).start();
