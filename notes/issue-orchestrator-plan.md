@@ -711,7 +711,20 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
-- **Status:** `complete` für Issue #48 Code & lokale Validierung. Bereit für PR und Merge.
+- **Status:** `complete` für Issue #48 Code & lokale Validierung. PR #49 via Squash-Merge in `master` übernommen, Issue #48 geschlossen.
+
+## Umsetzung Issue #50 (PR #51 / Issue #50) — 2026-08-20
+
+- **Kontext / Problem:** Wenn WLAN-ADB eingeschaltet wird, benötigt der Systemdienst `adbd` 300ms bis 1500ms, um den Socket zu binden.
+  - Bisher führte `startFastProbe` nur einen einzigen Scan-Durchlauf durch (Dauer ~20ms). Startete `adbd` verzögert, schlug dieser Einzeldurchlauf fehl und die App blieb auf „Endpoint wird gesucht …“ hängen.
+- **Implementierung:**
+  - `AdbWifiFastProbeCoordinator` scannt in einer Wiederholungsschleife (bis zu 15 Durchläufe à 300ms Pause) alle Ports parallel, solange die Discovery aktiv ist (`isCurrent(generation)`).
+  - Sobald `adbd` den Socket bindet, erkennt der Fast-Probe den Port sofort und benachrichtigt UI, Notification und Register.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Whitespace-Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
+- **Status:** `complete` für Issue #50 Code & lokale Validierung. Bereit für PR und Merge.
+
 
 
 
