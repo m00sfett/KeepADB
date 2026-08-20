@@ -21,12 +21,14 @@ public class AdbWifiTileService extends TileService {
         }
         updateTile();
         AdbWifiWidget.refreshAll(this);
+        AdbWifiNotification.refresh(this);
     }
 
     private void updateTile() {
         Tile tile = getQsTile();
         if (tile == null) return;
         boolean on = AdbWifi.isEnabled(this);
+        AdbWifiNotification.refresh(this);
         tile.setState(on ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
         tile.setLabel("WLAN-ADB");
         tile.setIcon(Icon.createWithResource(this, R.drawable.ic_adb));
