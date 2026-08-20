@@ -183,3 +183,56 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   Kontrollkanal offen; Widget- und Tile-Aufrufpfade wurden nicht separat ausgelöst.
 - Status: `not approved` für vollständige Issue-Abnahme; ON-/Anzeige-/Notification-Datenpfad auf
   dem echten S20 bestanden, AUS/AN und Widget/Tile bleiben offen.
+
+## Issue-3-Crashfix — 2026-08-20
+
+- Befund: Beim AUS-/AN-Umschalten kann der NSD-Adapter verspätete Discovery-/Resolve-Callbacks
+  nach dem Stop verarbeiten; Framework-Ausnahmen beim Starten oder Auflösen waren ungefangen.
+- Umsetzung: `AdbWifiEndpoint` verwirft Callbacks aus veralteten Discovery-Generationen und
+  fängt Runtime-Ausnahmen beim Start, Stop und Resolve ab. Toggle-Semantik und Notification-
+  Vertrag bleiben unverändert.
+- Scope: weiterhin Issue #3; kein neues Issue angelegt.
+- Validierung: `git diff --check` erfolgreich; Build, Lint und Geräte-Reproduktion noch nicht
+  ausgeführt — typisierte Freigabe fehlt. S20-Transportabfrage war wegen mehrerer/offline
+  Treffer nicht eindeutig.
+- Status: `not approved` bis Debug-Build und AUS/AN-Gerätenachweis nachgeholt sind.
+
+## Issue-3-Crashfix-Validierung — 2026-08-20
+
+- Freigabe: Debug-Build, Lint und Geräteprüfung erteilt.
+- Lokale Gates: `git diff --check`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`
+  und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug` erfolgreich. Der bekannte
+  Hinweis zur veralteten `NsdManager.resolveService`-API bleibt bestehen.
+- Transport: Register zuerst abgefragt. Der Nutzerport `40589` war nicht offen; der Scan fand
+  `34895` und `40625`, validierte `192.168.178.24:34895` als `SM-G780G` / `RF8T307S88H` und
+  aktualisierte das Register. `android-target s20` bleibt wegen zweier zusätzlicher online-
+  mDNS-Transporte auf ADB 5037/5038 nicht eindeutig; kein Installieren und kein Toggle-Test.
+- Status: `blocked` für den Gerätegate durch Resolver-/Transportinfrastruktur; Code und lokale
+  Gates bestanden, Crash-Reproduktion und AUS/AN-Nachweis offen.
+
+## Issue-3-Crashfix-Transportnachprüfung — 2026-08-20
+
+- Nutzer meldete neuen Port `33189`.
+- Registerpfad: bisheriger Endpunkt `192.168.178.24:34895` nicht erreichbar; vollständiger
+  Scan auf `192.168.178.24` fand keinen offenen Port im Bereich `30000–50000`, damit auch
+  `33189` nicht erreichbar.
+- Keine Geräteaktion, Installation oder Codeänderung ausgeführt. Status bleibt `blocked` durch
+  WLAN-ADB-/Transportzustand.
+
+## Folgeissue — 2026-08-20
+
+- Nutzerbefund: WLAN-ADB ist aktiv, die Notification zeigt jedoch nicht den aktuellen Endpoint;
+  als echter aktueller Port wurde `34841` angegeben.
+- Issue #5 „Notification zeigt veralteten WLAN-ADB-Port“ angelegt und serverseitig verifiziert:
+  https://github.com/m00sfett/smartphone-wlan-adb-app/issues/5
+- Scope: Ursache im Live-Discovery-/Notification-Datenpfad untersuchen und beheben; keine
+  Toggle-Semantik, kein zentrales Register. Geräte-/Logcat-Nachweis ist Akzeptanzkriterium.
+- Status: `complete` für die Issue-Anlage; Issue #5 offen, kein Commit-/PR-Schreibvorgang.
+
+## Issue-3-Crashfix-Commit & Transport-Scan — 2026-08-20
+
+- Lokale Gates: `git diff --check`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug` erfolgreich ausgeführt.
+- Commit & Push: Commit `6abeb28` ("fix: drop stale nsd callbacks and catch runtime exceptions on discovery") erstellt und auf `origin/issue-3-notification` gepusht.
+- Geräte-Transport: `phone-register scan-wlan s20` im Bereich 30000–50000 fand keinen offenen Port auf `192.168.178.24`.
+- Status: `blocked` für Geräteprüfung/AUS-AN-Abnahme, da Drahtloses Debugging am Gerät inaktiv/nicht erreichbar ist.
+
