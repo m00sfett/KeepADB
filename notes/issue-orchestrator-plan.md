@@ -634,3 +634,15 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
      - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`, abschließende S20-Verifikation.
 
 - Einstiegsentscheidung: Paket 3 zuerst (Stabilitäts- und Deadlock-Härtung), anschließend Paket 4 (Performance-Fast-Path).
+
+## Umsetzung Paket 3 (PR #42 / Issues #38, #39, #41) — 2026-08-20
+
+- **Implementierung:**
+  - [#38](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/38): 1,5s Watchdog-Timer (`RESOLVE_TIMEOUT_MS = 1500`) in `AdbWifiEndpoint.processNextResolveLocked()` via `mainHandler.postDelayed()` implementiert. Bei ausbleibenden AOSP-NsdManager-Callbacks wird `resolving = false` forciert und das nächste Queue-Element verarbeitet. Saubere Watchdog-Entfernung bei Callbacks und `stop()`.
+  - [#39](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/39): Automatischer Discovery-Retry mit Backoff (2s Initial, 5s Folge) in `AdbWifiNotification.scheduleRetryLocked()` bei `onUnavailable()` implementiert, solange `AdbWifi.isEnabled(appContext)` wahr ist. Automatischer Abbruch bei erfolgreichem Endpoint oder Ausschalten.
+  - [#41](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/41): Entprellte, 500ms verzögerte Initial-Discovery (`INITIAL_DISCOVERY_DELAY_MS = 500`) in `AdbWifiNotification.refresh()` implementiert, um `adbd`-Start-Races und Discovery-Stürme bei schnellen Toggles zu unterbinden.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Whitespace-Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
+- **Status:** `complete` für Paket 3 Code & lokale Validierung. Bereit für PR und Merge.
+
