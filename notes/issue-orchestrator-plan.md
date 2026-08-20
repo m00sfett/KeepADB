@@ -595,4 +595,18 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 3. **Delegation vs. Direktausführung:** Alle 3 Pakete wurden direkt im Hauptagenten umgesetzt, wodurch Kontextwechsel vermieden und Token gespart wurden.
 4. **Verbesserung:** Bei Android-Hintergrunddiensten und BroadcastReceivern sicherheitsrelevante Berechtigungs- und Threading-Garantien (Handler-Bindung, Service-Detachment) stets bereits im initialen Entwurf verankern.
 
+## Nachbesserung: Endpoint-Cache & Discovery-ANR-Fix (PR #37) — 2026-08-20
+
+- **Problem:** Beim Umschalten von "Dauerhaft aktiv halten" (während WLAN-ADB bereits aktiv war) setzte `AdbWifiNotification.refresh()` den bekannten Endpoint bedingungslos auf `null` zurück, zeigte "Endpoint wird gesucht..." und startete eine synchrone NsdManager-Discovery auf dem Main-Thread. Dies führte zu Discovery-Stürmen und einem 10s-ANR (`Input dispatching timed out`).
+- **Behebung in PR [#37](https://github.com/m00sfett/smartphone-wlan-adb-app/pull/37):**
+  - `AdbWifiNotification.refresh()` behält einen bereits aufgelösten, gültigen Endpoint (`currentHost != null && currentPort > 0`) bei und aktualisiert Notification und UI sofort ohne Discovery-Neustart.
+  - `AdbWifiEndpoint.discover()` ist idempotent (kein Doppelstart bei laufender Discovery).
+  - Sobald ein erreichbarer Endpoint verifiziert ist, wird die mDNS-Discovery gestoppt und der MulticastLock freigegeben.
+  - `AdbWifiNotification.invalidateEndpoint()` für saubere Invalidierung bei tatsächlichem Wi-Fi-Drop (`onLost`) oder WLAN-ADB-Ausschalten hinzugefügt.
+- **Live-Verifikation auf Samsung S20 FE:**
+  - APK gebaut und per `install -r` aktualisiert.
+  - Togglen von "Dauerhaft aktiv halten" (AUS und wieder AN) hält den Endpoint kontinuierlich stabil.
+  - Null Verzögerung, kein Flackern, kein ANR.
+- **Status:** PR #37 per Squash-Merge in `master` übernommen; `master` sauber und synchron.
+
 
