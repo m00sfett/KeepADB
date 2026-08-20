@@ -3,9 +3,12 @@ package de.moos.wifiadb;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 /** Listens for device boot and initiates keep-alive monitoring and auto-re-enable. */
 public class BootReceiver extends BroadcastReceiver {
+    private static final String TAG = "BootReceiver";
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent == null) return;
@@ -15,7 +18,11 @@ public class BootReceiver extends BroadcastReceiver {
             if (AdbWifiPreferences.isKeepAliveEnabled(context)) {
                 AdbWifiService.start(context);
                 if (AdbWifiService.isWifiConnected(context)) {
-                    AdbWifi.setEnabled(context, true);
+                    if (!AdbWifi.setEnabled(context, true)) {
+                        Log.e(TAG, "BootReceiver: Failed to enable WLAN-ADB (WRITE_SECURE_SETTINGS missing?)");
+                        AdbWifiNotification.showPermissionMissing(context);
+                        return;
+                    }
                 }
                 AdbWifiNotification.refresh(context);
                 AdbWifiWidget.refreshAll(context);

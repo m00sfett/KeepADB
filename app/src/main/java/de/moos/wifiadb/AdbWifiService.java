@@ -9,10 +9,10 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -27,6 +27,7 @@ public class AdbWifiService extends Service {
     private ConnectivityManager.NetworkCallback networkCallback;
     private boolean isRegisteredObserver = false;
     private boolean isRegisteredNetworkCallback = false;
+    private long lastRecheckTime = 0;
 
     static void sync(Context context) {
         if (AdbWifiPreferences.isKeepAliveEnabled(context)) {
@@ -78,7 +79,7 @@ public class AdbWifiService extends Service {
     public void onDestroy() {
         unregisterAdbObserver();
         unregisterNetworkCallback();
-        stopForeground(STOP_FOREGROUND_REMOVE);
+        stopForeground(STOP_FOREGROUND_DETACH);
         super.onDestroy();
     }
 
@@ -96,7 +97,11 @@ public class AdbWifiService extends Service {
                                 Log.i(TAG, "WLAN-ADB manually disabled by user; not re-enabling");
                             } else {
                                 Log.i(TAG, "WLAN-ADB dropped while Wi-Fi connected; re-enabling...");
-                                AdbWifi.setEnabled(AdbWifiService.this, true);
+                                if (!AdbWifi.setEnabled(AdbWifiService.this, true)) {
+                                    Log.e(TAG, "Failed to auto-enable WLAN-ADB (WRITE_SECURE_SETTINGS missing?)");
+                                    AdbWifiNotification.showPermissionMissing(AdbWifiService.this);
+                                    return;
+                                }
                             }
                         }
                     }
@@ -146,7 +151,7 @@ public class AdbWifiService extends Service {
                     AdbWifiWidget.refreshAll(AdbWifiService.this);
                 }
             };
-            cm.registerNetworkCallback(request, networkCallback);
+            cm.registerNetworkCallback(request, networkCallback, new Handler(Looper.getMainLooper()));
             isRegisteredNetworkCallback = true;
         } catch (RuntimeException e) {
             Log.e(TAG, "Failed to register network callback", e);
@@ -166,12 +171,22 @@ public class AdbWifiService extends Service {
         }
     }
 
-    private void recheckAndEnable() {
+    private synchronized void recheckAndEnable() {
+        long now = SystemClock.elapsedRealtime();
+        if (now - lastRecheckTime < 300) {
+            Log.d(TAG, "recheckAndEnable skipped (<300ms since last check)");
+            return;
+        }
+        lastRecheckTime = now;
         if (AdbWifiPreferences.isKeepAliveEnabled(this)) {
             if (isWifiConnected(this)) {
                 if (!AdbWifi.isEnabled(this)) {
                     Log.i(TAG, "Auto-enabling WLAN-ADB (Wi-Fi connected)");
-                    AdbWifi.setEnabled(this, true);
+                    if (!AdbWifi.setEnabled(this, true)) {
+                        Log.e(TAG, "Failed to auto-enable WLAN-ADB (WRITE_SECURE_SETTINGS missing?)");
+                        AdbWifiNotification.showPermissionMissing(this);
+                        return;
+                    }
                 }
             }
         }
