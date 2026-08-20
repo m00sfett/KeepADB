@@ -538,3 +538,47 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - **Reihenfolge:** Paket 0 (PR #34) → Paket 1 (Hygiene / S1) → Paket 2 (Service-Härtung / S2) → gemeinsame S20-Geräteverifikation.
 - Status: `complete` für diese Planungs- und Strukturierungsrunde.
 
+## Abschluss Paket 0 & Paket 1 & Paket 2 — 2026-08-20
+
+- **Paket 0 (PR #34 / Issue #33):**
+  - PR [#34](https://github.com/m00sfett/smartphone-wlan-adb-app/pull/34) per Squash-Merge in `master` übernommen.
+  - Implementierung: `AdbWifi.setEnabled()` setzt `userDisabled` Flag, `AdbWifiService.ContentObserver` konsumiert das Flag und unterdrückt unerwünschtes Re-Enable beim manuellen Ausschalten.
+  - Status: Code auf `master`, Issue [#33](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/33) verbleibt bis zur Geräte-Rauchprüfung offen.
+
+- **Paket 1 (PR #35 / Issues #28, #29, #30, #32):**
+  - PR [#35](https://github.com/m00sfett/smartphone-wlan-adb-app/pull/35) per Squash-Merge in `master` übernommen.
+  - [#32](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/32): Konvention in `AGENTS.md` präzisiert (Live-State vs. persistierte Keep-Alive Einstellung) und `GEMINI.md` synchronisiert.
+  - [#30](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/30): Toter Pre-Oreo `else`-Zweig in `AdbWifiService.start()` entfernt.
+  - [#28](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/28): `hasNotificationPermission(Context)` Helper in `AdbWifiNotification` extrahiert.
+  - [#29](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/29): Helper `showPermissionErrorToast()` und `refreshUiAndComponents()` in `MainActivity` extrahiert.
+  - Lokale Gates: `git diff --check`, `gradlew assembleDebug lintDebug` (0 Fehler).
+  - Status: Issues #28, #29, #30, #32 automatisch geschlossen.
+
+- **Paket 2 (PR #36 / Issues #24, #25, #26, #27, #31):**
+  - PR [#36](https://github.com/m00sfett/smartphone-wlan-adb-app/pull/36) per Squash-Merge in `master` übernommen.
+  - [#24](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/24): In `AdbWifiService.onDestroy()` `stopForeground(STOP_FOREGROUND_DETACH)` verwendet, sodass Endpoint-Notification nicht bei alleinigem Service-Stop gelöscht wird.
+  - [#25](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/25): `BootReceiver` im `AndroidManifest.xml` via `android:permission="android.permission.RECEIVE_BOOT_COMPLETED"` abgesichert.
+  - [#26](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/26): Fehlschlag von `AdbWifi.setEnabled()` im Keep-Alive-Service und `BootReceiver` geloggt und via `AdbWifiNotification.showPermissionMissing()` sichtbar eskaliert.
+  - [#27](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/27): `ConnectivityManager.registerNetworkCallback` explizit an Main-Looper (`new Handler(Looper.getMainLooper())`) gebunden.
+  - [#31](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/31): Startup-Debounce (<300ms) in `recheckAndEnable()` integriert, um doppelte mDNS-Discovery-Zyklen beim Service-Start zu unterbinden.
+  - Lokale Gates: `git diff --check`, `gradlew assembleDebug lintDebug` (0 Fehler).
+  - Status: Issues #24, #25, #26, #27, #31 automatisch geschlossen.
+
+## Aufwandsprotokoll (Review-Findings 24–33)
+
+- Geplante / erledigte Pakete: 3 Pakete (Paket 0: #33; Paket 1: #28/#29/#30/#32; Paket 2: #24/#25/#26/#27/#31).
+- Erledigte Issues: 9 von 10 geschlossen (90%), 1 offen (Issue #33 wartet auf Geräte-Rauchprüfung).
+- PRs: PR #34, PR #35, PR #36 alle erfolgreich via Squash-Merge in `master` integriert.
+- Modell: Gemini 3.7 Flash High (S3 / Direktumsetzung).
+- Build-/Lint-Läufe: 3x `assembleDebug lintDebug` erfolgreich (0 Fehler).
+- Fehlversuche / Retries am Code: 0.
+- Beobachtete Token-/Abrechnungswerte: unbekannt.
+
+## Retrospektive (Review-Findings 24–33)
+
+1. **Paketierung & Eco-Reihenfolge:** Die Aufteilung in Paket 0 (vorbereitender PR-Merge), Paket 1 (mechanische S1-Hygiene) und Paket 2 (S2-Lifecycle & Concurrency-Härtung) hat atomare, saubere PRs und konfliktfreie Merges ermöglicht.
+2. **Qualitäts-Gates:** Deterministische lokale Validierung (`git diff --check`, Gradle Debug-Kompilierung und Android Lint) verifizierten jede Änderung vor PR-Erstellung und Merge.
+3. **Delegation vs. Direktausführung:** Alle 3 Pakete wurden direkt im Hauptagenten umgesetzt, wodurch Kontextwechsel vermieden und Token gespart wurden.
+4. **Verbesserung:** Bei Android-Hintergrunddiensten und BroadcastReceivern sicherheitsrelevante Berechtigungs- und Threading-Garantien (Handler-Bindung, Service-Detachment) stets bereits im initialen Entwurf verankern.
+
+
