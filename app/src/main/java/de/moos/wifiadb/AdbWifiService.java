@@ -96,8 +96,12 @@ public class AdbWifiService extends Service {
                     Log.d(TAG, "ContentObserver: adb_wifi_enabled changed");
                     if (AdbWifiPreferences.isKeepAliveEnabled(AdbWifiService.this)) {
                         if (isWifiConnected(AdbWifiService.this) && !AdbWifi.isEnabled(AdbWifiService.this)) {
-                            Log.i(TAG, "WLAN-ADB dropped while Wi-Fi connected; re-enabling...");
-                            AdbWifi.setEnabled(AdbWifiService.this, true);
+                            if (AdbWifi.consumeUserDisabled()) {
+                                Log.i(TAG, "WLAN-ADB manually disabled by user; not re-enabling");
+                            } else {
+                                Log.i(TAG, "WLAN-ADB dropped while Wi-Fi connected; re-enabling...");
+                                AdbWifi.setEnabled(AdbWifiService.this, true);
+                            }
                         }
                     }
                     AdbWifiNotification.refresh(AdbWifiService.this);
