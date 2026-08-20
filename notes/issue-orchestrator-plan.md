@@ -489,3 +489,52 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 2. **Foreground-Service & Android-Lifecycle:** Die Bindung des ContentObservers und NetworkCallbacks an den Foreground-Service `AdbWifiService` unter Verwendung der bestehenden Ongoing-Notification (`NOTIFICATION_ID = 1`) stellt zuverlässigen Betrieb auch bei App-Schließung oder Hintergrund-Aktivität sicher.
 3. **Delegation vs. Direktausführung:** Die direkte Umsetzung auf Stufe S3 im Hauptagenten war präzise und kontextschonend; keine unnötige Subagenten-Kette.
 4. **Verbesserung:** Für zukünftige BroadcastReceiver-Tests geschützte System-Broadcasts (`BOOT_COMPLETED`) über dedizierte Test-Intents (`QUICKBOOT_POWERON`) oder direkte Komponenten-Intents simulieren.
+
+## Neue Auswahlrunde & Kandidaten-Paketierung (Review-Findings #24–#33) — 2026-08-20
+
+- Ausgangslage:
+  - 10 offene Issues (#24 bis #33) aus automatisiertem Code-Review (`/code-review xhigh`) von Commit `7d3fa1c`.
+  - PR [#34](https://github.com/m00sfett/smartphone-wlan-adb-app/pull/34) (`fix: keep-alive respects manual WLAN-ADB shutoff` für Issue [#33](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/33)) ist auf Branch `fix/keep-alive-respect-manual-disable` vorbereitet.
+  - Keine aktiven GitHub-Actions-Runs im Remote.
+
+- Offene Issues (10):
+  - [#33](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/33) Keep-Alive schaltet manuell ausgeschaltetes WLAN-ADB sofort wieder an (PR #34)
+  - [#32](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/32) AdbWifiPreferences widerspricht der 'kein persistenter App-State'-Konvention
+  - [#30](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/30) Toter else-Zweig in AdbWifiService.start() (Pre-Oreo, minSdk 30)
+  - [#29](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/29) Duplizierter Toast-/Refresh-Boilerplate in MainActivity-Click-Listenern
+  - [#28](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/28) Duplizierte POST_NOTIFICATIONS-Permission-Prüfung in AdbWifiNotification
+  - [#27](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/27) NetworkCallback und ContentObserver laufen auf inkonsistenten Threads
+  - [#26](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/26) Fehlschlag von AdbWifi.setEnabled() im Keep-Alive-Pfad wird verschluckt
+  - [#25](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/25) BootReceiver exported ohne Permission-Check – Broadcast-Spoofing möglich
+  - [#24](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/24) Foreground-Notification wird beim Service-Stop ungeprüft gelöscht
+  - [#31](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/31) Doppelte Discovery-Zyklen beim Service-Start (NetworkCallback + onStartCommand)
+
+- Paketierung nach Eco-Grundsätzen:
+  1. **Paket 0 (Vorbereitung / PR #34 Merge):**
+     - Issue: [#33](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/33)
+     - Ziel: PR #34 (`fix/keep-alive-respect-manual-disable`) in `master` mergen, um die Baseline für Service-Härtungen zu aktualisieren.
+     - Stufe: S1 (Merge & Synchronisation).
+  2. **Paket 1 (Doku-, Refactoring- & Cleanup-Hygiene):**
+     - Issues: [#32](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/32), [#30](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/30), [#28](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/28), [#29](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/29)
+     - Ziel:
+       - #32: Konventionsbeschreibung in `AGENTS.md` präzisieren (WLAN-ADB Live-State vs. persistierte Nutzereinstellungen).
+       - #30: Toter Pre-Oreo Branch in `AdbWifiService.start()` entfernen.
+       - #28: `hasNotificationPermission(Context)` Helper in `AdbWifiNotification` extrahieren.
+       - #29: Gemeinsame Hilfsmethode für Permission-Toast & UI-Refresh in `MainActivity` extrahieren.
+     - Stufe: S1 (mechanisches Refactoring / Doku).
+     - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`.
+  3. **Paket 2 (Service- & Receiver-Lifecycle-Härtung):**
+     - Issues: [#24](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/24), [#25](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/25), [#27](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/27), [#31](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/31), [#26](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/26)
+     - Ziel:
+       - #24: `stopForeground(STOP_FOREGROUND_DETACH)` in `AdbWifiService.onDestroy()` nutzen.
+       - #25: `BootReceiver` im Manifest via `android:permission="android.permission.RECEIVE_BOOT_COMPLETED"` gegen Spoofing unprivilegierter Apps absichern.
+       - #27: `ConnectivityManager.registerNetworkCallback` auf Main-Handler/Executor binden (Konsistenz mit ContentObserver).
+       - #31: Doppelten Startup-Discovery-Zyklus in `AdbWifiService` deduplizieren / entprellen.
+       - #26: Fehlschlag von `AdbWifi.setEnabled()` im Keep-Alive-Service protokollieren und sichtbar machen.
+     - Stufe: S2 (Android Service Lifecycle, Concurrency & Security).
+     - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`, abschließende Geräteverifikation auf Samsung S20.
+
+- Einstiegsentscheidung (Eco-Prämisse: Einfachste Pakete zuerst):
+  - **Reihenfolge:** Paket 0 (PR #34) → Paket 1 (Hygiene / S1) → Paket 2 (Service-Härtung / S2) → gemeinsame S20-Geräteverifikation.
+- Status: `complete` für diese Planungs- und Strukturierungsrunde.
+
