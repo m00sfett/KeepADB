@@ -644,5 +644,15 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
-- **Status:** `complete` für Paket 3 Code & lokale Validierung. Bereit für PR und Merge.
+- **Status:** `complete` für Paket 3 Code & lokale Validierung. PR #42 via Squash-Merge in `master` übernommen, Issues #38, #39, #41 geschlossen.
+
+## Umsetzung Paket 4 (PR #43 / Issue #40) — 2026-08-20
+
+- **Implementierung:**
+  - [#40](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/40): Lokaler Fast-Probe Port-Scanner in `AdbWifiEndpoint.startFastProbe()` implementiert. Parallelisiert über 16 Worker-Threads im Bereich 30000–50000 auf `127.0.0.1` mit Gegenprobe auf der lokalen Wi-Fi-IP (`getWifiIpAddress()`). Erkennt den aktiven `adbd`-Port auf dem Gerät in Millisekunden ohne Funk-Multicast-Latenz. mDNS-Discovery bleibt als robuster Standard-/Fallback-Pfad parallel aktiv.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Whitespace-Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
+- **Status:** `complete` für Paket 4 Code & lokale Validierung. Bereit für PR und Merge.
+
 
