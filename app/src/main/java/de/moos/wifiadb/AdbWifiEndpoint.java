@@ -3,6 +3,12 @@ package de.moos.wifiadb;
 import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
+import android.net.wifi.WifiManager;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 /** Discovers the active secure wireless-debugging endpoint advertised by adbd. */
 final class AdbWifiEndpoint {
@@ -14,13 +20,22 @@ final class AdbWifiEndpoint {
     }
 
     private final NsdManager nsdManager;
+    private final WifiManager.MulticastLock multicastLock;
     private NsdManager.DiscoveryListener discoveryListener;
+    private final Queue<NsdServiceInfo> resolveQueue = new ArrayDeque<>();
     private boolean resolving;
     private long discoveryGeneration;
 
     AdbWifiEndpoint(Context context) {
-        nsdManager = (NsdManager) context.getApplicationContext()
-                .getSystemService(Context.NSD_SERVICE);
+        Context appContext = context.getApplicationContext();
+        nsdManager = (NsdManager) appContext.getSystemService(Context.NSD_SERVICE);
+        WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
+        if (wifiManager != null) {
+            multicastLock = wifiManager.createMulticastLock("de.moos.wifiadb.AdbWifiEndpoint");
+            multicastLock.setReferenceCounted(false);
+        } else {
+            multicastLock = null;
+        }
     }
 
     void discover(Listener listener) {
@@ -30,12 +45,19 @@ final class AdbWifiEndpoint {
             return;
         }
 
+        if (multicastLock != null) {
+            try {
+                multicastLock.acquire();
+            } catch (RuntimeException ignored) {
+            }
+        }
+
         final long generation = discoveryGeneration;
 
         discoveryListener = new NsdManager.DiscoveryListener() {
             @Override
             public void onDiscoveryStarted(String serviceType) {
-                // Discovery is asynchronous; the first service result supplies the endpoint.
+                // Discovery is asynchronous; the first reachable service result supplies the endpoint.
             }
 
             @Override
@@ -43,40 +65,10 @@ final class AdbWifiEndpoint {
                 if (!isCurrent(generation) || !sameServiceType(serviceInfo.getServiceType())) {
                     return;
                 }
-                try {
-                    nsdManager.resolveService(serviceInfo, new NsdManager.ResolveListener() {
-                        @Override
-                        public void onResolveFailed(NsdServiceInfo ignored, int errorCode) {
-                            // Another service record might still resolve successfully.
-                        }
-
-                        @Override
-                        public void onServiceResolved(NsdServiceInfo resolved) {
-                            if (!isCurrent(generation)) return;
-                            if (resolved.getHost() == null || resolved.getPort() <= 0) {
-                                return;
-                            }
-                            String host = resolved.getHost().getHostAddress();
-                            if (host == null || host.isEmpty()) {
-                                return;
-                            }
-                            final int port = resolved.getPort();
-                            final java.net.InetAddress addr = resolved.getHost();
-                            new Thread(() -> {
-                                boolean reachable = false;
-                                try (java.net.Socket socket = new java.net.Socket()) {
-                                    socket.connect(new java.net.InetSocketAddress(addr, port), 400);
-                                    reachable = true;
-                                } catch (Exception ignored) {
-                                }
-                                if (!isCurrent(generation)) return;
-                                if (reachable) {
-                                    listener.onEndpoint(host, port);
-                                }
-                            }).start();
-                        }
-                    });
-                } catch (RuntimeException ignored) {
+                synchronized (AdbWifiEndpoint.this) {
+                    if (!isCurrent(generation)) return;
+                    resolveQueue.offer(serviceInfo);
+                    processNextResolveLocked(generation, listener);
                 }
             }
 
@@ -113,11 +105,91 @@ final class AdbWifiEndpoint {
         }
     }
 
+    private void processNextResolveLocked(long generation, Listener listener) {
+        if (resolving || resolveQueue.isEmpty() || !isCurrent(generation)) {
+            return;
+        }
+        final NsdServiceInfo nextService = resolveQueue.poll();
+        if (nextService == null) {
+            return;
+        }
+        resolving = true;
+        try {
+            nsdManager.resolveService(nextService, new NsdManager.ResolveListener() {
+                @Override
+                public void onResolveFailed(NsdServiceInfo ignored, int errorCode) {
+                    synchronized (AdbWifiEndpoint.this) {
+                        resolving = false;
+                        if (!isCurrent(generation)) return;
+                        processNextResolveLocked(generation, listener);
+                    }
+                }
+
+                @Override
+                public void onServiceResolved(NsdServiceInfo resolved) {
+                    if (!isCurrent(generation)) {
+                        synchronized (AdbWifiEndpoint.this) {
+                            resolving = false;
+                        }
+                        return;
+                    }
+                    if (resolved.getHost() == null || resolved.getPort() <= 0) {
+                        synchronized (AdbWifiEndpoint.this) {
+                            resolving = false;
+                            if (!isCurrent(generation)) return;
+                            processNextResolveLocked(generation, listener);
+                        }
+                        return;
+                    }
+                    final String host = resolved.getHost().getHostAddress();
+                    if (host == null || host.isEmpty()) {
+                        synchronized (AdbWifiEndpoint.this) {
+                            resolving = false;
+                            if (!isCurrent(generation)) return;
+                            processNextResolveLocked(generation, listener);
+                        }
+                        return;
+                    }
+                    final int port = resolved.getPort();
+                    final InetAddress addr = resolved.getHost();
+                    new Thread(() -> {
+                        boolean reachable = false;
+                        try (Socket socket = new Socket()) {
+                            socket.connect(new InetSocketAddress(addr, port), 600);
+                            reachable = true;
+                        } catch (Exception ignored) {
+                        }
+                        synchronized (AdbWifiEndpoint.this) {
+                            resolving = false;
+                            if (!isCurrent(generation)) return;
+                            if (reachable) {
+                                resolveQueue.clear();
+                                listener.onEndpoint(host, port);
+                            } else {
+                                processNextResolveLocked(generation, listener);
+                            }
+                        }
+                    }, "AdbWifiEndpointCheck").start();
+                }
+            });
+        } catch (RuntimeException ignored) {
+            resolving = false;
+            processNextResolveLocked(generation, listener);
+        }
+    }
+
     synchronized void stop() {
         discoveryGeneration++;
+        resolveQueue.clear();
+        resolving = false;
         NsdManager.DiscoveryListener listener = discoveryListener;
         discoveryListener = null;
-        resolving = false;
+        if (multicastLock != null && multicastLock.isHeld()) {
+            try {
+                multicastLock.release();
+            } catch (RuntimeException ignored) {
+            }
+        }
         if (nsdManager != null && listener != null) {
             try {
                 nsdManager.stopServiceDiscovery(listener);
@@ -132,8 +204,14 @@ final class AdbWifiEndpoint {
     }
 
     private static boolean sameServiceType(String serviceType) {
-        return SERVICE_TYPE.equalsIgnoreCase(serviceType)
-                || SERVICE_TYPE.substring(0, SERVICE_TYPE.length() - 1)
-                .equalsIgnoreCase(serviceType);
+        if (serviceType == null) return false;
+        String normalized = serviceType.trim();
+        while (normalized.startsWith(".")) {
+            normalized = normalized.substring(1);
+        }
+        while (normalized.endsWith(".")) {
+            normalized = normalized.substring(0, normalized.length() - 1);
+        }
+        return "_adb-tls-connect._tcp".equalsIgnoreCase(normalized);
     }
 }
