@@ -3,15 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:background="@color/ground">
 
     <TextView
         android:id="@+id/widget_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:drawable/btn_default"
+        android:background="@drawable/bg_widget"
         android:padding="12dp"
+        android:textColor="@color/text_yellow"
         android:textSize="14sp"
         android:textStyle="bold"
+        android:fontFamily="@font/fira_sans_condensed"
         android:text="WLAN-ADB" />
 </LinearLayout>
