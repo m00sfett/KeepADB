@@ -607,6 +607,30 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - APK gebaut und per `install -r` aktualisiert.
   - Togglen von "Dauerhaft aktiv halten" (AUS und wieder AN) hält den Endpoint kontinuierlich stabil.
   - Null Verzögerung, kein Flackern, kein ANR.
-- **Status:** PR #37 per Squash-Merge in `master` übernommen; `master` sauber und synchron.
 
+## Batch 2: Endpoint Resolver Robustheit & Performance Härtung (Issues 38–41) — 2026-08-20
 
+- Kontext: Bei der Endpoint-Ermittlung kam es zu Verzögerungen und Hängern im Status "Endpoint wird gesucht …" aufgrund von Start-Races beim Einschalten, hängenden NsdManager-Callbacks bei Stale-mDNS-Einträgen und fehlendem automatischem Retry.
+- Offene Issues (4):
+  - [#38](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/38) fix: AdbWifiEndpoint Resolve-Watchdog gegen hängende NsdManager.resolveService()-Aufrufe
+  - [#39](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/39) feat: Automatischer Discovery-Retry in AdbWifiNotification bei fehlgeschlagener Endpoint-Suche
+  - [#40](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/40) feat: Lokaler Fast-Probe Port-Scan zur sofortigen Erkennung des adbd-Ports
+  - [#41](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/41) fix: Initial-Discovery-Delay nach adb_wifi_enabled zur Vermeidung von adbd-Start-Races
+
+- Paketierung:
+  1. **Paket 3 (Resolver-Watchdog, Retry-Loop & Startup-Delay):**
+     - Issues: [#38](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/38), [#39](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/39), [#41](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/41)
+     - Ziel:
+       - #38: 1,5s Watchdog-Timer in `AdbWifiEndpoint` pro `resolveService()` gegen AOSP NsdManager Deadlocks.
+       - #39: Automatischer Discovery-Retry mit Backoff in `AdbWifiNotification` bei `onUnavailable()` solange WLAN-ADB aktiv ist.
+       - #41: 500ms Startverzögerung beim manuellen Einschalten von WLAN-ADB vor der Initial-Discovery zur Vermeidung von `adbd`-Start-Races.
+     - Stufe: S2 (Lifecycle, Threading & Network Discovery).
+     - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`.
+
+  2. **Paket 4 (Lokaler Fast-Probe Port-Finder):**
+     - Issue: [#40](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/40)
+     - Ziel: Lokaler schneller Socket-Check auf dem Gerät zur blitzschnellen Ermittlung des aktiven Ports ohne Funk-Multicast-Latenz.
+     - Stufe: S2.
+     - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`, abschließende S20-Verifikation.
+
+- Einstiegsentscheidung: Paket 3 zuerst (Stabilitäts- und Deadlock-Härtung), anschließend Paket 4 (Performance-Fast-Path).
