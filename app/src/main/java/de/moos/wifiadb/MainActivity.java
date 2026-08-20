@@ -53,13 +53,13 @@ public class MainActivity extends Activity {
         AdbWifiNotification.setEndpointListener(new AdbWifiNotification.EndpointListener() {
             @Override
             public void onEndpoint(String host, int port) {
-                endpoint.setText("Endpoint: " + host + ":" + port);
+                runOnUiThread(() -> endpoint.setText("Endpoint: " + host + ":" + port));
             }
 
             @Override
             public void onUnavailable() {
-                endpoint.setText(AdbWifi.isEnabled(MainActivity.this)
-                        ? "Endpoint wird gesucht …" : "Endpoint nicht verfügbar");
+                runOnUiThread(() -> endpoint.setText(AdbWifi.isEnabled(MainActivity.this)
+                        ? "Endpoint wird gesucht …" : "Endpoint nicht verfügbar"));
             }
         });
         refresh();
