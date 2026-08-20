@@ -96,8 +96,7 @@ final class AdbWifiEndpoint {
 
             @Override
             public void onServiceLost(NsdServiceInfo serviceInfo) {
-                if (!isCurrent(generation)) return;
-                listener.onUnavailable();
+                // Ignore service lost so running fast-probe or valid endpoints are not disrupted.
             }
 
             @Override
@@ -107,9 +106,7 @@ final class AdbWifiEndpoint {
 
             @Override
             public void onStartDiscoveryFailed(String serviceType, int errorCode) {
-                if (!isCurrent(generation)) return;
-                stop();
-                listener.onUnavailable();
+                // If mDNS discovery start fails, fast-probe continues unaffected.
             }
 
             @Override
@@ -121,9 +118,7 @@ final class AdbWifiEndpoint {
         try {
             nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
         } catch (RuntimeException ignored) {
-            if (!isCurrent(generation)) return;
-            stop();
-            listener.onUnavailable();
+            discoveryListener = null;
         }
     }
 
