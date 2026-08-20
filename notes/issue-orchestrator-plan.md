@@ -667,10 +667,17 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 ## Retrospektive (Batch 2 / Issues 38–41)
 
-1. **Paketierung & Eco-Reihenfolge:** Die Aufteilung in Paket 3 (Stabilitäts- und Deadlock-Härtung: Watchdog, Retry, Startup-Delay) und Paket 4 (Lokaler Fast-Probe Performance-Pfad) hat eine klare Trennung zwischen Fehlerbehebung und Feature-Beschleunigung geschaffen.
-2. **Qualitäts-Gates:** Deterministische lokale Validierung (`git diff --check`, Gradle Debug-Kompilierung und Android Lint) verifizierte jede Änderung vor PR-Erstellung und Merge.
-3. **Delegation vs. Direktausführung:** Beide Pakete wurden direkt im Hauptagenten umgesetzt, wodurch Kontextwechsel vermieden und Token gespart wurden.
-4. **Erkenntnis:** Der lokale Fast-Probe Port-Scan umgeht Wi-Fi-Funklatenz und Router-Multicast-Filtering vollständig, während mDNS als Fallback weiterhin die volle AOSP-Standard-Kompatibilität garantiert.
+## S20-Live-Verifikation (Batch 2 / Issues 38–41) — 2026-08-20
+
+- **Transport:** `phone-register get s20` lieferte Endpunkt; Fingerprint erfolgreich validiert (`SM-G780G` / `RF8T307S88H`). Register per `phone-register record` aktualisiert.
+- **Installation:** Debug-APK gebaut und per `install -r` auf Samsung Galaxy S20 FE installiert.
+- **Live-Prüfung:**
+  - `MainActivity` gestartet; UI-Dump verifiziert `WLAN-ADB ist AN`, `Endpoint: 192.168.178.24:37799`.
+  - Notification-Dump verifiziert: Ongoing-Notification `WLAN-ADB: Port 37799 @ 192.168.178.24` auf Channel `adb_wifi_endpoint` sofort aktiv.
+  - Tailscale-Register-Push: `curl http://100.111.111.21:50829/register/s20` verifiziert aktuellen Timestamp, `status: active` und `is_stale: false`.
+  - Screenshot zur Verifikation (`s20_fastprobe_smoke.png`) gesichert und geprüft.
+- **Status:** `complete` (Gesamtabnahme für Batch 2 bestanden, 0 offene Issues).
+
 
 
 
