@@ -38,11 +38,7 @@ public class AdbWifiService extends Service {
 
     static void start(Context context) {
         Intent intent = new Intent(context, AdbWifiService.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent);
-        } else {
-            context.startService(intent);
-        }
+        context.startForegroundService(intent);
     }
 
     static void stop(Context context) {

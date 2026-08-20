@@ -37,15 +37,9 @@ public class MainActivity extends Activity {
             boolean want = toggle.isChecked();
             if (!AdbWifi.setEnabled(this, want)) {
                 toggle.setChecked(!want); // Berechtigung fehlt -> zurücksetzen
-                Toast.makeText(this,
-                        "Keine Berechtigung. Am PC einmalig ausführen:\n"
-                                + "adb shell pm grant " + getPackageName()
-                                + " android.permission.WRITE_SECURE_SETTINGS",
-                        Toast.LENGTH_LONG).show();
+                showPermissionErrorToast();
             }
-            refresh();
-            AdbWifiWidget.refreshAll(this);
-            AdbWifiNotification.refresh(this);
+            refreshUiAndComponents();
         });
 
         keepAliveToggle.setOnClickListener(v -> {
@@ -54,16 +48,10 @@ public class MainActivity extends Activity {
             AdbWifiService.sync(this);
             if (wantKeepAlive && AdbWifiService.isWifiConnected(this) && !AdbWifi.isEnabled(this)) {
                 if (!AdbWifi.setEnabled(this, true)) {
-                    Toast.makeText(this,
-                            "Keine Berechtigung. Am PC einmalig ausführen:\n"
-                                    + "adb shell pm grant " + getPackageName()
-                                    + " android.permission.WRITE_SECURE_SETTINGS",
-                            Toast.LENGTH_LONG).show();
+                    showPermissionErrorToast();
                 }
             }
-            refresh();
-            AdbWifiWidget.refreshAll(this);
-            AdbWifiNotification.refresh(this);
+            refreshUiAndComponents();
         });
     }
 
@@ -105,5 +93,19 @@ public class MainActivity extends Activity {
         toggle.setChecked(on);
         status.setText(on ? "WLAN-ADB ist AN" : "WLAN-ADB ist AUS");
         keepAliveToggle.setChecked(AdbWifiPreferences.isKeepAliveEnabled(this));
+    }
+
+    private void refreshUiAndComponents() {
+        refresh();
+        AdbWifiWidget.refreshAll(this);
+        AdbWifiNotification.refresh(this);
+    }
+
+    private void showPermissionErrorToast() {
+        Toast.makeText(this,
+                "Keine Berechtigung. Am PC einmalig ausführen:\n"
+                        + "adb shell pm grant " + getPackageName()
+                        + " android.permission.WRITE_SECURE_SETTINGS",
+                Toast.LENGTH_LONG).show();
     }
 }
