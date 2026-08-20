@@ -20,7 +20,12 @@ public class AdbWifiWidget extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         if (ACTION_TOGGLE.equals(intent.getAction())) {
-            AdbWifi.setEnabled(context, !AdbWifi.isEnabled(context));
+            boolean want = !AdbWifi.isEnabled(context);
+            AdbWifi.setEnabled(context, want);
+            if (!want) {
+                AdbWifiPreferences.setKeepAliveEnabled(context, false);
+                AdbWifiService.stop(context);
+            }
             refreshAll(context);
             AdbWifiNotification.refresh(context);
         }
