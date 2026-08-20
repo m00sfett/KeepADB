@@ -326,4 +326,54 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - Der Server-Endpunkt steht ab sofort bereit. Die optionale Übertragung direkt aus der Android-App (via Tailnet/HTTP-POST nach ADB-Enable) ist ein separates Client-Feature und nicht Teil dieses Server-Issues.
 - Status: `complete` für Issue #4.
 
+## Auswahlrunde & Kandidaten-Paketierung — 2026-08-20
+
+- Ausgangslage: Server- und Branch-Head auf `master` (`4f04fb4`), keine offenen PRs, keine aktiven CI-Läufe.
+- Offene Issues (7):
+  - [#9](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/9) Race Condition bei currentHost/currentPort in AdbWifiNotification
+  - [#10](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/10) Unbounded Thread-Spawning in AdbWifiRegisterClient
+  - [#11](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/11) catch (Exception e) zu breit in AdbWifiRegisterClient
+  - [#12](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/12) Register wird bei onUnavailable nicht als stale markiert
+  - [#13](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/13) Unescapte JSON-String-Interpolation in AdbWifiRegisterClient
+  - [#14](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/14) README: 'Zweck'/'Ziel' dupliziert die Einleitung
+  - [#15](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/15) Untracked FRONTMATTER.md dupliziert README-Inhalt
+
+- Bündelung & Paketierung nach Eco-Grundsätzen:
+  1. **Paket 1 (Doku & Workspace-Hygiene):** Issues [#14](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/14) und [#15](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/15).
+     - Ziel: Beseitigung redundanter Abschnitte in `README.md` und Löschung der duplizierten Restdatei `FRONTMATTER.md`.
+     - Stufe: S1 (rein mechanisch / Markdown-Bereinigung).
+     - Gates: `git diff --check`, Prüfung der Markdown-Struktur.
+  2. **Paket 2 (RegisterClient-Härtung & Thread-Safety):** Issues [#9](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/9), [#10](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/10), [#11](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/11), [#13](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/13).
+     - Ziel: `AdbWifiNotification` und `AdbWifiRegisterClient` thread-safe und robust machen (Deduplication / Single-Worker, gezieltes Exception-Handling, sicheres JSON-Escaping).
+     - Stufe: S2 (Standard-Implementierung).
+     - Gates: `git diff --check`, `gradlew assembleDebug`, `gradlew lintDebug`.
+  3. **Paket 3 (Register-Staleness bei Deaktivierung):** Issue [#12](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/12).
+     - Ziel: Bei `onUnavailable()` bzw. Deaktivierung von WLAN-ADB das Register explizit benachrichtigen oder Endpoint als inaktiv/stale melden.
+     - Stufe: S2/S3 (Cross-Boundary / Register-Protokoll).
+     - Gates: `git diff --check`, `gradlew assembleDebug`, Server-Integrationstest.
+
+- Einstiegsentscheidung (Eco-Prämisse: einfachste Pakete zuerst):
+  - **Ausgewähltes Paket:** Paket 1 (Issues #14 & #15).
+
+## Abschluss Paket 1 (Doku & Workspace-Hygiene) — 2026-08-20
+
+- Ausgang: Unversionierte Änderung in `README.md` (`## Zweck` / `## Ziel`) und unversionierte Datei `FRONTMATTER.md`.
+- Umsetzung: `README.md` zurückgesetzt (die bestehende Einleitung bleibt alleinige Definition); `FRONTMATTER.md` gelöscht.
+- Validierung: `git status` sauber, keine doppelten Beschreibungen.
+- Issues #14 und #15 geschlossen mit begründendem Kommentar.
+- Status: `complete`.
+
+## Implementierung & Validierung Paket 2 — 2026-08-20
+
+- Issues: [#9](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/9), [#10](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/10), [#11](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/11), [#13](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/13).
+- Ziel:
+  - #9: Race Condition & Sichtbarkeit bei `currentHost`, `currentPort` und `endpointListener` in `AdbWifiNotification` durch Synchronisation absichern.
+  - #10: Unbegrenztes Thread-Spawning in `AdbWifiRegisterClient` durch Single-Thread `ExecutorService` mit In-Flight Deduplication/Coalescing ersetzen.
+  - #11: Zu breites `catch (Exception e)` durch spezifisches Fangen von `IOException` und `JSONException` ersetzen; Unchecked Runtime Exceptions nicht verschlucken.
+  - #13: JSON-Payloads via `org.json.JSONObject` standardkonform encodieren/escapen statt unescapte String-Interpolation.
+- Stufe: S2 (Standard-Implementierung).
+- Validierung & Gates:
+  - `git diff --check`: bestanden.
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler).
+- Status: `approved`.
 
