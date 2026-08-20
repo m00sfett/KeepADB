@@ -60,18 +60,30 @@ final class AdbWifiNotification {
         endpoint.discover(new AdbWifiEndpoint.Listener() {
             @Override
             public void onEndpoint(String host, int port) {
-                currentHost = host;
-                currentPort = port;
-                if (endpointListener != null) endpointListener.onEndpoint(host, port);
+                EndpointListener listener;
+                synchronized (AdbWifiNotification.class) {
+                    currentHost = host;
+                    currentPort = port;
+                    listener = endpointListener;
+                }
+                if (listener != null) {
+                    listener.onEndpoint(host, port);
+                }
                 show(appContext, manager, host, port);
                 AdbWifiRegisterClient.updateEndpointAsync(host, port);
             }
 
             @Override
             public void onUnavailable() {
-                currentHost = null;
-                currentPort = 0;
-                if (endpointListener != null) endpointListener.onUnavailable();
+                EndpointListener listener;
+                synchronized (AdbWifiNotification.class) {
+                    currentHost = null;
+                    currentPort = 0;
+                    listener = endpointListener;
+                }
+                if (listener != null) {
+                    listener.onUnavailable();
+                }
                 manager.cancel(NOTIFICATION_ID);
             }
         });
