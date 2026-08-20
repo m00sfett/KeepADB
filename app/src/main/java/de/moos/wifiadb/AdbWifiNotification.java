@@ -85,6 +85,7 @@ final class AdbWifiNotification {
                     listener.onUnavailable();
                 }
                 manager.cancel(NOTIFICATION_ID);
+                AdbWifiRegisterClient.markUnavailableAsync();
             }
         });
     }
@@ -98,6 +99,7 @@ final class AdbWifiNotification {
         currentPort = 0;
         if (endpointListener != null) endpointListener.onUnavailable();
         manager.cancel(NOTIFICATION_ID);
+        AdbWifiRegisterClient.markUnavailableAsync();
     }
 
     private static void ensureChannel(NotificationManager manager) {
