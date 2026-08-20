@@ -12,6 +12,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
     private static final int NOTIFICATION_PERMISSION_REQUEST = 10;
     private Switch toggle;
+    private Switch keepAliveToggle;
     private TextView status;
     private TextView endpoint;
 
@@ -20,6 +21,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toggle = findViewById(R.id.toggle);
+        keepAliveToggle = findViewById(R.id.keep_alive_toggle);
         status = findViewById(R.id.status);
         endpoint = findViewById(R.id.endpoint);
 
@@ -40,6 +42,24 @@ public class MainActivity extends Activity {
                                 + "adb shell pm grant " + getPackageName()
                                 + " android.permission.WRITE_SECURE_SETTINGS",
                         Toast.LENGTH_LONG).show();
+            }
+            refresh();
+            AdbWifiWidget.refreshAll(this);
+            AdbWifiNotification.refresh(this);
+        });
+
+        keepAliveToggle.setOnClickListener(v -> {
+            boolean wantKeepAlive = keepAliveToggle.isChecked();
+            AdbWifiPreferences.setKeepAliveEnabled(this, wantKeepAlive);
+            AdbWifiService.sync(this);
+            if (wantKeepAlive && AdbWifiService.isWifiConnected(this) && !AdbWifi.isEnabled(this)) {
+                if (!AdbWifi.setEnabled(this, true)) {
+                    Toast.makeText(this,
+                            "Keine Berechtigung. Am PC einmalig ausführen:\n"
+                                    + "adb shell pm grant " + getPackageName()
+                                    + " android.permission.WRITE_SECURE_SETTINGS",
+                            Toast.LENGTH_LONG).show();
+                }
             }
             refresh();
             AdbWifiWidget.refreshAll(this);
@@ -84,5 +104,6 @@ public class MainActivity extends Activity {
         boolean on = AdbWifi.isEnabled(this);
         toggle.setChecked(on);
         status.setText(on ? "WLAN-ADB ist AN" : "WLAN-ADB ist AUS");
+        keepAliveToggle.setChecked(AdbWifiPreferences.isKeepAliveEnabled(this));
     }
 }
