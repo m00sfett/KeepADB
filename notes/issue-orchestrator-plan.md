@@ -377,3 +377,26 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler).
 - Status: `approved`.
 
+## Abschluss Paket 2 — 2026-08-20
+
+- PR #16 per Squash-Merge in `master` übernommen.
+- Issues #9, #10, #11 und #13 durch GitHub automatisch geschlossen (`Fixes #9`, `Fixes #10`, `Fixes #11`, `Fixes #13`).
+- Status: `complete`.
+
+## Implementierung & Validierung Paket 3 (Issue #12) — 2026-08-20
+
+- Issue: [#12](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/12) — Register wird bei onUnavailable nicht als stale markiert
+- Ziel: Bei `onUnavailable()` (mDNS-Record verschwindet / WLAN-ADB AUS) oder `stop()` soll das zentrale Tailscale-Register auf `100.111.111.21:50829` umgehend als stale / inaktiv markiert werden, statt veraltete Endpunkte bis zum Scan-TTL-Ablauf als live zu führen.
+- Server-Erweiterung (`~/agent/bin/phone-register-server`):
+  - `do_DELETE` und Unregister-Payload-Support (`active: false` / `action: unregister`) implementiert.
+  - `evaluate_device_reach` wertet `active=False` oder leeren Endpunkt sofort als `is_stale=true` / `status="stale"`.
+  - Service `phone-register-server.service` neu gestartet und mit `curl` verifiziert.
+  - Protokolleintrag `~/agent/protocols/2026-08-20/211200-phone-register-server-delete.yaml` erstellt und committet.
+- Client-Erweiterung (`AdbWifiRegisterClient.java` & `AdbWifiNotification.java`):
+  - `AdbWifiRegisterClient.markUnavailableAsync()` implementiert, das einen HTTP-DELETE-Request asynchron über den `EXECUTOR` sendet und `lastRegisteredEndpoint` zurücksetzt.
+  - In `AdbWifiNotification`: `markUnavailableAsync()` wird in `onUnavailable()` und `stop()` zuverlässig aufgerufen.
+- Validierung & Gates:
+  - `git diff --check`: bestanden.
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler).
+  - Server-Readback: `DELETE /register/s20` via `curl` liefert HTTP 200 und setzt Status auf `stale`.
+- Status: `approved`.
