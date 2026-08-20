@@ -14,8 +14,10 @@ import android.os.Looper;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
 import java.util.ArrayDeque;
+import java.util.Enumeration;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -290,18 +292,37 @@ final class AdbWifiEndpoint {
 
     static String getWifiIpAddress(Context context) {
         ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
-        if (cm == null) return null;
-        Network activeNetwork = cm.getActiveNetwork();
-        if (activeNetwork == null) return null;
-        NetworkCapabilities caps = cm.getNetworkCapabilities(activeNetwork);
-        if (caps == null || !caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) return null;
-        LinkProperties lp = cm.getLinkProperties(activeNetwork);
-        if (lp == null) return null;
-        for (LinkAddress la : lp.getLinkAddresses()) {
-            InetAddress addr = la.getAddress();
-            if (addr instanceof Inet4Address && !addr.isLoopbackAddress() && !addr.isLinkLocalAddress()) {
-                return addr.getHostAddress();
+        if (cm != null) {
+            for (Network network : cm.getAllNetworks()) {
+                NetworkCapabilities caps = cm.getNetworkCapabilities(network);
+                if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                    LinkProperties lp = cm.getLinkProperties(network);
+                    if (lp != null) {
+                        for (LinkAddress la : lp.getLinkAddresses()) {
+                            InetAddress addr = la.getAddress();
+                            if (addr instanceof Inet4Address && !addr.isLoopbackAddress() && !addr.isLinkLocalAddress()) {
+                                return addr.getHostAddress();
+                            }
+                        }
+                    }
+                }
             }
+        }
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en != null && en.hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                if (intf.isLoopback() || !intf.isUp()) continue;
+                String name = intf.getName();
+                if (name != null && (name.startsWith("wlan") || name.startsWith("ap") || name.startsWith("eth"))) {
+                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                        InetAddress inetAddress = enumIpAddr.nextElement();
+                        if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress() && !inetAddress.isLinkLocalAddress()) {
+                            return inetAddress.getHostAddress();
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {
         }
         return null;
     }

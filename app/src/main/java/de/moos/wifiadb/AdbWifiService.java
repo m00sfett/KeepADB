@@ -49,11 +49,15 @@ public class AdbWifiService extends Service {
 
     static boolean isWifiConnected(Context context) {
         ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
-        if (cm == null) return false;
-        Network activeNetwork = cm.getActiveNetwork();
-        if (activeNetwork == null) return false;
-        NetworkCapabilities caps = cm.getNetworkCapabilities(activeNetwork);
-        return caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+        if (cm != null) {
+            for (Network network : cm.getAllNetworks()) {
+                NetworkCapabilities caps = cm.getNetworkCapabilities(network);
+                if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                    return true;
+                }
+            }
+        }
+        return AdbWifiEndpoint.getWifiIpAddress(context) != null;
     }
 
     @Override
