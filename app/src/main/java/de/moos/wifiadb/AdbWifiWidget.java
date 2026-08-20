@@ -22,6 +22,7 @@ public class AdbWifiWidget extends AppWidgetProvider {
         if (ACTION_TOGGLE.equals(intent.getAction())) {
             AdbWifi.setEnabled(context, !AdbWifi.isEnabled(context));
             refreshAll(context);
+            AdbWifiNotification.refresh(context);
         }
     }
 
@@ -36,6 +37,7 @@ public class AdbWifiWidget extends AppWidgetProvider {
         views.setOnClickPendingIntent(R.id.widget_label, pi);
 
         mgr.updateAppWidget(id, views);
+        AdbWifiNotification.refresh(context);
     }
 
     /** Aktualisiert alle platzierten Widgets (auch nach Änderung via App/Tile aufrufbar). */

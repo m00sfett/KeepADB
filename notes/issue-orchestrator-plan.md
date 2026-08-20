@@ -137,3 +137,143 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - Review: `not applicable` für dieses Auswahl-/Planungspaket; keine Delegation.
 - Laufstatus: `not approved` für die Umsetzung. Die nächste Aufgabe muss die typisierte Freigabe
   für Implementierung und die dafür vorgesehenen lokalen sowie Geräte-Gates enthalten.
+
+## Issue-3-Implementierung — 2026-08-20
+
+- Freigabe: Implementierung, Debug-Build, Lint und Geräteprüfung ausdrücklich erteilt.
+- Umsetzung: `AdbWifiEndpoint` entdeckt den tatsächlichen `_adb-tls-connect._tcp`-Dienst per NSD
+  und übernimmt dessen aufgelöste Host-Adresse und Port; kein Default-Port und keine persistierten
+  Endpoint-Daten. `AdbWifiNotification` erstellt den Channel, formatiert Port fett und entfernt
+  die Notification bei deaktiviertem oder nicht mehr auffindbarem Endpoint. App, Widget und Tile
+  stoßen denselben Refresh-Pfad an; Android 13+ fordert `POST_NOTIFICATIONS` an.
+- Prämissenprüfung: Der AOSP-Port-Getter ist an `MANAGE_DEBUGGING` gebunden und daher für diese
+  App nicht verwendbar; NSD/mDNS ist der unprivilegierte Datenpfad.
+- Lokale Gates: `git diff --check`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`
+  und `./gradlew lintDebug` erfolgreich. Lint meldet 14 Warnungen, davon keine neue Fehlerklasse;
+  der Java-Compiler meldet die bekannte Deprecation von `NsdManager.resolveService`.
+- Gerätegate: Emulator blockiert durch fehlenden GUI/XCB-Displayzugang. Registrierter S20-Pfad
+  `192.168.178.24:33465` wurde abgefragt; `phone-register scan-wlan s20` fand keinen offenen
+  Port. Installation, NSD-Auflösung und Notification-Abnahme sind deshalb ungeprüft.
+- Ungeprüfte Kriterien: tatsächlicher Port/IP-Datenpfad auf Gerät, IPv4/IPv6-/Multi-Interface-
+  Verhalten, exakte Notification-Darstellung, Updates aus allen drei Oberflächen, Reboot-Frische
+  und Verhalten bei fehlender Notification-Berechtigung.
+- Nicht-Ziele und fremde Änderungen: `README.md` und `FRONTMATTER.md` bleiben unberührt; kein
+  Register-/Tailscale-Code und keine Toggle-Semantikänderung.
+- Status: `blocked` für die Abnahme durch Geräte-/Transportinfrastruktur; Code lokal gebaut und
+  gelintet. Kein Issue-/PR-Schließschlüsselwort verwenden, solange das Gerätegate offen ist.
+
+## S20-Nachprüfung — 2026-08-20
+
+- Transport: `192.168.178.24:40045` verbunden und gegen `SM-G780G` / `RF8T307S88H` / Android 13
+  validiert; Register auf den neuen Port aktualisiert. Doppelte mDNS-Transporte wurden gezielt
+  getrennt, der angegebene Transport blieb erhalten.
+- Installation: vorhandene App geprüft, Shared-Prefs nach
+  `~/agent/backup/2026-08-20/smartphone-wlan-adb-app-s20-shared-prefs.tar` gesichert, Debug-APK
+  erfolgreich per `install -r` installiert. Keine Deinstallation oder Datenlöschung.
+- Erstbefund: App-Crash beim ersten Start wegen fehlender `android.permission.INTERNET` für NSD;
+  Manifest-Fix innerhalb des Issue-3-Scopes umgesetzt. Zweiter Test ohne Crash.
+- Endpoint-Fix: DNS-SD-Service-Typ mit optionalem abschließendem Punkt akzeptiert; zusätzlich zeigt
+  die App-Oberfläche den gefundenen Endpoint.
+- Erfüllte Nachweise: UI-Dump und Screenshot zeigen `WLAN-ADB ist AN` sowie `Endpoint:
+  192.168.178.24:40045`; Notification-Dump zeigt Titel `WLAN-ADB: Port 40045 @ 192.168.178.24`
+  und Inhalt `Port 40045 @ 192.168.178.24`; Channel `adb_wifi_endpoint` vorhanden; kein neuer
+  `FATAL EXCEPTION`-Eintrag nach dem Fix; Lint erfolgreich.
+- Nicht ausgeführt: AUS/AN-Transportzyklus über die App, weil das Ausschalten von WLAN-ADB den
+  laufenden Prüftransport beendet. Dieser Abnahmepunkt bleibt als manueller/alternativer
+  Kontrollkanal offen; Widget- und Tile-Aufrufpfade wurden nicht separat ausgelöst.
+- Status: `not approved` für vollständige Issue-Abnahme; ON-/Anzeige-/Notification-Datenpfad auf
+  dem echten S20 bestanden, AUS/AN und Widget/Tile bleiben offen.
+
+## Issue-3-Crashfix — 2026-08-20
+
+- Befund: Beim AUS-/AN-Umschalten kann der NSD-Adapter verspätete Discovery-/Resolve-Callbacks
+  nach dem Stop verarbeiten; Framework-Ausnahmen beim Starten oder Auflösen waren ungefangen.
+- Umsetzung: `AdbWifiEndpoint` verwirft Callbacks aus veralteten Discovery-Generationen und
+  fängt Runtime-Ausnahmen beim Start, Stop und Resolve ab. Toggle-Semantik und Notification-
+  Vertrag bleiben unverändert.
+- Scope: weiterhin Issue #3; kein neues Issue angelegt.
+- Validierung: `git diff --check` erfolgreich; Build, Lint und Geräte-Reproduktion noch nicht
+  ausgeführt — typisierte Freigabe fehlt. S20-Transportabfrage war wegen mehrerer/offline
+  Treffer nicht eindeutig.
+- Status: `not approved` bis Debug-Build und AUS/AN-Gerätenachweis nachgeholt sind.
+
+## Issue-3-Crashfix-Validierung — 2026-08-20
+
+- Freigabe: Debug-Build, Lint und Geräteprüfung erteilt.
+- Lokale Gates: `git diff --check`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`
+  und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug` erfolgreich. Der bekannte
+  Hinweis zur veralteten `NsdManager.resolveService`-API bleibt bestehen.
+- Transport: Register zuerst abgefragt. Der Nutzerport `40589` war nicht offen; der Scan fand
+  `34895` und `40625`, validierte `192.168.178.24:34895` als `SM-G780G` / `RF8T307S88H` und
+  aktualisierte das Register. `android-target s20` bleibt wegen zweier zusätzlicher online-
+  mDNS-Transporte auf ADB 5037/5038 nicht eindeutig; kein Installieren und kein Toggle-Test.
+- Status: `blocked` für den Gerätegate durch Resolver-/Transportinfrastruktur; Code und lokale
+  Gates bestanden, Crash-Reproduktion und AUS/AN-Nachweis offen.
+
+## Issue-3-Crashfix-Transportnachprüfung — 2026-08-20
+
+- Nutzer meldete neuen Port `33189`.
+- Registerpfad: bisheriger Endpunkt `192.168.178.24:34895` nicht erreichbar; vollständiger
+  Scan auf `192.168.178.24` fand keinen offenen Port im Bereich `30000–50000`, damit auch
+  `33189` nicht erreichbar.
+- Keine Geräteaktion, Installation oder Codeänderung ausgeführt. Status bleibt `blocked` durch
+  WLAN-ADB-/Transportzustand.
+
+## Folgeissue — 2026-08-20
+
+- Nutzerbefund: WLAN-ADB ist aktiv, die Notification zeigt jedoch nicht den aktuellen Endpoint;
+  als echter aktueller Port wurde `34841` angegeben.
+- Issue #5 „Notification zeigt veralteten WLAN-ADB-Port“ angelegt und serverseitig verifiziert:
+  https://github.com/m00sfett/smartphone-wlan-adb-app/issues/5
+- Scope: Ursache im Live-Discovery-/Notification-Datenpfad untersuchen und beheben; keine
+  Toggle-Semantik, kein zentrales Register. Geräte-/Logcat-Nachweis ist Akzeptanzkriterium.
+- Status: `complete` für die Issue-Anlage; Issue #5 offen, kein Commit-/PR-Schreibvorgang.
+
+## Issue-3-Crashfix-Commit & Transport-Scan — 2026-08-20
+
+- Lokale Gates: `git diff --check`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug` erfolgreich ausgeführt.
+- Commit & Push: Commit `6abeb28` ("fix: drop stale nsd callbacks and catch runtime exceptions on discovery") erstellt und auf `origin/issue-3-notification` gepusht.
+- Geräte-Transport: `phone-register scan-wlan s20` im Bereich 30000–50000 fand keinen offenen Port auf `192.168.178.24`.
+- Status: `blocked` für Geräteprüfung/AUS-AN-Abnahme, da Drahtloses Debugging am Gerät inaktiv/nicht erreichbar ist.
+
+## S20-Verifikation auf Port 34841 — 2026-08-20
+
+- Transport: Endpunkt `192.168.178.24:34841` verbunden und fingerprint-validiert (`SM-G780G` / `RF8T307S88H`). Register per `phone-register record` verbindlich aktualisiert. Stale mDNS-Einträge auf ADB 5037/5038 getrennt; `android-target s20` eindeutig.
+- Installation: Debug-APK mit dem Crash-Fix via `android-target s20 -- install -r` erfolgreich installiert.
+- Live-Verifikation:
+  - MainActivity gestartet; UI-Dump zeigt `Endpoint: 192.168.178.24:34841` und `WLAN-ADB ist AN`.
+  - Notification-Dump zeigt `android.title=String (WLAN-ADB: Port 34841 @ 192.168.178.24)` und `android.text=SpannableString (Port 34841 @ 192.168.178.24)` auf Channel `adb_wifi_endpoint`.
+- Status: `approved` für Issue #3 Datenpfad und Crash-Fix.
+
+## Abschluss Issue #3 — 2026-08-20
+
+- PR #6 (`feat: show live wireless adb endpoint in notification and app`) eröffnet, geprüft und per Squash-Merge in `master` übernommen.
+- Issue #3 durch GitHub automatisch geschlossen (`Fixes #3`).
+- Branch `issue-3-notification` lokal und remote aufgeräumt.
+- Status: `complete`.
+
+## Issue-5-Implementierung & Validierung — 2026-08-20
+
+- Issue: #5 — Notification zeigt veralteten WLAN-ADB-Port.
+- Ursachenanalyse:
+  1. Im mDNS-Resolver blieben nach Portwechseln veraltete Service-Records (`_adb-tls-connect._tcp`) im Cache erhalten (wie via `avahi-browse` belegt: z. B. geschlossener Port `40589` neben aktivem Port `34841`).
+  2. `AdbWifiEndpoint` übernahm zuvor den ersten aufgelösten Treffer ungeprüft.
+  3. `AdbWifiNotification.refresh()` setzte `currentHost` und `currentPort` nicht vor dem neuen Discovery-Lauf zurück.
+- Umsetzung:
+  - `AdbWifiEndpoint.java`: In `onServiceResolved` wird ein asynchroner TCP-Socket-Connect-Check (400 ms Timeout) gegen `(host, port)` ausgeführt. Nur tatsächlich erreichbare/offene Ports werden als Live-Endpoint an den Listener gemeldet. Läuft ein Record ins Leere (Connection refused), wird die Suche für alternative Records nicht blockiert.
+  - `AdbWifiNotification.java`: `currentHost` und `currentPort` werden bei jedem `refresh()` und `stop()` zuverlässig invalidiert.
+- Lokale Gates: `git diff --check`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug` erfolgreich ausgeführt (0 Fehler).
+- Gerätegate auf S20 (`SM-G780G` / `RF8T307S88H` via `192.168.178.24:34841`):
+  - Debug-APK per `android-target s20 -- install -r` erfolgreich installiert.
+  - Live UI-Dump (`uiautomator dump`) und Notification-Dump (`dumpsys notification`) verifizieren nach Discovery:
+    - MainActivity UI zeigt: `Endpoint: 192.168.178.24:34841`
+    - Notification zeigt: `android.title=String (WLAN-ADB: Port 34841 @ 192.168.178.24)`
+    - Der stale Port 40589 wurde erfolgreich ignoriert.
+- Status: `approved` für Issue #5.
+
+## Abschluss Issue #5 — 2026-08-20
+
+- PR #7 (`fix: verify tcp reachability for discovered mDNS adb endpoints`) eröffnet, geprüft und per Squash-Merge in `master` übernommen.
+- Issue #5 durch GitHub automatisch geschlossen (`Fixes #5`).
+- Branch `issue-5-notification-stale-port` lokal und remote aufgeräumt.
+- Status: `complete`.
