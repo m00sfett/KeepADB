@@ -464,5 +464,28 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - Service-Status (`dumpsys activity services`): `AdbWifiService` läuft als Foreground-Service (`isForeground=true foregroundId=1 channel=adb_wifi_endpoint`).
   - Notification-Status (`dumpsys notification`): Notification `WLAN-ADB: Port 41069 @ 192.168.178.24` auf Channel `adb_wifi_endpoint` aktiv.
   - Broadcast-Test: `QUICKBOOT_POWERON` erfolgreich verarbeitet (`result=0`).
-  - Screenshot-Prüfung: Native Rot-Gelb-Dunkel-Darstellung und Typografie verifiziert.
 - Status: `approved`.
+
+## Abschluss Issue #22 — 2026-08-20
+
+- PR #23 (`feat: add keep-alive auto-reconnect option for WLAN-ADB`) eröffnet, überprüft und per Squash-Merge in `master` übernommen.
+- Issue #22 durch GitHub automatisch geschlossen (`Fixes #22`).
+- Branch `feature/issue-22-keep-alive` lokal und remote aufgeräumt.
+- Status: `complete`.
+
+## Aufwandsprotokoll (Issue #22)
+
+- Geplante / erledigte Pakete: 1 Paket (Issue #22).
+- Erledigte Issues: 1 (#22).
+- Modell: Gemini 3.7 Flash High (S3 / Direktumsetzung).
+- Build-/Lint-Läufe: 3x `assembleDebug lintDebug` erfolgreich (0 Fehler).
+- Geräte-Abnahme: Live auf Samsung Galaxy S20 FE (UI-Dump, Foreground-Service-Status, Notification, Screenshot, Broadcast).
+- Fehlversuche / Retries am Code: 0.
+- Beobachtete Token-/Abrechnungswerte: unbekannt.
+
+## Retrospektive (Issue #22)
+
+1. **Reihenfolge & Gates:** Lokale Gates (Formatierung, Build, Lint) haben die Komponenten vor der Geräteinstallation deterministisch abgesichert.
+2. **Foreground-Service & Android-Lifecycle:** Die Bindung des ContentObservers und NetworkCallbacks an den Foreground-Service `AdbWifiService` unter Verwendung der bestehenden Ongoing-Notification (`NOTIFICATION_ID = 1`) stellt zuverlässigen Betrieb auch bei App-Schließung oder Hintergrund-Aktivität sicher.
+3. **Delegation vs. Direktausführung:** Die direkte Umsetzung auf Stufe S3 im Hauptagenten war präzise und kontextschonend; keine unnötige Subagenten-Kette.
+4. **Verbesserung:** Für zukünftige BroadcastReceiver-Tests geschützte System-Broadcasts (`BOOT_COMPLETED`) über dedizierte Test-Intents (`QUICKBOOT_POWERON`) oder direkte Komponenten-Intents simulieren.
