@@ -423,3 +423,46 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 2. **Defekterkennung & Gates:** Lokale Gates (`git diff --check`, Java-Kompilierung, Lint und Readback-Tests) haben die Änderungen deterministisch verifiziert.
 3. **Delegation:** Direkte Bearbeitung im Hauptagenten war ressourcenschonend und effizient; getrennte Subagenten hätten unnötigen Overhead erzeugt.
 4. **Verbesserung:** Bei künftigen Register-/Backend-Endpunkten Lebenszyklus-Operationen wie `DELETE`/`unregister` direkt im ersten Schema-Entwurf vorsehen.
+
+## Neues Paket: Issue #22 — Option 'WLAN-ADB dauerhaft aktiv halten' — 2026-08-20
+
+- Issue: [#22](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/22) — Option 'WLAN-ADB dauerhaft aktiv halten' (Auto-Re-Enable bei Drop, Reconnect & Boot)
+- Ziel: Eine zuschaltbare Option, die WLAN-ADB automatisch wieder einschaltet, wenn das System die Verbindung trennt (z. B. durch AP-Wechsel, temporären WLAN-Verlust, Android-Inaktivitäts-Timeout oder Reboot), und den neuen Endpoint sofort an das Register übermittelt.
+- Anforderungen & Umfang:
+  1. **UI & Persistenz:** Zweiter Switch in `MainActivity` ("Dauerhaft aktiv halten" / "Auto-Reconnect"), persistiert in `SharedPreferences` via `AdbWifiPreferences`.
+  2. **Triggers:**
+     - `ContentObserver`: Beobachtet `Settings.Global.getUriFor("adb_wifi_enabled")` und reaktiviert WLAN-ADB bei unerwartetem Drop, falls Wi-Fi verbunden ist.
+     - `NetworkCallback`: Beobachtet Wi-Fi-Netzwerkzustand (`TRANSPORT_WIFI`) und reaktiviert WLAN-ADB bei Wiederverbindung / AP-Wechsel.
+     - `BootReceiver`: `RECEIVE_BOOT_COMPLETED` startet nach Reboot die Überwachung und aktiviert WLAN-ADB bei vorhandener Wi-Fi-Verbindung.
+  3. **Foreground Service:** `AdbWifiService` garantiert zuverlässige Hintergrund-Überwachung unter Android 13/14+ und bindet die Ongoing-Notification.
+  4. **Register-Synchronisation:** Bei Reconnect / neuem Endpoint ruft der Flow `AdbWifiNotification.refresh()` auf, welcher per mDNS den Port auflöst und an das Tailscale-Register pusht.
+- Nicht-Ziele: Keine Änderung der `AdbWifi.setEnabled()`-Rechteprüfungen (`WRITE_SECURE_SETTINGS`), keine externen Third-Party-Dependencies.
+- Stufe: S3 (Feature-Implementierung, Service-Lifecycle, Background-Triggers). Direktumsetzung durch Hauptagent (Gemini 3.7 Flash High).
+- Gates:
+  1. Baseline-Check: `git status` sauber auf Feature-Branch `feature/issue-22-keep-alive`.
+  2. Statische Prüfung & Formatierung: `git diff --check`.
+  3. Lokaler Build: `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`.
+  4. Linter: `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`.
+  5. Geräteprüfung: Nach lokaler Freigabe / bei erreichbarem S20-Transport.
+- Status: `approved`.
+
+## Issue-22-Umsetzung & Validierung — 2026-08-20
+
+- Implementierung:
+  - `AdbWifiPreferences.java`: Hilfsklasse für typisierte SharedPreferences-Persistenz (`keep_alive_enabled`).
+  - `AdbWifiService.java`: Foreground Service mit `ContentObserver` für `adb_wifi_enabled` und `ConnectivityManager.NetworkCallback` für `TRANSPORT_WIFI`. Automatische Reaktivierung und mDNS/Notification/Register-Refresh bei Reconnect/Drop.
+  - `BootReceiver.java`: `RECEIVE_BOOT_COMPLETED` & `QUICKBOOT_POWERON` BroadcastReceiver zum Starten des Überwachungs-Services und Reaktivieren von WLAN-ADB nach Neustart.
+  - `AdbWifiNotification.java`: Unterstützung von Foreground-Service-Notifications und synchronisierter Placeholder-Anzeige bei vorübergehendem Drop im Keep-Alive-Modus.
+  - `MainActivity.java` & `activity_main.xml`: Zweiter Schalter "Dauerhaft aktiv halten" mit erklärendem Untertitel, vollständige Anbindung an Preferences und Service-Lifecycle.
+  - `AndroidManifest.xml`: Berechtigungen (`RECEIVE_BOOT_COMPLETED`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_CONNECTED_DEVICE`, `ACCESS_NETWORK_STATE`) sowie Service- und Receiver-Deklarationen ergänzt.
+- Lokale Gates:
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 0 Warnungen).
+- Geräte-Validierung auf Samsung Galaxy S20 FE (`SM-G780G` / `RF8T307S88H` via `192.168.178.24:41069`):
+  - Debug-APK per `android-target s20 -- install -r` erfolgreich installiert.
+  - UI-Automation Dump (`uiautomator dump`): Schalter "Dauerhaft aktiv halten" vorhanden und toggelbar.
+  - Service-Status (`dumpsys activity services`): `AdbWifiService` läuft als Foreground-Service (`isForeground=true foregroundId=1 channel=adb_wifi_endpoint`).
+  - Notification-Status (`dumpsys notification`): Notification `WLAN-ADB: Port 41069 @ 192.168.178.24` auf Channel `adb_wifi_endpoint` aktiv.
+  - Broadcast-Test: `QUICKBOOT_POWERON` erfolgreich verarbeitet (`result=0`).
+  - Screenshot-Prüfung: Native Rot-Gelb-Dunkel-Darstellung und Typografie verifiziert.
+- Status: `approved`.

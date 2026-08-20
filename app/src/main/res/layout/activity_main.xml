@@ -53,5 +53,31 @@
             android:textColor="@color/text_yellow"
             android:textSize="18sp"
             android:fontFamily="@font/fira_sans_condensed" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@color/border_red" />
+
+        <Switch
+            android:id="@+id/keep_alive_toggle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dauerhaft aktiv halten"
+            android:textColor="@color/text_yellow"
+            android:textSize="18sp"
+            android:fontFamily="@font/fira_sans_condensed" />
+
+        <TextView
+            android:id="@+id/keep_alive_subtext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/night_muted"
+            android:textSize="13sp"
+            android:fontFamily="@font/fira_sans"
+            android:text="Automatischer Reconnect bei Verbindungsabbruch, AP-Wechsel oder Neustart" />
     </LinearLayout>
 </LinearLayout>
