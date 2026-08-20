@@ -137,3 +137,27 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - Review: `not applicable` für dieses Auswahl-/Planungspaket; keine Delegation.
 - Laufstatus: `not approved` für die Umsetzung. Die nächste Aufgabe muss die typisierte Freigabe
   für Implementierung und die dafür vorgesehenen lokalen sowie Geräte-Gates enthalten.
+
+## Issue-3-Implementierung — 2026-08-20
+
+- Freigabe: Implementierung, Debug-Build, Lint und Geräteprüfung ausdrücklich erteilt.
+- Umsetzung: `AdbWifiEndpoint` entdeckt den tatsächlichen `_adb-tls-connect._tcp`-Dienst per NSD
+  und übernimmt dessen aufgelöste Host-Adresse und Port; kein Default-Port und keine persistierten
+  Endpoint-Daten. `AdbWifiNotification` erstellt den Channel, formatiert Port fett und entfernt
+  die Notification bei deaktiviertem oder nicht mehr auffindbarem Endpoint. App, Widget und Tile
+  stoßen denselben Refresh-Pfad an; Android 13+ fordert `POST_NOTIFICATIONS` an.
+- Prämissenprüfung: Der AOSP-Port-Getter ist an `MANAGE_DEBUGGING` gebunden und daher für diese
+  App nicht verwendbar; NSD/mDNS ist der unprivilegierte Datenpfad.
+- Lokale Gates: `git diff --check`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`
+  und `./gradlew lintDebug` erfolgreich. Lint meldet 14 Warnungen, davon keine neue Fehlerklasse;
+  der Java-Compiler meldet die bekannte Deprecation von `NsdManager.resolveService`.
+- Gerätegate: Emulator blockiert durch fehlenden GUI/XCB-Displayzugang. Registrierter S20-Pfad
+  `192.168.178.24:33465` wurde abgefragt; `phone-register scan-wlan s20` fand keinen offenen
+  Port. Installation, NSD-Auflösung und Notification-Abnahme sind deshalb ungeprüft.
+- Ungeprüfte Kriterien: tatsächlicher Port/IP-Datenpfad auf Gerät, IPv4/IPv6-/Multi-Interface-
+  Verhalten, exakte Notification-Darstellung, Updates aus allen drei Oberflächen, Reboot-Frische
+  und Verhalten bei fehlender Notification-Berechtigung.
+- Nicht-Ziele und fremde Änderungen: `README.md` und `FRONTMATTER.md` bleiben unberührt; kein
+  Register-/Tailscale-Code und keine Toggle-Semantikänderung.
+- Status: `blocked` für die Abnahme durch Geräte-/Transportinfrastruktur; Code lokal gebaut und
+  gelintet. Kein Issue-/PR-Schließschlüsselwort verwenden, solange das Gerätegate offen ist.
