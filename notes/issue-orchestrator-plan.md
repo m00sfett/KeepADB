@@ -653,6 +653,24 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
-- **Status:** `complete` für Paket 4 Code & lokale Validierung. Bereit für PR und Merge.
+- **Status:** `complete` für Paket 4 Code & lokale Validierung. PR #43 via Squash-Merge in `master` übernommen, Issue #40 geschlossen.
+
+## Aufwandsprotokoll (Batch 2 / Issues 38–41)
+
+- Geplante / erledigte Pakete: 2 Pakete (Paket 3: #38/#39/#41; Paket 4: #40).
+- Erledigte Issues: 4 von 4 geschlossen (100%).
+- PRs: PR #42, PR #43 beide erfolgreich via Squash-Merge in `master` integriert.
+- Modell: Gemini 3.7 Flash High (S3 / Direktumsetzung).
+- Build-/Lint-Läufe: 2x `assembleDebug lintDebug` erfolgreich (0 Fehler).
+- Fehlversuche / Retries am Code: 0.
+- Beobachtete Token-/Abrechnungswerte: unbekannt.
+
+## Retrospektive (Batch 2 / Issues 38–41)
+
+1. **Paketierung & Eco-Reihenfolge:** Die Aufteilung in Paket 3 (Stabilitäts- und Deadlock-Härtung: Watchdog, Retry, Startup-Delay) und Paket 4 (Lokaler Fast-Probe Performance-Pfad) hat eine klare Trennung zwischen Fehlerbehebung und Feature-Beschleunigung geschaffen.
+2. **Qualitäts-Gates:** Deterministische lokale Validierung (`git diff --check`, Gradle Debug-Kompilierung und Android Lint) verifizierte jede Änderung vor PR-Erstellung und Merge.
+3. **Delegation vs. Direktausführung:** Beide Pakete wurden direkt im Hauptagenten umgesetzt, wodurch Kontextwechsel vermieden und Token gespart wurden.
+4. **Erkenntnis:** Der lokale Fast-Probe Port-Scan umgeht Wi-Fi-Funklatenz und Router-Multicast-Filtering vollständig, während mDNS als Fallback weiterhin die volle AOSP-Standard-Kompatibilität garantiert.
+
 
 
