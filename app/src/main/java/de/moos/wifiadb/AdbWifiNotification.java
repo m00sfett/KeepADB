@@ -54,6 +54,9 @@ final class AdbWifiNotification {
         }
 
         if (endpoint == null) endpoint = new AdbWifiEndpoint(appContext);
+        currentHost = null;
+        currentPort = 0;
+        if (endpointListener != null) endpointListener.onUnavailable();
         endpoint.discover(new AdbWifiEndpoint.Listener() {
             @Override
             public void onEndpoint(String host, int port) {

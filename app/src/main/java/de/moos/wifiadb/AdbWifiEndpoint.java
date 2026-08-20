@@ -24,7 +24,6 @@ final class AdbWifiEndpoint {
     }
 
     void discover(Listener listener) {
-        if (discoveryListener != null) return;
         stop();
         if (nsdManager == null) {
             listener.onUnavailable();
@@ -41,39 +40,43 @@ final class AdbWifiEndpoint {
 
             @Override
             public void onServiceFound(NsdServiceInfo serviceInfo) {
-                if (!isCurrent(generation) || !sameServiceType(serviceInfo.getServiceType()) || resolving) {
+                if (!isCurrent(generation) || !sameServiceType(serviceInfo.getServiceType())) {
                     return;
                 }
-                resolving = true;
                 try {
                     nsdManager.resolveService(serviceInfo, new NsdManager.ResolveListener() {
                         @Override
                         public void onResolveFailed(NsdServiceInfo ignored, int errorCode) {
-                            if (!isCurrent(generation)) return;
-                            resolving = false;
-                            listener.onUnavailable();
+                            // Another service record might still resolve successfully.
                         }
 
                         @Override
                         public void onServiceResolved(NsdServiceInfo resolved) {
                             if (!isCurrent(generation)) return;
-                            resolving = false;
                             if (resolved.getHost() == null || resolved.getPort() <= 0) {
-                                listener.onUnavailable();
                                 return;
                             }
                             String host = resolved.getHost().getHostAddress();
                             if (host == null || host.isEmpty()) {
-                                listener.onUnavailable();
                                 return;
                             }
-                            listener.onEndpoint(host, resolved.getPort());
+                            final int port = resolved.getPort();
+                            final java.net.InetAddress addr = resolved.getHost();
+                            new Thread(() -> {
+                                boolean reachable = false;
+                                try (java.net.Socket socket = new java.net.Socket()) {
+                                    socket.connect(new java.net.InetSocketAddress(addr, port), 400);
+                                    reachable = true;
+                                } catch (Exception ignored) {
+                                }
+                                if (!isCurrent(generation)) return;
+                                if (reachable) {
+                                    listener.onEndpoint(host, port);
+                                }
+                            }).start();
                         }
                     });
                 } catch (RuntimeException ignored) {
-                    if (!isCurrent(generation)) return;
-                    resolving = false;
-                    listener.onUnavailable();
                 }
             }
 
