@@ -286,3 +286,44 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - Issue #1 durch GitHub automatisch geschlossen.
 - Branch `issue-1-ci-designsystem` lokal und remote aufgeräumt.
 - Status: `complete`.
+
+## Issue-4-Planung & Architekturentscheidung — 2026-08-20
+
+- Issue: [#4](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/4) — Zentrales WLAN-ADB-Register auf moosgames2020 (Tailscale-only)
+- Ziel: Ein privater, stabiler Ablage- und Abfragepunkt auf `moosgames2020` für den aktuell aktiven WLAN-ADB-Endpoint (mindestens device, ip, port, updatedAt, active/stale). Zugriff strikt nur über Tailnet.
+- Analyse & Architekturoptionen:
+  1. Option 1 (Empfohlen): Schlanker HTTP-Registry-Dienst (z.B. Python/Flask oder Stdlib `http.server`) gebunden ausschließlich an Tailscale-IP (`100.111.111.21`), der atomar in `~/agent/data/phone_reachability_register.json` schreibt/liest und TTL-/Stale-Semantik bietet. Läuft als systemd User-Service.
+  2. Option 2: SSH-/Dateiablage. Verlangt SSH-Key-Handling/Rotation auf mobilen Clients; fehleranfällig und unhandlich. (Abgelehnt)
+  3. Option 3: Tailscale Serve vor lokalem Dienst. Unnötige Komplexität/Zusatzabhängigkeit für ein rein privates internes Tailnet. (Abgelehnt)
+- Muss-Akzeptanzfälle für #4:
+  1. Architekturentscheidung dokumentiert.
+  2. Datenmodell mit device, ip, port, updatedAt, active/stale Zustand.
+  3. Dienst läuft unter User `tobias` (minimal priviligiert), startet per systemd user service automatisch nach Boot.
+  4. Netzwerkbindung ausschließlich an Tailscale-IP `100.111.111.21` (kein 0.0.0.0, kein LAN).
+  5. Atomisches Schreiben, Schema-Validierung, definierte TTL/Stale-Logik.
+  6. Readback über Tailnet (`curl http://100.111.111.21:<port>/...`).
+  7. Betriebsdoku (Installation, Backup, Rollback, Recovery).
+  8. App-Integration klar abgegrenzt (App-Client-Push als separater Folge-Schritt / Folge-Issue).
+- Einstufung: S3 / Architektur & Service auf `moosgames2020`.
+- Status: `approved` & `complete`.
+
+## Issue-4-Umsetzung & Validierung — 2026-08-20
+
+- Implementierung:
+  - `phone-register-server` in `~/agent/bin/phone-register-server` als eigenständiger Daemon (Python Standardbibliothek) implementiert.
+  - Bindet strikt an die Tailscale-IP `100.111.111.21:50829` (Bindung an andere IPs/0.0.0.0 per Policy-Check verweigert).
+  - Atomares Schreiben in `~/agent/data/phone_reachability_register.json` mittels `tempfile` + `os.replace`.
+  - Schema-Validierung für `method`, `endpoint` (`IP:Port` / serial) und Metadaten.
+  - TTL-Evaluation: `status: "active"` vs. `status: "stale"` (`is_stale: true/false`) basierend auf Zeitstempel.
+  - `systemd --user` Service `phone-register-server.service` eingerichtet, aktiviert und gestartet.
+- Validierung & Nachweise:
+  - Socket-Binding: `ss -tulpn` bestätigt Listening exklusiv auf `100.111.111.21:50829`.
+  - Nicht-Exposition: Verbindungsversuch auf `127.0.0.1:50829` wird erwartungsgemäß abgelehnt (HTTP 000 / Connection refused).
+  - Readback GET: `curl http://100.111.111.21:50829/register` und `/register/s20` liefern vollständiges JSON mit `active`/`stale` Status.
+  - Readback POST: `curl -X POST -d '{"method":"wlan-adb","endpoint":"192.168.178.24:34841"}' http://100.111.111.21:50829/register/s20` aktualisiert atomar und liefert HTTP 200 mit aktuellem Timestamp.
+  - Protokoll: `~/agent/protocols/2026-08-20/193700-phone-register-server.yaml` angelegt und committet.
+- App-Integration Abgrenzung:
+  - Der Server-Endpunkt steht ab sofort bereit. Die optionale Übertragung direkt aus der Android-App (via Tailnet/HTTP-POST nach ADB-Enable) ist ein separates Client-Feature und nicht Teil dieses Server-Issues.
+- Status: `complete` für Issue #4.
+
+
