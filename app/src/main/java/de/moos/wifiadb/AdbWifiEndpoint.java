@@ -16,6 +16,7 @@ final class AdbWifiEndpoint {
     private final NsdManager nsdManager;
     private NsdManager.DiscoveryListener discoveryListener;
     private boolean resolving;
+    private long discoveryGeneration;
 
     AdbWifiEndpoint(Context context) {
         nsdManager = (NsdManager) context.getApplicationContext()
@@ -30,6 +31,8 @@ final class AdbWifiEndpoint {
             return;
         }
 
+        final long generation = discoveryGeneration;
+
         discoveryListener = new NsdManager.DiscoveryListener() {
             @Override
             public void onDiscoveryStarted(String serviceType) {
@@ -38,36 +41,45 @@ final class AdbWifiEndpoint {
 
             @Override
             public void onServiceFound(NsdServiceInfo serviceInfo) {
-                if (!sameServiceType(serviceInfo.getServiceType()) || resolving) {
+                if (!isCurrent(generation) || !sameServiceType(serviceInfo.getServiceType()) || resolving) {
                     return;
                 }
                 resolving = true;
-                nsdManager.resolveService(serviceInfo, new NsdManager.ResolveListener() {
-                    @Override
-                    public void onResolveFailed(NsdServiceInfo ignored, int errorCode) {
-                        resolving = false;
-                        listener.onUnavailable();
-                    }
+                try {
+                    nsdManager.resolveService(serviceInfo, new NsdManager.ResolveListener() {
+                        @Override
+                        public void onResolveFailed(NsdServiceInfo ignored, int errorCode) {
+                            if (!isCurrent(generation)) return;
+                            resolving = false;
+                            listener.onUnavailable();
+                        }
 
-                    @Override
-                    public void onServiceResolved(NsdServiceInfo resolved) {
-                        resolving = false;
-                        if (resolved.getHost() == null || resolved.getPort() <= 0) {
-                            listener.onUnavailable();
-                            return;
+                        @Override
+                        public void onServiceResolved(NsdServiceInfo resolved) {
+                            if (!isCurrent(generation)) return;
+                            resolving = false;
+                            if (resolved.getHost() == null || resolved.getPort() <= 0) {
+                                listener.onUnavailable();
+                                return;
+                            }
+                            String host = resolved.getHost().getHostAddress();
+                            if (host == null || host.isEmpty()) {
+                                listener.onUnavailable();
+                                return;
+                            }
+                            listener.onEndpoint(host, resolved.getPort());
                         }
-                        String host = resolved.getHost().getHostAddress();
-                        if (host == null || host.isEmpty()) {
-                            listener.onUnavailable();
-                            return;
-                        }
-                        listener.onEndpoint(host, resolved.getPort());
-                    }
-                });
+                    });
+                } catch (RuntimeException ignored) {
+                    if (!isCurrent(generation)) return;
+                    resolving = false;
+                    listener.onUnavailable();
+                }
             }
 
             @Override
             public void onServiceLost(NsdServiceInfo serviceInfo) {
+                if (!isCurrent(generation)) return;
                 listener.onUnavailable();
             }
 
@@ -78,6 +90,7 @@ final class AdbWifiEndpoint {
 
             @Override
             public void onStartDiscoveryFailed(String serviceType, int errorCode) {
+                if (!isCurrent(generation)) return;
                 stop();
                 listener.onUnavailable();
             }
@@ -88,19 +101,31 @@ final class AdbWifiEndpoint {
             }
         };
 
-        nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
+        try {
+            nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
+        } catch (RuntimeException ignored) {
+            if (!isCurrent(generation)) return;
+            stop();
+            listener.onUnavailable();
+        }
     }
 
-    void stop() {
-        if (nsdManager != null && discoveryListener != null) {
+    synchronized void stop() {
+        discoveryGeneration++;
+        NsdManager.DiscoveryListener listener = discoveryListener;
+        discoveryListener = null;
+        resolving = false;
+        if (nsdManager != null && listener != null) {
             try {
-                nsdManager.stopServiceDiscovery(discoveryListener);
-            } catch (IllegalArgumentException ignored) {
+                nsdManager.stopServiceDiscovery(listener);
+            } catch (RuntimeException ignored) {
                 // Discovery already stopped by the framework.
             }
         }
-        discoveryListener = null;
-        resolving = false;
+    }
+
+    private synchronized boolean isCurrent(long generation) {
+        return discoveryListener != null && discoveryGeneration == generation;
     }
 
     private static boolean sameServiceType(String serviceType) {
