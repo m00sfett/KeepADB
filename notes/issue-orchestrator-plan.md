@@ -567,12 +567,26 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 ## Aufwandsprotokoll (Review-Findings 24–33)
 
 - Geplante / erledigte Pakete: 3 Pakete (Paket 0: #33; Paket 1: #28/#29/#30/#32; Paket 2: #24/#25/#26/#27/#31).
-- Erledigte Issues: 9 von 10 geschlossen (90%), 1 offen (Issue #33 wartet auf Geräte-Rauchprüfung).
+- Erledigte Issues: 10 von 10 geschlossen (100%).
 - PRs: PR #34, PR #35, PR #36 alle erfolgreich via Squash-Merge in `master` integriert.
 - Modell: Gemini 3.7 Flash High (S3 / Direktumsetzung).
 - Build-/Lint-Läufe: 3x `assembleDebug lintDebug` erfolgreich (0 Fehler).
+- Geräte-Verifikation: Live auf Samsung Galaxy S20 FE (`SM-G780G` via `192.168.178.24:34121`).
 - Fehlversuche / Retries am Code: 0.
 - Beobachtete Token-/Abrechnungswerte: unbekannt.
+
+## S20-Smoke-Test & Gesamtabnahme — 2026-08-20
+
+- **Transport:** `phone-register get s20` lieferte Endpunkt `192.168.178.24:34121`; Fingerprint erfolgreich validiert (`SM-G780G` / `RF8T307S88H`). Register per `phone-register record` verbindlich aktualisiert.
+- **Installation:** Debug-APK gebaut und per `install -r` auf dem S20 FE installiert.
+- **Live-Prüfung:**
+  - `MainActivity` gestartet; UI-Dump verifiziert `WLAN-ADB ist AN`, `Endpoint: 192.168.178.24:34121`, Schalter aktiv.
+  - `dumpsys activity services` verifiziert: `AdbWifiService` läuft als Foreground-Service (`isForeground=true foregroundId=1 channel=adb_wifi_endpoint`).
+  - `dumpsys notification` verifiziert: Ongoing-Notification `WLAN-ADB: Port 34121 @ 192.168.178.24` aktiv.
+  - Service Detach (Issue #24): Keep-Alive ausgeschaltet -> Service stoppt via `STOP_FOREGROUND_DETACH`, Notification bleibt erhalten. Keep-Alive wieder eingeschaltet -> Foreground-Service startet sauber neu.
+  - Tailscale-Register-Push: `curl http://100.111.111.21:50829/register/s20` verifiziert aktuellen Timestamp, `status: active` und `is_stale: false`.
+  - Issue [#33](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/33) geschlossen.
+- **Status:** `complete` (0 offene Issues im Repository).
 
 ## Retrospektive (Review-Findings 24–33)
 
