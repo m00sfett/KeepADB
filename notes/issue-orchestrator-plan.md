@@ -270,3 +270,11 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
     - Notification zeigt: `android.title=String (WLAN-ADB: Port 34841 @ 192.168.178.24)`
     - Der stale Port 40589 wurde erfolgreich ignoriert.
 - Status: `approved` für Issue #5.
+
+## Abschluss Issue #5 — 2026-08-20
+
+- PR #7 (`fix: verify tcp reachability for discovered mDNS adb endpoints`) eröffnet, geprüft und per Squash-Merge in `master` übernommen.
+- Issue #5 durch GitHub automatisch geschlossen (`Fixes #5`).
+- Branch `issue-5-notification-stale-port` lokal und remote aufgeräumt.
+- Status: `complete`.
+
