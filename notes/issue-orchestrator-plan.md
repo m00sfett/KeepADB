@@ -236,3 +236,13 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - Geräte-Transport: `phone-register scan-wlan s20` im Bereich 30000–50000 fand keinen offenen Port auf `192.168.178.24`.
 - Status: `blocked` für Geräteprüfung/AUS-AN-Abnahme, da Drahtloses Debugging am Gerät inaktiv/nicht erreichbar ist.
 
+## S20-Verifikation auf Port 34841 — 2026-08-20
+
+- Transport: Endpunkt `192.168.178.24:34841` verbunden und fingerprint-validiert (`SM-G780G` / `RF8T307S88H`). Register per `phone-register record` verbindlich aktualisiert. Stale mDNS-Einträge auf ADB 5037/5038 getrennt; `android-target s20` eindeutig.
+- Installation: Debug-APK mit dem Crash-Fix via `android-target s20 -- install -r` erfolgreich installiert.
+- Live-Verifikation:
+  - MainActivity gestartet; UI-Dump zeigt `Endpoint: 192.168.178.24:34841` und `WLAN-ADB ist AN`.
+  - Notification-Dump zeigt `android.title=String (WLAN-ADB: Port 34841 @ 192.168.178.24)` und `android.text=SpannableString (Port 34841 @ 192.168.178.24)` auf Channel `adb_wifi_endpoint`.
+- Status: `approved` für Issue #3 Datenpfad und Crash-Fix.
+
+
