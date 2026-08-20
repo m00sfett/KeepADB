@@ -1,27 +1,38 @@
 package de.moos.wifiadb;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.LinkAddress;
+import android.net.LinkProperties;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Looper;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Discovers the active secure wireless-debugging endpoint advertised by adbd. */
 final class AdbWifiEndpoint {
     static final String SERVICE_TYPE = "_adb-tls-connect._tcp.";
     private static final long RESOLVE_TIMEOUT_MS = 1500;
+    private static final int PROBE_START_PORT = 30000;
+    private static final int PROBE_END_PORT = 50000;
+    private static final int PROBE_THREADS = 16;
 
     interface Listener {
         void onEndpoint(String host, int port);
         void onUnavailable();
     }
 
+    private final Context appContext;
     private final NsdManager nsdManager;
     private final WifiManager.MulticastLock multicastLock;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -32,7 +43,7 @@ final class AdbWifiEndpoint {
     private long discoveryGeneration;
 
     AdbWifiEndpoint(Context context) {
-        Context appContext = context.getApplicationContext();
+        appContext = context.getApplicationContext();
         nsdManager = (NsdManager) appContext.getSystemService(Context.NSD_SERVICE);
         WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
         if (wifiManager != null) {
@@ -61,6 +72,10 @@ final class AdbWifiEndpoint {
 
         final long generation = discoveryGeneration;
 
+        // 1. Lokaler Fast-Probe Port-Scan (30000-50000) zur verzögerungsfreien Erkennung
+        startFastProbe(generation, listener);
+
+        // 2. mDNS-Discovery als robuster Standard-/Fallback-Pfad
         discoveryListener = new NsdManager.DiscoveryListener() {
             @Override
             public void onDiscoveryStarted(String serviceType) {
@@ -224,6 +239,72 @@ final class AdbWifiEndpoint {
 
     private synchronized boolean isCurrent(long generation) {
         return discoveryListener != null && discoveryGeneration == generation;
+    }
+
+    private void startFastProbe(long generation, Listener listener) {
+        final String wifiIp = getWifiIpAddress(appContext);
+        if (wifiIp == null) {
+            return;
+        }
+        new Thread(() -> {
+            if (!isCurrent(generation)) return;
+            final int totalPorts = PROBE_END_PORT - PROBE_START_PORT + 1;
+            final int chunkSize = (totalPorts + PROBE_THREADS - 1) / PROBE_THREADS;
+            final AtomicBoolean found = new AtomicBoolean(false);
+
+            for (int i = 0; i < PROBE_THREADS; i++) {
+                final int start = PROBE_START_PORT + i * chunkSize;
+                final int end = Math.min(start + chunkSize - 1, PROBE_END_PORT);
+                new Thread(() -> {
+                    for (int port = start; port <= end; port++) {
+                        if (found.get() || !isCurrent(generation)) {
+                            break;
+                        }
+                        boolean loopbackOpen = false;
+                        try (Socket s = new Socket()) {
+                            s.connect(new InetSocketAddress("127.0.0.1", port), 50);
+                            loopbackOpen = true;
+                        } catch (Exception ignored) {
+                        }
+                        if (loopbackOpen && !found.get() && isCurrent(generation)) {
+                            boolean wifiOpen = false;
+                            try (Socket s = new Socket()) {
+                                s.connect(new InetSocketAddress(wifiIp, port), 300);
+                                wifiOpen = true;
+                            } catch (Exception ignored) {
+                            }
+                            if (wifiOpen && found.compareAndSet(false, true)) {
+                                synchronized (AdbWifiEndpoint.this) {
+                                    if (!isCurrent(generation)) return;
+                                    resolveQueue.clear();
+                                    stop();
+                                    listener.onEndpoint(wifiIp, port);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }, "AdbWifiFastProbe-" + i).start();
+            }
+        }, "AdbWifiFastProbeCoordinator").start();
+    }
+
+    static String getWifiIpAddress(Context context) {
+        ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
+        if (cm == null) return null;
+        Network activeNetwork = cm.getActiveNetwork();
+        if (activeNetwork == null) return null;
+        NetworkCapabilities caps = cm.getNetworkCapabilities(activeNetwork);
+        if (caps == null || !caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) return null;
+        LinkProperties lp = cm.getLinkProperties(activeNetwork);
+        if (lp == null) return null;
+        for (LinkAddress la : lp.getLinkAddresses()) {
+            InetAddress addr = la.getAddress();
+            if (addr instanceof Inet4Address && !addr.isLoopbackAddress() && !addr.isLinkLocalAddress()) {
+                return addr.getHostAddress();
+            }
+        }
+        return null;
     }
 
     private static boolean sameServiceType(String serviceType) {
