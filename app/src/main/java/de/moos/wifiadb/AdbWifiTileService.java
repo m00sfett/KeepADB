@@ -18,6 +18,9 @@ public class AdbWifiTileService extends TileService {
         if (!AdbWifi.setEnabled(this, want)) {
             Toast.makeText(this, "WiFi-ADB: Berechtigung fehlt (pm grant nötig)",
                     Toast.LENGTH_LONG).show();
+        } else if (!want) {
+            AdbWifiPreferences.setKeepAliveEnabled(this, false);
+            AdbWifiService.stop(this);
         }
         updateTile();
         AdbWifiWidget.refreshAll(this);

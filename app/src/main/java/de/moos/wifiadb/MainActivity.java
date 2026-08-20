@@ -38,6 +38,10 @@ public class MainActivity extends Activity {
             if (!AdbWifi.setEnabled(this, want)) {
                 toggle.setChecked(!want); // Berechtigung fehlt -> zurücksetzen
                 showPermissionErrorToast();
+            } else if (!want) {
+                // Bei manuellem Ausschalten von WLAN-ADB auch Keep-Alive deaktivieren
+                AdbWifiPreferences.setKeepAliveEnabled(this, false);
+                AdbWifiService.stop(this);
             }
             refreshUiAndComponents();
         });
