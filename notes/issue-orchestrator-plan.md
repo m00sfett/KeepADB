@@ -734,7 +734,18 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
-- **Status:** `complete` für Issue #52 Code & lokale Validierung. Bereit für PR und Merge.
+- **Status:** `complete` für Issue #52 Code & lokale Validierung. PR #53 via Squash-Merge in `master` übernommen, Issue #52 geschlossen.
+
+## Umsetzung Issue #54 (PR #55 / Issue #54) — 2026-08-20
+
+- **Kontext / Problem:** Wenn `NsdManager.discoverServices()` fehlschlug (`onStartDiscoveryFailed`) oder ein mDNS-Dienst verloren ging (`onServiceLost`), rief `AdbWifiEndpoint` `stop()` auf. Dadurch wurde die `discoveryGeneration` inkrementiert, was parallel laufende Fast-Probe-Worker sofort hart abwürgte.
+- **Implementierung:**
+  - `onStartDiscoveryFailed`, mDNS-Catch-Blöcke und `onServiceLost` brechen den parallel laufenden Fast-Probe nicht mehr ab.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Whitespace-Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
+- **Status:** `complete` für Issue #54 Code & lokale Validierung. Bereit für PR und Merge.
+
 
 
 
