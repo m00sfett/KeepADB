@@ -252,5 +252,21 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - Branch `issue-3-notification` lokal und remote aufgeräumt.
 - Status: `complete`.
 
+## Issue-5-Implementierung & Validierung — 2026-08-20
 
-
+- Issue: #5 — Notification zeigt veralteten WLAN-ADB-Port.
+- Ursachenanalyse:
+  1. Im mDNS-Resolver blieben nach Portwechseln veraltete Service-Records (`_adb-tls-connect._tcp`) im Cache erhalten (wie via `avahi-browse` belegt: z. B. geschlossener Port `40589` neben aktivem Port `34841`).
+  2. `AdbWifiEndpoint` übernahm zuvor den ersten aufgelösten Treffer ungeprüft.
+  3. `AdbWifiNotification.refresh()` setzte `currentHost` und `currentPort` nicht vor dem neuen Discovery-Lauf zurück.
+- Umsetzung:
+  - `AdbWifiEndpoint.java`: In `onServiceResolved` wird ein asynchroner TCP-Socket-Connect-Check (400 ms Timeout) gegen `(host, port)` ausgeführt. Nur tatsächlich erreichbare/offene Ports werden als Live-Endpoint an den Listener gemeldet. Läuft ein Record ins Leere (Connection refused), wird die Suche für alternative Records nicht blockiert.
+  - `AdbWifiNotification.java`: `currentHost` und `currentPort` werden bei jedem `refresh()` und `stop()` zuverlässig invalidiert.
+- Lokale Gates: `git diff --check`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug` erfolgreich ausgeführt (0 Fehler).
+- Gerätegate auf S20 (`SM-G780G` / `RF8T307S88H` via `192.168.178.24:34841`):
+  - Debug-APK per `android-target s20 -- install -r` erfolgreich installiert.
+  - Live UI-Dump (`uiautomator dump`) und Notification-Dump (`dumpsys notification`) verifizieren nach Discovery:
+    - MainActivity UI zeigt: `Endpoint: 192.168.178.24:34841`
+    - Notification zeigt: `android.title=String (WLAN-ADB: Port 34841 @ 192.168.178.24)`
+    - Der stale Port 40589 wurde erfolgreich ignoriert.
+- Status: `approved` für Issue #5.
