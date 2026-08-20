@@ -18,8 +18,29 @@ final class AdbWifiNotification {
     private static final int NOTIFICATION_ID = 1;
 
     private static AdbWifiEndpoint endpoint;
+    private static String currentHost;
+    private static int currentPort;
+    private static EndpointListener endpointListener;
+
+    interface EndpointListener {
+        void onEndpoint(String host, int port);
+        void onUnavailable();
+    }
 
     private AdbWifiNotification() {}
+
+    static synchronized void setEndpointListener(EndpointListener listener) {
+        endpointListener = listener;
+        if (currentHost != null) {
+            listener.onEndpoint(currentHost, currentPort);
+        } else {
+            listener.onUnavailable();
+        }
+    }
+
+    static synchronized void clearEndpointListener() {
+        endpointListener = null;
+    }
 
     static synchronized void refresh(Context context) {
         Context appContext = context.getApplicationContext();
@@ -36,11 +57,17 @@ final class AdbWifiNotification {
         endpoint.discover(new AdbWifiEndpoint.Listener() {
             @Override
             public void onEndpoint(String host, int port) {
+                currentHost = host;
+                currentPort = port;
+                if (endpointListener != null) endpointListener.onEndpoint(host, port);
                 show(appContext, manager, host, port);
             }
 
             @Override
             public void onUnavailable() {
+                currentHost = null;
+                currentPort = 0;
+                if (endpointListener != null) endpointListener.onUnavailable();
                 manager.cancel(NOTIFICATION_ID);
             }
         });
@@ -51,6 +78,9 @@ final class AdbWifiNotification {
             endpoint.stop();
             endpoint = null;
         }
+        currentHost = null;
+        currentPort = 0;
+        if (endpointListener != null) endpointListener.onUnavailable();
         manager.cancel(NOTIFICATION_ID);
     }
 

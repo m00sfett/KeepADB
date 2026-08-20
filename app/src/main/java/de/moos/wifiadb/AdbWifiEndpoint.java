@@ -6,7 +6,7 @@ import android.net.nsd.NsdServiceInfo;
 
 /** Discovers the active secure wireless-debugging endpoint advertised by adbd. */
 final class AdbWifiEndpoint {
-    static final String SERVICE_TYPE = "_adb-tls-connect._tcp";
+    static final String SERVICE_TYPE = "_adb-tls-connect._tcp.";
 
     interface Listener {
         void onEndpoint(String host, int port);
@@ -38,7 +38,7 @@ final class AdbWifiEndpoint {
 
             @Override
             public void onServiceFound(NsdServiceInfo serviceInfo) {
-                if (!SERVICE_TYPE.equalsIgnoreCase(serviceInfo.getServiceType()) || resolving) {
+                if (!sameServiceType(serviceInfo.getServiceType()) || resolving) {
                     return;
                 }
                 resolving = true;
@@ -101,5 +101,11 @@ final class AdbWifiEndpoint {
         }
         discoveryListener = null;
         resolving = false;
+    }
+
+    private static boolean sameServiceType(String serviceType) {
+        return SERVICE_TYPE.equalsIgnoreCase(serviceType)
+                || SERVICE_TYPE.substring(0, SERVICE_TYPE.length() - 1)
+                .equalsIgnoreCase(serviceType);
     }
 }

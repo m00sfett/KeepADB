@@ -13,6 +13,7 @@ public class MainActivity extends Activity {
     private static final int NOTIFICATION_PERMISSION_REQUEST = 10;
     private Switch toggle;
     private TextView status;
+    private TextView endpoint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +21,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         toggle = findViewById(R.id.toggle);
         status = findViewById(R.id.status);
+        endpoint = findViewById(R.id.endpoint);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
@@ -48,8 +50,26 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        AdbWifiNotification.setEndpointListener(new AdbWifiNotification.EndpointListener() {
+            @Override
+            public void onEndpoint(String host, int port) {
+                endpoint.setText("Endpoint: " + host + ":" + port);
+            }
+
+            @Override
+            public void onUnavailable() {
+                endpoint.setText(AdbWifi.isEnabled(MainActivity.this)
+                        ? "Endpoint wird gesucht …" : "Endpoint nicht verfügbar");
+            }
+        });
         refresh();
         AdbWifiNotification.refresh(this);
+    }
+
+    @Override
+    protected void onPause() {
+        AdbWifiNotification.clearEndpointListener();
+        super.onPause();
     }
 
     @Override
