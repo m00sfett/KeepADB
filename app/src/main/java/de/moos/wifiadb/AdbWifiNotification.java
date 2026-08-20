@@ -230,15 +230,7 @@ final class AdbWifiNotification {
         currentHost = null;
         currentPort = 0;
         if (endpointListener != null) endpointListener.onUnavailable();
-        if (AdbWifiPreferences.isKeepAliveEnabled(context)) {
-            if (AdbWifiService.isWifiConnected(context)) {
-                showPlaceholder(context, manager, "WLAN-ADB: Ausgeschaltet", "Dauerhaft aktiv halten pausiert (WLAN-ADB manuell aus)");
-            } else {
-                showPlaceholder(context, manager, "WLAN-ADB: Ausgeschaltet", "Dauerhaft aktiv halten wartet auf WLAN-Verbindung");
-            }
-        } else {
-            manager.cancel(NOTIFICATION_ID);
-        }
+        manager.cancel(NOTIFICATION_ID);
         AdbWifiRegisterClient.markUnavailableAsync();
     }
 
