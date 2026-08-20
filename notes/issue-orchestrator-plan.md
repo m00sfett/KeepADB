@@ -678,6 +678,18 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - Screenshot zur Verifikation (`s20_fastprobe_smoke.png`) gesichert und geprüft.
 - **Status:** `complete` (Gesamtabnahme für Batch 2 bestanden, 0 offene Issues).
 
+## Umsetzung Issue #44 (PR #45 / Issue #44) — 2026-08-20
+
+- **Kontext / Problem:** Wenn WLAN-ADB manuell über App, Quick-Settings-Tile oder Widget ausgeschaltet wird, während „Dauerhaft aktiv halten“ aktiviert war, verblieb eine Notification („WLAN-ADB: Ausgeschaltet …“), da `AdbWifiService` als Foreground-Service weiterlief.
+- **Implementierung:**
+  - `AdbWifiNotification.stop()` ruft `NotificationManager.cancel(NOTIFICATION_ID)` bedingungslos auf, sobald WLAN-ADB ausgeschaltet ist.
+  - Beim manuellen Ausschalten via `MainActivity`, `AdbWifiTileService`, `AdbWifiWidget` oder im `AdbWifiService.ContentObserver` (`AdbWifi.consumeUserDisabled()`) wird `AdbWifiPreferences.setKeepAliveEnabled(context, false)` gesetzt und `AdbWifiService.stop(context)` ausgeführt.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Whitespace-Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
+- **Status:** `complete` für Issue #44 Code & lokale Validierung. Bereit für PR und Merge.
+
+
 
 
 
