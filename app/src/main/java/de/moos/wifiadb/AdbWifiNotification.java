@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
@@ -18,11 +20,18 @@ import android.text.style.StyleSpan;
 final class AdbWifiNotification {
     static final String CHANNEL_ID = "adb_wifi_endpoint";
     static final int NOTIFICATION_ID = 1;
+    private static final long INITIAL_DISCOVERY_DELAY_MS = 500;
+    private static final long RETRY_DELAY_INITIAL_MS = 2000;
+    private static final long RETRY_DELAY_BACKOFF_MS = 5000;
+    private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
     private static AdbWifiEndpoint endpoint;
     private static String currentHost;
     private static int currentPort;
     private static EndpointListener endpointListener;
+    private static Runnable pendingDiscoveryRunnable;
+    private static Runnable pendingRetryRunnable;
+    private static int retryAttempt;
 
     interface EndpointListener {
         void onEndpoint(String host, int port);
@@ -67,6 +76,9 @@ final class AdbWifiNotification {
     }
 
     static synchronized void invalidateEndpoint() {
+        cancelDiscoveryDelayLocked();
+        cancelRetryLocked();
+        retryAttempt = 0;
         if (endpoint != null) {
             endpoint.stop();
         }
@@ -89,6 +101,8 @@ final class AdbWifiNotification {
         }
 
         if (currentHost != null && currentPort > 0) {
+            cancelDiscoveryDelayLocked();
+            cancelRetryLocked();
             show(appContext, manager, currentHost, currentPort);
             if (endpointListener != null) {
                 endpointListener.onEndpoint(currentHost, currentPort);
@@ -96,11 +110,74 @@ final class AdbWifiNotification {
             return;
         }
 
-        if (endpoint == null) endpoint = new AdbWifiEndpoint(appContext);
         if (endpointListener != null) endpointListener.onUnavailable();
         if (AdbWifiPreferences.isKeepAliveEnabled(appContext)) {
             showPlaceholder(appContext, manager, "WLAN-ADB: Endpoint wird gesucht …", "Endpoint wird im lokalen Netzwerk aufgelöst");
         }
+
+        // Entprellte, 500ms verzögerte Initial-Discovery zur Vermeidung von adbd-Start-Races
+        scheduleInitialDiscoveryLocked(appContext, manager);
+    }
+
+    private static void cancelDiscoveryDelayLocked() {
+        if (pendingDiscoveryRunnable != null) {
+            MAIN_HANDLER.removeCallbacks(pendingDiscoveryRunnable);
+            pendingDiscoveryRunnable = null;
+        }
+    }
+
+    private static void cancelRetryLocked() {
+        if (pendingRetryRunnable != null) {
+            MAIN_HANDLER.removeCallbacks(pendingRetryRunnable);
+            pendingRetryRunnable = null;
+        }
+    }
+
+    private static void scheduleInitialDiscoveryLocked(Context appContext, NotificationManager manager) {
+        cancelDiscoveryDelayLocked();
+        cancelRetryLocked();
+        pendingDiscoveryRunnable = () -> {
+            synchronized (AdbWifiNotification.class) {
+                pendingDiscoveryRunnable = null;
+                if (!AdbWifi.isEnabled(appContext)) {
+                    return;
+                }
+                if (currentHost != null && currentPort > 0) {
+                    return;
+                }
+                startDiscoveryDirectLocked(appContext, manager);
+            }
+        };
+        MAIN_HANDLER.postDelayed(pendingDiscoveryRunnable, INITIAL_DISCOVERY_DELAY_MS);
+    }
+
+    private static void scheduleRetryLocked(Context appContext, NotificationManager manager) {
+        if (!AdbWifi.isEnabled(appContext)) {
+            retryAttempt = 0;
+            return;
+        }
+        cancelRetryLocked();
+        long delay = (retryAttempt == 0) ? RETRY_DELAY_INITIAL_MS : RETRY_DELAY_BACKOFF_MS;
+        retryAttempt++;
+        pendingRetryRunnable = () -> {
+            synchronized (AdbWifiNotification.class) {
+                pendingRetryRunnable = null;
+                if (!AdbWifi.isEnabled(appContext)) {
+                    retryAttempt = 0;
+                    return;
+                }
+                if (currentHost != null && currentPort > 0) {
+                    retryAttempt = 0;
+                    return;
+                }
+                startDiscoveryDirectLocked(appContext, manager);
+            }
+        };
+        MAIN_HANDLER.postDelayed(pendingRetryRunnable, delay);
+    }
+
+    private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager) {
+        if (endpoint == null) endpoint = new AdbWifiEndpoint(appContext);
         endpoint.discover(new AdbWifiEndpoint.Listener() {
             @Override
             public void onEndpoint(String host, int port) {
@@ -108,6 +185,9 @@ final class AdbWifiNotification {
                 synchronized (AdbWifiNotification.class) {
                     currentHost = host;
                     currentPort = port;
+                    retryAttempt = 0;
+                    cancelDiscoveryDelayLocked();
+                    cancelRetryLocked();
                     listener = endpointListener;
                 }
                 if (listener != null) {
@@ -124,6 +204,7 @@ final class AdbWifiNotification {
                     currentHost = null;
                     currentPort = 0;
                     listener = endpointListener;
+                    scheduleRetryLocked(appContext, manager);
                 }
                 if (listener != null) {
                     listener.onUnavailable();
@@ -139,6 +220,9 @@ final class AdbWifiNotification {
     }
 
     private static synchronized void stop(Context context, NotificationManager manager) {
+        cancelDiscoveryDelayLocked();
+        cancelRetryLocked();
+        retryAttempt = 0;
         if (endpoint != null) {
             endpoint.stop();
             endpoint = null;
