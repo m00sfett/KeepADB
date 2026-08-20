@@ -245,4 +245,12 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - Notification-Dump zeigt `android.title=String (WLAN-ADB: Port 34841 @ 192.168.178.24)` und `android.text=SpannableString (Port 34841 @ 192.168.178.24)` auf Channel `adb_wifi_endpoint`.
 - Status: `approved` für Issue #3 Datenpfad und Crash-Fix.
 
+## Abschluss Issue #3 — 2026-08-20
+
+- PR #6 (`feat: show live wireless adb endpoint in notification and app`) eröffnet, geprüft und per Squash-Merge in `master` übernommen.
+- Issue #3 durch GitHub automatisch geschlossen (`Fixes #3`).
+- Branch `issue-3-notification` lokal und remote aufgeräumt.
+- Status: `complete`.
+
+
 
