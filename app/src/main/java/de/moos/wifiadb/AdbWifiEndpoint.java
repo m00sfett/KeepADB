@@ -38,14 +38,16 @@ final class AdbWifiEndpoint {
         }
     }
 
-    void discover(Listener listener) {
-        stop();
+    synchronized void discover(Listener listener) {
+        if (discoveryListener != null) {
+            return;
+        }
         if (nsdManager == null) {
             listener.onUnavailable();
             return;
         }
 
-        if (multicastLock != null) {
+        if (multicastLock != null && !multicastLock.isHeld()) {
             try {
                 multicastLock.acquire();
             } catch (RuntimeException ignored) {
@@ -164,6 +166,7 @@ final class AdbWifiEndpoint {
                             if (!isCurrent(generation)) return;
                             if (reachable) {
                                 resolveQueue.clear();
+                                stop();
                                 listener.onEndpoint(host, port);
                             } else {
                                 processNextResolveLocked(generation, listener);

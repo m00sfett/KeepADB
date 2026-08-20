@@ -147,6 +147,7 @@ public class AdbWifiService extends Service {
                 @Override
                 public void onLost(Network network) {
                     Log.d(TAG, "NetworkCallback: Wi-Fi network lost");
+                    AdbWifiNotification.invalidateEndpoint();
                     AdbWifiNotification.refresh(AdbWifiService.this);
                     AdbWifiWidget.refreshAll(AdbWifiService.this);
                 }

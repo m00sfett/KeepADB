@@ -66,6 +66,17 @@ final class AdbWifiNotification {
                 "WRITE_SECURE_SETTINGS am PC per adb shell pm grant vergeben");
     }
 
+    static synchronized void invalidateEndpoint() {
+        if (endpoint != null) {
+            endpoint.stop();
+        }
+        currentHost = null;
+        currentPort = 0;
+        if (endpointListener != null) {
+            endpointListener.onUnavailable();
+        }
+    }
+
     static synchronized void refresh(Context context) {
         Context appContext = context.getApplicationContext();
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
@@ -77,10 +88,19 @@ final class AdbWifiNotification {
             return;
         }
 
+        if (currentHost != null && currentPort > 0) {
+            show(appContext, manager, currentHost, currentPort);
+            if (endpointListener != null) {
+                endpointListener.onEndpoint(currentHost, currentPort);
+            }
+            return;
+        }
+
         if (endpoint == null) endpoint = new AdbWifiEndpoint(appContext);
-        currentHost = null;
-        currentPort = 0;
         if (endpointListener != null) endpointListener.onUnavailable();
+        if (AdbWifiPreferences.isKeepAliveEnabled(appContext)) {
+            showPlaceholder(appContext, manager, "WLAN-ADB: Endpoint wird gesucht …", "Endpoint wird im lokalen Netzwerk aufgelöst");
+        }
         endpoint.discover(new AdbWifiEndpoint.Listener() {
             @Override
             public void onEndpoint(String host, int port) {
