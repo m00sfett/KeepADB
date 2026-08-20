@@ -723,7 +723,19 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
-- **Status:** `complete` für Issue #50 Code & lokale Validierung. Bereit für PR und Merge.
+- **Status:** `complete` für Issue #50 Code & lokale Validierung. PR #51 via Squash-Merge in `master` übernommen, Issue #50 geschlossen.
+
+## Umsetzung Issue #52 (PR #53 / Issue #52) — 2026-08-20
+
+- **Kontext / Problem:** In `AdbWifiEndpoint.discover()` brach die Methode mit einem frühen `return` ab, wenn `discoveryListener != null` war. Bei Re-Discovery (z. B. Aktivitätswechsel) wurde keine neue Session gestartet und der Listener erhielt keine Benachrichtigung.
+- **Implementierung:**
+  - `AdbWifiEndpoint.discover()` ruft intern `stop()` auf, um vorherige Sessions sauber zu beenden und startet eine frische Discovery mit neuer Generation.
+  - `isCurrent(generation)` prüft `discoveryGeneration == generation`.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Whitespace-Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
+- **Status:** `complete` für Issue #52 Code & lokale Validierung. Bereit für PR und Merge.
+
 
 
 
