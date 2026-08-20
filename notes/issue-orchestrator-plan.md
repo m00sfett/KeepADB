@@ -687,7 +687,21 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
-- **Status:** `complete` für Issue #44 Code & lokale Validierung. Bereit für PR und Merge.
+- **Status:** `complete` für Issue #44 Code & lokale Validierung. PR #45 via Squash-Merge in `master` übernommen, Issue #44 geschlossen.
+
+## Umsetzung Issue #46 (PR #47 / Issue #46) — 2026-08-20
+
+- **Kontext / Problem:** In `MainActivity` verharrte die Statusanzeige auf „Endpoint wird gesucht …“, obwohl WLAN-ADB bereits aktiv war.
+  - Ursache 1: `startFastProbe` scannte `127.0.0.1` mit `new InetSocketAddress(String, int)`, was 20.000 Mal DNS-Namensauflösung/GC-Pressure auslöste, während `adbd` auf Android primär auf der Wi-Fi-IP (`tcp6 ::ffff:192.168.x.x`) lauscht.
+  - Ursache 2: `AdbWifiNotification.refresh()` verzögerte jeden Discovery-Start künstlich um 500ms.
+- **Implementierung:**
+  - `startFastProbe` nutzt eine vorab aufgelöste `InetAddress` der lokalen Wi-Fi-IP und scannt direkt ohne Hostname-Parsing/DNS-Lookups.
+  - `AdbWifiNotification.refresh()` stößt die Discovery sofort an; bei bereits laufendem `adbd` wird der Endpoint innerhalb von wenigen Millisekunden erkannt und angezeigt.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Whitespace-Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
+- **Status:** `complete` für Issue #46 Code & lokale Validierung. Bereit für PR und Merge.
+
 
 
 
