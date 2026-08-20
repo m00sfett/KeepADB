@@ -57,9 +57,7 @@ final class AdbWifiEndpoint {
     }
 
     synchronized void discover(Listener listener) {
-        if (discoveryListener != null) {
-            return;
-        }
+        stop();
         if (nsdManager == null) {
             listener.onUnavailable();
             return;
@@ -240,7 +238,7 @@ final class AdbWifiEndpoint {
     }
 
     private synchronized boolean isCurrent(long generation) {
-        return discoveryListener != null && discoveryGeneration == generation;
+        return discoveryGeneration == generation;
     }
 
     private void startFastProbe(long generation, Listener listener) {
