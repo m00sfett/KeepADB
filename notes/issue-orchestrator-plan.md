@@ -700,7 +700,19 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
-- **Status:** `complete` für Issue #46 Code & lokale Validierung. Bereit für PR und Merge.
+- **Status:** `complete` für Issue #46 Code & lokale Validierung. PR #47 via Squash-Merge in `master` übernommen, Issue #46 geschlossen.
+
+## Umsetzung Issue #48 (PR #49 / Issue #48) — 2026-08-20
+
+- **Kontext / Problem:** Wenn auf dem Android-Gerät ein VPN aktiv ist (z. B. Tailscale), liefert `ConnectivityManager.getActiveNetwork()` das VPN-Interface (`TRANSPORT_VPN`) statt des physischen Wi-Fi-Interfaces.
+  - Dadurch schlugen `isWifiConnected()` und `getWifiIpAddress()` fehl (lieferten `false` bzw. `null`), wodurch `startFastProbe` sofort abbrach und die App dauerhaft auf „Endpoint wird gesucht …“ verharrte.
+- **Implementierung:**
+  - `AdbWifiService.isWifiConnected()` und `AdbWifiEndpoint.getWifiIpAddress()` prüfen alle aktiven Netzwerke (`getAllNetworks()`) auf `TRANSPORT_WIFI` inkl. Fallback auf `NetworkInterface` (z. B. `wlan0`), sodass die Wi-Fi-IP auch bei aktivem VPN zuverlässig ermittelt wird.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Whitespace-Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
+- **Status:** `complete` für Issue #48 Code & lokale Validierung. Bereit für PR und Merge.
+
 
 
 
