@@ -244,48 +244,92 @@ final class AdbWifiEndpoint {
     }
 
     private void startFastProbe(long generation, Listener listener) {
-        final String wifiIp = getWifiIpAddress(appContext);
-        if (wifiIp == null) {
-            return;
-        }
-        final InetAddress wifiAddr;
-        try {
-            wifiAddr = InetAddress.getByName(wifiIp);
-        } catch (Exception e) {
-            return;
-        }
-
         new Thread(() -> {
-            if (!isCurrent(generation)) return;
-            final int totalPorts = PROBE_END_PORT - PROBE_START_PORT + 1;
-            final int chunkSize = (totalPorts + PROBE_THREADS - 1) / PROBE_THREADS;
             final AtomicBoolean found = new AtomicBoolean(false);
+            final int maxAttempts = 15;
 
-            for (int i = 0; i < PROBE_THREADS; i++) {
-                final int start = PROBE_START_PORT + i * chunkSize;
-                final int end = Math.min(start + chunkSize - 1, PROBE_END_PORT);
-                new Thread(() -> {
-                    for (int port = start; port <= end; port++) {
-                        if (found.get() || !isCurrent(generation)) {
-                            break;
-                        }
-                        boolean open = false;
-                        try (Socket s = new Socket()) {
-                            s.connect(new InetSocketAddress(wifiAddr, port), 50);
-                            open = true;
-                        } catch (Exception ignored) {
-                        }
-                        if (open && found.compareAndSet(false, true)) {
-                            synchronized (AdbWifiEndpoint.this) {
-                                if (!isCurrent(generation)) return;
-                                resolveQueue.clear();
-                                stop();
-                                listener.onEndpoint(wifiIp, port);
-                            }
-                            break;
-                        }
+            for (int attempt = 0; attempt < maxAttempts; attempt++) {
+                if (!isCurrent(generation) || found.get()) return;
+
+                final String wifiIp = getWifiIpAddress(appContext);
+                if (wifiIp == null) {
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException e) {
+                        return;
                     }
-                }, "AdbWifiFastProbe-" + i).start();
+                    continue;
+                }
+
+                final InetAddress wifiAddr;
+                try {
+                    wifiAddr = InetAddress.getByName(wifiIp);
+                } catch (Exception e) {
+                    try {
+                        Thread.sleep(300);
+                    } catch (InterruptedException ie) {
+                        return;
+                    }
+                    continue;
+                }
+
+                final int totalPorts = PROBE_END_PORT - PROBE_START_PORT + 1;
+                final int chunkSize = (totalPorts + PROBE_THREADS - 1) / PROBE_THREADS;
+                final Thread[] workers = new Thread[PROBE_THREADS];
+
+                for (int i = 0; i < PROBE_THREADS; i++) {
+                    final int start = PROBE_START_PORT + i * chunkSize;
+                    final int end = Math.min(start + chunkSize - 1, PROBE_END_PORT);
+                    workers[i] = new Thread(() -> {
+                        for (int port = start; port <= end; port++) {
+                            if (found.get() || !isCurrent(generation)) {
+                                break;
+                            }
+                            boolean open = false;
+                            try (Socket s = new Socket()) {
+                                s.connect(new InetSocketAddress(wifiAddr, port), 50);
+                                open = true;
+                            } catch (Exception ignored) {
+                            }
+                            if (open && found.compareAndSet(false, true)) {
+                                synchronized (AdbWifiEndpoint.this) {
+                                    if (!isCurrent(generation)) return;
+                                    resolveQueue.clear();
+                                    stop();
+                                    listener.onEndpoint(wifiIp, port);
+                                }
+                                break;
+                            }
+                        }
+                    }, "AdbWifiFastProbe-" + i);
+                    workers[i].start();
+                }
+
+                for (Thread worker : workers) {
+                    try {
+                        worker.join();
+                    } catch (InterruptedException e) {
+                        return;
+                    }
+                }
+
+                if (found.get() || !isCurrent(generation)) {
+                    return;
+                }
+
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
+
+            if (!found.get() && isCurrent(generation)) {
+                synchronized (AdbWifiEndpoint.this) {
+                    if (!isCurrent(generation)) return;
+                    stop();
+                    listener.onUnavailable();
+                }
             }
         }, "AdbWifiFastProbeCoordinator").start();
     }
