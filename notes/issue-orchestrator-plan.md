@@ -161,3 +161,25 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   Register-/Tailscale-Code und keine Toggle-Semantikänderung.
 - Status: `blocked` für die Abnahme durch Geräte-/Transportinfrastruktur; Code lokal gebaut und
   gelintet. Kein Issue-/PR-Schließschlüsselwort verwenden, solange das Gerätegate offen ist.
+
+## S20-Nachprüfung — 2026-08-20
+
+- Transport: `192.168.178.24:40045` verbunden und gegen `SM-G780G` / `RF8T307S88H` / Android 13
+  validiert; Register auf den neuen Port aktualisiert. Doppelte mDNS-Transporte wurden gezielt
+  getrennt, der angegebene Transport blieb erhalten.
+- Installation: vorhandene App geprüft, Shared-Prefs nach
+  `~/agent/backup/2026-08-20/smartphone-wlan-adb-app-s20-shared-prefs.tar` gesichert, Debug-APK
+  erfolgreich per `install -r` installiert. Keine Deinstallation oder Datenlöschung.
+- Erstbefund: App-Crash beim ersten Start wegen fehlender `android.permission.INTERNET` für NSD;
+  Manifest-Fix innerhalb des Issue-3-Scopes umgesetzt. Zweiter Test ohne Crash.
+- Endpoint-Fix: DNS-SD-Service-Typ mit optionalem abschließendem Punkt akzeptiert; zusätzlich zeigt
+  die App-Oberfläche den gefundenen Endpoint.
+- Erfüllte Nachweise: UI-Dump und Screenshot zeigen `WLAN-ADB ist AN` sowie `Endpoint:
+  192.168.178.24:40045`; Notification-Dump zeigt Titel `WLAN-ADB: Port 40045 @ 192.168.178.24`
+  und Inhalt `Port 40045 @ 192.168.178.24`; Channel `adb_wifi_endpoint` vorhanden; kein neuer
+  `FATAL EXCEPTION`-Eintrag nach dem Fix; Lint erfolgreich.
+- Nicht ausgeführt: AUS/AN-Transportzyklus über die App, weil das Ausschalten von WLAN-ADB den
+  laufenden Prüftransport beendet. Dieser Abnahmepunkt bleibt als manueller/alternativer
+  Kontrollkanal offen; Widget- und Tile-Aufrufpfade wurden nicht separat ausgelöst.
+- Status: `not approved` für vollständige Issue-Abnahme; ON-/Anzeige-/Notification-Datenpfad auf
+  dem echten S20 bestanden, AUS/AN und Widget/Tile bleiben offen.
