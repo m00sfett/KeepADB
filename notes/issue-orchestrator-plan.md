@@ -277,3 +277,12 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - Issue #5 durch GitHub automatisch geschlossen (`Fixes #5`).
 - Branch `issue-5-notification-stale-port` lokal und remote aufgeräumt.
 - Status: `complete`.
+
+## Abschluss Issue #1 — 2026-08-20
+
+- Merge: `master` mit Endpoint-Funktionalität (#3/#5) in `issue-1-ci-designsystem` gemergt; Farbreferenz `night_muted` für die Endpoint-Anzeige eingepasst.
+- Lokale Gates: `git diff --check`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug` erfolgreich ausgeführt.
+- PR #2 (`feat: apply CI design system to WiFi-ADB`) als bereit markiert und per Squash-Merge in `master` übernommen (`Fixes #1`).
+- Issue #1 durch GitHub automatisch geschlossen.
+- Branch `issue-1-ci-designsystem` lokal und remote aufgeräumt.
+- Status: `complete`.
