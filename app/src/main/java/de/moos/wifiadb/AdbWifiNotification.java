@@ -57,6 +57,15 @@ final class AdbWifiNotification {
         }
     }
 
+    static synchronized void showPermissionMissing(Context context) {
+        Context appContext = context.getApplicationContext();
+        NotificationManager manager = appContext.getSystemService(NotificationManager.class);
+        if (manager == null) return;
+        ensureChannel(manager);
+        showPlaceholder(appContext, manager, "WLAN-ADB: Berechtigung fehlt",
+                "WRITE_SECURE_SETTINGS am PC per adb shell pm grant vergeben");
+    }
+
     static synchronized void refresh(Context context) {
         Context appContext = context.getApplicationContext();
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
