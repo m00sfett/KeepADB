@@ -132,10 +132,14 @@ final class AdbWifiNotification {
         manager.createNotificationChannel(channel);
     }
 
+    private static boolean hasNotificationPermission(Context context) {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                || context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
     private static void show(Context context, NotificationManager manager, String host, int port) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                && context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (!hasNotificationPermission(context)) {
             return;
         }
         Notification notification = buildNotification(context, host, port);
@@ -143,9 +147,7 @@ final class AdbWifiNotification {
     }
 
     private static void showPlaceholder(Context context, NotificationManager manager, String title, String text) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                && context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (!hasNotificationPermission(context)) {
             return;
         }
         Notification notification = buildPlaceholderNotification(context, title, text);
