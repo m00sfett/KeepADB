@@ -400,3 +400,26 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler).
   - Server-Readback: `DELETE /register/s20` via `curl` liefert HTTP 200 und setzt Status auf `stale`.
 - Status: `approved`.
+
+## Abschluss Paket 3 & Gesamt-Orchestrierung — 2026-08-20
+
+- PR #17 per Squash-Merge in `master` übernommen.
+- Issue #12 durch GitHub automatisch geschlossen (`Fixes #12`).
+- Alle 7 offenen Issues (#9, #10, #11, #12, #13, #14, #15) vollständig abgeschlossen.
+- Status: `complete`.
+
+## Aufwandsprotokoll
+
+- Geplante / erledigte Pakete: 3 Pakete (Paket 1: #14/#15; Paket 2: #9/#10/#11/#13; Paket 3: #12).
+- Erledigte Issues: 7 (100%).
+- Modell: Gemini 3.7 Flash High (S3 / Direktumsetzung).
+- Build-/Lint-Läufe: 3x `assembleDebug lintDebug` erfolgreich (0 Fehler).
+- Fehlversuche / Retries am Code: 0.
+- Beobachtete Token-/Abrechnungswerte: unbekannt.
+
+## Retrospektive
+
+1. **Reihenfolge & Paketierung:** Die Staffelung (S1 Doku/Hygiene -> S2 Threading & Validierung -> S2/S3 Server/Client Lifecycle) hat Abhängigkeiten sauber isoliert und atomare PRs ermöglicht.
+2. **Defekterkennung & Gates:** Lokale Gates (`git diff --check`, Java-Kompilierung, Lint und Readback-Tests) haben die Änderungen deterministisch verifiziert.
+3. **Delegation:** Direkte Bearbeitung im Hauptagenten war ressourcenschonend und effizient; getrennte Subagenten hätten unnötigen Overhead erzeugt.
+4. **Verbesserung:** Bei künftigen Register-/Backend-Endpunkten Lebenszyklus-Operationen wie `DELETE`/`unregister` direkt im ersten Schema-Entwurf vorsehen.
