@@ -277,4 +277,3 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - Issue #5 durch GitHub automatisch geschlossen (`Fixes #5`).
 - Branch `issue-5-notification-stale-port` lokal und remote aufgeräumt.
 - Status: `complete`.
-

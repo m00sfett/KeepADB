@@ -12,7 +12,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_adb"
         android:label="WiFi-ADB"
-        android:theme="@android:style/Theme.DeviceDefault.DayNight">
+        android:theme="@style/Theme.WifiAdb">
 
         <activity
             android:name=".MainActivity"
