@@ -1941,3 +1941,34 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Arbeitsbaum: sauber.
 - Nächste sinnvolle Schritte: keine offenen Kandidaten; nächste Auswahlrunde erst bei neuen
   Issues oder auf ausdrücklichen Nutzerauftrag.
+
+## Nachbesserung — "abgemeldet" statt "noch keiner" (PR #122) — 2026-08-21
+
+- Nutzerbeobachtung: „noch keiner" wird sowohl für „nie gemeldet" als auch für „gerade erfolgreich
+  abgemeldet" verwendet — widerspricht dem README-Versprechen zuverlässiger Registrierung.
+  Berechtigter Befund, per `AskUserQuestion` bestätigt und umgesetzt.
+- Fix: neuer String `webhook_status_deregistered`, gezeigt wenn `lastReportedAt > 0` aber kein
+  aktueller Endpoint — in allen 17 vorhandenen Sprachdateien ergänzt (Lint-Gate
+  `MissingTranslation` verlangt Vollständigkeit über alle Locales; nur en/de von Hand geprüft,
+  Rest wörtliche Best-Effort-Übersetzung).
+- Während des Livetests eigene Testartefakte verursacht: Keep-Alive für einen sauberen
+  Ablauf-Test kurzzeitig deaktiviert, dabei mehrere rasche Prozess-/Toggle-Zyklen ausgelöst, die
+  adbd kurzzeitig in einen listener-losen Zustand brachten (45s-Timeout, kein Code-Defekt) —
+  vom Nutzer live am Gerät als „geht jetzt gar nicht" bemerkt, während ich noch testete. Über
+  die reguläre App-UI (Keep-Alive-Schalter) sauber behoben, kein Bug bestätigt.
+- Größenangaben auf Nutzerfrage (Stand `master` vor diesem Fix): Code ~2395 Zeilen Java,
+  Repo-Arbeitskopie 2,6 MB, Debug-APK 442 KB, installiert auf S20 448 KB Code + 26 KB Daten.
+- PR #122 gemerged (kein GitHub-Actions-Run).
+- **Lehre:** Bei Live-Gerätetests, die Nutzereinstellungen (Keep-Alive) temporär verändern,
+  entstehen für einen Mitbeobachter am selben physischen Gerät scheinbare Fehlzustände. Sollte
+  künftig vorab angekündigt werden, wenn der Nutzer parallel Zugriff aufs Testgerät hat.
+- Status: `complete`.
+
+## Übergabe-Checkpoint — 2026-08-21 (nach PR #122)
+
+- Server-Stand (abgefragt): keine offenen Issues, keine offenen PRs, `master` synchron mit
+  `origin/master` auf `5fbae4e`.
+- Arbeitsbaum: sauber. Gerät (S20) in normalem Zustand: Keep-Alive an, Wireless Debugging an,
+  Webhook korrekt registriert, Register aktualisiert.
+- Nächste sinnvolle Schritte: keine offenen Kandidaten; nächste Auswahlrunde erst bei neuen
+  Issues oder auf ausdrücklichen Nutzerauftrag.
