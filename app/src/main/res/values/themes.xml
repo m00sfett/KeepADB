@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.WifiAdb" parent="android:style/Theme.Material.NoActionBar">
+    <style name="Theme.KeepADB" parent="android:style/Theme.Material.NoActionBar">
         <item name="android:fontFamily">@font/fira_sans</item>
         <item name="android:windowBackground">@color/ground</item>
         <item name="android:colorAccent">@color/title_yellow</item>

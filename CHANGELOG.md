@@ -1,21 +1,28 @@
 # Changelog
 
-All notable changes to **KeepAdb** will be documented in this file.
+All notable changes to **KeepADB** will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- In-app first-time setup instructions with the exact USB/ADB command required to grant `WRITE_SECURE_SETTINGS`.
+
+### Changed
+- Renamed the product, repository references, Android namespace, source packages, classes, resources, and release artifacts consistently to **KeepADB**.
+- Changed the Android application ID to `de.hohnepeople.keepadb`; this intentionally requires a fresh installation and one-time permission grant.
+
 ## [1.0.0] - 2026-08-21
 
 ### Added
 - **Triple Interface**:
   - Clean, dedicated Activity UI with real-time status and keep-alive toggle.
-  - Quick Settings Tile (`AdbWifiTileService`) for instant 1-tap toggling directly from the notification shade.
-  - Home Screen Widget (`AdbWifiWidget`) with live status feedback.
+  - Quick Settings Tile (`KeepADBTileService`) for instant 1-tap toggling directly from the notification shade.
+  - Home Screen Widget (`KeepADBWidget`) with live status feedback.
 - **Keep-Alive Foreground Service**:
-  - Persistent background watchdog (`AdbWifiService`) that automatically restores Wireless ADB on network drops, Wi-Fi reconnects, AP roaming, and device boot (`BootReceiver`).
+  - Persistent background watchdog (`KeepADBService`) that automatically restores Wireless Debugging on network drops, Wi-Fi reconnects, AP roaming, and device boot (`BootReceiver`).
 - **Live Endpoint & Port Discovery**:
   - Real-time IP address and dynamic port discovery via mDNS Network Service Discovery (`NsdManager`) and an ultra-fast local loopback Fast-Probe scanner.
   - Ongoing notification with quick status display and connection string (`Port <port> @ <ip>`).

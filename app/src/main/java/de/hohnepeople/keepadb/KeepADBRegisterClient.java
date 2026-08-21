@@ -1,4 +1,4 @@
-package de.moos.wifiadb;
+package de.hohnepeople.keepadb;
 
 import android.content.Context;
 import android.util.Log;
@@ -14,13 +14,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /** Sends optional background reachability updates to a custom register or webhook endpoint. */
-final class AdbWifiRegisterClient {
-    private static final String TAG = "AdbWifiRegisterClient";
+final class KeepADBRegisterClient {
+    private static final String TAG = "KeepADBRegisterClient";
     private static final int TIMEOUT_MS = 2000;
     private static final String UNAVAILABLE_MARKER = "__UNAVAILABLE__";
 
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "AdbWifiRegisterPush");
+        Thread t = new Thread(r, "KeepADBRegisterPush");
         t.setDaemon(true);
         return t;
     });
@@ -28,11 +28,11 @@ final class AdbWifiRegisterClient {
     private static final AtomicReference<String> latestPendingEndpoint = new AtomicReference<>();
     private static volatile String lastRegisteredEndpoint = null;
 
-    private AdbWifiRegisterClient() {}
+    private KeepADBRegisterClient() {}
 
     static void updateEndpointAsync(Context context, String host, int port) {
         if (context == null || host == null || port <= 0) return;
-        final String targetUrl = AdbWifiPreferences.getRegisterWebhookUrl(context);
+        final String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(context);
         if (targetUrl == null || targetUrl.trim().isEmpty()) {
             return;
         }
@@ -60,7 +60,7 @@ final class AdbWifiRegisterClient {
 
     static void markUnavailableAsync(Context context) {
         if (context == null) return;
-        final String targetUrl = AdbWifiPreferences.getRegisterWebhookUrl(context);
+        final String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(context);
         if (targetUrl == null || targetUrl.trim().isEmpty()) {
             return;
         }

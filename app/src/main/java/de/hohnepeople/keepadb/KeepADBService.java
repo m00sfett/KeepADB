@@ -1,4 +1,4 @@
-package de.moos.wifiadb;
+package de.hohnepeople.keepadb;
 
 import android.app.Service;
 import android.content.Context;
@@ -18,10 +18,10 @@ import android.util.Log;
 
 /**
  * Foreground service that monitors Wi-Fi connectivity and wireless debugging state
- * to automatically re-enable WLAN-ADB and push new endpoints to the register.
+ * to automatically re-enable Wireless Debugging and push new endpoints to the register.
  */
-public class AdbWifiService extends Service {
-    private static final String TAG = "AdbWifiService";
+public class KeepADBService extends Service {
+    private static final String TAG = "KeepADBService";
 
     private ContentObserver adbContentObserver;
     private ConnectivityManager.NetworkCallback networkCallback;
@@ -30,7 +30,7 @@ public class AdbWifiService extends Service {
     private long lastRecheckTime = 0;
 
     static void sync(Context context) {
-        if (AdbWifiPreferences.isKeepAliveEnabled(context)) {
+        if (KeepADBPreferences.isKeepAliveEnabled(context)) {
             start(context);
         } else {
             stop(context);
@@ -38,12 +38,12 @@ public class AdbWifiService extends Service {
     }
 
     static void start(Context context) {
-        Intent intent = new Intent(context, AdbWifiService.class);
+        Intent intent = new Intent(context, KeepADBService.class);
         context.startForegroundService(intent);
     }
 
     static void stop(Context context) {
-        Intent intent = new Intent(context, AdbWifiService.class);
+        Intent intent = new Intent(context, KeepADBService.class);
         context.stopService(intent);
     }
 
@@ -58,20 +58,20 @@ public class AdbWifiService extends Service {
                 }
             }
         }
-        return AdbWifiEndpoint.getWifiIpAddress(context) != null;
+        return KeepADBEndpoint.getWifiIpAddress(context) != null;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        AdbWifi.consumeUserDisabled();
+        KeepADB.consumeUserDisabled();
         registerAdbObserver();
         registerNetworkCallback();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startForeground(AdbWifiNotification.NOTIFICATION_ID, AdbWifiNotification.getServiceNotification(this));
+        startForeground(KeepADBNotification.NOTIFICATION_ID, KeepADBNotification.getServiceNotification(this));
         recheckAndEnable();
         return START_STICKY;
     }
@@ -86,7 +86,7 @@ public class AdbWifiService extends Service {
         unregisterAdbObserver();
         unregisterNetworkCallback();
         stopForeground(STOP_FOREGROUND_DETACH);
-        AdbWifi.consumeUserDisabled();
+        KeepADB.consumeUserDisabled();
         super.onDestroy();
     }
 
@@ -98,29 +98,29 @@ public class AdbWifiService extends Service {
                 public void onChange(boolean selfChange, Uri uri) {
                     super.onChange(selfChange, uri);
                     Log.d(TAG, "ContentObserver: adb_wifi_enabled changed");
-                    if (AdbWifiPreferences.isKeepAliveEnabled(AdbWifiService.this)) {
-                        if (isWifiConnected(AdbWifiService.this) && !AdbWifi.isEnabled(AdbWifiService.this)) {
-                            if (AdbWifi.consumeUserDisabled()) {
-                                Log.i(TAG, "WLAN-ADB manually disabled by user; stopping keep-alive service");
-                                AdbWifiPreferences.setKeepAliveEnabled(AdbWifiService.this, false);
-                                stop(AdbWifiService.this);
+                    if (KeepADBPreferences.isKeepAliveEnabled(KeepADBService.this)) {
+                        if (isWifiConnected(KeepADBService.this) && !KeepADB.isEnabled(KeepADBService.this)) {
+                            if (KeepADB.consumeUserDisabled()) {
+                                Log.i(TAG, "Wireless Debugging manually disabled by user; stopping keep-alive service");
+                                KeepADBPreferences.setKeepAliveEnabled(KeepADBService.this, false);
+                                stop(KeepADBService.this);
                                 return;
                             } else {
-                                Log.i(TAG, "WLAN-ADB dropped while Wi-Fi connected; re-enabling...");
-                                if (!AdbWifi.setEnabled(AdbWifiService.this, true)) {
-                                    Log.e(TAG, "Failed to auto-enable WLAN-ADB (WRITE_SECURE_SETTINGS missing?)");
-                                    AdbWifiNotification.showPermissionMissing(AdbWifiService.this);
+                                Log.i(TAG, "Wireless Debugging dropped while Wi-Fi connected; re-enabling...");
+                                if (!KeepADB.setEnabled(KeepADBService.this, true)) {
+                                    Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
+                                    KeepADBNotification.showPermissionMissing(KeepADBService.this);
                                     return;
                                 }
                             }
                         }
                     }
-                    AdbWifiNotification.refresh(AdbWifiService.this);
-                    AdbWifiWidget.refreshAll(AdbWifiService.this);
+                    KeepADBNotification.refresh(KeepADBService.this);
+                    KeepADBWidget.refreshAll(KeepADBService.this);
                 }
             };
             getContentResolver().registerContentObserver(
-                    Settings.Global.getUriFor(AdbWifi.KEY),
+                    Settings.Global.getUriFor(KeepADB.KEY),
                     false,
                     adbContentObserver);
             isRegisteredObserver = true;
@@ -157,9 +157,9 @@ public class AdbWifiService extends Service {
                 @Override
                 public void onLost(Network network) {
                     Log.d(TAG, "NetworkCallback: Wi-Fi network lost");
-                    AdbWifiNotification.invalidateEndpoint();
-                    AdbWifiNotification.refresh(AdbWifiService.this);
-                    AdbWifiWidget.refreshAll(AdbWifiService.this);
+                    KeepADBNotification.invalidateEndpoint();
+                    KeepADBNotification.refresh(KeepADBService.this);
+                    KeepADBWidget.refreshAll(KeepADBService.this);
                 }
             };
             cm.registerNetworkCallback(request, networkCallback, new Handler(Looper.getMainLooper()));
@@ -189,19 +189,19 @@ public class AdbWifiService extends Service {
             return;
         }
         lastRecheckTime = now;
-        if (AdbWifiPreferences.isKeepAliveEnabled(this)) {
+        if (KeepADBPreferences.isKeepAliveEnabled(this)) {
             if (isWifiConnected(this)) {
-                if (!AdbWifi.isEnabled(this)) {
-                    Log.i(TAG, "Auto-enabling WLAN-ADB (Wi-Fi connected)");
-                    if (!AdbWifi.setEnabled(this, true)) {
-                        Log.e(TAG, "Failed to auto-enable WLAN-ADB (WRITE_SECURE_SETTINGS missing?)");
-                        AdbWifiNotification.showPermissionMissing(this);
+                if (!KeepADB.isEnabled(this)) {
+                    Log.i(TAG, "Auto-enabling Wireless Debugging (Wi-Fi connected)");
+                    if (!KeepADB.setEnabled(this, true)) {
+                        Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
+                        KeepADBNotification.showPermissionMissing(this);
                         return;
                     }
                 }
             }
         }
-        AdbWifiNotification.refresh(this);
-        AdbWifiWidget.refreshAll(this);
+        KeepADBNotification.refresh(this);
+        KeepADBWidget.refreshAll(this);
     }
 }

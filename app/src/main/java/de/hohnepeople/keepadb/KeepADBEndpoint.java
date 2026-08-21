@@ -1,4 +1,4 @@
-package de.moos.wifiadb;
+package de.hohnepeople.keepadb;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -22,7 +22,7 @@ import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Discovers the active secure wireless-debugging endpoint advertised by adbd. */
-final class AdbWifiEndpoint {
+final class KeepADBEndpoint {
     static final String SERVICE_TYPE = "_adb-tls-connect._tcp.";
     private static final long RESOLVE_TIMEOUT_MS = 1500;
     private static final int PROBE_START_PORT = 30000;
@@ -47,12 +47,12 @@ final class AdbWifiEndpoint {
     private boolean discovering;
     private Thread coordinatorThread;
 
-    AdbWifiEndpoint(Context context) {
+    KeepADBEndpoint(Context context) {
         appContext = context.getApplicationContext();
         nsdManager = (NsdManager) appContext.getSystemService(Context.NSD_SERVICE);
         WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
         if (wifiManager != null) {
-            multicastLock = wifiManager.createMulticastLock("de.moos.wifiadb.AdbWifiEndpoint");
+            multicastLock = wifiManager.createMulticastLock("de.hohnepeople.keepadb.KeepADBEndpoint");
             multicastLock.setReferenceCounted(false);
         } else {
             multicastLock = null;
@@ -98,7 +98,7 @@ final class AdbWifiEndpoint {
                 if (!isCurrent(generation) || !sameServiceType(serviceInfo.getServiceType())) {
                     return;
                 }
-                synchronized (AdbWifiEndpoint.this) {
+                synchronized (KeepADBEndpoint.this) {
                     if (!isCurrent(generation)) return;
                     resolveQueue.offer(serviceInfo);
                     processNextResolveLocked(generation);
@@ -151,7 +151,7 @@ final class AdbWifiEndpoint {
         resolving = true;
         cancelResolveWatchdogLocked();
         resolveWatchdogRunnable = () -> {
-            synchronized (AdbWifiEndpoint.this) {
+            synchronized (KeepADBEndpoint.this) {
                 if (!isCurrent(generation) || !resolving) return;
                 resolving = false;
                 processNextResolveLocked(generation);
@@ -163,7 +163,7 @@ final class AdbWifiEndpoint {
             nsdManager.resolveService(nextService, new NsdManager.ResolveListener() {
                 @Override
                 public void onResolveFailed(NsdServiceInfo ignored, int errorCode) {
-                    synchronized (AdbWifiEndpoint.this) {
+                    synchronized (KeepADBEndpoint.this) {
                         cancelResolveWatchdogLocked();
                         resolving = false;
                         if (!isCurrent(generation)) return;
@@ -173,7 +173,7 @@ final class AdbWifiEndpoint {
 
                 @Override
                 public void onServiceResolved(NsdServiceInfo resolved) {
-                    synchronized (AdbWifiEndpoint.this) {
+                    synchronized (KeepADBEndpoint.this) {
                         cancelResolveWatchdogLocked();
                         if (!isCurrent(generation)) {
                             resolving = false;
@@ -200,7 +200,7 @@ final class AdbWifiEndpoint {
                             } catch (Exception ignored) {
                             }
                             Listener targetListener = null;
-                            synchronized (AdbWifiEndpoint.this) {
+                            synchronized (KeepADBEndpoint.this) {
                                 resolving = false;
                                 if (!isCurrent(generation)) return;
                                 if (reachable) {
@@ -214,7 +214,7 @@ final class AdbWifiEndpoint {
                             if (targetListener != null) {
                                 targetListener.onEndpoint(host, port);
                             }
-                        }, "AdbWifiEndpointCheck").start();
+                        }, "KeepADBEndpointCheck").start();
                     }
                 }
             });
@@ -302,7 +302,7 @@ final class AdbWifiEndpoint {
                             }
                             if (open && found.compareAndSet(false, true)) {
                                 Listener targetListener = null;
-                                synchronized (AdbWifiEndpoint.this) {
+                                synchronized (KeepADBEndpoint.this) {
                                     if (isCurrent(generation)) {
                                         resolveQueue.clear();
                                         targetListener = currentListener;
@@ -315,7 +315,7 @@ final class AdbWifiEndpoint {
                                 break;
                             }
                         }
-                    }, "AdbWifiFastProbe-" + i);
+                    }, "KeepADBFastProbe-" + i);
                     workers[i].start();
                 }
 
@@ -343,7 +343,7 @@ final class AdbWifiEndpoint {
 
             if (!found.get() && isCurrent(generation)) {
                 Listener targetListener = null;
-                synchronized (AdbWifiEndpoint.this) {
+                synchronized (KeepADBEndpoint.this) {
                     if (isCurrent(generation)) {
                         targetListener = currentListener;
                         stop();
@@ -353,7 +353,7 @@ final class AdbWifiEndpoint {
                     targetListener.onUnavailable();
                 }
             }
-        }, "AdbWifiFastProbeCoordinator");
+        }, "KeepADBFastProbeCoordinator");
         coordinatorThread.start();
     }
 

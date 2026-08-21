@@ -1,4 +1,4 @@
-package de.moos.wifiadb;
+package de.hohnepeople.keepadb;
 
 import android.Manifest;
 import android.app.Notification;
@@ -17,14 +17,14 @@ import android.text.Spanned;
 import android.text.style.StyleSpan;
 
 /** Keeps the endpoint notification aligned with the live Wireless Debugging state. */
-final class AdbWifiNotification {
-    static final String CHANNEL_ID = "adb_wifi_endpoint";
+final class KeepADBNotification {
+    static final String CHANNEL_ID = "keepadb_endpoint";
     static final int NOTIFICATION_ID = 1;
     private static final long RETRY_DELAY_INITIAL_MS = 2000;
     private static final long RETRY_DELAY_BACKOFF_MS = 5000;
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
-    private static AdbWifiEndpoint endpoint;
+    private static KeepADBEndpoint endpoint;
     private static String currentHost;
     private static int currentPort;
     private static EndpointListener endpointListener;
@@ -36,7 +36,7 @@ final class AdbWifiNotification {
         void onUnavailable();
     }
 
-    private AdbWifiNotification() {}
+    private KeepADBNotification() {}
 
     static synchronized void setEndpointListener(EndpointListener listener) {
         endpointListener = listener;
@@ -95,7 +95,7 @@ final class AdbWifiNotification {
         if (manager == null) return;
         ensureChannel(appContext, manager);
 
-        if (!AdbWifi.isEnabled(appContext)) {
+        if (!KeepADB.isEnabled(appContext)) {
             stop(appContext, manager);
             return;
         }
@@ -110,7 +110,7 @@ final class AdbWifiNotification {
         }
 
         if (endpointListener != null) endpointListener.onUnavailable();
-        if (AdbWifiPreferences.isKeepAliveEnabled(appContext)) {
+        if (KeepADBPreferences.isKeepAliveEnabled(appContext)) {
             showPlaceholder(appContext, manager,
                     appContext.getString(R.string.notification_title_searching),
                     appContext.getString(R.string.notification_text_searching));
@@ -128,7 +128,7 @@ final class AdbWifiNotification {
     }
 
     private static void scheduleRetryLocked(Context appContext, NotificationManager manager) {
-        if (!AdbWifi.isEnabled(appContext)) {
+        if (!KeepADB.isEnabled(appContext)) {
             retryAttempt = 0;
             return;
         }
@@ -136,9 +136,9 @@ final class AdbWifiNotification {
         long delay = (retryAttempt == 0) ? RETRY_DELAY_INITIAL_MS : RETRY_DELAY_BACKOFF_MS;
         retryAttempt++;
         pendingRetryRunnable = () -> {
-            synchronized (AdbWifiNotification.class) {
+            synchronized (KeepADBNotification.class) {
                 pendingRetryRunnable = null;
-                if (!AdbWifi.isEnabled(appContext)) {
+                if (!KeepADB.isEnabled(appContext)) {
                     retryAttempt = 0;
                     return;
                 }
@@ -153,12 +153,12 @@ final class AdbWifiNotification {
     }
 
     private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager) {
-        if (endpoint == null) endpoint = new AdbWifiEndpoint(appContext);
-        endpoint.discover(new AdbWifiEndpoint.Listener() {
+        if (endpoint == null) endpoint = new KeepADBEndpoint(appContext);
+        endpoint.discover(new KeepADBEndpoint.Listener() {
             @Override
             public void onEndpoint(String host, int port) {
                 EndpointListener listener;
-                synchronized (AdbWifiNotification.class) {
+                synchronized (KeepADBNotification.class) {
                     currentHost = host;
                     currentPort = port;
                     retryAttempt = 0;
@@ -169,13 +169,13 @@ final class AdbWifiNotification {
                     listener.onEndpoint(host, port);
                 }
                 show(appContext, manager, host, port);
-                AdbWifiRegisterClient.updateEndpointAsync(appContext, host, port);
+                KeepADBRegisterClient.updateEndpointAsync(appContext, host, port);
             }
 
             @Override
             public void onUnavailable() {
                 EndpointListener listener;
-                synchronized (AdbWifiNotification.class) {
+                synchronized (KeepADBNotification.class) {
                     currentHost = null;
                     currentPort = 0;
                     listener = endpointListener;
@@ -184,14 +184,14 @@ final class AdbWifiNotification {
                 if (listener != null) {
                     listener.onUnavailable();
                 }
-                if (AdbWifiPreferences.isKeepAliveEnabled(appContext)) {
+                if (KeepADBPreferences.isKeepAliveEnabled(appContext)) {
                     showPlaceholder(appContext, manager,
                             appContext.getString(R.string.notification_title_searching),
                             appContext.getString(R.string.notification_text_searching));
                 } else {
                     manager.cancel(NOTIFICATION_ID);
                 }
-                AdbWifiRegisterClient.markUnavailableAsync(appContext);
+                KeepADBRegisterClient.markUnavailableAsync(appContext);
             }
         });
     }
@@ -207,7 +207,7 @@ final class AdbWifiNotification {
         currentPort = 0;
         if (endpointListener != null) endpointListener.onUnavailable();
         manager.cancel(NOTIFICATION_ID);
-        AdbWifiRegisterClient.markUnavailableAsync(context.getApplicationContext());
+        KeepADBRegisterClient.markUnavailableAsync(context.getApplicationContext());
     }
 
     private static void ensureChannel(Context context, NotificationManager manager) {
@@ -255,7 +255,7 @@ final class AdbWifiNotification {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         return new Notification.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_adb)
+                .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(title)
                 .setContentText(styled)
                 .setStyle(new Notification.BigTextStyle().bigText(styled))
@@ -273,7 +273,7 @@ final class AdbWifiNotification {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         return new Notification.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_adb)
+                .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setStyle(new Notification.BigTextStyle().bigText(text))
