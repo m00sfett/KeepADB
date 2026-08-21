@@ -10,6 +10,7 @@ final class KeepADBPreferences {
     private static final String KEY_REGISTER_URL = "register_webhook_url";
     private static final String KEY_WEBHOOK_ENABLED = "register_webhook_enabled";
     private static final String KEY_WEBHOOK_LAST_REPORTED = "register_webhook_last_reported";
+    private static final String KEY_WEBHOOK_LAST_ENDPOINT = "register_webhook_last_endpoint";
     private static final String KEY_APP_LANGUAGE = "app_language";
 
     private KeepADBPreferences() {}
@@ -57,6 +58,16 @@ final class KeepADBPreferences {
     static void setWebhookLastReportedAtNow(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putLong(KEY_WEBHOOK_LAST_REPORTED, System.currentTimeMillis()).apply();
+    }
+
+    static String getWebhookLastReportedEndpoint(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_WEBHOOK_LAST_ENDPOINT, null);
+    }
+
+    static void setWebhookLastReportedEndpoint(Context context, String endpoint) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putString(KEY_WEBHOOK_LAST_ENDPOINT, endpoint).apply();
     }
 
     static boolean isValidWebhookUrl(String url) {
