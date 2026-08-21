@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.LocaleManager;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.LocaleList;
 
@@ -53,12 +54,14 @@ public final class KeepADBLocaleHelper {
             if (lm == null) {
                 return "";
             }
-            migrateLegacyLocale(context, lm);
             LocaleList locales = lm.getApplicationLocales();
             if (!locales.isEmpty()) {
                 Locale primary = locales.get(0);
                 return matchSupportedTag(primary.toLanguageTag());
             }
+            // API 33+ deliberately does not migrate the pre-33 preference. The old value is
+            // discarded so a later downgrade cannot resurrect a stale app-language choice.
+            KeepADBPreferences.setAppLanguage(context, "");
             return "";
         }
         return KeepADBPreferences.getAppLanguage(context);
@@ -100,10 +103,6 @@ public final class KeepADBLocaleHelper {
 
     public static Context wrapContext(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            LocaleManager lm = context.getSystemService(LocaleManager.class);
-            if (lm != null) {
-                migrateLegacyLocale(context, lm);
-            }
             return context;
         }
         String tag = KeepADBPreferences.getAppLanguage(context);
@@ -124,22 +123,12 @@ public final class KeepADBLocaleHelper {
         }
         String selectedTag = KeepADBPreferences.getAppLanguage(context);
         if (selectedTag == null || selectedTag.isEmpty()) {
-            return true;
+            Locale current = context.getResources().getConfiguration().getLocales().get(0);
+            Locale system = Resources.getSystem().getConfiguration().getLocales().get(0);
+            return isMatchingLocaleTag(system.toLanguageTag(), current.toLanguageTag());
         }
         Locale current = context.getResources().getConfiguration().getLocales().get(0);
         return isMatchingLocaleTag(selectedTag, current.toLanguageTag());
-    }
-
-    private static void migrateLegacyLocale(Context context, LocaleManager localeManager) {
-        if (!localeManager.getApplicationLocales().isEmpty()) {
-            return;
-        }
-        String legacyTag = KeepADBPreferences.getAppLanguage(context);
-        if (legacyTag == null || legacyTag.isEmpty()) {
-            return;
-        }
-        localeManager.setApplicationLocales(LocaleList.forLanguageTags(legacyTag));
-        KeepADBPreferences.setAppLanguage(context, "");
     }
 
     public static String matchSupportedTag(String tag) {

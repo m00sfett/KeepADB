@@ -37,8 +37,10 @@ public class KeepADBWidget extends AppWidgetProvider {
         Context localizedContext = KeepADBLocaleHelper.wrapContext(context);
         boolean on = KeepADB.isEnabled(context);
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_keepadb);
-        views.setTextViewText(R.id.widget_label,
-                on ? localizedContext.getString(R.string.widget_text_on) : localizedContext.getString(R.string.widget_text_off));
+        String widgetText = on ? localizedContext.getString(R.string.widget_text_on)
+                : localizedContext.getString(R.string.widget_text_off);
+        views.setTextViewText(R.id.widget_label, widgetText);
+        views.setContentDescription(R.id.widget_label, widgetText);
 
         Intent i = new Intent(context, KeepADBWidget.class).setAction(ACTION_TOGGLE);
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, i,

@@ -2126,6 +2126,21 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
      Abnahme unvollständig und erfordert neue zentrale Issues.
 - Eine weitere Implementierung braucht die ausdrückliche Benennung einer dieser Optionen.
 
+## Architekturentscheidung — Issue #131 Option 2 — 2026-08-21
+
+- Nutzerfreigabe: **Option 2 — Legacy-Migration verwerfen**.
+- Konsequenz: API 33+ übernimmt keine `SharedPreferences`-Locale aus API 30–32. Ein alter
+  Sprachwunsch darf beim OS-Upgrade verloren gehen; die alte Preference wird beim API-33+-Zugriff
+  verworfen. `LocaleManager` bleibt dort die einzige Locale-Quelle. Das reduziert die
+  Zustandskomplexität und verhindert, dass eine absichtlich leere Plattform-Locale später von
+  einem alten Wert überschrieben wird.
+- Zusätzlich umgesetzt: API-30–32-System-Default-Wechsel prüft den tatsächlichen Context gegen
+  die System-Locale; das Widget setzt 48-dp-Mindestmaße und dynamische Content Description.
+- Nicht automatisch erweitert: deterministische API-/RTL-/Permission-/Accessibility-Tests und
+  Geräteabnahme bleiben offene Gates innerhalb bzw. als möglicher Folgeumfang von #131.
+- Status: `closed-pending-decision` für die nächste Auswahl zwischen Test-/Geräteabnahme und
+  weiteren Codeänderungen; keine dritte Reviewrunde ohne neue Freigabe.
+
 ## Auswahl-Checkpoint — 2026-08-21 — Zielentscheidung vor Review-Follow-ups
 
 - **Roadmap-Abgleich (wörtlich):** „Vorbereitung des Repositories für die Veröffentlichung als
