@@ -50,14 +50,16 @@ public final class KeepADBLocaleHelper {
     public static String getSelectedLanguageTag(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             LocaleManager lm = context.getSystemService(LocaleManager.class);
-            if (lm != null) {
-                LocaleList locales = lm.getApplicationLocales();
-                if (!locales.isEmpty()) {
-                    Locale primary = locales.get(0);
-                    return matchSupportedTag(primary.toLanguageTag());
-                }
+            if (lm == null) {
                 return "";
             }
+            migrateLegacyLocale(context, lm);
+            LocaleList locales = lm.getApplicationLocales();
+            if (!locales.isEmpty()) {
+                Locale primary = locales.get(0);
+                return matchSupportedTag(primary.toLanguageTag());
+            }
+            return "";
         }
         return KeepADBPreferences.getAppLanguage(context);
     }
@@ -76,22 +78,34 @@ public final class KeepADBLocaleHelper {
 
     public static void setAppLanguage(Activity activity, String languageTag) {
         String safeTag = languageTag == null ? "" : languageTag.trim();
-        KeepADBPreferences.setAppLanguage(activity, safeTag);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             LocaleManager lm = activity.getSystemService(LocaleManager.class);
-            if (lm != null) {
-                if (safeTag.isEmpty()) {
-                    lm.setApplicationLocales(LocaleList.getEmptyLocaleList());
-                } else {
-                    lm.setApplicationLocales(LocaleList.forLanguageTags(safeTag));
-                }
+            if (lm == null) {
+                return;
             }
+            if (safeTag.isEmpty()) {
+                lm.setApplicationLocales(LocaleList.getEmptyLocaleList());
+            } else {
+                lm.setApplicationLocales(LocaleList.forLanguageTags(safeTag));
+            }
+            // API 33+ owns the locale in LocaleManager; discard the pre-33 fallback value.
+            KeepADBPreferences.setAppLanguage(activity, "");
+            return;
         }
+
+        KeepADBPreferences.setAppLanguage(activity, safeTag);
         activity.recreate();
     }
 
     public static Context wrapContext(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            LocaleManager lm = context.getSystemService(LocaleManager.class);
+            if (lm != null) {
+                migrateLegacyLocale(context, lm);
+            }
+            return context;
+        }
         String tag = KeepADBPreferences.getAppLanguage(context);
         if (tag == null || tag.isEmpty()) {
             return context;
@@ -102,6 +116,30 @@ public final class KeepADBLocaleHelper {
         config.setLocale(locale);
         config.setLayoutDirection(locale);
         return context.createConfigurationContext(config);
+    }
+
+    static boolean isSelectedLanguageApplied(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return true;
+        }
+        String selectedTag = KeepADBPreferences.getAppLanguage(context);
+        if (selectedTag == null || selectedTag.isEmpty()) {
+            return true;
+        }
+        Locale current = context.getResources().getConfiguration().getLocales().get(0);
+        return isMatchingLocaleTag(selectedTag, current.toLanguageTag());
+    }
+
+    private static void migrateLegacyLocale(Context context, LocaleManager localeManager) {
+        if (!localeManager.getApplicationLocales().isEmpty()) {
+            return;
+        }
+        String legacyTag = KeepADBPreferences.getAppLanguage(context);
+        if (legacyTag == null || legacyTag.isEmpty()) {
+            return;
+        }
+        localeManager.setApplicationLocales(LocaleList.forLanguageTags(legacyTag));
+        KeepADBPreferences.setAppLanguage(context, "");
     }
 
     public static String matchSupportedTag(String tag) {

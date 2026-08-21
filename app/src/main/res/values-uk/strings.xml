@@ -29,6 +29,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">Підтримувати бездротове налагодження активним</string>
     <string name="notification_service_text">Моніторинг з\'єднання Wi-Fi та стану бездротового налагодження</string>
     <string name="notification_permission_missing_title">Бездротове налагодження: Відсутній дозвіл</string>
+    <string name="notification_permission_panel_title">Сповіщення вимкнено</string>
+    <string name="notification_permission_panel_body">Keep-Alive може продовжувати працювати, але KeepADB не може показувати сповіщення про стан. Дозвольте сповіщення в системних налаштуваннях.</string>
+    <string name="notification_permission_settings_button">Відкрити налаштування сповіщень</string>
     <string name="notification_permission_missing_text">Надайте WRITE_SECURE_SETTINGS з ПК через adb shell pm grant</string>
     <string name="action_settings">Налаштування</string>
     <string name="title_settings">Налаштування</string>

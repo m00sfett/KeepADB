@@ -17,6 +17,7 @@ import android.widget.Toast;
 public class SettingsActivity extends Activity {
     private View permissionPanel;
     private TextView languageSelectedText;
+    private View languageSelector;
 
     private Switch webhookToggle;
     private EditText webhookUrlInput;
@@ -38,7 +39,8 @@ public class SettingsActivity extends Activity {
         permissionPanel = findViewById(R.id.settings_permission_panel);
 
         languageSelectedText = findViewById(R.id.settings_language_selected_text);
-        findViewById(R.id.settings_language_selector).setOnClickListener(v -> showLanguageSelectionDialog());
+        languageSelector = findViewById(R.id.settings_language_selector);
+        languageSelector.setOnClickListener(v -> showLanguageSelectionDialog());
 
         webhookToggle = findViewById(R.id.settings_webhook_toggle);
         webhookUrlInput = findViewById(R.id.settings_webhook_url);
@@ -162,7 +164,10 @@ public class SettingsActivity extends Activity {
         permissionPanel.setVisibility(hasPermission ? View.GONE : View.VISIBLE);
 
         String currentLanguageTag = KeepADBLocaleHelper.getSelectedLanguageTag(this);
-        languageSelectedText.setText(KeepADBLocaleHelper.getLanguageDisplayName(this, currentLanguageTag));
+        String displayName = KeepADBLocaleHelper.getLanguageDisplayName(this, currentLanguageTag);
+        languageSelectedText.setText(displayName);
+        languageSelector.setContentDescription(
+                getString(R.string.settings_language_label) + ": " + displayName);
 
         boolean webhookEnabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
         webhookToggle.setChecked(webhookEnabled);

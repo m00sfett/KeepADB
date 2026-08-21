@@ -28,6 +28,9 @@
     <string name="notification_service_title">Drahtloses Debugging aktiv halten</string>
     <string name="notification_service_text">Überwacht WLAN-Verbindung und Status von „Drahtloses Debugging“</string>
     <string name="notification_permission_missing_title">Drahtloses Debugging: Berechtigung fehlt</string>
+    <string name="notification_permission_panel_title">Benachrichtigungen sind deaktiviert</string>
+    <string name="notification_permission_panel_body">Keep-Alive kann weiterhin laufen, aber KeepADB kann seine Statusbenachrichtigung nicht anzeigen. Erlaube Benachrichtigungen in den Systemeinstellungen.</string>
+    <string name="notification_permission_settings_button">Benachrichtigungseinstellungen öffnen</string>
     <string name="notification_permission_missing_text">WRITE_SECURE_SETTINGS am PC per adb shell pm grant vergeben</string>
     <string name="action_settings">Einstellungen</string>
     <string name="title_settings">Einstellungen</string>

@@ -29,6 +29,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">무선 디버깅 활성 상태 유지</string>
     <string name="notification_service_text">Wi-Fi 연결 및 무선 디버깅 상태 모니터링 중</string>
     <string name="notification_permission_missing_title">무선 디버깅: 권한 누락</string>
+    <string name="notification_permission_panel_title">알림이 꺼져 있습니다</string>
+    <string name="notification_permission_panel_body">Keep-Alive는 계속 실행될 수 있지만 KeepADB가 상태 알림을 표시할 수 없습니다. 시스템 설정에서 알림을 허용하세요.</string>
+    <string name="notification_permission_settings_button">알림 설정 열기</string>
     <string name="notification_permission_missing_text">PC에서 adb shell pm grant로 WRITE_SECURE_SETTINGS 권한을 부여하세요</string>
     <string name="action_settings">설정</string>
     <string name="title_settings">설정</string>

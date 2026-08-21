@@ -29,6 +29,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">Utrzymuj debugowanie bezprzewodowe aktywne</string>
     <string name="notification_service_text">Monitorowanie połączenia Wi-Fi i stanu debugowania bezprzewodowego</string>
     <string name="notification_permission_missing_title">Debugowanie bezprzewodowe: Brak uprawnień</string>
+    <string name="notification_permission_panel_title">Powiadomienia są wyłączone</string>
+    <string name="notification_permission_panel_body">Keep-Alive może nadal działać, ale KeepADB nie może wyświetlać powiadomienia o stanie. Zezwól na powiadomienia w ustawieniach systemu.</string>
+    <string name="notification_permission_settings_button">Otwórz ustawienia powiadomień</string>
     <string name="notification_permission_missing_text">Nadaj WRITE_SECURE_SETTINGS z komputera przez adb shell pm grant</string>
     <string name="action_settings">Ustawienia</string>
     <string name="title_settings">Ustawienia</string>

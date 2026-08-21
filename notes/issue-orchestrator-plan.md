@@ -2044,6 +2044,88 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   gepusht, Arbeitsbaum nach der Aktualisierung sauber, Review `not applicable`, keine
   Implementierung oder weitere Abnahme im Scope.
 
+## Nutzerentscheidung und Auswahl — 2026-08-21
+
+- Nutzerentscheidung: weitere private Härtung vor der Veröffentlichung; die Review-Follow-ups
+  sollen nacheinander umgesetzt werden.
+- Paketwahl: **Issue #131** „Locale-, Notification- und Accessibility-Nacharbeiten abschließen“.
+  Es ist das kleinste zusammenhängende Paket ohne neue Auth-, Transport-, Datenmodell- oder
+  Zustandsautomaten-Architektur. #125–#130 und #132 bleiben getrennte Folgepakete.
+- Ziel: API-abhängige Locale-Wahrheit konsolidieren, Tile-/Notification-Kontexte korrekt
+  lokalisieren, verweigerte Notification-Berechtigung verständlich mit Settings-Pfad zeigen,
+  interaktive Ziele auf mindestens 48 dp bringen und RTL-adaptives Zurück-Navigations-Icon
+  verwenden.
+- Nicht-Ziele: keine Keep-Alive-/Endpoint-/Webhook-Zustandsänderung, kein Compose-/Material3-
+  Umbau, keine neue Berechtigung oder externe Dependency.
+- Stufe: S2; Same-Stage-Delegation an `luna·max` war wegen des breiten UI-/Locale-Kontexts
+  vorgesehen, vom Nutzer freigegeben und durch Agent Curie ausgeführt. Der unabhängige S2-Review
+  durch Agent Banach fand anschließend mehrere Befunde; die erste Reparaturrunde läuft direkt
+  im Hauptagenten.
+- Muss-Akzeptanzfälle: API 30–32 Preference-Locale, API 33+ Plattform-Locale; Tile und
+  Activities zeigen dieselbe Sprache; kein doppeltes Recreation; Permission-Deny-Hinweis mit
+  Settings-Pfad; Touch-Ziele mindestens 48 dp; RTL-adaptives Back-Icon.
+- Gates: `git diff --check`; danach — typisierte Freigabe erforderlich — Debug-Build,
+  Unit-/Lint-Gates und schließlich Emulator-/S20-Accessibility-/Locale-Abnahme. Maximal zwei
+  Reparaturrunden; `approved` bedeutet alle Codekriterien plus autorisierte lokale Gates und
+  Geräte-/UI-Nachweis.
+- Status: `not approved`; erste Implementierung eingearbeitet, `git diff --check` bestanden.
+  Review 1: `not approved`; API-30–32-Live-Locale, Legacy-Migration, bereits abgelehnte
+  Notification-Permission und Selector-Semantik wurden als Befunde erfasst. Build, Tests, Lint,
+  Geräte-/UI-Abnahme, GitHub-Actions, Commit und Push bleiben offen.
+
+## Issue-131-Checkpoint — 2026-08-21
+
+- Umsetzung: API-33+-Locale-Wahrheit auf `LocaleManager` begrenzt; API 30–32 bleibt
+  preferencebasiert mit explizitem `recreate()`. Tile-Service nutzt den lokalen Context.
+- UI: Denied-POST_NOTIFICATIONS-Hinweis mit lokalisiertem `ACTION_APP_NOTIFICATION_SETTINGS`-
+  Pfad, 48-dp-Ziele, Content Descriptions und autoMirrored Back-Drawable umgesetzt.
+- Scope-Gate: Keine Änderungen an Endpoint, Keep-Alive, Webhook oder Dependencies.
+- Nachweise: `git diff --check` grün; Ressourcenreferenzen statisch vollständig (19 Locale-Dateien
+  plus Default), keine verbleibenden 36-/40-dp-Ziele in den betroffenen Layouts.
+- Offen: Build-, Unit-, Lint- und Geräte-/UI-Nachweise; der erste unabhängige Review ist mit
+  `not approved` abgeschlossen, die Reparaturrunde folgt im nächsten Abschnitt.
+- Arbeitsbaum: Vorbestehender Plan-Diff bleibt erhalten; Code-/Ressourcenänderungen sind noch
+  uncommitted und ungepusht, wie beauftragt.
+
+## Issue-131-Reparaturrunde 1 — 2026-08-21
+
+- Reviewbefunde repariert: MainActivity erkennt auf API 30–32 den veralteten Locale-Context und
+  recreatet sich beim Zurückkehren; API-32→33 übernimmt eine vorhandene Legacy-Preference einmalig
+  in `LocaleManager` und löscht danach den Legacy-Wert; API 33+ speichert keine Preference-Locale.
+- Notification-Permission: Der Erstantrag wird pro Activity-Preference markiert; ein bereits
+  abgelehnter Antrag wird nicht bei jedem Start erneut gepromptet, sondern zeigt den Settings-Pfad.
+- Accessibility: Der Sprachselector kündigt nun zusätzlich den aktuell gewählten Sprachwert an.
+- Scope: weiterhin ausschließlich #131; keine Reparatur außerhalb der Reviewbefunde.
+- Validierung: `git diff --check` grün; Build, Unit, Lint und Geräte-/UI-Abnahme weiterhin offen.
+- Status: `not approved` bis unabhängiger S2-Review 2 und die typisierten lokalen/Device-Gates
+  abgeschlossen sind.
+
+## Issue-131-Review 2 und Circuit-Breaker — 2026-08-21
+
+- Review 2 durch Agent Avicenna (`luna·max`), read-only, Status: `not approved`.
+- Verbleibende Muss-Fixes im Scope: (1) API-30–32-Wechsel von benutzerdefinierter Sprache auf
+  System-Default muss eine bereits geöffnete MainActivity ebenfalls aktualisieren; (2) die
+  API-32→33-Migration braucht einen eindeutigen Marker, damit eine absichtlich leere
+  `LocaleManager`-Auswahl nicht später von einer alten Preference überschrieben wird; (3) das
+  Widget braucht garantiert 48 dp und explizite Accessibility-Semantik; (4) die geforderte
+  API-/RTL-/Permission-/Accessibility-Testabdeckung fehlt weiterhin.
+- Keine Scopeverletzung und keine Findings außerhalb von #131. Die lokale Prüfung `git diff
+  --check` bleibt grün; Build, Tests, Lint und Geräte-/UI-Abnahme wurden nicht ausgeführt.
+- **Circuit-Breaker:** Zwei unabhängige Reviews in Folge waren `not approved`. Keine weitere
+  Reparaturrunde oder Reviewrunde wird automatisch gestartet. Status: `closed-pending-decision`.
+- Offene Entscheidung für die nächste Runde:
+  1. **Marker-basierte Migration (empfohlen):** einen einmaligen `locale_migration_done`-Marker
+     einführen, Legacy-Locale nur vor dem Marker übernehmen, danach Plattform-Locale strikt als
+     Wahrheit behandeln; System-Default-Refresh, Widget-48-dp-Semantik und deterministische
+     Tests im selben #131-Scope reparieren. Gute Upgrade-Erhaltung, mittlere Änderung.
+  2. **Migration verwerfen:** alte Preference bei API 33+ niemals übernehmen und den
+     API-32→33-Sprachverlust bewusst akzeptieren; übrige Befunde und Tests separat beheben.
+     Kleinere Logik, aber schlechtere Upgrade-Kompatibilität.
+  3. **Scope aufteilen:** #131 nach den UI-Fixes schließen und Migration/Testabdeckung als
+     separates Folgepaket erfassen. Das hält Rollbacks klein, lässt aber #131 bis zur neuen
+     Abnahme unvollständig und erfordert neue zentrale Issues.
+- Eine weitere Implementierung braucht die ausdrückliche Benennung einer dieser Optionen.
+
 ## Auswahl-Checkpoint — 2026-08-21 — Zielentscheidung vor Review-Follow-ups
 
 - **Roadmap-Abgleich (wörtlich):** „Vorbereitung des Repositories für die Veröffentlichung als

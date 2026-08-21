@@ -29,6 +29,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">वायरलेस डीबगिंग सक्रिय रखें</string>
     <string name="notification_service_text">Wi-Fi कनेक्शन और वायरलेस डीबगिंग स्थिति की निगरानी की जा रही है</string>
     <string name="notification_permission_missing_title">वायरलेस डीबगिंग: अनुमति गायब है</string>
+    <string name="notification_permission_panel_title">सूचनाएँ बंद हैं</string>
+    <string name="notification_permission_panel_body">Keep-Alive फिर भी चलता रह सकता है, लेकिन KeepADB अपनी स्थिति सूचना नहीं दिखा सकता। सिस्टम सेटिंग में सूचनाओं की अनुमति दें।</string>
+    <string name="notification_permission_settings_button">सूचना सेटिंग खोलें</string>
     <string name="notification_permission_missing_text">PC से adb shell pm grant द्वारा WRITE_SECURE_SETTINGS प्रदान करें</string>
     <string name="action_settings">सेटिंग्स</string>
     <string name="title_settings">सेटिंग्स</string>
