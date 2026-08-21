@@ -14,6 +14,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
     private static final int NOTIFICATION_PERMISSION_REQUEST = 10;
     private Switch toggle;
+    private Switch keepAliveToggle;
     private TextView status;
     private TextView endpoint;
     private View setupPanel;
@@ -28,6 +29,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toggle = findViewById(R.id.toggle);
+        keepAliveToggle = findViewById(R.id.keep_alive_toggle);
         status = findViewById(R.id.status);
         endpoint = findViewById(R.id.endpoint);
         setupPanel = findViewById(R.id.setup_panel);
@@ -48,12 +50,22 @@ public class MainActivity extends Activity {
             if (!KeepADB.setEnabled(this, want)) {
                 toggle.setChecked(!want);
                 showPermissionErrorToast();
-            } else if (!want) {
-                // A manual shutoff also disables keep-alive.
-                KeepADBPreferences.setKeepAliveEnabled(this, false);
-                KeepADBService.stop(this);
             }
             refreshUiAndComponents();
+        });
+
+        keepAliveToggle.setOnClickListener(v -> {
+            boolean wantKeepAlive = keepAliveToggle.isChecked();
+            KeepADBPreferences.setKeepAliveEnabled(this, wantKeepAlive);
+            KeepADBService.sync(this);
+            if (wantKeepAlive && KeepADBService.isWifiConnected(this) && !KeepADB.isEnabled(this)) {
+                if (!KeepADB.setEnabled(this, true)) {
+                    showPermissionErrorToast();
+                }
+            }
+            KeepADBWidget.refreshAll(this);
+            KeepADBNotification.refresh(this);
+            refresh();
         });
     }
 
@@ -97,6 +109,8 @@ public class MainActivity extends Activity {
         toggle.setEnabled(configured);
         toggle.setChecked(on);
         status.setText(on ? getString(R.string.status_on) : getString(R.string.status_off));
+        keepAliveToggle.setEnabled(configured);
+        keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
     }
 
     private boolean hasSecureSettingsPermission() {

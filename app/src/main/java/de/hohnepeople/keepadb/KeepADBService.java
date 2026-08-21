@@ -101,9 +101,9 @@ public class KeepADBService extends Service {
                     if (KeepADBPreferences.isKeepAliveEnabled(KeepADBService.this)) {
                         if (isWifiConnected(KeepADBService.this) && !KeepADB.isEnabled(KeepADBService.this)) {
                             if (KeepADB.consumeUserDisabled()) {
-                                Log.i(TAG, "Wireless Debugging manually disabled by user; stopping keep-alive service");
-                                KeepADBPreferences.setKeepAliveEnabled(KeepADBService.this, false);
-                                stop(KeepADBService.this);
+                                Log.i(TAG, "Wireless Debugging manually disabled by user; ignoring keep-alive re-enable for this drop");
+                                KeepADBNotification.refresh(KeepADBService.this);
+                                KeepADBWidget.refreshAll(KeepADBService.this);
                                 return;
                             } else {
                                 Log.i(TAG, "Wireless Debugging dropped while Wi-Fi connected; re-enabling...");
