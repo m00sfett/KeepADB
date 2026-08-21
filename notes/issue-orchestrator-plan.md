@@ -1551,3 +1551,76 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   (`git reset --hard`), kein Einfluss auf die getrennten PR-Branches.
 - Status: `approved` für #106 — Root Cause behoben, Symptom-Fix und End-to-End-Pfad live
   vollständig bestätigt. Kommentar mit Nachweis auf PR #109 gepostet.
+
+## Neue Auswahlrunde — Issues #112, #113, #114 — 2026-08-21
+
+- Ausgangslage (abgefragt): `master`/`origin/master` synchron auf `2e1f93d`, Arbeitsbaum sauber,
+  keine offenen PRs, keine aktiven CI-Runs. #106/#108/#109/#110/#111 sind bereits gemergt
+  (nicht mehr in der offenen Liste).
+- Offene Issues (3):
+  - [#112](https://github.com/m00sfett/KeepADB/issues/112) Notification bleibt mit altem Port
+    stehen, wenn Drahtlos-Debugging bei aktivem Keep-Alive ausgeschaltet wird
+  - [#113](https://github.com/m00sfett/KeepADB/issues/113) Notification wird beim Beenden des
+    KeepADBService nicht aus dem Drawer entfernt (`STOP_FOREGROUND_DETACH`)
+  - [#114](https://github.com/m00sfett/KeepADB/issues/114) Rapid-Toggle führt zu adbd-Hänger und
+    fehlgeschlagener Port-Discovery
+- Paketierung:
+  - **Paket A (#112 + #113):** gemeinsamer Notification-/Foreground-Service-Lifecycle-Codepfad
+    (`KeepADBService.onDestroy()`, `KeepADBNotification.stop()/refresh()`). Ziel: Notification
+    verschwindet zuverlässig aus dem Drawer beim Service-Stop (`STOP_FOREGROUND_REMOVE`), und
+    zeigt bei aktivem Keep-Alive nach manuellem AUS den Service-/Monitoring-Zustand statt
+    stillschweigend zu canceln oder den alten Port zu behalten. Stufe S2, Direktumsetzung.
+  - **Paket B (#114):** eigenständiger Discovery-/adbd-Timing-Fix (Re-Trigger-Heuristik bei
+    hängendem `adb_wifi_enabled=1` ohne offenen Port). Eigenes Risiko/Rollback, kein gemeinsamer
+    Codepfad mit A. Stufe S2/S3, Direktumsetzung.
+- Nicht-Ziele: keine Änderung an Register-/Webhook-Vertrag, keine Sprach-/Icon-Arbeit, kein
+  Emulator (Qt/XCB weiterhin blockiert) — S20-Fallback über registrierten Transport.
+- Freigaben: Implementierung, lokale Gradle-Gates (`assembleDebug`, `lintDebug`,
+  `testDebugUnitTest`) und S20-Gerätetest über den registrierten Transport für beide Pakete
+  erteilt. PR/Merge nach grünem CI im Rahmen des Auto-Finish-Vertrags.
+- Reihenfolge: Paket A zuerst, danach Paket B.
+- Status: `in_progress`.
+
+## Abschluss Paket A (#112 + #113) — 2026-08-21
+
+- Umsetzung:
+  - `KeepADBNotification.stop()`: cancelt die Notification nur noch, wenn Keep-Alive deaktiviert
+    ist. Bei aktivem Keep-Alive wird sie stattdessen auf den Service-Monitoring-Platzhalter
+    aktualisiert, da `NotificationManagerService` `cancel()` bei laufendem Foreground-Service
+    stillschweigend ignoriert (Ursache für den stehenbleibenden alten Port aus #112).
+  - `KeepADBService.onDestroy()`: `STOP_FOREGROUND_DETACH` → `STOP_FOREGROUND_REMOVE`, damit die
+    Notification beim Service-Stopp tatsächlich aus dem Drawer verschwindet (#113).
+- Lokale Gates: `git diff --check`, `gradlew testDebugUnitTest lintDebug assembleDebug`
+  erfolgreich (0 Fehler).
+- CI-Befund (außerhalb des Pakets, unverändert übernommen): `.github/workflows/ci.yml` triggert
+  seit einer vorbestehenden Änderung nur noch per `workflow_dispatch`, nicht mehr bei
+  `pull_request`/`push`. Für den PR-Nachweis wurde der Dispatch manuell auf dem Feature-Branch
+  ausgelöst (Run `32500902581`, grün) statt die Workflow-Trigger selbst zu ändern.
+- Gerätegate auf S20 (`SM-G780G`/`RF8T307S88H`):
+  - Registrierter WLAN-Transport war zunächst nicht erreichbar; nach Nutzerhinweis auf neuen Port
+    `42927` fingerprint-validiert und installiert.
+  - **#112-Nachweis:** Da Keep-Alive `adb_wifi_enabled` bei WLAN-Verbindung sofort wieder
+    einschaltet, ließ sich der Zwischenzustand nicht über den WLAN-Kanal selbst erzeugen (Race).
+    Stattdessen wurde der unabhängige USB-Kanal über SSH-Host `mooslap2023-ts`
+    (`adb -s RF8T307S88H`) verwendet, um `adb_wifi_enabled=0` zu setzen, ohne Wi-Fi zu trennen
+    (Keep-Alive reagiert nur auf Wi-Fi-Verlust, nicht auf den reinen Settings-Wert, solange kein
+    Wi-Fi-Drop vorliegt). `dumpsys notification --noredact` zeigt danach
+    `android.title=String (Drahtloses Debugging aktiv halten)` — kein alter Port, Notification
+    bleibt bestehen.
+  - **#113-Nachweis:** Keep-Alive-Schalter in `MainActivity` per UI-Tap deaktiviert;
+    `dumpsys activity services` zeigt keinen `ServiceRecord` mehr, `dumpsys notification` listet
+    keinen `key : 0|de.hohnepeople.keepadb|1|...` mehr — Notification vollständig entfernt.
+  - Nach dem Test `adb_wifi_enabled` wieder auf `1` gesetzt und App per `force-stop` beendet;
+    Register auf den zwischenzeitlich aktiven Port `192.168.178.24:33033` aktualisiert.
+- PR #115 (`fix: keep foreground notification alive during keep-alive, remove it on service
+  stop`) eröffnet, CI-Dispatch grün, per Squash-Merge in `master` übernommen
+  (`Fixes #112`, `Fixes #113`). Branch lokal und remote aufgeräumt.
+- Status: `complete`.
+
+## Übergabe-Checkpoint nach Paket A — 2026-08-21
+
+- Server-Stand (abgefragt): 1 offenes Issue — [#114](https://github.com/m00sfett/KeepADB/issues/114)
+  (Rapid-Toggle-adbd-Hänger). Keine offenen PRs, keine aktiven Runs.
+- Arbeitsbaum: sauber auf `master`, synchron mit `origin/master`.
+- Nächstes Paket: Paket B (#114), Freigabe (Implementierung, lokale Gates, S20-Gerätetest) liegt
+  bereits aus der Auswahlrunde vor.
