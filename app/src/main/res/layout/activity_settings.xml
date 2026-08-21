@@ -1,52 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/ground"
-    android:fillViewport="true">
+    android:orientation="vertical">
+
+    <!-- Top Header with Back Button and Title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/banner_red"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <Button
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_btn_header"
+            android:fontFamily="sans-serif-condensed"
+            android:minWidth="0dp"
+            android:minHeight="36dp"
+            android:paddingStart="12dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="4dp"
+            android:text="←"
+            android:textColor="@color/title_yellow"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/title_settings"
+            android:textColor="@color/title_yellow"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="24dp">
-
-        <!-- Top Header with Back Button and Title -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/banner_red"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="12dp">
-
-            <Button
-                android:id="@+id/btn_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_btn_header"
-                android:fontFamily="sans-serif-condensed"
-                android:minWidth="0dp"
-                android:minHeight="36dp"
-                android:paddingStart="12dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="14dp"
-                android:paddingBottom="4dp"
-                android:text="←"
-                android:textColor="@color/title_yellow"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/title_settings"
-                android:textColor="@color/title_yellow"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-        </LinearLayout>
 
         <!-- Permission Warning (if missing) -->
         <LinearLayout
@@ -250,4 +257,5 @@
         </LinearLayout>
 
     </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>
