@@ -11,23 +11,35 @@ import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Discovers the active secure wireless-debugging endpoint advertised by adbd. */
+/**
+ * Discovers the active secure wireless-debugging endpoint advertised by adbd.
+ * Uses high-speed local NIO port probing (30000-50000) combined with background mDNS.
+ */
 final class KeepADBEndpoint {
+    private static final String TAG = "KeepADBEndpoint";
     static final String SERVICE_TYPE = "_adb-tls-connect._tcp.";
     private static final long RESOLVE_TIMEOUT_MS = 1500;
-    private static final int PROBE_START_PORT = 30000;
-    private static final int PROBE_END_PORT = 50000;
-    private static final int PROBE_THREADS = 16;
+    static final int PROBE_START_PORT = 30000;
+    static final int PROBE_END_PORT = 50000;
+    private static final int BATCH_SIZE = 128;
+    private static final int BATCH_SELECT_TIMEOUT_MS = 15;
 
     interface Listener {
         void onEndpoint(String host, int port);
@@ -46,6 +58,7 @@ final class KeepADBEndpoint {
     private Listener currentListener;
     private boolean discovering;
     private Thread coordinatorThread;
+    private final AtomicBoolean endpointDelivered = new AtomicBoolean(false);
 
     KeepADBEndpoint(Context context) {
         appContext = context.getApplicationContext();
@@ -73,6 +86,7 @@ final class KeepADBEndpoint {
             return;
         }
         discovering = true;
+        endpointDelivered.set(false);
 
         if (multicastLock != null && !multicastLock.isHeld()) {
             try {
@@ -83,23 +97,23 @@ final class KeepADBEndpoint {
 
         final long generation = discoveryGeneration;
 
-        // 1. Lokaler Fast-Probe Port-Scan (30000-50000) zur verzögerungsfreien Erkennung
+        // 1. High-speed local NIO Port-Scan (30000-50000)
         startFastProbe(generation);
 
-        // 2. mDNS-Discovery als robuster Standard-/Fallback-Pfad
+        // 2. Parallel mDNS-Discovery als ergänzender Standard-/Fallback-Pfad
         discoveryListener = new NsdManager.DiscoveryListener() {
             @Override
             public void onDiscoveryStarted(String serviceType) {
-                // Discovery is asynchronous; the first reachable service result supplies the endpoint.
+                Log.d(TAG, "mDNS discovery started");
             }
 
             @Override
             public void onServiceFound(NsdServiceInfo serviceInfo) {
-                if (!isCurrent(generation) || !sameServiceType(serviceInfo.getServiceType())) {
+                if (!isCurrent(generation) || endpointDelivered.get() || !sameServiceType(serviceInfo.getServiceType())) {
                     return;
                 }
                 synchronized (KeepADBEndpoint.this) {
-                    if (!isCurrent(generation)) return;
+                    if (!isCurrent(generation) || endpointDelivered.get()) return;
                     resolveQueue.offer(serviceInfo);
                     processNextResolveLocked(generation);
                 }
@@ -107,28 +121,26 @@ final class KeepADBEndpoint {
 
             @Override
             public void onServiceLost(NsdServiceInfo serviceInfo) {
-                // Ignore service lost so running fast-probe or valid endpoints are not disrupted.
             }
 
             @Override
             public void onDiscoveryStopped(String serviceType) {
-                // No action; stop() is also used before replacing a discovery request.
             }
 
             @Override
             public void onStartDiscoveryFailed(String serviceType, int errorCode) {
-                // If mDNS discovery start fails, fast-probe continues unaffected.
+                Log.w(TAG, "mDNS start discovery failed with code: " + errorCode);
             }
 
             @Override
             public void onStopDiscoveryFailed(String serviceType, int errorCode) {
-                // The listener is no longer used after stop() has been requested.
             }
         };
 
         try {
             nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
-        } catch (RuntimeException ignored) {
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Failed to start mDNS service discovery", e);
             discoveryListener = null;
         }
     }
@@ -141,7 +153,7 @@ final class KeepADBEndpoint {
     }
 
     private void processNextResolveLocked(long generation) {
-        if (resolving || resolveQueue.isEmpty() || !isCurrent(generation)) {
+        if (resolving || resolveQueue.isEmpty() || !isCurrent(generation) || endpointDelivered.get()) {
             return;
         }
         final NsdServiceInfo nextService = resolveQueue.poll();
@@ -152,7 +164,7 @@ final class KeepADBEndpoint {
         cancelResolveWatchdogLocked();
         resolveWatchdogRunnable = () -> {
             synchronized (KeepADBEndpoint.this) {
-                if (!isCurrent(generation) || !resolving) return;
+                if (!isCurrent(generation) || !resolving || endpointDelivered.get()) return;
                 resolving = false;
                 processNextResolveLocked(generation);
             }
@@ -166,7 +178,7 @@ final class KeepADBEndpoint {
                     synchronized (KeepADBEndpoint.this) {
                         cancelResolveWatchdogLocked();
                         resolving = false;
-                        if (!isCurrent(generation)) return;
+                        if (!isCurrent(generation) || endpointDelivered.get()) return;
                         processNextResolveLocked(generation);
                     }
                 }
@@ -175,7 +187,7 @@ final class KeepADBEndpoint {
                 public void onServiceResolved(NsdServiceInfo resolved) {
                     synchronized (KeepADBEndpoint.this) {
                         cancelResolveWatchdogLocked();
-                        if (!isCurrent(generation)) {
+                        if (!isCurrent(generation) || endpointDelivered.get()) {
                             resolving = false;
                             return;
                         }
@@ -193,26 +205,24 @@ final class KeepADBEndpoint {
                         final int port = resolved.getPort();
                         final InetAddress addr = resolved.getHost();
                         new Thread(() -> {
-                            boolean reachable = false;
-                            try (Socket socket = new Socket()) {
-                                socket.connect(new InetSocketAddress(addr, port), 600);
-                                reachable = true;
-                            } catch (Exception ignored) {
-                            }
-                            Listener targetListener = null;
-                            synchronized (KeepADBEndpoint.this) {
-                                resolving = false;
-                                if (!isCurrent(generation)) return;
-                                if (reachable) {
+                            boolean reachable = isPortReachable(addr, port, 400);
+                            if (reachable && endpointDelivered.compareAndSet(false, true)) {
+                                Listener targetListener;
+                                synchronized (KeepADBEndpoint.this) {
                                     resolveQueue.clear();
                                     targetListener = currentListener;
                                     stop();
-                                } else {
-                                    processNextResolveLocked(generation);
                                 }
-                            }
-                            if (targetListener != null) {
-                                targetListener.onEndpoint(host, port);
+                                if (targetListener != null) {
+                                    targetListener.onEndpoint(host, port);
+                                }
+                            } else {
+                                synchronized (KeepADBEndpoint.this) {
+                                    resolving = false;
+                                    if (isCurrent(generation) && !endpointDelivered.get()) {
+                                        processNextResolveLocked(generation);
+                                    }
+                                }
                             }
                         }, "KeepADBEndpointCheck").start();
                     }
@@ -248,7 +258,6 @@ final class KeepADBEndpoint {
             try {
                 nsdManager.stopServiceDiscovery(listener);
             } catch (RuntimeException ignored) {
-                // Discovery already stopped by the framework.
             }
         }
     }
@@ -259,79 +268,53 @@ final class KeepADBEndpoint {
 
     private void startFastProbe(long generation) {
         coordinatorThread = new Thread(() -> {
-            final AtomicBoolean found = new AtomicBoolean(false);
-            final int maxAttempts = 15;
+            final int maxTotalSeconds = 45;
+            final long startTime = System.currentTimeMillis();
 
-            for (int attempt = 0; attempt < maxAttempts; attempt++) {
-                if (!isCurrent(generation) || found.get() || Thread.currentThread().isInterrupted()) return;
+            while (isCurrent(generation) && !endpointDelivered.get() && !Thread.currentThread().isInterrupted()) {
+                if (System.currentTimeMillis() - startTime > maxTotalSeconds * 1000L) {
+                    break;
+                }
 
                 final String wifiIp = getWifiIpAddress(appContext);
-                if (wifiIp == null) {
-                    try {
-                        Thread.sleep(300);
-                    } catch (InterruptedException e) {
-                        return;
+                final int foundPort = scanLocalOpenPort(PROBE_START_PORT, PROBE_END_PORT, BATCH_SELECT_TIMEOUT_MS);
+
+                if (foundPort > 0) {
+                    Log.i(TAG, "FastProbe detected open local port: " + foundPort);
+                    String targetHost = wifiIp;
+                    if (targetHost == null) {
+                        try {
+                            Thread.sleep(150);
+                        } catch (InterruptedException e) {
+                            return;
+                        }
+                        targetHost = getWifiIpAddress(appContext);
                     }
-                    continue;
-                }
 
-                final InetAddress probeAddr;
-                try {
-                    probeAddr = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
-                } catch (Exception e) {
-                    continue;
-                }
-
-                final int totalPorts = PROBE_END_PORT - PROBE_START_PORT + 1;
-                final int chunkSize = (totalPorts + PROBE_THREADS - 1) / PROBE_THREADS;
-                final Thread[] workers = new Thread[PROBE_THREADS];
-
-                for (int i = 0; i < PROBE_THREADS; i++) {
-                    final int start = PROBE_START_PORT + i * chunkSize;
-                    final int end = Math.min(start + chunkSize - 1, PROBE_END_PORT);
-                    workers[i] = new Thread(() -> {
-                        for (int port = start; port <= end; port++) {
-                            if (found.get() || !isCurrent(generation) || Thread.currentThread().isInterrupted()) {
-                                break;
-                            }
-                            boolean open = false;
-                            try (Socket s = new Socket()) {
-                                s.connect(new InetSocketAddress(probeAddr, port), 25);
-                                open = true;
-                            } catch (Exception ignored) {
-                            }
-                            if (open && found.compareAndSet(false, true)) {
-                                Listener targetListener = null;
-                                synchronized (KeepADBEndpoint.this) {
-                                    if (isCurrent(generation)) {
-                                        resolveQueue.clear();
-                                        targetListener = currentListener;
-                                        stop();
+                    if (targetHost != null) {
+                        try {
+                            InetAddress hostAddr = InetAddress.getByName(targetHost);
+                            if (isPortReachable(hostAddr, foundPort, 400)) {
+                                if (endpointDelivered.compareAndSet(false, true)) {
+                                    Listener targetListener;
+                                    synchronized (KeepADBEndpoint.this) {
+                                        if (isCurrent(generation)) {
+                                            resolveQueue.clear();
+                                            targetListener = currentListener;
+                                            stop();
+                                        } else {
+                                            targetListener = null;
+                                        }
                                     }
+                                    if (targetListener != null) {
+                                        targetListener.onEndpoint(targetHost, foundPort);
+                                    }
+                                    return;
                                 }
-                                if (targetListener != null) {
-                                    targetListener.onEndpoint(wifiIp, port);
-                                }
-                                break;
                             }
+                        } catch (Exception ignored) {
                         }
-                    }, "KeepADBFastProbe-" + i);
-                    workers[i].start();
-                }
-
-                for (Thread worker : workers) {
-                    try {
-                        worker.join();
-                    } catch (InterruptedException e) {
-                        for (Thread w : workers) {
-                            if (w != null) w.interrupt();
-                        }
-                        return;
                     }
-                }
-
-                if (found.get() || !isCurrent(generation) || Thread.currentThread().isInterrupted()) {
-                    return;
                 }
 
                 try {
@@ -341,7 +324,7 @@ final class KeepADBEndpoint {
                 }
             }
 
-            if (!found.get() && isCurrent(generation)) {
+            if (!endpointDelivered.get() && isCurrent(generation)) {
                 Listener targetListener = null;
                 synchronized (KeepADBEndpoint.this) {
                     if (isCurrent(generation)) {
@@ -355,6 +338,84 @@ final class KeepADBEndpoint {
             }
         }, "KeepADBFastProbeCoordinator");
         coordinatorThread.start();
+    }
+
+    static int scanLocalOpenPort(int startPort, int endPort, int selectTimeoutMs) {
+        final byte[] loopbackBytes = new byte[]{127, 0, 0, 1};
+        final InetAddress loopback;
+        try {
+            loopback = InetAddress.getByAddress(loopbackBytes);
+        } catch (Exception e) {
+            return -1;
+        }
+
+        for (int batchStart = startPort; batchStart <= endPort; batchStart += BATCH_SIZE) {
+            if (Thread.currentThread().isInterrupted()) {
+                return -1;
+            }
+            int batchEnd = Math.min(batchStart + BATCH_SIZE - 1, endPort);
+            Selector selector = null;
+            List<SocketChannel> channels = new ArrayList<>(BATCH_SIZE);
+            try {
+                selector = Selector.open();
+                for (int port = batchStart; port <= batchEnd; port++) {
+                    try {
+                        SocketChannel channel = SocketChannel.open();
+                        channel.configureBlocking(false);
+                        boolean connected = channel.connect(new InetSocketAddress(loopback, port));
+                        if (connected) {
+                            channel.close();
+                            return port;
+                        }
+                        channel.register(selector, SelectionKey.OP_CONNECT, port);
+                        channels.add(channel);
+                    } catch (Exception ignored) {
+                    }
+                }
+
+                if (!channels.isEmpty() && selector.isOpen()) {
+                    int selected = selector.select(selectTimeoutMs);
+                    if (selected > 0) {
+                        Set<SelectionKey> keys = selector.selectedKeys();
+                        for (SelectionKey key : keys) {
+                            if (key.isValid() && key.isConnectable()) {
+                                SocketChannel ch = (SocketChannel) key.channel();
+                                try {
+                                    if (ch.finishConnect()) {
+                                        return (Integer) key.attachment();
+                                    }
+                                } catch (Exception ignored) {
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            } finally {
+                for (SocketChannel ch : channels) {
+                    try {
+                        ch.close();
+                    } catch (Exception ignored) {
+                    }
+                }
+                if (selector != null) {
+                    try {
+                        selector.close();
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+
+    private static boolean isPortReachable(InetAddress addr, int port, int timeoutMs) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(addr, port), timeoutMs);
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     static String getWifiIpAddress(Context context) {
