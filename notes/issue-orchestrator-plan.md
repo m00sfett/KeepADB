@@ -1025,6 +1025,19 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   diesem Lauf unverändert und wird anschließend von außerhalb umbenannt. Technische Android-
   Bezeichner wie `Settings.Global.adb_wifi_enabled` und `_adb-tls-connect._tcp` bleiben
   unverändert, weil sie Plattformverträge und keine Produktnamen sind.
-- **Freigaben / Validierung:** Implementierung freigegeben. Build, Lint, Emulator, physisches
-  Gerät und unabhängiger Review sind noch nicht freigegeben und wurden nicht ausgeführt.
-- **Status:** `not approved` bis zur typisierten Validierung und zum Abschluss von PR/Merge.
+- **Muss-Akzeptanzfälle:** Projekt-/Produktname und ausgelieferte Bezeichner sind `KeepADB`;
+  Android-`applicationId`/Namespace und Komponentenpfade verwenden
+  `de.hohnepeople.keepadb`; die App zeigt vor `WRITE_SECURE_SETTINGS` die einmalige
+  USB-Ersteinrichtung mit exakt passendem `pm grant`-Befehl; nach der Vergabe ist der
+  normale Bedienpfad erreichbar; Release-Artefakte tragen den Namen `KeepADB`.
+- **Risiko / Rollback:** Die neue App-ID ist absichtlich nicht upgrade-kompatibel und erzeugt
+  eine zweite Installation. Rollback ist der Rückwechsel auf den unveränderten alten
+  `master`-Stand beziehungsweise die getrennte alte Entwicklungsinstallation; keine App wird
+  im Rahmen dieser Etappe deinstalliert oder gelöscht.
+- **Freigaben / Validierung:** Implementierung war freigegeben. Am 2026-08-21 wurden alle für
+  den Abschluss nötigen lokalen Build-/Lint-/Testschritte, Emulator-/Geräteaktionen sowie
+  PR/CI/Merge ausdrücklich freigegeben. Jeder Subagent-Start benötigt weiterhin seine eigene
+  ausdrückliche Freigabe. Maximale Reparaturrunden: zwei. `approved` bedeutet: lokale Gates,
+  freigegebener Android-Smoke, unabhängiger Review und erforderliche PR-Checks sind grün; der
+  Merge-Commit ist auf `master` nachgewiesen.
+- **Status:** `in progress` bis zur Validierung und zum Abschluss von PR/Merge.
