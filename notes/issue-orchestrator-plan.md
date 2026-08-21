@@ -2179,3 +2179,88 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   `enhancement`; Titel und Akzeptanzkriterien nach Anlage read-back geprüft.
 - **Status:** `complete` für den Issue-Anlageauftrag; Implementierung und UI-Abnahme bleiben
   ausdrücklich offen in Issue #133.
+
+## Auswahl-Checkpoint — 2026-08-21 — Zielabgleich vor neuer Issue-Reihe
+
+- **Roadmap-Aussage (wörtlich):** „Vorbereitung des Repositories für die Veröffentlichung als
+  freies, quelloffenes Open-Source-Tool **KeepADB** unter der **GPL-3.0**-Lizenz.“
+- **Serverzustand (im selben Lauf abgefragt):** `master` und `origin/master` synchron auf
+  `2d74a56`; Arbeitsbaum sauber; keine offenen PRs; kein aktiver GitHub-Actions-Run für den
+  aktuellen Head. Branch Protection ist für das private Repository nicht abfragbar (GitHub
+  HTTP 403: Upgrade auf Pro oder Repository öffentlich machen). Wegen der Projektpolicy wurde
+  kein Workflow gestartet.
+- **Offene Kandidaten (im selben Lauf abgefragt):** #125 Discovery-Lifecycle, #126
+  Endpoint-Identität/Health, #127 Toggle-Intent, #128 Webhook-Transaktion, #129
+  Webhook-Sicherheit/Backup, #130 BootReceiver, #131 Locale/Accessibility, #132 lokale
+  Release-/Test-Gates und #133 App-Icon-Titelleiste.
+- **Zielabgleich:** Kein Kandidat dient unmittelbar der oben zitierten Veröffentlichung; #132
+  unterstützt Release-Gates, ist aber selbst ein umfangreiches Härtungs-/Tooling-Paket und kein
+  beschlossener Veröffentlichungsschritt. Die zuvor dokumentierte Entscheidung für weitere
+  private Härtung steht damit im Konflikt zur aktuellen Roadmap-Aussage und darf nicht
+  automatisch fortgeschrieben werden.
+- **Auswahl:** kein Issue ausgewählt. Die Issues bleiben offen; keine Implementierung, Builds,
+  Tests, Geräteaktion, Delegation, Commit-/Push-/PR-/Merge-Aktion oder Workflow-Ausführung.
+- **Review:** `not applicable` für den Planungs-/Zielabgleich.
+- **Status:** `closed-pending-decision`. Erforderlich ist eine fachliche Entscheidung: (A)
+  Roadmap ausdrücklich auf private Härtung vor Veröffentlichung erweitern und ein Paket
+  priorisieren, oder (B) Veröffentlichungsarbeit als neues Zielpaket definieren (verbleibende
+  Muss-Gates, Repository-Sichtbarkeit, Release-/Tag- und Signierungsplan). Eine allgemeine
+  Freigabe wird nicht als Auswahl eines dieser Wege interpretiert.
+
+## Auswahl-Checkpoint — 2026-08-21 — Härtung vor Veröffentlichung bestätigt
+
+- **Nutzerentscheidung:** Private Härtung wird vor die Veröffentlichung gezogen; die
+  Veröffentlichung wird zurückgestellt.
+- **Roadmap-Abgleich:** Die bisherige Veröffentlichungsaussage bleibt als späteres Ziel
+  bestehen; die Härtungs-Issues sind damit für die nächste Reihe zugelassen.
+- **Ausgewähltes Paket:** Issue [#131](https://github.com/m00sfett/KeepADB/issues/131) —
+  „Locale-, Notification- und Accessibility-Nacharbeiten abschließen“.
+- **Begründung:** #131 ist der kleinste zusammenhängende Härtungsstrang, bereits teilweise
+  umgesetzt und ohne neue Auth-, Transport-, Datenmodell- oder Zustandsautomaten-Architektur.
+  #125–#130 bleiben fachlich getrennte Folgepakete; #132 wird wegen der zurückgestellten
+  Veröffentlichung nicht vorgezogen; #133 ist Komfort-UI und keine Härtung.
+- **Ziel:** Locale-Wahrheit und UI-Kontext über API 30–35 konsolidieren, Notification-
+  Permission-Zustand verständlich machen und Accessibility-/RTL-Anforderungen abschließen.
+- **Nicht-Ziele:** Keine Keep-Alive-, Endpoint-, Webhook- oder Toggle-Semantikänderung, kein
+  Compose-/Material3-Umbau, keine neue Berechtigung oder externe Dependency.
+- **Offene Muss-Nachweise:** deterministische API-/RTL-/Permission-/Accessibility-Tests sowie
+  UI-/Geräteabnahme gemäß Issue #131. Der aktuelle Serverstatus des Issues ist offen; der
+  Arbeitsbaum enthält nur die laufende Planänderung.
+- **Stufe/Freigaben:** S2, direkte Fortsetzung durch den Hauptagenten; keine neue Delegation.
+  Der Nutzer hat Implementierung, Debug-Build, Unit-Tests, Lint und S20-Geräteprüfung
+  vollständig freigegeben. GitHub-Actions bleiben wegen Projektpolicy ausgeschlossen.
+- **Status:** `in_progress`; lokale Gates und danach die S20-Abnahme laufen. `approved` erst
+  nach einzelnem Nachweis der Codekriterien und der autorisierten Gates.
+
+## Issue-131-Validierung — 2026-08-21
+
+- **Umsetzung:** Bestehende #131-Codeänderungen aus `ddc17fc` bleiben unverändert; ergänzt
+  wurde `KeepADBAccessibilityContractTest` mit deterministischen, dependency-freien Checks für
+  Locale-Ressourcen, Permission-Texte, 48-dp-Touch-Ziele und RTL-Back-Drawable.
+- **Lokale Gates:** `git diff --check`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew
+  testDebugUnitTest`, `... lintDebug` und `... assembleDebug` erfolgreich. Die Suite umfasst
+  11 grüne Unit-Tests. Ein erster Testlauf fand die falsche Annahme von 20 statt 19
+  `values*`-Verzeichnissen; Testannahme korrigiert, die fehlschlagende Stufe wiederholt.
+- **S20-Transport:** Register zuerst abgefragt; WLAN-Endpunkt `192.168.178.24:44587` mit
+  `SM-G780G` / `RF8T307S88H` / Android 13 validiert, danach wegen mDNS-Duplikaten auf den
+  eindeutigen USB-Transport `RF8T307S88H` gewechselt und Register aktualisiert. Preferences
+  vor Installation nach `~/agent/backup/2026-08-21/smartphone-wlan-adb-app-s20-shared-prefs.tar`
+  gesichert; keine Deinstallation oder Datenlöschung.
+- **Gerätenachweise:** Debug-APK installiert. MainActivity und SettingsActivity per UI-Dump/
+  Screenshot ohne Crash geprüft; interaktive Ziele mindestens 48 dp. Arabisch aktiviert:
+  Settings wurden lokalisiert und das Back-Icon RTL-adaptiv rechts dargestellt; anschließend
+  Deutsch wiederhergestellt. Notification-Permission widerrufen: MainActivity zeigte den
+  verständlichen Deny-Hinweis plus Button `BENACHRICHTIGUNGSEINSTELLUNGEN ÖFFNEN`; Permission
+  danach wieder gewährt. Kein neuer `FATAL EXCEPTION`-Nachweis.
+- **Nicht vollständig beweisbar:** API-30/32/35-spezifische Laufzeitabnahme wurde auf dem
+  Android-13-S20 nicht durchgeführt; die statischen/Unit-Contracts und der API-33+-Datenpfad
+  sind nachgewiesen. Ein separater Emulatorlauf bleibt für diese API-Matrix sinnvoll, ist aber
+  für den aktuellen S20-Abschluss nicht erforderlich.
+- **Retrospektive:** Das günstige Unit-/Contract-Gate fand die falsche Ressourcenanzahl vor dem
+  Abschluss. Der USB-Fallback war nach mDNS-Duplikaten entscheidend; ein einmaliger WLAN-
+  Transportnachweis hätte die UI-Abnahme nicht getragen. Direkte Umsetzung ohne Delegation war
+  für die kleine Restlücke richtig. Verbesserung: Geräte-Smoke künftig erst nach lokaler
+  Ressourcen-/Contract-Prüfung und mit vorbereitetem USB-Kontrollkanal starten.
+- **Status:** `approved` für Issue #131; Commit/PR/Server-Schließung stehen noch aus. Review:
+  `not applicable` für die direkte, test-only Reständerung; die vorherige unabhängige Review-
+  Kette des Produktcodes ist im Plan dokumentiert.
