@@ -43,6 +43,9 @@ final class AdbWifiEndpoint {
     private boolean resolving;
     private Runnable resolveWatchdogRunnable;
     private long discoveryGeneration;
+    private Listener currentListener;
+    private boolean discovering;
+    private Thread coordinatorThread;
 
     AdbWifiEndpoint(Context context) {
         appContext = context.getApplicationContext();
@@ -57,11 +60,19 @@ final class AdbWifiEndpoint {
     }
 
     synchronized void discover(Listener listener) {
-        stop();
+        this.currentListener = listener;
         if (nsdManager == null) {
-            listener.onUnavailable();
+            this.currentListener = null;
+            if (listener != null) {
+                listener.onUnavailable();
+            }
             return;
         }
+
+        if (discovering) {
+            return;
+        }
+        discovering = true;
 
         if (multicastLock != null && !multicastLock.isHeld()) {
             try {
@@ -73,7 +84,7 @@ final class AdbWifiEndpoint {
         final long generation = discoveryGeneration;
 
         // 1. Lokaler Fast-Probe Port-Scan (30000-50000) zur verzögerungsfreien Erkennung
-        startFastProbe(generation, listener);
+        startFastProbe(generation);
 
         // 2. mDNS-Discovery als robuster Standard-/Fallback-Pfad
         discoveryListener = new NsdManager.DiscoveryListener() {
@@ -90,7 +101,7 @@ final class AdbWifiEndpoint {
                 synchronized (AdbWifiEndpoint.this) {
                     if (!isCurrent(generation)) return;
                     resolveQueue.offer(serviceInfo);
-                    processNextResolveLocked(generation, listener);
+                    processNextResolveLocked(generation);
                 }
             }
 
@@ -129,7 +140,7 @@ final class AdbWifiEndpoint {
         }
     }
 
-    private void processNextResolveLocked(long generation, Listener listener) {
+    private void processNextResolveLocked(long generation) {
         if (resolving || resolveQueue.isEmpty() || !isCurrent(generation)) {
             return;
         }
@@ -143,7 +154,7 @@ final class AdbWifiEndpoint {
             synchronized (AdbWifiEndpoint.this) {
                 if (!isCurrent(generation) || !resolving) return;
                 resolving = false;
-                processNextResolveLocked(generation, listener);
+                processNextResolveLocked(generation);
             }
         };
         mainHandler.postDelayed(resolveWatchdogRunnable, RESOLVE_TIMEOUT_MS);
@@ -156,7 +167,7 @@ final class AdbWifiEndpoint {
                         cancelResolveWatchdogLocked();
                         resolving = false;
                         if (!isCurrent(generation)) return;
-                        processNextResolveLocked(generation, listener);
+                        processNextResolveLocked(generation);
                     }
                 }
 
@@ -170,13 +181,13 @@ final class AdbWifiEndpoint {
                         }
                         if (resolved.getHost() == null || resolved.getPort() <= 0) {
                             resolving = false;
-                            processNextResolveLocked(generation, listener);
+                            processNextResolveLocked(generation);
                             return;
                         }
                         final String host = resolved.getHost().getHostAddress();
                         if (host == null || host.isEmpty()) {
                             resolving = false;
-                            processNextResolveLocked(generation, listener);
+                            processNextResolveLocked(generation);
                             return;
                         }
                         final int port = resolved.getPort();
@@ -188,16 +199,20 @@ final class AdbWifiEndpoint {
                                 reachable = true;
                             } catch (Exception ignored) {
                             }
+                            Listener targetListener = null;
                             synchronized (AdbWifiEndpoint.this) {
                                 resolving = false;
                                 if (!isCurrent(generation)) return;
                                 if (reachable) {
                                     resolveQueue.clear();
+                                    targetListener = currentListener;
                                     stop();
-                                    listener.onEndpoint(host, port);
                                 } else {
-                                    processNextResolveLocked(generation, listener);
+                                    processNextResolveLocked(generation);
                                 }
+                            }
+                            if (targetListener != null) {
+                                targetListener.onEndpoint(host, port);
                             }
                         }, "AdbWifiEndpointCheck").start();
                     }
@@ -206,15 +221,21 @@ final class AdbWifiEndpoint {
         } catch (RuntimeException ignored) {
             cancelResolveWatchdogLocked();
             resolving = false;
-            processNextResolveLocked(generation, listener);
+            processNextResolveLocked(generation);
         }
     }
 
     synchronized void stop() {
         discoveryGeneration++;
+        discovering = false;
+        currentListener = null;
         cancelResolveWatchdogLocked();
         resolveQueue.clear();
         resolving = false;
+        if (coordinatorThread != null) {
+            coordinatorThread.interrupt();
+            coordinatorThread = null;
+        }
         NsdManager.DiscoveryListener listener = discoveryListener;
         discoveryListener = null;
         if (multicastLock != null && multicastLock.isHeld()) {
@@ -236,13 +257,13 @@ final class AdbWifiEndpoint {
         return discoveryGeneration == generation;
     }
 
-    private void startFastProbe(long generation, Listener listener) {
-        new Thread(() -> {
+    private void startFastProbe(long generation) {
+        coordinatorThread = new Thread(() -> {
             final AtomicBoolean found = new AtomicBoolean(false);
             final int maxAttempts = 15;
 
             for (int attempt = 0; attempt < maxAttempts; attempt++) {
-                if (!isCurrent(generation) || found.get()) return;
+                if (!isCurrent(generation) || found.get() || Thread.currentThread().isInterrupted()) return;
 
                 final String wifiIp = getWifiIpAddress(appContext);
                 if (wifiIp == null) {
@@ -275,7 +296,7 @@ final class AdbWifiEndpoint {
                     final int end = Math.min(start + chunkSize - 1, PROBE_END_PORT);
                     workers[i] = new Thread(() -> {
                         for (int port = start; port <= end; port++) {
-                            if (found.get() || !isCurrent(generation)) {
+                            if (found.get() || !isCurrent(generation) || Thread.currentThread().isInterrupted()) {
                                 break;
                             }
                             boolean open = false;
@@ -285,11 +306,16 @@ final class AdbWifiEndpoint {
                             } catch (Exception ignored) {
                             }
                             if (open && found.compareAndSet(false, true)) {
+                                Listener targetListener = null;
                                 synchronized (AdbWifiEndpoint.this) {
-                                    if (!isCurrent(generation)) return;
-                                    resolveQueue.clear();
-                                    stop();
-                                    listener.onEndpoint(wifiIp, port);
+                                    if (isCurrent(generation)) {
+                                        resolveQueue.clear();
+                                        targetListener = currentListener;
+                                        stop();
+                                    }
+                                }
+                                if (targetListener != null) {
+                                    targetListener.onEndpoint(wifiIp, port);
                                 }
                                 break;
                             }
@@ -302,11 +328,14 @@ final class AdbWifiEndpoint {
                     try {
                         worker.join();
                     } catch (InterruptedException e) {
+                        for (Thread w : workers) {
+                            if (w != null) w.interrupt();
+                        }
                         return;
                     }
                 }
 
-                if (found.get() || !isCurrent(generation)) {
+                if (found.get() || !isCurrent(generation) || Thread.currentThread().isInterrupted()) {
                     return;
                 }
 
@@ -318,13 +347,19 @@ final class AdbWifiEndpoint {
             }
 
             if (!found.get() && isCurrent(generation)) {
+                Listener targetListener = null;
                 synchronized (AdbWifiEndpoint.this) {
-                    if (!isCurrent(generation)) return;
-                    stop();
-                    listener.onUnavailable();
+                    if (isCurrent(generation)) {
+                        targetListener = currentListener;
+                        stop();
+                    }
+                }
+                if (targetListener != null) {
+                    targetListener.onUnavailable();
                 }
             }
-        }, "AdbWifiFastProbeCoordinator").start();
+        }, "AdbWifiFastProbeCoordinator");
+        coordinatorThread.start();
     }
 
     static String getWifiIpAddress(Context context) {
