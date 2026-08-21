@@ -1372,6 +1372,24 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 2. **Qualitäts-Gates:** Lokale Gradle-Gates (`testDebugUnitTest`, `lintDebug`, `assembleDebug`) stellten eine schnelle (0.5–2s) und deterministische Verifikation ohne langsame externe CI-Pipelines sicher.
 3. **CI-Designsystem-Treue:** Durch die strikte Einhaltung der Vorgaben aus `/vault/kontext/ci-designsystem.md` (knappe Radien 4–8dp, Monospace für technische Daten/URLs, Rot-Gelb-Dunkel Hierarchie und klare Pressed/Focus-Zustände) besitzt die App ein konsistentes, natives und barrierefreies Erscheinungsbild.
 
-## Abschlussstatus
+## Optimierung: High-Speed NIO Endpoint Discovery — 2026-08-21
 
-- **Status:** `complete` (alle Issues #81 und #82 vollständig gelöst, gemergt und auf `master` bereitgestellt; 0 offene Issues im Repository).
+- **Problem & Ursachenanalyse:**
+  - Nach dem Aktivieren von Drahtlosem Debugging dauerte die Endpunkterkennung in der App rund 1–2 Minuten.
+  - Ursache 1: `startFastProbe` erzeugte pro Versuch 16 neue Threads und durchlief 15 Versuche in ~10 Sekunden, bevor `adbd` seinen Port fertig gebunden hatte.
+  - Ursache 2: Nach Ablauf der 15 Versuche rief `startFastProbe` vorzeitig `stop()` auf und stoppte damit auch die parallele `NsdManager`-Discovery.
+  - Ursache 3: `KeepADBNotification` startete daraufhin alle 2–5 Sekunden einen neuen Discovery-Zyklus, was den Android `NsdManager`-Dienst in eine Drosselungs-/Fehlerschleife brachte.
+- **Implementierung:**
+  - `KeepADBEndpoint.java`:
+    - Umstellung auf batched NIO `SocketChannel` + `Selector` (128 Ports pro Batch) für den Scan über 30000–50000 auf `127.0.0.1`.
+    - Vollständiger Portscan aller 20.001 Ports schließt in unter 200 ms ab ohne File-Descriptor-Erschöpfung.
+    - Kontinuierliche Abtastung im Hintergrund (alle 300 ms) ohne vorzeitigen `stop()`-Aufruf auf `NsdManager`.
+    - Atomare Endpunkt-Auslieferung (`endpointDelivered`) verhindert Doppel-Trigger zwischen FastProbe und mDNS.
+  - `KeepADBEndpointTest.java`:
+    - Unit-Test zur Verifikation der Port-Erkennung via `ServerSocket` und Scanner-Logik angelegt.
+- **Validierung & Live-Nachweis:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`: bestanden (0 Fehler, 0 Warnungen).
+  - Live-Test auf Samsung Galaxy S20 FE (`SM-G780G`):
+    - App-Start um `14:16:04.565`, Endpunkt `192.168.178.24:45577` erkannt und um `14:16:04.735` an Tailscale-Register gemeldet (**Erkennungsdauer: 170 Millisekunden**).
+- **Status:** `complete`.
