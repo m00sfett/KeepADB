@@ -63,6 +63,7 @@ public class AdbWifiService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        AdbWifi.consumeUserDisabled();
         registerAdbObserver();
         registerNetworkCallback();
     }
@@ -84,6 +85,7 @@ public class AdbWifiService extends Service {
         unregisterAdbObserver();
         unregisterNetworkCallback();
         stopForeground(STOP_FOREGROUND_DETACH);
+        AdbWifi.consumeUserDisabled();
         super.onDestroy();
     }
 
