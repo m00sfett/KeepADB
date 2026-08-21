@@ -825,3 +825,41 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
 - **Status:** `approved` für Paket 3.
+
+## Live-Verifikation auf Samsung Galaxy S20 FE — 2026-08-21
+
+- **Transport:**
+  - `phone-register get s20` lieferte `192.168.178.24:34725` (Fingerprint validiert: `SM-G780G` / `RF8T307S88H`). Register per `phone-register record` aktualisiert.
+- **VPN / Fast-Probe Härtung:**
+  - `getWifiIpAddress()` und `isWifiConnected()` ignorieren `TRANSPORT_VPN`-Netzwerke explizit, sodass bei aktivem Tailscale die physische Wi-Fi-IP (`192.168.178.24`) korrekt ausgewählt wird.
+  - Lokaler Fast-Probe scannt den Loopback-Stack (`127.0.0.1`) ohne VPN-Routing-Overhead in Millisekunden und mappt den aktiven Port auf die verifizierte Wi-Fi-IP.
+- **Live UI & Notification Nachweis:**
+  - `MainActivity` UI-Dump (`uiautomator dump`): `WLAN-ADB ist AN`, `Endpoint: 192.168.178.24:34725` sofort angezeigt.
+  - Notification-Dump (`dumpsys notification`): `WLAN-ADB: Port 34725 @ 192.168.178.24` auf Channel `adb_wifi_endpoint` aktiv.
+  - Tailscale-Register-Push: `curl http://100.111.111.21:50829/register/s20` bestätigt aktuellen Push mit `status: active` und `is_stale: false`.
+- **Status:** `approved` & `complete`.
+
+## Aufwandsprotokoll (Issues #56–#60)
+
+- **Geplante / erledigte Pakete:** 3 Pakete
+  - Paket 1: Issues #58 & #59 (PR #61)
+  - Paket 2: Issue #57 (PR #62)
+  - Paket 3: Issues #56 & #60 (PR #63)
+- **Erledigte Issues:** 5 von 5 geschlossen (100%).
+- **PRs:** PR #61, PR #62, PR #63 alle erfolgreich via Squash-Merge in `master` integriert.
+- **Modell:** Gemini 3.7 Flash High (S3 / Direktumsetzung).
+- **Build-/Lint-Läufe:** 4x `assembleDebug lintDebug` erfolgreich (0 Fehler).
+- **Geräte-Abnahme:** Live auf Samsung Galaxy S20 FE (`SM-G780G` via `192.168.178.24:34725`).
+- **Fehlversuche / Retries am Code:** 0.
+- **Beobachtete Token-/Abrechnungswerte:** unbekannt.
+
+## Retrospektive (Issues #56–#60)
+
+1. **Paketierungsreihenfolge:** Die Eco-Reihenfolge (S1 Isolierte UI-/Netzwerk-Fixes -> S2 Lifecycle/State -> S2/S3 Concurrency & Deadlock-Beseitigung) hat es ermöglicht, risikoarme Korrekturen schnell abzuschließen und komplexe Nebenläufigkeiten strukturiert zu isolieren.
+2. **Qualitäts-Gates:** Lokale Gates (`git diff --check`, Gradle Debug-Build und Lint) haben jede Änderung vor Merge deterministisch verifiziert; die anschließende Live-Prüfung auf dem physischen S20 FE hat die tatsächliche End-to-End-Funktion unter Realbedingungen (inkl. aktivem VPN) nachgewiesen.
+3. **Deadlock & Concurrency:** Das strikte Vermeiden von Callback-Aufrufen innerhalb von Synchronisationsmonitoren (`AdbWifiEndpoint.this`) eliminiert Lock-Order-Inversionen dauerhaft.
+4. **Verbesserung:** Bei Android-Netzwerkoperationen mit Multi-Interface- oder VPN-Unterstützung immer explizit zwischen physischen Transports (`TRANSPORT_WIFI`) und virtuellen Tunneln (`TRANSPORT_VPN`) differenzieren.
+
+## Abschlussstatus
+
+- **Status:** `complete` (Alle 5 Issues #56, #57, #58, #59, #60 vollständig gelöst, getestet und gemergt; 0 offene Issues im Repository).
