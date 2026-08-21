@@ -272,6 +272,13 @@ final class KeepADBEndpoint {
         coordinatorThread = new Thread(() -> {
             final int maxTotalSeconds = 45;
             final long startTime = System.currentTimeMillis();
+            final byte[] loopbackBytes = new byte[]{127, 0, 0, 1};
+            final InetAddress loopbackAddr;
+            try {
+                loopbackAddr = InetAddress.getByAddress(loopbackBytes);
+            } catch (Exception e) {
+                return;
+            }
 
             while (isCurrent(generation) && !endpointDelivered.get() && !Thread.currentThread().isInterrupted()) {
                 if (System.currentTimeMillis() - startTime > maxTotalSeconds * 1000L) {
@@ -285,7 +292,7 @@ final class KeepADBEndpoint {
                     String targetHost = wifiIp;
                     if (targetHost == null) {
                         try {
-                            Thread.sleep(100);
+                            Thread.sleep(80);
                         } catch (InterruptedException e) {
                             return;
                         }
@@ -293,36 +300,32 @@ final class KeepADBEndpoint {
                     }
 
                     if (targetHost != null) {
-                        try {
-                            InetAddress hostAddr = InetAddress.getByName(targetHost);
-                            for (int candidatePort : openPorts) {
-                                if (isPortReachable(hostAddr, candidatePort, 300)) {
-                                    if (endpointDelivered.compareAndSet(false, true)) {
-                                        Log.i(TAG, "FastProbe verified live ADB endpoint: " + targetHost + ":" + candidatePort);
-                                        Listener targetListener;
-                                        synchronized (KeepADBEndpoint.this) {
-                                            if (isCurrent(generation)) {
-                                                resolveQueue.clear();
-                                                targetListener = currentListener;
-                                                stop();
-                                            } else {
-                                                targetListener = null;
-                                            }
+                        for (int candidatePort : openPorts) {
+                            if (isPortReachable(loopbackAddr, candidatePort, 150)) {
+                                if (endpointDelivered.compareAndSet(false, true)) {
+                                    Log.i(TAG, "FastProbe verified live ADB endpoint: " + targetHost + ":" + candidatePort);
+                                    Listener targetListener;
+                                    synchronized (KeepADBEndpoint.this) {
+                                        if (isCurrent(generation)) {
+                                            resolveQueue.clear();
+                                            targetListener = currentListener;
+                                            stop();
+                                        } else {
+                                            targetListener = null;
                                         }
-                                        if (targetListener != null) {
-                                            targetListener.onEndpoint(targetHost, candidatePort);
-                                        }
-                                        return;
                                     }
+                                    if (targetListener != null) {
+                                        targetListener.onEndpoint(targetHost, candidatePort);
+                                    }
+                                    return;
                                 }
                             }
-                        } catch (Exception ignored) {
                         }
                     }
                 }
 
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(150);
                 } catch (InterruptedException e) {
                     return;
                 }
@@ -427,8 +430,7 @@ final class KeepADBEndpoint {
                         }
                     }
                 }
-            } catch (Exception e) {
-                Log.w(TAG, "Batch scan exception: " + e.getMessage());
+            } catch (Exception ignored) {
             } finally {
                 for (SocketChannel ch : channels) {
                     try {
