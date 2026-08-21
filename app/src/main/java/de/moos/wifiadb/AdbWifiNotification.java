@@ -55,12 +55,14 @@ final class AdbWifiNotification {
         Context appContext = context.getApplicationContext();
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
         if (manager != null) {
-            ensureChannel(manager);
+            ensureChannel(appContext, manager);
         }
         if (currentHost != null && currentPort > 0) {
             return buildNotification(appContext, currentHost, currentPort);
         } else {
-            return buildPlaceholderNotification(appContext, "WLAN-ADB aktiv halten", "Überwacht WLAN-Verbindung und WLAN-ADB-Status");
+            return buildPlaceholderNotification(appContext,
+                    appContext.getString(R.string.notification_service_title),
+                    appContext.getString(R.string.notification_service_text));
         }
     }
 
@@ -68,9 +70,10 @@ final class AdbWifiNotification {
         Context appContext = context.getApplicationContext();
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
         if (manager == null) return;
-        ensureChannel(manager);
-        showPlaceholder(appContext, manager, "WLAN-ADB: Berechtigung fehlt",
-                "WRITE_SECURE_SETTINGS am PC per adb shell pm grant vergeben");
+        ensureChannel(appContext, manager);
+        showPlaceholder(appContext, manager,
+                appContext.getString(R.string.notification_permission_missing_title),
+                appContext.getString(R.string.notification_permission_missing_text));
     }
 
     static synchronized void invalidateEndpoint() {
@@ -90,7 +93,7 @@ final class AdbWifiNotification {
         Context appContext = context.getApplicationContext();
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
         if (manager == null) return;
-        ensureChannel(manager);
+        ensureChannel(appContext, manager);
 
         if (!AdbWifi.isEnabled(appContext)) {
             stop(appContext, manager);
@@ -108,7 +111,9 @@ final class AdbWifiNotification {
 
         if (endpointListener != null) endpointListener.onUnavailable();
         if (AdbWifiPreferences.isKeepAliveEnabled(appContext)) {
-            showPlaceholder(appContext, manager, "WLAN-ADB: Endpoint wird gesucht …", "Endpoint wird im lokalen Netzwerk aufgelöst");
+            showPlaceholder(appContext, manager,
+                    appContext.getString(R.string.notification_title_searching),
+                    appContext.getString(R.string.notification_text_searching));
         }
 
         cancelRetryLocked();
@@ -180,7 +185,9 @@ final class AdbWifiNotification {
                     listener.onUnavailable();
                 }
                 if (AdbWifiPreferences.isKeepAliveEnabled(appContext)) {
-                    showPlaceholder(appContext, manager, "WLAN-ADB: Endpoint wird gesucht …", "Endpoint wird im lokalen Netzwerk aufgelöst");
+                    showPlaceholder(appContext, manager,
+                            appContext.getString(R.string.notification_title_searching),
+                            appContext.getString(R.string.notification_text_searching));
                 } else {
                     manager.cancel(NOTIFICATION_ID);
                 }
@@ -203,10 +210,10 @@ final class AdbWifiNotification {
         AdbWifiRegisterClient.markUnavailableAsync(context.getApplicationContext());
     }
 
-    private static void ensureChannel(NotificationManager manager) {
+    private static void ensureChannel(Context context, NotificationManager manager) {
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                "WLAN-ADB-Endpoint", NotificationManager.IMPORTANCE_LOW);
-        channel.setDescription("Aktueller Port und die IP-Adresse von WLAN-ADB");
+                context.getString(R.string.notification_channel_name), NotificationManager.IMPORTANCE_LOW);
+        channel.setDescription(context.getString(R.string.notification_channel_desc));
         manager.createNotificationChannel(channel);
     }
 
@@ -233,12 +240,14 @@ final class AdbWifiNotification {
     }
 
     private static Notification buildNotification(Context context, String host, int port) {
-        String title = "WLAN-ADB: Port " + port + " @ " + host;
-        String content = "Port " + port + " @ " + host;
+        String title = context.getString(R.string.notification_title_active, port, host);
+        String content = context.getString(R.string.notification_text_active, port, host);
         SpannableString styled = new SpannableString(content);
-        int portStart = "Port ".length();
-        styled.setSpan(new StyleSpan(Typeface.BOLD), portStart, portStart + String.valueOf(port).length(),
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        int portStart = content.indexOf(String.valueOf(port));
+        if (portStart >= 0) {
+            styled.setSpan(new StyleSpan(Typeface.BOLD), portStart, portStart + String.valueOf(port).length(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
         Intent intent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,

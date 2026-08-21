@@ -16,7 +16,7 @@ public class AdbWifiTileService extends TileService {
     public void onClick() {
         boolean want = !AdbWifi.isEnabled(this);
         if (!AdbWifi.setEnabled(this, want)) {
-            Toast.makeText(this, "WiFi-ADB: Berechtigung fehlt (pm grant nötig)",
+            Toast.makeText(this, getString(R.string.tile_permission_error),
                     Toast.LENGTH_LONG).show();
         } else if (!want) {
             AdbWifiPreferences.setKeepAliveEnabled(this, false);
@@ -33,7 +33,7 @@ public class AdbWifiTileService extends TileService {
         boolean on = AdbWifi.isEnabled(this);
         AdbWifiNotification.refresh(this);
         tile.setState(on ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
-        tile.setLabel("WLAN-ADB");
+        tile.setLabel(getString(R.string.tile_label));
         tile.setIcon(Icon.createWithResource(this, R.drawable.ic_adb));
         tile.updateTile();
     }
