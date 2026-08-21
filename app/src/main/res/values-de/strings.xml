@@ -29,4 +29,12 @@
     <string name="notification_service_text">Überwacht WLAN-Verbindung und Status von „Drahtloses Debugging“</string>
     <string name="notification_permission_missing_title">Drahtloses Debugging: Berechtigung fehlt</string>
     <string name="notification_permission_missing_text">WRITE_SECURE_SETTINGS am PC per adb shell pm grant vergeben</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="title_settings">Einstellungen</string>
+    <string name="settings_section_general">Allgemein</string>
+    <string name="settings_section_keep_alive">Dauerhaft aktiv halten</string>
+    <string name="settings_section_webhook">Webhook-Synchronisierung</string>
+    <string name="settings_webhook_status_disabled">Deaktiviert (nicht konfiguriert)</string>
+    <string name="settings_permission_warning">Systemberechtigung WRITE_SECURE_SETTINGS fehlt. KeepADB kann Drahtloses Debugging erst nach Berechtigungsvergabe steuern.</string>
+    <string name="back">Zurück</string>
 </resources>

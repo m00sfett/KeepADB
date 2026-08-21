@@ -29,4 +29,12 @@
     <string name="notification_service_text">Monitoring Wi-Fi connection and Wireless Debugging status</string>
     <string name="notification_permission_missing_title">Wireless Debugging: Permission missing</string>
     <string name="notification_permission_missing_text">Grant WRITE_SECURE_SETTINGS from PC via adb shell pm grant</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_settings">Settings</string>
+    <string name="settings_section_general">General</string>
+    <string name="settings_section_keep_alive">Keep-Alive</string>
+    <string name="settings_section_webhook">Webhook Sync</string>
+    <string name="settings_webhook_status_disabled">Disabled (not configured)</string>
+    <string name="settings_permission_warning">System permission WRITE_SECURE_SETTINGS missing. KeepADB cannot toggle Wireless Debugging until permission is granted.</string>
+    <string name="back">Back</string>
 </resources>
