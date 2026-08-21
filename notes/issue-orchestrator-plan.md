@@ -756,3 +756,53 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - **Zentrales Erreichbarkeits-Register:**
   - Samsung Galaxy S20 FE (`s20`): Registrierter Endpunkt `192.168.178.24:34725` (validiert).
 - **Status:** `complete` (Keine offenen Issues oder anstehenden Implementierungs-Pakete im Repository).
+
+## Neue Auswahlrunde: Review-Findings #56–#60 — 2026-08-21
+
+- **Ausgangslage:**
+  - 5 offene Issues (#56 bis #60) aus automatisiertem Code-Review (`/code-review max`) von Commit `784f139`.
+  - Keine offenen Pull Requests, keine aktiven CI-Läufe auf `origin/master`.
+  - Arbeitsverzeichnis sauber.
+
+- **Offene Issues (5):**
+  - [#56](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/56) Deadlock: Lock-Order-Inversion zwischen AdbWifiEndpoint und AdbWifiNotification
+  - [#57](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/57) AdbWifi.userDisabled bleibt stale hängen, wenn Keep-Alive inaktiv ist
+  - [#58](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/58) AdbWifiWidget ignoriert Rückgabewert von AdbWifi.setEnabled()
+  - [#59](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/59) getWifiIpAddress()-Fallback akzeptiert jedes eth*-Interface als Wifi-Quelle
+  - [#60](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/60) discover() kann bei schnellen Wiederholaufrufen verwaiste Fast-Probe-Threads parallel laufen lassen
+
+- **Paketierung nach Eco-Grundsätzen:**
+  1. **Paket 1 (UI- & Netzwerk-Korrekturen):**
+     - Issues: [#58](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/58), [#59](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/59)
+     - Ziel:
+       - #58: Rückgabewert von `AdbWifi.setEnabled()` in `AdbWifiWidget` prüfen, bei Fehler Fehler-Toast anzeigen und Keep-Alive nicht fälschlich stoppen.
+       - #59: `eth*`-Interfaces aus dem Wi-Fi-Fallback in `AdbWifiEndpoint.getWifiIpAddress()` entfernen.
+     - Stufe: S1 (präzise, isolierte Einzelfixes).
+     - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`.
+
+  2. **Paket 2 (State-Flag & Keep-Alive-Lifecycle):**
+     - Issue: [#57](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/57)
+     - Ziel: `userDisabled`-Flag zuverlässig zurücksetzen bei `setEnabled(true)`, expliziter Keep-Alive-Deaktivierung und Service-Start/Sync, um fehlerhaftes Unterdrücken des Auto-Reconnects nach Reconnect/Drop zu verhindern.
+     - Stufe: S2 (State-Machine & Lifecycle).
+     - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`.
+
+  3. **Paket 3 (Concurrency, Deadlock-Beseitigung & Fast-Probe Lifecycle):**
+     - Issues: [#56](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/56), [#60](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/60)
+     - Ziel:
+       - #56: Beseitigung der Lock-Order-Inversion durch Aufruf von Listener-Callbacks außerhalb von `synchronized (AdbWifiEndpoint.this)`.
+       - #60: Idempotenz / saubere Listener-Aktualisierung in `discover()`, um verwaiste parallele Worker-Threads bei schnellen Re-Discovery-Aufrufen zu verhindern.
+     - Stufe: S2/S3 (Concurrency & Thread-Management).
+     - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`.
+
+- **Einstiegsentscheidung:**
+  - Eco-Prämisse (Einfachste Pakete zuerst): Start mit **Paket 1** (Issues #58 & #59), danach **Paket 2** (Issue #57) und **Paket 3** (Issues #56 & #60).
+
+## Umsetzung Paket 1 (PR #61 / Issues #58, #59) — 2026-08-21
+
+- **Implementierung:**
+  - [#58](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/58): In `AdbWifiWidget.onReceive()` Rückgabewert von `AdbWifi.setEnabled(context, want)` geprüft. Bei Fehlschlag (`false`) wird ein informativer Toast angezeigt und `AdbWifiPreferences.setKeepAliveEnabled(context, false)` sowie `AdbWifiService.stop(context)` werden nicht fälschlich aufgerufen.
+  - [#59](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/59): In `AdbWifiEndpoint.getWifiIpAddress()` die Interface-Prüfung auf echte Wi-Fi-Interfaces (`wlan*`, `ap*`) begrenzt und `eth*` entfernt, um fehlerhafte IP-Rückgaben bei angeschlossenen Ethernet-/Reverse-Tethering-Adaptern zu verhindern.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Whitespace-Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
+- **Status:** `approved` für Paket 1.
