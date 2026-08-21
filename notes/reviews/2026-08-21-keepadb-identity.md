@@ -2,21 +2,25 @@
 
 ## Urteil
 
-- **Code-Review:** `approved`. Im beauftragten Rename-Scope wurde kein reparaturpflichtiger
-  Produktbefund gefunden.
+- **Code-Review:** `approved` für den Folge-Head `5b862dd`. Der einzige technische
+  Vertragsbefund wurde minimal behoben; Produkt-/Paketidentität und Transport-Enum sind jetzt
+  getrennt korrekt.
 - **Gesamtabnahme/Merge-Gate:** `not approved` bis der Android-Smoke für die neue
   Ersteinrichtung nachgeholt ist. Der Plan definiert `approved` ausdrücklich als lokale Gates,
-  freigegebenen Android-Smoke, unabhängigen Review und erforderliche PR-Checks; der aktuelle
-  Auftrag verbietet Geräte-/UI-Aktionen. Der fehlende Smoke ist daher ein offenes Gate, kein
-  statischer Codefehler.
+  freigegebenen Android-Smoke, unabhängigen Review und erforderliche PR-Checks. F-001 stammt
+  aus dem vorherigen Review und wurde in diesem Follow-up weder geprüft noch ausgeführt;
+  Geräte-/UI-Aktionen bleiben ausgeschlossen.
 
 ## Scope und Serverstand
 
 - Branch: `refactor/keepadb-identity`
-- Review-Head: `cb27344ad347e0fb17aaa000b4a30d761bf6c2aa`
+- Review-Head: `5b862dd750540dec37ccab5d4cd8a251f505e723`
 - Vergleichsbasis: `master` (`d906a8a7c5c230585ada6e84efef26f0392e1513`)
-- PR: #73, Head stimmt mit dem Review-Head überein, `mergeStateStatus=CLEAN`.
-- CI: Run `32469637963` für exakt diesen Head, `Lint & Build Debug APK`, `success`.
+- PR: #73, Head stimmt mit dem Review-Head überein; beim Follow-up war
+  `mergeStateStatus=UNSTABLE`, weil der automatische PR-CI-Run noch lief.
+- CI: Der vorherige Run `32469637963` für den ursprünglichen Review-Head war grün. Für den
+  Folge-Head war beim Nachtrag ein automatischer PR-Run aktiv; er wurde weder retriggert noch
+  für dieses Review abgewartet.
 - Repository: `m00sfett/KeepADB`, GitHub-Readback `private=true`; lokaler Ordnername wurde
   nicht verändert und war nicht Teil des Scopes.
 - Branch Protection konnte für das private Repository nicht gelesen werden (GitHub HTTP 403
@@ -24,19 +28,21 @@
 
 ## Findings
 
-### F-001 — Android-Smoke der neuen First-run-Strecke fehlt (Gate, merge-blockierend)
+### F-001 — Android-Smoke der neuen First-run-Strecke fehlt (übernommenes Gate,
+merge-blockierend)
 
-Die statische Strecke ist vorhanden: `MainActivity.refresh()` blendet das Setup-Panel bei
+Dieser Befund stammt aus dem Review des vorherigen Heads `cb27344…`. Die statische Strecke ist
+vorhanden: `MainActivity.refresh()` blendet das Setup-Panel bei
 fehlendem `WRITE_SECURE_SETTINGS` ein und deaktiviert beide Funktionsschalter
 (`MainActivity.java:99-113`); `activity_main.xml:26-68` enthält die Einrichtung mit
-USB-Hinweis, Befehl und Prüfschaltfläche. Der aktuelle APK-/Ressourcen-Readback bestätigt die
-Artefakte, beweist aber nicht das Verhalten einer installierten App ohne Grant, nach Grant und
+USB-Hinweis, Befehl und Prüfschaltfläche. Der damalige APK-/Ressourcen-Readback bestätigte die
+Artefakte, bewies aber nicht das Verhalten einer installierten App ohne Grant, nach Grant und
 nach dem Zurückkehren in den normalen Pfad.
 
-Der Smoke wurde wegen des ausdrücklichen Auftrags „keine Geräte-/UI-Aktionen“ nicht ausgeführt.
-Offen bleibt deshalb die Messung: deutsch und englisch vor Grant, beide Schalter deaktiviert;
-danach der exakt angezeigte Grant und ein Refresh, bei dem Panel verschwindet und beide Schalter
-aktiv werden. Keine Reparatur vorgenommen.
+Im Folge-Review wurde dieser Smoke weder ausgeführt noch erneut geprüft; Geräte-/UI-Aktionen
+sind ausdrücklich ausgeschlossen. Offen bleibt deshalb unverändert die Messung: deutsch und
+englisch vor Grant, beide Schalter deaktiviert; danach der exakt angezeigte Grant und ein
+Refresh, bei dem Panel verschwindet und beide Schalter aktiv werden.
 
 ### F-002 — `testDebugUnitTest` enthält keine Tests (Nachweisgrenze, nicht neu)
 
@@ -45,14 +51,18 @@ Der vom Implementierer dokumentierte lokale Lauf ist grün, meldet für `testDeb
 Akzeptanz wird dadurch jedoch nicht regressionsgeschützt. Der fehlende UI-Smoke bleibt der
 entscheidende offene Nachweis.
 
-### F-003 — Optionaler Webhook-Methodenwert nicht Ende-zu-Ende verifiziert (Risiko, kein Muss-Fix)
+### F-003 — Behoben: Register-Methodenwert ist ein technischer Transport-Enum
 
-`KeepADBRegisterClient` sendet jetzt den Produktwert `"method": "keepadb"`; der historische
-Register-Readback im Plan dokumentiert noch `"wlan-adb"` (Plan `:323`). Das ist als Teil des
-gewünschten ausgelieferten KeepADB-Identifiers plausibel, aber die optionale externe
-Webhook-Kompatibilität wurde im Rename-Auftrag weder als Gate noch per Geräte-/Servertest
-abgenommen. Kein Fix im Rename-Review: Eine Änderung des externen Vertrags wäre Scope-/Risiko-
-Erweiterung.
+Der vorherige Head sendete `"method": "keepadb"` und verletzte damit den bestehenden
+Serververtrag: `/home/tobias/agent/bin/phone-register-server:26` definiert
+`VALID_METHODS = {"wlan-adb", "ssh-termux", "usb-adb", "usb-ssh-tunnel"}` und weist ungültige
+Werte in den normalen POST-Pfad (`:293-295`) mit HTTP 400 zurück. Commit `5b862dd` setzt in
+`KeepADBRegisterClient.java:92` minimal wieder `"method": "wlan-adb"`.
+
+Das ist technisch korrekt und mit dem Rename vereinbar: `KeepADB` bleibt Produktname,
+Application ID, Namespace, Klassen-, Ressourcen- und Release-Identität; `wlan-adb` ist der
+serverseitige Transport-Enum. Der Wert stimmt außerdem mit dem historischen Register-Readback
+im Plan (`:323`) überein. F-003 ist damit behoben; kein weiterer Fix erforderlich.
 
 ## Geprüfte Behauptungen
 
@@ -65,24 +75,27 @@ Erweiterung.
 | Vor Grant sind Funktionsschalter gesperrt, danach normaler Pfad | `MainActivity.java:99-113`, `activity_main.xml:26-68,97-120` | statisch bestanden; Smoke offen (F-001) |
 | Neue App-ID ist eine separate Installation, ohne Migration/Löschung | neue `applicationId`; keine Installations-/Uninstall-/Migrationslogik im Scope; README-Kompatibilitätshinweis | bestanden |
 | Release-Artefakte heißen KeepADB | `.github/workflows/release.yml:36-42` | bestanden |
+| Register-Transportvertrag bleibt gültig | `KeepADBRegisterClient.java:92`; `phone-register-server:26,293-295` akzeptieren `wlan-adb` und lehnen `keepadb` ab | nach `5b862dd` bestanden |
 | Plattformverträge bleiben unverändert | `adb_wifi_enabled` und `_adb-tls-connect._tcp` in Java/Manifest-Diff; keine geänderte Vertragsliteral-Zeile | bestanden |
 | Legacy-Scan ist sauber | case-sensitive/case-insensitive Scan außerhalb historischer Plan-/Changelog-Einträge; zusätzlich `apkanalyzer dex packages` | keine alten Projekt-, Paket-, Klassen- oder Ressourcenbezeichner im ausgelieferten Scope |
 
 ## Reparaturen und Validierung
 
-- Keine Produktreparatur erforderlich; deshalb kein Code-Fix-Commit.
-- Reviewbericht ist die einzige neue Datei: `notes/reviews/2026-08-21-keepadb-identity.md`.
-- Frisch read-only ausgeführt: Git-/PR-/CI-Statusabfrage, Repository-Privatheitsabfrage,
-  `apkanalyzer`-Manifest-/DEX-Readback, Ressourcen-/Grant-Abgleich, Manifest-
-  Klassenpfadprüfung und Legacy-Scans.
-- Nicht erneut ausgeführt: Gradle-, Unit-, Lint- oder Geräte-/UI-Gates. Die vorhandenen grünen
-  lokalen Nachweise und CI-Run wurden dem aktuellen Head zugeordnet; der Auftrag verbietet die
-  Geräte-/UI-Aktion.
+- Der Hauptagent reparierte den Vertragswert minimal in `5b862dd`; dieser Folge-Review bestätigt
+  nur die eine Zeile gegen den echten Serververtrag. Keine weitere Produktreparatur erforderlich.
+- Reviewbericht ist die einzige von diesem Folge-Review zu ändernde Datei:
+  `notes/reviews/2026-08-21-keepadb-identity.md`.
+- Frisch read-only ausgeführt: Branch-/Commit-/Diff-Status und Auswertung von
+  `/home/tobias/agent/bin/phone-register-server` gegen `KeepADBRegisterClient.java:92`.
+- Nicht erneut ausgeführt: Gradle-, Unit-, Lint- oder Geräte-/UI-Gates. Der Hauptagent meldet
+  `git diff --check` sowie `lintDebug assembleDebug testDebugUnitTest` grün (`NO-SOURCE` bei
+  Unit-Tests); der aktive PR-CI-Run wurde nicht retriggert oder abgewartet.
 
 ## Handoff
 
-- Reviewstatus: `approved` für den statischen Codeumfang, `not approved` für die vollständige
-  Merge-Abnahme wegen F-001.
-- Serverstatus: PR offen, Head aktuell, CI grün; kein CI-Retrigger und keine Geräteaktion.
+- Reviewstatus: `approved` für den Code-Head `5b862dd` (F-003 behoben), `not approved` für die
+  vollständige Merge-Abnahme wegen des aus dem Erstreview übernommenen F-001-Gerätegates.
+- Serverstatus: PR offen, Head `5b862dd`; beim Nachtrag lief der automatische PR-CI-Run bereits,
+  ohne dass er retriggert oder ausgewertet wurde. Keine Geräteaktion.
 - Erforderlicher nächster Nachweis: freigegebener Android-Smoke der deutschen/englischen
   First-run-Permission-Strecke; danach Merge-Entscheidung neu prüfen.
