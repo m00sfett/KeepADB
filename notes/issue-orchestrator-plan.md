@@ -1408,3 +1408,17 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `git diff --check`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`: bestanden (0 Fehler, 0 Warnungen).
 - **Status:** `complete`.
+
+## Optimierung & Bereinigung: Fira Sans TTF-Schriftarten entfernt & System-Typography aktiviert — 2026-08-21
+
+- **Problem & Analyse:**
+  - Die vier eingebetteten Fira Sans TTF-Dateien (`fira_sans_regular.ttf`, `fira_sans_bold.ttf`, `fira_sans_condensed_regular.ttf`, `fira_sans_condensed_bold.ttf`) machten über 90 % der gesamten APK-Größe aus (~2,0 MB unkomprimiert / ~900 KB komprimiert).
+- **Umsetzung:**
+  - `app/src/main/res/font/`: Alle TTF-Dateien und Font-XMLs gelöscht.
+  - `third_party/`: Verzeichnis und `third_party/fonts/OFL.txt` gelöscht.
+  - `themes.xml`, `activity_main.xml`, `activity_settings.xml`, `widget_keepadb.xml`: Auf native Android-Systemschriften (`sans-serif`, `sans-serif-condensed`) umgestellt.
+  - `README.md` & `CHANGELOG.md`: Drittanbieter-Lizenzhinweise für Schriften entfernt und APK-Größe auf echte `< 350 KB` aktualisiert.
+- **Validierung & Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`: bestanden (0 Fehler, 0 Warnungen, APK-Größe von 1,2 MB auf 304 KB geschrumpft).
+- **Status:** `complete`.
