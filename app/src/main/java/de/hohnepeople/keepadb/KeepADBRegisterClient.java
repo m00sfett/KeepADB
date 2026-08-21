@@ -32,6 +32,9 @@ final class KeepADBRegisterClient {
 
     static void updateEndpointAsync(Context context, String host, int port) {
         if (context == null || host == null || port <= 0) return;
+        if (!KeepADBPreferences.isRegisterWebhookEnabled(context)) {
+            return;
+        }
         final String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(context);
         if (targetUrl == null || targetUrl.trim().isEmpty()) {
             return;
@@ -60,6 +63,9 @@ final class KeepADBRegisterClient {
 
     static void markUnavailableAsync(Context context) {
         if (context == null) return;
+        if (!KeepADBPreferences.isRegisterWebhookEnabled(context)) {
+            return;
+        }
         final String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(context);
         if (targetUrl == null || targetUrl.trim().isEmpty()) {
             return;
@@ -83,6 +89,21 @@ final class KeepADBRegisterClient {
                 }
             }
         });
+    }
+
+    static void unregisterAndDisableAsync(Context context) {
+        if (context == null) return;
+        final String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(context);
+        if (targetUrl != null && !targetUrl.trim().isEmpty() && lastRegisteredEndpoint != null) {
+            EXECUTOR.execute(() -> {
+                deleteEndpoint(targetUrl);
+                lastRegisteredEndpoint = null;
+                latestPendingEndpoint.set(null);
+            });
+        } else {
+            lastRegisteredEndpoint = null;
+            latestPendingEndpoint.set(null);
+        }
     }
 
     private static boolean postEndpoint(String targetUrl, String endpoint) {

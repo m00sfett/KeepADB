@@ -34,7 +34,19 @@
     <string name="settings_section_general">Allgemein</string>
     <string name="settings_section_keep_alive">Dauerhaft aktiv halten</string>
     <string name="settings_section_webhook">Webhook-Synchronisierung</string>
-    <string name="settings_webhook_status_disabled">Deaktiviert (nicht konfiguriert)</string>
+    <string name="settings_webhook_title">Webhook &amp; Endpunkt-Synchronisierung</string>
+    <string name="settings_webhook_toggle">Webhook-Synchronisierung aktivieren</string>
+    <string name="settings_webhook_subtext">Sendet den aktiven Drahtlos-Debugging-Endpunkt (IP:Port) per HTTP POST bei Verfügbarkeit und meldet ihn per DELETE bei Deaktivierung ab.</string>
+    <string name="settings_webhook_url_hint">http://host:port/register/device</string>
+    <string name="settings_webhook_url_label">Webhook-URL</string>
+    <string name="settings_webhook_btn_save">URL speichern</string>
+    <string name="settings_webhook_btn_clear">Löschen</string>
+    <string name="settings_webhook_error_invalid_url">Ungültige URL. Muss mit http:// oder https:// und einem gültigen Host beginnen.</string>
+    <string name="settings_webhook_error_missing_url">Bitte zuerst eine gültige HTTP/HTTPS-URL eingeben, bevor die Synchronisierung aktiviert wird.</string>
+    <string name="settings_webhook_saved_toast">Webhook-URL gespeichert</string>
+    <string name="settings_webhook_cleared_toast">Webhook-Konfiguration gelöscht</string>
+    <string name="settings_webhook_enabled_toast">Webhook-Synchronisierung aktiviert</string>
+    <string name="settings_webhook_disabled_toast">Webhook-Synchronisierung deaktiviert</string>
     <string name="settings_permission_warning">Systemberechtigung WRITE_SECURE_SETTINGS fehlt. KeepADB kann Drahtloses Debugging erst nach Berechtigungsvergabe steuern.</string>
     <string name="back">Zurück</string>
 </resources>
