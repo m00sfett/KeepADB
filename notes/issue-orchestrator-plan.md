@@ -2162,3 +2162,20 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Veröffentlichung (Repository-Sichtbarkeit, Release-/Tag-Plan und verbleibende Muss-Gates)
   jetzt das Ziel ist. Keine Implementierung, Builds, Tests, Geräteaktion, Delegation oder
   Workflow-Ausführung im aktuellen Lauf.
+
+## Issue-Anlage — App-Icon in der Main-Titelleiste — 2026-08-21
+
+- **Auftrag:** Neues GitHub-Issue für ein App-Icon links neben „KeepADB“ in der oberen
+  Titelleiste der Main-Activity anlegen.
+- **Nicht-Scope:** Keine Implementierung, keine Änderung der Settings-Titelleiste und keine
+  Geräteabnahme in diesem Lauf.
+- **Muss-Akzeptanzkriterien:** Launcher-/App-Icon links neben dem Titel sichtbar; bestehende
+  Einstellungen-Schaltfläche und Titel bleiben funktionsfähig; Abstände und Darstellung auf
+  den unterstützten Bildschirmgrößen plausibel; Icon erhält keine eigene Aktion.
+- **Geplante Stufe:** S1, direkte Issue-Anlage durch den Hauptagenten; Review nicht anwendbar.
+- **Validierung:** UI-Codepfad read-only geprüft; bestehende Issues, Runs und Arbeitsbaum
+  abgefragt; keine Builds, Tests, Geräteaktion oder Workflow-Ausführung.
+- **Angelegt:** [#133](https://github.com/m00sfett/KeepADB/issues/133), offen, Label
+  `enhancement`; Titel und Akzeptanzkriterien nach Anlage read-back geprüft.
+- **Status:** `complete` für den Issue-Anlageauftrag; Implementierung und UI-Abnahme bleiben
+  ausdrücklich offen in Issue #133.
