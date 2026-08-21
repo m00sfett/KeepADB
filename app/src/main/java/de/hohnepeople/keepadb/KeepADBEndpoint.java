@@ -379,6 +379,8 @@ final class KeepADBEndpoint {
         return allOpenPorts;
     }
 
+    private static final int LOOPBACK_SCAN_CONNECT_TIMEOUT_MS = 25;
+
     private List<Integer> scanLocalOpenPorts(int startPort, int endPort, long generation) {
         List<Integer> openPorts = new ArrayList<>();
         final byte[] loopbackBytes = new byte[]{127, 0, 0, 1};
@@ -393,10 +395,10 @@ final class KeepADBEndpoint {
             if (!isCurrent(generation) || endpointDelivered.get() || Thread.currentThread().isInterrupted()) {
                 return openPorts;
             }
-            try (Socket socket = new Socket()) {
-                socket.connect(new InetSocketAddress(loopback, port));
+            // A bare connect() has no timeout and can block far longer than expected on a
+            // closed/filtered port with no RST, stalling a 2500-port scan for minutes. See #110.
+            if (isPortReachable(loopback, port, LOOPBACK_SCAN_CONNECT_TIMEOUT_MS)) {
                 openPorts.add(port);
-            } catch (Exception ignored) {
             }
         }
         return openPorts;
