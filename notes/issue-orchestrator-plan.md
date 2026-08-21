@@ -1055,3 +1055,58 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - CI-Inventur: `.github/workflows/ci.yml` führt bei Pull Requests gegen `master`
   `lintDebug assembleDebug` aus; `.github/workflows/release.yml` läuft ausschließlich für
   `v*`-Tags. Für den aktuellen Head existierte vor PR-Eröffnung noch kein Run.
+
+### Review, Gerätegate und Merge-Freigabe — 2026-08-21
+
+- **Review:** unabhängiger S2-Review mit `gpt-5.6-luna` / `max`, versioniert in
+  `notes/reviews/2026-08-21-keepadb-identity.md`. Der Rename-Code ist `approved`.
+- **Reviewbefund:** Der zunächst auf `keepadb` umbenannte Webhook-Wert `method` ist kein
+  Produktname, sondern ein externer Transport-Enum. Der echte Registerdienst akzeptiert nur
+  `wlan-adb`, `ssh-termux`, `usb-adb` und `usb-ssh-tunnel`; Commit `5b862dd` stellt deshalb
+  minimal `wlan-adb` wieder her. Derselbe Reviewer bestätigte den Fix für den Code-Head.
+- **Reparaturgates:** `git diff --check` und
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug assembleDebug testDebugUnitTest`
+  erneut erfolgreich; Unit-Task weiterhin `NO-SOURCE`.
+- **Emulator:** sichtbarer Start des kanonischen S20-AVD scheiterte erneut an fehlendem
+  Qt/XCB-Zugriff auf die Desktopsitzung. Kein Headless- oder Software-Renderer-Fallback.
+- **S20-Fallback:** Register zuerst gelesen; der registrierte Port `34725` antwortete nicht,
+  der Pflichtscan fand keinen gültigen neuen ADB-Port. Anschließend löste `android-target`
+  einen vorhandenen, fingerprint-validierten Transport eindeutig als `SM-G780G`, Serial
+  `RF8T307S88H`, Android 13 auf und aktualisierte das Register.
+- **Installation:** alte App `de.moos.wifiadb` blieb unverändert installiert; Preferences
+  vorab unter `~/agent/backup/2026-08-21/keepadb-pre-rename-old-app-shared-prefs.tar`
+  gesichert. Neue App `de.hohnepeople.keepadb` zusätzlich installiert; keine Deinstallation
+  und kein `pm clear`.
+- **First-run vor Grant:** deutscher und englischer Screenshot/UI-Dump zeigen KeepADB,
+  USB-Anleitung und exakt
+  `adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS`;
+  beide Funktionsschalter waren `enabled=false`.
+- **Nach Grant:** der exakt dokumentierte Befehl setzte die Berechtigung. Nach
+  `CHECK PERMISSION` verschwand das Setup-Panel, beide Schalter waren `enabled=true`, der
+  normale Status-/Endpoint-Pfad war sichtbar. App-Sprache anschließend auf Systemstandard
+  Deutsch zurückgesetzt; Exit-Historie enthält nur absichtliche Force-Stops, keinen Crash/ANR.
+- **CI:** PR #73 ist mergebar. Runs `32469637963`, `32470389796`, `32471029224` und
+  `32471229917` waren jeweils für ihren Head grün; letzter Stand vor diesem Plancommit:
+  Head `1afeb02`, `Lint & Build Debug APK` erfolgreich.
+- **Merge-Gate:** `approved`; lokale Gates, Android-Smoke, unabhängiger Review und PR-CI sind
+  erfüllt. Repository-Sichtbarkeit bleibt `PRIVATE`. Der lokale Ordnername bleibt Nicht-Scope.
+
+### Aufwandsprotokoll und Retrospektive — KeepADB-Identitätswechsel
+
+- Geplant und erledigt: ein Rename-/Identitätspaket, ein gezielter Reviewer-Start (S2,
+  `gpt-5.6-luna` / `max`), zwei lokale Gradle-Gate-Läufe, ein fehlgeschlagener sichtbarer
+  Emulatorstart aus Infrastrukturgründen, ein vollständiger physischer S20-Smoke und vier
+  erfolgreiche PR-CI-Läufe bis zum Review-Nachtrag. Token-/Abrechnungswerte: unbekannt.
+- Die Reihenfolge lokale Gates → Review → Gerätegate war sinnvoll: Der Review fand den
+  Protokollvertrag vor dem Geräteabschluss; der First-run-Smoke bewies anschließend genau die
+  UI-/Berechtigungsstrecke, die Build und statischer Review nicht beweisen konnten.
+- Der unabhängige Review brachte einen merge-relevanten Befund: Ein pauschaler Rename von
+  `wlan-adb` zu `keepadb` hätte den optionalen Register-POST mit HTTP 400 gebrochen. Der
+  billigere frühe Nachweis war der Abgleich mit `VALID_METHODS` des echten Servers; ein
+  zusätzlicher End-to-End-Webhooklauf war nach dem eindeutigen Vertrag nicht nötig.
+- Verbesserung für den nächsten Identitätswechsel: Suchtreffer vor der Umbenennung explizit
+  in Produktidentität, Plattformvertrag und externen Protokoll-Enum klassifizieren. Dadurch
+  bleiben technische Altbegriffe nur dort bestehen, wo ihre Änderung tatsächlich ein
+  Breaking Change wäre.
+- Laufstatus vor Merge: `approved`; Server-Head und Checkstatus sind erneut unmittelbar vor
+  dem Merge abzufragen.
