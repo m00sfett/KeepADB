@@ -1906,3 +1906,38 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Issues mehr im Repository.
 - Nächste sinnvolle Schritte: keine offenen Kandidaten; nächste Auswahlrunde erst bei neuen
   Issues oder auf ausdrücklichen Nutzerauftrag.
+
+## Nachbesserung — Webhook-Statusanzeige aktualisiert nicht live (PR #121) — 2026-08-21
+
+- Nutzerrückmeldung nach #120: „Anzeige auf der Hauptseite ist immer noch so wie vorher,
+  aktualisiert nicht." Berechtigter Befund — mein eigener Livenachweis für #120 hatte nur die
+  serverseitige Registrierung per Logcat verifiziert, nie die tatsächliche MainActivity-Anzeige
+  während offener App beobachtet. Das war die Lücke: `MainActivity.refreshWebhookStatus()` liest
+  SharedPreferences nur synchron innerhalb von `refresh()` (onResume/Klick/ContentObserver);
+  der eigentliche Webhook-POST/DELETE läuft asynchron auf `KeepADBRegisterClient.EXECUTOR` und
+  schreibt die Preference erst nach dem HTTP-Roundtrip — ohne Rückkanal blieb die Anzeige bis
+  zum nächsten unabhängigen `refresh()`-Trigger stehen.
+- Fix: `KeepADBRegisterClient.RegisterStateListener` (Analog zu
+  `KeepADBNotification.EndpointListener`), gefeuert per `Handler(Looper.getMainLooper())` nach
+  jedem tatsächlichen Zustandswechsel (Post-Erfolg, Delete-Erfolg, `unregisterAndDisableAsync`).
+  `MainActivity` registriert/entfernt ihn in `onResume()`/`onPause()`.
+- Lokale Gates erneut grün. Geräte-Livenachweis auf S20 über `mooslap2023-ts`-USB-Fallback,
+  diesmal **mit MainActivity durchgehend im Vordergrund** (kein Verlassen/Wiederöffnen): Anzeige
+  wechselte live auf „Zuletzt gemeldeter Endpoint: noch keiner" nach Ausschalten und auf den
+  neuen Endpoint nach Wiedereinschalten.
+- PR #121 eröffnet und nach grünen Gates + Livenachweis gemerged (kein GitHub-Actions-Run).
+- **Lehre für diesen Skill:** Ein Reviewnachweis, der nur den Backend-/Log-Pfad prüft, beweist
+  nicht die UI-Eigenschaft, die das Issue eigentlich verlangt hat — exakt der in Abschnitt „Jede
+  Prüfung beweist nur ihre eigene Ebene" beschriebene Fehler, hier selbst begangen trotz
+  Kenntnis der Regel. Bei UI-nahen Issues künftig den Livenachweis explizit am sichtbaren
+  Bildschirmzustand führen (Screenshot/UI-Dump vor und nach der Aktion), nicht nur am Logcat/
+  Server-Response.
+- Status: `complete`.
+
+## Übergabe-Checkpoint — 2026-08-21 (nach PR #121)
+
+- Server-Stand (abgefragt): keine offenen Issues, keine offenen PRs, `master` synchron mit
+  `origin/master` auf `62a542f`.
+- Arbeitsbaum: sauber.
+- Nächste sinnvolle Schritte: keine offenen Kandidaten; nächste Auswahlrunde erst bei neuen
+  Issues oder auf ausdrücklichen Nutzerauftrag.
