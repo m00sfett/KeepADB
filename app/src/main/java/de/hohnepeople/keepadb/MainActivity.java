@@ -107,6 +107,11 @@ public class MainActivity extends Activity {
                         ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable)));
             }
         });
+        // Keep-Alive is a persisted preference, but the foreground service backing it can die
+        // (OEM battery optimization, process kill) without the preference changing. Only the
+        // toggle's own click listener called sync() before; without it here, reopening the app
+        // after such a kill never resurrects the service. See #106.
+        KeepADBService.sync(this);
         refresh();
         KeepADBNotification.refresh(this);
     }

@@ -413,6 +413,15 @@ final class KeepADBEndpoint {
         }
     }
 
+    /** Package-visible so a previously reported endpoint can be re-verified before reuse. */
+    static boolean isPortReachable(String host, int port, int timeoutMs) {
+        try {
+            return isPortReachable(InetAddress.getByName(host), port, timeoutMs);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
     static String getWifiIpAddress(Context context) {
         if (context == null) return null;
         try {

@@ -12,6 +12,7 @@ final class KeepADBPreferences {
     private static final String KEY_WEBHOOK_LAST_REPORTED = "register_webhook_last_reported";
     private static final String KEY_WEBHOOK_LAST_ENDPOINT = "register_webhook_last_endpoint";
     private static final String KEY_APP_LANGUAGE = "app_language";
+    private static final String KEY_SERVICE_LAST_HEARTBEAT = "service_last_heartbeat";
 
     private KeepADBPreferences() {}
 
@@ -83,6 +84,17 @@ final class KeepADBPreferences {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /** Marks the moment the foreground service was known alive; used to log restart gaps. */
+    static long getServiceLastHeartbeat(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getLong(KEY_SERVICE_LAST_HEARTBEAT, 0L);
+    }
+
+    static void setServiceLastHeartbeatNow(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putLong(KEY_SERVICE_LAST_HEARTBEAT, System.currentTimeMillis()).apply();
     }
 
     static String getAppLanguage(Context context) {

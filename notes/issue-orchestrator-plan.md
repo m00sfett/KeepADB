@@ -1453,3 +1453,101 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Status: `approved` für #110 (Code + Gates + Live-Nachweis vollständig). `approved` mit einer
   dokumentierten Einschränkung für #106 (Happy-Path live bestätigt, Negativ-Pfad nicht live
   provozierbar) — PR #109 bleibt offen, kein Issue-Close ohne Nutzerentscheidung zur Einschränkung.
+## Issue-106-Implementierung & Gerätetest-Blocker — 2026-08-21
+
+- Vorgefundenes WIP: `KeepADBEndpoint`/`KeepADBNotification`/`KeepADBPreferences`/`KeepADBService`
+  unversioniert im Arbeitsbaum, ohne Planeintrag. Nutzerentscheidung: beides behalten — sowohl
+  den eigentlichen Reachability-Fix als auch die Heartbeat-/Lifecycle-Diagnose-Instrumentierung.
+- Umsetzung (Issue #106 „Notification bleibt stehen, wenn Drahtloses Debugging ausgeschaltet
+  wird"): `KeepADBEndpoint.isPortReachable(host, port, timeoutMs)` (package-visible TCP-Check) +
+  `KeepADBNotification.verifyCachedEndpointAsync(...)` — bei jedem `refresh()` wird der gecachte
+  Endpoint asynchron re-verifiziert; ist er nicht mehr erreichbar (adbd rotiert den Port ohne
+  `adb_wifi_enabled`-Änderung), wird er invalidiert und Rediscovery gestartet. Zusätzlich
+  Heartbeat-Timestamp (`KeepADBPreferences`) und Lifecycle-Logging in `KeepADBService`
+  (`onCreate`/`onStartCommand`/`onDestroy`/`onTaskRemoved`/`onTrimMemory`) zur künftigen
+  Kill-Diagnose.
+- Lokale Gates: `git diff --check` bestanden; `gradlew testDebugUnitTest assembleDebug`
+  bestanden. `gradlew lintDebug` schlägt fehl — verifiziert per `git stash` als Vorbestandsfehler
+  auf reinem `master` (`90a206d`, PR #105: fehlende Übersetzungen für `webhook_status_title` in
+  16 Sprachen), unabhängig vom eigenen Fix. Dafür eigenes Issue
+  [#108](https://github.com/m00sfett/KeepADB/issues/108) angelegt statt mitzureparieren.
+- Commit `25ea79d` auf Branch `fix/106-stale-endpoint-reverify`, PR
+  [#109](https://github.com/m00sfett/KeepADB/pull/109) eröffnet (`Fixes #106`).
+- Gerätetest auf S20: Register lieferte zuletzt `usb-adb`, das war nicht erreichbar; WLAN-Port
+  wurde nach Nutzerhinweis reaktiviert und auf `192.168.178.24:45699` per
+  `phone-register scan-wlan s20` fingerprint-validiert (`SM-G780G`/`RF8T307S88H`), Register
+  aktualisiert. Doppelte veraltete mDNS-Transporte auf ADB 5038 getrennt, `android-target s20`
+  danach eindeutig. APK aus dem PR-Branch per `install -r` installiert.
+- **Neuer Befund während des Tests, außerhalb des #106-Scopes:** Die App-eigene
+  Endpoint-Discovery blieb nach `MainActivity`-Start dauerhaft bei „Endpoint wird gesucht …"
+  hängen (>3,5 Minuten, kein Fortschritt, kein Timeout-Log trotz im Code auf 45 s gesetztem
+  `maxTotalSeconds`). Ursache identifiziert:
+  `KeepADBEndpoint.scanLocalOpenPorts(int, int, long)` nutzt seit PR #92 (`f404d8e`) einen
+  **blockierenden `Socket.connect()` ohne Timeout**, sequenziell über bis zu 2500 Ports pro
+  Worker (8 Worker, Bereich 30000–50000) — eine Regression gegenüber der vorherigen NIO
+  `Selector`/`SocketChannel`-Batch-Implementierung (PR #88–#90, dokumentiert mit <200 ms
+  Vollscan). Trotz gegenteiliger Commit-Message in PR #92 ist der Connect nicht non-blocking.
+  Eigenes Issue [#110](https://github.com/m00sfett/KeepADB/issues/110) angelegt; keine
+  Reparatur in diesem Paket, Nutzerentscheidung: Issue anlegen, #106-Test separat nachholen.
+- **Folge:** Der freigegebene Live-Nachweis für den #106-Fix (gecachter Endpoint wird stale,
+  Notification aktualisiert sich) konnte nicht erbracht werden, weil die Discovery wegen #110
+  nie einen ersten Endpoint liefert — der zu prüfende Codepfad (`currentHost != null`-Zweig in
+  `refresh()`) wird dadurch nie erreicht. App-Prozess sauber per `force-stop` beendet.
+- Status: `blocked` für den Live-Nachweis von #106, verursacht durch die unabhängige Regression
+  #110. Code, lokale Gates und PR #109 bleiben unverändert gültig; kein `Fixes #106` schließen,
+  solange der Gerätenachweis fehlt.
+
+## Übergabe-Checkpoint — 2026-08-21
+
+- Server-Stand (abgefragt): offene Issues #106 (PR #109 referenziert, ungetestet),
+  #107 (Icon-Design, unberührt), #108 (Lint-Regression, neu), #110 (Discovery-Regression, neu).
+  PR #109 offen, keine aktiven CI-Runs (kein Workflow im Repo).
+- Uncommitted/unclean: keine — Arbeitsbaum ist nach dem Commit `25ea79d` und `force-stop` sauber
+  auf Branch `fix/106-stale-endpoint-reverify`.
+- Nächste sinnvolle Schritte (nicht automatisch fortgesetzt, da Architektur-/Priorisierungsfrage):
+  1. Issue #110 beheben (Timeout pro Connect-Versuch oder Rückkehr zur NIO-Selector-Variante),
+     danach #106-Live-Nachweis nachholen und PR #109 mergen.
+  2. Issue #108 (fehlende Übersetzungen) unabhängig beheben.
+  3. Issue #107 (Icon-Design) unabhängig einplanen.
+- Strangzähler: Dieser Lauf kam aus dem Strang „vorgefundenes WIP zu #106 abschließen" und hat
+  kein nutzersichtbares Ergebnis erzeugt (PR offen, aber Live-Nachweis blockiert). Stattdessen
+  wurde ein signifikanter, bislang unbekannter Performance-Regressionsfund (#110) produziert.
+
+## Issue-106-Root-Cause-Fix & vollständige Live-Verifikation — 2026-08-21
+
+- Nutzerhinweis: Zugriff auf das S20 zusätzlich per USB über SSH-Host `mooslap2023-ts`
+  (unabhängig vom bisherigen WLAN-ADB-Testkanal). Register aktualisiert
+  (`phone-register record s20 --method usb-adb --endpoint RF8T307S88H --ssh-target
+  mooslap2023-ts --verified-fingerprint samsung/SM-G780G/r8q`).
+- PR #111 (Issue #110) gemerged (Squash), Issue #110 automatisch geschlossen, Branch
+  aufgeräumt.
+- Für den #106-Negativpfad-Test zunächst versucht, den adbd-Port durch einen Wi-Fi-Reconnect
+  (`svc wifi disable/enable`) rotieren zu lassen — dabei entdeckt, dass Android
+  `adb_wifi_enabled` beim Deaktivieren von Wi-Fi automatisch auf `0` setzt; das trifft nicht
+  den ursprünglich gemeldeten Fall, sondern den regulären Toggle-Pfad.
+- **Root-Cause-Fund (live, per USB-Session bestätigt):** `MainActivity.onResume()` ruft nie
+  `KeepADBService.sync(this)` auf — nur der `OnClickListener` des Keep-Alive-Schalters. App per
+  `force-stop` beendet (Service stirbt), Keep-Alive-Präferenz blieb `true` (`checked="true"` im
+  UI-Dump), aber `dumpsys activity services` zeigte „nothing" nach Wiederöffnen der App vor dem
+  Fix — exakt das in #106 beschriebene Symptom.
+- Fix: `KeepADBService.sync(this)` zusätzlich in `onResume()` ergänzt (Commit `2ad065d` auf
+  `fix/106-stale-endpoint-reverify`). Lokale Gates (`git diff --check`,
+  `gradlew testDebugUnitTest assembleDebug`) bestanden.
+- **Vollständige End-to-End-Live-Verifikation** (kombinierte APK aus #109 + #110, WLAN-Kanal
+  für Beobachtung, unabhängiger USB-Kanal über `mooslap2023-ts` für die externe Aktion):
+  1. Service per `force-stop` getötet, Keep-Alive blieb aktiv; App neu geöffnet →
+     `onCreate: service (re)started, 20889ms since last heartbeat` bestätigt sofortigen
+     Neustart (Heartbeat-Diagnose aus dem WIP bewährt sich hier direkt).
+  2. App in den Hintergrund gelegt (nicht beendet); `adb_wifi_enabled` über die unabhängige
+     USB-Session extern auf `0` gesetzt.
+  3. `ContentObserver` im laufenden Service reagierte sofort; Keep-Alive reaktivierte Wireless
+     Debugging automatisch (neuer Port `41499` statt `43947`).
+  4. `verifyCachedEndpointAsync` erkannte den alten Port als nicht mehr erreichbar
+     (`Cached endpoint 192.168.178.24:43947 no longer reachable; invalidating and
+     rediscovering`), Rediscovery lief an.
+  5. Notification zeigte binnen ~2s korrekt `Drahtloses Debugging: Port 41499 @
+     192.168.178.24`; Register-Update per `HTTP 200` bestätigt.
+  Lokaler Testmerge (#106+#110 kombiniert) wurde nach der Verifikation wieder verworfen
+  (`git reset --hard`), kein Einfluss auf die getrennten PR-Branches.
+- Status: `approved` für #106 — Root Cause behoben, Symptom-Fix und End-to-End-Pfad live
+  vollständig bestätigt. Kommentar mit Nachweis auf PR #109 gepostet.

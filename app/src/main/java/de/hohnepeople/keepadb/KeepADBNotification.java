@@ -15,9 +15,11 @@ import android.os.Looper;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
+import android.util.Log;
 
 /** Keeps the endpoint notification aligned with the live Wireless Debugging state. */
 final class KeepADBNotification {
+    private static final String TAG = "KeepADBNotification";
     static final String CHANNEL_ID = "keepadb_endpoint";
     static final int NOTIFICATION_ID = 1;
     private static final long RETRY_DELAY_INITIAL_MS = 2000;
@@ -106,6 +108,11 @@ final class KeepADBNotification {
             if (endpointListener != null) {
                 endpointListener.onEndpoint(currentHost, currentPort);
             }
+            // The cached endpoint may be stale: adbd rotates its wireless-debugging port on
+            // its own (e.g. after a Wi-Fi roam or an internal restart) without adb_wifi_enabled
+            // changing, so the ContentObserver never fires. Without this check the notification
+            // kept showing a dead port until the process was killed and relaunched.
+            verifyCachedEndpointAsync(appContext, manager, currentHost, currentPort);
             return;
         }
 
@@ -118,6 +125,31 @@ final class KeepADBNotification {
 
         cancelRetryLocked();
         startDiscoveryDirectLocked(appContext, manager);
+    }
+
+    private static void verifyCachedEndpointAsync(Context appContext, NotificationManager manager, String host, int port) {
+        new Thread(() -> {
+            boolean reachable = KeepADBEndpoint.isPortReachable(host, port, 500);
+            if (reachable) return;
+            Log.w(TAG, "Cached endpoint " + host + ":" + port + " no longer reachable; invalidating and rediscovering");
+            synchronized (KeepADBNotification.class) {
+                if (!host.equals(currentHost) || port != currentPort) {
+                    return; // superseded by a newer refresh/discovery in the meantime
+                }
+                currentHost = null;
+                currentPort = 0;
+                if (endpointListener != null) {
+                    endpointListener.onUnavailable();
+                }
+                if (KeepADBPreferences.isKeepAliveEnabled(appContext)) {
+                    showPlaceholder(appContext, manager,
+                            appContext.getString(R.string.notification_title_searching),
+                            appContext.getString(R.string.notification_text_searching));
+                }
+                cancelRetryLocked();
+                startDiscoveryDirectLocked(appContext, manager);
+            }
+        }, "KeepADBEndpointVerify").start();
     }
 
     private static void cancelRetryLocked() {
