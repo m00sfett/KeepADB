@@ -112,6 +112,66 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
+        <!-- Language Section -->
+        <LinearLayout
+            android:id="@+id/settings_language_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/fira_sans_condensed"
+                android:text="@string/settings_section_language"
+                android:textColor="@color/title_yellow"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/fira_sans"
+                android:text="@string/settings_language_subtext"
+                android:textColor="@color/night_muted"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:id="@+id/settings_language_selector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@color/panel_strong"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/settings_language_selected_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/fira_sans_condensed"
+                    android:text="@string/settings_language_system_default"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/fira_sans_condensed"
+                    android:text="▼"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
         <!-- Webhook Section -->
         <LinearLayout
             android:id="@+id/settings_webhook_panel"

@@ -52,7 +52,7 @@ final class KeepADBNotification {
     }
 
     static synchronized Notification getServiceNotification(Context context) {
-        Context appContext = context.getApplicationContext();
+        Context appContext = KeepADBLocaleHelper.wrapContext(context.getApplicationContext());
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
         if (manager != null) {
             ensureChannel(appContext, manager);
@@ -67,7 +67,7 @@ final class KeepADBNotification {
     }
 
     static synchronized void showPermissionMissing(Context context) {
-        Context appContext = context.getApplicationContext();
+        Context appContext = KeepADBLocaleHelper.wrapContext(context.getApplicationContext());
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
         if (manager == null) return;
         ensureChannel(appContext, manager);
@@ -90,7 +90,7 @@ final class KeepADBNotification {
     }
 
     static synchronized void refresh(Context context) {
-        Context appContext = context.getApplicationContext();
+        Context appContext = KeepADBLocaleHelper.wrapContext(context.getApplicationContext());
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
         if (manager == null) return;
         ensureChannel(appContext, manager);

@@ -48,5 +48,10 @@
     <string name="settings_webhook_enabled_toast">Webhook-Synchronisierung aktiviert</string>
     <string name="settings_webhook_disabled_toast">Webhook-Synchronisierung deaktiviert</string>
     <string name="settings_permission_warning">Systemberechtigung WRITE_SECURE_SETTINGS fehlt. KeepADB kann Drahtloses Debugging erst nach Berechtigungsvergabe steuern.</string>
+    <string name="settings_section_language">Sprache</string>
+    <string name="settings_language_label">App-Sprache</string>
+    <string name="settings_language_subtext">Wähle die Anzeigesprache für KeepADB</string>
+    <string name="settings_language_system_default">Systemstandard</string>
+    <string name="settings_language_dialog_title">Sprache auswählen</string>
     <string name="back">Zurück</string>
 </resources>
