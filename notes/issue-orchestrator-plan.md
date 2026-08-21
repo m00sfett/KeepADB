@@ -1624,3 +1624,70 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Arbeitsbaum: sauber auf `master`, synchron mit `origin/master`.
 - Nächstes Paket: Paket B (#114), Freigabe (Implementierung, lokale Gates, S20-Gerätetest) liegt
   bereits aus der Auswahlrunde vor.
+
+## Umsetzung & Validierung Paket B (PR #116 / Issue #114) — 2026-08-21
+
+- Implementierung: `KeepADBEndpoint.startFastProbe` pulst `adb_wifi_enabled` einmal pro
+  Discovery-Generation aus/ein (800 ms Pause), wenn 5s nach Start kein offener Port gefunden
+  wurde, während die Einstellung noch aktiv ist — Gegenmittel für den Fall, dass `AdbService`
+  ein `adb_wifi_enabled=1` mitten im Teardown der vorherigen Session akzeptiert, ohne adbd
+  tatsächlich neu zu binden.
+- **Reviewbefund während des eigenen Gerätetests (Selbstkorrektur vor Merge):** Die erste
+  Fassung brach vor dem Wieder-Einschalten ab, wenn sich `discoveryGeneration` während der
+  800-ms-Pause änderte (z. B. durch einen weiteren `discover()`-Aufruf) — das Gerät blieb dann
+  dauerhaft mit `adb_wifi_enabled=0` hängen, schlimmer als der Ausgangsfehler. Livenachweis auf
+  dem S20 (Register blieb bei `0`, kein weiterer Log-Eintrag nach der Pulse-Warnung). Fix:
+  Wieder-Einschalten läuft jetzt unbedingt, unabhängig von Generation/Interrupt, da der Pulse
+  selbst die Ursache des Aus-Zustands ist. Commit `59bbea8` auf demselben Branch, PR
+  unverändert.
+- Lokale Gates (beide Commits): `git diff --check`,
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`
+  erfolgreich (0 Fehler).
+- Gerätegate auf S20 (`SM-G780G`/`RF8T307S88H`): Registrierter WLAN-Port zunächst nicht
+  erreichbar; nach Nutzerhinweis auf Port `42927` fingerprint-validiert. Für die eigentliche
+  Rapid-Toggle-Reproduktion wurde zusätzlich der unabhängige USB-Kanal über `mooslap2023-ts`
+  verwendet (APK dorthin kopiert und über `adb -s RF8T307S88H` installiert), da der
+  WLAN-Kontrollkanal für die Toggle-Aktion selbst nicht geeignet ist.
+  - Nebenbefund: Während des Tests war das Gerät kurzzeitig mit deaktiviertem Wi-Fi vorgefunden
+    (Ursache nicht abschließend geklärt, kein eigener Codepfad dieses Pakets); nach `svc wifi
+    enable` normal fortgesetzt.
+  - Reproduktion: rapides Aus-/Ein-Tippen des Haupt-Schalters versetzte adbd in genau den
+    beschriebenen Hängerzustand (`adb_wifi_enabled=1`, kein Listener). Logcat zeigt den Pulse
+    nach Ablauf der Verzögerung, danach einen erfolgreichen Re-Discovery-Zyklus
+    (`Register update ... returned HTTP 200`), UI zeigt anschließend „Drahtloses Debugging ist
+    AN“ mit korrektem neuen Endpoint.
+  - Beobachtung außerhalb des Scopes: Eine einzelne Scan-Iteration über 30000–50000 dauerte in
+    diesem Testlauf ungewöhnlich lange (~55s statt der für #110 dokumentierten ~150ms), obwohl
+    ein roher Shell-`/dev/tcp`-Connect-Test auf geschlossene Loopback-Ports nahezu sofort
+    zurückkam — deutet auf eine Java-Thread-Scheduling-Verzögerung (denkbar: Samsungs
+    Hintergrund-Prozessdrosselung) statt auf einen erneuten Blocking-Connect-Regressionsfall wie
+    bei #110. Nicht reproduzierbar isoliert, kein eigenes Issue angelegt; als Beobachtung hier
+    protokolliert, falls es sich wiederholt.
+- PR #116 (`fix: recover from stuck adbd after rapid Wireless Debugging toggle`) eröffnet, per
+  manuellem `workflow_dispatch`-CI-Lauf (letzter dieser Art, siehe unten) grün verifiziert und
+  per Squash-Merge in `master` übernommen (`Fixes #114`). Branch aufgeräumt.
+- Status: `complete`.
+
+## Nutzerentscheidung — keine GitHub-Actions-Läufe mehr — 2026-08-21
+
+- Nutzerauftrag: GitHub-Actions-Minutenkontingent ist knapp; ab sofort keine Workflow-Läufe
+  mehr auslösen (weder automatisch noch per manuellem `workflow_dispatch`). Abnahme künftig
+  ausschließlich über lokale Gradle-Gates plus Gerätetest.
+- Der zu diesem Zeitpunkt bereits laufende Dispatch-Run für PR #116 wurde nach ausdrücklicher
+  Nutzeransage noch zu Ende abgewartet (letzter dieser Art); danach gemerged.
+- Umsetzung: Regel in `AGENTS.md` (lokal, ungetrackt) unter einem neuen Abschnitt „CI (ab
+  2026-08-21: keine GitHub-Actions-Läufe mehr)" dokumentiert. Die Workflow-Dateien selbst
+  bleiben unverändert bestehen; ihre Deaktivierung/Löschung ist eine eigene, nicht erteilte
+  Entscheidung.
+- Status: `complete` für die Dokumentation dieser Regel.
+
+## Übergabe-Checkpoint — 2026-08-21
+
+- Server-Stand (abgefragt): keine offenen Issues, keine offenen PRs, `master` synchron mit
+  `origin/master` auf `10d062b`.
+- Arbeitsbaum: sauber.
+- Strangzähler: Dieser Lauf kam aus dem Strang „Review-Findings-Nachfolgeissues" (#112–#114)
+  und hat mit beiden Paketen (A: #112/#113, B: #114) ein nutzersichtbares Ergebnis erzeugt —
+  keine offenen Issues mehr im Repository.
+- Nächste sinnvolle Schritte: keine offenen Kandidaten; nächste Auswahlrunde erst bei neuen
+  Issues oder auf ausdrücklichen Nutzerauftrag.
