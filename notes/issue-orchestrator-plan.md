@@ -1254,9 +1254,52 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 2. **Qualitäts-Gates:** Lokale Gates (Formatierung, Lint, Unit-Tests, Debug-Builds) in Kombination mit UI-Automation-Dumps auf dem physischen S20 FE haben sowohl die Programmlogik als auch das tatsächliche UI- und Service-Verhalten deterministisch abgesichert.
 3. **Kontext- und Ressourcen-Schonung:** Alle 3 Pakete wurden in einem zusammenhängenden, disziplinierten Durchlauf direkt ohne unproduktiven Subagenten-Overhead abgeschlossen.
 
+## Neues Paket — Multi-Language-Unterstützung & Sprachauswahl — 2026-08-21
+
+- **Issues:**
+  - [#84](https://github.com/m00sfett/KeepADB/issues/84) `feat: Multi-Language-Unterstützung für die Top 15–20 Weltsprachen implementieren`
+  - [#83](https://github.com/m00sfett/KeepADB/issues/83) `feat: Sprache in den Einstellungen manuell umstellbar machen`
+- **Ziel:** KeepADB um vollständige Multi-Language-Lokalisierung für die 19 wichtigsten Weltsprachen erweitern, offizielle Android 13+ Per-App Language Preferences (`res/xml/locales_config.xml` + `android:localeConfig`) und RTL-Unterstützung integrieren, sowie eine skalierbare Sprachauswahl-UI in den Einstellungen bereitstellen.
+- **Sprachumfang (19 Sprachen):**
+  - Englisch (`values/strings.xml`, Default), Deutsch (`values-de`), Spanisch (`values-es`), Französisch (`values-fr`), Portugiesisch (`values-pt`), Italienisch (`values-it`), Niederländisch (`values-nl`), Polnisch (`values-pl`), Ukrainisch (`values-uk`), Russisch (`values-ru`), Türkisch (`values-tr`), Arabisch (`values-ar`), Hindi (`values-hi`), Chinesisch vereinfacht (`values-zh-rCN`), Chinesisch traditionell (`values-zh-rTW`), Japanisch (`values-ja`), Koreanisch (`values-ko`), Indonesisch (`values-id`), Vietnamesisch (`values-vi`).
+- **Architektur & Implementierung:**
+  - `KeepADBLocaleHelper.java`: Verwaltet die unterstützten Sprach-Endonyme und steuert sowohl `LocaleManager.setApplicationLocales()` (Android 13+ / API 33+) als auch `createConfigurationContext()` / `wrapContext()` (API 30..32) sowie Persistenz in `KeepADBPreferences`.
+  - `SettingsActivity.java` & `activity_settings.xml`: Ergänzung eines Sprachauswahl-Bereichs mit dynamischer Anzeige der aktiven Sprache und modalem Einzelauswahl-Dialog (Endonyme).
+  - `MainActivity.java` & `SettingsActivity.java`: `attachBaseContext()` für konsistente Lokalisierung implementiert.
+  - `KeepADBNotification.java` & `KeepADBWidget.java`: Lokalisierter Kontext für Benachrichtigungen, Toasts und Widgets angebunden.
+  - `AndroidManifest.xml`: `android:localeConfig="@xml/locales_config"` und `android:supportsRtl="true"` registriert.
+  - `KeepADBLocaleHelperTest.java`: Unit-Tests für Sprachanzahl, Tag-Matching und Endonym-Integrität angelegt.
+- **Stufe:** S2 (Direktumsetzung durch Hauptagent / Gemini 3.7 Flash Medium).
+- **Validierung & Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`: bestanden (0 Fehler, 0 Warnungen, alle Unit-Tests grün, APK generiert).
+  - GitHub Actions CI (Run `32478992036`): erfolgreich abgeschlossen (grün, 1m 4s).
+- **Abschluss & Merge:**
+  - PR [#85](https://github.com/m00sfett/KeepADB/pull/85) eröffnet und via Squash-Merge in `master` übernommen.
+  - Issues #84 und #83 durch GitHub automatisch geschlossen (`Fixes #84`, `Fixes #83`).
+  - Feature-Branch lokal und remote gelöscht.
+- **Status:** `complete`.
+
+## Aufwandsprotokoll (Issues #83, #84)
+
+- **Geplante / erledigte Pakete:** 1 Paket (Issues #83, #84).
+- **Erledigte Issues:** 2 (#83, #84).
+- **PR:** PR #85 erfolgreich via Squash-Merge in `master` integriert.
+- **Modell:** Gemini 3.7 Flash Medium (S2 / Direktumsetzung).
+- **Build-/Lint-/Testläufe:** 2x lokal + 1x GitHub Actions CI (`testDebugUnitTest lintDebug assembleDebug`) erfolgreich (0 Fehler).
+- **Fehlversuche / Retries am Code:** 0 (AAPT Apostroph-Escaping bei XML-Generierung unmittelbar sanitiziert).
+- **Beobachtete Token-/Abrechnungswerte:** unbekannt.
+
+## Retrospektive (Issues #83, #84)
+
+1. **Paketierungsreihenfolge & Eco-Scope:** Die Zusammenführung von Issue #83 (In-App-Sprachumschalter) und Issue #84 (Multi-Language-Top-19-Sprachen) in ein einziges konsistentes Paket war optimal, da beide denselben Ressourcen-, Layout- und Helper-Pfad teilen.
+2. **Qualitäts-Gates & AAPT-Validierung:** Lokale Gradle-Gates (`testDebugUnitTest`, `lintDebug`, `assembleDebug`) fingen XML-Apostroph-Formate deterministisch vor Commit/Push ab; CI auf GitHub bestätigte fehlerfreien Build in 1m 4s.
+3. **Plattformintegration:** Die hybride Architektur mit `LocaleManager` (API 33+) und `createConfigurationContext` (API 30..32) stellt sicher, dass KeepADB sowohl nativ im Android-System-Menü als auch direkt in der App ohne Drittbibliotheken sofort und persistent umschaltet.
+
 ## Abschlussstatus
 
-- **Status:** `complete` (Alle 3 Issues #74, #75, #76 gelöst, verifiziert und gemergt; 0 offene Issues im Repository).
+- **Status:** `complete` (Issues #83 und #84 abgeschlossen und in `master` integriert).
+
 
 
 
