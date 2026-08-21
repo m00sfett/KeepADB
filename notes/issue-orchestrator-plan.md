@@ -1351,4 +1351,27 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - **Validierung & Gates:**
   - `git diff --check`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`: bestanden (0 Fehler, 0 Warnungen, Unit-Tests grün, Debug-APK gebaut).
-- **Status:** `approved`
+- **Abschluss:** PR #87 eröffnet und via Squash-Merge in `master` übernommen; Issue #82 durch GitHub geschlossen.
+- **Status:** `complete`.
+
+## Aufwandsprotokoll (Issues #81, #82)
+
+- **Geplante / erledigte Pakete:** 2 Pakete
+  - Paket 1: Issue #81 (PR #86) — Keep-Alive Entkopplung & Hauptseiten-Schalter
+  - Paket 2: Issue #82 (PR #87) — CI-Designsystem für Buttons, Inputs & Settings
+- **Erledigte Issues:** 2 von 2 geschlossen (100%).
+- **PRs:** PR #86, PR #87 beide erfolgreich via Squash-Merge in `master` integriert.
+- **Modell:** Gemini 3.7 Flash Medium (S2 / Direktumsetzung).
+- **Build-/Lint-/Testläufe:** 4x lokal (`testDebugUnitTest lintDebug assembleDebug`) erfolgreich (0 Fehler).
+- **Fehlversuche / Retries am Code:** 0.
+- **Beobachtete Token-/Abrechnungswerte:** unbekannt.
+
+## Retrospektive (Issues #81, #82)
+
+1. **Paketierungsreihenfolge & Isolation:** Die Aufteilung in Paket 1 (Interaktion/Logik-Entkopplung) und Paket 2 (visuelles CI-Designsystem & Drawables) hielt die PRs sauber getrennt, leicht nachvollziehbar und konfliktfrei.
+2. **Qualitäts-Gates:** Lokale Gradle-Gates (`testDebugUnitTest`, `lintDebug`, `assembleDebug`) stellten eine schnelle (0.5–2s) und deterministische Verifikation ohne langsame externe CI-Pipelines sicher.
+3. **CI-Designsystem-Treue:** Durch die strikte Einhaltung der Vorgaben aus `/vault/kontext/ci-designsystem.md` (knappe Radien 4–8dp, Monospace für technische Daten/URLs, Rot-Gelb-Dunkel Hierarchie und klare Pressed/Focus-Zustände) besitzt die App ein konsistentes, natives und barrierefreies Erscheinungsbild.
+
+## Abschlussstatus
+
+- **Status:** `complete` (alle Issues #81 und #82 vollständig gelöst, gemergt und auf `master` bereitgestellt; 0 offene Issues im Repository).
