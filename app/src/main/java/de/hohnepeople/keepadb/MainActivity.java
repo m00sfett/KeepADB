@@ -69,9 +69,28 @@ public class MainActivity extends Activity {
         });
     }
 
+    private android.database.ContentObserver adbContentObserver;
+
     @Override
     protected void onResume() {
         super.onResume();
+        if (adbContentObserver == null) {
+            adbContentObserver = new android.database.ContentObserver(new android.os.Handler(android.os.Looper.getMainLooper())) {
+                @Override
+                public void onChange(boolean selfChange) {
+                    super.onChange(selfChange);
+                    refresh();
+                    KeepADBNotification.refresh(MainActivity.this);
+                }
+            };
+            try {
+                getContentResolver().registerContentObserver(
+                        android.provider.Settings.Global.getUriFor(KeepADB.KEY),
+                        false,
+                        adbContentObserver);
+            } catch (Exception ignored) {
+            }
+        }
         KeepADBNotification.setEndpointListener(new KeepADBNotification.EndpointListener() {
             @Override
             public void onEndpoint(String host, int port) {
@@ -91,6 +110,13 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         KeepADBNotification.clearEndpointListener();
+        if (adbContentObserver != null) {
+            try {
+                getContentResolver().unregisterContentObserver(adbContentObserver);
+            } catch (Exception ignored) {
+            }
+            adbContentObserver = null;
+        }
         super.onPause();
     }
 
