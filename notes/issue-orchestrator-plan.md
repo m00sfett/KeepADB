@@ -1296,10 +1296,27 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 2. **Qualitäts-Gates & AAPT-Validierung:** Lokale Gradle-Gates (`testDebugUnitTest`, `lintDebug`, `assembleDebug`) fingen XML-Apostroph-Formate deterministisch vor Commit/Push ab; CI auf GitHub bestätigte fehlerfreien Build in 1m 4s.
 3. **Plattformintegration:** Die hybride Architektur mit `LocaleManager` (API 33+) und `createConfigurationContext` (API 30..32) stellt sicher, dass KeepADB sowohl nativ im Android-System-Menü als auch direkt in der App ohne Drittbibliotheken sofort und persistent umschaltet.
 
-## Abschlussstatus
+## Neue Auswahlrunde — Issues #81 & #82 — 2026-08-21
 
-- **Status:** `complete` (Issues #83 und #84 abgeschlossen und in `master` integriert).
+- **Ausgangslage:**
+  - `master` auf Head `fa90835` (synchron mit `origin/master`).
+  - Keine offenen PRs, keine unversionierten Änderungen.
+  - Hinweis des Nutzers: Volle Freigabe zur Abarbeitung aller offenen Issues ohne GitHub Actions Workflows (deterministische lokale Gradle-Validierung).
 
+- **Kandidaten (2 offene Issues):**
+  - [#81](https://github.com/m00sfett/KeepADB/issues/81) `fix: Keep-Alive-Zustand nicht ungefragt zurücksetzen und Schalter auf Hauptseite bereitstellen`
+  - [#82](https://github.com/m00sfett/KeepADB/issues/82) `style: Einstellungsansicht und Buttons an das CI-Designsystem anpassen`
 
+- **Paketierung nach Eco-Grundsätzen:**
+  1. **Paket 1 (Logik & Interaktion / Issue #81):**
+     - Ziel: Entkopplung des manuellen WLAN-ADB-Ausschaltens vom Keep-Alive-Preferences-Zustand in `MainActivity`, `KeepADBTileService`, `KeepADBWidget` und `KeepADBService`. Einbinden des Keep-Alive-Schalters (inkl. Untertitel) in `MainActivity` und wechselseitige Synchronisation mit `SettingsActivity` und `KeepADBService`.
+     - Stufe: S2 (Direktumsetzung durch Hauptagent / Gemini 3.7 Flash Medium).
+     - Gates: `git diff --check`, `testDebugUnitTest`, `lintDebug`, `assembleDebug`.
+  2. **Paket 2 (CI-Designsystem & Button-Styling / Issue #82):**
+     - Ziel: Vereinheitlichung des Button- und Eingabefeld-Stylings nach `/vault/kontext/ci-designsystem.md` (Rot-Gelb-Dunkel-Palette, knappe Radien 4–8dp, pressed/focus feedback, Monospace für URL, saubere Panel- und Textkontraste in `MainActivity` und `SettingsActivity`).
+     - Stufe: S2 (Direktumsetzung durch Hauptagent / Gemini 3.7 Flash Medium).
+     - Gates: `git diff --check`, `testDebugUnitTest`, `lintDebug`, `assembleDebug`.
 
+- **Reihenfolge:** Paket 1 (Issue #81) → Paket 2 (Issue #82).
+- **Status:** `in_progress`.
 

@@ -27,9 +27,6 @@ public class KeepADBWidget extends AppWidgetProvider {
                 Toast.makeText(context,
                         localizedContext.getString(R.string.permission_error_toast, context.getPackageName()),
                         Toast.LENGTH_LONG).show();
-            } else if (!want) {
-                KeepADBPreferences.setKeepAliveEnabled(context, false);
-                KeepADBService.stop(context);
             }
             refreshAll(context);
             KeepADBNotification.refresh(context);
