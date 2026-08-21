@@ -3,7 +3,30 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
+    <!-- Wi-Fi wave arcs radiating outwards -->
     <path
-        android:fillColor="@color/bright_yellow"
-        android:pathData="M5,16c0,3.87 3.13,7 7,7s7,-3.13 7,-7v-4L5,12v4zM16.12,4.37l2.1,-2.1 -0.82,-0.83 -2.3,2.31C14.16,3.28 13.12,3 12,3s-2.16,0.28 -3.09,0.75L6.6,1.44l-0.82,0.83 2.1,2.1C6.14,5.64 5,7.68 5,10v1h14v-1c0,-2.32 -1.14,-4.36 -2.88,-5.63zM9,9c-0.55,0 -1,-0.45 -1,-1s0.45,-1 1,-1 1,0.45 1,1 -0.45,1 -1,1zM15,9c-0.55,0 -1,-0.45 -1,-1s0.45,-1 1,-1 1,0.45 1,1 -0.45,1 -1,1z" />
+        android:strokeColor="@color/bright_yellow"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:pathData="M 15,9 A 4.5,4.5 0 0,1 17,12 A 4.5,4.5 0 0,1 15,15" />
+    <path
+        android:strokeColor="@color/bright_yellow"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:pathData="M 18,6 A 8.5,8.5 0 0,1 21.5,12 A 8.5,8.5 0 0,1 18,18" />
+
+    <!-- Terminal Prompt '>' Chevron -->
+    <path
+        android:strokeColor="@color/bright_yellow"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M 5.5,7 L 10.5,12 L 5.5,17" />
+
+    <!-- Terminal Cursor '_' -->
+    <path
+        android:strokeColor="@color/bright_yellow"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:pathData="M 12.5,17 L 16.5,17" />
 </vector>
