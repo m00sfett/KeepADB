@@ -39,9 +39,12 @@ final class KeepADBEndpoint {
     private static final long RESOLVE_TIMEOUT_MS = 1500;
     static final int PROBE_START_PORT = 30000;
     static final int PROBE_END_PORT = 50000;
-    private static final int BATCH_SIZE = 64;
-    private static final int SCAN_WORKERS = 4;
-    private static final int BATCH_SELECT_TIMEOUT_MS = 10;
+    private static final int SCAN_WORKERS = 8;
+    private static final java.util.concurrent.ExecutorService SCAN_EXECUTOR = java.util.concurrent.Executors.newFixedThreadPool(SCAN_WORKERS, r -> {
+        Thread t = new Thread(r, "KeepADBScanWorker");
+        t.setDaemon(true);
+        return t;
+    });
 
     interface Listener {
         void onEndpoint(String host, int port);
@@ -75,10 +78,14 @@ final class KeepADBEndpoint {
     }
 
     synchronized void discover(Listener listener) {
+        this.currentListener = listener;
+        if (discovering && !endpointDelivered.get()) {
+            Log.d(TAG, "discover called while already discovering (gen=" + discoveryGeneration + "); attached listener to active probe");
+            return;
+        }
         if (discovering) {
             stop();
         }
-        this.currentListener = listener;
         if (nsdManager == null) {
             this.currentListener = null;
             if (listener != null) {
@@ -281,14 +288,14 @@ final class KeepADBEndpoint {
                 }
 
                 final String wifiIp = getWifiIpAddress(appContext);
-                final List<Integer> openPorts = scanLocalOpenPortsParallel(PROBE_START_PORT, PROBE_END_PORT, SCAN_WORKERS);
+                final List<Integer> openPorts = scanLocalOpenPortsParallel(PROBE_START_PORT, PROBE_END_PORT, SCAN_WORKERS, generation);
                 Log.d(TAG, "FastProbe gen=" + generation + " iteration: wifiIp=" + wifiIp + ", openPorts=" + openPorts);
 
                 if (!openPorts.isEmpty()) {
                     String targetHost = wifiIp;
                     if (targetHost == null) {
                         try {
-                            Thread.sleep(60);
+                            Thread.sleep(50);
                         } catch (InterruptedException e) {
                             return;
                         }
@@ -329,7 +336,7 @@ final class KeepADBEndpoint {
                 }
 
                 try {
-                    Thread.sleep(120);
+                    Thread.sleep(150);
                 } catch (InterruptedException e) {
                     return;
                 }
@@ -351,44 +358,28 @@ final class KeepADBEndpoint {
         coordinatorThread.start();
     }
 
-    static List<Integer> scanLocalOpenPortsParallel(int startPort, int endPort, int numWorkers) {
-        final List<Integer> allOpenPorts = Collections.synchronizedList(new ArrayList<>());
+    private List<Integer> scanLocalOpenPortsParallel(int startPort, int endPort, int numWorkers, long generation) {
         final int totalPorts = endPort - startPort + 1;
         final int chunkSize = (totalPorts + numWorkers - 1) / numWorkers;
-        final Thread[] threads = new Thread[numWorkers];
+        final List<java.util.concurrent.Future<List<Integer>>> futures = new ArrayList<>(numWorkers);
 
         for (int i = 0; i < numWorkers; i++) {
             final int chunkStart = startPort + i * chunkSize;
             final int chunkEnd = Math.min(chunkStart + chunkSize - 1, endPort);
-            final int workerIdx = i;
-            threads[i] = new Thread(() -> {
-                try {
-                    List<Integer> found = scanLocalOpenPorts(chunkStart, chunkEnd, BATCH_SELECT_TIMEOUT_MS);
-                    if (!found.isEmpty()) {
-                        Log.d(TAG, "Worker " + workerIdx + " found: " + found);
-                        allOpenPorts.addAll(found);
-                    }
-                } catch (Throwable t) {
-                    Log.e(TAG, "Worker " + workerIdx + " crashed", t);
-                }
-            }, "KeepADBScanWorker-" + i);
-            threads[i].start();
+            futures.add(SCAN_EXECUTOR.submit(() -> scanLocalOpenPorts(chunkStart, chunkEnd, generation)));
         }
 
-        for (Thread t : threads) {
+        final List<Integer> allOpenPorts = new ArrayList<>();
+        for (java.util.concurrent.Future<List<Integer>> f : futures) {
             try {
-                t.join();
-            } catch (InterruptedException e) {
-                for (Thread worker : threads) {
-                    if (worker != null) worker.interrupt();
-                }
-                break;
+                allOpenPorts.addAll(f.get());
+            } catch (Exception ignored) {
             }
         }
-        return new ArrayList<>(allOpenPorts);
+        return allOpenPorts;
     }
 
-    static List<Integer> scanLocalOpenPorts(int startPort, int endPort, int selectTimeoutMs) {
+    private List<Integer> scanLocalOpenPorts(int startPort, int endPort, long generation) {
         List<Integer> openPorts = new ArrayList<>();
         final byte[] loopbackBytes = new byte[]{127, 0, 0, 1};
         final InetAddress loopback;
@@ -398,62 +389,14 @@ final class KeepADBEndpoint {
             return openPorts;
         }
 
-        for (int batchStart = startPort; batchStart <= endPort; batchStart += BATCH_SIZE) {
-            if (Thread.currentThread().isInterrupted()) {
+        for (int port = startPort; port <= endPort; port++) {
+            if (!isCurrent(generation) || endpointDelivered.get() || Thread.currentThread().isInterrupted()) {
                 return openPorts;
             }
-            int batchEnd = Math.min(batchStart + BATCH_SIZE - 1, endPort);
-            Selector selector = null;
-            List<SocketChannel> channels = new ArrayList<>(BATCH_SIZE);
-            try {
-                selector = Selector.open();
-                for (int port = batchStart; port <= batchEnd; port++) {
-                    try {
-                        SocketChannel channel = SocketChannel.open();
-                        channel.configureBlocking(false);
-                        boolean connected = channel.connect(new InetSocketAddress(loopback, port));
-                        if (connected) {
-                            channel.close();
-                            openPorts.add(port);
-                            continue;
-                        }
-                        channel.register(selector, SelectionKey.OP_CONNECT, port);
-                        channels.add(channel);
-                    } catch (Exception ignored) {
-                    }
-                }
-
-                if (!channels.isEmpty() && selector.isOpen()) {
-                    int selected = selector.select(selectTimeoutMs);
-                    if (selected > 0) {
-                        Set<SelectionKey> keys = selector.selectedKeys();
-                        for (SelectionKey key : keys) {
-                            if (key.isValid() && key.isConnectable()) {
-                                SocketChannel ch = (SocketChannel) key.channel();
-                                try {
-                                    if (ch.finishConnect()) {
-                                        openPorts.add((Integer) key.attachment());
-                                    }
-                                } catch (Exception ignored) {
-                                }
-                            }
-                        }
-                    }
-                }
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress(loopback, port));
+                openPorts.add(port);
             } catch (Exception ignored) {
-            } finally {
-                for (SocketChannel ch : channels) {
-                    try {
-                        ch.close();
-                    } catch (Exception ignored) {
-                    }
-                }
-                if (selector != null) {
-                    try {
-                        selector.close();
-                    } catch (Exception ignored) {
-                    }
-                }
             }
         }
         return openPorts;
