@@ -275,11 +275,15 @@ final class KeepADBEndpoint {
         return discoveryGeneration == generation;
     }
 
+    private static final long RECOVERY_PULSE_DELAY_MS = 5000;
+    private static final long RECOVERY_PULSE_OFF_MS = 800;
+
     private void startFastProbe(long generation) {
         coordinatorThread = new Thread(() -> {
             Log.d(TAG, "startFastProbe gen=" + generation + " started");
             final int maxTotalSeconds = 45;
             final long startTime = System.currentTimeMillis();
+            boolean recoveryPulseSent = false;
 
             while (isCurrent(generation) && !endpointDelivered.get() && !Thread.currentThread().isInterrupted()) {
                 if (System.currentTimeMillis() - startTime > maxTotalSeconds * 1000L) {
@@ -290,6 +294,27 @@ final class KeepADBEndpoint {
                 final String wifiIp = getWifiIpAddress(appContext);
                 final List<Integer> openPorts = scanLocalOpenPortsParallel(PROBE_START_PORT, PROBE_END_PORT, SCAN_WORKERS, generation);
                 Log.d(TAG, "FastProbe gen=" + generation + " iteration: wifiIp=" + wifiIp + ", openPorts=" + openPorts);
+
+                // #114: a rapid off/on toggle can catch the system's AdbService mid-teardown of
+                // the previous session; it then accepts adb_wifi_enabled=1 without ever binding a
+                // TLS listener. Nudge it once by pulsing the setting back off and on, which forces
+                // a clean (re)start of adbd instead of leaving the user stuck at "searching...".
+                if (!recoveryPulseSent && openPorts.isEmpty()
+                        && System.currentTimeMillis() - startTime > RECOVERY_PULSE_DELAY_MS
+                        && isCurrent(generation) && KeepADB.isEnabled(appContext)) {
+                    recoveryPulseSent = true;
+                    Log.w(TAG, "FastProbe gen=" + generation + " found no adbd listener after "
+                            + RECOVERY_PULSE_DELAY_MS + "ms while enabled; pulsing adb_wifi_enabled to recover");
+                    KeepADB.setEnabled(appContext, false);
+                    try {
+                        Thread.sleep(RECOVERY_PULSE_OFF_MS);
+                    } catch (InterruptedException ignored) {
+                        // Still restore below: we caused the "off" half of this pulse ourselves,
+                        // so an unrelated stop()/generation change must not leave the device
+                        // stuck disabled.
+                    }
+                    KeepADB.setEnabled(appContext, true);
+                }
 
                 if (!openPorts.isEmpty()) {
                     String targetHost = wifiIp;
