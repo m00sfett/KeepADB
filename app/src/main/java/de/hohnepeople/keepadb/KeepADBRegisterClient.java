@@ -52,10 +52,12 @@ final class KeepADBRegisterClient {
             if (UNAVAILABLE_MARKER.equals(target)) {
                 if (deleteEndpoint(targetUrl)) {
                     lastRegisteredEndpoint = null;
+                    KeepADBPreferences.setWebhookLastReportedAtNow(context);
                 }
             } else {
                 if (postEndpoint(targetUrl, target)) {
                     lastRegisteredEndpoint = target;
+                    KeepADBPreferences.setWebhookLastReportedAtNow(context);
                 }
             }
         });
@@ -82,10 +84,12 @@ final class KeepADBRegisterClient {
             if (UNAVAILABLE_MARKER.equals(target)) {
                 if (deleteEndpoint(targetUrl)) {
                     lastRegisteredEndpoint = null;
+                    KeepADBPreferences.setWebhookLastReportedAtNow(context);
                 }
             } else {
                 if (postEndpoint(targetUrl, target)) {
                     lastRegisteredEndpoint = target;
+                    KeepADBPreferences.setWebhookLastReportedAtNow(context);
                 }
             }
         });

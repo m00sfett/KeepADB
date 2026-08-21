@@ -17,6 +17,7 @@ public class MainActivity extends Activity {
     private Switch keepAliveToggle;
     private TextView status;
     private TextView endpoint;
+    private TextView webhookStatus;
     private View setupPanel;
 
     @Override
@@ -32,6 +33,7 @@ public class MainActivity extends Activity {
         keepAliveToggle = findViewById(R.id.keep_alive_toggle);
         status = findViewById(R.id.status);
         endpoint = findViewById(R.id.endpoint);
+        webhookStatus = findViewById(R.id.webhook_status);
         setupPanel = findViewById(R.id.setup_panel);
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
@@ -137,6 +139,27 @@ public class MainActivity extends Activity {
         status.setText(on ? getString(R.string.status_on) : getString(R.string.status_off));
         keepAliveToggle.setEnabled(configured);
         keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
+        refreshWebhookStatus();
+    }
+
+    private void refreshWebhookStatus() {
+        String url = KeepADBPreferences.getRegisterWebhookUrl(this);
+        boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
+        if (!enabled || url == null || url.trim().isEmpty()) {
+            webhookStatus.setVisibility(View.GONE);
+            return;
+        }
+        long lastReportedAt = KeepADBPreferences.getWebhookLastReportedAt(this);
+        String lastReported;
+        if (lastReportedAt <= 0) {
+            lastReported = getString(R.string.webhook_status_never);
+        } else {
+            java.util.Date date = new java.util.Date(lastReportedAt);
+            lastReported = android.text.format.DateFormat.getMediumDateFormat(this).format(date)
+                    + " " + android.text.format.DateFormat.getTimeFormat(this).format(date);
+        }
+        webhookStatus.setText(getString(R.string.webhook_status_hint, url, lastReported));
+        webhookStatus.setVisibility(View.VISIBLE);
     }
 
     private boolean hasSecureSettingsPermission() {
