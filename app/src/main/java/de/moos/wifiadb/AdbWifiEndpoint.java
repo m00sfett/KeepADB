@@ -350,7 +350,7 @@ final class AdbWifiEndpoint {
                 NetworkInterface intf = en.nextElement();
                 if (intf.isLoopback() || !intf.isUp()) continue;
                 String name = intf.getName();
-                if (name != null && (name.startsWith("wlan") || name.startsWith("ap") || name.startsWith("eth"))) {
+                if (name != null && (name.startsWith("wlan") || name.startsWith("ap"))) {
                     for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
                         InetAddress inetAddress = enumIpAddr.nextElement();
                         if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress() && !inetAddress.isLinkLocalAddress()) {

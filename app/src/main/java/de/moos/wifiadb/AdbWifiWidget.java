@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 public class AdbWifiWidget extends AppWidgetProvider {
     private static final String ACTION_TOGGLE = "de.moos.wifiadb.TOGGLE";
@@ -21,8 +22,13 @@ public class AdbWifiWidget extends AppWidgetProvider {
         super.onReceive(context, intent);
         if (ACTION_TOGGLE.equals(intent.getAction())) {
             boolean want = !AdbWifi.isEnabled(context);
-            AdbWifi.setEnabled(context, want);
-            if (!want) {
+            if (!AdbWifi.setEnabled(context, want)) {
+                Toast.makeText(context,
+                        "Keine Berechtigung. Am PC einmalig ausführen:\n"
+                                + "adb shell pm grant " + context.getPackageName()
+                                + " android.permission.WRITE_SECURE_SETTINGS",
+                        Toast.LENGTH_LONG).show();
+            } else if (!want) {
                 AdbWifiPreferences.setKeepAliveEnabled(context, false);
                 AdbWifiService.stop(context);
             }
