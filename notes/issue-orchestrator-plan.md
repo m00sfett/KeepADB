@@ -1422,3 +1422,63 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `git diff --check`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`: bestanden (0 Fehler, 0 Warnungen, APK-Größe von 1,2 MB auf 304 KB geschrumpft).
 - **Status:** `complete`.
+
+## Issue-106-Implementierung & Gerätetest-Blocker — 2026-08-21
+
+- Vorgefundenes WIP: `KeepADBEndpoint`/`KeepADBNotification`/`KeepADBPreferences`/`KeepADBService`
+  unversioniert im Arbeitsbaum, ohne Planeintrag. Nutzerentscheidung: beides behalten — sowohl
+  den eigentlichen Reachability-Fix als auch die Heartbeat-/Lifecycle-Diagnose-Instrumentierung.
+- Umsetzung (Issue #106 „Notification bleibt stehen, wenn Drahtloses Debugging ausgeschaltet
+  wird"): `KeepADBEndpoint.isPortReachable(host, port, timeoutMs)` (package-visible TCP-Check) +
+  `KeepADBNotification.verifyCachedEndpointAsync(...)` — bei jedem `refresh()` wird der gecachte
+  Endpoint asynchron re-verifiziert; ist er nicht mehr erreichbar (adbd rotiert den Port ohne
+  `adb_wifi_enabled`-Änderung), wird er invalidiert und Rediscovery gestartet. Zusätzlich
+  Heartbeat-Timestamp (`KeepADBPreferences`) und Lifecycle-Logging in `KeepADBService`
+  (`onCreate`/`onStartCommand`/`onDestroy`/`onTaskRemoved`/`onTrimMemory`) zur künftigen
+  Kill-Diagnose.
+- Lokale Gates: `git diff --check` bestanden; `gradlew testDebugUnitTest assembleDebug`
+  bestanden. `gradlew lintDebug` schlägt fehl — verifiziert per `git stash` als Vorbestandsfehler
+  auf reinem `master` (`90a206d`, PR #105: fehlende Übersetzungen für `webhook_status_title` in
+  16 Sprachen), unabhängig vom eigenen Fix. Dafür eigenes Issue
+  [#108](https://github.com/m00sfett/KeepADB/issues/108) angelegt statt mitzureparieren.
+- Commit `25ea79d` auf Branch `fix/106-stale-endpoint-reverify`, PR
+  [#109](https://github.com/m00sfett/KeepADB/pull/109) eröffnet (`Fixes #106`).
+- Gerätetest auf S20: Register lieferte zuletzt `usb-adb`, das war nicht erreichbar; WLAN-Port
+  wurde nach Nutzerhinweis reaktiviert und auf `192.168.178.24:45699` per
+  `phone-register scan-wlan s20` fingerprint-validiert (`SM-G780G`/`RF8T307S88H`), Register
+  aktualisiert. Doppelte veraltete mDNS-Transporte auf ADB 5038 getrennt, `android-target s20`
+  danach eindeutig. APK aus dem PR-Branch per `install -r` installiert.
+- **Neuer Befund während des Tests, außerhalb des #106-Scopes:** Die App-eigene
+  Endpoint-Discovery blieb nach `MainActivity`-Start dauerhaft bei „Endpoint wird gesucht …"
+  hängen (>3,5 Minuten, kein Fortschritt, kein Timeout-Log trotz im Code auf 45 s gesetztem
+  `maxTotalSeconds`). Ursache identifiziert:
+  `KeepADBEndpoint.scanLocalOpenPorts(int, int, long)` nutzt seit PR #92 (`f404d8e`) einen
+  **blockierenden `Socket.connect()` ohne Timeout**, sequenziell über bis zu 2500 Ports pro
+  Worker (8 Worker, Bereich 30000–50000) — eine Regression gegenüber der vorherigen NIO
+  `Selector`/`SocketChannel`-Batch-Implementierung (PR #88–#90, dokumentiert mit <200 ms
+  Vollscan). Trotz gegenteiliger Commit-Message in PR #92 ist der Connect nicht non-blocking.
+  Eigenes Issue [#110](https://github.com/m00sfett/KeepADB/issues/110) angelegt; keine
+  Reparatur in diesem Paket, Nutzerentscheidung: Issue anlegen, #106-Test separat nachholen.
+- **Folge:** Der freigegebene Live-Nachweis für den #106-Fix (gecachter Endpoint wird stale,
+  Notification aktualisiert sich) konnte nicht erbracht werden, weil die Discovery wegen #110
+  nie einen ersten Endpoint liefert — der zu prüfende Codepfad (`currentHost != null`-Zweig in
+  `refresh()`) wird dadurch nie erreicht. App-Prozess sauber per `force-stop` beendet.
+- Status: `blocked` für den Live-Nachweis von #106, verursacht durch die unabhängige Regression
+  #110. Code, lokale Gates und PR #109 bleiben unverändert gültig; kein `Fixes #106` schließen,
+  solange der Gerätenachweis fehlt.
+
+## Übergabe-Checkpoint — 2026-08-21
+
+- Server-Stand (abgefragt): offene Issues #106 (PR #109 referenziert, ungetestet),
+  #107 (Icon-Design, unberührt), #108 (Lint-Regression, neu), #110 (Discovery-Regression, neu).
+  PR #109 offen, keine aktiven CI-Runs (kein Workflow im Repo).
+- Uncommitted/unclean: keine — Arbeitsbaum ist nach dem Commit `25ea79d` und `force-stop` sauber
+  auf Branch `fix/106-stale-endpoint-reverify`.
+- Nächste sinnvolle Schritte (nicht automatisch fortgesetzt, da Architektur-/Priorisierungsfrage):
+  1. Issue #110 beheben (Timeout pro Connect-Versuch oder Rückkehr zur NIO-Selector-Variante),
+     danach #106-Live-Nachweis nachholen und PR #109 mergen.
+  2. Issue #108 (fehlende Übersetzungen) unabhängig beheben.
+  3. Issue #107 (Icon-Design) unabhängig einplanen.
+- Strangzähler: Dieser Lauf kam aus dem Strang „vorgefundenes WIP zu #106 abschließen" und hat
+  kein nutzersichtbares Ergebnis erzeugt (PR offen, aber Live-Nachweis blockiert). Stattdessen
+  wurde ein signifikanter, bislang unbekannter Performance-Regressionsfund (#110) produziert.
