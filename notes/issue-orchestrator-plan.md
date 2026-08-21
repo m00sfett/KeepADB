@@ -1993,3 +1993,23 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Arbeitsbaum: sauber. Gerät (S20) in normalem Zustand.
 - Nächste sinnvolle Schritte: keine offenen Kandidaten; nächste Auswahlrunde erst bei neuen
   Issues oder auf ausdrücklichen Nutzerauftrag.
+
+## Tuning — Weitere Reduktion 10s → 8s statt 3s (PR #124) — 2026-08-21
+
+- Nutzeranfrage nach 3s. Abgelehnt: `RECOVERY_PULSE_DELAY_MS` (5000ms) + `RECOVERY_PULSE_OFF_MS`
+  (800ms) = 5800ms — ein 3s-Give-up hätte den #114-Recovery-Pulse nie zum Feuern kommen lassen
+  und damit genau den Stuck-adbd-Fall wieder kaputt gemacht, für den er gebaut wurde. Per
+  `AskUserQuestion` Kompromiss gewählt: Pulse-Delay unangetastet, Gesamt-Timeout auf 8s (statt
+  7s) für zusätzliche mDNS-Nachlaufzeit nach dem Pulse-Neustart.
+- Lokale Gates grün. Live-Nachweis auf S20: App-Neustart löst Endpoint weiterhin korrekt auf,
+  keine Regression auf dem Normalpfad.
+- PR #124 gemerged (kein GitHub-Actions-Run).
+- Status: `complete`.
+
+## Übergabe-Checkpoint — 2026-08-21 (nach PR #124)
+
+- Server-Stand (abgefragt): keine offenen Issues, keine offenen PRs, `master` synchron mit
+  `origin/master` auf `7bc86ab`.
+- Arbeitsbaum: sauber. Gerät (S20) in normalem Zustand.
+- Nächste sinnvolle Schritte: keine offenen Kandidaten; nächste Auswahlrunde erst bei neuen
+  Issues oder auf ausdrücklichen Nutzerauftrag.
