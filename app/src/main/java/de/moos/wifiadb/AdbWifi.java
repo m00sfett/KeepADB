@@ -21,9 +21,7 @@ final class AdbWifi {
     static boolean setEnabled(Context ctx, boolean on) {
         try {
             Settings.Global.putInt(ctx.getContentResolver(), KEY, on ? 1 : 0);
-            if (!on) {
-                userDisabled = true;
-            }
+            userDisabled = !on;
             return true;
         } catch (SecurityException e) {
             return false;

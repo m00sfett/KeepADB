@@ -806,3 +806,12 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
 - **Status:** `approved` für Paket 1.
+
+## Umsetzung Paket 2 (PR #62 / Issue #57) — 2026-08-21
+
+- **Implementierung:**
+  - [#57](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/57): In `AdbWifi.setEnabled(ctx, on)` das `userDisabled`-Flag an `!on` gebunden, sodass ein Einschalten von WLAN-ADB das Flag sofort auf `false` setzt. In `AdbWifiPreferences.setKeepAliveEnabled()` sowie `AdbWifiService.onCreate()` und `onDestroy()` wird `AdbWifi.consumeUserDisabled()` aufgerufen, um sicherzustellen, dass keine stale `userDisabled`-Flags verbleiben, wenn Keep-Alive ausgeschaltet oder der Service neu gestartet wird.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Whitespace-Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
+- **Status:** `approved` für Paket 2.
