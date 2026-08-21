@@ -275,15 +275,10 @@ final class AdbWifiEndpoint {
                     continue;
                 }
 
-                final InetAddress wifiAddr;
+                final InetAddress probeAddr;
                 try {
-                    wifiAddr = InetAddress.getByName(wifiIp);
+                    probeAddr = InetAddress.getByAddress(new byte[]{127, 0, 0, 1});
                 } catch (Exception e) {
-                    try {
-                        Thread.sleep(300);
-                    } catch (InterruptedException ie) {
-                        return;
-                    }
                     continue;
                 }
 
@@ -301,7 +296,7 @@ final class AdbWifiEndpoint {
                             }
                             boolean open = false;
                             try (Socket s = new Socket()) {
-                                s.connect(new InetSocketAddress(wifiAddr, port), 50);
+                                s.connect(new InetSocketAddress(probeAddr, port), 25);
                                 open = true;
                             } catch (Exception ignored) {
                             }
@@ -367,7 +362,8 @@ final class AdbWifiEndpoint {
         if (cm != null) {
             for (Network network : cm.getAllNetworks()) {
                 NetworkCapabilities caps = cm.getNetworkCapabilities(network);
-                if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                        && !caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
                     LinkProperties lp = cm.getLinkProperties(network);
                     if (lp != null) {
                         for (LinkAddress la : lp.getLinkAddresses()) {
