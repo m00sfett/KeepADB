@@ -5,15 +5,6 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added
-- In-app first-time setup instructions with the exact USB/ADB command required to grant `WRITE_SECURE_SETTINGS`.
-
-### Changed
-- Renamed the product, repository references, Android namespace, source packages, classes, resources, and release artifacts consistently to **KeepADB**.
-- Changed the Android application ID to `de.hohnepeople.keepadb`; this intentionally requires a fresh installation and one-time permission grant.
-
 ## [1.0.0] - 2026-08-21
 
 ### Added
@@ -21,19 +12,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Clean, dedicated Activity UI with real-time status and keep-alive toggle.
   - Quick Settings Tile (`KeepADBTileService`) for instant 1-tap toggling directly from the notification shade.
   - Home Screen Widget (`KeepADBWidget`) with live status feedback.
+- **First-Time Setup Assistance**:
+  - In-app guided setup instructions displaying the exact `adb shell pm grant` command required for `WRITE_SECURE_SETTINGS`.
 - **Keep-Alive Foreground Service**:
   - Persistent background watchdog (`KeepADBService`) that automatically restores Wireless Debugging on network drops, Wi-Fi reconnects, AP roaming, and device boot (`BootReceiver`).
-- **Live Endpoint & Port Discovery**:
-  - Real-time IP address and dynamic port discovery via mDNS Network Service Discovery (`NsdManager`) and an ultra-fast local loopback Fast-Probe scanner.
+- **High-Speed Endpoint & Port Discovery**:
+  - Batched non-blocking NIO loopback scanner resolving active `adbd` ports in under 200 milliseconds.
+  - mDNS Network Service Discovery (`NsdManager`) fallback.
   - Ongoing notification with quick status display and connection string (`Port <port> @ <ip>`).
   - Full compatibility with local VPNs and overlay networks (e.g. Tailscale).
-- **Internationalization (i18n)**:
-  - English as standard language across all components and documentation.
-  - German localization (`values-de`) for German system locales.
+- **Central Settings Screen**:
+  - Dedicated settings screen for language selection and optional custom webhook sync configuration.
+- **Multi-Language Support (19 Languages)**:
+  - Full localization for English (default), German, Spanish, French, Portuguese, Italian, Dutch, Polish, Ukrainian, Russian, Turkish, Arabic, Hindi, Simplified Chinese, Traditional Chinese, Japanese, Korean, Indonesian, and Vietnamese.
+  - In-app language picker and native Android 13+ Per-App Language Preferences (`locales_config.xml`).
+  - Native Right-to-Left (RTL) layout support.
+- **Adaptive Icon & CI Design System**:
+  - Native adaptive icon (Terminal Prompt + Wi-Fi Broadcast) with Android 13+ Material You monochrome support.
+  - Cohesive Dark/Red/Yellow design system with Fira Sans typography and distinct touch-feedback states.
 - **Open Source & Release Infrastructure**:
   - GNU General Public License v3.0 (`LICENSE`).
   - Automated GitHub Actions CI workflow for build validation and lint checks.
   - Automated GitHub Actions release workflow for publishing APK artifacts on version tags (`v*`).
 - **Privacy & Security**:
-  - 100% native AOSP framework, zero 3rd-party runtime dependencies, zero analytics or telemetry.
+  - 100% native AOSP framework, zero 3rd-party runtime dependencies, zero analytics or telemetry (< 100 KB APK).
   - Optional custom register/webhook sync endpoint (disabled by default).

@@ -29,12 +29,14 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
 - ⚡ **Triple Interface**:
   - **Quick Settings Tile**: Place the *Wireless Debugging* tile in your status bar for instant toggling.
   - **Home Screen Widget**: 1x1 interactive widget showing live status.
-  - **Main App**: Simple interface with status readout, keep-alive toggle, and current endpoint details.
+  - **Main App**: Clean interface with status readout, keep-alive toggle, and current endpoint details.
 - 🔄 **Keep-Alive Foreground Service**: Keeps Wireless Debugging alive across reboots, network changes, and sleep states.
-- 🔍 **Instant Endpoint Discovery**: Combines mDNS NSD discovery with an ultra-fast local port probe to detect the active `adbd` port within milliseconds (even with active VPNs like Tailscale).
+- 🔍 **High-Speed Endpoint Discovery**: Combines batched non-blocking NIO loopback scanning with mDNS NSD discovery to detect the active `adbd` port in under 200 milliseconds (even with active VPNs like Tailscale).
 - 📋 **Persistent Notification**: Displays the active connection string (`Port <port> @ <ip>`) for quick reference on your lock screen or notification panel.
+- ⚙️ **Central Settings**: Dedicated settings screen with in-app language switching and optional webhook endpoint configuration.
+- 🎨 **Adaptive Icon & Theme**: Native adaptive icon (Terminal Prompt + Wi-Fi Broadcast) with Android 13+ Material You monochrome support and a cohesive Dark/Red/Yellow palette.
 - 🛡️ **Zero Runtime Dependencies**: Built purely on native Android AOSP framework APIs — no third-party libraries, no trackers, no analytics. Total APK size is **< 100 KB**.
-- 🌍 **Internationalized**: Full English and German localization.
+- 🌍 **Multi-Language**: Full localization for 19 major world languages (English, German, Spanish, French, Portuguese, Italian, Dutch, Polish, Ukrainian, Russian, Turkish, Arabic, Hindi, Simplified & Traditional Chinese, Japanese, Korean, Indonesian, Vietnamese) with native Android 13+ Per-App Language Preferences and RTL support.
 
 ---
 
@@ -61,6 +63,7 @@ adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTIN
 - **Quick Settings Tile**: Swipe down your notification shade twice, tap the Edit (pencil) icon, and drag the **Wireless Debugging** tile into your active tiles. Tap to toggle on/off.
 - **Home Widget**: Long-press on your home screen, choose Widgets, and add the **KeepADB** widget.
 - **Persistent Keep-Alive**: Open the KeepADB app and enable **Keep persistently active**. KeepADB will monitor network state and ensure Wireless Debugging stays active.
+- **Settings & Localization**: Tap **Settings** in the top header to choose your preferred language or configure an optional webhook endpoint.
 
 ---
 
