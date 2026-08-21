@@ -1972,3 +1972,24 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Webhook korrekt registriert, Register aktualisiert.
 - Nächste sinnvolle Schritte: keine offenen Kandidaten; nächste Auswahlrunde erst bei neuen
   Issues oder auf ausdrücklichen Nutzerauftrag.
+
+## Tuning — Discovery-Give-up-Timeout 45s → 10s (PR #123) — 2026-08-21
+
+- Nutzeranfrage: 45s Timeout in `KeepADBEndpoint.OVERALL_TIMEOUT_MS` erschien zu lang, Vorschlag
+  10s. Wert stammte unbegründet aus #116 (keine dokumentierte Herleitung). Da der
+  Retry-Mechanismus in `KeepADBNotification.onUnavailable()` (Backoff 2s/5s) bereits existiert,
+  ist ein zu kurzes Timeout nicht fatal, nur ein zusätzlicher Zyklus im seltenen Langsam-Fall.
+  Geändert auf 10_000ms.
+- Lokale Gates grün. Live-Nachweis auf S20 (USB-Fallback via `mooslap2023-ts`): normale
+  Discovery nach vollständigem App-Neustart löst in ~1,2s auf — deutlich unter der neuen
+  Obergrenze, keine Regression auf dem Normalpfad.
+- PR #123 gemerged (kein GitHub-Actions-Run).
+- Status: `complete`.
+
+## Übergabe-Checkpoint — 2026-08-21 (nach PR #123)
+
+- Server-Stand (abgefragt): keine offenen Issues, keine offenen PRs, `master` synchron mit
+  `origin/master` auf `a3272d7`.
+- Arbeitsbaum: sauber. Gerät (S20) in normalem Zustand.
+- Nächste sinnvolle Schritte: keine offenen Kandidaten; nächste Auswahlrunde erst bei neuen
+  Issues oder auf ausdrücklichen Nutzerauftrag.
