@@ -113,6 +113,11 @@ final class KeepADBNotification {
             // changing, so the ContentObserver never fires. Without this check the notification
             // kept showing a dead port until the process was killed and relaunched.
             verifyCachedEndpointAsync(appContext, manager, currentHost, currentPort);
+            // Otherwise, enabling the webhook while a connection is already cached never
+            // reports it: updateEndpointAsync() is normally only reached from a fresh
+            // discovery's onEndpoint() callback below, which won't fire again until the next
+            // full reconnect (#118). This call is a cheap no-op once already registered.
+            KeepADBRegisterClient.updateEndpointAsync(appContext, currentHost, currentPort);
             return;
         }
 
