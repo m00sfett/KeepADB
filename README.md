@@ -19,7 +19,7 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
 **KeepADB** solves this with a tiny, standalone companion tool:
 - **1-Tap Toggling**: Enable or disable Wireless Debugging instantly from your Quick Settings or Home Screen.
 - **Keep-Alive Watchdog**: Automatically restores Wireless Debugging when you reconnect to Wi-Fi, switch access points, or restart your phone.
-- **Live Endpoint Resolution**: Discovers the dynamic port and local IP address in real time using local mDNS and fast loopback scanning, displaying it right in the notification shade.
+- **Live Endpoint Resolution**: Discovers the dynamic port and local IP address (typically within 1-2 seconds) using mDNS as the primary path plus an opportunistic loopback probe, displaying it right in the notification shade.
 - **No Root Required**: Operates using Android's standard `WRITE_SECURE_SETTINGS` permission granted once via ADB.
 
 ---
@@ -31,7 +31,7 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
   - **Home Screen Widget**: 1x1 interactive widget showing live status.
   - **Main App**: Clean interface with status readout, keep-alive toggle, and current endpoint details.
 - 🔄 **Keep-Alive Foreground Service**: Keeps Wireless Debugging alive across reboots, network changes, and sleep states.
-- 🔍 **High-Speed Endpoint Discovery**: Combines batched non-blocking NIO loopback scanning with mDNS NSD discovery to detect the active `adbd` port in under 200 milliseconds (even with active VPNs like Tailscale).
+- 🔍 **Endpoint Discovery**: mDNS (NSD) is the primary, continuously running discovery path, backed by a quick opportunistic loopback probe for the case where a listener is already up. Typically resolves the active `adbd` port within 1-2 seconds (even with active VPNs like Tailscale) — a full local port-range scan alone was measured to cost several seconds of Android framework overhead per attempt, so it is no longer relied on as the primary path.
 - 📋 **Persistent Notification**: Displays the active connection string (`Port <port> @ <ip>`) for quick reference on your lock screen or notification panel.
 - ⚙️ **Central Settings**: Dedicated settings screen with in-app language switching and optional webhook endpoint configuration.
 - 🎨 **Adaptive Icon & Theme**: Native adaptive icon (Terminal Prompt + Wi-Fi Broadcast) with Android 13+ Material You monochrome support and a cohesive Dark/Red/Yellow palette using standard system typography.
