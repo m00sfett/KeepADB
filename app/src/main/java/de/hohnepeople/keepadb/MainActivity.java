@@ -18,6 +18,7 @@ public class MainActivity extends Activity {
     private TextView status;
     private TextView endpoint;
     private TextView webhookStatus;
+    private View webhookStatusPanel;
     private View setupPanel;
 
     @Override
@@ -34,6 +35,7 @@ public class MainActivity extends Activity {
         status = findViewById(R.id.status);
         endpoint = findViewById(R.id.endpoint);
         webhookStatus = findViewById(R.id.webhook_status);
+        webhookStatusPanel = findViewById(R.id.webhook_status_panel);
         setupPanel = findViewById(R.id.setup_panel);
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
@@ -146,7 +148,7 @@ public class MainActivity extends Activity {
         String url = KeepADBPreferences.getRegisterWebhookUrl(this);
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
         if (!enabled || url == null || url.trim().isEmpty()) {
-            webhookStatus.setVisibility(View.GONE);
+            webhookStatusPanel.setVisibility(View.GONE);
             return;
         }
         long lastReportedAt = KeepADBPreferences.getWebhookLastReportedAt(this);
@@ -160,8 +162,12 @@ public class MainActivity extends Activity {
                     getResources().getConfiguration().getLocales().get(0));
             lastReported = dateTimeFormat.format(date);
         }
-        webhookStatus.setText(getString(R.string.webhook_status_hint, url, lastReported));
-        webhookStatus.setVisibility(View.VISIBLE);
+        String lastEndpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(this);
+        if (lastEndpoint == null || lastEndpoint.trim().isEmpty()) {
+            lastEndpoint = getString(R.string.webhook_status_no_endpoint);
+        }
+        webhookStatus.setText(getString(R.string.webhook_status_hint, url, lastEndpoint, lastReported));
+        webhookStatusPanel.setVisibility(View.VISIBLE);
     }
 
     private boolean hasSecureSettingsPermission() {

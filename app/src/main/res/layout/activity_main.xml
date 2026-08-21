@@ -167,16 +167,34 @@
                     android:textSize="13sp" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/webhook_status"
+            <LinearLayout
+                android:id="@+id/webhook_status_panel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp"
-                android:visibility="gone"
-                tools:text="Webhook active: http://example.com\nLast reported: never" />
+                android:background="@drawable/bg_panel"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/webhook_status_title"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/webhook_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp"
+                    tools:text="URL: http://example.com\nLast reported endpoint: 192.168.178.24:45149\nLast reported: never" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
