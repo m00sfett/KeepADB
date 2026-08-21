@@ -60,7 +60,10 @@ final class KeepADBEndpoint {
             });
     private static final long RECOVERY_PULSE_DELAY_MS = 5000;
     private static final long RECOVERY_PULSE_OFF_MS = 800;
-    private static final long OVERALL_TIMEOUT_MS = 45_000;
+    // 5s past the recovery pulse for mDNS to pick up the re-advertised listener (typically
+    // 1-2s per README). Giving up here isn't fatal: KeepADBNotification's onUnavailable()
+    // retries with backoff, so a too-short timeout just costs an extra cycle, not the endpoint.
+    private static final long OVERALL_TIMEOUT_MS = 10_000;
 
     interface Listener {
         void onEndpoint(String host, int port);
