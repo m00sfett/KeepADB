@@ -863,3 +863,15 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 ## Abschlussstatus
 
 - **Status:** `complete` (Alle 5 Issues #56, #57, #58, #59, #60 vollständig gelöst, getestet und gemergt; 0 offene Issues im Repository).
+
+## Neue Vorbereitung: Öffentliche Veröffentlichung auf GitHub — 2026-08-21
+
+- **Ziel:** Vorbereitung der App für ein frei zugängliches, sauberes und standardkonformes Open-Source-Release auf GitHub.
+- **Neu angelegte GitHub Issues:**
+  1. [#64](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/64) `refactor: RegisterClient generalisieren und persönliche Endpunkte/IPs entfernen`
+  2. [#65](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/65) `docs: CHANGELOG.md anlegen und Versionshistorie sauber dokumentieren`
+  3. [#66](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/66) `docs: Lizenzentscheidung mit Meister abstimmen und LICENSE anlegen`
+  4. [#67](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/67) `docs: README.md für öffentliche Veröffentlichung bereinigen und erweitern`
+  5. [#68](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/68) `ci: GitHub Actions Workflow für Build-Validierung und Release-APKs einrichten`
+
+- **Status:** Issues angelegt. Einzelschritte werden nach Nutzerfreigabe schrittweise bearbeitet.
