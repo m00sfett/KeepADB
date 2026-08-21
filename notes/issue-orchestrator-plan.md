@@ -976,3 +976,28 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 ## Abschlussstatus
 
 - **Status:** `complete` (Alle 6 Issues #64, #65, #66, #67, #68, #69 vollständig gelöst, getestet und gemergt; 0 offene Issues im Repository).
+
+## Auswahl-Checkpoint — 2026-08-21
+
+- **Roadmap-Abgleich (wörtlich):** „Vorbereitung des Repositories für die Veröffentlichung als
+  freies, quelloffenes Tool **KeepAdb** unter der **GPL-3.0**-Lizenz.“ Die vorbereitenden Issues
+  sind abgeschlossen; die tatsächliche Veröffentlichung ist noch nicht erfolgt.
+- **Serverzustand:** `master` und `origin/master` stehen auf
+  `894beb072d8a367126504a3a882dc530e625396b`. Es gibt 0 offene Issues, 0 offene PRs und keinen
+  aktiven Workflow-Run. CI-Run `32453818406` für genau diesen Head ist erfolgreich abgeschlossen.
+- **Releasezustand:** Das GitHub-Repository ist `PRIVATE`; es gibt weder Tags noch Releases.
+- **CI-Inventar:** `ci.yml` läuft bei Pull Requests und Pushes auf `master`; `release.yml` läuft
+  bei `v*`-Tags. Ein projektlokaler Verify-Einstieg und `workflow_dispatch` fehlen. Branch
+  Protection lässt sich für das private Repository im aktuellen GitHub-Tarif nicht abfragen
+  (HTTP 403). `github-drift` kann ohne verknüpftes GitHub Project kein Board prüfen.
+- **Arbeitsbaum:** sauber; keine fremden oder unzusammenhängenden Änderungen.
+- **Paketwahl:** kein Paket ausgewählt, weil keine echten Issue-Kandidaten existieren und der
+  nächste Schritt eine fachliche Entscheidung zwischen Veröffentlichung und weiterer privater
+  Pflege verlangt.
+- **Stufe / Review:** S2 angenommen, weil aktive Profil-/Effortwahl nicht sicher erkennbar ist;
+  reine Bestandsaufnahme und Planung, daher `review: not applicable`.
+- **Freigaben und Gates:** keine Build-, Test-, Geräte-, Delegations- oder Veröffentlichungsfreigabe
+  erteilt; entsprechend nichts davon ausgeführt. Keine Issue-, PR-, Release- oder
+  Workflow-Konfigurationsschreibaktion erfolgt.
+- **Status:** `closed-pending-decision`. Vor einer neuen Etappe sind Ziel und Scope festzulegen;
+  Repository-Sichtbarkeit, Tag/Release und CI-Policy werden nicht stillschweigend verändert.
