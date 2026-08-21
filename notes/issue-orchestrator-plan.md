@@ -2276,3 +2276,14 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   zurückgestellt; #125–#130, #132 und #133 sind weiterhin getrennte offene Folgepakete.
 - **Finalstatus:** `complete` für das Paket; Review `not applicable` für die test-only
   Reständerung, Produktcode-Reviewkette im vorherigen Plan dokumentiert.
+
+## Nachtrag Emulator-Smoke — 2026-08-21
+
+- Kanonischer sichtbarer `Dev_Galaxy_S20_API_36_1_Play`-Emulator mit NVIDIA-Host-GPU sauber
+  gestartet; SDK 36, Debug-APK installiert, MainActivity gestartet und UI-Dump/Screenshot
+  ohne App-FATAL geprüft. Die 48-dp-/Accessibility-Bounds waren plausibel; der Emulator
+  wurde anschließend sauber beendet.
+- API 30/32 bleiben mangels passender lokaler AVDs ohne separaten Laufzeit-Smoke. Sie sind
+  durch die API-unabhängigen Locale-/Ressourcen-Contracts und den bereits geprüften
+  API-spezifischen Codepfad abgedeckt; dies ist ein dokumentiertes Restlimit, kein gestarteter
+  GitHub-Actions-Ersatz.
