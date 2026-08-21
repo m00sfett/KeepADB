@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Native adaptive icon (Terminal Prompt + Wi-Fi Broadcast) with Android 13+ Material You monochrome support.
   - Cohesive Dark/Red/Yellow design system with native system typography and distinct touch-feedback states.
 - **Open Source & Release Infrastructure**:
-  - GNU General Public License v3.0 (`LICENSE`).
+  - GNU Affero General Public License v3.0, or (at your option) any later version (`LICENSE`).
   - Automated GitHub Actions CI workflow for build validation and lint checks.
   - Automated GitHub Actions release workflow for publishing APK artifacts on version tags (`v*`).
 - **Privacy & Security**:
