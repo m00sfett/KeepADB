@@ -14,10 +14,10 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_adb"
+        android:icon="@drawable/ic_keepadb"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:theme="@style/Theme.WifiAdb">
+        android:theme="@style/Theme.KeepADB">
 
         <activity
             android:name=".MainActivity"
@@ -29,14 +29,14 @@
         </activity>
 
         <service
-            android:name=".AdbWifiService"
+            android:name=".KeepADBService"
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
 
         <service
-            android:name=".AdbWifiTileService"
+            android:name=".KeepADBTileService"
             android:exported="true"
-            android:icon="@drawable/ic_adb"
+            android:icon="@drawable/ic_keepadb"
             android:label="@string/tile_label"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
@@ -45,11 +45,11 @@
         </service>
 
         <receiver
-            android:name=".AdbWifiWidget"
+            android:name=".KeepADBWidget"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="de.moos.wifiadb.TOGGLE" />
+                <action android:name="de.hohnepeople.keepadb.TOGGLE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

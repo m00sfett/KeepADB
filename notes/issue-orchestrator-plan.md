@@ -2,8 +2,8 @@
 
 ## Neuer Nutzerauftrag: WLAN-ADB-Endpoint
 
-- Issues: [#3](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/3) Notification mit
-  aktuellem Port/IP; [#4](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/4) zentrales
+- Issues: [#3](https://github.com/m00sfett/KeepADB/issues/3) Notification mit
+  aktuellem Port/IP; [#4](https://github.com/m00sfett/KeepADB/issues/4) zentrales
   Register auf `moosgames2020`, ausschließlich über Tailscale.
 - Ziel: Den lokal aktiven WLAN-ADB-Endpoint sichtbar machen und anschließend für private Tools
   zentral lesbar hinterlegen.
@@ -26,7 +26,7 @@
 
 ## Aktuelles Paket
 
-- Issue: #1 — CI-Designsystem für WiFi-ADB
+- Issue: #1 — CI-Designsystem für KeepADB
 - Ziel: Die App, das Widget und die Quick-Settings-Kachel erhalten ein konsistentes natives
   Rot-Gelb-Dunkel-Design.
 - Zusammenhang: gemeinsamer UI-Ressourcen- und Layoutpfad; die bestehende ADB-WLAN-Logik bleibt
@@ -141,9 +141,9 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 ## Issue-3-Implementierung — 2026-08-20
 
 - Freigabe: Implementierung, Debug-Build, Lint und Geräteprüfung ausdrücklich erteilt.
-- Umsetzung: `AdbWifiEndpoint` entdeckt den tatsächlichen `_adb-tls-connect._tcp`-Dienst per NSD
+- Umsetzung: `KeepADBEndpoint` entdeckt den tatsächlichen `_adb-tls-connect._tcp`-Dienst per NSD
   und übernimmt dessen aufgelöste Host-Adresse und Port; kein Default-Port und keine persistierten
-  Endpoint-Daten. `AdbWifiNotification` erstellt den Channel, formatiert Port fett und entfernt
+  Endpoint-Daten. `KeepADBNotification` erstellt den Channel, formatiert Port fett und entfernt
   die Notification bei deaktiviertem oder nicht mehr auffindbarem Endpoint. App, Widget und Tile
   stoßen denselben Refresh-Pfad an; Android 13+ fordert `POST_NOTIFICATIONS` an.
 - Prämissenprüfung: Der AOSP-Port-Getter ist an `MANAGE_DEBUGGING` gebunden und daher für diese
@@ -176,7 +176,7 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   die App-Oberfläche den gefundenen Endpoint.
 - Erfüllte Nachweise: UI-Dump und Screenshot zeigen `WLAN-ADB ist AN` sowie `Endpoint:
   192.168.178.24:40045`; Notification-Dump zeigt Titel `WLAN-ADB: Port 40045 @ 192.168.178.24`
-  und Inhalt `Port 40045 @ 192.168.178.24`; Channel `adb_wifi_endpoint` vorhanden; kein neuer
+  und Inhalt `Port 40045 @ 192.168.178.24`; Channel `keepadb_endpoint` vorhanden; kein neuer
   `FATAL EXCEPTION`-Eintrag nach dem Fix; Lint erfolgreich.
 - Nicht ausgeführt: AUS/AN-Transportzyklus über die App, weil das Ausschalten von WLAN-ADB den
   laufenden Prüftransport beendet. Dieser Abnahmepunkt bleibt als manueller/alternativer
@@ -188,7 +188,7 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 - Befund: Beim AUS-/AN-Umschalten kann der NSD-Adapter verspätete Discovery-/Resolve-Callbacks
   nach dem Stop verarbeiten; Framework-Ausnahmen beim Starten oder Auflösen waren ungefangen.
-- Umsetzung: `AdbWifiEndpoint` verwirft Callbacks aus veralteten Discovery-Generationen und
+- Umsetzung: `KeepADBEndpoint` verwirft Callbacks aus veralteten Discovery-Generationen und
   fängt Runtime-Ausnahmen beim Start, Stop und Resolve ab. Toggle-Semantik und Notification-
   Vertrag bleiben unverändert.
 - Scope: weiterhin Issue #3; kein neues Issue angelegt.
@@ -224,7 +224,7 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - Nutzerbefund: WLAN-ADB ist aktiv, die Notification zeigt jedoch nicht den aktuellen Endpoint;
   als echter aktueller Port wurde `34841` angegeben.
 - Issue #5 „Notification zeigt veralteten WLAN-ADB-Port“ angelegt und serverseitig verifiziert:
-  https://github.com/m00sfett/smartphone-wlan-adb-app/issues/5
+  https://github.com/m00sfett/KeepADB/issues/5
 - Scope: Ursache im Live-Discovery-/Notification-Datenpfad untersuchen und beheben; keine
   Toggle-Semantik, kein zentrales Register. Geräte-/Logcat-Nachweis ist Akzeptanzkriterium.
 - Status: `complete` für die Issue-Anlage; Issue #5 offen, kein Commit-/PR-Schreibvorgang.
@@ -242,7 +242,7 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - Installation: Debug-APK mit dem Crash-Fix via `android-target s20 -- install -r` erfolgreich installiert.
 - Live-Verifikation:
   - MainActivity gestartet; UI-Dump zeigt `Endpoint: 192.168.178.24:34841` und `WLAN-ADB ist AN`.
-  - Notification-Dump zeigt `android.title=String (WLAN-ADB: Port 34841 @ 192.168.178.24)` und `android.text=SpannableString (Port 34841 @ 192.168.178.24)` auf Channel `adb_wifi_endpoint`.
+  - Notification-Dump zeigt `android.title=String (WLAN-ADB: Port 34841 @ 192.168.178.24)` und `android.text=SpannableString (Port 34841 @ 192.168.178.24)` auf Channel `keepadb_endpoint`.
 - Status: `approved` für Issue #3 Datenpfad und Crash-Fix.
 
 ## Abschluss Issue #3 — 2026-08-20
@@ -257,11 +257,11 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - Issue: #5 — Notification zeigt veralteten WLAN-ADB-Port.
 - Ursachenanalyse:
   1. Im mDNS-Resolver blieben nach Portwechseln veraltete Service-Records (`_adb-tls-connect._tcp`) im Cache erhalten (wie via `avahi-browse` belegt: z. B. geschlossener Port `40589` neben aktivem Port `34841`).
-  2. `AdbWifiEndpoint` übernahm zuvor den ersten aufgelösten Treffer ungeprüft.
-  3. `AdbWifiNotification.refresh()` setzte `currentHost` und `currentPort` nicht vor dem neuen Discovery-Lauf zurück.
+  2. `KeepADBEndpoint` übernahm zuvor den ersten aufgelösten Treffer ungeprüft.
+  3. `KeepADBNotification.refresh()` setzte `currentHost` und `currentPort` nicht vor dem neuen Discovery-Lauf zurück.
 - Umsetzung:
-  - `AdbWifiEndpoint.java`: In `onServiceResolved` wird ein asynchroner TCP-Socket-Connect-Check (400 ms Timeout) gegen `(host, port)` ausgeführt. Nur tatsächlich erreichbare/offene Ports werden als Live-Endpoint an den Listener gemeldet. Läuft ein Record ins Leere (Connection refused), wird die Suche für alternative Records nicht blockiert.
-  - `AdbWifiNotification.java`: `currentHost` und `currentPort` werden bei jedem `refresh()` und `stop()` zuverlässig invalidiert.
+  - `KeepADBEndpoint.java`: In `onServiceResolved` wird ein asynchroner TCP-Socket-Connect-Check (400 ms Timeout) gegen `(host, port)` ausgeführt. Nur tatsächlich erreichbare/offene Ports werden als Live-Endpoint an den Listener gemeldet. Läuft ein Record ins Leere (Connection refused), wird die Suche für alternative Records nicht blockiert.
+  - `KeepADBNotification.java`: `currentHost` und `currentPort` werden bei jedem `refresh()` und `stop()` zuverlässig invalidiert.
 - Lokale Gates: `git diff --check`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug` erfolgreich ausgeführt (0 Fehler).
 - Gerätegate auf S20 (`SM-G780G` / `RF8T307S88H` via `192.168.178.24:34841`):
   - Debug-APK per `android-target s20 -- install -r` erfolgreich installiert.
@@ -282,14 +282,14 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 - Merge: `master` mit Endpoint-Funktionalität (#3/#5) in `issue-1-ci-designsystem` gemergt; Farbreferenz `night_muted` für die Endpoint-Anzeige eingepasst.
 - Lokale Gates: `git diff --check`, `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug` erfolgreich ausgeführt.
-- PR #2 (`feat: apply CI design system to WiFi-ADB`) als bereit markiert und per Squash-Merge in `master` übernommen (`Fixes #1`).
+- PR #2 (`feat: apply CI design system to KeepADB`) als bereit markiert und per Squash-Merge in `master` übernommen (`Fixes #1`).
 - Issue #1 durch GitHub automatisch geschlossen.
 - Branch `issue-1-ci-designsystem` lokal und remote aufgeräumt.
 - Status: `complete`.
 
 ## Issue-4-Planung & Architekturentscheidung — 2026-08-20
 
-- Issue: [#4](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/4) — Zentrales WLAN-ADB-Register auf moosgames2020 (Tailscale-only)
+- Issue: [#4](https://github.com/m00sfett/KeepADB/issues/4) — Zentrales WLAN-ADB-Register auf moosgames2020 (Tailscale-only)
 - Ziel: Ein privater, stabiler Ablage- und Abfragepunkt auf `moosgames2020` für den aktuell aktiven WLAN-ADB-Endpoint (mindestens device, ip, port, updatedAt, active/stale). Zugriff strikt nur über Tailnet.
 - Analyse & Architekturoptionen:
   1. Option 1 (Empfohlen): Schlanker HTTP-Registry-Dienst (z.B. Python/Flask oder Stdlib `http.server`) gebunden ausschließlich an Tailscale-IP (`100.111.111.21`), der atomar in `~/agent/data/phone_reachability_register.json` schreibt/liest und TTL-/Stale-Semantik bietet. Läuft als systemd User-Service.
@@ -330,24 +330,24 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 - Ausgangslage: Server- und Branch-Head auf `master` (`4f04fb4`), keine offenen PRs, keine aktiven CI-Läufe.
 - Offene Issues (7):
-  - [#9](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/9) Race Condition bei currentHost/currentPort in AdbWifiNotification
-  - [#10](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/10) Unbounded Thread-Spawning in AdbWifiRegisterClient
-  - [#11](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/11) catch (Exception e) zu breit in AdbWifiRegisterClient
-  - [#12](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/12) Register wird bei onUnavailable nicht als stale markiert
-  - [#13](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/13) Unescapte JSON-String-Interpolation in AdbWifiRegisterClient
-  - [#14](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/14) README: 'Zweck'/'Ziel' dupliziert die Einleitung
-  - [#15](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/15) Untracked FRONTMATTER.md dupliziert README-Inhalt
+  - [#9](https://github.com/m00sfett/KeepADB/issues/9) Race Condition bei currentHost/currentPort in KeepADBNotification
+  - [#10](https://github.com/m00sfett/KeepADB/issues/10) Unbounded Thread-Spawning in KeepADBRegisterClient
+  - [#11](https://github.com/m00sfett/KeepADB/issues/11) catch (Exception e) zu breit in KeepADBRegisterClient
+  - [#12](https://github.com/m00sfett/KeepADB/issues/12) Register wird bei onUnavailable nicht als stale markiert
+  - [#13](https://github.com/m00sfett/KeepADB/issues/13) Unescapte JSON-String-Interpolation in KeepADBRegisterClient
+  - [#14](https://github.com/m00sfett/KeepADB/issues/14) README: 'Zweck'/'Ziel' dupliziert die Einleitung
+  - [#15](https://github.com/m00sfett/KeepADB/issues/15) Untracked FRONTMATTER.md dupliziert README-Inhalt
 
 - Bündelung & Paketierung nach Eco-Grundsätzen:
-  1. **Paket 1 (Doku & Workspace-Hygiene):** Issues [#14](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/14) und [#15](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/15).
+  1. **Paket 1 (Doku & Workspace-Hygiene):** Issues [#14](https://github.com/m00sfett/KeepADB/issues/14) und [#15](https://github.com/m00sfett/KeepADB/issues/15).
      - Ziel: Beseitigung redundanter Abschnitte in `README.md` und Löschung der duplizierten Restdatei `FRONTMATTER.md`.
      - Stufe: S1 (rein mechanisch / Markdown-Bereinigung).
      - Gates: `git diff --check`, Prüfung der Markdown-Struktur.
-  2. **Paket 2 (RegisterClient-Härtung & Thread-Safety):** Issues [#9](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/9), [#10](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/10), [#11](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/11), [#13](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/13).
-     - Ziel: `AdbWifiNotification` und `AdbWifiRegisterClient` thread-safe und robust machen (Deduplication / Single-Worker, gezieltes Exception-Handling, sicheres JSON-Escaping).
+  2. **Paket 2 (RegisterClient-Härtung & Thread-Safety):** Issues [#9](https://github.com/m00sfett/KeepADB/issues/9), [#10](https://github.com/m00sfett/KeepADB/issues/10), [#11](https://github.com/m00sfett/KeepADB/issues/11), [#13](https://github.com/m00sfett/KeepADB/issues/13).
+     - Ziel: `KeepADBNotification` und `KeepADBRegisterClient` thread-safe und robust machen (Deduplication / Single-Worker, gezieltes Exception-Handling, sicheres JSON-Escaping).
      - Stufe: S2 (Standard-Implementierung).
      - Gates: `git diff --check`, `gradlew assembleDebug`, `gradlew lintDebug`.
-  3. **Paket 3 (Register-Staleness bei Deaktivierung):** Issue [#12](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/12).
+  3. **Paket 3 (Register-Staleness bei Deaktivierung):** Issue [#12](https://github.com/m00sfett/KeepADB/issues/12).
      - Ziel: Bei `onUnavailable()` bzw. Deaktivierung von WLAN-ADB das Register explizit benachrichtigen oder Endpoint als inaktiv/stale melden.
      - Stufe: S2/S3 (Cross-Boundary / Register-Protokoll).
      - Gates: `git diff --check`, `gradlew assembleDebug`, Server-Integrationstest.
@@ -365,10 +365,10 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 ## Implementierung & Validierung Paket 2 — 2026-08-20
 
-- Issues: [#9](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/9), [#10](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/10), [#11](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/11), [#13](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/13).
+- Issues: [#9](https://github.com/m00sfett/KeepADB/issues/9), [#10](https://github.com/m00sfett/KeepADB/issues/10), [#11](https://github.com/m00sfett/KeepADB/issues/11), [#13](https://github.com/m00sfett/KeepADB/issues/13).
 - Ziel:
-  - #9: Race Condition & Sichtbarkeit bei `currentHost`, `currentPort` und `endpointListener` in `AdbWifiNotification` durch Synchronisation absichern.
-  - #10: Unbegrenztes Thread-Spawning in `AdbWifiRegisterClient` durch Single-Thread `ExecutorService` mit In-Flight Deduplication/Coalescing ersetzen.
+  - #9: Race Condition & Sichtbarkeit bei `currentHost`, `currentPort` und `endpointListener` in `KeepADBNotification` durch Synchronisation absichern.
+  - #10: Unbegrenztes Thread-Spawning in `KeepADBRegisterClient` durch Single-Thread `ExecutorService` mit In-Flight Deduplication/Coalescing ersetzen.
   - #11: Zu breites `catch (Exception e)` durch spezifisches Fangen von `IOException` und `JSONException` ersetzen; Unchecked Runtime Exceptions nicht verschlucken.
   - #13: JSON-Payloads via `org.json.JSONObject` standardkonform encodieren/escapen statt unescapte String-Interpolation.
 - Stufe: S2 (Standard-Implementierung).
@@ -385,16 +385,16 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 ## Implementierung & Validierung Paket 3 (Issue #12) — 2026-08-20
 
-- Issue: [#12](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/12) — Register wird bei onUnavailable nicht als stale markiert
+- Issue: [#12](https://github.com/m00sfett/KeepADB/issues/12) — Register wird bei onUnavailable nicht als stale markiert
 - Ziel: Bei `onUnavailable()` (mDNS-Record verschwindet / WLAN-ADB AUS) oder `stop()` soll das zentrale Tailscale-Register auf `100.111.111.21:50829` umgehend als stale / inaktiv markiert werden, statt veraltete Endpunkte bis zum Scan-TTL-Ablauf als live zu führen.
 - Server-Erweiterung (`~/agent/bin/phone-register-server`):
   - `do_DELETE` und Unregister-Payload-Support (`active: false` / `action: unregister`) implementiert.
   - `evaluate_device_reach` wertet `active=False` oder leeren Endpunkt sofort als `is_stale=true` / `status="stale"`.
   - Service `phone-register-server.service` neu gestartet und mit `curl` verifiziert.
   - Protokolleintrag `~/agent/protocols/2026-08-20/211200-phone-register-server-delete.yaml` erstellt und committet.
-- Client-Erweiterung (`AdbWifiRegisterClient.java` & `AdbWifiNotification.java`):
-  - `AdbWifiRegisterClient.markUnavailableAsync()` implementiert, das einen HTTP-DELETE-Request asynchron über den `EXECUTOR` sendet und `lastRegisteredEndpoint` zurücksetzt.
-  - In `AdbWifiNotification`: `markUnavailableAsync()` wird in `onUnavailable()` und `stop()` zuverlässig aufgerufen.
+- Client-Erweiterung (`KeepADBRegisterClient.java` & `KeepADBNotification.java`):
+  - `KeepADBRegisterClient.markUnavailableAsync()` implementiert, das einen HTTP-DELETE-Request asynchron über den `EXECUTOR` sendet und `lastRegisteredEndpoint` zurücksetzt.
+  - In `KeepADBNotification`: `markUnavailableAsync()` wird in `onUnavailable()` und `stop()` zuverlässig aufgerufen.
 - Validierung & Gates:
   - `git diff --check`: bestanden.
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler).
@@ -426,17 +426,17 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 ## Neues Paket: Issue #22 — Option 'WLAN-ADB dauerhaft aktiv halten' — 2026-08-20
 
-- Issue: [#22](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/22) — Option 'WLAN-ADB dauerhaft aktiv halten' (Auto-Re-Enable bei Drop, Reconnect & Boot)
+- Issue: [#22](https://github.com/m00sfett/KeepADB/issues/22) — Option 'WLAN-ADB dauerhaft aktiv halten' (Auto-Re-Enable bei Drop, Reconnect & Boot)
 - Ziel: Eine zuschaltbare Option, die WLAN-ADB automatisch wieder einschaltet, wenn das System die Verbindung trennt (z. B. durch AP-Wechsel, temporären WLAN-Verlust, Android-Inaktivitäts-Timeout oder Reboot), und den neuen Endpoint sofort an das Register übermittelt.
 - Anforderungen & Umfang:
-  1. **UI & Persistenz:** Zweiter Switch in `MainActivity` ("Dauerhaft aktiv halten" / "Auto-Reconnect"), persistiert in `SharedPreferences` via `AdbWifiPreferences`.
+  1. **UI & Persistenz:** Zweiter Switch in `MainActivity` ("Dauerhaft aktiv halten" / "Auto-Reconnect"), persistiert in `SharedPreferences` via `KeepADBPreferences`.
   2. **Triggers:**
      - `ContentObserver`: Beobachtet `Settings.Global.getUriFor("adb_wifi_enabled")` und reaktiviert WLAN-ADB bei unerwartetem Drop, falls Wi-Fi verbunden ist.
      - `NetworkCallback`: Beobachtet Wi-Fi-Netzwerkzustand (`TRANSPORT_WIFI`) und reaktiviert WLAN-ADB bei Wiederverbindung / AP-Wechsel.
      - `BootReceiver`: `RECEIVE_BOOT_COMPLETED` startet nach Reboot die Überwachung und aktiviert WLAN-ADB bei vorhandener Wi-Fi-Verbindung.
-  3. **Foreground Service:** `AdbWifiService` garantiert zuverlässige Hintergrund-Überwachung unter Android 13/14+ und bindet die Ongoing-Notification.
-  4. **Register-Synchronisation:** Bei Reconnect / neuem Endpoint ruft der Flow `AdbWifiNotification.refresh()` auf, welcher per mDNS den Port auflöst und an das Tailscale-Register pusht.
-- Nicht-Ziele: Keine Änderung der `AdbWifi.setEnabled()`-Rechteprüfungen (`WRITE_SECURE_SETTINGS`), keine externen Third-Party-Dependencies.
+  3. **Foreground Service:** `KeepADBService` garantiert zuverlässige Hintergrund-Überwachung unter Android 13/14+ und bindet die Ongoing-Notification.
+  4. **Register-Synchronisation:** Bei Reconnect / neuem Endpoint ruft der Flow `KeepADBNotification.refresh()` auf, welcher per mDNS den Port auflöst und an das Tailscale-Register pusht.
+- Nicht-Ziele: Keine Änderung der `KeepADB.setEnabled()`-Rechteprüfungen (`WRITE_SECURE_SETTINGS`), keine externen Third-Party-Dependencies.
 - Stufe: S3 (Feature-Implementierung, Service-Lifecycle, Background-Triggers). Direktumsetzung durch Hauptagent (Gemini 3.7 Flash High).
 - Gates:
   1. Baseline-Check: `git status` sauber auf Feature-Branch `feature/issue-22-keep-alive`.
@@ -449,10 +449,10 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 ## Issue-22-Umsetzung & Validierung — 2026-08-20
 
 - Implementierung:
-  - `AdbWifiPreferences.java`: Hilfsklasse für typisierte SharedPreferences-Persistenz (`keep_alive_enabled`).
-  - `AdbWifiService.java`: Foreground Service mit `ContentObserver` für `adb_wifi_enabled` und `ConnectivityManager.NetworkCallback` für `TRANSPORT_WIFI`. Automatische Reaktivierung und mDNS/Notification/Register-Refresh bei Reconnect/Drop.
+  - `KeepADBPreferences.java`: Hilfsklasse für typisierte SharedPreferences-Persistenz (`keep_alive_enabled`).
+  - `KeepADBService.java`: Foreground Service mit `ContentObserver` für `adb_wifi_enabled` und `ConnectivityManager.NetworkCallback` für `TRANSPORT_WIFI`. Automatische Reaktivierung und mDNS/Notification/Register-Refresh bei Reconnect/Drop.
   - `BootReceiver.java`: `RECEIVE_BOOT_COMPLETED` & `QUICKBOOT_POWERON` BroadcastReceiver zum Starten des Überwachungs-Services und Reaktivieren von WLAN-ADB nach Neustart.
-  - `AdbWifiNotification.java`: Unterstützung von Foreground-Service-Notifications und synchronisierter Placeholder-Anzeige bei vorübergehendem Drop im Keep-Alive-Modus.
+  - `KeepADBNotification.java`: Unterstützung von Foreground-Service-Notifications und synchronisierter Placeholder-Anzeige bei vorübergehendem Drop im Keep-Alive-Modus.
   - `MainActivity.java` & `activity_main.xml`: Zweiter Schalter "Dauerhaft aktiv halten" mit erklärendem Untertitel, vollständige Anbindung an Preferences und Service-Lifecycle.
   - `AndroidManifest.xml`: Berechtigungen (`RECEIVE_BOOT_COMPLETED`, `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_CONNECTED_DEVICE`, `ACCESS_NETWORK_STATE`) sowie Service- und Receiver-Deklarationen ergänzt.
 - Lokale Gates:
@@ -461,8 +461,8 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - Geräte-Validierung auf Samsung Galaxy S20 FE (`SM-G780G` / `RF8T307S88H` via `192.168.178.24:41069`):
   - Debug-APK per `android-target s20 -- install -r` erfolgreich installiert.
   - UI-Automation Dump (`uiautomator dump`): Schalter "Dauerhaft aktiv halten" vorhanden und toggelbar.
-  - Service-Status (`dumpsys activity services`): `AdbWifiService` läuft als Foreground-Service (`isForeground=true foregroundId=1 channel=adb_wifi_endpoint`).
-  - Notification-Status (`dumpsys notification`): Notification `WLAN-ADB: Port 41069 @ 192.168.178.24` auf Channel `adb_wifi_endpoint` aktiv.
+  - Service-Status (`dumpsys activity services`): `KeepADBService` läuft als Foreground-Service (`isForeground=true foregroundId=1 channel=keepadb_endpoint`).
+  - Notification-Status (`dumpsys notification`): Notification `WLAN-ADB: Port 41069 @ 192.168.178.24` auf Channel `keepadb_endpoint` aktiv.
   - Broadcast-Test: `QUICKBOOT_POWERON` erfolgreich verarbeitet (`result=0`).
 - Status: `approved`.
 
@@ -486,7 +486,7 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 ## Retrospektive (Issue #22)
 
 1. **Reihenfolge & Gates:** Lokale Gates (Formatierung, Build, Lint) haben die Komponenten vor der Geräteinstallation deterministisch abgesichert.
-2. **Foreground-Service & Android-Lifecycle:** Die Bindung des ContentObservers und NetworkCallbacks an den Foreground-Service `AdbWifiService` unter Verwendung der bestehenden Ongoing-Notification (`NOTIFICATION_ID = 1`) stellt zuverlässigen Betrieb auch bei App-Schließung oder Hintergrund-Aktivität sicher.
+2. **Foreground-Service & Android-Lifecycle:** Die Bindung des ContentObservers und NetworkCallbacks an den Foreground-Service `KeepADBService` unter Verwendung der bestehenden Ongoing-Notification (`NOTIFICATION_ID = 1`) stellt zuverlässigen Betrieb auch bei App-Schließung oder Hintergrund-Aktivität sicher.
 3. **Delegation vs. Direktausführung:** Die direkte Umsetzung auf Stufe S3 im Hauptagenten war präzise und kontextschonend; keine unnötige Subagenten-Kette.
 4. **Verbesserung:** Für zukünftige BroadcastReceiver-Tests geschützte System-Broadcasts (`BOOT_COMPLETED`) über dedizierte Test-Intents (`QUICKBOOT_POWERON`) oder direkte Komponenten-Intents simulieren.
 
@@ -494,43 +494,43 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 - Ausgangslage:
   - 10 offene Issues (#24 bis #33) aus automatisiertem Code-Review (`/code-review xhigh`) von Commit `7d3fa1c`.
-  - PR [#34](https://github.com/m00sfett/smartphone-wlan-adb-app/pull/34) (`fix: keep-alive respects manual WLAN-ADB shutoff` für Issue [#33](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/33)) ist auf Branch `fix/keep-alive-respect-manual-disable` vorbereitet.
+  - PR [#34](https://github.com/m00sfett/KeepADB/pull/34) (`fix: keep-alive respects manual WLAN-ADB shutoff` für Issue [#33](https://github.com/m00sfett/KeepADB/issues/33)) ist auf Branch `fix/keep-alive-respect-manual-disable` vorbereitet.
   - Keine aktiven GitHub-Actions-Runs im Remote.
 
 - Offene Issues (10):
-  - [#33](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/33) Keep-Alive schaltet manuell ausgeschaltetes WLAN-ADB sofort wieder an (PR #34)
-  - [#32](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/32) AdbWifiPreferences widerspricht der 'kein persistenter App-State'-Konvention
-  - [#30](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/30) Toter else-Zweig in AdbWifiService.start() (Pre-Oreo, minSdk 30)
-  - [#29](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/29) Duplizierter Toast-/Refresh-Boilerplate in MainActivity-Click-Listenern
-  - [#28](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/28) Duplizierte POST_NOTIFICATIONS-Permission-Prüfung in AdbWifiNotification
-  - [#27](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/27) NetworkCallback und ContentObserver laufen auf inkonsistenten Threads
-  - [#26](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/26) Fehlschlag von AdbWifi.setEnabled() im Keep-Alive-Pfad wird verschluckt
-  - [#25](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/25) BootReceiver exported ohne Permission-Check – Broadcast-Spoofing möglich
-  - [#24](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/24) Foreground-Notification wird beim Service-Stop ungeprüft gelöscht
-  - [#31](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/31) Doppelte Discovery-Zyklen beim Service-Start (NetworkCallback + onStartCommand)
+  - [#33](https://github.com/m00sfett/KeepADB/issues/33) Keep-Alive schaltet manuell ausgeschaltetes WLAN-ADB sofort wieder an (PR #34)
+  - [#32](https://github.com/m00sfett/KeepADB/issues/32) KeepADBPreferences widerspricht der 'kein persistenter App-State'-Konvention
+  - [#30](https://github.com/m00sfett/KeepADB/issues/30) Toter else-Zweig in KeepADBService.start() (Pre-Oreo, minSdk 30)
+  - [#29](https://github.com/m00sfett/KeepADB/issues/29) Duplizierter Toast-/Refresh-Boilerplate in MainActivity-Click-Listenern
+  - [#28](https://github.com/m00sfett/KeepADB/issues/28) Duplizierte POST_NOTIFICATIONS-Permission-Prüfung in KeepADBNotification
+  - [#27](https://github.com/m00sfett/KeepADB/issues/27) NetworkCallback und ContentObserver laufen auf inkonsistenten Threads
+  - [#26](https://github.com/m00sfett/KeepADB/issues/26) Fehlschlag von KeepADB.setEnabled() im Keep-Alive-Pfad wird verschluckt
+  - [#25](https://github.com/m00sfett/KeepADB/issues/25) BootReceiver exported ohne Permission-Check – Broadcast-Spoofing möglich
+  - [#24](https://github.com/m00sfett/KeepADB/issues/24) Foreground-Notification wird beim Service-Stop ungeprüft gelöscht
+  - [#31](https://github.com/m00sfett/KeepADB/issues/31) Doppelte Discovery-Zyklen beim Service-Start (NetworkCallback + onStartCommand)
 
 - Paketierung nach Eco-Grundsätzen:
   1. **Paket 0 (Vorbereitung / PR #34 Merge):**
-     - Issue: [#33](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/33)
+     - Issue: [#33](https://github.com/m00sfett/KeepADB/issues/33)
      - Ziel: PR #34 (`fix/keep-alive-respect-manual-disable`) in `master` mergen, um die Baseline für Service-Härtungen zu aktualisieren.
      - Stufe: S1 (Merge & Synchronisation).
   2. **Paket 1 (Doku-, Refactoring- & Cleanup-Hygiene):**
-     - Issues: [#32](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/32), [#30](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/30), [#28](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/28), [#29](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/29)
+     - Issues: [#32](https://github.com/m00sfett/KeepADB/issues/32), [#30](https://github.com/m00sfett/KeepADB/issues/30), [#28](https://github.com/m00sfett/KeepADB/issues/28), [#29](https://github.com/m00sfett/KeepADB/issues/29)
      - Ziel:
        - #32: Konventionsbeschreibung in `AGENTS.md` präzisieren (WLAN-ADB Live-State vs. persistierte Nutzereinstellungen).
-       - #30: Toter Pre-Oreo Branch in `AdbWifiService.start()` entfernen.
-       - #28: `hasNotificationPermission(Context)` Helper in `AdbWifiNotification` extrahieren.
+       - #30: Toter Pre-Oreo Branch in `KeepADBService.start()` entfernen.
+       - #28: `hasNotificationPermission(Context)` Helper in `KeepADBNotification` extrahieren.
        - #29: Gemeinsame Hilfsmethode für Permission-Toast & UI-Refresh in `MainActivity` extrahieren.
      - Stufe: S1 (mechanisches Refactoring / Doku).
      - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`.
   3. **Paket 2 (Service- & Receiver-Lifecycle-Härtung):**
-     - Issues: [#24](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/24), [#25](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/25), [#27](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/27), [#31](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/31), [#26](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/26)
+     - Issues: [#24](https://github.com/m00sfett/KeepADB/issues/24), [#25](https://github.com/m00sfett/KeepADB/issues/25), [#27](https://github.com/m00sfett/KeepADB/issues/27), [#31](https://github.com/m00sfett/KeepADB/issues/31), [#26](https://github.com/m00sfett/KeepADB/issues/26)
      - Ziel:
-       - #24: `stopForeground(STOP_FOREGROUND_DETACH)` in `AdbWifiService.onDestroy()` nutzen.
+       - #24: `stopForeground(STOP_FOREGROUND_DETACH)` in `KeepADBService.onDestroy()` nutzen.
        - #25: `BootReceiver` im Manifest via `android:permission="android.permission.RECEIVE_BOOT_COMPLETED"` gegen Spoofing unprivilegierter Apps absichern.
        - #27: `ConnectivityManager.registerNetworkCallback` auf Main-Handler/Executor binden (Konsistenz mit ContentObserver).
-       - #31: Doppelten Startup-Discovery-Zyklus in `AdbWifiService` deduplizieren / entprellen.
-       - #26: Fehlschlag von `AdbWifi.setEnabled()` im Keep-Alive-Service protokollieren und sichtbar machen.
+       - #31: Doppelten Startup-Discovery-Zyklus in `KeepADBService` deduplizieren / entprellen.
+       - #26: Fehlschlag von `KeepADB.setEnabled()` im Keep-Alive-Service protokollieren und sichtbar machen.
      - Stufe: S2 (Android Service Lifecycle, Concurrency & Security).
      - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`, abschließende Geräteverifikation auf Samsung S20.
 
@@ -541,26 +541,26 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 ## Abschluss Paket 0 & Paket 1 & Paket 2 — 2026-08-20
 
 - **Paket 0 (PR #34 / Issue #33):**
-  - PR [#34](https://github.com/m00sfett/smartphone-wlan-adb-app/pull/34) per Squash-Merge in `master` übernommen.
-  - Implementierung: `AdbWifi.setEnabled()` setzt `userDisabled` Flag, `AdbWifiService.ContentObserver` konsumiert das Flag und unterdrückt unerwünschtes Re-Enable beim manuellen Ausschalten.
-  - Status: Code auf `master`, Issue [#33](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/33) verbleibt bis zur Geräte-Rauchprüfung offen.
+  - PR [#34](https://github.com/m00sfett/KeepADB/pull/34) per Squash-Merge in `master` übernommen.
+  - Implementierung: `KeepADB.setEnabled()` setzt `userDisabled` Flag, `KeepADBService.ContentObserver` konsumiert das Flag und unterdrückt unerwünschtes Re-Enable beim manuellen Ausschalten.
+  - Status: Code auf `master`, Issue [#33](https://github.com/m00sfett/KeepADB/issues/33) verbleibt bis zur Geräte-Rauchprüfung offen.
 
 - **Paket 1 (PR #35 / Issues #28, #29, #30, #32):**
-  - PR [#35](https://github.com/m00sfett/smartphone-wlan-adb-app/pull/35) per Squash-Merge in `master` übernommen.
-  - [#32](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/32): Konvention in `AGENTS.md` präzisiert (Live-State vs. persistierte Keep-Alive Einstellung) und `GEMINI.md` synchronisiert.
-  - [#30](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/30): Toter Pre-Oreo `else`-Zweig in `AdbWifiService.start()` entfernt.
-  - [#28](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/28): `hasNotificationPermission(Context)` Helper in `AdbWifiNotification` extrahiert.
-  - [#29](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/29): Helper `showPermissionErrorToast()` und `refreshUiAndComponents()` in `MainActivity` extrahiert.
+  - PR [#35](https://github.com/m00sfett/KeepADB/pull/35) per Squash-Merge in `master` übernommen.
+  - [#32](https://github.com/m00sfett/KeepADB/issues/32): Konvention in `AGENTS.md` präzisiert (Live-State vs. persistierte Keep-Alive Einstellung) und `GEMINI.md` synchronisiert.
+  - [#30](https://github.com/m00sfett/KeepADB/issues/30): Toter Pre-Oreo `else`-Zweig in `KeepADBService.start()` entfernt.
+  - [#28](https://github.com/m00sfett/KeepADB/issues/28): `hasNotificationPermission(Context)` Helper in `KeepADBNotification` extrahiert.
+  - [#29](https://github.com/m00sfett/KeepADB/issues/29): Helper `showPermissionErrorToast()` und `refreshUiAndComponents()` in `MainActivity` extrahiert.
   - Lokale Gates: `git diff --check`, `gradlew assembleDebug lintDebug` (0 Fehler).
   - Status: Issues #28, #29, #30, #32 automatisch geschlossen.
 
 - **Paket 2 (PR #36 / Issues #24, #25, #26, #27, #31):**
-  - PR [#36](https://github.com/m00sfett/smartphone-wlan-adb-app/pull/36) per Squash-Merge in `master` übernommen.
-  - [#24](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/24): In `AdbWifiService.onDestroy()` `stopForeground(STOP_FOREGROUND_DETACH)` verwendet, sodass Endpoint-Notification nicht bei alleinigem Service-Stop gelöscht wird.
-  - [#25](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/25): `BootReceiver` im `AndroidManifest.xml` via `android:permission="android.permission.RECEIVE_BOOT_COMPLETED"` abgesichert.
-  - [#26](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/26): Fehlschlag von `AdbWifi.setEnabled()` im Keep-Alive-Service und `BootReceiver` geloggt und via `AdbWifiNotification.showPermissionMissing()` sichtbar eskaliert.
-  - [#27](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/27): `ConnectivityManager.registerNetworkCallback` explizit an Main-Looper (`new Handler(Looper.getMainLooper())`) gebunden.
-  - [#31](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/31): Startup-Debounce (<300ms) in `recheckAndEnable()` integriert, um doppelte mDNS-Discovery-Zyklen beim Service-Start zu unterbinden.
+  - PR [#36](https://github.com/m00sfett/KeepADB/pull/36) per Squash-Merge in `master` übernommen.
+  - [#24](https://github.com/m00sfett/KeepADB/issues/24): In `KeepADBService.onDestroy()` `stopForeground(STOP_FOREGROUND_DETACH)` verwendet, sodass Endpoint-Notification nicht bei alleinigem Service-Stop gelöscht wird.
+  - [#25](https://github.com/m00sfett/KeepADB/issues/25): `BootReceiver` im `AndroidManifest.xml` via `android:permission="android.permission.RECEIVE_BOOT_COMPLETED"` abgesichert.
+  - [#26](https://github.com/m00sfett/KeepADB/issues/26): Fehlschlag von `KeepADB.setEnabled()` im Keep-Alive-Service und `BootReceiver` geloggt und via `KeepADBNotification.showPermissionMissing()` sichtbar eskaliert.
+  - [#27](https://github.com/m00sfett/KeepADB/issues/27): `ConnectivityManager.registerNetworkCallback` explizit an Main-Looper (`new Handler(Looper.getMainLooper())`) gebunden.
+  - [#31](https://github.com/m00sfett/KeepADB/issues/31): Startup-Debounce (<300ms) in `recheckAndEnable()` integriert, um doppelte mDNS-Discovery-Zyklen beim Service-Start zu unterbinden.
   - Lokale Gates: `git diff --check`, `gradlew assembleDebug lintDebug` (0 Fehler).
   - Status: Issues #24, #25, #26, #27, #31 automatisch geschlossen.
 
@@ -581,11 +581,11 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - **Installation:** Debug-APK gebaut und per `install -r` auf dem S20 FE installiert.
 - **Live-Prüfung:**
   - `MainActivity` gestartet; UI-Dump verifiziert `WLAN-ADB ist AN`, `Endpoint: 192.168.178.24:34121`, Schalter aktiv.
-  - `dumpsys activity services` verifiziert: `AdbWifiService` läuft als Foreground-Service (`isForeground=true foregroundId=1 channel=adb_wifi_endpoint`).
+  - `dumpsys activity services` verifiziert: `KeepADBService` läuft als Foreground-Service (`isForeground=true foregroundId=1 channel=keepadb_endpoint`).
   - `dumpsys notification` verifiziert: Ongoing-Notification `WLAN-ADB: Port 34121 @ 192.168.178.24` aktiv.
   - Service Detach (Issue #24): Keep-Alive ausgeschaltet -> Service stoppt via `STOP_FOREGROUND_DETACH`, Notification bleibt erhalten. Keep-Alive wieder eingeschaltet -> Foreground-Service startet sauber neu.
   - Tailscale-Register-Push: `curl http://100.111.111.21:50829/register/s20` verifiziert aktuellen Timestamp, `status: active` und `is_stale: false`.
-  - Issue [#33](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/33) geschlossen.
+  - Issue [#33](https://github.com/m00sfett/KeepADB/issues/33) geschlossen.
 - **Status:** `complete` (0 offene Issues im Repository).
 
 ## Retrospektive (Review-Findings 24–33)
@@ -597,12 +597,12 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 ## Nachbesserung: Endpoint-Cache & Discovery-ANR-Fix (PR #37) — 2026-08-20
 
-- **Problem:** Beim Umschalten von "Dauerhaft aktiv halten" (während WLAN-ADB bereits aktiv war) setzte `AdbWifiNotification.refresh()` den bekannten Endpoint bedingungslos auf `null` zurück, zeigte "Endpoint wird gesucht..." und startete eine synchrone NsdManager-Discovery auf dem Main-Thread. Dies führte zu Discovery-Stürmen und einem 10s-ANR (`Input dispatching timed out`).
-- **Behebung in PR [#37](https://github.com/m00sfett/smartphone-wlan-adb-app/pull/37):**
-  - `AdbWifiNotification.refresh()` behält einen bereits aufgelösten, gültigen Endpoint (`currentHost != null && currentPort > 0`) bei und aktualisiert Notification und UI sofort ohne Discovery-Neustart.
-  - `AdbWifiEndpoint.discover()` ist idempotent (kein Doppelstart bei laufender Discovery).
+- **Problem:** Beim Umschalten von "Dauerhaft aktiv halten" (während WLAN-ADB bereits aktiv war) setzte `KeepADBNotification.refresh()` den bekannten Endpoint bedingungslos auf `null` zurück, zeigte "Endpoint wird gesucht..." und startete eine synchrone NsdManager-Discovery auf dem Main-Thread. Dies führte zu Discovery-Stürmen und einem 10s-ANR (`Input dispatching timed out`).
+- **Behebung in PR [#37](https://github.com/m00sfett/KeepADB/pull/37):**
+  - `KeepADBNotification.refresh()` behält einen bereits aufgelösten, gültigen Endpoint (`currentHost != null && currentPort > 0`) bei und aktualisiert Notification und UI sofort ohne Discovery-Neustart.
+  - `KeepADBEndpoint.discover()` ist idempotent (kein Doppelstart bei laufender Discovery).
   - Sobald ein erreichbarer Endpoint verifiziert ist, wird die mDNS-Discovery gestoppt und der MulticastLock freigegeben.
-  - `AdbWifiNotification.invalidateEndpoint()` für saubere Invalidierung bei tatsächlichem Wi-Fi-Drop (`onLost`) oder WLAN-ADB-Ausschalten hinzugefügt.
+  - `KeepADBNotification.invalidateEndpoint()` für saubere Invalidierung bei tatsächlichem Wi-Fi-Drop (`onLost`) oder WLAN-ADB-Ausschalten hinzugefügt.
 - **Live-Verifikation auf Samsung S20 FE:**
   - APK gebaut und per `install -r` aktualisiert.
   - Togglen von "Dauerhaft aktiv halten" (AUS und wieder AN) hält den Endpoint kontinuierlich stabil.
@@ -612,23 +612,23 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 - Kontext: Bei der Endpoint-Ermittlung kam es zu Verzögerungen und Hängern im Status "Endpoint wird gesucht …" aufgrund von Start-Races beim Einschalten, hängenden NsdManager-Callbacks bei Stale-mDNS-Einträgen und fehlendem automatischem Retry.
 - Offene Issues (4):
-  - [#38](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/38) fix: AdbWifiEndpoint Resolve-Watchdog gegen hängende NsdManager.resolveService()-Aufrufe
-  - [#39](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/39) feat: Automatischer Discovery-Retry in AdbWifiNotification bei fehlgeschlagener Endpoint-Suche
-  - [#40](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/40) feat: Lokaler Fast-Probe Port-Scan zur sofortigen Erkennung des adbd-Ports
-  - [#41](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/41) fix: Initial-Discovery-Delay nach adb_wifi_enabled zur Vermeidung von adbd-Start-Races
+  - [#38](https://github.com/m00sfett/KeepADB/issues/38) fix: KeepADBEndpoint Resolve-Watchdog gegen hängende NsdManager.resolveService()-Aufrufe
+  - [#39](https://github.com/m00sfett/KeepADB/issues/39) feat: Automatischer Discovery-Retry in KeepADBNotification bei fehlgeschlagener Endpoint-Suche
+  - [#40](https://github.com/m00sfett/KeepADB/issues/40) feat: Lokaler Fast-Probe Port-Scan zur sofortigen Erkennung des adbd-Ports
+  - [#41](https://github.com/m00sfett/KeepADB/issues/41) fix: Initial-Discovery-Delay nach adb_wifi_enabled zur Vermeidung von adbd-Start-Races
 
 - Paketierung:
   1. **Paket 3 (Resolver-Watchdog, Retry-Loop & Startup-Delay):**
-     - Issues: [#38](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/38), [#39](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/39), [#41](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/41)
+     - Issues: [#38](https://github.com/m00sfett/KeepADB/issues/38), [#39](https://github.com/m00sfett/KeepADB/issues/39), [#41](https://github.com/m00sfett/KeepADB/issues/41)
      - Ziel:
-       - #38: 1,5s Watchdog-Timer in `AdbWifiEndpoint` pro `resolveService()` gegen AOSP NsdManager Deadlocks.
-       - #39: Automatischer Discovery-Retry mit Backoff in `AdbWifiNotification` bei `onUnavailable()` solange WLAN-ADB aktiv ist.
+       - #38: 1,5s Watchdog-Timer in `KeepADBEndpoint` pro `resolveService()` gegen AOSP NsdManager Deadlocks.
+       - #39: Automatischer Discovery-Retry mit Backoff in `KeepADBNotification` bei `onUnavailable()` solange WLAN-ADB aktiv ist.
        - #41: 500ms Startverzögerung beim manuellen Einschalten von WLAN-ADB vor der Initial-Discovery zur Vermeidung von `adbd`-Start-Races.
      - Stufe: S2 (Lifecycle, Threading & Network Discovery).
      - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`.
 
   2. **Paket 4 (Lokaler Fast-Probe Port-Finder):**
-     - Issue: [#40](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/40)
+     - Issue: [#40](https://github.com/m00sfett/KeepADB/issues/40)
      - Ziel: Lokaler schneller Socket-Check auf dem Gerät zur blitzschnellen Ermittlung des aktiven Ports ohne Funk-Multicast-Latenz.
      - Stufe: S2.
      - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`, abschließende S20-Verifikation.
@@ -638,9 +638,9 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 ## Umsetzung Paket 3 (PR #42 / Issues #38, #39, #41) — 2026-08-20
 
 - **Implementierung:**
-  - [#38](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/38): 1,5s Watchdog-Timer (`RESOLVE_TIMEOUT_MS = 1500`) in `AdbWifiEndpoint.processNextResolveLocked()` via `mainHandler.postDelayed()` implementiert. Bei ausbleibenden AOSP-NsdManager-Callbacks wird `resolving = false` forciert und das nächste Queue-Element verarbeitet. Saubere Watchdog-Entfernung bei Callbacks und `stop()`.
-  - [#39](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/39): Automatischer Discovery-Retry mit Backoff (2s Initial, 5s Folge) in `AdbWifiNotification.scheduleRetryLocked()` bei `onUnavailable()` implementiert, solange `AdbWifi.isEnabled(appContext)` wahr ist. Automatischer Abbruch bei erfolgreichem Endpoint oder Ausschalten.
-  - [#41](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/41): Entprellte, 500ms verzögerte Initial-Discovery (`INITIAL_DISCOVERY_DELAY_MS = 500`) in `AdbWifiNotification.refresh()` implementiert, um `adbd`-Start-Races und Discovery-Stürme bei schnellen Toggles zu unterbinden.
+  - [#38](https://github.com/m00sfett/KeepADB/issues/38): 1,5s Watchdog-Timer (`RESOLVE_TIMEOUT_MS = 1500`) in `KeepADBEndpoint.processNextResolveLocked()` via `mainHandler.postDelayed()` implementiert. Bei ausbleibenden AOSP-NsdManager-Callbacks wird `resolving = false` forciert und das nächste Queue-Element verarbeitet. Saubere Watchdog-Entfernung bei Callbacks und `stop()`.
+  - [#39](https://github.com/m00sfett/KeepADB/issues/39): Automatischer Discovery-Retry mit Backoff (2s Initial, 5s Folge) in `KeepADBNotification.scheduleRetryLocked()` bei `onUnavailable()` implementiert, solange `KeepADB.isEnabled(appContext)` wahr ist. Automatischer Abbruch bei erfolgreichem Endpoint oder Ausschalten.
+  - [#41](https://github.com/m00sfett/KeepADB/issues/41): Entprellte, 500ms verzögerte Initial-Discovery (`INITIAL_DISCOVERY_DELAY_MS = 500`) in `KeepADBNotification.refresh()` implementiert, um `adbd`-Start-Races und Discovery-Stürme bei schnellen Toggles zu unterbinden.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
@@ -649,7 +649,7 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 ## Umsetzung Paket 4 (PR #43 / Issue #40) — 2026-08-20
 
 - **Implementierung:**
-  - [#40](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/40): Lokaler Fast-Probe Port-Scanner in `AdbWifiEndpoint.startFastProbe()` implementiert. Parallelisiert über 16 Worker-Threads im Bereich 30000–50000 auf `127.0.0.1` mit Gegenprobe auf der lokalen Wi-Fi-IP (`getWifiIpAddress()`). Erkennt den aktiven `adbd`-Port auf dem Gerät in Millisekunden ohne Funk-Multicast-Latenz. mDNS-Discovery bleibt als robuster Standard-/Fallback-Pfad parallel aktiv.
+  - [#40](https://github.com/m00sfett/KeepADB/issues/40): Lokaler Fast-Probe Port-Scanner in `KeepADBEndpoint.startFastProbe()` implementiert. Parallelisiert über 16 Worker-Threads im Bereich 30000–50000 auf `127.0.0.1` mit Gegenprobe auf der lokalen Wi-Fi-IP (`getWifiIpAddress()`). Erkennt den aktiven `adbd`-Port auf dem Gerät in Millisekunden ohne Funk-Multicast-Latenz. mDNS-Discovery bleibt als robuster Standard-/Fallback-Pfad parallel aktiv.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
@@ -673,17 +673,17 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - **Installation:** Debug-APK gebaut und per `install -r` auf Samsung Galaxy S20 FE installiert.
 - **Live-Prüfung:**
   - `MainActivity` gestartet; UI-Dump verifiziert `WLAN-ADB ist AN`, `Endpoint: 192.168.178.24:37799`.
-  - Notification-Dump verifiziert: Ongoing-Notification `WLAN-ADB: Port 37799 @ 192.168.178.24` auf Channel `adb_wifi_endpoint` sofort aktiv.
+  - Notification-Dump verifiziert: Ongoing-Notification `WLAN-ADB: Port 37799 @ 192.168.178.24` auf Channel `keepadb_endpoint` sofort aktiv.
   - Tailscale-Register-Push: `curl http://100.111.111.21:50829/register/s20` verifiziert aktuellen Timestamp, `status: active` und `is_stale: false`.
   - Screenshot zur Verifikation (`s20_fastprobe_smoke.png`) gesichert und geprüft.
 - **Status:** `complete` (Gesamtabnahme für Batch 2 bestanden, 0 offene Issues).
 
 ## Umsetzung Issue #44 (PR #45 / Issue #44) — 2026-08-20
 
-- **Kontext / Problem:** Wenn WLAN-ADB manuell über App, Quick-Settings-Tile oder Widget ausgeschaltet wird, während „Dauerhaft aktiv halten“ aktiviert war, verblieb eine Notification („WLAN-ADB: Ausgeschaltet …“), da `AdbWifiService` als Foreground-Service weiterlief.
+- **Kontext / Problem:** Wenn WLAN-ADB manuell über App, Quick-Settings-Tile oder Widget ausgeschaltet wird, während „Dauerhaft aktiv halten“ aktiviert war, verblieb eine Notification („WLAN-ADB: Ausgeschaltet …“), da `KeepADBService` als Foreground-Service weiterlief.
 - **Implementierung:**
-  - `AdbWifiNotification.stop()` ruft `NotificationManager.cancel(NOTIFICATION_ID)` bedingungslos auf, sobald WLAN-ADB ausgeschaltet ist.
-  - Beim manuellen Ausschalten via `MainActivity`, `AdbWifiTileService`, `AdbWifiWidget` oder im `AdbWifiService.ContentObserver` (`AdbWifi.consumeUserDisabled()`) wird `AdbWifiPreferences.setKeepAliveEnabled(context, false)` gesetzt und `AdbWifiService.stop(context)` ausgeführt.
+  - `KeepADBNotification.stop()` ruft `NotificationManager.cancel(NOTIFICATION_ID)` bedingungslos auf, sobald WLAN-ADB ausgeschaltet ist.
+  - Beim manuellen Ausschalten via `MainActivity`, `KeepADBTileService`, `KeepADBWidget` oder im `KeepADBService.ContentObserver` (`KeepADB.consumeUserDisabled()`) wird `KeepADBPreferences.setKeepAliveEnabled(context, false)` gesetzt und `KeepADBService.stop(context)` ausgeführt.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
@@ -693,10 +693,10 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 - **Kontext / Problem:** In `MainActivity` verharrte die Statusanzeige auf „Endpoint wird gesucht …“, obwohl WLAN-ADB bereits aktiv war.
   - Ursache 1: `startFastProbe` scannte `127.0.0.1` mit `new InetSocketAddress(String, int)`, was 20.000 Mal DNS-Namensauflösung/GC-Pressure auslöste, während `adbd` auf Android primär auf der Wi-Fi-IP (`tcp6 ::ffff:192.168.x.x`) lauscht.
-  - Ursache 2: `AdbWifiNotification.refresh()` verzögerte jeden Discovery-Start künstlich um 500ms.
+  - Ursache 2: `KeepADBNotification.refresh()` verzögerte jeden Discovery-Start künstlich um 500ms.
 - **Implementierung:**
   - `startFastProbe` nutzt eine vorab aufgelöste `InetAddress` der lokalen Wi-Fi-IP und scannt direkt ohne Hostname-Parsing/DNS-Lookups.
-  - `AdbWifiNotification.refresh()` stößt die Discovery sofort an; bei bereits laufendem `adbd` wird der Endpoint innerhalb von wenigen Millisekunden erkannt und angezeigt.
+  - `KeepADBNotification.refresh()` stößt die Discovery sofort an; bei bereits laufendem `adbd` wird der Endpoint innerhalb von wenigen Millisekunden erkannt und angezeigt.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
@@ -707,7 +707,7 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - **Kontext / Problem:** Wenn auf dem Android-Gerät ein VPN aktiv ist (z. B. Tailscale), liefert `ConnectivityManager.getActiveNetwork()` das VPN-Interface (`TRANSPORT_VPN`) statt des physischen Wi-Fi-Interfaces.
   - Dadurch schlugen `isWifiConnected()` und `getWifiIpAddress()` fehl (lieferten `false` bzw. `null`), wodurch `startFastProbe` sofort abbrach und die App dauerhaft auf „Endpoint wird gesucht …“ verharrte.
 - **Implementierung:**
-  - `AdbWifiService.isWifiConnected()` und `AdbWifiEndpoint.getWifiIpAddress()` prüfen alle aktiven Netzwerke (`getAllNetworks()`) auf `TRANSPORT_WIFI` inkl. Fallback auf `NetworkInterface` (z. B. `wlan0`), sodass die Wi-Fi-IP auch bei aktivem VPN zuverlässig ermittelt wird.
+  - `KeepADBService.isWifiConnected()` und `KeepADBEndpoint.getWifiIpAddress()` prüfen alle aktiven Netzwerke (`getAllNetworks()`) auf `TRANSPORT_WIFI` inkl. Fallback auf `NetworkInterface` (z. B. `wlan0`), sodass die Wi-Fi-IP auch bei aktivem VPN zuverlässig ermittelt wird.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
@@ -718,7 +718,7 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 - **Kontext / Problem:** Wenn WLAN-ADB eingeschaltet wird, benötigt der Systemdienst `adbd` 300ms bis 1500ms, um den Socket zu binden.
   - Bisher führte `startFastProbe` nur einen einzigen Scan-Durchlauf durch (Dauer ~20ms). Startete `adbd` verzögert, schlug dieser Einzeldurchlauf fehl und die App blieb auf „Endpoint wird gesucht …“ hängen.
 - **Implementierung:**
-  - `AdbWifiFastProbeCoordinator` scannt in einer Wiederholungsschleife (bis zu 15 Durchläufe à 300ms Pause) alle Ports parallel, solange die Discovery aktiv ist (`isCurrent(generation)`).
+  - `KeepADBFastProbeCoordinator` scannt in einer Wiederholungsschleife (bis zu 15 Durchläufe à 300ms Pause) alle Ports parallel, solange die Discovery aktiv ist (`isCurrent(generation)`).
   - Sobald `adbd` den Socket bindet, erkennt der Fast-Probe den Port sofort und benachrichtigt UI, Notification und Register.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
@@ -727,9 +727,9 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 ## Umsetzung Issue #52 (PR #53 / Issue #52) — 2026-08-20
 
-- **Kontext / Problem:** In `AdbWifiEndpoint.discover()` brach die Methode mit einem frühen `return` ab, wenn `discoveryListener != null` war. Bei Re-Discovery (z. B. Aktivitätswechsel) wurde keine neue Session gestartet und der Listener erhielt keine Benachrichtigung.
+- **Kontext / Problem:** In `KeepADBEndpoint.discover()` brach die Methode mit einem frühen `return` ab, wenn `discoveryListener != null` war. Bei Re-Discovery (z. B. Aktivitätswechsel) wurde keine neue Session gestartet und der Listener erhielt keine Benachrichtigung.
 - **Implementierung:**
-  - `AdbWifiEndpoint.discover()` ruft intern `stop()` auf, um vorherige Sessions sauber zu beenden und startet eine frische Discovery mit neuer Generation.
+  - `KeepADBEndpoint.discover()` ruft intern `stop()` auf, um vorherige Sessions sauber zu beenden und startet eine frische Discovery mit neuer Generation.
   - `isCurrent(generation)` prüft `discoveryGeneration == generation`.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
@@ -738,7 +738,7 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 ## Umsetzung Issue #54 (PR #55 / Issue #54) — 2026-08-20
 
-- **Kontext / Problem:** Wenn `NsdManager.discoverServices()` fehlschlug (`onStartDiscoveryFailed`) oder ein mDNS-Dienst verloren ging (`onServiceLost`), rief `AdbWifiEndpoint` `stop()` auf. Dadurch wurde die `discoveryGeneration` inkrementiert, was parallel laufende Fast-Probe-Worker sofort hart abwürgte.
+- **Kontext / Problem:** Wenn `NsdManager.discoverServices()` fehlschlug (`onStartDiscoveryFailed`) oder ein mDNS-Dienst verloren ging (`onServiceLost`), rief `KeepADBEndpoint` `stop()` auf. Dadurch wurde die `discoveryGeneration` inkrementiert, was parallel laufende Fast-Probe-Worker sofort hart abwürgte.
 - **Implementierung:**
   - `onStartDiscoveryFailed`, mDNS-Catch-Blöcke und `onServiceLost` brechen den parallel laufenden Fast-Probe nicht mehr ab.
 - **Lokale Gates:**
@@ -765,31 +765,31 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - Arbeitsverzeichnis sauber.
 
 - **Offene Issues (5):**
-  - [#56](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/56) Deadlock: Lock-Order-Inversion zwischen AdbWifiEndpoint und AdbWifiNotification
-  - [#57](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/57) AdbWifi.userDisabled bleibt stale hängen, wenn Keep-Alive inaktiv ist
-  - [#58](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/58) AdbWifiWidget ignoriert Rückgabewert von AdbWifi.setEnabled()
-  - [#59](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/59) getWifiIpAddress()-Fallback akzeptiert jedes eth*-Interface als Wifi-Quelle
-  - [#60](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/60) discover() kann bei schnellen Wiederholaufrufen verwaiste Fast-Probe-Threads parallel laufen lassen
+  - [#56](https://github.com/m00sfett/KeepADB/issues/56) Deadlock: Lock-Order-Inversion zwischen KeepADBEndpoint und KeepADBNotification
+  - [#57](https://github.com/m00sfett/KeepADB/issues/57) KeepADB.userDisabled bleibt stale hängen, wenn Keep-Alive inaktiv ist
+  - [#58](https://github.com/m00sfett/KeepADB/issues/58) KeepADBWidget ignoriert Rückgabewert von KeepADB.setEnabled()
+  - [#59](https://github.com/m00sfett/KeepADB/issues/59) getWifiIpAddress()-Fallback akzeptiert jedes eth*-Interface als Wifi-Quelle
+  - [#60](https://github.com/m00sfett/KeepADB/issues/60) discover() kann bei schnellen Wiederholaufrufen verwaiste Fast-Probe-Threads parallel laufen lassen
 
 - **Paketierung nach Eco-Grundsätzen:**
   1. **Paket 1 (UI- & Netzwerk-Korrekturen):**
-     - Issues: [#58](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/58), [#59](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/59)
+     - Issues: [#58](https://github.com/m00sfett/KeepADB/issues/58), [#59](https://github.com/m00sfett/KeepADB/issues/59)
      - Ziel:
-       - #58: Rückgabewert von `AdbWifi.setEnabled()` in `AdbWifiWidget` prüfen, bei Fehler Fehler-Toast anzeigen und Keep-Alive nicht fälschlich stoppen.
-       - #59: `eth*`-Interfaces aus dem Wi-Fi-Fallback in `AdbWifiEndpoint.getWifiIpAddress()` entfernen.
+       - #58: Rückgabewert von `KeepADB.setEnabled()` in `KeepADBWidget` prüfen, bei Fehler Fehler-Toast anzeigen und Keep-Alive nicht fälschlich stoppen.
+       - #59: `eth*`-Interfaces aus dem Wi-Fi-Fallback in `KeepADBEndpoint.getWifiIpAddress()` entfernen.
      - Stufe: S1 (präzise, isolierte Einzelfixes).
      - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`.
 
   2. **Paket 2 (State-Flag & Keep-Alive-Lifecycle):**
-     - Issue: [#57](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/57)
+     - Issue: [#57](https://github.com/m00sfett/KeepADB/issues/57)
      - Ziel: `userDisabled`-Flag zuverlässig zurücksetzen bei `setEnabled(true)`, expliziter Keep-Alive-Deaktivierung und Service-Start/Sync, um fehlerhaftes Unterdrücken des Auto-Reconnects nach Reconnect/Drop zu verhindern.
      - Stufe: S2 (State-Machine & Lifecycle).
      - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`.
 
   3. **Paket 3 (Concurrency, Deadlock-Beseitigung & Fast-Probe Lifecycle):**
-     - Issues: [#56](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/56), [#60](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/60)
+     - Issues: [#56](https://github.com/m00sfett/KeepADB/issues/56), [#60](https://github.com/m00sfett/KeepADB/issues/60)
      - Ziel:
-       - #56: Beseitigung der Lock-Order-Inversion durch Aufruf von Listener-Callbacks außerhalb von `synchronized (AdbWifiEndpoint.this)`.
+       - #56: Beseitigung der Lock-Order-Inversion durch Aufruf von Listener-Callbacks außerhalb von `synchronized (KeepADBEndpoint.this)`.
        - #60: Idempotenz / saubere Listener-Aktualisierung in `discover()`, um verwaiste parallele Worker-Threads bei schnellen Re-Discovery-Aufrufen zu verhindern.
      - Stufe: S2/S3 (Concurrency & Thread-Management).
      - Gates: `git diff --check`, `gradlew assembleDebug lintDebug`.
@@ -800,8 +800,8 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 ## Umsetzung Paket 1 (PR #61 / Issues #58, #59) — 2026-08-21
 
 - **Implementierung:**
-  - [#58](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/58): In `AdbWifiWidget.onReceive()` Rückgabewert von `AdbWifi.setEnabled(context, want)` geprüft. Bei Fehlschlag (`false`) wird ein informativer Toast angezeigt und `AdbWifiPreferences.setKeepAliveEnabled(context, false)` sowie `AdbWifiService.stop(context)` werden nicht fälschlich aufgerufen.
-  - [#59](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/59): In `AdbWifiEndpoint.getWifiIpAddress()` die Interface-Prüfung auf echte Wi-Fi-Interfaces (`wlan*`, `ap*`) begrenzt und `eth*` entfernt, um fehlerhafte IP-Rückgaben bei angeschlossenen Ethernet-/Reverse-Tethering-Adaptern zu verhindern.
+  - [#58](https://github.com/m00sfett/KeepADB/issues/58): In `KeepADBWidget.onReceive()` Rückgabewert von `KeepADB.setEnabled(context, want)` geprüft. Bei Fehlschlag (`false`) wird ein informativer Toast angezeigt und `KeepADBPreferences.setKeepAliveEnabled(context, false)` sowie `KeepADBService.stop(context)` werden nicht fälschlich aufgerufen.
+  - [#59](https://github.com/m00sfett/KeepADB/issues/59): In `KeepADBEndpoint.getWifiIpAddress()` die Interface-Prüfung auf echte Wi-Fi-Interfaces (`wlan*`, `ap*`) begrenzt und `eth*` entfernt, um fehlerhafte IP-Rückgaben bei angeschlossenen Ethernet-/Reverse-Tethering-Adaptern zu verhindern.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
@@ -810,7 +810,7 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 ## Umsetzung Paket 2 (PR #62 / Issue #57) — 2026-08-21
 
 - **Implementierung:**
-  - [#57](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/57): In `AdbWifi.setEnabled(ctx, on)` das `userDisabled`-Flag an `!on` gebunden, sodass ein Einschalten von WLAN-ADB das Flag sofort auf `false` setzt. In `AdbWifiPreferences.setKeepAliveEnabled()` sowie `AdbWifiService.onCreate()` und `onDestroy()` wird `AdbWifi.consumeUserDisabled()` aufgerufen, um sicherzustellen, dass keine stale `userDisabled`-Flags verbleiben, wenn Keep-Alive ausgeschaltet oder der Service neu gestartet wird.
+  - [#57](https://github.com/m00sfett/KeepADB/issues/57): In `KeepADB.setEnabled(ctx, on)` das `userDisabled`-Flag an `!on` gebunden, sodass ein Einschalten von WLAN-ADB das Flag sofort auf `false` setzt. In `KeepADBPreferences.setKeepAliveEnabled()` sowie `KeepADBService.onCreate()` und `onDestroy()` wird `KeepADB.consumeUserDisabled()` aufgerufen, um sicherzustellen, dass keine stale `userDisabled`-Flags verbleiben, wenn Keep-Alive ausgeschaltet oder der Service neu gestartet wird.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
@@ -819,8 +819,8 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 ## Umsetzung Paket 3 (PR #63 / Issues #56, #60) — 2026-08-21
 
 - **Implementierung:**
-  - [#56](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/56): In `AdbWifiEndpoint.java` alle Listener-Callbacks (`listener.onEndpoint()` und `listener.onUnavailable()`) strikt außerhalb von `synchronized (AdbWifiEndpoint.this)`-Blöcken aufgerufen. Dadurch wird die Lock-Order-Inversion zwischen dem `AdbWifiEndpoint`-Instanzmonitor und dem `AdbWifiNotification`-Klassenmonitor vollständig beseitigt.
-  - [#60](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/60): In `AdbWifiEndpoint.discover()` den Scan-Lifecycle dedupliziert: Wenn eine Discovery bereits läuft (`discovering == true`), wird der bestehende Fast-Probe-Scan fortgeführt und nur der `currentListener` aktualisiert. In `stop()` wird der Coordinator-Thread explizit unterbrochen (`interrupt()`), um verwaiste parallele Worker-Threads bei Session-Wechseln sofort sauber zu beenden.
+  - [#56](https://github.com/m00sfett/KeepADB/issues/56): In `KeepADBEndpoint.java` alle Listener-Callbacks (`listener.onEndpoint()` und `listener.onUnavailable()`) strikt außerhalb von `synchronized (KeepADBEndpoint.this)`-Blöcken aufgerufen. Dadurch wird die Lock-Order-Inversion zwischen dem `KeepADBEndpoint`-Instanzmonitor und dem `KeepADBNotification`-Klassenmonitor vollständig beseitigt.
+  - [#60](https://github.com/m00sfett/KeepADB/issues/60): In `KeepADBEndpoint.discover()` den Scan-Lifecycle dedupliziert: Wenn eine Discovery bereits läuft (`discovering == true`), wird der bestehende Fast-Probe-Scan fortgeführt und nur der `currentListener` aktualisiert. In `stop()` wird der Coordinator-Thread explizit unterbrochen (`interrupt()`), um verwaiste parallele Worker-Threads bei Session-Wechseln sofort sauber zu beenden.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
@@ -835,7 +835,7 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - Lokaler Fast-Probe scannt den Loopback-Stack (`127.0.0.1`) ohne VPN-Routing-Overhead in Millisekunden und mappt den aktiven Port auf die verifizierte Wi-Fi-IP.
 - **Live UI & Notification Nachweis:**
   - `MainActivity` UI-Dump (`uiautomator dump`): `WLAN-ADB ist AN`, `Endpoint: 192.168.178.24:34725` sofort angezeigt.
-  - Notification-Dump (`dumpsys notification`): `WLAN-ADB: Port 34725 @ 192.168.178.24` auf Channel `adb_wifi_endpoint` aktiv.
+  - Notification-Dump (`dumpsys notification`): `WLAN-ADB: Port 34725 @ 192.168.178.24` auf Channel `keepadb_endpoint` aktiv.
   - Tailscale-Register-Push: `curl http://100.111.111.21:50829/register/s20` bestätigt aktuellen Push mit `status: active` und `is_stale: false`.
 - **Status:** `approved` & `complete`.
 
@@ -857,7 +857,7 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 1. **Paketierungsreihenfolge:** Die Eco-Reihenfolge (S1 Isolierte UI-/Netzwerk-Fixes -> S2 Lifecycle/State -> S2/S3 Concurrency & Deadlock-Beseitigung) hat es ermöglicht, risikoarme Korrekturen schnell abzuschließen und komplexe Nebenläufigkeiten strukturiert zu isolieren.
 2. **Qualitäts-Gates:** Lokale Gates (`git diff --check`, Gradle Debug-Build und Lint) haben jede Änderung vor Merge deterministisch verifiziert; die anschließende Live-Prüfung auf dem physischen S20 FE hat die tatsächliche End-to-End-Funktion unter Realbedingungen (inkl. aktivem VPN) nachgewiesen.
-3. **Deadlock & Concurrency:** Das strikte Vermeiden von Callback-Aufrufen innerhalb von Synchronisationsmonitoren (`AdbWifiEndpoint.this`) eliminiert Lock-Order-Inversionen dauerhaft.
+3. **Deadlock & Concurrency:** Das strikte Vermeiden von Callback-Aufrufen innerhalb von Synchronisationsmonitoren (`KeepADBEndpoint.this`) eliminiert Lock-Order-Inversionen dauerhaft.
 4. **Verbesserung:** Bei Android-Netzwerkoperationen mit Multi-Interface- oder VPN-Unterstützung immer explizit zwischen physischen Transports (`TRANSPORT_WIFI`) und virtuellen Tunneln (`TRANSPORT_VPN`) differenzieren.
 
 ## Abschlussstatus
@@ -868,38 +868,38 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 - **Ziel:** Vorbereitung der App für ein frei zugängliches, sauberes und standardkonformes Open-Source-Release auf GitHub.
 - **Neu angelegte GitHub Issues:**
-  1. [#64](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/64) `refactor: RegisterClient generalisieren und persönliche Endpunkte/IPs entfernen`
-  2. [#65](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/65) `docs: CHANGELOG.md anlegen und Versionshistorie sauber dokumentieren`
-  3. [#66](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/66) `docs: Lizenzentscheidung mit Meister abstimmen und LICENSE anlegen`
-  4. [#67](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/67) `docs: README.md für öffentliche Veröffentlichung bereinigen und erweitern`
-  5. [#68](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/68) `ci: GitHub Actions Workflow für Build-Validierung und Release-APKs einrichten`
+  1. [#64](https://github.com/m00sfett/KeepADB/issues/64) `refactor: RegisterClient generalisieren und persönliche Endpunkte/IPs entfernen`
+  2. [#65](https://github.com/m00sfett/KeepADB/issues/65) `docs: CHANGELOG.md anlegen und Versionshistorie sauber dokumentieren`
+  3. [#66](https://github.com/m00sfett/KeepADB/issues/66) `docs: Lizenzentscheidung mit Meister abstimmen und LICENSE anlegen`
+  4. [#67](https://github.com/m00sfett/KeepADB/issues/67) `docs: README.md für öffentliche Veröffentlichung bereinigen und erweitern`
+  5. [#68](https://github.com/m00sfett/KeepADB/issues/68) `ci: GitHub Actions Workflow für Build-Validierung und Release-APKs einrichten`
 
 - **Status:** Issues angelegt. Einzelschritte werden nach Nutzerfreigabe schrittweise bearbeitet.
-  6. [#69](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/69) `i18n: App-UI, Notifications, Toasts und Dokumentation vollständig auf Englisch umstellen`
+  6. [#69](https://github.com/m00sfett/KeepADB/issues/69) `i18n: App-UI, Notifications, Toasts und Dokumentation vollständig auf Englisch umstellen`
 
-# Issue Orchestrator Eco Plan — Release Preparation (KeepAdb) — 2026-08-21
+# Issue Orchestrator Eco Plan — Release Preparation (KeepADB) — 2026-08-21
 
 ## 1. Übersicht & Ziel
-Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffenes Tool **KeepAdb** unter der **GPL-3.0**-Lizenz.
+Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffenes Tool **KeepADB** unter der **GPL-3.0**-Lizenz.
 
 ## 2. Paketstruktur (Eco-Reihenfolge)
 
 ### Paket 1: Lizenz & Bereinigung privater Endpunkte (Issues #66, #64)
 - **Stufe:** S1 (Direktumsetzung)
 - **Issues:**
-  - [#66](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/66) `docs: Lizenzentscheidung mit Meister abstimmen und LICENSE anlegen` (Entscheidung: GPL-3.0)
-  - [#64](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/64) `refactor: RegisterClient generalisieren und persönliche Endpunkte/IPs entfernen`
+  - [#66](https://github.com/m00sfett/KeepADB/issues/66) `docs: Lizenzentscheidung mit Meister abstimmen und LICENSE anlegen` (Entscheidung: GPL-3.0)
+  - [#64](https://github.com/m00sfett/KeepADB/issues/64) `refactor: RegisterClient generalisieren und persönliche Endpunkte/IPs entfernen`
 - **Ziel:**
   - `LICENSE` im Root-Verzeichnis mit GNU GPL v3.0 anlegen.
-  - `AdbWifiRegisterClient.java` neutralisieren: Keine hardcodierte private Tailscale-IP (`100.111.111.21:50829/register/s20`); Standard ist keine externe Übertragung (`null`/deaktiviert).
+  - `KeepADBRegisterClient.java` neutralisieren: Keine hardcodierte private Tailscale-IP (`100.111.111.21:50829/register/s20`); Standard ist keine externe Übertragung (`null`/deaktiviert).
 - **Gates:** `git diff --check`, `./gradlew assembleDebug lintDebug`.
 
-### Paket 2: Internationalisierung & App-Name KeepAdb (Issue #69)
+### Paket 2: Internationalisierung & App-Name KeepADB (Issue #69)
 - **Stufe:** S1/S2 (Direktumsetzung)
 - **Issues:**
-  - [#69](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/69) `i18n: App-UI, Notifications, Toasts und Dokumentation vollständig auf Englisch umstellen`
+  - [#69](https://github.com/m00sfett/KeepADB/issues/69) `i18n: App-UI, Notifications, Toasts und Dokumentation vollständig auf Englisch umstellen`
 - **Ziel:**
-  - `res/values/strings.xml` mit englischen Standard-Strings (App-Name `KeepAdb`, Statusmeldungen, Tile-Label, Widget-Texte, Notification-Channels und Toasts) erstellen.
+  - `res/values/strings.xml` mit englischen Standard-Strings (App-Name `KeepADB`, Statusmeldungen, Tile-Label, Widget-Texte, Notification-Channels und Toasts) erstellen.
   - `res/values-de/strings.xml` als optionale Lokalisierung für deutschsprachige Geräte anlegen.
   - Layouts und Java-Code an die String-Ressourcen anbinden.
 - **Gates:** `git diff --check`, `./gradlew assembleDebug lintDebug`.
@@ -907,12 +907,12 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 ### Paket 3: Dokumentation & GitHub Actions CI/Release (Issues #65, #67, #68)
 - **Stufe:** S1/S2 (Direktumsetzung)
 - **Issues:**
-  - [#65](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/65) `docs: CHANGELOG.md anlegen und Versionshistorie sauber dokumentieren`
-  - [#67](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/67) `docs: README.md für öffentliche Veröffentlichung bereinigen und erweitern`
-  - [#68](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/68) `ci: GitHub Actions Workflow für Build-Validierung und Release-APKs einrichten`
+  - [#65](https://github.com/m00sfett/KeepADB/issues/65) `docs: CHANGELOG.md anlegen und Versionshistorie sauber dokumentieren`
+  - [#67](https://github.com/m00sfett/KeepADB/issues/67) `docs: README.md für öffentliche Veröffentlichung bereinigen und erweitern`
+  - [#68](https://github.com/m00sfett/KeepADB/issues/68) `ci: GitHub Actions Workflow für Build-Validierung und Release-APKs einrichten`
 - **Ziel:**
   - `CHANGELOG.md` nach Keep a Changelog (Englisch) erstellen.
-  - `README.md` (Englisch) mit `KeepAdb`, Standard-`adb`-Kommandos, Feature-Guide und Setup-Anleitung neu aufbauen.
+  - `README.md` (Englisch) mit `KeepADB`, Standard-`adb`-Kommandos, Feature-Guide und Setup-Anleitung neu aufbauen.
   - `.github/workflows/ci.yml` (Eco-optimiert mit Concurrency-Abbruch und Path-Filters) und `.github/workflows/release.yml` erstellen.
 - **Gates:** `git diff --check`, `./gradlew assembleDebug lintDebug`.
 
@@ -921,8 +921,8 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 ## Umsetzung Paket 1 (PR #70 / Issues #64, #66) — 2026-08-21
 
 - **Implementierung:**
-  - [#66](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/66): `LICENSE`-Datei mit GNU General Public License v3.0 (GPL-3.0) im Repository-Root angelegt.
-  - [#64](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/64): In `AdbWifiRegisterClient.java` die fest codierte private IP/URL entfernt. Übertragung erfolgt nun ausschließlich, wenn in den SharedPreferences (`AdbWifiPreferences`) eine benutzerdefinierte Webhook-URL hinterlegt ist (Standard: deaktiviert/keine Netzwerkaktivität). In `network_security_config.xml` die private IP entfernt und generelle Klartext-Unterstützung für benutzerdefinierte lokale Webhooks konfiguriert.
+  - [#66](https://github.com/m00sfett/KeepADB/issues/66): `LICENSE`-Datei mit GNU General Public License v3.0 (GPL-3.0) im Repository-Root angelegt.
+  - [#64](https://github.com/m00sfett/KeepADB/issues/64): In `KeepADBRegisterClient.java` die fest codierte private IP/URL entfernt. Übertragung erfolgt nun ausschließlich, wenn in den SharedPreferences (`KeepADBPreferences`) eine benutzerdefinierte Webhook-URL hinterlegt ist (Standard: deaktiviert/keine Netzwerkaktivität). In `network_security_config.xml` die private IP entfernt und generelle Klartext-Unterstützung für benutzerdefinierte lokale Webhooks konfiguriert.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler).
@@ -931,33 +931,33 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 ## Umsetzung Paket 2 (PR #71 / Issue #69) — 2026-08-21
 
 - **Implementierung:**
-  - [#69](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/69):
-    - `app/src/main/res/values/strings.xml`: Englische Standard-Ressourcen für App-Name (`KeepAdb`), Banner, Status, Endpoint-Format, Switch-Labels, Subtexte, Widget-Labels, QS-Tile und Notification-Texte angelegt.
+  - [#69](https://github.com/m00sfett/KeepADB/issues/69):
+    - `app/src/main/res/values/strings.xml`: Englische Standard-Ressourcen für App-Name (`KeepADB`), Banner, Status, Endpoint-Format, Switch-Labels, Subtexte, Widget-Labels, QS-Tile und Notification-Texte angelegt.
     - `app/src/main/res/values-de/strings.xml`: Vollständige deutsche Lokalisierung für deutschsprachige Endgeräte angelegt.
-    - `AndroidManifest.xml`, Layouts (`activity_main.xml`, `widget_adbwifi.xml`) und Java-Klassen (`MainActivity.java`, `AdbWifiWidget.java`, `AdbWifiTileService.java`, `AdbWifiNotification.java`) auf die lokalisierten String-Ressourcen umgestellt.
+    - `AndroidManifest.xml`, Layouts (`activity_main.xml`, `widget_keepadb.xml`) und Java-Klassen (`MainActivity.java`, `KeepADBWidget.java`, `KeepADBTileService.java`, `KeepADBNotification.java`) auf die lokalisierten String-Ressourcen umgestellt.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler).
 - **Live-Verifikation S20 FE:**
-  - `KeepAdb` Banner und lokalisierte UI (`WLAN-ADB ist AN`, `Endpoint: 192.168.178.24:...`) auf dem physischen Gerät erfolgreich geprüft.
+  - `KeepADB` Banner und lokalisierte UI (`WLAN-ADB ist AN`, `Endpoint: 192.168.178.24:...`) auf dem physischen Gerät erfolgreich geprüft.
 - **Status:** `approved` für Paket 2.
 
 ## Umsetzung Paket 3 (PR #72 / Issues #65, #67, #68) — 2026-08-21
 
 - **Implementierung:**
-  - [#65](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/65): `CHANGELOG.md` im Repository-Root nach *Keep a Changelog* und *SemVer* auf Englisch angelegt.
-  - [#67](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/67): `README.md` vollständig auf Englisch überarbeitet für **KeepAdb** mit Badges, Problembeschreibung, Feature-Übersicht, Schritt-für-Schritt-Setup mit Standard-`adb`-Befehlen, Build-Anleitung, Architekturüberblick und Lizenzangaben.
-  - [#68](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/68): GitHub Actions Workflows `.github/workflows/ci.yml` (Eco-optimiert mit Path-Filters und Concurrency-Abbruch für PRs und Master-Pushes) und `.github/workflows/release.yml` (automatischer Release-Build und APK-Asset-Upload bei `v*`-Tags) eingerichtet.
+  - [#65](https://github.com/m00sfett/KeepADB/issues/65): `CHANGELOG.md` im Repository-Root nach *Keep a Changelog* und *SemVer* auf Englisch angelegt.
+  - [#67](https://github.com/m00sfett/KeepADB/issues/67): `README.md` vollständig auf Englisch überarbeitet für **KeepADB** mit Badges, Problembeschreibung, Feature-Übersicht, Schritt-für-Schritt-Setup mit Standard-`adb`-Befehlen, Build-Anleitung, Architekturüberblick und Lizenzangaben.
+  - [#68](https://github.com/m00sfett/KeepADB/issues/68): GitHub Actions Workflows `.github/workflows/ci.yml` (Eco-optimiert mit Path-Filters und Concurrency-Abbruch für PRs und Master-Pushes) und `.github/workflows/release.yml` (automatischer Release-Build und APK-Asset-Upload bei `v*`-Tags) eingerichtet.
 - **Lokale Gates:**
   - `git diff --check`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler).
 - **Status:** `approved` für Paket 3.
 
-## Aufwandsprotokoll (Release-Vorbereitung KeepAdb)
+## Aufwandsprotokoll (Release-Vorbereitung KeepADB)
 
 - **Geplante / erledigte Pakete:** 3 Pakete
   - Paket 1: Issues #64 & #66 (PR #70) — Lizenz & De-Hardcoding privater Endpunkte
-  - Paket 2: Issue #69 (PR #71) — Internationalisierung & Name KeepAdb
+  - Paket 2: Issue #69 (PR #71) — Internationalisierung & Name KeepADB
   - Paket 3: Issues #65, #67, #68 (PR #72) — Doku, Changelog & GitHub Actions CI/Release
 - **Erledigte Issues:** 6 von 6 geschlossen (100%).
 - **PRs:** PR #70, PR #71, PR #72 via Squash-Merge in `master` integriert.
@@ -967,7 +967,7 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - **Fehlversuche / Retries am Code:** 0.
 - **Beobachtete Token-/Abrechnungswerte:** unbekannt.
 
-## Retrospektive (KeepAdb Release Preparation)
+## Retrospektive (KeepADB Release Preparation)
 
 1. **Paketierung & Reihenfolge:** Die Aufteilung in 3 isolierte Pakete (Rechtliches/Sicherheit -> Lokalisierung/UI -> Doku/CI) hat alle Aspekte der Open-Source-Veröffentlichung strukturiert und regressionsfrei abgedeckt.
 2. **Qualitäts-Gates:** Durch die Eco-CI-Konfiguration mit `paths-ignore` und `concurrency cancel-in-progress` werden unnötige GitHub-Actions-Minuten bei reinen Dokumentations-Pushes vermieden.
@@ -980,7 +980,7 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 ## Auswahl-Checkpoint — 2026-08-21
 
 - **Roadmap-Abgleich (wörtlich):** „Vorbereitung des Repositories für die Veröffentlichung als
-  freies, quelloffenes Tool **KeepAdb** unter der **GPL-3.0**-Lizenz.“ Die vorbereitenden Issues
+  freies, quelloffenes Tool **KeepADB** unter der **GPL-3.0**-Lizenz.“ Die vorbereitenden Issues
   sind abgeschlossen; die tatsächliche Veröffentlichung ist noch nicht erfolgt.
 - **Serverzustand:** `master` und `origin/master` stehen auf
   `894beb072d8a367126504a3a882dc530e625396b`. Es gibt 0 offene Issues, 0 offene PRs und keinen
@@ -1001,3 +1001,30 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Workflow-Konfigurationsschreibaktion erfolgt.
 - **Status:** `closed-pending-decision`. Vor einer neuen Etappe sind Ziel und Scope festzulegen;
   Repository-Sichtbarkeit, Tag/Release und CI-Policy werden nicht stillschweigend verändert.
+
+## KeepADB-Identitätswechsel — 2026-08-21
+
+- **Nutzerentscheidung:** Die bisherige Entwicklungsidentität wird vor der Veröffentlichung
+  vollständig ersetzt. Neue Android-`applicationId` und Namespace:
+  `de.hohnepeople.keepadb`.
+- **Domainstatus:** `hohnepeople.de` gehört dem Nutzer. DNS und öffentliche Website sind noch
+  einzurichten und bleiben eine dokumentierte Voraussetzung vor der öffentlichen
+  Veröffentlichung; der App-Identifier kann bereits dauerhaft verwendet werden.
+- **Umfang:** Produktbranding `KeepADB`, Java-Paket und Klassen, Manifest-Komponenten,
+  Ressourcen, Theme, Widget-/Notification-IDs, Release-Artefakte, README, Changelog,
+  lokale Projektinstruktionen, GitHub-Repositoryname und Repositorybeschreibung.
+- **Ersteinrichtung:** Die Activity zeigt bei fehlendem `WRITE_SECURE_SETTINGS` eine
+  deutsch/englisch lokalisierte USB-Ersteinrichtung mit dem exakten `pm grant`-Befehl und
+  deaktiviert die Funktionsschalter bis zur Vergabe.
+- **Installationsfolge:** Die neue ID erzeugt bewusst eine separate Android-App. Einmalige
+  Neuinstallation und Berechtigungsvergabe über USB sind erforderlich; die alte
+  Entwicklungsinstallation wird nicht automatisch migriert oder gelöscht.
+- **GitHub:** Repository in `m00sfett/KeepADB` umbenannt, Beschreibung auf KeepADB aktualisiert
+  und Sichtbarkeit anschließend erneut als `PRIVATE` verifiziert.
+- **Bewusster Nicht-Scope:** Der lokale Projektordner bleibt auf ausdrücklichen Wunsch in
+  diesem Lauf unverändert und wird anschließend von außerhalb umbenannt. Technische Android-
+  Bezeichner wie `Settings.Global.adb_wifi_enabled` und `_adb-tls-connect._tcp` bleiben
+  unverändert, weil sie Plattformverträge und keine Produktnamen sind.
+- **Freigaben / Validierung:** Implementierung freigegeben. Build, Lint, Emulator, physisches
+  Gerät und unabhängiger Review sind noch nicht freigegeben und wurden nicht ausgeführt.
+- **Status:** `not approved` bis zur typisierten Validierung und zum Abschluss von PR/Merge.

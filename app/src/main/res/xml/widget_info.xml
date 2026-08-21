@@ -4,6 +4,6 @@
     android:minHeight="40dp"
     android:resizeMode="horizontal"
     android:widgetCategory="home_screen"
-    android:previewImage="@drawable/ic_adb"
-    android:initialLayout="@layout/widget_adbwifi"
+    android:previewImage="@drawable/ic_keepadb"
+    android:initialLayout="@layout/widget_keepadb"
     android:updatePeriodMillis="0" />

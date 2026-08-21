@@ -1,16 +1,16 @@
-package de.moos.wifiadb;
+package de.hohnepeople.keepadb;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 /** Manages persistent preferences such as keep-alive auto-reconnect. */
-final class AdbWifiPreferences {
-    private static final String PREFS_NAME = "wifi_adb_prefs";
+final class KeepADBPreferences {
+    private static final String PREFS_NAME = "keepadb_prefs";
     private static final String KEY_KEEP_ALIVE = "keep_alive_enabled";
 
     private static final String KEY_REGISTER_URL = "register_webhook_url";
 
-    private AdbWifiPreferences() {}
+    private KeepADBPreferences() {}
 
     static boolean isKeepAliveEnabled(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -18,7 +18,7 @@ final class AdbWifiPreferences {
     }
 
     static void setKeepAliveEnabled(Context context, boolean enabled) {
-        AdbWifi.consumeUserDisabled();
+        KeepADB.consumeUserDisabled();
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_KEEP_ALIVE, enabled).apply();
     }

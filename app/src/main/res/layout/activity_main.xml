@@ -1,83 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
-    android:background="@color/ground">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/banner_red"
-        android:padding="16dp"
-        android:text="@string/title_keepadb"
-        android:textColor="@color/title_yellow"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:fontFamily="@font/fira_sans_condensed" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/bg_panel"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="@string/status_off"
-            android:textColor="@color/night_text"
-            android:textSize="20sp"
-            android:fontFamily="@font/fira_sans" />
-
-        <TextView
-            android:id="@+id/endpoint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:textColor="@color/night_muted"
-            android:textSize="15sp"
-            android:fontFamily="monospace"
-            android:text="@string/endpoint_unavailable" />
-
-        <Switch
-            android:id="@+id/toggle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/toggle_label"
-            android:textColor="@color/text_yellow"
-            android:textSize="18sp"
-            android:fontFamily="@font/fira_sans_condensed" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="@color/border_red" />
-
-        <Switch
-            android:id="@+id/keep_alive_toggle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/keep_alive_toggle"
-            android:textColor="@color/text_yellow"
-            android:textSize="18sp"
-            android:fontFamily="@font/fira_sans_condensed" />
-
-        <TextView
-            android:id="@+id/keep_alive_subtext"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/night_muted"
-            android:textSize="13sp"
-            android:fontFamily="@font/fira_sans"
-            android:text="@string/keep_alive_subtext" />
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:background="@color/ground">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="24dp">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/banner_red" android:fontFamily="@font/fira_sans_condensed" android:padding="16dp" android:text="@string/title_keepadb" android:textColor="@color/title_yellow" android:textSize="26sp" android:textStyle="bold"/>
+    <LinearLayout android:id="@+id/setup_panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/bg_panel" android:orientation="vertical">
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:fontFamily="@font/fira_sans_condensed" android:text="@string/setup_title" android:textColor="@color/title_yellow" android:textSize="20sp" android:textStyle="bold"/>
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:fontFamily="@font/fira_sans" android:text="@string/setup_body" android:textColor="@color/night_text" android:textSize="14sp"/>
+      <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:fontFamily="monospace" android:text="@string/setup_command" android:textColor="@color/text_yellow" android:textIsSelectable="true" android:textSize="13sp"/>
+      <Button android:id="@+id/setup_refresh" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/setup_refresh"/>
     </LinearLayout>
-</LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/bg_panel" android:orientation="vertical">
+      <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:text="@string/status_off" android:textColor="@color/night_text" android:textSize="20sp" android:fontFamily="@font/fira_sans"/>
+      <TextView android:id="@+id/endpoint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:textColor="@color/night_muted" android:textSize="15sp" android:fontFamily="monospace" android:text="@string/endpoint_unavailable"/>
+      <Switch android:id="@+id/toggle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/toggle_label" android:textColor="@color/text_yellow" android:textSize="18sp" android:fontFamily="@font/fira_sans_condensed"/>
+      <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="16dp" android:layout_marginBottom="16dp" android:background="@color/border_red"/>
+      <Switch android:id="@+id/keep_alive_toggle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/keep_alive_toggle" android:textColor="@color/text_yellow" android:textSize="18sp" android:fontFamily="@font/fira_sans_condensed"/>
+      <TextView android:id="@+id/keep_alive_subtext" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/night_muted" android:textSize="13sp" android:fontFamily="@font/fira_sans" android:text="@string/keep_alive_subtext"/>
+    </LinearLayout>
+  </LinearLayout>
+</ScrollView>
