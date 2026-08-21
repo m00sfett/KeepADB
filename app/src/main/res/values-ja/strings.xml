@@ -48,6 +48,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_cleared_toast">Webhook 設定をクリアしました</string>
     <string name="settings_webhook_enabled_toast">Webhook 同期を有効にしました</string>
     <string name="settings_webhook_disabled_toast">Webhook 同期を無効にしました</string>
+    <string name="webhook_status_title">Webhook</string>
+    <string name="webhook_status_hint">URL: %1$s\n最後に報告されたエンドポイント: %2$s\n最終報告: %3$s</string>
+    <string name="webhook_status_never">なし</string>
+    <string name="webhook_status_no_endpoint">まだなし</string>
     <string name="settings_permission_warning">システム権限 WRITE_SECURE_SETTINGS がありません。権限が付与されるまで KeepADB はワイヤレスデバッグを切り替えられません。</string>
     <string name="settings_section_language">言語</string>
     <string name="settings_language_label">アプリの言語</string>

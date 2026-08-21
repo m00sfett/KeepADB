@@ -48,6 +48,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_cleared_toast">Wyczyszczono konfigurację Webhooka</string>
     <string name="settings_webhook_enabled_toast">Włączono synchronizację Webhook</string>
     <string name="settings_webhook_disabled_toast">Wyłączono synchronizację Webhook</string>
+    <string name="webhook_status_title">Webhook</string>
+    <string name="webhook_status_hint">URL: %1$s\nOstatnio zgłoszony punkt końcowy: %2$s\nOstatnio zgłoszono: %3$s</string>
+    <string name="webhook_status_never">nigdy</string>
+    <string name="webhook_status_no_endpoint">jeszcze brak</string>
     <string name="settings_permission_warning">Brak uprawnienia systemowego WRITE_SECURE_SETTINGS. KeepADB nie może sterować debugowaniem bezprzewodowym przed nadaniem uprawnień.</string>
     <string name="settings_section_language">Język</string>
     <string name="settings_language_label">Język aplikacji</string>

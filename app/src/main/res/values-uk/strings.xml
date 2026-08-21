@@ -48,6 +48,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_cleared_toast">Конфігурацію Webhook очищено</string>
     <string name="settings_webhook_enabled_toast">Синхронізацію Webhook увімкнено</string>
     <string name="settings_webhook_disabled_toast">Синхронізацію Webhook вимкнено</string>
+    <string name="webhook_status_title">Webhook</string>
+    <string name="webhook_status_hint">URL: %1$s\nОстанній заявлений endpoint: %2$s\nОстаннє повідомлення: %3$s</string>
+    <string name="webhook_status_never">ніколи</string>
+    <string name="webhook_status_no_endpoint">поки що немає</string>
     <string name="settings_permission_warning">Відсутній системний дозвіл WRITE_SECURE_SETTINGS. KeepADB не може перемикати бездротове налагодження до надання дозволу.</string>
     <string name="settings_section_language">Мова</string>
     <string name="settings_language_label">Мова програми</string>
