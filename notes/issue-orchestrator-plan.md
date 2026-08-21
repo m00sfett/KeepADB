@@ -2013,3 +2013,31 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Arbeitsbaum: sauber. Gerät (S20) in normalem Zustand.
 - Nächste sinnvolle Schritte: keine offenen Kandidaten; nächste Auswahlrunde erst bei neuen
   Issues oder auf ausdrücklichen Nutzerauftrag.
+
+## Review-Follow-ups — 2026-08-21
+
+- Auftrag: Die 17 Findings aus dem umfassenden KeepADB-Code-Review als zentrale GitHub-Issues
+  erfassen.
+- Paketierung: acht Issues, weil die Findings gemeinsame Codepfade, Datenmodelle oder Gates
+  teilen. Die Issue-Bodies referenzieren jedes gebündelte Finding ausdrücklich; kein Finding
+  wird still verworfen.
+- Umfang: H1–H4, M1–M10 und L1–L3; keine Implementierung, keine Builds, keine Tests,
+  keine Geräteaktion und kein GitHub-Actions-Run.
+- Freigabe: Nutzer hat die Bündelung ausdrücklich bestätigt.
+- Einstufung: S1, direkte Issue-Anlage und Dokumentationspflege durch den Hauptagenten;
+  Review `not applicable`.
+- Zielzustand: acht neue offene Issues mit reproduzierbarem Problem, Akzeptanzkriterien,
+  Nicht-Zielen und vorgeschlagenem minimalem Fix; Reviewbericht und dieser Plan verweisen auf
+  die erzeugten Issue-URLs.
+- Validierung: vorhandene Issue-/PR-/Run-Liste und Labels read-only abgefragt; keine offenen
+  Issues oder PRs. GitHub Actions bleiben wegen Projektpolicy unberührt.
+- Angelegte Issues: [#125](https://github.com/m00sfett/KeepADB/issues/125),
+  [#126](https://github.com/m00sfett/KeepADB/issues/126),
+  [#127](https://github.com/m00sfett/KeepADB/issues/127),
+  [#128](https://github.com/m00sfett/KeepADB/issues/128),
+  [#129](https://github.com/m00sfett/KeepADB/issues/129),
+  [#130](https://github.com/m00sfett/KeepADB/issues/130),
+  [#131](https://github.com/m00sfett/KeepADB/issues/131) und
+  [#132](https://github.com/m00sfett/KeepADB/issues/132); alle offen, Titel/Labels/Bodies
+  serverseitig nach Anlage verifiziert.
+- Status: `complete` für den Issue-Anlageauftrag; Commit-/Pushstatus wird separat geprüft.
