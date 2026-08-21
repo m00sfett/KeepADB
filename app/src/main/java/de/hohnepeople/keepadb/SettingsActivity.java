@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 /** Central settings screen for KeepADB options (Keep-Alive, Language, Webhook, etc.). */
 public class SettingsActivity extends Activity {
-    private Switch keepAliveToggle;
     private View permissionPanel;
     private TextView languageSelectedText;
 
@@ -36,7 +35,6 @@ public class SettingsActivity extends Activity {
         setContentView(R.layout.activity_settings);
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
-        keepAliveToggle = findViewById(R.id.settings_keep_alive_toggle);
         permissionPanel = findViewById(R.id.settings_permission_panel);
 
         languageSelectedText = findViewById(R.id.settings_language_selected_text);
@@ -47,20 +45,6 @@ public class SettingsActivity extends Activity {
         webhookError = findViewById(R.id.settings_webhook_error);
         webhookSave = findViewById(R.id.settings_webhook_save);
         webhookClear = findViewById(R.id.settings_webhook_clear);
-
-        keepAliveToggle.setOnClickListener(v -> {
-            boolean wantKeepAlive = keepAliveToggle.isChecked();
-            KeepADBPreferences.setKeepAliveEnabled(this, wantKeepAlive);
-            KeepADBService.sync(this);
-            if (wantKeepAlive && KeepADBService.isWifiConnected(this) && !KeepADB.isEnabled(this)) {
-                if (!KeepADB.setEnabled(this, true)) {
-                    showPermissionErrorToast();
-                }
-            }
-            KeepADBWidget.refreshAll(this);
-            KeepADBNotification.refresh(this);
-            refresh();
-        });
 
         webhookToggle.setOnClickListener(v -> {
             boolean wantEnabled = webhookToggle.isChecked();
@@ -176,18 +160,11 @@ public class SettingsActivity extends Activity {
         boolean hasPermission = checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
                 == PackageManager.PERMISSION_GRANTED;
         permissionPanel.setVisibility(hasPermission ? View.GONE : View.VISIBLE);
-        keepAliveToggle.setEnabled(hasPermission);
-        keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
 
         String currentLanguageTag = KeepADBLocaleHelper.getSelectedLanguageTag(this);
         languageSelectedText.setText(KeepADBLocaleHelper.getLanguageDisplayName(this, currentLanguageTag));
 
         boolean webhookEnabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
         webhookToggle.setChecked(webhookEnabled);
-    }
-
-    private void showPermissionErrorToast() {
-        Toast.makeText(this, getString(R.string.permission_error_toast, getPackageName()),
-                Toast.LENGTH_LONG).show();
     }
 }

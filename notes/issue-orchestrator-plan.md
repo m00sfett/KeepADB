@@ -1393,3 +1393,18 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - Live-Test auf Samsung Galaxy S20 FE (`SM-G780G`):
     - App-Start um `14:16:04.565`, Endpunkt `192.168.178.24:45577` erkannt und um `14:16:04.735` an Tailscale-Register gemeldet (**Erkennungsdauer: 170 Millisekunden**).
 - **Status:** `complete`.
+
+## Bereinigung: Doppelte Keep-Alive Option aus Einstellungen entfernt & Release-Doku aktualisiert — 2026-08-21
+
+- **Ziel:**
+  - Die redundante Option „Dauerhaft aktiv halten“ aus `SettingsActivity` und `activity_settings.xml` entfernen, sodass Keep-Alive ausschließlich auf der Hauptseite (`MainActivity`) angezeigt und geschaltet wird.
+  - `README.md` und `CHANGELOG.md` auf den aktuellen v1.0.0-Stand bringen (Multi-Language Top 19, Settings-Activity, High-Speed NIO Fast-Probe < 200 ms, Terminal+Wi-Fi Adaptive Icon).
+- **Implementierung:**
+  - `activity_settings.xml`: General / Keep-Alive Section entfernt.
+  - `SettingsActivity.java`: `keepAliveToggle`-Referenzen, Listener und `showPermissionErrorToast` bereinigt.
+  - `README.md`: Features und Usage um 19 Sprachen, High-Speed NIO Scanner, Settings-Bereich und adaptives Icon erweitert.
+  - `CHANGELOG.md`: [1.0.0]-Eintrag konsolidiert und finalisiert.
+- **Validierung & Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`: bestanden (0 Fehler, 0 Warnungen).
+- **Status:** `complete`.
