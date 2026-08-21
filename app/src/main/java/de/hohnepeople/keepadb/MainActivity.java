@@ -114,11 +114,16 @@ public class MainActivity extends Activity {
         KeepADBService.sync(this);
         refresh();
         KeepADBNotification.refresh(this);
+        // The webhook POST/DELETE round-trip runs on a background thread well after refresh()
+        // above returns, so the displayed status would otherwise stay stale until the next
+        // unrelated refresh() call (#118).
+        KeepADBRegisterClient.setRegisterStateListener(this::refreshWebhookStatus);
     }
 
     @Override
     protected void onPause() {
         KeepADBNotification.clearEndpointListener();
+        KeepADBRegisterClient.clearRegisterStateListener();
         if (adbContentObserver != null) {
             try {
                 getContentResolver().unregisterContentObserver(adbContentObserver);
