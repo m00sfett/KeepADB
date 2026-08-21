@@ -2043,3 +2043,25 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Status: `complete` für den Issue-Anlageauftrag; Commit `2c49bc5` ist auf `origin/master`
   gepusht, Arbeitsbaum nach der Aktualisierung sauber, Review `not applicable`, keine
   Implementierung oder weitere Abnahme im Scope.
+
+## Auswahl-Checkpoint — 2026-08-21 — Zielentscheidung vor Review-Follow-ups
+
+- **Roadmap-Abgleich (wörtlich):** „Vorbereitung des Repositories für die Veröffentlichung als
+  freies, quelloffenes Open-Source-Tool **KeepADB** unter der **GPL-3.0**-Lizenz.“
+- **Serverzustand (abgefragt):** Repository privat, `master` und `origin/master` auf
+  `a971208ce618539e44985fe8ce969943e7e20230`, Arbeitsbaum sauber, keine offenen PRs und kein
+  aktiver Run für den aktuellen Head. Die letzten gelisteten CI-Runs gehören älteren Heads;
+  wegen der Projektregel werden keine neuen Runs gestartet.
+- **Offene Kandidaten (abgefragt):** #125–#132 sind offen. Sie bilden acht klar getrennte
+  Review-Follow-up-Pakete: Discovery-Lifecycle, Endpoint-Identität/Health, Toggle-Intent,
+  Webhook-Transaktion, Webhook-Sicherheit/Backup, BootReceiver, Locale/Accessibility sowie
+  lokale Release-/Test-Gates.
+- **Zielabgleich:** Kein Kandidat dient unmittelbar der dokumentierten Veröffentlichung; alle
+  acht setzen die private Produktpflege bzw. Release-Härtung fort. Ein Paket wird daher noch
+  nicht ausgewählt. `github-drift` kann ohne verknüpftes GitHub Project nur melden, dass kein
+  Board geprüft werden kann.
+- **Status:** `closed-pending-decision`. Erforderlich ist eine fachliche Entscheidung, ob die
+  Roadmap auf weitere private Härtung vor der Veröffentlichung erweitert wird oder ob die
+  Veröffentlichung (Repository-Sichtbarkeit, Release-/Tag-Plan und verbleibende Muss-Gates)
+  jetzt das Ziel ist. Keine Implementierung, Builds, Tests, Geräteaktion, Delegation oder
+  Workflow-Ausführung im aktuellen Lauf.
