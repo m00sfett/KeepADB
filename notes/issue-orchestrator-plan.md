@@ -815,3 +815,13 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   - `git diff --check`: bestanden (0 Whitespace-Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
 - **Status:** `approved` für Paket 2.
+
+## Umsetzung Paket 3 (PR #63 / Issues #56, #60) — 2026-08-21
+
+- **Implementierung:**
+  - [#56](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/56): In `AdbWifiEndpoint.java` alle Listener-Callbacks (`listener.onEndpoint()` und `listener.onUnavailable()`) strikt außerhalb von `synchronized (AdbWifiEndpoint.this)`-Blöcken aufgerufen. Dadurch wird die Lock-Order-Inversion zwischen dem `AdbWifiEndpoint`-Instanzmonitor und dem `AdbWifiNotification`-Klassenmonitor vollständig beseitigt.
+  - [#60](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/60): In `AdbWifiEndpoint.discover()` den Scan-Lifecycle dedupliziert: Wenn eine Discovery bereits läuft (`discovering == true`), wird der bestehende Fast-Probe-Scan fortgeführt und nur der `currentListener` aktualisiert. In `stop()` wird der Coordinator-Thread explizit unterbrochen (`interrupt()`), um verwaiste parallele Worker-Threads bei Session-Wechseln sofort sauber zu beenden.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Whitespace-Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler, 43 Tasks ausgeführt/up-to-date).
+- **Status:** `approved` für Paket 3.
