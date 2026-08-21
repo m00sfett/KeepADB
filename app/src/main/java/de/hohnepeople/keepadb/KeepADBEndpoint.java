@@ -308,10 +308,11 @@ final class KeepADBEndpoint {
                     KeepADB.setEnabled(appContext, false);
                     try {
                         Thread.sleep(RECOVERY_PULSE_OFF_MS);
-                    } catch (InterruptedException e) {
-                        return;
+                    } catch (InterruptedException ignored) {
+                        // Still restore below: we caused the "off" half of this pulse ourselves,
+                        // so an unrelated stop()/generation change must not leave the device
+                        // stuck disabled.
                     }
-                    if (!isCurrent(generation) || endpointDelivered.get()) return;
                     KeepADB.setEnabled(appContext, true);
                 }
 
