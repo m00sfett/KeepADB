@@ -99,7 +99,7 @@ public class KeepADBService extends Service {
         stopHeartbeatTicker();
         unregisterAdbObserver();
         unregisterNetworkCallback();
-        stopForeground(STOP_FOREGROUND_DETACH);
+        stopForeground(STOP_FOREGROUND_REMOVE);
         KeepADB.consumeUserDisabled();
         super.onDestroy();
     }
