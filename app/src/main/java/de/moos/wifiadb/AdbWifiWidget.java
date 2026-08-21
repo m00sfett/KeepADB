@@ -24,9 +24,7 @@ public class AdbWifiWidget extends AppWidgetProvider {
             boolean want = !AdbWifi.isEnabled(context);
             if (!AdbWifi.setEnabled(context, want)) {
                 Toast.makeText(context,
-                        "Keine Berechtigung. Am PC einmalig ausführen:\n"
-                                + "adb shell pm grant " + context.getPackageName()
-                                + " android.permission.WRITE_SECURE_SETTINGS",
+                        context.getString(R.string.permission_error_toast, context.getPackageName()),
                         Toast.LENGTH_LONG).show();
             } else if (!want) {
                 AdbWifiPreferences.setKeepAliveEnabled(context, false);
@@ -40,7 +38,8 @@ public class AdbWifiWidget extends AppWidgetProvider {
     private void render(Context context, AppWidgetManager mgr, int id) {
         boolean on = AdbWifi.isEnabled(context);
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_adbwifi);
-        views.setTextViewText(R.id.widget_label, on ? "WLAN-ADB: AN" : "WLAN-ADB: AUS");
+        views.setTextViewText(R.id.widget_label,
+                on ? context.getString(R.string.widget_text_on) : context.getString(R.string.widget_text_off));
 
         Intent i = new Intent(context, AdbWifiWidget.class).setAction(ACTION_TOGGLE);
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, i,

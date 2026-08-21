@@ -927,3 +927,17 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `git diff --check`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler).
 - **Status:** `approved` für Paket 1.
+
+## Umsetzung Paket 2 (PR #71 / Issue #69) — 2026-08-21
+
+- **Implementierung:**
+  - [#69](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/69):
+    - `app/src/main/res/values/strings.xml`: Englische Standard-Ressourcen für App-Name (`KeepAdb`), Banner, Status, Endpoint-Format, Switch-Labels, Subtexte, Widget-Labels, QS-Tile und Notification-Texte angelegt.
+    - `app/src/main/res/values-de/strings.xml`: Vollständige deutsche Lokalisierung für deutschsprachige Endgeräte angelegt.
+    - `AndroidManifest.xml`, Layouts (`activity_main.xml`, `widget_adbwifi.xml`) und Java-Klassen (`MainActivity.java`, `AdbWifiWidget.java`, `AdbWifiTileService.java`, `AdbWifiNotification.java`) auf die lokalisierten String-Ressourcen umgestellt.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler).
+- **Live-Verifikation S20 FE:**
+  - `KeepAdb` Banner und lokalisierte UI (`WLAN-ADB ist AN`, `Endpoint: 192.168.178.24:...`) auf dem physischen Gerät erfolgreich geprüft.
+- **Status:** `approved` für Paket 2.

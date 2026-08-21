@@ -16,5 +16,5 @@
         android:textSize="14sp"
         android:textStyle="bold"
         android:fontFamily="@font/fira_sans_condensed"
-        android:text="WLAN-ADB" />
+        android:text="@string/widget_text_off" />
 </LinearLayout>

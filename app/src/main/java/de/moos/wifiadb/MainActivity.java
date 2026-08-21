@@ -65,13 +65,13 @@ public class MainActivity extends Activity {
         AdbWifiNotification.setEndpointListener(new AdbWifiNotification.EndpointListener() {
             @Override
             public void onEndpoint(String host, int port) {
-                runOnUiThread(() -> endpoint.setText("Endpoint: " + host + ":" + port));
+                runOnUiThread(() -> endpoint.setText(getString(R.string.endpoint_format, host, port)));
             }
 
             @Override
             public void onUnavailable() {
                 runOnUiThread(() -> endpoint.setText(AdbWifi.isEnabled(MainActivity.this)
-                        ? "Endpoint wird gesucht …" : "Endpoint nicht verfügbar"));
+                        ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable)));
             }
         });
         refresh();
@@ -95,7 +95,7 @@ public class MainActivity extends Activity {
     private void refresh() {
         boolean on = AdbWifi.isEnabled(this);
         toggle.setChecked(on);
-        status.setText(on ? "WLAN-ADB ist AN" : "WLAN-ADB ist AUS");
+        status.setText(on ? getString(R.string.status_on) : getString(R.string.status_off));
         keepAliveToggle.setChecked(AdbWifiPreferences.isKeepAliveEnabled(this));
     }
 
@@ -106,10 +106,7 @@ public class MainActivity extends Activity {
     }
 
     private void showPermissionErrorToast() {
-        Toast.makeText(this,
-                "Keine Berechtigung. Am PC einmalig ausführen:\n"
-                        + "adb shell pm grant " + getPackageName()
-                        + " android.permission.WRITE_SECURE_SETTINGS",
+        Toast.makeText(this, getString(R.string.permission_error_toast, getPackageName()),
                 Toast.LENGTH_LONG).show();
     }
 }
