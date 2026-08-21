@@ -31,7 +31,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Discovers the active secure wireless-debugging endpoint advertised by adbd.
- * Uses ultra-fast parallel local NIO port probing (30000-50000) combined with background mDNS.
+ * mDNS (NsdManager) is the primary, continuously running discovery path, since Android's
+ * per-socket framework overhead (~4.6ms measured, regardless of thread count) makes scanning
+ * the full local port range a multi-second operation, not the sub-second check it once was.
+ * A tightly time-boxed local port probe still runs alongside it as a best-effort shortcut for
+ * the common case where adbd's listener is already open.
  */
 final class KeepADBEndpoint {
     private static final String TAG = "KeepADBEndpoint";
@@ -39,12 +43,24 @@ final class KeepADBEndpoint {
     private static final long RESOLVE_TIMEOUT_MS = 1500;
     static final int PROBE_START_PORT = 30000;
     static final int PROBE_END_PORT = 50000;
+    // Measured live on-device: opening a plain SocketChannel and initiating a non-blocking
+    // connect() costs ~4.6ms of Android framework overhead PER SOCKET, regardless of whether
+    // the connect ever resolves and regardless of how many worker threads run concurrently
+    // (2501 ports alone took ~11.6s to just *open*, before any waiting). Scanning the full
+    // 20001-port range can therefore never be a "few hundred ms" operation on this device, so
+    // mDNS (below) is the primary discovery path; this quick probe is now a best-effort,
+    // tightly time-boxed opportunistic check only, not a loop.
+    private static final long SCAN_BATCH_TIMEOUT_MS = 300;
     private static final int SCAN_WORKERS = 8;
-    private static final java.util.concurrent.ExecutorService SCAN_EXECUTOR = java.util.concurrent.Executors.newFixedThreadPool(SCAN_WORKERS, r -> {
-        Thread t = new Thread(r, "KeepADBScanWorker");
-        t.setDaemon(true);
-        return t;
-    });
+    private static final java.util.concurrent.ExecutorService SCAN_EXECUTOR =
+            java.util.concurrent.Executors.newFixedThreadPool(SCAN_WORKERS, r -> {
+                Thread t = new Thread(r, "KeepADBScanWorker");
+                t.setDaemon(true);
+                return t;
+            });
+    private static final long RECOVERY_PULSE_DELAY_MS = 5000;
+    private static final long RECOVERY_PULSE_OFF_MS = 800;
+    private static final long OVERALL_TIMEOUT_MS = 45_000;
 
     interface Listener {
         void onEndpoint(String host, int port);
@@ -64,6 +80,8 @@ final class KeepADBEndpoint {
     private boolean discovering;
     private Thread coordinatorThread;
     private final AtomicBoolean endpointDelivered = new AtomicBoolean(false);
+    private Runnable recoveryPulseRunnable;
+    private Runnable overallTimeoutRunnable;
 
     KeepADBEndpoint(Context context) {
         appContext = context.getApplicationContext();
@@ -106,10 +124,11 @@ final class KeepADBEndpoint {
 
         final long generation = discoveryGeneration;
 
-        // 1. Ultra-fast parallel NIO Port-Scan (30000-50000)
-        startFastProbe(generation);
+        // 1. Best-effort, tightly time-boxed local port probe (see SCAN_BATCH_TIMEOUT_MS) --
+        // covers the common case where adbd's listener is already up, without blocking mDNS.
+        startQuickProbe(generation);
 
-        // 2. Parallel mDNS-Discovery als robuster Fallback-Pfad
+        // 2. mDNS discovery -- the primary, continuously running discovery path.
         discoveryListener = new NsdManager.DiscoveryListener() {
             @Override
             public void onDiscoveryStarted(String serviceType) {
@@ -152,6 +171,93 @@ final class KeepADBEndpoint {
             Log.w(TAG, "Failed to start mDNS service discovery", e);
             discoveryListener = null;
         }
+
+        // 3. #114 safety net: if adb_wifi_enabled is on but nothing was found after a while,
+        // adbd may have accepted the toggle mid-teardown of a previous session without ever
+        // binding a listener. Pulse it once to force a clean restart, then give mDNS a fresh
+        // chance to pick up the new advertisement before giving up entirely.
+        recoveryPulseRunnable = () -> maybeSendRecoveryPulse(generation);
+        mainHandler.postDelayed(recoveryPulseRunnable, RECOVERY_PULSE_DELAY_MS);
+        overallTimeoutRunnable = () -> giveUpIfStillUnresolved(generation);
+        mainHandler.postDelayed(overallTimeoutRunnable, OVERALL_TIMEOUT_MS);
+    }
+
+    // Static, not per-instance: toggling adb_wifi_enabled fires KeepADBService's/MainActivity's
+    // ContentObserver, which tears down and recreates the KeepADBEndpoint instance (see
+    // KeepADBNotification.stop()/startDiscoveryDirectLocked()). An instance-scoped "already
+    // pulsed" flag would reset with every such recreation, causing our own pulse to retrigger
+    // itself every ~6.5s in an endless loop that never gave mDNS a real chance to resolve
+    // anything -- found live: the recovery pulse fired repeatedly for 40+ seconds straight.
+    private static volatile long lastRecoveryPulseAtMs = 0;
+    private static final long RECOVERY_PULSE_COOLDOWN_MS = 20_000;
+
+    private void maybeSendRecoveryPulse(long generation) {
+        synchronized (this) {
+            if (!isCurrent(generation) || endpointDelivered.get()) return;
+            if (!KeepADB.isEnabled(appContext)) return;
+        }
+        long now = System.currentTimeMillis();
+        synchronized (KeepADBEndpoint.class) {
+            if (now - lastRecoveryPulseAtMs < RECOVERY_PULSE_COOLDOWN_MS) return;
+            lastRecoveryPulseAtMs = now;
+        }
+        Log.w(TAG, "gen=" + generation + " found no adbd listener after " + RECOVERY_PULSE_DELAY_MS
+                + "ms while enabled; pulsing adb_wifi_enabled to recover");
+        new Thread(() -> {
+            KeepADB.setEnabled(appContext, false);
+            try {
+                Thread.sleep(RECOVERY_PULSE_OFF_MS);
+            } catch (InterruptedException ignored) {
+                // Still restore below: we caused the "off" half of this pulse ourselves, so an
+                // unrelated interruption must not leave the device stuck disabled.
+            }
+            KeepADB.setEnabled(appContext, true);
+        }, "KeepADBRecoveryPulse").start();
+    }
+
+    private void giveUpIfStillUnresolved(long generation) {
+        Listener targetListener;
+        synchronized (this) {
+            if (!isCurrent(generation) || endpointDelivered.get()) return;
+            Log.w(TAG, "gen=" + generation + " timed out after " + OVERALL_TIMEOUT_MS + "ms without an endpoint");
+            targetListener = currentListener;
+            stop();
+        }
+        if (targetListener != null) {
+            targetListener.onUnavailable();
+        }
+    }
+
+    private void startQuickProbe(long generation) {
+        coordinatorThread = new Thread(() -> {
+            List<Integer> openPorts = scanLocalOpenPortsBatch(PROBE_START_PORT, PROBE_END_PORT, generation);
+            Log.d(TAG, "QuickProbe gen=" + generation + ": openPorts=" + openPorts);
+            if (openPorts.isEmpty() || !isCurrent(generation) || endpointDelivered.get()) {
+                return;
+            }
+            String targetHost = getWifiIpAddress(appContext);
+            if (targetHost == null || !endpointDelivered.compareAndSet(false, true)) {
+                return;
+            }
+            // scanLocalOpenPortsBatch already confirmed this port via a real finishConnect(),
+            // so no separate re-verification is needed here.
+            int candidatePort = openPorts.get(0);
+            Log.i(TAG, "QuickProbe verified live ADB endpoint: " + targetHost + ":" + candidatePort);
+            Listener targetListener;
+            synchronized (KeepADBEndpoint.this) {
+                if (isCurrent(generation)) {
+                    resolveQueue.clear();
+                    targetListener = currentListener;
+                    stop();
+                } else {
+                    targetListener = null;
+                }
+            }
+            if (targetListener != null) {
+                targetListener.onEndpoint(targetHost, candidatePort);
+            }
+        }, "KeepADBQuickProbe");
+        coordinatorThread.start();
     }
 
     private void cancelResolveWatchdogLocked() {
@@ -255,6 +361,14 @@ final class KeepADBEndpoint {
             coordinatorThread.interrupt();
             coordinatorThread = null;
         }
+        if (recoveryPulseRunnable != null) {
+            mainHandler.removeCallbacks(recoveryPulseRunnable);
+            recoveryPulseRunnable = null;
+        }
+        if (overallTimeoutRunnable != null) {
+            mainHandler.removeCallbacks(overallTimeoutRunnable);
+            overallTimeoutRunnable = null;
+        }
         NsdManager.DiscoveryListener listener = discoveryListener;
         discoveryListener = null;
         if (multicastLock != null && multicastLock.isHeld()) {
@@ -275,123 +389,49 @@ final class KeepADBEndpoint {
         return discoveryGeneration == generation;
     }
 
-    private static final long RECOVERY_PULSE_DELAY_MS = 5000;
-    private static final long RECOVERY_PULSE_OFF_MS = 800;
+    /**
+     * Non-blocking batch scan of [startPort, endPort] on loopback, bounded by
+     * {@link #SCAN_BATCH_TIMEOUT_MS} total regardless of how many ports don't answer -- unlike a
+     * per-port blocking connect() (with or without a timeout), a port that never responds cannot
+     * delay any other port's result, since every socket is polled concurrently via one Selector
+     * per worker. The range is split across {@link #SCAN_WORKERS} threads purely to parallelize
+     * the per-socket creation overhead; every worker shares the same absolute deadline.
+     */
+    private static final byte[] LOOPBACK_V4 = {127, 0, 0, 1};
+    private static final byte[] LOOPBACK_V6 =
+            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
 
-    private void startFastProbe(long generation) {
-        coordinatorThread = new Thread(() -> {
-            Log.d(TAG, "startFastProbe gen=" + generation + " started");
-            final int maxTotalSeconds = 45;
-            final long startTime = System.currentTimeMillis();
-            boolean recoveryPulseSent = false;
-
-            while (isCurrent(generation) && !endpointDelivered.get() && !Thread.currentThread().isInterrupted()) {
-                if (System.currentTimeMillis() - startTime > maxTotalSeconds * 1000L) {
-                    Log.w(TAG, "startFastProbe gen=" + generation + " timed out");
-                    break;
-                }
-
-                final String wifiIp = getWifiIpAddress(appContext);
-                final List<Integer> openPorts = scanLocalOpenPortsParallel(PROBE_START_PORT, PROBE_END_PORT, SCAN_WORKERS, generation);
-                Log.d(TAG, "FastProbe gen=" + generation + " iteration: wifiIp=" + wifiIp + ", openPorts=" + openPorts);
-
-                // #114: a rapid off/on toggle can catch the system's AdbService mid-teardown of
-                // the previous session; it then accepts adb_wifi_enabled=1 without ever binding a
-                // TLS listener. Nudge it once by pulsing the setting back off and on, which forces
-                // a clean (re)start of adbd instead of leaving the user stuck at "searching...".
-                if (!recoveryPulseSent && openPorts.isEmpty()
-                        && System.currentTimeMillis() - startTime > RECOVERY_PULSE_DELAY_MS
-                        && isCurrent(generation) && KeepADB.isEnabled(appContext)) {
-                    recoveryPulseSent = true;
-                    Log.w(TAG, "FastProbe gen=" + generation + " found no adbd listener after "
-                            + RECOVERY_PULSE_DELAY_MS + "ms while enabled; pulsing adb_wifi_enabled to recover");
-                    KeepADB.setEnabled(appContext, false);
-                    try {
-                        Thread.sleep(RECOVERY_PULSE_OFF_MS);
-                    } catch (InterruptedException ignored) {
-                        // Still restore below: we caused the "off" half of this pulse ourselves,
-                        // so an unrelated stop()/generation change must not leave the device
-                        // stuck disabled.
-                    }
-                    KeepADB.setEnabled(appContext, true);
-                }
-
-                if (!openPorts.isEmpty()) {
-                    String targetHost = wifiIp;
-                    if (targetHost == null) {
-                        try {
-                            Thread.sleep(50);
-                        } catch (InterruptedException e) {
-                            return;
-                        }
-                        targetHost = getWifiIpAddress(appContext);
-                    }
-
-                    if (targetHost != null) {
-                        final byte[] loopbackBytes = new byte[]{127, 0, 0, 1};
-                        try {
-                            final InetAddress loopbackAddr = InetAddress.getByAddress(loopbackBytes);
-                            for (int candidatePort : openPorts) {
-                                boolean reachable = isPortReachable(loopbackAddr, candidatePort, 50);
-                                Log.d(TAG, "Testing candidate " + candidatePort + " on loopback: " + reachable);
-                                if (reachable) {
-                                    if (endpointDelivered.compareAndSet(false, true)) {
-                                        Log.i(TAG, "FastProbe verified live ADB endpoint: " + targetHost + ":" + candidatePort);
-                                        Listener targetListener;
-                                        synchronized (KeepADBEndpoint.this) {
-                                            if (isCurrent(generation)) {
-                                                resolveQueue.clear();
-                                                targetListener = currentListener;
-                                                stop();
-                                            } else {
-                                                targetListener = null;
-                                            }
-                                        }
-                                        if (targetListener != null) {
-                                            targetListener.onEndpoint(targetHost, candidatePort);
-                                        }
-                                        return;
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            Log.w(TAG, "Error in candidate verification", e);
-                        }
-                    }
-                }
-
-                try {
-                    Thread.sleep(150);
-                } catch (InterruptedException e) {
-                    return;
-                }
-            }
-
-            if (!endpointDelivered.get() && isCurrent(generation)) {
-                Listener targetListener = null;
-                synchronized (KeepADBEndpoint.this) {
-                    if (isCurrent(generation)) {
-                        targetListener = currentListener;
-                        stop();
-                    }
-                }
-                if (targetListener != null) {
-                    targetListener.onUnavailable();
-                }
-            }
-        }, "KeepADBFastProbeCoordinator");
-        coordinatorThread.start();
+    /**
+     * adbd's wireless-debugging TLS listener has been observed bound IPv6-only on this device
+     * (dual-stack is the common but not guaranteed case), so an IPv4-only loopback scan can
+     * silently find nothing even while the listener is up. Try IPv4 first (the common case,
+     * cheaper to rule out quickly) and only fall back to IPv6 if that comes up empty.
+     */
+    private List<Integer> scanLocalOpenPortsBatch(int startPort, int endPort, long generation) {
+        List<Integer> found = scanLocalOpenPortsBatch(startPort, endPort, generation, LOOPBACK_V4);
+        if (!found.isEmpty() || !isCurrent(generation) || endpointDelivered.get()) {
+            return found;
+        }
+        return scanLocalOpenPortsBatch(startPort, endPort, generation, LOOPBACK_V6);
     }
 
-    private List<Integer> scanLocalOpenPortsParallel(int startPort, int endPort, int numWorkers, long generation) {
+    private List<Integer> scanLocalOpenPortsBatch(int startPort, int endPort, long generation, byte[] loopbackBytes) {
+        final InetAddress loopback;
+        try {
+            loopback = InetAddress.getByAddress(loopbackBytes);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
         final int totalPorts = endPort - startPort + 1;
-        final int chunkSize = (totalPorts + numWorkers - 1) / numWorkers;
-        final List<java.util.concurrent.Future<List<Integer>>> futures = new ArrayList<>(numWorkers);
+        final int chunkSize = (totalPorts + SCAN_WORKERS - 1) / SCAN_WORKERS;
+        final long deadline = System.currentTimeMillis() + SCAN_BATCH_TIMEOUT_MS;
+        final List<java.util.concurrent.Future<List<Integer>>> futures = new ArrayList<>(SCAN_WORKERS);
 
-        for (int i = 0; i < numWorkers; i++) {
+        for (int i = 0; i < SCAN_WORKERS; i++) {
             final int chunkStart = startPort + i * chunkSize;
             final int chunkEnd = Math.min(chunkStart + chunkSize - 1, endPort);
-            futures.add(SCAN_EXECUTOR.submit(() -> scanLocalOpenPorts(chunkStart, chunkEnd, generation)));
+            if (chunkStart > endPort) break;
+            futures.add(SCAN_EXECUTOR.submit(() -> scanChunkNonBlocking(chunkStart, chunkEnd, generation, deadline, loopback)));
         }
 
         final List<Integer> allOpenPorts = new ArrayList<>();
@@ -404,29 +444,92 @@ final class KeepADBEndpoint {
         return allOpenPorts;
     }
 
-    private static final int LOOPBACK_SCAN_CONNECT_TIMEOUT_MS = 25;
-
-    private List<Integer> scanLocalOpenPorts(int startPort, int endPort, long generation) {
+    private List<Integer> scanChunkNonBlocking(int startPort, int endPort, long generation, long deadline, InetAddress loopback) {
         List<Integer> openPorts = new ArrayList<>();
-        final byte[] loopbackBytes = new byte[]{127, 0, 0, 1};
-        final InetAddress loopback;
+        Selector selector;
         try {
-            loopback = InetAddress.getByAddress(loopbackBytes);
+            selector = Selector.open();
         } catch (Exception e) {
             return openPorts;
         }
 
-        for (int port = startPort; port <= endPort; port++) {
-            if (!isCurrent(generation) || endpointDelivered.get() || Thread.currentThread().isInterrupted()) {
-                return openPorts;
+        List<SocketChannel> pending = new ArrayList<>();
+        try {
+            for (int port = startPort; port <= endPort; port++) {
+                // Opening a SocketChannel and initiating connect() has real per-call overhead
+                // (see SCAN_BATCH_TIMEOUT_MS doc); without this check the open loop alone could
+                // run well past the deadline before the wait phase below ever gets a chance to
+                // enforce it, on a large enough port range.
+                if (System.currentTimeMillis() >= deadline || !isCurrent(generation)
+                        || endpointDelivered.get() || Thread.currentThread().isInterrupted()) {
+                    return openPorts;
+                }
+                SocketChannel channel = null;
+                try {
+                    channel = SocketChannel.open();
+                    channel.configureBlocking(false);
+                    if (channel.connect(new InetSocketAddress(loopback, port))) {
+                        openPorts.add(port); // connected synchronously (rare, but possible)
+                        channel.close();
+                    } else {
+                        channel.register(selector, SelectionKey.OP_CONNECT, port);
+                        pending.add(channel);
+                    }
+                } catch (Exception ignored) {
+                    closeQuietly(channel);
+                }
             }
-            // A bare connect() has no timeout and can block far longer than expected on a
-            // closed/filtered port with no RST, stalling a 2500-port scan for minutes. See #110.
-            if (isPortReachable(loopback, port, LOOPBACK_SCAN_CONNECT_TIMEOUT_MS)) {
-                openPorts.add(port);
+
+            while (!pending.isEmpty()) {
+                long remaining = deadline - System.currentTimeMillis();
+                if (remaining <= 0 || !isCurrent(generation) || endpointDelivered.get()
+                        || Thread.currentThread().isInterrupted()) {
+                    break;
+                }
+                int ready;
+                try {
+                    ready = selector.select(remaining);
+                } catch (Exception e) {
+                    break;
+                }
+                if (ready == 0) {
+                    continue; // re-check the deadline/generation above
+                }
+                for (SelectionKey key : selector.selectedKeys()) {
+                    SocketChannel channel = (SocketChannel) key.channel();
+                    Integer port = (Integer) key.attachment();
+                    key.cancel();
+                    pending.remove(channel);
+                    try {
+                        if (channel.finishConnect()) {
+                            openPorts.add(port);
+                        }
+                    } catch (Exception ignored) {
+                        // connection refused/reset -- port is closed
+                    } finally {
+                        closeQuietly(channel);
+                    }
+                }
+                selector.selectedKeys().clear();
+            }
+        } finally {
+            for (SocketChannel channel : pending) {
+                closeQuietly(channel);
+            }
+            try {
+                selector.close();
+            } catch (Exception ignored) {
             }
         }
         return openPorts;
+    }
+
+    private static void closeQuietly(SocketChannel channel) {
+        if (channel == null) return;
+        try {
+            channel.close();
+        } catch (Exception ignored) {
+        }
     }
 
     private static boolean isPortReachable(InetAddress addr, int port, int timeoutMs) {
