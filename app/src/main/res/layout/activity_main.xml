@@ -37,11 +37,14 @@
                 android:id="@+id/btn_open_settings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
+                android:background="@drawable/bg_btn_header"
                 android:fontFamily="@font/fira_sans_condensed"
                 android:minWidth="0dp"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
+                android:minHeight="36dp"
+                android:paddingStart="12dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="6dp"
                 android:text="@string/action_settings"
                 android:textColor="@color/title_yellow"
                 android:textSize="16sp"
@@ -89,7 +92,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="@string/setup_refresh" />
+                android:background="@drawable/bg_btn_primary"
+                android:fontFamily="@font/fira_sans_condensed"
+                android:minHeight="40dp"
+                android:paddingStart="16dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                android:text="@string/setup_refresh"
+                android:textColor="@color/title_yellow"
+                android:textSize="15sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
