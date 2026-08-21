@@ -112,7 +112,7 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- Webhook Section Placeholder (Issue #75 base, filled in #76) -->
+        <!-- Webhook Section -->
         <LinearLayout
             android:id="@+id/settings_webhook_panel"
             android:layout_width="match_parent"
@@ -126,19 +126,82 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:fontFamily="@font/fira_sans_condensed"
-                android:text="@string/settings_section_webhook"
+                android:text="@string/settings_webhook_title"
                 android:textColor="@color/title_yellow"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/settings_webhook_status"
+            <Switch
+                android:id="@+id/settings_webhook_toggle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/fira_sans_condensed"
+                android:text="@string/settings_webhook_toggle"
+                android:textColor="@color/text_yellow"
+                android:textSize="17sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp"
                 android:fontFamily="@font/fira_sans"
-                android:text="@string/settings_webhook_status_disabled"
+                android:text="@string/settings_webhook_subtext"
                 android:textColor="@color/night_muted"
                 android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/fira_sans_condensed"
+                android:text="@string/settings_webhook_url_label"
+                android:textColor="@color/night_text"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/settings_webhook_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@color/panel_strong"
+                android:fontFamily="monospace"
+                android:hint="@string/settings_webhook_url_hint"
+                android:inputType="textUri"
+                android:padding="10dp"
+                android:textColor="@color/night_text"
+                android:textColorHint="@color/night_muted"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/settings_webhook_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/fira_sans"
+                android:textColor="@color/link_red"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="end"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/settings_webhook_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/settings_webhook_btn_clear" />
+
+                <Button
+                    android:id="@+id/settings_webhook_save"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/settings_webhook_btn_save" />
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>

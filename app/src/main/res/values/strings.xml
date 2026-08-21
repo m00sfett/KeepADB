@@ -34,7 +34,19 @@
     <string name="settings_section_general">General</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
     <string name="settings_section_webhook">Webhook Sync</string>
-    <string name="settings_webhook_status_disabled">Disabled (not configured)</string>
+    <string name="settings_webhook_title">Webhook &amp; Endpoint Sync</string>
+    <string name="settings_webhook_toggle">Enable Webhook Sync</string>
+    <string name="settings_webhook_subtext">Sends the active Wireless Debugging endpoint (IP:port) via HTTP POST when enabled, and sends DELETE on shutoff.</string>
+    <string name="settings_webhook_url_hint">http://host:port/register/device</string>
+    <string name="settings_webhook_url_label">Webhook URL</string>
+    <string name="settings_webhook_btn_save">Save URL</string>
+    <string name="settings_webhook_btn_clear">Clear</string>
+    <string name="settings_webhook_error_invalid_url">Invalid URL. Must start with http:// or https:// with a valid host.</string>
+    <string name="settings_webhook_error_missing_url">Please enter a valid HTTP/HTTPS URL before enabling sync.</string>
+    <string name="settings_webhook_saved_toast">Webhook URL saved</string>
+    <string name="settings_webhook_cleared_toast">Webhook configuration cleared</string>
+    <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>
+    <string name="settings_webhook_disabled_toast">Webhook sync disabled</string>
     <string name="settings_permission_warning">System permission WRITE_SECURE_SETTINGS missing. KeepADB cannot toggle Wireless Debugging until permission is granted.</string>
     <string name="back">Back</string>
 </resources>
