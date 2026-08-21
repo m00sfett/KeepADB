@@ -3,7 +3,7 @@
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Android](https://img.shields.io/badge/Android-11%2B%20(API%2030%2B)-green.svg)](https://developer.android.com/about/versions/11)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0%20(Pure%20AOSP)-orange.svg)](#features)
-[![APK Size](https://img.shields.io/badge/APK%20Size-%3C100%20KB-brightgreen.svg)](#features)
+[![APK Size](https://img.shields.io/badge/APK%20Size-%3C350%20KB-brightgreen.svg)](#features)
 
 A lightweight, zero-dependency Android utility to keep Android's **Wireless Debugging** persistently active and switch it with a single tap — via app, Home Screen Widget, or Quick Settings Tile.
 
@@ -34,8 +34,8 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
 - 🔍 **High-Speed Endpoint Discovery**: Combines batched non-blocking NIO loopback scanning with mDNS NSD discovery to detect the active `adbd` port in under 200 milliseconds (even with active VPNs like Tailscale).
 - 📋 **Persistent Notification**: Displays the active connection string (`Port <port> @ <ip>`) for quick reference on your lock screen or notification panel.
 - ⚙️ **Central Settings**: Dedicated settings screen with in-app language switching and optional webhook endpoint configuration.
-- 🎨 **Adaptive Icon & Theme**: Native adaptive icon (Terminal Prompt + Wi-Fi Broadcast) with Android 13+ Material You monochrome support and a cohesive Dark/Red/Yellow palette.
-- 🛡️ **Zero Runtime Dependencies**: Built purely on native Android AOSP framework APIs — no third-party libraries, no trackers, no analytics. Total APK size is **< 100 KB**.
+- 🎨 **Adaptive Icon & Theme**: Native adaptive icon (Terminal Prompt + Wi-Fi Broadcast) with Android 13+ Material You monochrome support and a cohesive Dark/Red/Yellow palette using standard system typography.
+- 🛡️ **Zero Runtime Dependencies**: Built purely on native Android AOSP framework APIs — no third-party libraries, no custom font bloat, no trackers, no analytics. Total APK size is **< 350 KB**.
 - 🌍 **Multi-Language**: Full localization for 19 major world languages (English, German, Spanish, French, Portuguese, Italian, Dutch, Polish, Ukrainian, Russian, Turkish, Arabic, Hindi, Simplified & Traditional Chinese, Japanese, Korean, Indonesian, Vietnamese) with native Android 13+ Per-App Language Preferences and RTL support.
 
 ---
@@ -115,6 +115,3 @@ The new application ID intentionally creates a separate Android app. Existing de
 ## License
 
 This project is licensed under the **GNU General Public License v3.0** — see the [LICENSE](LICENSE) file for details.
-
-### Third-Party Assets
-- **Fira Sans Font** (Mozilla Foundation / Carrois Apostrophe), licensed under the [SIL Open Font License 1.1](third_party/fonts/OFL.txt).

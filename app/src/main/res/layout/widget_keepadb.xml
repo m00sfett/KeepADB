@@ -15,6 +15,6 @@
         android:textColor="@color/text_yellow"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:fontFamily="@font/fira_sans_condensed"
+        android:fontFamily="sans-serif-condensed"
         android:text="@string/widget_text_off" />
 </LinearLayout>
