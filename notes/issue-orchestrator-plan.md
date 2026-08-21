@@ -941,3 +941,38 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - **Live-Verifikation S20 FE:**
   - `KeepAdb` Banner und lokalisierte UI (`WLAN-ADB ist AN`, `Endpoint: 192.168.178.24:...`) auf dem physischen Gerät erfolgreich geprüft.
 - **Status:** `approved` für Paket 2.
+
+## Umsetzung Paket 3 (PR #72 / Issues #65, #67, #68) — 2026-08-21
+
+- **Implementierung:**
+  - [#65](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/65): `CHANGELOG.md` im Repository-Root nach *Keep a Changelog* und *SemVer* auf Englisch angelegt.
+  - [#67](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/67): `README.md` vollständig auf Englisch überarbeitet für **KeepAdb** mit Badges, Problembeschreibung, Feature-Übersicht, Schritt-für-Schritt-Setup mit Standard-`adb`-Befehlen, Build-Anleitung, Architekturüberblick und Lizenzangaben.
+  - [#68](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/68): GitHub Actions Workflows `.github/workflows/ci.yml` (Eco-optimiert mit Path-Filters und Concurrency-Abbruch für PRs und Master-Pushes) und `.github/workflows/release.yml` (automatischer Release-Build und APK-Asset-Upload bei `v*`-Tags) eingerichtet.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler).
+- **Status:** `approved` für Paket 3.
+
+## Aufwandsprotokoll (Release-Vorbereitung KeepAdb)
+
+- **Geplante / erledigte Pakete:** 3 Pakete
+  - Paket 1: Issues #64 & #66 (PR #70) — Lizenz & De-Hardcoding privater Endpunkte
+  - Paket 2: Issue #69 (PR #71) — Internationalisierung & Name KeepAdb
+  - Paket 3: Issues #65, #67, #68 (PR #72) — Doku, Changelog & GitHub Actions CI/Release
+- **Erledigte Issues:** 6 von 6 geschlossen (100%).
+- **PRs:** PR #70, PR #71, PR #72 via Squash-Merge in `master` integriert.
+- **Modell:** Gemini 3.7 Flash High (S3 / Direktumsetzung).
+- **Build-/Lint-Läufe:** 4x `assembleDebug lintDebug` fehlerfrei ausgeführt (0 Fehler).
+- **Geräte-Abnahme:** Live auf Samsung Galaxy S20 FE (`SM-G780G`).
+- **Fehlversuche / Retries am Code:** 0.
+- **Beobachtete Token-/Abrechnungswerte:** unbekannt.
+
+## Retrospektive (KeepAdb Release Preparation)
+
+1. **Paketierung & Reihenfolge:** Die Aufteilung in 3 isolierte Pakete (Rechtliches/Sicherheit -> Lokalisierung/UI -> Doku/CI) hat alle Aspekte der Open-Source-Veröffentlichung strukturiert und regressionsfrei abgedeckt.
+2. **Qualitäts-Gates:** Durch die Eco-CI-Konfiguration mit `paths-ignore` und `concurrency cancel-in-progress` werden unnötige GitHub-Actions-Minuten bei reinen Dokumentations-Pushes vermieden.
+3. **Internationale Ausrichtung:** Standard-Englisch mit optionaler deutscher Lokalisierung stellt sicher, dass die App weltweit auf GitHub und F-Droid direkt verständlich und einsetzbar ist.
+
+## Abschlussstatus
+
+- **Status:** `complete` (Alle 6 Issues #64, #65, #66, #67, #68, #69 vollständig gelöst, getestet und gemergt; 0 offene Issues im Repository).
