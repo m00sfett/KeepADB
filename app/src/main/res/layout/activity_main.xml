@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/ground"
@@ -167,5 +168,16 @@
                 android:textColor="@color/night_muted"
                 android:textSize="13sp" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/webhook_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif"
+            android:textColor="@color/night_muted"
+            android:textSize="13sp"
+            android:visibility="gone"
+            tools:text="Webhook active: http://example.com\nLast reported: never" />
     </LinearLayout>
 </ScrollView>
