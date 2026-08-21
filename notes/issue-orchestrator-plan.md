@@ -875,3 +875,4 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
   5. [#68](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/68) `ci: GitHub Actions Workflow für Build-Validierung und Release-APKs einrichten`
 
 - **Status:** Issues angelegt. Einzelschritte werden nach Nutzerfreigabe schrittweise bearbeitet.
+  6. [#69](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/69) `i18n: App-UI, Notifications, Toasts und Dokumentation vollständig auf Englisch umstellen`
