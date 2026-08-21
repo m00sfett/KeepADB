@@ -48,6 +48,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_cleared_toast">Configuración de Webhook borrada</string>
     <string name="settings_webhook_enabled_toast">Sincronización Webhook activada</string>
     <string name="settings_webhook_disabled_toast">Sincronización Webhook desactivada</string>
+    <string name="webhook_status_title">Webhook</string>
+    <string name="webhook_status_hint">URL: %1$s\nÚltimo endpoint informado: %2$s\nÚltimo informe: %3$s</string>
+    <string name="webhook_status_never">nunca</string>
+    <string name="webhook_status_no_endpoint">aún ninguno</string>
     <string name="settings_permission_warning">Falta el permiso del sistema WRITE_SECURE_SETTINGS. KeepADB no puede alternar la depuración inalámbrica hasta que se conceda el permiso.</string>
     <string name="settings_section_language">Idioma</string>
     <string name="settings_language_label">Idioma de la aplicación</string>
