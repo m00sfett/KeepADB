@@ -1320,3 +1320,35 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - **Reihenfolge:** Paket 1 (Issue #81) → Paket 2 (Issue #82).
 - **Status:** `in_progress`.
 
+## Umsetzung & Validierung Paket 1 (PR #86 / Issue #81) — 2026-08-21
+
+- **Implementierung:**
+  - Manuelles Ausschalten von Drahtlosem Debugging in `MainActivity`, `KeepADBTileService` und `KeepADBWidget` setzt `KeepADBPreferences.setKeepAliveEnabled(..., false)` nicht mehr zurück.
+  - In `KeepADBService` wird bei `KeepADB.consumeUserDisabled()` die Keep-Alive-Präferenz nicht gelöscht, sondern lediglich das sofortige Wieder-Einschalten für diesen manuellen Drop übersprungen.
+  - Keep-Alive-Schalter und erklärender Untertitel (`@string/keep_alive_toggle` und `@string/keep_alive_subtext`) direkt in `MainActivity` und `activity_main.xml` integriert.
+  - Wechselseitige Synchronisation zwischen `MainActivity` und `SettingsActivity` sowie Sperre bei fehlender `WRITE_SECURE_SETTINGS`-Berechtigung umgesetzt.
+  - Unit-Test in `KeepADBTest.java` angelegt.
+- **Validierung & Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`: bestanden (0 Fehler, 0 Warnungen, alle Unit-Tests grün).
+- **Abschluss:** PR #86 eröffnet und via Squash-Merge in `master` übernommen; Issue #81 durch GitHub geschlossen.
+- **Status:** `complete`.
+
+## Umsetzung & Validierung Paket 2 (Issue #82) — 2026-08-21
+
+- **Implementierung:**
+  - Button- und Interaktionselemente gemäß CI-Designsystem (`/vault/kontext/ci-designsystem.md`) mit klaren Pressed-/Focus-Zuständen und knappen Radien (4–8dp) ausgestattet:
+    - `bg_btn_primary.xml`: Bannerrot `#B11218` / Primary Red `#D01822`, Rahmen `#6E1516` / `#FFE15A`, Radius 8dp (`radius_control`).
+    - `bg_btn_secondary.xml`: Panel Strong `#1F1712`, Rahmen `#6E1516` / `#E23A2E`, Radius 8dp (`radius_control`).
+    - `bg_btn_header.xml`: Transparent / Primary Red `#D01822`, Rahmen `#FFD21F`, Radius 4dp (`radius_small`).
+    - `bg_input.xml`: Panel Strong `#1F1712`, Rahmen `#6E1516` / `#FFD21F` (Fokus-Highlight), Radius 8dp (`radius_control`).
+    - `bg_card_clickable.xml`: Panel Strong `#1F1712`, Rahmen `#6E1516` / `#E23A2E` (Pressed) / `#FFD21F` (Fokus), Radius 8dp (`radius_control`).
+  - Button-Typografie und Paddings vereinheitlicht (`Fira Sans Condensed` bold, minHeight 40dp bzw. 36dp im Header).
+  - Einstellungs-Layout (`activity_settings.xml`) optimiert:
+    - Webhook-Eingabefeld mit Monospace-Typografie, Padding (12dp), `@color/night_text`, `@color/night_muted` Hint und sauberem Kontrast.
+    - Sektionskarten, Schalter und Trenner an CI-Farbpalette angepasst.
+  - Theme-Attribute in `themes.xml` (`colorControlActivated` / `colorControlHighlight`) konsolidiert.
+- **Validierung & Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`: bestanden (0 Fehler, 0 Warnungen, Unit-Tests grün, Debug-APK gebaut).
+- **Status:** `approved`

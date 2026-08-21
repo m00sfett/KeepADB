@@ -24,11 +24,14 @@
                 android:id="@+id/btn_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
+                android:background="@drawable/bg_btn_header"
                 android:fontFamily="@font/fira_sans_condensed"
                 android:minWidth="0dp"
-                android:paddingStart="8dp"
-                android:paddingEnd="12dp"
+                android:minHeight="36dp"
+                android:paddingStart="12dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="4dp"
                 android:text="←"
                 android:textColor="@color/title_yellow"
                 android:textSize="22sp"
@@ -144,7 +147,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="@color/panel_strong"
+                android:background="@drawable/bg_card_clickable"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
@@ -222,12 +225,12 @@
                 android:id="@+id/settings_webhook_url"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@color/panel_strong"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_input"
                 android:fontFamily="monospace"
                 android:hint="@string/settings_webhook_url_hint"
                 android:inputType="textUri"
-                android:padding="10dp"
+                android:padding="12dp"
                 android:textColor="@color/night_text"
                 android:textColorHint="@color/night_muted"
                 android:textSize="14sp" />
@@ -236,7 +239,7 @@
                 android:id="@+id/settings_webhook_error"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="6dp"
                 android:fontFamily="@font/fira_sans"
                 android:textColor="@color/link_red"
                 android:textSize="13sp"
@@ -245,7 +248,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="16dp"
                 android:gravity="end"
                 android:orientation="horizontal">
 
@@ -254,13 +257,33 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:text="@string/settings_webhook_btn_clear" />
+                    android:background="@drawable/bg_btn_secondary"
+                    android:fontFamily="@font/fira_sans_condensed"
+                    android:minHeight="40dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/settings_webhook_btn_clear"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/settings_webhook_save"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/settings_webhook_btn_save" />
+                    android:background="@drawable/bg_btn_primary"
+                    android:fontFamily="@font/fira_sans_condensed"
+                    android:minHeight="40dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/settings_webhook_btn_save"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
 
