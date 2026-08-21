@@ -16,6 +16,7 @@ final class AdbWifiPreferences {
     }
 
     static void setKeepAliveEnabled(Context context, boolean enabled) {
+        AdbWifi.consumeUserDisabled();
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_KEEP_ALIVE, enabled).apply();
     }
