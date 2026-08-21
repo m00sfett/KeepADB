@@ -1,6 +1,6 @@
 # KeepADB
 
-[![License: GPL-3.0](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![License: AGPL-3.0-or-later](https://img.shields.io/badge/License-AGPLv3%20or%20later-blue.svg)](LICENSE)
 [![Android](https://img.shields.io/badge/Android-11%2B%20(API%2030%2B)-green.svg)](https://developer.android.com/about/versions/11)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0%20(Pure%20AOSP)-orange.svg)](#features)
 [![APK Size](https://img.shields.io/badge/APK%20Size-%3C350%20KB-brightgreen.svg)](#features)
@@ -114,4 +114,4 @@ The new application ID intentionally creates a separate Android app. Existing de
 
 ## License
 
-This project is licensed under the **GNU General Public License v3.0** — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **GNU Affero General Public License v3.0, or (at your option) any later version** — see the [LICENSE](LICENSE) file for details.
