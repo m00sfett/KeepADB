@@ -1041,3 +1041,17 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   freigegebener Android-Smoke, unabhängiger Review und erforderliche PR-Checks sind grün; der
   Merge-Commit ist auf `master` nachgewiesen.
 - **Status:** `in progress` bis zur Validierung und zum Abschluss von PR/Merge.
+
+### Lokale Validierung — 2026-08-21
+
+- `git diff --check master...HEAD`: erfolgreich.
+- `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug assembleDebug testDebugUnitTest`:
+  erfolgreich; 45 Tasks, Build/Lint grün, `testDebugUnitTest` meldet `NO-SOURCE`.
+- APK-Readback: `apkanalyzer` bestätigt `de.hohnepeople.keepadb`; Activity, Service, Tile,
+  Widget, Receiver und Toggle-Action zeigen ausschließlich auf den neuen Namespace.
+- Legacy-Scan über alle getrackten Produktdateien außerhalb historischer Plan-/Changelog-
+  Einträge: keine Treffer für frühere Projekt-, Paket- oder Klassennamen. Technische
+  Plattformbegriffe bleiben gemäß Nicht-Scope bestehen.
+- CI-Inventur: `.github/workflows/ci.yml` führt bei Pull Requests gegen `master`
+  `lintDebug assembleDebug` aus; `.github/workflows/release.yml` läuft ausschließlich für
+  `v*`-Tags. Für den aktuellen Head existierte vor PR-Eröffnung noch kein Run.
