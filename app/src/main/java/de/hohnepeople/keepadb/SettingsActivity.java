@@ -2,6 +2,8 @@ package de.hohnepeople.keepadb;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
@@ -11,16 +13,22 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-/** Central settings screen for KeepADB options (Keep-Alive, Webhook, etc.). */
+/** Central settings screen for KeepADB options (Keep-Alive, Language, Webhook, etc.). */
 public class SettingsActivity extends Activity {
     private Switch keepAliveToggle;
     private View permissionPanel;
+    private TextView languageSelectedText;
 
     private Switch webhookToggle;
     private EditText webhookUrlInput;
     private TextView webhookError;
     private Button webhookSave;
     private Button webhookClear;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(KeepADBLocaleHelper.wrapContext(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +38,9 @@ public class SettingsActivity extends Activity {
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         keepAliveToggle = findViewById(R.id.settings_keep_alive_toggle);
         permissionPanel = findViewById(R.id.settings_permission_panel);
+
+        languageSelectedText = findViewById(R.id.settings_language_selected_text);
+        findViewById(R.id.settings_language_selector).setOnClickListener(v -> showLanguageSelectionDialog());
 
         webhookToggle = findViewById(R.id.settings_webhook_toggle);
         webhookUrlInput = findViewById(R.id.settings_webhook_url);
@@ -131,12 +142,45 @@ public class SettingsActivity extends Activity {
         refresh();
     }
 
+    private void showLanguageSelectionDialog() {
+        KeepADBLocaleHelper.LanguageItem[] languages = KeepADBLocaleHelper.SUPPORTED_LANGUAGES;
+        String[] displayItems = new String[languages.length];
+        String currentTag = KeepADBLocaleHelper.getSelectedLanguageTag(this);
+        int selectedIndex = 0;
+
+        for (int i = 0; i < languages.length; i++) {
+            if (languages[i].tag.isEmpty()) {
+                displayItems[i] = getString(R.string.settings_language_system_default);
+            } else {
+                displayItems[i] = languages[i].endonym;
+            }
+            if (languages[i].tag.equalsIgnoreCase(currentTag)) {
+                selectedIndex = i;
+            }
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_language_dialog_title)
+                .setSingleChoiceItems(displayItems, selectedIndex, (dialog, which) -> {
+                    dialog.dismiss();
+                    String chosenTag = languages[which].tag;
+                    KeepADBLocaleHelper.setAppLanguage(this, chosenTag);
+                    KeepADBWidget.refreshAll(this);
+                    KeepADBNotification.refresh(this);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
     private void refresh() {
         boolean hasPermission = checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
                 == PackageManager.PERMISSION_GRANTED;
         permissionPanel.setVisibility(hasPermission ? View.GONE : View.VISIBLE);
         keepAliveToggle.setEnabled(hasPermission);
         keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
+
+        String currentLanguageTag = KeepADBLocaleHelper.getSelectedLanguageTag(this);
+        languageSelectedText.setText(KeepADBLocaleHelper.getLanguageDisplayName(this, currentLanguageTag));
 
         boolean webhookEnabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
         webhookToggle.setChecked(webhookEnabled);
