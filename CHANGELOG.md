@@ -29,11 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Native Right-to-Left (RTL) layout support.
 - **Adaptive Icon & CI Design System**:
   - Native adaptive icon (Terminal Prompt + Wi-Fi Broadcast) with Android 13+ Material You monochrome support.
-  - Cohesive Dark/Red/Yellow design system with Fira Sans typography and distinct touch-feedback states.
+  - Cohesive Dark/Red/Yellow design system with native system typography and distinct touch-feedback states.
 - **Open Source & Release Infrastructure**:
   - GNU General Public License v3.0 (`LICENSE`).
   - Automated GitHub Actions CI workflow for build validation and lint checks.
   - Automated GitHub Actions release workflow for publishing APK artifacts on version tags (`v*`).
 - **Privacy & Security**:
-  - 100% native AOSP framework, zero 3rd-party runtime dependencies, zero analytics or telemetry (< 100 KB APK).
+  - 100% native AOSP framework, zero 3rd-party runtime dependencies, zero analytics or telemetry (< 350 KB APK).
   - Optional custom register/webhook sync endpoint (disabled by default).
