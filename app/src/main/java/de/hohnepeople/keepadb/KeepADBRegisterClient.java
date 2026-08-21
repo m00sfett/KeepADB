@@ -58,6 +58,7 @@ final class KeepADBRegisterClient {
                 if (postEndpoint(targetUrl, target)) {
                     lastRegisteredEndpoint = target;
                     KeepADBPreferences.setWebhookLastReportedAtNow(context);
+                    KeepADBPreferences.setWebhookLastReportedEndpoint(context, target);
                 }
             }
         });
@@ -90,6 +91,7 @@ final class KeepADBRegisterClient {
                 if (postEndpoint(targetUrl, target)) {
                     lastRegisteredEndpoint = target;
                     KeepADBPreferences.setWebhookLastReportedAtNow(context);
+                    KeepADBPreferences.setWebhookLastReportedEndpoint(context, target);
                 }
             }
         });
