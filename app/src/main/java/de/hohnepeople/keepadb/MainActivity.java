@@ -155,8 +155,10 @@ public class MainActivity extends Activity {
             lastReported = getString(R.string.webhook_status_never);
         } else {
             java.util.Date date = new java.util.Date(lastReportedAt);
-            lastReported = android.text.format.DateFormat.getMediumDateFormat(this).format(date)
-                    + " " + android.text.format.DateFormat.getTimeFormat(this).format(date);
+            java.text.DateFormat dateTimeFormat = java.text.DateFormat.getDateTimeInstance(
+                    java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM,
+                    getResources().getConfiguration().getLocales().get(0));
+            lastReported = dateTimeFormat.format(date);
         }
         webhookStatus.setText(getString(R.string.webhook_status_hint, url, lastReported));
         webhookStatus.setVisibility(View.VISIBLE);
