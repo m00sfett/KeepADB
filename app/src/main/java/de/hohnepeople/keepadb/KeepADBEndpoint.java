@@ -8,6 +8,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,7 +16,6 @@ import android.util.Log;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
 import java.net.Socket;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -23,8 +23,8 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,7 +41,7 @@ final class KeepADBEndpoint {
     static final int PROBE_END_PORT = 50000;
     private static final int BATCH_SIZE = 64;
     private static final int SCAN_WORKERS = 4;
-    private static final int BATCH_SELECT_TIMEOUT_MS = 8;
+    private static final int BATCH_SELECT_TIMEOUT_MS = 10;
 
     interface Listener {
         void onEndpoint(String host, int port);
@@ -75,6 +75,9 @@ final class KeepADBEndpoint {
     }
 
     synchronized void discover(Listener listener) {
+        if (discovering) {
+            stop();
+        }
         this.currentListener = listener;
         if (nsdManager == null) {
             this.currentListener = null;
@@ -84,9 +87,6 @@ final class KeepADBEndpoint {
             return;
         }
 
-        if (discovering) {
-            return;
-        }
         discovering = true;
         endpointDelivered.set(false);
 
@@ -270,29 +270,25 @@ final class KeepADBEndpoint {
 
     private void startFastProbe(long generation) {
         coordinatorThread = new Thread(() -> {
+            Log.d(TAG, "startFastProbe gen=" + generation + " started");
             final int maxTotalSeconds = 45;
             final long startTime = System.currentTimeMillis();
-            final byte[] loopbackBytes = new byte[]{127, 0, 0, 1};
-            final InetAddress loopbackAddr;
-            try {
-                loopbackAddr = InetAddress.getByAddress(loopbackBytes);
-            } catch (Exception e) {
-                return;
-            }
 
             while (isCurrent(generation) && !endpointDelivered.get() && !Thread.currentThread().isInterrupted()) {
                 if (System.currentTimeMillis() - startTime > maxTotalSeconds * 1000L) {
+                    Log.w(TAG, "startFastProbe gen=" + generation + " timed out");
                     break;
                 }
 
                 final String wifiIp = getWifiIpAddress(appContext);
                 final List<Integer> openPorts = scanLocalOpenPortsParallel(PROBE_START_PORT, PROBE_END_PORT, SCAN_WORKERS);
+                Log.d(TAG, "FastProbe gen=" + generation + " iteration: wifiIp=" + wifiIp + ", openPorts=" + openPorts);
 
                 if (!openPorts.isEmpty()) {
                     String targetHost = wifiIp;
                     if (targetHost == null) {
                         try {
-                            Thread.sleep(80);
+                            Thread.sleep(60);
                         } catch (InterruptedException e) {
                             return;
                         }
@@ -300,32 +296,40 @@ final class KeepADBEndpoint {
                     }
 
                     if (targetHost != null) {
-                        for (int candidatePort : openPorts) {
-                            if (isPortReachable(loopbackAddr, candidatePort, 150)) {
-                                if (endpointDelivered.compareAndSet(false, true)) {
-                                    Log.i(TAG, "FastProbe verified live ADB endpoint: " + targetHost + ":" + candidatePort);
-                                    Listener targetListener;
-                                    synchronized (KeepADBEndpoint.this) {
-                                        if (isCurrent(generation)) {
-                                            resolveQueue.clear();
-                                            targetListener = currentListener;
-                                            stop();
-                                        } else {
-                                            targetListener = null;
+                        final byte[] loopbackBytes = new byte[]{127, 0, 0, 1};
+                        try {
+                            final InetAddress loopbackAddr = InetAddress.getByAddress(loopbackBytes);
+                            for (int candidatePort : openPorts) {
+                                boolean reachable = isPortReachable(loopbackAddr, candidatePort, 50);
+                                Log.d(TAG, "Testing candidate " + candidatePort + " on loopback: " + reachable);
+                                if (reachable) {
+                                    if (endpointDelivered.compareAndSet(false, true)) {
+                                        Log.i(TAG, "FastProbe verified live ADB endpoint: " + targetHost + ":" + candidatePort);
+                                        Listener targetListener;
+                                        synchronized (KeepADBEndpoint.this) {
+                                            if (isCurrent(generation)) {
+                                                resolveQueue.clear();
+                                                targetListener = currentListener;
+                                                stop();
+                                            } else {
+                                                targetListener = null;
+                                            }
                                         }
+                                        if (targetListener != null) {
+                                            targetListener.onEndpoint(targetHost, candidatePort);
+                                        }
+                                        return;
                                     }
-                                    if (targetListener != null) {
-                                        targetListener.onEndpoint(targetHost, candidatePort);
-                                    }
-                                    return;
                                 }
                             }
+                        } catch (Exception e) {
+                            Log.w(TAG, "Error in candidate verification", e);
                         }
                     }
                 }
 
                 try {
-                    Thread.sleep(150);
+                    Thread.sleep(120);
                 } catch (InterruptedException e) {
                     return;
                 }
@@ -356,10 +360,16 @@ final class KeepADBEndpoint {
         for (int i = 0; i < numWorkers; i++) {
             final int chunkStart = startPort + i * chunkSize;
             final int chunkEnd = Math.min(chunkStart + chunkSize - 1, endPort);
+            final int workerIdx = i;
             threads[i] = new Thread(() -> {
-                List<Integer> found = scanLocalOpenPorts(chunkStart, chunkEnd, BATCH_SELECT_TIMEOUT_MS);
-                if (!found.isEmpty()) {
-                    allOpenPorts.addAll(found);
+                try {
+                    List<Integer> found = scanLocalOpenPorts(chunkStart, chunkEnd, BATCH_SELECT_TIMEOUT_MS);
+                    if (!found.isEmpty()) {
+                        Log.d(TAG, "Worker " + workerIdx + " found: " + found);
+                        allOpenPorts.addAll(found);
+                    }
+                } catch (Throwable t) {
+                    Log.e(TAG, "Worker " + workerIdx + " crashed", t);
                 }
             }, "KeepADBScanWorker-" + i);
             threads[i].start();
@@ -459,34 +469,36 @@ final class KeepADBEndpoint {
     }
 
     static String getWifiIpAddress(Context context) {
-        ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
-        if (cm != null) {
-            for (Network network : cm.getAllNetworks()) {
-                NetworkCapabilities caps = cm.getNetworkCapabilities(network);
-                if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-                        && !caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
-                    LinkProperties lp = cm.getLinkProperties(network);
-                    if (lp != null) {
-                        for (LinkAddress la : lp.getLinkAddresses()) {
-                            InetAddress addr = la.getAddress();
-                            if (addr instanceof Inet4Address && !addr.isLoopbackAddress() && !addr.isLinkLocalAddress()) {
-                                return addr.getHostAddress();
-                            }
-                        }
+        if (context == null) return null;
+        try {
+            WifiManager wm = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            if (wm != null) {
+                WifiInfo info = wm.getConnectionInfo();
+                if (info != null) {
+                    int ip = info.getIpAddress();
+                    if (ip != 0) {
+                        return String.format(Locale.US, "%d.%d.%d.%d",
+                                (ip & 0xff), (ip >> 8 & 0xff), (ip >> 16 & 0xff), (ip >> 24 & 0xff));
                     }
                 }
             }
+        } catch (Exception ignored) {
         }
+
         try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en != null && en.hasMoreElements();) {
-                NetworkInterface intf = en.nextElement();
-                if (intf.isLoopback() || !intf.isUp()) continue;
-                String name = intf.getName();
-                if (name != null && (name.startsWith("wlan") || name.startsWith("ap"))) {
-                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-                        InetAddress inetAddress = enumIpAddr.nextElement();
-                        if (inetAddress instanceof Inet4Address && !inetAddress.isLoopbackAddress() && !inetAddress.isLinkLocalAddress()) {
-                            return inetAddress.getHostAddress();
+            ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
+            if (cm != null) {
+                for (Network network : cm.getAllNetworks()) {
+                    NetworkCapabilities caps = cm.getNetworkCapabilities(network);
+                    if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        LinkProperties lp = cm.getLinkProperties(network);
+                        if (lp != null) {
+                            for (LinkAddress la : lp.getLinkAddresses()) {
+                                InetAddress addr = la.getAddress();
+                                if (addr instanceof Inet4Address && !addr.isLoopbackAddress() && !addr.isLinkLocalAddress()) {
+                                    return addr.getHostAddress();
+                                }
+                            }
                         }
                     }
                 }
