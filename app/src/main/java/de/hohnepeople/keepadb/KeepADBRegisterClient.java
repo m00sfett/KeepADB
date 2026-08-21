@@ -27,8 +27,20 @@ final class KeepADBRegisterClient {
 
     private static final AtomicReference<String> latestPendingEndpoint = new AtomicReference<>();
     private static volatile String lastRegisteredEndpoint = null;
+    // Purely in-memory otherwise, so a process restart (routine on Android) would forget that
+    // the server still holds a registration for us -- markUnavailableAsync()'s early-return
+    // guard would then skip the DELETE forever, leaving a stale entry server-side (#119). Seed
+    // once from the persisted "last reported endpoint" preference, which is only ever written
+    // on a confirmed successful POST, so it reflects the last state we know the server accepted.
+    private static volatile boolean stateInitialized = false;
 
     private KeepADBRegisterClient() {}
+
+    private static synchronized void ensureStateInitializedLocked(Context context) {
+        if (stateInitialized) return;
+        lastRegisteredEndpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(context);
+        stateInitialized = true;
+    }
 
     static void updateEndpointAsync(Context context, String host, int port) {
         if (context == null || host == null || port <= 0) return;
@@ -39,6 +51,7 @@ final class KeepADBRegisterClient {
         if (targetUrl == null || targetUrl.trim().isEmpty()) {
             return;
         }
+        ensureStateInitializedLocked(context);
         String endpoint = host + ":" + port;
         if (endpoint.equals(lastRegisteredEndpoint)) {
             return;
@@ -49,18 +62,7 @@ final class KeepADBRegisterClient {
             if (target == null || target.equals(lastRegisteredEndpoint)) {
                 return;
             }
-            if (UNAVAILABLE_MARKER.equals(target)) {
-                if (deleteEndpoint(targetUrl)) {
-                    lastRegisteredEndpoint = null;
-                    KeepADBPreferences.setWebhookLastReportedAtNow(context);
-                }
-            } else {
-                if (postEndpoint(targetUrl, target)) {
-                    lastRegisteredEndpoint = target;
-                    KeepADBPreferences.setWebhookLastReportedAtNow(context);
-                    KeepADBPreferences.setWebhookLastReportedEndpoint(context, target);
-                }
-            }
+            performPendingWork(context, targetUrl, target);
         });
     }
 
@@ -73,6 +75,7 @@ final class KeepADBRegisterClient {
         if (targetUrl == null || targetUrl.trim().isEmpty()) {
             return;
         }
+        ensureStateInitializedLocked(context);
         if (lastRegisteredEndpoint == null && latestPendingEndpoint.get() == null) {
             return;
         }
@@ -82,29 +85,39 @@ final class KeepADBRegisterClient {
             if (target == null) {
                 return;
             }
-            if (UNAVAILABLE_MARKER.equals(target)) {
-                if (deleteEndpoint(targetUrl)) {
-                    lastRegisteredEndpoint = null;
-                    KeepADBPreferences.setWebhookLastReportedAtNow(context);
-                }
-            } else {
-                if (postEndpoint(targetUrl, target)) {
-                    lastRegisteredEndpoint = target;
-                    KeepADBPreferences.setWebhookLastReportedAtNow(context);
-                    KeepADBPreferences.setWebhookLastReportedEndpoint(context, target);
-                }
-            }
+            performPendingWork(context, targetUrl, target);
         });
+    }
+
+    /** Runs on {@link #EXECUTOR}; shared by both callers so the delete/post outcome is applied consistently. */
+    private static void performPendingWork(Context context, String targetUrl, String target) {
+        if (UNAVAILABLE_MARKER.equals(target)) {
+            if (deleteEndpoint(targetUrl)) {
+                lastRegisteredEndpoint = null;
+                KeepADBPreferences.setWebhookLastReportedAtNow(context);
+                // Otherwise the "last reported endpoint" shown in the UI stays stale after
+                // deregistration, looking as if the device were still registered (#118).
+                KeepADBPreferences.setWebhookLastReportedEndpoint(context, null);
+            }
+        } else {
+            if (postEndpoint(targetUrl, target)) {
+                lastRegisteredEndpoint = target;
+                KeepADBPreferences.setWebhookLastReportedAtNow(context);
+                KeepADBPreferences.setWebhookLastReportedEndpoint(context, target);
+            }
+        }
     }
 
     static void unregisterAndDisableAsync(Context context) {
         if (context == null) return;
         final String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(context);
+        ensureStateInitializedLocked(context);
         if (targetUrl != null && !targetUrl.trim().isEmpty() && lastRegisteredEndpoint != null) {
             EXECUTOR.execute(() -> {
                 deleteEndpoint(targetUrl);
                 lastRegisteredEndpoint = null;
                 latestPendingEndpoint.set(null);
+                KeepADBPreferences.setWebhookLastReportedEndpoint(context, null);
             });
         } else {
             lastRegisteredEndpoint = null;
