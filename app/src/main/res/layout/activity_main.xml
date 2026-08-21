@@ -127,6 +127,32 @@
                 android:text="@string/toggle_label"
                 android:textColor="@color/text_yellow"
                 android:textSize="18sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@color/border_red" />
+
+            <Switch
+                android:id="@+id/keep_alive_toggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/fira_sans_condensed"
+                android:text="@string/keep_alive_toggle"
+                android:textColor="@color/text_yellow"
+                android:textSize="17sp" />
+
+            <TextView
+                android:id="@+id/keep_alive_subtext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/fira_sans"
+                android:text="@string/keep_alive_subtext"
+                android:textColor="@color/night_muted"
+                android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

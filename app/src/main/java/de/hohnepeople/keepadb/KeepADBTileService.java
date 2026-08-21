@@ -18,9 +18,6 @@ public class KeepADBTileService extends TileService {
         if (!KeepADB.setEnabled(this, want)) {
             Toast.makeText(this, getString(R.string.tile_permission_error),
                     Toast.LENGTH_LONG).show();
-        } else if (!want) {
-            KeepADBPreferences.setKeepAliveEnabled(this, false);
-            KeepADBService.stop(this);
         }
         updateTile();
         KeepADBWidget.refreshAll(this);
