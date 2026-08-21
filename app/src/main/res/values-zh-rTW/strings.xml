@@ -29,6 +29,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">保持無線偵錯啟用</string>
     <string name="notification_service_text">正在監控 Wi-Fi 連線與無線偵錯狀態</string>
     <string name="notification_permission_missing_title">無線偵錯：缺少權限</string>
+    <string name="notification_permission_panel_title">通知已關閉</string>
+    <string name="notification_permission_panel_body">Keep-Alive 仍可運作，但 KeepADB 無法顯示狀態通知。請在系統設定中允許通知。</string>
+    <string name="notification_permission_settings_button">開啟通知設定</string>
     <string name="notification_permission_missing_text">請在電腦上透過 adb shell pm grant 授予 WRITE_SECURE_SETTINGS 權限</string>
     <string name="action_settings">設定</string>
     <string name="title_settings">設定</string>

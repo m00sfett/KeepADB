@@ -6,6 +6,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -13,6 +14,8 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
     private static final int NOTIFICATION_PERMISSION_REQUEST = 10;
+    private static final String NOTIFICATION_PERMISSION_REQUESTED =
+            "notification_permission_requested";
     private Switch toggle;
     private Switch keepAliveToggle;
     private TextView status;
@@ -20,6 +23,8 @@ public class MainActivity extends Activity {
     private TextView webhookStatus;
     private View webhookStatusPanel;
     private View setupPanel;
+    private View notificationPermissionPanel;
+    private boolean notificationPermissionRequestPending;
 
     @Override
     protected void attachBaseContext(android.content.Context newBase) {
@@ -37,13 +42,17 @@ public class MainActivity extends Activity {
         webhookStatus = findViewById(R.id.webhook_status);
         webhookStatusPanel = findViewById(R.id.webhook_status_panel);
         setupPanel = findViewById(R.id.setup_panel);
+        notificationPermissionPanel = findViewById(R.id.notification_permission_panel);
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
+        findViewById(R.id.btn_open_notification_settings).setOnClickListener(v ->
+                openNotificationSettings());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (shouldRequestNotificationPermission()) {
+            getPreferences(MODE_PRIVATE).edit()
+                    .putBoolean(NOTIFICATION_PERMISSION_REQUESTED, true).apply();
+            notificationPermissionRequestPending = true;
             requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},
                     NOTIFICATION_PERMISSION_REQUEST);
         }
@@ -78,6 +87,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (!KeepADBLocaleHelper.isSelectedLanguageApplied(this)) {
+            recreate();
+            return;
+        }
         if (adbContentObserver == null) {
             adbContentObserver = new android.database.ContentObserver(new android.os.Handler(android.os.Looper.getMainLooper())) {
                 @Override
@@ -138,6 +151,8 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == NOTIFICATION_PERMISSION_REQUEST) {
+            notificationPermissionRequestPending = false;
+            refresh();
             KeepADBNotification.refresh(this);
         }
     }
@@ -145,13 +160,28 @@ public class MainActivity extends Activity {
     private void refresh() {
         boolean configured = hasSecureSettingsPermission();
         boolean on = KeepADB.isEnabled(this);
+        boolean notificationsDenied = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && !notificationPermissionRequestPending
+                && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED;
         setupPanel.setVisibility(configured ? View.GONE : View.VISIBLE);
+        notificationPermissionPanel.setVisibility(notificationsDenied ? View.VISIBLE : View.GONE);
         toggle.setEnabled(configured);
         toggle.setChecked(on);
         status.setText(on ? getString(R.string.status_on) : getString(R.string.status_off));
         keepAliveToggle.setEnabled(configured);
         keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
         refreshWebhookStatus();
+    }
+
+    private boolean shouldRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED) {
+            return false;
+        }
+        return !getPreferences(MODE_PRIVATE).getBoolean(NOTIFICATION_PERMISSION_REQUESTED, false)
+                && !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS);
     }
 
     private void refreshWebhookStatus() {
@@ -199,5 +229,11 @@ public class MainActivity extends Activity {
     private void showPermissionErrorToast() {
         Toast.makeText(this, getString(R.string.permission_error_toast, getPackageName()),
                 Toast.LENGTH_LONG).show();
+    }
+
+    private void openNotificationSettings() {
+        Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+        intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+        startActivity(intent);
     }
 }

@@ -29,6 +29,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">Manter depuração sem fio ativa</string>
     <string name="notification_service_text">Monitorando conexão Wi-Fi e status da depuração sem fio</string>
     <string name="notification_permission_missing_title">Depuração sem fio: Permissão ausente</string>
+    <string name="notification_permission_panel_title">As notificações estão desativadas</string>
+    <string name="notification_permission_panel_body">O Keep-Alive pode continuar a funcionar, mas o KeepADB não pode mostrar a notificação de estado. Permita notificações nas definições do sistema.</string>
+    <string name="notification_permission_settings_button">Abrir definições de notificações</string>
     <string name="notification_permission_missing_text">Conceda WRITE_SECURE_SETTINGS no PC via adb shell pm grant</string>
     <string name="action_settings">Configurações</string>
     <string name="title_settings">Configurações</string>

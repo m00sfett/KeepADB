@@ -1,11 +1,17 @@
 package de.hohnepeople.keepadb;
 
+import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.service.quicksettings.Tile;
 import android.service.quicksettings.TileService;
 import android.widget.Toast;
 
 public class KeepADBTileService extends TileService {
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(KeepADBLocaleHelper.wrapContext(newBase));
+    }
 
     @Override
     public void onStartListening() {

@@ -15,22 +15,14 @@
         android:orientation="horizontal"
         android:padding="12dp">
 
-        <Button
+        <ImageButton
             android:id="@+id/btn_back"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_btn_header"
-            android:fontFamily="sans-serif-condensed"
-            android:minWidth="0dp"
-            android:minHeight="36dp"
-            android:paddingStart="12dp"
-            android:paddingTop="4dp"
-            android:paddingEnd="14dp"
-            android:paddingBottom="4dp"
-            android:text="←"
-            android:textColor="@color/title_yellow"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:contentDescription="@string/back"
+            android:padding="12dp"
+            android:src="@drawable/ic_arrow_back" />
 
         <TextView
             android:layout_width="0dp"
@@ -118,8 +110,10 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/bg_card_clickable"
                 android:clickable="true"
+                android:contentDescription="@string/settings_language_label"
                 android:focusable="true"
                 android:gravity="center_vertical"
+                android:minHeight="48dp"
                 android:orientation="horizontal"
                 android:padding="12dp">
 
@@ -167,6 +161,7 @@
                 android:id="@+id/settings_webhook_toggle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:minHeight="48dp"
                 android:fontFamily="sans-serif-condensed"
                 android:text="@string/settings_webhook_toggle"
                 android:textColor="@color/text_yellow"
@@ -199,6 +194,7 @@
                 android:fontFamily="monospace"
                 android:hint="@string/settings_webhook_url_hint"
                 android:inputType="textUri"
+                android:minHeight="48dp"
                 android:padding="12dp"
                 android:textColor="@color/night_text"
                 android:textColorHint="@color/night_muted"
@@ -228,7 +224,7 @@
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_btn_secondary"
                     android:fontFamily="sans-serif-condensed"
-                    android:minHeight="40dp"
+                    android:minHeight="48dp"
                     android:paddingStart="16dp"
                     android:paddingTop="8dp"
                     android:paddingEnd="16dp"
@@ -244,7 +240,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_btn_primary"
                     android:fontFamily="sans-serif-condensed"
-                    android:minHeight="40dp"
+                    android:minHeight="48dp"
                     android:paddingStart="16dp"
                     android:paddingTop="8dp"
                     android:paddingEnd="16dp"
