@@ -77,44 +77,6 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- General / Keep-Alive Section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:fontFamily="@font/fira_sans_condensed"
-                android:text="@string/settings_section_general"
-                android:textColor="@color/title_yellow"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <Switch
-                android:id="@+id/settings_keep_alive_toggle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/fira_sans_condensed"
-                android:text="@string/keep_alive_toggle"
-                android:textColor="@color/text_yellow"
-                android:textSize="17sp" />
-
-            <TextView
-                android:id="@+id/settings_keep_alive_subtext"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="@font/fira_sans"
-                android:text="@string/keep_alive_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
-        </LinearLayout>
-
         <!-- Language Section -->
         <LinearLayout
             android:id="@+id/settings_language_panel"
