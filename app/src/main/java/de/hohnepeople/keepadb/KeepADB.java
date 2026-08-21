@@ -33,7 +33,13 @@ final class KeepADB {
     // Set right after a successful user-initiated disable, consumed once by KeepADBService's
     // keep-alive observer so it doesn't immediately re-enable a deliberate shutoff.
     private static volatile boolean userDisabled;
-    private static volatile long lastAppliedChangeMs = Long.MIN_VALUE;
+    // 0 (not Long.MIN_VALUE): SystemClock.elapsedRealtime() is always >= 0 and monotonically
+    // increasing since boot, so "sinceLastMs = now - 0" safely exceeds the cooldown on the very
+    // first call. Long.MIN_VALUE would make that subtraction overflow into a huge negative
+    // number, which in turn schedules the first-ever toggle with an astronomically large delay
+    // that never fires -- found live: the app got stuck permanently ignoring taps after a fresh
+    // install/process start.
+    private static volatile long lastAppliedChangeMs = 0;
     private static Runnable pendingToggleRunnable;
 
     private KeepADB() {}
