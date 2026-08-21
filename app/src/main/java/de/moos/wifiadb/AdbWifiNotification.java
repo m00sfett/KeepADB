@@ -164,7 +164,7 @@ final class AdbWifiNotification {
                     listener.onEndpoint(host, port);
                 }
                 show(appContext, manager, host, port);
-                AdbWifiRegisterClient.updateEndpointAsync(host, port);
+                AdbWifiRegisterClient.updateEndpointAsync(appContext, host, port);
             }
 
             @Override
@@ -184,7 +184,7 @@ final class AdbWifiNotification {
                 } else {
                     manager.cancel(NOTIFICATION_ID);
                 }
-                AdbWifiRegisterClient.markUnavailableAsync();
+                AdbWifiRegisterClient.markUnavailableAsync(appContext);
             }
         });
     }
@@ -200,7 +200,7 @@ final class AdbWifiNotification {
         currentPort = 0;
         if (endpointListener != null) endpointListener.onUnavailable();
         manager.cancel(NOTIFICATION_ID);
-        AdbWifiRegisterClient.markUnavailableAsync();
+        AdbWifiRegisterClient.markUnavailableAsync(context.getApplicationContext());
     }
 
     private static void ensureChannel(NotificationManager manager) {

@@ -876,3 +876,54 @@ Die S20-Fallback-Abnahme ist bestanden. PR #2 ist weiterhin offen als Draft gege
 
 - **Status:** Issues angelegt. Einzelschritte werden nach Nutzerfreigabe schrittweise bearbeitet.
   6. [#69](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/69) `i18n: App-UI, Notifications, Toasts und Dokumentation vollständig auf Englisch umstellen`
+
+# Issue Orchestrator Eco Plan — Release Preparation (KeepAdb) — 2026-08-21
+
+## 1. Übersicht & Ziel
+Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffenes Tool **KeepAdb** unter der **GPL-3.0**-Lizenz.
+
+## 2. Paketstruktur (Eco-Reihenfolge)
+
+### Paket 1: Lizenz & Bereinigung privater Endpunkte (Issues #66, #64)
+- **Stufe:** S1 (Direktumsetzung)
+- **Issues:**
+  - [#66](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/66) `docs: Lizenzentscheidung mit Meister abstimmen und LICENSE anlegen` (Entscheidung: GPL-3.0)
+  - [#64](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/64) `refactor: RegisterClient generalisieren und persönliche Endpunkte/IPs entfernen`
+- **Ziel:**
+  - `LICENSE` im Root-Verzeichnis mit GNU GPL v3.0 anlegen.
+  - `AdbWifiRegisterClient.java` neutralisieren: Keine hardcodierte private Tailscale-IP (`100.111.111.21:50829/register/s20`); Standard ist keine externe Übertragung (`null`/deaktiviert).
+- **Gates:** `git diff --check`, `./gradlew assembleDebug lintDebug`.
+
+### Paket 2: Internationalisierung & App-Name KeepAdb (Issue #69)
+- **Stufe:** S1/S2 (Direktumsetzung)
+- **Issues:**
+  - [#69](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/69) `i18n: App-UI, Notifications, Toasts und Dokumentation vollständig auf Englisch umstellen`
+- **Ziel:**
+  - `res/values/strings.xml` mit englischen Standard-Strings (App-Name `KeepAdb`, Statusmeldungen, Tile-Label, Widget-Texte, Notification-Channels und Toasts) erstellen.
+  - `res/values-de/strings.xml` als optionale Lokalisierung für deutschsprachige Geräte anlegen.
+  - Layouts und Java-Code an die String-Ressourcen anbinden.
+- **Gates:** `git diff --check`, `./gradlew assembleDebug lintDebug`.
+
+### Paket 3: Dokumentation & GitHub Actions CI/Release (Issues #65, #67, #68)
+- **Stufe:** S1/S2 (Direktumsetzung)
+- **Issues:**
+  - [#65](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/65) `docs: CHANGELOG.md anlegen und Versionshistorie sauber dokumentieren`
+  - [#67](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/67) `docs: README.md für öffentliche Veröffentlichung bereinigen und erweitern`
+  - [#68](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/68) `ci: GitHub Actions Workflow für Build-Validierung und Release-APKs einrichten`
+- **Ziel:**
+  - `CHANGELOG.md` nach Keep a Changelog (Englisch) erstellen.
+  - `README.md` (Englisch) mit `KeepAdb`, Standard-`adb`-Kommandos, Feature-Guide und Setup-Anleitung neu aufbauen.
+  - `.github/workflows/ci.yml` (Eco-optimiert mit Concurrency-Abbruch und Path-Filters) und `.github/workflows/release.yml` erstellen.
+- **Gates:** `git diff --check`, `./gradlew assembleDebug lintDebug`.
+
+---
+
+## Umsetzung Paket 1 (PR #70 / Issues #64, #66) — 2026-08-21
+
+- **Implementierung:**
+  - [#66](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/66): `LICENSE`-Datei mit GNU General Public License v3.0 (GPL-3.0) im Repository-Root angelegt.
+  - [#64](https://github.com/m00sfett/smartphone-wlan-adb-app/issues/64): In `AdbWifiRegisterClient.java` die fest codierte private IP/URL entfernt. Übertragung erfolgt nun ausschließlich, wenn in den SharedPreferences (`AdbWifiPreferences`) eine benutzerdefinierte Webhook-URL hinterlegt ist (Standard: deaktiviert/keine Netzwerkaktivität). In `network_security_config.xml` die private IP entfernt und generelle Klartext-Unterstützung für benutzerdefinierte lokale Webhooks konfiguriert.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug`: bestanden (0 Fehler).
+- **Status:** `approved` für Paket 1.

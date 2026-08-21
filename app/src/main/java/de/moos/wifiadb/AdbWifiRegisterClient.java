@@ -1,5 +1,6 @@
 package de.moos.wifiadb;
 
+import android.content.Context;
 import android.util.Log;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,10 +13,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/** Sends background reachability updates to the central Tailscale phone register on moosgames2020. */
+/** Sends optional background reachability updates to a custom register or webhook endpoint. */
 final class AdbWifiRegisterClient {
     private static final String TAG = "AdbWifiRegisterClient";
-    private static final String TAILSCALE_REGISTER_URL = "http://100.111.111.21:50829/register/s20";
     private static final int TIMEOUT_MS = 2000;
     private static final String UNAVAILABLE_MARKER = "__UNAVAILABLE__";
 
@@ -30,8 +30,12 @@ final class AdbWifiRegisterClient {
 
     private AdbWifiRegisterClient() {}
 
-    static void updateEndpointAsync(String host, int port) {
-        if (host == null || port <= 0) return;
+    static void updateEndpointAsync(Context context, String host, int port) {
+        if (context == null || host == null || port <= 0) return;
+        final String targetUrl = AdbWifiPreferences.getRegisterWebhookUrl(context);
+        if (targetUrl == null || targetUrl.trim().isEmpty()) {
+            return;
+        }
         String endpoint = host + ":" + port;
         if (endpoint.equals(lastRegisteredEndpoint)) {
             return;
@@ -43,18 +47,23 @@ final class AdbWifiRegisterClient {
                 return;
             }
             if (UNAVAILABLE_MARKER.equals(target)) {
-                if (deleteEndpoint()) {
+                if (deleteEndpoint(targetUrl)) {
                     lastRegisteredEndpoint = null;
                 }
             } else {
-                if (postEndpoint(target)) {
+                if (postEndpoint(targetUrl, target)) {
                     lastRegisteredEndpoint = target;
                 }
             }
         });
     }
 
-    static void markUnavailableAsync() {
+    static void markUnavailableAsync(Context context) {
+        if (context == null) return;
+        final String targetUrl = AdbWifiPreferences.getRegisterWebhookUrl(context);
+        if (targetUrl == null || targetUrl.trim().isEmpty()) {
+            return;
+        }
         if (lastRegisteredEndpoint == null && latestPendingEndpoint.get() == null) {
             return;
         }
@@ -65,18 +74,18 @@ final class AdbWifiRegisterClient {
                 return;
             }
             if (UNAVAILABLE_MARKER.equals(target)) {
-                if (deleteEndpoint()) {
+                if (deleteEndpoint(targetUrl)) {
                     lastRegisteredEndpoint = null;
                 }
             } else {
-                if (postEndpoint(target)) {
+                if (postEndpoint(targetUrl, target)) {
                     lastRegisteredEndpoint = target;
                 }
             }
         });
     }
 
-    private static boolean postEndpoint(String endpoint) {
+    private static boolean postEndpoint(String targetUrl, String endpoint) {
         HttpURLConnection conn = null;
         try {
             JSONObject payloadJson = new JSONObject();
@@ -84,7 +93,7 @@ final class AdbWifiRegisterClient {
             payloadJson.put("endpoint", endpoint);
             byte[] bytes = payloadJson.toString().getBytes(StandardCharsets.UTF_8);
 
-            URL url = new URL(TAILSCALE_REGISTER_URL);
+            URL url = new URL(targetUrl);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
@@ -102,8 +111,7 @@ final class AdbWifiRegisterClient {
             Log.d(TAG, "Register update for " + endpoint + " returned HTTP " + code);
             return code >= 200 && code < 300;
         } catch (IOException e) {
-            // Tailnet might be unreachable when device is off-tailscale; non-fatal
-            Log.w(TAG, "Could not update phone register at " + TAILSCALE_REGISTER_URL + ": " + e.getMessage());
+            Log.w(TAG, "Could not update register at " + targetUrl + ": " + e.getMessage());
             return false;
         } catch (JSONException e) {
             Log.e(TAG, "Failed to build JSON payload for " + endpoint, e);
@@ -115,10 +123,10 @@ final class AdbWifiRegisterClient {
         }
     }
 
-    private static boolean deleteEndpoint() {
+    private static boolean deleteEndpoint(String targetUrl) {
         HttpURLConnection conn = null;
         try {
-            URL url = new URL(TAILSCALE_REGISTER_URL);
+            URL url = new URL(targetUrl);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("DELETE");
             conn.setConnectTimeout(TIMEOUT_MS);
@@ -128,8 +136,7 @@ final class AdbWifiRegisterClient {
             Log.d(TAG, "Register delete returned HTTP " + code);
             return code >= 200 && code < 300;
         } catch (IOException e) {
-            // Tailnet might be unreachable when device is off-tailscale; non-fatal
-            Log.w(TAG, "Could not reach phone register to unregister at " + TAILSCALE_REGISTER_URL + ": " + e.getMessage());
+            Log.w(TAG, "Could not reach register to unregister at " + targetUrl + ": " + e.getMessage());
             return false;
         } finally {
             if (conn != null) {
