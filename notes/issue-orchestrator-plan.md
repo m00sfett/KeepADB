@@ -1625,6 +1625,99 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Nächstes Paket: Paket B (#114), Freigabe (Implementierung, lokale Gates, S20-Gerätetest) liegt
   bereits aus der Auswahlrunde vor.
 
+## Nutzerfolgeauftrag — Root-Cause-Fix statt reiner Symptombehandlung — 2026-08-21
+
+- Nutzerfeedback nach dem gemergten #114-Fix: „können wir dieses Verhalten nicht direkt fixen“ —
+  Wunsch nach proaktivem Debounce statt nur reaktivem Recovery-Pulse.
+- Umsetzung 1 — Debounce in `KeepADB.setEnabled()`: Jeder tatsächliche
+  `adb_wifi_enabled`-Schreibvorgang wird um 1,5s debounced; Mehrfachklicks in der Cooldown-Phase
+  werden zu einem einzigen verzögerten Schreibvorgang zusammengefasst. Läuft für alle drei
+  Oberflächen (App, Tile, Widget) sowie den Keep-Alive-Autoreconnect-Pfad zentral über diese eine
+  Methode.
+- **Selbstgefundener Regressionsfund vor Merge:** `lastAppliedChangeMs` initial auf
+  `Long.MIN_VALUE` führte zu einem Overflow bei der ersten Berechnung, wodurch der allererste
+  Toggle nach Prozessstart mit einer astronomisch großen (nie feuernden) Verzögerung eingeplant
+  wurde — das Gerät blieb dauerhaft auf jeden Tap unempfindlich. Live auf dem S20 reproduziert
+  und durch Initialisierung auf `0` behoben (`SystemClock.elapsedRealtime()` ist immer ≥ 0).
+- Lokale Gates (mehrfach über die Iterationen): `git diff --check`,
+  `gradlew testDebugUnitTest lintDebug assembleDebug` erfolgreich.
+- **Live-Verifikation auf S20** (`SM-G780G`/`RF8T307S88H`, Transport zwischenzeitlich mehrfach
+  über `phone-register scan-wlan s20` neu aufgelöst, zusätzlich unabhängiger USB-Kanal über
+  `mooslap2023-ts` für Testtrigger, während der WLAN-Kanal beobachtete): 3x Rapid-Tap-Burst
+  korrekt zu einem einzigen verzögerten Schreibvorgang zusammengefasst (Log bestätigt
+  Timing exakt bei 1,5s nach letzter echter Änderung).
+- Commit `595c30a` + Fix-Commit `28ab284` (Overflow-Korrektur) auf Branch
+  `fix/114-debounce-toggle-cooldown`.
+
+## Nutzerfolgeauftrag 2 — Endpoint-Discovery-Latenz — 2026-08-21
+
+- Nutzerbeobachtung während der Live-Verifikation: „Endpoint wird gesucht …“ blieb 24-55s
+  hängen statt der dokumentierten „wenige hundert Millisekunden“.
+- **Root-Cause-Diagnose (mit Timing-Instrumentierung live gemessen):** Das reine Öffnen von 2501
+  `SocketChannel`s (ohne jedes Warten auf eine Antwort!) dauerte **11,58 Sekunden** — ein realer,
+  gemessener Android-Framework-Overhead von ~4,6ms pro Socket-Open+Connect-Aufruf, unabhängig
+  von der Anzahl paralleler Worker-Threads (kein Kontentions-, sondern ein reiner Per-Call-Kosten-
+  Effekt). Zusätzlich wurde adbd zeitweise ausschließlich auf IPv6-Loopback (`::1`) gebunden
+  gefunden (`netstat`/`nc`-Nachweis), was der bisherige reine IPv4-Scan nie gefunden hätte,
+  unabhängig von der Geschwindigkeit.
+- **Nutzerentscheidung** (nach Vorlage von drei Optionen): mDNS wird primärer, durchgehend
+  laufender Discovery-Pfad; der Brute-Force-Port-Scan wird auf einen knapp befristeten (300ms je
+  Adressfamilie), einmaligen Opportunismus-Versuch reduziert statt einer wiederholten 45s-Schleife.
+- Umsetzung: `KeepADBEndpoint` grundlegend umgebaut (siehe Commit-Message für Details); die
+  redundante, IPv4-only nachgeschaltete Loopback-Reverifikation entfernt (der Batch-Scan bestätigt
+  Erreichbarkeit bereits selbst über echtes `finishConnect()`); der #114-Recovery-Pulse jetzt mit
+  statischem 20s-Cooldown statt Instanz-Flag.
+- **Zweiter, während dieser Arbeit selbst gefundener und behobener Regressionsfund:** Der
+  Recovery-Pulse löste über `KeepADBNotification`s Teardown/Recreate-Zyklus (bei jedem
+  `adb_wifi_enabled`-Wechsel wird die `KeepADBEndpoint`-Instanz neu erzeugt) eine Endlosschleife
+  aus — die instanzgebundene „schon gepulst"-Flag wurde bei jeder Neuerzeugung zurückgesetzt,
+  wodurch der Pulse alle ~6,5s erneut feuerte und mDNS nie eine reale Chance zur Auflösung gab.
+  Live auf dem S20 beobachtet (wiederholte Pulse-Log-Zeilen im 6,5s-Takt über 40+ Sekunden) und
+  durch statisches, klassenweites Cooldown-Feld (20s) behoben.
+- **Live-Verifikation nach dem Fix** (S20, `SM-G780G`/`RF8T307S88H`): Einzel-Toggle findet
+  Endpoint via mDNS in ~1,2-1,5s; 3x-Rapid-Tap-Burst findet Endpoint in ~1,2s nach der debounced
+  Anwendung, kein Recovery-Pulse nötig; Register/Webhook-Update erfolgt jeweils prompt (HTTP 200)
+  passend zum gefundenen Endpoint. #112/#113-Notification-Verhalten nach dem Umbau erneut
+  stichprobenartig bestätigt (Notification zeigt korrekt Port/IP).
+- Commit `f8f72ac` auf demselben Branch.
+
+## Nutzeranweisung — keine GitHub-Actions-Läufe mehr während dieser Arbeit — 2026-08-21
+
+- Bereits vor diesem Paket als Regel dokumentiert (siehe oben, `AGENTS.md`-Abschnitt „CI (ab
+  2026-08-21: keine GitHub-Actions-Läufe mehr)"). PR #117 wurde entsprechend ohne
+  `workflow_dispatch`-Auslösung eröffnet und nach lokalen Gates + Gerätetest gemergt.
+
+## Abschluss — 2026-08-21
+
+- PR #117 (`fix: prevent rapid-toggle adbd races and fix endpoint discovery latency`) eröffnet,
+  ohne CI-Lauf (Policy), per Squash-Merge in `master` übernommen. Branch aufgeräumt.
+- Server-Stand (abgefragt): keine offenen Issues, keine offenen PRs, `master` synchron mit
+  `origin/master` auf `bed50ca`.
+- Status: `complete`.
+
+## Retrospektive — Debounce & Discovery-Root-Cause
+
+1. **Direkte Nutzerrückfrage statt Symptombehandlung:** Der Nutzer hat zu Recht nachgehakt,
+   nachdem ich mich mit dem reaktiven Recovery-Pulse zufriedengegeben hatte — der proaktive
+   Debounce-Fix an der Quelle ist die deutlich robustere Lösung und hätte von Anfang an der
+   naheliegendere Ansatz sein sollen.
+2. **Live-Messung statt Annahme:** Die ursprüngliche Doku „<200ms Scan" stammte aus einem
+   früheren, einmaligen Testlauf und wurde nie als generelle Garantie hinterfragt. Erst die
+   Zeitstempel-Instrumentierung direkt im Log deckte den echten ~4,6ms/Socket-Overhead auf; ohne
+   diese Messung wäre die Fehlsuche bei der reinen Parallelisierung stehengeblieben (die keine
+   Verbesserung brachte, weil der Engpass nicht kontentionsbedingt war).
+3. **Zwei selbstgefundene Regressionen vor dem Merge:** Beide (Overflow-Bug, Pulse-Endlosschleife)
+   wurden durch eigene, unabgefragte Geräte-Verifikation entdeckt und noch im selben Durchlauf
+   repariert — ohne diese Disziplin wären beide erst beim Nutzer aufgefallen, der zweite davon
+   als scheinbar zufälliges „hängt manchmal trotzdem".
+4. **IPv6-Bindung als Umgebungsvariable:** adbd bindet nicht zuverlässig dual-stack; ein Scan,
+   der nur eine Adressfamilie prüft, ist strukturell unvollständig, unabhängig von der
+   Performance. Für künftige Netzwerk-Discovery-Arbeit an diesem Projekt: immer beide
+   Adressfamilien in Betracht ziehen.
+5. **Verbesserung für nächstes Mal:** Bei dokumentierten Performance-Annahmen („dauert <200ms")
+   in der Codebasis ein Verfallsdatum/Kontext vermerken (welches Gerät, welcher Zustand), damit
+   spätere Abweichungen schneller als reale Regression statt als Umgebungsrauschen erkannt werden.
+
 ## Umsetzung & Validierung Paket B (PR #116 / Issue #114) — 2026-08-21
 
 - Implementierung: `KeepADBEndpoint.startFastProbe` pulst `adb_wifi_enabled` einmal pro
