@@ -9,6 +9,7 @@ final class KeepADBPreferences {
     private static final String KEY_KEEP_ALIVE = "keep_alive_enabled";
     private static final String KEY_REGISTER_URL = "register_webhook_url";
     private static final String KEY_WEBHOOK_ENABLED = "register_webhook_enabled";
+    private static final String KEY_APP_LANGUAGE = "app_language";
 
     private KeepADBPreferences() {}
 
@@ -59,6 +60,20 @@ final class KeepADBPreferences {
             return uri.getHost() != null && !uri.getHost().isEmpty();
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    static String getAppLanguage(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_APP_LANGUAGE, "");
+    }
+
+    static void setAppLanguage(Context context, String languageTag) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (languageTag == null || languageTag.trim().isEmpty()) {
+            prefs.edit().remove(KEY_APP_LANGUAGE).apply();
+        } else {
+            prefs.edit().putString(KEY_APP_LANGUAGE, languageTag.trim()).apply();
         }
     }
 }

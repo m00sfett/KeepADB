@@ -20,11 +20,12 @@ public class KeepADBWidget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
+        Context localizedContext = KeepADBLocaleHelper.wrapContext(context);
         if (ACTION_TOGGLE.equals(intent.getAction())) {
             boolean want = !KeepADB.isEnabled(context);
             if (!KeepADB.setEnabled(context, want)) {
                 Toast.makeText(context,
-                        context.getString(R.string.permission_error_toast, context.getPackageName()),
+                        localizedContext.getString(R.string.permission_error_toast, context.getPackageName()),
                         Toast.LENGTH_LONG).show();
             } else if (!want) {
                 KeepADBPreferences.setKeepAliveEnabled(context, false);
@@ -36,10 +37,11 @@ public class KeepADBWidget extends AppWidgetProvider {
     }
 
     private void render(Context context, AppWidgetManager mgr, int id) {
+        Context localizedContext = KeepADBLocaleHelper.wrapContext(context);
         boolean on = KeepADB.isEnabled(context);
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_keepadb);
         views.setTextViewText(R.id.widget_label,
-                on ? context.getString(R.string.widget_text_on) : context.getString(R.string.widget_text_off));
+                on ? localizedContext.getString(R.string.widget_text_on) : localizedContext.getString(R.string.widget_text_off));
 
         Intent i = new Intent(context, KeepADBWidget.class).setAction(ACTION_TOGGLE);
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, i,

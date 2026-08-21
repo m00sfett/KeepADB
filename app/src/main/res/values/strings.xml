@@ -48,5 +48,10 @@
     <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>
     <string name="settings_webhook_disabled_toast">Webhook sync disabled</string>
     <string name="settings_permission_warning">System permission WRITE_SECURE_SETTINGS missing. KeepADB cannot toggle Wireless Debugging until permission is granted.</string>
+    <string name="settings_section_language">Language</string>
+    <string name="settings_language_label">App Language</string>
+    <string name="settings_language_subtext">Choose the interface language for KeepADB</string>
+    <string name="settings_language_system_default">System default</string>
+    <string name="settings_language_dialog_title">Select Language</string>
     <string name="back">Back</string>
 </resources>
