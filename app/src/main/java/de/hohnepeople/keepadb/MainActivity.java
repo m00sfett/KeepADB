@@ -174,7 +174,12 @@ public class MainActivity extends Activity {
         }
         String lastEndpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(this);
         if (lastEndpoint == null || lastEndpoint.trim().isEmpty()) {
-            lastEndpoint = getString(R.string.webhook_status_no_endpoint);
+            // Distinguish "never reported anything yet" from "was reported, then successfully
+            // deregistered" -- both leave no current endpoint, but reusing the same "none yet"
+            // text for a just-completed deregistration reads as if one were still pending.
+            lastEndpoint = lastReportedAt > 0
+                    ? getString(R.string.webhook_status_deregistered)
+                    : getString(R.string.webhook_status_no_endpoint);
         }
         webhookStatus.setText(getString(R.string.webhook_status_hint, url, lastEndpoint, lastReported));
         webhookStatusPanel.setVisibility(View.VISIBLE);
