@@ -1125,3 +1125,17 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Endpunkt und kein Registerdienst-Umbau.
 - Status: Issues angelegt, noch nicht implementiert; `review: not applicable` für die
   reine Issue-Planung.
+
+## Neues Paket — App-Icon Konzept & Implementierung — 2026-08-21
+
+- Issue: [#77](https://github.com/m00sfett/KeepADB/issues/77) — App-Icon gestalten und als adaptives Android-Icon implementieren
+- Ziel: Ein prägnantes, eigenständiges App-Icon für KeepADB entwerfen (Konzeptabstimmung mit Meister via Bildprompts & Bildgenerierung) und anschließend als Android Adaptive Icon (Foreground/Background/Monochrom für Android 13+) integrieren.
+- Phase 1 (Design & Konzepte):
+  - 4 Bildprompts ausgearbeitet (Konzept A: Bugroid + Wi-Fi, B: Terminal Prompt + Wi-Fi, C: Wireless USB-to-Wave, D: Shield + Antenna).
+  - Bilder via Image-Generation erzeugt und nach `mooslap2023-ts:~/Downloads/` synchronisiert.
+  - Abstimmung mit Meister zur Designentscheidung.
+- Phase 2 (nach Freigabe der Designvariante):
+  - Erstellung der Vector-Drawables (`ic_launcher_foreground.xml`, `ic_launcher_background.xml`, `ic_launcher_monochrome.xml`).
+  - Adaptive Icon Mipmaps / Drawables und `AndroidManifest.xml` anpassen.
+- Status: Phase 1 Entwürfe generiert & bereitgestellt; wartet auf Designentscheidung des Meisters.
+
