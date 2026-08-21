@@ -2040,4 +2040,6 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   [#131](https://github.com/m00sfett/KeepADB/issues/131) und
   [#132](https://github.com/m00sfett/KeepADB/issues/132); alle offen, Titel/Labels/Bodies
   serverseitig nach Anlage verifiziert.
-- Status: `complete` für den Issue-Anlageauftrag; Commit-/Pushstatus wird separat geprüft.
+- Status: `complete` für den Issue-Anlageauftrag; Commit `2c49bc5` ist auf `origin/master`
+  gepusht, Arbeitsbaum nach der Aktualisierung sauber, Review `not applicable`, keine
+  Implementierung oder weitere Abnahme im Scope.
