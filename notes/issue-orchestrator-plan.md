@@ -1806,3 +1806,103 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   keine offenen Issues mehr im Repository.
 - Nächste sinnvolle Schritte: keine offenen Kandidaten; nächste Auswahlrunde erst bei neuen
   Issues oder auf ausdrücklichen Nutzerauftrag.
+
+## Umsetzung Paket #118 + #119 (Webhook-Endpoint-Registrierung) — 2026-08-21
+
+- Auftrag: Beide gebündelt (gleicher Codepfad `KeepADBRegisterClient`/`KeepADBEndpoint`/
+  `KeepADBNotification`, gemeinsame Root-Cause-Untersuchung). Eigene Stufe S1 (`sonnet`·`low`),
+  selbst umgesetzt (S1-First), kein Subagent nötig.
+- Root-Cause-Verifikation im Code vor Implementierung:
+  - #118a: `KeepADBNotification.refresh()` ruft `KeepADBRegisterClient.updateEndpointAsync()`
+    nur aus dem `onEndpoint()`-Callback einer frischen Discovery auf; im `currentHost != null`-
+    Zweig (bereits verbunden) fehlte der Aufruf komplett — bestätigt die Vermutung aus dem
+    Issue-Text.
+  - #118b: Der `deleteEndpoint()`-Erfolgspfad in `KeepADBRegisterClient` setzte
+    `KeepADBPreferences.setWebhookLastReportedEndpoint(...)` nie zurück — stale Anzeige nach
+    Deregistrierung bestätigt.
+  - #119: `markUnavailableAsync()`s Guard (`lastRegisteredEndpoint == null &&
+    latestPendingEndpoint.get() == null`) prüft ein rein statisches, nur In-Memory gehaltenes
+    Feld — nach einem Prozessneustart (auf Android Routine) ist es `null`, obwohl der Server
+    noch eine gültige Registrierung hält, und der DELETE wird dauerhaft übersprungen. Das
+    #112-Notification-Monitoring-Szenario selbst war beim Codelesen bereits korrekt (ruft
+    `refresh()` → `stop()` → `markUnavailableAsync()` unbedingt auf).
+- Fix: `ensureStateInitializedLocked()` seedet `lastRegisteredEndpoint` einmalig pro Prozess aus
+  der persistierten Preference (die nur bei bestätigtem POST-Erfolg geschrieben wird); Delete-
+  Erfolgspfad (jetzt in gemeinsamer `performPendingWork()` statt dupliziert) setzt die
+  Preference zusätzlich auf `null`; `refresh()` ruft `updateEndpointAsync()` zusätzlich im
+  Cache-Treffer-Zweig auf (günstiger No-op, falls bereits registriert).
+- Lokale Gates: `git diff --check`,
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`
+  erfolgreich (0 Fehler).
+- Geräte-Livenachweis auf S20 (`SM-G780G`/`RF8T307S88H`), da der registrierte WLAN-Port
+  zwischenzeitlich nicht erreichbar war (Meister-Hinweis auf USB-Fallback über
+  `mooslap2023-ts`) — Details siehe Geräte-Checkpoint unten. Alle drei Kernszenarien per
+  Logcat mit HTTP-200-Nachweis gegen den echten Registrierungsdienst bestätigt:
+  1. Frischer Prozess (nach `am force-stop`, In-Memory-Zustand verloren) + externes Ausschalten
+     von `adb_wifi_enabled` → `Register delete returned HTTP 200` (belegt #119-Fix).
+  2. Webhook bei bestehender Verbindung ausgeschaltet → Delete erfolgreich, persistierter
+     „zuletzt gemeldeter Endpoint" korrekt aus den Prefs entfernt (belegt #118b-Fix).
+  3. Webhook bei weiterhin bestehender, unveränderter Verbindung wieder eingeschaltet, **ohne**
+     neuen Discovery-Zyklus (kein `KeepADBEndpoint`-Log) → sofortiger
+     `Register update ... returned HTTP 200` (belegt #118a-Fix, den eigentlichen Kernfehler).
+  - Nebenbefund (kein eigener Codepfad dieses Pakets, nicht weiter verfolgt): Direktes
+    Überschreiben der `keepadb_prefs.xml` per `run-as cp`/Shell-Redirect schlug mit „Permission
+    denied" fehl (vermutlich SELinux-Restriktion auf `shared_prefs/`); UI-Automation
+    (uiautomator dump + `input tap`) war der zuverlässige Weg für den Webhook-Toggle-Test.
+    `SettingsActivity` ist absichtlich nicht exported (`am start -n ... .SettingsActivity`
+    scheitert mit `SecurityException`) — kein Befund, korrektes Verhalten.
+- PR #120 (`fix: reliably register/deregister webhook endpoint across restarts`) eröffnet und
+  nach grünen lokalen Gates plus Geräte-Livenachweis direkt gemerged (kein GitHub-Actions-Run,
+  Regel seit 2026-08-21). `Fixes #118`, `Fixes #119` — beide serverseitig automatisch
+  geschlossen, verifiziert nach Merge.
+- Kein delegierter Code, keine Architektur-/Auth-/Migrations-/externe-Schnittstellen-
+  Neuentscheidung → laut Review-Policy kein separater unabhängiger Review erforderlich; eigene
+  Qualitätsleiter (Gates + Geräte-Livenachweis) genügte.
+- Status: `complete`.
+
+### Geräte-Checkpoint — S20 Transportwechsel während dieses Pakets
+
+- Registrierter WLAN-ADB-Pfad antwortete zwischenzeitlich nicht mehr (`Connection refused`
+  nach eigenem Toggle-Test); automatischer Schnell-Portscan (30000–50000) fand ebenfalls nichts
+  Nutzbares. Meister sofort informiert; auf Anweisung per `ssh mooslap2023-ts` auf den
+  USB-Transport (`adb -s RF8T307S88H`) ausgewichen — dort durchgehend erreichbar.
+- Nach Testende regulären WLAN-Pfad erneut verifiziert (`android-target s20` wieder
+  funktionsfähig, neuer Endpoint `192.168.178.24:45285`) und das zentrale Register aktualisiert
+  (`phone-register record s20 --method wlan-adb --endpoint 192.168.178.24:45285
+  --verified-fingerprint "SM-G780G/RF8T307S88H"`).
+- Für künftige Läufe an diesem Projekt: Der App-eigene Webhook-Endpunkt
+  (`http://100.111.111.21:50829/register/s20`) ist **derselbe** Dienst wie das zentrale
+  Erreichbarkeits-Register — eigene `phone-register`/`android-target`-Aufrufe während eines
+  Webhook-Tests überschreiben denselben Serverzustand und verfälschen ein reines
+  Curl-Polling als Testnachweis. Logcat-Beweis der tatsächlichen App-eigenen HTTP-Calls ist
+  daher der verlässlichere Nachweis, nicht Polling des geteilten Registers.
+
+### Retrospektive
+
+1. Reihenfolge Code-Lesen (Root-Cause vorab verifizieren) → Fix → lokale Gates → Geräte-
+   Livenachweis war richtig: Die statische Codeanalyse allein hätte die In-Memory-vs-Persisted-
+   State-Diskrepanz (#119) zwar korrekt identifiziert, aber ohne echten Prozessneustart auf dem
+   Gerät wäre nicht bewiesen gewesen, dass die Seed-Logik den beschriebenen Skip tatsächlich
+   verhindert — ein rein lokaler Test hätte hier falsche Sicherheit erzeugt.
+2. Der Geräte-Livenachweis fand den Transportausfall (unabhängig vom Code) und den
+   `run-as`-Schreibzugriffs-Sackgassen; beide kein Regressionsrisiko fürs Paket, aber wertvolle
+   Erkenntnis für künftige Testmethodik an diesem Projekt (UI-Automation statt Prefs-Datei-
+   Manipulation).
+3. Delegation/Review wären hier kein Erkenntnisgewinn gewesen — der Diff ist klein, lokalisiert,
+   und der eigentliche Nachweis kam ohnehin aus dem Geräte-Log, nicht aus einer zweiten
+   Code-Lektüre. S1 direkt war richtig zugeschnitten.
+4. Verbesserung für nächstes Mal: Bei Webhook-/Register-Tests an diesem Projekt vorab prüfen,
+   ob der konfigurierte Webhook zufällig derselbe Dienst wie das zentrale Erreichbarkeits-
+   Register ist (hier der Fall) — dann von Anfang an Logcat statt Curl-Polling als Testoracle
+   wählen, statt es erst während des Tests zu entdecken.
+
+## Übergabe-Checkpoint — 2026-08-21 (nach #118/#119)
+
+- Server-Stand (abgefragt): keine offenen Issues, keine offenen PRs, `master` synchron mit
+  `origin/master` auf `722a7e8`.
+- Arbeitsbaum: sauber.
+- Strangzähler: Strang „Nutzerfolgeauftrag 3 → #118/#119" hat mit diesem Paket ein
+  nutzersichtbares Ergebnis erzeugt (Webhook-Registrierung jetzt zuverlässig) — keine offenen
+  Issues mehr im Repository.
+- Nächste sinnvolle Schritte: keine offenen Kandidaten; nächste Auswahlrunde erst bei neuen
+  Issues oder auf ausdrücklichen Nutzerauftrag.
