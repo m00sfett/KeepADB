@@ -89,7 +89,7 @@ final class KeepADBRegisterClient {
         HttpURLConnection conn = null;
         try {
             JSONObject payloadJson = new JSONObject();
-            payloadJson.put("method", "keepadb");
+            payloadJson.put("method", "wlan-adb");
             payloadJson.put("endpoint", endpoint);
             byte[] bytes = payloadJson.toString().getBytes(StandardCharsets.UTF_8);
 
