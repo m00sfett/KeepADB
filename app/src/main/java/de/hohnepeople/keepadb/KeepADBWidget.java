@@ -1,4 +1,4 @@
-package de.moos.wifiadb;
+package de.hohnepeople.keepadb;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -9,8 +9,8 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-public class AdbWifiWidget extends AppWidgetProvider {
-    private static final String ACTION_TOGGLE = "de.moos.wifiadb.TOGGLE";
+public class KeepADBWidget extends AppWidgetProvider {
+    private static final String ACTION_TOGGLE = "de.hohnepeople.keepadb.TOGGLE";
 
     @Override
     public void onUpdate(Context context, AppWidgetManager mgr, int[] ids) {
@@ -21,40 +21,40 @@ public class AdbWifiWidget extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
         if (ACTION_TOGGLE.equals(intent.getAction())) {
-            boolean want = !AdbWifi.isEnabled(context);
-            if (!AdbWifi.setEnabled(context, want)) {
+            boolean want = !KeepADB.isEnabled(context);
+            if (!KeepADB.setEnabled(context, want)) {
                 Toast.makeText(context,
                         context.getString(R.string.permission_error_toast, context.getPackageName()),
                         Toast.LENGTH_LONG).show();
             } else if (!want) {
-                AdbWifiPreferences.setKeepAliveEnabled(context, false);
-                AdbWifiService.stop(context);
+                KeepADBPreferences.setKeepAliveEnabled(context, false);
+                KeepADBService.stop(context);
             }
             refreshAll(context);
-            AdbWifiNotification.refresh(context);
+            KeepADBNotification.refresh(context);
         }
     }
 
     private void render(Context context, AppWidgetManager mgr, int id) {
-        boolean on = AdbWifi.isEnabled(context);
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_adbwifi);
+        boolean on = KeepADB.isEnabled(context);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_keepadb);
         views.setTextViewText(R.id.widget_label,
                 on ? context.getString(R.string.widget_text_on) : context.getString(R.string.widget_text_off));
 
-        Intent i = new Intent(context, AdbWifiWidget.class).setAction(ACTION_TOGGLE);
+        Intent i = new Intent(context, KeepADBWidget.class).setAction(ACTION_TOGGLE);
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, i,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         views.setOnClickPendingIntent(R.id.widget_label, pi);
 
         mgr.updateAppWidget(id, views);
-        AdbWifiNotification.refresh(context);
+        KeepADBNotification.refresh(context);
     }
 
     /** Aktualisiert alle platzierten Widgets (auch nach Änderung via App/Tile aufrufbar). */
     static void refreshAll(Context context) {
         AppWidgetManager mgr = AppWidgetManager.getInstance(context);
-        ComponentName cn = new ComponentName(context, AdbWifiWidget.class);
+        ComponentName cn = new ComponentName(context, KeepADBWidget.class);
         int[] ids = mgr.getAppWidgetIds(cn);
-        new AdbWifiWidget().onUpdate(context, mgr, ids);
+        new KeepADBWidget().onUpdate(context, mgr, ids);
     }
 }

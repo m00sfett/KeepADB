@@ -1,17 +1,17 @@
-package de.moos.wifiadb;
+package de.hohnepeople.keepadb;
 
 import android.content.Context;
 import android.provider.Settings;
 
 /** Liest/schreibt Androids "Wireless debugging"-Schalter (Settings.Global.adb_wifi_enabled). */
-final class AdbWifi {
+final class KeepADB {
     static final String KEY = "adb_wifi_enabled";
 
-    // Set right after a successful user-initiated disable, consumed once by AdbWifiService's
+    // Set right after a successful user-initiated disable, consumed once by KeepADBService's
     // keep-alive observer so it doesn't immediately re-enable a deliberate shutoff.
     private static volatile boolean userDisabled;
 
-    private AdbWifi() {}
+    private KeepADB() {}
 
     static boolean isEnabled(Context ctx) {
         return Settings.Global.getInt(ctx.getContentResolver(), KEY, 0) == 1;

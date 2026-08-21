@@ -1,10 +1,11 @@
-package de.moos.wifiadb;
+package de.hohnepeople.keepadb;
 
 import android.app.Activity;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,6 +16,7 @@ public class MainActivity extends Activity {
     private Switch keepAliveToggle;
     private TextView status;
     private TextView endpoint;
+    private View setupPanel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +26,8 @@ public class MainActivity extends Activity {
         keepAliveToggle = findViewById(R.id.keep_alive_toggle);
         status = findViewById(R.id.status);
         endpoint = findViewById(R.id.endpoint);
+        setupPanel = findViewById(R.id.setup_panel);
+        findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
@@ -32,26 +36,26 @@ public class MainActivity extends Activity {
                     NOTIFICATION_PERMISSION_REQUEST);
         }
 
-        // OnClick (nicht OnCheckedChanged): feuert nur bei Nutzer-Tipp, nicht bei refresh().
+        // OnClick fires only for user interaction, unlike OnCheckedChanged during refresh().
         toggle.setOnClickListener(v -> {
             boolean want = toggle.isChecked();
-            if (!AdbWifi.setEnabled(this, want)) {
-                toggle.setChecked(!want); // Berechtigung fehlt -> zurücksetzen
+            if (!KeepADB.setEnabled(this, want)) {
+                toggle.setChecked(!want);
                 showPermissionErrorToast();
             } else if (!want) {
-                // Bei manuellem Ausschalten von WLAN-ADB auch Keep-Alive deaktivieren
-                AdbWifiPreferences.setKeepAliveEnabled(this, false);
-                AdbWifiService.stop(this);
+                // A manual shutoff also disables keep-alive.
+                KeepADBPreferences.setKeepAliveEnabled(this, false);
+                KeepADBService.stop(this);
             }
             refreshUiAndComponents();
         });
 
         keepAliveToggle.setOnClickListener(v -> {
             boolean wantKeepAlive = keepAliveToggle.isChecked();
-            AdbWifiPreferences.setKeepAliveEnabled(this, wantKeepAlive);
-            AdbWifiService.sync(this);
-            if (wantKeepAlive && AdbWifiService.isWifiConnected(this) && !AdbWifi.isEnabled(this)) {
-                if (!AdbWifi.setEnabled(this, true)) {
+            KeepADBPreferences.setKeepAliveEnabled(this, wantKeepAlive);
+            KeepADBService.sync(this);
+            if (wantKeepAlive && KeepADBService.isWifiConnected(this) && !KeepADB.isEnabled(this)) {
+                if (!KeepADB.setEnabled(this, true)) {
                     showPermissionErrorToast();
                 }
             }
@@ -62,7 +66,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        AdbWifiNotification.setEndpointListener(new AdbWifiNotification.EndpointListener() {
+        KeepADBNotification.setEndpointListener(new KeepADBNotification.EndpointListener() {
             @Override
             public void onEndpoint(String host, int port) {
                 runOnUiThread(() -> endpoint.setText(getString(R.string.endpoint_format, host, port)));
@@ -70,17 +74,17 @@ public class MainActivity extends Activity {
 
             @Override
             public void onUnavailable() {
-                runOnUiThread(() -> endpoint.setText(AdbWifi.isEnabled(MainActivity.this)
+                runOnUiThread(() -> endpoint.setText(KeepADB.isEnabled(MainActivity.this)
                         ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable)));
             }
         });
         refresh();
-        AdbWifiNotification.refresh(this);
+        KeepADBNotification.refresh(this);
     }
 
     @Override
     protected void onPause() {
-        AdbWifiNotification.clearEndpointListener();
+        KeepADBNotification.clearEndpointListener();
         super.onPause();
     }
 
@@ -88,21 +92,30 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == NOTIFICATION_PERMISSION_REQUEST) {
-            AdbWifiNotification.refresh(this);
+            KeepADBNotification.refresh(this);
         }
     }
 
     private void refresh() {
-        boolean on = AdbWifi.isEnabled(this);
+        boolean configured = hasSecureSettingsPermission();
+        boolean on = KeepADB.isEnabled(this);
+        setupPanel.setVisibility(configured ? View.GONE : View.VISIBLE);
+        toggle.setEnabled(configured);
+        keepAliveToggle.setEnabled(configured);
         toggle.setChecked(on);
         status.setText(on ? getString(R.string.status_on) : getString(R.string.status_off));
-        keepAliveToggle.setChecked(AdbWifiPreferences.isKeepAliveEnabled(this));
+        keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
+    }
+
+    private boolean hasSecureSettingsPermission() {
+        return checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
     private void refreshUiAndComponents() {
         refresh();
-        AdbWifiWidget.refreshAll(this);
-        AdbWifiNotification.refresh(this);
+        KeepADBWidget.refreshAll(this);
+        KeepADBNotification.refresh(this);
     }
 
     private void showPermissionErrorToast() {
