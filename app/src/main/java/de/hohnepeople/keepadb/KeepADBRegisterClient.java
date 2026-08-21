@@ -1,6 +1,8 @@
 package de.hohnepeople.keepadb;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,12 +20,36 @@ final class KeepADBRegisterClient {
     private static final String TAG = "KeepADBRegisterClient";
     private static final int TIMEOUT_MS = 2000;
     private static final String UNAVAILABLE_MARKER = "__UNAVAILABLE__";
+    private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "KeepADBRegisterPush");
         t.setDaemon(true);
         return t;
     });
+
+    /** Lets the UI react when the persisted register state actually changes, since the HTTP
+     * round-trip happens on a background thread well after the caller that triggered it returns. */
+    interface RegisterStateListener {
+        void onRegisterStateChanged();
+    }
+
+    private static volatile RegisterStateListener registerStateListener;
+
+    static void setRegisterStateListener(RegisterStateListener listener) {
+        registerStateListener = listener;
+    }
+
+    static void clearRegisterStateListener() {
+        registerStateListener = null;
+    }
+
+    private static void notifyRegisterStateListener() {
+        RegisterStateListener listener = registerStateListener;
+        if (listener != null) {
+            MAIN_HANDLER.post(listener::onRegisterStateChanged);
+        }
+    }
 
     private static final AtomicReference<String> latestPendingEndpoint = new AtomicReference<>();
     private static volatile String lastRegisteredEndpoint = null;
@@ -98,12 +124,14 @@ final class KeepADBRegisterClient {
                 // Otherwise the "last reported endpoint" shown in the UI stays stale after
                 // deregistration, looking as if the device were still registered (#118).
                 KeepADBPreferences.setWebhookLastReportedEndpoint(context, null);
+                notifyRegisterStateListener();
             }
         } else {
             if (postEndpoint(targetUrl, target)) {
                 lastRegisteredEndpoint = target;
                 KeepADBPreferences.setWebhookLastReportedAtNow(context);
                 KeepADBPreferences.setWebhookLastReportedEndpoint(context, target);
+                notifyRegisterStateListener();
             }
         }
     }
@@ -118,6 +146,7 @@ final class KeepADBRegisterClient {
                 lastRegisteredEndpoint = null;
                 latestPendingEndpoint.set(null);
                 KeepADBPreferences.setWebhookLastReportedEndpoint(context, null);
+                notifyRegisterStateListener();
             });
         } else {
             lastRegisteredEndpoint = null;
