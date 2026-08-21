@@ -1110,3 +1110,18 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Breaking Change wäre.
 - Laufstatus vor Merge: `approved`; Server-Head und Checkstatus sind erneut unmittelbar vor
   dem Merge abzufragen.
+
+## Neue Nutzeranforderung — zentraler Einstellungsbereich und Webhook-Konfiguration — 2026-08-21
+
+- Angelegt: [#75](https://github.com/m00sfett/KeepADB/issues/75) — zentralen Einstellungsbereich
+  für KeepADB-Optionen schaffen.
+- Angelegt: [#76](https://github.com/m00sfett/KeepADB/issues/76) — Webhook in den Einstellungen
+  aktivierbar und konfigurierbar.
+- Zusammenhang: #75 liefert den gemeinsamen Settings-Einstieg und die zentrale Oberfläche;
+  #76 ergänzt darin Aktivierung, URL, Validierung und Persistenz der optionalen
+  Register-/Webhook-Synchronisierung.
+- Bewusster Scope: Der bestehende Transport-Enum `method: "wlan-adb"` bleibt unverändert,
+  weil er Teil des externen Registervertrags ist. Keine feste Domain, kein persönlicher
+  Endpunkt und kein Registerdienst-Umbau.
+- Status: Issues angelegt, noch nicht implementiert; `review: not applicable` für die
+  reine Issue-Planung.
