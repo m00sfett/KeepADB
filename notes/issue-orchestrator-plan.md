@@ -1718,6 +1718,28 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
    in der Codebasis ein Verfallsdatum/Kontext vermerken (welches Gerät, welcher Zustand), damit
    spätere Abweichungen schneller als reale Regression statt als Umgebungsrauschen erkannt werden.
 
+## Nutzerfolgeauftrag 3 — README-Korrektur & zwei neue Webhook-Issues — 2026-08-21
+
+- Nutzerauftrag: README-Performance-Angabe auf die real gemessene Latenz (~1-2s über mDNS)
+  korrigieren statt „<200ms" zu versprechen; außerdem zwei Beobachtungen als Issues erfassen.
+- Umsetzung: `README.md` an zwei Stellen angepasst („Live Endpoint Resolution" und „High-Speed
+  Endpoint Discovery" → „Endpoint Discovery", jeweils mit „typically within 1-2 seconds" statt
+  „under 200 milliseconds"). `CHANGELOG.md` bewusst unverändert gelassen (historische
+  Release-Einträge, keine rückwirkende Fälschung vergangener Versionsbeschreibungen).
+- Neue Issues angelegt (reine Erfassung, keine Implementierung in diesem Lauf):
+  - [#118](https://github.com/m00sfett/KeepADB/issues/118) Webhook aktualisiert Endpoint nicht
+    zuverlässig bei neuer WLAN-ADB-Verbindung — unklar ob Anzeige- oder eigentlicher Hook-Bug;
+    Code-Hinweise (kein Re-Trigger bei nachträglicher Webhook-Aktivierung mit bereits gecachtem
+    `currentHost`; `deleteEndpoint()`-Pfad setzt `WebhookLastReportedEndpoint` nicht zurück) im
+    Issue-Text als Ausgangspunkt dokumentiert.
+  - [#119](https://github.com/m00sfett/KeepADB/issues/119) Gerät soll beim Ausschalten von
+    Wireless Debugging zuverlässig deregistriert werden — `markUnavailableAsync()` ruft zwar
+    bereits `deleteEndpoint()` auf, aber ungeklärt: Verhalten bei aktivem Keep-Alive (#112,
+    Notification bleibt im Monitoring-Zustand), Race in der Early-Return-Bedingung, fehlendes
+    Retry bei DELETE-Netzwerkfehler.
+- Status: `complete` für README-Korrektur und Issue-Anlage; #118/#119 offen, keine
+  Implementierung freigegeben oder vorgenommen.
+
 ## Umsetzung & Validierung Paket B (PR #116 / Issue #114) — 2026-08-21
 
 - Implementierung: `KeepADBEndpoint.startFastProbe` pulst `adb_wifi_enabled` einmal pro
