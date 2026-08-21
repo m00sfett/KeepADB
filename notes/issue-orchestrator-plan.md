@@ -2264,3 +2264,15 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - **Status:** `approved` für Issue #131; Commit/PR/Server-Schließung stehen noch aus. Review:
   `not applicable` für die direkte, test-only Reständerung; die vorherige unabhängige Review-
   Kette des Produktcodes ist im Plan dokumentiert.
+
+## Abschluss Issue #131 — 2026-08-21
+
+- PR [#134](https://github.com/m00sfett/KeepADB/pull/134) wurde per Squash-Merge als Commit
+  `2238029` in `master` übernommen; Issue [#131](https://github.com/m00sfett/KeepADB/issues/131)
+  ist serverseitig geschlossen.
+- `master` und `origin/master` sind synchron, der Arbeitsbaum ist sauber. Es wurden keine
+  GitHub-Actions-Runs gestartet; PR #134 hatte keine gemeldeten erforderlichen Checks.
+- Übergabe: Der Härtungsstrang #131 ist abgeschlossen. Die Veröffentlichung bleibt
+  zurückgestellt; #125–#130, #132 und #133 sind weiterhin getrennte offene Folgepakete.
+- **Finalstatus:** `complete` für das Paket; Review `not applicable` für die test-only
+  Reständerung, Produktcode-Reviewkette im vorherigen Plan dokumentiert.
