@@ -1145,4 +1145,118 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - Lokale Gates: Gradle `assembleDebug`, `lintDebug` und `test` erfolgreich bestanden.
 - Status: `complete` (Implementierung & lokale Gates erfolgreich; Issue #77 bereit zum Abschluss).
 
+## Neue Auswahlrunde & Kandidaten-Paketierung — 2026-08-21
+
+- **Ausgangslage:**
+  - `master` und `origin/master` stehen auf `d1c6a94` (keine uncommitted Changes).
+  - Keine offenen PRs.
+  - Letzter CI-Run `32476214155` erfolgreich abgeschlossen (grün).
+  - 3 offene Issues im Repository:
+    1. [#74](https://github.com/m00sfett/KeepADB/issues/74) `CI: GitHub-Actions auf Node-24-kompatible Actions v4/v5 aktualisieren`
+    2. [#75](https://github.com/m00sfett/KeepADB/issues/75) `feat: zentralen Einstellungsbereich für KeepADB-Optionen schaffen`
+    3. [#76](https://github.com/m00sfett/KeepADB/issues/76) `feat: Webhook in den Einstellungen aktivierbar und konfigurierbar`
+
+- **Paketierung nach Eco-Grundsätzen (einfachste Pakete zuerst):**
+
+  1. **Paket 1 (CI Maintenance / S1):**
+     - Issue: [#74](https://github.com/m00sfett/KeepADB/issues/74)
+     - Ziel: In `.github/workflows/ci.yml` und `.github/workflows/release.yml` `actions/setup-java` von `@v4` auf `@v5` aktualisieren (Node-24-kompatibel / modernisierte GitHub Action) und CI-Workflow verifizieren.
+     - Stufe: S1 (Direktumsetzung / Workflow-Update).
+     - Gates: `git diff --check`, CI-Run nach Push.
+
+  2. **Paket 2 (Zentraler Einstellungsbereich / S2):**
+     - Issue: [#75](https://github.com/m00sfett/KeepADB/issues/75)
+     - Ziel:
+       - Zentralen Einstieg (Button / Menü-Icon) in `MainActivity` zu einer dedizierten `SettingsActivity` schaffen.
+       - Bestehende benutzerspezifische Optionen (insbesondere "Dauerhaft aktiv halten" / Keep-Alive) in den Einstellungsbereich überführen bzw. dort konsistent anbinden.
+       - Berechtigungsstatus (`WRITE_SECURE_SETTINGS`) und Hilfe sauber integrieren.
+       - Ressourcen vollständig in Englisch (Standard) und Deutsch pflegen.
+     - Stufe: S2 (Direktumsetzung, Android Activity & UI).
+     - Gates: `git diff --check`, `gradlew assembleDebug lintDebug testDebugUnitTest`, UI-Smoke.
+
+  3. **Paket 3 (Webhook-Konfiguration im Einstellungsbereich / S2):**
+     - Issue: [#76](https://github.com/m00sfett/KeepADB/issues/76)
+     - Ziel:
+       - Im Einstellungsbereich aus #75 den Abschnitt für Webhook / Endpoint-Synchronisierung integrieren (Aktivierungs-Switch, URL-Eingabefeld, Validierung, Erklärung).
+       - Anbindung an `KeepADBPreferences` und `KeepADBRegisterClient`.
+       - Sauberes POST/DELETE-Verhalten und Einhaltung des Transportvertrags (`method: "wlan-adb"`).
+       - Ressourcen in Englisch und Deutsch pflegen.
+     - Stufe: S2 (Direktumsetzung, SharedPreferences & Netzwerk-Config).
+     - Gates: `git diff --check`, `gradlew assembleDebug lintDebug testDebugUnitTest`, Validierungs-/Gerätenachweis.
+
+- **Auswahl & Durchführung:**
+  - **Paket 1 (Issue #74):** CI-Workflow-Aktualisierung (PR #78).
+  - **Paket 2 (Issue #75):** Zentraler Einstellungsbereich (PR #79).
+  - **Paket 3 (Issue #76):** Webhook-Konfiguration in Settings (PR #80).
+
+## Umsetzung & Validierung Paket 1 (PR #78 / Issue #74) — 2026-08-21
+
+- **Implementierung:** `actions/setup-java` in `.github/workflows/ci.yml` und `.github/workflows/release.yml` von `@v4` auf `@v5` angehoben.
+- **Validierung & Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - GitHub Actions CI (Run `32476960344`): erfolgreich abgeschlossen (grün, 1m 5s).
+- **Abschluss:** PR #78 per Squash-Merge in `master` übernommen; Issue #74 durch GitHub geschlossen.
+- **Status:** `complete`.
+
+## Umsetzung & Validierung Paket 2 (PR #79 / Issue #75) — 2026-08-21
+
+- **Implementierung:**
+  - `SettingsActivity.java` und `activity_settings.xml` erstellt; in `AndroidManifest.xml` registriert.
+  - In `activity_main.xml` und `MainActivity.java` den Einstieg zu den Einstellungen integriert und die Hauptansicht auf den Toggle und Status fokussiert.
+  - Die Option "Dauerhaft aktiv halten" (Keep-Alive) in die `SettingsActivity` verlagert und mit `KeepADBPreferences` / `KeepADBService` synchronisiert.
+  - Vollständige String-Lokalisierung in Deutsch und Englisch für alle neuen Elemente gepflegt.
+- **Validierung & Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug lintDebug testDebugUnitTest`: bestanden (0 Fehler, 0 Warnungen).
+  - Live-UI-Smoke auf Samsung Galaxy S20 FE (`SM-G780G`):
+    - Einstieg über Hauptansicht erfolgreich aufgerufen.
+    - Keep-Alive Schalter toggelt Service-Zustand live (`dumpsys activity services` bestätigt Foreground-Service Start/Stop).
+    - Zurück-Navigation zu `MainActivity` erfolgreich.
+  - GitHub Actions CI (Run `32477246318`): erfolgreich abgeschlossen (grün, 57s).
+- **Abschluss:** PR #79 per Squash-Merge in `master` übernommen; Issue #75 durch GitHub geschlossen.
+- **Status:** `complete`.
+
+## Umsetzung & Validierung Paket 3 (PR #80 / Issue #76) — 2026-08-21
+
+- **Implementierung:**
+  - In `KeepADBPreferences.java` `isRegisterWebhookEnabled()`, `setRegisterWebhookEnabled()`, `isValidWebhookUrl()` und sicheres Löschen leerer URLs implementiert.
+  - In `KeepADBRegisterClient.java` die Aktivierungsprüfung in `updateEndpointAsync` und `markUnavailableAsync` eingebaut sowie `unregisterAndDisableAsync()` für sauberes Abmelden beim Deaktivieren hinzugefügt.
+  - In `SettingsActivity.java` und `activity_settings.xml` den Webhook-Abschnitt vollständig integriert (Aktivierungs-Switch, URL-Eingabe, Live-Validierung, Fehlermeldungsanzeige, Speichern und Löschen).
+  - `app/build.gradle` um `testImplementation 'junit:junit:4.13.2'` erweitert und Unit-Tests in `KeepADBPreferencesTest.java` angelegt.
+  - Vollständige String-Lokalisierung in Deutsch und Englisch gepflegt.
+- **Validierung & Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`: bestanden (0 Fehler, 0 Warnungen, Unit-Tests grün).
+  - Live-UI-Smoke auf Samsung Galaxy S20 FE:
+    - Aktivierungsversuch ohne URL zeigt verständliche Fehlermeldung und bleibt deaktiviert.
+    - Ungültige URL wird abgefangen.
+  - GitHub Actions CI (Run `32477682955`): erfolgreich abgeschlossen (grün, 55s).
+- **Abschluss:** PR #80 per Squash-Merge in `master` übernommen; Issue #76 durch GitHub geschlossen.
+- **Status:** `complete`.
+
+## Aufwandsprotokoll (Issues #74, #75, #76)
+
+- **Geplante / erledigte Pakete:** 3 Pakete
+  - Paket 1: Issue #74 (PR #78) — CI Actions Node 24 Update
+  - Paket 2: Issue #75 (PR #79) — Zentraler Einstellungsbereich
+  - Paket 3: Issue #76 (PR #80) — Webhook-Konfiguration im Einstellungsbereich
+- **Erledigte Issues:** 3 von 3 geschlossen (100%).
+- **PRs:** PR #78, PR #79, PR #80 alle erfolgreich via Squash-Merge in `master` integriert.
+- **Modell:** Gemini 3.7 Flash Medium (S2 / Direktumsetzung).
+- **Build-/Lint-/Testläufe:** 4x `assembleDebug lintDebug testDebugUnitTest` erfolgreich (0 Fehler).
+- **Geräte-Abnahme:** Live auf Samsung Galaxy S20 FE (`SM-G780G`).
+- **Fehlversuche / Retries am Code:** 0.
+- **Beobachtete Token-/Abrechnungswerte:** unbekannt.
+
+## Retrospektive (Issues #74, #75, #76)
+
+1. **Paketierungsreihenfolge:** Die Aufteilung nach Eco-Grundsätzen (S1 CI-Toolchain -> S2 Einstellungs-Framework -> S2 Feature-Erweiterung im Einstellungsbereich) ermöglichte atomare, übersichtliche PRs ohne Merge-Konflikte.
+2. **Qualitäts-Gates:** Lokale Gates (Formatierung, Lint, Unit-Tests, Debug-Builds) in Kombination mit UI-Automation-Dumps auf dem physischen S20 FE haben sowohl die Programmlogik als auch das tatsächliche UI- und Service-Verhalten deterministisch abgesichert.
+3. **Kontext- und Ressourcen-Schonung:** Alle 3 Pakete wurden in einem zusammenhängenden, disziplinierten Durchlauf direkt ohne unproduktiven Subagenten-Overhead abgeschlossen.
+
+## Abschlussstatus
+
+- **Status:** `complete` (Alle 3 Issues #74, #75, #76 gelöst, verifiziert und gemergt; 0 offene Issues im Repository).
+
+
 
