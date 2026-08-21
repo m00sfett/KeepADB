@@ -64,14 +64,26 @@ public class KeepADBService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        long lastHeartbeat = KeepADBPreferences.getServiceLastHeartbeat(this);
+        if (lastHeartbeat > 0) {
+            long gapMs = System.currentTimeMillis() - lastHeartbeat;
+            Log.i(TAG, "onCreate: service (re)started, " + gapMs + "ms since last heartbeat"
+                    + (gapMs > 90_000 ? " -- process was likely killed and restarted by the system" : ""));
+        } else {
+            Log.i(TAG, "onCreate: service starting for the first time (no prior heartbeat)");
+        }
+        heartbeatNow();
         KeepADB.consumeUserDisabled();
         registerAdbObserver();
         registerNetworkCallback();
+        startHeartbeatTicker();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand startId=" + startId + " flags=" + flags);
         startForeground(KeepADBNotification.NOTIFICATION_ID, KeepADBNotification.getServiceNotification(this));
+        heartbeatNow();
         recheckAndEnable();
         return START_STICKY;
     }
@@ -83,11 +95,49 @@ public class KeepADBService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.w(TAG, "onDestroy: service stopping");
+        stopHeartbeatTicker();
         unregisterAdbObserver();
         unregisterNetworkCallback();
         stopForeground(STOP_FOREGROUND_DETACH);
         KeepADB.consumeUserDisabled();
         super.onDestroy();
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        Log.w(TAG, "onTaskRemoved: app task was swiped away from recents");
+        super.onTaskRemoved(rootIntent);
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        Log.w(TAG, "onTrimMemory: level=" + level + " -- system is reclaiming memory, may kill this process next");
+    }
+
+    private void heartbeatNow() {
+        KeepADBPreferences.setServiceLastHeartbeatNow(this);
+    }
+
+    private static final long HEARTBEAT_INTERVAL_MS = 60_000;
+    private final Handler heartbeatHandler = new Handler(Looper.getMainLooper());
+    private Runnable heartbeatRunnable;
+
+    private void startHeartbeatTicker() {
+        stopHeartbeatTicker();
+        heartbeatRunnable = () -> {
+            heartbeatNow();
+            heartbeatHandler.postDelayed(heartbeatRunnable, HEARTBEAT_INTERVAL_MS);
+        };
+        heartbeatHandler.postDelayed(heartbeatRunnable, HEARTBEAT_INTERVAL_MS);
+    }
+
+    private void stopHeartbeatTicker() {
+        if (heartbeatRunnable != null) {
+            heartbeatHandler.removeCallbacks(heartbeatRunnable);
+            heartbeatRunnable = null;
+        }
     }
 
     private void registerAdbObserver() {
