@@ -52,6 +52,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_hint">URL: %1$s\n最后报告的端点: %2$s\n最后报告时间: %3$s</string>
     <string name="webhook_status_never">从未</string>
     <string name="webhook_status_no_endpoint">尚无</string>
+    <string name="webhook_status_deregistered">已取消注册</string>
     <string name="settings_permission_warning">缺少系统权限 WRITE_SECURE_SETTINGS。在授予权限之前，KeepADB 无法切换无线调试。</string>
     <string name="settings_section_language">语言</string>
     <string name="settings_language_label">应用语言</string>

@@ -52,6 +52,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_hint">URL: %1$s\nUltimo endpoint segnalato: %2$s\nUltimo aggiornamento: %3$s</string>
     <string name="webhook_status_never">mai</string>
     <string name="webhook_status_no_endpoint">nessuno ancora</string>
+    <string name="webhook_status_deregistered">non più registrato</string>
     <string name="settings_permission_warning">Autorizzazione di sistema WRITE_SECURE_SETTINGS mancante. KeepADB non può attivare il debug wireless finché l\'autorizzazione non viene concessa.</string>
     <string name="settings_section_language">Lingua</string>
     <string name="settings_language_label">Lingua dell\'app</string>

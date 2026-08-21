@@ -52,6 +52,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_hint">URL: %1$s\nLaatst gemelde eindpunt: %2$s\nLaatst gemeld: %3$s</string>
     <string name="webhook_status_never">nooit</string>
     <string name="webhook_status_no_endpoint">nog geen</string>
+    <string name="webhook_status_deregistered">afgemeld</string>
     <string name="settings_permission_warning">Systeemtoestemming WRITE_SECURE_SETTINGS ontbreekt. KeepADB kan draadloze foutopsporing pas schakelen nadat toestemming is verleend.</string>
     <string name="settings_section_language">Taal</string>
     <string name="settings_language_label">App-taal</string>

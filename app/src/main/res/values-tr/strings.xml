@@ -52,6 +52,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_hint">URL: %1$s\nSon bildirilen uç nokta: %2$s\nSon bildirim: %3$s</string>
     <string name="webhook_status_never">hiçbir zaman</string>
     <string name="webhook_status_no_endpoint">henüz yok</string>
+    <string name="webhook_status_deregistered">kaydı silindi</string>
     <string name="settings_permission_warning">Sistem izni WRITE_SECURE_SETTINGS eksik. KeepADB izin verilene kadar Kablosuz Hata Ayıklamayı değiştiremez.</string>
     <string name="settings_section_language">Dil</string>
     <string name="settings_language_label">Uygulama Dili</string>
