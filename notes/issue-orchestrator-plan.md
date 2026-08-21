@@ -1422,3 +1422,34 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `git diff --check`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`: bestanden (0 Fehler, 0 Warnungen, APK-Größe von 1,2 MB auf 304 KB geschrumpft).
 - **Status:** `complete`.
+
+## Issue-110-Fix & kombinierte Verifikation — 2026-08-21
+
+- Freigabe: Fix für #110 umsetzen, lokale Gates, Commit/PR, Gerätetest — erteilt.
+- Umsetzung: `KeepADBEndpoint.scanLocalOpenPorts` nutzt jetzt den bereits vorhandenen
+  timeout-begrenzten `isPortReachable(InetAddress, int, int)`-Helper (25 ms) statt eines
+  zweiten, unbegrenzten `Socket.connect()`. Minimaler, diff-freundlicher Fix statt Rückkehr zur
+  vorherigen NIO-Selector-Implementierung.
+- Lokale Gates: `git diff --check`, `gradlew testDebugUnitTest assembleDebug` bestanden.
+  `lintDebug` weiterhin durch #108 blockiert (unverändert, unabhängig).
+- Commit `4be3679` auf Branch `fix/110-discovery-blocking-connect`, PR
+  [#111](https://github.com/m00sfett/KeepADB/pull/111) eröffnet (`Fixes #110`).
+- Geräteverifikation auf S20 (`SM-G780G`/`RF8T307S88H`, `192.168.178.24:45699`):
+  - Nach Fix: erste `FastProbe`-Iteration schließt in ~110 ms ab (vorher: nie abgeschlossen).
+  - Notification zeigt korrekt `Drahtloses Debugging: Port 45699 @ 192.168.178.24`.
+  - Register-Update erfolgreich (`HTTP 200`).
+- Kombinierte Verifikation (#106 + #110 zusammen): #106-Branch lokal **nur für den Testlauf**
+  in den #110-Branch gemergt (Commit `f315e83`, **nie gepusht**), APK gebaut und installiert.
+  Happy-Path bestätigt: Beim erneuten `onResume`/`refresh()` mit weiterhin gültigem Endpoint
+  loggt `verifyCachedEndpointAsync` keine Invalidierung, UI/Notification bleiben stabil und
+  korrekt — keine Regression durch den neuen Reachability-Check.
+  Danach `git reset --hard 4be3679`, um den Testmerge folgenlos zu verwerfen; Branch entspricht
+  wieder exakt dem gepushten Einzelfix für #110.
+- **Nicht abgedeckt:** Der eigentliche Negativ-Pfad von #106 (adbd rotiert den Port, ohne dass
+  `adb_wifi_enabled` sich ändert) ließ sich nicht sicher provozieren — jeder verfügbare Weg, den
+  Port extern zu ändern, läuft über denselben WLAN-ADB-Kanal, über den der Test selbst verbunden
+  ist, und hätte die eigene Steuerverbindung gekappt. Der Fix beruht auf Code-Review der Logik
+  (klar, synchronisiert, superseded-Check vorhanden) plus bestandenem Happy-Path-Nachweis.
+- Status: `approved` für #110 (Code + Gates + Live-Nachweis vollständig). `approved` mit einer
+  dokumentierten Einschränkung für #106 (Happy-Path live bestätigt, Negativ-Pfad nicht live
+  provozierbar) — PR #109 bleibt offen, kein Issue-Close ohne Nutzerentscheidung zur Einschränkung.
