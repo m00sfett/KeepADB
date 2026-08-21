@@ -51,6 +51,7 @@
     <string name="webhook_status_hint">URL: %1$s\nZuletzt gemeldeter Endpoint: %2$s\nZuletzt gemeldet: %3$s</string>
     <string name="webhook_status_never">noch nie</string>
     <string name="webhook_status_no_endpoint">noch keiner</string>
+    <string name="webhook_status_deregistered">abgemeldet</string>
     <string name="settings_permission_warning">Systemberechtigung WRITE_SECURE_SETTINGS fehlt. KeepADB kann Drahtloses Debugging erst nach Berechtigungsvergabe steuern.</string>
     <string name="settings_section_language">Sprache</string>
     <string name="settings_language_label">App-Sprache</string>

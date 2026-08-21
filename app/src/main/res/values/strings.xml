@@ -51,6 +51,7 @@
     <string name="webhook_status_hint">URL: %1$s\nLast reported endpoint: %2$s\nLast reported: %3$s</string>
     <string name="webhook_status_never">never</string>
     <string name="webhook_status_no_endpoint">none yet</string>
+    <string name="webhook_status_deregistered">deregistered</string>
     <string name="settings_permission_warning">System permission WRITE_SECURE_SETTINGS missing. KeepADB cannot toggle Wireless Debugging until permission is granted.</string>
     <string name="settings_section_language">Language</string>
     <string name="settings_language_label">App Language</string>

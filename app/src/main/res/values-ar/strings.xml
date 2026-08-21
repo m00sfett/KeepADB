@@ -52,6 +52,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_hint">URL: %1$s\nآخر نقطة نهاية تم الإبلاغ عنها: %2$s\nآخر إبلاغ: %3$s</string>
     <string name="webhook_status_never">أبدًا</string>
     <string name="webhook_status_no_endpoint">لا يوجد بعد</string>
+    <string name="webhook_status_deregistered">تم إلغاء التسجيل</string>
     <string name="settings_permission_warning">إذن النظام WRITE_SECURE_SETTINGS مفقود. لا يمكن لـ KeepADB تبديل تصحيح الأخطاء اللاسلكي حتى يتم منح الإذن.</string>
     <string name="settings_section_language">اللغة</string>
     <string name="settings_language_label">لغة التطبيق</string>

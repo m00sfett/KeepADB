@@ -52,6 +52,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_hint">URL: %1$s\n마지막으로 보고된 엔드포인트: %2$s\n마지막 보고: %3$s</string>
     <string name="webhook_status_never">없음</string>
     <string name="webhook_status_no_endpoint">아직 없음</string>
+    <string name="webhook_status_deregistered">등록 해제됨</string>
     <string name="settings_permission_warning">시스템 권한 WRITE_SECURE_SETTINGS가 없습니다. 권한이 부여될 때까지 KeepADB는 무선 디버깅을 전환할 수 없습니다.</string>
     <string name="settings_section_language">언어</string>
     <string name="settings_language_label">앱 언어</string>

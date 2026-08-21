@@ -52,6 +52,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_hint">URL: %1$s\nEndpoint được báo cáo gần nhất: %2$s\nBáo cáo gần nhất: %3$s</string>
     <string name="webhook_status_never">chưa bao giờ</string>
     <string name="webhook_status_no_endpoint">chưa có</string>
+    <string name="webhook_status_deregistered">đã hủy đăng ký</string>
     <string name="settings_permission_warning">Thiếu quyền hệ thống WRITE_SECURE_SETTINGS. KeepADB không thể chuyển đổi Gỡ lỗi không dây cho đến khi được cấp quyền.</string>
     <string name="settings_section_language">Ngôn ngữ</string>
     <string name="settings_language_label">Ngôn ngữ ứng dụng</string>
