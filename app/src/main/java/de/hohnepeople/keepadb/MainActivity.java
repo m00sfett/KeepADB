@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -13,7 +14,6 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
     private static final int NOTIFICATION_PERMISSION_REQUEST = 10;
     private Switch toggle;
-    private Switch keepAliveToggle;
     private TextView status;
     private TextView endpoint;
     private View setupPanel;
@@ -23,11 +23,12 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toggle = findViewById(R.id.toggle);
-        keepAliveToggle = findViewById(R.id.keep_alive_toggle);
         status = findViewById(R.id.status);
         endpoint = findViewById(R.id.endpoint);
         setupPanel = findViewById(R.id.setup_panel);
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
+        findViewById(R.id.btn_open_settings).setOnClickListener(v ->
+                startActivity(new Intent(this, SettingsActivity.class)));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
@@ -46,18 +47,6 @@ public class MainActivity extends Activity {
                 // A manual shutoff also disables keep-alive.
                 KeepADBPreferences.setKeepAliveEnabled(this, false);
                 KeepADBService.stop(this);
-            }
-            refreshUiAndComponents();
-        });
-
-        keepAliveToggle.setOnClickListener(v -> {
-            boolean wantKeepAlive = keepAliveToggle.isChecked();
-            KeepADBPreferences.setKeepAliveEnabled(this, wantKeepAlive);
-            KeepADBService.sync(this);
-            if (wantKeepAlive && KeepADBService.isWifiConnected(this) && !KeepADB.isEnabled(this)) {
-                if (!KeepADB.setEnabled(this, true)) {
-                    showPermissionErrorToast();
-                }
             }
             refreshUiAndComponents();
         });
@@ -101,10 +90,8 @@ public class MainActivity extends Activity {
         boolean on = KeepADB.isEnabled(this);
         setupPanel.setVisibility(configured ? View.GONE : View.VISIBLE);
         toggle.setEnabled(configured);
-        keepAliveToggle.setEnabled(configured);
         toggle.setChecked(on);
         status.setText(on ? getString(R.string.status_on) : getString(R.string.status_off));
-        keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
     }
 
     private boolean hasSecureSettingsPermission() {
