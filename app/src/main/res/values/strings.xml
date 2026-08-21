@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KeepAdb</string>
+    <string name="title_keepadb">KeepAdb</string>
+    <string name="status_on">Wireless ADB is ON</string>
+    <string name="status_off">Wireless ADB is OFF</string>
+    <string name="endpoint_format">Endpoint: %1$s:%2$d</string>
+    <string name="endpoint_searching">Searching for endpoint…</string>
+    <string name="endpoint_unavailable">Endpoint unavailable</string>
+    <string name="toggle_label">Wireless ADB</string>
+    <string name="keep_alive_toggle">Keep persistently active</string>
+    <string name="keep_alive_subtext">Auto-reconnect on connection drop, network change, or reboot</string>
+    <string name="widget_text_on">Wireless ADB: ON</string>
+    <string name="widget_text_off">Wireless ADB: OFF</string>
+    <string name="tile_label">Wireless ADB</string>
+    <string name="tile_permission_error">KeepAdb: Permission missing (pm grant required)</string>
+    <string name="permission_error_toast">Permission missing. Run once from PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="notification_channel_name">Wireless ADB Endpoint</string>
+    <string name="notification_channel_desc">Current IP address and port of Wireless ADB</string>
+    <string name="notification_title_active">Wireless ADB: Port %1$d @ %2$s</string>
+    <string name="notification_text_active">Port %1$d @ %2$s</string>
+    <string name="notification_title_searching">Wireless ADB: Searching for endpoint…</string>
+    <string name="notification_text_searching">Resolving endpoint on local network</string>
+    <string name="notification_service_title">Keep Wireless ADB Active</string>
+    <string name="notification_service_text">Monitoring Wi-Fi connection and Wireless ADB status</string>
+    <string name="notification_permission_missing_title">Wireless ADB: Permission missing</string>
+    <string name="notification_permission_missing_text">Grant WRITE_SECURE_SETTINGS from PC via adb shell pm grant</string>
+</resources>

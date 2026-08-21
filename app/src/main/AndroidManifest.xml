@@ -15,7 +15,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_adb"
-        android:label="WiFi-ADB"
+        android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.WifiAdb">
 
@@ -37,7 +37,7 @@
             android:name=".AdbWifiTileService"
             android:exported="true"
             android:icon="@drawable/ic_adb"
-            android:label="WLAN-ADB"
+            android:label="@string/tile_label"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />

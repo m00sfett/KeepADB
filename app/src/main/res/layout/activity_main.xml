@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="@color/banner_red"
         android:padding="16dp"
-        android:text="WLAN-ADB"
+        android:text="@string/title_keepadb"
         android:textColor="@color/title_yellow"
         android:textSize="26sp"
         android:textStyle="bold"
@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:text="WLAN-ADB"
+            android:text="@string/status_off"
             android:textColor="@color/night_text"
             android:textSize="20sp"
             android:fontFamily="@font/fira_sans" />
@@ -43,13 +43,13 @@
             android:textColor="@color/night_muted"
             android:textSize="15sp"
             android:fontFamily="monospace"
-            android:text="Endpoint nicht verfügbar" />
+            android:text="@string/endpoint_unavailable" />
 
         <Switch
             android:id="@+id/toggle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="WLAN-ADB"
+            android:text="@string/toggle_label"
             android:textColor="@color/text_yellow"
             android:textSize="18sp"
             android:fontFamily="@font/fira_sans_condensed" />
@@ -65,7 +65,7 @@
             android:id="@+id/keep_alive_toggle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dauerhaft aktiv halten"
+            android:text="@string/keep_alive_toggle"
             android:textColor="@color/text_yellow"
             android:textSize="18sp"
             android:fontFamily="@font/fira_sans_condensed" />
@@ -78,6 +78,6 @@
             android:textColor="@color/night_muted"
             android:textSize="13sp"
             android:fontFamily="@font/fira_sans"
-            android:text="Automatischer Reconnect bei Verbindungsabbruch, AP-Wechsel oder Neustart" />
+            android:text="@string/keep_alive_subtext" />
     </LinearLayout>
 </LinearLayout>
