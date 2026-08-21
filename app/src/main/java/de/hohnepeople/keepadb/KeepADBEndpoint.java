@@ -22,6 +22,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Queue;
@@ -30,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Discovers the active secure wireless-debugging endpoint advertised by adbd.
- * Uses high-speed local NIO port probing (30000-50000) combined with background mDNS.
+ * Uses ultra-fast parallel local NIO port probing (30000-50000) combined with background mDNS.
  */
 final class KeepADBEndpoint {
     private static final String TAG = "KeepADBEndpoint";
@@ -38,8 +39,9 @@ final class KeepADBEndpoint {
     private static final long RESOLVE_TIMEOUT_MS = 1500;
     static final int PROBE_START_PORT = 30000;
     static final int PROBE_END_PORT = 50000;
-    private static final int BATCH_SIZE = 128;
-    private static final int BATCH_SELECT_TIMEOUT_MS = 15;
+    private static final int BATCH_SIZE = 64;
+    private static final int SCAN_WORKERS = 4;
+    private static final int BATCH_SELECT_TIMEOUT_MS = 8;
 
     interface Listener {
         void onEndpoint(String host, int port);
@@ -97,10 +99,10 @@ final class KeepADBEndpoint {
 
         final long generation = discoveryGeneration;
 
-        // 1. High-speed local NIO Port-Scan (30000-50000)
+        // 1. Ultra-fast parallel NIO Port-Scan (30000-50000)
         startFastProbe(generation);
 
-        // 2. Parallel mDNS-Discovery als ergänzender Standard-/Fallback-Pfad
+        // 2. Parallel mDNS-Discovery als robuster Fallback-Pfad
         discoveryListener = new NsdManager.DiscoveryListener() {
             @Override
             public void onDiscoveryStarted(String serviceType) {
@@ -277,14 +279,13 @@ final class KeepADBEndpoint {
                 }
 
                 final String wifiIp = getWifiIpAddress(appContext);
-                final int foundPort = scanLocalOpenPort(PROBE_START_PORT, PROBE_END_PORT, BATCH_SELECT_TIMEOUT_MS);
+                final List<Integer> openPorts = scanLocalOpenPortsParallel(PROBE_START_PORT, PROBE_END_PORT, SCAN_WORKERS);
 
-                if (foundPort > 0) {
-                    Log.i(TAG, "FastProbe detected open local port: " + foundPort);
+                if (!openPorts.isEmpty()) {
                     String targetHost = wifiIp;
                     if (targetHost == null) {
                         try {
-                            Thread.sleep(150);
+                            Thread.sleep(100);
                         } catch (InterruptedException e) {
                             return;
                         }
@@ -294,22 +295,25 @@ final class KeepADBEndpoint {
                     if (targetHost != null) {
                         try {
                             InetAddress hostAddr = InetAddress.getByName(targetHost);
-                            if (isPortReachable(hostAddr, foundPort, 400)) {
-                                if (endpointDelivered.compareAndSet(false, true)) {
-                                    Listener targetListener;
-                                    synchronized (KeepADBEndpoint.this) {
-                                        if (isCurrent(generation)) {
-                                            resolveQueue.clear();
-                                            targetListener = currentListener;
-                                            stop();
-                                        } else {
-                                            targetListener = null;
+                            for (int candidatePort : openPorts) {
+                                if (isPortReachable(hostAddr, candidatePort, 300)) {
+                                    if (endpointDelivered.compareAndSet(false, true)) {
+                                        Log.i(TAG, "FastProbe verified live ADB endpoint: " + targetHost + ":" + candidatePort);
+                                        Listener targetListener;
+                                        synchronized (KeepADBEndpoint.this) {
+                                            if (isCurrent(generation)) {
+                                                resolveQueue.clear();
+                                                targetListener = currentListener;
+                                                stop();
+                                            } else {
+                                                targetListener = null;
+                                            }
                                         }
+                                        if (targetListener != null) {
+                                            targetListener.onEndpoint(targetHost, candidatePort);
+                                        }
+                                        return;
                                     }
-                                    if (targetListener != null) {
-                                        targetListener.onEndpoint(targetHost, foundPort);
-                                    }
-                                    return;
                                 }
                             }
                         } catch (Exception ignored) {
@@ -318,7 +322,7 @@ final class KeepADBEndpoint {
                 }
 
                 try {
-                    Thread.sleep(300);
+                    Thread.sleep(200);
                 } catch (InterruptedException e) {
                     return;
                 }
@@ -340,18 +344,50 @@ final class KeepADBEndpoint {
         coordinatorThread.start();
     }
 
-    static int scanLocalOpenPort(int startPort, int endPort, int selectTimeoutMs) {
+    static List<Integer> scanLocalOpenPortsParallel(int startPort, int endPort, int numWorkers) {
+        final List<Integer> allOpenPorts = Collections.synchronizedList(new ArrayList<>());
+        final int totalPorts = endPort - startPort + 1;
+        final int chunkSize = (totalPorts + numWorkers - 1) / numWorkers;
+        final Thread[] threads = new Thread[numWorkers];
+
+        for (int i = 0; i < numWorkers; i++) {
+            final int chunkStart = startPort + i * chunkSize;
+            final int chunkEnd = Math.min(chunkStart + chunkSize - 1, endPort);
+            threads[i] = new Thread(() -> {
+                List<Integer> found = scanLocalOpenPorts(chunkStart, chunkEnd, BATCH_SELECT_TIMEOUT_MS);
+                if (!found.isEmpty()) {
+                    allOpenPorts.addAll(found);
+                }
+            }, "KeepADBScanWorker-" + i);
+            threads[i].start();
+        }
+
+        for (Thread t : threads) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                for (Thread worker : threads) {
+                    if (worker != null) worker.interrupt();
+                }
+                break;
+            }
+        }
+        return new ArrayList<>(allOpenPorts);
+    }
+
+    static List<Integer> scanLocalOpenPorts(int startPort, int endPort, int selectTimeoutMs) {
+        List<Integer> openPorts = new ArrayList<>();
         final byte[] loopbackBytes = new byte[]{127, 0, 0, 1};
         final InetAddress loopback;
         try {
             loopback = InetAddress.getByAddress(loopbackBytes);
         } catch (Exception e) {
-            return -1;
+            return openPorts;
         }
 
         for (int batchStart = startPort; batchStart <= endPort; batchStart += BATCH_SIZE) {
             if (Thread.currentThread().isInterrupted()) {
-                return -1;
+                return openPorts;
             }
             int batchEnd = Math.min(batchStart + BATCH_SIZE - 1, endPort);
             Selector selector = null;
@@ -365,7 +401,8 @@ final class KeepADBEndpoint {
                         boolean connected = channel.connect(new InetSocketAddress(loopback, port));
                         if (connected) {
                             channel.close();
-                            return port;
+                            openPorts.add(port);
+                            continue;
                         }
                         channel.register(selector, SelectionKey.OP_CONNECT, port);
                         channels.add(channel);
@@ -382,7 +419,7 @@ final class KeepADBEndpoint {
                                 SocketChannel ch = (SocketChannel) key.channel();
                                 try {
                                     if (ch.finishConnect()) {
-                                        return (Integer) key.attachment();
+                                        openPorts.add((Integer) key.attachment());
                                     }
                                 } catch (Exception ignored) {
                                 }
@@ -390,7 +427,8 @@ final class KeepADBEndpoint {
                         }
                     }
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                Log.w(TAG, "Batch scan exception: " + e.getMessage());
             } finally {
                 for (SocketChannel ch : channels) {
                     try {
@@ -406,7 +444,7 @@ final class KeepADBEndpoint {
                 }
             }
         }
-        return -1;
+        return openPorts;
     }
 
     private static boolean isPortReachable(InetAddress addr, int port, int timeoutMs) {

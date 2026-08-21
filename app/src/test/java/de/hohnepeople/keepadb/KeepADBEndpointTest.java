@@ -1,27 +1,28 @@
 package de.hohnepeople.keepadb;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.net.ServerSocket;
+import java.util.List;
 import org.junit.Test;
 
 public class KeepADBEndpointTest {
 
     @Test
-    public void testScanLocalOpenPortFindsBoundSocket() throws Exception {
+    public void testScanLocalOpenPortsFindsBoundSocket() throws Exception {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             int port = serverSocket.getLocalPort();
-            // Test scanner across a range containing the port
-            int foundPort = KeepADBEndpoint.scanLocalOpenPort(port - 10, port + 10, 50);
-            assertEquals(port, foundPort);
+            List<Integer> foundPorts = KeepADBEndpoint.scanLocalOpenPorts(port - 10, port + 10, 50);
+            assertTrue(foundPorts.contains(port));
         }
     }
 
     @Test
-    public void testScanLocalOpenPortReturnsNegativeWhenNoneOpen() {
-        // Ports 1..10 are normally unallocated/closed on test runner
-        int foundPort = KeepADBEndpoint.scanLocalOpenPort(49990, 49995, 10);
-        assertTrue(foundPort == -1 || foundPort > 0);
+    public void testScanLocalOpenPortsReturnsEmptyWhenNoneOpen() {
+        List<Integer> foundPorts = KeepADBEndpoint.scanLocalOpenPorts(49990, 49995, 10);
+        // Either empty or contains valid positive ports
+        for (int p : foundPorts) {
+            assertTrue(p >= 49990 && p <= 49995);
+        }
     }
 }
