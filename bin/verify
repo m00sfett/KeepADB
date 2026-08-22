@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$SCRIPT_DIR"
+
+echo "==> [1/3] Checking git diff..."
+git diff --check
+
+echo "==> [2/3] Running tests, lint and debug build..."
+export JAVA_HOME="${JAVA_HOME:-/usr/lib/jvm/java-17-openjdk}"
+./gradlew testDebugUnitTest lintDebug assembleDebug
+
+echo "==> [3/3] Building release APK..."
+./gradlew assembleRelease
+
+echo "==> Verification completed successfully!"
