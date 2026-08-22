@@ -22,7 +22,8 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Eindpunt voor draadloze foutopsporing</string>
     <string name="notification_channel_desc">Huidig IP-adres en poort van draadloze foutopsporing</string>
-    <string name="notification_title_active">KeepADB: Draadloze foutopsporing staat AAN</string>
+    <string name="notification_title_active">KeepADB: Wifi-ADB INGESCHAKELD</string>
+    <string name="notification_title_disabled">KeepADB: Wifi-ADB UITGESCHAKELD</string>
     <string name="notification_text_active">Poort %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: Zoeken naar eindpunt…</string>
     <string name="notification_text_searching">Eindpunt oplossen op lokaal netwerk</string>

@@ -22,7 +22,8 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Endpoint de depuração sem fio</string>
     <string name="notification_channel_desc">Endereço IP e porta atuais da depuração sem fio</string>
-    <string name="notification_title_active">KeepADB: Depuração sem fio ATIVADA</string>
+    <string name="notification_title_active">KeepADB: Wifi-ADB ATIVADO</string>
+    <string name="notification_title_disabled">KeepADB: Wifi-ADB DESATIVADO</string>
     <string name="notification_text_active">Porta %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: Procurando endpoint…</string>
     <string name="notification_text_searching">Resolvendo endpoint na rede local</string>
