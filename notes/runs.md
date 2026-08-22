@@ -131,3 +131,9 @@
 - Allowed cleartext HTTP traffic in `network_security_config.xml` for custom LAN webhooks.
 - Added contract test in `KeepADBRegisterClientTest.java`.
 - Verified with `./bin/verify`, merged into `master`.
+
+## 2026-08-22 — F-Droid preparation and intake report
+
+- Executed F-Droid preparation checklist from `F-DROID-PREPARATION.md` (Sections A through D).
+- Verified clean-checkout reproducibility, Zero-Dependencies, AGPL-3.0-or-later licensing, permissions rationale, zero trackers/anti-features, and local release APK build.
+- Generated `notes/f-droid-intake-report.md` with complete metadata YAML proposal for `fdroiddata`.
