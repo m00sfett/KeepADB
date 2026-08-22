@@ -137,3 +137,10 @@
 - Executed F-Droid preparation checklist from `F-DROID-PREPARATION.md` (Sections A through D).
 - Verified clean-checkout reproducibility, Zero-Dependencies, AGPL-3.0-or-later licensing, permissions rationale, zero trackers/anti-features, and local release APK build.
 - Generated `notes/f-droid-intake-report.md` with complete metadata YAML proposal for `fdroiddata`.
+
+## 2026-08-22 — Release v1.0.0 and Public Publication
+
+- Harmonized `versionName` in `app/build.gradle` to `1.0.0` (matching `CHANGELOG.md` and release tag).
+- Executed `./bin/verify` (all 25 unit tests green, lint clean, release APK built).
+- Created annotated Git tag `v1.0.0` on commit `a17e7e4` and pushed to `origin`.
+- Changed GitHub repository visibility of `m00sfett/KeepADB` to **PUBLIC**.
