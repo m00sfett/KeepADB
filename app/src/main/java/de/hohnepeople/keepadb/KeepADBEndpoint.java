@@ -245,6 +245,10 @@ final class KeepADBEndpoint {
                 return;
             }
             int candidatePort = openPorts.get(0);
+            if (!isPortReachable(targetHost, candidatePort, 300)) {
+                Log.w(TAG, "QuickProbe candidate port " + candidatePort + " not reachable on Wi-Fi host " + targetHost);
+                return;
+            }
             Listener targetListener = null;
             synchronized (KeepADBEndpoint.this) {
                 if (!isCurrent(generation) || !endpointDelivered.compareAndSet(false, true)) {
@@ -314,14 +318,20 @@ final class KeepADBEndpoint {
                             processNextResolveLocked(generation);
                             return;
                         }
-                        final String host = resolved.getHost().getHostAddress();
+                        final InetAddress addr = resolved.getHost();
+                        if (!isLocalAddress(appContext, addr)) {
+                            Log.w(TAG, "Ignoring mDNS ADB service from foreign non-local IP: " + addr);
+                            resolving = false;
+                            processNextResolveLocked(generation);
+                            return;
+                        }
+                        final String host = addr.getHostAddress();
                         if (host == null || host.isEmpty()) {
                             resolving = false;
                             processNextResolveLocked(generation);
                             return;
                         }
                         final int port = resolved.getPort();
-                        final InetAddress addr = resolved.getHost();
                         VERIFY_EXECUTOR.execute(() -> {
                             boolean reachable = isPortReachable(addr, port, 400);
                             Listener targetListener = null;
@@ -594,6 +604,37 @@ final class KeepADBEndpoint {
         } catch (Exception ignored) {
         }
         return null;
+    }
+
+    static String formatEndpoint(String host, int port) {
+        if (host == null) return ":" + port;
+        if (host.contains(":") && !host.startsWith("[")) {
+            return "[" + host + "]:" + port;
+        }
+        return host + ":" + port;
+    }
+
+    static boolean isLocalAddress(Context context, InetAddress addr) {
+        if (addr == null) return false;
+        if (addr.isLoopbackAddress() || addr.isLinkLocalAddress()) return true;
+        if (context == null) return false;
+        try {
+            ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
+            if (cm != null) {
+                for (Network network : cm.getAllNetworks()) {
+                    LinkProperties lp = cm.getLinkProperties(network);
+                    if (lp != null) {
+                        for (LinkAddress la : lp.getLinkAddresses()) {
+                            if (addr.equals(la.getAddress())) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 
     private static boolean sameServiceType(String serviceType) {
