@@ -2783,7 +2783,41 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 
 - **Einstiegsentscheidung:**
   - Eco-Prämisse (Einfachste Pakete zuerst): Start mit **Paket 1** (Issues #148 & #149), danach **Paket 2** (Issue #150).
-- **Status:** `in_progress` für Paket 1.
+- **Status:** `complete` für Paket 1 (PR #151 gemergt, Issues #148 und #149 geschlossen).
+
+## Umsetzung Paket 1 (PR #151 / Issues #148, #149) — 2026-08-22
+
+- **Implementierung:**
+  - [#148](https://github.com/m00sfett/KeepADB/issues/148): `app/src/main/res/drawable/ic_keepadb.xml` mit einer `<group android:pivotX="12" android:pivotY="12" android:scaleX="1.31" android:scaleY="1.31">` umschlossen. Das Icon skaliert damit die Glyph-Pfade um ~31% und nutzt den 24x24 dp Viewport optimal mit 2 dp optischem Rand aus.
+  - [#149](https://github.com/m00sfett/KeepADB/issues/149): `tile_label` in allen 19 Lokalisierungsdateien (`values*/strings.xml`) auf `@string/app_name` ("KeepADB") vereinheitlicht.
+  - `KeepADBAccessibilityContractTest.java`: Contract-Tests für die `tile_label`-Vereinheitlichung über alle 19 Locales und das Vektorgrafik-Scaling ergänzt.
+- **Lokale Gates:**
+  - `./bin/verify`: bestanden (24 Unit-Tests grün, 0 Lint-Fehler, Debug- und Release-APK gebaut).
+- **Status:** `complete` (PR #151 per Squash-Merge in `master` übernommen, Issues #148 und #149 serverseitig geschlossen).
+
+## Implementierung & Validierung Paket 2 (PR #152 / Issue #150) — 2026-08-22
+
+- **Issue:** [#150](https://github.com/m00sfett/KeepADB/issues/150) — `fix: Notification und Foreground-Service entfernen wenn Drahtloses Debugging ausgeschaltet ist`
+- **Ziel:**
+  - Wenn Drahtloses Debugging manuell (über App, Tile oder Widget) oder durch Statusänderung ausgeschaltet wird, den Foreground-Service stoppen und die Notification vollständig entfernen (`stopForeground(STOP_FOREGROUND_REMOVE)`).
+  - Die Benachrichtigung existiert ausschließlich dann, wenn Drahtloses Debugging aktiv ist (oder gerade nach einem Verbindungsaufbau sucht).
+  - Sobald Drahtloses Debugging wieder eingeschaltet wird (oder das System bei aktivem Keep-Alive bootet), wird der Service gestartet und die Notification eingeblendet.
+- **Umsetzung:**
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java`:
+    - `sync(Context context)` startet den Foreground-Service nur noch, wenn sowohl `KeepADBPreferences.isKeepAliveEnabled(context)` als auch `KeepADB.isEnabled(context)` wahr sind; andernfalls wird der Service sauber gestoppt.
+    - `onDestroy()` ruft `stopForeground(STOP_FOREGROUND_REMOVE)` auf, sodass die Benachrichtigung beim Beenden des Dienstes vollständig aus dem Drawer verschwindet.
+    - `registerAdbObserver()` stoppt den Dienst, wenn `adb_wifi_enabled` auf `0` fällt (sowohl bei manuellem Nutzer-Ausschalten als auch bei Verbindungsverlust).
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java`:
+    - `stop()` cancelt die Benachrichtigung bedingungslos (`manager.cancel(NOTIFICATION_ID)`), stoppt Discovery und meldet den Endpunkt beim Register ab.
+    - `getServiceNotification()` nutzt den Status `notification_title_searching` während der initialen Endpunktsuche.
+  - `app/src/main/java/de/hohnepeople/keepadb/MainActivity.java`, `KeepADBTileService.java`, `KeepADBWidget.java`, `KeepADB.java`:
+    - Synchronisieren den `KeepADBService` bei Schalterinteraktionen, Tile-Clicks, Widget-Taps und ausgeführten Toggle-Schreibvorgängen.
+  - `app/src/test/java/de/hohnepeople/keepadb/KeepADBBootReceiverContractTest.java`:
+    - Neuer Contract-Test `serviceStopsAndRemovesNotificationWhenDisabled()` verifiziert statisch die Sync-Bedingung, das `STOP_FOREGROUND_REMOVE` und die bedingungslose Cancel-Logik.
+- **Lokale Gates:**
+  - `./bin/verify`: bestanden (24 Unit-Tests grün, 0 Lint-Fehler, Debug- und Release-APK gebaut).
+- **Review:** `not applicable` (S2-Lifecycle-Bereinigung, durch Hauptagenten anhand Akzeptanzkriterien und deterministischer Contract-Tests abgenommen).
+- **Status:** `approved`.
 
 
 
