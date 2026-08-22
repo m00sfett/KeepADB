@@ -144,3 +144,11 @@
 - Executed `./bin/verify` (all 25 unit tests green, lint clean, release APK built).
 - Created annotated Git tag `v1.0.0` on commit `a17e7e4` and pushed to `origin`.
 - Changed GitHub repository visibility of `m00sfett/KeepADB` to **PUBLIC**.
+- Created GitHub Release `v1.0.0` with signed APK and SHA-256 checksums.
+
+## 2026-08-22 — F-Droid Official Catalog Merge Request
+
+- Stored GitLab PAT securely in Vaultwarden (`git/gitlab-pat`) and deleted temporary auth file.
+- Forked `fdroid/fdroiddata` on GitLab under `m00sfett/fdroiddata`.
+- Created branch `add-de.hohnepeople.keepadb` and committed `metadata/de.hohnepeople.keepadb.yml`.
+- Opened official F-Droid Merge Request: https://gitlab.com/fdroid/fdroiddata/-/merge_requests/46500
