@@ -60,6 +60,10 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"back\""));
                 assertTrue("Missing standardized tile label in " + directory,
                         content.contains("<string name=\"tile_label\">@string/app_name</string>"));
+                assertTrue("Missing security section title in " + directory,
+                        content.contains("name=\"settings_section_security\""));
+                assertTrue("Missing security body in " + directory,
+                        content.contains("name=\"settings_security_body\""));
             }
         }
     }
@@ -88,6 +92,14 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(xml.contains("<group"));
         assertTrue(xml.contains("android:scaleX=\"1.31\""));
         assertTrue(xml.contains("android:scaleY=\"1.31\""));
+    }
+
+    @Test
+    public void settingsActivityIncludesSecurityAdvicePanel() throws IOException {
+        String settings = read("app/src/main/res/layout/activity_settings.xml");
+        assertTrue(settings.contains("android:id=\"@+id/settings_security_panel\""));
+        assertTrue(settings.contains("android:text=\"@string/settings_section_security\""));
+        assertTrue(settings.contains("android:text=\"@string/settings_security_body\""));
     }
 
     private static String read(String relativePath) throws IOException {

@@ -63,5 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">KeepADB के लिए इंटरफ़ेस भाषा चुनें</string>
     <string name="settings_language_system_default">सिस्टम डिफ़ॉल्ट</string>
     <string name="settings_language_dialog_title">भाषा चुनें</string>
+    <string name="settings_section_security">सुरक्षा और नेटवर्क सलाह</string>
+    <string name="settings_security_body">वायरलेस डिबगिंग ADB के लिए एक नेटवर्क पोर्ट खोलता है। Keep-Alive का उपयोग मुख्य रूप से विश्वसनीय वाई-फ़ाई या VPN पर करें। सार्वजनिक हॉटस्पॉट पर इसे बंद करें और अनपेक्षित पेयरिंग अनुरोधों को कभी स्वीकार न करें।</string>
     <string name="back">वापस</string>
 </resources>

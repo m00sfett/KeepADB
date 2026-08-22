@@ -2846,3 +2846,53 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - Releases werden nicht automatisch angefragt; höchstens ein Hinweis mit expliziter Warnung vor Store-Auswirkungen.
   - Release-Workflows via GitHub Actions müssen vor Auslösung explizit freigegeben werden.
 - **Status:** `complete` (Release publiziert, F-Droid MR eingereicht).
+
+## Auswahl-Checkpoint & Kandidaten-Paketierung — 2026-08-22 (Abend-Lauf)
+
+- `issue_snapshot_at: 2026-08-22T21:15:22+02:00`
+- `plan_updated_at: 2026-08-22T21:16:30+02:00`
+- **Ausgangslage:**
+  - `master` und `origin/master` synchron auf `af6505c`.
+  - 2 offene GitHub Issues (#159, #158), 0 offene Pull Requests, keine aktiven CI-Läufe.
+  - Arbeitsverzeichnis sauber, `./bin/verify` erfolgreich (25 Unit-Tests grün, 0 Lint-Fehler, Release-APK gebaut).
+- **Offene Issues (2):**
+  - [#159](https://github.com/m00sfett/KeepADB/issues/159) `docs: Warnhinweise zu Sicherheitsrisiken durch dauerhaftes Wireless Debugging / App-Nutzung (Security Risks)` (Labels: documentation, enhancement)
+  - [#158](https://github.com/m00sfett/KeepADB/issues/158) `feat: Option zum Ausblenden der dauerhaften Benachrichtigung (Hide Notification)` (Labels: enhancement)
+
+- **Paketierung nach Eco-Grundsätzen:**
+  1. **Paket 1 (Sicherheits-Warnhinweise & Best Practices):**
+     - Issue: [#159](https://github.com/m00sfett/KeepADB/issues/159)
+     - Ziel:
+       - Transparente Warnhinweise und Sicherheitserklärungen zu den Risiken von dauerhaft aktivem Wireless Debugging in ungesicherten/öffentlichen Netzwerken formulieren.
+       - Dokumentation aktualisieren: `README.md` (dedizierter Abschnitt zu Security Considerations / Best Practices) und F-Droid-Metadaten in `notes/f-droid-intake-report.md`.
+       - App-Oberfläche: Diskreter, informativer Sicherheitshinweis im Einstellungsmenü (`activity_settings.xml`, `SettingsActivity.java`) mit Ratschlägen zu vertrauenswürdigen Netzwerken und Pairing-Schutz.
+       - Vollständige Lokalisierung in allen 19 unterstützten Sprachen (`values*/strings.xml`).
+       - Contract-Tests in `KeepADBAccessibilityContractTest.java` erweitern.
+     - Stufe: S1 (Direktumsetzung durch Hauptagent).
+     - Gates: `git diff --check`, `./bin/verify`.
+  2. **Paket 2 (Option zum Ausblenden der dauerhaften Benachrichtigung):**
+     - Issue: [#158](https://github.com/m00sfett/KeepADB/issues/158)
+     - Ziel:
+       - Einstellungsoption zum optionalen Ausblenden/Minimieren der Benachrichtigung bei aktivem Drahtlos-Debugging hinzufügen.
+       - Sicherstellen, dass Keep-Alive-Watchdog und Service-Lifecycle zuverlässig weiterlaufen.
+     - Stufe: S2 (Direktumsetzung durch Hauptagent).
+     - Gates: `git diff --check`, `./bin/verify`.
+
+- **Einstiegsentscheidung:**
+  - Eco-Prämisse (Einfachste Pakete zuerst): Start mit **Paket 1** (Issue #159), danach **Paket 2** (Issue #158).
+- **Status:** `complete` für Paket 1 (Issue #159).
+
+## Umsetzung Paket 1 (Issue #159) — 2026-08-22
+
+- **Issue:** [#159](https://github.com/m00sfett/KeepADB/issues/159) — `docs: Warnhinweise zu Sicherheitsrisiken durch dauerhaftes Wireless Debugging / App-Nutzung (Security Risks)`
+- **Umsetzung:**
+  - `README.md`: Dedizierter Unterabschnitt *Security Considerations & Best Practices for Wireless Debugging* unter *Privacy & Security* hinzugefügt (Hinweise zu vertrauenswürdigen Netzwerken, Vorsicht bei öffentlichen Hotspots, Prüfung von Pairing-Prompts).
+  - `app/src/main/res/layout/activity_settings.xml`: Neues Panel `settings_security_panel` mit `@string/settings_section_security` und `@string/settings_security_body` eingebunden.
+  - Lokalisierung in allen 19 Sprachen (`values*/strings.xml`): Strings für `settings_section_security` und `settings_security_body` vollständig übersetzt.
+  - `app/src/test/java/de/hohnepeople/keepadb/KeepADBAccessibilityContractTest.java`:
+    - `everyLocaleProvidesAccessibilityAndPermissionText` prüft nun das Vorhandensein der Sicherheitsstrings über alle 19 Locales.
+    - Neuer Test `settingsActivityIncludesSecurityAdvicePanel` validiert die Einbindung des Sicherheitspanels im Layout.
+- **Lokale Gates:**
+  - `./bin/verify`: bestanden (25 Unit-Tests grün, 0 Lint-Fehler, Debug- und Release-APKs gebaut).
+- **Review:** `not applicable` (S1-Dokumentation, String-Lokalisierung und UI-Hinweispanel, abgenommen gegen deterministische Contract-Tests).
+- **Status:** `complete` (Bereit für PR & Merge).

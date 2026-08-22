@@ -63,5 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">KeepADB의 인터페이스 언어를 선택하세요</string>
     <string name="settings_language_system_default">시스템 기본값</string>
     <string name="settings_language_dialog_title">언어 선택</string>
+    <string name="settings_section_security">보안 및 네트워크 권장사항</string>
+    <string name="settings_security_body">무선 디버깅은 ADB용 네트워크 포트를 엽니다. 신뢰할 수 있는 Wi-Fi 또는 VPN에서만 Keep-Alive를 사용하세요. 공용 핫스팟에서는 끄고, 예상치 못한 페어링 요청은 절대 수락하지 마세요.</string>
     <string name="back">뒤로</string>
 </resources>

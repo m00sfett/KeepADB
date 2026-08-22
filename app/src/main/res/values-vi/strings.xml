@@ -63,5 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Chọn ngôn ngữ giao diện cho KeepADB</string>
     <string name="settings_language_system_default">Mặc định hệ thống</string>
     <string name="settings_language_dialog_title">Chọn ngôn ngữ</string>
+    <string name="settings_section_security">Bảo mật &amp; Lời khuyên mạng</string>
+    <string name="settings_security_body">Gỡ lỗi không dây mở một cổng mạng cho ADB. Sử dụng Keep-Alive chủ yếu trên các mạng Wi-Fi đáng tin cậy hoặc VPN. Tắt trên các điểm truy cập công cộng và không bao giờ chấp nhận các yêu cầu ghép nối lạ.</string>
     <string name="back">Quay lại</string>
 </resources>
