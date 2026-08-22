@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Dil Seçin</string>
     <string name="settings_section_security">Güvenlik ve Ağ Tavsiyeleri</string>
     <string name="settings_security_body">Kablosuz Hata Ayıklama ADB için bir ağ bağlantı noktası açar. Keep-Alive özelliğini yalnızca güvenilir Wi-Fi veya VPN ağlarında kullanın. Halka açık ağlarda kapatın ve beklenmeyen eşleştirme isteklerini onaylamayın.</string>
+    <string name="settings_section_notification">Bildirim</string>
+    <string name="settings_hide_notification_toggle">Kalıcı bildirimi gizle</string>
+    <string name="settings_hide_notification_subtext">Bildirim panelindeki durum bildirimini gizler. Keep-Alive ve widget\'lar normal şekilde çalışmaya devam eder.</string>
+    <string name="settings_notification_hidden_toast">Kalıcı bildirim gizlendi</string>
+    <string name="settings_notification_visible_toast">Kalıcı bildirim etkinleştirildi</string>
     <string name="back">Geri</string>
 </resources>

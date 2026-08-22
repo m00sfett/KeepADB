@@ -14,8 +14,19 @@ final class KeepADBPreferences {
     private static final String KEY_WEBHOOK_LAST_URL = "register_webhook_last_url";
     private static final String KEY_APP_LANGUAGE = "app_language";
     private static final String KEY_SERVICE_LAST_HEARTBEAT = "service_last_heartbeat";
+    private static final String KEY_HIDE_NOTIFICATION = "hide_notification_enabled";
 
     private KeepADBPreferences() {}
+
+    static boolean isNotificationHidden(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_HIDE_NOTIFICATION, false);
+    }
+
+    static void setNotificationHidden(Context context, boolean hidden) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_HIDE_NOTIFICATION, hidden).apply();
+    }
 
     static boolean isKeepAliveEnabled(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);

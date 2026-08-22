@@ -271,12 +271,20 @@ final class KeepADBNotification {
         if (!hasNotificationPermission(context)) {
             return;
         }
+        if (KeepADBPreferences.isNotificationHidden(context)) {
+            manager.cancel(NOTIFICATION_ID);
+            return;
+        }
         Notification notification = buildNotification(context, host, port);
         manager.notify(NOTIFICATION_ID, notification);
     }
 
     private static void showPlaceholder(Context context, NotificationManager manager, String title, String text) {
         if (!hasNotificationPermission(context)) {
+            return;
+        }
+        if (KeepADBPreferences.isNotificationHidden(context)) {
+            manager.cancel(NOTIFICATION_ID);
             return;
         }
         Notification notification = buildPlaceholderNotification(context, title, text);

@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Wybierz język</string>
     <string name="settings_section_security">Bezpieczeństwo i zalecenia sieciowe</string>
     <string name="settings_security_body">Bezprzewodowe debugowanie otwiera port sieciowy dla ADB. Używaj Keep-Alive głównie w zaufanych sieciach Wi-Fi lub VPN. Wyłączaj w publicznych hotspotach i nigdy nie akceptuj nieoczekiwanych próśb o sparowanie.</string>
+    <string name="settings_section_notification">Powiadomienie</string>
+    <string name="settings_hide_notification_toggle">Ukryj stałe powiadomienie</string>
+    <string name="settings_hide_notification_subtext">Ukrywa powiadomienie o stanie w panelu powiadomień. Keep-Alive i widżety będą nadal działać normalnie.</string>
+    <string name="settings_notification_hidden_toast">Ukryto stałe powiadomienie</string>
+    <string name="settings_notification_visible_toast">Włączono stałe powiadomienie</string>
     <string name="back">Wstecz</string>
 </resources>

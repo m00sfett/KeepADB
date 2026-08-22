@@ -64,5 +64,10 @@
     <string name="settings_language_dialog_title">Select Language</string>
     <string name="settings_section_security">Security &amp; Network Advice</string>
     <string name="settings_security_body">Wireless Debugging opens a network port for ADB. Use Keep-Alive primarily on trusted private Wi-Fi networks or VPNs. Turn off Wireless Debugging when connecting to public hotspots, and never accept unexpected pairing or authorization prompts.</string>
+    <string name="settings_section_notification">Notification</string>
+    <string name="settings_hide_notification_toggle">Hide persistent notification</string>
+    <string name="settings_hide_notification_subtext">Hides the status notification in the notification drawer. Keep-Alive and widgets will continue to work normally.</string>
+    <string name="settings_notification_hidden_toast">Persistent notification hidden</string>
+    <string name="settings_notification_visible_toast">Persistent notification enabled</string>
     <string name="back">Back</string>
 </resources>

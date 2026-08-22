@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Selecionar idioma</string>
     <string name="settings_section_security">Segurança e avisos de rede</string>
     <string name="settings_security_body">A depuração sem fio abre uma porta de rede para o ADB. Use o Keep-Alive principalmente em redes Wi-Fi ou VPNs confiáveis. Desative-a em redes públicas e nunca aceite solicitações de emparelhamento inesperadas.</string>
+    <string name="settings_section_notification">Notificação</string>
+    <string name="settings_hide_notification_toggle">Ocultar notificação persistente</string>
+    <string name="settings_hide_notification_subtext">Oculta a notificação de status no painel. O Keep-Alive e os widgets continuarão funcionando normalmente.</string>
+    <string name="settings_notification_hidden_toast">Notificação persistente ocultada</string>
+    <string name="settings_notification_visible_toast">Notificação persistente ativada</string>
     <string name="back">Voltar</string>
 </resources>

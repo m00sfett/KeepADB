@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">選擇語言</string>
     <string name="settings_section_security">安全與網路建議</string>
     <string name="settings_security_body">無線除錯會為 ADB 開啟一個網路連接埠。建議主要在受信任的 Wi-Fi 網路或 VPN 中使用 Keep-Alive。連接公共熱點時請關閉無線除錯，切勿接受未知的配對或授權請求。</string>
+    <string name="settings_section_notification">通知</string>
+    <string name="settings_hide_notification_toggle">隱藏常駐通知</string>
+    <string name="settings_hide_notification_subtext">隱藏通知欄中的狀態通知。Keep-Alive 和桌面小工具仍將正常運作。</string>
+    <string name="settings_notification_hidden_toast">常駐通知已隱藏</string>
+    <string name="settings_notification_visible_toast">常駐通知已啟用</string>
     <string name="back">返回</string>
 </resources>

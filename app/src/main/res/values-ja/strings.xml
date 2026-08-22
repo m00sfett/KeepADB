@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">言語を選択</string>
     <string name="settings_section_security">セキュリティとネットワークの注意点</string>
     <string name="settings_security_body">ワイヤレスデバッグはADB用のネットワークポートを開きます。信頼できるWi-FiやVPNでのみKeep-Aliveを使用してください。公共Wi-Fiではオフにし、身に覚えのないペアリング要求は絶対に許可しないでください。</string>
+    <string name="settings_section_notification">通知</string>
+    <string name="settings_hide_notification_toggle">常駐通知を非表示にする</string>
+    <string name="settings_hide_notification_subtext">通知シェード内のステータス通知を非表示にします。Keep-Aliveやウィジェットは通常通り機能します。</string>
+    <string name="settings_notification_hidden_toast">常駐通知を非表示にしました</string>
+    <string name="settings_notification_visible_toast">常駐通知を有効にしました</string>
     <string name="back">戻る</string>
 </resources>

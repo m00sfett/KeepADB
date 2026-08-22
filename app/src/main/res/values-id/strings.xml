@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Pilih Bahasa</string>
     <string name="settings_section_security">Keamanan &amp; Saran Jaringan</string>
     <string name="settings_security_body">Debugging Nirkabel membuka port jaringan untuk ADB. Gunakan Keep-Alive terutama di jaringan Wi-Fi tepercaya atau VPN. Matikan saat terhubung ke hotspot publik dan jangan pernah menyetujui permintaan penyandingan yang tidak dikenal.</string>
+    <string name="settings_section_notification">Notifikasi</string>
+    <string name="settings_hide_notification_toggle">Sembunyikan notifikasi persisten</string>
+    <string name="settings_hide_notification_subtext">Menyembunyikan notifikasi status di panel notifikasi. Keep-Alive dan widget akan tetap berfungsi normal.</string>
+    <string name="settings_notification_hidden_toast">Notifikasi persisten disembunyikan</string>
+    <string name="settings_notification_visible_toast">Notifikasi persisten diaktifkan</string>
     <string name="back">Kembali</string>
 </resources>

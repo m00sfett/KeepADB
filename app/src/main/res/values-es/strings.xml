@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Seleccionar idioma</string>
     <string name="settings_section_security">Seguridad y consejos de red</string>
     <string name="settings_security_body">La depuración inalámbrica abre un puerto de red para ADB. Usa Keep-Alive principalmente en redes Wi-Fi o VPN de confianza. Desactiva la depuración inalámbrica en puntos de acceso públicos y nunca aceptes solicitudes de vinculación inesperadas.</string>
+    <string name="settings_section_notification">Notificación</string>
+    <string name="settings_hide_notification_toggle">Ocultar notificación persistente</string>
+    <string name="settings_hide_notification_subtext">Oculta la notificación de estado en el panel. Keep-Alive y los widgets seguirán funcionando con normalidad.</string>
+    <string name="settings_notification_hidden_toast">Notificación persistente ocultada</string>
+    <string name="settings_notification_visible_toast">Notificación persistente activada</string>
     <string name="back">Atrás</string>
 </resources>
