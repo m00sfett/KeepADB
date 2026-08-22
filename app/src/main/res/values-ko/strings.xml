@@ -22,13 +22,13 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">무선 디버깅 엔드포인트</string>
     <string name="notification_channel_desc">무선 디버깅의 현재 IP 주소 및 포트</string>
-    <string name="notification_title_active">무선 디버깅: 포트 %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB: 무선 디버깅 켜짐</string>
     <string name="notification_text_active">포트 %1$d @ %2$s</string>
-    <string name="notification_title_searching">무선 디버깅: 엔드포인트 검색 중…</string>
+    <string name="notification_title_searching">KeepADB: 엔드포인트 검색 중…</string>
     <string name="notification_text_searching">로컬 네트워크에서 엔드포인트 확인 중</string>
     <string name="notification_service_title">무선 디버깅 활성 상태 유지</string>
     <string name="notification_service_text">Wi-Fi 연결 및 무선 디버깅 상태 모니터링 중</string>
-    <string name="notification_permission_missing_title">무선 디버깅: 권한 누락</string>
+    <string name="notification_permission_missing_title">KeepADB: 권한 누락</string>
     <string name="notification_permission_panel_title">알림이 꺼져 있습니다</string>
     <string name="notification_permission_panel_body">Keep-Alive는 계속 실행될 수 있지만 KeepADB가 상태 알림을 표시할 수 없습니다. 시스템 설정에서 알림을 허용하세요.</string>
     <string name="notification_permission_settings_button">알림 설정 열기</string>

@@ -22,13 +22,13 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Punkt końcowy debugowania bezprzewodowego</string>
     <string name="notification_channel_desc">Bieżący adres IP i port debugowania bezprzewodowego</string>
-    <string name="notification_title_active">Debugowanie bezprzewodowe: Port %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB: Debugowanie bezprzewodowe jest WŁĄCZONE</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
-    <string name="notification_title_searching">Debugowanie bezprzewodowe: Wyszukiwanie punktu…</string>
+    <string name="notification_title_searching">KeepADB: Wyszukiwanie punktu…</string>
     <string name="notification_text_searching">Rozpoznawanie punktu końcowego w sieci lokalnej</string>
     <string name="notification_service_title">Utrzymuj debugowanie bezprzewodowe aktywne</string>
     <string name="notification_service_text">Monitorowanie połączenia Wi-Fi i stanu debugowania bezprzewodowego</string>
-    <string name="notification_permission_missing_title">Debugowanie bezprzewodowe: Brak uprawnień</string>
+    <string name="notification_permission_missing_title">KeepADB: Brak uprawnień</string>
     <string name="notification_permission_panel_title">Powiadomienia są wyłączone</string>
     <string name="notification_permission_panel_body">Keep-Alive może nadal działać, ale KeepADB nie może wyświetlać powiadomienia o stanie. Zezwól na powiadomienia w ustawieniach systemu.</string>
     <string name="notification_permission_settings_button">Otwórz ustawienia powiadomień</string>

@@ -22,13 +22,13 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Конечная точка беспроводной отладки</string>
     <string name="notification_channel_desc">Текущий IP-адрес и порт беспроводной отладки</string>
-    <string name="notification_title_active">Беспроводная отладка: Порт %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB: Беспроводная отладка ВКЛЮЧЕНА</string>
     <string name="notification_text_active">Порт %1$d @ %2$s</string>
-    <string name="notification_title_searching">Беспроводная отладка: Поиск конечной точки…</string>
+    <string name="notification_title_searching">KeepADB: Поиск конечной точки…</string>
     <string name="notification_text_searching">Определение конечной точки в локальной сети</string>
     <string name="notification_service_title">Поддерживать беспроводную отладку активной</string>
     <string name="notification_service_text">Мониторинг Wi-Fi-соединения и статуса беспроводной отладки</string>
-    <string name="notification_permission_missing_title">Беспроводная отладка: Нет разрешения</string>
+    <string name="notification_permission_missing_title">KeepADB: Нет разрешения</string>
     <string name="notification_permission_panel_title">Уведомления отключены</string>
     <string name="notification_permission_panel_body">Keep-Alive может продолжать работать, но KeepADB не может показывать уведомление о состоянии. Разрешите уведомления в системных настройках.</string>
     <string name="notification_permission_settings_button">Открыть настройки уведомлений</string>

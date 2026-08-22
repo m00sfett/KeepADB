@@ -22,13 +22,13 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Endpoint de depuração sem fio</string>
     <string name="notification_channel_desc">Endereço IP e porta atuais da depuração sem fio</string>
-    <string name="notification_title_active">Depuração sem fio: Porta %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB: Depuração sem fio ATIVADA</string>
     <string name="notification_text_active">Porta %1$d @ %2$s</string>
-    <string name="notification_title_searching">Depuração sem fio: Procurando endpoint…</string>
+    <string name="notification_title_searching">KeepADB: Procurando endpoint…</string>
     <string name="notification_text_searching">Resolvendo endpoint na rede local</string>
     <string name="notification_service_title">Manter depuração sem fio ativa</string>
     <string name="notification_service_text">Monitorando conexão Wi-Fi e status da depuração sem fio</string>
-    <string name="notification_permission_missing_title">Depuração sem fio: Permissão ausente</string>
+    <string name="notification_permission_missing_title">KeepADB: Permissão ausente</string>
     <string name="notification_permission_panel_title">As notificações estão desativadas</string>
     <string name="notification_permission_panel_body">O Keep-Alive pode continuar a funcionar, mas o KeepADB não pode mostrar a notificação de estado. Permita notificações nas definições do sistema.</string>
     <string name="notification_permission_settings_button">Abrir definições de notificações</string>

@@ -22,13 +22,13 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Kablosuz Hata Ayıklama Uç Noktası</string>
     <string name="notification_channel_desc">Kablosuz Hata Ayıklamanın geçerli IP adresi ve bağlantı noktası</string>
-    <string name="notification_title_active">Kablosuz Hata Ayıklama: Bağlantı noktası %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB: Kablosuz Hata Ayıklama AÇIK</string>
     <string name="notification_text_active">Bağlantı noktası %1$d @ %2$s</string>
-    <string name="notification_title_searching">Kablosuz Hata Ayıklama: Uç nokta aranıyor…</string>
+    <string name="notification_title_searching">KeepADB: Uç nokta aranıyor…</string>
     <string name="notification_text_searching">Yerel ağda uç nokta çözümleniyor</string>
     <string name="notification_service_title">Kablosuz Hata Ayıklamayı Aktif Tut</string>
     <string name="notification_service_text">Wi-Fi bağlantısı ve Kablosuz Hata Ayıklama durumu izleniyor</string>
-    <string name="notification_permission_missing_title">Kablosuz Hata Ayıklama: İzin eksik</string>
+    <string name="notification_permission_missing_title">KeepADB: İzin eksik</string>
     <string name="notification_permission_panel_title">Bildirimler devre dışı</string>
     <string name="notification_permission_panel_body">Keep-Alive çalışmaya devam edebilir, ancak KeepADB durum bildirimini gösteremez. Sistem ayarlarından bildirimlere izin verin.</string>
     <string name="notification_permission_settings_button">Bildirim ayarlarını aç</string>
