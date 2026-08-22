@@ -63,5 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Pilih bahasa antarmuka untuk KeepADB</string>
     <string name="settings_language_system_default">Default sistem</string>
     <string name="settings_language_dialog_title">Pilih Bahasa</string>
+    <string name="settings_section_security">Keamanan &amp; Saran Jaringan</string>
+    <string name="settings_security_body">Debugging Nirkabel membuka port jaringan untuk ADB. Gunakan Keep-Alive terutama di jaringan Wi-Fi tepercaya atau VPN. Matikan saat terhubung ke hotspot publik dan jangan pernah menyetujui permintaan penyandingan yang tidak dikenal.</string>
     <string name="back">Kembali</string>
 </resources>

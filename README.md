@@ -128,6 +128,14 @@ The release APK will be located at:
 - **No Third-Party SDKs:** 100% open-source code using only Android platform components.
 - **Optional Webhook Sync:** For power users and automated developer setups, an optional custom webhook endpoint can be configured in preferences; by default, no network requests are sent.
 
+### Security Considerations & Best Practices for Wireless Debugging
+
+Wireless Debugging (`adbd`) opens a network port on your local network interface:
+
+1. **Trusted Networks Only:** Keep persistent Keep-Alive enabled primarily on trusted home/office Wi-Fi networks or isolated VPNs (e.g. Tailscale / WireGuard).
+2. **Public Wi-Fi Precaution:** When connecting to public Wi-Fi hotspots, guest networks, or unmanaged shared Wi-Fi, turn Wireless Debugging **OFF** (via 1-tap Tile, Widget, or Main App) to prevent unauthorized devices on the local subnet from attempting pairing requests.
+3. **Pairing Prompts:** Android requires TLS pairing authentication. **Never confirm unexpected pairing dialogs or unfamiliar RSA key fingerprints** on your device screen.
+
 ## Project Identity
 
 - Android application ID and namespace: `de.hohnepeople.keepadb`

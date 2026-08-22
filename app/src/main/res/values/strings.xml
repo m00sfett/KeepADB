@@ -62,5 +62,7 @@
     <string name="settings_language_subtext">Choose the interface language for KeepADB</string>
     <string name="settings_language_system_default">System default</string>
     <string name="settings_language_dialog_title">Select Language</string>
+    <string name="settings_section_security">Security &amp; Network Advice</string>
+    <string name="settings_security_body">Wireless Debugging opens a network port for ADB. Use Keep-Alive primarily on trusted private Wi-Fi networks or VPNs. Turn off Wireless Debugging when connecting to public hotspots, and never accept unexpected pairing or authorization prompts.</string>
     <string name="back">Back</string>
 </resources>

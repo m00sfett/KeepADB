@@ -62,5 +62,7 @@
     <string name="settings_language_subtext">Wähle die Anzeigesprache für KeepADB</string>
     <string name="settings_language_system_default">Systemstandard</string>
     <string name="settings_language_dialog_title">Sprache auswählen</string>
+    <string name="settings_section_security">Sicherheit &amp; Netzwerkhinweise</string>
+    <string name="settings_security_body">Drahtloses Debugging öffnet einen Netzwerk-Port für ADB. Nutze Keep-Alive vor allem in vertrauenswürdigen Heim- und Firmennetzwerken oder VPNs. Schalte Drahtlos-Debugging in öffentlichen Hotspots aus und bestätige niemals unerwartete Kopplungsanfragen.</string>
     <string name="back">Zurück</string>
 </resources>

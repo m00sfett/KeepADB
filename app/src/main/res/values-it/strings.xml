@@ -63,5 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Scegli la lingua dell\'interfaccia per KeepADB</string>
     <string name="settings_language_system_default">Predefinita di sistema</string>
     <string name="settings_language_dialog_title">Seleziona lingua</string>
+    <string name="settings_section_security">Sicurezza e consigli di rete</string>
+    <string name="settings_security_body">Il debug wireless apre una porta di rete per ADB. Usa Keep-Alive principalmente su reti Wi-Fi affidabili o VPN. Disattiva il debug wireless su hotspot pubblici e non accettare mai richieste di associazione impreviste.</string>
     <string name="back">Indietro</string>
 </resources>

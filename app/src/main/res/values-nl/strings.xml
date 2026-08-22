@@ -63,5 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Kies de interfacetaal voor KeepADB</string>
     <string name="settings_language_system_default">Systeemstandaard</string>
     <string name="settings_language_dialog_title">Taal selecteren</string>
+    <string name="settings_section_security">Beveiliging &amp; netwerkadvies</string>
+    <string name="settings_security_body">Draadloos debuggen opent een netwerkpoort voor ADB. Gebruik Keep-Alive vooral op vertrouwde wifi-netwerken of vpn\'s. Schakel het uit op openbare hotspots en accepteer nooit onverwachte koppelingsverzoeken.</string>
     <string name="back">Terug</string>
 </resources>
