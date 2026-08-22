@@ -2664,7 +2664,32 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`: bestanden (APK erfolgreich gebaut).
 - **Review:** `not applicable` (S3-Discovery-State-Machine, durch Hauptagenten anhand deterministischer Tests und Akzeptanzkriterien abgenommen).
+- **Status:** `complete` (PR #140 gemergt, Issue #125 geschlossen).
+
+## Implementierung & Validierung Issue #126 — 2026-08-22
+
+- **Issue:** [#126](https://github.com/m00sfett/KeepADB/issues/126) — `fix: Eigenen ADB-Endpunkt von externen mDNS-Diensten isolieren und Health-Checks entprellen`
+- **Ziel:** Nur den eigenen Wireless-Debugging-Endpunkt identifizieren, fremde mDNS-Dienste abweisen, QuickProbe auf der Wi-Fi-Schnittstelle verifizieren und den aktiven Endpunkt via Service-Heartbeat kontinuierlich überwachen.
+- **Umsetzung:**
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java`:
+    - `isLocalAddress()`: Validiert, dass aufgelöste mDNS-Dienste zu lokalen Interface-Adressen des Geräts gehören; fremde mDNS-Dienste auf demselben Wi-Fi werden ignoriert.
+    - QuickProbe validiert Loopback-Kandidatenports vor Auslieferung auf der veröffentlichten WLAN-IP (`isPortReachable(targetHost, candidatePort, 300)`).
+    - `formatEndpoint()`: Formatiert IPv6-Hosts mit korrekter eckiger Klammerung `[host]:port`.
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java`:
+    - `verifyEndpointHealth()`: Überprüft asynchron die Erreichbarkeit des gecachten Endpunkts.
+    - `buildNotification()` formatiert IPv6-Adressen mit Klammerung.
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java`:
+    - `heartbeatNow()` stößt periodisch `KeepADBNotification.verifyEndpointHealth()` an, wenn Keep-Alive und Wireless Debugging aktiv sind.
+  - `app/src/test/java/de/hohnepeople/keepadb/KeepADBEndpointTest.java`:
+    - Tests für `formatEndpoint` (IPv4, IPv6, scoped) und `isLocalAddress`.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest`: bestanden (19 Unit-Tests grün).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`: bestanden (APK erfolgreich gebaut).
+- **Review:** `not applicable` (S3-Endpoint-Isolation, durch Hauptagenten anhand deterministischer Tests und Akzeptanzkriterien abgenommen).
 - **Status:** `approved`.
+
 
 
 

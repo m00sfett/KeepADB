@@ -144,6 +144,9 @@ public class KeepADBService extends Service {
 
     private void heartbeatNow() {
         KeepADBPreferences.setServiceLastHeartbeatNow(this);
+        if (foregroundReady && KeepADB.isEnabled(this)) {
+            KeepADBNotification.verifyEndpointHealth(this);
+        }
     }
 
     private static final long HEARTBEAT_INTERVAL_MS = 60_000;
