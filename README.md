@@ -20,6 +20,7 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
 - **1-Tap Toggling**: Enable or disable Wireless Debugging instantly from your Quick Settings or Home Screen.
 - **Keep-Alive Watchdog**: Automatically restores Wireless Debugging when you reconnect to Wi-Fi, switch access points, or restart your phone.
 - **Live Endpoint Resolution**: Discovers the dynamic port and local IP address (typically within 1-2 seconds) using mDNS as the primary path plus an opportunistic loopback probe, displaying it right in the notification shade.
+- **Webhook Sync & Dev-Automation**: Automatically notifies your local workstation, CI runner, or home server via HTTP whenever Wireless Debugging turns ON or OFF.
 - **No Root Required**: Operates using Android's standard `WRITE_SECURE_SETTINGS` permission granted once via ADB.
 
 ---
@@ -31,7 +32,8 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
   - **Home Screen Widget**: 1x1 interactive widget showing live status.
   - **Main App**: Clean interface with status readout, keep-alive toggle, and current endpoint details.
 - 🔄 **Keep-Alive Foreground Service**: Keeps Wireless Debugging alive across reboots, network changes, and sleep states.
-- 🔍 **Endpoint Discovery**: mDNS (NSD) is the primary, continuously running discovery path, backed by a quick opportunistic loopback probe for the case where a listener is already up. Typically resolves the active `adbd` port within 1-2 seconds (even with active VPNs like Tailscale) — a full local port-range scan alone was measured to cost several seconds of Android framework overhead per attempt, so it is no longer relied on as the primary path.
+- 🔍 **Endpoint Discovery**: mDNS (NSD) is the primary, continuously running discovery path, backed by a quick opportunistic loopback probe for the case where a listener is already up. Typically resolves the active `adbd` port within 1-2 seconds (even with active VPNs like Tailscale).
+- 🌐 **Automated Webhook Integration**: Configure a custom HTTP(S) endpoint (LAN, VPN/Tailscale, or local server) in Settings. KeepADB sends an atomic `POST` with `{"endpoint": "ip:port"}` when enabled and a `DELETE` when disabled — perfect for auto-connecting remote development machines without typing dynamic ports.
 - 📋 **Persistent Notification**: Displays the active connection string (`Port <port> @ <ip>`) for quick reference on your lock screen or notification panel.
 - ⚙️ **Central Settings**: Dedicated settings screen with in-app language switching and optional webhook endpoint configuration.
 - 🎨 **Adaptive Icon & Theme**: Native adaptive icon (Terminal Prompt + Wi-Fi Broadcast) with Android 13+ Material You monochrome support and a cohesive Dark/Red/Yellow palette using standard system typography.
@@ -42,11 +44,12 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
 
 ## Getting Started
 
-### 1. Install over USB
-Connect an Android 11 or newer device with USB debugging enabled and install the APK:
+### 1. Install APK
+Download the latest APK from the [GitHub Releases](https://github.com/m00sfett/KeepADB/releases) or install via F-Droid.
 
+Or install manually via USB:
 ```bash
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
 ### 2. Grant Permission (One-Time Setup)
@@ -60,10 +63,33 @@ adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTIN
 > KeepADB also displays this exact command in the app until the permission has been granted.
 
 ### 3. Usage
-- **Quick Settings Tile**: Swipe down your notification shade twice, tap the Edit (pencil) icon, and drag the **Wireless Debugging** tile into your active tiles. Tap to toggle on/off.
+- **Quick Settings Tile**: Swipe down your notification shade twice, tap the Edit (pencil) icon, and drag the **KeepADB** tile into your active tiles. Tap to toggle on/off.
 - **Home Widget**: Long-press on your home screen, choose Widgets, and add the **KeepADB** widget.
 - **Persistent Keep-Alive**: Open the KeepADB app and enable **Keep persistently active**. KeepADB will monitor network state and ensure Wireless Debugging stays active.
-- **Settings & Localization**: Tap **Settings** in the top header to choose your preferred language or configure an optional webhook endpoint.
+- **Settings & Webhook**: Tap **Settings** in the top header to choose your preferred language or configure an optional webhook endpoint for automated dev environments.
+
+---
+
+## Webhook Integration
+
+For developers who want their PC, IDE, or CI setup to automatically discover and connect to their Android device:
+
+1. Open **KeepADB Settings** and enter your webhook URL (e.g. `http://192.168.1.100:5000/api/adb-register` or a Tailscale endpoint).
+2. When Wireless Debugging turns **ON**, KeepADB sends:
+   ```http
+   POST /api/adb-register HTTP/1.1
+   Content-Type: application/json
+
+   {"endpoint":"192.168.1.50:41234"}
+   ```
+3. When Wireless Debugging turns **OFF**, KeepADB sends:
+   ```http
+   DELETE /api/adb-register HTTP/1.1
+   Content-Type: application/json
+
+   {"endpoint":"192.168.1.50:41234"}
+   ```
+4. Cleartext HTTP is supported for private LAN / VPN setups, sensitive query parameters are redacted from logs, and webhook URLs are excluded from Android cloud backups for maximum security.
 
 ---
 
@@ -92,7 +118,7 @@ Run all checks (git diff, unit tests, lint, debug and release builds) with a sin
 ./gradlew assembleRelease
 ```
 The release APK will be located at:
-`app/build/outputs/apk/release/app-release.apk` (~311 KB)
+`app/build/outputs/apk/release/app-release.apk` (~313 KB)
 
 ---
 
@@ -102,14 +128,12 @@ The release APK will be located at:
 - **No Third-Party SDKs:** 100% open-source code using only Android platform components.
 - **Optional Webhook Sync:** For power users and automated developer setups, an optional custom webhook endpoint can be configured in preferences; by default, no network requests are sent.
 
-## Project Identity and Publication Status
+## Project Identity
 
 - Android application ID and namespace: `de.hohnepeople.keepadb`
-- The namespace is based on `hohnepeople.de`, a domain owned by the maintainer.
-- DNS and the public website for `hohnepeople.de` still need to be configured before publication.
-- The GitHub repository remains private until the application, setup flow, release process, and documentation have been fully reviewed.
+- Maintainer: `m00sfett` (Tobias Schultheiß)
+- Open source on GitHub: [https://github.com/m00sfett/KeepADB](https://github.com/m00sfett/KeepADB)
 
-The new application ID intentionally creates a separate Android app. Existing development installations are not upgraded in place; install and authorize KeepADB once over USB, verify it, and only then remove the previous development build if desired.
 
 ---
 

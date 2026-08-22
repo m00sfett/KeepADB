@@ -123,15 +123,14 @@ Categories:
   - Development
   - System
 License: AGPL-3.0-or-later
-AuthorName: Tobias Hohne
-AuthorWebSite: https://hohnepeople.de
+AuthorName: m00sfett
 WebSite: https://github.com/m00sfett/KeepADB
 SourceCode: https://github.com/m00sfett/KeepADB
 IssueTracker: https://github.com/m00sfett/KeepADB/issues
 Changelog: https://github.com/m00sfett/KeepADB/blob/master/CHANGELOG.md
 
 Name: KeepADB
-Summary: Persistent Wireless Debugging companion with quick toggle widget and tile
+Summary: Persistent Wireless Debugging companion with quick tile, widget & webhook sync
 Description: |-
   KeepADB is a lightweight, zero-dependency utility to keep Android's Wireless
   Debugging persistently active and toggle it with a single tap.
@@ -144,6 +143,7 @@ Description: |-
   * 1-tap toggling via Quick Settings Tile or Home Screen Widget
   * Persistent Keep-Alive watchdog across reboots and network changes
   * Fast dynamic port and IP discovery displayed in notification shade
+  * Automated Webhook integration (POST/DELETE) to notify local dev machines and CI
   * 100% native AOSP framework without external runtime dependencies or trackers
   * Multi-language support (19 languages) and Material You adaptive icon
 
@@ -154,7 +154,7 @@ RepoType: git
 Repo: https://github.com/m00sfett/KeepADB.git
 
 Builds:
-  - versionName: '1.0.0'
+  - versionName: 1.0.0
     versionCode: 1
     commit: v1.0.0
     subdir: app
@@ -163,7 +163,7 @@ Builds:
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: '1.0.0'
+CurrentVersion: 1.0.0
 CurrentVersionCode: 1
 ```
 
