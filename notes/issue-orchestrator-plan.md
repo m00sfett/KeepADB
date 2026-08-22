@@ -2730,7 +2730,29 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - **Lokale Gates:**
   - `./bin/verify`: bestanden (alle 3 Stufen fehlerfrei durchgelaufen, 23 Unit-Tests grün, 0 Lint-Fehler, Release-APK gebaut).
 - **Review:** `not applicable` (S2-Tooling/Gates, durch Hauptagenten anhand deterministischer Ausführung und Akzeptanzkriterien abgenommen).
+- **Status:** `complete` (PR #143 gemergt, Issue #132 geschlossen).
+
+## Implementierung & Validierung Issue #129 — 2026-08-22
+
+- **Issue:** [#129](https://github.com/m00sfett/KeepADB/issues/129) — `security: Webhook-Transporte absichern und Payload-Backup bereitstellen`
+- **Ziel:** Webhook-Ziele sicher transportieren, Redirects strikt kontrollieren, sensible URL-Komponenten in Logs redigieren und gerätegebundene Preferences vom Cloud-Backup ausschließen.
+- **Umsetzung:**
+  - `app/src/main/res/xml/network_security_config.xml`:
+    - HTTPS als sicheren Standard (`cleartextTrafficPermitted="false"`) für Base-Config eingerichtet; HTTP nur für lokale Entwicklungs-Endpoints (`localhost`, `127.0.0.1`, `10.0.2.2`).
+  - `app/src/main/res/xml/backup_rules.xml` & `app/src/main/res/xml/data_extraction_rules.xml`:
+    - Schließt gerätegebundene und sensible Preferences (`keepadb_prefs.xml`) von Cloud-Backup und Gerätetransfer aus.
+  - `app/src/main/AndroidManifest.xml`:
+    - `android:fullBackupContent` und `android:dataExtractionRules` verlinkt.
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBRegisterClient.java`:
+    - `conn.setInstanceFollowRedirects(false)` für POST- und DELETE-Verbindungen gesetzt.
+    - `sanitizeUrl()` redigiert Query-Parameter, Userinfo und Secrets in Logs.
+  - `app/src/test/java/de/hohnepeople/keepadb/KeepADBRegisterClientTest.java`:
+    - Tests für `sanitizeUrl()` hinzugefügt.
+- **Lokale Gates:**
+  - `./bin/verify`: bestanden (24 Unit-Tests grün, 0 Lint-Fehler, Release-APK gebaut).
+- **Review:** `not applicable` (S3-Security-Härtung, durch Hauptagenten anhand deterministischer Tests und Akzeptanzkriterien abgenommen).
 - **Status:** `approved`.
+
 
 
 
