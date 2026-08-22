@@ -160,3 +160,11 @@
 - Updated all 19 locale string resources consistently.
 - Created PR #155, verified via `./bin/verify`, merged into `master`, built and deployed to S20.
 
+## 2026-08-22 — Issue #156 (Notification title refinement to Wifi-ADB status)
+
+- Refined notification title to `KeepADB: Wifi-ADB AKTIVIERT` / `KeepADB: Wifi-ADB ENABLED` across all 19 locales.
+- Added `notification_title_disabled` (`KeepADB: Wifi-ADB DEAKTIVIERT` / `KeepADB: Wifi-ADB DISABLED`) for completeness.
+- Verified 100% key completeness and consistency across all 19 locale files (63 keys each).
+- Created PR #157, verified via `./bin/verify`, merged into `master`, built and deployed to S20.
+
+
