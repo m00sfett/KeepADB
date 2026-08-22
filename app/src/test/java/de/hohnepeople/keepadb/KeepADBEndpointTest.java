@@ -63,4 +63,24 @@ public class KeepADBEndpointTest {
         assertEquals(30000, KeepADBEndpoint.PROBE_START_PORT);
         assertEquals(50000, KeepADBEndpoint.PROBE_END_PORT);
     }
+
+    @Test
+    public void formatEndpointHandlesIpv4AndIpv6() {
+        assertEquals("192.168.178.50:41234", KeepADBEndpoint.formatEndpoint("192.168.178.50", 41234));
+        assertEquals("[fe80::1]:41234", KeepADBEndpoint.formatEndpoint("fe80::1", 41234));
+        assertEquals("[2001:db8::1]:41234", KeepADBEndpoint.formatEndpoint("[2001:db8::1]", 41234));
+        assertEquals(":41234", KeepADBEndpoint.formatEndpoint(null, 41234));
+    }
+
+    @Test
+    public void isLocalAddressHandlesLoopbackAndLinkLocal() throws Exception {
+        InetAddress loopbackV4 = InetAddress.getByName("127.0.0.1");
+        InetAddress loopbackV6 = InetAddress.getByName("::1");
+        InetAddress linkLocalV6 = InetAddress.getByName("fe80::1");
+
+        assertTrue(KeepADBEndpoint.isLocalAddress(null, loopbackV4));
+        assertTrue(KeepADBEndpoint.isLocalAddress(null, loopbackV6));
+        assertTrue(KeepADBEndpoint.isLocalAddress(null, linkLocalV6));
+        assertFalse(KeepADBEndpoint.isLocalAddress(null, null));
+    }
 }

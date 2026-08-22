@@ -91,6 +91,13 @@ final class KeepADBNotification {
         }
     }
 
+    static synchronized void verifyEndpointHealth(Context context) {
+        Context appContext = KeepADBLocaleHelper.wrapContext(context.getApplicationContext());
+        NotificationManager manager = appContext.getSystemService(NotificationManager.class);
+        if (manager == null || currentHost == null || currentPort <= 0) return;
+        verifyCachedEndpointAsync(appContext, manager, currentHost, currentPort);
+    }
+
     static synchronized void refresh(Context context) {
         Context appContext = KeepADBLocaleHelper.wrapContext(context.getApplicationContext());
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
@@ -286,8 +293,9 @@ final class KeepADBNotification {
     }
 
     private static Notification buildNotification(Context context, String host, int port) {
-        String title = context.getString(R.string.notification_title_active, port, host);
-        String content = context.getString(R.string.notification_text_active, port, host);
+        String displayHost = (host != null && host.contains(":") && !host.startsWith("[")) ? "[" + host + "]" : host;
+        String title = context.getString(R.string.notification_title_active, port, displayHost);
+        String content = context.getString(R.string.notification_text_active, port, displayHost);
         SpannableString styled = new SpannableString(content);
         int portStart = content.indexOf(String.valueOf(port));
         if (portStart >= 0) {
