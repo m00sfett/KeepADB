@@ -22,7 +22,8 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">無線偵錯端點</string>
     <string name="notification_channel_desc">無線偵錯目前的 IP 位址與連接埠</string>
-    <string name="notification_title_active">KeepADB：無線偵錯已開啟</string>
+    <string name="notification_title_active">KeepADB：Wifi-ADB 已啟用</string>
+    <string name="notification_title_disabled">KeepADB：Wifi-ADB 已停用</string>
     <string name="notification_text_active">連接埠 %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB：正在搜尋端點…</string>
     <string name="notification_text_searching">正在區域網路中解析端點</string>

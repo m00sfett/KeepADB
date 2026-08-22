@@ -22,7 +22,8 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Endpoint di debug wireless</string>
     <string name="notification_channel_desc">Indirizzo IP e porta correnti del debug wireless</string>
-    <string name="notification_title_active">KeepADB: Debug wireless ATTIVO</string>
+    <string name="notification_title_active">KeepADB: Wifi-ADB ATTIVATO</string>
+    <string name="notification_title_disabled">KeepADB: Wifi-ADB DISATTIVATO</string>
     <string name="notification_text_active">Porta %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: Ricerca dell\'endpoint…</string>
     <string name="notification_text_searching">Risoluzione dell\'endpoint sulla rete locale</string>
