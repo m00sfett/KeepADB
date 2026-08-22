@@ -94,3 +94,10 @@
 - Post-reboot evidence showed `keep_alive_enabled=true`, `adb_wifi_enabled=1`, and a current
   service heartbeat. The earlier blocker was superseded by this measured state.
 - Updated and read back the narrowed #130 issue scope; #135 remains the open lifecycle follow-up.
+
+## 2026-08-22 — Issues #145 & #146 (Vector icon for Notification and Tile)
+
+- Generated and selected vector asset variant A (potrace contour tracing of monochrome launcher artwork).
+- Updated `app/src/main/res/drawable/ic_keepadb.xml` with the new 24x24dp vector graphic.
+- Added contract unit test in `KeepADBAccessibilityContractTest.java`.
+- Local verification (`bin/verify`) passed cleanly.
