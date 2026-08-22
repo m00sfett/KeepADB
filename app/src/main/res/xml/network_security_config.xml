@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- HTTPS is the enforced secure default; plain HTTP is only allowed for local developer endpoints -->
-    <base-config cleartextTrafficPermitted="false">
+    <!-- Cleartext HTTP is permitted for developer endpoints, LAN addresses, and Tailnet nodes -->
+    <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
         </trust-anchors>
     </base-config>
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">localhost</domain>
-        <domain includeSubdomains="true">127.0.0.1</domain>
-        <domain includeSubdomains="true">10.0.2.2</domain>
-    </domain-config>
 </network-security-config>
