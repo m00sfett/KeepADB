@@ -2644,7 +2644,28 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`: bestanden (APK erfolgreich gebaut).
 - **Review:** `not applicable` (S3-Intent-Isolation, durch Hauptagenten anhand deterministischer Tests und Akzeptanzkriterien abgenommen).
+- **Status:** `complete` (PR #139 gemergt, Issue #127 geschlossen).
+
+## Implementierung & Validierung Issue #125 — 2026-08-22
+
+- **Issue:** [#125](https://github.com/m00sfett/KeepADB/issues/125) — `fix: Discovery-State-Machine gegen Race Conditions und Timeout-Loops absichern`
+- **Ziel:** `KeepADBEndpoint` gegen Nebenläufigkeit, unbegrenztes Thread-Spawning und veraltete Resolve-Callbacks absichern.
+- **Umsetzung:**
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java`:
+    - `currentResolveAttemptToken`: Jeder Resolve-Versuch erhält einen eindeutigen Attempt-Token; verspätete Resolve- oder Fail-Callbacks verwerfen Aktionen, wenn der Token nicht mehr aktuell ist.
+    - `VERIFY_EXECUTOR`: Bounded `ExecutorService` (4 Worker, Daemon-Threads) für TCP-Socket-Erreichbarkeitsprüfungen ersetzt unbegrenztes Spawnen neuer Threads.
+    - Atomare Zustandsprüfung und Delivery unter Monitor-Lock in QuickProbe und NSD-Resolve garantiert, dass nach `stop()` oder Generationswechsel keine Listener mehr bedient werden.
+    - `stop()` inkrementiert sowohl `discoveryGeneration` als auch `currentResolveAttemptToken` und bricht alle Watchdogs sauber ab.
+  - `app/src/test/java/de/hohnepeople/keepadb/KeepADBEndpointTest.java`:
+    - Ephemerer Socket-Test (`ServerSocket(0)`) ersetzt statisch gebundene Portnummern; Prüfung von Discovery-Konstanten.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest`: bestanden (14 Unit-Tests grün).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`: bestanden (APK erfolgreich gebaut).
+- **Review:** `not applicable` (S3-Discovery-State-Machine, durch Hauptagenten anhand deterministischer Tests und Akzeptanzkriterien abgenommen).
 - **Status:** `approved`.
+
 
 
 
