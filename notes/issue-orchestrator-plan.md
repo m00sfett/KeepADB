@@ -2892,7 +2892,26 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `app/src/test/java/de/hohnepeople/keepadb/KeepADBAccessibilityContractTest.java`:
     - `everyLocaleProvidesAccessibilityAndPermissionText` prüft nun das Vorhandensein der Sicherheitsstrings über alle 19 Locales.
     - Neuer Test `settingsActivityIncludesSecurityAdvicePanel` validiert die Einbindung des Sicherheitspanels im Layout.
-- **Lokale Gates:**
-  - `./bin/verify`: bestanden (25 Unit-Tests grün, 0 Lint-Fehler, Debug- und Release-APKs gebaut).
 - **Review:** `not applicable` (S1-Dokumentation, String-Lokalisierung und UI-Hinweispanel, abgenommen gegen deterministische Contract-Tests).
+- **Status:** `complete` (PR #160 gemergt, Issue #159 geschlossen).
+
+## Umsetzung Paket 2 (Issue #158) — 2026-08-22
+
+- **Issue:** [#158](https://github.com/m00sfett/KeepADB/issues/158) — `feat: Option zum Ausblenden der dauerhaften Benachrichtigung (Hide Notification)`
+- **Umsetzung:**
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBPreferences.java`:
+    - Neue Methoden `isNotificationHidden(Context)` und `setNotificationHidden(Context, boolean)` mit SharedPreferences-Key `hide_notification_enabled` hinzugefügt.
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java`:
+    - `show(...)` und `showPlaceholder(...)` prüfen `KeepADBPreferences.isNotificationHidden(context)`. Wenn aktiv, wird `manager.cancel(NOTIFICATION_ID)` ausgeführt und keine Benachrichtigung gepostet.
+  - `app/src/main/res/layout/activity_settings.xml`:
+    - Neues Panel `settings_notification_panel` mit `settings_hide_notification_toggle` (`Switch`) und erklärendem Subtext eingebunden.
+  - `app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java`:
+    - Toggle-Handler und Status-Synchronisation in `refresh()` implementiert, Toast-Rückmeldung bei Umschaltung (`settings_notification_hidden_toast` / `settings_notification_visible_toast`).
+  - Lokalisierung in allen 19 Sprachen (`values*/strings.xml`): Strings für `settings_section_notification`, `settings_hide_notification_toggle`, `settings_hide_notification_subtext`, `settings_notification_hidden_toast`, `settings_notification_visible_toast` vollständig übersetzt.
+  - Tests:
+    - `KeepADBAccessibilityContractTest.java`: Neuer Test `settingsActivityIncludesNotificationSettingsPanel` und Prüfung aller 19 Locales auf Vollständigkeit der neuen Notification-Strings.
+    - `KeepADBBootReceiverContractTest.java`: Neuer Contract-Test `notificationRespectsHidePreferenceContract` verifiziert die `isNotificationHidden`-Prüfung in `show` und `showPlaceholder`.
+- **Lokale Gates:**
+  - `./bin/verify`: bestanden (26 Unit-Tests grün, 0 Lint-Fehler, Debug- und Release-APKs gebaut).
+- **Review:** `not applicable` (S2-Einstellungsoption und Lifecycle-Erweiterung, abgenommen gegen deterministische Contract-Tests und lokale Gates).
 - **Status:** `complete` (Bereit für PR & Merge).

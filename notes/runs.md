@@ -174,3 +174,12 @@
 - Added localized security advice strings across all 19 supported languages (`values*/strings.xml`).
 - Added static contract test `settingsActivityIncludesSecurityAdvicePanel` and expanded locale contract tests in `KeepADBAccessibilityContractTest.java`.
 - Executed `./bin/verify` (all 25 unit tests passed, 0 lint warnings/errors, debug and release APKs built).
+
+## 2026-08-22 — Issue #158 (Option to hide persistent notification)
+
+- Added `hide_notification_enabled` preference to `KeepADBPreferences`.
+- Updated `KeepADBNotification` to cancel and suppress status notifications when the hide preference is enabled.
+- Added `settings_notification_panel` with toggle switch and explanatory subtext in `activity_settings.xml` and wired in `SettingsActivity.java`.
+- Added localized strings for notification settings across all 19 supported languages (`values*/strings.xml`).
+- Added contract tests in `KeepADBAccessibilityContractTest.java` and `KeepADBBootReceiverContractTest.java`.
+- Executed `./bin/verify` (all 26 unit tests passed, 0 lint warnings/errors, debug and release APKs built).

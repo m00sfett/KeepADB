@@ -64,5 +64,10 @@
     <string name="settings_language_dialog_title">Sprache auswählen</string>
     <string name="settings_section_security">Sicherheit &amp; Netzwerkhinweise</string>
     <string name="settings_security_body">Drahtloses Debugging öffnet einen Netzwerk-Port für ADB. Nutze Keep-Alive vor allem in vertrauenswürdigen Heim- und Firmennetzwerken oder VPNs. Schalte Drahtlos-Debugging in öffentlichen Hotspots aus und bestätige niemals unerwartete Kopplungsanfragen.</string>
+    <string name="settings_section_notification">Benachrichtigung</string>
+    <string name="settings_hide_notification_toggle">Dauerhafte Benachrichtigung ausblenden</string>
+    <string name="settings_hide_notification_subtext">Blendet die Status-Benachrichtigung in der Leiste aus. Keep-Alive und Widgets funktionieren weiterhin normal.</string>
+    <string name="settings_notification_hidden_toast">Dauerhafte Benachrichtigung ausgeblendet</string>
+    <string name="settings_notification_visible_toast">Dauerhafte Benachrichtigung aktiviert</string>
     <string name="back">Zurück</string>
 </resources>

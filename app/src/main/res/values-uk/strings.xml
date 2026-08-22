@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Виберіть мову</string>
     <string name="settings_section_security">Безпека та поради щодо мережі</string>
     <string name="settings_security_body">Бездротове налагодження відкриває мережевий порт для ADB. Використовуйте Keep-Alive у надійних мережах Wi-Fi або VPN. Вимикайте налагодження у публічних мережах і ніколи не приймайте невідомі запити на створення пари.</string>
+    <string name="settings_section_notification">Сповіщення</string>
+    <string name="settings_hide_notification_toggle">Приховати постійне сповіщення</string>
+    <string name="settings_hide_notification_subtext">Приховує сповіщення про стан на панелі сповіщень. Keep-Alive та віджети працюватимуть як зазвичай.</string>
+    <string name="settings_notification_hidden_toast">Постійне сповіщення приховано</string>
+    <string name="settings_notification_visible_toast">Постійне сповіщення увімкнено</string>
     <string name="back">Назад</string>
 </resources>

@@ -64,6 +64,16 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"settings_section_security\""));
                 assertTrue("Missing security body in " + directory,
                         content.contains("name=\"settings_security_body\""));
+                assertTrue("Missing notification section title in " + directory,
+                        content.contains("name=\"settings_section_notification\""));
+                assertTrue("Missing hide notification toggle label in " + directory,
+                        content.contains("name=\"settings_hide_notification_toggle\""));
+                assertTrue("Missing hide notification subtext in " + directory,
+                        content.contains("name=\"settings_hide_notification_subtext\""));
+                assertTrue("Missing notification hidden toast in " + directory,
+                        content.contains("name=\"settings_notification_hidden_toast\""));
+                assertTrue("Missing notification visible toast in " + directory,
+                        content.contains("name=\"settings_notification_visible_toast\""));
             }
         }
     }
@@ -100,6 +110,16 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(settings.contains("android:id=\"@+id/settings_security_panel\""));
         assertTrue(settings.contains("android:text=\"@string/settings_section_security\""));
         assertTrue(settings.contains("android:text=\"@string/settings_security_body\""));
+    }
+
+    @Test
+    public void settingsActivityIncludesNotificationSettingsPanel() throws IOException {
+        String settings = read("app/src/main/res/layout/activity_settings.xml");
+        assertTrue(settings.contains("android:id=\"@+id/settings_notification_panel\""));
+        assertTrue(settings.contains("android:id=\"@+id/settings_hide_notification_toggle\""));
+        assertTrue(settings.contains("android:text=\"@string/settings_section_notification\""));
+        assertTrue(settings.contains("android:text=\"@string/settings_hide_notification_toggle\""));
+        assertTrue(settings.contains("android:text=\"@string/settings_hide_notification_subtext\""));
     }
 
     private static String read(String relativePath) throws IOException {

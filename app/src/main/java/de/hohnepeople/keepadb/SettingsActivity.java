@@ -19,6 +19,8 @@ public class SettingsActivity extends Activity {
     private TextView languageSelectedText;
     private View languageSelector;
 
+    private Switch hideNotificationToggle;
+
     private Switch webhookToggle;
     private EditText webhookUrlInput;
     private TextView webhookError;
@@ -41,6 +43,17 @@ public class SettingsActivity extends Activity {
         languageSelectedText = findViewById(R.id.settings_language_selected_text);
         languageSelector = findViewById(R.id.settings_language_selector);
         languageSelector.setOnClickListener(v -> showLanguageSelectionDialog());
+
+        hideNotificationToggle = findViewById(R.id.settings_hide_notification_toggle);
+        hideNotificationToggle.setOnClickListener(v -> {
+            boolean wantHidden = hideNotificationToggle.isChecked();
+            KeepADBPreferences.setNotificationHidden(this, wantHidden);
+            KeepADBNotification.refresh(this);
+            Toast.makeText(this,
+                    wantHidden ? R.string.settings_notification_hidden_toast : R.string.settings_notification_visible_toast,
+                    Toast.LENGTH_SHORT).show();
+            refresh();
+        });
 
         webhookToggle = findViewById(R.id.settings_webhook_toggle);
         webhookUrlInput = findViewById(R.id.settings_webhook_url);
@@ -171,5 +184,8 @@ public class SettingsActivity extends Activity {
 
         boolean webhookEnabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
         webhookToggle.setChecked(webhookEnabled);
+
+        boolean notificationHidden = KeepADBPreferences.isNotificationHidden(this);
+        hideNotificationToggle.setChecked(notificationHidden);
     }
 }

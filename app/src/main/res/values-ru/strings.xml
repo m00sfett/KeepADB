@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Выберите язык</string>
     <string name="settings_section_security">Безопасность и рекомендации</string>
     <string name="settings_security_body">Беспроводная отладка открывает сетевой порт для ADB. Используйте Keep-Alive в доверенных сетях Wi-Fi или через VPN. Отключайте отладку в публичных сетях и никогда не подтверждайте неизвестные запросы сопряжения.</string>
+    <string name="settings_section_notification">Уведомление</string>
+    <string name="settings_hide_notification_toggle">Скрыть постоянное уведомление</string>
+    <string name="settings_hide_notification_subtext">Скрывает уведомление о статусе в панели уведомлений. Keep-Alive и виджеты продолжат работать в обычном режиме.</string>
+    <string name="settings_notification_hidden_toast">Постоянное уведомление скрыто</string>
+    <string name="settings_notification_visible_toast">Постоянное уведомление включено</string>
     <string name="back">Назад</string>
 </resources>

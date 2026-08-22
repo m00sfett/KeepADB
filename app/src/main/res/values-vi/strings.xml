@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Chọn ngôn ngữ</string>
     <string name="settings_section_security">Bảo mật &amp; Lời khuyên mạng</string>
     <string name="settings_security_body">Gỡ lỗi không dây mở một cổng mạng cho ADB. Sử dụng Keep-Alive chủ yếu trên các mạng Wi-Fi đáng tin cậy hoặc VPN. Tắt trên các điểm truy cập công cộng và không bao giờ chấp nhận các yêu cầu ghép nối lạ.</string>
+    <string name="settings_section_notification">Thông báo</string>
+    <string name="settings_hide_notification_toggle">Ẩn thông báo liên tục</string>
+    <string name="settings_hide_notification_subtext">Ẩn thông báo trạng thái trên thanh thông báo. Keep-Alive và tiện ích con vẫn hoạt động bình thường.</string>
+    <string name="settings_notification_hidden_toast">Đã ẩn thông báo liên tục</string>
+    <string name="settings_notification_visible_toast">Đã bật thông báo liên tục</string>
     <string name="back">Quay lại</string>
 </resources>
