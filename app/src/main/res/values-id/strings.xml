@@ -22,13 +22,13 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Endpoint Debugging Nirkabel</string>
     <string name="notification_channel_desc">Alamat IP dan port saat ini untuk Debugging Nirkabel</string>
-    <string name="notification_title_active">Debugging Nirkabel: Port %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB: Debugging Nirkabel AKTIF</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
-    <string name="notification_title_searching">Debugging Nirkabel: Mencari endpoint…</string>
+    <string name="notification_title_searching">KeepADB: Mencari endpoint…</string>
     <string name="notification_text_searching">Menyelesaikan endpoint di jaringan lokal</string>
     <string name="notification_service_title">Pertahankan Debugging Nirkabel Tetap Aktif</string>
     <string name="notification_service_text">Memantau koneksi Wi-Fi dan status Debugging Nirkabel</string>
-    <string name="notification_permission_missing_title">Debugging Nirkabel: Izin kurang</string>
+    <string name="notification_permission_missing_title">KeepADB: Izin kurang</string>
     <string name="notification_permission_panel_title">Notifikasi dinonaktifkan</string>
     <string name="notification_permission_panel_body">Keep-Alive tetap dapat berjalan, tetapi KeepADB tidak dapat menampilkan notifikasi statusnya. Izinkan notifikasi di setelan sistem.</string>
     <string name="notification_permission_settings_button">Buka setelan notifikasi</string>

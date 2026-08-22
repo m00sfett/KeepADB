@@ -22,13 +22,13 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">نقطة نهاية تصحيح الأخطاء اللاسلكي</string>
     <string name="notification_channel_desc">عنوان IP والمنفذ الحالي لتصحيح الأخطاء اللاسلكي</string>
-    <string name="notification_title_active">تصحيح الأخطاء اللاسلكي: منفذ %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB: تصحيح الأخطاء اللاسلكي مُفَعَّل</string>
     <string name="notification_text_active">منفذ %1$d @ %2$s</string>
-    <string name="notification_title_searching">تصحيح الأخطاء اللاسلكي: جارٍ البحث عن نقطة النهاية…</string>
+    <string name="notification_title_searching">KeepADB: جارٍ البحث عن نقطة النهاية…</string>
     <string name="notification_text_searching">جارٍ حل نقطة النهاية على الشبكة المحلية</string>
     <string name="notification_service_title">إبقاء تصحيح الأخطاء اللاسلكي نشطًا</string>
     <string name="notification_service_text">مراقبة اتصال Wi-Fi وحالة تصحيح الأخطاء اللاسلكي</string>
-    <string name="notification_permission_missing_title">تصحيح الأخطاء اللاسلكي: الإذن مفقود</string>
+    <string name="notification_permission_missing_title">KeepADB: الإذن مفقود</string>
     <string name="notification_permission_panel_title">الإشعارات معطلة</string>
     <string name="notification_permission_panel_body">يمكن أن يستمر Keep-Alive في العمل، لكن لا يستطيع KeepADB عرض إشعار الحالة. اسمح بالإشعارات من إعدادات النظام.</string>
     <string name="notification_permission_settings_button">فتح إعدادات الإشعارات</string>
