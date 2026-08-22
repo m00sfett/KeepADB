@@ -25,6 +25,7 @@ public class KeepADBTileService extends TileService {
             Toast.makeText(this, getString(R.string.tile_permission_error),
                     Toast.LENGTH_LONG).show();
         }
+        KeepADBService.sync(this);
         updateTile();
         KeepADBWidget.refreshAll(this);
         KeepADBNotification.refresh(this);

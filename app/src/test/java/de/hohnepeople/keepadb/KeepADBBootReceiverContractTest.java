@@ -67,6 +67,17 @@ public class KeepADBBootReceiverContractTest {
         assertTrue(service.contains("cleanup requested="));
     }
 
+    @Test
+    public void serviceStopsAndRemovesNotificationWhenDisabled() throws IOException {
+        String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+
+        assertTrue(service.contains("if (KeepADBPreferences.isKeepAliveEnabled(context) && KeepADB.isEnabled(context))"));
+        assertTrue(service.contains("stopForeground(STOP_FOREGROUND_REMOVE)"));
+        assertTrue(notification.contains("manager.cancel(NOTIFICATION_ID);"));
+        assertFalse(notification.contains("showPlaceholder(context, manager,"));
+    }
+
     private static String read(String relativePath) throws IOException {
         Path directory = Paths.get("").toAbsolutePath();
         while (directory != null && !Files.exists(directory.resolve("settings.gradle"))) {
