@@ -2548,3 +2548,32 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - **Abschlussstatus:** Code-/Test-/S20-Nachweise des verengten #130-Scopes vollständig;
   Commit/Push/PR/Merge und serverseitiges Schließen stehen noch aus. Keine Geräteaktion mehr
   erforderlich.
+
+## Abschluss Issue #130 — 2026-08-22
+
+- **Akzeptanzabgleich:** Receiver `exported=false` und nur `BOOT_COMPLETED`; `QUICKBOOT_POWERON`
+  entfernt; expliziter Fremdbroadcast mit `SecurityException` abgewiesen; S20-Reboot mit
+  `keep_alive_enabled=true`, `adb_wifi_enabled=1`, aktuellem Service-Heartbeat und erreichbarem
+  WLAN-ADB-Endpoint nachgewiesen; initiale FGS-Fehlerbehandlung und fail-closed Cleanup lokal
+  gebaut und statisch getestet. Der AOSP-Emulator-Boot ist gemäß Scope-Update ausdrücklich
+  Nicht-Scope.
+- **Lokale Gates:** `git diff --check` sowie
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`
+  erfolgreich; 11 Unit-Tests grün. Keine GitHub-Actions ausgelöst; PR #136 meldete keine Checks.
+- **Server/Commit:** PR [#136](https://github.com/m00sfett/KeepADB/pull/136) als Squash gemergt,
+  Merge-Commit `c80bf2f0228b63020f00fd823115f6ada291b209`; `master` und `origin/master`
+  synchron. Issue [#130](https://github.com/m00sfett/KeepADB/issues/130) geschlossen.
+- **Folgearbeit:** Issue [#135](https://github.com/m00sfett/KeepADB/issues/135) bleibt offen für
+  generationssicheren FGS-Re-Entry sowie Endpoint-/Notification-/Webhook-Lifecycle. Es wurde
+  weder implementiert noch geschlossen.
+- **Retrospektive:** Die lokale Testleiter war sinnvoll und fand die Contract-Test-/Lifecycle-
+  Lücken vor dem Abschluss. Die Reviews brachten echte Cross-Component-Befunde; die zu breite
+  ursprüngliche Paketgrenze wurde daraufhin sauber in #135 geteilt. Der Geräteblocker wurde zu
+  früh gezogen, obwohl der registrierte WLAN-Transport nach weiterer Startzeit selbstständig
+  zurückkam; künftig erhält ein Reboot-Transport vor einer Blockerklassifikation eine explizite
+  Wartephase mit genau einem Folgecheck.
+- **Aufwand:** 1 verengtes Paket abgeschlossen; 4 unabhängige S4-Reviews, lokale Gate-Läufe und
+  ein S20-Reboot-/Transportnachweis; keine Actions-Runs; beobachtete Token-/Abrechnungswerte
+  unbekannt.
+- **Status:** `complete` für den verengten #130-Scope; Server-, Commit- und Merge-Nachweis
+  vorhanden; #135 ist der klar abgegrenzte offene Folgeumfang.
