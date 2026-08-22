@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">اختر اللغة</string>
     <string name="settings_section_security">الأمان وإرشادات الشبكة</string>
     <string name="settings_security_body">يفتح تصحيح الأخطاء اللاسلكي منفذ شبكة لـ ADB. استخدم Keep-Alive بشكل أساسي على شبكات Wi-Fi الموثوقة أو VPN. أوقف تشغيل تصحيح الأخطاء في نقاط الاتصال العامة، ولا تقبل أبدًا طلبات الاقتران غير المتوقعة.</string>
+    <string name="settings_section_notification">الإشعارات</string>
+    <string name="settings_hide_notification_toggle">إخفاء الإشعار الدائم</string>
+    <string name="settings_hide_notification_subtext">يخفي إشعار الحالة في شريط الإشعارات. ستستمر ميزة Keep-Alive والأدوات في العمل بشكل طبيعي.</string>
+    <string name="settings_notification_hidden_toast">تم إخفاء الإشعار الدائم</string>
+    <string name="settings_notification_visible_toast">تم تفعيل الإشعار الدائم</string>
     <string name="back">رجوع</string>
 </resources>

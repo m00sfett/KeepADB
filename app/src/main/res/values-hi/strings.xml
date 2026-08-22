@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">भाषा चुनें</string>
     <string name="settings_section_security">सुरक्षा और नेटवर्क सलाह</string>
     <string name="settings_security_body">वायरलेस डिबगिंग ADB के लिए एक नेटवर्क पोर्ट खोलता है। Keep-Alive का उपयोग मुख्य रूप से विश्वसनीय वाई-फ़ाई या VPN पर करें। सार्वजनिक हॉटस्पॉट पर इसे बंद करें और अनपेक्षित पेयरिंग अनुरोधों को कभी स्वीकार न करें।</string>
+    <string name="settings_section_notification">सूचना</string>
+    <string name="settings_hide_notification_toggle">स्थायी सूचना छुपाएं</string>
+    <string name="settings_hide_notification_subtext">नोटिफिकेशन शेड में स्टेटस नोटिफिकेशन को छुपाता है। Keep-Alive और विजेट सामान्य रूप से काम करते रहेंगे।</string>
+    <string name="settings_notification_hidden_toast">स्थायी सूचना छिपाई गई</string>
+    <string name="settings_notification_visible_toast">स्थायी सूचना सक्षम की गई</string>
     <string name="back">वापस</string>
 </resources>

@@ -65,5 +65,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Seleziona lingua</string>
     <string name="settings_section_security">Sicurezza e consigli di rete</string>
     <string name="settings_security_body">Il debug wireless apre una porta di rete per ADB. Usa Keep-Alive principalmente su reti Wi-Fi affidabili o VPN. Disattiva il debug wireless su hotspot pubblici e non accettare mai richieste di associazione impreviste.</string>
+    <string name="settings_section_notification">Notifica</string>
+    <string name="settings_hide_notification_toggle">Nascondi notifica permanente</string>
+    <string name="settings_hide_notification_subtext">Nasconde la notifica di stato nel pannello delle notifiche. Keep-Alive e i widget continueranno a funzionare normalmente.</string>
+    <string name="settings_notification_hidden_toast">Notifica permanente nascosta</string>
+    <string name="settings_notification_visible_toast">Notifica permanente attivata</string>
     <string name="back">Indietro</string>
 </resources>

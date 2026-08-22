@@ -78,6 +78,16 @@ public class KeepADBBootReceiverContractTest {
         assertFalse(notification.contains("showPlaceholder(context, manager,"));
     }
 
+    @Test
+    public void notificationRespectsHidePreferenceContract() throws IOException {
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        assertTrue(notification.contains("KeepADBPreferences.isNotificationHidden(context)"));
+        int showIndex = notification.indexOf("private static void show(Context context");
+        int placeholderIndex = notification.indexOf("private static void showPlaceholder(Context context");
+        assertTrue(notification.substring(showIndex, placeholderIndex).contains("KeepADBPreferences.isNotificationHidden(context)"));
+        assertTrue(notification.substring(placeholderIndex).contains("KeepADBPreferences.isNotificationHidden(context)"));
+    }
+
     private static String read(String relativePath) throws IOException {
         Path directory = Paths.get("").toAbsolutePath();
         while (directory != null && !Files.exists(directory.resolve("settings.gradle"))) {
