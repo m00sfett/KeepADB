@@ -16,7 +16,7 @@
     <string name="keep_alive_subtext">Reconnexion automatique en cas de coupure, changement de réseau ou redémarrage</string>
     <string name="widget_text_on">Débogage sans fil : OUI</string>
     <string name="widget_text_off">Débogage sans fil : NON</string>
-    <string name="tile_label">Débogage sans fil</string>
+    <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB : Autorisation manquante (pm grant requis)</string>
     <string name="permission_error_toast">Autorisation manquante. Exécutez une fois depuis un PC :
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>

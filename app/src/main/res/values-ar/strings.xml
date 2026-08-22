@@ -16,7 +16,7 @@
     <string name="keep_alive_subtext">إعادة الاتصال تلقائيًا عند انقطاع الاتصال أو تغيير الشبكة أو إعادة التشغيل</string>
     <string name="widget_text_on">تصحيح لاسلكي: تشغيل</string>
     <string name="widget_text_off">تصحيح لاسلكي: إيقاف</string>
-    <string name="tile_label">تصحيح الأخطاء اللاسلكي</string>
+    <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: الإذن مفقود (مطلوب pm grant)</string>
     <string name="permission_error_toast">الإذن مفقود. شغّل مرة واحدة من الكمبيوتر:
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
