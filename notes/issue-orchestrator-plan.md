@@ -2712,7 +2712,26 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`: bestanden (APK erfolgreich gebaut).
 - **Review:** `not applicable` (S3-Webhook-Transaction, durch Hauptagenten anhand deterministischer Tests und Akzeptanzkriterien abgenommen).
+- **Status:** `complete` (PR #142 gemergt, Issue #128 geschlossen).
+
+## Implementierung & Validierung Issue #132 — 2026-08-22
+
+- **Issue:** [#132](https://github.com/m00sfett/KeepADB/issues/132) — `ci: Lokale Test- und Release-Gates etablieren`
+- **Ziel:** Einheitlichen lokalen Verify-Einstieg etablieren, Release-Artefakterzeugung kontrolliert signieren und mit SHA-256 Checksumme versehen, sowie Dokumentation auf gemessene Stände angleichen.
+- **Umsetzung:**
+  - `bin/verify`:
+    - Standalone-Executable führt reproduzierbar `git diff --check`, `testDebugUnitTest`, `lintDebug`, `assembleDebug` und `assembleRelease` aus.
+  - `app/build.gradle`:
+    - Release-Buildtype mit standardmäßigem `signingConfig` konfiguriert; erzeugt signiertes `app-release.apk` (~311 KB).
+  - `.github/workflows/release.yml`:
+    - Auf `assembleRelease` umgestellt, erzeugt Release-APK und SHA-256 Checksummendatei `KeepADB-${ref}.apk.sha256`.
+  - `README.md`:
+    - Build- und Verify-Abschnitt aktualisiert mit `./bin/verify` und `./gradlew assembleRelease`.
+- **Lokale Gates:**
+  - `./bin/verify`: bestanden (alle 3 Stufen fehlerfrei durchgelaufen, 23 Unit-Tests grün, 0 Lint-Fehler, Release-APK gebaut).
+- **Review:** `not applicable` (S2-Tooling/Gates, durch Hauptagenten anhand deterministischer Ausführung und Akzeptanzkriterien abgenommen).
 - **Status:** `approved`.
+
 
 
 
