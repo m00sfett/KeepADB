@@ -75,23 +75,24 @@ When enabled, `adbd` binds to a dynamic high port (30000–50000) and announces 
 
 ---
 
-## Building from Source
+## Building and Verification
 
 ### Prerequisites
 - JDK 17
 - Android SDK (compileSdk 35, build-tools 35, minSdk 30)
 
-### Build Debug APK
+### Local Verification & Gates
+Run all checks (git diff, unit tests, lint, debug and release builds) with a single command:
 ```bash
-./gradlew assembleDebug
+./bin/verify
 ```
-The compiled APK will be located at:
-`app/build/outputs/apk/debug/app-debug.apk`
 
-### Run Lint & Checks
+### Build Release APK
 ```bash
-./gradlew lintDebug
+./gradlew assembleRelease
 ```
+The release APK will be located at:
+`app/build/outputs/apk/release/app-release.apk` (~311 KB)
 
 ---
 
