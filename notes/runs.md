@@ -152,3 +152,11 @@
 - Forked `fdroid/fdroiddata` on GitLab under `m00sfett/fdroiddata`.
 - Created branch `add-de.hohnepeople.keepadb` and committed `metadata/de.hohnepeople.keepadb.yml`.
 - Opened official F-Droid Merge Request: https://gitlab.com/fdroid/fdroiddata/-/merge_requests/46500
+
+## 2026-08-22 — Issue #154 (Notification title status and deduplication)
+
+- Updated notification title to `KeepADB: <STATUS>` (e.g. `KeepADB: Drahtloses Debugging ist AN` / `KeepADB: Wireless Debugging is ON`, `KeepADB: Endpoint wird gesucht …`, `KeepADB: Berechtigung fehlt`).
+- Removed redundant connection endpoint info (`Port @ IP`) from notification title; second line continues to display formatted endpoint string (`Port <port> @ <ip>`).
+- Updated all 19 locale string resources consistently.
+- Created PR #155, verified via `./bin/verify`, merged into `master`, built and deployed to S20.
+
