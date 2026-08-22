@@ -13,19 +13,12 @@ public class BootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent == null) return;
         String action = intent.getAction();
-        if (Intent.ACTION_BOOT_COMPLETED.equals(action)
-                || "android.intent.action.QUICKBOOT_POWERON".equals(action)) {
+        if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             if (KeepADBPreferences.isKeepAliveEnabled(context)) {
-                KeepADBService.start(context);
-                if (KeepADBService.isWifiConnected(context)) {
-                    if (!KeepADB.setEnabled(context, true)) {
-                        Log.e(TAG, "BootReceiver: Failed to enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
-                        KeepADBNotification.showPermissionMissing(context);
-                        return;
-                    }
+                if (!KeepADBService.start(context)) {
+                    Log.e(TAG, "BootReceiver: Failed to start KeepADB foreground service");
+                    return;
                 }
-                KeepADBNotification.refresh(context);
-                KeepADBWidget.refreshAll(context);
             }
         }
     }
