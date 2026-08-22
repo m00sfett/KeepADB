@@ -58,6 +58,12 @@ final class KeepADBEndpoint {
                 t.setDaemon(true);
                 return t;
             });
+    private static final java.util.concurrent.ExecutorService VERIFY_EXECUTOR =
+            java.util.concurrent.Executors.newFixedThreadPool(4, r -> {
+                Thread t = new Thread(r, "KeepADBVerifyWorker");
+                t.setDaemon(true);
+                return t;
+            });
     private static final long RECOVERY_PULSE_DELAY_MS = 5000;
     private static final long RECOVERY_PULSE_OFF_MS = 800;
     // Must stay comfortably above RECOVERY_PULSE_DELAY_MS + RECOVERY_PULSE_OFF_MS (5800ms):
@@ -83,6 +89,7 @@ final class KeepADBEndpoint {
     private boolean resolving;
     private Runnable resolveWatchdogRunnable;
     private long discoveryGeneration;
+    private long currentResolveAttemptToken;
     private Listener currentListener;
     private boolean discovering;
     private Thread coordinatorThread;
@@ -234,22 +241,19 @@ final class KeepADBEndpoint {
                 return;
             }
             String targetHost = getWifiIpAddress(appContext);
-            if (targetHost == null || !endpointDelivered.compareAndSet(false, true)) {
+            if (targetHost == null) {
                 return;
             }
-            // scanLocalOpenPortsBatch already confirmed this port via a real finishConnect(),
-            // so no separate re-verification is needed here.
             int candidatePort = openPorts.get(0);
-            Log.i(TAG, "QuickProbe verified live ADB endpoint: " + targetHost + ":" + candidatePort);
-            Listener targetListener;
+            Listener targetListener = null;
             synchronized (KeepADBEndpoint.this) {
-                if (isCurrent(generation)) {
-                    resolveQueue.clear();
-                    targetListener = currentListener;
-                    stop();
-                } else {
-                    targetListener = null;
+                if (!isCurrent(generation) || !endpointDelivered.compareAndSet(false, true)) {
+                    return;
                 }
+                Log.i(TAG, "QuickProbe verified live ADB endpoint: " + targetHost + ":" + candidatePort);
+                resolveQueue.clear();
+                targetListener = currentListener;
+                stop();
             }
             if (targetListener != null) {
                 targetListener.onEndpoint(targetHost, candidatePort);
@@ -273,11 +277,12 @@ final class KeepADBEndpoint {
         if (nextService == null) {
             return;
         }
+        final long attemptToken = ++currentResolveAttemptToken;
         resolving = true;
         cancelResolveWatchdogLocked();
         resolveWatchdogRunnable = () -> {
             synchronized (KeepADBEndpoint.this) {
-                if (!isCurrent(generation) || !resolving || endpointDelivered.get()) return;
+                if (!isCurrent(generation) || !resolving || currentResolveAttemptToken != attemptToken || endpointDelivered.get()) return;
                 resolving = false;
                 processNextResolveLocked(generation);
             }
@@ -289,9 +294,10 @@ final class KeepADBEndpoint {
                 @Override
                 public void onResolveFailed(NsdServiceInfo ignored, int errorCode) {
                     synchronized (KeepADBEndpoint.this) {
+                        if (!isCurrent(generation) || currentResolveAttemptToken != attemptToken) return;
                         cancelResolveWatchdogLocked();
                         resolving = false;
-                        if (!isCurrent(generation) || endpointDelivered.get()) return;
+                        if (endpointDelivered.get()) return;
                         processNextResolveLocked(generation);
                     }
                 }
@@ -299,11 +305,10 @@ final class KeepADBEndpoint {
                 @Override
                 public void onServiceResolved(NsdServiceInfo resolved) {
                     synchronized (KeepADBEndpoint.this) {
-                        cancelResolveWatchdogLocked();
-                        if (!isCurrent(generation) || endpointDelivered.get()) {
-                            resolving = false;
+                        if (!isCurrent(generation) || currentResolveAttemptToken != attemptToken || endpointDelivered.get()) {
                             return;
                         }
+                        cancelResolveWatchdogLocked();
                         if (resolved.getHost() == null || resolved.getPort() <= 0) {
                             resolving = false;
                             processNextResolveLocked(generation);
@@ -317,27 +322,29 @@ final class KeepADBEndpoint {
                         }
                         final int port = resolved.getPort();
                         final InetAddress addr = resolved.getHost();
-                        new Thread(() -> {
+                        VERIFY_EXECUTOR.execute(() -> {
                             boolean reachable = isPortReachable(addr, port, 400);
-                            if (reachable && endpointDelivered.compareAndSet(false, true)) {
-                                Listener targetListener;
-                                synchronized (KeepADBEndpoint.this) {
+                            Listener targetListener = null;
+                            synchronized (KeepADBEndpoint.this) {
+                                if (!isCurrent(generation) || currentResolveAttemptToken != attemptToken) {
+                                    return;
+                                }
+                                if (reachable && endpointDelivered.compareAndSet(false, true)) {
                                     resolveQueue.clear();
                                     targetListener = currentListener;
                                     stop();
-                                }
-                                if (targetListener != null) {
-                                    targetListener.onEndpoint(host, port);
-                                }
-                            } else {
-                                synchronized (KeepADBEndpoint.this) {
+                                } else {
                                     resolving = false;
                                     if (isCurrent(generation) && !endpointDelivered.get()) {
                                         processNextResolveLocked(generation);
                                     }
+                                    return;
                                 }
                             }
-                        }, "KeepADBEndpointCheck").start();
+                            if (targetListener != null) {
+                                targetListener.onEndpoint(host, port);
+                            }
+                        });
                     }
                 }
             });
@@ -350,6 +357,7 @@ final class KeepADBEndpoint {
 
     synchronized void stop() {
         discoveryGeneration++;
+        currentResolveAttemptToken++;
         discovering = false;
         currentListener = null;
         cancelResolveWatchdogLocked();
