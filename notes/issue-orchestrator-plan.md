@@ -2751,7 +2751,39 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - **Lokale Gates:**
   - `./bin/verify`: bestanden (24 Unit-Tests grün, 0 Lint-Fehler, Release-APK gebaut).
 - **Review:** `not applicable` (S3-Security-Härtung, durch Hauptagenten anhand deterministischer Tests und Akzeptanzkriterien abgenommen).
-- **Status:** `approved`.
+- **Status:** `complete` (PR #144 gemergt, Issue #129 geschlossen).
+
+## Auswahl-Checkpoint & Kandidaten-Paketierung — 2026-08-22
+
+- `issue_snapshot_at: 2026-08-22T16:15:00+02:00`
+- `plan_updated_at: 2026-08-22T16:15:00+02:00`
+- **Ausgangslage:**
+  - `master` und `origin/master` synchron auf `f16753f`.
+  - 3 offene GitHub Issues (#148, #149, #150), 0 offene Pull Requests.
+  - Arbeitsverzeichnis sauber, `./bin/verify` erfolgreich.
+- **Offene Issues (3):**
+  - [#148](https://github.com/m00sfett/KeepADB/issues/148) `style: Notification- und Tile-Vektor-Icon vergrößern (Viewport-Padding entfernen)`
+  - [#149](https://github.com/m00sfett/KeepADB/issues/149) `feat: Quick-Settings-Tile Label zu "KeepADB" vereinheitlichen`
+  - [#150](https://github.com/m00sfett/KeepADB/issues/150) `fix: Notification und Foreground-Service entfernen wenn Drahtloses Debugging ausgeschaltet ist`
+
+- **Paketierung nach Eco-Grundsätzen:**
+  1. **Paket 1 (Tile & Notification UI/Asset-Polishing):**
+     - Issues: [#148](https://github.com/m00sfett/KeepADB/issues/148), [#149](https://github.com/m00sfett/KeepADB/issues/149)
+     - Ziel:
+       - #148: `app/src/main/res/drawable/ic_keepadb.xml` zentrieren und um ~31% skalieren (Glyph-Größe ~20x20 dp im 24x24 dp Viewport), sodass das Symbol in Statusleiste, Notification Shade, Tile und Header kräftig und präsent dargestellt wird.
+       - #149: `tile_label` in allen 19 Lokalisierungsdateien (`values*/strings.xml`) auf `@string/app_name` ("KeepADB") vereinheitlichen.
+       - Contract-Tests in `KeepADBAccessibilityContractTest.java` erweitern.
+     - Stufe: S1 (Direktumsetzung durch Hauptagent).
+     - Gates: `git diff --check`, `./bin/verify`.
+  2. **Paket 2 (Foreground-Service & Notification Lifecycle):**
+     - Issue: [#150](https://github.com/m00sfett/KeepADB/issues/150)
+     - Ziel: Wenn Drahtloses Debugging manuell oder durch Statusänderung ausgeschaltet wird, den Foreground-Service stoppen und die Notification vollständig entfernen; Service & Notification nur bei aktivem Drahtlos-Debugging betreiben.
+     - Stufe: S2 (Direktumsetzung durch Hauptagent).
+     - Gates: `git diff --check`, `./bin/verify`.
+
+- **Einstiegsentscheidung:**
+  - Eco-Prämisse (Einfachste Pakete zuerst): Start mit **Paket 1** (Issues #148 & #149), danach **Paket 2** (Issue #150).
+- **Status:** `in_progress` für Paket 1.
 
 
 

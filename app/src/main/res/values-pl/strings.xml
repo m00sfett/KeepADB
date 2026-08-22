@@ -16,7 +16,7 @@
     <string name="keep_alive_subtext">Automatyczne wznawianie połączenia po rozłączeniu, zmianie sieci lub restarcie</string>
     <string name="widget_text_on">Debugowanie bezprzewodowe: WŁ.</string>
     <string name="widget_text_off">Debugowanie bezprzewodowe: WYŁ.</string>
-    <string name="tile_label">Debugowanie bezprzewodowe</string>
+    <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: Brak uprawnień (wymagane pm grant)</string>
     <string name="permission_error_toast">Brak uprawnień. Uruchom raz z komputera:
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>

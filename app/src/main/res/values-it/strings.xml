@@ -16,7 +16,7 @@
     <string name="keep_alive_subtext">Riconnessione automatica in caso di disconnessione, cambio rete o riavvio</string>
     <string name="widget_text_on">Debug wireless: ATTIVO</string>
     <string name="widget_text_off">Debug wireless: DISATTIVO</string>
-    <string name="tile_label">Debug wireless</string>
+    <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: Autorizzazione mancante (richiesto pm grant)</string>
     <string name="permission_error_toast">Autorizzazione mancante. Esegui una volta dal PC:
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>

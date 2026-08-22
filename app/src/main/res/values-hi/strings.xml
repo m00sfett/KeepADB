@@ -16,7 +16,7 @@
     <string name="keep_alive_subtext">कनेक्शन टूटने, नेटवर्क बदलने या रीबूट होने पर स्वतः पुनः कनेक्ट करें</string>
     <string name="widget_text_on">वायरलेस डीबगिंग: चालू</string>
     <string name="widget_text_off">वायरलेस डीबगिंग: बंद</string>
-    <string name="tile_label">वायरलेस डीबगिंग</string>
+    <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: अनुमति गायब है (pm grant आवश्यक है)</string>
     <string name="permission_error_toast">अनुमति गायब है। PC से एक बार चलाएं:
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>

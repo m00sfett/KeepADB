@@ -16,7 +16,7 @@
     <string name="keep_alive_subtext">切断、ネットワーク変更、または再起動時に自動再接続</string>
     <string name="widget_text_on">ワイヤレスデバッグ: ON</string>
     <string name="widget_text_off">ワイヤレスデバッグ: OFF</string>
-    <string name="tile_label">ワイヤレスデバッグ</string>
+    <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: 権限がありません (pm grant が必要)</string>
     <string name="permission_error_toast">権限がありません。PCから一度実行してください:
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
