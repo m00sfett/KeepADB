@@ -64,18 +64,19 @@ public class MainActivity extends Activity {
                 toggle.setChecked(!want);
                 showPermissionErrorToast();
             }
+            KeepADBService.sync(this);
             refreshUiAndComponents();
         });
 
         keepAliveToggle.setOnClickListener(v -> {
             boolean wantKeepAlive = keepAliveToggle.isChecked();
             KeepADBPreferences.setKeepAliveEnabled(this, wantKeepAlive);
-            KeepADBService.sync(this);
             if (wantKeepAlive && KeepADBService.isWifiConnected(this) && !KeepADB.isEnabled(this)) {
                 if (!KeepADB.setEnabled(this, true)) {
                     showPermissionErrorToast();
                 }
             }
+            KeepADBService.sync(this);
             KeepADBWidget.refreshAll(this);
             KeepADBNotification.refresh(this);
             refresh();

@@ -89,6 +89,7 @@ final class KeepADB {
             Settings.Global.putInt(appContext.getContentResolver(), KEY, on ? 1 : 0);
             userDisabled = !on;
             lastAppliedChangeMs = SystemClock.elapsedRealtime();
+            KeepADBService.sync(appContext);
             KeepADBNotification.refresh(appContext);
             KeepADBWidget.refreshAll(appContext);
             return true;
@@ -135,6 +136,7 @@ final class KeepADB {
             try {
                 Settings.Global.putInt(appContext.getContentResolver(), KEY, 1);
                 lastAppliedChangeMs = SystemClock.elapsedRealtime();
+                KeepADBService.sync(appContext);
                 KeepADBNotification.refresh(appContext);
                 KeepADBWidget.refreshAll(appContext);
             } catch (SecurityException ignored) {

@@ -31,7 +31,7 @@ public class KeepADBService extends Service {
     private long lastRecheckTime = 0;
 
     static void sync(Context context) {
-        if (KeepADBPreferences.isKeepAliveEnabled(context)) {
+        if (KeepADBPreferences.isKeepAliveEnabled(context) && KeepADB.isEnabled(context)) {
             start(context);
         } else {
             stop(context);
@@ -126,7 +126,11 @@ public class KeepADBService extends Service {
         stopHeartbeatTicker();
         unregisterAdbObserver();
         unregisterNetworkCallback();
-        stopForeground(STOP_FOREGROUND_DETACH);
+        try {
+            stopForeground(STOP_FOREGROUND_REMOVE);
+        } catch (RuntimeException cleanupError) {
+            Log.w(TAG, "Failed to remove foreground notification on destroy", cleanupError);
+        }
         super.onDestroy();
     }
 
@@ -184,7 +188,8 @@ public class KeepADBService extends Service {
                     if (KeepADBPreferences.isKeepAliveEnabled(KeepADBService.this)) {
                         if (isWifiConnected(KeepADBService.this) && !KeepADB.isEnabled(KeepADBService.this)) {
                             if (KeepADB.consumeUserDisabled()) {
-                                Log.i(TAG, "Wireless Debugging manually disabled by user; ignoring keep-alive re-enable for this drop");
+                                Log.i(TAG, "Wireless Debugging manually disabled by user; stopping service");
+                                stop(KeepADBService.this);
                                 KeepADBNotification.refresh(KeepADBService.this);
                                 KeepADBWidget.refreshAll(KeepADBService.this);
                                 return;
@@ -196,7 +201,12 @@ public class KeepADBService extends Service {
                                     return;
                                 }
                             }
+                        } else if (!KeepADB.isEnabled(KeepADBService.this)) {
+                            Log.i(TAG, "Wireless Debugging disabled while Wi-Fi disconnected; stopping service");
+                            stop(KeepADBService.this);
                         }
+                    } else if (!KeepADB.isEnabled(KeepADBService.this)) {
+                        stop(KeepADBService.this);
                     }
                     KeepADBNotification.refresh(KeepADBService.this);
                     KeepADBWidget.refreshAll(KeepADBService.this);

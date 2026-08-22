@@ -63,8 +63,8 @@ final class KeepADBNotification {
             return buildNotification(appContext, currentHost, currentPort);
         } else {
             return buildPlaceholderNotification(appContext,
-                    appContext.getString(R.string.notification_service_title),
-                    appContext.getString(R.string.notification_service_text));
+                    appContext.getString(R.string.notification_title_searching),
+                    appContext.getString(R.string.notification_text_searching));
         }
     }
 
@@ -250,16 +250,7 @@ final class KeepADBNotification {
         currentHost = null;
         currentPort = 0;
         if (endpointListener != null) endpointListener.onUnavailable();
-        if (KeepADBPreferences.isKeepAliveEnabled(context)) {
-            // The Keep-Alive foreground service keeps this notification bound; the system
-            // silently ignores cancel() while it is still tied to a running foreground service,
-            // leaving the old port displayed. Update it to the service-monitoring state instead.
-            showPlaceholder(context, manager,
-                    context.getString(R.string.notification_service_title),
-                    context.getString(R.string.notification_service_text));
-        } else {
-            manager.cancel(NOTIFICATION_ID);
-        }
+        manager.cancel(NOTIFICATION_ID);
         KeepADBRegisterClient.markUnavailableAsync(context.getApplicationContext());
     }
 
