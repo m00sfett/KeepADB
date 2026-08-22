@@ -2605,5 +2605,23 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`: bestanden (APK erfolgreich gebaut).
 - **Review:** `not applicable` (reine S1-UI/Layout-Änderung, durch Hauptagenten anhand Akzeptanzkriterien und Contract-Test abgenommen).
+- **Status:** `complete` (PR #137 gemergt, Issue #133 geschlossen).
+
+## Implementierung & Validierung Issue #135 — 2026-08-22
+
+- **Issue:** [#135](https://github.com/m00sfett/KeepADB/issues/135) — `fix: KeepADBService FGS-Promotion, Cleanup und Re-Entry Lifecycle absichern`
+- **Ziel:** Service-Start, FGS-Promotion, Cleanup und Re-Entry in `KeepADBService` absichern, sodass fehlgeschlagene Starts fail-closed aufräumen, `userDisabled` bei Stop/Re-Entry nicht versehentlich konsumiert wird und `stopForeground(STOP_FOREGROUND_DETACH)` die Endpoint-Notification bei Keep-Alive-Deaktivierung erhält.
+- **Umsetzung:**
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java`:
+    - Unbedingtes `KeepADB.consumeUserDisabled()` aus `onStartCommand()` und `onDestroy()` entfernt (wird zielgerichtet in `recheckAndEnable()` ausgewertet).
+    - `onDestroy()` nutzt `stopForeground(STOP_FOREGROUND_DETACH)`, um laufende Endpoint-Notifications bei alleinigem Service-Stop nicht abzuwürgen.
+    - `unregisterAdbObserver()` und `unregisterNetworkCallback()` bereinigen Referenzen und Flags atomar vor dem System-Unregister und fangen `RuntimeException` robust ab.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest`: bestanden (12 Unit-Tests grün).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`: bestanden (APK erfolgreich gebaut).
+- **Review:** `not applicable` (S2-Lifecycle-Bereinigung innerhalb der Service-Grenzen, durch Hauptagenten anhand Akzeptanzkriterien und Contract-Tests abgenommen).
 - **Status:** `approved`.
+
 
