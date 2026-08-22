@@ -93,7 +93,6 @@ public class KeepADBService extends Service {
         }
         foregroundReady = true;
         heartbeatNow();
-        KeepADB.consumeUserDisabled();
         registerAdbObserver();
         registerNetworkCallback();
         startHeartbeatTicker();
@@ -127,8 +126,7 @@ public class KeepADBService extends Service {
         stopHeartbeatTicker();
         unregisterAdbObserver();
         unregisterNetworkCallback();
-        stopForeground(STOP_FOREGROUND_REMOVE);
-        KeepADB.consumeUserDisabled();
+        stopForeground(STOP_FOREGROUND_DETACH);
         super.onDestroy();
     }
 
@@ -213,9 +211,11 @@ public class KeepADBService extends Service {
 
     private void unregisterAdbObserver() {
         if (!isRegisteredObserver || adbContentObserver == null) return;
+        ContentObserver observer = adbContentObserver;
+        isRegisteredObserver = false;
+        adbContentObserver = null;
         try {
-            getContentResolver().unregisterContentObserver(adbContentObserver);
-            isRegisteredObserver = false;
+            getContentResolver().unregisterContentObserver(observer);
         } catch (RuntimeException e) {
             Log.w(TAG, "Failed to unregister content observer", e);
         }
@@ -257,12 +257,14 @@ public class KeepADBService extends Service {
 
     private void unregisterNetworkCallback() {
         if (!isRegisteredNetworkCallback || networkCallback == null) return;
+        ConnectivityManager.NetworkCallback callback = networkCallback;
+        isRegisteredNetworkCallback = false;
+        networkCallback = null;
         try {
             ConnectivityManager cm = getSystemService(ConnectivityManager.class);
             if (cm != null) {
-                cm.unregisterNetworkCallback(networkCallback);
+                cm.unregisterNetworkCallback(callback);
             }
-            isRegisteredNetworkCallback = false;
         } catch (RuntimeException e) {
             Log.w(TAG, "Failed to unregister network callback", e);
         }
