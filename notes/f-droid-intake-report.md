@@ -154,7 +154,7 @@ RepoType: git
 Repo: https://github.com/m00sfett/KeepADB.git
 
 Builds:
-  - versionName: '1.0'
+  - versionName: '1.0.0'
     versionCode: 1
     commit: v1.0.0
     subdir: app
@@ -163,7 +163,7 @@ Builds:
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: '1.0'
+CurrentVersion: '1.0.0'
 CurrentVersionCode: 1
 ```
 
