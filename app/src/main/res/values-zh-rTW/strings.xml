@@ -16,7 +16,7 @@
     <string name="keep_alive_subtext">斷線、網路變更或重開機時自動重新連線</string>
     <string name="widget_text_on">無線偵錯：開</string>
     <string name="widget_text_off">無線偵錯：關</string>
-    <string name="tile_label">無線偵錯</string>
+    <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB：缺少權限（需要 pm grant）</string>
     <string name="permission_error_toast">缺少權限。請在電腦上執行一次：
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>

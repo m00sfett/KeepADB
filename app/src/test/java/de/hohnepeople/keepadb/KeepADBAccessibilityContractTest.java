@@ -58,6 +58,8 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"notification_permission_settings_button\""));
                 assertTrue("Missing back description in " + directory,
                         content.contains("name=\"back\""));
+                assertTrue("Missing standardized tile label in " + directory,
+                        content.contains("<string name=\"tile_label\">@string/app_name</string>"));
             }
         }
     }
@@ -83,6 +85,9 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(xml.contains("android:viewportWidth=\"24\""));
         assertTrue(xml.contains("android:viewportHeight=\"24\""));
         assertTrue(xml.contains("android:fillColor=\"@color/bright_yellow\""));
+        assertTrue(xml.contains("<group"));
+        assertTrue(xml.contains("android:scaleX=\"1.31\""));
+        assertTrue(xml.contains("android:scaleY=\"1.31\""));
     }
 
     private static String read(String relativePath) throws IOException {
