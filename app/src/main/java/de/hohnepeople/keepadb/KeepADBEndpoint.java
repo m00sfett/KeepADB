@@ -201,7 +201,7 @@ final class KeepADBEndpoint {
     private void maybeSendRecoveryPulse(long generation) {
         synchronized (this) {
             if (!isCurrent(generation) || endpointDelivered.get()) return;
-            if (!KeepADB.isEnabled(appContext)) return;
+            if (!KeepADB.isEnabled(appContext) || KeepADB.isUserDisabled()) return;
         }
         long now = System.currentTimeMillis();
         synchronized (KeepADBEndpoint.class) {
@@ -210,16 +210,7 @@ final class KeepADBEndpoint {
         }
         Log.w(TAG, "gen=" + generation + " found no adbd listener after " + RECOVERY_PULSE_DELAY_MS
                 + "ms while enabled; pulsing adb_wifi_enabled to recover");
-        new Thread(() -> {
-            KeepADB.setEnabled(appContext, false);
-            try {
-                Thread.sleep(RECOVERY_PULSE_OFF_MS);
-            } catch (InterruptedException ignored) {
-                // Still restore below: we caused the "off" half of this pulse ourselves, so an
-                // unrelated interruption must not leave the device stuck disabled.
-            }
-            KeepADB.setEnabled(appContext, true);
-        }, "KeepADBRecoveryPulse").start();
+        KeepADB.performRecoveryPulse(appContext);
     }
 
     private void giveUpIfStillUnresolved(long generation) {
