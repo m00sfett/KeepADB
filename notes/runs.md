@@ -101,3 +101,22 @@
 - Updated `app/src/main/res/drawable/ic_keepadb.xml` with the new 24x24dp vector graphic.
 - Added contract unit test in `KeepADBAccessibilityContractTest.java`.
 - Local verification (`bin/verify`) passed cleanly.
+
+## 2026-08-22 — Issues #148 & #149 (Tile & Notification icon scaling and label standardisation)
+
+- Scaled vector icon glyph in `ic_keepadb.xml` to 20x20dp (~31% scale) for crisp appearance in status bar and tile.
+- Standardized `tile_label` across all 19 locale string files to `@string/app_name` ("KeepADB").
+- Added contract tests in `KeepADBAccessibilityContractTest.java`.
+- PR #151 created, verified with `./bin/verify`, merged into `master`.
+
+## 2026-08-22 — Issue #150 (Remove notification and FGS on wireless debugging disabled)
+
+- Updated `KeepADBService`, `KeepADBNotification`, and toggle call sites to stop foreground service and cancel notification when wireless debugging is disabled.
+- Added contract tests in `KeepADBBootReceiverContractTest.java`.
+- PR #152 created, verified with `./bin/verify`, merged into `master`.
+
+## 2026-08-22 — PR #153 (Allow cleartext HTTP traffic in network security config)
+
+- Allowed cleartext HTTP traffic in `network_security_config.xml` for custom LAN webhooks.
+- Added contract test in `KeepADBRegisterClientTest.java`.
+- Verified with `./bin/verify`, merged into `master`.

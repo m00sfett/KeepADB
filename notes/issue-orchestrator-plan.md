@@ -2817,12 +2817,27 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - **Lokale Gates:**
   - `./bin/verify`: bestanden (24 Unit-Tests grün, 0 Lint-Fehler, Debug- und Release-APK gebaut).
 - **Review:** `not applicable` (S2-Lifecycle-Bereinigung, durch Hauptagenten anhand Akzeptanzkriterien und deterministischer Contract-Tests abgenommen).
-- **Status:** `approved`.
+- **Status:** `complete` (PR #152 gemergt, Issue #150 geschlossen).
 
+## Fix & Härtung PR #153 — 2026-08-22
 
+- **PR:** [#153](https://github.com/m00sfett/KeepADB/pull/153) — `fix: allow cleartext HTTP traffic in network security config for custom webhooks`
+- **Ziel:** Erlauben von unverschlüsseltem HTTP-Traffic (`cleartextTrafficPermitted="true"`) in `network_security_config.xml` für benutzerdefinierte lokale Webhook-Endpunkte im LAN (z. B. lokaler Home-Server oder Entwicklungs-Endpoints), während `backup_rules` und Logging-Redaction sicher bleiben.
+- **Umsetzung:**
+  - `app/src/main/res/xml/network_security_config.xml`: Base-Config auf `cleartextTrafficPermitted="true"` angepasst.
+  - `app/src/test/java/de/hohnepeople/keepadb/KeepADBRegisterClientTest.java`: Neuer Contract-Test `networkSecurityConfigAllowsCleartextTrafficForCustomWebhooks()` prüft die XML-Konfiguration.
+- **Lokale Gates:**
+  - `./bin/verify`: bestanden (25 Unit-Tests grün, 0 Lint-Fehler, Debug- und Release-APK gebaut).
+- **Status:** `complete` (PR #153 in `master` gemergt).
 
+## Auswahl-Checkpoint & Issue-Inventur — 2026-08-22
 
-
-
-
-
+- `issue_snapshot_at: 2026-08-22T17:22:00+02:00`
+- `plan_updated_at: 2026-08-22T17:22:00+02:00`
+- **Ausgangslage:**
+  - `master` und `origin/master` synchron auf Commit `06751a6`.
+  - 0 offene GitHub Issues in `m00sfett/KeepADB`.
+  - 0 offene Pull Requests in `m00sfett/KeepADB`.
+  - Arbeitsverzeichnis sauber, keine ungetrackten oder ungesicherten Änderungen.
+  - Lokale Verifikation (`./bin/verify`): alle 3 Stufen fehlerfrei bestanden (25 Unit-Tests grün, 0 Lint-Fehler, Release- und Debug-APK erfolgreich signiert und gebaut).
+- **Status:** Keine offenen Issues vorhanden. Alle bisherigen Aufgaben sind vollständig implementiert, geprüft, über PRs in `master` gemergt und abgeschlossen.
