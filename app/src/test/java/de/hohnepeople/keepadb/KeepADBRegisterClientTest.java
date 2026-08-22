@@ -132,4 +132,17 @@ public class KeepADBRegisterClientTest {
                 KeepADBRegisterClient.sanitizeUrl("http://192.168.1.10:8080/hook?secret=12345"));
         assertEquals("null", KeepADBRegisterClient.sanitizeUrl(null));
     }
+
+    @Test
+    public void testNetworkSecurityConfigPermitsCleartextTraffic() throws Exception {
+        java.nio.file.Path directory = java.nio.file.Paths.get("").toAbsolutePath();
+        while (directory != null && !java.nio.file.Files.exists(directory.resolve("settings.gradle"))) {
+            directory = directory.getParent();
+        }
+        if (directory == null) {
+            throw new IllegalStateException("Could not locate project root");
+        }
+        String xml = new String(java.nio.file.Files.readAllBytes(directory.resolve("app/src/main/res/xml/network_security_config.xml")), StandardCharsets.UTF_8);
+        assertTrue(xml.contains("<base-config cleartextTrafficPermitted=\"true\">"));
+    }
 }
