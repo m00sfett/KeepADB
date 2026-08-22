@@ -22,7 +22,8 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">무선 디버깅 엔드포인트</string>
     <string name="notification_channel_desc">무선 디버깅의 현재 IP 주소 및 포트</string>
-    <string name="notification_title_active">KeepADB: 무선 디버깅 켜짐</string>
+    <string name="notification_title_active">KeepADB: Wifi-ADB 활성화됨</string>
+    <string name="notification_title_disabled">KeepADB: Wifi-ADB 비활성화됨</string>
     <string name="notification_text_active">포트 %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: 엔드포인트 검색 중…</string>
     <string name="notification_text_searching">로컬 네트워크에서 엔드포인트 확인 중</string>

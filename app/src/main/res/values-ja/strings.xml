@@ -22,7 +22,8 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">ワイヤレスデバッグ エンドポイント</string>
     <string name="notification_channel_desc">ワイヤレスデバッグの現在のIPアドレスとポート</string>
-    <string name="notification_title_active">KeepADB: ワイヤレスデバッグはONです</string>
+    <string name="notification_title_active">KeepADB: Wifi-ADB 有効</string>
+    <string name="notification_title_disabled">KeepADB: Wifi-ADB 無効</string>
     <string name="notification_text_active">ポート %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: エンドポイントを検索中…</string>
     <string name="notification_text_searching">ローカルネットワーク上でエンドポイントを解決中</string>

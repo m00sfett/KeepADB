@@ -22,7 +22,8 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">无线调试端点</string>
     <string name="notification_channel_desc">无线调试的当前 IP 地址和端口</string>
-    <string name="notification_title_active">KeepADB：无线调试已开启</string>
+    <string name="notification_title_active">KeepADB：Wifi-ADB 已启用</string>
+    <string name="notification_title_disabled">KeepADB：Wifi-ADB 已停用</string>
     <string name="notification_text_active">端口 %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB：正在搜索端点…</string>
     <string name="notification_text_searching">正在局域网中解析端点</string>
