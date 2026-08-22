@@ -1,5 +1,16 @@
 # Runs
 
+## 2026-08-22 — F-Droid preparation handoff
+
+- **Purpose:** Record the project-specific preparation for the official F-Droid catalog as
+  a clear handoff for the product agent.
+- **Changes:** Added `F-DROID-PREPARATION.md`. The handoff covers publication inventory,
+  license/dependency/data-flow findings, release/build evidence, and a proposed F-Droid
+  metadata file.
+- **Not performed:** no builds, tests, repository visibility change, uploads, or merge
+  requests.
+- **Next step:** Create the findings report at `notes/f-droid-intake-report.md`.
+
 ## 2026-08-21 — License change
 
 - Replaced the repository license with the official GNU Affero General Public License v3.0, or (at your option) any later version.
