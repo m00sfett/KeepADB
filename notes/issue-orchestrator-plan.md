@@ -2622,6 +2622,29 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`: bestanden (APK erfolgreich gebaut).
 - **Review:** `not applicable` (S2-Lifecycle-Bereinigung innerhalb der Service-Grenzen, durch Hauptagenten anhand Akzeptanzkriterien und Contract-Tests abgenommen).
+- **Status:** `complete` (PR #138 gemergt, Issue #135 geschlossen).
+
+## Implementierung & Validierung Issue #127 — 2026-08-22
+
+- **Issue:** [#127](https://github.com/m00sfett/KeepADB/issues/127) — `fix: Manuelle Toggle-Intention gegen automatische Recovery isolieren`
+- **Ziel:** Die explizite manuelle Nutzerabsicht (Ausschalten) gewinnt zuverlässig gegen automatische Recovery-Pulse und verzögerte Schreibvorgänge.
+- **Umsetzung:**
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADB.java`:
+    - Monotoner `currentIntentToken` trackt gewünschte Zustandswechsel und invalidiert veraltete oder überholte Aktionen.
+    - `userDisabled` wird sofort bei manuellem `setEnabled(..., false)` gesetzt (auch bei verzögertem/debounced Schreiben).
+    - `applyNow()` verifiziert den Intent-Token, führt den Write aus und aktualisiert Notification & Widget nach Abschluss des Schreibvorgangs.
+    - `performRecoveryPulse()` führt kontrollierte Recovery-Pulse aus und bricht vor dem Re-Enable (`1`) ab, falls der Intent-Token sich geändert hat oder `userDisabled == true` ist.
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java`:
+    - `maybeSendRecoveryPulse()` delegiert an `KeepADB.performRecoveryPulse(appContext)` und prüft `!KeepADB.isUserDisabled()`.
+  - `app/src/test/java/de/hohnepeople/keepadb/KeepADBTest.java`:
+    - Unit-Tests für Lifecycle des `userDisabled`-Flags, State-Reset und Cooldown-Konstanten.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest`: bestanden (14 Unit-Tests grün).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`: bestanden (APK erfolgreich gebaut).
+- **Review:** `not applicable` (S3-Intent-Isolation, durch Hauptagenten anhand deterministischer Tests und Akzeptanzkriterien abgenommen).
 - **Status:** `approved`.
+
 
 
