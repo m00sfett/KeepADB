@@ -22,13 +22,13 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Point de terminaison du débogage sans fil</string>
     <string name="notification_channel_desc">Adresse IP et port actuels du débogage sans fil</string>
-    <string name="notification_title_active">Débogage sans fil : Port %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB : Débogage sans fil ACTIVÉ</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
-    <string name="notification_title_searching">Débogage sans fil : Recherche du point de terminaison…</string>
+    <string name="notification_title_searching">KeepADB : Recherche du point de terminaison…</string>
     <string name="notification_text_searching">Résolution du point de terminaison sur le réseau local</string>
     <string name="notification_service_title">Maintenir le débogage sans fil actif</string>
     <string name="notification_service_text">Surveillance de la connexion Wi-Fi et de l\'état du débogage sans fil</string>
-    <string name="notification_permission_missing_title">Débogage sans fil : Autorisation manquante</string>
+    <string name="notification_permission_missing_title">KeepADB : Autorisation manquante</string>
     <string name="notification_permission_panel_title">Les notifications sont désactivées</string>
     <string name="notification_permission_panel_body">Keep-Alive peut continuer à fonctionner, mais KeepADB ne peut pas afficher sa notification d’état. Autorisez les notifications dans les paramètres système.</string>
     <string name="notification_permission_settings_button">Ouvrir les paramètres des notifications</string>

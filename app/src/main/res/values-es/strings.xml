@@ -22,13 +22,13 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Punto final de depuración inalámbrica</string>
     <string name="notification_channel_desc">Dirección IP y puerto actuales de la depuración inalámbrica</string>
-    <string name="notification_title_active">Depuración inalámbrica: Puerto %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB: Depuración inalámbrica ACTIVADA</string>
     <string name="notification_text_active">Puerto %1$d @ %2$s</string>
-    <string name="notification_title_searching">Depuración inalámbrica: Buscando punto final…</string>
+    <string name="notification_title_searching">KeepADB: Buscando punto final…</string>
     <string name="notification_text_searching">Resolviendo punto final en la red local</string>
     <string name="notification_service_title">Mantener depuración inalámbrica activa</string>
     <string name="notification_service_text">Monitoreando conexión Wi-Fi y estado de depuración inalámbrica</string>
-    <string name="notification_permission_missing_title">Depuración inalámbrica: Falta permiso</string>
+    <string name="notification_permission_missing_title">KeepADB: Falta permiso</string>
     <string name="notification_permission_panel_title">Las notificaciones están desactivadas</string>
     <string name="notification_permission_panel_body">Keep-Alive puede seguir funcionando, pero KeepADB no puede mostrar su notificación de estado. Permite las notificaciones en los ajustes del sistema.</string>
     <string name="notification_permission_settings_button">Abrir ajustes de notificaciones</string>

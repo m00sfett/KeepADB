@@ -21,13 +21,13 @@
     <string name="permission_error_toast">Permission missing. Run once from PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Wireless Debugging Endpoint</string>
     <string name="notification_channel_desc">Current IP address and port of Wireless Debugging</string>
-    <string name="notification_title_active">Wireless Debugging: Port %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB: Wireless Debugging is ON</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
-    <string name="notification_title_searching">Wireless Debugging: Searching for endpoint…</string>
+    <string name="notification_title_searching">KeepADB: Searching for endpoint…</string>
     <string name="notification_text_searching">Resolving endpoint on local network</string>
     <string name="notification_service_title">Keep Wireless Debugging Active</string>
     <string name="notification_service_text">Monitoring Wi-Fi connection and Wireless Debugging status</string>
-    <string name="notification_permission_missing_title">Wireless Debugging: Permission missing</string>
+    <string name="notification_permission_missing_title">KeepADB: Permission missing</string>
     <string name="notification_permission_missing_text">Grant WRITE_SECURE_SETTINGS from PC via adb shell pm grant</string>
     <string name="notification_permission_panel_title">Notifications are disabled</string>
     <string name="notification_permission_panel_body">Keep-Alive can still run, but KeepADB cannot show its status notification. Allow notifications in system settings.</string>

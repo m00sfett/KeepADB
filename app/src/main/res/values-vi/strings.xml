@@ -22,13 +22,13 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Điểm cuối gỡ lỗi không dây</string>
     <string name="notification_channel_desc">Địa chỉ IP và cổng hiện tại của Gỡ lỗi không dây</string>
-    <string name="notification_title_active">Gỡ lỗi không dây: Cổng %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB: Gỡ lỗi không dây đang BẬT</string>
     <string name="notification_text_active">Cổng %1$d @ %2$s</string>
-    <string name="notification_title_searching">Gỡ lỗi không dây: Đang tìm điểm cuối…</string>
+    <string name="notification_title_searching">KeepADB: Đang tìm điểm cuối…</string>
     <string name="notification_text_searching">Đang phân giải điểm cuối trên mạng cục bộ</string>
     <string name="notification_service_title">Duy trì gỡ lỗi không dây hoạt động</string>
     <string name="notification_service_text">Đang theo dõi kết nối Wi-Fi và trạng thái gỡ lỗi không dây</string>
-    <string name="notification_permission_missing_title">Gỡ lỗi không dây: Thiếu quyền</string>
+    <string name="notification_permission_missing_title">KeepADB: Thiếu quyền</string>
     <string name="notification_permission_panel_title">Thông báo đang bị tắt</string>
     <string name="notification_permission_panel_body">Keep-Alive vẫn có thể hoạt động, nhưng KeepADB không thể hiển thị thông báo trạng thái. Hãy cho phép thông báo trong phần cài đặt hệ thống.</string>
     <string name="notification_permission_settings_button">Mở cài đặt thông báo</string>

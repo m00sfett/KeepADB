@@ -22,13 +22,13 @@
 adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">वायरलेस डीबगिंग एंडपॉइंट</string>
     <string name="notification_channel_desc">वायरलेस डीबगिंग का वर्तमान IP पता और पोर्ट</string>
-    <string name="notification_title_active">वायरलेस डीबगिंग: पोर्ट %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB: वायरलेस डीबगिंग चालू है</string>
     <string name="notification_text_active">पोर्ट %1$d @ %2$s</string>
-    <string name="notification_title_searching">वायरलेस डीबगिंग: एंडपॉइंट खोजा जा रहा है…</string>
+    <string name="notification_title_searching">KeepADB: एंडपॉइंट खोजा जा रहा है…</string>
     <string name="notification_text_searching">स्थानीय नेटवर्क पर एंडपॉइंट खोजा जा रहा है</string>
     <string name="notification_service_title">वायरलेस डीबगिंग सक्रिय रखें</string>
     <string name="notification_service_text">Wi-Fi कनेक्शन और वायरलेस डीबगिंग स्थिति की निगरानी की जा रही है</string>
-    <string name="notification_permission_missing_title">वायरलेस डीबगिंग: अनुमति गायब है</string>
+    <string name="notification_permission_missing_title">KeepADB: अनुमति गायब है</string>
     <string name="notification_permission_panel_title">सूचनाएँ बंद हैं</string>
     <string name="notification_permission_panel_body">Keep-Alive फिर भी चलता रह सकता है, लेकिन KeepADB अपनी स्थिति सूचना नहीं दिखा सकता। सिस्टम सेटिंग में सूचनाओं की अनुमति दें।</string>
     <string name="notification_permission_settings_button">सूचना सेटिंग खोलें</string>

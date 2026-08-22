@@ -21,13 +21,13 @@
     <string name="permission_error_toast">Keine Berechtigung. Am PC einmalig ausführen:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Endpoint für Drahtloses Debugging</string>
     <string name="notification_channel_desc">Aktueller Port und IP-Adresse von „Drahtloses Debugging“</string>
-    <string name="notification_title_active">Drahtloses Debugging: Port %1$d @ %2$s</string>
+    <string name="notification_title_active">KeepADB: Drahtloses Debugging ist AN</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
-    <string name="notification_title_searching">Drahtloses Debugging: Endpoint wird gesucht …</string>
+    <string name="notification_title_searching">KeepADB: Endpoint wird gesucht …</string>
     <string name="notification_text_searching">Endpoint wird im lokalen Netzwerk aufgelöst</string>
     <string name="notification_service_title">Drahtloses Debugging aktiv halten</string>
     <string name="notification_service_text">Überwacht WLAN-Verbindung und Status von „Drahtloses Debugging“</string>
-    <string name="notification_permission_missing_title">Drahtloses Debugging: Berechtigung fehlt</string>
+    <string name="notification_permission_missing_title">KeepADB: Berechtigung fehlt</string>
     <string name="notification_permission_panel_title">Benachrichtigungen sind deaktiviert</string>
     <string name="notification_permission_panel_body">Keep-Alive kann weiterhin laufen, aber KeepADB kann seine Statusbenachrichtigung nicht anzeigen. Erlaube Benachrichtigungen in den Systemeinstellungen.</string>
     <string name="notification_permission_settings_button">Benachrichtigungseinstellungen öffnen</string>
