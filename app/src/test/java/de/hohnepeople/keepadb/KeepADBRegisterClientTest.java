@@ -123,4 +123,13 @@ public class KeepADBRegisterClientTest {
         assertFalse(KeepADBPreferences.isValidWebhookUrl(null));
         assertFalse(KeepADBPreferences.isValidWebhookUrl(""));
     }
+
+    @Test
+    public void testSanitizeUrl() {
+        assertEquals("https://example.com:8443/api/register",
+                KeepADBRegisterClient.sanitizeUrl("https://user:password@example.com:8443/api/register?token=secret#fragment"));
+        assertEquals("http://192.168.1.10:8080/hook",
+                KeepADBRegisterClient.sanitizeUrl("http://192.168.1.10:8080/hook?secret=12345"));
+        assertEquals("null", KeepADBRegisterClient.sanitizeUrl(null));
+    }
 }

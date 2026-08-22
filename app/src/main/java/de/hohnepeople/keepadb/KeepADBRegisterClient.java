@@ -210,6 +210,25 @@ final class KeepADBRegisterClient {
         registerStateListener = null;
     }
 
+    static String sanitizeUrl(String rawUrl) {
+        if (rawUrl == null) return "null";
+        try {
+            java.net.URI uri = new java.net.URI(rawUrl);
+            String scheme = uri.getScheme();
+            String host = uri.getHost();
+            int port = uri.getPort();
+            String path = uri.getPath();
+            StringBuilder sb = new StringBuilder();
+            if (scheme != null) sb.append(scheme).append("://");
+            if (host != null) sb.append(host);
+            if (port > 0) sb.append(":").append(port);
+            if (path != null && !path.isEmpty()) sb.append(path);
+            return sb.toString();
+        } catch (Exception e) {
+            return "redacted-url";
+        }
+    }
+
     static boolean postEndpoint(String targetUrl, String endpoint) {
         HttpURLConnection conn = null;
         try {
@@ -219,6 +238,7 @@ final class KeepADBRegisterClient {
             URL url = new URL(targetUrl);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
+            conn.setInstanceFollowRedirects(false);
             conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             conn.setConnectTimeout(TIMEOUT_MS);
             conn.setReadTimeout(TIMEOUT_MS);
@@ -234,7 +254,7 @@ final class KeepADBRegisterClient {
             Log.d(TAG, "Register update for " + endpoint + " returned HTTP " + code);
             return code >= 200 && code < 300;
         } catch (IOException e) {
-            Log.w(TAG, "Could not update register at " + targetUrl + ": " + e.getMessage());
+            Log.w(TAG, "Could not update register at " + sanitizeUrl(targetUrl) + ": " + e.getMessage());
             return false;
         } finally {
             if (conn != null) {
@@ -249,6 +269,7 @@ final class KeepADBRegisterClient {
             URL url = new URL(targetUrl);
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("DELETE");
+            conn.setInstanceFollowRedirects(false);
             conn.setConnectTimeout(TIMEOUT_MS);
             conn.setReadTimeout(TIMEOUT_MS);
 
@@ -256,7 +277,7 @@ final class KeepADBRegisterClient {
             Log.d(TAG, "Register delete returned HTTP " + code);
             return code >= 200 && code < 300;
         } catch (IOException e) {
-            Log.w(TAG, "Could not reach register to unregister at " + targetUrl + ": " + e.getMessage());
+            Log.w(TAG, "Could not reach register to unregister at " + sanitizeUrl(targetUrl) + ": " + e.getMessage());
             return false;
         } finally {
             if (conn != null) {
