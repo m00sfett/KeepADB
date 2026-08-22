@@ -74,6 +74,17 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(titleIndex < settingsIndex);
     }
 
+    @Test
+    public void vectorDrawableKeepADBMatchesNotificationStandard() throws IOException {
+        String xml = read("app/src/main/res/drawable/ic_keepadb.xml");
+        assertTrue(xml.contains("<vector"));
+        assertTrue(xml.contains("android:width=\"24dp\""));
+        assertTrue(xml.contains("android:height=\"24dp\""));
+        assertTrue(xml.contains("android:viewportWidth=\"24\""));
+        assertTrue(xml.contains("android:viewportHeight=\"24\""));
+        assertTrue(xml.contains("android:fillColor=\"@color/bright_yellow\""));
+    }
+
     private static String read(String relativePath) throws IOException {
         return readFile(projectPath(relativePath));
     }
