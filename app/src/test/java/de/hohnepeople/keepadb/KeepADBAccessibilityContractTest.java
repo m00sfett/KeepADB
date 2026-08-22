@@ -62,6 +62,18 @@ public class KeepADBAccessibilityContractTest {
         }
     }
 
+    @Test
+    public void mainActivityHeaderIncludesVisualAppIcon() throws IOException {
+        String main = read("app/src/main/res/layout/activity_main.xml");
+        assertTrue(main.contains("android:src=\"@drawable/ic_keepadb\""));
+        assertTrue(main.contains("android:importantForAccessibility=\"no\""));
+        int iconIndex = main.indexOf("android:src=\"@drawable/ic_keepadb\"");
+        int titleIndex = main.indexOf("android:text=\"@string/title_keepadb\"");
+        int settingsIndex = main.indexOf("android:id=\"@+id/btn_open_settings\"");
+        assertTrue(iconIndex < titleIndex);
+        assertTrue(titleIndex < settingsIndex);
+    }
+
     private static String read(String relativePath) throws IOException {
         return readFile(projectPath(relativePath));
     }

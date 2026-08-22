@@ -2577,3 +2577,33 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   unbekannt.
 - **Status:** `complete` für den verengten #130-Scope; Server-, Commit- und Merge-Nachweis
   vorhanden; #135 ist der klar abgegrenzte offene Folgeumfang.
+
+## Auswahl-Checkpoint & Dekonstruktion Issue #135 — 2026-08-22
+
+- `issue_snapshot_at: 2026-08-22T11:37:00+02:00`
+- `plan_updated_at: 2026-08-22T11:40:00+02:00`
+- **Ausgangslage:** Issue [#135](https://github.com/m00sfett/KeepADB/issues/135) war als monolithischer S4-Scope blockiert (Circuit Breaker nach Reviews).
+- **Nutzerentscheidung:** Option 3 gewählt: Dekonstruktion von #135 in separate, isolierte S2/S3-Teilpakete.
+  1. [#135](https://github.com/m00sfett/KeepADB/issues/135): Auf Service-FGS-Promotion, Cleanup & Re-Entry (`KeepADBService.java`) verengt.
+  2. [#125](https://github.com/m00sfett/KeepADB/issues/125): Discovery-State-Machine (`KeepADBEndpoint.java`).
+  3. [#126](https://github.com/m00sfett/KeepADB/issues/126): Endpoint-Health & Verification (`KeepADBEndpoint.java`).
+  4. [#127](https://github.com/m00sfett/KeepADB/issues/127): Manual vs. Auto Toggle-Intent (`KeepADB.java`).
+  5. [#128](https://github.com/m00sfett/KeepADB/issues/128): Webhook/Register URL-Endpoint-Transaktion & FIFO (`KeepADBRegisterClient.java`).
+  6. [#133](https://github.com/m00sfett/KeepADB/issues/133): App-Icon in Main-Titelleiste (S1).
+- **Einstieg:** Gemäß Eco-Prinzipien (einfachste Pakete zuerst) Einstieg mit **Issue #133**.
+
+## Implementierung & Validierung Issue #133 — 2026-08-22
+
+- **Issue:** [#133](https://github.com/m00sfett/KeepADB/issues/133) — `feat: App-Icon links neben 'KeepADB' in der Titelleiste`
+- **Ziel:** Visuelles KeepADB-App-Icon (`@drawable/ic_keepadb`, 28x28dp) in der Banner-Titelleiste der `MainActivity` links neben dem Titel einbinden.
+- **Umsetzung:**
+  - `app/src/main/res/layout/activity_main.xml`: `ImageView` mit `@drawable/ic_keepadb`, `importantForAccessibility="no"`, `layout_marginEnd="10dp"` vor `TextView` eingefügt.
+  - `app/src/test/java/de/hohnepeople/keepadb/KeepADBAccessibilityContractTest.java`: Neuer Contract-Test `mainActivityHeaderIncludesVisualAppIcon()` prüft statisch Ressource, Accessibility-Attribut und Elementreihenfolge (Icon -> Titel -> Settings).
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest`: bestanden (12 Unit-Tests grün).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`: bestanden (APK erfolgreich gebaut).
+- **Review:** `not applicable` (reine S1-UI/Layout-Änderung, durch Hauptagenten anhand Akzeptanzkriterien und Contract-Test abgenommen).
+- **Status:** `approved`.
+
