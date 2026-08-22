@@ -30,14 +30,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build Debug APK
+      - name: Build Release APK & Checksum
         run: |
-          ./gradlew assembleDebug
-          cp app/build/outputs/apk/debug/app-debug.apk KeepADB-${{ github.ref_name }}.apk
+          ./gradlew testDebugUnitTest lintDebug assembleRelease
+          cp app/build/outputs/apk/release/app-release.apk KeepADB-${{ github.ref_name }}.apk
+          sha256sum KeepADB-${{ github.ref_name }}.apk > KeepADB-${{ github.ref_name }}.apk.sha256
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: KeepADB ${{ github.ref_name }}
-          files: KeepADB-${{ github.ref_name }}.apk
+          files: |
+            KeepADB-${{ github.ref_name }}.apk
+            KeepADB-${{ github.ref_name }}.apk.sha256
           generate_release_notes: true
