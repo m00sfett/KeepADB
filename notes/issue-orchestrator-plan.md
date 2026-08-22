@@ -2830,14 +2830,19 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `./bin/verify`: bestanden (25 Unit-Tests grün, 0 Lint-Fehler, Debug- und Release-APK gebaut).
 - **Status:** `complete` (PR #153 in `master` gemergt).
 
-## Auswahl-Checkpoint & Issue-Inventur — 2026-08-22
+## Veröffentlichung & Release v1.0.0 — 2026-08-22
 
-- `issue_snapshot_at: 2026-08-22T17:22:00+02:00`
-- `plan_updated_at: 2026-08-22T17:22:00+02:00`
-- **Ausgangslage:**
-  - `master` und `origin/master` synchron auf Commit `06751a6`.
-  - 0 offene GitHub Issues in `m00sfett/KeepADB`.
-  - 0 offene Pull Requests in `m00sfett/KeepADB`.
-  - Arbeitsverzeichnis sauber, keine ungetrackten oder ungesicherten Änderungen.
-  - Lokale Verifikation (`./bin/verify`): alle 3 Stufen fehlerfrei bestanden (25 Unit-Tests grün, 0 Lint-Fehler, Release- und Debug-APK erfolgreich signiert und gebaut).
-- **Status:** Keine offenen Issues vorhanden. Alle bisherigen Aufgaben sind vollständig implementiert, geprüft, über PRs in `master` gemergt und abgeschlossen.
+- `plan_updated_at: 2026-08-22T19:43:00+02:00`
+- **Release-Aktionen:**
+  - `versionName` in `app/build.gradle` harmonisiert auf `1.0.0`.
+  - Lokale Gates via `./bin/verify` bestanden (25 Tests grün, 0 Lint-Fehler, APK gebaut).
+  - Annotierter Git-Tag `v1.0.0` erstellt und gepusht.
+  - GitHub-Repository `m00sfett/KeepADB` auf **Public** umgestellt: https://github.com/m00sfett/KeepADB
+  - GitHub Release `v1.0.0` publiziert mit signierter Release-APK (`573cd5a983dcc18ef063eeba6cac8268936c53e9fb85fec53dc7d126a615c78f`).
+  - Offizieller F-Droid-Katalog Merge Request eröffnet: https://gitlab.com/fdroid/fdroiddata/-/merge_requests/46500 (Status: pending).
+- **Zukünftige Release-Policy (in AGENTS.md verankert):**
+  - Für reguläre Entwicklungs-PRs/Issues gelten weiterhin ausschließlich lokale Gates (`./bin/verify`), keine Workflow-Auslösung.
+  - Echte Releases erfolgen **nur nach expliziter Nutzerfreigabe**.
+  - Releases werden nicht automatisch angefragt; höchstens ein Hinweis mit expliziter Warnung vor Store-Auswirkungen.
+  - Release-Workflows via GitHub Actions müssen vor Auslösung explizit freigegeben werden.
+- **Status:** `complete` (Release publiziert, F-Droid MR eingereicht).
