@@ -27,6 +27,7 @@ public class KeepADBService extends Service {
     private ConnectivityManager.NetworkCallback networkCallback;
     private boolean isRegisteredObserver = false;
     private boolean isRegisteredNetworkCallback = false;
+    private boolean foregroundReady = false;
     private long lastRecheckTime = 0;
 
     static void sync(Context context) {
@@ -37,9 +38,15 @@ public class KeepADBService extends Service {
         }
     }
 
-    static void start(Context context) {
+    static boolean start(Context context) {
         Intent intent = new Intent(context, KeepADBService.class);
-        context.startForegroundService(intent);
+        try {
+            context.startForegroundService(intent);
+            return true;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to request KeepADB foreground service start", e);
+            return false;
+        }
     }
 
     static void stop(Context context) {
@@ -72,20 +79,40 @@ public class KeepADBService extends Service {
         } else {
             Log.i(TAG, "onCreate: service starting for the first time (no prior heartbeat)");
         }
-        heartbeatNow();
-        KeepADB.consumeUserDisabled();
-        registerAdbObserver();
-        registerNetworkCallback();
-        startHeartbeatTicker();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand startId=" + startId + " flags=" + flags);
-        startForeground(KeepADBNotification.NOTIFICATION_ID, KeepADBNotification.getServiceNotification(this));
+        try {
+            startForeground(KeepADBNotification.NOTIFICATION_ID,
+                    KeepADBNotification.getServiceNotification(this));
+        } catch (RuntimeException e) {
+            failForegroundStart(startId, e);
+            return START_NOT_STICKY;
+        }
+        foregroundReady = true;
         heartbeatNow();
+        KeepADB.consumeUserDisabled();
+        registerAdbObserver();
+        registerNetworkCallback();
+        startHeartbeatTicker();
         recheckAndEnable();
         return START_STICKY;
+    }
+
+    private void failForegroundStart(int startId, RuntimeException cause) {
+        foregroundReady = false;
+        stopHeartbeatTicker();
+        unregisterAdbObserver();
+        unregisterNetworkCallback();
+        try {
+            stopForeground(STOP_FOREGROUND_REMOVE);
+        } catch (RuntimeException cleanupError) {
+            Log.w(TAG, "Failed to remove foreground notification after startup failure", cleanupError);
+        }
+        boolean stopRequested = stopSelfResult(startId);
+        Log.e(TAG, "Failed to enter foreground mode; cleanup requested=" + stopRequested, cause);
     }
 
     @Override
@@ -96,6 +123,7 @@ public class KeepADBService extends Service {
     @Override
     public void onDestroy() {
         Log.w(TAG, "onDestroy: service stopping");
+        foregroundReady = false;
         stopHeartbeatTicker();
         unregisterAdbObserver();
         unregisterNetworkCallback();
@@ -148,6 +176,10 @@ public class KeepADBService extends Service {
                 public void onChange(boolean selfChange, Uri uri) {
                     super.onChange(selfChange, uri);
                     Log.d(TAG, "ContentObserver: adb_wifi_enabled changed");
+                    if (!foregroundReady) {
+                        Log.d(TAG, "Ignoring state change before foreground promotion");
+                        return;
+                    }
                     if (KeepADBPreferences.isKeepAliveEnabled(KeepADBService.this)) {
                         if (isWifiConnected(KeepADBService.this) && !KeepADB.isEnabled(KeepADBService.this)) {
                             if (KeepADB.consumeUserDisabled()) {
@@ -206,6 +238,10 @@ public class KeepADBService extends Service {
 
                 @Override
                 public void onLost(Network network) {
+                    if (!foregroundReady) {
+                        Log.d(TAG, "Ignoring network loss before foreground promotion");
+                        return;
+                    }
                     Log.d(TAG, "NetworkCallback: Wi-Fi network lost");
                     KeepADBNotification.invalidateEndpoint();
                     KeepADBNotification.refresh(KeepADBService.this);
@@ -233,6 +269,10 @@ public class KeepADBService extends Service {
     }
 
     private synchronized void recheckAndEnable() {
+        if (!foregroundReady) {
+            Log.d(TAG, "Ignoring recheck before foreground promotion");
+            return;
+        }
         long now = SystemClock.elapsedRealtime();
         if (now - lastRecheckTime < 300) {
             Log.d(TAG, "recheckAndEnable skipped (<300ms since last check)");

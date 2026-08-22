@@ -2287,3 +2287,264 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   durch die API-unabhängigen Locale-/Ressourcen-Contracts und den bereits geprüften
   API-spezifischen Codepfad abgedeckt; dies ist ein dokumentiertes Restlimit, kein gestarteter
   GitHub-Actions-Ersatz.
+
+## Auswahl-Checkpoint — 2026-08-21 — nächstes Härtungspaket
+
+- `issue_snapshot_at: 2026-08-21T23:37:18+02:00`
+- `plan_updated_at: 2026-08-21T23:37:18+02:00`
+- **Issue-Snapshot:** GitHub-Issues, PRs, Runs und Drift wurden im selben Lauf read-only
+  abgefragt. Issue #131 ist geschlossen; #125, #126, #127, #128, #129, #130, #132 und #133
+  sind offen. `master` und `origin/master` zeigen auf `113243a`; der Arbeitsbaum ist sauber.
+  Es gibt keinen aktiven Run für den aktuellen Head. Branch Protection ist für das private
+  Repository nicht abfragbar (GitHub HTTP 403); wegen der Projektpolicy wurde kein Workflow
+  gestartet. `github-drift` meldet, dass kein GitHub Project verknüpft ist.
+- **Roadmap-Abgleich (wörtlich):** „Vorbereitung des Repositories für die Veröffentlichung als
+  freies, quelloffenes Open-Source-Tool **KeepADB** unter der **GPL-3.0**-Lizenz.“ Die zuvor
+  abgefragte Nutzerentscheidung zieht private Härtung vor die Veröffentlichung; Issue #130
+  dient diesem ausdrücklich bestätigten Zwischenziel.
+- **Ausgewähltes Paket:** Issue [#130](https://github.com/m00sfett/KeepADB/issues/130) —
+  „BootReceiver-Einstieg gegen Fremdbroadcasts absichern“.
+- **Ziel:** System-Boot-Recovery für den gewünschten Keep-Alive-Betrieb erhalten und
+  untrusted Broadcasts daran hindern, Service-Start oder Wireless-Debugging-Re-Enable
+  auszulösen.
+- **Zusammenhang:** enger Manifest-/Receiver-/Service-Aufrufpfad (`AndroidManifest.xml`,
+  `BootReceiver.java`, `KeepADBService.java`); #126 Endpoint-Health, #127 Toggle-Intent und
+  #129 Webhook-Sicherheit bleiben wegen eigener Risiko- und Rückrollgrenzen getrennt.
+- **Nicht-Ziele:** keine allgemeine Keep-Alive-Recovery, keine Änderung des Permission-Modells
+  außerhalb der Receiver-Sendergrenze, keine Endpoint-, Webhook- oder UI-Arbeit.
+- **Muss-Akzeptanzfälle:** `BOOT_COMPLETED` bleibt funktionsfähig; `QUICKBOOT_POWERON` wird
+  entfernt oder nur mit nachgewiesener System-Sendergrenze verarbeitet; explizite
+  Fremdbroadcasts starten weder Service noch Re-Enable; echter Boot bleibt auf AOSP-Emulator
+  und Zielgerät funktionsfähig; FGS-Startfehler werden als Fehler behandelt.
+- **Stufe und Review:** S4, `gpt-5.6-sol` mit `xhigh`, weil Autorisierung/Sendergrenze und
+  Security-Review per Definition hochgestuft werden. Ein unabhängiger S4-Review ist Pflicht;
+  keine Delegation gestartet und keine Freigabe dafür erteilt.
+- **Freigaben:** Auswahl und Planaktualisierung sind durch den Orchestrator-Aufruf gedeckt;
+  Implementierung, lokaler Build/Unit/Lint, Emulator-/S20-Geräteprüfung, Commit/Push/PR und
+  externe Workflow-Ausführung sind nicht freigegeben. GitHub-Actions bleiben ausgeschlossen.
+- **Validierungsleiter:** nach Implementierungsfreigabe zuerst `git diff --check`, dann
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`,
+  anschließend gezielte Fremdbroadcast-Tests sowie Boot-Smoke auf Emulator und registriertem
+  S20-Transport. Der Gerätepfad erfordert Register → registrierten Transport → `android-target`
+  → Modell/Serial/Fingerprint.
+- **Offene Punkte/Risiken:** Die zulässige Android-Sendergrenze für `BOOT_COMPLETED` sowie die
+  tatsächliche OEM-Notwendigkeit von `QUICKBOOT_POWERON` müssen vor einer Änderung belegt
+  werden. FGS-Fehlerpfad und Boot-Abnahme sind ungeprüft. `approved` bedeutet alle fünf
+  Akzeptanzgruppen, unabhängiger S4-Review und alle autorisierten lokalen/Device-Gates grün.
+- **Status:** `not approved`; serverseitig #130 offen, Commit/PR offen, Review `not applicable`
+  für diese Auswahl. Nächste zulässige Etappe ist eine typisierte Freigabe für S4-Implementierung
+  und den dazugehörigen Review; bis dahin keine Code- oder Teständerung.
+- **Retrospektive/Verbesserung:** Die Auswahlprüfung hat den tatsächlichen Receiverpfad vor der
+  Paketierung bestätigt. Für dieses Paket wird zuerst die Sender-/Systemvertragsfrage geklärt,
+  bevor Code oder Geräte-Smoke falsche Sicherheit erzeugen.
+- **Aufwandsprotokoll:** 1 Paket ausgewählt; 0 Implementierungen, 0 Builds, 0 Tests, 0
+  Geräteaktionen, 0 Delegationen; sichtbare GitHub-/Shell-Abfragen durchgeführt; Token- und
+  Abrechnungswerte unbekannt.
+
+## Issue #130 — Implementierung und Validierungsstart — 2026-08-21
+
+- **Freigabe:** Nutzer erteilte vollständige Freigabe für Implementierung, lokale Gates und
+  Geräteprüfung. Eine unabhängige S4-Review bleibt für den Abschluss verpflichtend.
+- **Umsetzung:** `BootReceiver` ist im Manifest `exported=false`; der ungeschützte
+  `QUICKBOOT_POWERON`-Pfad wurde aus Manifest und Receiver entfernt. `KeepADBService.start()`
+  meldet Fehler beim Anfordern des Foreground-Service explizit zurück; `onStartCommand()` fängt
+  Fehler beim tatsächlichen Eintritt in den FGS-Modus ab, stoppt den Dienst und gibt
+  `START_NOT_STICKY` zurück. Ein BootReceiver-FGS-Fehler bricht den anschließenden Re-Enable-
+  Pfad ab. Ein dependency-freier statischer Boot-Contract-Test wurde ergänzt.
+- **Nicht-Ziele:** keine allgemeine Recovery-/Toggle-/Endpoint-/Webhook-Änderung.
+- **Lokale Validierung:** noch nicht ausgeführt; als nächste Leiter `git diff --check`, danach
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`.
+- **Gerätevalidierung:** vollständige Nutzerfreigabe erteilt, noch nicht ausgeführt. Vorgesehen:
+  Registerabfrage und registrierter Transport, Fingerprint-Prüfung, Installation ohne Datenlöschung,
+  Fremdbroadcast-Versuch, Boot-/FGS-Nachweis und Logprüfung.
+- **Status:** `in_progress`; Issue #130 serverseitig offen, Commit/PR offen, Review offen.
+
+## Issue #130 — S4-Review 1 und Reparatur — 2026-08-21
+
+- **Review 1:** unabhängiger read-only S4-Review, `NOT APPROVED`. Befund: Die Rückkehr von
+  `startForegroundService()` beweist nur die Anforderung; die spätere FGS-Promotion konnte
+  scheitern, während BootReceiver und frühe Service-Callbacks trotzdem Re-Enable bzw.
+  Erfolgssignale auslösten. Zusätzlich war der statische Contract-Test manifestweit zu lax.
+- **Reparatur:** BootReceiver führt keinen Re-Enable-/Notification-Pfad mehr aus; dieser startet
+  erst in `KeepADBService.onStartCommand()` nach erfolgreichem `startForeground()`. Ein
+  `foregroundReady`-Guard sperrt ContentObserver und NetworkCallback bis dahin und wird beim
+  Stop zurückgesetzt. Der Contract-Test grenzt den BootReceiver-Manifestblock ein und prüft,
+  dass der Receiver selbst keine Re-Enable-/Refresh-Aktionen ausführt.
+- **Reparaturumfang:** weiterhin nur #130; keine allgemeine Recovery-, Endpoint-, Webhook- oder
+  UI-Änderung. Review 1 fand keine Befunde außerhalb des Scopes.
+- **Lokale Gates nach Reparatur:** `git diff --check` und
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`
+  erfolgreich; 11 Unit-Tests grün. Bekannte Java-Deprecation-Warnung bleibt unverändert.
+- **Gerätegate:** nach Reparatur noch nicht wiederholt; Installation/Smoke bleiben bis zum
+  zweiten unabhängigen S4-Review zurückgestellt.
+- **Status:** `not approved`; Reparatur erfolgt, Review 2 und danach Gerätegate offen.
+
+## Issue #130 — S4-Review 2 und Circuit-Breaker — 2026-08-22
+
+- **Review 2:** unabhängiger read-only S4-Review, `NOT APPROVED`. Die Reparatur isoliert den
+  direkten Re-Enable-Pfad besser, lässt aber vor der FGS-Promotion weiterhin Heartbeat-,
+  `userDisabled`-, Callback- und Ticker-Seiteneffekte zu. `onLost()` ist nicht geguarded und
+  kann Notification/Widget/Endpoint-Zustand verändern. Der statische Contract-Test prüft diese
+  Reihenfolge nicht belastbar.
+- **Empirische Gates:** Fremdbroadcast-Shelltest wurde vor Review 2 einmal mit
+  `SecurityException` abgewiesen. Der echte Boot-Gate bleibt ungeprüft bzw. nicht bestanden:
+  nach Reboot und Entsperren blieb `keep_alive_enabled=true`, aber `adb_wifi_enabled=0`; die
+  Broadcast-Warteschlange zeigte keine Ausführung unseres Receivers. Kein weiterer Gerätetest
+  nach Review 2 gestartet.
+- **Circuit-Breaker:** Zwei unabhängige S4-Reviews in Folge waren `NOT APPROVED`. Keine dritte
+  Reparaturrunde, kein dritter Review und keine Geräteabnahme werden automatisch gestartet.
+- **Offene Entscheidungsoptionen:**
+  1. **Promotion zuerst, Recovery danach (empfohlen):** `onCreate()` registriert keine
+     Recovery-Observer, schreibt keinen Heartbeat, konsumiert keine User-Intention und startet
+     keinen Ticker. `onStartCommand()` promoted zuerst; erst danach werden Observer/Network-
+     Callback/Ticker registriert und `recheckAndEnable()` ausgeführt. Kosten: mittlere Änderung
+     in `KeepADBService`, kleiner Rückrollpfad; reduziert alle drei Befundklassen.
+  2. **Expliziter Startup-State:** Ein Zustandsmodell `STARTING`/`FOREGROUND_READY`/`FAILED`
+     kapselt Lifecycle und erlaubt die bestehenden Registrierungen, aber jede Mutation und jeder
+     Callback braucht einen State-Guard; `onDestroy()` räumt `STARTING` vollständig auf. Kosten:
+     größere Zustandsänderung und höheres Test-/Reviewrisiko, dafür präzise Semantik.
+  3. **Issue aufteilen:** #130 nur auf Manifest-/Broadcast-Grenze und BootReceiver ohne
+     FGS-Recovery abnehmen; FGS-Promotion/Lifecycle und strukturelle Tests als neues Issue
+     erfassen. Kosten: kleinster Rückrollpfad, aber #130 bleibt bis zur neuen Issue-/Abnahme-
+     Reihe unvollständig und es entsteht zusätzliche zentrale Verwaltung.
+- **Status:** `closed-pending-decision`; Issue #130 offen, Commit/PR offen, Reviewstatus
+  `not approved`, lokale Gates der letzten Fassung grün, Gerätegate offen. Weitere Umsetzung
+  benötigt eine ausdrücklich benannte Option; keine allgemeine Freigabe wird als diese
+  Architekturentscheidung interpretiert.
+
+## Issue #130 — Architekturentscheidung Option 1 — 2026-08-22
+
+- **Nutzerentscheidung:** Option 1 „Promotion zuerst, Recovery danach“ ausgewählt.
+- **Konsequenz:** `KeepADBService.onCreate()` führt keine Heartbeat-, User-Intent-, Observer-,
+  Network-Callback- oder Ticker-Mutation mehr aus. Erst nach erfolgreichem `startForeground()`
+  werden `foregroundReady`, Heartbeat, Observer, Network-Callback, Ticker und der zentrale
+  `recheckAndEnable()`-Pfad aktiviert. `onLost()` ignoriert späte Callbacks nach fehlender oder
+  beendeter FGS-Bereitschaft.
+- **Rollback:** auf den vorherigen Issue-130-Reparaturstand beschränkt auf
+  `KeepADBService.java` und den zugehörigen Contract-Test; keine Datenmigration.
+- **Status:** `in_progress`; lokale Gates und ein neuer unabhängiger S4-Review sind vor dem
+  Gerätegate erneut erforderlich.
+
+## Issue #130 — S4-Review 3 und erneuter Circuit-Breaker — 2026-08-22
+
+- **Review 3:** unabhängiger read-only S4-Review, `NOT APPROVED`. Befund: Bei einem erneuten
+  `onStartCommand()`-Aufruf kann `startForeground()` scheitern, ohne `foregroundReady` zu
+  löschen oder Ticker/Observer/Network-Callback sicher abzubauen. `stopSelfResult()` wird nicht
+  ausgewertet; bestehende oder bereits eingeplante Callbacks können danach weiterhin Heartbeat,
+  Re-Enable, Endpoint-, Notification- oder Widget-Zustand verändern. Der Contract-Test schützt
+  diesen Re-Entry-/Cleanup-Pfad nicht.
+- **Circuit-Breaker:** Nach der bereits getroffenen Option-1-Entscheidung ist auch Review 3
+  fehlgeschlagen. Keine automatische Reparatur, kein vierter Review und kein Gerätegate.
+- **Neue Entscheidungsoptionen:**
+  1. **Fail-closed-Startup-Cleanup (empfohlen):** Im FGS-Promotionsfehler `foregroundReady=false`
+     setzen, Ticker stoppen, Observer/Network-Callback abmelden und erst danach `stopSelfResult`
+     ausführen; bei erneutem Start denselben Cleanup-Pfad verwenden. Dazu strukturelle Tests für
+     Failure-Branch und Re-Entry ergänzen. Mittlerer Fix, Rückrollpfad bleibt in
+     `KeepADBService.java`/Contract-Test.
+  2. **Einmaliger Service-Start:** Nach dem ersten Start keine erneute Promotion versuchen;
+     zusätzliche Start-Intents werden ignoriert oder nur als laufender FGS behandelt. Kleinere
+     Änderung, aber riskanter bei echten Service-Neustarts und weniger expliziter Fehlersemantik.
+  3. **Scope trennen:** #130 nach Receiver-/Broadcast-Grenze als offen abnahmefähiges Teilpaket
+     behandeln und FGS-Re-Entry/Cleanup als neues Folgeissue erfassen. Kleinster Rückrollpfad,
+     aber kein vollständiger #130-Abschluss.
+- **Status:** `closed-pending-decision`; Issue #130 offen, Commit/PR offen, Review 3
+  `not approved`, lokale Gates der letzten Fassung grün, Gerätegate offen. Weitere Umsetzung
+  benötigt eine ausdrücklich benannte Option.
+
+## Issue #130 — Fail-closed-Cleanup umgesetzt — 2026-08-22
+
+- **Nutzerentscheidung:** Option 1 „Fail-closed-Startup-Cleanup“ ausgewählt.
+- **Umsetzung:** Ein zentraler `failForegroundStart()`-Pfad setzt `foregroundReady=false`,
+  stoppt den Heartbeat-Ticker, deregistriert Observer und Network-Callback, entfernt die
+  Foreground-Notification, wertet `stopSelfResult(startId)` aus und protokolliert das Ergebnis.
+  Der Pfad gilt für initiale Promotionfehler und Service-Re-Entry.
+- **Nicht-Ziele:** keine Änderung an Receiver-Sendergrenze, allgemeiner Recovery-, Endpoint-,
+  Webhook- oder UI-Semantik.
+- **Lokale Gates:** `git diff --check` sowie
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest lintDebug assembleDebug`
+  erfolgreich; 11 Unit-Tests grün. Bekannte Java-Deprecation-Warnung bleibt unverändert.
+- **Offen:** unabhängiger S4-Review 4 und danach Geräte-/Empirie-Gates. Status bleibt
+  `not approved`, bis diese Nachweise vorliegen.
+
+## Issue #130 — S4-Review 4 und Scope-Circuit-Breaker — 2026-08-22
+
+- **Review 4:** unabhängiger read-only S4-Review, `NOT APPROVED`. High-Befund: Bei einem
+  FGS-Re-Entry können bereits laufende Endpoint-Discovery-, Notification- und Webhook-Callbacks
+  nach dem Cleanup weiterarbeiten. Dadurch sind spätes Re-Enable, Notification-Repost oder
+  Endpoint-Publikation möglich. Zusätzlich können `onDestroy()` und die aktuelle Re-Entry-
+  Semantik die User-Disabled-Schutzintention verändern; der Vorab-„service (re)started“-Log ist
+  ein falsches Erfolgs-/Liveness-Signal. Der Contract-Test beweist den tatsächlichen Failure-
+  und Cross-Component-Pfad nicht.
+- **Circuit-Breaker:** Vier unabhängige S4-Reviews waren nicht abnahmefähig; die letzte Review
+  erweitert den Befund über `KeepADBService` hinaus in die Endpoint-/Notification-/Webhook-
+  Lebenszyklen. Keine fünfte Review, automatische Reparatur oder Geräteaktion.
+- **Neue Scope-/Architekturentscheidungen:**
+  1. **Lebenszyklus-Generation übergreifend einführen:** Service-Stop/FGS-Failure invalidiert
+     einen Generation-Token, und Endpoint-, Notification- und Webhook-Callbacks prüfen ihn vor
+     jeder Mutation. Hoher Aufwand und S4-Risiko; berührt #125/#126/#128, dafür vollständiger
+     Fail-closed-Vertrag in einem Strang.
+  2. **Re-Entry verbieten und Cross-Component unverändert lassen:** `onStartCommand()` wird
+     idempotent bzw. ein zweiter Start wird ohne neue Promotion/Re-Enable ignoriert. Kleinerer
+     Fix, aber die ursprünglichen Endpoint-/Notification-/Webhook-Rennen bleiben als separate
+     Risiken bestehen und müssen als eigene Issues nachgezogen werden.
+  3. **Issue aufteilen:** #130 auf Receiver-Sendergrenze, initiale FGS-Anforderung und den
+     nachgewiesenen Fremdbroadcast-Schutz begrenzen; FGS-Re-Entry sowie Cross-Component-Lifecycle
+     als neues, gemeinsam geschnittenes Folgepaket erfassen. Kleinster Rückrollpfad, aber #130
+     wird nicht vollständig geschlossen.
+- **Status:** `closed-pending-decision`; Issue #130 offen, Commit/PR offen, Review 4
+  `not approved`, lokale Gates der letzten Fassung grün, Gerätegate offen. Weitere Umsetzung
+  benötigt eine ausdrücklich benannte Scope-/Architekturentscheidung.
+
+## Issue #130 — Scope-Aufteilung auf Nutzerentscheidung 3 — 2026-08-22
+
+- **Nutzerentscheidung:** Option 3 „Issue aufteilen“ ausgewählt.
+- **Neues Folgeissue:** [#135](https://github.com/m00sfett/KeepADB/issues/135) — „FGS-Re-Entry
+  und Cross-Component-Lifecycle generationssicher machen“. Titel, Body, Akzeptanzkriterien,
+  Nicht-Ziele und Label wurden serverseitig im selben Lauf read-back verifiziert.
+- **Abgrenzung:** #130 umfasst jetzt Receiver-Sendergrenze, Entfernung von `QUICKBOOT_POWERON`,
+  Schutz gegen explizite Fremdbroadcasts, initiale FGS-Anforderung/-Promotion und explizite
+  Fehlerbehandlung. #135 umfasst laufende Endpoint-/Notification-/Webhook-Callbacks,
+  generationssichere Re-Entry-/Stop-Semantik und die zugehörigen Cross-Component-Tests.
+- **Review-Einordnung:** Review 4 bestätigte die statischen #130-Basiskriterien, meldete aber
+  Cross-Component-Lifecycle als nicht abnahmefähigen Befund. Dieser Befund ist nach der
+  Nutzerentscheidung #135 zugeordnet und blockiert nicht den verengten #130-Codepfad.
+- **Offen:** echter AOSP-/S20-Boot-Nachweis und Fremdbroadcast-Abnahme für den verengten Scope;
+  lokale Gates der aktuellen Fassung sind grün. #130 bleibt serverseitig offen und darf bis
+  zum einzelnen Geräte-/Akzeptanznachweis nicht geschlossen werden. #135 bleibt offen und
+  unimplementiert.
+- **Status:** `in_progress`; Gerätegate wird jetzt fortgesetzt, keine Arbeit an #135.
+
+## Issue #130 — Gerätegate nach Scope-Aufteilung — 2026-08-22
+
+- **Transport:** Der registrierte WLAN-Pfad `192.168.178.24:34513` war nach dem Reboot nicht
+  erreichbar; `phone-register scan-wlan s20` fand keinen gültigen ADB-Port und meldete
+  `Connection refused`. Der USB-Fallback desselben S20 wurde über `android-target` als
+  `SM-G780G` / `RF8T307S88H` / Android 13 fingerprint-validiert; das Register steht deshalb
+  wieder auf `usb-adb`.
+- **Gerätenachweis:** APK-Installation und Fremdbroadcast-Test vor dem Reboot waren erfolgreich;
+  der explizite Shell-Broadcast wurde mit `SecurityException` abgewiesen. Nach dem Reboot und
+  zugänglichem USB-Transport bleibt `keep_alive_enabled=true`, aber `adb_wifi_enabled=0`; ein
+  laufender `KeepADBService`/BootReceiver-Nachweis ist nicht belegt. Der verengte echte Boot-
+  Akzeptanzfall ist damit nicht bestanden.
+- **Abbruch:** Keine weiteren Reboots oder wiederholten Installationen. Ursache ist die nicht
+  nachweisbare System-Boot-Zustellung bzw. fehlende FGS-Recovery auf dem S20; kein Codebefund
+  wird daraus abgeleitet. #135 bleibt für die Cross-Component-Lifecycle-Arbeit offen.
+- **Status:** `blocked`; #130 serverseitig offen, Commit/PR offen, Reviewstatus für den
+  verengten Scope statisch eingeordnet, Gerätegate blockiert. Erforderliche Nutzeraktion für
+  eine neue Abnahme: nachvollziehbarer Boot-/Broadcast-Zustand bzw. ein unabhängiger AOSP-/S20-
+  Bootkanal. Keine weitere automatische Geräteaktion.
+
+## Issue #130 — verspäteter S20-Nachweis und Abschlussvorbereitung — 2026-08-22
+
+- **Nachtrag:** Nach zusätzlicher Wartezeit kam der WLAN-ADB-Transport selbstständig auf
+  `192.168.178.24:45099` hoch. Register und `android-target` wurden danach erneut abgefragt;
+  Modell `SM-G780G`, Seriennummer `RF8T307S88H`, SDK 33 und Fingerprint stimmten.
+- **Boot-/Keep-Alive-Nachweis:** `keep_alive_enabled=true`, `adb_wifi_enabled=1` und ein
+  aktueller `service_last_heartbeat` nach dem Reboot; damit ist der verengte Zielgeräte-
+  Akzeptanzfall bestanden. Der frühere Blocker war ein zu früh gezogener Zwischenbefund.
+- **Server-Scope:** Issue #130 wurde im selben Lauf auf den verengten Scope aktualisiert und
+  read-back verifiziert; #135 bleibt als Folgeissue offen. AOSP-Emulator-Boot ist im neuen
+  #130-Nicht-Scope dokumentiert.
+- **Abschlussstatus:** Code-/Test-/S20-Nachweise des verengten #130-Scopes vollständig;
+  Commit/Push/PR/Merge und serverseitiges Schließen stehen noch aus. Keine Geräteaktion mehr
+  erforderlich.
