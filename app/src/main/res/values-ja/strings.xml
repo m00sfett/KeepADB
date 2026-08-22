@@ -63,5 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">KeepADB の表示言語を選択してください</string>
     <string name="settings_language_system_default">システムデフォルト</string>
     <string name="settings_language_dialog_title">言語を選択</string>
+    <string name="settings_section_security">セキュリティとネットワークの注意点</string>
+    <string name="settings_security_body">ワイヤレスデバッグはADB用のネットワークポートを開きます。信頼できるWi-FiやVPNでのみKeep-Aliveを使用してください。公共Wi-Fiではオフにし、身に覚えのないペアリング要求は絶対に許可しないでください。</string>
     <string name="back">戻る</string>
 </resources>

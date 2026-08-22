@@ -63,5 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Виберіть мову інтерфейсу для KeepADB</string>
     <string name="settings_language_system_default">Системна за замовчуванням</string>
     <string name="settings_language_dialog_title">Виберіть мову</string>
+    <string name="settings_section_security">Безпека та поради щодо мережі</string>
+    <string name="settings_security_body">Бездротове налагодження відкриває мережевий порт для ADB. Використовуйте Keep-Alive у надійних мережах Wi-Fi або VPN. Вимикайте налагодження у публічних мережах і ніколи не приймайте невідомі запити на створення пари.</string>
     <string name="back">Назад</string>
 </resources>

@@ -63,5 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Escolha o idioma da interface para o KeepADB</string>
     <string name="settings_language_system_default">Padrão do sistema</string>
     <string name="settings_language_dialog_title">Selecionar idioma</string>
+    <string name="settings_section_security">Segurança e avisos de rede</string>
+    <string name="settings_security_body">A depuração sem fio abre uma porta de rede para o ADB. Use o Keep-Alive principalmente em redes Wi-Fi ou VPNs confiáveis. Desative-a em redes públicas e nunca aceite solicitações de emparelhamento inesperadas.</string>
     <string name="back">Voltar</string>
 </resources>

@@ -63,5 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Choisissez la langue de l\'interface pour KeepADB</string>
     <string name="settings_language_system_default">Langue du système</string>
     <string name="settings_language_dialog_title">Sélectionner la langue</string>
+    <string name="settings_section_security">Sécurité et conseils réseau</string>
+    <string name="settings_security_body">Le débogage sans fil ouvre un port réseau pour ADB. Utilisez Keep-Alive principalement sur des réseaux Wi-Fi fiables ou des VPN. Désactivez-le sur les points d\'accès publics et n\'acceptez jamais de demandes de couplage inattendues.</string>
     <string name="back">Retour</string>
 </resources>

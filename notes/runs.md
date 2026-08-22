@@ -167,4 +167,10 @@
 - Verified 100% key completeness and consistency across all 19 locale files (63 keys each).
 - Created PR #157, verified via `./bin/verify`, merged into `master`, built and deployed to S20.
 
+## 2026-08-22 — Issue #159 (Security risk warnings & network advice)
 
+- Added *Security Considerations & Best Practices for Wireless Debugging* section to `README.md` (trusted networks, public hotspot precautions, pairing prompt checks).
+- Added `settings_security_panel` with `@string/settings_section_security` and `@string/settings_security_body` to `activity_settings.xml`.
+- Added localized security advice strings across all 19 supported languages (`values*/strings.xml`).
+- Added static contract test `settingsActivityIncludesSecurityAdvicePanel` and expanded locale contract tests in `KeepADBAccessibilityContractTest.java`.
+- Executed `./bin/verify` (all 25 unit tests passed, 0 lint warnings/errors, debug and release APKs built).
