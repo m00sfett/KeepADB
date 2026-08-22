@@ -2688,7 +2688,32 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`: bestanden (0 Fehler).
   - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`: bestanden (APK erfolgreich gebaut).
 - **Review:** `not applicable` (S3-Endpoint-Isolation, durch Hauptagenten anhand deterministischer Tests und Akzeptanzkriterien abgenommen).
+- **Status:** `complete` (PR #141 gemergt, Issue #126 geschlossen).
+
+## Implementierung & Validierung Issue #128 — 2026-08-22
+
+- **Issue:** [#128](https://github.com/m00sfett/KeepADB/issues/128) — `fix: Webhook-Registrierung transaktional und ausfallsicher machen`
+- **Ziel:** Die Webhook-Registrierung als Zustandspaar `(URL, Endpoint)` modellieren; URL-Wechsel als transaktionales `DELETE alt -> POST neu` ausführen und den bestätigten Zustand persistent über Prozessneustarts erhalten.
+- **Umsetzung:**
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBPreferences.java`:
+    - Persistenz von `register_webhook_last_url` hinzugefügt (`getWebhookLastReportedUrl`, `setWebhookLastReportedUrl`), um den registrierten Remote-Host verlässlich zu kennen.
+  - `app/src/main/java/de/hohnepeople/keepadb/KeepADBRegisterClient.java`:
+    - Transaktionale Ausführung mit geordneten `opGeneration`-Tokens.
+    - Bei URL-Änderung von URL_A auf URL_B wird zunächst die alte Registrierung auf URL_A per `DELETE` deregistriert, bevor der Endpunkt auf URL_B per `POST` registriert wird.
+    - Lokale SharedPreferences werden erst nach bestätigtem HTTP 2xx aktualisiert; Fehler bleiben sichtbar und retryfähig.
+    - Handler-Initialisierung auf lazy `mainHandler()` umgestellt.
+  - `app/build.gradle`:
+    - `testOptions { unitTests.returnDefaultValues = true }` für Plain-JVM-Tests aktiviert.
+  - `app/src/test/java/de/hohnepeople/keepadb/KeepADBRegisterClientTest.java`:
+    - Unit-Tests mit ServerSocket-Mock für POST, DELETE, Fehlercodes (500) und URL-Validierung.
+- **Lokale Gates:**
+  - `git diff --check`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew testDebugUnitTest`: bestanden (23 Unit-Tests grün).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew lintDebug`: bestanden (0 Fehler).
+  - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew assembleDebug`: bestanden (APK erfolgreich gebaut).
+- **Review:** `not applicable` (S3-Webhook-Transaction, durch Hauptagenten anhand deterministischer Tests und Akzeptanzkriterien abgenommen).
 - **Status:** `approved`.
+
 
 
 
