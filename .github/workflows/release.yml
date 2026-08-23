@@ -31,7 +31,14 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Install pinned Android build tools
-        run: sdkmanager "platforms;android-35" "build-tools;34.0.0"
+        run: |
+          sdkmanager_path="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [[ ! -x "$sdkmanager_path" ]]; then
+            sdkmanager_path="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager -perm -u+x -print -quit)"
+          fi
+          test -x "$sdkmanager_path"
+          yes | "$sdkmanager_path" --licenses >/dev/null || true
+          "$sdkmanager_path" "platforms;android-35" "build-tools;34.0.0"
 
       - name: Build unsigned release APK
         run: ./gradlew testDebugUnitTest lintDebug assembleRelease
