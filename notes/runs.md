@@ -199,3 +199,51 @@
 - Corrected the USB installation example to use the signed GitHub artifact and limited reproducibility wording to the verification state actually proven before publication.
 - `./bin/verify`, workflow YAML/order checks, ShellCheck, Fastlane length/image checks, two byte-identical clean unsigned builds, `apksigner verify`, and `apksigcopier compare --unsigned` passed. The exact merged/tagged release artifact still requires the final post-release comparison.
 - No device action, GitLab mutation, merge, release tag, workflow dispatch, or release publication was performed.
+
+## 2026-08-23 — Vor-GitLab-Plan nach F-Droid-Anforderungsabgleich
+
+Read-only-Abgleich mit der aktuellen F-Droid-Inclusion-Policy, dem aktuellen App-Inclusion-Template, den Build-Metadata-Regeln und Linsuis MR-Hinweisen:
+
+1. Den offenen MR !46500 auf Upstream `v1.1.0` aktualisieren: Version `1.1.0`, VersionCode `2`, vollständiger Commit `7b2e1ad45c1645b16b891f07918ad9ff7e798891`; niemals Tag/Branch als `Builds.commit` verwenden.
+2. Die aktuelle App-Inclusion-Vorlage vollständig übernehmen: Titel `New app: KeepADB`, Checklisten und belegte Antworten; unzutreffende Issue-Platzhalter entfernen.
+3. fdroiddata auf reine App-YAML reduzieren: `metadata/de.hohnepeople.keepadb/en-US/summary.txt` sowie `Name`/`Description` aus der YAML entfernen; Benutzertexte ausschließlich aus upstream Fastlane beziehen.
+4. Upstream-signierte reproduzierbare Veröffentlichung in der YAML deklarieren: versionierte `Binaries`-URL zum GitHub-Release und `AllowedAPKSigningKeys` mit dem geprüften Zertifikatsfingerprint.
+5. Lokale F-Droid-Gates und den Build des exakten `v1.1.0`-Commits ausführen; anschließend signed/unsigned Vergleich und Fastlane-Struktur erneut prüfen.
+6. Nach dem MR-Update die GitLab-Pipeline, Code-Quality-Report und License-Compliance-Auswertung frisch lesen. Den Fastlane-Critical-Fund muss der `v1.1.0`-Stand beseitigen; Permission/ABI/Signed-APK-Einträge sind erwartete Informational-Funde. `License Compliance failed loading results` und `No security scans enabled` sind separat als CI-/Projekt-Infrastrukturstatus zu bewerten.
+7. Erst wenn alle Punkte 1–6 sauber und reviewed sind, das separate GitLab-Gate einholen. Bis dahin keine GitLab-Änderung.
+
+Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Blocker wird nicht automatisch gepusht oder die Pipeline wiederholt.
+
+## 2026-08-23 — Vor-GitLab-Umsetzung lokal abgeschlossen
+
+- Lokale fdroiddata-Arbeitskopie auf `v1.1.0` / VersionCode `2` und den vollständigen Commit `7b2e1ad45c1645b16b891f07918ad9ff7e798891` aktualisiert.
+- fdroiddata-Summary-Datei, `Name`, `Description` und die nicht passende Source-Code-Website entfernt; upstream Fastlane bleibt alleinige Quelle für Storetexte.
+- `Binaries` und `AllowedAPKSigningKeys` für den upstream-signierten GitHub-Release ergänzt.
+- Lokaler fdroidserver-Scanner und `fdroid build -v -l de.hohnepeople.keepadb` bestanden; der F-Droid-Build verglich das unsigned Ergebnis erfolgreich mit dem signierten GitHub-APK und akzeptierte den Zertifikatsfingerprint.
+- `fdroid lint` und `fdroid checkupdates --allow-dirty` bestanden. Die lokale fdroiddata-Änderung ist als `607401e64d0f9dd230564a01daa6d868418d4fcc` gesichert, aber noch nicht nach GitLab gepusht.
+- Frisch bestätigt: upstream-Tag/Commit und Fastlane-Dateien sind vorhanden; MR !46500 steht unverändert auf `17ea3d0cce36566bde9833247c3b5f50275dc76a`.
+
+## 2026-08-23 — Letzter Vor-GitLab-Anforderungsabgleich
+
+- Der vorbereitete lokale Stand wird jetzt abschließend gegen die aktuelle F-Droid-App-Inclusion-Vorlage, die Build-Metadata-Referenz, die Reproducible-Build-Regeln und Linsuis konkrete Hinweise geprüft.
+- Gate-Kriterium: Erst wenn Titel/Template, v1.1.0-Voll-Commit, Fastlane-only-Metadaten, `Binaries`, `AllowedAPKSigningKeys`, lokale Gates und die Report-Bewertung vollständig passen, wird das separate GitLab-Gate angefragt.
+- GitLab bleibt bis zu dieser Freigabe unverändert.
+
+## 2026-08-23 — F-Droid-Publish-Skill-Verbesserungspunkte aus GitLab-Gate
+
+- GitLab-MR-API und Commits-API unterscheiden das offizielle Projekt (`fdroid/fdroiddata`, ID `36528`) vom Quellprojekt des Fork-MR (`m00sfett/fdroiddata`, ID `85658298`). Ein Commit gegen die offizielle Projekt-ID scheitert mit Branch-Schutz/403; der Skill sollte die `source_project_id` des MR vor jedem Commit automatisch auslesen.
+- Der Vaultwarden-Eintrag für das GitLab-PAT enthält neben dem Token zusätzliche Notizen. Für HTTP-Header muss der Skill den eigentlichen Tokenwert sicher extrahieren, ohne Notiztext oder Zeilenumbrüche zu übernehmen; andernfalls entstehen irreführende `Invalid json`-Antworten.
+- Die aktuelle fdroiddata-Schema-Prüfung verlangt bei `Binaries` zwingend `%v` oder `%c`. Eine literal versionierte GitHub-Release-URL ist trotz F-Droid-Dokumentation nicht schema-konform; der Skill sollte diese Platzhalter vor dem Push validieren und die URL-Ersetzung lokal testen.
+- `fdroidserver` entfernt beim Build den `gradlew`-Wrapper und `gradle-wrapper.jar`; lokale Tests brauchen deshalb einen systemweiten Gradle-Adapter (`gradlew-fdroid`) oder eine explizite Gradle-Konfiguration. Der Skill sollte diesen Umgebungsfehler früh erkennen und klar als Toolchain-Gap kennzeichnen.
+- GitLab-Pipeline 2783225916: Schemafehler durch literal versionierte `Binaries`-URL; nach Umstellung auf `%v` bestand die Schema-Prüfung.
+- GitLab-Pipeline 2783227459: `fdroid rewritemeta` verlangte die kanonische Einzeilenform für `Binaries` und `AllowedAPKSigningKeys`; der lokale Formatter-Diff wurde übernommen.
+- Derselbe Lauf zeigte den wichtigen Toolchain-Unterschied: F-Droid baut mit Gradle 8.9/JDK 21, während der GitHub-Release mit JDK 17 erstellt wurde. Der F-Droid-unsigned-APK-Hash `4f1c768f…` stimmt lokal mit JDK 21 exakt überein, aber nicht mit dem veröffentlichten JDK-17-Release `f2549224…`. Eine testweise `JavaCompile.options.release = 17`-Lösung wird vom Android Gradle Plugin abgelehnt. Vor Abschluss muss deshalb der upstream Release reproduzierbar mit JDK 21 neu gebaut/signiert werden; dafür ist ein separates GitHub-Release-Gate erforderlich.
+- Pipeline 2783232973: Schema, Source-Code, Rewritemeta, Lint und Checkupdates grün; ausschließlich `fdroid build` bleibt wegen des nachweisbaren JDK-17/JDK-21-Artefaktunterschieds rot. Die MR-Beschreibung lässt die Pipeline-Checkbox deshalb korrekt offen.
+
+## 2026-08-23 — GitHub-Release-JDK-Reparatur und finales F-Droid-Gate
+
+- GitHub PR [#164](https://github.com/m00sfett/KeepADB/pull/164) stellte den Release-Workflow von JDK 17 auf JDK 21 um und wurde als Merge-Commit `38cd0126eb8a7542fb897a211c665c5c7bce63c0` gemergt.
+- Der bestehende Tag `v1.1.0` wurde im freigegebenen Reparatur-Gate auf diesen Commit verschoben; Release-Workflow [32646442850](https://github.com/m00sfett/KeepADB/actions/runs/32646442850) lief erfolgreich durch. Das signierte APK hat SHA-256 `813a3f187f116825799fe1c429f7dcb8ef75655a77f61d64adf098616cdc28ee` und Zertifikat `c52bcd171b5ccee887f3c16cc3a474b38bd9ccd771ca8cd992f82e4d17753c04`.
+- Bei der Reproduzierbarkeitsdiagnose wurde präzisiert: `META-INF/version-control-info.textproto` enthält die Git-Revision. Deshalb muss der F-Droid-`Builds.commit` exakt dem Release-Merge-Commit entsprechen; ein alter Commit erzeugt trotz identischem Quellcode einen anderen unsigned APK-Inhalt.
+- F-Droid-MR !46500 wurde mit Commit `03caa0b7ea9d1525065ff40af83644488d25f74e` auf `38cd0126…` aktualisiert. Pipeline [2783240386](https://gitlab.com/fdroid/fdroiddata/-/pipelines/2783240386) ist vollständig grün (inklusive `fdroid build` und `check apk`); die Build-Checkbox im Inclusion-Template ist gesetzt.
+- Die GitLab-Code-Quality-Jobs sind im grünen Pipeline-Lauf erfolgreich. Die zuvor beobachteten Fastlane-/Summary-Funde stammen aus dem alten Stand; License-Compliance-/Security-Scan-Hinweise waren projektseitige Infrastrukturmeldungen und keine Build-Blocker.
