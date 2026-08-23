@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Notification titles now communicate the Wifi-ADB state more clearly without duplicating endpoint details.
-- Release APKs now use a stable upstream signing identity and a reproducible unsigned Gradle build.
+- Release APKs now use a stable upstream signing identity and an unsigned Gradle build prepared for reproducibility verification.
 
 ## [1.0.0] - 2026-08-21
 

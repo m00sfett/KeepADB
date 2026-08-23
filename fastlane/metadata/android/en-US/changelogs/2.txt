@@ -1,1 +1,1 @@
-Add an option to hide the persistent status notification. Improve Wifi-ADB notification titles and add security guidance for Wireless Debugging. Establish reproducible, upstream-signed releases.
+Add an option to hide the persistent status notification. Improve Wifi-ADB notification titles and add security guidance. Prepare stable upstream-signed releases for reproducibility verification.

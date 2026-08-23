@@ -33,6 +33,9 @@ jobs:
       - name: Install pinned Android build tools
         run: sdkmanager "platforms;android-35" "build-tools;34.0.0"
 
+      - name: Build unsigned release APK
+        run: ./gradlew testDebugUnitTest lintDebug assembleRelease
+
       - name: Restore release keystore
         env:
           SIGNING_KEYSTORE_BASE64: ${{ secrets.KEEPADB_SIGNING_KEYSTORE_BASE64 }}
@@ -41,16 +44,16 @@ jobs:
           printf '%s' "$SIGNING_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/keepadb-release.p12"
           chmod 600 "$RUNNER_TEMP/keepadb-release.p12"
 
-      - name: Build and sign release APK
+      - name: Sign and verify release APK
         env:
           SIGNING_STORE_PASSWORD: ${{ secrets.KEEPADB_SIGNING_STORE_PASSWORD }}
           SIGNING_KEY_ALIAS: ${{ secrets.KEEPADB_SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.KEEPADB_SIGNING_KEY_PASSWORD }}
         run: |
-          ./gradlew testDebugUnitTest lintDebug assembleRelease
           test -n "$SIGNING_STORE_PASSWORD"
           test -n "$SIGNING_KEY_ALIAS"
           test -n "$SIGNING_KEY_PASSWORD"
+          test -s "$RUNNER_TEMP/keepadb-release.p12"
           "$ANDROID_HOME/build-tools/34.0.0/apksigner" sign \
             --ks "$RUNNER_TEMP/keepadb-release.p12" \
             --ks-type PKCS12 \
