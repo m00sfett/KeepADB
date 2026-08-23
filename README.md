@@ -45,7 +45,7 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
 ## Getting Started
 
 ### 1. Install APK
-Download the latest APK from the [GitHub Releases](https://github.com/m00sfett/KeepADB/releases) or install via F-Droid.
+Download the latest APK from the [GitHub Releases](https://github.com/m00sfett/KeepADB/releases). Inclusion in the official F-Droid catalog is pending.
 
 Or install manually via USB:
 ```bash
@@ -105,7 +105,7 @@ When enabled, `adbd` binds to a dynamic high port (30000–50000) and announces 
 
 ### Prerequisites
 - JDK 17
-- Android SDK (compileSdk 35, build-tools 35, minSdk 30)
+- Android SDK (compileSdk 35, build-tools 34.0.0, minSdk 30)
 
 ### Local Verification & Gates
 Run all checks (git diff, unit tests, lint, debug and release builds) with a single command:
@@ -117,8 +117,10 @@ Run all checks (git diff, unit tests, lint, debug and release builds) with a sin
 ```bash
 ./gradlew assembleRelease
 ```
-The release APK will be located at:
-`app/build/outputs/apk/release/app-release.apk` (~313 KB)
+The reproducible unsigned APK will be located at:
+`app/build/outputs/apk/release/app-release-unsigned.apk`.
+
+Published release APKs are signed separately with the project's stable release key. The private key and credentials are never stored in this repository. F-Droid can rebuild the unsigned APK from the tagged source and publish the upstream-signed APK only after both builds match.
 
 ---
 
@@ -148,3 +150,5 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
 ## License
 
 This project is licensed under the **GNU Affero General Public License v3.0, or (at your option) any later version** — see the [LICENSE](LICENSE) file for details.
+
+This license also covers the bundled application artwork and icons unless a file explicitly states otherwise.

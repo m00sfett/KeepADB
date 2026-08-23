@@ -1,0 +1,18 @@
+KeepADB keeps Wireless Debugging available across device restarts, Wi-Fi reconnects, access-point changes, and idle periods.
+
+Toggle Wireless Debugging from the main screen, a Quick Settings tile, or a home-screen widget. An optional foreground service monitors the connection and restores Wireless Debugging when Android disables it. The current address and dynamic port can be shown in a notification, and an optional user-configured webhook can report endpoint changes to a development workstation or local automation service.
+
+Features:
+* Quick Settings tile, home-screen widget, and main app controls
+* Optional keep-alive service across restarts and network changes
+* Local mDNS and loopback discovery of the active ADB endpoint
+* Optional HTTP(S) webhook, disabled by default
+* Configurable status notification
+* 19 interface languages and right-to-left layout support
+* No advertising, analytics, tracking, or third-party runtime libraries
+
+KeepADB does not require root. Android protects Wireless Debugging with the WRITE_SECURE_SETTINGS permission, so initial setup requires granting that permission once from a trusted computer with ADB:
+
+adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS
+
+Wireless Debugging exposes an authenticated development service on the connected network. Use the keep-alive feature only on networks you trust and reject unexpected pairing requests.
