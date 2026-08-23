@@ -5,6 +5,17 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-08-23
+
+### Added
+- Optional suppression of the persistent status notification.
+- In-app and README security guidance for using Wireless Debugging safely.
+- Upstream Fastlane metadata for F-Droid and other compatible catalog tools.
+
+### Changed
+- Notification titles now communicate the Wifi-ADB state more clearly without duplicating endpoint details.
+- Release APKs now use a stable upstream signing identity and an unsigned Gradle build prepared for reproducibility verification.
+
 ## [1.0.0] - 2026-08-21
 
 ### Added

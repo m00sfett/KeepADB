@@ -183,3 +183,19 @@
 - Added localized strings for notification settings across all 19 supported languages (`values*/strings.xml`).
 - Added contract tests in `KeepADBAccessibilityContractTest.java` and `KeepADBBootReceiverContractTest.java`.
 - Executed `./bin/verify` (all 26 unit tests passed, 0 lint warnings/errors, debug and release APKs built).
+
+## 2026-08-23 — Reproducible v1.1.0 release preparation
+
+- Created a durable upstream PKCS12 release identity (`keepadb-release`) with certificate fingerprint `C5:2B:CD:17:1B:5C:CE:E8:87:F3:C1:6C:C3:A4:74:B3:8B:D9:CC:D7:71:CA:8C:D9:92:F8:2E:4D:17:75:3C:04`; the private key is outside the repository, backed up in Vaultwarden, and exposed to GitHub Actions only through write-only secrets.
+- Prepared PR [#162](https://github.com/m00sfett/KeepADB/pull/162) for version `1.1.0` / version code `2`, upstream Fastlane metadata, pinned Android build-tools `34.0.0`, and unsigned Gradle builds signed externally with `apksigner`.
+- Local `./bin/verify` passed. Two clean unsigned release builds were byte-identical. `apksigcopier compare --unsigned` passed for the signed APK, whose package/version and certificate were verified.
+- Installed the signed `1.1.0` APK on the physical SM-G780G (`RF8T307S88H`) after backing up the previous APK and Preferences. The pulled installed APK was byte-identical to the signed candidate.
+- On the unlocked S20, the Quick Settings tile toggled `adb_wifi_enabled` `1→0→1`; the active notification disappeared on OFF and returned on ON. The Settings switch hid and restored the notification. Added an English Fastlane screenshot captured with Wireless Debugging OFF, containing no endpoint address.
+- No GitLab files, branches, commits, MR descriptions, labels, comments, or issue-bot actions were changed.
+
+## 2026-08-23 — Independent v1.1.0 release review
+
+- Moved the unsigned Gradle build ahead of keystore restoration so build scripts never receive the release key or signing passwords.
+- Corrected the USB installation example to use the signed GitHub artifact and limited reproducibility wording to the verification state actually proven before publication.
+- `./bin/verify`, workflow YAML/order checks, ShellCheck, Fastlane length/image checks, two byte-identical clean unsigned builds, `apksigner verify`, and `apksigcopier compare --unsigned` passed. The exact merged/tagged release artifact still requires the final post-release comparison.
+- No device action, GitLab mutation, merge, release tag, workflow dispatch, or release publication was performed.
