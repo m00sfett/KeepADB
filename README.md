@@ -49,7 +49,7 @@ Download the latest APK from the [GitHub Releases](https://github.com/m00sfett/K
 
 Or install manually via USB:
 ```bash
-adb install -r app/build/outputs/apk/release/app-release.apk
+adb install -r KeepADB-v1.1.0.apk
 ```
 
 ### 2. Grant Permission (One-Time Setup)
@@ -117,7 +117,7 @@ Run all checks (git diff, unit tests, lint, debug and release builds) with a sin
 ```bash
 ./gradlew assembleRelease
 ```
-The reproducible unsigned APK will be located at:
+The unsigned APK used for reproducibility verification will be located at:
 `app/build/outputs/apk/release/app-release-unsigned.apk`.
 
 Published release APKs are signed separately with the project's stable release key. The private key and credentials are never stored in this repository. F-Droid can rebuild the unsigned APK from the tagged source and publish the upstream-signed APK only after both builds match.
