@@ -3173,3 +3173,19 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Abgrenzung: kein USB-Disconnect-Verhalten, keine USB-Notification-Änderung, kein Register-
   Schema- oder Endpoint-Discovery-Umbau.
 - Status: Issue angelegt; Board-Synchronisation und Drift-Readback folgen im selben Lauf.
+
+## GitHub-/Board-Übergabe Issue #169 und #173 — 2026-08-26
+
+- Issue #169: Commit `57ca790` (`feat: allow editing USB-ADB host profiles`) auf
+  `origin/feat/169-edit-usb-profiles` gepusht. PR [#174](https://github.com/m00sfett/KeepADB/pull/174)
+  ist offen, nicht Draft und gegen `feat/166-usb-adb-notification` gestapelt; Head `57ca790`,
+  Merge-Status `CLEAN`, keine Checks.
+- Issue #173: angelegt und in Project #8 auf `backlog` synchronisiert.
+- Board-Sync: `github-board-sync --repo m00sfett/KeepADB` meldet #169 `in_progress`, #173
+  hinzugefügt und `backlog`.
+- Drift: Es bleiben nur die erwarteten offenen PRs #172/#174 und ihre noch nicht gemergten
+  Feature-Branches.
+- Übergabe: #169 wartet auf unabhängige Review-/Merge-Abnahme. Nach dem Merge von #166 und #169
+  ist #170 das nächste Profilverwaltungspaket; #173 ist ein separater WLAN-Notification-Strang.
+- Status: `closed-pending-decision` für #169; Implementierung, lokale Gates, Commit, Push und
+  Board-Synchronisation erledigt, PR/Issue wegen fehlender Review-/CI-/Merge-Abnahme offen.
