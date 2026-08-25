@@ -3126,3 +3126,50 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Ein Merge- und Issue-Schließnachweis steht noch aus.
 - Status: `closed-pending-decision` für den GitHub-Abschluss; Code, Commit, Push und Board-
   Synchronisation erledigt, PR/Issue wegen fehlender CI-/Merge-Abnahme offen.
+
+## Auswahl nächstes Paket: Issue #169 — 2026-08-26
+
+- Issue-Snapshot: GitHub-Readback bestätigt #166–#171 offen, PR #172 offen ohne Checks, kein
+  aktiver Workflow-Lauf; Project #8 ist synchron.
+- Roadmap-Abgleich: „USB-ADB-Hostprofile und Übergabe“. #169 erweitert unmittelbar die in #166
+  gelieferte lokale Profilverwaltung und erfüllt damit den nächsten Profilverwaltungs-Schritt.
+- Paket: [#169](https://github.com/m00sfett/KeepADB/issues/169) — Profile bearbeiten.
+- Ziel: Vorhandene USB-ADB-Profile aus den Einstellungen bearbeiten, stabile ID und Auswahlstatus
+  erhalten, Eingaben validieren und Änderungen sofort in UI und USB-Notification sichtbar machen.
+- Nicht-Ziele: Löschen (#170), Register-Synchronisierung (#167), WLAN-Übergabe (#168), automatische
+  Host-Erkennung und Änderungen am WLAN-Pfad.
+- Umfang: `KeepADBUsbProfile`, `SettingsActivity`, USB-Profil-Layout/Strings und passende
+  Unit-/Contract-Tests; bestehender #166-Stand bleibt als Basis unverändert.
+- Einstufung: S2, lokalisierte Preference-/Dialog-/Notification-Verhaltensänderung.
+- Branch: `feat/169-edit-usb-profiles`, gestapelt auf `feat/166-usb-adb-notification`, damit die
+  noch offene #166-Abhängigkeit nicht in `master` vorweggenommen wird.
+- Minimale Gates: `git diff --check`, betroffene Unit-/Contract-Tests, danach `./bin/verify`;
+  keine Geräteaktion im Issue-Text gefordert.
+- Status: Umsetzung gestartet; keine GitHub-Schreibaktion für #169 und kein Testlauf ausgeführt.
+
+## Issue #169 — Umsetzung und lokale Validierung — 2026-08-26
+
+- Umsetzung: `KeepADBUsbProfile.update()` speichert Name und optionale Hostfelder unter der
+  bestehenden Profil-ID; leere Namen werden abgewiesen. Die Profil-Auswahl zeigt je Profil eine
+  sichtbare Bearbeiten-Aktion. Abbrechen verwirft Änderungen; nach dem Speichern werden Auswahl,
+  Einstellungen und USB-Notification aktualisiert.
+- Nicht-Scope eingehalten: kein Löschen, keine Register-/WLAN-Änderung, keine automatische
+  Host-Erkennung.
+- Reparaturschleife: Der erste gezielte Testlauf scheiterte an einem Java-Namenskonflikt zwischen
+  dem Dialogobjekt und einem Lambda-Parameter in `SettingsActivity`; der Parameter wurde lokal
+  umbenannt.
+- Gates: `git diff --check` bestanden; gezielte Contract-Tests bestanden; `./bin/verify`
+  bestanden (Unit-Tests, Lint, Debug- und Release-Build).
+- Gerätegate: Für #169 nicht im Issue gefordert und nicht ausgeführt.
+- Status: lokale Umsetzung und Gates bestanden; Commit/PR/Board-Sync für #169 stehen noch aus.
+
+## Folgeissue WLAN-ADB-Notification — 2026-08-26
+
+- Neues Issue: [#173](https://github.com/m00sfett/KeepADB/issues/173) `feat: offer WLAN-ADB
+  disable action in notification`.
+- Ziel: Eine direkte, sichtbare Ausschaltaktion in der aktiven WLAN-ADB-Notification, mit
+  bestehendem `KeepADB.setEnabled(context, false)`-Pfad, Fehleranzeige und unveränderter
+  USB-ADB-Koexistenz.
+- Abgrenzung: kein USB-Disconnect-Verhalten, keine USB-Notification-Änderung, kein Register-
+  Schema- oder Endpoint-Discovery-Umbau.
+- Status: Issue angelegt; Board-Synchronisation und Drift-Readback folgen im selben Lauf.

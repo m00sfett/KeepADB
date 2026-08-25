@@ -78,6 +78,10 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"settings_section_usb_notification\""));
                 assertTrue("Missing USB profile action in " + directory,
                         content.contains("name=\"usb_profile_create_button\""));
+                assertTrue("Missing USB profile edit action in " + directory,
+                        content.contains("name=\"usb_profile_edit_button\""));
+                assertTrue("Missing USB profile edit title in " + directory,
+                        content.contains("name=\"usb_profile_edit_title\""));
             }
         }
     }
@@ -135,6 +139,8 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(settings.contains("android:id=\"@+id/settings_usb_profile_action\""));
         assertTrue(activity.contains("KeepADBUsbProfile.setNotificationEnabled"));
         assertTrue(activity.contains("showProfileDialog"));
+        assertTrue(activity.contains("showProfileEditDialog"));
+        assertTrue(activity.contains("usb_profile_edit_button"));
     }
 
     private static String read(String relativePath) throws IOException {
