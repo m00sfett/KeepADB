@@ -2915,3 +2915,37 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   - `./bin/verify`: bestanden (26 Unit-Tests grün, 0 Lint-Fehler, Debug- und Release-APKs gebaut).
 - **Review:** `not applicable` (S2-Einstellungsoption und Lifecycle-Erweiterung, abgenommen gegen deterministische Contract-Tests und lokale Gates).
 - **Status:** `complete` (Bereit für PR & Merge).
+
+## USB-ADB-Hostprofile und Übergabe — 2026-08-25
+
+- `issue_snapshot_at: 2026-08-25T20:05:25Z`
+- `plan_updated_at: 2026-08-25T22:09:10+02:00`
+- Ausgangslage: `master` und `origin/master` synchron auf `fe14495`; Arbeitsverzeichnis sauber;
+  alle vorherigen GitHub-Issues geschlossen, keine offenen Pull Requests; letzter Release-Run
+  erfolgreich. Keine Implementierung, Builds, Tests oder Geräteaktionen freigegeben.
+- Neue offene Issues:
+  - [#166](https://github.com/m00sfett/KeepADB/issues/166) `feat: Separate USB-ADB notification with manual host profiles`
+  - [#167](https://github.com/m00sfett/KeepADB/issues/167) `feat: Register selected USB-ADB host profile alongside WLAN-ADB paths`
+  - [#168](https://github.com/m00sfett/KeepADB/issues/168) `feat: Optional WLAN-ADB handover from USB-ADB notification`
+- Paketierung:
+  1. **Paket 1 / #166 / S2:** separate USB-ADB-Notification und lokale, manuell auswählbare
+     Hostprofile; Standard AUS; kein Host-Helper und keine automatische Hostidentifikation.
+  2. **Paket 2 / #167 / S3:** USB-ADB-Pfade im Register neben WLAN-ADB erhalten, mehrere Profile
+     und Hostadressen unterstützen, Statuswechsel idempotent/stale-safe modellieren.
+  3. **Paket 3 / #168 / S3:** optionale WLAN-ADB-Übergabe aus der USB-Notification mit den Modi
+     AUS, MANUELL und AUTOMATISCH; kein Ausschalten von WLAN-ADB beim USB-Disconnect.
+- Abhängigkeiten: #167 folgt auf die Profilverwaltung aus #166; #168 folgt auf #166 und nutzt
+  für den vollständigen Übergabepfad den Registervertrag aus #167.
+- Bewusster Nicht-Scope: keine Installation eines zusätzlichen Helfers auf Rechnern; die App
+  verwaltet nur manuelle Hostprofile und behauptet keine automatische Rechneridentität.
+- Muss-Akzeptanzfälle für die spätere Implementierung: echte USB-ADB-Erkennung statt reiner
+  Ladeerkennung, Profil anlegen/wechseln/zuletzt verwenden, getrennte Notification-Lifecycles,
+  USB-Pfad getrennt vom WLAN-Pfad, Register-Readback mit mehreren Wegen, drei Handover-Modi,
+  fehlende `WRITE_SECURE_SETTINGS`-Berechtigung, USB-Disconnect ohne WLAN-ADB-Ausschalten.
+- Risiken: Android-USB-ADB-State-Broadcast ist für normale Apps keine vollwertige Hostidentität;
+  USB-Verhalten und Handover benötigen einen physischen S20-Nachweis. Die Register-Schemaänderung
+  hat eine eigene externe Schnittstellen- und Rollbackgrenze. Maximale Reparaturrunden: zwei je
+  Implementierungspaket. `approved` erst nach lokalen Gates und den jeweils benannten Geräte- bzw.
+  Register-Abnahmen.
+- Status dieses Issue-Anlage-/Planungspakets: `complete`; Serverstatus der Issues per Readback
+  offen, Commitstatus unverändert, Review nicht anwendbar, keine Codeänderung.
