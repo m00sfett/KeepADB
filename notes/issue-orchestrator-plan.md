@@ -3108,3 +3108,21 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   USB-Ab-/Ansteckabnahme sind im vorherigen #166-Checkpoint dokumentiert.
 - Nächster Schritt: atomarer Commit auf einem Feature-Branch, PR gegen `master`, danach Board-
   Synchronisation und Drift-Readback.
+
+## GitHub-/Board-Synchronisation Issue #166 — 2026-08-26
+
+- Commit: `5b46c16` (`feat: add USB-ADB notification and host profiles`) auf
+  `origin/feat/166-usb-adb-notification`.
+- PR: [#172](https://github.com/m00sfett/KeepADB/pull/172) gegen `master`, offen, nicht Draft,
+  Head `5b46c16`, Merge-Status `CLEAN`. `Fixes #166` ist enthalten; Issue #166 bleibt bis zum
+  Merge offen.
+- CI: Für den aktuellen Head gibt es keine Checks. Der CI-Workflow ist manuell; kein neuer Lauf
+  wurde ohne typisierte CI-Freigabe gestartet. Lokale Gates und S20-Abnahme sind im #166-
+  Abschlusscheckpoint nachgewiesen.
+- Project #8: `github-board-sync --repo m00sfett/KeepADB` meldet `0 added, 0 updated`.
+  Anschließender Drift-Readback meldet ausschließlich den erwarteten offenen PR und seinen noch
+  nicht gemergten Feature-Branch.
+- Übergabe: #169/#170 bleiben die nächsten Profilverwaltungspakete, #171 bleibt unabhängig.
+  Ein Merge- und Issue-Schließnachweis steht noch aus.
+- Status: `closed-pending-decision` für den GitHub-Abschluss; Code, Commit, Push und Board-
+  Synchronisation erledigt, PR/Issue wegen fehlender CI-/Merge-Abnahme offen.
