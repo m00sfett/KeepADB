@@ -101,6 +101,19 @@ final class KeepADBUsbProfile {
         }
     }
 
+    static Profile update(Context context, int id, String name, String ipAddress, String hostname,
+                          String tailnetHostname) {
+        String cleanedName = clean(name);
+        if (cleanedName.isEmpty()) return null;
+        SharedPreferences preferences = prefs(context);
+        Profile existing = read(context, id);
+        if (existing == null) return null;
+        Profile updated = new Profile(id, cleanedName, clean(ipAddress), clean(hostname),
+                clean(tailnetHostname));
+        write(preferences, updated);
+        return updated;
+    }
+
     private static Profile read(Context context, int id) {
         SharedPreferences preferences = prefs(context);
         String name = preferences.getString(PREFIX + id + "_name", null);

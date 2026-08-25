@@ -196,27 +196,54 @@ public class SettingsActivity extends Activity {
     private void showProfileDialog(String action) {
         List<KeepADBUsbProfile.Profile> profiles = KeepADBUsbProfile.getProfiles(this);
         if (KeepADBUsbNotification.ACTION_SWITCH.equals(action) && !profiles.isEmpty()) {
-            String[] labels = new String[profiles.size()];
-            int selected = 0;
             KeepADBUsbProfile.Profile current = KeepADBUsbProfile.getSelected(this);
+            android.widget.LinearLayout options = new android.widget.LinearLayout(this);
+            options.setOrientation(android.widget.LinearLayout.VERTICAL);
+            int padding = (int) (20 * getResources().getDisplayMetrics().density);
+            options.setPadding(padding, 0, padding, 0);
+            final AlertDialog[] dialogHolder = new AlertDialog[1];
             for (int i = 0; i < profiles.size(); i++) {
-                labels[i] = profiles.get(i).summary();
-                if (current != null && current.id == profiles.get(i).id) selected = i;
+                KeepADBUsbProfile.Profile profile = profiles.get(i);
+                android.widget.LinearLayout row = new android.widget.LinearLayout(this);
+                row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                android.widget.Button select = new android.widget.Button(this);
+                select.setText(profile.summary());
+                select.setContentDescription(profile.summary());
+                select.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+                select.setLayoutParams(new android.widget.LinearLayout.LayoutParams(0,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+                select.setOnClickListener(v -> {
+                    KeepADBUsbProfile.select(this, profile.id);
+                    dialogHolder[0].dismiss();
+                    KeepADBUsbReceiver.refresh(this);
+                    refresh();
+                });
+                android.widget.Button edit = new android.widget.Button(this);
+                edit.setText(R.string.usb_profile_edit_button);
+                edit.setOnClickListener(v -> {
+                    dialogHolder[0].dismiss();
+                    showProfileEditDialog(profile);
+                });
+                row.addView(select);
+                row.addView(edit);
+                options.addView(row);
             }
-            new AlertDialog.Builder(this)
+            AlertDialog dialog = new AlertDialog.Builder(this)
                     .setTitle(R.string.usb_profile_switch_title)
-                    .setSingleChoiceItems(labels, selected, (dialog, which) -> {
-                        KeepADBUsbProfile.select(this, profiles.get(which).id);
-                        dialog.dismiss();
-                        KeepADBUsbReceiver.refresh(this);
-                        refresh();
-                    })
-                    .setPositiveButton(R.string.usb_profile_new_button, (dialog, which) -> showProfileDialog(
+                    .setView(options)
+                    .setPositiveButton(R.string.usb_profile_new_button, (buttonDialog, which) -> showProfileDialog(
                             KeepADBUsbNotification.ACTION_CREATE))
                     .setNegativeButton(android.R.string.cancel, null)
-                    .show();
+                    .create();
+            dialogHolder[0] = dialog;
+            dialog.show();
             return;
         }
+
+        showProfileEditDialog(null);
+    }
+
+    private void showProfileEditDialog(KeepADBUsbProfile.Profile profile) {
 
         android.widget.LinearLayout fields = new android.widget.LinearLayout(this);
         fields.setOrientation(android.widget.LinearLayout.VERTICAL);
@@ -226,12 +253,19 @@ public class SettingsActivity extends Activity {
         EditText ip = profileField(R.string.usb_profile_ip_hint);
         EditText hostname = profileField(R.string.usb_profile_hostname_hint);
         EditText tailnet = profileField(R.string.usb_profile_tailnet_hint);
+        if (profile != null) {
+            name.setText(profile.name);
+            ip.setText(profile.ipAddress);
+            hostname.setText(profile.hostname);
+            tailnet.setText(profile.tailnetHostname);
+        }
         fields.addView(name);
         fields.addView(ip);
         fields.addView(hostname);
         fields.addView(tailnet);
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(R.string.usb_profile_create_title)
+                .setTitle(profile == null ? R.string.usb_profile_create_title
+                        : R.string.usb_profile_edit_title)
                 .setView(fields)
                 .setPositiveButton(R.string.usb_profile_save_button, null)
                 .setNegativeButton(android.R.string.cancel, null)
@@ -241,8 +275,15 @@ public class SettingsActivity extends Activity {
                 name.setError(getString(R.string.usb_profile_name_required));
                 return;
             }
-            KeepADBUsbProfile.add(this, name.getText().toString(), ip.getText().toString(),
-                    hostname.getText().toString(), tailnet.getText().toString());
+            if (profile == null) {
+                KeepADBUsbProfile.add(this, name.getText().toString(), ip.getText().toString(),
+                        hostname.getText().toString(), tailnet.getText().toString());
+            } else if (KeepADBUsbProfile.update(this, profile.id, name.getText().toString(),
+                    ip.getText().toString(), hostname.getText().toString(),
+                    tailnet.getText().toString()) == null) {
+                name.setError(getString(R.string.usb_profile_name_required));
+                return;
+            }
             dialog.dismiss();
             KeepADBUsbReceiver.refresh(this);
             refresh();
