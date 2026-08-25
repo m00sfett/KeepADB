@@ -13,6 +13,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
+
 /** Central settings screen for KeepADB options (Keep-Alive, Language, Webhook, etc.). */
 public class SettingsActivity extends Activity {
     private View permissionPanel;
@@ -20,6 +22,9 @@ public class SettingsActivity extends Activity {
     private View languageSelector;
 
     private Switch hideNotificationToggle;
+    private Switch usbNotificationToggle;
+    private TextView usbProfileSummary;
+    private Button usbProfileAction;
 
     private Switch webhookToggle;
     private EditText webhookUrlInput;
@@ -54,6 +59,18 @@ public class SettingsActivity extends Activity {
                     Toast.LENGTH_SHORT).show();
             refresh();
         });
+
+        usbNotificationToggle = findViewById(R.id.settings_usb_notification_toggle);
+        usbProfileSummary = findViewById(R.id.settings_usb_profile_summary);
+        usbProfileAction = findViewById(R.id.settings_usb_profile_action);
+        usbNotificationToggle.setOnClickListener(v -> {
+            KeepADBUsbProfile.setNotificationEnabled(this, usbNotificationToggle.isChecked());
+            KeepADBUsbReceiver.refresh(this);
+            refresh();
+        });
+        usbProfileAction.setOnClickListener(v -> showProfileDialog(
+                KeepADBUsbProfile.getProfiles(this).isEmpty()
+                        ? KeepADBUsbNotification.ACTION_CREATE : KeepADBUsbNotification.ACTION_SWITCH));
 
         webhookToggle = findViewById(R.id.settings_webhook_toggle);
         webhookUrlInput = findViewById(R.id.settings_webhook_url);
@@ -139,6 +156,11 @@ public class SettingsActivity extends Activity {
             webhookUrlInput.setText("");
         }
         refresh();
+
+        if (getIntent().hasExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION)) {
+            showProfileDialog(getIntent().getStringExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION));
+            getIntent().removeExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION);
+        }
     }
 
     private void showLanguageSelectionDialog() {
@@ -171,6 +193,70 @@ public class SettingsActivity extends Activity {
                 .show();
     }
 
+    private void showProfileDialog(String action) {
+        List<KeepADBUsbProfile.Profile> profiles = KeepADBUsbProfile.getProfiles(this);
+        if (KeepADBUsbNotification.ACTION_SWITCH.equals(action) && !profiles.isEmpty()) {
+            String[] labels = new String[profiles.size()];
+            int selected = 0;
+            KeepADBUsbProfile.Profile current = KeepADBUsbProfile.getSelected(this);
+            for (int i = 0; i < profiles.size(); i++) {
+                labels[i] = profiles.get(i).summary();
+                if (current != null && current.id == profiles.get(i).id) selected = i;
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.usb_profile_switch_title)
+                    .setSingleChoiceItems(labels, selected, (dialog, which) -> {
+                        KeepADBUsbProfile.select(this, profiles.get(which).id);
+                        dialog.dismiss();
+                        KeepADBUsbReceiver.refresh(this);
+                        refresh();
+                    })
+                    .setPositiveButton(R.string.usb_profile_new_button, (dialog, which) -> showProfileDialog(
+                            KeepADBUsbNotification.ACTION_CREATE))
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show();
+            return;
+        }
+
+        android.widget.LinearLayout fields = new android.widget.LinearLayout(this);
+        fields.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int padding = (int) (20 * getResources().getDisplayMetrics().density);
+        fields.setPadding(padding, 0, padding, 0);
+        EditText name = profileField(R.string.usb_profile_name_hint);
+        EditText ip = profileField(R.string.usb_profile_ip_hint);
+        EditText hostname = profileField(R.string.usb_profile_hostname_hint);
+        EditText tailnet = profileField(R.string.usb_profile_tailnet_hint);
+        fields.addView(name);
+        fields.addView(ip);
+        fields.addView(hostname);
+        fields.addView(tailnet);
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.usb_profile_create_title)
+                .setView(fields)
+                .setPositiveButton(R.string.usb_profile_save_button, null)
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
+        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            if (name.getText().toString().trim().isEmpty()) {
+                name.setError(getString(R.string.usb_profile_name_required));
+                return;
+            }
+            KeepADBUsbProfile.add(this, name.getText().toString(), ip.getText().toString(),
+                    hostname.getText().toString(), tailnet.getText().toString());
+            dialog.dismiss();
+            KeepADBUsbReceiver.refresh(this);
+            refresh();
+        }));
+        dialog.show();
+    }
+
+    private EditText profileField(int hint) {
+        EditText field = new EditText(this);
+        field.setHint(hint);
+        field.setSingleLine(true);
+        return field;
+    }
+
     private void refresh() {
         boolean hasPermission = checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
                 == PackageManager.PERMISSION_GRANTED;
@@ -187,5 +273,13 @@ public class SettingsActivity extends Activity {
 
         boolean notificationHidden = KeepADBPreferences.isNotificationHidden(this);
         hideNotificationToggle.setChecked(notificationHidden);
+
+        usbNotificationToggle.setChecked(KeepADBUsbProfile.isNotificationEnabled(this));
+        KeepADBUsbProfile.Profile selectedProfile = KeepADBUsbProfile.getSelected(this);
+        usbProfileSummary.setText(selectedProfile == null
+                ? getString(R.string.usb_profile_none)
+                : getString(R.string.usb_profile_selected, selectedProfile.summary()));
+        usbProfileAction.setText(KeepADBUsbProfile.getProfiles(this).isEmpty()
+                ? R.string.usb_profile_create_button : R.string.usb_profile_switch_button);
     }
 }

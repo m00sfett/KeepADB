@@ -70,4 +70,27 @@
     <string name="settings_notification_hidden_toast">Dauerhafte Benachrichtigung ausgeblendet</string>
     <string name="settings_notification_visible_toast">Dauerhafte Benachrichtigung aktiviert</string>
     <string name="back">Zurück</string>
+    <string name="settings_section_usb_notification">USB-ADB-Benachrichtigung</string>
+    <string name="settings_usb_notification_toggle">USB-ADB-Benachrichtigung anzeigen</string>
+    <string name="settings_usb_notification_subtext">Zeigt bei aktivem USB-Debugging eine separate Benachrichtigung. Der Host wird manuell ausgewählt.</string>
+    <string name="usb_notification_channel_name">USB-ADB-Verbindung</string>
+    <string name="usb_notification_channel_desc">Das aktive USB-ADB-Hostprofil</string>
+    <string name="usb_notification_title">USB-ADB aktiv</string>
+    <string name="usb_notification_no_profile">Kein Hostprofil ausgewählt</string>
+    <string name="usb_notification_create_profile">Hostprofil anlegen</string>
+    <string name="usb_notification_switch_profile">Profil wechseln</string>
+    <string name="usb_notification_new_profile">Neues Profil</string>
+    <string name="usb_profile_none">Kein Hostprofil ausgewählt.</string>
+    <string name="usb_profile_selected">Ausgewähltes Hostprofil: %1$s</string>
+    <string name="usb_profile_create_button">Hostprofil anlegen</string>
+    <string name="usb_profile_switch_button">Hostprofil wechseln</string>
+    <string name="usb_profile_switch_title">Hostprofil wechseln</string>
+    <string name="usb_profile_create_title">Hostprofil anlegen</string>
+    <string name="usb_profile_new_button">Neues Profil</string>
+    <string name="usb_profile_save_button">Speichern</string>
+    <string name="usb_profile_name_hint">Profilname (erforderlich)</string>
+    <string name="usb_profile_ip_hint">IP-Adresse des Hosts (optional)</string>
+    <string name="usb_profile_hostname_hint">Hostname (optional)</string>
+    <string name="usb_profile_tailnet_hint">Tailnet-Hostname (optional)</string>
+    <string name="usb_profile_name_required">Bitte einen Profilnamen eingeben.</string>
 </resources>
