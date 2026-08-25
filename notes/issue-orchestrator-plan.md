@@ -3180,6 +3180,8 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   `origin/feat/169-edit-usb-profiles` gepusht. PR [#174](https://github.com/m00sfett/KeepADB/pull/174)
   ist offen, nicht Draft und gegen `feat/166-usb-adb-notification` gestapelt; Head `57ca790`,
   Merge-Status `CLEAN`, keine Checks.
+- Der nachfolgende Plan-Commit `86855ef` ist ebenfalls auf dem PR-Branch; aktueller PR-Head ist
+  `86855ef`.
 - Issue #173: angelegt und in Project #8 auf `backlog` synchronisiert.
 - Board-Sync: `github-board-sync --repo m00sfett/KeepADB` meldet #169 `in_progress`, #173
   hinzugefügt und `backlog`.
