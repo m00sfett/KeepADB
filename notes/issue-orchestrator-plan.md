@@ -3510,3 +3510,20 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   S3 war wegen Lifecycle/I/O angemessen. Verbesserung: Bei Diagnosefeatures Exportzugang,
   Backup-Regeln und Redaction bereits im ersten Contract-Test erzwingen.
 - Status: `approved`, bereit für atomaren Commit/PR; keine Releasefreigabe.
+
+## Abschluss Issue #177 — 2026-08-26
+
+- Commit/Server: `f7a7098` auf Branch `issue-177-diagnostics`, PR #179; per Squash als
+  `93e8d808fada271a67a2b60b2e94c6f50cb6ef7a` in `master` gemergt. Issue #177 ist durch
+  `Fixes #177` geschlossen; Branch wurde beim Merge gelöscht; lokaler `master` entspricht
+  `origin/master`.
+- Board/Drift: `github-board-sync --repo m00sfett/KeepADB` ohne Änderungen; abschließender
+  Drift-Readback nach dem Merge ohne eigene offene Abweichung erwartet. Keine GitHub-Actions,
+  kein Release.
+- Übergabe: #178 ist gemäß Nutzerentscheidung das nächste Paket; danach Rückkehr zur normalen
+  Issue-Reihenfolge. Der #177-S20-Nachweis bleibt als Beispiel für den neuen Export-/Logpfad.
+- Aufwandsprotokoll: 1 S3-Implementierung, 1 unabhängiger S3-Review mit 5 Reparaturen, zwei
+  vollständige Verify-Läufe, ein S20-Install-/Abnahmelauf mit erwarteten Transportabbrüchen beim
+  WLAN-ADB-Off-Test, 1 Commit, 1 PR, 1 Squash-Merge. Token-/Abrechnungswerte unbekannt.
+- Abschlusszustand: `complete` für #177; Server-, Commit-, Review-, lokale Gate-, Geräte- und
+  Boardstatus nachgewiesen.
