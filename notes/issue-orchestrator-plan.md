@@ -3267,6 +3267,31 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Boardstatus nachgewiesen. Lokaler Sicherungszweig `backup/feat-169-before-rebase` bleibt als
   recoverable Arbeitskopie bestehen.
 
+## Auswahl und lokale Umsetzung Issue #170 — 2026-08-26
+
+- `issue_snapshot_at: 2026-08-26T07:54:30+02:00`; `plan_updated_at: 2026-08-26T07:54:30+02:00`;
+  Issue #170 ist offen, `master` sauber auf
+  `e06d41a`, keine offenen PRs und keine aktiven Workflow-Läufe. Roadmap-Abgleich: „USB-ADB-
+  Hostprofile und Übergabe“; #170 ist der nächste Profilverwaltungsschritt.
+- Ziel: Lokale USB-ADB-Profile mit Bestätigung löschen, Profil-/Auswahlmetadaten sauber entfernen,
+  ausgewählte Profile deterministisch auf das nächste verbleibende Profil umstellen und alle
+  Einstellungen-/Notification-Lesepfade aktualisieren.
+- Nicht-Ziele: USB-ADB selbst umschalten, Notification-Aktionen erweitern, WLAN-/Registerpfade,
+  #167/#168/#171/#173 oder automatische Hostidentifikation.
+- Umsetzung: `KeepADBUsbProfile.delete()` entfernt alle Profildaten; beim Löschen des ausgewählten
+  Profils wird das nächste Profil in bestehender Reihenfolge ausgewählt, beim letzten Profil wird
+  die Auswahl geleert. Einstellungen bieten je Profil einen separaten Löschen-Button mit
+  Bestätigungsdialog; die USB-Notification bleibt ohne Löschaktion.
+- Tests: ausführbare Unit-Tests für nicht ausgewähltes, ausgewähltes, letztes und unbekanntes
+  Profil; Contract-Tests für Bestätigung, Refresh, Ressourcen und Notification-Abgrenzung.
+- Lokale Gates: gezielte Tests nach kleinem Importfix bestanden; `git diff --check` und
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` bestanden. Keine Geräteaktion und kein
+  GitHub-Actions-Workflow ausgelöst.
+- Freigaben: Umsetzung und lokale Gates erteilt. Unabhängiger Review sowie externer PR-/Merge-
+  Abschluss sind noch nicht freigegeben.
+- Status: `closed-pending-decision`; Arbeitsbaum enthält ausschließlich den #170-Umfang und
+  diesen Plan-Checkpoint. Ungeprüft bleiben echte Android-UI-Klicks und Notification-Readback.
+
 ## Issue #169 — Unabhängiger S2-Review gestartet — 2026-08-26
 
 - `issue_snapshot_at: 2026-08-26T07:20:28+02:00`; `plan_updated_at: 2026-08-26T07:20:28+02:00`.
@@ -3341,3 +3366,48 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Laufs. Dieser Drift bleibt bis zur gestapelten Merge-Abnahme bestehen.
 - Abschlusszustand des Laufs: `complete` für Review und Reparatur von #169; serverseitig bleibt
   PR #174 offen, Issue #169 offen und #170 durch die gestapelte Abhängigkeit zurückgestellt.
+
+## Issue #170 — Unabhängiger S2-Review und lokale Reparatur — 2026-08-26
+
+- `issue_snapshot_at: 2026-08-26T07:54:30+02:00` bleibt der letzte gespeicherte Issue-Snapshot;
+  `plan_updated_at: 2026-08-26T08:03:51+02:00`. Der Auftrag war ausdrücklich auf den lokalen,
+  noch nicht gepushten #170-Checkout begrenzt; deshalb erfolgte kein neuer GitHub-Readback.
+- Reviewumfang: `KeepADBUsbProfile.delete()`, Löschen-Button und Bestätigungsdialog in
+  `SettingsActivity`, alle neuen `values*/strings.xml` sowie Unit-/Contract-Tests. Nicht-Scope:
+  #167, #168, #169, #171, #173, Geräte, GitHub Actions und PR-/Merge-Aktionen.
+- Befunde: F-170-01 (mittel) fehlende Assertions für die vier Profilfelder beim letzten Profil
+  und für die Auswahl des vorherigen Profils; F-170-02 (niedrig) zu breiter Dialog-Contract ohne
+  sichere Profilnamen-/Cancel-/positive-only-Prüfung.
+- Reparaturen: `KeepADBUsbProfileTest` prüft beide Auswahlgrenzen und alle vier entfernten
+  Profilfelder. `KeepADBAccessibilityContractTest` grenzt den Löschdialog ein und prüft
+  Profilname, positive Löschung, Cancel/Back-Abgrenzung, Refresh und fehlende Notification-
+  Löschaktion. Der Produktionscode brauchte keinen Fix.
+- Validierung: `git diff --check`, gezielte 22 Unit-/Contract-Tests und vollständige
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`-Gates erfolgreich; die vollständige Suite
+  umfasste 41 Tests. Ein absichtlicher `_tailnet`-Mutationstest machte zwei Tests rot und wurde
+  zurückgenommen. Keine GitHub-Actions und keine Geräteaktion.
+- Ungeprüft: echte Android-UI-Klicks, NotificationManager-Readback nach USB-Zustandswechsel und
+  physischer App-Neustart.
+- Übergabe-Checkpoint: Der lokale Review-/Reparaturumfang ist `approved`; der Arbeitsbaum bleibt
+  absichtlich uncommitted und unpushed. #170 ist für externe Abschlussaktionen nicht geschlossen.
+
+### Retrospektive
+
+- Die Reihenfolge Diff-/Aufrufpfadprüfung → gezielte Tests → Mutationstest → vollständige Gates
+  war passend. Ein früherer Abschluss hätte zwei ungeschützte Testzweige hinterlassen.
+- Der Review fand keine Produktionsregression. Die Mutation zeigte, dass die neue Cleanup-Prüfung
+  die relevante Persistenzänderung tatsächlich absichert.
+- S2 war für den lokal begrenzten Verhaltens- und UI-Contract-Review ausreichend; Modell und
+  Effort des Hauptagenten sind nicht beobachtbar.
+- Für den nächsten Profil-Review werden Randfälle an beiden Enden der Reihenfolge schon beim
+  ersten Testentwurf verlangt.
+
+### Aufwandsprotokoll
+
+- Geplant: 1 Review-/Reparaturpaket für Issue #170.
+- Ausgeführt: 1 lokaler S2-Review, 2 Testabdeckungsreparaturen, gezielter Testlauf, Mutationstest
+  und vollständiger Verify-Lauf.
+- Delegationen, Pushes, Workflow-Runs und Geräteaktionen: keine.
+- Beobachtete Token-/Abrechnungswerte: unbekannt.
+- Zustand: `complete` für den lokalen Review-/Reparaturumfang; Commit-/Push-/PR-/Merge-Status:
+  nicht ausgeführt.

@@ -225,8 +225,15 @@ public class SettingsActivity extends Activity {
                     dialogHolder[0].dismiss();
                     showProfileEditDialog(profile);
                 });
+                android.widget.Button delete = new android.widget.Button(this);
+                delete.setText(R.string.usb_profile_delete_button);
+                delete.setOnClickListener(v -> {
+                    dialogHolder[0].dismiss();
+                    showProfileDeleteDialog(profile);
+                });
                 row.addView(select);
                 row.addView(edit);
+                row.addView(delete);
                 options.addView(row);
             }
             AlertDialog dialog = new AlertDialog.Builder(this)
@@ -290,6 +297,20 @@ public class SettingsActivity extends Activity {
             refresh();
         }));
         dialog.show();
+    }
+
+    private void showProfileDeleteDialog(KeepADBUsbProfile.Profile profile) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.usb_profile_delete_title)
+                .setMessage(getString(R.string.usb_profile_delete_message, profile.name))
+                .setPositiveButton(R.string.usb_profile_delete_button, (dialog, which) -> {
+                    if (KeepADBUsbProfile.delete(this, profile.id)) {
+                        KeepADBUsbReceiver.refresh(this);
+                        refresh();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     private EditText profileField(int hint) {

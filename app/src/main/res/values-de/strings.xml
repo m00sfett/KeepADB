@@ -95,4 +95,7 @@
     <string name="usb_profile_name_required">Bitte einen Profilnamen eingeben.</string>
     <string name="usb_profile_edit_button">Bearbeiten</string>
     <string name="usb_profile_edit_title">Hostprofil bearbeiten</string>
+    <string name="usb_profile_delete_button">Löschen</string>
+    <string name="usb_profile_delete_title">Hostprofil löschen</string>
+    <string name="usb_profile_delete_message">Hostprofil „%1$s“ löschen?</string>
 </resources>
