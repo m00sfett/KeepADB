@@ -78,6 +78,10 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"settings_section_usb_notification\""));
                 assertTrue("Missing USB profile action in " + directory,
                         content.contains("name=\"usb_profile_create_button\""));
+                assertTrue("Missing USB profile edit action in " + directory,
+                        content.contains("name=\"usb_profile_edit_button\""));
+                assertTrue("Missing USB profile edit title in " + directory,
+                        content.contains("name=\"usb_profile_edit_title\""));
             }
         }
     }
@@ -135,6 +139,30 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(settings.contains("android:id=\"@+id/settings_usb_profile_action\""));
         assertTrue(activity.contains("KeepADBUsbProfile.setNotificationEnabled"));
         assertTrue(activity.contains("showProfileDialog"));
+        assertTrue(activity.contains("showProfileEditDialog"));
+        assertTrue(activity.contains("usb_profile_edit_button"));
+    }
+
+    @Test
+    public void profileEditDialogKeepsCancelAndRefreshContracts() throws IOException {
+        String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
+        int profileDialogIndex = activity.indexOf("private void showProfileDialog");
+        int editDialogIndex = activity.indexOf("private void showProfileEditDialog");
+        assertTrue(profileDialogIndex >= 0);
+        assertTrue(editDialogIndex >= 0);
+        String profileDialogs = activity.substring(profileDialogIndex);
+        String editDialog = activity.substring(editDialogIndex);
+        assertTrue(profileDialogs.contains("android.widget.RadioButton"));
+        assertTrue(profileDialogs.contains("select.setChecked(current != null && current.id == profile.id)"));
+        assertTrue(editDialog.contains("if (profile != null)"));
+        assertTrue(editDialog.contains("name.setText(profile.name)"));
+        assertTrue(editDialog.contains("ip.setText(profile.ipAddress)"));
+        assertTrue(editDialog.contains("hostname.setText(profile.hostname)"));
+        assertTrue(editDialog.contains("tailnet.setText(profile.tailnetHostname)"));
+        assertTrue(editDialog.contains("setNegativeButton(android.R.string.cancel, null)"));
+        assertTrue(editDialog.contains("KeepADBUsbProfile.update(this, profile.id"));
+        assertTrue(editDialog.contains("KeepADBUsbReceiver.refresh(this)"));
+        assertTrue(editDialog.contains("refresh();"));
     }
 
     private static String read(String relativePath) throws IOException {
