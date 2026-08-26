@@ -3191,3 +3191,119 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   ist #170 das nächste Profilverwaltungspaket; #173 ist ein separater WLAN-Notification-Strang.
 - Status: `closed-pending-decision` für #169; Implementierung, lokale Gates, Commit, Push und
   Board-Synchronisation erledigt, PR/Issue wegen fehlender Review-/CI-/Merge-Abnahme offen.
+
+## Issue-Orchestrator-Lauf — Delta und Übergabe 2026-08-26
+
+- `issue_snapshot_at: 2026-08-26T01:20:12+02:00`; `plan_updated_at: 2026-08-26T01:20:12+02:00`;
+  aktueller GitHub-Readback: offene Issues #166,
+  #167, #168, #169, #170, #171 und #173; offene PRs #172 und #174; aktive Workflow-Läufe: 0.
+- Arbeitsbaum: sauber; aktueller Branch `feat/169-edit-usb-profiles`; aktueller PR-#174-Head
+  `82dffeb`; PR #174 ist offen, nicht Draft, `CLEAN`, ohne Checks. PR #172 ist offen, nicht Draft,
+  `CLEAN`, ohne Checks. Der frühere Planstand `86855ef` für PR #174 ist damit überholt.
+- CI-Inventur: `.github/workflows/ci.yml` ist ausschließlich `workflow_dispatch`; der Release-
+  Workflow reagiert auf `v*`-Tags. Kein CI-Lauf wurde gestartet. Lokale Gates bleiben gemäß
+  Projektregel das Entwicklungs-Gate; Release-Aktionen liegen außerhalb dieses Laufs.
+- Board-/Drift-Readback: `github-drift --repo m00sfett/KeepADB` meldet ausschließlich die beiden
+  offenen PRs und ihre nicht gemergten Branches; keine neue Board-Korrektur wurde vorgenommen.
+- Roadmap-Abgleich (wörtlich): „USB-ADB-Hostprofile und Übergabe“. Die Fortsetzung von #169 ist
+  der Profilverwaltungsstrang; #170 bleibt fachlich das nächste Profilpaket, ist aber bis zum
+  Merge der gestapelten PRs #172/#174 blockiert. #171 ist ein unabhängiges USB-Notification-
+  Paket; #173 gehört zum separaten WLAN-Notification-Strang und wird wegen des Roadmap-Abgleichs
+  nicht vorgezogen.
+- Aktueller Zustand: `closed-pending-decision`. #169 ist lokal implementiert und validiert,
+  aber Review-/Merge-Abnahme steht offen. Das nächste zulässige Paket ist daher nicht automatisch
+  #170, solange die Abhängigkeit serverseitig nicht gemergt ist.
+- Offene typisierte Entscheidung: unabhängigen S2-Review für PR #174 starten (`review and repair`,
+  Freigabe erforderlich) oder zunächst die externe PR-/Merge-Abnahme separat freigeben. Ein
+  Subagent wird ohne diese Einzel-Freigabe nicht gestartet; keine Tests, Geräteaktion oder
+  GitHub-Schreibaktion wurden in diesem Lauf ausgeführt.
+- Delta-Historie: Readback korrigiert PR-#174-Head `86855ef` → `82dffeb`; #173 ist im Board bereits
+  synchronisiert; die offene Merge-/Review-Grenze bleibt bestehen.
+
+### Retrospektive dieses Laufs
+
+- Die Reihenfolge Plan → Delta-Readback → PR-/CI-/Drift-Prüfung war sinnvoll; ein früherer Start
+  von #170 hätte die gestapelten, noch nicht gemergten Grundlagen übergangen.
+- Kein Code-Gate wurde ausgeführt; der Readback fand den relevanten Befund: offene PR-/Review-
+  Abhängigkeit, nicht einen Build- oder Gerätefehler. Ein früherer lokaler Build hätte diese
+  externe Grenze nicht gelöst.
+- Keine Delegation und kein Review gestartet; der Review-Start braucht eine eigene Nutzerfreigabe.
+- Verbesserung für den nächsten Lauf: gestapelte PR-Abhängigkeiten vor der Issue-Auswahl als
+  explizites `blocked by merge/review`-Gate auswerten und erst danach die nächste Profiländerung
+  planen.
+
+## Issue #169 — Review- und lokale Gate-Nachprüfung — 2026-08-26
+
+- Nutzerfreigaben: unabhängiger Review (`review and repair`), lokale Gates sowie PR-/Merge-
+  Abschluss erteilt; GitHub-Actions ausdrücklich nicht auslösen.
+- Review: Agent „Plato“, S2, `gpt-5.6-luna` mit `max` konfiguriert; Auftrag auf PR-Head `82dffeb`
+  mit Scope #169 und Gegenprüfung der Aufrufer-/Akzeptanzrichtung. Der Agent läuft noch; Befund
+  und eventuelle Reparaturen stehen aus.
+- Lokale Gates: `git diff --check` und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`
+  erfolgreich. Nachweis umfasst Unit-Tests, Lint, Debug- und Release-Build. Kein Workflow-Lauf,
+  keine Geräteaktion und keine GitHub-Schreibaktion in diesem Abschnitt.
+- Zustand: `closed-pending-decision` bis der unabhängige Review abgeschlossen ist. PR-/Merge-
+  Abschluss und Board-/Drift-Readback folgen erst danach.
+
+## Issue #169 — Unabhängiger S2-Review gestartet — 2026-08-26
+
+- `issue_snapshot_at: 2026-08-26T07:20:28+02:00`; `plan_updated_at: 2026-08-26T07:20:28+02:00`.
+- Readback: PR #174 offen, nicht Draft, `CLEAN`, Basis `feat/166-usb-adb-notification`,
+  aktueller Head `82dffeb`; keine Reviews, Kommentare, Statuses, Check-Runs oder Workflow-Runs.
+- CI-Leitplanke: `.github/workflows/ci.yml` ist ausschließlich `workflow_dispatch`; Release
+  reagiert nur auf `v*`-Tags. Gemäß Nutzerauftrag werden keine GitHub-Actions ausgelöst.
+- Roadmap-Abgleich (wörtlich): „USB-ADB-Hostprofile und Übergabe“. Issue #169 erweitert diesen
+  Strang unmittelbar; #170, #167, #168, #171 und #173 bleiben außerhalb des Reviewumfangs.
+- Freigaben: unabhängiger Review S2 `review and repair` sowie externe PR-/Merge-Abnahme erteilt;
+  lokale Tests/Builds/Lint freigegeben; keine Geräteaktion und kein Workflow-Start.
+- Reviewumfang: `KeepADBUsbProfile.update()`, Einstellungen-/Bearbeitungsdialog, ID-/Auswahl-
+  und Persistenzpfad, Validierung, USB-Notification-Refresh, zugehörige Contract-/Unit-Tests,
+  Aufrufer-/Lifecycle-Gegenrichtung und alle Issue-Akzeptanzkriterien.
+- Muss-Akzeptanzfälle: Bearbeiten-Aktion je vorhandenem Profil; Abbrechen ohne Speicherung;
+  alle Felder/ID/Persistenz über Neustart; ausgewähltes und nicht ausgewähltes Profil; sofortige
+  Einstellungen-/USB-Notification-Aktualisierung; keine WLAN-/Registeränderung; Tests für
+  Persistenz, Validierung, Abbrechen und beide Auswahlfälle.
+- Vorläufiger Reviewbefund: Der Codepfad ist lokal plausibel, aber der gepushte Änderungsumfang
+  ergänzt nur statische Contract-Assertions. Ausführbare Unit-/Contract-Nachweise für
+  `update()`-Persistenz, ID-/Auswahl-Erhalt, Invalidierung und Abbrechen fehlen; der Befund
+  bleibt innerhalb des Issue-Scopes und wird vor der Abschlussbewertung gezielt repariert.
+- Status: Review in Arbeit; noch keine lokale Reparatur und noch kein abschließendes Gate.
+
+## Issue #169 — S2-Review und Reparatur abgeschlossen — 2026-08-26
+
+- `issue_snapshot_at: 2026-08-26T07:26:33+02:00`; `plan_updated_at: 2026-08-26T07:28:05+02:00`.
+- Review des gepushten Heads `82dffeb` abgeschlossen. Zwei Befunde: fehlende ausführbare
+  Verhaltensabdeckung (mittel, Muss-Fix) und verlorene sichtbare Auswahlmarkierung im neuen
+  Profil-Dialog (niedrig, Muss-Fix).
+- Reparaturcommit `89df986` auf `origin/feat/169-edit-usb-profiles` gepusht: echte
+  `KeepADBUsbProfile`-Unit-Tests für Felder, ID, Auswahl, Neustart-Simulation, Trimming,
+  Validierung und unbekannte IDs; zusätzliche UI-Contract-Assertions; `RadioButton` mit
+  sichtbarer Markierung des aktuellen Profils. `KeepADBUsbProfile.update()` selbst war korrekt
+  und musste nicht geändert werden.
+- Versionierter Reviewbericht: `notes/reviews/2026-08-26-issue-169-pr174-s2.md`.
+- Lokale Gates: `git diff --check`, Mutationstest (ohne Persistenzfix rot), gezielte Tests und
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` bestanden. Ergebnis: 36 Unit-Tests ohne
+  Fehler, Lint ohne Fehler mit 26 vorbestehenden Warnungen, Debug-/Release-Build erfolgreich.
+- GitHub-Readback: PR #174 offen, `MERGEABLE`, aktueller Head `89df986`, keine Statuschecks;
+  `gh run list` bleibt leer. Kein GitHub-Actions-Workflow gestartet. PR #172 bleibt die separate
+  gestapelte Abhängigkeit; #170 wird nicht begonnen.
+- Ungeprüft: echte Android-UI-Klicks für Abbrechen/Bearbeiten, Notification-Readback und
+  physischer App-Neustart. Keine Geräteaktion war Teil dieses Reviewauftrags.
+- Übergabe-Checkpoint: Issue #169 ist im lokalen Reviewumfang `approved` und vollständig
+  repariert; PR/Issue bleiben serverseitig offen und ungemergt. Der nächste Profilstrang #170
+  bleibt bis zur Abnahme/Merge der gestapelten PRs blockiert.
+
+### Retrospektive
+
+- Die Reihenfolge Readback → Diff-/Aufrufpfadprüfung → gezielte Reparatur → Mutationstest →
+  vollständige lokale Gates war sinnvoll. Ein früherer PR-Abschluss hätte die fehlende
+  Verhaltenstestabdeckung und die entfernte Auswahlmarkierung übersehen können.
+- Der Review fand die beiden Befunde; der Mutationstest bewies anschließend, dass die neue
+  Persistenzprüfung die Reparatur tatsächlich pinnt. Das günstige Contract-Gate deckt weiterhin
+  keine echte Android-UI oder NotificationManager-Integration ab.
+- Keine Delegation und keine Höherstufung: S2 war für den klar abgegrenzten lokalen Review- und
+  Reparaturpfad ausreichend; Modell/Effort des Hauptagenten sind nicht beobachtbar.
+- Verbesserung für den nächsten Lauf: Bei UI-/Persistenz-Issues vor PR-Push eine ausführbare
+  Verhaltensprüfung pro Akzeptanzkriterium neben den statischen Contract-Assertions verlangen.
+- Zustand: `complete` für Review-/Reparaturpaket; Serverstatus PR offen ohne Checks, Commit
+  `89df986` gepusht, Review lokal approved, Gerätegate offen/nicht beauftragt.
