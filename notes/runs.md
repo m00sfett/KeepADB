@@ -247,3 +247,17 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Bei der Reproduzierbarkeitsdiagnose wurde präzisiert: `META-INF/version-control-info.textproto` enthält die Git-Revision. Deshalb muss der F-Droid-`Builds.commit` exakt dem Release-Merge-Commit entsprechen; ein alter Commit erzeugt trotz identischem Quellcode einen anderen unsigned APK-Inhalt.
 - F-Droid-MR !46500 wurde mit Commit `03caa0b7ea9d1525065ff40af83644488d25f74e` auf `38cd0126…` aktualisiert. Pipeline [2783240386](https://gitlab.com/fdroid/fdroiddata/-/pipelines/2783240386) ist vollständig grün (inklusive `fdroid build` und `check apk`); die Build-Checkbox im Inclusion-Template ist gesetzt.
 - Die GitLab-Code-Quality-Jobs sind im grünen Pipeline-Lauf erfolgreich. Die zuvor beobachteten Fastlane-/Summary-Funde stammen aus dem alten Stand; License-Compliance-/Security-Scan-Hinweise waren projektseitige Infrastrukturmeldungen und keine Build-Blocker.
+
+## 2026-08-26 — Issue #170 unabhängiger S2-Review
+
+- `KeepADBUsbProfile.delete()` und der Settings-Löschdialog wurden gegen die Akzeptanzkriterien,
+  Aufrufer-/Lifecycle-Gegenrichtung und die USB-Notification-Abgrenzung geprüft.
+- Zwei Testabdeckungsbefunde wurden innerhalb des lokalen Scopes repariert: vollständige
+  Feldbereinigung beim letzten Profil, Auswahl des vorherigen Profils sowie engerer Dialog-
+  Contract für Profilname, positive Löschung und Cancel/Back.
+- 22 gezielte Tests und die vollständige lokale Suite mit 41 Tests bestanden. `./bin/verify`
+  bestand mit Unit-Tests, Lint, Debug- und Release-Build.
+- Mutationstest gegen die Tailnet-Feldbereinigung wurde erwartungsgemäß rot und danach
+  zurückgenommen. Keine GitHub-Actions, keine Geräteaktion, kein Commit, Push oder Merge.
+- Reviewstatus: `approved` im lokalen #170-Scope. Echte UI-/Notification-/Neustart-Nachweise
+  bleiben ungeprüft.
