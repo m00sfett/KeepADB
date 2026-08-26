@@ -74,6 +74,10 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"settings_notification_hidden_toast\""));
                 assertTrue("Missing notification visible toast in " + directory,
                         content.contains("name=\"settings_notification_visible_toast\""));
+                assertTrue("Missing USB notification title in " + directory,
+                        content.contains("name=\"settings_section_usb_notification\""));
+                assertTrue("Missing USB profile action in " + directory,
+                        content.contains("name=\"usb_profile_create_button\""));
             }
         }
     }
@@ -120,6 +124,17 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(settings.contains("android:text=\"@string/settings_section_notification\""));
         assertTrue(settings.contains("android:text=\"@string/settings_hide_notification_toggle\""));
         assertTrue(settings.contains("android:text=\"@string/settings_hide_notification_subtext\""));
+    }
+
+    @Test
+    public void settingsActivityIncludesUsbNotificationAndProfilePanel() throws IOException {
+        String settings = read("app/src/main/res/layout/activity_settings.xml");
+        String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
+        assertTrue(settings.contains("android:id=\"@+id/settings_usb_notification_panel\""));
+        assertTrue(settings.contains("android:id=\"@+id/settings_usb_notification_toggle\""));
+        assertTrue(settings.contains("android:id=\"@+id/settings_usb_profile_action\""));
+        assertTrue(activity.contains("KeepADBUsbProfile.setNotificationEnabled"));
+        assertTrue(activity.contains("showProfileDialog"));
     }
 
     private static String read(String relativePath) throws IOException {
