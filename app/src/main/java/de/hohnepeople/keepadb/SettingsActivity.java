@@ -206,9 +206,10 @@ public class SettingsActivity extends Activity {
                 KeepADBUsbProfile.Profile profile = profiles.get(i);
                 android.widget.LinearLayout row = new android.widget.LinearLayout(this);
                 row.setGravity(android.view.Gravity.CENTER_VERTICAL);
-                android.widget.Button select = new android.widget.Button(this);
+                android.widget.RadioButton select = new android.widget.RadioButton(this);
                 select.setText(profile.summary());
                 select.setContentDescription(profile.summary());
+                select.setChecked(current != null && current.id == profile.id);
                 select.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
                 select.setLayoutParams(new android.widget.LinearLayout.LayoutParams(0,
                         android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1));

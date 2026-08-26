@@ -143,6 +143,28 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(activity.contains("usb_profile_edit_button"));
     }
 
+    @Test
+    public void profileEditDialogKeepsCancelAndRefreshContracts() throws IOException {
+        String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
+        int profileDialogIndex = activity.indexOf("private void showProfileDialog");
+        int editDialogIndex = activity.indexOf("private void showProfileEditDialog");
+        assertTrue(profileDialogIndex >= 0);
+        assertTrue(editDialogIndex >= 0);
+        String profileDialogs = activity.substring(profileDialogIndex);
+        String editDialog = activity.substring(editDialogIndex);
+        assertTrue(profileDialogs.contains("android.widget.RadioButton"));
+        assertTrue(profileDialogs.contains("select.setChecked(current != null && current.id == profile.id)"));
+        assertTrue(editDialog.contains("if (profile != null)"));
+        assertTrue(editDialog.contains("name.setText(profile.name)"));
+        assertTrue(editDialog.contains("ip.setText(profile.ipAddress)"));
+        assertTrue(editDialog.contains("hostname.setText(profile.hostname)"));
+        assertTrue(editDialog.contains("tailnet.setText(profile.tailnetHostname)"));
+        assertTrue(editDialog.contains("setNegativeButton(android.R.string.cancel, null)"));
+        assertTrue(editDialog.contains("KeepADBUsbProfile.update(this, profile.id"));
+        assertTrue(editDialog.contains("KeepADBUsbReceiver.refresh(this)"));
+        assertTrue(editDialog.contains("refresh();"));
+    }
+
     private static String read(String relativePath) throws IOException {
         return readFile(projectPath(relativePath));
     }
