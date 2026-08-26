@@ -3388,8 +3388,9 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   zurückgenommen. Keine GitHub-Actions und keine Geräteaktion.
 - Ungeprüft: echte Android-UI-Klicks, NotificationManager-Readback nach USB-Zustandswechsel und
   physischer App-Neustart.
-- Übergabe-Checkpoint: Der lokale Review-/Reparaturumfang ist `approved`; der Arbeitsbaum bleibt
-  absichtlich uncommitted und unpushed. #170 ist für externe Abschlussaktionen nicht geschlossen.
+- Übergabe-Checkpoint: Der lokale Review-/Reparaturumfang ist `approved`; PR #176 wurde nach
+  expliziter Freigabe squash-gemergt. #170 ist geschlossen, `master` und `origin/master` stehen
+  auf `352e0436c66e18f3884292c20788bc4dba3d3e83`.
 
 ### Retrospektive
 
@@ -3409,5 +3410,5 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   und vollständiger Verify-Lauf.
 - Delegationen, Pushes, Workflow-Runs und Geräteaktionen: keine.
 - Beobachtete Token-/Abrechnungswerte: unbekannt.
-- Zustand: `complete` für den lokalen Review-/Reparaturumfang; Commit-/Push-/PR-/Merge-Status:
-  nicht ausgeführt.
+- Zustand: `complete`; Commit/Push/PR/Merge ausgeführt. Keine GitHub-Actions und keine
+  Geräteaktion.

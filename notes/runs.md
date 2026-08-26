@@ -261,3 +261,12 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   zurückgenommen. Keine GitHub-Actions, keine Geräteaktion, kein Commit, Push oder Merge.
 - Reviewstatus: `approved` im lokalen #170-Scope. Echte UI-/Notification-/Neustart-Nachweise
   bleiben ungeprüft.
+
+## 2026-08-26 — Issue #170 Abschluss
+
+- Featurecommit und Reviewdokumentation atomar committed, Branch `feat/170-delete-usb-profiles`
+  gepusht und PR [#176](https://github.com/m00sfett/KeepADB/pull/176) erstellt.
+- PR #176 nach expliziter Freigabe squash-gemergt; Issue #170 ist geschlossen. `master` und
+  `origin/master` stehen auf `352e0436c66e18f3884292c20788bc4dba3d3e83`.
+- Board-Sync: 0 hinzugefügt, 0 aktualisiert. Drift-Prüfung: Repository und Project #8 stimmen
+  überein. Keine GitHub-Actions und keine Geräteaktion.
