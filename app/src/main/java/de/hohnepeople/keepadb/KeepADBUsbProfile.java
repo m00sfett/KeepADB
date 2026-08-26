@@ -114,6 +114,43 @@ final class KeepADBUsbProfile {
         return updated;
     }
 
+    static boolean delete(Context context, int id) {
+        SharedPreferences preferences = prefs(context);
+        List<Profile> profiles = getProfiles(context);
+        int deletedIndex = -1;
+        for (int i = 0; i < profiles.size(); i++) {
+            if (profiles.get(i).id == id) {
+                deletedIndex = i;
+                break;
+            }
+        }
+        if (deletedIndex < 0) return false;
+
+        boolean wasSelected = getSelected(context) != null && getSelected(context).id == id;
+        profiles.remove(deletedIndex);
+        SharedPreferences.Editor editor = preferences.edit()
+                .remove(PREFIX + id + "_name")
+                .remove(PREFIX + id + "_ip")
+                .remove(PREFIX + id + "_host")
+                .remove(PREFIX + id + "_tailnet");
+        if (profiles.isEmpty()) {
+            editor.remove(KEY_IDS).remove(KEY_SELECTED_ID);
+        } else {
+            StringBuilder ids = new StringBuilder();
+            for (Profile profile : profiles) {
+                if (ids.length() > 0) ids.append(',');
+                ids.append(profile.id);
+            }
+            editor.putString(KEY_IDS, ids.toString());
+            if (wasSelected) {
+                int replacementIndex = Math.min(deletedIndex, profiles.size() - 1);
+                editor.putInt(KEY_SELECTED_ID, profiles.get(replacementIndex).id);
+            }
+        }
+        editor.apply();
+        return true;
+    }
+
     private static Profile read(Context context, int id) {
         SharedPreferences preferences = prefs(context);
         String name = preferences.getString(PREFIX + id + "_name", null);
