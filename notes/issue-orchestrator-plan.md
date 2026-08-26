@@ -3245,6 +3245,28 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Zustand: `closed-pending-decision` bis der unabhängige Review abgeschlossen ist. PR-/Merge-
   Abschluss und Board-/Drift-Readback folgen erst danach.
 
+## Abschluss Issue #169 — 2026-08-26
+
+- Review: unabhängiger S2-Review abgeschlossen und genehmigt. Die beiden scoped Findings
+  (ausführbare Verhaltenstests und sichtbare RadioButton-Auswahl) wurden repariert; der
+  versionierte Bericht liegt unter `notes/reviews/2026-08-26-issue-169-pr174-s2.md`.
+- Lokale Abnahme: `git diff --check` und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`
+  erfolgreich; 36 Unit-Tests, Lint, Debug- und Release-Build bestanden. Keine Geräteprüfung
+  beauftragt, daher bleiben echte UI-Klicks, Notification-Readback und physischer Neustart offen.
+- GitHub-Abschluss: PR #172 wurde als Commit `82fa7f6` gemergt und Issue #166 geschlossen.
+  Der gestapelte PR #174 wurde durch das Löschen seines Basisbranches geschlossen; der Branch
+  wurde sicher auf `master` rebased, lokal erneut verifiziert und als PR #175 neu gegen `master`
+  eröffnet. PR #175 wurde als Commit `b5b54f1` gemergt und Issue #169 automatisch geschlossen.
+- CI: Keine GitHub-Actions-Workflows ausgelöst; die Entwicklungsabnahme erfolgte ausschließlich
+  lokal gemäß Nutzerfreigabe.
+- Board/Drift: `github-board-sync --repo m00sfett/KeepADB` meldete `0 added, 0 updated`; der
+  anschließende Drift-Readback meldete Übereinstimmung. Arbeitsbaum auf `master` sauber.
+- Übergabe: #170 bleibt das nächste Profilverwaltungspaket; #167/#168/#171/#173 bleiben offen
+  und außerhalb dieses Pakets.
+- Zustand: `complete` für das Paket #166/#169; Server-, Commit-, Review-, lokale Gate- und
+  Boardstatus nachgewiesen. Lokaler Sicherungszweig `backup/feat-169-before-rebase` bleibt als
+  recoverable Arbeitskopie bestehen.
+
 ## Issue #169 — Unabhängiger S2-Review gestartet — 2026-08-26
 
 - `issue_snapshot_at: 2026-08-26T07:20:28+02:00`; `plan_updated_at: 2026-08-26T07:20:28+02:00`.
