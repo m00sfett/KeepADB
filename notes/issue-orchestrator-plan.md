@@ -3307,3 +3307,15 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Verhaltensprüfung pro Akzeptanzkriterium neben den statischen Contract-Assertions verlangen.
 - Zustand: `complete` für Review-/Reparaturpaket; Serverstatus PR offen ohne Checks, Commit
   `89df986` gepusht, Review lokal approved, Gerätegate offen/nicht beauftragt.
+
+## Finaler Readback nach Issue-169-Review — 2026-08-26
+
+- `plan_updated_at: 2026-08-26T07:30:00+02:00`.
+- Nach dem Push des Review-/Planstands zeigt PR #174 den erwarteten offenen, mergebaren Stand;
+  es gibt weiterhin keine Checks und keine Workflow-Runs.
+- `~/agent/bin/github-board-sync --repo m00sfett/KeepADB`: `0 added, 0 updated`.
+- `~/agent/bin/github-drift --repo m00sfett/KeepADB`: nur die erwarteten offenen PRs #172/#174
+  sowie die zugehörigen ungemergten Branches; keine Status- oder Boardabweichung im Scope dieses
+  Laufs. Dieser Drift bleibt bis zur gestapelten Merge-Abnahme bestehen.
+- Abschlusszustand des Laufs: `complete` für Review und Reparatur von #169; serverseitig bleibt
+  PR #174 offen, Issue #169 offen und #170 durch die gestapelte Abhängigkeit zurückgestellt.
