@@ -99,4 +99,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_title">Delete host profile</string>
     <string name="usb_profile_delete_message">Delete host profile &quot;%1$s&quot;?</string>
     <string name="usb_profile_edit_title">Edit host profile</string>
+    <string name="settings_diagnostics_title">Diagnostic</string>
+    <string name="settings_diagnostics_subtext">Conserve les 128 derniers événements expurgés sur cet appareil. L’exportation ouvre la feuille de partage Android.</string>
+    <string name="settings_diagnostics_export">Exporter le diagnostic</string>
+    <string name="settings_diagnostics_export_subject">Diagnostic KeepADB</string>
 </resources>

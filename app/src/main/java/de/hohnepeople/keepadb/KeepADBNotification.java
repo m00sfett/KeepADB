@@ -78,7 +78,8 @@ final class KeepADBNotification {
                 appContext.getString(R.string.notification_permission_missing_text));
     }
 
-    static synchronized void invalidateEndpoint() {
+    static synchronized void invalidateEndpoint(Context context) {
+        KeepADBDiagnostics.event(context, "endpoint_invalidated", "network", "success", "cached_endpoint_cleared");
         cancelRetryLocked();
         retryAttempt = 0;
         if (endpoint != null) {
@@ -201,6 +202,8 @@ final class KeepADBNotification {
         endpoint.discover(new KeepADBEndpoint.Listener() {
             @Override
             public void onEndpoint(String host, int port) {
+                KeepADBDiagnostics.event(appContext, "endpoint_discovered", "nsd_or_probe", "success",
+                        "host=" + host + " port=" + port);
                 EndpointListener listener;
                 synchronized (KeepADBNotification.class) {
                     currentHost = host;
@@ -218,6 +221,8 @@ final class KeepADBNotification {
 
             @Override
             public void onUnavailable() {
+                KeepADBDiagnostics.event(appContext, "endpoint_discovered", "nsd_or_probe", "unavailable",
+                        "no_live_endpoint");
                 EndpointListener listener;
                 synchronized (KeepADBNotification.class) {
                     currentHost = null;
@@ -241,6 +246,7 @@ final class KeepADBNotification {
     }
 
     private static synchronized void stop(Context context, NotificationManager manager) {
+        KeepADBDiagnostics.event(context, "notification_removed", "notification", "success", "wireless_debugging_off");
         cancelRetryLocked();
         retryAttempt = 0;
         if (endpoint != null) {
@@ -269,6 +275,7 @@ final class KeepADBNotification {
 
     private static void show(Context context, NotificationManager manager, String host, int port) {
         if (!hasNotificationPermission(context)) {
+            KeepADBDiagnostics.event(context, "notification_removed", "notification", "skipped", "permission_missing");
             return;
         }
         if (KeepADBPreferences.isNotificationHidden(context)) {

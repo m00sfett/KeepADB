@@ -99,4 +99,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_title">Delete host profile</string>
     <string name="usb_profile_delete_message">Delete host profile &quot;%1$s&quot;?</string>
     <string name="usb_profile_edit_title">Edit host profile</string>
+    <string name="settings_diagnostics_title">निदान</string>
+    <string name="settings_diagnostics_subtext">इस डिवाइस पर नवीनतम 128 संशोधित इवेंट रखता है। निर्यात Android शेयर शीट खोलता है।</string>
+    <string name="settings_diagnostics_export">निदान निर्यात करें</string>
+    <string name="settings_diagnostics_export_subject">KeepADB निदान</string>
 </resources>

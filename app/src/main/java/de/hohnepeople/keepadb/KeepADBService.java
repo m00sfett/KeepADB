@@ -31,6 +31,11 @@ public class KeepADBService extends Service {
     private long lastRecheckTime = 0;
 
     static void sync(Context context) {
+        KeepADBDiagnostics.event(context, "service_sync", "state_change",
+                KeepADBPreferences.isKeepAliveEnabled(context) && KeepADB.isEnabled(context)
+                        ? "start_requested" : "stop_requested",
+                "keepAlive=" + KeepADBPreferences.isKeepAliveEnabled(context)
+                        + " adbWifi=" + KeepADB.isEnabled(context));
         if (KeepADBPreferences.isKeepAliveEnabled(context) && KeepADB.isEnabled(context)) {
             start(context);
         } else {
@@ -42,9 +47,11 @@ public class KeepADBService extends Service {
         Intent intent = new Intent(context, KeepADBService.class);
         try {
             context.startForegroundService(intent);
+            KeepADBDiagnostics.event(context, "service_start", "system", "requested", "foreground=true");
             return true;
         } catch (RuntimeException e) {
             Log.e(TAG, "Failed to request KeepADB foreground service start", e);
+            KeepADBDiagnostics.event(context, "service_start", "system", "failed", "runtime_exception");
             return false;
         }
     }
@@ -52,6 +59,7 @@ public class KeepADBService extends Service {
     static void stop(Context context) {
         Intent intent = new Intent(context, KeepADBService.class);
         context.stopService(intent);
+        KeepADBDiagnostics.event(context, "service_stop", "state_change", "requested", "stopService");
     }
 
     static boolean isWifiConnected(Context context) {
@@ -74,24 +82,31 @@ public class KeepADBService extends Service {
         long lastHeartbeat = KeepADBPreferences.getServiceLastHeartbeat(this);
         if (lastHeartbeat > 0) {
             long gapMs = System.currentTimeMillis() - lastHeartbeat;
+            KeepADBDiagnostics.event(this, "service_create", "lifecycle", "restarted", "heartbeatGapMs=" + gapMs);
             Log.i(TAG, "onCreate: service (re)started, " + gapMs + "ms since last heartbeat"
                     + (gapMs > 90_000 ? " -- process was likely killed and restarted by the system" : ""));
         } else {
+            KeepADBDiagnostics.event(this, "service_create", "lifecycle", "first_start", "no_prior_heartbeat");
             Log.i(TAG, "onCreate: service starting for the first time (no prior heartbeat)");
         }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "received",
+                "startId=" + startId + " flags=" + flags);
         Log.d(TAG, "onStartCommand startId=" + startId + " flags=" + flags);
         try {
             startForeground(KeepADBNotification.NOTIFICATION_ID,
                     KeepADBNotification.getServiceNotification(this));
         } catch (RuntimeException e) {
+            KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "failed",
+                    "foreground_promotion_exception");
             failForegroundStart(startId, e);
             return START_NOT_STICKY;
         }
         foregroundReady = true;
+        KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "ready", "foreground=true");
         heartbeatNow();
         registerAdbObserver();
         registerNetworkCallback();
@@ -112,6 +127,8 @@ public class KeepADBService extends Service {
         }
         boolean stopRequested = stopSelfResult(startId);
         Log.e(TAG, "Failed to enter foreground mode; cleanup requested=" + stopRequested, cause);
+        KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "stopped",
+                "foreground_promotion_failed cleanupRequested=" + stopRequested);
     }
 
     @Override
@@ -121,6 +138,7 @@ public class KeepADBService extends Service {
 
     @Override
     public void onDestroy() {
+        KeepADBDiagnostics.event(this, "service_destroy", "lifecycle", "started", "foregroundReady=" + foregroundReady);
         Log.w(TAG, "onDestroy: service stopping");
         foregroundReady = false;
         stopHeartbeatTicker();
@@ -131,11 +149,13 @@ public class KeepADBService extends Service {
         } catch (RuntimeException cleanupError) {
             Log.w(TAG, "Failed to remove foreground notification on destroy", cleanupError);
         }
+        KeepADBDiagnostics.event(this, "service_destroy", "lifecycle", "completed", "foreground=false");
         super.onDestroy();
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
+        KeepADBDiagnostics.event(this, "service_task_removed", "lifecycle", "received", "task_swiped");
         Log.w(TAG, "onTaskRemoved: app task was swiped away from recents");
         super.onTaskRemoved(rootIntent);
     }
@@ -144,6 +164,7 @@ public class KeepADBService extends Service {
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
         Log.w(TAG, "onTrimMemory: level=" + level + " -- system is reclaiming memory, may kill this process next");
+        KeepADBDiagnostics.event(this, "service_trim_memory", "system", "received", "level=" + level);
     }
 
     private void heartbeatNow() {
@@ -181,6 +202,8 @@ public class KeepADBService extends Service {
                 public void onChange(boolean selfChange, Uri uri) {
                     super.onChange(selfChange, uri);
                     Log.d(TAG, "ContentObserver: adb_wifi_enabled changed");
+                    KeepADBDiagnostics.event(KeepADBService.this, "state_observed", "content_observer",
+                            "changed", "adbWifi=" + KeepADB.isEnabled(KeepADBService.this));
                     if (!foregroundReady) {
                         Log.d(TAG, "Ignoring state change before foreground promotion");
                         return;
@@ -189,13 +212,15 @@ public class KeepADBService extends Service {
                         if (isWifiConnected(KeepADBService.this) && !KeepADB.isEnabled(KeepADBService.this)) {
                             if (KeepADB.consumeUserDisabled()) {
                                 Log.i(TAG, "Wireless Debugging manually disabled by user; stopping service");
+                                KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
+                                        "stopped", "user_disabled");
                                 stop(KeepADBService.this);
                                 KeepADBNotification.refresh(KeepADBService.this);
                                 KeepADBWidget.refreshAll(KeepADBService.this);
                                 return;
                             } else {
                                 Log.i(TAG, "Wireless Debugging dropped while Wi-Fi connected; re-enabling...");
-                                if (!KeepADB.setEnabled(KeepADBService.this, true)) {
+                                if (!KeepADB.setEnabled(KeepADBService.this, true, "content_observer")) {
                                     Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
                                     KeepADBNotification.showPermissionMissing(KeepADBService.this);
                                     return;
@@ -203,6 +228,8 @@ public class KeepADBService extends Service {
                             }
                         } else if (!KeepADB.isEnabled(KeepADBService.this)) {
                             Log.i(TAG, "Wireless Debugging disabled while Wi-Fi disconnected; stopping service");
+                            KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
+                                    "stopped", "wifi_disconnected");
                             stop(KeepADBService.this);
                         }
                     } else if (!KeepADB.isEnabled(KeepADBService.this)) {
@@ -219,6 +246,7 @@ public class KeepADBService extends Service {
             isRegisteredObserver = true;
         } catch (RuntimeException e) {
             Log.e(TAG, "Failed to register content observer for adb_wifi_enabled", e);
+            KeepADBDiagnostics.event(this, "content_observer", "service", "failed", "registration_exception");
         }
     }
 
@@ -246,6 +274,7 @@ public class KeepADBService extends Service {
                 @Override
                 public void onAvailable(Network network) {
                     Log.d(TAG, "NetworkCallback: Wi-Fi network available");
+                    KeepADBDiagnostics.event(KeepADBService.this, "wifi_change", "network_callback", "available", "network");
                     recheckAndEnable();
                 }
 
@@ -256,7 +285,8 @@ public class KeepADBService extends Service {
                         return;
                     }
                     Log.d(TAG, "NetworkCallback: Wi-Fi network lost");
-                    KeepADBNotification.invalidateEndpoint();
+                    KeepADBDiagnostics.event(KeepADBService.this, "wifi_change", "network_callback", "lost", "network");
+                    KeepADBNotification.invalidateEndpoint(KeepADBService.this);
                     KeepADBNotification.refresh(KeepADBService.this);
                     KeepADBWidget.refreshAll(KeepADBService.this);
                 }
@@ -265,6 +295,7 @@ public class KeepADBService extends Service {
             isRegisteredNetworkCallback = true;
         } catch (RuntimeException e) {
             Log.e(TAG, "Failed to register network callback", e);
+            KeepADBDiagnostics.event(this, "wifi_change", "network_callback", "failed", "registration_exception");
         }
     }
 
@@ -294,11 +325,13 @@ public class KeepADBService extends Service {
             return;
         }
         lastRecheckTime = now;
+        KeepADBDiagnostics.event(this, "keep_alive_check", "service", "started",
+                "wifiConnected=" + isWifiConnected(this) + " adbWifi=" + KeepADB.isEnabled(this));
         if (KeepADBPreferences.isKeepAliveEnabled(this)) {
             if (isWifiConnected(this)) {
                 if (!KeepADB.isEnabled(this)) {
                     Log.i(TAG, "Auto-enabling Wireless Debugging (Wi-Fi connected)");
-                    if (!KeepADB.setEnabled(this, true)) {
+                    if (!KeepADB.setEnabled(this, true, "keep_alive_check")) {
                         Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
                         KeepADBNotification.showPermissionMissing(this);
                         return;

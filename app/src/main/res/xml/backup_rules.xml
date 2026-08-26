@@ -2,4 +2,5 @@
 <full-backup-content>
     <!-- Exclude sensitive webhook configuration, endpoints, and device-bound heartbeat timestamps -->
     <exclude domain="sharedpref" path="keepadb_prefs.xml" />
+    <exclude domain="sharedpref" path="keepadb_diagnostics.xml" />
 </full-backup-content>
