@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
@@ -71,6 +72,8 @@ public class SettingsActivity extends Activity {
         usbProfileAction.setOnClickListener(v -> showProfileDialog(
                 KeepADBUsbProfile.getProfiles(this).isEmpty()
                         ? KeepADBUsbNotification.ACTION_CREATE : KeepADBUsbNotification.ACTION_SWITCH));
+
+        findViewById(R.id.settings_diagnostics_export).setOnClickListener(v -> shareDiagnostics());
 
         webhookToggle = findViewById(R.id.settings_webhook_toggle);
         webhookUrlInput = findViewById(R.id.settings_webhook_url);
@@ -318,6 +321,16 @@ public class SettingsActivity extends Activity {
         field.setHint(hint);
         field.setSingleLine(true);
         return field;
+    }
+
+    private void shareDiagnostics() {
+        KeepADBDiagnostics.event(this, "diagnostics_export", "settings", "requested",
+                "share_sheet");
+        Intent share = new Intent(Intent.ACTION_SEND)
+                .setType("text/plain")
+                .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.settings_diagnostics_export_subject))
+                .putExtra(Intent.EXTRA_TEXT, KeepADBDiagnostics.export(this));
+        startActivity(Intent.createChooser(share, getString(R.string.settings_diagnostics_export)));
     }
 
     private void refresh() {

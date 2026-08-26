@@ -354,6 +354,49 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Diagnostics Section -->
+        <LinearLayout
+            android:id="@+id/settings_diagnostics_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_diagnostics_title"
+                android:textColor="@color/title_yellow"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:text="@string/settings_diagnostics_subtext"
+                android:textColor="@color/night_muted"
+                android:textSize="13sp" />
+
+            <Button
+                android:id="@+id/settings_diagnostics_export"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_btn_secondary"
+                android:fontFamily="sans-serif-condensed"
+                android:minHeight="48dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="@string/settings_diagnostics_export"
+                android:textColor="@color/text_yellow"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
         <!-- Security & Network Advice Section -->
         <LinearLayout
             android:id="@+id/settings_security_panel"

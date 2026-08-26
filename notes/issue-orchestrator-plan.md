@@ -3443,3 +3443,70 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   eine spätere typisierte Freigabe für Code, lokale Gates sowie bei Bedarf Geräteabnahme.
 - Zustand: `complete` für Issue-Anlage und Plan-Checkpoint; keine Implementierung, keine Tests,
   keine Geräteaktion und kein Release.
+
+## Auswahl Issue #177 — 2026-08-26
+
+- Nutzerentscheidung: Die Roadmap wird für diesen Lauf ausdrücklich überschrieben. Reihenfolge:
+  zuerst #177, danach #178, anschließend die normale offene Issue-Reihenfolge.
+- Roadmap-Ziel für diesen Lauf: Diagnosefähigkeit des Keep-Alive-Betriebs herstellen, damit
+  WLAN-ADB-Abschaltungen, Recovery, Prozess-/Service-Lifecycle und spätere #178-Abnahme belegbar
+  sind. #177 dient diesem explizit gesetzten Zwischenziel; #178 folgt danach.
+- Server-Readback: #177 offen, `enhancement`, erstellt/aktualisiert am 2026-08-26; keine offenen
+  PRs, kein aktiver Workflow-Lauf für `master` `24137e9`; Branch-Protection nicht konfiguriert;
+  `github-drift` ohne Befund.
+- Aktuelles Paket: #177 — Diagnoseprotokollierung für WLAN-ADB-Recovery und Service-Lifecycle.
+- Teilpaket A (S3): strukturierter, datensparsamer Ereigniskern mit Logcat-Tags, zeitlichem
+  Prozess-/Service-Kontext und begrenztem persistentem Ringpuffer/Export. Betroffene Pfade:
+  `KeepADB.java`, `KeepADBService.java`, `KeepADBNotification.java`, `KeepADBEndpoint.java`,
+  `KeepADBPreferences.java` sowie die auslösenden App-/Widget-/Tile-/Boot-Pfade und Tests.
+- Teilpaket B (S3): Ereignisverdrahtung für Trigger, Zustandsbeobachtung, Keep-Alive, Netzwerk,
+  Recovery, Endpoint/Notification und Lifecycle. Gemeinsames Datenmodell mit A, aber getrennte
+  Abnahmefälle; keine Änderung der Toggle-/Recovery-Semantik.
+- Nicht-Ziele: Cloud/Telemetrie, automatische Übertragung, dauerhafte unbegrenzte Historie,
+  Pairing-Codes/Secrets/unnötige personenbezogene Daten, neue Recovery-Strategie.
+- Muss-Akzeptanzfälle: simuliertes Ausschalten, Recovery-Versuch, WLAN-Verlust und Service-
+  Neustart jeweils mit eindeutigem Ereignis, Zeit und Ergebnis; Fehlerpfad ohne sensible Werte;
+  rekonstruierbare Reihenfolge Trigger → Zustand → Recovery/Stop → Service-/Prozessfolge;
+  dokumentiertes Logcat-/Exportformat und Aufbewahrungsgrenze; bestehende Semantik unverändert.
+- `approved`: lokale Tests, `lintDebug`, Debug-/Release-Build sowie S20-USB-ADB-Nachweis belegen
+  die Ereignisse und den Export-/Redaction-Vertrag; unabhängiger Review ist zusätzlich genehmigt.
+- Freigaben: Implementierung, lokale Tests/Build/Lint sowie S20-Geräteabnahme erteilt. Kein
+  Release und keine GitHub-Actions-Auslösung. Unabhängiger Review muss vor seinem Start separat
+  bestätigt werden.
+- Status: `in_progress`; Arbeitsbaum vor Implementierung sauber, bestehende Roadmap-/Planänderung
+  gehört in diesen Checkpoint.
+
+## Issue #177 — Implementierung, Review und S20-Abnahme — 2026-08-26
+
+- Umsetzung: `KeepADBDiagnostics` führt strukturierte Ereignisse mit Wandzeit, Elapsed-Zeit, PID,
+  SDK, Event, Quelle, Ergebnis und Detail; der lokale Ringpuffer hält höchstens 128 Einträge.
+  Export erfolgt über die Einstellungen als Android-Share-Intent. Diagnosepräferenzen sind von
+  Cloud-Backup und Gerätetransfer ausgeschlossen. Redaction deckt Pairing-Code, Token,
+  Passwort, Secret, Authorization/Bearer und URLs ab.
+- Verdrahtung: App, Widget, Tile, BootReceiver, Keep-Alive-Präferenz, Toggle/Recovery,
+  ContentObserver, WLAN-Callback, Endpoint-Discovery, Notification-Entfernung und Service-
+  Lifecycle (`onCreate`, `onStartCommand`, `onDestroy`, `onTaskRemoved`, `onTrimMemory`) melden
+  strukturierte Ereignisse. Recovery-Intent-IDs machen schnelle Umschaltungen unterscheidbar.
+- Review: unabhängiger S3-Review durch Hooke; fünf scoped Findings repariert: Exportzugang,
+  Backup-Ausschluss, persistierter WLAN-Verlust, Recovery-Korrelation und Authorization-Redaction.
+  Reviewstatus `approved`; Geräteprüfung war nicht Teil des Reviews.
+- Lokale Gates nach Review: `git diff --check` und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+  ./bin/verify` erfolgreich; Unit-Tests, Lint, Debug- und Release-Build bestanden. Keine
+  GitHub-Actions ausgelöst.
+- S20-Gate: Register → `android-target` → `SM-G780G` / `RF8T307S88H` / Android 13 validiert;
+  Register zuletzt auf `wlan-adb 192.168.178.24:42137` aktualisiert. Debug-APK installiert.
+  UI zeigte `WLAN-ADB ist AN` und den Endpoint; Off → Recovery führte nachweislich zurück auf
+  `adb_wifi_enabled=1`. Persistierter Readback belegte `state_observed`, `recovery_attempt`,
+  `notification_removed`, Endpoint-/WLAN-Ereignisse sowie Prozesswechsel PID 11215 → 15075 mit
+  `heartbeatGapMs=23905`. Settings-Export öffnete den Android-Teilen-Dialog und zeigte den
+  versionierten Exportheader. Keine Datenlöschung.
+- Erfüllte Kriterien: simuliertes Ausschalten, Recovery-Versuch, WLAN-/Endpoint-Verlust und
+  Service-/Prozess-Neustart unterscheidbar mit Zeit/Ergebnis; Fehler-/Redaction-Pfad belegt;
+  Reihenfolge rekonstruierbar; Tags/Export/Aufbewahrung dokumentiert; bestehende Semantik
+  unverändert. Nicht separat reproduziert: echter OEM-Prozess-Kill und physischer WLAN-Ausfall;
+  Lifecycle-/WLAN-Ereignisse wurden auf dem S20 beobachtet.
+- Retrospektive: Build/Unit-Gates vor Gerät isolierten Codefehler; der Review fand die fehlende
+  Exportbedienung und Persistenz-/Redaction-Lücken, die ein reiner Build nicht finden konnte;
+  S3 war wegen Lifecycle/I/O angemessen. Verbesserung: Bei Diagnosefeatures Exportzugang,
+  Backup-Regeln und Redaction bereits im ersten Contract-Test erzwingen.
+- Status: `approved`, bereit für atomaren Commit/PR; keine Releasefreigabe.

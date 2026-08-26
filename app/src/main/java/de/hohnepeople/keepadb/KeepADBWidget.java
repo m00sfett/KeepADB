@@ -22,8 +22,9 @@ public class KeepADBWidget extends AppWidgetProvider {
         super.onReceive(context, intent);
         Context localizedContext = KeepADBLocaleHelper.wrapContext(context);
         if (ACTION_TOGGLE.equals(intent.getAction())) {
+            KeepADBDiagnostics.event(context, "user_action", "widget", "toggle", "tap");
             boolean want = !KeepADB.isEnabled(context);
-            if (!KeepADB.setEnabled(context, want)) {
+            if (!KeepADB.setEnabled(context, want, "widget")) {
                 Toast.makeText(context,
                         localizedContext.getString(R.string.permission_error_toast, context.getPackageName()),
                         Toast.LENGTH_LONG).show();

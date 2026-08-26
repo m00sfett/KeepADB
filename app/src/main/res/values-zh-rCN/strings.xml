@@ -99,4 +99,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_title">Delete host profile</string>
     <string name="usb_profile_delete_message">Delete host profile &quot;%1$s&quot;?</string>
     <string name="usb_profile_edit_title">Edit host profile</string>
+    <string name="settings_diagnostics_title">诊断</string>
+    <string name="settings_diagnostics_subtext">在此设备上保留最近 128 条已脱敏事件。导出会打开 Android 分享面板。</string>
+    <string name="settings_diagnostics_export">导出诊断信息</string>
+    <string name="settings_diagnostics_export_subject">KeepADB 诊断</string>
 </resources>
