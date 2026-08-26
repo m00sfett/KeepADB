@@ -3527,3 +3527,42 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   WLAN-ADB-Off-Test, 1 Commit, 1 PR, 1 Squash-Merge. Token-/Abrechnungswerte unbekannt.
 - Abschlusszustand: `complete` für #177; Server-, Commit-, Review-, lokale Gate-, Geräte- und
   Boardstatus nachgewiesen.
+
+## Auswahl Issue #178 — 2026-08-26
+
+- `issue_snapshot_at: 2026-08-26T21:16:00+02:00`; `plan_updated_at: 2026-08-26T21:16:00+02:00`.
+- Roadmap-Abgleich (wörtlich): „#178 ist gemäß Nutzerentscheidung das nächste Paket; danach
+  Rückkehr zur normalen Issue-Reihenfolge.“ Issue #178 dient diesem Schritt unmittelbar.
+- Server-Readback: Issue #178 offen, Label `enhancement`, keine offenen PRs, kein aktiver
+  Workflow-Run für den aktuellen `master`-Head `93e8d80`; CI ist `workflow_dispatch`-only und
+  wird nicht ohne konkrete Freigabe gestartet.
+- Aktuelles Paket: Issue #178 — Hinweis auf fehlende Akku-/Doze-Ausnahme auf der Hauptseite.
+- Ziel: Den Live-Status über `PowerManager.isIgnoringBatteryOptimizations()` lesen, bei
+  fehlender Ausnahme einen dauerhaft sichtbaren und lokalisierten Hinweis mit barrierefreier
+  Aktion anzeigen, den passenden Android-Einstellungsintent sicher öffnen und den Status bei
+  `onResume` erneut aktualisieren.
+- Technischer Zusammenhang: `MainActivity.refresh()` und `onResume()` sind der gemeinsame
+  Live-UI-Pfad; `activity_main.xml` ist der Hauptseiten-Layoutpfad; `values*/strings.xml` sind
+  der Lokalisierungspfad; die bestehenden Contract-/Unit-Tests sind der Testpfad. Die
+  Prämissenprüfung ergab keinen vorhandenen Akku-/Doze-Status oder Einstellungsintent.
+- Nicht-Ziele: keine automatische Änderung von Akku-/Hersteller-Einstellungen, keine Änderung
+  an `adb_wifi_enabled`, Keep-Alive-, Recovery- oder Service-Semantik, keine OEM-Garantie und
+  keine Geräte-/Release-/GitHub-Actions-Aktion ohne eigene typisierte Freigabe.
+- Umfang: `MainActivity.java`, `activity_main.xml`, alle unterstützten `values*/strings.xml`
+  sowie passende Unit-/Accessibility-/Contract-Tests; Manifeständerung nur falls der gewählte
+  Einstellungsintent sie zwingend benötigt.
+- Zerlegung: ein zusammenhängendes S2-Teilpaket, da UI, Live-Systemstatus, Fallback und
+  Lokalisierung eine gemeinsame Rollback- und Abnahmegrenze haben. Keine Delegation vorgesehen;
+  das Paket ist klein genug für den Hauptagenten.
+- Muss-Akzeptanzfälle: Ausnahme fehlt → Hinweis sichtbar und verständlich; Rückkehr aus
+  Einstellungen → Live-Refresh; Ausnahme vorhanden → Hinweis verborgen; Android 11–15 und
+  nicht verfügbare Hersteller-Intents → kein Crash, sicherer Fallback; keine automatische
+  Toggle-/Recovery-Änderung; lokalisierte, erreichbare Texte und Aktion.
+- `approved`: Contract-/Unit-Tests für beide Statuszustände und Intent-Fallback, vollständige
+  lokale `./bin/verify`-Gates sowie ein ausdrücklich freigegebener Android-Nachweis auf dem
+  Emulator oder registrierten S20 belegen die Kriterien. Unabhängiger Review ist für die
+  größere UI-/Systemstatus-Etappe separat zu bestätigen.
+- Freigaben: Auswahl und Planaktualisierung erteilt; Implementierung, lokale Tests/Build/Lint,
+  Geräteabnahme, Review und externe Abschlussaktionen in diesem Lauf noch nicht freigegeben.
+- Status: `not approved` für die Umsetzung; keine Codeänderung, kein Testlauf, keine
+  Geräteaktion, kein Commit/Push/PR/Merge und kein Workflow-Start.

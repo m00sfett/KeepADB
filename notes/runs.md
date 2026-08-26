@@ -270,3 +270,15 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   `origin/master` stehen auf `352e0436c66e18f3884292c20788bc4dba3d3e83`.
 - Board-Sync: 0 hinzugefügt, 0 aktualisiert. Drift-Prüfung: Repository und Project #8 stimmen
   überein. Keine GitHub-Actions und keine Geräteaktion.
+
+## 2026-08-26 — Auswahl Issue #178
+
+- Issue #178 wurde gegen GitHub read-only abgeglichen: offen, Enhancement, keine offene PR und
+  kein aktiver Run für `master`.
+- Die Roadmap-Übergabe nach abgeschlossenem #177 benennt #178 ausdrücklich als nächstes Paket.
+- Code-Prämissen geprüft: `MainActivity.onResume()`/`refresh()` sind der Live-UI-Pfad, ein
+  Akku-/Doze-Statuspfad fehlt; der Hauptseiten-Layout- und Lokalisierungspfad ist vorhanden.
+- Paket als ein lokales S2-UI-/Systemstatuspaket geschnitten. Keine Delegation, keine
+  Implementierung, keine Tests, keine Geräteaktion und keine GitHub-Actions ausgeführt.
+- Typisierte nächste Freigaben: Implementierung plus lokale Gates; Android-Gerätenachweis und
+  unabhängiger Review separat.
