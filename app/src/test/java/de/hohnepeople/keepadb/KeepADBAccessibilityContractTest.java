@@ -1,5 +1,6 @@
 package de.hohnepeople.keepadb;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -82,6 +83,12 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"usb_profile_edit_button\""));
                 assertTrue("Missing USB profile edit title in " + directory,
                         content.contains("name=\"usb_profile_edit_title\""));
+                assertTrue("Missing USB profile delete action in " + directory,
+                        content.contains("name=\"usb_profile_delete_button\""));
+                assertTrue("Missing USB profile delete title in " + directory,
+                        content.contains("name=\"usb_profile_delete_title\""));
+                assertTrue("Missing USB profile delete message in " + directory,
+                        content.contains("name=\"usb_profile_delete_message\""));
             }
         }
     }
@@ -163,6 +170,28 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(editDialog.contains("KeepADBUsbProfile.update(this, profile.id"));
         assertTrue(editDialog.contains("KeepADBUsbReceiver.refresh(this)"));
         assertTrue(editDialog.contains("refresh();"));
+    }
+
+    @Test
+    public void profileDeleteRequiresConfirmationAndRefreshesBothSurfaces() throws IOException {
+        String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbNotification.java");
+        int deleteDialogIndex = activity.indexOf("private void showProfileDeleteDialog");
+        int profileFieldIndex = activity.indexOf("private EditText profileField");
+        assertTrue(deleteDialogIndex >= 0);
+        assertTrue(profileFieldIndex > deleteDialogIndex);
+        String deleteDialog = activity.substring(deleteDialogIndex, profileFieldIndex);
+        assertTrue(deleteDialog.contains("getString(R.string.usb_profile_delete_message, profile.name)"));
+        int positiveIndex = deleteDialog.indexOf("setPositiveButton(R.string.usb_profile_delete_button");
+        int deleteIndex = deleteDialog.indexOf("KeepADBUsbProfile.delete(this, profile.id)");
+        int negativeIndex = deleteDialog.indexOf("setNegativeButton(android.R.string.cancel, null)");
+        assertTrue(positiveIndex >= 0);
+        assertTrue(deleteIndex > positiveIndex);
+        assertTrue(negativeIndex > deleteIndex);
+        assertFalse(deleteDialog.contains("setOnCancelListener"));
+        assertTrue(deleteDialog.contains("KeepADBUsbReceiver.refresh(this)"));
+        assertTrue(deleteDialog.contains("refresh();"));
+        assertFalse(notification.contains("ACTION_DELETE"));
     }
 
     private static String read(String relativePath) throws IOException {

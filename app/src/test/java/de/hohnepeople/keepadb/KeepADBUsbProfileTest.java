@@ -75,11 +75,85 @@ public class KeepADBUsbProfileTest {
         assertFalse(KeepADBUsbProfile.getSelected(context) == null);
     }
 
+    @Test
+    public void deleteUnselectedProfileRemovesAllDataAndKeepsSelection() {
+        MemoryPreferences preferences = new MemoryPreferences();
+        TestContext context = new TestContext(preferences);
+        KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.add(
+                context, "Selected", "192.0.2.10", "selected.local", "selected.ts.net");
+        KeepADBUsbProfile.Profile deleted = KeepADBUsbProfile.add(
+                context, "Deleted", "192.0.2.11", "deleted.local", "deleted.ts.net");
+        KeepADBUsbProfile.select(context, selected.id);
+
+        assertTrue(KeepADBUsbProfile.delete(context, deleted.id));
+        assertEquals(1, KeepADBUsbProfile.getProfiles(context).size());
+        assertEquals(selected.id, KeepADBUsbProfile.getSelected(context).id);
+        assertEquals(null, findOrNull(context, deleted.id));
+        assertFalse(preferences.contains("usb_profile_" + deleted.id + "_name"));
+        assertFalse(preferences.contains("usb_profile_" + deleted.id + "_ip"));
+        assertFalse(preferences.contains("usb_profile_" + deleted.id + "_host"));
+        assertFalse(preferences.contains("usb_profile_" + deleted.id + "_tailnet"));
+    }
+
+    @Test
+    public void deleteSelectedProfileChoosesNextRemainingProfileInOrder() {
+        MemoryPreferences preferences = new MemoryPreferences();
+        TestContext context = new TestContext(preferences);
+        KeepADBUsbProfile.Profile first = KeepADBUsbProfile.add(context, "First", "", "", "");
+        KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.add(context, "Selected", "", "", "");
+        KeepADBUsbProfile.Profile next = KeepADBUsbProfile.add(context, "Next", "", "", "");
+        KeepADBUsbProfile.select(context, selected.id);
+
+        assertTrue(KeepADBUsbProfile.delete(context, selected.id));
+        assertEquals(next.id, KeepADBUsbProfile.getSelected(context).id);
+        assertEquals(first.id, KeepADBUsbProfile.getProfiles(context).get(0).id);
+        assertEquals(next.id, KeepADBUsbProfile.getProfiles(context).get(1).id);
+    }
+
+    @Test
+    public void deleteSelectedLastProfileChoosesPreviousRemainingProfile() {
+        MemoryPreferences preferences = new MemoryPreferences();
+        TestContext context = new TestContext(preferences);
+        KeepADBUsbProfile.Profile first = KeepADBUsbProfile.add(context, "First", "", "", "");
+        KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.add(context, "Selected", "", "", "");
+        KeepADBUsbProfile.select(context, selected.id);
+
+        assertTrue(KeepADBUsbProfile.delete(context, selected.id));
+        assertEquals(first.id, KeepADBUsbProfile.getSelected(context).id);
+        assertEquals(first.id, KeepADBUsbProfile.getProfiles(context).get(0).id);
+    }
+
+    @Test
+    public void deleteLastProfileClearsSelectionAndUnknownDeleteIsNoOp() {
+        MemoryPreferences preferences = new MemoryPreferences();
+        TestContext context = new TestContext(preferences);
+        KeepADBUsbProfile.Profile only = KeepADBUsbProfile.add(
+                context, "Only", "192.0.2.12", "only.local", "only.ts.net");
+
+        assertFalse(KeepADBUsbProfile.delete(context, 9999));
+        assertTrue(KeepADBUsbProfile.delete(context, only.id));
+        assertTrue(KeepADBUsbProfile.getProfiles(context).isEmpty());
+        assertNull(KeepADBUsbProfile.getSelected(context));
+        assertFalse(preferences.contains("usb_profile_selected_id"));
+        assertFalse(preferences.contains("usb_profile_ids"));
+        assertFalse(preferences.contains("usb_profile_" + only.id + "_name"));
+        assertFalse(preferences.contains("usb_profile_" + only.id + "_ip"));
+        assertFalse(preferences.contains("usb_profile_" + only.id + "_host"));
+        assertFalse(preferences.contains("usb_profile_" + only.id + "_tailnet"));
+    }
+
     private static KeepADBUsbProfile.Profile find(Context context, int id) {
         for (KeepADBUsbProfile.Profile profile : KeepADBUsbProfile.getProfiles(context)) {
             if (profile.id == id) return profile;
         }
         throw new AssertionError("Missing profile " + id);
+    }
+
+    private static KeepADBUsbProfile.Profile findOrNull(Context context, int id) {
+        for (KeepADBUsbProfile.Profile profile : KeepADBUsbProfile.getProfiles(context)) {
+            if (profile.id == id) return profile;
+        }
+        return null;
     }
 
     private static final class TestContext extends ContextWrapper {

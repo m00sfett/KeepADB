@@ -95,5 +95,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_tailnet_hint">Tailnet hostname (optional)</string>
     <string name="usb_profile_name_required">Enter a profile name.</string>
     <string name="usb_profile_edit_button">Edit</string>
+    <string name="usb_profile_delete_button">Delete</string>
+    <string name="usb_profile_delete_title">Delete host profile</string>
+    <string name="usb_profile_delete_message">Delete host profile &quot;%1$s&quot;?</string>
     <string name="usb_profile_edit_title">Edit host profile</string>
 </resources>

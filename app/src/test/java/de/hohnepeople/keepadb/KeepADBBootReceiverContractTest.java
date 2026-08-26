@@ -114,6 +114,7 @@ public class KeepADBBootReceiverContractTest {
         assertTrue(profile.contains("add(Context context"));
         assertTrue(profile.contains("select(Context context, int id)"));
         assertTrue(profile.contains("update(Context context, int id"));
+        assertTrue(profile.contains("delete(Context context, int id)"));
         assertTrue(profile.contains("if (existing == null) return null"));
         assertTrue(profile.contains("putString(PREFIX + profile.id + \"_name\""));
         assertFalse(profile.contains("KeepADBRegisterClient"));
