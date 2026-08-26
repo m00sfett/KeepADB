@@ -93,4 +93,6 @@
     <string name="usb_profile_hostname_hint">Hostname (optional)</string>
     <string name="usb_profile_tailnet_hint">Tailnet-Hostname (optional)</string>
     <string name="usb_profile_name_required">Bitte einen Profilnamen eingeben.</string>
+    <string name="usb_profile_edit_button">Bearbeiten</string>
+    <string name="usb_profile_edit_title">Hostprofil bearbeiten</string>
 </resources>
