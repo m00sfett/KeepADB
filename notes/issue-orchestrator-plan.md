@@ -3412,3 +3412,34 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Beobachtete Token-/Abrechnungswerte: unbekannt.
 - Zustand: `complete`; Commit/Push/PR/Merge ausgeführt. Keine GitHub-Actions und keine
   Geräteaktion.
+
+## Neue Issues #177 und #178 — Diagnoseprotokollierung und Akku-/Doze-Hinweis — 2026-08-26
+
+- `issue_snapshot_at: 2026-08-26T21:08:00+02:00`; `plan_updated_at: 2026-08-26T21:08:00+02:00`.
+- Anlass: Der S20-Logreadback zeigte am 2026-08-26 eine entfernte KeepADB-Notification um
+  20:27, eine spätere Prozessbeendigung als `empty` um 20:29 und mehrere `onTrimMemory`-Meldungen;
+  die Ursache des vorherigen Zustandswechsels blieb wegen fehlender App-Ereignisprotokollierung
+  unklar.
+- Issue #177: Diagnoseprotokollierung für WLAN-ADB-Recovery und Service-Lifecycle ausbauen.
+  Umfang sind strukturierte, zeitlich zuordenbare Ereignisse, Recovery-/Fehlerpfade,
+  Prozess-/Service-Lifecycle, datensparsame Persistenz bzw. Export und Tests. Nicht-Ziele sind
+  Cloud-Telemetrie und eine Änderung der Recovery-Semantik.
+- Issue #178: Hinweis auf fehlende Akku-/Doze-Ausnahme auf der Hauptseite anzeigen. Umfang sind
+  Live-Erkennung, verständlicher Hinweis, sicherer Einstellungs-Fallback, Lokalisierung,
+  Accessibility und Tests. Nicht-Ziele sind automatische Einstellungsänderungen und eine
+  Garantie gegen jedes OEM-Energiesparen.
+- Zusammenhang: Beide Issues betreffen die Diagnose und Sichtbarkeit des Keep-Alive-Betriebs,
+  teilen aber weder Datenmodell noch Rollbackgrenze und bleiben deshalb getrennt. #178 kann
+  unabhängig von #177 umgesetzt werden; #177 hat wegen der Logdaten-/Persistenzentscheidung
+  einen eigenen Scope- und Reviewbedarf.
+- Einstufung: #177 S3 (begrenzter Lifecycle-/I/O-Pfad); #178 S2 (lokalisierter UI- und
+  Systemstatuspfad). Keine Delegation, keine Implementierungs-, Test- oder Gerätefreigabe in
+  diesem Lauf.
+- Servernachweis: `gh issue list --repo m00sfett/KeepADB --state all` vor Anlage abgefragt;
+  keine offenen Duplikate gefunden. #177 und #178 angelegt und als `enhancement` markiert.
+  `github-board-sync --repo m00sfett/KeepADB`: beide Issues auf Project #8 als `backlog`
+  eingetragen. `github-drift --repo m00sfett/KeepADB`: Repository und Project stimmen überein.
+- Übergabe: Beide Issues sind offen, ohne PR/Commit; Implementierung bleibt offen und benötigt
+  eine spätere typisierte Freigabe für Code, lokale Gates sowie bei Bedarf Geräteabnahme.
+- Zustand: `complete` für Issue-Anlage und Plan-Checkpoint; keine Implementierung, keine Tests,
+  keine Geräteaktion und kein Release.
