@@ -2949,3 +2949,180 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Register-Abnahmen.
 - Status dieses Issue-Anlage-/Planungspakets: `complete`; Serverstatus der Issues per Readback
   offen, Commitstatus unverändert, Review nicht anwendbar, keine Codeänderung.
+
+## Issue-Orchestrator-Lauf — Auswahl #166 — 2026-08-25
+
+- `issue_snapshot_at: 2026-08-25T20:05:25Z` (GitHub-Readback im aktuellen Lauf bestätigt)
+- `plan_updated_at: 2026-08-25T22:25:00+02:00`
+- Roadmap-Ziel: „USB-ADB-Hostprofile und Übergabe“. Issue #166 erfüllt den ersten lokalen
+  Teil direkt; #167 und #168 bleiben wegen ihrer Register-/Betriebsgrenzen nachgelagert.
+- Aktuelles Paket: [#166](https://github.com/m00sfett/KeepADB/issues/166) — separate USB-ADB-
+  Notification mit manuell gepflegten Hostprofilen.
+- Ziel: USB-ADB-Verbindungen zuverlässig erkennen, die separate Notification opt-in und
+  lifecycle-sicher betreiben sowie Profile anlegen, wechseln und zuletzt verwendet vorschlagen.
+- Zusammenhang: gemeinsamer USB-Status-, Preference- und Notification-Pfad; keine Änderung am
+  bestehenden WLAN-ADB-Notification- oder Toggle-Pfad.
+- Nicht-Ziele: kein Host-Helper, keine automatische Hostidentifikation, keine Register-
+  Integration (#167), keine WLAN-ADB-Übergabe (#168), keine Geräte-Datenlöschung.
+- Bestand geprüft: Manifest enthält noch keinen USB-Receiver; es existieren keine USB-ADB-
+  Klassen oder Hostprofil-Preferences. `KeepADBNotification` und `KeepADBPreferences` bilden
+  den bestehenden WLAN-/Preference-Anknüpfungspunkt.
+- Einstufung: S2, direkte Umsetzung durch den Hauptagenten; keine Delegation angefragt.
+- Muss-Akzeptanzfälle: Default AUS, echte USB-ADB-Erkennung statt Ladezustand, kein Profil /
+  Profil anlegen / wechseln / zuletzt verwenden, getrennte Notification-Lifecycles,
+  USB-Disconnect entfernt nur USB-Status, WLAN-Notification bleibt unabhängig, Contract-/Unit-
+  Tests.
+- Minimale Gates: `git diff --check`, `./bin/verify`; physischer S20-USB-An-/Abstecktest als
+  separates Gerätegate.
+- Freigaben: Auswahl und Planaktualisierung erteilt; Implementierung, Build/Test und
+  Geräteaktion noch nicht freigegeben.
+- Status: `not approved` für die Umsetzung; Arbeitsbaum vor der Änderung sauber, keine
+  Codeänderung und kein Commit/PR-Schreibvorgang.
+
+## Issue #166 — Implementierung und lokale Validierung — 2026-08-25
+
+- Freigabe: Implementierung, lokale Gates und S20-USB-Gerätetest ausdrücklich erteilt.
+- Umsetzung:
+  - `KeepADBUsbReceiver` verarbeitet den Systemzustand `USB_STATE` nur als verbunden,
+    wenn USB verbunden, konfiguriert und die ADB-Funktion aktiv ist. Ladezustände lösen keine
+    USB-ADB-Notification aus.
+  - `KeepADBUsbNotification` ist ein eigener Channel/Notification-Lifecycle mit Standard-
+    opt-in AUS und Aktionen für Profil anlegen, wechseln und neu anlegen.
+  - `KeepADBUsbProfile` speichert manuelle Profile lokal in SharedPreferences; WLAN-ADB-
+    Register- und Notification-Code bleibt unberührt. Android liefert keine Hostidentität,
+    daher werden IP, Hostname und Tailnet-Hostname nur vom Nutzer gepflegt.
+  - `SettingsActivity` enthält Opt-in, Profilstatus und die Dialoge für Anlegen/Wechseln.
+  - Alle 19 Sprachressourcen enthalten die neuen Schlüssel; Contract-Tests prüfen Receiver,
+    Default, Profile und UI-Ressourcen.
+- Lokale Gates: `git diff --check` bestanden; `JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+  ./gradlew testDebugUnitTest lintDebug assembleDebug` bestanden, 28 Tests grün, Lint ohne
+  Fehler; `assembleRelease` ebenfalls bestanden, erzeugt aber ein unsigned APK.
+- Reparaturschleife: erster Lint-Lauf scheiterte an fehlenden Übersetzungsressourcen; alle
+  Sprachdateien ergänzt, vollständiger Gate-Satz danach grün. Ein kleiner Profilwechsel-
+  Lifecycle-Randfall wurde vor dem Gerätetest korrigiert und erneut geprüft.
+- Gerätegate: Register zuerst abgefragt; USB-ADB `RF8T307S88H` als `SM-G780G`, SDK 33
+  fingerprint-validiert und Register aktualisiert. Debug-APK wurde wegen inkompatibler
+  Release-Signatur abgewiesen. Release-APK ist lokal unsigned. Keine Deinstallation, kein
+  `pm clear` und keine Datenlöschung ausgeführt; USB-An-/Abstecktest bleibt ungeprüft.
+- Status: `closed-pending-decision` für die Geräteabnahme durch die Signatur-/Installationsgrenze; lokale
+  Implementierung und Gates bestanden. Kein Commit/Push/PR-Schreibvorgang ausgeführt.
+
+## Issue #166 — S20-Nachprüfung und Preference-Wiederherstellung — 2026-08-25
+
+- Freigabe: App-Datenverlust durch Deinstallation für diesen Gerätetest ausdrücklich erteilt.
+- Backup: bestehende APK und `dumpsys package` nach
+  `~/agent/backup/2026-08-25/keepadb-issue-166/` gesichert. `adb backup` wartete auf eine
+  Gerätebestätigung und blieb danach leer (0 Byte); SharedPreferences waren nicht exportierbar.
+- Installation: bestehende Release-Installation deinstalliert, Debug-APK erfolgreich installiert;
+  `WRITE_SECURE_SETTINGS` für User 0 erneut vergeben. Modell `SM-G780G`, Serial `RF8T307S88H`,
+  SDK 33 bestätigt.
+- Wiederhergestellt: Webhook-URL `http://100.111.111.21:50829/register/s20` und Aktivstatus;
+  Readback meldet Endpoint `192.168.178.24:39359`. USB-Opt-in und Profil `MoosGames2020 USB`
+  über die UI angelegt; Preferences-Readback bestätigt beide Werte. USB-Kanal `keepadb_usb`
+  wurde angelegt.
+- Gerätebefund: `sys.usb.state=mtp,conn_gadget,adb`; der manifestierte Receiver ist im Package-
+  Readback registriert. Ein künstlicher `USB_STATE`-Broadcast wird systemseitig verweigert. Der
+  sichere `android-target`-Wrapper blockiert den USB-Funktionswechsel, daher fehlen der echte
+  USB-State-Übergang, Notification-Readback und Disconnect-Nachweis.
+- Status: weiterhin `closed-pending-decision`; App ist installiert und Zustand wiederhergestellt,
+  lokale Gates bleiben grün, USB-An-/Absteckabnahme ungeprüft. Keine Codeänderung seit den grünen
+  Gates, kein Commit/Push/PR-Schreibvorgang.
+
+## Issue #166 — USB-Extra-Befund und Fix — 2026-08-26
+
+- S20-Readback nach dem echten USB-Zyklus: Die System-`USB_STATE`-Sticky-Broadcasts enthalten
+  `connected=true`, `configured=true`, `adb=true`, `mtp=true`; ein `function_adb`-Extra existiert
+  auf diesem Gerät nicht.
+- Ursache: `KeepADBUsbReceiver` prüfte den falschen Extra-Namen `function_adb`, daher wurde die
+  USB-ADB-Notification trotz korrektem USB-Zustand nicht gepostet.
+- Fix: Prüfung auf das tatsächlich gelieferte Extra `adb` umgestellt; Contract-Test angepasst.
+- Validierung: `git diff --check`, 28 Unit-Tests, Lint und Debug-Build erfolgreich; Debug-APK
+  per Update installiert. Nach dem Refresh zeigt der Notification-Readback `id=2`, Channel
+  `keepadb_usb`, Titel `USB-ADB active`, Profil `MoosGames2020 USB` und beide Aktionen.
+- Screenshot-Nachweis: Einstellungen zeigen aktivierten USB-ADB-Schalter und ausgewähltes Profil;
+  WLAN-ADB-Webhook bleibt mit URL und Endpoint erhalten.
+- Status: USB-Notification-Datenpfad korrigiert und auf dem S20 sichtbar. Ein weiterer echter
+  Disconnect-Nachweis nach diesem Fix bleibt als letzter Lifecycle-Test offen; kein Commit/Push/
+  PR-Schreibvorgang.
+
+## Issue #166 — Deutscher UI-Nachtrag — 2026-08-26
+
+- Screenshotbefund: Die neuen USB-ADB-Texte erschienen bei deutscher Systemsprache zunächst auf
+  Englisch.
+- Fix: `values-de/strings.xml` für Schalter, Profilaktionen, Dialoge und Notification übersetzt.
+- Validierung: `git diff --check`, 28 Unit-Tests, Lint und Debug-Build erfolgreich; Debug-APK per
+  Update auf dem S20 installiert.
+
+## Issue #166 — Abschluss der S20-Abnahme — 2026-08-26
+
+- Nach dem erneuten echten USB-Ab-/Anstecken meldet das S20 wieder `USB-ADB aktiv` mit dem Profil
+  `MoosGames2020 USB`; der Notification-Readback enthält `id=2` auf `keepadb_usb` mit den beiden
+  Profilaktionen. Die WLAN-ADB-Notification mit Endpoint `192.168.178.24:43081` bleibt ebenfalls
+  vorhanden.
+- Screenshot nach dem Zyklus zeigt die KeepADB-Oberfläche mit aktivem WLAN-ADB; der Notification-
+  Readback bestätigt zusätzlich den getrennten USB-ADB-Status.
+- Akzeptanz: Default-Opt-in, manuelle Profile, getrennte Notification-Lifecycles, echte USB-
+  Erkennung und USB-ADB-/WLAN-ADB-Koexistenz nachgewiesen. Kein Host-Helper und keine automatische
+  Hostidentifikation.
+- Status: `complete` für Issue #166. Lokale Gates und S20-Abnahme bestanden; Webhook-URL und
+  Aktivstatus wiederhergestellt. Commit/Push/PR-Schreibvorgang weiterhin nicht ausgeführt.
+
+## Folgepaket: Profilverwaltung — 2026-08-26
+
+- Anlass: Nach #166 fehlen noch Bearbeiten und Löschen bestehender USB-ADB-Hostprofile.
+- Issue-Snapshot vor Anlage: #166, #167 und #168 offen; keine offenen Pull Requests; kein aktiver
+  Workflow-Lauf.
+- Aufteilung: #169 `feat: Edit USB-ADB host profiles` und #170
+  `feat: Delete USB-ADB host profiles safely`.
+- Begründung: Bearbeiten ist ein persistenter Änderungsdialog; Löschen ist ein eigener
+  bestätigungspflichtiger Datenverlustpfad mit Sonderfällen für ausgewähltes und letztes Profil.
+  Getrennte Akzeptanzkriterien halten Umsetzung und Review klein.
+- Abgrenzung: Beide Issues ändern weder WLAN-Webhooks noch WLAN-Einstellungen oder das
+  Erreichbarkeitsregister. Register-Synchronisierung bleibt #167; Übergabe bleibt #168.
+- Board: Beide Issues in Project #8 aufgenommen und auf `backlog` synchronisiert.
+- Drift: Nach erneutem Readback stimmt Repository und Project #8 überein.
+- Status: Folgepaket zur Umsetzung bereit; keine Codeänderung und kein Release ausgelöst.
+
+## Folgeissue: Entkopplung der USB-ADB-Notification — 2026-08-26
+
+- Anlass: Die Sichtbarkeit der USB-ADB-Verbindung und die Meldung des Hostprofils müssen separat
+  steuerbar sein.
+- Issue: #171 `feat: Decouple USB-ADB notification from host-profile display`.
+- Ziel: Zwei lokal gespeicherte Schalter mit klar definiertem Verhalten für alle vier Kombinationen;
+  bei deaktivierter Profilanzeige dürfen Profilname, Hostdaten und Profilaktionen nicht in der
+  Notification erscheinen.
+- Zusammenhang: Baut auf #166 auf und bleibt von #169/#170 unabhängig; WLAN-Notification,
+  Webhook und Erreichbarkeitsregister bleiben außerhalb des Scopes.
+- Stufe: S2, lokalisierte UI-/Preference-/Notification-Verhaltensänderung mit deterministischen
+  Unit-/Contract- und anschließendem Gerätegate.
+- Board: #171 in Project #8 auf `backlog` synchronisiert; erneuter Driftcheck sauber.
+- Status: Issue zur Umsetzung bereit; keine Codeänderung und kein Release ausgelöst.
+
+## GitHub-Abschlussvorbereitung Issue #166 — 2026-08-26
+
+- Nutzerfreigabe: Den vorhandenen, lokal validierten #166-Arbeitsstand übernehmen und GitHub/
+  Project aktualisieren.
+- Arbeitsbaum geprüft: Die Änderungen umfassen ausschließlich den USB-ADB-Notification-/Profil-
+  Pfad, zugehörige Ressourcen, Contract-Tests und diesen Plan; keine AGENTS-Datei ist betroffen.
+- Nachweis: `git diff --check` bestanden. Die vollständigen lokalen Gates und die echte S20-
+  USB-Ab-/Ansteckabnahme sind im vorherigen #166-Checkpoint dokumentiert.
+- Nächster Schritt: atomarer Commit auf einem Feature-Branch, PR gegen `master`, danach Board-
+  Synchronisation und Drift-Readback.
+
+## GitHub-/Board-Synchronisation Issue #166 — 2026-08-26
+
+- Commit: `5b46c16` (`feat: add USB-ADB notification and host profiles`) auf
+  `origin/feat/166-usb-adb-notification`.
+- PR: [#172](https://github.com/m00sfett/KeepADB/pull/172) gegen `master`, offen, nicht Draft,
+  Head `5b46c16`, Merge-Status `CLEAN`. `Fixes #166` ist enthalten; Issue #166 bleibt bis zum
+  Merge offen.
+- CI: Für den aktuellen Head gibt es keine Checks. Der CI-Workflow ist manuell; kein neuer Lauf
+  wurde ohne typisierte CI-Freigabe gestartet. Lokale Gates und S20-Abnahme sind im #166-
+  Abschlusscheckpoint nachgewiesen.
+- Project #8: `github-board-sync --repo m00sfett/KeepADB` meldet `0 added, 0 updated`.
+  Anschließender Drift-Readback meldet ausschließlich den erwarteten offenen PR und seinen noch
+  nicht gemergten Feature-Branch.
+- Übergabe: #169/#170 bleiben die nächsten Profilverwaltungspakete, #171 bleibt unabhängig.
+  Ein Merge- und Issue-Schließnachweis steht noch aus.
+- Status: `closed-pending-decision` für den GitHub-Abschluss; Code, Commit, Push und Board-
+  Synchronisation erledigt, PR/Issue wegen fehlender CI-/Merge-Abnahme offen.

@@ -70,4 +70,27 @@
     <string name="settings_notification_hidden_toast">Persistent notification hidden</string>
     <string name="settings_notification_visible_toast">Persistent notification enabled</string>
     <string name="back">Back</string>
+    <string name="settings_section_usb_notification">USB-ADB notification</string>
+    <string name="settings_usb_notification_toggle">Show USB-ADB notification</string>
+    <string name="settings_usb_notification_subtext">Show a separate notification while USB debugging is active. The host is selected manually.</string>
+    <string name="usb_notification_channel_name">USB-ADB connection</string>
+    <string name="usb_notification_channel_desc">The active USB-ADB host profile</string>
+    <string name="usb_notification_title">USB-ADB active</string>
+    <string name="usb_notification_no_profile">No host profile selected</string>
+    <string name="usb_notification_create_profile">Create host profile</string>
+    <string name="usb_notification_switch_profile">Switch profile</string>
+    <string name="usb_notification_new_profile">New profile</string>
+    <string name="usb_profile_none">No host profile selected.</string>
+    <string name="usb_profile_selected">Selected host profile: %1$s</string>
+    <string name="usb_profile_create_button">Create host profile</string>
+    <string name="usb_profile_switch_button">Switch host profile</string>
+    <string name="usb_profile_switch_title">Switch host profile</string>
+    <string name="usb_profile_create_title">Create host profile</string>
+    <string name="usb_profile_new_button">New profile</string>
+    <string name="usb_profile_save_button">Save</string>
+    <string name="usb_profile_name_hint">Profile name (required)</string>
+    <string name="usb_profile_ip_hint">Host IP address (optional)</string>
+    <string name="usb_profile_hostname_hint">Hostname (optional)</string>
+    <string name="usb_profile_tailnet_hint">Tailnet hostname (optional)</string>
+    <string name="usb_profile_name_required">Enter a profile name.</string>
 </resources>

@@ -88,6 +88,34 @@ public class KeepADBBootReceiverContractTest {
         assertTrue(notification.substring(placeholderIndex).contains("KeepADBPreferences.isNotificationHidden(context)"));
     }
 
+    @Test
+    public void usbReceiverIsSeparateAndFiltersConfiguredAdbState() throws IOException {
+        String manifest = read("app/src/main/AndroidManifest.xml");
+        String receiver = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbReceiver.java");
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbNotification.java");
+
+        assertTrue(manifest.contains("android:name=\".KeepADBUsbReceiver\""));
+        assertTrue(manifest.contains("android.hardware.usb.action.USB_STATE"));
+        assertTrue(receiver.contains("EXTRA_CONNECTED"));
+        assertTrue(receiver.contains("EXTRA_CONFIGURED"));
+        assertTrue(receiver.contains("EXTRA_ADB"));
+        assertTrue(receiver.contains("\"adb\""));
+        assertTrue(receiver.contains("KeepADBUsbNotification.refresh(context, connected)"));
+        assertTrue(notification.contains("KeepADBUsbProfile.isNotificationEnabled(appContext)"));
+        assertTrue(notification.contains("ACTION_SWITCH"));
+        assertTrue(notification.contains("ACTION_CREATE"));
+    }
+
+    @Test
+    public void usbNotificationOptInDefaultsOffAndProfilesAreLocal() throws IOException {
+        String profile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbProfile.java");
+        assertTrue(profile.contains("getBoolean(KEY_ENABLED, false)"));
+        assertTrue(profile.contains("SharedPreferences"));
+        assertTrue(profile.contains("add(Context context"));
+        assertTrue(profile.contains("select(Context context, int id)"));
+        assertFalse(profile.contains("KeepADBRegisterClient"));
+    }
+
     private static String read(String relativePath) throws IOException {
         Path directory = Paths.get("").toAbsolutePath();
         while (directory != null && !Files.exists(directory.resolve("settings.gradle"))) {
