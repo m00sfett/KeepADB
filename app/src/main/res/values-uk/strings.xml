@@ -99,4 +99,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_title">Delete host profile</string>
     <string name="usb_profile_delete_message">Delete host profile &quot;%1$s&quot;?</string>
     <string name="usb_profile_edit_title">Edit host profile</string>
+    <string name="settings_diagnostics_title">Діагностика</string>
+    <string name="settings_diagnostics_subtext">Зберігає на цьому пристрої 128 останніх відредагованих подій. Експорт відкриває меню поширення Android.</string>
+    <string name="settings_diagnostics_export">Експортувати діагностику</string>
+    <string name="settings_diagnostics_export_subject">Діагностика KeepADB</string>
 </resources>

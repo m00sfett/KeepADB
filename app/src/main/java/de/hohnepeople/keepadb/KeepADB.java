@@ -57,10 +57,21 @@ final class KeepADB {
      * gewünschte Absicht debounced eingeplant.
      */
     static boolean setEnabled(Context ctx, boolean on) {
+        return setEnabled(ctx, on, "app");
+    }
+
+    static boolean setEnabled(Context ctx, boolean on, String source) {
         Context appContext = ctx.getApplicationContext();
-        if (!hasPermission(appContext)) return false;
+        boolean observed = isEnabled(appContext);
+        String eventName = diagnosticEventName(source);
+        if (!hasPermission(appContext)) {
+            KeepADBDiagnostics.event(appContext, eventName, source, "failed",
+                    "desired=" + on + " observed=" + observed + " reason=permission_missing");
+            return false;
+        }
 
         long token;
+        long delayMs = 0;
         synchronized (KeepADB.class) {
             token = ++currentIntentToken;
             userDisabled = !on;
@@ -70,33 +81,53 @@ final class KeepADB {
             }
             long sinceLastMs = SystemClock.elapsedRealtime() - lastAppliedChangeMs;
             if (sinceLastMs < TOGGLE_COOLDOWN_MS) {
-                long delayMs = TOGGLE_COOLDOWN_MS - sinceLastMs;
+                delayMs = TOGGLE_COOLDOWN_MS - sinceLastMs;
                 final long scheduledToken = token;
-                pendingToggleRunnable = () -> applyNow(appContext, on, scheduledToken);
+                pendingToggleRunnable = () -> applyNow(appContext, on, source, scheduledToken);
                 toggleHandler().postDelayed(pendingToggleRunnable, delayMs);
-                return true;
             }
         }
-        return applyNow(appContext, on, token);
+        KeepADBDiagnostics.event(appContext, eventName, source,
+                delayMs > 0 ? "scheduled" : "accepted",
+                "intentId=" + token + " desired=" + on + " observed=" + observed
+                        + (delayMs > 0 ? " delayMs=" + delayMs : ""));
+        if (delayMs > 0) return true;
+        return applyNow(appContext, on, source, token);
     }
 
-    private static synchronized boolean applyNow(Context appContext, boolean on, long token) {
+    private static synchronized boolean applyNow(Context appContext, boolean on, String source, long token) {
+        String eventName = diagnosticEventName(source);
         if (token != currentIntentToken) {
+            KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
+                    "intentId=" + token + " reason=newer_intent");
             return false; // Superseded by a newer toggle intent
         }
         pendingToggleRunnable = null;
         try {
-            Settings.Global.putInt(appContext.getContentResolver(), KEY, on ? 1 : 0);
+            boolean writeAccepted = Settings.Global.putInt(
+                    appContext.getContentResolver(), KEY, on ? 1 : 0);
             userDisabled = !on;
             lastAppliedChangeMs = SystemClock.elapsedRealtime();
+            boolean actual = isEnabled(appContext);
+            KeepADBDiagnostics.event(appContext, eventName, source,
+                    writeAccepted && actual == on ? "success" : "state_mismatch",
+                    "intentId=" + token + " desired=" + on + " actual=" + actual
+                            + " writeAccepted=" + writeAccepted);
             KeepADBService.sync(appContext);
             KeepADBNotification.refresh(appContext);
             KeepADBWidget.refreshAll(appContext);
             return true;
         } catch (SecurityException e) {
             Log.e(TAG, "Missing WRITE_SECURE_SETTINGS when applying toggle", e);
+            KeepADBDiagnostics.event(appContext, eventName, source, "failed",
+                    "intentId=" + token + " reason=security_exception");
             return false;
         }
+    }
+
+    private static String diagnosticEventName(String source) {
+        return "content_observer".equals(source) || "keep_alive_check".equals(source)
+                ? "recovery_attempt" : "toggle_attempt";
     }
 
     /**
@@ -105,19 +136,37 @@ final class KeepADB {
      */
     static void performRecoveryPulse(Context ctx) {
         Context appContext = ctx.getApplicationContext();
-        if (!hasPermission(appContext)) return;
+        boolean observed = isEnabled(appContext);
+        if (!hasPermission(appContext)) {
+            KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "failed",
+                    "stage=request observed=" + observed + " reason=permission_missing");
+            return;
+        }
 
         final long pulseToken;
         synchronized (KeepADB.class) {
-            if (userDisabled || !isEnabled(appContext)) return;
+            if (userDisabled || !isEnabled(appContext)) {
+                KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "skipped",
+                        "stage=request observed=" + observed + " reason=user_disabled_or_state_off");
+                return;
+            }
             pulseToken = ++currentIntentToken;
         }
+        KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "started",
+                "intentId=" + pulseToken + " observed=" + observed);
 
         new Thread(() -> {
             try {
-                Settings.Global.putInt(appContext.getContentResolver(), KEY, 0);
+                boolean writeAccepted = Settings.Global.putInt(appContext.getContentResolver(), KEY, 0);
                 lastAppliedChangeMs = SystemClock.elapsedRealtime();
+                boolean actual = isEnabled(appContext);
+                KeepADBDiagnostics.event(appContext, "recovery_state", "endpoint",
+                        writeAccepted && !actual ? "success" : "state_mismatch",
+                        "intentId=" + pulseToken + " stage=disable actual=" + actual
+                                + " writeAccepted=" + writeAccepted);
             } catch (SecurityException e) {
+                KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "failed",
+                        "intentId=" + pulseToken + " stage=disable reason=security_exception");
                 return;
             }
 
@@ -129,17 +178,26 @@ final class KeepADB {
             synchronized (KeepADB.class) {
                 if (pulseToken != currentIntentToken || userDisabled) {
                     Log.i(TAG, "Recovery pulse cancelled by newer user intent");
+                    KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "cancelled",
+                            "intentId=" + pulseToken + " reason=newer_user_intent");
                     return;
                 }
             }
 
             try {
-                Settings.Global.putInt(appContext.getContentResolver(), KEY, 1);
+                boolean writeAccepted = Settings.Global.putInt(appContext.getContentResolver(), KEY, 1);
                 lastAppliedChangeMs = SystemClock.elapsedRealtime();
+                boolean actual = isEnabled(appContext);
+                KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint",
+                        writeAccepted && actual ? "success" : "state_mismatch",
+                        "intentId=" + pulseToken + " stage=enable actual=" + actual
+                                + " writeAccepted=" + writeAccepted);
                 KeepADBService.sync(appContext);
                 KeepADBNotification.refresh(appContext);
                 KeepADBWidget.refreshAll(appContext);
             } catch (SecurityException ignored) {
+                KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "failed",
+                        "intentId=" + pulseToken + " stage=enable reason=security_exception");
             }
         }, "KeepADBRecoveryPulse").start();
     }

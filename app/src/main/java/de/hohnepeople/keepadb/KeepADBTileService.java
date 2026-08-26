@@ -21,7 +21,8 @@ public class KeepADBTileService extends TileService {
     @Override
     public void onClick() {
         boolean want = !KeepADB.isEnabled(this);
-        if (!KeepADB.setEnabled(this, want)) {
+        KeepADBDiagnostics.event(this, "user_action", "tile", want ? "enable" : "disable", "tap");
+        if (!KeepADB.setEnabled(this, want, "tile")) {
             Toast.makeText(this, getString(R.string.tile_permission_error),
                     Toast.LENGTH_LONG).show();
         }

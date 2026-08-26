@@ -60,7 +60,8 @@ public class MainActivity extends Activity {
         // OnClick fires only for user interaction, unlike OnCheckedChanged during refresh().
         toggle.setOnClickListener(v -> {
             boolean want = toggle.isChecked();
-            if (!KeepADB.setEnabled(this, want)) {
+            KeepADBDiagnostics.event(this, "user_action", "app", want ? "enable" : "disable", "toggle");
+            if (!KeepADB.setEnabled(this, want, "app")) {
                 toggle.setChecked(!want);
                 showPermissionErrorToast();
             }
@@ -70,9 +71,10 @@ public class MainActivity extends Activity {
 
         keepAliveToggle.setOnClickListener(v -> {
             boolean wantKeepAlive = keepAliveToggle.isChecked();
+            KeepADBDiagnostics.event(this, "user_action", "app", wantKeepAlive ? "enable" : "disable", "keep_alive_toggle");
             KeepADBPreferences.setKeepAliveEnabled(this, wantKeepAlive);
             if (wantKeepAlive && KeepADBService.isWifiConnected(this) && !KeepADB.isEnabled(this)) {
-                if (!KeepADB.setEnabled(this, true)) {
+                if (!KeepADB.setEnabled(this, true, "app")) {
                     showPermissionErrorToast();
                 }
             }

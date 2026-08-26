@@ -63,6 +63,10 @@
     <string name="settings_language_system_default">Systemstandard</string>
     <string name="settings_language_dialog_title">Sprache auswählen</string>
     <string name="settings_section_security">Sicherheit &amp; Netzwerkhinweise</string>
+    <string name="settings_diagnostics_title">Diagnose</string>
+    <string name="settings_diagnostics_subtext">Speichert die letzten 128 bereinigten Ereignisse auf diesem Gerät. Der Export öffnet den Android-Teilen-Dialog.</string>
+    <string name="settings_diagnostics_export">Diagnose exportieren</string>
+    <string name="settings_diagnostics_export_subject">KeepADB-Diagnose</string>
     <string name="settings_security_body">Drahtloses Debugging öffnet einen Netzwerk-Port für ADB. Nutze Keep-Alive vor allem in vertrauenswürdigen Heim- und Firmennetzwerken oder VPNs. Schalte Drahtlos-Debugging in öffentlichen Hotspots aus und bestätige niemals unerwartete Kopplungsanfragen.</string>
     <string name="settings_section_notification">Benachrichtigung</string>
     <string name="settings_hide_notification_toggle">Dauerhafte Benachrichtigung ausblenden</string>
