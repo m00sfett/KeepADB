@@ -282,3 +282,5 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   Implementierung, keine Tests, keine Geräteaktion und keine GitHub-Actions ausgeführt.
 - Typisierte nächste Freigaben: Implementierung plus lokale Gates; Android-Gerätenachweis und
   unabhängiger Review separat.
+- Der reine Plan-/Lauf-Checkpoint wurde als `a8c2c5c` auf `origin/master` gepusht; kein
+  Code-Commit, PR, Merge oder Issue-/Board-Schreibvorgang.

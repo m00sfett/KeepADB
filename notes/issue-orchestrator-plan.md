@@ -3565,4 +3565,5 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Freigaben: Auswahl und Planaktualisierung erteilt; Implementierung, lokale Tests/Build/Lint,
   Geräteabnahme, Review und externe Abschlussaktionen in diesem Lauf noch nicht freigegeben.
 - Status: `not approved` für die Umsetzung; keine Codeänderung, kein Testlauf, keine
-  Geräteaktion, kein Commit/Push/PR/Merge und kein Workflow-Start.
+  Geräteaktion, kein PR/Merge und kein Workflow-Start. Der reine Plan-/Lauf-Checkpoint ist
+  mit Commit `a8c2c5c` auf `origin/master` gepusht.
