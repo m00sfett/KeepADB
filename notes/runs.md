@@ -314,6 +314,15 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Review und S20-Gate `approved` im Scope. Android 11–12/14–15 und nicht verfügbarer OEM-
   Fallback ungeprüft. Kein PR/Merge und keine GitHub Actions.
 
+## 2026-08-27 — Issue #178 Cross-Version-Abnahme
+
+- Freigabe für Cross-Version-/OEM-Abnahme geprüft. Verfügbar: S20 Android 13, AVD Android 15
+  (Galaxy A6) und AVD Android 16; keine Android-11-/12-/14-Ziele und kein zweites registriertes
+  OEM-Gerät.
+- Kein zusätzlicher AVD- oder Geräte-Lauf gestartet, weil der Android-15-A6-AVD nicht als
+  registriertes Ziel freigegeben ist und der kanonische Emulator außerhalb des Zielbereichs liegt.
+- Ergebnis: Android 13 nachgewiesen, Cross-Version-/OEM-Teil nicht vollständig nachweisbar.
+
 ## 2026-08-27 — Issue #178 S2-Review und Reparatur
 
 - Freigabe: unabhängiger Review mit Reparatur im benannten Scope, lokale Gates; keine

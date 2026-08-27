@@ -3608,6 +3608,22 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Status: `not approved` für vollständigen Issue-Abschluss; lokaler Review und S20-Abnahme
   `approved`, aber kein PR/Merge und kein GitHub-Actions-Run.
 
+## Issue #178 — Cross-Version-Abnahme — 2026-08-27
+
+- Freigabe für Option 2 umgesetzt. Die Zielinventur zeigt den registrierten S20 mit Android 13
+  sowie die AVDs `Dev_Galaxy_S20_API_36_1_Play` (Android 16) und `Galaxy_A6_API_35`
+  (Android 15). Android-11-, Android-12- und Android-14-Ziele sind lokal nicht vorhanden;
+  ein zweites physisches OEM-Gerät ist nicht registriert.
+- Der S20-Nachweis für Android 13 bleibt gültig: direkter Akku-Ausnahmedialog, Rückkehr-Refresh,
+  sichtbarer/verborgener Hinweis und unverändertes `adb_wifi_enabled`. Ein Android-15-AVD-
+  Lauf wurde nicht gestartet, weil der vorhandene A6-AVD kein registriertes Ziel ist und der
+  kanonische Emulatorpfad nur Android 16 bereitstellt.
+- Ein nicht verfügbarer Hersteller-Intent lässt sich ohne zweites OEM-Ziel nicht als Laufzeit-
+  Fallback reproduzieren; der Fallback bleibt durch Contract-Test und Codepfad belegt.
+- Status: `not approved` für die vollständige Cross-Version-Akzeptanz. Nachweisbar sind Android
+  13 und der statische Fallback-Vertrag; offen bleiben Android 11–12/14–15-Laufzeitnachweise
+  sowie die OEM-Fallback-Abnahme.
+
 ## Issue #178 — S2-Review und Reparatur — 2026-08-27
 
 - Reviewumfang: ausschließlich der benannte Battery-Optimization-Codepfad, MainActivity,
