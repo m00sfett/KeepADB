@@ -3859,6 +3859,20 @@ Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel bet
   adressierbar; kein direkter ADB-Bypass wurde verwendet.
 - Zustand: `not approved`; API 33 als Teilkriterium bestanden, Issue #180 insgesamt offen.
 
+## Resolver-Reparatur für Issue #180 — Delegation — 2026-08-27
+
+- Nutzerauftrag: einen Subagenten auf S2 mit der Reparatur/Änderung des Android-Resolvers
+  beauftragen.
+- Bearbeiter: Subagent Rawls; Paket: globaler Emulator-Resolver; Stufe: S2; Modell/Effort:
+  `gpt-5.6-luna` / `max`; Status der Angaben: konfiguriert.
+- Scope: `resolve-android-target.sh`, `android-targets.json` und eng zugehörige Resolvertests/
+  dokumentation unter `/home/tobias/agent/bin/android-tools`. Nicht-Scope: KeepADB-Code,
+  `run-s20.sh`, AVD-/Geräteaktionen, GitHub Actions, Commit und Push.
+- Ziel: explizit konfigurierte Matrix-AVDs auf ADB 5038 sicher und eindeutig auflösen, ohne
+  Fingerprint-/Mehrgeräte-Blocker zu schwächen; bestehende physische Registerlogik erhalten.
+- Freigabe: dieser eine Subagent-Start ausdrücklich erteilt. Review, Tests mit Emulator oder
+  S20 sowie globale Abschluss-/Push-Aktionen bleiben getrennte Gates.
+
 ## Issue #178 — S2-Review und Reparatur — 2026-08-27
 
 - Reviewumfang: ausschließlich der benannte Battery-Optimization-Codepfad, MainActivity,
