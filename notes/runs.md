@@ -284,3 +284,18 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   unabhängiger Review separat.
 - Der reine Plan-/Lauf-Checkpoint wurde als `a8c2c5c` auf `origin/master` gepusht; kein
   Code-Commit, PR, Merge oder Issue-/Board-Schreibvorgang.
+
+## 2026-08-27 — Issue #178 Implementierung
+
+- Typisierte Freigabe erhalten: Implementierung sowie lokale Tests/Build/Lint; keine
+  Geräteabnahme, kein Review und keine GitHub-Actions.
+- Umsetzung: `KeepADBBatteryOptimization` liest den Live-Status über `PowerManager`, öffnet
+  die Akku-Optimierungseinstellungen und fällt bei fehlendem Intent sicher auf die App-Details
+  zurück. `MainActivity` aktualisiert das sichtbare Warnpanel bei jedem `onResume`.
+- Hauptseite und alle 19 unterstützten Locale-Dateien enthalten lokalisierte Warntexte sowie
+  eine barrierefreie 48-dp-Aktion. Contract-Tests decken Statuspfad, Fallback und Locale-Keys ab.
+- Nach defensiver Behandlung einer möglichen `SecurityException` im Akku-Statusgetter bestand
+  `./bin/verify` erneut vollständig: Diff-Check, 41 Unit-Tests, Lint sowie Debug-/Release-Build.
+- Kein Gerätezugriff, kein unabhängiger Review, kein PR/Merge und kein GitHub-Actions-Run.
+- Lokaler Codepfad ist abnahmefähig; echter Systemstatuswechsel, Settings-Rückkehr und
+  Hersteller-Fallback bleiben ungeprüft.

@@ -3562,8 +3562,26 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   lokale `./bin/verify`-Gates sowie ein ausdrücklich freigegebener Android-Nachweis auf dem
   Emulator oder registrierten S20 belegen die Kriterien. Unabhängiger Review ist für die
   größere UI-/Systemstatus-Etappe separat zu bestätigen.
-- Freigaben: Auswahl und Planaktualisierung erteilt; Implementierung, lokale Tests/Build/Lint,
-  Geräteabnahme, Review und externe Abschlussaktionen in diesem Lauf noch nicht freigegeben.
-- Status: `not approved` für die Umsetzung; keine Codeänderung, kein Testlauf, keine
-  Geräteaktion, kein PR/Merge und kein Workflow-Start. Der reine Plan-/Lauf-Checkpoint ist
-  mit Commit `a8c2c5c` auf `origin/master` gepusht.
+- Freigaben: Implementierung sowie lokale Tests/Build/Lint sind für diesen Lauf erteilt;
+  Geräteabnahme, Review und externe Abschlussaktionen bleiben separat ungeprüft.
+- Status: `not approved` für vollständige Issue-Abnahme; lokal implementiert und verifiziert,
+  aber kein Geräte-Nachweis, unabhängiger Review, PR/Merge oder Workflow-Start. Der Auswahl-
+  Checkpoint ist mit Commit `a8c2c5c` und der Statuskorrektur `0f68062` auf `origin/master`
+  gepusht.
+
+## Issue #178 — lokale Implementierung und Gates — 2026-08-27
+
+- Umsetzung: `KeepADBBatteryOptimization` liest den Live-Status über `PowerManager` und fängt
+  fehlende Systemberechtigung defensiv ab. Der Akku-Optimierungsdialog wird geöffnet; bei
+  fehlendem Hersteller-Intent fällt die App auf die App-Detailseite zurück. Es gibt keine
+  automatische Einstellungsänderung.
+- UI: `MainActivity` zeigt das lokalisierte Warnpanel nur bei fehlender Ausnahme und aktualisiert
+  es bei jedem `onResume`. Die Aktion hat das bestehende 48-dp-Ziel und explizite Beschriftung.
+  Alle 19 unterstützten Locale-Dateien enthalten lokalisierte Texte.
+- Tests: `KeepADBAccessibilityContractTest` prüft UI-Verträge, beide System-Intents, defensive
+  Fehlerbehandlung, Manifestberechtigung und Locale-Vollständigkeit.
+- Lokale Gates: `git diff --check` und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`
+  erfolgreich; vollständige Unit-Suite, Lint sowie Debug-/Release-Build bestanden.
+- Geräte-/Reviewstatus: nicht ausgeführt — dafür fehlt eine separate Geräte- bzw. Reviewfreigabe.
+  Ungeprüft bleiben der echte Ausnahmewechsel, Rückkehr aus Android Settings und Hersteller-
+  Fallback auf Android 11–15.

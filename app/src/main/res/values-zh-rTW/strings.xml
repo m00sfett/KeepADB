@@ -103,4 +103,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_subtext">在此裝置上保留最近 128 筆已遮蔽事件。匯出會開啟 Android 分享面板。</string>
     <string name="settings_diagnostics_export">匯出診斷資訊</string>
     <string name="settings_diagnostics_export_subject">KeepADB 診斷</string>
+    <string name="battery_optimization_title">電池最佳化可能限制 Keep-Alive</string>
+    <string name="battery_optimization_body">KeepADB 未排除在電池最佳化之外。Android 或裝置製造商可能會限制或停止背景中的 Keep-Alive。</string>
+    <string name="battery_optimization_button">開啟電池設定</string>
 </resources>

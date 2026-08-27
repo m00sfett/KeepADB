@@ -103,4 +103,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_subtext">在此设备上保留最近 128 条已脱敏事件。导出会打开 Android 分享面板。</string>
     <string name="settings_diagnostics_export">导出诊断信息</string>
     <string name="settings_diagnostics_export_subject">KeepADB 诊断</string>
+    <string name="battery_optimization_title">电池优化可能限制 Keep-Alive</string>
+    <string name="battery_optimization_body">KeepADB 未被排除在电池优化之外。Android 或设备制造商可能会限制或停止后台 Keep-Alive。</string>
+    <string name="battery_optimization_button">打开电池设置</string>
 </resources>

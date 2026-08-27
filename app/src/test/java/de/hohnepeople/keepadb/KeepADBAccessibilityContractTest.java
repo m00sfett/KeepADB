@@ -57,6 +57,12 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"notification_permission_panel_title\""));
                 assertTrue("Missing notification settings action in " + directory,
                         content.contains("name=\"notification_permission_settings_button\""));
+                assertTrue("Missing battery optimization title in " + directory,
+                        content.contains("name=\"battery_optimization_title\""));
+                assertTrue("Missing battery optimization body in " + directory,
+                        content.contains("name=\"battery_optimization_body\""));
+                assertTrue("Missing battery optimization action in " + directory,
+                        content.contains("name=\"battery_optimization_button\""));
                 assertTrue("Missing back description in " + directory,
                         content.contains("name=\"back\""));
                 assertTrue("Missing standardized tile label in " + directory,
@@ -148,6 +154,26 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(activity.contains("showProfileDialog"));
         assertTrue(activity.contains("showProfileEditDialog"));
         assertTrue(activity.contains("usb_profile_edit_button"));
+    }
+
+    @Test
+    public void mainActivityIncludesBatteryOptimizationWarningAndFallback() throws IOException {
+        String layout = read("app/src/main/res/layout/activity_main.xml");
+        String activity = read("app/src/main/java/de/hohnepeople/keepadb/MainActivity.java");
+        String helper = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBBatteryOptimization.java");
+        String manifest = read("app/src/main/AndroidManifest.xml");
+        assertTrue(layout.contains("android:id=\"@+id/battery_optimization_panel\""));
+        assertTrue(layout.contains("@string/battery_optimization_title"));
+        assertTrue(layout.contains("@string/battery_optimization_body"));
+        assertTrue(layout.contains("@+id/btn_open_battery_settings"));
+        assertTrue(activity.contains("KeepADBBatteryOptimization.isExempt(this)"));
+        assertTrue(activity.contains("KeepADBBatteryOptimization.openSettings(this)"));
+        assertTrue(activity.contains("batteryOptimizationPanel.setVisibility"));
+        assertTrue(helper.contains("isIgnoringBatteryOptimizations"));
+        assertTrue(helper.contains("ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS"));
+        assertTrue(helper.contains("ACTION_APPLICATION_DETAILS_SETTINGS"));
+        assertTrue(helper.contains("ActivityNotFoundException"));
+        assertTrue(manifest.contains("REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"));
     }
 
     @Test

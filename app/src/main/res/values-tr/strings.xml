@@ -103,4 +103,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_subtext">Düzenlenmiş son 128 olayı bu cihazda tutar. Dışa aktarma, Android paylaşım sayfasını açar.</string>
     <string name="settings_diagnostics_export">Tanılamayı dışa aktar</string>
     <string name="settings_diagnostics_export_subject">KeepADB tanılaması</string>
+    <string name="battery_optimization_title">Pil optimizasyonu Keep-Alive özelliğini sınırlayabilir</string>
+    <string name="battery_optimization_body">KeepADB pil optimizasyonu kapsamı dışına alınmadı. Android veya üretici, arka planda Keep-Alive özelliğini sınırlayabilir ya da durdurabilir.</string>
+    <string name="battery_optimization_button">Pil ayarlarını aç</string>
 </resources>
