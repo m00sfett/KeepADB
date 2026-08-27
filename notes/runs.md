@@ -299,3 +299,5 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Kein Gerätezugriff, kein unabhängiger Review, kein PR/Merge und kein GitHub-Actions-Run.
 - Lokaler Codepfad ist abnahmefähig; echter Systemstatuswechsel, Settings-Rückkehr und
   Hersteller-Fallback bleiben ungeprüft.
+- Commit `4406e81` ist auf `origin/feat/178-battery-optimization`; Server-Readback zeigt keinen
+  PR und keinen Workflow-Run.

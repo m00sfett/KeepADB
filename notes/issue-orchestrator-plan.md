@@ -3585,3 +3585,5 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Geräte-/Reviewstatus: nicht ausgeführt — dafür fehlt eine separate Geräte- bzw. Reviewfreigabe.
   Ungeprüft bleiben der echte Ausnahmewechsel, Rückkehr aus Android Settings und Hersteller-
   Fallback auf Android 11–15.
+- Commit-/Branch-Readback: `4406e818d3924e86d4efd28d0363280391657791` auf
+  `origin/feat/178-battery-optimization`; kein PR und kein Workflow-Run.
