@@ -3610,5 +3610,5 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Release-Build. Keine GitHub-Actions, keine Geräteprüfung.
 - Reviewstatus: `approved` für den benannten lokalen Scope; Android-Geräte-/Settings-Rückkehr,
   echter Hersteller-Fallback und Laufzeit-UI bleiben ungeprüfte Akzeptanznachweise.
-- Commit-/Branchstatus: Reparatur noch nicht committed/pushed; Issue #178 und PR-Status bleiben
-  serverseitig offen.
+- Commit-/Branchstatus: Reparaturcommit `c1118fe2e3c0bf9766d23b3b449449906d47f456` ist auf
+  `origin/feat/178-battery-optimization`; Issue #178 und PR-Status bleiben serverseitig offen.

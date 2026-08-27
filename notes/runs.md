@@ -317,4 +317,5 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   statischen Testausschnitt; Test korrigiert. Zweiter `./bin/verify`-Lauf vollständig grün:
   48 Unit-Tests, Lint, Debug-/Release-Build und Diff-Check.
 - Rest: keine Geräte-/Laufzeitabnahme (Android 11–15, Settings-Rückkehr, Hersteller-Fallback),
-  kein Commit/Push/PR/Merge. Reviewstatus `approved` nur für den lokalen benannten Scope.
+  kein PR/Merge. Reparaturcommit `c1118fe2e3c0bf9766d23b3b449449906d47f456` ist auf dem
+  Feature-Branch. Reviewstatus `approved` nur für den lokalen benannten Scope.
