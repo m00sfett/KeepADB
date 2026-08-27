@@ -3624,6 +3624,105 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   13 und der statische Fallback-Vertrag; offen bleiben Android 11–12/14–15-Laufzeitnachweise
   sowie die OEM-Fallback-Abnahme.
 
+## Ausführungsplan für einen neuen Agenten — Cross-Version-Abnahme #178
+
+Dieser Plan ist nach einer separaten Freigabe für SDK-/AVD-Provisionierung und Geräteaktionen
+direkt ausführbar. Er ergänzt die bereits abgeschlossene Android-13-Abnahme und darf den
+Produktionscode nicht verändern.
+
+### Ziel und Abschlusskriterien
+
+- Laufzeitnachweise auf Android 11, 12, 13, 14 und 15 für den Akku-/Doze-Hinweis sammeln.
+- Auf jedem Ziel belegen: Hinweis ohne Ausnahme sichtbar, Akku-Aktion öffnet den passenden
+  Android-Dialog, „Zulassen“ führt nach erneutem `onResume` zum Ausblenden, Entfernen der
+  Ausnahme führt wieder zum Anzeigen.
+- Auf jedem Ziel vor und nach dem Test `adb_wifi_enabled` lesen; der Wert darf sich nicht ändern.
+- Alle temporären Device-Idle-Whitelist-Einträge am Ende entfernen. Kein `pm clear`, kein
+  Uninstall und keine Änderung an Keep-Alive-/ADB-Einstellungen.
+- `approved` für Cross-Version nur, wenn API 30–35 tatsächlich ausgeführt und die Readbacks
+  versioniert dokumentiert sind. Ein API-36-Lauf zählt als Zusatzbeleg, ersetzt API 30–35 nicht.
+
+### Verfügbare Ausgangslage
+
+- Projektbranch: `feat/178-battery-optimization`, finaler Code-/Dokumentationsstand zunächst
+  per `git status --short --branch` und `git rev-parse HEAD` feststellen.
+- Vorhanden: S20/Android 13 (`SM-G780G`, `RF8T307S88H`), `Galaxy_A6_API_35` (Android 15)
+  und `Dev_Galaxy_S20_API_36_1_Play` (Android 16).
+- Fehlend: Android-11/API 30, Android-12/API 31 und Android-14/API 34 als ausführbare Ziele.
+- Der S20-/Android-13-Nachweis und der statische OEM-Fallback-Contract-Test sind bereits im
+  Reviewbericht `notes/reviews/2026-08-27-issue-178-s2.md` belegt.
+
+### Vorbedingungen und Freigaben
+
+1. `whoami` ausführen; `tobias` erwarten. Branch und Arbeitsbaum prüfen. Fremde Änderungen
+   nicht anfassen.
+2. `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` ausführen; bei Fehlern vor dem
+   Gerätegate reparieren oder als Code-/Toolchainfehler dokumentieren.
+3. Vor jeder physischen Aktion `phone-register get s20`, danach den registrierten Transport,
+   `android-target s20` sowie Modell/Serial/Fingerprint prüfen. Bei erfolgreicher Verbindung
+   das Register aktualisieren.
+4. Für neue SDK-System-Images/AVDs eine eigene Nutzerfreigabe für Toolchain-/AVD-Provisionierung
+   einholen. Nicht automatisch `sdkmanager`, `avdmanager` oder Konfigurationsdateien verändern.
+5. Für jeden Emulator nur einen AVD gleichzeitig starten; sichtbares Fenster verwenden. Kein
+   `--headless` ohne eigene Freigabe. Einen abgestürzten Emulator als Infrastrukturfehler
+   behandeln, keinen API- oder Rendererwechsel als Workaround erfinden.
+
+### AVD-Provisionierung nach Freigabe
+
+- Installierte Plattformen und Images zuerst read-only inventarisieren:
+  `/home/tobias/Android/Sdk/cmdline-tools/latest/bin/sdkmanager --list`.
+- Falls API 30, 31 oder 34 fehlen, die passenden Google-APIs-x86_64-Images installieren:
+  `platforms;android-30`, `platforms;android-31`, `platforms;android-34` und jeweils
+  `system-images;android-30;google_apis;x86_64`,
+  `system-images;android-31;google_apis;x86_64`,
+  `system-images;android-34;google_apis;x86_64`.
+- Mit `avdmanager create avd` drei klar benannte AVDs anlegen, z. B.
+  `KeepADB_API30`, `KeepADB_API31` und `KeepADB_API34`, jeweils mit dem passenden Image und
+  Geräteprofil `pixel_2`. Bestehende AVDs nicht überschreiben.
+- Jeden neuen AVD read-only mit `emulator -list-avds`, `adb ... getprop ro.build.version.sdk`
+  und `ro.build.version.release` prüfen. Nur API 30, 31 und 34 als passende Ziele markieren;
+  API 35/36 separat als bereits vorhandene Zusatzziele behandeln.
+
+### Testablauf je Android-Version
+
+Für API 30, 31, 32, 33, 34 und 35 in dieser Reihenfolge arbeiten. Den AVD-Start-/Stop-
+Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel betreiben.
+
+1. AVD starten, `adb`-Ziel eindeutig auflösen und API/Release per `getprop` sichern.
+2. `android-target emulator -- install -r app/build/outputs/apk/debug/app-debug.apk`;
+   anschließend `am force-stop` und `am start -n de.hohnepeople.keepadb/.MainActivity`.
+3. Mit `ADBUI_TARGET=emulator adbui dump` den englischen Hinweis, Erklärung und Button
+   nachweisen. Screenshot mit `adbui shot` speichern und aktiv prüfen.
+4. Vor dem Klick lesen:
+   `android-target emulator -- shell dumpsys deviceidle whitelist` und
+   `android-target emulator -- shell settings get global adb_wifi_enabled`.
+5. `ADBUI_TARGET=emulator adbui tap-text 'Open battery settings'` ausführen. Im UI-Dump muss
+   der Systemdialog `RequestIgnoreBatteryOptimizations` mit „Allow“/„Deny“ erscheinen.
+6. „Allow“ klicken, die App wieder in den Vordergrund bringen und per UI-Dump nachweisen, dass
+   das Warnpanel fehlt. Whitelist-Readback mit Paketname sichern.
+7. `android-target emulator -- shell dumpsys deviceidle whitelist -de.hohnepeople.keepadb`
+   ausführen, App per `am force-stop`/`am start` neu öffnen und das wieder sichtbare Warnpanel
+   nachweisen.
+8. `adb_wifi_enabled` erneut lesen. Bei Abweichung sofort stoppen und den Befund als
+   Regression dokumentieren.
+9. Screenshot, UI-Dump, API/Release, Whitelist-Readbacks und Ergebnis in einem versionierten
+   Bericht `notes/reviews/YYYY-MM-DD-issue-178-cross-version.md` sichern.
+10. AVD sauber stoppen. Bei Fehlern keinen nächsten API-Stand starten, bevor Ursache und
+    Artefakte gesichert sind.
+
+### OEM-Fallback und Ergebnisbewertung
+
+- Ein wirklich nicht verfügbarer Hersteller-Intent ist mit den vorhandenen Google-API-AVDs
+  nicht bewiesen. Dafür ein zweites registriertes physisches OEM-Gerät oder ein reproduzierbar
+  eingeschränktes Settings-System verwenden; eine künstlich deaktivierte System-App ist kein
+  zulässiger Ersatz ohne gesonderte Betriebsfreigabe.
+- Wenn kein zweites OEM-Gerät verfügbar ist, Ergebnis als `not approved` für das OEM-Kriterium
+  markieren. Der Code-/Contract-Nachweis für `ActivityNotFoundException` bleibt gültig.
+- Nach dem Lauf `git status --short --branch`, letzten Commit und Berichtspfad prüfen. Keine
+  Issue-Schließung, kein PR/Merge und keine GitHub Action ohne separate Abschlussfreigabe.
+- Der neue Agent muss die tatsächlichen API-/OEM-Ergebnisse in diesen Plan und `notes/runs.md`
+  übernehmen, nicht aus dieser Vorlage als bereits ausgeführt ableiten.
+
 ## Issue #178 — S2-Review und Reparatur — 2026-08-27
 
 - Reviewumfang: ausschließlich der benannte Battery-Optimization-Codepfad, MainActivity,

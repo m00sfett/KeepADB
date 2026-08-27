@@ -323,6 +323,16 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   registriertes Ziel freigegeben ist und der kanonische Emulator außerhalb des Zielbereichs liegt.
 - Ergebnis: Android 13 nachgewiesen, Cross-Version-/OEM-Teil nicht vollständig nachweisbar.
 
+## 2026-08-27 — Ausführungsplan Cross-Version-Abnahme #178
+
+- Für einen neuen Agenten wurde ein eigenständig ausführbarer Plan in
+  `notes/issue-orchestrator-plan.md` ergänzt.
+- Der Plan beschreibt SDK-/AVD-Provisionierung für API 30/31/34, die Testreihenfolge API 30–35,
+  Whitelist-/`onResume`-Readbacks, `adb_wifi_enabled`-Kontrolle, Rückbau, Artefakte und klare
+  Stop-/Bewertungsregeln.
+- SDK-/AVD-Provisionierung wurde in diesem Lauf nicht ausgeführt. OEM-Fallback bleibt ohne
+  zweites registriertes Gerät nur statisch belegt.
+
 ## 2026-08-27 — Issue #178 S2-Review und Reparatur
 
 - Freigabe: unabhängiger Review mit Reparatur im benannten Scope, lokale Gates; keine
