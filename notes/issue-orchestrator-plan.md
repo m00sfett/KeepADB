@@ -3723,6 +3723,19 @@ Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel bet
 - Der neue Agent muss die tatsächlichen API-/OEM-Ergebnisse in diesen Plan und `notes/runs.md`
   übernehmen, nicht aus dieser Vorlage als bereits ausgeführt ableiten.
 
+## Folgeissues für offene #178-Nachweise — 2026-08-27
+
+- Issue #180 `test: Android-11–15-Testmatrix für Akku-/Doze-Hinweis bereitstellen` angelegt
+  und in Project #8 als `backlog` synchronisiert. Es umfasst API-30/31/34-Images/AVDs, die
+  Testmatrix API 30–35, Whitelist-/Resume-Readbacks und den Rückbau.
+- Issue #181 `test: OEM-Fallback für Akku-Einstellungsintent auf zweitem Gerät abnehmen`
+  angelegt und in Project #8 als `backlog` synchronisiert. Es umfasst ein zweites registriertes
+  OEM-Gerät, den nicht verfügbaren/nicht zulässigen Request-Intent, App-Detail-Fallback und
+  den unveränderten ADB-Status.
+- Aktueller Drift-Readback: Beide Issues haben Board-Einträge und keine Statusabweichung. Der
+  einzige verbleibende Befund ist der offene Branch `feat/178-battery-optimization` ohne
+  gemergten PR; das ist erwarteter Zustand und bleibt bis zur separaten PR-Freigabe bestehen.
+
 ## Issue #178 — S2-Review und Reparatur — 2026-08-27
 
 - Reviewumfang: ausschließlich der benannte Battery-Optimization-Codepfad, MainActivity,

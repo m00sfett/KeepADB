@@ -333,6 +333,14 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - SDK-/AVD-Provisionierung wurde in diesem Lauf nicht ausgeführt. OEM-Fallback bleibt ohne
   zweites registriertes Gerät nur statisch belegt.
 
+## 2026-08-27 — Folgeissues für #178
+
+- Nach Duplikatprüfung wurden Issue #180 für die Android-11–15-Testmatrix/AVDs und Issue #181
+  für den OEM-Fallback auf einem zweiten Gerät angelegt.
+- Beide Issues sind offen, als `enhancement` markiert und in Project #8 auf `backlog` synchronisiert.
+- Der abschließende Drift-Readback findet nur den erwarteten ungeprüften Feature-Branch ohne
+  gemergten PR; keine Board- oder Issue-Statusabweichung.
+
 ## 2026-08-27 — Issue #178 S2-Review und Reparatur
 
 - Freigabe: unabhängiger Review mit Reparatur im benannten Scope, lokale Gates; keine
