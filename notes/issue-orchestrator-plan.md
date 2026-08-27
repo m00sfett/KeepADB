@@ -3736,6 +3736,71 @@ Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel bet
   einzige verbleibende Befund ist der offene Branch `feat/178-battery-optimization` ohne
   gemergten PR; das ist erwarteter Zustand und bleibt bis zur separaten PR-Freigabe bestehen.
 
+## Auswahl Issue #180 — 2026-08-27
+
+- `issue_snapshot_at: 2026-08-27T05:01:21Z`; `plan_updated_at: 2026-08-27T07:12:33+02:00`.
+- Roadmap-Abgleich (wörtlich): „#178 ist gemäß Nutzerentscheidung das nächste Paket; danach
+  Rückkehr zur normalen Issue-Reihenfolge.“ #180 ergänzt unmittelbar die noch offenen
+  Cross-Version-Abnahmen aus #178 und dient damit dem Abschlussnachweis dieses Pakets.
+- Server-Readback: Issue #180 offen, Label `enhancement`, keine offenen PRs, kein aktiver
+  Workflow-Run für den lokalen Branch-Head `7b09233`; die CI-Workflows werden nicht gestartet.
+- Aktuelles Paket: Issue #180 — Android-11–15-Testmatrix für den Akku-/Doze-Hinweis.
+- Ziel: Die Laufzeitkriterien aus #178 auf API 30–35 tatsächlich ausführen oder fehlende Ziele
+  als externen Infrastrukturblocker mit überprüfter Inventur dokumentieren.
+- Zusammenhang: gemeinsame KeepADB-APK und der Battery-Optimization-UI-/Settings-Pfad aus #178;
+  getrennte Abnahmegrenze ohne Produktionscodeänderung. API 33 ist durch den S20-Nachweis
+  belegt, API 30/31/34 fehlen lokal, API 35 ist als nicht registriertes AVD vorhanden.
+- Nicht-Ziele: kein Produktionscode, kein automatisches Akku-/ADB-Toggle außerhalb des
+  kontrollierten Tests, keine Datenlöschung, keine GitHub-Actions und keine Issue-/PR-
+  Abschlussänderung ohne separate Freigabe.
+- Umfang: read-only Toolchain-/AVD-Inventur; nach Freigabe SDK-Images/AVDs für API 30, 31 und
+  34; Testmatrix API 30–35 mit UI-Dumps, Screenshots, API-/Release-Werten,
+  `adb_wifi_enabled`-Readbacks, Doze-Whitelist-Rückbau und versioniertem Abnahmebericht.
+- Zerlegung: (1) S1 Inventur und Plan-/Matrixvorbereitung, (2) S2 SDK-/AVD-Provisionierung,
+  (3) S3 wiederholte Geräte-/Emulator-Abnahme mit temporärem Whitelist-Zustand. Die Pakete
+  bleiben getrennt wegen unterschiedlicher Freigaben, Risiken und Rückrollpfade.
+- `approved`: API 30–35 sind als passende Ziele nachgewiesen und je Version sind Hinweis ohne
+  Ausnahme, zielgenauer Settings-Dialog, Resume-Refresh, Wiederanzeige nach Rückbau,
+  unverändertes `adb_wifi_enabled` sowie temporärer Whitelist-Rückbau dokumentiert. Ein API-
+  36-Lauf zählt nur als Zusatzbeleg. Fehlende Ziele dürfen nur mit vollständiger Inventur als
+  externer Blocker abgeschlossen werden; dann bleibt #180 nicht vollständig approved.
+- Freigaben: Auswahl, read-only Inventur und Planaktualisierung erteilt. SDK-/AVD-
+  Provisionierung, Emulatorstarts, Installationen, UI-/ADB-Abnahme, Geräteaktionen sowie
+  externe Abschlussaktionen sind noch nicht freigegeben. Keine Delegation vorgesehen; das
+  Paket wird wegen der Geräte-/Toolchain-Abhängigkeiten vom Hauptagenten orchestriert.
+- Status: `not approved` für die Ausführung; noch kein Test-/Gerätegate und keine Änderung am
+  Produktionscode.
+
+## Issue #180 — read-only Inventur — 2026-08-27
+
+- Ausgeführt: `whoami` → `tobias`; `git status --short --branch`; Remote-/Workflow-/Run-
+  Status; `gh issue list`; `github-drift --repo m00sfett/KeepADB`; SDK-/AVD-Inventur.
+- SDK: Plattformen 35, 36 und 36.1; System-Images API 29, 35 und 36.1. AVDs:
+  `Dev_Galaxy_S20_API_36_1_Play` und `Galaxy_A6_API_35`.
+- Nicht vorhanden: ausführbare lokale Ziele für API 30, 31, 32 und 34. API 33 bleibt durch den
+  bereits dokumentierten registrierten S20-Nachweis belegt. Die frühere Planannahme eines
+  vorhandenen API-32-Ziels ist damit widerlegt; die Provisionierung muss API 32 zusätzlich
+  einschließen, wenn die Issue-Forderung API 30–35 vollständig erfüllt werden soll.
+- SDK-Toolchain meldet beim `sdkmanager --list` nur die bekannte XML-Kompatibilitätswarnung;
+  keine Installation oder Konfigurationsänderung wurde vorgenommen.
+- GitHub: #180/#181 neu bzw. unverändert offen; keine offenen PRs und kein aktiver Run. Drift
+  meldet ausschließlich `feat/178-battery-optimization` ohne gemergten PR; keine automatische
+  Löschung, weil der Branch die einzige Referenz seiner Commits ist.
+- Ergebnis: Inventur ist `approved`; SDK-/AVD-Provisionierung, Emulatorstarts, APK-
+  Installationen, UI-/ADB-Abnahme und physische Geräteaktionen bleiben typisiert freigabepflichtig.
+
+## Übergabe-Checkpoint vor Issue #180 — 2026-08-27
+
+- #178 bleibt serverseitig offen; #180 und #181 sind angelegt und laut letztem Plan-Readback im
+  Project #8 als `backlog` eingetragen. Der aktuelle Arbeitsbaum ist sauber auf
+  `feat/178-battery-optimization`, Commit `7b09233`; diese Statusangabe wird vor Abschluss
+  erneut read-only abgefragt.
+- Offener Nachweis: API 30/31/34 fehlen als lokale ausführbare Ziele; API 33 ist auf dem
+  registrierten S20 belegt. API 35 ist lokal vorhanden, aber nicht als registriertes Ziel
+  freigegeben. OEM-Fallback bleibt separat in #181.
+- Nächster zulässiger Schritt: read-only SDK-/AVD-Inventur und Abgleich von Board/Drift. Danach
+  ist für Provisionierung und Geräte-/Emulatoraktionen eine typisierte Nutzerfreigabe nötig.
+
 ## Issue #178 — S2-Review und Reparatur — 2026-08-27
 
 - Reviewumfang: ausschließlich der benannte Battery-Optimization-Codepfad, MainActivity,
