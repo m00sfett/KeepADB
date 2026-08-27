@@ -3895,6 +3895,19 @@ Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel bet
   API-30/31/32/34/35-Laufzeitmatrix noch nicht ausgeführt wurde. Unabhängiger Review wurde
   nicht gestartet.
 
+## Issue #180 — Freigabe Matrixabnahme — 2026-08-27
+
+- Nutzerfreigabe erhalten: Die nächste Stufe, die Laufzeitabnahme der Matrix-AVDs API 30, 31,
+  32, 34 und 35, darf ausgeführt werden. API 33 bleibt durch den dokumentierten S20-Nachweis
+  abgedeckt.
+- Freigegeben sind Emulatorstarts, APK-Installationen, UI-Dumps, Screenshots, Settings-
+  Dialoge, temporäre Doze-Whitelist-Änderungen und die kontrollierte Wiederherstellung.
+- Nicht freigegeben und nicht geplant: Produktionscodeänderungen, KeepADB-Produktionsdaten-
+  löschung, GitHub-Actions, PR-/Issue-Abschluss oder weitere Resolveränderungen.
+- Abschlusskriterium: je API Hinweis ohne Ausnahme, zielgenauer Dialog, Ausblenden nach
+  `Zulassen`/Resume, Wiederanzeige nach Whitelist-Rückbau, `adb_wifi_enabled` unverändert,
+  Whitelist am Ende bereinigt bzw. Ausgangszustand wiederhergestellt.
+
 ## Issue #178 — S2-Review und Reparatur — 2026-08-27
 
 - Reviewumfang: ausschließlich der benannte Battery-Optimization-Codepfad, MainActivity,
