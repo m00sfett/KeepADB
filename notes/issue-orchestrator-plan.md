@@ -3873,6 +3873,28 @@ Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel bet
 - Freigabe: dieser eine Subagent-Start ausdrücklich erteilt. Review, Tests mit Emulator oder
   S20 sowie globale Abschluss-/Push-Aktionen bleiben getrennte Gates.
 
+## Resolver-Reparatur für Issue #180 — Abschluss — 2026-08-27
+
+- Bearbeiter: Subagent Rawls; Paket: globaler Android-Resolver; Stufe: S2; Modell/Effort:
+  `gpt-5.6-luna` / `max`; Status der Angaben: verifiziert.
+- Geändert: `resolve-android-target.sh`, `android-targets.json`, der deterministische
+  Resolver-Test und das Fake-ADB unter `/home/tobias/agent/bin/android-tools`.
+- Ergebnis: Der Resolver unterstützt den kanonischen AVD und die Matrix-AVDs API 30/31/32/34/35
+  nur bei genau einem Emulator auf 5038 und passendem AVD-/Fingerprint-Paar. Mehrfach-,
+  Offline-, Unauthorized-, unbekannte AVD- und falsche Fingerprint-Fälle werden blockiert.
+  Die physische Registerlogik blieb unverändert.
+- Gates des Subagents: `bash -n`, ShellCheck, JSON-Prüfung, positive Fälle für alle sechs AVDs,
+  Negativfälle und Mutationstest gegen den Vorbestand bestanden. Hauptagent-Readback:
+  `bash /home/tobias/agent/bin/android-tools/test/resolve-android-target-test.sh` erfolgreich.
+- Live-Emulator: API-30-AVD wurde auf 5038 erkannt; der ADB-Shell-Kanal blieb trotz
+  `device`-Listeneintrag ohne Properties, daher blockierte der Resolver mit
+  `avd-query-failed`. AVD sauber beendet. Kein direkter ADB-Bypass.
+- Backup und Systemprotokoll: `.bak.20260827-134957` für Script/JSON sowie
+  `/home/tobias/agent/protocols/2026-08-27/135645-android-resolver-issue-180.yaml`.
+- Zustand: Resolver-Paket `complete`; Issue #180 insgesamt bleibt `not approved`, weil die
+  API-30/31/32/34/35-Laufzeitmatrix noch nicht ausgeführt wurde. Unabhängiger Review wurde
+  nicht gestartet.
+
 ## Issue #178 — S2-Review und Reparatur — 2026-08-27
 
 - Reviewumfang: ausschließlich der benannte Battery-Optimization-Codepfad, MainActivity,
