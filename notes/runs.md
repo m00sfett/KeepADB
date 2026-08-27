@@ -302,6 +302,18 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Commit `4406e81` ist auf `origin/feat/178-battery-optimization`; Server-Readback zeigt keinen
   PR und keinen Workflow-Run.
 
+## 2026-08-27 — Issue #178 Review und S20-Abnahme
+
+- Der unabhängige S2-Review reparierte drei scoped Findings: zielgenauer Akku-Ausnahmedialog,
+  semantische Warnüberschrift und explizitere Contract-Tests. Bericht:
+  `notes/reviews/2026-08-27-issue-178-s2.md`.
+- Nach Review: `./bin/verify` grün mit 48 Unit-Tests, Lint sowie Debug-/Release-Build.
+- S20/Android 13: Warnung ohne Ausnahme sichtbar; „Akku-Einstellungen öffnen“ öffnete den
+  `RequestIgnoreBatteryOptimizations`-Dialog. „Zulassen“ verbarg die Warnung nach Resume,
+  Entfernen des kontrollierten Whitelist-Eintrags stellte sie wieder her. `adb_wifi_enabled=1`.
+- Review und S20-Gate `approved` im Scope. Android 11–12/14–15 und nicht verfügbarer OEM-
+  Fallback ungeprüft. Kein PR/Merge und keine GitHub Actions.
+
 ## 2026-08-27 — Issue #178 S2-Review und Reparatur
 
 - Freigabe: unabhängiger Review mit Reparatur im benannten Scope, lokale Gates; keine

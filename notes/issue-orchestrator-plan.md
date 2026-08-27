@@ -3588,6 +3588,26 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
 - Commit-/Branch-Readback: `4406e818d3924e86d4efd28d0363280391657791` auf
   `origin/feat/178-battery-optimization`; kein PR und kein Workflow-Run.
 
+## Issue #178 — Review und S20-Abnahme — 2026-08-27
+
+- Unabhängiger S2-Review mit Reparatur abgeschlossen. Drei scoped Findings wurden behoben:
+  zielgenauer `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`-Intent mit Package-URI,
+  Accessibility-Überschrift und erweiterte Contract-Tests. Reviewbericht:
+  `notes/reviews/2026-08-27-issue-178-s2.md`.
+- Lokale Gates nach Review: `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erfolgreich;
+  48 Unit-Tests, Lint sowie Debug-/Release-Build bestanden. Commits `c1118fe` und `d398431`
+  sind auf `origin/feat/178-battery-optimization`.
+- S20-Nachweis: Gerät `SM-G780G` / `RF8T307S88H`, Android 13, per Registerpfad `usb-adb`
+  validiert. Ohne Doze-Ausnahme war der Hinweis sichtbar; die Schaltfläche öffnete den
+  zielgenauen Android-Dialog. Nach „Zulassen“ verschwand der Hinweis beim erneuten Resume;
+  nach Entfernen des kontrollierten Testeintrags erschien er wieder. `adb_wifi_enabled` blieb
+  `1`, keine Datenlöschung.
+- Erfüllt: Live-Status, sichtbarer Hinweis, Settings-Aktion, S20-Rückkehr-Refresh,
+  vorhandene Ausnahme verborgen, Accessibility und Lokalisierung. Ungeprüft: Android 11–12
+  und 14–15 sowie ein nicht verfügbarer Hersteller-Intent.
+- Status: `not approved` für vollständigen Issue-Abschluss; lokaler Review und S20-Abnahme
+  `approved`, aber kein PR/Merge und kein GitHub-Actions-Run.
+
 ## Issue #178 — S2-Review und Reparatur — 2026-08-27
 
 - Reviewumfang: ausschließlich der benannte Battery-Optimization-Codepfad, MainActivity,
