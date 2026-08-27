@@ -301,3 +301,20 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   Hersteller-Fallback bleiben ungeprüft.
 - Commit `4406e81` ist auf `origin/feat/178-battery-optimization`; Server-Readback zeigt keinen
   PR und keinen Workflow-Run.
+
+## 2026-08-27 — Issue #178 S2-Review und Reparatur
+
+- Freigabe: unabhängiger Review mit Reparatur im benannten Scope, lokale Gates; keine
+  Geräteaktion und keine GitHub Actions.
+- Reviewbefund: Der bestehende Code öffnete die allgemeine Akku-Optimierungsliste, obwohl die
+  Implementierungsbehauptung einen Akku-Optimierungsdialog nannte. Zusätzlich fehlte die
+  semantische Screenreader-Überschrift; der Contract-Test prüfte Aufruf- und
+  Nichtveränderungsverträge nicht explizit.
+- Reparatur: appbezogener `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`-Intent mit `package:`-
+  URI, sicherer App-Detail-Fallback unverändert; `android:accessibilityHeading="true"`; Contract-
+  Tests für `onResume`, Fallback, Statuspfad und unveränderte WLAN-/Keep-Alive-Semantik ergänzt.
+- Gates: Baseline-Contract-Test 20 Tests grün. Erster Verify-Lauf fand einen zu breiten
+  statischen Testausschnitt; Test korrigiert. Zweiter `./bin/verify`-Lauf vollständig grün:
+  48 Unit-Tests, Lint, Debug-/Release-Build und Diff-Check.
+- Rest: keine Geräte-/Laufzeitabnahme (Android 11–15, Settings-Rückkehr, Hersteller-Fallback),
+  kein Commit/Push/PR/Merge. Reviewstatus `approved` nur für den lokalen benannten Scope.

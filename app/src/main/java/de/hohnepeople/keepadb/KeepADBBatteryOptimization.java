@@ -23,7 +23,8 @@ final class KeepADBBatteryOptimization {
     }
 
     static void openSettings(Activity activity) {
-        Intent settingsIntent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+        Intent settingsIntent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                Uri.parse("package:" + activity.getPackageName()));
         try {
             activity.startActivity(settingsIntent);
         } catch (ActivityNotFoundException | SecurityException ignored) {

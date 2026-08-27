@@ -3587,3 +3587,28 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   Fallback auf Android 11–15.
 - Commit-/Branch-Readback: `4406e818d3924e86d4efd28d0363280391657791` auf
   `origin/feat/178-battery-optimization`; kein PR und kein Workflow-Run.
+
+## Issue #178 — S2-Review und Reparatur — 2026-08-27
+
+- Reviewumfang: ausschließlich der benannte Battery-Optimization-Codepfad, MainActivity,
+  Manifest, Hauptlayout, alle 19 `values*/strings.xml` und
+  `KeepADBAccessibilityContractTest.java`; keine Geräteaktion und keine Scope-Erweiterung.
+- Findings: Muss-Fix (mittel): Der behauptete Akku-Optimierungsdialog wurde zuvor nur als
+  allgemeine Liste geöffnet (`ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS`), nicht als
+  appbezogener Request-Dialog. Niedrig: Die Warnüberschrift war für Screenreader nicht als
+  Überschrift markiert. Niedrig: Der Contract-Test belegte weder den `onResume`-Aufrufpfad noch
+  die Nichtveränderung von WLAN-ADB/Keep-Alive explizit.
+- Reparaturen: `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` mit `package:`-URI eingesetzt;
+  bestehender Fallback auf `ACTION_APPLICATION_DETAILS_SETTINGS` und Exception-Abfangpfad
+  erhalten. Battery-Warnüberschrift mit `android:accessibilityHeading` markiert. Contract-Test
+  um Live-Refresh-, Intent-, Fallback- und Nichtveränderungsverträge erweitert.
+- Gegenprüfung: `PowerManager.isIgnoringBatteryOptimizations()` wird live in `refresh()` gelesen;
+  `onResume()` ruft `refresh()` auf. Kein Aufrufpfad aus der Battery-Aktion setzt
+  `adb_wifi_enabled` oder Keep-Alive. Alle 19 Locale-Dateien enthalten die drei Schlüssel.
+- Gates: Baseline-Contract-Test grün (20 Tests); ein Testfehler durch zu breiten statischen
+  Ausschnitt wurde repariert; danach `./bin/verify` grün mit 48 Unit-Tests, Lint, Debug- und
+  Release-Build. Keine GitHub-Actions, keine Geräteprüfung.
+- Reviewstatus: `approved` für den benannten lokalen Scope; Android-Geräte-/Settings-Rückkehr,
+  echter Hersteller-Fallback und Laufzeit-UI bleiben ungeprüfte Akzeptanznachweise.
+- Commit-/Branchstatus: Reparatur noch nicht committed/pushed; Issue #178 und PR-Status bleiben
+  serverseitig offen.
