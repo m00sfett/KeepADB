@@ -3789,6 +3789,40 @@ Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel bet
 - Ergebnis: Inventur ist `approved`; SDK-/AVD-Provisionierung, Emulatorstarts, APK-
   Installationen, UI-/ADB-Abnahme und physische Geräteaktionen bleiben typisiert freigabepflichtig.
 
+## Issue #180 — Freigabe und Ausführungsstart — 2026-08-27
+
+- Nutzerfreigabe erhalten für (1) SDK-/AVD-Provisionierung, (2) Emulatorstarts, APK-
+  Installationen und UI-/ADB-Abnahmen sowie (3) physische S20-Prüfung.
+- Die Freigabe umfasst keine Produktionscodeänderung, keine Datenlöschung und keinen
+  GitHub-Actions-Run. API 32 wird wegen der nachgewiesenen Inventurlücke ergänzend zu den in
+  #180 genannten API 30/31/34-Zielen provisioniert, damit API 30–35 vollständig prüfbar ist.
+- Ausführungsreihenfolge: lokaler Verify-Lauf, SDK-/AVD-Provisionierung, Emulatorabnahmen für
+  API 30/31/32/34/35, danach S20-/API-33-Nachweis nur nach Register-/Fingerprint-Prüfung.
+
+## Issue #180 — Teilabnahme und Infrastrukturblocker — 2026-08-27
+
+- Lokaler Verify-Lauf mit JDK 17 erfolgreich: Unit-Tests, Lint, Debug- und Release-Build.
+- SDK: API 30 und 34 als System-Images provisioniert; API 30 zusätzlich als Plattform. API 31
+  blieb nach zwei zeitlich begrenzten Einzelversuchen beim SDK-Manager-Download ohne Fortschritt
+  offen. API 32 ist nur ein unvollständiger Installer-Rest ohne `source.properties`. API 35 war
+  bereits vorhanden. AVDs `KeepADB_API30`, `KeepADB_API34` und `KeepADB_API35` wurden angelegt.
+- Ein sichtbarer API-30-AVD bootete mit NVIDIA-Host-GPU. Der Resolver akzeptiert jedoch nur den
+  kanonischen `Dev_Galaxy_S20_API_36_1_Play`-AVD; der neue AVD ist deshalb nicht per gültigem
+  `android-target emulator` prüfbar. Kein direkter ADB-Bypass.
+- S20: Registerpfad `wlan-adb` auf `192.168.178.24:40435`, `SM-G780G` / `RF8T307S88H` /
+  Android 13/API 33 fingerprint-validiert und Register aktualisiert. Shared-Prefs gesichert,
+  APK Version 1.1.0 per `install -r` aktualisiert, `adb_wifi_enabled=1` unverändert.
+- UI-Abnahme blockiert: Activity-Start gelang, aber der UI-Dump blieb auf dem Sperrbildschirm;
+  keine Nutzer-PIN oder sonstige Entsperraktion angenommen. Bericht:
+  `notes/reviews/2026-08-27-issue-180-cross-version.md`.
+- Zustand: `not approved`; die vollständige API-30–35-Matrix, der API-33-UI-Nachweis und
+  Whitelist-/Vorher-Nachher-Readbacks je Version fehlen. Kein Issue-/PR-Schließen und keine
+  GitHub Action.
+- Retrospektive: Die frühe Verify-/Inventurstufe trennte Code- von Infrastrukturproblemen.
+  Der erste Emulatorlauf hätte mit dem Resolver-AVD-Abgleich früher als nicht verwertbar erkannt
+  werden können. Verbesserung: Neue Matrix-AVDs vor Provisionierung gegen den Resolververtrag
+  prüfen und den Entsperrstatus vor der UI-Abnahme als eigenes Gate erfassen.
+
 ## Übergabe-Checkpoint vor Issue #180 — 2026-08-27
 
 - #178 bleibt serverseitig offen; #180 und #181 sind angelegt und laut letztem Plan-Readback im
