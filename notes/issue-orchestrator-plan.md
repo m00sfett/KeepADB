@@ -3908,6 +3908,33 @@ Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel bet
   `Zulassen`/Resume, Wiederanzeige nach Whitelist-Rückbau, `adb_wifi_enabled` unverändert,
   Whitelist am Ende bereinigt bzw. Ausgangszustand wiederhergestellt.
 
+## Issue #180 — Matrixabnahme abgeschlossen — 2026-08-27
+
+- API 30/31/32/34/35 wurden einzeln über den reparierten Resolver auf ADB 5038 geprüft; API 33
+  ist durch den zuvor dokumentierten S20-Lauf abgedeckt.
+- Alle sechs Zielversionen bestanden den vollständigen Zyklus: Warnhinweis ohne Doze-Ausnahme,
+  zielgenauer Akku-Dialog, Ausblenden nach `Allow`/Resume, Wiederanzeige nach Whitelist-Entzug,
+  unverändertes `adb_wifi_enabled` und bereinigte bzw. wiederhergestellte Whitelist.
+- Readbacks: API 30/31/32/34/35 jeweils `0 -> 0`; S20 API 33 `1 -> 1`.
+- Versionierte XML-Dumps und Screenshots liegen unter
+  `notes/reviews/assets/2026-08-27-issue-180/`; API 34/35 enthielten zusätzlich den einmaligen
+  Notification-Erststartdialog.
+- Der Resolver-Fingerprint wurde während der Abnahme für die realen Google-API-Profile API 30,
+  31/32 und 34/35 korrigiert; JSON-, Syntax- und Resolvertests blieben grün. Die Änderung ist
+  im Systemprotokoll `/home/tobias/agent/protocols/2026-08-27/150312-issue-180-resolver-avd-fallback.yaml`
+  sowie den datierten Backups nachvollziehbar.
+- Zustand: lokaler Abnahmeumfang `approved`; kein GitHub-Action-Run, kein Issue-/PR-Abschluss.
+
+## Issue #180 — Beweisartefakt-Nacharbeit — 2026-08-27
+
+- Bei der Nachprüfung wurde festgestellt, dass mehrere neu kopierte PNG-Dateien zunächst nur den
+  von `adbui shot` ausgegebenen Pfad enthielten; die XML-Dumps und die Live-Abnahme bleiben gültig.
+- Die Ursache ist geklärt: `adbui shot` schreibt nach `/tmp/adbui.png`; die Datei muss nach dem
+  Aufruf kopiert werden. Ein API-31-Screenshot wurde mit dieser Korrektur erfolgreich erzeugt.
+- Offen vor dem finalen Commit: die betroffenen API-31/32/34/35-PNGs mit korrekter Zuordnung neu
+  erzeugen und anschließend Report/Artefakte atomar committen und pushen. Daher bleibt der
+  Repo-Nachweis bis dahin `not approved`, obwohl die Live-Matrix bestanden ist.
+
 ## Issue #178 — S2-Review und Reparatur — 2026-08-27
 
 - Reviewumfang: ausschließlich der benannte Battery-Optimization-Codepfad, MainActivity,
@@ -3932,3 +3959,11 @@ Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel bet
   echter Hersteller-Fallback und Laufzeit-UI bleiben ungeprüfte Akzeptanznachweise.
 - Commit-/Branchstatus: Reparaturcommit `c1118fe2e3c0bf9766d23b3b449449906d47f456` ist auf
   `origin/feat/178-battery-optimization`; Issue #178 und PR-Status bleiben serverseitig offen.
+
+## Issue #180 — Beweisartefakte nachgeholt — 2026-08-27
+
+- API 31/32/34/35: die vier PNG-Zustände je Version wurden aus der tatsächlichen
+  `/tmp/adbui.png`-Ausgabe neu erzeugt; alle PNGs sind als 1080×1920-RGBA-Bilder geprüft.
+- Die XML-Dumps und die bereits vorhandenen API-30-/API-33-Artefakte sind vollständig vorhanden.
+- Der lokale Abnahmeumfang von #180 ist damit `approved`. Kein GitHub-Action-Run und kein
+  automatischer Issue-/PR-Abschluss.

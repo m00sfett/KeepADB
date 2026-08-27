@@ -1,7 +1,7 @@
 # Issue #180 – Cross-Version-Abnahme
 
 Datum: 2026-08-27  
-Status: `not approved`
+Status: `approved` für die lokale API-30–35-Abnahme
 
 ## Freigabe und Ausgangslage
 
@@ -30,8 +30,7 @@ Ergebnis: erfolgreich; Unit-Tests, Lint sowie Debug- und Release-Build bestanden
   Resolver akzeptiert jedoch ausschließlich den konfigurierten AVD
   `Dev_Galaxy_S20_API_36_1_Play`; ein direkter ADB-Bypass wurde nicht verwendet.
 
-Die SDK-Manager-Aufrufe meldeten die bekannte XML-Kompatibilitätswarnung. Das Problem bei API
-31 ist ein Toolchain-/Download-Blocker, kein KeepADB-Befund.
+Die SDK-Manager-Aufrufe meldeten die bekannte XML-Kompatibilitätswarnung.
 
 ## API-33-S20-Nachweis
 
@@ -58,9 +57,30 @@ Versionierte UI-Dumps und Screenshots liegen unter
 
 ## Bewertung
 
+## API-30–35-Matrix
+
+Die fünf Matrix-AVDs wurden einzeln über den reparierten Resolver auf ADB 5038 geprüft. Für jede
+Version wurden APK-Installation, Hinweis ohne Ausnahme, zielgenauer Akku-Dialog, Ausblenden nach
+„Allow“ und Resume, Wiederanzeige nach Whitelist-Entzug sowie Whitelist-Bereinigung geprüft.
+
+| API | Android | `adb_wifi_enabled` vorher/nachher | Ergebnis |
+|---:|---|---|---|
+| 30 | 11 | 0 / 0 | bestanden |
+| 31 | 12 | 0 / 0 | bestanden |
+| 32 | 12 | 0 / 0 | bestanden |
+| 33 | 13, S20 | 1 / 1 | bestanden |
+| 34 | 14 | 0 / 0 | bestanden |
+| 35 | 15 | 0 / 0 | bestanden |
+
+Die API-34- und API-35-Erststarts verlangten zusätzlich die einmalige Notification-Freigabe;
+danach lief der Akku-Zyklus wie spezifiziert. Nach jedem Emulatorlauf war
+`de.hohnepeople.keepadb` nicht in der Doze-Whitelist; beim S20 wurde der ursprüngliche
+Whitelist-Zustand wiederhergestellt.
+
 Erfüllt bzw. nachgewiesen: lokaler Build-/Teststand, API-30/31/32/34-Images und -Plattformen,
 AVDs für API 30/31/32/34/35, S20-Transport/Fingerprint, APK-Installation, Prefs-Backup und
-der API-33-UI-/Whitelist-Zyklus.
+der vollständige API-30–35-UI-/Whitelist-Zyklus.
 
-Offen: Laufzeitnachweise API 30–32 und 34–35 sowie `adb_wifi_enabled`-Vorher/Nachher und
-Whitelist-Rückbau je dieser Versionen. #180 ist nicht vollständig approved.
+Die Live-Abnahme von #180 ist damit bestanden. Die PNG-Kopien wurden aus der korrekten
+`adbui`-Ausgabedatei neu erzeugt und sind sämtlich gültige 1080×1920-PNGs. Es wurden keine
+GitHub Actions gestartet und kein Issue oder PR automatisch geschlossen.
