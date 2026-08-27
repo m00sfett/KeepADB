@@ -3799,6 +3799,13 @@ Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel bet
 - Ausführungsreihenfolge: lokaler Verify-Lauf, SDK-/AVD-Provisionierung, Emulatorabnahmen für
   API 30/31/32/34/35, danach S20-/API-33-Nachweis nur nach Register-/Fingerprint-Prüfung.
 
+## Issue #180 — erneute S20-Freigabe — 2026-08-27
+
+- Der Nutzer bestätigt ausdrücklich: „S20 freigegeben“. Damit ist die zuvor offene typisierte
+  Gerätefreigabe für Registerprüfung, Installation und UI-/ADB-Abnahme erneut gültig.
+- API-31/32-Provisionierung und Emulatorabnahmen bleiben im selben freigegebenen
+  Ausführungsumfang; die bekannten SDK-/Resolver-Blocker werden nicht als bestanden behandelt.
+
 ## Issue #180 — Teilabnahme und Infrastrukturblocker — 2026-08-27
 
 - Lokaler Verify-Lauf mit JDK 17 erfolgreich: Unit-Tests, Lint, Debug- und Release-Build.
@@ -3834,6 +3841,23 @@ Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel bet
   freigegeben. OEM-Fallback bleibt separat in #181.
 - Nächster zulässiger Schritt: read-only SDK-/AVD-Inventur und Abgleich von Board/Drift. Danach
   ist für Provisionierung und Geräte-/Emulatoraktionen eine typisierte Nutzerfreigabe nötig.
+
+## Issue #180 — API-31/32-Toolchain und S20-Teilabnahme — 2026-08-27
+
+- API 31 und API 32 sind jetzt vollständig installiert, jeweils als Google-APIs-System-Image
+  und Plattform. AVDs `KeepADB_API31` und `KeepADB_API32` wurden ergänzt; insgesamt liegen
+  eigene AVDs für API 30/31/32/34/35 vor.
+- Der S20 wurde erneut über den Registerpfad geprüft: `SM-G780G`, `RF8T307S88H`, Android
+  13/API 33; der aktuelle Registereintrag wurde nach dem Transportwechsel aktualisiert.
+- API-33-Laufzeitabnahme bestanden: Hinweis ohne Ausnahme sichtbar, zielgenauer Dialog geöffnet,
+  `Zulassen` blendete den Hinweis nach Resume aus, Whitelist-Entfernung zeigte ihn wieder,
+  ursprüngliche Whitelist wiederhergestellt. `adb_wifi_enabled` blieb `1`.
+- UI-Dumps und Screenshots sind versioniert unter
+  `notes/reviews/assets/2026-08-27-issue-180/`; Bericht ergänzt.
+- Offen: API-30/31/32/34/35-Laufzeitabnahmen. Die neuen AVDs sind durch den kanonischen
+  Resolververtrag (`Dev_Galaxy_S20_API_36_1_Play`) nicht über `android-target emulator`
+  adressierbar; kein direkter ADB-Bypass wurde verwendet.
+- Zustand: `not approved`; API 33 als Teilkriterium bestanden, Issue #180 insgesamt offen.
 
 ## Issue #178 — S2-Review und Reparatur — 2026-08-27
 
