@@ -4331,3 +4331,32 @@ Probleme/Optionen: keine offen; Naechster Schritt: Auswahlrunde fuer #168 (jetzt
 - Beide Akzeptanzkriterien von #168, die eine echte Geraeteabnahme verlangten (manueller UND
   automatischer Handover, inklusive "manuelles AUS gewinnt immer"), sind jetzt auf echter
   Hardware bestaetigt. Status: bereit fuer Commit/PR/Merge mit `Fixes #168`.
+
+## Issue #168 — Merge und Abschluss — 2026-08-28
+
+- Nutzerfreigabe "Ja, vollstaendig abschliessen" erhalten. Branch feat/168-usb-wlan-handover
+  gepusht, PR #186 gegen master eroeffnet (mergeStateStatus: CLEAN, keine Checks konfiguriert),
+  per Squash gemergt (28b6bb6), Remote-Branch beim Merge geloescht, lokal nach
+  git fetch --prune und Fast-Forward auf master ebenfalls entfernt.
+- GitHub-Readback: Issue #168 CLOSED. github-board-sync: Folgeissue #185 zum Board
+  hinzugefuegt (Status backlog, war nach der #185-Anlage noch nicht synchronisiert).
+  github-drift initial 1 Befund (Propagationsverzoegerung), nach kurzem Warten erneut
+  geprueft: volle Uebereinstimmung, kein Drift mehr.
+- Strangzaehler: Dieses Paket erzeugt ein nutzersichtbares Ergebnis (USB->WLAN-ADB-Handover
+  produktiv, inkl. eines auf echter Hardware gefundenen und gefixten Bugs). Kein reiner
+  Infrastruktur-Nebenstrang.
+- Verbleibend offen: #171, #173 (beide unabhaengig, unveraendert offen), #181 (zurueckgestellt),
+  #183 (Folgeissue aus #167, backlog), #185 (Folgeissue aus #168, backlog).
+- Zustand: complete.
+
+**Bearbeiter:** worker-s3 (Implementierung), ein zweiter frischer worker-s3 (erster
+unabhaengiger Review, approved mit 3 Nice-to-haves -> Folgeissue #185), ein dritter worker-s3
+(Bugfix nach Geraetetest-Fund), ein vierter frischer worker-s3 (zweiter unabhaengiger Review
+des Bugfix, approved mit 2 weiteren Nice-to-haves -> Kommentar zu #185) - alle Stufe S3,
+sonnet/high, konfiguriert. Hauptagent (Orchestrator) hat die Geraeteabnahme auf dem echten S20
+(per USB via mooslap2023-ts, UI-Automation) selbst durchgefuehrt, dabei den Bug gefunden,
+Root-Cause-Analyse geschrieben, Folgeissues angelegt und Merge/Board-Pflege uebernommen.
+Paket: #168; Stufe: S3; Status der Angaben: konfiguriert; Zustand: complete; Nachweis: PR #186
+gemergt (28b6bb6), Issue #168 CLOSED, Board/Drift sauber, ./bin/verify gruen, Bug auf echter
+Hardware reproduziert UND nach Fix als behoben bestaetigt; Probleme/Optionen: keine offen;
+Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
