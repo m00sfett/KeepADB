@@ -103,4 +103,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_subtext">Bewaart de laatste 128 geredigeerde gebeurtenissen op dit apparaat. Exporteren opent het Android-deelvenster.</string>
     <string name="settings_diagnostics_export">Diagnostiek exporteren</string>
     <string name="settings_diagnostics_export_subject">KeepADB-diagnostiek</string>
+    <string name="battery_optimization_title">Batterijoptimalisatie kan Keep-Alive beperken</string>
+    <string name="battery_optimization_body">KeepADB is niet vrijgesteld van batterijoptimalisatie. Android of de fabrikant kan Keep-Alive op de achtergrond beperken of stoppen.</string>
+    <string name="battery_optimization_button">Batterij-instellingen openen</string>
 </resources>

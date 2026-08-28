@@ -1,0 +1,4 @@
+TextView   [102,937][978,1059]               'Optimierung des Akkuverbrauchs beenden?'
+TextView   [102,1083][978,1262]              'KeepADB kann im Hintergrund ausgeführt werden. Der Akkuverbrauch wird nicht mehr beschränkt.'
+Button     [102,1310][542,1418]              'Ablehnen'
+Button     [545,1310][978,1418]              'Zulassen'

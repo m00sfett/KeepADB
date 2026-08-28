@@ -103,4 +103,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_subtext">Хранит на устройстве последние 128 отредактированных событий. Экспорт открывает меню «Поделиться» Android.</string>
     <string name="settings_diagnostics_export">Экспортировать диагностику</string>
     <string name="settings_diagnostics_export_subject">Диагностика KeepADB</string>
+    <string name="battery_optimization_title">Оптимизация батареи может ограничить Keep-Alive</string>
+    <string name="battery_optimization_body">KeepADB не исключён из оптимизации батареи. Android или производитель устройства могут ограничить или остановить Keep-Alive в фоне.</string>
+    <string name="battery_optimization_button">Открыть настройки батареи</string>
 </resources>

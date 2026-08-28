@@ -3562,8 +3562,408 @@ Vorbereitung des Repositories für die Veröffentlichung als freies, quelloffene
   lokale `./bin/verify`-Gates sowie ein ausdrücklich freigegebener Android-Nachweis auf dem
   Emulator oder registrierten S20 belegen die Kriterien. Unabhängiger Review ist für die
   größere UI-/Systemstatus-Etappe separat zu bestätigen.
-- Freigaben: Auswahl und Planaktualisierung erteilt; Implementierung, lokale Tests/Build/Lint,
-  Geräteabnahme, Review und externe Abschlussaktionen in diesem Lauf noch nicht freigegeben.
-- Status: `not approved` für die Umsetzung; keine Codeänderung, kein Testlauf, keine
-  Geräteaktion, kein PR/Merge und kein Workflow-Start. Der reine Plan-/Lauf-Checkpoint ist
-  mit Commit `a8c2c5c` auf `origin/master` gepusht.
+- Freigaben: Implementierung sowie lokale Tests/Build/Lint sind für diesen Lauf erteilt;
+  Geräteabnahme, Review und externe Abschlussaktionen bleiben separat ungeprüft.
+- Status: `not approved` für vollständige Issue-Abnahme; lokal implementiert und verifiziert,
+  aber kein Geräte-Nachweis, unabhängiger Review, PR/Merge oder Workflow-Start. Der Auswahl-
+  Checkpoint ist mit Commit `a8c2c5c` und der Statuskorrektur `0f68062` auf `origin/master`
+  gepusht.
+
+## Issue #178 — lokale Implementierung und Gates — 2026-08-27
+
+- Umsetzung: `KeepADBBatteryOptimization` liest den Live-Status über `PowerManager` und fängt
+  fehlende Systemberechtigung defensiv ab. Der Akku-Optimierungsdialog wird geöffnet; bei
+  fehlendem Hersteller-Intent fällt die App auf die App-Detailseite zurück. Es gibt keine
+  automatische Einstellungsänderung.
+- UI: `MainActivity` zeigt das lokalisierte Warnpanel nur bei fehlender Ausnahme und aktualisiert
+  es bei jedem `onResume`. Die Aktion hat das bestehende 48-dp-Ziel und explizite Beschriftung.
+  Alle 19 unterstützten Locale-Dateien enthalten lokalisierte Texte.
+- Tests: `KeepADBAccessibilityContractTest` prüft UI-Verträge, beide System-Intents, defensive
+  Fehlerbehandlung, Manifestberechtigung und Locale-Vollständigkeit.
+- Lokale Gates: `git diff --check` und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`
+  erfolgreich; vollständige Unit-Suite, Lint sowie Debug-/Release-Build bestanden.
+- Geräte-/Reviewstatus: nicht ausgeführt — dafür fehlt eine separate Geräte- bzw. Reviewfreigabe.
+  Ungeprüft bleiben der echte Ausnahmewechsel, Rückkehr aus Android Settings und Hersteller-
+  Fallback auf Android 11–15.
+- Commit-/Branch-Readback: `4406e818d3924e86d4efd28d0363280391657791` auf
+  `origin/feat/178-battery-optimization`; kein PR und kein Workflow-Run.
+
+## Issue #178 — Review und S20-Abnahme — 2026-08-27
+
+- Unabhängiger S2-Review mit Reparatur abgeschlossen. Drei scoped Findings wurden behoben:
+  zielgenauer `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`-Intent mit Package-URI,
+  Accessibility-Überschrift und erweiterte Contract-Tests. Reviewbericht:
+  `notes/reviews/2026-08-27-issue-178-s2.md`.
+- Lokale Gates nach Review: `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erfolgreich;
+  48 Unit-Tests, Lint sowie Debug-/Release-Build bestanden. Commits `c1118fe` und `d398431`
+  sind auf `origin/feat/178-battery-optimization`.
+- S20-Nachweis: Gerät `SM-G780G` / `RF8T307S88H`, Android 13, per Registerpfad `usb-adb`
+  validiert. Ohne Doze-Ausnahme war der Hinweis sichtbar; die Schaltfläche öffnete den
+  zielgenauen Android-Dialog. Nach „Zulassen“ verschwand der Hinweis beim erneuten Resume;
+  nach Entfernen des kontrollierten Testeintrags erschien er wieder. `adb_wifi_enabled` blieb
+  `1`, keine Datenlöschung.
+- Erfüllt: Live-Status, sichtbarer Hinweis, Settings-Aktion, S20-Rückkehr-Refresh,
+  vorhandene Ausnahme verborgen, Accessibility und Lokalisierung. Ungeprüft: Android 11–12
+  und 14–15 sowie ein nicht verfügbarer Hersteller-Intent.
+- Status: `not approved` für vollständigen Issue-Abschluss; lokaler Review und S20-Abnahme
+  `approved`, aber kein PR/Merge und kein GitHub-Actions-Run.
+
+## Issue #178 — Cross-Version-Abnahme — 2026-08-27
+
+- Freigabe für Option 2 umgesetzt. Die Zielinventur zeigt den registrierten S20 mit Android 13
+  sowie die AVDs `Dev_Galaxy_S20_API_36_1_Play` (Android 16) und `Galaxy_A6_API_35`
+  (Android 15). Android-11-, Android-12- und Android-14-Ziele sind lokal nicht vorhanden;
+  ein zweites physisches OEM-Gerät ist nicht registriert.
+- Der S20-Nachweis für Android 13 bleibt gültig: direkter Akku-Ausnahmedialog, Rückkehr-Refresh,
+  sichtbarer/verborgener Hinweis und unverändertes `adb_wifi_enabled`. Ein Android-15-AVD-
+  Lauf wurde nicht gestartet, weil der vorhandene A6-AVD kein registriertes Ziel ist und der
+  kanonische Emulatorpfad nur Android 16 bereitstellt.
+- Ein nicht verfügbarer Hersteller-Intent lässt sich ohne zweites OEM-Ziel nicht als Laufzeit-
+  Fallback reproduzieren; der Fallback bleibt durch Contract-Test und Codepfad belegt.
+- Status: `not approved` für die vollständige Cross-Version-Akzeptanz. Nachweisbar sind Android
+  13 und der statische Fallback-Vertrag; offen bleiben Android 11–12/14–15-Laufzeitnachweise
+  sowie die OEM-Fallback-Abnahme.
+
+## Ausführungsplan für einen neuen Agenten — Cross-Version-Abnahme #178
+
+Dieser Plan ist nach einer separaten Freigabe für SDK-/AVD-Provisionierung und Geräteaktionen
+direkt ausführbar. Er ergänzt die bereits abgeschlossene Android-13-Abnahme und darf den
+Produktionscode nicht verändern.
+
+### Ziel und Abschlusskriterien
+
+- Laufzeitnachweise auf Android 11, 12, 13, 14 und 15 für den Akku-/Doze-Hinweis sammeln.
+- Auf jedem Ziel belegen: Hinweis ohne Ausnahme sichtbar, Akku-Aktion öffnet den passenden
+  Android-Dialog, „Zulassen“ führt nach erneutem `onResume` zum Ausblenden, Entfernen der
+  Ausnahme führt wieder zum Anzeigen.
+- Auf jedem Ziel vor und nach dem Test `adb_wifi_enabled` lesen; der Wert darf sich nicht ändern.
+- Alle temporären Device-Idle-Whitelist-Einträge am Ende entfernen. Kein `pm clear`, kein
+  Uninstall und keine Änderung an Keep-Alive-/ADB-Einstellungen.
+- `approved` für Cross-Version nur, wenn API 30–35 tatsächlich ausgeführt und die Readbacks
+  versioniert dokumentiert sind. Ein API-36-Lauf zählt als Zusatzbeleg, ersetzt API 30–35 nicht.
+
+### Verfügbare Ausgangslage
+
+- Projektbranch: `feat/178-battery-optimization`, finaler Code-/Dokumentationsstand zunächst
+  per `git status --short --branch` und `git rev-parse HEAD` feststellen.
+- Vorhanden: S20/Android 13 (`SM-G780G`, `RF8T307S88H`), `Galaxy_A6_API_35` (Android 15)
+  und `Dev_Galaxy_S20_API_36_1_Play` (Android 16).
+- Fehlend: Android-11/API 30, Android-12/API 31 und Android-14/API 34 als ausführbare Ziele.
+- Der S20-/Android-13-Nachweis und der statische OEM-Fallback-Contract-Test sind bereits im
+  Reviewbericht `notes/reviews/2026-08-27-issue-178-s2.md` belegt.
+
+### Vorbedingungen und Freigaben
+
+1. `whoami` ausführen; `tobias` erwarten. Branch und Arbeitsbaum prüfen. Fremde Änderungen
+   nicht anfassen.
+2. `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` ausführen; bei Fehlern vor dem
+   Gerätegate reparieren oder als Code-/Toolchainfehler dokumentieren.
+3. Vor jeder physischen Aktion `phone-register get s20`, danach den registrierten Transport,
+   `android-target s20` sowie Modell/Serial/Fingerprint prüfen. Bei erfolgreicher Verbindung
+   das Register aktualisieren.
+4. Für neue SDK-System-Images/AVDs eine eigene Nutzerfreigabe für Toolchain-/AVD-Provisionierung
+   einholen. Nicht automatisch `sdkmanager`, `avdmanager` oder Konfigurationsdateien verändern.
+5. Für jeden Emulator nur einen AVD gleichzeitig starten; sichtbares Fenster verwenden. Kein
+   `--headless` ohne eigene Freigabe. Einen abgestürzten Emulator als Infrastrukturfehler
+   behandeln, keinen API- oder Rendererwechsel als Workaround erfinden.
+
+### AVD-Provisionierung nach Freigabe
+
+- Installierte Plattformen und Images zuerst read-only inventarisieren:
+  `/home/tobias/Android/Sdk/cmdline-tools/latest/bin/sdkmanager --list`.
+- Falls API 30, 31 oder 34 fehlen, die passenden Google-APIs-x86_64-Images installieren:
+  `platforms;android-30`, `platforms;android-31`, `platforms;android-34` und jeweils
+  `system-images;android-30;google_apis;x86_64`,
+  `system-images;android-31;google_apis;x86_64`,
+  `system-images;android-34;google_apis;x86_64`.
+- Mit `avdmanager create avd` drei klar benannte AVDs anlegen, z. B.
+  `KeepADB_API30`, `KeepADB_API31` und `KeepADB_API34`, jeweils mit dem passenden Image und
+  Geräteprofil `pixel_2`. Bestehende AVDs nicht überschreiben.
+- Jeden neuen AVD read-only mit `emulator -list-avds`, `adb ... getprop ro.build.version.sdk`
+  und `ro.build.version.release` prüfen. Nur API 30, 31 und 34 als passende Ziele markieren;
+  API 35/36 separat als bereits vorhandene Zusatzziele behandeln.
+
+### Testablauf je Android-Version
+
+Für API 30, 31, 32, 33, 34 und 35 in dieser Reihenfolge arbeiten. Den AVD-Start-/Stop-
+Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel betreiben.
+
+1. AVD starten, `adb`-Ziel eindeutig auflösen und API/Release per `getprop` sichern.
+2. `android-target emulator -- install -r app/build/outputs/apk/debug/app-debug.apk`;
+   anschließend `am force-stop` und `am start -n de.hohnepeople.keepadb/.MainActivity`.
+3. Mit `ADBUI_TARGET=emulator adbui dump` den englischen Hinweis, Erklärung und Button
+   nachweisen. Screenshot mit `adbui shot` speichern und aktiv prüfen.
+4. Vor dem Klick lesen:
+   `android-target emulator -- shell dumpsys deviceidle whitelist` und
+   `android-target emulator -- shell settings get global adb_wifi_enabled`.
+5. `ADBUI_TARGET=emulator adbui tap-text 'Open battery settings'` ausführen. Im UI-Dump muss
+   der Systemdialog `RequestIgnoreBatteryOptimizations` mit „Allow“/„Deny“ erscheinen.
+6. „Allow“ klicken, die App wieder in den Vordergrund bringen und per UI-Dump nachweisen, dass
+   das Warnpanel fehlt. Whitelist-Readback mit Paketname sichern.
+7. `android-target emulator -- shell dumpsys deviceidle whitelist -de.hohnepeople.keepadb`
+   ausführen, App per `am force-stop`/`am start` neu öffnen und das wieder sichtbare Warnpanel
+   nachweisen.
+8. `adb_wifi_enabled` erneut lesen. Bei Abweichung sofort stoppen und den Befund als
+   Regression dokumentieren.
+9. Screenshot, UI-Dump, API/Release, Whitelist-Readbacks und Ergebnis in einem versionierten
+   Bericht `notes/reviews/YYYY-MM-DD-issue-178-cross-version.md` sichern.
+10. AVD sauber stoppen. Bei Fehlern keinen nächsten API-Stand starten, bevor Ursache und
+    Artefakte gesichert sind.
+
+### OEM-Fallback und Ergebnisbewertung
+
+- Ein wirklich nicht verfügbarer Hersteller-Intent ist mit den vorhandenen Google-API-AVDs
+  nicht bewiesen. Dafür ein zweites registriertes physisches OEM-Gerät oder ein reproduzierbar
+  eingeschränktes Settings-System verwenden; eine künstlich deaktivierte System-App ist kein
+  zulässiger Ersatz ohne gesonderte Betriebsfreigabe.
+- Wenn kein zweites OEM-Gerät verfügbar ist, Ergebnis als `not approved` für das OEM-Kriterium
+  markieren. Der Code-/Contract-Nachweis für `ActivityNotFoundException` bleibt gültig.
+- Nach dem Lauf `git status --short --branch`, letzten Commit und Berichtspfad prüfen. Keine
+  Issue-Schließung, kein PR/Merge und keine GitHub Action ohne separate Abschlussfreigabe.
+- Der neue Agent muss die tatsächlichen API-/OEM-Ergebnisse in diesen Plan und `notes/runs.md`
+  übernehmen, nicht aus dieser Vorlage als bereits ausgeführt ableiten.
+
+## Folgeissues für offene #178-Nachweise — 2026-08-27
+
+- Issue #180 `test: Android-11–15-Testmatrix für Akku-/Doze-Hinweis bereitstellen` angelegt
+  und in Project #8 als `backlog` synchronisiert. Es umfasst API-30/31/34-Images/AVDs, die
+  Testmatrix API 30–35, Whitelist-/Resume-Readbacks und den Rückbau.
+- Issue #181 `test: OEM-Fallback für Akku-Einstellungsintent auf zweitem Gerät abnehmen`
+  angelegt und in Project #8 als `backlog` synchronisiert. Es umfasst ein zweites registriertes
+  OEM-Gerät, den nicht verfügbaren/nicht zulässigen Request-Intent, App-Detail-Fallback und
+  den unveränderten ADB-Status.
+- Aktueller Drift-Readback: Beide Issues haben Board-Einträge und keine Statusabweichung. Der
+  einzige verbleibende Befund ist der offene Branch `feat/178-battery-optimization` ohne
+  gemergten PR; das ist erwarteter Zustand und bleibt bis zur separaten PR-Freigabe bestehen.
+
+## Auswahl Issue #180 — 2026-08-27
+
+- `issue_snapshot_at: 2026-08-27T05:01:21Z`; `plan_updated_at: 2026-08-27T07:12:33+02:00`.
+- Roadmap-Abgleich (wörtlich): „#178 ist gemäß Nutzerentscheidung das nächste Paket; danach
+  Rückkehr zur normalen Issue-Reihenfolge.“ #180 ergänzt unmittelbar die noch offenen
+  Cross-Version-Abnahmen aus #178 und dient damit dem Abschlussnachweis dieses Pakets.
+- Server-Readback: Issue #180 offen, Label `enhancement`, keine offenen PRs, kein aktiver
+  Workflow-Run für den lokalen Branch-Head `7b09233`; die CI-Workflows werden nicht gestartet.
+- Aktuelles Paket: Issue #180 — Android-11–15-Testmatrix für den Akku-/Doze-Hinweis.
+- Ziel: Die Laufzeitkriterien aus #178 auf API 30–35 tatsächlich ausführen oder fehlende Ziele
+  als externen Infrastrukturblocker mit überprüfter Inventur dokumentieren.
+- Zusammenhang: gemeinsame KeepADB-APK und der Battery-Optimization-UI-/Settings-Pfad aus #178;
+  getrennte Abnahmegrenze ohne Produktionscodeänderung. API 33 ist durch den S20-Nachweis
+  belegt, API 30/31/34 fehlen lokal, API 35 ist als nicht registriertes AVD vorhanden.
+- Nicht-Ziele: kein Produktionscode, kein automatisches Akku-/ADB-Toggle außerhalb des
+  kontrollierten Tests, keine Datenlöschung, keine GitHub-Actions und keine Issue-/PR-
+  Abschlussänderung ohne separate Freigabe.
+- Umfang: read-only Toolchain-/AVD-Inventur; nach Freigabe SDK-Images/AVDs für API 30, 31 und
+  34; Testmatrix API 30–35 mit UI-Dumps, Screenshots, API-/Release-Werten,
+  `adb_wifi_enabled`-Readbacks, Doze-Whitelist-Rückbau und versioniertem Abnahmebericht.
+- Zerlegung: (1) S1 Inventur und Plan-/Matrixvorbereitung, (2) S2 SDK-/AVD-Provisionierung,
+  (3) S3 wiederholte Geräte-/Emulator-Abnahme mit temporärem Whitelist-Zustand. Die Pakete
+  bleiben getrennt wegen unterschiedlicher Freigaben, Risiken und Rückrollpfade.
+- `approved`: API 30–35 sind als passende Ziele nachgewiesen und je Version sind Hinweis ohne
+  Ausnahme, zielgenauer Settings-Dialog, Resume-Refresh, Wiederanzeige nach Rückbau,
+  unverändertes `adb_wifi_enabled` sowie temporärer Whitelist-Rückbau dokumentiert. Ein API-
+  36-Lauf zählt nur als Zusatzbeleg. Fehlende Ziele dürfen nur mit vollständiger Inventur als
+  externer Blocker abgeschlossen werden; dann bleibt #180 nicht vollständig approved.
+- Freigaben: Auswahl, read-only Inventur und Planaktualisierung erteilt. SDK-/AVD-
+  Provisionierung, Emulatorstarts, Installationen, UI-/ADB-Abnahme, Geräteaktionen sowie
+  externe Abschlussaktionen sind noch nicht freigegeben. Keine Delegation vorgesehen; das
+  Paket wird wegen der Geräte-/Toolchain-Abhängigkeiten vom Hauptagenten orchestriert.
+- Status: `not approved` für die Ausführung; noch kein Test-/Gerätegate und keine Änderung am
+  Produktionscode.
+
+## Issue #180 — read-only Inventur — 2026-08-27
+
+- Ausgeführt: `whoami` → `tobias`; `git status --short --branch`; Remote-/Workflow-/Run-
+  Status; `gh issue list`; `github-drift --repo m00sfett/KeepADB`; SDK-/AVD-Inventur.
+- SDK: Plattformen 35, 36 und 36.1; System-Images API 29, 35 und 36.1. AVDs:
+  `Dev_Galaxy_S20_API_36_1_Play` und `Galaxy_A6_API_35`.
+- Nicht vorhanden: ausführbare lokale Ziele für API 30, 31, 32 und 34. API 33 bleibt durch den
+  bereits dokumentierten registrierten S20-Nachweis belegt. Die frühere Planannahme eines
+  vorhandenen API-32-Ziels ist damit widerlegt; die Provisionierung muss API 32 zusätzlich
+  einschließen, wenn die Issue-Forderung API 30–35 vollständig erfüllt werden soll.
+- SDK-Toolchain meldet beim `sdkmanager --list` nur die bekannte XML-Kompatibilitätswarnung;
+  keine Installation oder Konfigurationsänderung wurde vorgenommen.
+- GitHub: #180/#181 neu bzw. unverändert offen; keine offenen PRs und kein aktiver Run. Drift
+  meldet ausschließlich `feat/178-battery-optimization` ohne gemergten PR; keine automatische
+  Löschung, weil der Branch die einzige Referenz seiner Commits ist.
+- Ergebnis: Inventur ist `approved`; SDK-/AVD-Provisionierung, Emulatorstarts, APK-
+  Installationen, UI-/ADB-Abnahme und physische Geräteaktionen bleiben typisiert freigabepflichtig.
+
+## Issue #180 — Freigabe und Ausführungsstart — 2026-08-27
+
+- Nutzerfreigabe erhalten für (1) SDK-/AVD-Provisionierung, (2) Emulatorstarts, APK-
+  Installationen und UI-/ADB-Abnahmen sowie (3) physische S20-Prüfung.
+- Die Freigabe umfasst keine Produktionscodeänderung, keine Datenlöschung und keinen
+  GitHub-Actions-Run. API 32 wird wegen der nachgewiesenen Inventurlücke ergänzend zu den in
+  #180 genannten API 30/31/34-Zielen provisioniert, damit API 30–35 vollständig prüfbar ist.
+- Ausführungsreihenfolge: lokaler Verify-Lauf, SDK-/AVD-Provisionierung, Emulatorabnahmen für
+  API 30/31/32/34/35, danach S20-/API-33-Nachweis nur nach Register-/Fingerprint-Prüfung.
+
+## Issue #180 — erneute S20-Freigabe — 2026-08-27
+
+- Der Nutzer bestätigt ausdrücklich: „S20 freigegeben“. Damit ist die zuvor offene typisierte
+  Gerätefreigabe für Registerprüfung, Installation und UI-/ADB-Abnahme erneut gültig.
+- API-31/32-Provisionierung und Emulatorabnahmen bleiben im selben freigegebenen
+  Ausführungsumfang; die bekannten SDK-/Resolver-Blocker werden nicht als bestanden behandelt.
+
+## Issue #180 — Teilabnahme und Infrastrukturblocker — 2026-08-27
+
+- Lokaler Verify-Lauf mit JDK 17 erfolgreich: Unit-Tests, Lint, Debug- und Release-Build.
+- SDK: API 30 und 34 als System-Images provisioniert; API 30 zusätzlich als Plattform. API 31
+  blieb nach zwei zeitlich begrenzten Einzelversuchen beim SDK-Manager-Download ohne Fortschritt
+  offen. API 32 ist nur ein unvollständiger Installer-Rest ohne `source.properties`. API 35 war
+  bereits vorhanden. AVDs `KeepADB_API30`, `KeepADB_API34` und `KeepADB_API35` wurden angelegt.
+- Ein sichtbarer API-30-AVD bootete mit NVIDIA-Host-GPU. Der Resolver akzeptiert jedoch nur den
+  kanonischen `Dev_Galaxy_S20_API_36_1_Play`-AVD; der neue AVD ist deshalb nicht per gültigem
+  `android-target emulator` prüfbar. Kein direkter ADB-Bypass.
+- S20: Registerpfad `wlan-adb` auf `192.168.178.24:40435`, `SM-G780G` / `RF8T307S88H` /
+  Android 13/API 33 fingerprint-validiert und Register aktualisiert. Shared-Prefs gesichert,
+  APK Version 1.1.0 per `install -r` aktualisiert, `adb_wifi_enabled=1` unverändert.
+- UI-Abnahme blockiert: Activity-Start gelang, aber der UI-Dump blieb auf dem Sperrbildschirm;
+  keine Nutzer-PIN oder sonstige Entsperraktion angenommen. Bericht:
+  `notes/reviews/2026-08-27-issue-180-cross-version.md`.
+- Zustand: `not approved`; die vollständige API-30–35-Matrix, der API-33-UI-Nachweis und
+  Whitelist-/Vorher-Nachher-Readbacks je Version fehlen. Kein Issue-/PR-Schließen und keine
+  GitHub Action.
+- Retrospektive: Die frühe Verify-/Inventurstufe trennte Code- von Infrastrukturproblemen.
+  Der erste Emulatorlauf hätte mit dem Resolver-AVD-Abgleich früher als nicht verwertbar erkannt
+  werden können. Verbesserung: Neue Matrix-AVDs vor Provisionierung gegen den Resolververtrag
+  prüfen und den Entsperrstatus vor der UI-Abnahme als eigenes Gate erfassen.
+
+## Übergabe-Checkpoint vor Issue #180 — 2026-08-27
+
+- #178 bleibt serverseitig offen; #180 und #181 sind angelegt und laut letztem Plan-Readback im
+  Project #8 als `backlog` eingetragen. Der aktuelle Arbeitsbaum ist sauber auf
+  `feat/178-battery-optimization`, Commit `7b09233`; diese Statusangabe wird vor Abschluss
+  erneut read-only abgefragt.
+- Offener Nachweis: API 30/31/34 fehlen als lokale ausführbare Ziele; API 33 ist auf dem
+  registrierten S20 belegt. API 35 ist lokal vorhanden, aber nicht als registriertes Ziel
+  freigegeben. OEM-Fallback bleibt separat in #181.
+- Nächster zulässiger Schritt: read-only SDK-/AVD-Inventur und Abgleich von Board/Drift. Danach
+  ist für Provisionierung und Geräte-/Emulatoraktionen eine typisierte Nutzerfreigabe nötig.
+
+## Issue #180 — API-31/32-Toolchain und S20-Teilabnahme — 2026-08-27
+
+- API 31 und API 32 sind jetzt vollständig installiert, jeweils als Google-APIs-System-Image
+  und Plattform. AVDs `KeepADB_API31` und `KeepADB_API32` wurden ergänzt; insgesamt liegen
+  eigene AVDs für API 30/31/32/34/35 vor.
+- Der S20 wurde erneut über den Registerpfad geprüft: `SM-G780G`, `RF8T307S88H`, Android
+  13/API 33; der aktuelle Registereintrag wurde nach dem Transportwechsel aktualisiert.
+- API-33-Laufzeitabnahme bestanden: Hinweis ohne Ausnahme sichtbar, zielgenauer Dialog geöffnet,
+  `Zulassen` blendete den Hinweis nach Resume aus, Whitelist-Entfernung zeigte ihn wieder,
+  ursprüngliche Whitelist wiederhergestellt. `adb_wifi_enabled` blieb `1`.
+- UI-Dumps und Screenshots sind versioniert unter
+  `notes/reviews/assets/2026-08-27-issue-180/`; Bericht ergänzt.
+- Offen: API-30/31/32/34/35-Laufzeitabnahmen. Die neuen AVDs sind durch den kanonischen
+  Resolververtrag (`Dev_Galaxy_S20_API_36_1_Play`) nicht über `android-target emulator`
+  adressierbar; kein direkter ADB-Bypass wurde verwendet.
+- Zustand: `not approved`; API 33 als Teilkriterium bestanden, Issue #180 insgesamt offen.
+
+## Resolver-Reparatur für Issue #180 — Delegation — 2026-08-27
+
+- Nutzerauftrag: einen Subagenten auf S2 mit der Reparatur/Änderung des Android-Resolvers
+  beauftragen.
+- Bearbeiter: Subagent Rawls; Paket: globaler Emulator-Resolver; Stufe: S2; Modell/Effort:
+  `gpt-5.6-luna` / `max`; Status der Angaben: konfiguriert.
+- Scope: `resolve-android-target.sh`, `android-targets.json` und eng zugehörige Resolvertests/
+  dokumentation unter `/home/tobias/agent/bin/android-tools`. Nicht-Scope: KeepADB-Code,
+  `run-s20.sh`, AVD-/Geräteaktionen, GitHub Actions, Commit und Push.
+- Ziel: explizit konfigurierte Matrix-AVDs auf ADB 5038 sicher und eindeutig auflösen, ohne
+  Fingerprint-/Mehrgeräte-Blocker zu schwächen; bestehende physische Registerlogik erhalten.
+- Freigabe: dieser eine Subagent-Start ausdrücklich erteilt. Review, Tests mit Emulator oder
+  S20 sowie globale Abschluss-/Push-Aktionen bleiben getrennte Gates.
+
+## Resolver-Reparatur für Issue #180 — Abschluss — 2026-08-27
+
+- Bearbeiter: Subagent Rawls; Paket: globaler Android-Resolver; Stufe: S2; Modell/Effort:
+  `gpt-5.6-luna` / `max`; Status der Angaben: verifiziert.
+- Geändert: `resolve-android-target.sh`, `android-targets.json`, der deterministische
+  Resolver-Test und das Fake-ADB unter `/home/tobias/agent/bin/android-tools`.
+- Ergebnis: Der Resolver unterstützt den kanonischen AVD und die Matrix-AVDs API 30/31/32/34/35
+  nur bei genau einem Emulator auf 5038 und passendem AVD-/Fingerprint-Paar. Mehrfach-,
+  Offline-, Unauthorized-, unbekannte AVD- und falsche Fingerprint-Fälle werden blockiert.
+  Die physische Registerlogik blieb unverändert.
+- Gates des Subagents: `bash -n`, ShellCheck, JSON-Prüfung, positive Fälle für alle sechs AVDs,
+  Negativfälle und Mutationstest gegen den Vorbestand bestanden. Hauptagent-Readback:
+  `bash /home/tobias/agent/bin/android-tools/test/resolve-android-target-test.sh` erfolgreich.
+- Live-Emulator: API-30-AVD wurde auf 5038 erkannt; der ADB-Shell-Kanal blieb trotz
+  `device`-Listeneintrag ohne Properties, daher blockierte der Resolver mit
+  `avd-query-failed`. AVD sauber beendet. Kein direkter ADB-Bypass.
+- Backup und Systemprotokoll: `.bak.20260827-134957` für Script/JSON sowie
+  `/home/tobias/agent/protocols/2026-08-27/135645-android-resolver-issue-180.yaml`.
+- Zustand: Resolver-Paket `complete`; Issue #180 insgesamt bleibt `not approved`, weil die
+  API-30/31/32/34/35-Laufzeitmatrix noch nicht ausgeführt wurde. Unabhängiger Review wurde
+  nicht gestartet.
+
+## Issue #180 — Freigabe Matrixabnahme — 2026-08-27
+
+- Nutzerfreigabe erhalten: Die nächste Stufe, die Laufzeitabnahme der Matrix-AVDs API 30, 31,
+  32, 34 und 35, darf ausgeführt werden. API 33 bleibt durch den dokumentierten S20-Nachweis
+  abgedeckt.
+- Freigegeben sind Emulatorstarts, APK-Installationen, UI-Dumps, Screenshots, Settings-
+  Dialoge, temporäre Doze-Whitelist-Änderungen und die kontrollierte Wiederherstellung.
+- Nicht freigegeben und nicht geplant: Produktionscodeänderungen, KeepADB-Produktionsdaten-
+  löschung, GitHub-Actions, PR-/Issue-Abschluss oder weitere Resolveränderungen.
+- Abschlusskriterium: je API Hinweis ohne Ausnahme, zielgenauer Dialog, Ausblenden nach
+  `Zulassen`/Resume, Wiederanzeige nach Whitelist-Rückbau, `adb_wifi_enabled` unverändert,
+  Whitelist am Ende bereinigt bzw. Ausgangszustand wiederhergestellt.
+
+## Issue #180 — Matrixabnahme abgeschlossen — 2026-08-27
+
+- API 30/31/32/34/35 wurden einzeln über den reparierten Resolver auf ADB 5038 geprüft; API 33
+  ist durch den zuvor dokumentierten S20-Lauf abgedeckt.
+- Alle sechs Zielversionen bestanden den vollständigen Zyklus: Warnhinweis ohne Doze-Ausnahme,
+  zielgenauer Akku-Dialog, Ausblenden nach `Allow`/Resume, Wiederanzeige nach Whitelist-Entzug,
+  unverändertes `adb_wifi_enabled` und bereinigte bzw. wiederhergestellte Whitelist.
+- Readbacks: API 30/31/32/34/35 jeweils `0 -> 0`; S20 API 33 `1 -> 1`.
+- Versionierte XML-Dumps und Screenshots liegen unter
+  `notes/reviews/assets/2026-08-27-issue-180/`; API 34/35 enthielten zusätzlich den einmaligen
+  Notification-Erststartdialog.
+- Der Resolver-Fingerprint wurde während der Abnahme für die realen Google-API-Profile API 30,
+  31/32 und 34/35 korrigiert; JSON-, Syntax- und Resolvertests blieben grün. Die Änderung ist
+  im Systemprotokoll `/home/tobias/agent/protocols/2026-08-27/150312-issue-180-resolver-avd-fallback.yaml`
+  sowie den datierten Backups nachvollziehbar.
+- Zustand: lokaler Abnahmeumfang `approved`; kein GitHub-Action-Run, kein Issue-/PR-Abschluss.
+
+## Issue #180 — Beweisartefakt-Nacharbeit — 2026-08-27
+
+- Bei der Nachprüfung wurde festgestellt, dass mehrere neu kopierte PNG-Dateien zunächst nur den
+  von `adbui shot` ausgegebenen Pfad enthielten; die XML-Dumps und die Live-Abnahme bleiben gültig.
+- Die Ursache ist geklärt: `adbui shot` schreibt nach `/tmp/adbui.png`; die Datei muss nach dem
+  Aufruf kopiert werden. Ein API-31-Screenshot wurde mit dieser Korrektur erfolgreich erzeugt.
+- Offen vor dem finalen Commit: die betroffenen API-31/32/34/35-PNGs mit korrekter Zuordnung neu
+  erzeugen und anschließend Report/Artefakte atomar committen und pushen. Daher bleibt der
+  Repo-Nachweis bis dahin `not approved`, obwohl die Live-Matrix bestanden ist.
+
+## Issue #178 — S2-Review und Reparatur — 2026-08-27
+
+- Reviewumfang: ausschließlich der benannte Battery-Optimization-Codepfad, MainActivity,
+  Manifest, Hauptlayout, alle 19 `values*/strings.xml` und
+  `KeepADBAccessibilityContractTest.java`; keine Geräteaktion und keine Scope-Erweiterung.
+- Findings: Muss-Fix (mittel): Der behauptete Akku-Optimierungsdialog wurde zuvor nur als
+  allgemeine Liste geöffnet (`ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS`), nicht als
+  appbezogener Request-Dialog. Niedrig: Die Warnüberschrift war für Screenreader nicht als
+  Überschrift markiert. Niedrig: Der Contract-Test belegte weder den `onResume`-Aufrufpfad noch
+  die Nichtveränderung von WLAN-ADB/Keep-Alive explizit.
+- Reparaturen: `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` mit `package:`-URI eingesetzt;
+  bestehender Fallback auf `ACTION_APPLICATION_DETAILS_SETTINGS` und Exception-Abfangpfad
+  erhalten. Battery-Warnüberschrift mit `android:accessibilityHeading` markiert. Contract-Test
+  um Live-Refresh-, Intent-, Fallback- und Nichtveränderungsverträge erweitert.
+- Gegenprüfung: `PowerManager.isIgnoringBatteryOptimizations()` wird live in `refresh()` gelesen;
+  `onResume()` ruft `refresh()` auf. Kein Aufrufpfad aus der Battery-Aktion setzt
+  `adb_wifi_enabled` oder Keep-Alive. Alle 19 Locale-Dateien enthalten die drei Schlüssel.
+- Gates: Baseline-Contract-Test grün (20 Tests); ein Testfehler durch zu breiten statischen
+  Ausschnitt wurde repariert; danach `./bin/verify` grün mit 48 Unit-Tests, Lint, Debug- und
+  Release-Build. Keine GitHub-Actions, keine Geräteprüfung.
+- Reviewstatus: `approved` für den benannten lokalen Scope; Android-Geräte-/Settings-Rückkehr,
+  echter Hersteller-Fallback und Laufzeit-UI bleiben ungeprüfte Akzeptanznachweise.
+- Commit-/Branchstatus: Reparaturcommit `c1118fe2e3c0bf9766d23b3b449449906d47f456` ist auf
+  `origin/feat/178-battery-optimization`; Issue #178 und PR-Status bleiben serverseitig offen.
+
+## Issue #180 — Beweisartefakte nachgeholt — 2026-08-27
+
+- API 31/32/34/35: die vier PNG-Zustände je Version wurden aus der tatsächlichen
+  `/tmp/adbui.png`-Ausgabe neu erzeugt; alle PNGs sind als 1080×1920-RGBA-Bilder geprüft.
+- Die XML-Dumps und die bereits vorhandenen API-30-/API-33-Artefakte sind vollständig vorhanden.
+- Der lokale Abnahmeumfang von #180 ist damit `approved`. Kein GitHub-Action-Run und kein
+  automatischer Issue-/PR-Abschluss.

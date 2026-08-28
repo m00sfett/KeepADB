@@ -103,4 +103,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_subtext">Mantém os últimos 128 eventos editados neste dispositivo. A exportação abre a folha de partilha do Android.</string>
     <string name="settings_diagnostics_export">Exportar diagnóstico</string>
     <string name="settings_diagnostics_export_subject">Diagnóstico do KeepADB</string>
+    <string name="battery_optimization_title">A otimização da bateria pode limitar o Keep-Alive</string>
+    <string name="battery_optimization_body">O KeepADB não está isento da otimização da bateria. O Android ou o fabricante pode limitar ou parar o Keep-Alive em segundo plano.</string>
+    <string name="battery_optimization_button">Abrir definições da bateria</string>
 </resources>

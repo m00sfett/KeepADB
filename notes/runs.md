@@ -284,3 +284,77 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   unabhängiger Review separat.
 - Der reine Plan-/Lauf-Checkpoint wurde als `a8c2c5c` auf `origin/master` gepusht; kein
   Code-Commit, PR, Merge oder Issue-/Board-Schreibvorgang.
+
+## 2026-08-27 — Issue #178 Implementierung
+
+- Typisierte Freigabe erhalten: Implementierung sowie lokale Tests/Build/Lint; keine
+  Geräteabnahme, kein Review und keine GitHub-Actions.
+- Umsetzung: `KeepADBBatteryOptimization` liest den Live-Status über `PowerManager`, öffnet
+  die Akku-Optimierungseinstellungen und fällt bei fehlendem Intent sicher auf die App-Details
+  zurück. `MainActivity` aktualisiert das sichtbare Warnpanel bei jedem `onResume`.
+- Hauptseite und alle 19 unterstützten Locale-Dateien enthalten lokalisierte Warntexte sowie
+  eine barrierefreie 48-dp-Aktion. Contract-Tests decken Statuspfad, Fallback und Locale-Keys ab.
+- Nach defensiver Behandlung einer möglichen `SecurityException` im Akku-Statusgetter bestand
+  `./bin/verify` erneut vollständig: Diff-Check, 41 Unit-Tests, Lint sowie Debug-/Release-Build.
+- Kein Gerätezugriff, kein unabhängiger Review, kein PR/Merge und kein GitHub-Actions-Run.
+- Lokaler Codepfad ist abnahmefähig; echter Systemstatuswechsel, Settings-Rückkehr und
+  Hersteller-Fallback bleiben ungeprüft.
+- Commit `4406e81` ist auf `origin/feat/178-battery-optimization`; Server-Readback zeigt keinen
+  PR und keinen Workflow-Run.
+
+## 2026-08-27 — Issue #178 Review und S20-Abnahme
+
+- Der unabhängige S2-Review reparierte drei scoped Findings: zielgenauer Akku-Ausnahmedialog,
+  semantische Warnüberschrift und explizitere Contract-Tests. Bericht:
+  `notes/reviews/2026-08-27-issue-178-s2.md`.
+- Nach Review: `./bin/verify` grün mit 48 Unit-Tests, Lint sowie Debug-/Release-Build.
+- S20/Android 13: Warnung ohne Ausnahme sichtbar; „Akku-Einstellungen öffnen“ öffnete den
+  `RequestIgnoreBatteryOptimizations`-Dialog. „Zulassen“ verbarg die Warnung nach Resume,
+  Entfernen des kontrollierten Whitelist-Eintrags stellte sie wieder her. `adb_wifi_enabled=1`.
+- Review und S20-Gate `approved` im Scope. Android 11–12/14–15 und nicht verfügbarer OEM-
+  Fallback ungeprüft. Kein PR/Merge und keine GitHub Actions.
+
+## 2026-08-27 — Issue #178 Cross-Version-Abnahme
+
+- Freigabe für Cross-Version-/OEM-Abnahme geprüft. Verfügbar: S20 Android 13, AVD Android 15
+  (Galaxy A6) und AVD Android 16; keine Android-11-/12-/14-Ziele und kein zweites registriertes
+  OEM-Gerät.
+- Kein zusätzlicher AVD- oder Geräte-Lauf gestartet, weil der Android-15-A6-AVD nicht als
+  registriertes Ziel freigegeben ist und der kanonische Emulator außerhalb des Zielbereichs liegt.
+- Ergebnis: Android 13 nachgewiesen, Cross-Version-/OEM-Teil nicht vollständig nachweisbar.
+
+## 2026-08-27 — Ausführungsplan Cross-Version-Abnahme #178
+
+- Für einen neuen Agenten wurde ein eigenständig ausführbarer Plan in
+  `notes/issue-orchestrator-plan.md` ergänzt.
+- Der Plan beschreibt SDK-/AVD-Provisionierung für API 30/31/34, die Testreihenfolge API 30–35,
+  Whitelist-/`onResume`-Readbacks, `adb_wifi_enabled`-Kontrolle, Rückbau, Artefakte und klare
+  Stop-/Bewertungsregeln.
+- SDK-/AVD-Provisionierung wurde in diesem Lauf nicht ausgeführt. OEM-Fallback bleibt ohne
+  zweites registriertes Gerät nur statisch belegt.
+
+## 2026-08-27 — Folgeissues für #178
+
+- Nach Duplikatprüfung wurden Issue #180 für die Android-11–15-Testmatrix/AVDs und Issue #181
+  für den OEM-Fallback auf einem zweiten Gerät angelegt.
+- Beide Issues sind offen, als `enhancement` markiert und in Project #8 auf `backlog` synchronisiert.
+- Der abschließende Drift-Readback findet nur den erwarteten ungeprüften Feature-Branch ohne
+  gemergten PR; keine Board- oder Issue-Statusabweichung.
+
+## 2026-08-27 — Issue #178 S2-Review und Reparatur
+
+- Freigabe: unabhängiger Review mit Reparatur im benannten Scope, lokale Gates; keine
+  Geräteaktion und keine GitHub Actions.
+- Reviewbefund: Der bestehende Code öffnete die allgemeine Akku-Optimierungsliste, obwohl die
+  Implementierungsbehauptung einen Akku-Optimierungsdialog nannte. Zusätzlich fehlte die
+  semantische Screenreader-Überschrift; der Contract-Test prüfte Aufruf- und
+  Nichtveränderungsverträge nicht explizit.
+- Reparatur: appbezogener `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`-Intent mit `package:`-
+  URI, sicherer App-Detail-Fallback unverändert; `android:accessibilityHeading="true"`; Contract-
+  Tests für `onResume`, Fallback, Statuspfad und unveränderte WLAN-/Keep-Alive-Semantik ergänzt.
+- Gates: Baseline-Contract-Test 20 Tests grün. Erster Verify-Lauf fand einen zu breiten
+  statischen Testausschnitt; Test korrigiert. Zweiter `./bin/verify`-Lauf vollständig grün:
+  48 Unit-Tests, Lint, Debug-/Release-Build und Diff-Check.
+- Rest: keine Geräte-/Laufzeitabnahme (Android 11–15, Settings-Rückkehr, Hersteller-Fallback),
+  kein PR/Merge. Reparaturcommit `c1118fe2e3c0bf9766d23b3b449449906d47f456` ist auf dem
+  Feature-Branch. Reviewstatus `approved` nur für den lokalen benannten Scope.
