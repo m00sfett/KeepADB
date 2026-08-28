@@ -4205,3 +4205,129 @@ Stufe: S2; Status der Angaben: konfiguriert; Zustand: complete; Nachweis: PR #18
 (77b21dd), Issue #167 CLOSED, Board/Drift sauber, ./bin/verify gruen inkl. 10 neuer Tests;
 Probleme/Optionen: keine offen; Naechster Schritt: Auswahlrunde fuer #168 (jetzt entsperrt),
 #171 oder #173.
+
+## Auswahl Issue #168 — Scoping vor Implementierung — 2026-08-28
+
+- Nutzerentscheidung: #168 als naechstes Paket (jetzt durch #167 entsperrt).
+- Codebasis gelesen: KeepADB.java (setEnabled/isEnabled/isUserDisabled - Debounce ueber
+  TOGGLE_COOLDOWN_MS bereits vorhanden, WRITE_SECURE_SETTINGS-Fehlerpfad liefert false),
+  KeepADBNotification.java (refresh(Context) loest bereits Discovery + Registerupdate aus -
+  wird von KeepADB.applyNow automatisch nach jedem erfolgreichen Toggle aufgerufen, kein
+  Zusatzaufwand fuer Discovery/Register noetig), KeepADBPreferences.java (Preference-Pattern:
+  SharedPreferences keepadb_prefs, einfache getter/setter), KeepADBUsbNotification.java (aus
+  #167: einziger Aufrufpfad refresh(Context, boolean), wird auch bei reinem Profilwechsel ohne
+  neue USB-Flanke aufgerufen - wichtig fuer Automatik-Debounce, siehe Risiko unten).
+- Wichtiger Architekturbefund: KeepADB.setEnabled(...) ruft bei Erfolg bereits
+  KeepADBNotification.refresh() auf, was Discovery und Registerupdate automatisch anstoesst.
+  #168 muss also NICHT selbst discovern/registrieren - nur den Toggle zum richtigen Zeitpunkt
+  ausloesen und das Ergebnis (inkl. Fehlerfall) in der USB-Notification sichtbar machen.
+- Risiko (fuer Worker explizit zu beachten): KeepADBUsbNotification.refresh(Context, boolean)
+  wird auch bei reinem Profilwechsel (ohne neue USB-Steck-Flanke) aufgerufen. Ein AUTOMATISCH-
+  Trigger, der bei jedem refresh(..., connected=true) feuert, wuerde nach einem manuellen
+  Nutzer-Aus (KeepADB.isUserDisabled()==true) durch einen spaeteren Profilwechsel erneut
+  einschalten - das verletzt die explizite Akzeptanzanforderung "Ein manueller Nutzer-AUS-Befehl
+  darf nicht durch die USB-/Recovery-Logik rueckgaengig gemacht werden". Der Automatik-Trigger
+  muss daher an die echte Connect-Flanke (KeepADBUsbReceiver.onReceive/den connected-Wechsel
+  false->true) gebunden sein, nicht an jeden refresh()-Aufruf, und zusaetzlich
+  KeepADB.isUserDisabled() vor dem Auto-Enable pruefen.
+- Zerlegung/Paket (S3 - Cross-Component: USB-Lifecycle x WLAN-Toggle x Notification-Actions x
+  neue Preference, mit einer echten Nebenlaeufigkeits-/Reihenfolgefalle):
+  1. Neue Preference: 3-Zustands-Modus (AUS/MANUELL/AUTOMATISCH) fuer USB->WLAN-Handover,
+     Default AUS, in KeepADBPreferences + Settings-UI (Radio-/Dropdown-Gruppe analog
+     bestehendem Einstellungsmuster).
+  2. KeepADBUsbNotification: bei MANUELL + verbunden + WLAN-ADB nicht aktiv -> Notification-
+     Action "WLAN-ADB aktivieren" anbieten, die KeepADB.setEnabled(ctx, true, "usb_handover")
+     ausloest und Fehler (fehlende Permission) sichtbar macht (kein teilweiser Erfolg
+     vorgaeuschelt).
+  3. Automatikpfad an die echte Connect-Flanke gebunden (nicht an jeden refresh()), mit Guard
+     gegen KeepADB.isUserDisabled() und gegen Mehrfachausloesung pro Verbindungssitzung
+     (zuruecksetzen bei Disconnect).
+  4. USB-Kabel-Abzug darf WLAN-ADB nicht automatisch deaktivieren (reiner Nicht-Ziel-Check,
+     keine neue Logik noetig - USB-Disconnect ruft nur den #167-Registerpfad, nie KeepADB.setEnabled).
+  5. Contract-/Unit-Tests fuer alle drei Modi + Fehlerpfade (Permission fehlt, kein WLAN,
+     kein Endpoint - Endpoint-Fehlerfall deckt bereits KeepADBNotification/KeepADBEndpoint ab,
+     hier nur der Trigger-/Guard-Teil).
+- Nicht-Ziele: keine neue Discovery-/Register-Logik (wird wiederverwendet), keine Aenderung an
+  #167s USB-Registerpfad, kein Host-Helper, keine automatische USB-Host-Identifikation.
+- Geraeteabnahme (S20, manuell + automatisch) ist explizites Akzeptanzkriterium des Issues -
+  bleibt als eigener, separat freizugebender Schritt nach dem Code-Review offen.
+- Stufe: S3 (Cross-Component-Lifecycle-Pfad mit echter Reihenfolge-/Nebenlaeufigkeitsfalle,
+  siehe Risiko oben - kein reines S2-Muster wie #167).
+- Freigabe: noch ausstehend (Subagent-Start worker-s3, sonnet/high).
+
+## Issue #168 — Geraeteabnahme S20 (real, per USB via mooslap2023-ts) — 2026-08-28
+
+- Registerabweichung festgestellt: S20 laut Register zuletzt wlan-adb, tatsaechlich aber per
+  USB an mooslap2023-ts angeschlossen (Nutzerangabe). Fingerprint ueber SSH+adb validiert
+  (RF8T307S88H, samsung/r8qeea/r8q:13/TP1A.220624.014/G780GXXSHEYJ1, identisch zum vorherigen
+  WLAN-Fingerprint). Register aktualisiert: usb-adb via RF8T307S88H / mooslap2023-ts.
+- MANUELL-Modus: per UI-Automation (uiautomator dump + input tap ueber ssh mooslap2023-ts)
+  aktiviert, WLAN-ADB ueber die App manuell ausgeschaltet, echte USB-Notification-Action
+  "WLAN-ADB aktivieren" erschien (actions=2->3 in dumpsys notification bestaetigt), Klick
+  schaltete adb_wifi_enabled tatsaechlich auf 1, Action verschwand danach wieder (actions
+  zurueck auf 2). Manueller Pfad vollstaendig auf echter Hardware bestaetigt - approved.
+- AUTOMATISCH-Modus + "manuelles AUS gewinnt"-Garantie: **fehlgeschlagen, echter Bug
+  gefunden.** Sequenz (aus keepadb_diagnostics.xml extrahiert):
+  1. Manuelles AUS ueber App-Toggle (`user_action source=app outcome=disable`) ->
+     `KeepADB.userDisabled=true`.
+  2. `KeepADBService`s ContentObserver reagiert auf die adb_wifi_enabled-Aenderung; da
+     Keep-Alive aktiv ist, ruft er `KeepADB.consumeUserDisabled()` auf (KeepADBService.java
+     Zeile ~213) - das liest UND loescht das Flag atomar in einem Schritt (vorbestehender
+     #114-Mechanismus, nicht Teil von #168). `userDisabled` ist danach sofort wieder false.
+  3. Echte USB-Trennung/Neuverbindung (Nutzer hat das Kabel an mooslap2023-ts kurz gezogen
+     und wieder gesteckt) loest die echte Connect-Flanke aus; `KeepADBUsbHandover` prueft
+     `KeepADB.isUserDisabled()`, sieht faelschlich `false` (schon durch Schritt 2 konsumiert),
+     und schaltet WLAN-ADB automatisch wieder ein (`toggle_attempt source=usb_handover
+     outcome=success ... desired=true actual=true`).
+- **Root Cause:** `KeepADB.userDisabled` ist als Einweg-Konsum-Token fuer genau einen
+  Konsumenten (den Keep-Alive-Stop-Entscheid in KeepADBService) gebaut - `consumeUserDisabled()`
+  liest und resettet atomar. #168 liest dasselbe Flag nicht-konsumierend
+  (`KeepADB.isUserDisabled()`) aus einem voellig unabhaengigen Subsystem. Sobald der erste
+  Konsument (Keep-Alive) zuerst dran war, sehen alle weiteren Leser einen falschen (bereits
+  zurueckgesetzten) Zustand. Nur unter der reaslistischen Konfiguration Keep-Alive=aktiv
+  reproduzierbar - genau die Konfiguration, die auf dem echten Testgeraet vorlag und die weder
+  die Unit-Tests (reine Booleans, kein echtes Cross-Subsystem-Timing) noch der isolierte
+  Source-Review (kein Blick auf KeepADBService's Consume-Aufrufer) abgedeckt haben.
+- Klassifikation: Muss-Fix, verletzt die explizite #168-Akzeptanzanforderung "Ein manueller
+  Nutzer-AUS-Befehl darf nicht durch die USB-/Recovery-Logik rueckgaengig gemacht werden"
+  real und reproduzierbar. Kein Merge/Commit erfolgt, solange dieser Fund offen ist.
+- Nutzerentscheidung: Fix im selben Paket (#168), worker-s3, danach erneuter unabhaengiger
+  Review und erneuter Geraetetest derselben Sequenz.
+- Geraet nach Fund: sicherer Zustand (WLAN-ADB an, USB-Kontrolle ueber mooslap2023-ts intakt),
+  Uebergabemodus steht noch auf AUTOMATISCH fuer den Retest.
+
+## Issue #168 — Bugfix, Review, Retest — 2026-08-28
+
+- worker-s3 Fix: neues, nicht-konsumiertes Feld `KeepADB.lastDesiredOn` /
+  `wasLastExplicitIntentOff()` in KeepADB.java ergaenzt, gesetzt an denselben Stellen wie
+  `userDisabled` (setEnabled/applyNow), nie konsumiert - nur durch den naechsten setEnabled()-
+  Aufruf ueberschrieben. `KeepADBUsbHandover.onRawUsbBroadcast` liest jetzt dieses Feld statt
+  `KeepADB.isUserDisabled()`. Bestehender `userDisabled`/`consumeUserDisabled()`-Mechanismus
+  (#114, KeepADBService-Contentobserver) unveraendert gelassen. Neuer Regressionstest
+  reproduziert die Konsum-Sequenz (setEnabled(false) -> consumeUserDisabled() ->
+  simulierte Connect-Flanke) und wurde vom Implementierer selbst gegen die alte, fehlerhafte
+  Leseweise verifiziert (Revert -> Testfehler -> Restore).
+- Unabhaengiger Review (dritter frischer worker-s3): **approved**, kein Muss-Fix. Debounce-/
+  Token-Race (die riskanteste Stelle) explizit nachvollzogen und fuer korrekt befunden. Zwei
+  Nice-to-haves gefunden: `KeepADBEndpoint.java:211` liest noch das alte `isUserDisabled()`
+  (vorbestehend, geringes Restrisiko, nicht Teil des #168-Scopes); neuer Regressionstest
+  ueberzeichnet seine eigene Abdeckung im Docstring leicht (Regressionsschutz gegen falsche
+  Methode traegt der separate Contract-Test). Beide als Kommentar zu Folgeissue #185 ergaenzt.
+- **Erneuter Geraetetest (echtes S20, per USB via mooslap2023-ts, gefixter Build
+  installiert):** exakte Bug-Sequenz wiederholt - manuelles AUS ueber App-Toggle, dann echte
+  USB-Trennung/Neuverbindung (Nutzer hat das Kabel gezogen und gesteckt). Diagnose-Log zeigt
+  erneut `recovery_or_stop source=content_observer outcome=stopped detail=user_disabled`
+  (die vulnerable Konsum-Stelle feuert wie zuvor), aber diesmal blieb `adb_wifi_enabled` nach
+  der Reconnect-Flanke bei `0` - kein `toggle_attempt source=usb_handover` im Log (die
+  automatische Freigabe hat korrekt nicht gefeuert). USB-Notification zeigte nach dem
+  Reconnect frische `actions=2` (kein Handover-Button, da Modus zu diesem Zeitpunkt
+  AUTOMATISCH), was belegt, dass der Receiver die Flanke tatsaechlich verarbeitet hat statt
+  nur zufaellig nichts zu tun. Fix auf echter Hardware bestaetigt.
+- Geraet danach in sauberen Zustand zurueckversetzt: WLAN-ADB wieder eingeschaltet (Nutzer
+  nutzt es normalerweise so), Uebergabemodus zurueck auf AUS (Ursprungszustand vor diesem
+  Testlauf).
+- Register-Stand: usb-adb via mooslap2023-ts (RF8T307S88H) bleibt gueltig, da Kabel weiterhin
+  gesteckt; keine weitere Aktualisierung noetig.
+- Beide Akzeptanzkriterien von #168, die eine echte Geraeteabnahme verlangten (manueller UND
+  automatischer Handover, inklusive "manuelles AUS gewinnt immer"), sind jetzt auf echter
+  Hardware bestaetigt. Status: bereit fuer Commit/PR/Merge mit `Fixes #168`.
