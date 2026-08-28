@@ -4026,3 +4026,28 @@ Nächster Schritt: Auswahlrunde für #181 bzw. verbleibende offene Issues, sofer
 - Freigaben: Auswahl und Plan-Update erteilt. Geräteverbindung (auch read-only) noch nicht
   freigegeben.
 - Status: `not approved` — Ausführung wartet auf die Freigabe für Schritt 1.
+
+## Issue #181 — Premise-Check A6/GiselaPhone — 2026-08-28
+
+- Transport: A6 war ursprünglich im Register mit direktem USB-ADB an dieser Maschine
+  hinterlegt, ist aktuell aber per USB an `mooslap2023-ts` angeschlossen. Der Nutzer hat den
+  Host ausdrücklich genannt; Verbindung über `ssh mooslap2023-ts "adb ..."` (kein lokaler
+  Tunnel nötig, da direkt auf dem Host ausgeführt). Gerät zeigte zunächst `unauthorized`; nach
+  Bestätigung des RSA-Dialogs am Gerät durch den Nutzer wurde es `device` mit Serial
+  `5200576cb84d656f`.
+- Fingerprint-Readback: `samsung/a6ltexx/a6lte:10/QP1A.190711.020/A600FNXXU9CVB1:user/release-keys`,
+  Modell `SM-A600FN`, Hersteller `samsung`, `ro.build.version.sdk=29` (Android 10).
+- **Befund:** API 29 liegt unterhalb des in `AGENTS.md` festgelegten `minSdk 30` von KeepADB.
+  Eine Installation ist auf diesem Gerät technisch nicht möglich — unabhängig vom OEM-Aspekt.
+  `giselaphone` ist dasselbe Modell (`SM-A600FN`, `device: a6lte`) und mit hoher
+  Wahrscheinlichkeit derselbe oder ein sehr ähnlicher Build; nicht live erneut geprüft, um
+  unnötigen Gerätekontakt zu vermeiden.
+- Zusätzlich unverändert: Beide registrierten Zweitgeräte sind Samsung — kein vom S20
+  abweichendes OEM registriert, selbst wenn die SDK-Hürde nicht bestünde.
+- Zustand: `blocked` — kein registriertes Gerät erfüllt sowohl `minSdk 30` als auch das
+  Issue-Kriterium „abweichende Systemeinstellungen-App“ (anderes OEM). Kein Muss-Fix, keine
+  Reparaturschleife anwendbar; das ist ein externer Geräteparkblocker.
+- Register: keine Aktualisierung nötig, da kein neuer Pfad dauerhaft valide etabliert wurde
+  (A6 bleibt USB an `mooslap2023-ts`, nicht an dieser Maschine); Detailstatus nur im Plan
+  dokumentiert.
+- Nächster Schritt: Nutzerentscheidung, siehe Chat.
