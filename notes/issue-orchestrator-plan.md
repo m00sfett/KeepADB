@@ -3967,3 +3967,28 @@ Mechanismus des lokalen Android-Skills verwenden; niemals zwei AVDs parallel bet
 - Die XML-Dumps und die bereits vorhandenen API-30-/API-33-Artefakte sind vollständig vorhanden.
 - Der lokale Abnahmeumfang von #180 ist damit `approved`. Kein GitHub-Action-Run und kein
   automatischer Issue-/PR-Abschluss.
+
+## Issue #178/#180 — PR-Merge und Abschluss — 2026-08-28
+
+- Nutzerfreigabe „freigabe“ auf die zuvor gestellte konkrete Frage (PR öffnen, `Fixes #178,
+  Fixes #180`, danach mergen) erhalten und ausgeführt.
+- PR #182 gegen `master` eröffnet, `mergeStateStatus: CLEAN`, keine Checks konfiguriert
+  (erwartet, normale PRs lösen keine Action aus). Per Squash gemergt als `f8e8150` auf
+  `master`; Remote-Branch `feat/178-battery-optimization` beim Merge gelöscht, lokaler
+  Feature-Branch nach `git fetch --prune` als bereits eingeflossen entfernt (`-D`, da
+  Squash-Merge lokal als „nicht vollständig zusammengeführt“ erscheint).
+- GitHub-Readback nach Merge: Issue #178 `CLOSED`, Issue #180 `CLOSED`. `github-board-sync`
+  meldet 0 Änderungen, `github-drift` meldet volle Übereinstimmung — kein offener Drift mehr.
+- Verbleibend offen: Issue #181 (OEM-Fallback Akku-Intent auf Zweitgerät) unverändert offen,
+  eigenständiges Paket ohne Bezug zu diesem Branch.
+- Strangzähler: Dieser Merge schließt den Battery-/Doze-Strang (#178/#180) vollständig und
+  nutzersichtbar ab (Hinweis + Dialogverhalten auf 6 API-Leveln nachgewiesen). Kein
+  Infrastruktur-Nebenstrang ohne Produktnutzen.
+- Zustand: `complete`. Nächste Auswahlrunde: #181 oder die übrigen offenen Issues
+  (#167/#168/#171/#173) gemäß Roadmap-Abgleich vor Implementierungsstart.
+
+**Bearbeiter:** Hauptagent (Orchestrator); Paket: PR-Merge #178/#180; Stufe: S1 (Routine-
+Abschlussaktion); Modell/Effort: `sonnet`/`medium` (Session-Default, unverifiziert gegenüber
+`CLAUDE_EFFORT`); Status der Angaben: konfiguriert; Zustand: complete; Nachweis: PR #182
+gemergt (`f8e8150`), Issues #178/#180 CLOSED, Board/Drift sauber; Probleme/Optionen: keine;
+Nächster Schritt: Auswahlrunde für #181 bzw. verbleibende offene Issues, sofern gewünscht.
