@@ -27,6 +27,16 @@ final class KeepADBUsbNotification {
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
         if (manager == null) return;
         ensureChannel(appContext, manager);
+
+        if (connected) {
+            KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.getSelected(appContext);
+            if (selected != null) {
+                KeepADBRegisterClient.updateUsbEndpointAsync(appContext, selected);
+            }
+        } else {
+            KeepADBRegisterClient.markUsbInactiveAsync(appContext);
+        }
+
         if (!connected || !KeepADBUsbProfile.isNotificationEnabled(appContext)
                 || !hasNotificationPermission(appContext)) {
             manager.cancel(NOTIFICATION_ID);
