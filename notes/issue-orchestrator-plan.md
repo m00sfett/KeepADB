@@ -4180,3 +4180,28 @@ nächste Auswahlrunde für #167/#168/#171/#173, sofern gewünscht.
   bzw. bewusst als Folgeissue ausgelagert).
 - Naechster Schritt: Commit (Implementierung + Fix als ein Paket), PR gegen master mit
   Fixes #167, danach Board-/Drift-Sync.
+
+## Issue #167 — Merge und Abschluss — 2026-08-28
+
+- Nutzerfreigabe "Ja, vollstaendig abschliessen" erhalten. Branch
+  feat/167-usb-register-payload gepusht, PR #184 gegen master eroeffnet
+  (mergeStateStatus: CLEAN, keine Checks konfiguriert - erwartet), per Squash gemergt
+  (77b21dd), Remote-Branch beim Merge geloescht, lokal nach git fetch --prune und
+  Fast-Forward auf master ebenfalls entfernt.
+- GitHub-Readback: Issue #167 CLOSED. github-board-sync: Folgeissue #183 neu zum Board
+  hinzugefuegt (Status backlog), 1 Update. github-drift: volle Uebereinstimmung, kein Drift.
+- Strangzaehler: Dieses Paket erzeugt ein nutzersichtbares Ergebnis (USB-ADB-Registerpfad
+  produktiv im Client). Kein reiner Infrastruktur-Nebenstrang.
+- Verbleibend offen: #168 (blocked by #167, jetzt entsperrt - Register-Erweiterung ist da),
+  #171, #173 (beide unabhaengig, unveraendert offen), #181 (zurueckgestellt), #183 (neues
+  Folgeissue, backlog).
+- Zustand: complete.
+
+**Bearbeiter:** worker-s2 (Implementierung, Stufe S2, sonnet/medium, konfiguriert) und ein
+zweiter frischer worker-s2 (unabhaengiger Review, Stufe S2, sonnet/medium, konfiguriert);
+Hauptagent (Orchestrator) hat den Muss-Fix (jsonEscape-Kontrollzeichen) selbst direkt repariert
+(trivialer Einzeiler, kein eigener Subagent) und Merge/Board-Pflege uebernommen. Paket: #167;
+Stufe: S2; Status der Angaben: konfiguriert; Zustand: complete; Nachweis: PR #184 gemergt
+(77b21dd), Issue #167 CLOSED, Board/Drift sauber, ./bin/verify gruen inkl. 10 neuer Tests;
+Probleme/Optionen: keine offen; Naechster Schritt: Auswahlrunde fuer #168 (jetzt entsperrt),
+#171 oder #173.
