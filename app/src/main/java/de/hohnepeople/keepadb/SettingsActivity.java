@@ -27,6 +27,9 @@ public class SettingsActivity extends Activity {
     private TextView usbProfileSummary;
     private Button usbProfileAction;
 
+    private TextView usbHandoverSelectedText;
+    private View usbHandoverSelector;
+
     private Switch webhookToggle;
     private EditText webhookUrlInput;
     private TextView webhookError;
@@ -72,6 +75,10 @@ public class SettingsActivity extends Activity {
         usbProfileAction.setOnClickListener(v -> showProfileDialog(
                 KeepADBUsbProfile.getProfiles(this).isEmpty()
                         ? KeepADBUsbNotification.ACTION_CREATE : KeepADBUsbNotification.ACTION_SWITCH));
+
+        usbHandoverSelectedText = findViewById(R.id.settings_usb_handover_selected_text);
+        usbHandoverSelector = findViewById(R.id.settings_usb_handover_selector);
+        usbHandoverSelector.setOnClickListener(v -> showUsbHandoverModeDialog());
 
         findViewById(R.id.settings_diagnostics_export).setOnClickListener(v -> shareDiagnostics());
 
@@ -191,6 +198,38 @@ public class SettingsActivity extends Activity {
                     KeepADBLocaleHelper.setAppLanguage(this, chosenTag);
                     KeepADBWidget.refreshAll(this);
                     KeepADBNotification.refresh(this);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showUsbHandoverModeDialog() {
+        String[] modes = {
+                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_OFF,
+                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL,
+                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC,
+        };
+        String[] displayItems = {
+                getString(R.string.settings_usb_handover_mode_off),
+                getString(R.string.settings_usb_handover_mode_manual),
+                getString(R.string.settings_usb_handover_mode_automatic),
+        };
+        String currentMode = KeepADBPreferences.getUsbWlanHandoverMode(this);
+        int selectedIndex = 0;
+        for (int i = 0; i < modes.length; i++) {
+            if (modes[i].equals(currentMode)) selectedIndex = i;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_usb_handover_dialog_title)
+                .setSingleChoiceItems(displayItems, selectedIndex, (dialog, which) -> {
+                    dialog.dismiss();
+                    KeepADBPreferences.setUsbWlanHandoverMode(this, modes[which]);
+                    // Re-derives current USB state for the notification only; this is the
+                    // profile-edit-style refresh(Context) overload, not a real connect edge, so
+                    // switching modes here never triggers AUTOMATIC's setEnabled() itself.
+                    KeepADBUsbReceiver.refresh(this);
+                    refresh();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
@@ -357,5 +396,15 @@ public class SettingsActivity extends Activity {
                 : getString(R.string.usb_profile_selected, selectedProfile.summary()));
         usbProfileAction.setText(KeepADBUsbProfile.getProfiles(this).isEmpty()
                 ? R.string.usb_profile_create_button : R.string.usb_profile_switch_button);
+
+        String handoverMode = KeepADBPreferences.getUsbWlanHandoverMode(this);
+        int handoverModeLabel = KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC.equals(handoverMode)
+                ? R.string.settings_usb_handover_mode_automatic
+                : KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL.equals(handoverMode)
+                        ? R.string.settings_usb_handover_mode_manual
+                        : R.string.settings_usb_handover_mode_off;
+        usbHandoverSelectedText.setText(handoverModeLabel);
+        usbHandoverSelector.setContentDescription(
+                getString(R.string.settings_usb_handover_label) + ": " + getString(handoverModeLabel));
     }
 }

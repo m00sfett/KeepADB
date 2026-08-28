@@ -240,6 +240,68 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <!-- USB -> WLAN-ADB Handover Section (#168) -->
+        <LinearLayout
+            android:id="@+id/settings_usb_handover_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_section_usb_handover"
+                android:textColor="@color/title_yellow"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:text="@string/settings_usb_handover_subtext"
+                android:textColor="@color/night_muted"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:id="@+id/settings_usb_handover_selector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_card_clickable"
+                android:clickable="true"
+                android:contentDescription="@string/settings_usb_handover_label"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <TextView
+                    android:id="@+id/settings_usb_handover_selected_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_usb_handover_mode_off"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="▼"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
         <!-- Webhook Section -->
         <LinearLayout
             android:id="@+id/settings_webhook_panel"
