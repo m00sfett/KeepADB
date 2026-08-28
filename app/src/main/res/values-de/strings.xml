@@ -105,4 +105,13 @@
     <string name="usb_profile_delete_button">Löschen</string>
     <string name="usb_profile_delete_title">Hostprofil löschen</string>
     <string name="usb_profile_delete_message">Hostprofil „%1$s“ löschen?</string>
+    <string name="settings_section_usb_handover">USB → WLAN-ADB-Übergabe</string>
+    <string name="settings_usb_handover_subtext">Bietet optional an oder aktiviert automatisch Drahtloses Debugging bei aktiver USB-ADB-Verbindung. Standardmäßig aus; ein manuelles AUS wird nie überschrieben.</string>
+    <string name="settings_usb_handover_label">Übergabemodus</string>
+    <string name="settings_usb_handover_dialog_title">Übergabemodus auswählen</string>
+    <string name="settings_usb_handover_mode_off">Aus</string>
+    <string name="settings_usb_handover_mode_manual">Manuell (Aktion in USB-Benachrichtigung anzeigen)</string>
+    <string name="settings_usb_handover_mode_automatic">Automatisch (bei neuer USB-Verbindung aktivieren)</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB aktivieren</string>
+    <string name="usb_notification_handover_error">WLAN-ADB konnte nicht aktiviert werden. Berechtigung prüfen.</string>
 </resources>
