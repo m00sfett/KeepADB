@@ -3,6 +3,7 @@ package de.hohnepeople.keepadb;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -58,6 +59,18 @@ final class KeepADBRegisterClient {
     private static volatile String lastRegisteredEndpoint = null;
     private static volatile boolean stateInitialized = false;
     private static volatile long currentOpGeneration = 0;
+
+    // USB-ADB registration state is intentionally separate from the WLAN-ADB fields above:
+    // the two register calls must be able to run concurrently without racing or clobbering
+    // each other's dedup/idempotency state.
+    private static volatile String lastRegisteredUsbUrl = null;
+    private static volatile String lastRegisteredUsbPayload = null;
+    private static volatile Integer lastRegisteredUsbProfileId = null;
+    private static volatile String lastRegisteredUsbProfileName = null;
+    private static volatile String lastRegisteredUsbIpAddress = null;
+    private static volatile String lastRegisteredUsbHostname = null;
+    private static volatile String lastRegisteredUsbTailnetHostname = null;
+    private static volatile long currentUsbOpGeneration = 0;
 
     private KeepADBRegisterClient() {}
 
@@ -130,6 +143,166 @@ final class KeepADBRegisterClient {
             if (opGen != currentOpGeneration) return;
             performDeleteTransaction(appContext, targetUrl, opGen);
         });
+    }
+
+    /** Fires a USB-ADB register update for the given (already-selected) profile, if configured. */
+    static void updateUsbEndpointAsync(Context context, KeepADBUsbProfile.Profile profile) {
+        if (context == null || profile == null) return;
+        Context appContext = context.getApplicationContext();
+        boolean webhookEnabled = KeepADBPreferences.isRegisterWebhookEnabled(appContext);
+        String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
+        String deviceId = getDeviceId(appContext);
+        updateUsbEndpointAsyncInternal(webhookEnabled, targetUrl, deviceId, profile.id, profile.name,
+                profile.ipAddress, profile.hostname, profile.tailnetHostname);
+    }
+
+    static void updateUsbEndpointAsyncInternal(boolean webhookEnabled, String targetUrl, String deviceId,
+            int profileId, String profileName, String ipAddress, String hostname, String tailnetHostname) {
+        if (!webhookEnabled) return;
+        if (targetUrl == null || targetUrl.trim().isEmpty()) return;
+        final String payload = buildUsbPayload(deviceId, profileId, profileName, ipAddress, hostname,
+                tailnetHostname, true);
+        final long opGen;
+        synchronized (KeepADBRegisterClient.class) {
+            if (targetUrl.equals(lastRegisteredUsbUrl) && payload.equals(lastRegisteredUsbPayload)) {
+                return;
+            }
+            opGen = ++currentUsbOpGeneration;
+        }
+
+        EXECUTOR.execute(() -> {
+            if (opGen != currentUsbOpGeneration) return;
+            if (sendJsonPost(targetUrl, payload, "usb-adb")) {
+                synchronized (KeepADBRegisterClient.class) {
+                    if (opGen == currentUsbOpGeneration) {
+                        lastRegisteredUsbUrl = targetUrl;
+                        lastRegisteredUsbPayload = payload;
+                        lastRegisteredUsbProfileId = profileId;
+                        lastRegisteredUsbProfileName = profileName;
+                        lastRegisteredUsbIpAddress = ipAddress;
+                        lastRegisteredUsbHostname = hostname;
+                        lastRegisteredUsbTailnetHostname = tailnetHostname;
+                        notifyRegisterStateListener();
+                    }
+                }
+            }
+        });
+    }
+
+    /** Marks the previously-registered USB-ADB profile inactive; a no-op if nothing was registered. */
+    static void markUsbInactiveAsync(Context context) {
+        if (context == null) return;
+        Context appContext = context.getApplicationContext();
+        boolean webhookEnabled = KeepADBPreferences.isRegisterWebhookEnabled(appContext);
+        String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
+        String deviceId = getDeviceId(appContext);
+        markUsbInactiveAsyncInternal(webhookEnabled, targetUrl, deviceId);
+    }
+
+    static void markUsbInactiveAsyncInternal(boolean webhookEnabled, String configuredUrl, String deviceId) {
+        if (!webhookEnabled) return;
+        final String urlToUse;
+        final Integer profileId;
+        final String profileName;
+        final String ipAddress;
+        final String hostname;
+        final String tailnetHostname;
+        final long opGen;
+        synchronized (KeepADBRegisterClient.class) {
+            if (lastRegisteredUsbUrl == null && lastRegisteredUsbPayload == null) {
+                return;
+            }
+            urlToUse = (lastRegisteredUsbUrl != null) ? lastRegisteredUsbUrl : configuredUrl;
+            profileId = lastRegisteredUsbProfileId;
+            profileName = lastRegisteredUsbProfileName;
+            ipAddress = lastRegisteredUsbIpAddress;
+            hostname = lastRegisteredUsbHostname;
+            tailnetHostname = lastRegisteredUsbTailnetHostname;
+            opGen = ++currentUsbOpGeneration;
+        }
+
+        if (urlToUse == null || urlToUse.trim().isEmpty()) {
+            synchronized (KeepADBRegisterClient.class) {
+                if (opGen == currentUsbOpGeneration) {
+                    clearUsbStateLocked();
+                }
+            }
+            return;
+        }
+
+        final String payload = buildUsbPayload(deviceId, profileId, profileName, ipAddress, hostname,
+                tailnetHostname, false);
+
+        EXECUTOR.execute(() -> {
+            if (opGen != currentUsbOpGeneration) return;
+            if (sendJsonPost(urlToUse, payload, "usb-adb")) {
+                synchronized (KeepADBRegisterClient.class) {
+                    if (opGen == currentUsbOpGeneration) {
+                        clearUsbStateLocked();
+                        notifyRegisterStateListener();
+                    }
+                }
+            }
+        });
+    }
+
+    private static void clearUsbStateLocked() {
+        lastRegisteredUsbUrl = null;
+        lastRegisteredUsbPayload = null;
+        lastRegisteredUsbProfileId = null;
+        lastRegisteredUsbProfileName = null;
+        lastRegisteredUsbIpAddress = null;
+        lastRegisteredUsbHostname = null;
+        lastRegisteredUsbTailnetHostname = null;
+    }
+
+    static String getDeviceId(Context context) {
+        if (context == null) return "";
+        try {
+            String id = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+            return id == null ? "" : id;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    static String buildUsbPayload(String deviceId, Integer profileId, String profileName, String ipAddress,
+            String hostname, String tailnetHostname, boolean active) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"method\":\"usb-adb\"");
+        sb.append(",\"deviceId\":\"").append(jsonEscape(deviceId)).append("\"");
+        if (profileId != null) {
+            sb.append(",\"profileId\":").append(profileId);
+        }
+        sb.append(",\"profileName\":\"").append(jsonEscape(profileName)).append("\"");
+        sb.append(",\"ipAddress\":\"").append(jsonEscape(ipAddress)).append("\"");
+        sb.append(",\"hostname\":\"").append(jsonEscape(hostname)).append("\"");
+        sb.append(",\"tailnetHostname\":\"").append(jsonEscape(tailnetHostname)).append("\"");
+        sb.append(",\"active\":").append(active);
+        sb.append("}");
+        return sb.toString();
+    }
+
+    private static String jsonEscape(String value) {
+        if (value == null) return "";
+        StringBuilder sb = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            switch (c) {
+                case '\\': sb.append("\\\\"); break;
+                case '"': sb.append("\\\""); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                case '\t': sb.append("\\t"); break;
+                default:
+                    if (c < 0x20) {
+                        sb.append(String.format(java.util.Locale.US, "\\u%04x", (int) c));
+                    } else {
+                        sb.append(c);
+                    }
+            }
+        }
+        return sb.toString();
     }
 
     private static void performUpdateTransaction(Context context, String targetUrl, String targetEndpoint, long opGen) {
@@ -208,6 +381,32 @@ final class KeepADBRegisterClient {
         stateInitialized = false;
         currentOpGeneration = 0;
         registerStateListener = null;
+        clearUsbStateLocked();
+        currentUsbOpGeneration = 0;
+    }
+
+    // ---- Test-only accessors: keep WLAN and USB state independently verifiable. ----
+
+    static void setWlanStateForTesting(String url, String endpoint) {
+        lastRegisteredUrl = url;
+        lastRegisteredEndpoint = endpoint;
+        stateInitialized = true;
+    }
+
+    static String getLastRegisteredUrlForTesting() {
+        return lastRegisteredUrl;
+    }
+
+    static String getLastRegisteredEndpointForTesting() {
+        return lastRegisteredEndpoint;
+    }
+
+    static String getLastRegisteredUsbUrlForTesting() {
+        return lastRegisteredUsbUrl;
+    }
+
+    static String getLastRegisteredUsbPayloadForTesting() {
+        return lastRegisteredUsbPayload;
     }
 
     static String sanitizeUrl(String rawUrl) {
@@ -230,9 +429,13 @@ final class KeepADBRegisterClient {
     }
 
     static boolean postEndpoint(String targetUrl, String endpoint) {
+        String payload = String.format(java.util.Locale.US, "{\"method\":\"wlan-adb\",\"endpoint\":\"%s\"}", endpoint);
+        return sendJsonPost(targetUrl, payload, endpoint);
+    }
+
+    private static boolean sendJsonPost(String targetUrl, String payload, String logLabel) {
         HttpURLConnection conn = null;
         try {
-            String payload = String.format(java.util.Locale.US, "{\"method\":\"wlan-adb\",\"endpoint\":\"%s\"}", endpoint);
             byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
 
             URL url = new URL(targetUrl);
@@ -251,7 +454,7 @@ final class KeepADBRegisterClient {
             }
 
             int code = conn.getResponseCode();
-            Log.d(TAG, "Register update for " + endpoint + " returned HTTP " + code);
+            Log.d(TAG, "Register update for " + logLabel + " returned HTTP " + code);
             return code >= 200 && code < 300;
         } catch (IOException e) {
             Log.w(TAG, "Could not update register at " + sanitizeUrl(targetUrl) + ": " + e.getMessage());
