@@ -32,6 +32,27 @@ final class KeepADB {
     // Set right after a user-initiated disable, consumed once by KeepADBService's
     // keep-alive observer so it doesn't immediately re-enable a deliberate shutoff.
     private static volatile boolean userDisabled;
+
+    // Independent, non-consumed counterpart to userDisabled: the on/off state of the last
+    // explicit setEnabled() call. userDisabled is a one-shot token with exactly one intended
+    // consumer (KeepADBService's content observer, deciding "stop recovering" vs. "recover").
+    // #168 added a second, independent reader of that same field (KeepADBUsbHandover's "did the
+    // user just turn this off?" guard) -- two independent consumers of a one-shot token is a
+    // bug: whichever reads first "uses it up" for the other. Confirmed on real hardware: a
+    // manual off -> content-observer's consumeUserDisabled() (unrelated Keep-Alive decision,
+    // resets userDisabled as a side effect) -> a later genuine USB reconnect wrongly saw
+    // isUserDisabled()==false and re-enabled WLAN-ADB despite the explicit manual off.
+    // lastDesiredOn fixes this by never being consumed -- only ever overwritten by the next
+    // setEnabled() call -- so a read here can't starve any other reader.
+    //
+    // performRecoveryPulse() deliberately does NOT update this field: it only ever runs when
+    // userDisabled is false, i.e. the last explicit intent was already "on", so the pulse is a
+    // same-state bounce (on -> brief off -> on) rather than a new intent and can never need to
+    // flip this. The content observer's own recovery re-enable (source="content_observer") DOES
+    // go through setEnabled(ctx, true, ...) like any other caller and is treated as a legitimate
+    // "intent is now on" update: Keep-Alive's whole purpose is to restore the on-state, so an
+    // automatic recovery re-enable is as much an intent as a manual tap.
+    private static volatile boolean lastDesiredOn = true;
     private static volatile long lastAppliedChangeMs = 0;
     private static volatile long currentIntentToken = 0;
     private static Runnable pendingToggleRunnable;
@@ -44,6 +65,16 @@ final class KeepADB {
 
     static boolean isUserDisabled() {
         return userDisabled;
+    }
+
+    /**
+     * Non-consumed counterpart to {@link #isUserDisabled()}: reflects the on/off state of the
+     * last explicit {@link #setEnabled} call and is never reset as a side effect of an unrelated
+     * {@link #consumeUserDisabled()} read. See the {@code lastDesiredOn} field comment for why
+     * two independent flags exist.
+     */
+    static boolean wasLastExplicitIntentOff() {
+        return !lastDesiredOn;
     }
 
     private static boolean hasPermission(Context ctx) {
@@ -75,6 +106,7 @@ final class KeepADB {
         synchronized (KeepADB.class) {
             token = ++currentIntentToken;
             userDisabled = !on;
+            lastDesiredOn = on;
             if (pendingToggleRunnable != null) {
                 toggleHandler().removeCallbacks(pendingToggleRunnable);
                 pendingToggleRunnable = null;
@@ -107,6 +139,7 @@ final class KeepADB {
             boolean writeAccepted = Settings.Global.putInt(
                     appContext.getContentResolver(), KEY, on ? 1 : 0);
             userDisabled = !on;
+            lastDesiredOn = on;
             lastAppliedChangeMs = SystemClock.elapsedRealtime();
             boolean actual = isEnabled(appContext);
             KeepADBDiagnostics.event(appContext, eventName, source,
@@ -216,6 +249,7 @@ final class KeepADB {
             pendingToggleRunnable = null;
         }
         userDisabled = false;
+        lastDesiredOn = true;
         lastAppliedChangeMs = 0;
         currentIntentToken = 0;
     }

@@ -106,4 +106,13 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="battery_optimization_title">बैटरी ऑप्टिमाइज़ेशन Keep-Alive को सीमित कर सकता है</string>
     <string name="battery_optimization_body">KeepADB को बैटरी ऑप्टिमाइज़ेशन से छूट नहीं मिली है। Android या निर्माता बैकग्राउंड में Keep-Alive को सीमित या बंद कर सकता है।</string>
     <string name="battery_optimization_button">बैटरी सेटिंग खोलें</string>
+    <string name="settings_section_usb_handover">USB → WLAN-ADB Handover</string>
+    <string name="settings_usb_handover_subtext">Optionally offer or automatically enable WLAN-ADB from an active USB-ADB connection. Off by default; a manual OFF is never overridden.</string>
+    <string name="settings_usb_handover_label">Handover mode</string>
+    <string name="settings_usb_handover_dialog_title">Select handover mode</string>
+    <string name="settings_usb_handover_mode_off">Off</string>
+    <string name="settings_usb_handover_mode_manual">Manual (show action in USB notification)</string>
+    <string name="settings_usb_handover_mode_automatic">Automatic (enable on new USB connection)</string>
+    <string name="usb_notification_enable_wlan_handover">Enable WLAN-ADB</string>
+    <string name="usb_notification_handover_error">Could not enable WLAN-ADB. Check permission.</string>
 </resources>

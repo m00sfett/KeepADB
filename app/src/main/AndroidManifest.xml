@@ -80,6 +80,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_STATE" />
+                <action android:name="de.hohnepeople.keepadb.USB_HANDOVER_ENABLE" />
             </intent-filter>
         </receiver>
     </application>

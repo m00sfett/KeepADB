@@ -19,6 +19,14 @@ final class KeepADBUsbNotification {
     static final String EXTRA_PROFILE_ACTION = "profile_action";
     static final String ACTION_CREATE = "create";
     static final String ACTION_SWITCH = "switch";
+    private static final int HANDOVER_ACTION_REQUEST_CODE = 1;
+
+    // #168: set when the MANUAL "Enable WLAN-ADB" action failed (e.g. missing
+    // WRITE_SECURE_SETTINGS), so the notification shows a clear error instead of silently doing
+    // nothing or implying success. Cleared as soon as the action button's own precondition
+    // (connected, MANUAL mode, WLAN-ADB still off) no longer holds -- disconnect or a successful
+    // enable both make the button (and with it the error) disappear together.
+    private static volatile boolean lastHandoverActionFailed;
 
     private KeepADBUsbNotification() {}
 
@@ -37,12 +45,28 @@ final class KeepADBUsbNotification {
             KeepADBRegisterClient.markUsbInactiveAsync(appContext);
         }
 
+        boolean handoverActionVisible = connected
+                && KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL.equals(
+                        KeepADBPreferences.getUsbWlanHandoverMode(appContext))
+                && !KeepADB.isEnabled(appContext);
+        if (!handoverActionVisible) {
+            lastHandoverActionFailed = false;
+        }
+
         if (!connected || !KeepADBUsbProfile.isNotificationEnabled(appContext)
                 || !hasNotificationPermission(appContext)) {
             manager.cancel(NOTIFICATION_ID);
             return;
         }
-        manager.notify(NOTIFICATION_ID, build(appContext));
+        manager.notify(NOTIFICATION_ID, build(appContext, handoverActionVisible));
+    }
+
+    /** Result callback for the MANUAL "Enable WLAN-ADB" action (#168). USB is still connected at
+     * this point (the button that triggered it is only shown while connected), so re-deriving the
+     * notification with connected=true is safe and not treated as a fresh connect edge. */
+    static void reportManualActionResult(Context context, boolean success) {
+        lastHandoverActionFailed = !success;
+        refresh(context, true);
     }
 
     static void cancel(Context context) {
@@ -51,16 +75,19 @@ final class KeepADBUsbNotification {
         if (manager != null) manager.cancel(NOTIFICATION_ID);
     }
 
-    private static Notification build(Context context) {
+    private static Notification build(Context context, boolean handoverActionVisible) {
         List<KeepADBUsbProfile.Profile> profiles = KeepADBUsbProfile.getProfiles(context);
         KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.getSelected(context);
         String profileText = selected == null
                 ? context.getString(R.string.usb_notification_no_profile)
                 : selected.summary();
+        String contentText = (handoverActionVisible && lastHandoverActionFailed)
+                ? context.getString(R.string.usb_notification_handover_error)
+                : profileText;
         Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(context.getString(R.string.usb_notification_title))
-                .setContentText(profileText)
+                .setContentText(contentText)
                 .setOngoing(true)
                 .setCategory(Notification.CATEGORY_STATUS)
                 .setContentIntent(profileIntent(context, profiles.isEmpty() ? ACTION_CREATE : ACTION_SWITCH));
@@ -70,6 +97,9 @@ final class KeepADBUsbNotification {
             builder.addAction(action(context, R.string.usb_notification_switch_profile, ACTION_SWITCH));
             builder.addAction(action(context, R.string.usb_notification_new_profile, ACTION_CREATE));
         }
+        if (handoverActionVisible) {
+            builder.addAction(handoverAction(context));
+        }
         return builder.build();
     }
 
@@ -78,12 +108,26 @@ final class KeepADBUsbNotification {
                 profileIntent(context, action)).build();
     }
 
+    private static Notification.Action handoverAction(Context context) {
+        Intent intent = new Intent(context, KeepADBUsbReceiver.class)
+                .setAction(KeepADBUsbReceiver.ACTION_HANDOVER_ENABLE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, HANDOVER_ACTION_REQUEST_CODE, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        return new Notification.Action.Builder(null,
+                context.getString(R.string.usb_notification_enable_wlan_handover), pendingIntent).build();
+    }
+
     private static PendingIntent profileIntent(Context context, String action) {
         Intent intent = new Intent(context, SettingsActivity.class)
                 .putExtra(EXTRA_PROFILE_ACTION, action)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return PendingIntent.getActivity(context, action.hashCode(), intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    /** Reset state for unit tests. */
+    static void resetForTesting() {
+        lastHandoverActionFailed = false;
     }
 
     private static void ensureChannel(Context context, NotificationManager manager) {
