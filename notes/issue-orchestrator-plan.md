@@ -4080,3 +4080,103 @@ Modell/Effort: unbekannt (nicht verifiziert); Status der Angaben: konfiguriert; 
 `closed-pending-decision` (zurückgestellt, kein Blocker); Nachweis: A6-Fingerprint-Readback
 API 29, GitHub-Kommentar dokumentiert; Probleme/Optionen: keine offen; Nächster Schritt:
 nächste Auswahlrunde für #167/#168/#171/#173, sofern gewünscht.
+
+## Auswahl Issue #167 — Premise-Check vor Implementierung — 2026-08-28
+
+- Nutzerentscheidung: #167 zuerst (schwerstes/grundlegendstes Paket, schaltet #168 frei).
+  #171/#173 bleiben als nächste Kandidaten liegen (beide unabhängig, kein Blocker).
+- Codebasis gelesen: `KeepADBRegisterClient.java` (POST/DELETE gegen einen einzigen
+  benutzerkonfigurierten Webhook-Endpoint, hartcodiertes `{"method":"wlan-adb","endpoint":...}`),
+  `KeepADBRegisterClientTest.java` (Fake-HTTP-Server als Contract-Test-Gegenstelle),
+  `KeepADBUsbProfile.java` (rein manuell gepflegte Profile: id/name/ip/hostname/tailnet,
+  **keine Geräte-/Serial-Identität**, keine Aktiv-Status-Historie), `KeepADBUsbReceiver.java`.
+- **Befund 1 (Scope):** Das „zentrale Register" ist laut README/Code ein beliebiger, vom Nutzer
+  selbst betriebener HTTP-Endpoint (z. B. eigener Flask-Dienst) — kein Bestandteil dieses
+  Repos und kein bekanntes Schwesterprojekt. Mehrere Akzeptanzkriterien aus #167
+  („Mehrere Pfade/Hostprofile pro Telefon können koexistieren", „Register-Readback zeigt
+  Pfade") beschreiben Server-Verhalten, das in diesem Repo nicht test- oder umsetzbar ist.
+  Client-seitig umsetzbar/testbar sind: Payload-Schema-Erweiterung (`method`, USB-Felder),
+  USB-Disconnect markiert nur USB-Pfad inaktiv, Rückwärtskompatibilität des WLAN-Payloads,
+  Idempotenz der Client-Operationen.
+- **Befund 2 (fehlendes Datenmodell):** #167 verlangt „Telefonidentität/Serial" im
+  USB-ADB-Registereintrag. Diese Identität existiert im Code nicht — Profile sind rein manuell
+  (kein Geräte-Fingerprint). Zwei Kandidaten: `Settings.Secure.ANDROID_ID` (kein Permission-
+  Bedarf, pro App-Signatur + Gerät stabil ab API 26) oder `Build.SERIAL`
+  (ab API 26 ohne `READ_PHONE_STATE` nur `"unknown"`, damit ungeeignet). Nutzerentscheidung
+  nötig, da das den Registerpayload dauerhaft prägt.
+- Zerlegung nach Premise-Check:
+  1. **S2, Client-Payload-Schema:** `KeepADBRegisterClient` um `method=usb-adb` +
+     Profil-/Geräte-Identitätsfelder erweitern, WLAN-Payload unverändert, Contract-Tests
+     analog zum bestehenden Fake-Server-Muster.
+  2. **S2, USB-Lifecycle:** `KeepADBUsbReceiver`/`KeepADBUsbNotification`-Pfad ruft bei
+     Connect/Profilwechsel Update, bei Disconnect nur USB-Markierung auf, ohne WLAN-Zustand
+     zu berühren; Idempotenz analog bestehendem `lastRegisteredUrl/Endpoint`-Muster.
+  3. Server-seitige Kriterien (Koexistenz mehrerer Pfade, Readback-Priorisierung) werden als
+     **Nicht-Ziel dieses Repos** dokumentiert bzw. als Hinweis an den Nutzer für sein eigenes
+     Registerprojekt weitergegeben, nicht in KeepADB implementiert.
+- Freigaben: bisher nur Auswahl/Analyse. Keine Implementierung, kein Subagent-Start, kein
+  Build/Test/Gerät freigegeben.
+- Status: `not approved` — wartet auf Nutzerentscheidung zu Befund 1 (Scope-Bestätigung) und
+  Befund 2 (Identitätsfeld), bevor Implementierung beauftragt wird.
+
+## Issue #167 — Scope-Entscheidung und Paketzuschnitt — 2026-08-28
+
+- Nutzerentscheidung: Scope = **nur Client-Payload** (Serverkriterien sind Nicht-Ziel dieses
+  Repos, werden im Issue-Kommentar an den Nutzer zurückgegeben). Geräteidentität = **ANDROID_ID**
+  (`Settings.Secure.ANDROID_ID`, kein Permission-Bedarf).
+- Zusätzlicher Codebefund: `KeepADBRegisterClient` wird aktuell **nur** aus dem WLAN-ADB-Pfad
+  (`KeepADBNotification.java`) aufgerufen; `KeepADBUsbNotification`/`KeepADBUsbReceiver` rufen
+  ihn nirgends auf. #167 muss also den kompletten USB-Registrierungspfad neu verdrahten, nicht
+  nur das Payload-Format erweitern.
+- **Paket (S2):** `KeepADBRegisterClient` um `postUsbProfile`/`markUsbInactive`-Pendant zum
+  bestehenden WLAN-Pfad erweitern (payload `{"method":"usb-adb","deviceId":<ANDROID_ID>,
+  "profileId":...,"profileName":...,"ipAddress":...,"hostname":...,"tailnetHostname":...,
+  "active":true/false}`), getrennter Idempotenz-/Zustandsslot (analog `lastRegisteredUrl/
+  Endpoint`, aber eigenständig für USB, damit WLAN-Zustand unberührt bleibt). Verdrahtung in
+  `KeepADBUsbNotification.refresh()` (Connect + Profilwechsel → Update) und
+  `KeepADBUsbReceiver`-Disconnect-Pfad (→ nur USB-Pfad als inaktiv markieren). WLAN-Payload
+  bleibt exakt wie bisher (Rückwärtskompatibilität).
+- Betroffene Dateien: `KeepADBRegisterClient.java`, `KeepADBUsbNotification.java`,
+  `KeepADBUsbProfile.java` (nur falls ANDROID_ID-Zugriff dort gekapselt werden soll),
+  `KeepADBRegisterClientTest.java` (neue Testfälle für usb-adb-Payload/Idempotenz),
+  ggf. `KeepADBUsbProfileTest.java`.
+- Nicht-Ziele: keine Server-/Registerdienst-Implementierung, keine Koexistenz-/Readback-Logik
+  außerhalb dieses Repos, keine Änderung an Profilverwaltung (#169/#170), keine
+  Automatik-/Handover-Logik (das ist #168).
+- Stufe: **S2** — lokalisierte Verhaltensänderung, deterministische Gates (`./bin/verify`),
+  mechanische Erweiterung eines bereits etablierten, gut getesteten Musters (WLAN-Pfad) auf
+  einen zweiten Aufrufpfad; keine neue Architektur- oder Sicherheitsentscheidung.
+- Freigabe: noch ausstehend (Subagent-Start `worker-s2`, `sonnet`/`medium`).
+
+## Issue #167 — Review, Reparatur und Folgeissue — 2026-08-28
+
+- Unabhaengiger Review (frischer worker-s2): not approved, ein Muss-Fix - jsonEscape() in
+  KeepADBRegisterClient.java escapte keine Kontrollzeichen (Newline/Carriage-Return/Tab/weitere
+  C0-Kontrollzeichen); ein Profilname/Hostname mit eingefuegtem Zeilenumbruch erzeugte
+  ungueltiges JSON im USB-ADB-Payload. Alle anderen Behauptungen (WLAN-Payload byte-identisch,
+  WLAN/USB-State-Trennung, Dedup vor Executor-Hop, Live-Wiring ueber den einzigen
+  refresh(Context, boolean)-Aufrufpfad, Op-Generation-Race-Schutz, Testabdeckung) wurden gegen
+  den tatsaechlichen Diff verifiziert und bestaetigt.
+- Nicht blockierend, aber Nutzerentscheidung noetig: USB-Registrierungszustand ist rein
+  In-Memory (keine Persistenz wie beim WLAN-Pfad) -> nach Prozesstod bei weiterhin gestecktem
+  USB-Kabel bleibt der Registereintrag dauerhaft active:true ohne Korrekturpfad.
+- Nutzerentscheidungen: (1) Muss-Fix direkt vom Hauptagenten reparieren (trivialer Einzeiler,
+  kein eigener Subagent) und ./bin/verify erneut laufen lassen; (2) Stale-State-Luecke als
+  eigenstaendiges Folgeissue erfassen statt im selben Paket mitzufixen oder zu ignorieren.
+- Reparatur: jsonEscape() escaped jetzt Newline/Carriage-Return/Tab sowie alle uebrigen
+  C0-Kontrollzeichen als Unicode-Escape. Neuer Testfall
+  testProfileFieldsWithControlCharactersProduceValidJson ergaenzt (exakter String-Vergleich; ein
+  urspruenglich zusaetzlich eingebauter org.json.JSONObject-Parse-Sanity-Check wurde wieder
+  entfernt, weil Androids org.json-Stub in reinen JVM-Unit-Tests ohne Robolectric nur
+  Default-Werte liefert - das Projekt verlaesst sich bewusst nirgends auf echtes JSON-Parsing in
+  Tests, nur auf exakten String-Vergleich).
+- Gates: ./bin/verify nach der Reparatur vollstaendig gruen (git diff --check,
+  testDebugUnitTest inkl. 10 Tests in KeepADBUsbRegisterClientTest, lintDebug, assembleDebug,
+  assembleRelease); zusaetzlich isolierter Rerun nur der neuen Testklasse (--tests ... --rerun)
+  gruen.
+- Folgeissue #183 angelegt (https://github.com/m00sfett/KeepADB/issues/183) - Stale-USB-Register-
+  State nach Prozesstod, referenziert #167 als Herkunft.
+- Reviewstatus jetzt: approved (Muss-Fix behoben, restliche Findings bestaetigt unauffaellig
+  bzw. bewusst als Folgeissue ausgelagert).
+- Naechster Schritt: Commit (Implementierung + Fix als ein Paket), PR gegen master mit
+  Fixes #167, danach Board-/Drift-Sync.
