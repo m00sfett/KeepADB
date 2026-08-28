@@ -3992,3 +3992,37 @@ Abschlussaktion); Modell/Effort: `sonnet`/`medium` (Session-Default, unverifizie
 `CLAUDE_EFFORT`); Status der Angaben: konfiguriert; Zustand: complete; Nachweis: PR #182
 gemergt (`f8e8150`), Issues #178/#180 CLOSED, Board/Drift sauber; Probleme/Optionen: keine;
 Nächster Schritt: Auswahlrunde für #181 bzw. verbleibende offene Issues, sofern gewünscht.
+
+## Auswahl Issue #181 — 2026-08-28
+
+- Nutzervorgabe: konkret #181 als nächstes Paket (überschreibt Einstiegsheuristik/Roadmap-
+  Abgleich für diese Runde).
+- Ziel laut Issue: `ActivityNotFoundException`-/SecurityException-Fallback aus #178 auf einem
+  **zweiten physischen OEM-Gerät mit abweichender Systemeinstellungen-App** nachweisen, bei dem
+  der zielgenaue `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`-Intent nicht verfügbar/zulässig
+  ist. Abschluss erst mit reproduzierbarem Nachweis oder dokumentiertem externem Geräteblocker.
+- Register-Lage (`phone_reachability_register.json`): registriert sind `s20` (bereits als
+  Primärgerät für #178/#180 genutzt), `a6` (Samsung SM-A600FN, USB-ADB) und `giselaphone`
+  (Samsung SM-A600FN, USB-SSH-Tunnel). Beide Kandidaten sind **derselbe Hersteller (Samsung)**
+  wie das bereits geprüfte S20 — kein abweichendes OEM registriert.
+- Vorab erkennbares Risiko (Premise-Check, noch nicht verifiziert): KeepADB verlangt minSdk 30;
+  die Galaxy A6 (2018, SM-A600FN) wurde werksseitig mit Android 8 ausgeliefert und maximal auf
+  Android 10 aktualisiert. Ist das reale Gerät unterhalb API 30, ist eine Installation technisch
+  unmöglich und das Issue-Ziel mit diesem Gerät nicht erreichbar — unabhängig vom OEM-Aspekt.
+- Zerlegung:
+  1. **S1, read-only, Freigabe erforderlich:** Register-Konnektivitätscheck + Fingerprint-
+     Validierung + `getprop ro.build.version.sdk`/`ro.product.manufacturer` für `a6` und
+     `giselaphone`, ohne Installation oder Datenänderung.
+  2. **Abhängig von (1):** Ist mindestens ein Gerät API ≥ 30, KeepADB testweise installieren
+     (Backup vorhandener Daten falls App bereits drauf) und den Fallback-Pfad wie in #180
+     dokumentieren (Vorher/Nachher, Rückbau). Braucht eigene Geräteaktions-Freigabe.
+  3. Sind beide Geräte API < 30 **oder** liefert keines eine vom Samsung-Verhalten abweichende
+     Intent-Behandlung, ist das Issue-Ziel mit dem aktuellen Gerätepark nicht erreichbar — dann
+     Befund dokumentieren und dem Nutzer zur Entscheidung vorlegen (externer Blocker vs.
+     Beschaffung/Bereitstellung eines echten Fremd-OEM-Geräts).
+- Nicht-Ziele: keine automatische Hersteller-/Akku-Einstellung durch die App, keine Recovery-/
+  Service-Logikänderung, keine Datenlöschung, keine GitHub-Actions, kein Issue-/PR-Abschluss
+  ohne separate Freigabe.
+- Freigaben: Auswahl und Plan-Update erteilt. Geräteverbindung (auch read-only) noch nicht
+  freigegeben.
+- Status: `not approved` — Ausführung wartet auf die Freigabe für Schritt 1.
