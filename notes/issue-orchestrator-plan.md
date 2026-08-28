@@ -4051,3 +4051,32 @@ Nächster Schritt: Auswahlrunde für #181 bzw. verbleibende offene Issues, sofer
   (A6 bleibt USB an `mooslap2023-ts`, nicht an dieser Maschine); Detailstatus nur im Plan
   dokumentiert.
 - Nächster Schritt: Nutzerentscheidung, siehe Chat.
+
+## Issue #181 — zurückgestellt — 2026-08-28
+
+- Nutzerentscheidung: Nur das S20 zählt als aktuell nutzbares Gerät; kein Emulator-Ersatz, kein
+  `minSdk`-Downgrade. Das Issue wird zurückgestellt und ab sofort **nicht** als Blocker für
+  andere Arbeit behandelt.
+- Begründung dokumentiert (Chat + GitHub-Kommentar
+  https://github.com/m00sfett/KeepADB/issues/181#issuecomment-5453906647):
+  - `a6`/`giselaphone` sind dasselbe OEM (Samsung) wie das bereits geprüfte S20 — erfüllen das
+    Abweichungskriterium ohnehin nicht.
+  - `a6` läuft auf API 29, unterhalb `minSdk 30`; Installation dort technisch unmöglich.
+  - `minSdk 30` ist kein willkürlicher Wert: `Settings.Global.adb_wifi_enabled` existiert erst
+    ab Android 11 (API 30) als Teil des offiziellen Wireless-Debugging-Features; auf API 29 gibt
+    es kein Äquivalent. Ein Downgrade ist damit keine sinnvolle Option, keine weitere Prüfung
+    dazu vorgesehen.
+  - Ein SDK-Emulator bildet nur Stock-AOSP-/Google-Settings-Verhalten ab (bereits durch #180
+    API 30–35 abgedeckt) und kann OEM-spezifische Intent-Einschränkungen nicht simulieren.
+- Issue #181 bleibt auf GitHub offen (kein Schließen ohne erfüllten Akzeptanznachweis), aber
+  ohne aktive Bearbeitung, bis ein echtes Fremd-OEM-Gerät mit API ≥ 30 verfügbar/registriert ist.
+- Board/Drift: keine Statusänderung nötig, da Issue-Zustand (`open`, `backlog`) unverändert
+  bleibt; nur der Bearbeitungsstatus wird per Kommentar und Plan dokumentiert.
+- Strangzähler: Battery-/Doze-Strang (#178/#180/#181) ist damit für den erreichbaren Umfang
+  abgeschlossen; #181 pausiert extern, kein weiterer Nebenstrang ohne Produktnutzen.
+
+**Bearbeiter:** Hauptagent (Orchestrator); Paket: OEM-Fallback-Nachweis (#181); Stufe: S1;
+Modell/Effort: unbekannt (nicht verifiziert); Status der Angaben: konfiguriert; Zustand:
+`closed-pending-decision` (zurückgestellt, kein Blocker); Nachweis: A6-Fingerprint-Readback
+API 29, GitHub-Kommentar dokumentiert; Probleme/Optionen: keine offen; Nächster Schritt:
+nächste Auswahlrunde für #167/#168/#171/#173, sofern gewünscht.
