@@ -32,6 +32,9 @@
     <string name="notification_permission_panel_title">Benachrichtigungen sind deaktiviert</string>
     <string name="notification_permission_panel_body">Keep-Alive kann weiterhin laufen, aber KeepADB kann seine Statusbenachrichtigung nicht anzeigen. Erlaube Benachrichtigungen in den Systemeinstellungen.</string>
     <string name="notification_permission_settings_button">Benachrichtigungseinstellungen öffnen</string>
+    <string name="battery_optimization_title">Akkuoptimierung kann Keep-Alive einschränken</string>
+    <string name="battery_optimization_body">KeepADB ist nicht von der Akkuoptimierung ausgenommen. Android oder der Gerätehersteller kann Keep-Alive im Hintergrund einschränken oder beenden.</string>
+    <string name="battery_optimization_button">Akku-Einstellungen öffnen</string>
     <string name="notification_permission_missing_text">WRITE_SECURE_SETTINGS am PC per adb shell pm grant vergeben</string>
     <string name="action_settings">Einstellungen</string>
     <string name="title_settings">Einstellungen</string>

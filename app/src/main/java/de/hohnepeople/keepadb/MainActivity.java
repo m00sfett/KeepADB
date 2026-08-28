@@ -24,6 +24,7 @@ public class MainActivity extends Activity {
     private View webhookStatusPanel;
     private View setupPanel;
     private View notificationPermissionPanel;
+    private View batteryOptimizationPanel;
     private boolean notificationPermissionRequestPending;
 
     @Override
@@ -43,11 +44,14 @@ public class MainActivity extends Activity {
         webhookStatusPanel = findViewById(R.id.webhook_status_panel);
         setupPanel = findViewById(R.id.setup_panel);
         notificationPermissionPanel = findViewById(R.id.notification_permission_panel);
+        batteryOptimizationPanel = findViewById(R.id.battery_optimization_panel);
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
         findViewById(R.id.btn_open_notification_settings).setOnClickListener(v ->
                 openNotificationSettings());
+        findViewById(R.id.btn_open_battery_settings).setOnClickListener(v ->
+                KeepADBBatteryOptimization.openSettings(this));
 
         if (shouldRequestNotificationPermission()) {
             getPreferences(MODE_PRIVATE).edit()
@@ -169,6 +173,8 @@ public class MainActivity extends Activity {
                 != PackageManager.PERMISSION_GRANTED;
         setupPanel.setVisibility(configured ? View.GONE : View.VISIBLE);
         notificationPermissionPanel.setVisibility(notificationsDenied ? View.VISIBLE : View.GONE);
+        batteryOptimizationPanel.setVisibility(KeepADBBatteryOptimization.isExempt(this)
+                ? View.GONE : View.VISIBLE);
         toggle.setEnabled(configured);
         toggle.setChecked(on);
         status.setText(on ? getString(R.string.status_on) : getString(R.string.status_off));

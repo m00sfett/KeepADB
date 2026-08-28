@@ -103,4 +103,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_subtext">इस डिवाइस पर नवीनतम 128 संशोधित इवेंट रखता है। निर्यात Android शेयर शीट खोलता है।</string>
     <string name="settings_diagnostics_export">निदान निर्यात करें</string>
     <string name="settings_diagnostics_export_subject">KeepADB निदान</string>
+    <string name="battery_optimization_title">बैटरी ऑप्टिमाइज़ेशन Keep-Alive को सीमित कर सकता है</string>
+    <string name="battery_optimization_body">KeepADB को बैटरी ऑप्टिमाइज़ेशन से छूट नहीं मिली है। Android या निर्माता बैकग्राउंड में Keep-Alive को सीमित या बंद कर सकता है।</string>
+    <string name="battery_optimization_button">बैटरी सेटिंग खोलें</string>
 </resources>

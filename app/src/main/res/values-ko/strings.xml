@@ -103,4 +103,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_subtext">수정된 최신 이벤트 128개를 이 기기에 보관합니다. 내보내기를 누르면 Android 공유 화면이 열립니다.</string>
     <string name="settings_diagnostics_export">진단 내보내기</string>
     <string name="settings_diagnostics_export_subject">KeepADB 진단</string>
+    <string name="battery_optimization_title">배터리 최적화로 Keep-Alive가 제한될 수 있습니다</string>
+    <string name="battery_optimization_body">KeepADB는 배터리 최적화 예외가 아닙니다. Android 또는 제조업체가 백그라운드의 Keep-Alive를 제한하거나 중지할 수 있습니다.</string>
+    <string name="battery_optimization_button">배터리 설정 열기</string>
 </resources>
