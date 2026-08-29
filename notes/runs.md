@@ -372,3 +372,20 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   5. Gewährung & Live-Refresh: Nach Bestätigung ("ZULASSEN") wird KeepADB in die Whitelist eingetragen und das Banner verschwindet bei Rückkehr zur `MainActivity` (`onResume`) sofort.
   6. State-Konsistenz & Cleanup: `adb_wifi_enabled` blieb über den gesamten Testzyklus unverändert (`1`); Whitelist-Zustand sauber wiederhergestellt (`user,de.hohnepeople.keepadb,10158`).
 - **Status:** `APPROVED` — Issue #181 vollständig verifiziert.
+
+## 2026-08-29 — Dauerhafte Release-Signatur in Vaultwarden verifiziert
+
+- Die einzige produktive Upstream-Signieridentität für `de.hohnepeople.keepadb` wurde als
+  Vaultwarden-Eintrag `android/keepadb-signing` bestätigt und um Paket-, Kanal-, Gültigkeits-,
+  Fingerprint-, Wiederherstellungs- und Rotationsangaben ergänzt.
+- Der Eintrag enthält den vollständigen PKCS#12-Keystore, Alias sowie Store- und Key-Passwort;
+  Secret-Werte wurden weder ausgegeben noch im Repository gespeichert.
+- Der aus Vaultwarden temporär wiederhergestellte Keystore war bytegleich zur geschützten
+  lokalen Referenz. Zertifikatsfingerprint und Signatur des veröffentlichten GitHub-APKs
+  `v1.1.0` stimmten überein.
+- Zertifikat SHA-256:
+  `C5:2B:CD:17:1B:5C:CE:E8:87:F3:C1:6C:C3:A4:74:B3:8B:D9:CC:D7:71:CA:8C:D9:92:F8:2E:4D:17:75:3C:04`;
+  gültig bis 2054-01-08.
+- Die dauerhafte Betriebs- und Wiederherstellungsdokumentation liegt in
+  `docs/release-signing.md`. Es wurden kein Schlüssel erzeugt oder rotiert, kein Release
+  gestartet und keine GitHub Action ausgelöst.

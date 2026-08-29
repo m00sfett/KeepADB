@@ -1,6 +1,6 @@
 # KeepADB — Vorbereitung für den offiziellen F-Droid-Katalog
 
-Stand: 2026-08-22
+Stand: 2026-08-29
 Zweck: projektspezifischer Prüf- und Übergabeauftrag für den F-Droid-Release-Track.
 Charakter: vorbereitend; externe Veröffentlichungsaktionen sind nicht freigegeben.
 
@@ -19,8 +19,15 @@ Bekannte Identität:
 - App: KeepADB
 - Paket-ID: `de.hohnepeople.keepadb`
 - Produktpfad: dieses Repository
-- bisher bekannte Version: `1.0`
+- veröffentlichte Version: `1.1.0` / VersionCode `2`
 - Ziel: offizieller F-Droid-Katalog
+
+## Signaturstatus
+
+Die dauerhafte Upstream-Signieridentität, ihre öffentliche Zertifikatskennung, die
+Vaultwarden-Ablage und der verpflichtende Wiederherstellungscheck sind in
+[`docs/release-signing.md`](docs/release-signing.md) dokumentiert. Private Schlüsselwerte
+gehören weder in diese Datei noch in andere Projektartefakte.
 
 ## Auftrag an den KeepADB-Produktagenten
 
@@ -56,7 +63,7 @@ ausdrückliche Freigabe des Nutzers.
 - [ ] erzeugtes Artefakt, Build-Befehl, Toolchain und SHA-256 dokumentieren
 - [ ] prüfen, ob F-Droid den Build ohne proprietäre oder nicht verfügbare Komponenten
       reproduzieren kann
-- [ ] APK-Signatur- und Update-Kompatibilität erklären; keine Schlüsselwerte dokumentieren
+- [x] APK-Signatur- und Update-Kompatibilität erklären; keine Schlüsselwerte dokumentieren
 
 ### D. F-Droid-Metadaten vorbereiten
 
