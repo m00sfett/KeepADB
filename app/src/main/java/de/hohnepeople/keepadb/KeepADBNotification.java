@@ -320,6 +320,7 @@ final class KeepADBNotification {
                 .setContentText(styled)
                 .setStyle(new Notification.BigTextStyle().bigText(styled))
                 .setContentIntent(pendingIntent)
+                .addAction(disableAction(context))
                 .setOngoing(true)
                 .setShowWhen(false)
                 .build();
@@ -332,14 +333,32 @@ final class KeepADBNotification {
                 0,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        return new Notification.Builder(context, CHANNEL_ID)
+        Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setStyle(new Notification.BigTextStyle().bigText(text))
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
-                .setShowWhen(false)
-                .build();
+                .setShowWhen(false);
+        if (KeepADB.isEnabled(context)
+                && !context.getString(R.string.notification_permission_missing_title).equals(title)) {
+            builder.addAction(disableAction(context));
+        }
+        return builder.build();
+    }
+
+    static Notification.Action disableAction(Context context) {
+        Intent intent = new Intent(context, KeepADBReceiver.class)
+                .setAction(KeepADBReceiver.ACTION_DISABLE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        return new Notification.Action.Builder(
+                null,
+                context.getString(R.string.notification_action_disable),
+                pendingIntent).build();
     }
 }

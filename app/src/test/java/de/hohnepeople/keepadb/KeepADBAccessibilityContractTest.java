@@ -95,6 +95,8 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"usb_profile_delete_title\""));
                 assertTrue("Missing USB profile delete message in " + directory,
                         content.contains("name=\"usb_profile_delete_message\""));
+                assertTrue("Missing notification disable action in " + directory,
+                        content.contains("name=\"notification_action_disable\""));
             }
         }
     }

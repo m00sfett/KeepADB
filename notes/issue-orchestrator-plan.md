@@ -4360,3 +4360,54 @@ Paket: #168; Stufe: S3; Status der Angaben: konfiguriert; Zustand: complete; Nac
 gemergt (28b6bb6), Issue #168 CLOSED, Board/Drift sauber, ./bin/verify gruen, Bug auf echter
 Hardware reproduziert UND nach Fix als behoben bestaetigt; Probleme/Optionen: keine offen;
 Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
+
+## Issue #173 — Paket-Auswahl & Vorbereitung (2026-08-28)
+
+- **Issue:** [#173](https://github.com/m00sfett/KeepADB/issues/173) `feat: offer WLAN-ADB disable action in notification`
+- **Issue-Snapshot:** 2026-08-28T22:35:00+02:00 (5 offene Issues: #171, #173, #181, #183, #185)
+- **Ziel:** Die aktive WLAN-ADB-Benachrichtigung (`KeepADBNotification`) bietet eine direkte Aktion ("WLAN-ADB ausschalten" / "Ausschalten"), um WLAN-ADB schnell und ohne Öffnen der App zu deaktivieren.
+- **Umfang:**
+  - Notification-Action in `KeepADBNotification` via explizitem Broadcast-Receiver / PendingIntent (analog zu `KeepADBUsbReceiver` / `KeepADBWidget`).
+  - Nutzung des bestehenden `KeepADB.setEnabled(context, false)`-Pfads.
+  - Fehlerbehandlung sichtbar (z. B. wenn `WRITE_SECURE_SETTINGS` fehlt).
+  - Aktion erscheint nur, wenn WLAN-ADB aktiv ist; nach erfolgreichem Ausschalten wird die Notification aktualisiert/entfernt.
+  - USB-ADB-Notification, Host-Profile und sonstige Subsysteme bleiben unberührt.
+  - Unit-/Contract-Tests für Notification-Aufbau, Action-PendingIntent, Broadcast-Handling und Fehlerpfad.
+- **Nicht-Ziele:**
+  - Kein automatisches Ausschalten bei USB-Disconnect.
+  - Keine Änderung an USB-ADB-Notification oder Register-Schema.
+- **Stufe & Tier:** S2 (`flash` / `inherit`).
+- **Gates:**
+  - Lokale Gates: `./bin/verify` (Unit-Tests, Lint, Debug/Release APK).
+  - Optionales Geräte-Gate: S20-Hardwaretest via `android-target s20`.
+- **Status:** Vorbereitet für Delegationsanfrage / Umsetzung.
+
+## Issue #173 — Implementierung & Verifikation (2026-08-28)
+
+- **Bearbeiter:** Subagent `Implementer Issue 173`, Stufe S2, Modell `flash` (konfiguriert).
+- **Umsetzung:**
+  - `KeepADBReceiver.java`: Nicht-exportierter `BroadcastReceiver` für `de.hohnepeople.keepadb.ACTION_DISABLE`. Führt `KeepADB.setEnabled(context, false, "notification")` aus, erfasst `user_action`- und `toggle_attempt`-Diagnosedaten und synchronisiert UI-Flächen (`KeepADBService.sync`, `KeepADBNotification.refresh`, `KeepADBWidget.refreshAll`). Bei Berechtigungsfehler Anzeige eines Permission-Error-Toasts.
+  - `AndroidManifest.xml`: Registrierung von `.KeepADBReceiver` als `android:exported="false"` mit `ACTION_DISABLE`-Filter.
+  - `KeepADBNotification.java`: Ergänzung der Deaktivierungs-Aktion (`disableAction(context)`) mit explizitem `PendingIntent` für `KeepADBReceiver.class` und `FLAG_IMMUTABLE`.
+  - Lokalisierung: String-Ressource `notification_action_disable` in allen 19 Lokalisierungsdateien ergänzt.
+  - Testabdeckung: `KeepADBReceiverTest.java` (Unit-Tests für Null-Sicherheit, unbekannte Actions, Erfolgs-/Fehlerpfad, Diagnosedaten), `KeepADBNotificationActionContractTest.java` (Manifest-, Intent-, PendingIntent- und String-Contracts), `KeepADBAccessibilityContractTest.java` (19 Locales).
+- **Validierungs-Nachweis:** `./bin/verify` erfolgreich:
+  - `git diff --check`: sauber
+  - `testDebugUnitTest`: 89/89 Tests bestanden (0 Fehler)
+  - `lintDebug`: 0 Fehler / sauber
+  - `assembleDebug` & `assembleRelease`: erfolgreich gebaut
+- **Status:** Implementierung & lokale Gates erfolgreich abgeschlossen.
+
+## Issue #173 — Review & Hardware-Abnahme (2026-08-29)
+
+- **Review:**
+  - Bearbeiter: Subagent `Reviewer Issue 173`, Stufe S2, Modell `flash` (konfiguriert).
+  - Modus: `review and repair`.
+  - Ergebnis: **APPROVED** (alle Akzeptanzkriterien von #173 erfüllt, saubere Lifecycles & State-Tracking, null-safe Widget-Refreshes, sichere non-exported PendingIntents, keine Regressionen).
+- **Geräte-Abnahme (physisches S20 FE / SM-G780G via RF8T307S88H):**
+  - Fingerprint validiert: `samsung/r8qeea/r8q:13/TP1A.220624.014/G780GXXSHEYJ1:user/release-keys`.
+  - Installation Debug-APK (`app-debug.apk`) erfolgreich.
+  - Notification-Prüfung (`dumpsys notification`): Endpoint-Notification (`id=1`) zeigt korrekt die neue Action `[0] "WLAN-ADB ausschalten"` (`PendingIntent` -> `KeepADBReceiver.ACTION_DISABLE`).
+  - Funktionstest: Auslösen der Deaktivierungs-Aktion schaltet `adb_wifi_enabled` live von `1` auf `0` um und räumt die Notification auf.
+  - Rückbau/Wiederherstellung: Gerät in normalen Produktivzustand (`adb_wifi_enabled=1`) zurückversetzt.
+- **Status:** Vollständig verifiziert und abnahmebereit für Commit / PR / Merge (`Fixes #173`).
