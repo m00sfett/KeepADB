@@ -83,5 +83,13 @@
                 <action android:name="de.hohnepeople.keepadb.USB_HANDOVER_ENABLE" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".KeepADBReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="de.hohnepeople.keepadb.ACTION_DISABLE" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
