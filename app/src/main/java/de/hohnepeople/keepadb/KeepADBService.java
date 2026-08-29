@@ -31,13 +31,15 @@ public class KeepADBService extends Service {
     private long lastRecheckTime = 0;
 
     static void sync(Context context) {
+        boolean shouldRun = KeepADBPreferences.isKeepAliveEnabled(context)
+                && (KeepADB.isEnabled(context) || !KeepADB.wasLastExplicitIntentOff(context));
         KeepADBDiagnostics.event(context, "service_sync", "state_change",
-                KeepADBPreferences.isKeepAliveEnabled(context) && KeepADB.isEnabled(context)
-                        ? "start_requested" : "stop_requested",
+                shouldRun ? "start_requested" : "stop_requested",
                 "keepAlive=" + KeepADBPreferences.isKeepAliveEnabled(context)
-                        + " adbWifi=" + KeepADB.isEnabled(context));
+                        + " adbWifi=" + KeepADB.isEnabled(context)
+                        + " lastIntentOff=" + KeepADB.wasLastExplicitIntentOff(context));
         KeepADBUsbReceiver.refresh(context);
-        if (KeepADBPreferences.isKeepAliveEnabled(context) && KeepADB.isEnabled(context)) {
+        if (shouldRun) {
             start(context);
         } else {
             stop(context);
@@ -212,7 +214,7 @@ public class KeepADBService extends Service {
                     }
                     if (KeepADBPreferences.isKeepAliveEnabled(KeepADBService.this)) {
                         if (isWifiConnected(KeepADBService.this) && !KeepADB.isEnabled(KeepADBService.this)) {
-                            if (KeepADB.consumeUserDisabled()) {
+                            if (KeepADB.consumeUserDisabled() || KeepADB.wasLastExplicitIntentOff(KeepADBService.this)) {
                                 Log.i(TAG, "Wireless Debugging manually disabled by user; stopping service");
                                 KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
                                         "stopped", "user_disabled");
@@ -229,10 +231,16 @@ public class KeepADBService extends Service {
                                 }
                             }
                         } else if (!KeepADB.isEnabled(KeepADBService.this)) {
-                            Log.i(TAG, "Wireless Debugging disabled while Wi-Fi disconnected; stopping service");
-                            KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
-                                    "stopped", "wifi_disconnected");
-                            stop(KeepADBService.this);
+                            if (KeepADB.consumeUserDisabled() || KeepADB.wasLastExplicitIntentOff(KeepADBService.this)) {
+                                Log.i(TAG, "Wireless Debugging explicitly disabled by user; stopping service");
+                                KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
+                                        "stopped", "user_disabled");
+                                stop(KeepADBService.this);
+                            } else {
+                                Log.i(TAG, "Wireless Debugging dropped while Wi-Fi disconnected; keeping service alive for reconnect");
+                                KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
+                                        "waiting_wifi", "keep_alive_active");
+                            }
                         }
                     } else if (!KeepADB.isEnabled(KeepADBService.this)) {
                         stop(KeepADBService.this);
@@ -329,7 +337,7 @@ public class KeepADBService extends Service {
         lastRecheckTime = now;
         KeepADBDiagnostics.event(this, "keep_alive_check", "service", "started",
                 "wifiConnected=" + isWifiConnected(this) + " adbWifi=" + KeepADB.isEnabled(this));
-        if (KeepADBPreferences.isKeepAliveEnabled(this)) {
+        if (KeepADBPreferences.isKeepAliveEnabled(this) && !KeepADB.wasLastExplicitIntentOff(this)) {
             if (isWifiConnected(this)) {
                 if (!KeepADB.isEnabled(this)) {
                     Log.i(TAG, "Auto-enabling Wireless Debugging (Wi-Fi connected)");
