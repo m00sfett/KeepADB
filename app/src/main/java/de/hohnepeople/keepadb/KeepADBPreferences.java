@@ -24,6 +24,7 @@ final class KeepADBPreferences {
     private static final String KEY_USB_WEBHOOK_LAST_IP = "usb_webhook_last_ip";
     private static final String KEY_USB_WEBHOOK_LAST_HOSTNAME = "usb_webhook_last_hostname";
     private static final String KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME = "usb_webhook_last_tailnet_hostname";
+    private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
 
     // #168: optional USB-ADB -> WLAN-ADB handover offered from the USB notification.
     static final String USB_WLAN_HANDOVER_MODE_OFF = "off";
@@ -31,6 +32,22 @@ final class KeepADBPreferences {
     static final String USB_WLAN_HANDOVER_MODE_AUTOMATIC = "automatic";
 
     private KeepADBPreferences() {}
+
+    /**
+     * Persisted record of the last explicit on/off user intent. Survives process death and LMK
+     * so recovery and automatic handover don't fail open after process resurrection. Defaults to true.
+     */
+    static boolean getLastDesiredOn(Context context) {
+        if (context == null) return true;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_LAST_DESIRED_ON, true);
+    }
+
+    static void setLastDesiredOn(Context context, boolean on) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_LAST_DESIRED_ON, on).apply();
+    }
 
     /** Default OFF; any unrecognized stored value is treated as OFF rather than failing open. */
     static String getUsbWlanHandoverMode(Context context) {

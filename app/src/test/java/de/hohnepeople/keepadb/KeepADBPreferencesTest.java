@@ -81,6 +81,24 @@ public class KeepADBPreferencesTest {
         KeepADBPreferences.clearUsbWebhookReportedState(null);
     }
 
+    @Test
+    public void testLastDesiredOnPreferenceDefaultAndRoundTrip() {
+        FakeContext context = new FakeContext();
+        assertTrue(KeepADBPreferences.getLastDesiredOn(context));
+
+        KeepADBPreferences.setLastDesiredOn(context, false);
+        assertFalse(KeepADBPreferences.getLastDesiredOn(context));
+
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        assertTrue(KeepADBPreferences.getLastDesiredOn(context));
+    }
+
+    @Test
+    public void testLastDesiredOnNullContextSafety() {
+        assertTrue(KeepADBPreferences.getLastDesiredOn(null));
+        KeepADBPreferences.setLastDesiredOn(null, false);
+    }
+
     private static final class FakeContext extends android.content.ContextWrapper {
         private final android.content.SharedPreferences preferences = new MemoryPreferences();
 
