@@ -43,10 +43,6 @@ final class KeepADBUsbNotification {
             KeepADBRegisterClient.markUsbInactiveAsync(appContext);
         }
 
-        NotificationManager manager = appContext.getSystemService(NotificationManager.class);
-        if (manager == null) return;
-        ensureChannel(appContext, manager);
-
         boolean handoverActionVisible = connected
                 && KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL.equals(
                         KeepADBPreferences.getUsbWlanHandoverMode(appContext))
@@ -55,12 +51,20 @@ final class KeepADBUsbNotification {
             lastHandoverActionFailed = false;
         }
 
+        NotificationManager manager = appContext.getSystemService(NotificationManager.class);
+        if (manager == null) return;
+        ensureChannel(appContext, manager);
+
         if (!connected || !KeepADBUsbProfile.isNotificationEnabled(appContext)
                 || !hasNotificationPermission(appContext)) {
             manager.cancel(NOTIFICATION_ID);
             return;
         }
         manager.notify(NOTIFICATION_ID, build(appContext, handoverActionVisible));
+    }
+
+    static boolean isLastHandoverActionFailed() {
+        return lastHandoverActionFailed;
     }
 
     /** Result callback for the MANUAL "Enable WLAN-ADB" action (#168). USB is still connected at

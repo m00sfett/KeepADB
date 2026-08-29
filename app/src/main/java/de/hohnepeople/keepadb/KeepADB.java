@@ -77,6 +77,16 @@ final class KeepADB {
         return !lastDesiredOn;
     }
 
+    static boolean wasLastExplicitIntentOff(Context ctx) {
+        if (ctx == null) return wasLastExplicitIntentOff();
+        boolean prefOn = KeepADBPreferences.getLastDesiredOn(ctx.getApplicationContext());
+        if (!prefOn) {
+            lastDesiredOn = false;
+            return true;
+        }
+        return !lastDesiredOn;
+    }
+
     private static boolean hasPermission(Context ctx) {
         return ctx.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
                 == PackageManager.PERMISSION_GRANTED;
@@ -107,6 +117,7 @@ final class KeepADB {
             token = ++currentIntentToken;
             userDisabled = !on;
             lastDesiredOn = on;
+            KeepADBPreferences.setLastDesiredOn(appContext, on);
             if (pendingToggleRunnable != null) {
                 toggleHandler().removeCallbacks(pendingToggleRunnable);
                 pendingToggleRunnable = null;
@@ -140,6 +151,7 @@ final class KeepADB {
                     appContext.getContentResolver(), KEY, on ? 1 : 0);
             userDisabled = !on;
             lastDesiredOn = on;
+            KeepADBPreferences.setLastDesiredOn(appContext, on);
             lastAppliedChangeMs = SystemClock.elapsedRealtime();
             boolean actual = isEnabled(appContext);
             KeepADBDiagnostics.event(appContext, eventName, source,
@@ -178,7 +190,7 @@ final class KeepADB {
 
         final long pulseToken;
         synchronized (KeepADB.class) {
-            if (userDisabled || !isEnabled(appContext)) {
+            if (userDisabled || wasLastExplicitIntentOff(appContext) || !isEnabled(appContext)) {
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "skipped",
                         "stage=request observed=" + observed + " reason=user_disabled_or_state_off");
                 return;
@@ -209,7 +221,7 @@ final class KeepADB {
             }
 
             synchronized (KeepADB.class) {
-                if (pulseToken != currentIntentToken || userDisabled) {
+                if (pulseToken != currentIntentToken || userDisabled || wasLastExplicitIntentOff(appContext)) {
                     Log.i(TAG, "Recovery pulse cancelled by newer user intent");
                     KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "cancelled",
                             "intentId=" + pulseToken + " reason=newer_user_intent");
@@ -252,5 +264,12 @@ final class KeepADB {
         lastDesiredOn = true;
         lastAppliedChangeMs = 0;
         currentIntentToken = 0;
+    }
+
+    static synchronized void resetForTesting(Context ctx) {
+        resetForTesting();
+        if (ctx != null) {
+            KeepADBPreferences.setLastDesiredOn(ctx.getApplicationContext(), true);
+        }
     }
 }

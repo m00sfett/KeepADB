@@ -208,7 +208,7 @@ final class KeepADBEndpoint {
     private void maybeSendRecoveryPulse(long generation) {
         synchronized (this) {
             if (!isCurrent(generation) || endpointDelivered.get()) return;
-            if (!KeepADB.isEnabled(appContext) || KeepADB.isUserDisabled()) return;
+            if (!KeepADB.isEnabled(appContext) || KeepADB.wasLastExplicitIntentOff(appContext)) return;
         }
         long now = System.currentTimeMillis();
         synchronized (KeepADBEndpoint.class) {

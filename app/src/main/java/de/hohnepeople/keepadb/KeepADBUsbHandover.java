@@ -39,7 +39,7 @@ final class KeepADBUsbHandover {
         // (and reset) there for an unrelated Keep-Alive decision, which would silently "unblock"
         // this guard for whichever reader asks second. wasLastExplicitIntentOff() is never
         // consumed by anything, so it can't be starved by that other reader.
-        boolean lastIntentOff = KeepADB.wasLastExplicitIntentOff();
+        boolean lastIntentOff = KeepADB.wasLastExplicitIntentOff(appContext);
         if (onRawUsbBroadcastInternal(connected, mode, alreadyEnabled, lastIntentOff)) {
             KeepADB.setEnabled(appContext, true, "usb_handover");
         }

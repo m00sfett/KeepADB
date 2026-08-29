@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +31,7 @@ public class KeepADBUsbHandoverTest {
     public void setUp() {
         KeepADBUsbHandover.resetForTesting();
         KeepADB.resetForTesting();
+        KeepADBUsbNotification.resetForTesting();
     }
 
     @Test
@@ -115,11 +117,12 @@ public class KeepADBUsbHandoverTest {
     @Test
     public void consumeUserDisabledMidSequenceDoesNotUnblockAGenuineLaterUsbReconnect() {
         Context ctx = new FakeContext();
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
 
         // 1. User manually turns WLAN-ADB off via the app toggle.
         KeepADB.setEnabled(ctx, false, "app");
         assertTrue("setEnabled(false) must record the last explicit intent as off",
-                KeepADB.wasLastExplicitIntentOff());
+                KeepADB.wasLastExplicitIntentOff(ctx));
 
         // 2. KeepADBService's content observer fires on this very change and consumes the
         //    one-shot userDisabled token to decide "this was deliberate, stop recovering" --
@@ -131,14 +134,113 @@ public class KeepADBUsbHandoverTest {
 
         // 3. The non-consumed field must be unaffected by that unrelated read.
         assertTrue("wasLastExplicitIntentOff() must survive an unrelated consumeUserDisabled() call",
-                KeepADB.wasLastExplicitIntentOff());
+                KeepADB.wasLastExplicitIntentOff(ctx));
 
-        // 4. A genuine new USB connect edge arrives later, in AUTOMATIC mode.
-        boolean shouldEnable = KeepADBUsbHandover.onRawUsbBroadcastInternal(
-                true, AUTOMATIC, KeepADB.isEnabled(ctx), KeepADB.wasLastExplicitIntentOff());
-        assertFalse("automatic USB handover must not override an explicit prior user OFF, "
+        // 4. A genuine new USB connect edge arrives later, via the real broadcast entrypoint.
+        KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
+        assertTrue("automatic USB handover must not override an explicit prior user OFF, "
                         + "even after an unrelated consumeUserDisabled() call happened in between",
-                shouldEnable);
+                KeepADB.wasLastExplicitIntentOff(ctx));
+    }
+
+    @Test
+    public void rawUsbBroadcastEntrypointExercisesAutomaticHandoverAndProtectsUserOff() {
+        Context ctx = new FakeContext();
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
+
+        // Start with lastDesiredOn = true (default)
+        assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
+
+        // 1. Connect USB -> in AUTOMATIC mode with lastDesiredOn=true, handover fires and sets WLAN-ADB on
+        KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
+        assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
+
+        // 2. Repeated connected=true broadcasts while still plugged in do not re-trigger
+        KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
+
+        // 3. USB disconnects -> clears edge
+        KeepADBUsbHandover.onRawUsbBroadcast(ctx, false);
+
+        // 4. User manually disables WLAN-ADB
+        KeepADB.setEnabled(ctx, false, "app");
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+
+        // 5. Reconnect USB -> must NOT trigger handover because last explicit intent was OFF
+        KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+
+        // 6. Manual action button overrides and enables
+        boolean manualResult = KeepADBUsbHandover.handleManualAction(ctx);
+        assertTrue(manualResult);
+        assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
+    }
+
+    @Test
+    public void handleManualActionExecutionWithAndWithoutPermission() {
+        FakeContext permittedContext = new FakeContext(true);
+        assertTrue(KeepADBUsbHandover.handleManualAction(permittedContext));
+        assertFalse(KeepADB.wasLastExplicitIntentOff(permittedContext));
+
+        KeepADB.resetForTesting(permittedContext);
+
+        FakeContext deniedContext = new FakeContext(false);
+        assertFalse(KeepADBUsbHandover.handleManualAction(deniedContext));
+    }
+
+    @Test
+    public void reportManualActionResultAndNotificationStateTransitions() {
+        FakeContext ctx = new FakeContext();
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, MANUAL);
+
+        // Failure report sets error flag
+        KeepADBUsbNotification.reportManualActionResult(ctx, false);
+        assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
+
+        // Success report clears error flag
+        KeepADBUsbNotification.reportManualActionResult(ctx, true);
+        assertFalse(KeepADBUsbNotification.isLastHandoverActionFailed());
+
+        // Failure followed by disconnect clears error flag
+        KeepADBUsbNotification.reportManualActionResult(ctx, false);
+        assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
+        KeepADBUsbNotification.refresh(ctx, false);
+        assertFalse(KeepADBUsbNotification.isLastHandoverActionFailed());
+
+        // Failure followed by mode change to AUTOMATIC clears error flag
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, MANUAL);
+        KeepADBUsbNotification.reportManualActionResult(ctx, false);
+        assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
+        KeepADBUsbNotification.refresh(ctx, true);
+        assertFalse(KeepADBUsbNotification.isLastHandoverActionFailed());
+
+        // Failure followed by mode change to OFF clears error flag
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, MANUAL);
+        KeepADBUsbNotification.reportManualActionResult(ctx, false);
+        assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, OFF);
+        KeepADBUsbNotification.refresh(ctx, true);
+        assertFalse(KeepADBUsbNotification.isLastHandoverActionFailed());
+    }
+
+    @Test
+    public void lastDesiredOnPreferencesPersistenceAcrossSimulatedRestart() {
+        FakeContext ctx = new FakeContext();
+
+        // 1. User disables WLAN-ADB
+        KeepADB.setEnabled(ctx, false, "app");
+        assertFalse(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+
+        // 2. Simulate process death / LMK where in-memory static state resets
+        KeepADB.resetForTesting();
+        // Even though in-memory reset defaults lastDesiredOn to true, checking with ctx reads persisted prefs
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+
+        // 3. User or manual action enables WLAN-ADB
+        KeepADB.setEnabled(ctx, true, "app");
+        assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
     }
 
     /**
@@ -149,15 +251,26 @@ public class KeepADBUsbHandoverTest {
      * {@link KeepADBUsbHandoverModeTest}'s TestContext/MemoryPreferences.
      */
     private static final class FakeContext extends ContextWrapper {
+        private final boolean hasPermission;
         private final SharedPreferences preferences = new MemoryPreferences();
 
         FakeContext() {
+            this(true);
+        }
+
+        FakeContext(boolean hasPermission) {
             super(null);
+            this.hasPermission = hasPermission;
         }
 
         @Override
         public Context getApplicationContext() {
             return this;
+        }
+
+        @Override
+        public int checkSelfPermission(String permission) {
+            return hasPermission ? PackageManager.PERMISSION_GRANTED : PackageManager.PERMISSION_DENIED;
         }
 
         @Override
