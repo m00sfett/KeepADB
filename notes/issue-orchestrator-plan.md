@@ -4504,3 +4504,62 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   - #185: `chore: harden USB->WLAN-ADB handover edge cases` (S2/S3, offen)
   - #181: `test: OEM-Fallback...` (zurückgestellt bis 2. OEM-Gerät verfügbar)
 - **Status:** Paket #171 erfolgreich abgeschlossen.
+
+## Issue #183 — Paket-Auswahl & Vorbereitung (2026-08-29)
+
+- **Issue:** [#183](https://github.com/m00sfett/KeepADB/issues/183) `fix: USB-ADB register entry can stay stale active after process death`
+- **Issue-Snapshot:** 2026-08-29T03:03:00+02:00 (3 offene Issues: #181, #183, #185)
+- **Ziel:** USB-ADB-Registereinträge bleiben nach Prozessende/Neustart nicht veraltet aktiv; der tatsächliche USB-ADB-Verbindungsstatus wird bei Prozess-/Service-Start opportunistisch neu ermittelt und mit dem Registerzustand idempotent abgeglichen.
+- **Problem & Lösung:**
+  - `KeepADBRegisterClient` hält USB-Registerzustände aktuell rein in statischen In-Memory-Feldern (`lastRegisteredUsb*`). Stirbt der Prozess bei gestecktem USB-Kabel, gehen diese Felder verloren.
+  - Persistierung des zuletzt gemeldeten USB-Registerzustands in `KeepADBPreferences` (analog zu WLAN-ADB) bzw. Laden bei Initialisierung.
+  - Opportunistischer Abgleich bei Prozess-/Service-Start (`KeepADBService.sync` / `KeepADBUsbReceiver.refresh` / `BootReceiver`).
+  - Idempotenz sicherstellen: Keine überflüssigen Netzwerk-POSTs, wenn der tatsächliche USB-Zustand bereits dem zuletzt registrierten entspricht.
+  - Re-Derive bei Prozessstart/Boot: Ist USB-ADB beim App-/Service-Start verbunden, wird der Endpunkt (sofern Webhook aktiv und Profil gewählt) registriert bzw. bestätigt; ist USB getrennt, aber in den Preferences noch als aktiv vermerkt, wird ein Inactive-Update gesendet.
+- **Umfang:**
+  - `KeepADBPreferences.java`: Persistenz-Methoden für den USB-Webhook-Status (`KEY_USB_WEBHOOK_LAST_URL`, `KEY_USB_WEBHOOK_LAST_PAYLOAD`, etc.).
+  - `KeepADBRegisterClient.java`: `ensureUsbStateInitializedLocked()` bzw. Laden/Speichern des USB-Registerzustands in SharedPreferences.
+  - `KeepADBUsbReceiver.java` / `KeepADBService.java` / `BootReceiver.java`: Sicherstellung, dass bei Service-Sync / App-Start der USB-Status opportunistisch abgeglichen wird.
+  - Unit- & Contract-Tests: `KeepADBUsbRegisterClientTest.java`, Contract-Tests für Prozess-Neustart bei gestecktem / getrenntem USB-Kabel.
+- **Nicht-Ziele:**
+  - Keine serverseitigen Änderungen am Register-Backend.
+  - Keine Änderungen am WLAN-ADB-Registrierungspfad.
+  - Keine Beeinflussung der USB-WLAN-Handover-Logik (#168/#185).
+- **Stufe & Tier:** S2 (`flash` / `inherit`).
+- **Gates:**
+  - Lokale Gates: `./bin/verify` (`git diff --check`, `testDebugUnitTest`, `lintDebug`, `assembleDebug`, `assembleRelease`).
+  - Optionales Geräte-Gate: S20-Hardwaretest via `android-target s20`.
+- **Status:** Vorbereitet für Delegationsanfrage / Umsetzung.
+
+## Issue #183 — Implementierung & Verifikation (2026-08-29)
+
+- **Bearbeiter:** Subagent `Implementer Issue 183`, Stufe S2, Modell `flash` (konfiguriert).
+- **Umsetzung:**
+  - `KeepADBPreferences.java`: Ergänzung der Keys `KEY_USB_WEBHOOK_LAST_URL`, `KEY_USB_WEBHOOK_LAST_PAYLOAD`, `KEY_USB_WEBHOOK_LAST_PROFILE_ID`, `KEY_USB_WEBHOOK_LAST_PROFILE_NAME`, `KEY_USB_WEBHOOK_LAST_IP`, `KEY_USB_WEBHOOK_LAST_HOSTNAME`, `KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME`, `KEY_USB_WEBHOOK_LAST_REPORTED` sowie atomarer Getter/Setter (`setUsbWebhookLastReportedState`, `clearUsbWebhookReportedState`, etc.).
+  - `KeepADBRegisterClient.java`: Wiederherstellung persistierter Zustände via `ensureUsbStateInitializedLocked(Context)`. Speichern bei erfolgreichem aktiven Register-Update, Bereinigen bei Inaktiv-Meldung oder explizitem Clear.
+  - `KeepADBUsbReceiver.java`: Re-Derive des tatsächlichen USB-Zustands bei `refresh(Context)`: Ermittelt den Live-Status per Sticky Broadcast; ist USB verbunden und ein Profil gewählt, wird der Endpunkt aktualisiert (idempotent no-op wenn unverändert). Ist USB getrennt und war zuvor aktiv gemeldet, wird `markUsbInactiveAsync` angestoßen.
+  - Startup-Reconciliation in `KeepADBService.sync(Context)`, `KeepADBService.onCreate()`, `MainActivity.onResume()`, `MainActivity.refreshUiAndComponents()` und `BootReceiver.onReceive()`.
+  - Testabdeckung: `KeepADBUsbRegisterClientTest.java` (6 neue/erweiterte Tests für Persistenz-Restore, Idempotenz bei Kabel gesteckt, Inactive-Cleanup bei Kabel getrennt, No-Op wenn unregistriert), `KeepADBPreferencesTest.java` (Tests für USB-Preferences und Null-Safety).
+- **Validierungs-Nachweis:** `./bin/verify` erfolgreich:
+  - `git diff --check`: sauber
+  - `testDebugUnitTest`: 104/104 Tests bestanden (0 Fehler)
+  - `lintDebug` & `lintVitalRelease`: 0 Fehler / sauber
+  - `assembleDebug` & `assembleRelease`: erfolgreich gebaut
+- **Branch & PR:** Branch `fix/183-usb-register-stale-active`, Commit `496d114`, Pull Request #189.
+- **Status:** Implementierung & lokale Gates erfolgreich abgeschlossen; bereit für unabhängigen Review.
+
+## Issue #183 — Review & Abschluss (2026-08-29)
+
+- **Review:**
+  - Bearbeiter: Subagent `Reviewer Issue 183`, Stufe S2, Modell `flash` (konfiguriert).
+  - Modus: `review and repair`.
+  - Ergebnis: **APPROVED** (alle 7 Claims des Implementierers vollumfänglich verifiziert, 0 Befunde, keine Reparaturen erforderlich).
+  - Technische Verifikation: Saubere Trennung der WLAN- und USB-Register-Zustandsmaschinen, Threadsicherheit und Generation-Checks intakt, SharedPreferences-Batch-Writes atomar, keine synthetischen Connect-Edges oder Handover-Bypasses durch Re-Derive-Hooks in `KeepADBUsbReceiver.refresh(Context)`.
+- **Lokale Gates:** `./bin/verify` erfolgreich (104/104 Tests grün, Lint 0 Fehler, Debug/Release APKs gebaut).
+- **PR & Merge:**
+  - Pull Request #189 per Squash gemergt (`34222f4`) und Branch bereinigt.
+  - GitHub Readback: Issue #183 **CLOSED**.
+- **Stand offene Issues (Snapshot 2026-08-29T03:10:00+02:00):**
+  - #185: `chore: harden USB->WLAN-ADB handover edge cases` (S2/S3, offen)
+  - #181: `test: OEM-Fallback...` (zurückgestellt bis 2. OEM-Gerät verfügbar)
+- **Status:** Paket #183 erfolgreich abgeschlossen.
