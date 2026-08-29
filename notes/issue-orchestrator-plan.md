@@ -4614,3 +4614,35 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Stand offene Issues (Snapshot 2026-08-29T03:26:00+02:00):**
   - #181: `test: OEM-Fallback...` (zurückgestellt bis 2. OEM-Gerät verfügbar)
 - **Status:** Paket #185 erfolgreich abgeschlossen. Alle aktiven Entwicklungs-Issues des Orchestrator-Backlogs sind vollständig abgearbeitet.
+
+## Issue #181 — Paket-Auswahl & Geräte-Vorbereitung (2026-08-29)
+
+- **Issue:** [#181](https://github.com/m00sfett/KeepADB/issues/181) `test: OEM-Fallback für Akku-Einstellungsintent auf zweitem Gerät abnehmen`
+- **Issue-Snapshot:** 2026-08-29T03:55:50+02:00 (1 offenes Issue: #181)
+- **Ziel:** Den `ActivityNotFoundException`- / `SecurityException`-Fallback und den `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`-Pfad von KeepADB (#178) auf einem zweiten physischen OEM-Gerät (CUBOT P60 / Android 12) mit abweichender Systemeinstellungen-App reproduzierbar nachweisen.
+- **Geräte-Validierung (`rolfphone`):**
+  - Alias: `rolfphone`
+  - Modell: CUBOT P60 (`P60_EEA`)
+  - OS: Android 12 (`SP1A.210812.016/23140`, API 31/32)
+  - Fingerprint: `CUBOT/P60_EEA/P60:12/SP1A.210812.016/23140:user/release-keys`
+  - Transport: WLAN-ADB via `192.168.178.203:41591`
+  - Register: `phone-register` verbindlich aktualisiert.
+  - minSdk-Check: Android 12 erfüllt `minSdk 30`.
+  - OEM-Differenzierung: CUBOT / Mediatek (abweichend von Samsung One UI des S20).
+- **Muss-Akzeptanzfälle:**
+  1. Modell, Serial, Android-Version und Transport vor der Aktion validieren.
+  2. Baseline mit / ohne Doze-Ausnahme prüfen (`dumpsys deviceidle whitelist`).
+  3. Hinweis und Intent-Aktion prüfen: zielgenauer `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`-Intent bzw. robuster Fallback auf `ACTION_APPLICATION_DETAILS_SETTINGS` ohne App-Crash.
+  4. Rückkehr zur App, Live-Refresh, sichtbares/verborgenes Panel und unverändertes `adb_wifi_enabled` dokumentieren.
+  5. Vollständiger Rückbau aller Testeinstellungen (Wiederherstellung des ursprünglichen Whitelist-Zustands), keine Datenlöschung.
+- **Stufe & Tier:** S2 (`flash` / `inherit` bzw. Direktdurchführung Hauptagent).
+- **Lokale Gates:** `./bin/verify` erfolgreich (112/112 Tests bestanden, Lint 0 Fehler, Release/Debug APKs gebaut).
+- **Geräte-Abnahme (physisches rolfphone / CUBOT P60 via WLAN-ADB `192.168.178.203:41591`):**
+  - Fingerprint validiert: `CUBOT/P60_EEA/P60:12/SP1A.210812.016/23140:user/release-keys`.
+  - Installation Debug-APK (`app-debug.apk`) via `android-target rolfphone -- install -r` erfolgreich.
+  - Test 1 (Exempt Baseline): Bei vorhandener Doze-Ausnahme (`user,de.hohnepeople.keepadb,10158`) ist `battery_optimization_panel` in `MainActivity` vollständig ausgeblendet (`GONE`).
+  - Test 2 (Non-Exempt Toggle): Temporäre Entfernung aus Whitelist (`cmd deviceidle whitelist -de.hohnepeople.keepadb`) führt beim Start/Resume von `MainActivity` sofort zur Einblendung des Panels `Akkuoptimierung kann Keep-Alive einschränken` (`VISIBLE`) samt Aktionsbutton.
+  - Test 3 (Intent Dispatch): Klick auf `btn_open_battery_settings` löst `KeepADBBatteryOptimization.openSettings` aus; der zielgenaue Intent `Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` öffnet direkt den Systemdialog `com.android.settings/.fuelgauge.RequestIgnoreBatteryOptimizations` ("Soll die App immer im Hintergrund ausgeführt werden?") ohne jeglichen Fehler/Absturz.
+  - Test 4 (Grant & Live Refresh): Bestätigung des Dialogs ("ZULASSEN") trägt KeepADB wieder in die Whitelist ein (`user,de.hohnepeople.keepadb,10158`); bei Rückkehr zur `MainActivity` wird das Banner via `onResume()` sofort wieder ausgeblendet (`GONE`).
+  - Test 5 (State Consistency & Cleanup): `adb_wifi_enabled` blieb über den gesamten Zyklus auf `1`; keine Datenlöschung; Whitelist-Status vollständig wiederhergestellt.
+- **Status:** `complete` & `approved` (alle Akzeptanzkriterien für Issue #181 auf echtem Fremd-OEM-Gerät nachgewiesen).

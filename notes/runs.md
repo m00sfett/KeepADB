@@ -358,3 +358,17 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Rest: keine Geräte-/Laufzeitabnahme (Android 11–15, Settings-Rückkehr, Hersteller-Fallback),
   kein PR/Merge. Reparaturcommit `c1118fe2e3c0bf9766d23b3b449449906d47f456` ist auf dem
   Feature-Branch. Reviewstatus `approved` nur für den lokalen benannten Scope.
+
+## 2026-08-29 — Issue #181 Hardware-Abnahme auf Zweitgerät (rolfphone / CUBOT P60)
+
+- **Gerät:** CUBOT P60 (`P60_EEA`, Android 12 / API 31, Fingerprint `CUBOT/P60_EEA/P60:12/SP1A.210812.016/23140:user/release-keys`) via WLAN-ADB `192.168.178.203:41591`.
+- **Register:** `phone-register` verbindlich auf den validierten Fingerprint aktualisiert.
+- **Freigabe:** Vorab durch den Meister für die Hardware-Prüfung auf `rolfphone` typisiert erteilt.
+- **Durchführung & Verifikation:**
+  1. Installation der aktuellen Debug-APK (`app-debug.apk`) via `android-target rolfphone -- install -r` erfolgreich.
+  2. Baseline-Prüfung: Bei bestehender Doze-Ausnahme (`user,de.hohnepeople.keepadb,10158`) ist das Banner `battery_optimization_panel` in `MainActivity` vollständig ausgeblendet (`GONE`).
+  3. Non-Exempt-Zustand: KeepADB temporär aus der Whitelist entfernt (`cmd deviceidle whitelist -de.hohnepeople.keepadb`) -> Banner `Akkuoptimierung kann Keep-Alive einschränken` mit Button `AKKU-EINSTELLUNGEN ÖFFNEN` wird auf `MainActivity` sichtbar (`VISIBLE`).
+  4. Intent-Dispatch: Klick auf den Button löst `ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` aus und öffnet direkt den Systemdialog `com.android.settings/.fuelgauge.RequestIgnoreBatteryOptimizations` ("Soll die App immer im Hintergrund ausgeführt werden?") ohne Exception oder Absturz.
+  5. Gewährung & Live-Refresh: Nach Bestätigung ("ZULASSEN") wird KeepADB in die Whitelist eingetragen und das Banner verschwindet bei Rückkehr zur `MainActivity` (`onResume`) sofort.
+  6. State-Konsistenz & Cleanup: `adb_wifi_enabled` blieb über den gesamten Testzyklus unverändert (`1`); Whitelist-Zustand sauber wiederhergestellt (`user,de.hohnepeople.keepadb,10158`).
+- **Status:** `APPROVED` — Issue #181 vollständig verifiziert.
