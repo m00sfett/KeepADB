@@ -4659,3 +4659,20 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Nicht-Ziele:** keine Änderung an Zustandsdefinition, Toggle-Semantik, Keep-Alive-Verhalten, Discovery-Protokoll oder persistenter App-Zustandsablage.
 - **Freigabe:** Nur Issue-Erfassung und Board-Synchronisation; keine Code-, Build-, Geräte- oder CI-Aktion.
 - **Status:** Issues erstellt und serverseitig zurückgelesen; Board-Sync erfolgreich ausgeführt. `github-drift` meldet einen unabhängigen bestehenden Altbefund: gemergter Remote-Branch `release/v1.2.0`. Keine Drift durch #196/#197 festgestellt.
+
+## Orchestrator-Lauf — Auswahlrunde 2026-08-29
+
+- **Issue-Snapshot:** 2026-08-29T17:40:35Z; offene Issues #196 und #197, beide unverändert seit der letzten Erfassung.
+- **Roadmap-Abgleich:** Die aktuelle Zielaussage lautet: „Review-Folgeissues“; der Plan ordnet #196 und #197 ausdrücklich als aus den Reviews hervorgegangene, noch offene Produktbefunde ein. Issue #196 dient diesem nächsten Schritt direkt, weil es den konkret benannten Tile-Lifecycle-Befund behebt.
+- **Ausgewähltes Paket:** Issue #196 — `fix: Quick Settings Tile muss Endpoint-Discovery beim Start anstoßen`.
+- **Ziel:** Bei frischem Tile-Prozess und aktiviertem Wireless Debugging Discovery ohne Keep-Alive auslösen und die Kachel nach gültigem Endpoint aus `ENABLED_DISCONNECTED` heraus aktualisieren.
+- **Zusammenhang:** Tile-Lifecycle und bestehender Discovery-/Refresh-Pfad; #197 bleibt getrennt wegen eigenem Activity-/Widget-/Callback-Risiko und eigener Akzeptanztests.
+- **Nicht-Ziele:** keine Änderung an Toggle-Semantik, Keep-Alive, Zustandsdefinition, Endpoint-Protokoll oder persistenter Zustandsablage.
+- **Vermutlich betroffene Dateien:** `app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java` sowie zugehörige Tile-/Discovery-Contract-Tests; der genaue Satz wird vor Implementierung am Code verifiziert.
+- **Paketstufe:** S2; lokalisierte Verhaltensänderung mit deterministischen Unit-/Contract-Gates.
+- **Freigaben:** Auswahl und Planaktualisierung durch diesen Orchestrator-Aufruf; Implementierung, lokale Tests/Builds, Geräteaktion und Subagent-Start noch nicht freigegeben.
+- **CI-Status:** Keine offenen PRs, kein aktiver Run; letzter sichtbarer erfolgreicher CI-Run gehört nicht zum aktuellen `master`-Head `5134e22`. CI ist für dieses Paket nicht erforderlich und wird nicht gestartet.
+- **Arbeitsbaum:** `master` entspricht `origin/master`; keine aktuellen lokalen Änderungen festgestellt.
+- **Externer Drift:** `github-drift` meldet den unabhängigen, gemergten Remote-Branch `release/v1.2.0`; keine Drift durch #196/#197.
+- **Validierungsstatus:** Noch nicht implementiert; daher keine Gates ausgeführt. Minimale Folge nach Freigabe: `git diff --check`, betroffene Unit-/Contract-Tests, anschließend `./bin/verify`; Gerätegate nur nach eigener Freigabe.
+- **Nächster Entscheidungspunkt:** Typisierte Freigabe für Implementierung und lokale Gates; Delegation an einen S2-Subagenten (`gpt-5.6-luna`, `max`) wäre wegen des klar abgegrenzten Issue-Pakets vorgesehen und benötigt eine eigene ausdrückliche Freigabe.
