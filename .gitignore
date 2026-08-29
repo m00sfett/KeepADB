@@ -10,3 +10,4 @@ captures/
 AGENTS.md
 CLAUDE.md
 GEMINI.md
+.playwright-mcp/

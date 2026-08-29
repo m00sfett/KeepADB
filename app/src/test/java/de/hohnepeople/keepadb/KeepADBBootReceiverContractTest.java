@@ -72,7 +72,7 @@ public class KeepADBBootReceiverContractTest {
         String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
         String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
 
-        assertTrue(service.contains("if (KeepADBPreferences.isKeepAliveEnabled(context) && KeepADB.isEnabled(context))"));
+        assertTrue(service.contains("boolean shouldRun = KeepADBPreferences.isKeepAliveEnabled(context)"));
         assertTrue(service.contains("stopForeground(STOP_FOREGROUND_REMOVE)"));
         assertTrue(notification.contains("manager.cancel(NOTIFICATION_ID);"));
         assertFalse(notification.contains("showPlaceholder(context, manager,"));
