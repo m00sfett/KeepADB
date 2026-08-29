@@ -5030,7 +5030,9 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   Sichtbarkeitsvoraussetzung des normalen TileService, die Instanz-/Late-Callback-Regel und die
   Generation-Atomizität fehlten. Diese Lücken sind im Review-Nachweis dokumentiert, nicht durch
   eine Änderung des externen Issue-Texts.
+- **Versionierung:** Scope-Reparatur in Commit `b70cebd`, Review-/Übergabebericht in Commit
+  `dcb31c6`; beide Commits liegen auf `origin/master`, der Arbeitsbaum ist sauber.
 - **Zustand:** `complete` für den autorisierten lokalen Review und die Scope-Reparatur; #196 bleibt
-  extern offen. Der Code-/Teststand ist noch uncommitted; kein PR, GitHub-Action-Lauf oder
-  Issue-Schluss für #196.
-- **plan_updated_at:** 2026-08-29T23:03:18+02:00
+  extern offen. Es gibt keinen PR und keinen GitHub-Action-Lauf für #196. Folgeissue #200 bleibt
+  offen und ist ohne Board-/Drift-Befund registriert.
+- **plan_updated_at:** 2026-08-29T23:07:46+02:00
