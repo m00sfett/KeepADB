@@ -4974,6 +4974,7 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Lokale Gates:** `git diff --check` und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`
   erfolgreich. Enthalten: Unit-Tests, Lint sowie Debug- und Release-Build.
 - **Nicht nachgewiesen:** unabhängiger S2-Review, Geräteabnahme und externer PR-/Issue-Abschluss.
-  Für den Review ist eine eigene Freigabe mit konkreter Stufe und Konfiguration erforderlich.
-- **Zustand:** `complete` für den freigegebenen lokalen Prüfanteil; #196 bleibt extern offen.
-- **plan_updated_at:** 2026-08-29T22:55:00+02:00
+  Die eigene Freigabe für genau einen unabhängigen S2-Review mit `gpt-5.6-luna` / `max` ist
+  erteilt; der Review läuft als separates Gate.
+- **Zustand:** `in_progress` bis zum Abschluss des unabhängigen Reviews; #196 bleibt extern offen.
+- **plan_updated_at:** 2026-08-29T23:00:00+02:00
