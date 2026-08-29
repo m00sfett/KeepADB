@@ -114,4 +114,5 @@
     <string name="settings_usb_handover_mode_automatic">Automatic (enable on new USB connection)</string>
     <string name="usb_notification_enable_wlan_handover">Enable WLAN-ADB</string>
     <string name="usb_notification_handover_error">Could not enable WLAN-ADB. Check permission.</string>
+    <string name="notification_action_disable">Turn off WLAN-ADB</string>
 </resources>

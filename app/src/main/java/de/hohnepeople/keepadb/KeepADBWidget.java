@@ -56,8 +56,10 @@ public class KeepADBWidget extends AppWidgetProvider {
     /** Aktualisiert alle platzierten Widgets (auch nach Änderung via App/Tile aufrufbar). */
     static void refreshAll(Context context) {
         AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+        if (mgr == null) return;
         ComponentName cn = new ComponentName(context, KeepADBWidget.class);
         int[] ids = mgr.getAppWidgetIds(cn);
+        if (ids == null || ids.length == 0) return;
         new KeepADBWidget().onUpdate(context, mgr, ids);
     }
 }
