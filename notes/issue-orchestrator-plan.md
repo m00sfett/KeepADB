@@ -4857,3 +4857,50 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Zustand:** `not approved` für die Implementierung; Auswahl abgeschlossen, Arbeitsbaum
   unverändert.
 - **plan_updated_at:** 2026-08-29T22:05:00+02:00
+
+## Orchestrator-Lauf — Issue #198 Implementierungsstart 2026-08-29
+
+- **Freigabe:** Nutzer hat Implementierung, lokale Tests/Builds und genau einen S3-Subagenten
+  ausdrücklich freigegeben; Geräteaktion, GitHub Actions, PR/Merge und Issue-Schließung bleiben
+  ausgenommen.
+- **Vorbestand gesichert:** Die vorherige #196-Teilumsetzung und der Plan-Checkpoint wurden als
+  atomarer Commit `9910398` auf `origin/master` gepusht. `AGENTS.md` und fremde Dateien waren
+  nicht Bestandteil des Commits.
+- **Bearbeiter:** Subagent `Anscombe`, S3, `gpt-5.6-luna` / `max` konfiguriert.
+- **Arbeitsauftrag:** Option B für #198 implementieren: normaler TileService ohne `ACTIVE_TILE`,
+  lauschende Instanz lifecycle-sicher registrieren/entfernen, Discovery-Callbacks gegen die
+  aktuelle Instanz absichern und parallele Sessions vermeiden; fokussierte Tests ergänzen oder
+  korrigieren.
+- **Ausgangscommit:** `9910398`; Subagent darf weder committen noch pushen.
+- **Validierung:** Nach Rückgabe gezielte Contract-/Unit-Tests, danach freigegebenes
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`; kein Gerätegate in diesem Lauf.
+- **Status:** `in_progress`; Review bleibt als separates typisiertes Gate offen.
+- **plan_updated_at:** 2026-08-29T22:10:00+02:00
+
+## Issue #198 — S3-Review und Reparatur 2026-08-29
+
+- **Reviewer:** unabhängiger Subagent `Bohr`; S3, `gpt-5.6-sol` / `high` konfiguriert. Review-
+  modus `review and repair`.
+- **Befunde:** Zwei Muss-Fixes innerhalb des Scopes. Erstens konnten Stale-Callbacks im
+  Übergabefenster nach einer neueren Discovery noch veröffentlicht werden; zweitens war ein
+  Contract-Test wegen fehlender Existenzprüfung zunächst falsch-grün.
+- **Reparatur:** `KeepADBNotification` nutzt nun eine Request-Generation und verwirft ältere
+  Callbacks bei neuer Discovery, Stop oder Invalidierung. Der Contract-Test verlangt die
+  beiden Generation-Guards explizit; eine Mutation ohne Guard wird nachweisbar rot.
+- **Abnahme:** `approved after repair`. Alle #198-Akzeptanzkriterien wurden gegen Aufrufpfad,
+  Lifecycle, Fehlerpfad und Vollständigkeit geprüft. `KeepADBEndpoint.java` blieb unverändert;
+  seine Session-Guards decken den internen Discovery-Pfad ab, die zusätzliche Notification-
+  Generation schließt das Listener-Übergabefenster.
+- **Gates:** fokussierter Contract-Test mit 9 Tests, Mutation-Gegenprobe und
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erfolgreich; Lint sowie Debug-/Release-
+  Build grün. Keine Geräteaktion und keine GitHub Action.
+- **Findings:** Keine offenen Findings im Review-Scope; kein Folgeissue erforderlich.
+- **Arbeitsbaum:** Reparierter #198-Arbeitsstand und Plan sind uncommitted. Der Vorbestand bleibt
+  in Commit `9910398` auf `origin/master`; kein Commit, Push, PR, Merge oder Issue-Schluss im
+  Review.
+- **Retrospektive:** Der unabhängige Review brachte zwei konkrete Befunde, die Build und reine
+  Sichtprüfung nicht zuverlässig gezeigt hätten. Die frühe Contract-Prüfung war sinnvoll, aber
+  künftig müssen statische Tests zusätzlich die Existenz jedes behaupteten Guards absichern.
+- **Zustand:** `complete` für Implementierung und freigegebene lokale Gates; externe Issue-
+  Abnahme, Commit/Push und PR-Lifecycle bleiben offen.
+- **plan_updated_at:** 2026-08-29T22:20:00+02:00

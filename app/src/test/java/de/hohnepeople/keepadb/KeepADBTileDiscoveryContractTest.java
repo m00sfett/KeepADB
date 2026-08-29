@@ -11,42 +11,32 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-/** Static contracts for the Tile-only discovery entry and its asynchronous refresh. */
+/** Static contracts for the normal TileService discovery entry and lifecycle-safe refresh. */
 public class KeepADBTileDiscoveryContractTest {
 
     @Test
-    public void tileStartsTheExistingRefreshPathBeforeReadingItsState() throws IOException {
-        String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
-        int startListening = tile.indexOf("public void onStartListening() {");
-        int nextMethod = tile.indexOf("    @Override", startListening + 1);
+    public void tileIsNormalAndNotActive() throws IOException {
+        String manifest = read("app/src/main/AndroidManifest.xml");
+        int serviceStart = manifest.indexOf("android:name=\".KeepADBTileService\"");
+        int serviceEnd = manifest.indexOf("</service>", serviceStart);
 
-        assertTrue(startListening >= 0);
-        assertTrue(nextMethod > startListening);
-        String body = tile.substring(startListening, nextMethod);
-        assertTrue(body.contains("KeepADBNotification.refresh(this);")
-                && body.indexOf("KeepADBNotification.refresh(this);") < body.indexOf("updateTile();"));
-        assertFalse(body.contains("KeepADBPreferences.isKeepAliveEnabled"));
+        assertTrue(serviceStart >= 0);
+        assertTrue(serviceEnd > serviceStart);
+        String service = manifest.substring(serviceStart, serviceEnd);
+        assertFalse(service.contains("android.service.quicksettings.ACTIVE_TILE"));
     }
 
     @Test
-    public void discoveryCompletionRequestsTileRefreshAfterPublishingTheEndpoint() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        int discoveryStart = notification.indexOf("startDiscoveryDirectLocked(appContext, manager)");
-        int callback = notification.indexOf(
-                "public void onEndpoint(String host, int port) {", discoveryStart);
-        assertTrue(discoveryStart >= 0);
-        assertTrue(callback >= 0);
-        int callbackBodyStart = notification.indexOf("{", callback);
-        assertTrue(callbackBodyStart > callback);
-        int callbackEnd = findMatchingBrace(notification, callbackBodyStart);
-        assertTrue(callbackEnd > callbackBodyStart);
-        String callbackBody = notification.substring(callback, callbackEnd + 1);
-        int endpointPublish = callbackBody.indexOf("currentHost = host;");
-        int tileRefresh = callbackBody.indexOf("KeepADBTileService.requestRefresh(appContext);");
+    public void listeningRegistersBeforeStartingDiscoveryAndRendering() throws IOException {
+        String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
+        String body = methodBody(tile, "public void onStartListening() {");
 
-        assertTrue(endpointPublish >= 0);
-        assertTrue(tileRefresh > endpointPublish);
-        assertTrue(callbackBody.indexOf("currentPort = port;") < tileRefresh);
+        assertTrue(body.indexOf("registerListeningInstance(this)") >= 0);
+        assertTrue(body.indexOf("KeepADBNotification.refresh(this);")
+                > body.indexOf("registerListeningInstance(this)"));
+        assertTrue(body.indexOf("updateTile();")
+                > body.indexOf("KeepADBNotification.refresh(this);"));
+        assertFalse(body.contains("KeepADBPreferences.isKeepAliveEnabled"));
     }
 
     @Test
@@ -76,37 +66,101 @@ public class KeepADBTileDiscoveryContractTest {
     }
 
     @Test
-    public void tileRefreshRequestIsSafeWithoutAnActiveTileInstance() throws IOException {
+    public void listeningInstanceIsDiscardedAtBothLifecycleBoundaries() throws IOException {
         String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
-        int requestRefresh = tile.indexOf("static void requestRefresh(Context context) {");
-        int methodEnd = tile.indexOf("\n    }", requestRefresh);
+        String stopBody = methodBody(tile, "public void onStopListening() {");
+        String destroyBody = methodBody(tile, "public void onDestroy() {");
 
-        assertTrue(requestRefresh >= 0);
-        assertTrue(methodEnd > requestRefresh);
-        String body = tile.substring(requestRefresh, methodEnd);
-        assertTrue(body.contains("if (context == null) return;"));
-        assertTrue(body.contains("requestListeningState("));
-        assertTrue(body.contains("catch (RuntimeException ignored)"));
+        assertTrue(stopBody.contains("discardListeningInstance(this)"));
+        assertTrue(destroyBody.contains("discardListeningInstance(this)"));
     }
 
     @Test
-    public void manifestEnablesProcessRefreshRequestsForTheTile() throws IOException {
-        String manifest = read("app/src/main/AndroidManifest.xml");
-        int serviceStart = manifest.indexOf("android:name=\".KeepADBTileService\"");
-        int serviceEnd = manifest.indexOf("</service>", serviceStart);
+    public void discoveryCompletionRefreshesOnlyTheCurrentListeningInstance() throws IOException {
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        int discoveryStart = notification.indexOf("startDiscoveryDirectLocked(appContext, manager)");
+        int callback = notification.indexOf(
+                "public void onEndpoint(String host, int port) {", discoveryStart);
+        String callbackBody = methodBody(notification, callback);
 
-        assertTrue(serviceStart >= 0);
-        assertTrue(serviceEnd > serviceStart);
-        String service = manifest.substring(serviceStart, serviceEnd);
-        assertTrue(service.contains("android:name=\"android.service.quicksettings.ACTIVE_TILE\""));
-        assertTrue(service.contains("android:value=\"true\""));
+        assertTrue(discoveryStart >= 0);
+        assertTrue(callback >= 0);
+        assertTrue(callbackBody.indexOf("currentHost = host;") >= 0);
+        assertTrue(callbackBody.indexOf("currentPort = port;") >= 0);
+        assertTrue(callbackBody.indexOf("KeepADBTileService.refreshListeningTile();")
+                > callbackBody.indexOf("currentPort = port;"));
+        assertFalse(callbackBody.contains("requestListeningState("));
+        assertFalse(callbackBody.contains("KeepADBTileService.requestRefresh("));
     }
 
     @Test
-    public void discoverySessionRemainsIdempotent() throws IOException {
+    public void refreshRequestsUseTheListeningInstanceWithoutActiveTileBinding() throws IOException {
+        String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
+        String requestBody = methodBody(tile, "static void requestRefresh(Context context) {");
+        String refreshBody = methodBody(tile, "static void refreshListeningTile() {");
+
+        assertTrue(requestBody.contains("if (context == null) return;"));
+        assertTrue(requestBody.contains("refreshListeningTile();"));
+        assertFalse(tile.contains("requestListeningState("));
+        assertTrue(refreshBody.contains("listeningInstance"));
+        assertTrue(refreshBody.contains("!instance.listening"));
+        assertTrue(refreshBody.contains("catch (RuntimeException ignored)"));
+    }
+
+    @Test
+    public void unavailableDiscoveryRefreshesAListeningTileToDisconnectedState() throws IOException {
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        int callback = notification.indexOf("public void onUnavailable() {");
+        String callbackBody = methodBody(notification, callback);
+
+        assertTrue(callback >= 0);
+        assertTrue(callbackBody.indexOf("currentHost = null;") >= 0);
+        assertTrue(callbackBody.indexOf("currentPort = 0;") >= 0);
+        assertTrue(callbackBody.indexOf("KeepADBTileService.refreshListeningTile();")
+                > callbackBody.indexOf("currentPort = 0;"));
+    }
+
+    @Test
+    public void notificationRejectsCallbacksFromSupersededDiscoveryRequests() throws IOException {
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        String discoveryBody = methodBody(notification,
+                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager) {");
+        int generation = discoveryBody.indexOf(
+                "final long requestGeneration = ++discoveryRequestGeneration;");
+        int discover = discoveryBody.indexOf("endpoint.discover(");
+        int endpointCallback = discoveryBody.indexOf("public void onEndpoint(String host, int port) {");
+        int unavailableCallback = discoveryBody.indexOf("public void onUnavailable() {");
+        String endpointBody = methodBody(discoveryBody, endpointCallback);
+        String unavailableBody = methodBody(discoveryBody, unavailableCallback);
+        int endpointGuard = endpointBody.indexOf(
+                "if (requestGeneration != discoveryRequestGeneration) return;");
+        int endpointPublish = endpointBody.indexOf("currentHost = host;");
+        int unavailableGuard = unavailableBody.indexOf(
+                "if (requestGeneration != discoveryRequestGeneration) return;");
+        int unavailablePublish = unavailableBody.indexOf("currentHost = null;");
+        String invalidateBody = methodBody(notification,
+                "static synchronized void invalidateEndpoint(Context context) {");
+        String stopBody = methodBody(notification,
+                "private static synchronized void stop(Context context, NotificationManager manager) {");
+
+        assertTrue(generation >= 0);
+        assertTrue(discover > generation);
+        assertTrue(endpointGuard >= 0);
+        assertTrue(endpointPublish > endpointGuard);
+        assertTrue(unavailableGuard >= 0);
+        assertTrue(unavailablePublish > unavailableGuard);
+        assertTrue(invalidateBody.contains("discoveryRequestGeneration++;"));
+        assertTrue(stopBody.contains("discoveryRequestGeneration++;"));
+    }
+
+    @Test
+    public void endpointDiscoverySessionRemainsIdempotentAndGuardsItsInternalCallbacks() throws IOException {
         String endpoint = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
+
         assertTrue(endpoint.contains("if (discovering && !endpointDelivered.get())"));
         assertTrue(endpoint.contains("if (discovering) {\n            stop();\n        }"));
+        assertTrue(endpoint.contains("if (!isCurrent(generation) || endpointDelivered.get()"));
+        assertTrue(endpoint.contains("if (!isCurrent(generation) || currentResolveAttemptToken != attemptToken"));
     }
 
     private static String read(String relativePath) throws IOException {
@@ -118,6 +172,25 @@ public class KeepADBTileDiscoveryContractTest {
             throw new IllegalStateException("Could not locate project root");
         }
         return new String(Files.readAllBytes(directory.resolve(relativePath)), StandardCharsets.UTF_8);
+    }
+
+    private static String methodBody(String source, String signature) {
+        int methodStart = source.indexOf(signature);
+        assertTrue("Missing method: " + signature, methodStart >= 0);
+        int openingBrace = source.indexOf('{', methodStart);
+        assertTrue("Missing opening brace: " + signature, openingBrace > methodStart);
+        int methodEnd = findMatchingBrace(source, openingBrace);
+        assertTrue("Missing closing brace: " + signature, methodEnd > openingBrace);
+        return source.substring(methodStart, methodEnd + 1);
+    }
+
+    private static String methodBody(String source, int methodStart) {
+        assertTrue("Missing method", methodStart >= 0);
+        int openingBrace = source.indexOf('{', methodStart);
+        assertTrue("Missing opening brace", openingBrace > methodStart);
+        int methodEnd = findMatchingBrace(source, openingBrace);
+        assertTrue("Missing closing brace", methodEnd > openingBrace);
+        return source.substring(methodStart, methodEnd + 1);
     }
 
     private static int findMatchingBrace(String source, int openingBrace) {
