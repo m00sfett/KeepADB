@@ -83,6 +83,10 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"settings_notification_visible_toast\""));
                 assertTrue("Missing USB notification title in " + directory,
                         content.contains("name=\"settings_section_usb_notification\""));
+                assertTrue("Missing USB profile notification toggle in " + directory,
+                        content.contains("name=\"settings_usb_profile_notification_toggle\""));
+                assertTrue("Missing USB profile notification subtext in " + directory,
+                        content.contains("name=\"settings_usb_profile_notification_subtext\""));
                 assertTrue("Missing USB profile action in " + directory,
                         content.contains("name=\"usb_profile_create_button\""));
                 assertTrue("Missing USB profile edit action in " + directory,
@@ -151,8 +155,10 @@ public class KeepADBAccessibilityContractTest {
         String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
         assertTrue(settings.contains("android:id=\"@+id/settings_usb_notification_panel\""));
         assertTrue(settings.contains("android:id=\"@+id/settings_usb_notification_toggle\""));
+        assertTrue(settings.contains("android:id=\"@+id/settings_usb_profile_notification_toggle\""));
         assertTrue(settings.contains("android:id=\"@+id/settings_usb_profile_action\""));
         assertTrue(activity.contains("KeepADBUsbProfile.setNotificationEnabled"));
+        assertTrue(activity.contains("KeepADBUsbProfile.setProfileNotificationEnabled"));
         assertTrue(activity.contains("showProfileDialog"));
         assertTrue(activity.contains("showProfileEditDialog"));
         assertTrue(activity.contains("usb_profile_edit_button"));

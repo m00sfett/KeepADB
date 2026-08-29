@@ -141,6 +141,93 @@ public class KeepADBUsbHandoverContractTest {
         assertTrue(notification.contains("static void resetForTesting()"));
     }
 
+    @Test
+    public void usbProfileNotificationPreferenceDecoupledFromNotificationToggle() throws IOException {
+        String profileSource = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbProfile.java");
+        assertTrue(profileSource.contains("KEY_PROFILE_NOTIFICATION_ENABLED = \"usb_profile_notification_enabled\""));
+        assertTrue(profileSource.contains("isProfileNotificationEnabled(Context context)"));
+        assertTrue(profileSource.contains("setProfileNotificationEnabled(Context context, boolean enabled)"));
+        assertTrue(profileSource.contains("prefs(context).getBoolean(KEY_PROFILE_NOTIFICATION_ENABLED, true)"));
+
+        int keyEnabledIndex = profileSource.indexOf("KEY_ENABLED = \"usb_notification_enabled\"");
+        int keyProfileIndex = profileSource.indexOf("KEY_PROFILE_NOTIFICATION_ENABLED = \"usb_profile_notification_enabled\"");
+        assertTrue(keyEnabledIndex >= 0);
+        assertTrue(keyProfileIndex >= 0);
+        assertFalse(profileSource.contains("prefs(context).getBoolean(KEY_ENABLED, true)"));
+    }
+
+    @Test
+    public void usbNotificationBuildDecouplesProfileDisplayWhenProfileNotificationDisabled() throws IOException {
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbNotification.java");
+        int buildStart = notification.indexOf("private static Notification build(Context context, boolean handoverActionVisible)");
+        int buildEnd = findMatchingBraceEnd(notification, notification.indexOf('{', buildStart));
+        String buildBody = notification.substring(buildStart, buildEnd);
+
+        assertTrue(buildBody.contains("KeepADBUsbProfile.isProfileNotificationEnabled(context)"));
+        assertTrue(buildBody.contains("context.getString(R.string.usb_notification_title)"));
+        assertTrue(buildBody.contains("context.getString(R.string.usb_notification_handover_error)"));
+
+        assertTrue(buildBody.contains("profileIntent(context, profiles.isEmpty() ? ACTION_CREATE : ACTION_SWITCH)"));
+        assertTrue(buildBody.contains("R.string.usb_notification_create_profile"));
+        assertTrue(buildBody.contains("R.string.usb_notification_switch_profile"));
+        assertTrue(buildBody.contains("R.string.usb_notification_new_profile"));
+
+        assertTrue(buildBody.contains("new Intent(context, SettingsActivity.class)"));
+        assertTrue(buildBody.contains("Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP"));
+        assertTrue(buildBody.contains("if (handoverActionVisible) {\n            builder.addAction(handoverAction(context));\n        }"));
+    }
+
+    @Test
+    public void allFourNotificationAndProfileSwitchCombinationsHandledSafely() throws IOException {
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbNotification.java");
+        int refreshStart = notification.indexOf("static void refresh(Context context, boolean connected)");
+        int refreshEnd = findMatchingBraceEnd(notification, notification.indexOf('{', refreshStart));
+        String refreshBody = notification.substring(refreshStart, refreshEnd);
+
+        assertTrue(refreshBody.contains("!KeepADBUsbProfile.isNotificationEnabled(appContext)"));
+        assertTrue(refreshBody.contains("manager.cancel(NOTIFICATION_ID);"));
+
+        int buildStart = notification.indexOf("private static Notification build(Context context, boolean handoverActionVisible)");
+        int buildEnd = findMatchingBraceEnd(notification, notification.indexOf('{', buildStart));
+        String buildBody = notification.substring(buildStart, buildEnd);
+
+        int ifProfileStart = buildBody.indexOf("if (profileNotificationEnabled)");
+        int ifProfileBrace = buildBody.indexOf('{', ifProfileStart);
+        int ifProfileEnd = findMatchingBraceEnd(buildBody, ifProfileBrace);
+        String ifBranch = buildBody.substring(ifProfileStart, ifProfileEnd);
+
+        int elseStart = buildBody.indexOf('{', ifProfileEnd);
+        int elseEnd = findMatchingBraceEnd(buildBody, elseStart);
+        String elseBranch = buildBody.substring(ifProfileEnd, elseEnd);
+
+        assertFalse(elseBranch.contains("profileIntent"));
+        assertFalse(elseBranch.contains("selected.summary()"));
+        assertFalse(elseBranch.contains("EXTRA_PROFILE_ACTION"));
+        assertFalse(elseBranch.contains("usb_notification_create_profile"));
+        assertFalse(elseBranch.contains("usb_notification_switch_profile"));
+        assertTrue(elseBranch.contains("SettingsActivity.class"));
+        assertTrue(elseBranch.contains("R.string.usb_notification_title"));
+
+        assertTrue(ifBranch.contains("selected.summary()"));
+        assertTrue(ifBranch.contains("R.string.usb_notification_no_profile"));
+        assertTrue(ifBranch.contains("profileIntent(context, profiles.isEmpty() ? ACTION_CREATE : ACTION_SWITCH)"));
+        assertTrue(ifBranch.contains("R.string.usb_notification_create_profile"));
+        assertTrue(ifBranch.contains("R.string.usb_notification_switch_profile"));
+    }
+
+    @Test
+    public void settingsActivityWiresProfileNotificationToggleAndPreservesProfileManagement() throws IOException {
+        String settingsActivity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
+        assertTrue(settingsActivity.contains("usbProfileNotificationToggle = findViewById(R.id.settings_usb_profile_notification_toggle);"));
+        assertTrue(settingsActivity.contains("KeepADBUsbProfile.setProfileNotificationEnabled(this, usbProfileNotificationToggle.isChecked());"));
+        assertTrue(settingsActivity.contains("usbProfileNotificationToggle.setChecked(KeepADBUsbProfile.isProfileNotificationEnabled(this));"));
+
+        String layout = read("app/src/main/res/layout/activity_settings.xml");
+        assertTrue(layout.contains("android:id=\"@+id/settings_usb_profile_notification_toggle\""));
+        assertTrue(layout.contains("android:text=\"@string/settings_usb_profile_notification_toggle\""));
+        assertTrue(layout.contains("android:text=\"@string/settings_usb_profile_notification_subtext\""));
+    }
+
     private static int findMatchingBraceEnd(String source, int openBraceIndex) {
         int depth = 0;
         for (int i = openBraceIndex; i < source.length(); i++) {

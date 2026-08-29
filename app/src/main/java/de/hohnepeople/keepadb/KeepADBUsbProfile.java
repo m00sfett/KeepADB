@@ -10,6 +10,7 @@ import java.util.List;
 final class KeepADBUsbProfile {
     private static final String PREFS_NAME = "keepadb_prefs";
     private static final String KEY_ENABLED = "usb_notification_enabled";
+    static final String KEY_PROFILE_NOTIFICATION_ENABLED = "usb_profile_notification_enabled";
     private static final String KEY_NEXT_ID = "usb_profile_next_id";
     private static final String KEY_SELECTED_ID = "usb_profile_selected_id";
     private static final String KEY_IDS = "usb_profile_ids";
@@ -51,6 +52,14 @@ final class KeepADBUsbProfile {
 
     static void setNotificationEnabled(Context context, boolean enabled) {
         prefs(context).edit().putBoolean(KEY_ENABLED, enabled).apply();
+    }
+
+    static boolean isProfileNotificationEnabled(Context context) {
+        return prefs(context).getBoolean(KEY_PROFILE_NOTIFICATION_ENABLED, true);
+    }
+
+    static void setProfileNotificationEnabled(Context context, boolean enabled) {
+        prefs(context).edit().putBoolean(KEY_PROFILE_NOTIFICATION_ENABLED, enabled).apply();
     }
 
     static List<Profile> getProfiles(Context context) {
