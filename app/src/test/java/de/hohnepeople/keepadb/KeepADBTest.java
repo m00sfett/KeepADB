@@ -31,4 +31,13 @@ public class KeepADBTest {
         assertTrue(KeepADB.RECOVERY_PULSE_OFF_MS >= 500);
         assertEquals("adb_wifi_enabled", KeepADB.KEY);
     }
+
+    @Test
+    public void wasLastExplicitIntentOffLifecycleAndReset() {
+        assertFalse(KeepADB.wasLastExplicitIntentOff());
+        assertFalse(KeepADB.wasLastExplicitIntentOff(null));
+
+        KeepADB.resetForTesting();
+        assertFalse(KeepADB.wasLastExplicitIntentOff());
+    }
 }
