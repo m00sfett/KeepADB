@@ -1,6 +1,5 @@
 package de.hohnepeople.keepadb;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.service.quicksettings.Tile;
@@ -9,6 +8,10 @@ import android.widget.Toast;
 
 public class KeepADBTileService extends TileService {
 
+    private static final Object LISTENING_INSTANCE_LOCK = new Object();
+    private static KeepADBTileService listeningInstance;
+    private boolean listening;
+
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(KeepADBLocaleHelper.wrapContext(newBase));
@@ -16,8 +19,21 @@ public class KeepADBTileService extends TileService {
 
     @Override
     public void onStartListening() {
+        registerListeningInstance(this);
         KeepADBNotification.refresh(this);
         updateTile();
+    }
+
+    @Override
+    public void onStopListening() {
+        discardListeningInstance(this);
+        super.onStopListening();
+    }
+
+    @Override
+    public void onDestroy() {
+        discardListeningInstance(this);
+        super.onDestroy();
     }
 
     @Override
@@ -71,12 +87,40 @@ public class KeepADBTileService extends TileService {
         tile.updateTile();
     }
 
+    /** Refreshes the only tile instance whose QS tile is valid at this moment. */
+    static void refreshListeningTile() {
+        synchronized (LISTENING_INSTANCE_LOCK) {
+            KeepADBTileService instance = listeningInstance;
+            if (instance == null || !instance.listening) return;
+            try {
+                instance.updateTile();
+            } catch (RuntimeException ignored) {
+                // The system may invalidate a tile while an asynchronous callback is in flight.
+            }
+        }
+    }
+
     static void requestRefresh(Context context) {
         if (context == null) return;
-        try {
-            requestListeningState(context.getApplicationContext(),
-                    new ComponentName(context.getApplicationContext(), KeepADBTileService.class));
-        } catch (RuntimeException ignored) {
+        refreshListeningTile();
+    }
+
+    private static void registerListeningInstance(KeepADBTileService instance) {
+        synchronized (LISTENING_INSTANCE_LOCK) {
+            if (listeningInstance != null && listeningInstance != instance) {
+                listeningInstance.listening = false;
+            }
+            listeningInstance = instance;
+            instance.listening = true;
+        }
+    }
+
+    private static void discardListeningInstance(KeepADBTileService instance) {
+        synchronized (LISTENING_INSTANCE_LOCK) {
+            instance.listening = false;
+            if (listeningInstance == instance) {
+                listeningInstance = null;
+            }
         }
     }
 }
