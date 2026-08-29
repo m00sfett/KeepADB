@@ -5036,3 +5036,23 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   extern offen. Es gibt keinen PR und keinen GitHub-Action-Lauf für #196. Folgeissue #200 bleibt
   offen und ist ohne Board-/Drift-Befund registriert.
 - **plan_updated_at:** 2026-08-29T23:07:46+02:00
+
+## Issue #196 — externer Abschluss 2026-08-29
+
+- **Akzeptanzprüfung:** Alle fünf Kriterien wurden einzeln gegen `master` @ `90ffdda` geprüft:
+  normaler TileService/Fresh-Process ohne Keep-Alive, gültiger Callback, Idempotenz, Fehler-
+  und Deaktivierungszustände sowie Contract-Testabdeckung.
+- **Serverstatus:** Issue #196 wurde mit Abschlusskommentar und Nachweisen als `COMPLETED`
+  geschlossen. Ein separater PR war nicht möglich bzw. sinnvoll, weil der geprüfte Fix bereits
+  direkt auf `master` lag; offene PRs gibt es nicht.
+- **Gates:** Fokustest mit 12 Tests und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`
+  erfolgreich; keine GitHub Action und keine Geräteaktion.
+- **Board/Drift:** `github-board-sync --repo m00sfett/KeepADB` ohne Änderungen; anschließender
+  `github-drift --repo m00sfett/KeepADB` ohne Befund. Folgeissue #200 bleibt offen und registriert.
+- **Arbeitsbaum/Server:** `master` und `origin/master` identisch auf `90ffdda`; Arbeitsbaum sauber.
+- **Retrospektive:** Die frühe lokale Prüfung hätte den Lifecycle-Restbefund nicht gefunden.
+  Der unabhängige Review fand zwei reale Callback-/Statusfehler und trennte die Ownership-Frage
+  korrekt als #200 ab. Für den nächsten Lauf bleibt die Prüfung globaler Nebenwirkungen nach
+  Lifecycle-Ende ein frühes Kriterium bei asynchronen Tile-Pfaden.
+- **Zustand:** `complete` für Issue #196 und den autorisierten externen Abschluss.
+- **plan_updated_at:** 2026-08-29T23:12:00+02:00
