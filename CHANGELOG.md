@@ -5,6 +5,22 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-08-29
+
+### Added
+- Optional USB-ADB notification with named, editable host profiles.
+- Manual or automatic USB-to-WLAN-ADB handover, disabled by default.
+- Structured, redacted recovery diagnostics that can be exported from Settings.
+- Battery-optimization guidance when Android may restrict Keep-Alive.
+- Direct notification action for turning off WLAN-ADB.
+
+### Changed
+- USB host-profile registration now works alongside WLAN-ADB registration and survives process restarts.
+- USB notifications can be shown independently of host-profile details.
+- USB-to-WLAN handover now preserves a deliberate manual OFF state and handles reconnect edge cases more safely.
+- Webhook diagnostics now redact URL paths, credentials, and query parameters consistently.
+- Webhook documentation now explains the optional USB device and profile data precisely.
+
 ## [1.1.0] - 2026-08-23
 
 ### Added

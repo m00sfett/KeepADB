@@ -126,9 +126,9 @@ public class KeepADBRegisterClientTest {
 
     @Test
     public void testSanitizeUrl() {
-        assertEquals("https://example.com:8443/api/register",
+        assertEquals("https://example.com:8443",
                 KeepADBRegisterClient.sanitizeUrl("https://user:password@example.com:8443/api/register?token=secret#fragment"));
-        assertEquals("http://192.168.1.10:8080/hook",
+        assertEquals("http://192.168.1.10:8080",
                 KeepADBRegisterClient.sanitizeUrl("http://192.168.1.10:8080/hook?secret=12345"));
         assertEquals("null", KeepADBRegisterClient.sanitizeUrl(null));
     }

@@ -1,0 +1,1 @@
+Add optional USB-ADB notifications and editable host profiles. Register USB hosts alongside WLAN-ADB endpoints and offer USB-to-WLAN handover. Add redacted diagnostics, battery guidance, and an action to turn off WLAN-ADB. Preserve registration across restarts, redact webhook URLs, and document optional USB device/profile data accurately.

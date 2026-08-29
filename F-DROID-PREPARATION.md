@@ -20,6 +20,9 @@ Bekannte Identität:
 - Paket-ID: `de.hohnepeople.keepadb`
 - Produktpfad: dieses Repository
 - veröffentlichte Version: `1.1.0` / VersionCode `2`
+- vorbereitete Zielversion: `1.2.0` / VersionCode `3`
+- bestehender Inclusion-MR: `fdroid/fdroiddata!46500` auf Branch
+  `m00sfett/fdroiddata:add-de.hohnepeople.keepadb`
 - Ziel: offizieller F-Droid-Katalog
 
 ## Signaturstatus
