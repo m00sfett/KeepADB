@@ -218,6 +218,7 @@ final class KeepADBNotification {
                     cancelRetryLocked();
                     listener = endpointListener;
                 }
+                KeepADBTileService.requestRefresh(appContext);
                 if (listener != null) {
                     listener.onEndpoint(host, port);
                 }

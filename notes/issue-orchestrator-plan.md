@@ -4815,3 +4815,45 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Freigabe:** Architekturentscheidung durch den Nutzer erteilt; die Umsetzung von #198 benötigt
   eine eigene Implementierungsfreigabe samt S3-Einstufung und unabhängigem Review.
 - **plan_updated_at: 2026-08-29T21:20:00+02:00**
+
+## Orchestrator-Lauf — Auswahl-/Delta-Checkpoint 2026-08-29
+
+- **Issue-Snapshot:** 2026-08-29T18:57:08Z; offen sind #196, #197 und #198. #198 ist seit
+  der letzten Auswahlrunde neu erfasst bzw. konkretisiert und bleibt offen.
+- **Roadmap-Abgleich:** Die aktuelle Zielaussage „Review-Folgeissues“ bleibt bestehen. Das
+  ausgewählte nächste Paket ist #198, weil es die in #196 festgestellte Plattform-/Lifecycle-
+  Lücke mit der bereits getroffenen Option-B-Architektur direkt bearbeitet.
+- **Ausgewähltes Paket:** Issue #198 — `fix: Tile-Discovery über normale Tile-Instanz im
+  Fresh-Process`.
+- **Ziel:** Einen normalen, nicht-aktiven `TileService` lifecycle-sicher registrieren und die
+  aktuell lauschende Instanz nach asynchroner Discovery nur solange aktualisieren, wie sie
+  gültig lauscht; späte Callbacks und parallele Sessions sicher behandeln.
+- **Zusammenhang:** Gemeinsamer Tile-/Notification-/Endpoint-Discovery-Aufrufspfad mit #196;
+  #197 bleibt wegen eigener Activity-/Widget-Callback-Grenze getrennt.
+- **Nicht-Ziele:** keine Änderung an Zustandsdefinition, Toggle-Semantik, Keep-Alive,
+  Endpoint-Protokoll oder persistenter App-Zustandsablage; keine Geräteabnahme in diesem
+  Checkpoint.
+- **Aktueller Arbeitsbaum:** Uncommittete Teilumsetzung von #196 in
+  `app/src/main/AndroidManifest.xml`, `app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java`,
+  `app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java` sowie der Contract-Test
+  `app/src/test/java/de/hohnepeople/keepadb/KeepADBTileDiscoveryContractTest.java`; diese
+  Änderungen bleiben erhalten und werden nicht stillschweigend verworfen. Die ACTIVE_TILE-
+  Manifeständerung steht im Konflikt mit Option B und muss im #198-Paket bewertet bzw. ersetzt
+  werden.
+- **Paketstufe:** S3; Lifecycle-/Nebenläufigkeitsrisiko mit eigener Rollbackgrenze.
+- **Minimale Gates nach Freigabe:** gezielte Tile-/Discovery-Contract-Tests, danach
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`; Gerätegate separat und nur mit eigener
+  Freigabe. GitHub Actions werden nicht gestartet.
+- **CI-Status:** Remotes und Workflows read-only inventarisiert; Workflow `CI` ist nur
+  `workflow_dispatch`, kein aktiver Run, kein PR; der letzte erfolgreiche Run gehört nicht zum
+  aktuellen `master`-Head `509a455`. `master` ist nicht branch-protected.
+- **Zentraler Status:** `github-drift --repo m00sfett/KeepADB` meldet Repository und Project #8
+  übereinstimmend. Keine Issue-/Board-Schreibaktion in diesem Lauf.
+- **Freigabestatus:** Auswahl und Planpflege sind erfolgt. Für die Umsetzung fehlen die
+  typisierte Implementierungsfreigabe für #198, die Freigabe für lokale Tests/Builds sowie die
+  eigene ausdrückliche Freigabe für genau einen S3-Subagenten (`gpt-5.6-luna`, `max`), sofern
+  delegiert wird. Geräteaktion, GitHub Action, PR/Merge und Issue-Schließung bleiben nicht
+  freigegeben.
+- **Zustand:** `not approved` für die Implementierung; Auswahl abgeschlossen, Arbeitsbaum
+  unverändert.
+- **plan_updated_at:** 2026-08-29T22:05:00+02:00

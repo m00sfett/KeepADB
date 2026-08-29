@@ -16,6 +16,7 @@ public class KeepADBTileService extends TileService {
 
     @Override
     public void onStartListening() {
+        KeepADBNotification.refresh(this);
         updateTile();
     }
 
