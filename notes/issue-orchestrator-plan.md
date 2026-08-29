@@ -4646,3 +4646,16 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   - Test 4 (Grant & Live Refresh): Bestätigung des Dialogs ("ZULASSEN") trägt KeepADB wieder in die Whitelist ein (`user,de.hohnepeople.keepadb,10158`); bei Rückkehr zur `MainActivity` wird das Banner via `onResume()` sofort wieder ausgeblendet (`GONE`).
   - Test 5 (State Consistency & Cleanup): `adb_wifi_enabled` blieb über den gesamten Zyklus auf `1`; keine Datenlöschung; Whitelist-Status vollständig wiederhergestellt.
 - **Status:** `complete` & `approved` (alle Akzeptanzkriterien für Issue #181 auf echtem Fremd-OEM-Gerät nachgewiesen).
+
+## Review-Folgeissues — 2026-08-29
+
+- **Issue-Snapshot:** 2026-08-29 (bestehende Zustandsdarstellung #193 geprüft; geschlossen).
+- **Neue Issues:**
+  - [#196](https://github.com/m00sfett/KeepADB/issues/196) `fix: Quick Settings Tile muss Endpoint-Discovery beim Start anstoßen`
+  - [#197](https://github.com/m00sfett/KeepADB/issues/197) `fix: UI-Oberflächen nach asynchroner Endpoint-Discovery aktualisieren`
+- **Zerlegung:** getrennte Issues wegen unterschiedlicher Einstiegspunkte und Akzeptanztests. #196 behandelt den Tile-Lifecycle und den Discovery-Trigger; #197 behandelt die Benachrichtigung der Activity-, Widget- und Tile-Oberflächen nach erfolgreicher asynchroner Discovery.
+- **Herkunft:** Review-Befunde vom 2026-08-29 zu `KeepADBTileService.java:40` und `KeepADB.java:119-124`.
+- **Stufe:** jeweils S2 (`flash` / `inherit`); keine Implementierung in diesem Lauf.
+- **Nicht-Ziele:** keine Änderung an Zustandsdefinition, Toggle-Semantik, Keep-Alive-Verhalten, Discovery-Protokoll oder persistenter App-Zustandsablage.
+- **Freigabe:** Nur Issue-Erfassung und Board-Synchronisation; keine Code-, Build-, Geräte- oder CI-Aktion.
+- **Status:** Issues erstellt und serverseitig zurückgelesen; Board-Sync erfolgreich ausgeführt. `github-drift` meldet einen unabhängigen bestehenden Altbefund: gemergter Remote-Branch `release/v1.2.0`. Keine Drift durch #196/#197 festgestellt.
