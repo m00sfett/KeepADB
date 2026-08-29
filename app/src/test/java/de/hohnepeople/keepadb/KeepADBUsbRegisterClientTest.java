@@ -237,4 +237,299 @@ public class KeepADBUsbRegisterClientTest {
                 + "\"profileName\":\"Desk\\nRoom\",\"ipAddress\":\"192.168.1.20\",\"hostname\":\"desk\\thost\","
                 + "\"tailnetHostname\":\"desk.tailnet.ts.net\",\"active\":true}", body);
     }
+
+    @Test
+    public void testStateRestoredFromPreferencesAcrossSimulatedProcessDeath() throws Exception {
+        FakeContext context = new FakeContext();
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, url(), "dev1",
+                5, "Office", "192.168.1.10", "host1", "tail1");
+
+        waitUntil(() -> recordedRequests.size() >= 2, 2000);
+        waitUntil(() -> url().equals(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting()), 2000);
+
+        // Verify state is stored in KeepADBPreferences
+        assertEquals(url(), KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
+        assertEquals(Integer.valueOf(5), KeepADBPreferences.getUsbWebhookLastProfileId(context));
+        assertEquals("Office", KeepADBPreferences.getUsbWebhookLastProfileName(context));
+        assertEquals("192.168.1.10", KeepADBPreferences.getUsbWebhookLastIpAddress(context));
+        assertEquals("host1", KeepADBPreferences.getUsbWebhookLastHostname(context));
+        assertEquals("tail1", KeepADBPreferences.getUsbWebhookLastTailnetHostname(context));
+        assertTrue(KeepADBPreferences.getUsbWebhookLastReportedAt(context) > 0);
+
+        // Simulate process death: clear in-memory static state in KeepADBRegisterClient
+        KeepADBRegisterClient.resetForTesting();
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+        assertFalse(KeepADBRegisterClient.isUsbStateInitializedForTesting());
+
+        // Restore state from SharedPreferences
+        KeepADBRegisterClient.ensureUsbStateInitializedLocked(context);
+        assertTrue(KeepADBRegisterClient.isUsbStateInitializedForTesting());
+        assertEquals(url(), KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+        assertEquals(Integer.valueOf(5), KeepADBRegisterClient.getLastRegisteredUsbProfileIdForTesting());
+        assertEquals("Office", KeepADBRegisterClient.getLastRegisteredUsbProfileNameForTesting());
+        assertEquals("192.168.1.10", KeepADBRegisterClient.getLastRegisteredUsbIpAddressForTesting());
+        assertEquals("host1", KeepADBRegisterClient.getLastRegisteredUsbHostnameForTesting());
+        assertEquals("tail1", KeepADBRegisterClient.getLastRegisteredUsbTailnetHostnameForTesting());
+        assertTrue(KeepADBRegisterClient.getLastRegisteredUsbPayloadForTesting().contains("\"profileName\":\"Office\""));
+    }
+
+    @Test
+    public void testProcessRestartWithCableStillConnectedIsIdempotent() throws Exception {
+        FakeContext context = new FakeContext();
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, url(), "dev1",
+                5, "Office", "192.168.1.10", "host1", "tail1");
+        waitUntil(() -> recordedRequests.size() >= 2, 2000);
+        int initialCount = recordedRequests.size();
+
+        // Simulate process death (memory wiped, SharedPreferences preserved)
+        KeepADBRegisterClient.resetForTesting();
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+
+        // App/service restart triggers update with same profile while still connected
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, url(), "dev1",
+                5, "Office", "192.168.1.10", "host1", "tail1");
+        Thread.sleep(300);
+
+        // Idempotency: 0 extra HTTP calls made
+        assertEquals(initialCount, recordedRequests.size());
+        assertEquals(url(), KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+    }
+
+    @Test
+    public void testProcessRestartWithCableDisconnectedSendsInactiveCleanup() throws Exception {
+        FakeContext context = new FakeContext();
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, url(), "dev1",
+                5, "Office", "192.168.1.10", "host1", "tail1");
+        waitUntil(() -> recordedRequests.size() >= 2, 2000);
+        int countBeforeRestart = recordedRequests.size();
+
+        // Simulate process death (memory wiped, SharedPreferences preserved)
+        KeepADBRegisterClient.resetForTesting();
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+
+        // Cable disconnected during restart: markUsbInactiveAsync is called
+        KeepADBRegisterClient.markUsbInactiveAsyncInternal(context, true, url(), "dev1");
+        waitUntil(() -> recordedRequests.size() >= countBeforeRestart + 2, 2000);
+
+        String inactiveBody = recordedRequests.get(recordedRequests.size() - 1);
+        assertTrue(inactiveBody.contains("\"active\":false"));
+        assertTrue(inactiveBody.contains("\"profileId\":5"));
+        assertTrue(inactiveBody.contains("\"profileName\":\"Office\""));
+
+        // Both in-memory and SharedPreferences states are cleared
+        waitUntil(() -> KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting() == null, 2000);
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedPayload(context));
+        assertNull(KeepADBPreferences.getUsbWebhookLastProfileId(context));
+        assertEquals(0L, KeepADBPreferences.getUsbWebhookLastReportedAt(context));
+    }
+
+    @Test
+    public void testProcessRestartWithCableDisconnectedAndNothingPreviouslyRegisteredIsNoOp() throws Exception {
+        FakeContext context = new FakeContext();
+        KeepADBRegisterClient.resetForTesting();
+
+        // Disconnect with no prior registered state -> immediate no-op
+        KeepADBRegisterClient.markUsbInactiveAsyncInternal(context, true, url(), "dev1");
+        Thread.sleep(300);
+
+        assertTrue(recordedRequests.isEmpty());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
+    }
+
+    @Test
+    public void testClearingUsbStateOnInactiveSuccess() throws Exception {
+        FakeContext context = new FakeContext();
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, url(), "dev1",
+                3, "Desk", "192.168.1.20", "desk-host", "desk.tailnet.ts.net");
+        waitUntil(() -> url().equals(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting()), 2000);
+        assertEquals("Desk", KeepADBPreferences.getUsbWebhookLastProfileName(context));
+
+        KeepADBRegisterClient.markUsbInactiveAsyncInternal(context, true, url(), "dev1");
+        waitUntil(() -> KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting() == null, 2000);
+
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbPayloadForTesting());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbProfileIdForTesting());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbProfileNameForTesting());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbIpAddressForTesting());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbHostnameForTesting());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbTailnetHostnameForTesting());
+
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedPayload(context));
+        assertNull(KeepADBPreferences.getUsbWebhookLastProfileId(context));
+        assertNull(KeepADBPreferences.getUsbWebhookLastProfileName(context));
+        assertNull(KeepADBPreferences.getUsbWebhookLastIpAddress(context));
+        assertNull(KeepADBPreferences.getUsbWebhookLastHostname(context));
+        assertNull(KeepADBPreferences.getUsbWebhookLastTailnetHostname(context));
+    }
+
+    @Test
+    public void testEnsureStateInitializedLockedAlsoInitializesUsb() {
+        FakeContext context = new FakeContext();
+        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://wlan.example/hook");
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.100:5555");
+        KeepADBPreferences.setUsbWebhookLastReportedState(context, "http://usb.example/hook", "{\"active\":true}",
+                8, "Laptop", "192.168.1.60", "lap-host", "lap.tailnet.ts.net");
+
+        KeepADBRegisterClient.resetForTesting();
+        assertNull(KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+
+        KeepADBRegisterClient.ensureStateInitializedLocked(context);
+
+        assertEquals("http://wlan.example/hook", KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+        assertEquals("192.168.1.100:5555", KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+        assertEquals("http://usb.example/hook", KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+        assertEquals(Integer.valueOf(8), KeepADBRegisterClient.getLastRegisteredUsbProfileIdForTesting());
+        assertEquals("Laptop", KeepADBRegisterClient.getLastRegisteredUsbProfileNameForTesting());
+    }
+
+    private static final class FakeContext extends android.content.ContextWrapper {
+        private final android.content.SharedPreferences preferences = new MemoryPreferences();
+
+        FakeContext() {
+            super(null);
+        }
+
+        @Override
+        public android.content.Context getApplicationContext() {
+            return this;
+        }
+
+        @Override
+        public android.content.SharedPreferences getSharedPreferences(String name, int mode) {
+            return preferences;
+        }
+    }
+
+    private static final class MemoryPreferences implements android.content.SharedPreferences {
+        private final java.util.Map<String, Object> values = new java.util.HashMap<>();
+
+        @Override
+        public java.util.Map<String, ?> getAll() {
+            return new java.util.HashMap<>(values);
+        }
+
+        @Override
+        public String getString(String key, String defValue) {
+            Object value = values.get(key);
+            return value instanceof String ? (String) value : defValue;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public java.util.Set<String> getStringSet(String key, java.util.Set<String> defValues) {
+            Object value = values.get(key);
+            return value instanceof java.util.Set ? java.util.Set.copyOf((java.util.Set<String>) value) : defValues;
+        }
+
+        @Override
+        public int getInt(String key, int defValue) {
+            Object value = values.get(key);
+            return value instanceof Integer ? (Integer) value : defValue;
+        }
+
+        @Override
+        public long getLong(String key, long defValue) {
+            Object value = values.get(key);
+            return value instanceof Long ? (Long) value : defValue;
+        }
+
+        @Override
+        public float getFloat(String key, float defValue) {
+            Object value = values.get(key);
+            return value instanceof Float ? (Float) value : defValue;
+        }
+
+        @Override
+        public boolean getBoolean(String key, boolean defValue) {
+            Object value = values.get(key);
+            return value instanceof Boolean ? (Boolean) value : defValue;
+        }
+
+        @Override
+        public boolean contains(String key) {
+            return values.containsKey(key);
+        }
+
+        @Override
+        public Editor edit() {
+            return new MemoryEditor();
+        }
+
+        @Override
+        public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {}
+
+        @Override
+        public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {}
+
+        private final class MemoryEditor implements Editor {
+            private final java.util.Map<String, Object> updates = new java.util.HashMap<>();
+            private final java.util.Set<String> removals = new java.util.HashSet<>();
+            private boolean clear;
+
+            @Override
+            public Editor putString(String key, String value) {
+                updates.put(key, value);
+                return this;
+            }
+
+            @Override
+            public Editor putStringSet(String key, java.util.Set<String> values) {
+                updates.put(key, values == null ? null : java.util.Set.copyOf(values));
+                return this;
+            }
+
+            @Override
+            public Editor putInt(String key, int value) {
+                updates.put(key, value);
+                return this;
+            }
+
+            @Override
+            public Editor putLong(String key, long value) {
+                updates.put(key, value);
+                return this;
+            }
+
+            @Override
+            public Editor putFloat(String key, float value) {
+                updates.put(key, value);
+                return this;
+            }
+
+            @Override
+            public Editor putBoolean(String key, boolean value) {
+                updates.put(key, value);
+                return this;
+            }
+
+            @Override
+            public Editor remove(String key) {
+                removals.add(key);
+                return this;
+            }
+
+            @Override
+            public Editor clear() {
+                clear = true;
+                return this;
+            }
+
+            @Override
+            public boolean commit() {
+                apply();
+                return true;
+            }
+
+            @Override
+            public void apply() {
+                if (clear) values.clear();
+                for (String k : removals) values.remove(k);
+                values.putAll(updates);
+            }
+        }
+    }
 }

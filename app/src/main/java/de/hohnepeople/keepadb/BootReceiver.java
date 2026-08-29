@@ -14,6 +14,7 @@ public class BootReceiver extends BroadcastReceiver {
         if (intent == null) return;
         String action = intent.getAction();
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+            KeepADBUsbReceiver.refresh(context);
             KeepADBDiagnostics.event(context, "boot_completed", "system", "received", "keepAlive="
                     + KeepADBPreferences.isKeepAliveEnabled(context));
             if (KeepADBPreferences.isKeepAliveEnabled(context)) {
