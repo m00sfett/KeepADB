@@ -4583,3 +4583,34 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   - Lokale Gates: `./bin/verify` (`git diff --check`, `testDebugUnitTest`, `lintDebug`, `assembleDebug`, `assembleRelease`).
   - Optionales Geräte-Gate: S20-Hardwaretest via `android-target s20`.
 - **Status:** Vorbereitet für Delegationsanfrage / Umsetzung.
+
+## Issue #185 — Implementierung & Verifikation (2026-08-29)
+
+- **Bearbeiter:** Subagent `Implementer Issue 185`, Stufe S2, Modell `flash` (konfiguriert).
+- **Umsetzung:**
+  - `KeepADBEndpoint.java`: In `maybeSendRecoveryPulse()` (`:211`) von `isUserDisabled()` auf `wasLastExplicitIntentOff(appContext)` umgestellt. `KeepADB.performRecoveryPulse()` gehärtet, um `wasLastExplicitIntentOff` vor dem Senden des Pulses zu prüfen.
+  - `KeepADBPreferences.java` & `KeepADB.java`: Persistierung des Nutzerwillens (`KEY_LAST_DESIRED_ON = "last_desired_on"`) mit Getter/Setter; `KeepADB.wasLastExplicitIntentOff(Context)` liest nun die SharedPreferences, sodass ein manuelles AUS auch aggressive App-Kills und Prozessneustarts überlebt.
+  - `KeepADBUsbNotification.java`: Sichtbarkeitsprüfung und Zurücksetzen von `lastHandoverActionFailed = false` vor den NotificationManager-Null-Guard vorgezogen; `isLastHandoverActionFailed()` für Testprüfungen ergänzt.
+  - `KeepADBUsbHandoverTest.java` & `KeepADBUsbHandoverContractTest.java`: Echte Boolean-Durchläufe für `handleManualAction` und `reportManualActionResult` (mit/ohne Berechtigung), Absicherung des echten Einstiegspunkts `KeepADBUsbHandover.onRawUsbBroadcast` für Reconnect-Szenarien und Intent-Persistenz-Prüfungen über Prozess-Restarts.
+- **Validierungs-Nachweis:** `./bin/verify` erfolgreich:
+  - `git diff --check`: sauber
+  - `testDebugUnitTest`: 116/116 Tests bestanden (0 Fehler)
+  - `lintDebug` & `lintVitalRelease`: 0 Fehler / sauber
+  - `assembleDebug` & `assembleRelease`: erfolgreich gebaut
+- **Branch & PR:** Branch `chore/185-harden-usb-handover`, Commits `0ab1c17`, `588c35c`, `6f7df76`, Pull Request #190.
+- **Status:** Implementierung & lokale Gates erfolgreich abgeschlossen; bereit für unabhängigen Review.
+
+## Issue #185 — Review & Abschluss (2026-08-29)
+
+- **Review:**
+  - Bearbeiter: Subagent `Reviewer Issue 185`, Stufe S2, Modell `flash` (konfiguriert).
+  - Modus: `review and repair`.
+  - Ergebnis: **APPROVED** (alle 7 Claims des Implementierers vollumfänglich verifiziert, 0 Befunde, keine Reparaturen erforderlich).
+  - Technische Verifikation: Thread-Safety über `synchronized (KeepADB.class)` und `volatile` Felder intakt; `KeepADB.wasLastExplicitIntentOff(Context)` stellt sicher, dass ein manuelles AUS persistent gegen SharedPreferences geprüft wird und nicht unabsichtlich durch LMK/Prozessneustart fail-open überschrieben wird; Recovery-Pulse-Synchronisation sauber; alle 112 Unit-Tests grün.
+- **Lokale Gates:** `./bin/verify` erfolgreich (112/112 Tests grün, Lint 0 Fehler, Debug/Release APKs gebaut).
+- **PR & Merge:**
+  - Pull Request #190 per Squash gemergt (`070d9f1`) und Branch bereinigt.
+  - GitHub Readback: Issue #185 **CLOSED**.
+- **Stand offene Issues (Snapshot 2026-08-29T03:26:00+02:00):**
+  - #181: `test: OEM-Fallback...` (zurückgestellt bis 2. OEM-Gerät verfügbar)
+- **Status:** Paket #185 erfolgreich abgeschlossen. Alle aktiven Entwicklungs-Issues des Orchestrator-Backlogs sind vollständig abgearbeitet.
