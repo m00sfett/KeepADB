@@ -66,6 +66,21 @@ public class KeepADBTileDiscoveryContractTest {
     }
 
     @Test
+    public void disabledWirelessDebuggingStopsBeforeDiscovery() throws IOException {
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        String body = methodBody(notification, "static synchronized void refresh(Context context) {");
+        int enabledGuard = body.indexOf("if (!KeepADB.isEnabled(appContext))");
+        int stop = body.indexOf("stop(appContext, manager);", enabledGuard);
+        int stopReturn = body.indexOf("return;", stop);
+        int discovery = body.indexOf("startDiscoveryDirectLocked(appContext, manager);");
+
+        assertTrue(enabledGuard >= 0);
+        assertTrue(stop > enabledGuard);
+        assertTrue(stopReturn > stop);
+        assertTrue(discovery > stopReturn);
+    }
+
+    @Test
     public void listeningInstanceIsDiscardedAtBothLifecycleBoundaries() throws IOException {
         String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
         String stopBody = methodBody(tile, "public void onStopListening() {");
@@ -154,6 +169,51 @@ public class KeepADBTileDiscoveryContractTest {
     }
 
     @Test
+    public void supersededCallbacksCannotPublishAfterGenerationValidation() throws IOException {
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        String discoveryBody = methodBody(notification,
+                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager) {");
+        String endpointBody = methodBody(discoveryBody,
+                discoveryBody.indexOf("public void onEndpoint(String host, int port) {"));
+        String unavailableBody = methodBody(discoveryBody,
+                discoveryBody.indexOf("public void onUnavailable() {"));
+
+        assertPublicationIsGenerationLocked(endpointBody,
+                "show(appContext, manager, host, port);",
+                "KeepADBRegisterClient.updateEndpointAsync(appContext, host, port);");
+        assertPublicationIsGenerationLocked(unavailableBody,
+                "manager.cancel(NOTIFICATION_ID);",
+                "KeepADBRegisterClient.markUnavailableAsync(appContext);");
+    }
+
+    @Test
+    public void discoveryErrorsKeepTheTileDisconnected() throws IOException {
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        String endpoint = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
+        String unavailableBody = methodBody(notification, "public void onUnavailable() {");
+        String invalidateBody = methodBody(notification,
+                "static synchronized void invalidateEndpoint(Context context) {");
+        String stopBody = methodBody(notification,
+                "private static synchronized void stop(Context context, NotificationManager manager) {");
+        String timeoutBody = methodBody(endpoint, "private void giveUpIfStillUnresolved(long generation) {");
+        String resolveFailureBody = methodBody(endpoint,
+                "public void onResolveFailed(NsdServiceInfo ignored, int errorCode) {");
+        String startFailureBody = methodBody(endpoint,
+                "public void onStartDiscoveryFailed(String serviceType, int errorCode) {");
+
+        assertTrue(unavailableBody.contains("currentHost = null;"));
+        assertTrue(unavailableBody.contains("currentPort = 0;"));
+        assertTrue(unavailableBody.contains("KeepADBTileService.refreshListeningTile();"));
+        assertTrue(invalidateBody.contains("MAIN_HANDLER.post(KeepADBTileService::refreshListeningTile);"));
+        assertTrue(stopBody.contains("MAIN_HANDLER.post(KeepADBTileService::refreshListeningTile);"));
+        assertTrue(timeoutBody.indexOf("stop();") >= 0);
+        assertTrue(timeoutBody.indexOf("targetListener.onUnavailable();")
+                > timeoutBody.indexOf("stop();"));
+        assertTrue(resolveFailureBody.contains("processNextResolveLocked(generation);"));
+        assertFalse(startFailureBody.contains("onEndpoint("));
+    }
+
+    @Test
     public void endpointDiscoverySessionRemainsIdempotentAndGuardsItsInternalCallbacks() throws IOException {
         String endpoint = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
 
@@ -191,6 +251,26 @@ public class KeepADBTileDiscoveryContractTest {
         int methodEnd = findMatchingBrace(source, openingBrace);
         assertTrue("Missing closing brace", methodEnd > openingBrace);
         return source.substring(methodStart, methodEnd + 1);
+    }
+
+    private static void assertPublicationIsGenerationLocked(String callbackBody,
+            String firstPublication, String secondPublication) {
+        int guard = callbackBody.indexOf(
+                "if (requestGeneration != discoveryRequestGeneration) return;");
+        int lock = callbackBody.indexOf("synchronized (KeepADBNotification.class) {");
+        int lockOpeningBrace = callbackBody.indexOf('{', lock);
+        int lockEnd = findMatchingBrace(callbackBody, lockOpeningBrace);
+        int first = callbackBody.indexOf(firstPublication);
+        int second = callbackBody.indexOf(secondPublication);
+        int tileRefresh = callbackBody.indexOf("KeepADBTileService.refreshListeningTile();");
+
+        assertTrue(guard >= 0);
+        assertTrue(guard > lock);
+        assertTrue(lockEnd > lockOpeningBrace);
+        assertTrue(guard < lockEnd);
+        assertTrue(first > lock && first < lockEnd);
+        assertTrue(second > lock && second < lockEnd);
+        assertTrue(tileRefresh > lockEnd);
     }
 
     private static int findMatchingBrace(String source, int openingBrace) {
