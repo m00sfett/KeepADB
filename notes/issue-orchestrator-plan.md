@@ -4411,3 +4411,16 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   - Funktionstest: Auslösen der Deaktivierungs-Aktion schaltet `adb_wifi_enabled` live von `1` auf `0` um und räumt die Notification auf.
   - Rückbau/Wiederherstellung: Gerät in normalen Produktivzustand (`adb_wifi_enabled=1`) zurückversetzt.
 - **Status:** Vollständig verifiziert und abnahmebereit für Commit / PR / Merge (`Fixes #173`).
+
+## Issue #173 — Merge & Abschluss (2026-08-29)
+
+- **PR & Merge:**
+  - Feature-Branch `feat/173-wlan-disable-action` erstellt und gepusht.
+  - Pull Request #187 erstellt, per Squash gemergt (`bf97dfa`) und Branch bereinigt.
+  - GitHub Readback: Issue #173 **CLOSED**.
+- **Stand offene Issues (Snapshot 2026-08-29T02:53:00+02:00):**
+  - #171: `feat: Decouple USB-ADB notification from host-profile display` (S2, offen)
+  - #183: `fix: USB-ADB register entry can stay stale active after process death` (S2/S3, offen)
+  - #185: `chore: harden USB->WLAN-ADB handover edge cases` (S2/S3, offen)
+  - #181: `test: OEM-Fallback...` (zurückgestellt bis 2. OEM-Gerät verfügbar)
+- **Status:** Paket #173 erfolgreich abgeschlossen.
