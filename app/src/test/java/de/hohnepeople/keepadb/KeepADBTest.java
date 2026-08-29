@@ -40,4 +40,11 @@ public class KeepADBTest {
         KeepADB.resetForTesting();
         assertFalse(KeepADB.wasLastExplicitIntentOff());
     }
+
+    @Test
+    public void stateEnumAndNullContextHandling() {
+        assertEquals(4, KeepADB.State.values().length);
+        assertEquals(KeepADB.State.OFF, KeepADB.getState(null));
+        assertFalse(KeepADB.hasPermission(null));
+    }
 }

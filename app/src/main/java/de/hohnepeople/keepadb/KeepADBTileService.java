@@ -1,5 +1,6 @@
 package de.hohnepeople.keepadb;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.service.quicksettings.Tile;
@@ -20,7 +21,8 @@ public class KeepADBTileService extends TileService {
 
     @Override
     public void onClick() {
-        boolean want = !KeepADB.isEnabled(this);
+        KeepADB.State state = KeepADB.getState(this);
+        boolean want = (state == KeepADB.State.OFF);
         KeepADBDiagnostics.event(this, "user_action", "tile", want ? "enable" : "disable", "tap");
         if (!KeepADB.setEnabled(this, want, "tile")) {
             Toast.makeText(this, getString(R.string.tile_permission_error),
@@ -35,11 +37,45 @@ public class KeepADBTileService extends TileService {
     private void updateTile() {
         Tile tile = getQsTile();
         if (tile == null) return;
-        boolean on = KeepADB.isEnabled(this);
-        KeepADBNotification.refresh(this);
-        tile.setState(on ? Tile.STATE_ACTIVE : Tile.STATE_INACTIVE);
+        KeepADB.State state = KeepADB.getState(this);
         tile.setLabel(getString(R.string.tile_label));
-        tile.setIcon(Icon.createWithResource(this, R.drawable.ic_keepadb));
+        switch (state) {
+            case PERMISSION_MISSING:
+                tile.setState(Tile.STATE_UNAVAILABLE);
+                tile.setSubtitle(getString(R.string.tile_state_permission_missing));
+                tile.setIcon(Icon.createWithResource(this, R.drawable.ic_keepadb_disconnected));
+                break;
+            case OFF:
+                tile.setState(Tile.STATE_INACTIVE);
+                tile.setSubtitle(getString(R.string.tile_state_off));
+                tile.setIcon(Icon.createWithResource(this, R.drawable.ic_keepadb));
+                break;
+            case ENABLED_DISCONNECTED:
+                tile.setState(Tile.STATE_INACTIVE);
+                tile.setSubtitle(getString(R.string.tile_state_disconnected));
+                tile.setIcon(Icon.createWithResource(this, R.drawable.ic_keepadb_disconnected));
+                break;
+            case ENABLED_CONNECTED:
+                tile.setState(Tile.STATE_ACTIVE);
+                String host = KeepADBNotification.getCurrentHost();
+                int port = KeepADBNotification.getCurrentPort();
+                if (host != null && port > 0) {
+                    tile.setSubtitle(getString(R.string.tile_state_connected_format, host, port));
+                } else {
+                    tile.setSubtitle(getString(R.string.tile_state_connected));
+                }
+                tile.setIcon(Icon.createWithResource(this, R.drawable.ic_keepadb));
+                break;
+        }
         tile.updateTile();
+    }
+
+    static void requestRefresh(Context context) {
+        if (context == null) return;
+        try {
+            requestListeningState(context.getApplicationContext(),
+                    new ComponentName(context.getApplicationContext(), KeepADBTileService.class));
+        } catch (RuntimeException ignored) {
+        }
     }
 }
