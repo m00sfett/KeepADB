@@ -32,6 +32,7 @@ final class KeepADBNotification {
     private static EndpointListener endpointListener;
     private static Runnable pendingRetryRunnable;
     private static int retryAttempt;
+    private static long discoveryRequestGeneration;
 
     interface EndpointListener {
         void onEndpoint(String host, int port);
@@ -88,6 +89,7 @@ final class KeepADBNotification {
         KeepADBDiagnostics.event(context, "endpoint_invalidated", "network", "success", "cached_endpoint_cleared");
         cancelRetryLocked();
         retryAttempt = 0;
+        discoveryRequestGeneration++;
         if (endpoint != null) {
             endpoint.stop();
         }
@@ -205,20 +207,22 @@ final class KeepADBNotification {
 
     private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager) {
         if (endpoint == null) endpoint = new KeepADBEndpoint(appContext);
+        final long requestGeneration = ++discoveryRequestGeneration;
         endpoint.discover(new KeepADBEndpoint.Listener() {
             @Override
             public void onEndpoint(String host, int port) {
-                KeepADBDiagnostics.event(appContext, "endpoint_discovered", "nsd_or_probe", "success",
-                        "host=" + host + " port=" + port);
                 EndpointListener listener;
                 synchronized (KeepADBNotification.class) {
+                    if (requestGeneration != discoveryRequestGeneration) return;
                     currentHost = host;
                     currentPort = port;
                     retryAttempt = 0;
                     cancelRetryLocked();
                     listener = endpointListener;
                 }
-                KeepADBTileService.requestRefresh(appContext);
+                KeepADBDiagnostics.event(appContext, "endpoint_discovered", "nsd_or_probe", "success",
+                        "host=" + host + " port=" + port);
+                KeepADBTileService.refreshListeningTile();
                 if (listener != null) {
                     listener.onEndpoint(host, port);
                 }
@@ -228,15 +232,17 @@ final class KeepADBNotification {
 
             @Override
             public void onUnavailable() {
-                KeepADBDiagnostics.event(appContext, "endpoint_discovered", "nsd_or_probe", "unavailable",
-                        "no_live_endpoint");
                 EndpointListener listener;
                 synchronized (KeepADBNotification.class) {
+                    if (requestGeneration != discoveryRequestGeneration) return;
                     currentHost = null;
                     currentPort = 0;
                     listener = endpointListener;
                     scheduleRetryLocked(appContext, manager);
                 }
+                KeepADBDiagnostics.event(appContext, "endpoint_discovered", "nsd_or_probe", "unavailable",
+                        "no_live_endpoint");
+                KeepADBTileService.refreshListeningTile();
                 if (listener != null) {
                     listener.onUnavailable();
                 }
@@ -256,6 +262,7 @@ final class KeepADBNotification {
         KeepADBDiagnostics.event(context, "notification_removed", "notification", "success", "wireless_debugging_off");
         cancelRetryLocked();
         retryAttempt = 0;
+        discoveryRequestGeneration++;
         if (endpoint != null) {
             endpoint.stop();
             endpoint = null;
