@@ -4563,3 +4563,23 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   - #185: `chore: harden USB->WLAN-ADB handover edge cases` (S2/S3, offen)
   - #181: `test: OEM-Fallback...` (zurückgestellt bis 2. OEM-Gerät verfügbar)
 - **Status:** Paket #183 erfolgreich abgeschlossen.
+
+## Issue #185 — Paket-Auswahl & Vorbereitung (2026-08-29)
+
+- **Issue:** [#185](https://github.com/m00sfett/KeepADB/issues/185) `chore: harden USB->WLAN-ADB handover edge cases`
+- **Issue-Snapshot:** 2026-08-29T03:11:00+02:00 (2 offene Issues: #181, #185)
+- **Ziel:** Härtung und Bereinigung identifizierter Randfälle im USB->WLAN-ADB Handover-Subsystem aus den Reviews zu #168.
+- **Umfang:**
+  1. Reconnect-Race bei unterbrochenem USB-Kabel: Sicherstellen, dass nach USB-Disconnect / Reconnect bei `AUTOMATIC`-Modus und initial inaktivem WLAN-ADB die Aktivierung zuverlässig auslöst (sofern nicht explizit `userDisabled`).
+  2. Manual-Action-Fehlerpfad: Absicherung der Fehlerbehandlung bei fehlender `WRITE_SECURE_SETTINGS`-Berechtigung durch echte Boolean-/State-Execution in Contract-/Unit-Tests statt reinem String-Matching.
+  3. Lifecycle & State-Konsistenz: Prüfung der `static volatile boolean`-Flags (`KeepADB.userDisabled`, `KeepADB.lastDesiredOn`, `KeepADBUsbHandover.connectedEdgeSeen`) gegen Prozess-Restarts und aggressive Background-Kills.
+  4. Migration Recovery-Pulse: Umstellung von `KeepADBEndpoint.java:211` (`maybeSendRecoveryPulse()`) von `KeepADB.isUserDisabled()` auf das nicht-konsumierende `KeepADB.wasLastExplicitIntentOff()`.
+  5. Test-Refinement: Absicherung in `KeepADBUsbHandoverTest` präzisieren (direkter Durchlauf über `KeepADBUsbHandover.onRawUsbBroadcast`).
+- **Nicht-Ziele:**
+  - Keine Änderung an der generellen Handover-Architektur (Manual vs Automatic).
+  - Keine Änderung an USB-Register- oder WLAN-Discovery-Protokollen.
+- **Stufe & Tier:** S2 (`flash` / `inherit`).
+- **Gates:**
+  - Lokale Gates: `./bin/verify` (`git diff --check`, `testDebugUnitTest`, `lintDebug`, `assembleDebug`, `assembleRelease`).
+  - Optionales Geräte-Gate: S20-Hardwaretest via `android-target s20`.
+- **Status:** Vorbereitet für Delegationsanfrage / Umsetzung.
