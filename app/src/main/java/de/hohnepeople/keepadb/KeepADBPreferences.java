@@ -16,6 +16,14 @@ final class KeepADBPreferences {
     private static final String KEY_SERVICE_LAST_HEARTBEAT = "service_last_heartbeat";
     private static final String KEY_HIDE_NOTIFICATION = "hide_notification_enabled";
     private static final String KEY_USB_WLAN_HANDOVER_MODE = "usb_wlan_handover_mode";
+    private static final String KEY_USB_WEBHOOK_LAST_REPORTED = "usb_webhook_last_reported";
+    private static final String KEY_USB_WEBHOOK_LAST_URL = "usb_webhook_last_url";
+    private static final String KEY_USB_WEBHOOK_LAST_PAYLOAD = "usb_webhook_last_payload";
+    private static final String KEY_USB_WEBHOOK_LAST_PROFILE_ID = "usb_webhook_last_profile_id";
+    private static final String KEY_USB_WEBHOOK_LAST_PROFILE_NAME = "usb_webhook_last_profile_name";
+    private static final String KEY_USB_WEBHOOK_LAST_IP = "usb_webhook_last_ip";
+    private static final String KEY_USB_WEBHOOK_LAST_HOSTNAME = "usb_webhook_last_hostname";
+    private static final String KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME = "usb_webhook_last_tailnet_hostname";
 
     // #168: optional USB-ADB -> WLAN-ADB handover offered from the USB notification.
     static final String USB_WLAN_HANDOVER_MODE_OFF = "off";
@@ -129,6 +137,124 @@ final class KeepADBPreferences {
         } else {
             prefs.edit().putString(KEY_WEBHOOK_LAST_URL, url).apply();
         }
+    }
+
+    static long getUsbWebhookLastReportedAt(Context context) {
+        if (context == null) return 0L;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getLong(KEY_USB_WEBHOOK_LAST_REPORTED, 0L);
+    }
+
+    static String getUsbWebhookLastReportedUrl(Context context) {
+        if (context == null) return null;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_USB_WEBHOOK_LAST_URL, null);
+    }
+
+    static void setUsbWebhookLastReportedUrl(Context context, String url) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (url == null) {
+            prefs.edit().remove(KEY_USB_WEBHOOK_LAST_URL).apply();
+        } else {
+            prefs.edit().putString(KEY_USB_WEBHOOK_LAST_URL, url).apply();
+        }
+    }
+
+    static String getUsbWebhookLastReportedPayload(Context context) {
+        if (context == null) return null;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_USB_WEBHOOK_LAST_PAYLOAD, null);
+    }
+
+    static void setUsbWebhookLastReportedPayload(Context context, String payload) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (payload == null) {
+            prefs.edit().remove(KEY_USB_WEBHOOK_LAST_PAYLOAD).apply();
+        } else {
+            prefs.edit().putString(KEY_USB_WEBHOOK_LAST_PAYLOAD, payload).apply();
+        }
+    }
+
+    static Integer getUsbWebhookLastProfileId(Context context) {
+        if (context == null) return null;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (!prefs.contains(KEY_USB_WEBHOOK_LAST_PROFILE_ID)) return null;
+        return prefs.getInt(KEY_USB_WEBHOOK_LAST_PROFILE_ID, 0);
+    }
+
+    static String getUsbWebhookLastProfileName(Context context) {
+        if (context == null) return null;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_USB_WEBHOOK_LAST_PROFILE_NAME, null);
+    }
+
+    static String getUsbWebhookLastIpAddress(Context context) {
+        if (context == null) return null;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_USB_WEBHOOK_LAST_IP, null);
+    }
+
+    static String getUsbWebhookLastHostname(Context context) {
+        if (context == null) return null;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_USB_WEBHOOK_LAST_HOSTNAME, null);
+    }
+
+    static String getUsbWebhookLastTailnetHostname(Context context) {
+        if (context == null) return null;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME, null);
+    }
+
+    static void setUsbWebhookLastReportedState(Context context, String url, String payload,
+            Integer profileId, String profileName, String ipAddress, String hostname, String tailnetHostname) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        if (url == null) {
+            editor.remove(KEY_USB_WEBHOOK_LAST_URL);
+            editor.remove(KEY_USB_WEBHOOK_LAST_REPORTED);
+        } else {
+            editor.putString(KEY_USB_WEBHOOK_LAST_URL, url);
+            editor.putLong(KEY_USB_WEBHOOK_LAST_REPORTED, System.currentTimeMillis());
+        }
+        if (payload == null) {
+            editor.remove(KEY_USB_WEBHOOK_LAST_PAYLOAD);
+        } else {
+            editor.putString(KEY_USB_WEBHOOK_LAST_PAYLOAD, payload);
+        }
+        if (profileId == null) {
+            editor.remove(KEY_USB_WEBHOOK_LAST_PROFILE_ID);
+        } else {
+            editor.putInt(KEY_USB_WEBHOOK_LAST_PROFILE_ID, profileId);
+        }
+        if (profileName == null) {
+            editor.remove(KEY_USB_WEBHOOK_LAST_PROFILE_NAME);
+        } else {
+            editor.putString(KEY_USB_WEBHOOK_LAST_PROFILE_NAME, profileName);
+        }
+        if (ipAddress == null) {
+            editor.remove(KEY_USB_WEBHOOK_LAST_IP);
+        } else {
+            editor.putString(KEY_USB_WEBHOOK_LAST_IP, ipAddress);
+        }
+        if (hostname == null) {
+            editor.remove(KEY_USB_WEBHOOK_LAST_HOSTNAME);
+        } else {
+            editor.putString(KEY_USB_WEBHOOK_LAST_HOSTNAME, hostname);
+        }
+        if (tailnetHostname == null) {
+            editor.remove(KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME);
+        } else {
+            editor.putString(KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME, tailnetHostname);
+        }
+        editor.apply();
+    }
+
+    static void clearUsbWebhookReportedState(Context context) {
+        setUsbWebhookLastReportedState(context, null, null, null, null, null, null, null);
     }
 
     static boolean isValidWebhookUrl(String url) {

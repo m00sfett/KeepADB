@@ -70,15 +70,33 @@ final class KeepADBRegisterClient {
     private static volatile String lastRegisteredUsbIpAddress = null;
     private static volatile String lastRegisteredUsbHostname = null;
     private static volatile String lastRegisteredUsbTailnetHostname = null;
+    private static volatile boolean usbStateInitialized = false;
     private static volatile long currentUsbOpGeneration = 0;
 
     private KeepADBRegisterClient() {}
 
     static synchronized void ensureStateInitializedLocked(Context context) {
+        ensureUsbStateInitializedLocked(context);
         if (stateInitialized) return;
-        lastRegisteredEndpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(context);
-        lastRegisteredUrl = KeepADBPreferences.getWebhookLastReportedUrl(context);
+        if (context != null) {
+            lastRegisteredEndpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(context);
+            lastRegisteredUrl = KeepADBPreferences.getWebhookLastReportedUrl(context);
+        }
         stateInitialized = true;
+    }
+
+    static synchronized void ensureUsbStateInitializedLocked(Context context) {
+        if (usbStateInitialized) return;
+        if (context != null) {
+            lastRegisteredUsbUrl = KeepADBPreferences.getUsbWebhookLastReportedUrl(context);
+            lastRegisteredUsbPayload = KeepADBPreferences.getUsbWebhookLastReportedPayload(context);
+            lastRegisteredUsbProfileId = KeepADBPreferences.getUsbWebhookLastProfileId(context);
+            lastRegisteredUsbProfileName = KeepADBPreferences.getUsbWebhookLastProfileName(context);
+            lastRegisteredUsbIpAddress = KeepADBPreferences.getUsbWebhookLastIpAddress(context);
+            lastRegisteredUsbHostname = KeepADBPreferences.getUsbWebhookLastHostname(context);
+            lastRegisteredUsbTailnetHostname = KeepADBPreferences.getUsbWebhookLastTailnetHostname(context);
+        }
+        usbStateInitialized = true;
     }
 
     static void updateEndpointAsync(Context context, String host, int port) {
@@ -152,11 +170,17 @@ final class KeepADBRegisterClient {
         boolean webhookEnabled = KeepADBPreferences.isRegisterWebhookEnabled(appContext);
         String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
         String deviceId = getDeviceId(appContext);
-        updateUsbEndpointAsyncInternal(webhookEnabled, targetUrl, deviceId, profile.id, profile.name,
+        updateUsbEndpointAsyncInternal(appContext, webhookEnabled, targetUrl, deviceId, profile.id, profile.name,
                 profile.ipAddress, profile.hostname, profile.tailnetHostname);
     }
 
     static void updateUsbEndpointAsyncInternal(boolean webhookEnabled, String targetUrl, String deviceId,
+            int profileId, String profileName, String ipAddress, String hostname, String tailnetHostname) {
+        updateUsbEndpointAsyncInternal(null, webhookEnabled, targetUrl, deviceId, profileId, profileName,
+                ipAddress, hostname, tailnetHostname);
+    }
+
+    static void updateUsbEndpointAsyncInternal(Context context, boolean webhookEnabled, String targetUrl, String deviceId,
             int profileId, String profileName, String ipAddress, String hostname, String tailnetHostname) {
         if (!webhookEnabled) return;
         if (targetUrl == null || targetUrl.trim().isEmpty()) return;
@@ -164,6 +188,7 @@ final class KeepADBRegisterClient {
                 tailnetHostname, true);
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
+            ensureUsbStateInitializedLocked(context);
             if (targetUrl.equals(lastRegisteredUsbUrl) && payload.equals(lastRegisteredUsbPayload)) {
                 return;
             }
@@ -182,6 +207,10 @@ final class KeepADBRegisterClient {
                         lastRegisteredUsbIpAddress = ipAddress;
                         lastRegisteredUsbHostname = hostname;
                         lastRegisteredUsbTailnetHostname = tailnetHostname;
+                        if (context != null) {
+                            KeepADBPreferences.setUsbWebhookLastReportedState(context, targetUrl, payload,
+                                    profileId, profileName, ipAddress, hostname, tailnetHostname);
+                        }
                         notifyRegisterStateListener();
                     }
                 }
@@ -196,10 +225,14 @@ final class KeepADBRegisterClient {
         boolean webhookEnabled = KeepADBPreferences.isRegisterWebhookEnabled(appContext);
         String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
         String deviceId = getDeviceId(appContext);
-        markUsbInactiveAsyncInternal(webhookEnabled, targetUrl, deviceId);
+        markUsbInactiveAsyncInternal(appContext, webhookEnabled, targetUrl, deviceId);
     }
 
     static void markUsbInactiveAsyncInternal(boolean webhookEnabled, String configuredUrl, String deviceId) {
+        markUsbInactiveAsyncInternal(null, webhookEnabled, configuredUrl, deviceId);
+    }
+
+    static void markUsbInactiveAsyncInternal(Context context, boolean webhookEnabled, String configuredUrl, String deviceId) {
         if (!webhookEnabled) return;
         final String urlToUse;
         final Integer profileId;
@@ -209,6 +242,7 @@ final class KeepADBRegisterClient {
         final String tailnetHostname;
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
+            ensureUsbStateInitializedLocked(context);
             if (lastRegisteredUsbUrl == null && lastRegisteredUsbPayload == null) {
                 return;
             }
@@ -224,7 +258,7 @@ final class KeepADBRegisterClient {
         if (urlToUse == null || urlToUse.trim().isEmpty()) {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentUsbOpGeneration) {
-                    clearUsbStateLocked();
+                    clearUsbStateLocked(context);
                 }
             }
             return;
@@ -238,7 +272,7 @@ final class KeepADBRegisterClient {
             if (sendJsonPost(urlToUse, payload, "usb-adb")) {
                 synchronized (KeepADBRegisterClient.class) {
                     if (opGen == currentUsbOpGeneration) {
-                        clearUsbStateLocked();
+                        clearUsbStateLocked(context);
                         notifyRegisterStateListener();
                     }
                 }
@@ -246,7 +280,7 @@ final class KeepADBRegisterClient {
         });
     }
 
-    private static void clearUsbStateLocked() {
+    private static void clearUsbStateLocked(Context context) {
         lastRegisteredUsbUrl = null;
         lastRegisteredUsbPayload = null;
         lastRegisteredUsbProfileId = null;
@@ -254,6 +288,9 @@ final class KeepADBRegisterClient {
         lastRegisteredUsbIpAddress = null;
         lastRegisteredUsbHostname = null;
         lastRegisteredUsbTailnetHostname = null;
+        if (context != null) {
+            KeepADBPreferences.clearUsbWebhookReportedState(context);
+        }
     }
 
     static String getDeviceId(Context context) {
@@ -381,7 +418,8 @@ final class KeepADBRegisterClient {
         stateInitialized = false;
         currentOpGeneration = 0;
         registerStateListener = null;
-        clearUsbStateLocked();
+        clearUsbStateLocked(null);
+        usbStateInitialized = false;
         currentUsbOpGeneration = 0;
     }
 
@@ -401,12 +439,48 @@ final class KeepADBRegisterClient {
         return lastRegisteredEndpoint;
     }
 
+    static void setUsbStateForTesting(String url, String payload, Integer profileId, String profileName,
+            String ipAddress, String hostname, String tailnetHostname) {
+        lastRegisteredUsbUrl = url;
+        lastRegisteredUsbPayload = payload;
+        lastRegisteredUsbProfileId = profileId;
+        lastRegisteredUsbProfileName = profileName;
+        lastRegisteredUsbIpAddress = ipAddress;
+        lastRegisteredUsbHostname = hostname;
+        lastRegisteredUsbTailnetHostname = tailnetHostname;
+        usbStateInitialized = true;
+    }
+
     static String getLastRegisteredUsbUrlForTesting() {
         return lastRegisteredUsbUrl;
     }
 
     static String getLastRegisteredUsbPayloadForTesting() {
         return lastRegisteredUsbPayload;
+    }
+
+    static Integer getLastRegisteredUsbProfileIdForTesting() {
+        return lastRegisteredUsbProfileId;
+    }
+
+    static String getLastRegisteredUsbProfileNameForTesting() {
+        return lastRegisteredUsbProfileName;
+    }
+
+    static String getLastRegisteredUsbIpAddressForTesting() {
+        return lastRegisteredUsbIpAddress;
+    }
+
+    static String getLastRegisteredUsbHostnameForTesting() {
+        return lastRegisteredUsbHostname;
+    }
+
+    static String getLastRegisteredUsbTailnetHostnameForTesting() {
+        return lastRegisteredUsbTailnetHostname;
+    }
+
+    static boolean isUsbStateInitializedForTesting() {
+        return usbStateInitialized;
     }
 
     static String sanitizeUrl(String rawUrl) {
