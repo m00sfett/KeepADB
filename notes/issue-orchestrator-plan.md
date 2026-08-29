@@ -4978,3 +4978,59 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   erteilt; der Review läuft als separates Gate.
 - **Zustand:** `in_progress` bis zum Abschluss des unabhängigen Reviews; #196 bleibt extern offen.
 - **plan_updated_at:** 2026-08-29T23:00:00+02:00
+
+## Issue #196 — unabhängiger S2-Review und Scope-Reparatur 2026-08-29
+
+- **Bearbeiter/Paket:** Subagent `Pauli`, `review and repair`, Paketstufe S2. Der Start wurde
+  ausdrücklich freigegeben und mit `gpt-5.6-luna` / `max` konfiguriert; der tatsächlich aktive
+  Laufzeitwert ist nicht separat beobachtbar.
+- **Snapshot:** `gh issue view 196` bestätigte den offenen Issue-Text (Stand
+  `2026-08-29T18:51:37Z`). Nach `git fetch origin master` standen `master` und `origin/master`
+  auf `073be99ee014accbbb8644c5493957e91ae49505`; der Arbeitsbaum war vor der Reparatur
+  sauber. Kein PR, kein Workflow-Run und keine Geräteaktion.
+- **Gegenrichtung des Aufrufers:** `KeepADBTileService.onStartListening()` ist im Manifest als
+  normaler, nicht-aktiver TileService registriert und registriert die lauschende Instanz vor
+  `KeepADBNotification.refresh(this)`. Discovery wird außerdem durch Activity-, Widget-,
+  ContentObserver-, Service- und Recovery-Pfade angestoßen. `refreshListeningTile()` wird nur
+  von Discovery-Rückrufen bzw. UI-/Widget-Refreshes erreicht und verwirft fehlende oder nicht
+  mehr lauschende Instanzen. Nach `onStopListening()` kann der globale Discovery-/Retry-Pfad
+  jedoch weiterlaufen; seine späten globalen Notification-/Register-Nebenwirkungen ändern die
+  verworfene Kachel nicht.
+- **Android-Claim geprüft:** Die Fresh-Process-Aussage ist nur für eine sichtbare normale
+  Kachel beim Öffnen der Quick Settings gedeckt. Sie ist keine pauschale Garantie für jeden
+  Prozessstart und gilt nicht für den früher verwendeten `ACTIVE_TILE`-Pfad. Der frühere
+  Abschlussabschnitt mit `ACTIVE_TILE`/`requestListeningState()` ist als historische, durch #198
+  überholte Behauptung zu lesen; der aktuelle Bestand entfernt diese Metadaten.
+- **Finding F1 — Medium / Muss-Fix:** Der Generation-Guard schützte zuvor nur Cache- und
+  Listener-Zustand. Zwischen Guard und den nachgelagerten `show()`-, Register- und Listener-
+  Aufrufen konnte `invalidateEndpoint()` oder `stop()` die Generation erhöhen; ein alter
+  Callback konnte dadurch Endpoint-Daten weiter veröffentlichen. Reparatur in
+  `KeepADBNotification.java`: die gesamte gemeinsame Publikation bleibt bis zum Ende des
+  Generation-geschützten Locks atomar; `refreshListeningTile()` läuft danach außerhalb des
+  Locks, um die Lock-Reihenfolge mit dem Tile-Service nicht zu verkeilen.
+- **Finding F2 — Medium / Muss-Fix:** Cache-Löschung über Invalidierung, Deaktivierung oder
+  Reachability-Prüfung aktualisierte eine lauschende Kachel nicht zuverlässig. Reparatur in
+  `KeepADBNotification.java`: nachgelagerter Main-Handler-Refresh in diesen Löschpfaden; die
+  bestehende Lifecycle-Prüfung verhindert dabei Updates nach `onStopListening()`/`onDestroy()`.
+- **Test-Reparatur/Nachweis:** `KeepADBTileDiscoveryContractTest` umfasst nun zusätzlich den
+  Abbruch vor Discovery bei deaktiviertem Wireless Debugging, die generation-geschützte
+  Publikation außerhalb/innerhalb des Locks sowie Timeout-, Resolve- und mDNS-Fehlerpfade.
+  Fokussierter Lauf nach der Reparatur: `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew
+  testDebugUnitTest --tests de.hohnepeople.keepadb.KeepADBTileDiscoveryContractTest` — grün,
+  12 Tests. Danach wurde `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erneut erfolgreich
+  ausgeführt; Unit-Tests, Lint sowie Debug-/Release-Build sind grün.
+- **Folgeissue #200:** Ein Tile-Start kann ohne Keep-Alive globale
+  Discovery-Retries und nach Timeout sogar den bestehenden Recovery-Puls auslösen, obwohl
+  `onStopListening()` bereits gelaufen ist. Eine saubere Kapselung (Aufruferbesitz,
+  Cancel-/Referenzzählungsregeln und Entscheidung über automatische Recovery aus einem
+  sichtbarkeitsgebundenen Tile-Callback) würde die Architektur erweitern und gehört nicht in
+  #196. Issue [#200](https://github.com/m00sfett/KeepADB/issues/200) wurde angelegt, auf Project
+  #8 synchronisiert und per `github-drift` ohne Befund nachgelesen.
+- **Vollständigkeit des Issue-Texts:** Die Kernreproduktion und das Ziel sind abgedeckt; die
+  Sichtbarkeitsvoraussetzung des normalen TileService, die Instanz-/Late-Callback-Regel und die
+  Generation-Atomizität fehlten. Diese Lücken sind im Review-Nachweis dokumentiert, nicht durch
+  eine Änderung des externen Issue-Texts.
+- **Zustand:** `complete` für den autorisierten lokalen Review und die Scope-Reparatur; #196 bleibt
+  extern offen. Der Code-/Teststand ist noch uncommitted; kein PR, GitHub-Action-Lauf oder
+  Issue-Schluss für #196.
+- **plan_updated_at:** 2026-08-29T23:03:18+02:00
