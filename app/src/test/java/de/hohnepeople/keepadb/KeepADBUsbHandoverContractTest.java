@@ -52,10 +52,20 @@ public class KeepADBUsbHandoverContractTest {
         // Keep-Alive decision, so a second independent reader of it can be silently starved by
         // that consume() -- confirmed on real hardware (manual off -> content observer's
         // consumeUserDisabled() -> later genuine USB reconnect wrongly re-enabled WLAN-ADB).
-        assertTrue(body.contains("KeepADB.wasLastExplicitIntentOff()"));
+        assertTrue(body.contains("KeepADB.wasLastExplicitIntentOff(appContext)"));
         assertFalse(body.contains("KeepADB.isUserDisabled()"));
         assertTrue(body.contains("KeepADB.isEnabled(appContext)"));
         assertTrue(handover.contains("USB_WLAN_HANDOVER_MODE_AUTOMATIC.equals(mode)"));
+    }
+
+    @Test
+    public void endpointRecoveryPulseUsesNonConsumingIntentCheck() throws IOException {
+        String endpoint = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
+        int methodStart = endpoint.indexOf("private void maybeSendRecoveryPulse(long generation)");
+        int methodEnd = findMatchingBraceEnd(endpoint, endpoint.indexOf('{', methodStart));
+        String body = endpoint.substring(methodStart, methodEnd);
+        assertTrue(body.contains("KeepADB.wasLastExplicitIntentOff(appContext)"));
+        assertFalse(body.contains("KeepADB.isUserDisabled()"));
     }
 
     @Test
