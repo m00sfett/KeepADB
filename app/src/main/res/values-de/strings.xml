@@ -80,6 +80,8 @@
     <string name="settings_section_usb_notification">USB-ADB-Benachrichtigung</string>
     <string name="settings_usb_notification_toggle">USB-ADB-Benachrichtigung anzeigen</string>
     <string name="settings_usb_notification_subtext">Zeigt bei aktivem USB-Debugging eine separate Benachrichtigung. Der Host wird manuell ausgewählt.</string>
+    <string name="settings_usb_profile_notification_toggle">Hostprofil in Benachrichtigung anzeigen</string>
+    <string name="settings_usb_profile_notification_subtext">Zeigt das ausgewählte Hostprofil und Endpunkte in der USB-ADB-Benachrichtigung an.</string>
     <string name="usb_notification_channel_name">USB-ADB-Verbindung</string>
     <string name="usb_notification_channel_desc">Das aktive USB-ADB-Hostprofil</string>
     <string name="usb_notification_title">USB-ADB aktiv</string>

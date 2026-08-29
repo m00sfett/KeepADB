@@ -74,6 +74,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_usb_notification">USB-ADB notification</string>
     <string name="settings_usb_notification_toggle">Show USB-ADB notification</string>
     <string name="settings_usb_notification_subtext">Show a separate notification while USB debugging is active. The host is selected manually.</string>
+    <string name="settings_usb_profile_notification_toggle">在通知中顯示主機設定檔</string>
+    <string name="settings_usb_profile_notification_subtext">在 USB-ADB 通知中顯示所選主機設定檔與端點。</string>
     <string name="usb_notification_channel_name">USB-ADB connection</string>
     <string name="usb_notification_channel_desc">The active USB-ADB host profile</string>
     <string name="usb_notification_title">USB-ADB active</string>
