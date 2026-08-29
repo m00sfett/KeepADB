@@ -142,6 +142,51 @@ public class KeepADBUsbProfileTest {
         assertFalse(preferences.contains("usb_profile_" + only.id + "_tailnet"));
     }
 
+    @Test
+    public void isProfileNotificationEnabledDefaultsToTrueWhenUnset() {
+        MemoryPreferences preferences = new MemoryPreferences();
+        TestContext context = new TestContext(preferences);
+
+        assertTrue(KeepADBUsbProfile.isProfileNotificationEnabled(context));
+        assertFalse(preferences.contains(KeepADBUsbProfile.KEY_PROFILE_NOTIFICATION_ENABLED));
+    }
+
+    @Test
+    public void setProfileNotificationEnabledPersistsAcrossRestarts() {
+        MemoryPreferences preferences = new MemoryPreferences();
+        TestContext context = new TestContext(preferences);
+
+        KeepADBUsbProfile.setProfileNotificationEnabled(context, false);
+        assertFalse(KeepADBUsbProfile.isProfileNotificationEnabled(context));
+        assertTrue(preferences.contains(KeepADBUsbProfile.KEY_PROFILE_NOTIFICATION_ENABLED));
+
+        TestContext restartedContext = new TestContext(preferences);
+        assertFalse(KeepADBUsbProfile.isProfileNotificationEnabled(restartedContext));
+
+        KeepADBUsbProfile.setProfileNotificationEnabled(restartedContext, true);
+        assertTrue(KeepADBUsbProfile.isProfileNotificationEnabled(restartedContext));
+    }
+
+    @Test
+    public void profileNotificationEnabledIsIndependentFromNotificationEnabledAndProfiles() {
+        MemoryPreferences preferences = new MemoryPreferences();
+        TestContext context = new TestContext(preferences);
+
+        KeepADBUsbProfile.setNotificationEnabled(context, true);
+        KeepADBUsbProfile.setProfileNotificationEnabled(context, false);
+        KeepADBUsbProfile.Profile profile = KeepADBUsbProfile.add(context, "Host", "10.0.0.1", "host.lan", "host.ts");
+
+        assertTrue(KeepADBUsbProfile.isNotificationEnabled(context));
+        assertFalse(KeepADBUsbProfile.isProfileNotificationEnabled(context));
+        assertEquals(1, KeepADBUsbProfile.getProfiles(context).size());
+        assertEquals(profile.id, KeepADBUsbProfile.getSelected(context).id);
+
+        KeepADBUsbProfile.delete(context, profile.id);
+        assertTrue(KeepADBUsbProfile.getProfiles(context).isEmpty());
+        assertTrue(KeepADBUsbProfile.isNotificationEnabled(context));
+        assertFalse(KeepADBUsbProfile.isProfileNotificationEnabled(context));
+    }
+
     private static KeepADBUsbProfile.Profile find(Context context, int id) {
         for (KeepADBUsbProfile.Profile profile : KeepADBUsbProfile.getProfiles(context)) {
             if (profile.id == id) return profile;

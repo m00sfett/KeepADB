@@ -24,6 +24,7 @@ public class SettingsActivity extends Activity {
 
     private Switch hideNotificationToggle;
     private Switch usbNotificationToggle;
+    private Switch usbProfileNotificationToggle;
     private TextView usbProfileSummary;
     private Button usbProfileAction;
 
@@ -65,10 +66,16 @@ public class SettingsActivity extends Activity {
         });
 
         usbNotificationToggle = findViewById(R.id.settings_usb_notification_toggle);
+        usbProfileNotificationToggle = findViewById(R.id.settings_usb_profile_notification_toggle);
         usbProfileSummary = findViewById(R.id.settings_usb_profile_summary);
         usbProfileAction = findViewById(R.id.settings_usb_profile_action);
         usbNotificationToggle.setOnClickListener(v -> {
             KeepADBUsbProfile.setNotificationEnabled(this, usbNotificationToggle.isChecked());
+            KeepADBUsbReceiver.refresh(this);
+            refresh();
+        });
+        usbProfileNotificationToggle.setOnClickListener(v -> {
+            KeepADBUsbProfile.setProfileNotificationEnabled(this, usbProfileNotificationToggle.isChecked());
             KeepADBUsbReceiver.refresh(this);
             refresh();
         });
@@ -390,6 +397,7 @@ public class SettingsActivity extends Activity {
         hideNotificationToggle.setChecked(notificationHidden);
 
         usbNotificationToggle.setChecked(KeepADBUsbProfile.isNotificationEnabled(this));
+        usbProfileNotificationToggle.setChecked(KeepADBUsbProfile.isProfileNotificationEnabled(this));
         KeepADBUsbProfile.Profile selectedProfile = KeepADBUsbProfile.getSelected(this);
         usbProfileSummary.setText(selectedProfile == null
                 ? getString(R.string.usb_profile_none)

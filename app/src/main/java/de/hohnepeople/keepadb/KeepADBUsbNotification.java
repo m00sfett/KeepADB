@@ -76,27 +76,46 @@ final class KeepADBUsbNotification {
     }
 
     private static Notification build(Context context, boolean handoverActionVisible) {
-        List<KeepADBUsbProfile.Profile> profiles = KeepADBUsbProfile.getProfiles(context);
-        KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.getSelected(context);
-        String profileText = selected == null
-                ? context.getString(R.string.usb_notification_no_profile)
-                : selected.summary();
-        String contentText = (handoverActionVisible && lastHandoverActionFailed)
-                ? context.getString(R.string.usb_notification_handover_error)
-                : profileText;
+        boolean profileNotificationEnabled = KeepADBUsbProfile.isProfileNotificationEnabled(context);
+        String contentText;
+        PendingIntent contentIntent;
+
         Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(context.getString(R.string.usb_notification_title))
-                .setContentText(contentText)
                 .setOngoing(true)
-                .setCategory(Notification.CATEGORY_STATUS)
-                .setContentIntent(profileIntent(context, profiles.isEmpty() ? ACTION_CREATE : ACTION_SWITCH));
-        if (profiles.isEmpty()) {
-            builder.addAction(action(context, R.string.usb_notification_create_profile, ACTION_CREATE));
+                .setCategory(Notification.CATEGORY_STATUS);
+
+        if (profileNotificationEnabled) {
+            List<KeepADBUsbProfile.Profile> profiles = KeepADBUsbProfile.getProfiles(context);
+            KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.getSelected(context);
+            String profileText = selected == null
+                    ? context.getString(R.string.usb_notification_no_profile)
+                    : selected.summary();
+            contentText = (handoverActionVisible && lastHandoverActionFailed)
+                    ? context.getString(R.string.usb_notification_handover_error)
+                    : profileText;
+            contentIntent = profileIntent(context, profiles.isEmpty() ? ACTION_CREATE : ACTION_SWITCH);
+            builder.setContentText(contentText)
+                    .setContentIntent(contentIntent);
+            if (profiles.isEmpty()) {
+                builder.addAction(action(context, R.string.usb_notification_create_profile, ACTION_CREATE));
+            } else {
+                builder.addAction(action(context, R.string.usb_notification_switch_profile, ACTION_SWITCH));
+                builder.addAction(action(context, R.string.usb_notification_new_profile, ACTION_CREATE));
+            }
         } else {
-            builder.addAction(action(context, R.string.usb_notification_switch_profile, ACTION_SWITCH));
-            builder.addAction(action(context, R.string.usb_notification_new_profile, ACTION_CREATE));
+            contentText = (handoverActionVisible && lastHandoverActionFailed)
+                    ? context.getString(R.string.usb_notification_handover_error)
+                    : context.getString(R.string.usb_notification_title);
+            Intent intent = new Intent(context, SettingsActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            contentIntent = PendingIntent.getActivity(context, 0, intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            builder.setContentText(contentText)
+                    .setContentIntent(contentIntent);
         }
+
         if (handoverActionVisible) {
             builder.addAction(handoverAction(context));
         }

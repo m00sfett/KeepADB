@@ -4424,3 +4424,71 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   - #185: `chore: harden USB->WLAN-ADB handover edge cases` (S2/S3, offen)
   - #181: `test: OEM-Fallback...` (zurückgestellt bis 2. OEM-Gerät verfügbar)
 - **Status:** Paket #173 erfolgreich abgeschlossen.
+
+## Issue #171 — Paket-Auswahl & Vorbereitung (2026-08-29)
+
+- **Issue:** [#171](https://github.com/m00sfett/KeepADB/issues/171) `feat: Decouple USB-ADB notification from host-profile display`
+- **Issue-Snapshot:** 2026-08-29T02:54:00+02:00 (4 offene Issues: #171, #181, #183, #185)
+- **Ziel:** Die USB-ADB-Benachrichtigung und die Anzeige des zugeordneten Hostprofils müssen unabhängig voneinander einstellbar sein.
+- **Problem & Lösung:**
+  - Bislang steuert die Einstellung „USB-ADB-Benachrichtigung anzeigen“ zugleich die Benachrichtigung selbst und die Anzeige des Hostprofils inkl. Aktionen.
+  - Entkopplung durch zwei separate, unabhängig persistierte Schalter:
+    1. `settings_usb_notification_toggle`: „USB-ADB-Benachrichtigung anzeigen“ (`usb_notification_enabled`, Default: `false`)
+    2. `settings_usb_profile_notification_toggle`: „Hostprofil in USB-ADB-Benachrichtigung anzeigen“ (`usb_profile_notification_enabled`, Default: `true` rückwärtskompatibel)
+- **Verhalten der 4 Kombinationen:**
+  1. `USB-Notification=AUS`, `Profilanzeige=AUS`: Keine USB-ADB-Notification.
+  2. `USB-Notification=AUS`, `Profilanzeige=AN`: Keine USB-ADB-Notification.
+  3. `USB-Notification=AN`, `Profilanzeige=AUS`: Generische USB-ADB-Notification („USB-ADB aktiv“), keine Profilnamen, Hostfelder oder Profil-Aktionen („Profil wechseln“, „Neues Profil“). Handover-Action (sofern konfiguriert und anwendbar) bleibt verfügbar.
+  4. `USB-Notification=AN`, `Profilanzeige=AN`: Bisheriges Vollverhalten (Profilzusammenfassung, Profilaktionen).
+- **Umfang:**
+  - `KeepADBUsbProfile.java`: Getter/Setter `isProfileNotificationEnabled(Context)` & `setProfileNotificationEnabled(Context, boolean)` mit Default `true` (`KEY_PROFILE_NOTIFICATION_ENABLED = "usb_profile_notification_enabled"`).
+  - `SettingsActivity.java` & `activity_settings.xml`: Zweiter Schalter in der USB-ADB-Sektion, Verknüpfung mit Preference und sofortiger `KeepADBUsbReceiver.refresh(this)`-Aufruf bei Änderung. Profilverwaltung in den Einstellungen bleibt in allen Kombinationen voll nutzbar.
+  - `KeepADBUsbNotification.java`: Berücksichtigung von `isProfileNotificationEnabled(context)`. Bei deaktivierter Profilanzeige Unterdrückung von Profil-Summary, ContentIntent mit Profil-Action und Profil-Buttons.
+  - Lokalisierung: Neue Strings `settings_usb_profile_notification_toggle` und `settings_usb_profile_notification_subtext` in allen 19 Lokalisierungen (`values*`).
+  - Tests: Contract- und Unit-Tests für alle 4 Kombinationen, Default-Werte, Persistenz und Accessibility in `KeepADBUsbProfileTest.java`, `KeepADBUsbNotificationTest.java` / `KeepADBUsbHandoverContractTest.java`, `KeepADBAccessibilityContractTest.java`.
+- **Nicht-Ziele:**
+  - Keine Änderung an der lokalen Profilverwaltung oder Profil-CRUD-Logik.
+  - Keine automatische Hostidentifikation.
+  - Keine Änderung an WLAN-Webhook oder Erreichbarkeitsregister.
+  - Keine Beeinflussung von WLAN-ADB-Notification oder WLAN-Einstellungen.
+- **Stufe & Tier:** S2 (`flash` / `inherit`).
+- **Gates:**
+  - Lokale Gates: `./bin/verify` (`git diff --check`, `testDebugUnitTest`, `lintDebug`, `assembleDebug`, `assembleRelease`).
+  - Optionales Geräte-Gate: S20-Hardwaretest via `android-target s20` (Prüfung der sichtbaren Notification-Texte).
+- **Status:** Vorbereitet für Freigabeabfrage / Implementierung.
+
+## Issue #171 — Implementierung & Verifikation (2026-08-29)
+
+- **Bearbeiter:** Subagent `Implementer Issue 171`, Stufe S2, Modell `flash` (konfiguriert).
+- **Umsetzung:**
+  - `KeepADBUsbProfile.java`: `KEY_PROFILE_NOTIFICATION_ENABLED = "usb_profile_notification_enabled"`, `isProfileNotificationEnabled(Context)` mit abwärtskompatiblem Default `true` und `setProfileNotificationEnabled(Context, boolean)`.
+  - `KeepADBUsbNotification.java`: Entkopplung in `build(Context, boolean)`:
+    - Bei `profileNotificationEnabled=true`: Vollständige Anzeige (Profilsummary, Content-Intent mit Profil-Action, Profil-Action-Buttons `ACTION_CREATE`/`ACTION_SWITCH`).
+    - Bei `profileNotificationEnabled=false`: Neutrale Meldung (`R.string.usb_notification_title`), Content-Intent ohne Profil-Extras, keine Profil-Buttons; keine Leakage von Profil-/Hostnamen.
+    - In beiden Fällen: Handover-Aktion (aus #168) und Handover-Fehleranzeige bleiben bei Bedarf voll funktionsfähig.
+  - `SettingsActivity.java` & `activity_settings.xml`: Zweiter Switch `settings_usb_profile_notification_toggle` (minHeight 48dp) mit Beschreibung `settings_usb_profile_notification_subtext`. Live-Aktualisierung über `KeepADBUsbReceiver.refresh(this)` und UI-Refresh.
+  - Lokalisierung: Neue Strings in allen 19 `res/values*/strings.xml` Lokalisierungsdateien ergänzt.
+  - Testabdeckung: Unit-Tests in `KeepADBUsbProfileTest.java`, Contract-Tests für alle 4 Kombinationen in `KeepADBUsbHandoverContractTest.java`, Lokalisierungs- und Accessibility-Contracts in `KeepADBAccessibilityContractTest.java`.
+- **Validierungs-Nachweis:** `./bin/verify` erfolgreich:
+  - `git diff --check`: sauber
+  - `testDebugUnitTest`: 96/96 Tests bestanden (0 Fehler)
+  - `lintDebug` & `lintVitalRelease`: 0 Fehler / sauber
+  - `assembleDebug` & `assembleRelease`: erfolgreich gebaut
+- **Status:** Implementierung & lokale Gates erfolgreich abgeschlossen.
+
+## Issue #171 — Review & Abnahme (2026-08-29)
+
+- **Review:**
+  - Bearbeiter: Subagent `Reviewer Issue 171`, Stufe S2, Modell `flash` (konfiguriert).
+  - Modus: `review and repair`.
+  - Ergebnis: **APPROVED** (alle 9 formulierten Akzeptanz-Claims verifiziert, 0 Findings, 0 Reparaturen erforderlich).
+- **Geräte-Abnahme (physisches S20 FE / SM-G780G via RF8T307S88H, USB-ADB):**
+  - Fingerprint validiert: `samsung/r8qeea/r8q:13/TP1A.220624.014/G780GXXSHEYJ1:user/release-keys`.
+  - Installation Debug-APK (`app-debug.apk`) via `install -r` erfolgreich.
+  - UI-Test: `SettingsActivity` zeigt beide Schalter (`settings_usb_notification_toggle` und `settings_usb_profile_notification_toggle`) mit 48dp Mindesthöhe und Texten sauber an.
+  - Live-Notification-Prüfung (`dumpsys notification`):
+    - **Kombination A (USB-Notification AN, Profil AN):** `id=2` aktiv mit `actions=2` (Profil-Aktionsbuttons `Profil wechseln` & `Neues Profil`).
+    - **Kombination B (USB-Notification AN, Profil AUS):** Schalter per UI getoggelt -> `id=2` aktualisiert sich sofort ohne App-Neustart auf `actions=0` (keinerlei Profil-Aktionsbuttons oder Profiltexte angehängt).
+    - **Roundtrip & Restore:** Schalter wieder auf AN gesetzt -> `id=2` stellt `actions=2` sofort wieder her.
+- **Validierung:** `./bin/verify` erfolgreich (96/96 Tests grün, Lint 0 Fehler, Debug/Release APKs gebaut).
+- **Status:** Vollständig verifiziert (Code, Review & echte Hardware) und bereit für Commit / PR / Merge (`Fixes #171`).
