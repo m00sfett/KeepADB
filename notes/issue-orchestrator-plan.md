@@ -4957,6 +4957,23 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Freigabestatus:** Auswahl und Planpflege sind erfolgt. Für Implementierung, lokale Tests/
   Builds sowie einen unabhängigen S2-Review fehlt eine typisierte ausdrückliche Freigabe;
   Commit, Push, PR/Merge und Issue-Schließung bleiben ebenfalls ausgenommen.
-- **Zustand:** `not approved` für die nächste Umsetzung/Abnahme; Auswahl abgeschlossen.
+- **Freigabestatus:** Nutzerfreigabe für das #196-Paket, lokale Gates und den unabhängigen
+  S2-Review erteilt. Geräteaktionen, GitHub Actions und der externe PR-/Issue-Lifecycle bleiben
+  ausgenommen.
+- **Zustand:** `in_progress` für die lokale Prüfung und Abnahmevorbereitung.
 - **issue_snapshot_at:** 2026-08-29T22:45:00+02:00
 - **plan_updated_at:** 2026-08-29T22:45:00+02:00
+
+## Issue #196 — lokale Gate-Prüfung 2026-08-29
+
+- **Codeabgleich:** Der aktuelle `master` enthält aus #198 den normalen, nicht-aktiven
+  `TileService`, `onStartListening()` mit Registrierung vor `KeepADBNotification.refresh(this)`
+  sowie die Entfernung von `ACTIVE_TILE`. Der Discovery-Callback aktualisiert den gecachten
+  Endpoint vor `refreshListeningTile()`; Lifecycle- und Generation-Guards verwerfen ungültige
+  bzw. späte Callbacks. Damit ist der #196-Codepfad im aktuellen Bestand vorhanden.
+- **Lokale Gates:** `git diff --check` und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`
+  erfolgreich. Enthalten: Unit-Tests, Lint sowie Debug- und Release-Build.
+- **Nicht nachgewiesen:** unabhängiger S2-Review, Geräteabnahme und externer PR-/Issue-Abschluss.
+  Für den Review ist eine eigene Freigabe mit konkreter Stufe und Konfiguration erforderlich.
+- **Zustand:** `complete` für den freigegebenen lokalen Prüfanteil; #196 bleibt extern offen.
+- **plan_updated_at:** 2026-08-29T22:55:00+02:00
