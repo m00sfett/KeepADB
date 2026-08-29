@@ -4925,3 +4925,38 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   wird. Die Review-Reparatur fand zwei reale Befunde, die lokalem Build allein entgangen wären.
 - **Zustand:** `complete` für Issue #198 und den autorisierten PR-Lifecycle.
 - **plan_updated_at:** 2026-08-29T22:35:00+02:00
+
+## Orchestrator-Lauf — Auswahl-/Delta-Checkpoint 2026-08-29 (erneut)
+
+- **Plan-first/Delta:** Der gespeicherte Snapshot verwies noch auf #198 als offen. Read-only-
+  GitHub-Abgleich am 2026-08-29 bestätigt #198 als geschlossen und gemergt; offen sind #196 und
+  #197. Es gibt keinen offenen PR, keinen aktiven Workflow-Run und keinen Branch-Protection-Gate.
+- **CI-/Board-Status:** Workflow `CI` bleibt `workflow_dispatch`; es wurde kein Run gestartet.
+  `github-drift --repo m00sfett/KeepADB` meldet Repository und Project #8 übereinstimmend.
+- **Roadmap-Abgleich (wörtlich):** „Review-Folgeissues“. Das ausgewählte Paket #196 dient diesem
+  Ziel direkt, weil es der noch offene Review-Befund zum Tile-only-Einstieg ist; #198 hat dafür
+  bereits die beschlossene normale TileService-Architektur in `master` umgesetzt.
+- **Ausgewähltes Paket:** Issue #196 — `fix: Quick Settings Tile muss Endpoint-Discovery beim
+  Start anstoßen`.
+- **Ziel:** Den noch offenen Issue-/PR-Abschluss für den nun implementierten normalen Tile-
+  Lifecycle gegen #196 abgleichen und nur fehlende Nachweise oder einen minimalen, klar
+  begrenzten Restfix ergänzen.
+- **Zusammenhang:** #196 und #198 teilen den Tile-/Notification-/Discovery-Pfad; #197 bleibt
+  getrennt, da Activity-/Widget-Callback-Updates eine eigene Aufruf- und Abnahmgrenze haben.
+- **Nicht-Ziele:** keine Änderung an Zustandsdefinition, Toggle-Semantik, Keep-Alive,
+  Endpoint-Protokoll oder persistenter Zustandsablage; keine Geräteaktion und kein GitHub-
+  Workflow-Run in diesem Auswahl-/Delta-Lauf.
+- **Aktueller Bestand:** `master` und `origin/master` stehen sauber auf `768ac60`; der aktuelle
+  Code enthält die in #198 gemergten Lifecycle-Guards und Contract-Tests. `AGENTS.md` ist nicht
+  versioniert und es wurden keine unzusammenhängenden Arbeitsbaumänderungen festgestellt.
+- **Paketstufe:** S2 für den lokalen Abgleich bzw. einen möglichen kleinen Restfix; eine
+  Architekturänderung ist durch #198 erledigt und nicht Teil dieses Pakets.
+- **Minimale Gates nach Freigabe:** gezielter Tile-/Discovery-Contract-Test, anschließend
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`; ein Gerätegate ist für #196 nicht als
+  neue Aktion eingeplant, sofern keine ungeprüfte Akzeptanz behauptet werden soll.
+- **Freigabestatus:** Auswahl und Planpflege sind erfolgt. Für Implementierung, lokale Tests/
+  Builds sowie einen unabhängigen S2-Review fehlt eine typisierte ausdrückliche Freigabe;
+  Commit, Push, PR/Merge und Issue-Schließung bleiben ebenfalls ausgenommen.
+- **Zustand:** `not approved` für die nächste Umsetzung/Abnahme; Auswahl abgeschlossen.
+- **issue_snapshot_at:** 2026-08-29T22:45:00+02:00
+- **plan_updated_at:** 2026-08-29T22:45:00+02:00
