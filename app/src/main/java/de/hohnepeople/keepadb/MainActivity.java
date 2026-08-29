@@ -134,6 +134,7 @@ public class MainActivity extends Activity {
         KeepADBService.sync(this);
         refresh();
         KeepADBNotification.refresh(this);
+        KeepADBUsbReceiver.refresh(this);
         // The webhook POST/DELETE round-trip runs on a background thread well after refresh()
         // above returns, so the displayed status would otherwise stay stale until the next
         // unrelated refresh() call (#118).
@@ -233,6 +234,7 @@ public class MainActivity extends Activity {
         refresh();
         KeepADBWidget.refreshAll(this);
         KeepADBNotification.refresh(this);
+        KeepADBUsbReceiver.refresh(this);
     }
 
     private void showPermissionErrorToast() {

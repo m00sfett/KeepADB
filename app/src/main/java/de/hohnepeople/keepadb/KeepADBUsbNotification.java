@@ -32,18 +32,20 @@ final class KeepADBUsbNotification {
 
     static void refresh(Context context, boolean connected) {
         Context appContext = context.getApplicationContext();
-        NotificationManager manager = appContext.getSystemService(NotificationManager.class);
-        if (manager == null) return;
-        ensureChannel(appContext, manager);
-
         if (connected) {
             KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.getSelected(appContext);
             if (selected != null) {
                 KeepADBRegisterClient.updateUsbEndpointAsync(appContext, selected);
+            } else {
+                KeepADBRegisterClient.markUsbInactiveAsync(appContext);
             }
         } else {
             KeepADBRegisterClient.markUsbInactiveAsync(appContext);
         }
+
+        NotificationManager manager = appContext.getSystemService(NotificationManager.class);
+        if (manager == null) return;
+        ensureChannel(appContext, manager);
 
         boolean handoverActionVisible = connected
                 && KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL.equals(

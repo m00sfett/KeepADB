@@ -35,9 +35,14 @@ public final class KeepADBUsbReceiver extends BroadcastReceiver {
     }
 
     static void refresh(Context context) {
-        IntentFilter filter = new IntentFilter(ACTION_USB_STATE);
-        Intent state = context.registerReceiver(null, filter);
-        refresh(context, isUsbAdbConnected(state));
+        if (context == null) return;
+        try {
+            IntentFilter filter = new IntentFilter(ACTION_USB_STATE);
+            Intent state = context.registerReceiver(null, filter);
+            refresh(context, isUsbAdbConnected(state));
+        } catch (Exception e) {
+            refresh(context, false);
+        }
     }
 
     private static void refresh(Context context, boolean connected) {

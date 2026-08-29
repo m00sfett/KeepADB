@@ -36,6 +36,7 @@ public class KeepADBService extends Service {
                         ? "start_requested" : "stop_requested",
                 "keepAlive=" + KeepADBPreferences.isKeepAliveEnabled(context)
                         + " adbWifi=" + KeepADB.isEnabled(context));
+        KeepADBUsbReceiver.refresh(context);
         if (KeepADBPreferences.isKeepAliveEnabled(context) && KeepADB.isEnabled(context)) {
             start(context);
         } else {
@@ -79,6 +80,7 @@ public class KeepADBService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        KeepADBUsbReceiver.refresh(this);
         long lastHeartbeat = KeepADBPreferences.getServiceLastHeartbeat(this);
         if (lastHeartbeat > 0) {
             long gapMs = System.currentTimeMillis() - lastHeartbeat;
