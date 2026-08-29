@@ -38,7 +38,13 @@ final class KeepADBNotification {
         void onUnavailable();
     }
 
-    private KeepADBNotification() {}
+    static synchronized String getCurrentHost() {
+        return currentHost;
+    }
+
+    static synchronized int getCurrentPort() {
+        return currentPort;
+    }
 
     static synchronized void setEndpointListener(EndpointListener listener) {
         endpointListener = listener;

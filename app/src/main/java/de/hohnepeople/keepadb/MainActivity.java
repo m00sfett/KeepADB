@@ -166,8 +166,9 @@ public class MainActivity extends Activity {
     }
 
     private void refresh() {
-        boolean configured = hasSecureSettingsPermission();
-        boolean on = KeepADB.isEnabled(this);
+        KeepADB.State appState = KeepADB.getState(this);
+        boolean configured = (appState != KeepADB.State.PERMISSION_MISSING);
+        boolean on = (appState == KeepADB.State.ENABLED_CONNECTED || appState == KeepADB.State.ENABLED_DISCONNECTED);
         boolean notificationsDenied = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && !notificationPermissionRequestPending
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
@@ -178,7 +179,15 @@ public class MainActivity extends Activity {
                 ? View.GONE : View.VISIBLE);
         toggle.setEnabled(configured);
         toggle.setChecked(on);
-        status.setText(on ? getString(R.string.status_on) : getString(R.string.status_off));
+        if (!configured) {
+            status.setText(getString(R.string.status_permission_missing));
+        } else if (appState == KeepADB.State.OFF) {
+            status.setText(getString(R.string.status_off));
+        } else if (appState == KeepADB.State.ENABLED_DISCONNECTED) {
+            status.setText(getString(R.string.status_enabled_disconnected));
+        } else {
+            status.setText(getString(R.string.status_on));
+        }
         keepAliveToggle.setEnabled(configured);
         keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
         refreshWebhookStatus();
@@ -234,6 +243,7 @@ public class MainActivity extends Activity {
         refresh();
         KeepADBWidget.refreshAll(this);
         KeepADBNotification.refresh(this);
+        KeepADBTileService.requestRefresh(this);
         KeepADBUsbReceiver.refresh(this);
     }
 
