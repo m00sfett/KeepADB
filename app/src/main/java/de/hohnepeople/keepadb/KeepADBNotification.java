@@ -98,6 +98,7 @@ final class KeepADBNotification {
         if (endpointListener != null) {
             endpointListener.onUnavailable();
         }
+        MAIN_HANDLER.post(KeepADBTileService::refreshListeningTile);
     }
 
     static synchronized void verifyEndpointHealth(Context context) {
@@ -170,6 +171,7 @@ final class KeepADBNotification {
                 cancelRetryLocked();
                 startDiscoveryDirectLocked(appContext, manager);
             }
+            KeepADBTileService.refreshListeningTile();
         }, "KeepADBEndpointVerify").start();
     }
 
@@ -211,49 +213,45 @@ final class KeepADBNotification {
         endpoint.discover(new KeepADBEndpoint.Listener() {
             @Override
             public void onEndpoint(String host, int port) {
-                EndpointListener listener;
                 synchronized (KeepADBNotification.class) {
                     if (requestGeneration != discoveryRequestGeneration) return;
                     currentHost = host;
                     currentPort = port;
                     retryAttempt = 0;
                     cancelRetryLocked();
-                    listener = endpointListener;
+                    show(appContext, manager, host, port);
+                    KeepADBRegisterClient.updateEndpointAsync(appContext, host, port);
+                    if (endpointListener != null) {
+                        endpointListener.onEndpoint(host, port);
+                    }
                 }
                 KeepADBDiagnostics.event(appContext, "endpoint_discovered", "nsd_or_probe", "success",
                         "host=" + host + " port=" + port);
                 KeepADBTileService.refreshListeningTile();
-                if (listener != null) {
-                    listener.onEndpoint(host, port);
-                }
-                show(appContext, manager, host, port);
-                KeepADBRegisterClient.updateEndpointAsync(appContext, host, port);
             }
 
             @Override
             public void onUnavailable() {
-                EndpointListener listener;
                 synchronized (KeepADBNotification.class) {
                     if (requestGeneration != discoveryRequestGeneration) return;
                     currentHost = null;
                     currentPort = 0;
-                    listener = endpointListener;
                     scheduleRetryLocked(appContext, manager);
+                    if (KeepADBPreferences.isKeepAliveEnabled(appContext)) {
+                        showPlaceholder(appContext, manager,
+                                appContext.getString(R.string.notification_title_searching),
+                                appContext.getString(R.string.notification_text_searching));
+                    } else {
+                        manager.cancel(NOTIFICATION_ID);
+                    }
+                    KeepADBRegisterClient.markUnavailableAsync(appContext);
+                    if (endpointListener != null) {
+                        endpointListener.onUnavailable();
+                    }
                 }
                 KeepADBDiagnostics.event(appContext, "endpoint_discovered", "nsd_or_probe", "unavailable",
                         "no_live_endpoint");
                 KeepADBTileService.refreshListeningTile();
-                if (listener != null) {
-                    listener.onUnavailable();
-                }
-                if (KeepADBPreferences.isKeepAliveEnabled(appContext)) {
-                    showPlaceholder(appContext, manager,
-                            appContext.getString(R.string.notification_title_searching),
-                            appContext.getString(R.string.notification_text_searching));
-                } else {
-                    manager.cancel(NOTIFICATION_ID);
-                }
-                KeepADBRegisterClient.markUnavailableAsync(appContext);
             }
         });
     }
@@ -272,6 +270,7 @@ final class KeepADBNotification {
         if (endpointListener != null) endpointListener.onUnavailable();
         manager.cancel(NOTIFICATION_ID);
         KeepADBRegisterClient.markUnavailableAsync(context.getApplicationContext());
+        MAIN_HANDLER.post(KeepADBTileService::refreshListeningTile);
     }
 
     private static void ensureChannel(Context context, NotificationManager manager) {
