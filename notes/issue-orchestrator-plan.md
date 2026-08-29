@@ -4904,3 +4904,24 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Zustand:** `complete` für Implementierung und freigegebene lokale Gates; externe Issue-
   Abnahme, Commit/Push und PR-Lifecycle bleiben offen.
 - **plan_updated_at:** 2026-08-29T22:20:00+02:00
+
+## Issue #198 — PR-Abschluss 2026-08-29
+
+- **Commit/Branch:** Reparierter Stand als `ccfdca0` auf `fix/198-tile-discovery-lifecycle`
+  gepusht.
+- **PR:** #199 eröffnet, gegen den aktuellen Head geprüft und per Squash gemergt; Merge-Commit
+  in `master` ist `b86fc1cbd5b3fc339c5a286764781d4b6f728b7c`.
+- **Issue:** #198 serverseitig geschlossen; alle Kriterien waren vor dem Schließschlüsselwort
+  einzeln durch Review und lokale Gates nachgewiesen.
+- **Nachweise:** 9 fokussierte Tests, Mutation-Gegenprobe und `./bin/verify` erfolgreich; keine
+  Geräteabnahme erforderlich oder ausgeführt; keine GitHub Action gestartet.
+- **Board/Drift:** `github-board-sync` meldet 0 Änderungen; `github-drift` meldet Repository und
+  Project #8 übereinstimmend. Keine offenen PRs; die offenen Issues #196 und #197 bleiben
+  bewusst unberührt.
+- **Arbeitsbaum:** `master` entspricht `origin/master` auf `b86fc1c`; sauber.
+- **Retrospektive:** Die fehlerhafte S2-Modellkonfiguration des Implementierungsagenten wurde
+  durch den freigegebenen unabhängigen S3-Review kompensiert. Für künftige Starts wird die
+  Codex-Stufe direkt gegen das verbindliche Mapping geprüft, bevor ein Subagent konfiguriert
+  wird. Die Review-Reparatur fand zwei reale Befunde, die lokalem Build allein entgangen wären.
+- **Zustand:** `complete` für Issue #198 und den autorisierten PR-Lifecycle.
+- **plan_updated_at:** 2026-08-29T22:35:00+02:00
