@@ -3,7 +3,6 @@
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/License-AGPLv3%20or%20later-blue.svg)](LICENSE)
 [![Android](https://img.shields.io/badge/Android-11%2B%20(API%2030%2B)-green.svg)](https://developer.android.com/about/versions/11)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0%20(Pure%20AOSP)-orange.svg)](#features)
-[![APK Size](https://img.shields.io/badge/APK%20Size-%3C350%20KB-brightgreen.svg)](#features)
 
 A lightweight, zero-dependency Android utility to keep Android's **Wireless Debugging** persistently active and switch it with a single tap — via app, Home Screen Widget, or Quick Settings Tile.
 
@@ -21,6 +20,9 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
 - **Keep-Alive Watchdog**: Automatically restores Wireless Debugging when you reconnect to Wi-Fi, switch access points, or restart your phone.
 - **Live Endpoint Resolution**: Discovers the dynamic port and local IP address (typically within 1-2 seconds) using mDNS as the primary path plus an opportunistic loopback probe, displaying it right in the notification shade.
 - **Webhook Sync & Dev-Automation**: Automatically notifies your local workstation, CI runner, or home server via HTTP whenever Wireless Debugging turns ON or OFF.
+- **USB-ADB Host Profiles**: Shows an optional USB connection notification, associates it with an editable host profile, and can register that host alongside WLAN-ADB endpoints.
+- **USB → WLAN-ADB Handover**: Optionally offers a notification action or automatically enables WLAN-ADB when a new USB debugging connection appears. The feature is off by default and respects a deliberate manual OFF state.
+- **Recovery Diagnostics**: Keeps a small redacted event history on the device and exports it through Android's share sheet when troubleshooting is needed.
 - **No Root Required**: Operates using Android's standard `WRITE_SECURE_SETTINGS` permission granted once via ADB.
 
 ---
@@ -33,11 +35,13 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
   - **Main App**: Clean interface with status readout, keep-alive toggle, and current endpoint details.
 - 🔄 **Keep-Alive Foreground Service**: Keeps Wireless Debugging alive across reboots, network changes, and sleep states.
 - 🔍 **Endpoint Discovery**: mDNS (NSD) is the primary, continuously running discovery path, backed by a quick opportunistic loopback probe for the case where a listener is already up. Typically resolves the active `adbd` port within 1-2 seconds (even with active VPNs like Tailscale).
-- 🌐 **Automated Webhook Integration**: Configure a custom HTTP(S) endpoint (LAN, VPN/Tailscale, or local server) in Settings. KeepADB sends an atomic `POST` with `{"endpoint": "ip:port"}` when enabled and a `DELETE` when disabled — perfect for auto-connecting remote development machines without typing dynamic ports.
+- 🌐 **Automated Webhook Integration**: Configure a custom HTTP(S) endpoint (LAN, VPN/Tailscale, or local server) in Settings. KeepADB reports WLAN-ADB endpoints and optional USB host-profile state for local automation.
 - 📋 **Persistent Notification**: Displays the active connection string (`Port <port> @ <ip>`) for quick reference on your lock screen or notification panel.
-- ⚙️ **Central Settings**: Dedicated settings screen with in-app language switching and optional webhook endpoint configuration.
+- 🔌 **USB-ADB Assistance**: Optional USB notification, editable host profiles, and manual or automatic USB-to-WLAN handover.
+- 🧰 **Diagnostics & Reliability**: Exportable redacted diagnostics, battery-optimization guidance, and a direct notification action to turn off WLAN-ADB.
+- ⚙️ **Central Settings**: Dedicated settings screen with language, notification, USB handover, diagnostics, and optional webhook controls.
 - 🎨 **Adaptive Icon & Theme**: Native adaptive icon (Terminal Prompt + Wi-Fi Broadcast) with Android 13+ Material You monochrome support and a cohesive Dark/Red/Yellow palette using standard system typography.
-- 🛡️ **Zero Runtime Dependencies**: Built purely on native Android AOSP framework APIs — no third-party libraries, no custom font bloat, no trackers, no analytics. Total APK size is **< 350 KB**.
+- 🛡️ **Zero Runtime Dependencies**: Built purely on native Android AOSP framework APIs — no third-party libraries, no custom font bloat, no trackers, and no analytics.
 - 🌍 **Multi-Language**: Full localization for 19 major world languages (English, German, Spanish, French, Portuguese, Italian, Dutch, Polish, Ukrainian, Russian, Turkish, Arabic, Hindi, Simplified & Traditional Chinese, Japanese, Korean, Indonesian, Vietnamese) with native Android 13+ Per-App Language Preferences and RTL support.
 
 ---
@@ -49,7 +53,7 @@ Download the latest APK from the [GitHub Releases](https://github.com/m00sfett/K
 
 Or install manually via USB:
 ```bash
-adb install -r KeepADB-v1.1.0.apk
+adb install -r KeepADB-v1.2.0.apk
 ```
 
 ### 2. Grant Permission (One-Time Setup)
@@ -66,7 +70,7 @@ adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTIN
 - **Quick Settings Tile**: Swipe down your notification shade twice, tap the Edit (pencil) icon, and drag the **KeepADB** tile into your active tiles. Tap to toggle on/off.
 - **Home Widget**: Long-press on your home screen, choose Widgets, and add the **KeepADB** widget.
 - **Persistent Keep-Alive**: Open the KeepADB app and enable **Keep persistently active**. KeepADB will monitor network state and ensure Wireless Debugging stays active.
-- **Settings & Webhook**: Tap **Settings** in the top header to choose your preferred language or configure an optional webhook endpoint for automated dev environments.
+- **Settings**: Tap **Settings** in the top header to configure language, notifications, USB host profiles, USB-to-WLAN handover, diagnostics, battery guidance, or the optional webhook endpoint.
 
 ---
 
@@ -80,16 +84,18 @@ For developers who want their PC, IDE, or CI setup to automatically discover and
    POST /api/adb-register HTTP/1.1
    Content-Type: application/json
 
-   {"endpoint":"192.168.1.50:41234"}
+   {"method":"wlan-adb","endpoint":"192.168.1.50:41234"}
    ```
 3. When Wireless Debugging turns **OFF**, KeepADB sends:
    ```http
    DELETE /api/adb-register HTTP/1.1
-   Content-Type: application/json
-
-   {"endpoint":"192.168.1.50:41234"}
    ```
-4. Cleartext HTTP is supported for private LAN / VPN setups, sensitive query parameters are redacted from logs, and webhook URLs are excluded from Android cloud backups for maximum security.
+4. If a USB connection has a selected host profile, KeepADB sends separate `POST` updates
+   with `method: "usb-adb"`, an Android-provided device ID, the selected profile's name and
+   optional address fields, and `active: true` or `false`.
+   The USB notification is a separate user-visible setting and does not control webhook sync.
+5. Cleartext HTTP is supported for private LAN / VPN setups. Sensitive URL parts are redacted
+   from logs, and webhook URLs are excluded from Android cloud backups.
 
 ---
 
@@ -126,9 +132,13 @@ Published release APKs are signed separately with the project's stable release k
 
 ## Privacy & Security
 
-- **No Internet Telemetry:** KeepADB does not send analytics, crash reports, or personal data to any external server.
+- **No Internet Telemetry:** KeepADB does not send analytics or crash reports to any external server.
 - **No Third-Party SDKs:** 100% open-source code using only Android platform components.
-- **Optional Webhook Sync:** For power users and automated developer setups, an optional custom webhook endpoint can be configured in preferences; by default, no network requests are sent.
+- **Optional Webhook Sync:** By default, no webhook requests are sent. When enabled, KeepADB
+  sends the WLAN-ADB endpoint to the URL configured by the user. USB updates additionally
+  contain an Android-provided device ID, the selected profile fields, and its active state.
+  The device ID and profile data can identify the device or its configured host, so enable the
+  webhook only for an endpoint you trust.
 
 ### Security Considerations & Best Practices for Wireless Debugging
 

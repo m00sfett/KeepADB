@@ -2,12 +2,18 @@ KeepADB keeps Wireless Debugging available across device restarts, Wi-Fi reconne
 
 Toggle Wireless Debugging from the main screen, a Quick Settings tile, or a home-screen widget. An optional foreground service monitors the connection and restores Wireless Debugging when Android disables it. The current address and dynamic port can be shown in a notification, and an optional user-configured webhook can report endpoint changes to a development workstation or local automation service.
 
+When USB debugging is connected, KeepADB can show a separate USB-ADB notification and associate the connection with an editable host profile. If a profile and webhook sync are enabled, it can report an Android-provided device ID, that profile's fields, and its active state to the user-configured endpoint. The device ID and profile data may identify the device or its configured host. KeepADB can optionally offer or automatically perform a USB-to-WLAN-ADB handover. Handover is disabled by default and never overrides a deliberate manual OFF state.
+
 Features:
 * Quick Settings tile, home-screen widget, and main app controls
 * Optional keep-alive service across restarts and network changes
 * Local mDNS and loopback discovery of the active ADB endpoint
 * Optional HTTP(S) webhook, disabled by default
 * Configurable status notification
+* Optional USB-ADB notification and editable host profiles
+* Optional manual or automatic USB-to-WLAN-ADB handover
+* Exportable, redacted recovery diagnostics
+* Battery-optimization guidance for reliable background operation
 * 19 interface languages and right-to-left layout support
 * No advertising, analytics, tracking, or third-party runtime libraries
 
