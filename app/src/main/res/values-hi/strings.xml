@@ -118,4 +118,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_notification_enable_wlan_handover">Enable WLAN-ADB</string>
     <string name="usb_notification_handover_error">Could not enable WLAN-ADB. Check permission.</string>
     <string name="notification_action_disable">Wifi-ADB बंद करें</string>
+    <string name="status_enabled_disconnected">Wireless Debugging is ON (Disconnected)</string>
+    <string name="status_permission_missing">System permission missing</string>
+    <string name="widget_text_disconnected">Wireless Debugging: Disconnected</string>
+    <string name="widget_text_connected_format">Wireless Debugging: ON (:%1$d)</string>
+    <string name="widget_text_permission_missing">KeepADB: Permission missing</string>
+    <string name="tile_state_off">Off</string>
+    <string name="tile_state_disconnected">Disconnected</string>
+    <string name="tile_state_connected">Connected</string>
+    <string name="tile_state_connected_format">%1$s:%2$d</string>
+    <string name="tile_state_permission_missing">Permission missing</string>
 </resources>

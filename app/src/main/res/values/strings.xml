@@ -6,8 +6,10 @@
     <string name="setup_body">KeepADB needs a one-time system permission. Connect this device to your computer by USB with USB debugging enabled, run the command below, then return to KeepADB.</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Check permission</string>
-    <string name="status_on">Wireless Debugging is ON</string>
+    <string name="status_on">Wireless Debugging is ON (Connected)</string>
     <string name="status_off">Wireless Debugging is OFF</string>
+    <string name="status_enabled_disconnected">Wireless Debugging is ON (Disconnected)</string>
+    <string name="status_permission_missing">System permission missing</string>
     <string name="endpoint_format">Endpoint: %1$s:%2$d</string>
     <string name="endpoint_searching">Searching for endpoint…</string>
     <string name="endpoint_unavailable">Endpoint unavailable</string>
@@ -16,7 +18,15 @@
     <string name="keep_alive_subtext">Auto-reconnect on connection drop, network change, or reboot</string>
     <string name="widget_text_on">Wireless Debugging: ON</string>
     <string name="widget_text_off">Wireless Debugging: OFF</string>
+    <string name="widget_text_disconnected">Wireless Debugging: Disconnected</string>
+    <string name="widget_text_connected_format">Wireless Debugging: ON (:%1$d)</string>
+    <string name="widget_text_permission_missing">KeepADB: Permission missing</string>
     <string name="tile_label">@string/app_name</string>
+    <string name="tile_state_off">Off</string>
+    <string name="tile_state_disconnected">Disconnected</string>
+    <string name="tile_state_connected">Connected</string>
+    <string name="tile_state_connected_format">%1$s:%2$d</string>
+    <string name="tile_state_permission_missing">Permission missing</string>
     <string name="tile_permission_error">KeepADB: Permission missing (pm grant required)</string>
     <string name="permission_error_toast">Permission missing. Run once from PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Wireless Debugging Endpoint</string>

@@ -23,7 +23,8 @@ public class KeepADBWidget extends AppWidgetProvider {
         Context localizedContext = KeepADBLocaleHelper.wrapContext(context);
         if (ACTION_TOGGLE.equals(intent.getAction())) {
             KeepADBDiagnostics.event(context, "user_action", "widget", "toggle", "tap");
-            boolean want = !KeepADB.isEnabled(context);
+            KeepADB.State state = KeepADB.getState(context);
+            boolean want = (state == KeepADB.State.OFF);
             if (!KeepADB.setEnabled(context, want, "widget")) {
                 Toast.makeText(context,
                         localizedContext.getString(R.string.permission_error_toast, context.getPackageName()),
@@ -32,15 +33,37 @@ public class KeepADBWidget extends AppWidgetProvider {
             KeepADBService.sync(context);
             refreshAll(context);
             KeepADBNotification.refresh(context);
+            KeepADBTileService.requestRefresh(context);
         }
     }
 
     private void render(Context context, AppWidgetManager mgr, int id) {
         Context localizedContext = KeepADBLocaleHelper.wrapContext(context);
-        boolean on = KeepADB.isEnabled(context);
+        KeepADB.State state = KeepADB.getState(context);
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_keepadb);
-        String widgetText = on ? localizedContext.getString(R.string.widget_text_on)
-                : localizedContext.getString(R.string.widget_text_off);
+        String widgetText;
+        switch (state) {
+            case PERMISSION_MISSING:
+                widgetText = localizedContext.getString(R.string.widget_text_permission_missing);
+                break;
+            case OFF:
+                widgetText = localizedContext.getString(R.string.widget_text_off);
+                break;
+            case ENABLED_DISCONNECTED:
+                widgetText = localizedContext.getString(R.string.widget_text_disconnected);
+                break;
+            case ENABLED_CONNECTED:
+                int port = KeepADBNotification.getCurrentPort();
+                if (port > 0) {
+                    widgetText = localizedContext.getString(R.string.widget_text_connected_format, port);
+                } else {
+                    widgetText = localizedContext.getString(R.string.widget_text_on);
+                }
+                break;
+            default:
+                widgetText = localizedContext.getString(R.string.widget_text_off);
+                break;
+        }
         views.setTextViewText(R.id.widget_label, widgetText);
         views.setContentDescription(R.id.widget_label, widgetText);
 

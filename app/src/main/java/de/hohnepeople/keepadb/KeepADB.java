@@ -87,9 +87,41 @@ final class KeepADB {
         return !lastDesiredOn;
     }
 
-    private static boolean hasPermission(Context ctx) {
+    enum State {
+        PERMISSION_MISSING,
+        OFF,
+        ENABLED_DISCONNECTED,
+        ENABLED_CONNECTED
+    }
+
+    static boolean hasPermission(Context ctx) {
+        if (ctx == null) return false;
         return ctx.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
                 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    static State getState(Context ctx) {
+        if (ctx == null) return State.OFF;
+        Context appContext = ctx.getApplicationContext();
+        if (!hasPermission(appContext)) {
+            return State.PERMISSION_MISSING;
+        }
+        boolean enabled = isEnabled(appContext);
+        if (!enabled) {
+            if (KeepADBPreferences.isKeepAliveEnabled(appContext) && !wasLastExplicitIntentOff(appContext)) {
+                return State.ENABLED_DISCONNECTED;
+            }
+            return State.OFF;
+        }
+        if (!KeepADBService.isWifiConnected(appContext)) {
+            return State.ENABLED_DISCONNECTED;
+        }
+        String host = KeepADBNotification.getCurrentHost();
+        int port = KeepADBNotification.getCurrentPort();
+        if (host != null && port > 0) {
+            return State.ENABLED_CONNECTED;
+        }
+        return State.ENABLED_DISCONNECTED;
     }
 
     /**
