@@ -4676,3 +4676,142 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Externer Drift:** `github-drift` meldet den unabhängigen, gemergten Remote-Branch `release/v1.2.0`; keine Drift durch #196/#197.
 - **Validierungsstatus:** Noch nicht implementiert; daher keine Gates ausgeführt. Minimale Folge nach Freigabe: `git diff --check`, betroffene Unit-/Contract-Tests, anschließend `./bin/verify`; Gerätegate nur nach eigener Freigabe.
 - **Nächster Entscheidungspunkt:** Typisierte Freigabe für Implementierung und lokale Gates; Delegation an einen S2-Subagenten (`gpt-5.6-luna`, `max`) wäre wegen des klar abgegrenzten Issue-Pakets vorgesehen und benötigt eine eigene ausdrückliche Freigabe.
+
+## Orchestrator-Lauf — Driftbereinigung & Implementierungsfreigabe — 2026-08-29
+
+- `issue_snapshot_at: 2026-08-29T17:40:34Z`; Issue #196 ist weiterhin offen und unverändert.
+- **Roadmap-Abgleich:** Die aktuelle Zielaussage „Review-Folgeissues“ bleibt bestehen; #196 behebt
+  direkt den dokumentierten Tile-Lifecycle-Befund.
+- **Drift-Nachweis:** `github-board-sync --repo m00sfett/KeepADB` meldete `0 added, 0 updated`;
+  der anschließende `github-drift`-Readback meldet, dass Repository und Project #8 übereinstimmen.
+  PR #191 ist gemergt, der Remote-Branch `release/v1.2.0` nicht mehr vorhanden. Die lokale Branch
+  `release/v1.2.0` enthält drei nicht in `master` erreichbare Commits und bleibt deshalb als fremde
+  Arbeitskopieänderung unverändert erhalten.
+- **Codeprämissen bestätigt:** `KeepADBTileService.onStartListening()` ruft aktuell nur
+  `updateTile()` auf; `updateTile()` liest den flüchtigen Endpoint-Cache. Der frühere
+  `KeepADBNotification.refresh()`-Aufruf wurde mit dem Multi-State-Fix aus dem Tile-Pfad entfernt.
+  Der bestehende Discovery-/Refresh-Pfad liegt in `KeepADBNotification.refresh(Context)`; die
+  Endpoint-Rückmeldungen sind asynchron und der Tile-Einstieg besitzt aktuell keinen eigenen
+  Discovery-Trigger.
+- **Freigabe:** Der Nutzer gibt Issue #196, lokale relevante Tests und anschließend `./bin/verify`
+  frei sowie genau einen S2-Subagenten für die Implementierung. Keine Geräteaktion, keine GitHub-
+  Action, kein PR/Merge und keine Issue-Schließung.
+- **Write-Scope:** ausschließlich die für #196 nötigen Tile-Produktdateien und zugehörigen
+  Unit-/Contract-Tests; keine Zustandsdefinitions-, Toggle-, Keep-Alive-, Protokoll- oder
+  Persistenzänderung. Planpflege ist Orchestrierungsnachweis.
+- **Validierungsstatus:** Drift bereinigt/nachgelesen; Codeänderung und Tests noch offen. Nach der
+  Implementierung: relevante Tests, danach `./bin/verify`; Gerätegate bleibt ungeprüft.
+- **plan_updated_at: 2026-08-29T19:50:29+02:00**
+
+## Orchestrator-Lauf — Issue #196 lokale Umsetzung & Gates — 2026-08-29
+
+- **Implementierung:** `KeepADBTileService.onStartListening()` stößt den bestehenden
+  `KeepADBNotification.refresh()`-Pfad vor der Zustandsanzeige an. Nach erfolgreicher Discovery
+  fordert der bestehende Tile-Refresh-Mechanismus eine erneute Listening-Phase an, nachdem der
+  flüchtige Endpoint-Cache gesetzt wurde.
+- **Notwendige Produktdateien:** `app/src/main/AndroidManifest.xml` aktiviert den Android-
+  `ACTIVE_TILE`-Vertrag für `requestListeningState`; `KeepADBNotification.java` meldet den
+  erfolgreichen Discovery-Callback an den Tile-Refresh weiter; `KeepADBTileService.java` startet
+  den Refresh beim Listening. Zustands-, Toggle-, Keep-Alive-, Protokoll- und Persistenzlogik
+  blieben unverändert.
+- **Tests:** `KeepADBTileDiscoveryContractTest` deckt den Start ohne Endpoint-Cache und ohne
+  Keep-Alive, die asynchrone Aktualisierung nach gültiger Discovery, den aktiven Tile-Vertrag
+  und die bestehende Discovery-Idempotenz ab. `KeepADBMultiStateContractTest` blieb ebenfalls
+  grün.
+- **Lokale Gates:** gezielt `testDebugUnitTest --tests de.hohnepeople.keepadb.KeepADBTileDiscoveryContractTest --tests de.hohnepeople.keepadb.KeepADBMultiStateContractTest` bestanden; anschließend
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` bestanden (Unit-Tests, Lint, Debug- und
+  Release-Build, `git diff --check`).
+- **Scope-/Aktionsstatus:** Keine Geräteaktion, kein GitHub-Action-Run, kein Commit/Push, kein
+  PR/Merge und keine Issue-Schließung. Issue #196 bleibt extern offen. Die unverbundene lokale
+  Branch `release/v1.2.0` wurde nicht verändert.
+- **Reviewstatus:** Kein unabhängiger S2-Review gestartet; dafür lag keine separate typisierte
+  Freigabe vor. Hauptagent hat Diff, Aufrufpfad, Scope und lokale Gates geprüft.
+- **Übergabe/Retrospektive:** Das Paket erzeugt den gewünschten lokalen Tile-Lifecycle-Fix;
+  Geräte-/End-to-End-Nachweis bleibt gemäß Auftrag ungeprüft. Für den nächsten Schritt ist zuerst
+  eine separate Review- oder externe Abschlussfreigabe nötig, falls diese gewünscht ist.
+- **Zustand:** `complete` für lokale Umsetzung und freigegebene Gates; externer Abschluss bewusst
+  offen.
+- **plan_updated_at: 2026-08-29T20:05:32+02:00**
+
+## Orchestrator-Lauf — Issue #196 unabhängiger Review — 2026-08-29
+
+- **Review:** Unabhängiger S2-Subagent im Modus `review and repair`; geprüft wurden die
+  Projektanweisungen, dieser Plan, Issue #196 direkt über `gh`, der vollständige aktuelle Diff
+  und die Aufrufpfade von Tile, Notification und Endpoint-Discovery.
+- **Claim 1:** Im aufgerufenen Pfad korrekt: `onStartListening()` ruft zuerst
+  `KeepADBNotification.refresh(this)` auf. Bei aktiviertem Wireless Debugging und leerem Cache
+  führt `refresh()` auch ohne Keep-Alive zu `startDiscoveryDirectLocked()`.
+- **Claim 2:** Korrekt: Der Discovery-Callback setzt `currentHost` und `currentPort` im
+  Notification-Cache, bevor `KeepADBTileService.requestRefresh(appContext)` aufgerufen wird.
+- **Claim 3:** Korrekt umgesetzt: Das Manifest setzt `android.service.quicksettings.ACTIVE_TILE`
+  auf `true`; damit ist `requestListeningState()` vertraglich zulässig. Die Android-Dokumentation
+  beschreibt zugleich, dass ein Active Tile vom System selbst nur für einen Klick gebunden wird
+  ([TileService-Referenz](https://developer.android.com/reference/android/service/quicksettings/TileService#META_DATA_ACTIVE_TILE)).
+- **Claim 4:** Die Guards für deaktiviertes Wireless Debugging, fehlenden Cache und parallele
+  Discovery-Aufrufe sind im untersuchten Aufrufpfad korrekt. `KeepADBEndpoint.discover()` hängt
+  einen weiteren Listener an eine laufende Discovery und startet dabei keine zweite Session.
+  Die Prüfung bleibt ein Quelltextvertrag; ein bereits vorher bestehendes Callback-Race nach
+  `KeepADBEndpoint.stop()` wurde nicht erweitert und nicht außerhalb dieses Scopes repariert.
+- **Claim 5:** Nur teilweise erfüllt. Die Contract-Tests decken die relevanten Quelltext- und
+  Manifest-Verträge ab, simulieren aber keine Android-Lifecycle- oder Parallelitätsausführung.
+  Außerdem war der Erfolgs-Test zunächst auf den `onEndpoint`-Treffer des Interfaces statt auf
+  den anonymen Discovery-Callback gerichtet und konnte dadurch falsch-grün werden.
+- **Review-Reparatur:** Der Erfolgs-Contract-Test begrenzt die Prüfung jetzt auf den tatsächlichen
+  Callback-Methodenkörper und verlangt Cache-Update vor Tile-Refresh. Die betroffenen 9 JUnit-
+  Fälle sind danach grün; Produktcode wurde im Review nicht verändert.
+- **Nicht umgesetzte Anforderung:** Der Fresh-Process-Start beim bloßen Öffnen des Quick-Settings-
+  Panels ist mit `ACTIVE_TILE` nicht garantiert. Android bindet aktive Tiles laut Vertrag selbst
+  nur für einen Klick; ohne bereits laufenden Prozess kann daher kein App-Code
+  `requestListeningState()` auslösen. Das ist eine Plattform-/Architekturfrage und bleibt gemäß
+  Auftrag als Restbefund offen.
+- **Lokale Nachweise:** Relevante Tests `KeepADBTileDiscoveryContractTest` (6) und
+  `KeepADBMultiStateContractTest` (3) erfolgreich; anschließend
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erfolgreich mit Unit-Tests, Lint,
+  Debug-/Release-Build und `git diff --check`.
+- **Scope-/Aktionsstatus:** Keine Geräteaktion, keine GitHub-Aktion, kein Workflow, kein
+  Commit/Push, kein PR/Merge und keine Issue-Schließung. Issue #196 bleibt extern offen.
+- **Zustand:** `reviewed`, aber **bedingt nicht abnahmefähig**, weil der geforderte
+  Fresh-Process-Lifecycle mit dem gewählten Active-Tile-Vertrag nicht garantiert ist. Externe
+  Abschlussarbeiten bleiben ausstehend.
+- **plan_updated_at: 2026-08-29T20:48:15+02:00**
+
+## Orchestrator-Lauf — Reviewbefund und Abschlussgrenze — 2026-08-29
+
+- **Reviewstatus:** Unabhängiger S2-Review durch `Anscombe` abgeschlossen. Der gebundene
+  Tile-/Discovery-Pfad und die lokalen Gates sind bestätigt; der Fresh-Process-Start beim bloßen
+  Öffnen des Quick-Settings-Panels ist mit `ACTIVE_TILE` nicht garantiert.
+- **Nicht umgesetzter Befund:** Plattform-/Lifecycle-Vertrag und Produktanforderung stehen in
+  Spannung. Der Reviewer hat den Contract-Test präzisiert, aber keine Architektur außerhalb des
+  freigegebenen Issue-Scope umgesetzt.
+- **Register:** Folgeissue [#198](https://github.com/m00sfett/KeepADB/issues/198) angelegt,
+  serverseitig verifiziert, auf Project #8 synchronisiert und in #196 verlinkt. `github-drift`
+  meldet keinen offenen Drift.
+- **Zustand:** `closed-pending-decision` für den externen Abschluss von #196. Kein PR, Commit,
+  Push oder Issue-Schluss, weil ein Akzeptanzkriterium eine eigene S3-Architekturentscheidung
+  benötigt.
+- **Optionen:** #198 auf den garantierten Active-Tile-Klick begrenzen; einen anderen vom System
+  unterstützten Prozess-/Refresh-Einstieg festlegen; oder den Fresh-Process-Nachweis auf einem
+  konkreten Zielgerät mit angepasstem Lifecycle-Vertrag führen.
+- **Offener Arbeitsbaum:** Die lokale #196-Implementierung und der Review-Contract-Test bleiben
+  uncommitted zur Entscheidung erhalten; keine unzusammenhängenden Änderungen festgestellt.
+- **Retrospektive:** Die frühe lokale Validierung und der unabhängige Review waren sinnvoll:
+  Build und Contracts hätten den Android-Lifecycle-Widerspruch nicht beweisen können. Für die
+  nächste Runde wird der Plattformvertrag vor einer weiteren Implementierung als eigenes Gate
+  behandelt.
+- **plan_updated_at: 2026-08-29T21:08:00+02:00**
+
+## Issue #198 — Architekturentscheidung Option B — 2026-08-29
+
+- **Entscheidung:** Das bestehende Folgeissue #198 ist auf Option B konkretisiert: normales,
+  nicht-aktives `TileService`; die aktuell lauschende Tile-Instanz wird für den asynchronen
+  Discovery-Callback registriert und in `onStopListening()`/`onDestroy()` verworfen.
+- **Begründung:** Android garantiert beim `ACTIVE_TILE`-Modus keinen Bind beim bloßen Öffnen des
+  Quick-Settings-Panels. Der Fresh-Process-Fall benötigt deshalb den normalen Listening-Lifecycle.
+- **Issue-Status:** #198 offen, Titel und Akzeptanzkriterien serverseitig aktualisiert, auf Project
+  #8 synchronisiert und mit `github-drift` ohne Befund nachgelesen.
+- **Folge:** #196 bleibt offen und wird nicht geschlossen. Die vorhandene Teilimplementierung darf
+  erst nach Umsetzung von #198 und erneuter Prüfung des Fresh-Process-/Lifecycle-Vertrags in einen
+  PR übernommen werden.
+- **Freigabe:** Architekturentscheidung durch den Nutzer erteilt; die Umsetzung von #198 benötigt
+  eine eigene Implementierungsfreigabe samt S3-Einstufung und unabhängigem Review.
+- **plan_updated_at: 2026-08-29T21:20:00+02:00**
