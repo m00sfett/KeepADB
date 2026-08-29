@@ -363,7 +363,8 @@ final class KeepADBRegisterClient {
                     }
                 }
             } else {
-                Log.w(TAG, "Failed to deregister from old URL " + oldUrl + " during URL change; proceeding with new registration");
+                Log.w(TAG, "Failed to deregister from old URL " + sanitizeUrl(oldUrl)
+                        + " during URL change; proceeding with new registration");
             }
         }
 
@@ -490,12 +491,10 @@ final class KeepADBRegisterClient {
             String scheme = uri.getScheme();
             String host = uri.getHost();
             int port = uri.getPort();
-            String path = uri.getPath();
             StringBuilder sb = new StringBuilder();
             if (scheme != null) sb.append(scheme).append("://");
             if (host != null) sb.append(host);
             if (port > 0) sb.append(":").append(port);
-            if (path != null && !path.isEmpty()) sb.append(path);
             return sb.toString();
         } catch (Exception e) {
             return "redacted-url";
@@ -531,7 +530,7 @@ final class KeepADBRegisterClient {
             Log.d(TAG, "Register update for " + logLabel + " returned HTTP " + code);
             return code >= 200 && code < 300;
         } catch (IOException e) {
-            Log.w(TAG, "Could not update register at " + sanitizeUrl(targetUrl) + ": " + e.getMessage());
+            Log.w(TAG, "Could not update register at " + sanitizeUrl(targetUrl));
             return false;
         } finally {
             if (conn != null) {
@@ -554,7 +553,7 @@ final class KeepADBRegisterClient {
             Log.d(TAG, "Register delete returned HTTP " + code);
             return code >= 200 && code < 300;
         } catch (IOException e) {
-            Log.w(TAG, "Could not reach register to unregister at " + sanitizeUrl(targetUrl) + ": " + e.getMessage());
+            Log.w(TAG, "Could not reach register to unregister at " + sanitizeUrl(targetUrl));
             return false;
         } finally {
             if (conn != null) {
