@@ -7,8 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.3] - Unreleased
 
-### Fixed
-- GitHub issue reporting now keeps the editable draft in a compact, scrollable preview with visible actions and readable section breaks.
+### Added
+- Optional GitHub issue reporting from Settings with a prefilled, editable issue template and placeholders for additional user notes.
+- An explicit opt-in for including redacted diagnostic data; the complete draft is shown to the user before the external GitHub page is opened.
+- Localized issue-reporting texts for all 19 supported languages without hardcoded visible literals.
+
+### Changed
+- The report dialog now keeps the editable draft in a compact, scrollable preview with visible actions and readable section breaks.
+- Opening GitHub remains an explicit user action; no issue or diagnostic data is uploaded automatically by the app.
 
 ## [1.4.2] - Unreleased
 
@@ -44,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `1.4.0` — #203: Settings displays the installed app version and version code.
 - `1.4.1` — #204: Settings sections follow the defined product order.
 - `1.4.2` — #205: Localization resource and hard-coded literal audit contracts.
+- `1.4.3` — #213: Optional, localized GitHub issue reporting with an editable preview and redacted opt-in diagnostics.
 
 ## [1.2.0] - 2026-08-29
 
