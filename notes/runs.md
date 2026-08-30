@@ -451,3 +451,9 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Reviewbefund: 17 Locale-Dateien enthielten zunächst englische Fallback-Texte für die neuen
   Versionslabels. Die Texte wurden sprachspezifisch ergänzt; der allgemeine Audit bleibt #205.
 - Fokussierter Contract-Test und `./bin/verify` nach der Reparatur vollständig grün.
+
+## 2026-08-30 — Issue #203 unabhängige Review-Reparatur
+
+- SemVer-Befund behoben: Feature-Bump auf `1.4.0` / Code 11 korrigiert.
+- Contract-Test um Layout-Ende, Bind-Aufruf, Fehlertext und Platzhalterabdeckung erweitert.
+- Vollständiger Verify-Lauf nach der Reparatur erneut grün.

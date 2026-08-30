@@ -24,12 +24,18 @@ public class KeepADBVersionContractTest {
         assertTrue(layout.contains("android:id=\"@+id/settings_version_name\""));
         assertTrue(layout.contains("android:id=\"@+id/settings_version_code\""));
         assertTrue(layout.contains("android:text=\"@string/settings_section_version\""));
-        assertTrue(layout.indexOf("settings_security_panel") < layout.indexOf("settings_version_panel"));
+        int versionPanelIndex = layout.indexOf("android:id=\"@+id/settings_version_panel\"");
+        assertTrue(layout.indexOf("settings_security_panel") < versionPanelIndex);
+        assertTrue(layout.indexOf("</LinearLayout>\n\n    </LinearLayout>", versionPanelIndex) > versionPanelIndex);
         assertTrue(activity.contains("getPackageManager().getPackageInfo(getPackageName(), 0)"));
+        assertTrue(activity.contains("bindVersionInfo();"));
         assertTrue(activity.contains("packageInfo.versionName"));
         assertTrue(activity.contains("packageInfo.getLongVersionCode()"));
+        assertTrue(activity.contains("settings_version_unavailable"));
         assertTrue(strings.contains("name=\"settings_version_value\""));
+        assertTrue(strings.contains("%1$s"));
         assertTrue(strings.contains("name=\"settings_version_code_value\""));
+        assertTrue(strings.contains("%1$d"));
         assertTrue(germanStrings.contains("name=\"settings_version_value\""));
         assertTrue(germanStrings.contains("name=\"settings_version_code_value\""));
 
@@ -43,6 +49,9 @@ public class KeepADBVersionContractTest {
                             assertTrue(localeStrings.contains("name=\"settings_section_version\""));
                             assertTrue(localeStrings.contains("name=\"settings_version_value\""));
                             assertTrue(localeStrings.contains("name=\"settings_version_code_value\""));
+                            assertTrue(localeStrings.contains("name=\"settings_version_unavailable\""));
+                            assertTrue(localeStrings.contains("%1$s"));
+                            assertTrue(localeStrings.contains("%1$d"));
                         } catch (IOException exception) {
                             throw new RuntimeException(exception);
                         }
