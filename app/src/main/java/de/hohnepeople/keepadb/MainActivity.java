@@ -26,6 +26,8 @@ public class MainActivity extends Activity {
     private View notificationPermissionPanel;
     private View batteryOptimizationPanel;
     private boolean notificationPermissionRequestPending;
+    private long endpointListenerGeneration;
+    private boolean endpointSurfaceActive;
 
     @Override
     protected void attachBaseContext(android.content.Context newBase) {
@@ -115,16 +117,17 @@ public class MainActivity extends Activity {
             } catch (Exception ignored) {
             }
         }
+        final long listenerGeneration = ++endpointListenerGeneration;
+        endpointSurfaceActive = true;
         KeepADBNotification.setEndpointListener(new KeepADBNotification.EndpointListener() {
             @Override
             public void onEndpoint(String host, int port) {
-                runOnUiThread(() -> endpoint.setText(getString(R.string.endpoint_format, host, port)));
+                postEndpointAvailable(listenerGeneration, host, port);
             }
 
             @Override
             public void onUnavailable() {
-                runOnUiThread(() -> endpoint.setText(KeepADB.isEnabled(MainActivity.this)
-                        ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable)));
+                postEndpointUnavailable(listenerGeneration);
             }
         });
         // Keep-Alive is a persisted preference, but the foreground service backing it can die
@@ -143,6 +146,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
+        endpointSurfaceActive = false;
+        endpointListenerGeneration++;
         KeepADBNotification.clearEndpointListener();
         KeepADBRegisterClient.clearRegisterStateListener();
         if (adbContentObserver != null) {
@@ -232,6 +237,30 @@ public class MainActivity extends Activity {
         }
         webhookStatus.setText(getString(R.string.webhook_status_hint, url, lastEndpoint, lastReported));
         webhookStatusPanel.setVisibility(View.VISIBLE);
+    }
+
+    private void postEndpointAvailable(long listenerGeneration, String host, int port) {
+        runOnUiThread(() -> {
+            if (!isEndpointSurfaceActive(listenerGeneration)) return;
+            endpoint.setText(getString(R.string.endpoint_format, host, port));
+            refresh();
+        });
+    }
+
+    private void postEndpointUnavailable(long listenerGeneration) {
+        runOnUiThread(() -> {
+            if (!isEndpointSurfaceActive(listenerGeneration)) return;
+            endpoint.setText(KeepADB.isEnabled(MainActivity.this)
+                    ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable));
+            refresh();
+        });
+    }
+
+    private boolean isEndpointSurfaceActive(long listenerGeneration) {
+        return endpointSurfaceActive
+                && listenerGeneration == endpointListenerGeneration
+                && !isFinishing()
+                && !isDestroyed();
     }
 
     private boolean hasSecureSettingsPermission() {

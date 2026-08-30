@@ -102,7 +102,7 @@ public class KeepADBTileDiscoveryContractTest {
         assertTrue(callback >= 0);
         assertTrue(callbackBody.indexOf("currentHost = host;") >= 0);
         assertTrue(callbackBody.indexOf("currentPort = port;") >= 0);
-        assertTrue(callbackBody.indexOf("KeepADBTileService.refreshListeningTile();")
+        assertTrue(callbackBody.indexOf("postSurfaceRefresh(appContext);")
                 > callbackBody.indexOf("currentPort = port;"));
         assertFalse(callbackBody.contains("requestListeningState("));
         assertFalse(callbackBody.contains("KeepADBTileService.requestRefresh("));
@@ -131,7 +131,7 @@ public class KeepADBTileDiscoveryContractTest {
         assertTrue(callback >= 0);
         assertTrue(callbackBody.indexOf("currentHost = null;") >= 0);
         assertTrue(callbackBody.indexOf("currentPort = 0;") >= 0);
-        assertTrue(callbackBody.indexOf("KeepADBTileService.refreshListeningTile();")
+        assertTrue(callbackBody.indexOf("postSurfaceRefresh(appContext);")
                 > callbackBody.indexOf("currentPort = 0;"));
     }
 
@@ -203,9 +203,9 @@ public class KeepADBTileDiscoveryContractTest {
 
         assertTrue(unavailableBody.contains("currentHost = null;"));
         assertTrue(unavailableBody.contains("currentPort = 0;"));
-        assertTrue(unavailableBody.contains("KeepADBTileService.refreshListeningTile();"));
-        assertTrue(invalidateBody.contains("MAIN_HANDLER.post(KeepADBTileService::refreshListeningTile);"));
-        assertTrue(stopBody.contains("MAIN_HANDLER.post(KeepADBTileService::refreshListeningTile);"));
+        assertTrue(unavailableBody.contains("postSurfaceRefresh(appContext);"));
+        assertTrue(invalidateBody.contains("postSurfaceRefresh(context.getApplicationContext());"));
+        assertTrue(stopBody.contains("postSurfaceRefresh(context.getApplicationContext());"));
         assertTrue(timeoutBody.indexOf("stop();") >= 0);
         assertTrue(timeoutBody.indexOf("targetListener.onUnavailable();")
                 > timeoutBody.indexOf("stop();"));
@@ -262,7 +262,7 @@ public class KeepADBTileDiscoveryContractTest {
         int lockEnd = findMatchingBrace(callbackBody, lockOpeningBrace);
         int first = callbackBody.indexOf(firstPublication);
         int second = callbackBody.indexOf(secondPublication);
-        int tileRefresh = callbackBody.indexOf("KeepADBTileService.refreshListeningTile();");
+        int surfaceRefresh = callbackBody.indexOf("postSurfaceRefresh(appContext);");
 
         assertTrue(guard >= 0);
         assertTrue(guard > lock);
@@ -270,7 +270,7 @@ public class KeepADBTileDiscoveryContractTest {
         assertTrue(guard < lockEnd);
         assertTrue(first > lock && first < lockEnd);
         assertTrue(second > lock && second < lockEnd);
-        assertTrue(tileRefresh > lockEnd);
+        assertTrue(surfaceRefresh > lockEnd);
     }
 
     private static int findMatchingBrace(String source, int openingBrace) {

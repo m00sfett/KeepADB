@@ -116,9 +116,7 @@ final class KeepADB {
         if (!KeepADBService.isWifiConnected(appContext)) {
             return State.ENABLED_DISCONNECTED;
         }
-        String host = KeepADBNotification.getCurrentHost();
-        int port = KeepADBNotification.getCurrentPort();
-        if (host != null && port > 0) {
+        if (KeepADBNotification.hasCurrentEndpoint()) {
             return State.ENABLED_CONNECTED;
         }
         return State.ENABLED_DISCONNECTED;
