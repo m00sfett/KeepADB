@@ -5161,3 +5161,18 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Zustand:** `complete` für die freigegebene Implementierung, Review-Reparatur und lokale
   Abnahme; externer Lifecycle bleibt offen und ist nicht als erledigt behauptet.
 - **plan_updated_at:** 2026-08-30T00:39:16+02:00
+
+## Issue #197 — Externer Abschluss 2026-08-30
+
+- **Commit/PR:** Commit `872f559` wurde auf `fix/197-async-surface-refresh` gepusht. PR
+  [#201](https://github.com/m00sfett/KeepADB/pull/201) wurde gegen `master` geprüft und per
+  Squash gemergt; Merge-Commit ist `1b68907c9238e75b59efb5fc64af749317b27f48`.
+- **Issue:** #197 ist nach dem Merge automatisch geschlossen. Alle sechs Akzeptanzkriterien
+  waren durch Review und lokale Gates nachgewiesen; Geräte- und GitHub-Action-Gates waren
+  nicht Teil der Freigabe und wurden nicht ausgeführt.
+- **Board/Drift:** `github-board-sync --repo m00sfett/KeepADB` meldete 0 Änderungen;
+  anschließender `github-drift`-Readback meldete Repository und Project #8 übereinstimmend.
+- **Arbeitsbaum/Server:** `master` wurde auf `origin/master` @ `1b68907` fast-forwarded und
+  ist sauber. PR #201 ist MERGED, Issue #197 CLOSED, keine offenen PRs.
+- **Abschluss:** `complete` für Issue #197 und den autorisierten PR-Lifecycle.
+- **plan_updated_at:** 2026-08-30T01:25:00+02:00
