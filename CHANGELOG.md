@@ -5,6 +5,11 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - Unreleased
+
+### Added
+- Resource contract coverage for locale key parity, format arguments, and visible UI literals.
+
 ## [1.4.1] - Unreleased
 
 ### Added
@@ -33,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `1.3.4` — #200: Tile-owned discovery cannot publish stale effects after lifecycle end.
 - `1.4.0` — #203: Settings displays the installed app version and version code.
 - `1.4.1` — #204: Settings sections follow the defined product order.
+- `1.4.2` — #205: Localization resource and hard-coded literal audit contracts.
 
 ## [1.2.0] - 2026-08-29
 
