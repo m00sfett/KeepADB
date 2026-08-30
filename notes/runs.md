@@ -411,3 +411,12 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   `Unreleased`. Separate Tags, Releases und GitHub-Actions wurden nicht ausgelöst.
 - `git diff --check` erfolgreich. Gradle-Verify nicht ausgeführt, da für Tests/Builds in diesem
   Lauf keine typisierte Freigabe vorlag.
+
+## 2026-08-30 — PR #206 Verify und Review
+
+- `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` vollständig erfolgreich: Diff-Check,
+  Unit-Tests, Lint sowie Debug-/Release-Build.
+- Der enge S1-Review des PR-Diffs fand keine Befunde. Die Versionierungsfolge und die
+  rückwirkende Kennzeichnung sind konsistent.
+- PR #206 bleibt offen und ist laut GitHub `CLEAN`, meldet aber keine Checks. Kein Merge,
+  Release oder GitHub-Actions-Run ausgeführt.
