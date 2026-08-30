@@ -7,10 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -95,6 +99,7 @@ public class SettingsActivity extends Activity {
         usbHandoverSelector.setOnClickListener(v -> showUsbHandoverModeDialog());
 
         findViewById(R.id.settings_diagnostics_export).setOnClickListener(v -> shareDiagnostics());
+        findViewById(R.id.settings_issue_report).setOnClickListener(v -> showIssueReportDialog());
 
         webhookToggle = findViewById(R.id.settings_webhook_toggle);
         webhookUrlInput = findViewById(R.id.settings_webhook_url);
@@ -384,6 +389,67 @@ public class SettingsActivity extends Activity {
                 .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.settings_diagnostics_export_subject))
                 .putExtra(Intent.EXTRA_TEXT, KeepADBDiagnostics.export(this));
         startActivity(Intent.createChooser(share, getString(R.string.settings_diagnostics_export)));
+    }
+
+    private void showIssueReportDialog() {
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (20 * getResources().getDisplayMetrics().density);
+        content.setPadding(padding, 0, padding, 0);
+
+        CheckBox diagnostics = new CheckBox(this);
+        diagnostics.setText(R.string.settings_issue_report_include_diagnostics);
+        diagnostics.setContentDescription(getString(R.string.settings_issue_report_include_diagnostics));
+        content.addView(diagnostics);
+
+        EditText preview = new EditText(this);
+        preview.setGravity(android.view.Gravity.TOP | android.view.Gravity.START);
+        preview.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        preview.setMinHeight((int) (260 * getResources().getDisplayMetrics().density));
+        preview.setHint(R.string.settings_issue_report_preview_hint);
+        preview.setContentDescription(getString(R.string.settings_issue_report_preview));
+        content.addView(preview);
+
+        String withoutDiagnostics = KeepADBIssueReporter.buildBody(this, false);
+        final String[] diagnosticsSection = {null};
+        String diagnosticsTitle = getString(R.string.issue_report_diagnostics_section);
+        preview.setText(withoutDiagnostics);
+        diagnostics.setOnCheckedChangeListener((button, checked) -> {
+            String current = preview.getText().toString();
+            if (checked && !KeepADBIssueReporter.containsDiagnosticsSection(current, diagnosticsTitle)) {
+                if (diagnosticsSection[0] == null) {
+                    diagnosticsSection[0] = KeepADBIssueReporter.buildDiagnosticsSection(this);
+                }
+                preview.setText(KeepADBIssueReporter.addDiagnosticsSection(current,
+                        diagnosticsSection[0]));
+            } else if (!checked) {
+                String withoutSection = KeepADBIssueReporter.removeDiagnosticsSection(
+                        current, diagnosticsTitle);
+                if (!withoutSection.equals(current)) preview.setText(withoutSection);
+            }
+        });
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_issue_report_dialog_title)
+                .setMessage(R.string.settings_issue_report_dialog_message)
+                .setView(content)
+                .setPositiveButton(R.string.settings_issue_report_open_github, null)
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
+        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(v -> {
+                    String body = preview.getText().toString();
+                    if (!diagnostics.isChecked()) {
+                        body = KeepADBIssueReporter.removeDiagnosticsSection(body, diagnosticsTitle);
+                        preview.setText(body);
+                    }
+                    Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                            KeepADBIssueReporter.buildUrl(this, body)));
+                    startActivity(browser);
+                    dialog.dismiss();
+                }));
+        dialog.show();
     }
 
     private void refresh() {

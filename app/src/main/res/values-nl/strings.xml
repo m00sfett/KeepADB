@@ -132,4 +132,62 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">App-versie: %1$s</string>
     <string name="settings_version_code_value">Versiecode: %1$d</string>
     <string name="settings_version_unavailable">Versiegegevens niet beschikbaar</string>
+    <string name="settings_issue_report_button">Probleem of vertaling melden</string>
+    <string name="settings_issue_report_accessibility">Vooraf ingevuld GitHub-issue openen</string>
+    <string name="settings_issue_report_dialog_title">Issue-rapport controleren</string>
+    <string name="settings_issue_report_dialog_message">Controleer en vul dit concept aan voordat GitHub wordt geopend. Er wordt niets automatisch verzonden. Optionele diagnostische gegevens bevatten geredigeerde lokale levenscyclusgebeurtenissen; netwerkadressen, geheimen, webhookgegevens en privégegevens worden uitgesloten.</string>
+    <string name="settings_issue_report_include_diagnostics">Geredigeerde diagnostische gegevens opnemen</string>
+    <string name="settings_issue_report_preview">Voorbeeld van issue-rapport</string>
+    <string name="settings_issue_report_preview_hint">Controleren en details toevoegen</string>
+    <string name="settings_issue_report_open_github">GitHub openen</string>
+    <string name="issue_report_title">KeepADB-probleemrapport</string>
+    <string name="issue_report_unavailable">Niet beschikbaar</string>
+    <string name="issue_report_body">## Probleemtype
+%1$s
+
+## Betrokken taal / landinstelling
+%2$s
+
+## Verwacht gedrag
+%3$s
+
+## Werkelijk gedrag
+%4$s
+
+## Stappen om te reproduceren
+%5$s
+
+## App-versie
+%6$s
+
+## Versiecode
+%7$s
+
+## Android-versie
+%8$s
+
+## Android-API-niveau
+%9$s
+
+## Apparaatmodel
+%10$s
+
+## Logboeken
+%11$s
+
+## Schermafbeeldingen
+%12$s
+
+## Aanvullende opmerkingen
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">Bug / vertaling / interface / crash / overig</string>
+    <string name="issue_report_placeholder_expected">Beschrijf wat er zou moeten gebeuren.</string>
+    <string name="issue_report_placeholder_actual">Beschrijf wat er is gebeurd.</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">Plak hier relevante logboeken. Verwijder privégegevens.</string>
+    <string name="issue_report_placeholder_screenshots">Beschrijf schermafbeeldingen of voeg ze handmatig toe.</string>
+    <string name="issue_report_placeholder_notes">Voeg andere nuttige informatie toe.</string>
+    <string name="issue_report_diagnostics_section">Optionele geredigeerde KeepADB-diagnostische gegevens (controleer vóór verzending)</string>
 </resources>

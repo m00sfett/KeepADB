@@ -132,4 +132,62 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">Phiên bản ứng dụng: %1$s</string>
     <string name="settings_version_code_value">Mã phiên bản: %1$d</string>
     <string name="settings_version_unavailable">Không có thông tin phiên bản</string>
+    <string name="settings_issue_report_button">Báo cáo lỗi hoặc bản dịch</string>
+    <string name="settings_issue_report_accessibility">Mở báo cáo GitHub đã điền sẵn</string>
+    <string name="settings_issue_report_dialog_title">Xem lại báo cáo</string>
+    <string name="settings_issue_report_dialog_message">Hãy xem lại và hoàn thiện bản nháp này trước khi mở GitHub. Không có dữ liệu nào được tự động gửi. Dữ liệu chẩn đoán tùy chọn chỉ chứa các sự kiện vòng đời cục bộ đã loại bỏ thông tin nhạy cảm; địa chỉ mạng, bí mật, dữ liệu webhook và dữ liệu riêng tư đều bị loại trừ.</string>
+    <string name="settings_issue_report_include_diagnostics">Bao gồm dữ liệu chẩn đoán đã loại bỏ thông tin riêng tư</string>
+    <string name="settings_issue_report_preview">Xem trước báo cáo</string>
+    <string name="settings_issue_report_preview_hint">Xem lại và thêm chi tiết</string>
+    <string name="settings_issue_report_open_github">Mở GitHub</string>
+    <string name="issue_report_title">Báo cáo sự cố KeepADB</string>
+    <string name="issue_report_unavailable">Không khả dụng</string>
+    <string name="issue_report_body">## Loại vấn đề
+%1$s
+
+## Ngôn ngữ / khu vực bị ảnh hưởng
+%2$s
+
+## Hành vi mong đợi
+%3$s
+
+## Hành vi thực tế
+%4$s
+
+## Các bước tái hiện
+%5$s
+
+## Phiên bản ứng dụng
+%6$s
+
+## Mã phiên bản
+%7$s
+
+## Phiên bản Android
+%8$s
+
+## Cấp độ API Android
+%9$s
+
+## Mẫu thiết bị
+%10$s
+
+## Nhật ký
+%11$s
+
+## Ảnh chụp màn hình
+%12$s
+
+## Ghi chú bổ sung
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">Lỗi / bản dịch / giao diện / sự cố / khác</string>
+    <string name="issue_report_placeholder_expected">Mô tả điều đáng lẽ phải xảy ra.</string>
+    <string name="issue_report_placeholder_actual">Mô tả điều đã xảy ra.</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">Dán nhật ký liên quan vào đây. Xóa dữ liệu riêng tư.</string>
+    <string name="issue_report_placeholder_screenshots">Mô tả hoặc đính kèm ảnh chụp màn hình theo cách thủ công.</string>
+    <string name="issue_report_placeholder_notes">Thêm bất kỳ thông tin hữu ích nào khác.</string>
+    <string name="issue_report_diagnostics_section">Dữ liệu chẩn đoán KeepADB tùy chọn đã loại bỏ thông tin nhạy cảm (xem lại trước khi gửi)</string>
 </resources>

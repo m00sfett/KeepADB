@@ -132,4 +132,62 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">إصدار التطبيق: %1$s</string>
     <string name="settings_version_code_value">رمز الإصدار: %1$d</string>
     <string name="settings_version_unavailable">معلومات الإصدار غير متاحة</string>
+    <string name="settings_issue_report_button">الإبلاغ عن مشكلة أو ترجمة</string>
+    <string name="settings_issue_report_accessibility">فتح تقرير GitHub مُعبّأ مسبقًا</string>
+    <string name="settings_issue_report_dialog_title">مراجعة تقرير المشكلة</string>
+    <string name="settings_issue_report_dialog_message">راجع هذه المسودة وأكملها قبل فتح GitHub. لن يُرسل أي شيء تلقائيًا. تتضمن بيانات التشخيص الاختيارية أحداثًا محلية منقّحة لدورة حياة التطبيق؛ وتُستبعد عناوين الشبكة والأسرار وبيانات Webhook والبيانات الخاصة.</string>
+    <string name="settings_issue_report_include_diagnostics">تضمين بيانات التشخيص المنقّحة</string>
+    <string name="settings_issue_report_preview">معاينة تقرير المشكلة</string>
+    <string name="settings_issue_report_preview_hint">المراجعة وإضافة التفاصيل</string>
+    <string name="settings_issue_report_open_github">فتح GitHub</string>
+    <string name="issue_report_title">تقرير مشكلة KeepADB</string>
+    <string name="issue_report_unavailable">غير متاح</string>
+    <string name="issue_report_body">## نوع المشكلة
+%1$s
+
+## اللغة / الإعداد المحلي المتأثر
+%2$s
+
+## السلوك المتوقع
+%3$s
+
+## السلوك الفعلي
+%4$s
+
+## خطوات إعادة الإنتاج
+%5$s
+
+## إصدار التطبيق
+%6$s
+
+## رمز الإصدار
+%7$s
+
+## إصدار Android
+%8$s
+
+## مستوى API في Android
+%9$s
+
+## طراز الجهاز
+%10$s
+
+## السجلات
+%11$s
+
+## لقطات الشاشة
+%12$s
+
+## ملاحظات إضافية
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">خطأ / ترجمة / واجهة المستخدم / تعطل / أخرى</string>
+    <string name="issue_report_placeholder_expected">صف ما يجب أن يحدث.</string>
+    <string name="issue_report_placeholder_actual">صف ما حدث.</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">ألصق السجلات ذات الصلة هنا. أزل البيانات الخاصة.</string>
+    <string name="issue_report_placeholder_screenshots">صف لقطات الشاشة أو أرفقها يدويًا.</string>
+    <string name="issue_report_placeholder_notes">أضف أي معلومات أخرى مفيدة هنا.</string>
+    <string name="issue_report_diagnostics_section">بيانات تشخيصية اختيارية منقّحة لـ KeepADB (راجعها قبل الإرسال)</string>
 </resources>

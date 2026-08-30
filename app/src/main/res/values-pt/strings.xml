@@ -132,4 +132,62 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">Versão do app: %1$s</string>
     <string name="settings_version_code_value">Código da versão: %1$d</string>
     <string name="settings_version_unavailable">Informações da versão indisponíveis</string>
+    <string name="settings_issue_report_button">Relatar um problema ou tradução</string>
+    <string name="settings_issue_report_accessibility">Abrir um relatório do GitHub pré-preenchido</string>
+    <string name="settings_issue_report_dialog_title">Rever relatório</string>
+    <string name="settings_issue_report_dialog_message">Reveja e complete este rascunho antes de abrir o GitHub. Nada é enviado automaticamente. Os diagnósticos opcionais contêm eventos locais do ciclo de vida com dados sensíveis removidos; endereços de rede, segredos, dados de webhook e dados privados são excluídos.</string>
+    <string name="settings_issue_report_include_diagnostics">Incluir dados de diagnóstico redigidos</string>
+    <string name="settings_issue_report_preview">Pré-visualização do relatório</string>
+    <string name="settings_issue_report_preview_hint">Rever e adicionar detalhes</string>
+    <string name="settings_issue_report_open_github">Abrir o GitHub</string>
+    <string name="issue_report_title">Relatório de problema do KeepADB</string>
+    <string name="issue_report_unavailable">Indisponível</string>
+    <string name="issue_report_body">## Tipo de problema
+%1$s
+
+## Idioma / região afetada
+%2$s
+
+## Comportamento esperado
+%3$s
+
+## Comportamento atual
+%4$s
+
+## Passos para reproduzir
+%5$s
+
+## Versão da aplicação
+%6$s
+
+## Código da versão
+%7$s
+
+## Versão do Android
+%8$s
+
+## Nível da API do Android
+%9$s
+
+## Modelo do dispositivo
+%10$s
+
+## Registos
+%11$s
+
+## Capturas de ecrã
+%12$s
+
+## Notas adicionais
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">Erro / tradução / interface / falha / outro</string>
+    <string name="issue_report_placeholder_expected">Descreva o que deveria acontecer.</string>
+    <string name="issue_report_placeholder_actual">Descreva o que aconteceu.</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">Cole aqui os registos relevantes. Remova os dados privados.</string>
+    <string name="issue_report_placeholder_screenshots">Descreva ou anexe manualmente capturas de ecrã.</string>
+    <string name="issue_report_placeholder_notes">Adicione qualquer outra informação útil.</string>
+    <string name="issue_report_diagnostics_section">Dados de diagnóstico KeepADB opcionais e redigidos (verifique antes do envio)</string>
 </resources>

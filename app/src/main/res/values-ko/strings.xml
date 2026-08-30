@@ -132,4 +132,62 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">앱 버전: %1$s</string>
     <string name="settings_version_code_value">버전 코드: %1$d</string>
     <string name="settings_version_unavailable">버전 정보를 사용할 수 없습니다</string>
+    <string name="settings_issue_report_button">문제 또는 번역 신고</string>
+    <string name="settings_issue_report_accessibility">미리 작성된 GitHub 이슈 열기</string>
+    <string name="settings_issue_report_dialog_title">이슈 보고서 검토</string>
+    <string name="settings_issue_report_dialog_message">GitHub을 열기 전에 이 초안을 검토하고 완성하세요. 아무것도 자동으로 전송되지 않습니다. 선택적 진단 데이터에는 민감한 정보가 삭제된 로컬 수명 주기 이벤트가 포함됩니다. 네트워크 주소, 비밀, Webhook 데이터 및 개인 데이터는 제외됩니다.</string>
+    <string name="settings_issue_report_include_diagnostics">정리된 진단 데이터 포함</string>
+    <string name="settings_issue_report_preview">이슈 보고서 미리보기</string>
+    <string name="settings_issue_report_preview_hint">검토하고 세부 정보 추가</string>
+    <string name="settings_issue_report_open_github">GitHub 열기</string>
+    <string name="issue_report_title">KeepADB 문제 보고서</string>
+    <string name="issue_report_unavailable">사용할 수 없음</string>
+    <string name="issue_report_body">## 문제 유형
+%1$s
+
+## 영향을 받는 언어 / 로캘
+%2$s
+
+## 예상 동작
+%3$s
+
+## 실제 동작
+%4$s
+
+## 재현 단계
+%5$s
+
+## 앱 버전
+%6$s
+
+## 버전 코드
+%7$s
+
+## Android 버전
+%8$s
+
+## Android API 수준
+%9$s
+
+## 기기 모델
+%10$s
+
+## 로그
+%11$s
+
+## 스크린샷
+%12$s
+
+## 추가 메모
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">버그 / 번역 / UI / 충돌 / 기타</string>
+    <string name="issue_report_placeholder_expected">예상되는 동작을 설명하세요.</string>
+    <string name="issue_report_placeholder_actual">실제로 발생한 동작을 설명하세요.</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">관련 로그를 여기에 붙여 넣으세요. 개인 데이터를 삭제하세요.</string>
+    <string name="issue_report_placeholder_screenshots">스크린샷을 설명하거나 직접 첨부하세요.</string>
+    <string name="issue_report_placeholder_notes">그 밖의 유용한 정보를 추가하세요.</string>
+    <string name="issue_report_diagnostics_section">선택적 KeepADB 진단 데이터(민감한 정보 삭제됨, 전송 전에 검토)</string>
 </resources>

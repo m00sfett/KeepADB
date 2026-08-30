@@ -131,4 +131,62 @@
     <string name="settings_version_value">App-Version: %1$s</string>
     <string name="settings_version_code_value">Versionscode: %1$d</string>
     <string name="settings_version_unavailable">Versionsinformationen nicht verfügbar</string>
+    <string name="settings_issue_report_button">Fehler oder Übersetzung melden</string>
+    <string name="settings_issue_report_accessibility">Vorgefüllten GitHub-Issue-Bericht öffnen</string>
+    <string name="settings_issue_report_dialog_title">Issue-Bericht prüfen</string>
+    <string name="settings_issue_report_dialog_message">Prüfe und vervollständige diesen Entwurf, bevor GitHub geöffnet wird. Es wird nichts automatisch gesendet. Die optionalen Diagnosedaten enthalten redigierte lokale Lebenszyklusereignisse; Netzwerkadressen, Geheimnisse, Webhook-Daten und private Daten werden ausgeschlossen.</string>
+    <string name="settings_issue_report_include_diagnostics">Redigierte Diagnosedaten einfügen</string>
+    <string name="settings_issue_report_preview">Vorschau des Issue-Berichts</string>
+    <string name="settings_issue_report_preview_hint">Prüfen und Details ergänzen</string>
+    <string name="settings_issue_report_open_github">GitHub öffnen</string>
+    <string name="issue_report_title">KeepADB-Problembericht</string>
+    <string name="issue_report_unavailable">Nicht verfügbar</string>
+    <string name="issue_report_body">## Problemtyp
+%1$s
+
+## Betroffene Sprache / Region
+%2$s
+
+## Erwartetes Verhalten
+%3$s
+
+## Tatsächliches Verhalten
+%4$s
+
+## Schritte zur Reproduktion
+%5$s
+
+## App-Version
+%6$s
+
+## Versionscode
+%7$s
+
+## Android-Version
+%8$s
+
+## Android-API-Level
+%9$s
+
+## Gerätemodell
+%10$s
+
+## Protokolle
+%11$s
+
+## Screenshots
+%12$s
+
+## Zusätzliche Hinweise
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">Fehler / Übersetzung / UI / Absturz / Sonstiges</string>
+    <string name="issue_report_placeholder_expected">Beschreibe, was passieren sollte.</string>
+    <string name="issue_report_placeholder_actual">Beschreibe, was passiert ist.</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">Füge relevante Protokolle hier ein. Entferne private Daten.</string>
+    <string name="issue_report_placeholder_screenshots">Beschreibe Screenshots oder füge sie manuell an.</string>
+    <string name="issue_report_placeholder_notes">Füge weitere hilfreiche Informationen hinzu.</string>
+    <string name="issue_report_diagnostics_section">Optionale redigierte KeepADB-Diagnosedaten (vor dem Senden prüfen)</string>
 </resources>

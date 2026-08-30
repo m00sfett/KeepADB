@@ -131,4 +131,62 @@
     <string name="settings_version_value">App version: %1$s</string>
     <string name="settings_version_code_value">Version code: %1$d</string>
     <string name="settings_version_unavailable">Version information unavailable</string>
+    <string name="settings_issue_report_button">Report a problem or translation</string>
+    <string name="settings_issue_report_accessibility">Open a prefilled GitHub issue report</string>
+    <string name="settings_issue_report_dialog_title">Review issue report</string>
+    <string name="settings_issue_report_dialog_message">Review and complete this draft before opening GitHub. Nothing is sent automatically. Optional diagnostics contain redacted local lifecycle events; network addresses, secrets, webhook data, and private data are excluded.</string>
+    <string name="settings_issue_report_include_diagnostics">Include redacted diagnostic data</string>
+    <string name="settings_issue_report_preview">Issue report preview</string>
+    <string name="settings_issue_report_preview_hint">Review and add details</string>
+    <string name="settings_issue_report_open_github">Open GitHub</string>
+    <string name="issue_report_title">KeepADB issue report</string>
+    <string name="issue_report_unavailable">Unavailable</string>
+    <string name="issue_report_body">## Problem type
+%1$s
+
+## Affected language / locale
+%2$s
+
+## Expected behavior
+%3$s
+
+## Actual behavior
+%4$s
+
+## Reproduction steps
+%5$s
+
+## App version
+%6$s
+
+## Version code
+%7$s
+
+## Android version
+%8$s
+
+## Android API level
+%9$s
+
+## Device model
+%10$s
+
+## Logs
+%11$s
+
+## Screenshots
+%12$s
+
+## Additional notes
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">Bug / translation / UI / crash / other</string>
+    <string name="issue_report_placeholder_expected">Describe what should happen.</string>
+    <string name="issue_report_placeholder_actual">Describe what happened.</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">Paste relevant logs here. Remove private data.</string>
+    <string name="issue_report_placeholder_screenshots">Describe or attach screenshots manually.</string>
+    <string name="issue_report_placeholder_notes">Add any other useful information here.</string>
+    <string name="issue_report_diagnostics_section">Optional redacted KeepADB diagnostics (review before submitting)</string>
 </resources>

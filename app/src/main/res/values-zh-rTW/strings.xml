@@ -132,4 +132,62 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">應用程式版本：%1$s</string>
     <string name="settings_version_code_value">版本代碼：%1$d</string>
     <string name="settings_version_unavailable">版本資訊無法使用</string>
+    <string name="settings_issue_report_button">回報問題或翻譯錯誤</string>
+    <string name="settings_issue_report_accessibility">開啟預先填寫的 GitHub 問題報告</string>
+    <string name="settings_issue_report_dialog_title">檢視問題報告</string>
+    <string name="settings_issue_report_dialog_message">開啟 GitHub 前，請檢視並完成此草稿。不會自動傳送任何內容。選用的診斷資料包含已去除敏感資訊的本機生命週期事件；網路位址、機密、Webhook 資料與私人資料都會排除。</string>
+    <string name="settings_issue_report_include_diagnostics">包含已去除敏感資訊的診斷資料</string>
+    <string name="settings_issue_report_preview">問題報告預覽</string>
+    <string name="settings_issue_report_preview_hint">檢視並新增詳細資料</string>
+    <string name="settings_issue_report_open_github">開啟 GitHub</string>
+    <string name="issue_report_title">KeepADB 問題回報</string>
+    <string name="issue_report_unavailable">無法使用</string>
+    <string name="issue_report_body">## 問題類型
+%1$s
+
+## 受影響的語言 / 地區設定
+%2$s
+
+## 預期行為
+%3$s
+
+## 實際行為
+%4$s
+
+## 重現步驟
+%5$s
+
+## 應用程式版本
+%6$s
+
+## 版本代碼
+%7$s
+
+## Android 版本
+%8$s
+
+## Android API 等級
+%9$s
+
+## 裝置型號
+%10$s
+
+## 記錄
+%11$s
+
+## 螢幕截圖
+%12$s
+
+## 其他備註
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">錯誤 / 翻譯 / 介面 / 當機 / 其他</string>
+    <string name="issue_report_placeholder_expected">請描述應有的行為。</string>
+    <string name="issue_report_placeholder_actual">請描述實際發生的情況。</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">請在此貼上相關記錄。移除私人資料。</string>
+    <string name="issue_report_placeholder_screenshots">請描述螢幕截圖或手動附加截圖。</string>
+    <string name="issue_report_placeholder_notes">新增其他有用的資訊。</string>
+    <string name="issue_report_diagnostics_section">選用的已去除敏感資訊 KeepADB 診斷資料（傳送前請檢視）</string>
 </resources>
