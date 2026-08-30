@@ -510,5 +510,17 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - F-Droid `readmeta`, `lint` und der isolierte Build liefen für den bestehenden MR-Stand
   `1.2.0` / Code `3` erfolgreich; der Build wurde gegen das veröffentlichte `v1.2.0`-APK
   reproduzierbar verifiziert.
-- Der Kandidat `1.4.3` ist noch nicht getaggt oder committed. Kein Commit, Push, Release,
-  GitHub-Action-Run, fdroiddata-Remote-Update oder MR-Update wurde ausgeführt.
+- Der Kandidat `1.4.3` wurde als upstream Commit `51175de` veröffentlicht; der GitHub-Release-
+  Workflow und die Live-Asset-Prüfung waren erfolgreich.
+
+## 2026-08-30 — F-Droid-Reviewer-Hinweise für 1.4.3
+
+- Linsui wies im MR !46500 darauf hin, die alte Version aus dem aktuellen Metadatenstand zu
+  entfernen und den App-Inclusion-Stand beizubehalten.
+- Die MR-Historie bestätigt `1.0.0` als initiale Fassung; dieser Build ist bereits aus der
+  aktuellen YAML verschwunden. Historische MR-Commits werden nicht umgeschrieben.
+- Die aktuellen YAML-Einträge `1.1.0` und `1.2.0` wurden lokal entfernt; `1.4.3` bleibt als
+  einziger Build erhalten.
+- Die MR-Beschreibung enthält noch veraltete `1.2.0`-Release-Evidenz und muss beim nächsten
+  MR-Update auf den Kandidatenstand gebracht oder auf das reine App-Inclusion-Template gekürzt
+  werden.
