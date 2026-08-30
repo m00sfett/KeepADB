@@ -5176,3 +5176,55 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   ist sauber. PR #201 ist MERGED, Issue #197 CLOSED, keine offenen PRs.
 - **Abschluss:** `complete` für Issue #197 und den autorisierten PR-Lifecycle.
 - **plan_updated_at:** 2026-08-30T01:25:00+02:00
+
+## Orchestrator-Lauf — Auswahl-/Delta-Checkpoint Issue #200 — 2026-08-30
+
+- **Plan-first/Delta:** Der letzte gespeicherte Snapshot führte #197 noch als extern offen.
+  Der aktuelle GitHub-Abgleich bestätigt #197 als CLOSED, #200 als einziges OPEN Issue,
+  keine offenen PRs und keinen aktiven Workflow-Run. `master` und `origin/master` stehen
+  sauber auf `e3e1d15`; der Arbeitsbaum ist unverändert sauber. `github-drift --repo
+  m00sfett/KeepADB` meldet Repository und Project #8 übereinstimmend.
+- **Roadmap-Abgleich (wörtlich):** „Review-Folgeissues“. #200 ist der einzige verbleibende
+  Review-Folgefehler und behandelt die noch offene Discovery-Ownership nach dem Ende des
+  Tile-Lifecycles.
+- **Ausgewähltes Paket:** Issue [#200](https://github.com/m00sfett/KeepADB/issues/200) —
+  `fix: Discovery nach Tile-Lifecycle-Ende abbrechen oder Nebenwirkungen entkoppeln`.
+- **Ziel:** Durch einen Tile-Lifecycle gestartete Discovery-Sessions beim Stop/Destroy
+  abbrechen oder eindeutig invalidieren, sodass späte Ergebnisse weder Notification noch
+  Endpoint-/USB-Register verändern und eine neue gültige Session möglich bleibt.
+- **Zerlegung:** Ein zusammenhängendes S3-Paket für Session-Ownership, Lifecycle-/Generation-
+  Guards und die zugehörigen Contract-Tests. Eine separate Aufteilung würde dieselbe
+  Discovery-Session und dieselben globalen Publikationspunkte künstlich trennen. Die Wahl
+  zwischen echtem Cancel und sicherer Entkopplung bleibt eine Architektur-/Rollbackentscheidung
+  und wird vor der Implementierung am Aufrufpfad geprüft.
+- **Vermutlich betroffene Dateien:** `app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java`,
+  `app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java`, gegebenenfalls
+  `KeepADBEndpoint.java`, `KeepADBRegisterClient.java` sowie eng begrenzte Tests unter
+  `app/src/test/java/de/hohnepeople/keepadb/`. Der endgültige Dateiscope wird erst nach der
+  autorisierten Codeprüfung festgelegt.
+- **Nicht-Ziele:** keine Änderung an Zustandsdefinition, Toggle-Semantik, Endpoint-Auswahl,
+  Activity-/Widget-/Keep-Alive-Pfaden, persistenter Zustandsablage, Geräteabnahme oder
+  GitHub-Actions.
+- **Muss-Akzeptanzfälle:** Stop und Destroy beenden/invalidieren die Tile-Session; späte
+  Erfolge und Nichtverfügbarkeit publizieren nichts global; eine neue Session funktioniert;
+  bestehende Activity-, Widget- und Keep-Alive-Pfade bleiben unverändert; Contract-Tests
+  decken Stop, Destroy, späte Ergebnisse und eine Folgesession ab.
+- **Minimale Gates nach Freigabe:** zunächst fokussierte Contract-/Unit-Tests, danach
+  `git diff --check` und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`. Geräteaktionen
+  und GitHub Actions sind nicht vorgesehen.
+- **Freigaben:** Auswahl und Planpflege sind durch den Orchestrator-Aufruf abgedeckt.
+  Implementierung, lokale Tests/Builds, ein unabhängiger S3-Review, Commit/Push, PR-/Merge-
+  Lifecycle und Issue-Schließung sind nicht freigegeben. Ein echter Cancel-/Entkopplungs-
+  Architekturentscheid bleibt zusätzlich typisiert zu bestätigen, falls der Aufrufpfad ihn
+  nicht eindeutig auf die kleinste sichere Lösung reduziert.
+- **Validierungsstatus:** keine Codeänderung und keine Tests ausgeführt; CI nur read-only
+  inventarisiert. Letzter erfolgreicher Run gehört einem älteren Head und ist kein Nachweis
+  für `e3e1d15`.
+- **Offener Befund:** Die vorhandene Folgearbeit aus #200 bleibt registriert; es wurde kein
+  neues Finding angelegt und kein bestehendes Issue verändert.
+- **Zustand:** `not approved` für die Umsetzung.
+- **Nächster Entscheidungspunkt:** typisierte Freigabe für Issue #200, lokale Gates und einen
+  unabhängigen S3-Review; zusätzlich Festlegung oder Freigabe zur Ermittlung der kleinsten
+  sicheren Cancel-/Invalidierungsvariante. Kein Subagent wurde gestartet.
+- **issue_snapshot_at:** 2026-08-30T07:13:22+02:00
+- **plan_updated_at:** 2026-08-30T07:13:22+02:00
