@@ -5415,5 +5415,8 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   Zuordnung dokumentiert Implementierungs-Bumps, nicht separat veröffentlichte Artefakte.
 - **Validierung:** Nach der Dokumentations-/Metadatenänderung sind `git diff --check` und der
   dokumentierte lokale Verify-Lauf auszuführen.
-- **Zustand:** `in_progress` bis zur lokalen Validierung und atomaren Commit-/Push-Abnahme.
-- **plan_updated_at:** 2026-08-30T09:30:00+02:00
+- **Zustand:** `complete` für die Versions-/Changelog-Regel, rückwirkende Dokumentation sowie
+  Commit/Push. `git diff --check` ist bestanden; der Gradle-Verify blieb ohne typisierte
+  Test-/Buildfreigabe aus.
+- **Commit/Push:** `4058978` auf `master` und `origin/master`.
+- **plan_updated_at:** 2026-08-30T09:35:00+02:00
