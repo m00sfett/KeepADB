@@ -5586,3 +5586,13 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Änderungen:** Keine Reviewer-Änderungen, keine Tests, Geräteaktionen oder GitHub Actions.
 - **Zustand:** `not approved` bis zur separaten Mergefreigabe.
 - **plan_updated_at:** 2026-08-30T11:00:00+02:00
+
+## Issue #204 — Mergeabschluss — 2026-08-30
+
+- **PR:** [#211](https://github.com/m00sfett/KeepADB/pull/211) per Squash gemergt;
+  Merge-Commit `cabcda3` liegt auf `master`. Der Feature-Branch wurde entfernt.
+- **Issue:** #204 ist durch `Fixes #204` geschlossen.
+- **Nachweis:** `master` und `origin/master` synchron; Board-Sync 0 Änderungen; Drift-Readback
+  ohne Befunde. Lokale Gates und unabhängiger S2-Review waren erfolgreich.
+- **Zustand:** `complete` für Issue #204, Review, lokale Gates und PR-/Issue-Lifecycle.
+- **plan_updated_at:** 2026-08-30T11:15:00+02:00
