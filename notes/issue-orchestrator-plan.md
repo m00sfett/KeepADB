@@ -5400,3 +5400,20 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Zustand:** `complete` für die Issue-Erfassung; die drei Issues warten auf eine spätere
   separate Umsetzungsfreigabe.
 - **plan_updated_at:** 2026-08-30T09:00:00+02:00
+
+## Neue Nutzerregel — Versionierung und Changelog — 2026-08-30
+
+- **Regel:** Nach jedem umgesetzten Issue wird die Appversion gemäß SemVer um einen Patch-
+  oder Minor-Schritt erhöht; `CHANGELOG.md` wird im selben Arbeitsschritt gepflegt. Bereits
+  umgesetzte Issues werden bei Einführung der Regel rückwirkend erfasst.
+- **Rückwirkende Zuordnung seit `v1.2.0`** (keine nachträglich behaupteten Releases): #192 →
+  `1.2.1`, #193 → `1.3.0`, #196 → `1.3.1`, #197 → `1.3.2`, #198 → `1.3.3`, #200 → `1.3.4`.
+- **Aktueller Stand:** `app/build.gradle` steht auf `versionName 1.3.4` und `versionCode 9`;
+  `CHANGELOG.md` führt `1.3.4` als `Unreleased`. Die README-Installationsreferenz ist
+  ebenfalls auf `KeepADB-v1.3.4.apk` aktualisiert.
+- **Nicht-Ziele:** Kein Tag, kein GitHub-Release und kein GitHub-Actions-Run; die historische
+  Zuordnung dokumentiert Implementierungs-Bumps, nicht separat veröffentlichte Artefakte.
+- **Validierung:** Nach der Dokumentations-/Metadatenänderung sind `git diff --check` und der
+  dokumentierte lokale Verify-Lauf auszuführen.
+- **Zustand:** `in_progress` bis zur lokalen Validierung und atomaren Commit-/Push-Abnahme.
+- **plan_updated_at:** 2026-08-30T09:30:00+02:00
