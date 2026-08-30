@@ -5228,3 +5228,84 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   sicheren Cancel-/Invalidierungsvariante. Kein Subagent wurde gestartet.
 - **issue_snapshot_at:** 2026-08-30T07:13:22+02:00
 - **plan_updated_at:** 2026-08-30T07:13:22+02:00
+
+## Issue #200 — Freigabe und Implementierungsstart — 2026-08-30
+
+- **Freigabe:** Der Nutzer gibt die Implementierung, die lokalen Gates und einen unabhängigen
+  S3-Review frei. Kein Subagent, kein Gerätegate und kein GitHub-Action-Run sind freigegeben.
+- **Aufruferbefund:** `KeepADBTileService.onStartListening()` startet aktuell den globalen
+  `KeepADBNotification.refresh(this)`-Pfad. `KeepADBEndpoint.stop()` invalidiert zwar seine
+  internen Callbacks, aber der Notification-Stop-Pfad publiziert zusätzlich globale
+  Unavailable-/Register-Nebenwirkungen. Der Tile-Lifecycle besitzt bisher keine eigene
+  Ownership-Grenze.
+- **Architekturentscheidung innerhalb des Scopes:** Owner-gebundene Tile-Discovery-Session
+  mit Generation-Invalidierung. `onStopListening()` und `onDestroy()` canceln nur eine von
+  diesem Tile gestartete Session und publizieren dabei weder Notification noch Register.
+  Ein bestehender globaler Discovery-Lauf wird nicht nachträglich dem Tile zugerechnet.
+- **Zielumfang:** `KeepADBTileService.java`, `KeepADBNotification.java`, ein kleiner
+  `KeepADBEndpoint.java`-Statuszugriff für die Ownership-Erkennung sowie eng begrenzte
+  Contract-Tests. Bestehende globale Refresh-Aufrufer bleiben semantisch unverändert.
+- **Status:** `in_progress`; Codeänderung begonnen, fokussierter Test und `./bin/verify`
+  stehen noch aus. Der unabhängige S3-Review folgt nach grünen lokalen Gates.
+- **plan_updated_at:** 2026-08-30T07:13:22+02:00
+
+## Issue #200 — Implementierung und lokale Gates — 2026-08-30
+
+- **Umsetzung:** `KeepADBNotification` führt eine owner-gebundene Tile-Discovery-Session;
+  `KeepADBTileService` übergibt sich selbst als Owner und invalidiert die Session bei
+  `onStopListening()` sowie `onDestroy()`. Retry-Läufe behalten den Owner. Der Abbruch stoppt
+  Discovery und Retry ohne `markUnavailableAsync`; alte Callbacks scheitern am Generation-Guard.
+  Ein bereits laufender globaler Discovery-Lauf wird nicht nachträglich dem Tile zugeordnet.
+- **Betroffene Dateien:** `KeepADBTileService.java`, `KeepADBNotification.java`,
+  `KeepADBEndpoint.java` sowie `KeepADBTileDiscoveryContractTest.java` und die notwendigen
+  Signaturanker in `KeepADBAsyncSurfaceRefreshContractTest.java`.
+- **Testbefund:** Erster fokussierter Lauf 14 Tests, 6 rote veraltete Strukturanker nach der
+  Signatur-/Wrapperänderung. Testanker angepasst; zweiter fokussierter Lauf 20/20 grün.
+- **Lokale Gates:** `git diff --check` und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`
+  erfolgreich; Unit-Tests, Lint sowie Debug- und Release-Build grün. Keine Geräteaktion und
+  kein GitHub-Action-Run.
+- **Offen:** unabhängiger S3-Review `review and repair`; Commit/Push und externer PR-/Issue-
+  Lifecycle folgen erst nach Review und sind in diesem Checkpoint noch nicht ausgeführt.
+- **Zustand:** `in_progress`, lokale Gates bestanden; Review ausstehend.
+- **plan_updated_at:** 2026-08-30T07:13:22+02:00
+
+## Issue #200 — Unabhängiger S3-Review und lokale Abschlussabnahme — 2026-08-30
+
+- **Reviewer/Paket:** Subagent `Sartre`, `review and repair`, S3; `gpt-5.6-sol` / `high`
+  konfiguriert, Laufzeitwerte nicht separat verifiziert. Der Start war ausdrücklich freigegeben.
+- **Reviewbefunde und Reparaturen:** Owner-Sentinel verhindert die nachträgliche Übernahme
+  globaler Sessions durch ein Tile; neue Tile-Instanzen übernehmen nur Tile-Sessions, globale
+  Aufrufer stufen sie korrekt hoch. Cache-Prüfungen sind lifecycle- und owner-gebunden. Tile-
+  eigene Discovery plant keinen Recovery-Puls, der nach Lifecycle-Ende WLAN-ADB umschalten
+  könnte. Contract-Tests decken Stop, Destroy, späte Ergebnisse, Nichtverfügbarkeit,
+  Cache-Prüfung, Folgesession und Owner-Wechsel ab.
+- **Reviewurteil:** Keine offenen statischen Muss-Fixes im Scope; `review and repair` bestanden.
+  Der Reviewer führte selbst keine Tests, Builds, Geräte-, CI- oder Git-Aktionen aus.
+- **Nachreparatur-Gates:** Fokussierter `KeepADBTileDiscoveryContractTest` 20/20 grün;
+  `git diff --check` und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erfolgreich.
+  Unit-Tests, Lint sowie Debug-/Release-Build sind grün. Keine Geräteaktion und kein neuer
+  GitHub-Action-Run.
+- **Serverstatus:** Issue #200 bleibt OPEN, es gibt noch keinen offenen PR; `github-drift --repo
+  m00sfett/KeepADB` meldet Repository und Project #8 übereinstimmend. Die Implementierung ist
+  in Commit `ec5fd2e` auf Branch `fix/200-tile-discovery-ownership` gepusht. PR-/Issue-
+  Abschluss wird im nächsten Schritt ausgeführt.
+- **Retrospektive:** Die frühe Contract-Prüfung fand nur veraltete Strukturanker. Der
+  unabhängige Review fand drei reale Lifecycle-/Ownership-Risiken, die Build und statische
+  Eigenprüfung nicht zuverlässig beweisen konnten. S3 war wegen asynchroner globaler
+  Nebenwirkungen angemessen. Für den nächsten Lauf bleibt die Prüfung globaler Nebenwirkungen
+  nach Lifecycle-Ende ein frühes Reviewkriterium.
+- **Zustand:** `complete` für Implementierung, Review-Reparatur und lokale Abnahme; externer
+  Lifecycle bleibt offen.
+- **plan_updated_at:** 2026-08-30T07:51:14+02:00
+
+## Issue #200 — Commit und PR-Lifecycle — 2026-08-30
+
+- **Freigabe:** Commit, Push, PR-Eröffnung, Merge nach grünen Nachweisen und Issue-Abschluss
+  sind freigegeben. GitHub Actions bleiben ungestartet, da der CI-Workflow nur per manueller
+  Auslösung läuft und dafür keine eigene Freigabe vorliegt.
+- **Commit/Branch:** `ec5fd2e` (`fix: bind tile discovery to tile lifecycle`) auf
+  `fix/200-tile-discovery-ownership`, remote vorhanden.
+- **Lokale Nachweise:** fokussierter Contract-Test 20/20 und `./bin/verify` vollständig grün;
+  diese Nachweise gelten für den Commitinhalt vor der PR-Eröffnung.
+- **Zustand:** `in_progress`, PR-Eröffnung und serverseitiger Abschluss ausstehend.
+- **plan_updated_at:** 2026-08-30T07:51:14+02:00
