@@ -463,3 +463,15 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - SemVer-Befund behoben: Feature-Bump auf `1.4.0` / Code 11 korrigiert.
 - Contract-Test um Layout-Ende, Bind-Aufruf, Fehlertext und Platzhalterabdeckung erweitert.
 - Vollständiger Verify-Lauf nach der Reparatur erneut grün.
+
+## 2026-08-30 — Issue #204 Settings-Reihenfolge
+
+- Nach ausdrücklicher Freigabe wurde Issue #204 auf `feat/204-settings-order` umgesetzt.
+- Die acht regulären Settings-Panels wurden ohne Änderung ihrer IDs, Listener oder Zustände
+  in die geforderte Produktreihenfolge verschoben; ein Contract-Test sichert die Reihenfolge.
+- Version auf `1.4.1` / Code 12 erhöht; CHANGELOG und README aktualisiert.
+- Fokussierter Contract-Test und `./bin/verify` erfolgreich, einschließlich Unit-Tests, Lint
+  sowie Debug-/Release-Build.
+- Ein fehlerhafter erster lokaler Reorder-Versuch wurde vor dem Commit erkannt und vollständig
+  korrigiert; es gab keinen Push dieses Zwischenstands.
+- Produktcommit `69bc115`; kein Gerätetest, keine GitHub Action und noch kein PR-Merge.

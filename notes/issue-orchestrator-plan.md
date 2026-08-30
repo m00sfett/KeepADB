@@ -5545,3 +5545,23 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   `./bin/verify` sind nach der Reparatur erneut auszuführen.
 - **Zustand:** `in_progress` bis unabhängiger Review und PR-Abschluss.
 - **plan_updated_at:** 2026-08-30T10:00:00+02:00
+
+## Issue #204 — Implementierung und lokale Gates — 2026-08-30
+
+- **Freigabe:** Die Nutzerfreigabe wurde als Umsetzung von #204 mit lokalen Gates und PR-
+  Lifecycle interpretiert; keine Geräteaktion und keine GitHub-Action.
+- **Umsetzung:** Die acht regulären Settings-Bereiche folgen jetzt exakt der festgelegten
+  Produktreihenfolge: Sprache, Sicherheitshinweise, Webhook, USB-ADB-Benachrichtigung,
+  USB-zu-WLAN-ADB-Übergabe, Benachrichtigung, Diagnose sowie Version/Codeversion. IDs,
+  Listener, Zustände und Funktionen wurden unverändert beibehalten.
+- **Absicherung:** `KeepADBAccessibilityContractTest.settingsPanelsFollowProductOrder`
+  pinnt die Reihenfolge und die Existenz aller acht Panel-IDs.
+- **Versionierung:** `1.4.0`/Code 11 → `1.4.1`/Code 12; Changelog und README aktualisiert.
+- **Tests/Gates:** Fokussierter Contract-Test und
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` vollständig grün. Ein erster
+  automatisierter Layout-Reorder-Versuch wurde vor Commit erkannt und ohne Folgen korrigiert.
+- **Gitstatus:** Produktcommit `69bc115` liegt auf `feat/204-settings-order`; `master` blieb
+  unverändert.
+- **Review:** Unabhängiger S2-Review vor PR-Merge noch ausstehend.
+- **Zustand:** `in_progress` bis PR, Review und Merge.
+- **plan_updated_at:** 2026-08-30T10:30:00+02:00
