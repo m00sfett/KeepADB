@@ -5864,10 +5864,16 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 
 - **Commits:** `3996e6d` Feature-Implementierung und `ed7b30c` Plan-/Review-Checkpoint auf
   `origin/feat/213-github-issue-report` gepusht.
-- **PR:** [#215](https://github.com/m00sfett/KeepADB/pull/215) gegen `master`, `OPEN`,
-  `CLEAN`, `Fixes #213`, keine Remote-Checks.
-- **Board/Drift:** Board-Sync ohne Änderungen. Drift meldet erwartungsgemäß den offenen PR
-  und den zugehörigen ungemergten Feature-Branch.
-- **Status:** `not approved` für Merge und Issue-Schließung; Implementierung, Review und lokale
-  Gates sind abgeschlossen. Mergefreigabe steht aus.
-- **plan_updated_at:** 2026-08-30T13:30:00+02:00
+- **PR:** [#215](https://github.com/m00sfett/KeepADB/pull/215) per Squash gemergt; Merge-Commit
+  `ec251376319ec01e34922dbacf334bf8687c2f42` liegt auf `master` und `origin/master`.
+- **Issue:** #213 ist durch `Fixes #213` geschlossen.
+- **Board/Drift:** Board-Sync meldet 0 Änderungen; `github-drift` bestätigt die Übereinstimmung
+  von Repository und Project #8. Der Feature-Branch ist remote entfernt.
+- **Retrospektive:** Der Review fand zwei Datenschutzlücken und eine verworfene Nutzeränderung,
+  die ein reiner Build nicht hätte zeigen können. Die frühe Contract-Prüfung plus der
+  unabhängige Review war für den externen URL-/Diagnosepfad angemessen. Für Folgefeatures mit
+  editierbarer Vorschau bleibt die explizite Verfolgung des finalen EditText-Inhalts bis zum
+  externen Intent ein Pflichtprüfpunkt.
+- **Status:** `complete` für Implementierung, Review, lokale Gates, PR-Lifecycle, Board-Sync und
+  Issue-Schließung.
+- **plan_updated_at:** 2026-08-30T13:45:00+02:00
