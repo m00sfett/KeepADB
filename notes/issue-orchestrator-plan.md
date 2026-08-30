@@ -5575,3 +5575,14 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   bleiben erforderlich.
 - **Zustand:** `not approved` bis Review und Mergefreigabe.
 - **plan_updated_at:** 2026-08-30T10:40:00+02:00
+
+## Issue #204 — Unabhängiger Review — 2026-08-30
+
+- **Review:** Unabhängiger S2-Review für PR #211 ist `APPROVED`.
+- **Nachweis:** Exakte Panel-Reihenfolge bestätigt; alle 27 Layout-IDs erhalten;
+  `SettingsActivity.java` unverändert; Listener, Zustände, Persistenz und konditionale
+  Sichtbarkeitslogik erhalten; RTL-/Reihenfolge-Absicherung vorhanden. Version 1.4.1 / Code 12,
+  CHANGELOG und README konsistent.
+- **Änderungen:** Keine Reviewer-Änderungen, keine Tests, Geräteaktionen oder GitHub Actions.
+- **Zustand:** `not approved` bis zur separaten Mergefreigabe.
+- **plan_updated_at:** 2026-08-30T11:00:00+02:00
