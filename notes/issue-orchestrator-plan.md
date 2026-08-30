@@ -5373,3 +5373,30 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Zustand:** `complete` für Versionierungsentscheidung, lokalen Build und Installation des
   Vorabteststands; kein Release, kein Tag und kein GitHub-Action-Run.
 - **plan_updated_at:** 2026-08-30T08:48:01+02:00
+
+## Orchestrator-Lauf — Issue-Erfassung Settings und i18n — 2026-08-30
+
+- **Nutzerauftrag:** Nur Issues anlegen; keine Implementierung, Builds, Geräteaktionen oder
+  GitHub-Actions für diese drei Themen.
+- **Plan-/Delta-Abgleich:** Arbeitsbaum war sauber auf `master` @ `1f203c4`; vor der Erfassung
+  gab es keine offenen Issues. Settings-Layout, `SettingsActivity`, aktuelle Versionstexte
+  und alle `values*/strings.xml` wurden read-only geprüft.
+- **Angelegte Issues:**
+  - [#203](https://github.com/m00sfett/KeepADB/issues/203) `feat: show app version and version code on Settings`
+    für eine kleine, unaufdringliche Versions-/Codeanzeige am Seitenende aus Package-Metadaten.
+  - [#204](https://github.com/m00sfett/KeepADB/issues/204) `ui: reorder Settings sections`
+    für die gewünschte Reihenfolge Sprache, Sicherheit, Webhook, USB-ADB-Benachrichtigung,
+    USB-zu-WLAN-ADB-Übergabe, Benachrichtigung, Diagnose, Version/Codeversion.
+  - [#205](https://github.com/m00sfett/KeepADB/issues/205) `i18n: audit languages and hard-coded literals`
+    für Ressourcen-Vollständigkeit, sichtbare Literale, Platzhalter, RTL und Terminologie.
+- **Zerlegung:** Drei getrennte Issues wegen eigener Akzeptanztests und Rückrollgrenzen;
+  #203/#204 teilen zwar das Settings-Layout, sind aber unabhängig abnehmbar. #205 ist ein
+  eigener Ressourcen-/Auditpfad und wird nicht mit UI-Anpassungen vermischt.
+- **Serverstatus:** Alle drei Issues sind OPEN, Project #8 und Repository stimmen nach
+  `github-board-sync --repo m00sfett/KeepADB` und `github-drift --repo m00sfett/KeepADB`
+  überein. Keine offenen PRs oder Codeänderungen.
+- **Freigaben:** Nur Issue-Erfassung und Board-Synchronisation. Implementierung und lokale
+  Gates bleiben ausdrücklich ausgenommen.
+- **Zustand:** `complete` für die Issue-Erfassung; die drei Issues warten auf eine spätere
+  separate Umsetzungsfreigabe.
+- **plan_updated_at:** 2026-08-30T09:00:00+02:00
