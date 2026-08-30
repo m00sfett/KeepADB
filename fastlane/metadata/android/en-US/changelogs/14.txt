@@ -1,0 +1,1 @@
+Add optional, privacy-aware GitHub issue reporting with an editable preview and explicit opt-in for redacted diagnostics. Localize the issue-reporting flow across all supported languages and keep external submission manual.
