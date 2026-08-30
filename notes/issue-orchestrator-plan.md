@@ -5596,3 +5596,174 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   ohne Befunde. Lokale Gates und unabhängiger S2-Review waren erfolgreich.
 - **Zustand:** `complete` für Issue #204, Review, lokale Gates und PR-/Issue-Lifecycle.
 - **plan_updated_at:** 2026-08-30T11:15:00+02:00
+
+## Übergabe zu Issue #205 — 2026-08-30
+
+- **Roadmap-Abgleich (wörtlich):** „Den Einstellungsbereich vollständig, nachvollziehbar und
+  für alle unterstützten Sprachen nutzbar machen.“ Issue #205 ist das vorgesehene Folgepaket
+  nach den finalen Settings-Änderungen aus #203/#204 und dient diesem Ziel direkt.
+- **Issue-Delta:** GitHub meldet #205 `OPEN`, Titel `i18n: audit languages and hard-coded
+  literals`, zuletzt geändert am 2026-08-30; keine weiteren offenen Issues und kein offener PR.
+- **Read-only-Prämissenprüfung:** Alle 19 `values*/strings.xml` besitzen aktuell denselben
+  Satz aus 131 Keys. Mehrere Locales enthalten bei den neueren USB-ADB-, Handover-, Status- und
+  Versionswerten noch wortgleiche englische Texte. In Java wurden keine nutzersichtbaren
+  Textliterale gefunden; `activity_settings.xml` enthält nur zwei bewusste Pfeilsymbole.
+- **Aktuelles Paket:** #205 — Ressourcen-/Literal-/Terminologie-Audit.
+- **Ziel:** Die 19 bestehenden Locales auf vollständige, konsistente und fachlich geprüfte
+  Nutzertexte bringen und einen reproduzierbaren Contract-Test für Keys, Platzhalter und
+  sichtbare Literale ergänzen.
+- **Zusammenhang:** Gemeinsamer Android-Ressourcen- und Testpfad; keine App-Logik, kein Layout-
+  Reordering und keine Änderung der Sprachliste.
+- **Nicht-Ziele:** Keine Geräteaktion, kein Release, keine GitHub Action, keine Änderung von
+  Toggle-/Webhook-/USB-Logik und keine neue Sprache.
+- **Muss-Akzeptanzfälle:** gleicher Key-Satz in allen 19 Locales; keine unbeabsichtigten
+  nutzersichtbaren Java/XML-Literale; gleiche und korrekt nummerierte Format-Platzhalter;
+  lokalisierte Settings-/USB-/Handover-/Diagnose-/Versions-/Notification-Texte; Audit-Test
+  reproduzierbar grün.
+- **Daten-/Rollbackrisiko:** Nur String-Ressourcen und Test-/Dokumentationsdateien; Rückrollpfad
+  über den atomaren PR-Commit. Keine Migration und kein Betriebsrisiko.
+- **Stufe/Gates:** S2. Minimal: `git diff --check`, fokussierter Contract-Test, danach
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` mit Unit-Tests, Lint sowie Debug-/
+  Release-Build. `approved` bedeutet alle Muss-Akzeptanzfälle und diese lokalen Gates grün.
+- **Freigaben:** Auswahl und Planaktualisierung erfolgt; Implementierung sowie lokale
+  Test-/Lint-/Build-Gates stehen bis zur typisierten Nutzerfreigabe aus. Keine Geräte- oder
+  GitHub-Actions-Freigabe.
+- **Offene Punkte:** Fachliche Übersetzungsprüfung für alle 18 nicht-default Locales;
+  englische Produktbegriffe wie Keep-Alive, Webhook, USB-ADB und WLAN-ADB bleiben nur dort
+  unverändert, wo sie als etablierte Produkt-/Technikbegriffe bewusst verwendet werden.
+- **issue_snapshot_at:** 2026-08-30T10:30:07+02:00 (GitHub-Abfrage im aktuellen Lauf)
+- **plan_updated_at:** 2026-08-30T10:30:07+02:00
+
+## Issue #205 — Teilstand nach lokalen Gates — 2026-08-30
+
+- **Freigabe:** Implementierung sowie Unit-Tests, Lint und lokale Builds wurden erteilt;
+  Geräteprüfung und GitHub Actions bleiben nicht freigegeben.
+- **Umgesetzt:** `KeepADBResourceContractTest` prüft alle 19 Locale-Dateien auf den identischen
+  Key-Satz, identische Formatargumente und sichtbare XML-/Java-Literale. Die bewussten `▼`-
+  Symbole sind als einzige XML-Ausnahme im Test dokumentiert. Version auf 1.4.2 / Code 13
+  angehoben und CHANGELOG ergänzt.
+- **Nachweise:** `git diff --check`, fokussierter Contract-Test und
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erfolgreich; Unit-Tests, Lint sowie
+  Debug-/Release-Build grün.
+- **Nicht erfüllt:** Der read-only Audit weist weiterhin englische Fallback-Texte in den
+  USB-ADB-, Handover- und Statusbereichen vieler Locales nach. Eine Übersetzung dieser Texte
+  wurde nicht als unreviewte automatische Massenänderung vorgenommen.
+- **Entscheidung des Nutzers:** Variante 1 — alle englischen Fallbacks in allen 18 nicht-
+  englischen Locales fachlich prüfen und übersetzen. Die bestehenden technischen Produktbegriffe
+  bleiben nur dort englisch, wo sie bewusst als Eigennamen bzw. Protokollbegriffe verwendet werden.
+- **Zustand:** `in_progress` — struktureller Teil nachgewiesen; die sprachliche Überarbeitung
+  und ihre erneute lokale Abnahme stehen noch aus.
+- **Nächster Arbeitsschritt:** Übersetzungsblöcke je Locale ergänzen, danach den Contract-Test
+  um eine eng begrenzte technische Ausnahmeliste für bewusst englische Produktbegriffe erweitern.
+- **plan_updated_at:** 2026-08-30T10:37:00+02:00
+
+## Issue #205 — Übergabe Locale-Paket 1 — 2026-08-30
+
+- **Bearbeiter:** Subagent Peirce, S1; Laufzeitmodell und Effort nicht exponiert.
+- **Umfang:** `values-ar`, `values-es`, `values-fr`, `values-hi`, `values-id`.
+- **Nachweis:** Jeweils 131 Keys, XML parsebar, Formatargumente unverändert und
+  `git diff --check` bestanden. Verbliebene gleiche Werte sind auf technische Begriffe,
+  Produktnamen, URLs oder formatierte Endpoint-Werte begrenzt.
+- **Offenes Risiko:** Keine Prüfung durch Muttersprachler; vor dem Abschluss erfolgt ein
+  unabhängiger sprachlicher Sichtcheck im Rahmen der Gesamtprüfung.
+- **Zustand:** abgeschlossenes Teilpaket; #205 bleibt `in_progress`.
+- **Nächste Auswahl:** Locale-Paket 2 mit `values-it`, `values-ja`, `values-ko`, `values-nl`
+  und `values-pl`.
+- **plan_updated_at:** 2026-08-30T10:45:00+02:00
+
+## Issue #205 — Übergabe Locale-Paket 2 — 2026-08-30
+
+- **Bearbeiter:** Subagent Pauli, S1; Laufzeitmodell und Effort nicht exponiert.
+- **Umfang:** `values-it`, `values-ja`, `values-ko`, `values-nl`, `values-pl`.
+- **Nachweis:** Jeweils 131 Keys, XML parsebar, Formatargumente unverändert und
+  `git diff --check` bestanden. Verbliebene gleiche Werte sind auf Produktnamen, URLs,
+  technische Begriffe oder formatierte Endpoint-Werte begrenzt.
+- **Offenes Risiko:** Keine Muttersprachlerprüfung; sprachliches Gegenlesen erfolgt in der
+  Gesamtprüfung.
+- **Zustand:** abgeschlossenes Teilpaket; #205 bleibt `in_progress`.
+- **Nächste Auswahl:** Locale-Paket 3 mit `values-pt`, `values-ru`, `values-tr`, `values-uk`,
+  `values-vi`, `values-zh-rCN` und `values-zh-rTW`.
+- **plan_updated_at:** 2026-08-30T10:55:00+02:00
+
+## Issue #205 — Übergabe Locale-Paket 3 — 2026-08-30
+
+- **Bearbeiter:** Subagent Aristotle, S1; Laufzeitmodell und Effort nicht exponiert.
+- **Umfang:** `values-pt`, `values-ru`, `values-tr`, `values-uk`, `values-vi`, `values-zh-rCN`,
+  `values-zh-rTW`.
+- **Nachweis:** Jeweils 131 Keys, XML parsebar, Formatargumente unverändert und
+  `git diff --check` bestanden. Die Gesamtprüfung bestätigt die Key-Parität aller 19 Locales.
+- **Reparatur im Hauptlauf:** AAPT2 fand ungültige bzw. beschädigte Apostroph-Escapes in
+  mehreren übersetzten Dateien; die betroffenen XML-Zeilen wurden innerhalb des Locale-Scopes
+  repariert. Danach kompilierten alle Locale-Dateien direkt mit AAPT2.
+- **Zustand:** abgeschlossenes Teilpaket; #205 bleibt wegen Reviewbefund offen.
+- **plan_updated_at:** 2026-08-30T11:20:00+02:00
+
+## Issue #205 — Unabhängiges Review — 2026-08-30
+
+- **Bearbeiter:** Reviewer Laplace, S1; Laufzeitmodell und Effort nicht exponiert.
+- **Modus:** `review and repair`; der Reviewer prüfte alle geänderten Ressourcen, den
+  Contract-Test, Changelog/Version und die Gegenrichtung der Issue-Beschreibung.
+- **Muss-Fixes:** Italienische Backslash-/Apostroph-Escapes, französische Apostrophe,
+  ukrainisches `endpoint`, zu schwache Literalprüfung und der nicht scopekonforme temporäre
+  Versionssprung wurden behoben bzw. zurückgesetzt.
+- **Nachweise:** 19 Locale-Dateien mit je 131 Keys, formatgenaue Platzhalterprüfung, AAPT2-
+  Ressourcenkompilierung, 146 Unit-Tests, Lint, Debug-Build und `git diff --check` grün.
+- **Offener Reviewbefund:** Eine vollständige Prüfung der automatisch erstellten Übersetzungen
+  durch Muttersprachler ist nicht nachgewiesen. Das überschreitet den technischen Review-
+  Nachweis; keine weitere Reparatur wurde behauptet.
+- **Zustand:** `not approved` für vollständige Issue-Abnahme; Code, Ressourcen und lokale Gates
+  sind technisch abnahmefähig, die fachliche Sprachabnahme bleibt offen.
+- **Server-/Commitstatus:** Keine GitHub-Schreibaktion, kein Commit, kein Push, kein PR und
+  keine GitHub Action ausgeführt; Issue #205 bleibt offen.
+- **Nächster Schritt:** Fachliches Gegenlesen der 18 nicht-default Locales; danach erneute
+  Abnahme gegen die bestehenden Gates.
+- **plan_updated_at:** 2026-08-30T11:20:00+02:00
+
+## Issue #205 — PR-Lifecycle — 2026-08-30
+
+- **Nutzerentscheidung:** Fehlende Muttersprachlerprüfung ist kein Blocker; das Restrisiko
+  wird im PR transparent akzeptiert.
+- **Commits:** `b3a862b` Ressourcen/Contract-Test und `510551a` Version/Changelog auf Branch
+  `feat/205-i18n-audit`; beide gepusht.
+- **PR:** [#214](https://github.com/m00sfett/KeepADB/pull/214) gegen `master`, mit `Fixes #205`.
+- **Lokale Gates:** `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` nach den letzten
+  Reparaturen und nochmals nach dem Versionscommit erfolgreich; Unit-Tests, Lint sowie
+  Debug-/Release-Build grün.
+- **Remote-CI:** Workflow-Inventur abgeschlossen; `ci.yml` läuft nur per `workflow_dispatch`.
+  Keine Remote-Checks und kein neuer GitHub-Actions-Run ausgelöst.
+- **Review:** Unabhängiger S1-Review mit Reparatur der technischen Muss-Fixes abgeschlossen;
+  sprachliche Muttersprachlerprüfung als akzeptiertes Restrisiko dokumentiert.
+- **Retrospektive:** Die frühe Contract-Prüfung fand Strukturfehler, AAPT2 fand Escapingfehler;
+  die Paketzerlegung hielt die Locale-Änderungen disjunkt. Verbesserung für den nächsten Lauf:
+  Übersetzungsänderungen vor dem Worker-Commit mit AAPT2 validieren und sprachliche Review-
+  Unsicherheit bereits im Paketauftrag als Akzeptanzrisiko markieren.
+- **Zustand:** `not approved` bis zur expliziten Merge-/Issue-Abnahme; PR #214 offen, Head
+  `510551a`, Serverstatus `CLEAN`, Remote-Checks leer.
+- **plan_updated_at:** 2026-08-30T11:45:00+02:00
+
+## Nutzerentscheidung und Folgeissue — 2026-08-30
+
+- **Entscheidung:** Die fehlende Muttersprachlerprüfung ist für diesen Lauf kein Blocker;
+  das Restrisiko wird für die PR-Abnahme akzeptiert und transparent dokumentiert.
+- **Neuer Auftrag:** Ein Settings-Einstieg soll direkt zur GitHub-Seite für ein neues Issue
+  führen, möglichst mit vorausgefülltem Titel und strukturierten Angaben zu Version, Gerät,
+  Android, Sprache, Erwartung/Ist-Zustand, Reproduktionsschritten, Logs und Screenshots.
+- **Trennung:** Das Folgeissue wird jetzt zentral erfasst und synchronisiert; seine
+  Implementierung gehört nicht in den aktuellen #205-PR.
+- **Nächster Lifecycle:** #205 nach Issue-Erfassung auf Branch/Commit/PR bringen; keine
+  GitHub Action auslösen. Vor Merge bleiben unabhängiger Review, lokale Gates und separate
+  Mergefreigabe maßgeblich.
+- **plan_updated_at:** 2026-08-30T11:30:00+02:00
+
+## Folgeissue #213 — Erfassung abgeschlossen — 2026-08-30
+
+- **Issue:** [#213](https://github.com/m00sfett/KeepADB/issues/213) `feat: add prefilled
+  GitHub issue reporting link in Settings` angelegt.
+- **Inhalt:** Lokalisierter Settings-Einstieg, vorausgefüllter und URL-encodierter New-Issue-
+  Link, strukturierte Felder für Sprache, Erwartung/Ist-Zustand, Schritte, Version, Gerät,
+  Android, Logs und Screenshots sowie Ausschluss sensibler Daten.
+- **Board/Drift:** `github-board-sync --repo m00sfett/KeepADB` fügte #213 hinzu und setzte es
+  auf `backlog`; anschließender Drift-Readback ohne ausgegebenen Befund.
+- **Trennung:** #213 bleibt Erfassungs-/Folgearbeit; keine Implementierung im #205-PR.
+- **Zustand:** `complete` für Issue-Erfassung und Board-Sync; #205-Lifecycle folgt.
+- **plan_updated_at:** 2026-08-30T11:35:00+02:00
