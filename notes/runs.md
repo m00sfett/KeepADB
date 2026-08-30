@@ -389,3 +389,13 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Die dauerhafte Betriebs- und Wiederherstellungsdokumentation liegt in
   `docs/release-signing.md`. Es wurden kein Schlüssel erzeugt oder rotiert, kein Release
   gestartet und keine GitHub Action ausgelöst.
+
+## 2026-08-30 — Lokaler 1.3.0-Vorabtest auf S20 und rolfphone
+
+- Versionsstand von 1.2.0/Code 3 auf 1.3.0/Code 4 angehoben; Changelog-Eintrag bleibt als
+  `Unreleased` gekennzeichnet, da kein Release gestartet wurde.
+- `./bin/verify` erfolgreich mit Unit-Tests, Lint sowie Debug-/Release-Build.
+- Debug-APK per `install -r` auf S20 (SM-G780G, Android 13) und rolfphone (CUBOT P60,
+  Android 12) installiert; beide Readbacks bestätigen 1.3.0/Code 4.
+- Shared-Prefs und Diagnosedaten vorab gesichert; keine Deinstallation oder Datenlöschung.
+- Keine UI-/Funktionsabnahme, kein Release, kein Tag und kein GitHub-Action-Run.

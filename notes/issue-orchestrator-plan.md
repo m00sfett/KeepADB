@@ -5341,3 +5341,35 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Zustand:** `complete` für Issue #200, Review, lokale Gates, PR-/Merge-Lifecycle und
   Issue-Abschluss.
 - **plan_updated_at:** 2026-08-30T07:51:14+02:00
+
+## Lokaler Vorabtest für den nächsten Release — 2026-08-30
+
+- **Freigabe:** Aktuellen Stand auf S20 und `rolfphone` bauen und installieren; kein Release,
+  kein Tag und kein GitHub-Action-Run.
+- **Versionsentscheidung:** Minor-Bump von `1.2.0`/Code 3 auf `1.3.0`/Code 4. Seit 1.2.0
+  kamen mehrere nutzersichtbare Zustands- und Tile-Funktionen sowie Lifecycle-/Recovery-
+  Korrekturen hinzu. `CHANGELOG.md` führt 1.3.0 deshalb als `Unreleased`.
+- **Ziel:** Lokale Debug-APK aus dem aktuellen `master` bauen und per registriertem,
+  fingerprint-validiertem Transport per `install -r` auf beiden Geräten installieren.
+- **Nicht-Ziele:** keine Datenlöschung, kein Uninstall, kein Release-Artefakt, keine
+  Veröffentlichung und keine GitHub-Actions.
+- **Planstatus:** Versionsänderung vor Build/Installation; Geräteabnahme folgt nach dem
+  erfolgreichen Installieren.
+- **plan_updated_at:** 2026-08-30T08:43:41+02:00
+
+## Lokaler Vorabtest für den nächsten Release — Installation abgeschlossen — 2026-08-30
+
+- **Build:** `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erfolgreich. APK-Metadaten:
+  `de.hohnepeople.keepadb`, versionName `1.3.0`, versionCode `4`, minSdk 30, targetSdk 35.
+- **S20:** Modell SM-G780G, Android 13, Serial RF8T307S88H; `install -r` erfolgreich.
+  Readback bestätigt KeepADB 1.3.0 / Code 4, Updatezeit 2026-08-30 08:47:54.
+- **rolfphone:** Modell CUBOT P60, Android 12, Serial P60221209010167; `install -r`
+  erfolgreich. Readback bestätigt KeepADB 1.3.0 / Code 4, Updatezeit 2026-08-30 08:48:01.
+- **Datensicherheit:** Shared-Prefs und Diagnosedaten beider Geräte vor der Installation nach
+  `/home/tobias/agent/backup/2026-08-30/keepadb-install-preflight/` gesichert. Keine
+  Deinstallation, kein `pm clear`, keine sonstige Datenlöschung.
+- **Geräteprüfung:** Transport, Modell, Serial und Fingerprint vor der Installation validiert;
+  Registereinträge anschließend aktualisiert. Keine UI-/Funktionsabnahme in diesem Schritt.
+- **Zustand:** `complete` für Versionierungsentscheidung, lokalen Build und Installation des
+  Vorabteststands; kein Release, kein Tag und kein GitHub-Action-Run.
+- **plan_updated_at:** 2026-08-30T08:48:01+02:00

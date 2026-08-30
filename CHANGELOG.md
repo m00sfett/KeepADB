@@ -5,6 +5,17 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - Unreleased
+
+### Added
+- Distinct app, widget, and Quick Settings states for off, missing permission, disconnected, and connected conditions.
+- Fresh-process endpoint discovery from the normal Quick Settings Tile without Keep-Alive.
+
+### Fixed
+- Activity, widget, and Tile now refresh after asynchronous endpoint discovery.
+- Tile-owned discovery is cancelled or invalidated at the end of the Tile lifecycle, preventing stale notification, register, and recovery side effects.
+- Keep-Alive survives reboot, Wi-Fi AP changes, and temporary connection drops more reliably.
+
 ## [1.2.0] - 2026-08-29
 
 ### Added
