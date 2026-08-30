@@ -127,4 +127,8 @@
     <string name="usb_notification_enable_wlan_handover">Enable WLAN-ADB</string>
     <string name="usb_notification_handover_error">Could not enable WLAN-ADB. Check permission.</string>
     <string name="notification_action_disable">Turn off WLAN-ADB</string>
+    <string name="settings_section_version">Version</string>
+    <string name="settings_version_value">App version: %1$s</string>
+    <string name="settings_version_code_value">Version code: %1$d</string>
+    <string name="settings_version_unavailable">Version information unavailable</string>
 </resources>

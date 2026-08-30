@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -36,6 +37,8 @@ public class SettingsActivity extends Activity {
     private TextView webhookError;
     private Button webhookSave;
     private Button webhookClear;
+    private TextView versionNameText;
+    private TextView versionCodeText;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -46,6 +49,10 @@ public class SettingsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        versionNameText = findViewById(R.id.settings_version_name);
+        versionCodeText = findViewById(R.id.settings_version_code);
+        bindVersionInfo();
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         permissionPanel = findViewById(R.id.settings_permission_panel);
@@ -414,5 +421,17 @@ public class SettingsActivity extends Activity {
         usbHandoverSelectedText.setText(handoverModeLabel);
         usbHandoverSelector.setContentDescription(
                 getString(R.string.settings_usb_handover_label) + ": " + getString(handoverModeLabel));
+    }
+
+    private void bindVersionInfo() {
+        try {
+            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            versionNameText.setText(getString(R.string.settings_version_value, packageInfo.versionName));
+            versionCodeText.setText(getString(R.string.settings_version_code_value,
+                    packageInfo.getLongVersionCode()));
+        } catch (PackageManager.NameNotFoundException exception) {
+            versionNameText.setText(R.string.settings_version_unavailable);
+            versionCodeText.setText(R.string.settings_version_unavailable);
+        }
     }
 }

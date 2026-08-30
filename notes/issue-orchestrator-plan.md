@@ -5489,3 +5489,45 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Zustand:** `not approved` für die Implementierung; Roadmap-Erweiterung vorbereitet,
   Umsetzung von #203 beginnt erst nach PR-Merge dieser Planänderung.
 - **plan_updated_at:** 2026-08-30T09:27:07+02:00
+
+## Issue #203 — Implementierung und lokale Gates — 2026-08-30
+
+- **Freigabe:** Die Nutzerfreigabe wurde als Umsetzung von #203 mit lokalen Gates und PR-
+  Lifecycle interpretiert; keine Geräteaktion und keine GitHub-Action.
+- **Umsetzung:** `SettingsActivity` zeigt am Ende der Settings-Seite Version und Version Code
+  aus `PackageInfo`. Die Anzeige nutzt zurückhaltende Typografie und mittleren Kontrast.
+  Resource-Keys und lokalisierte Texte sind in allen 19 Locale-Verzeichnissen vorhanden.
+- **Versionierung:** `1.3.4`/Code 9 → `1.4.0`/Code 11; Changelog und README aktualisiert.
+- **Tests/Gates:** Fokussierter `KeepADBVersionContractTest` nach Reparatur 1/1 grün;
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` vollständig grün mit Unit-Tests,
+  Lint sowie Debug-/Release-Build. Erster Testlauf scheiterte an nicht verfügbarer
+  `Files.readString`-API und wurde auf `Files.readAllBytes` korrigiert.
+- **Review:** S2-Implementierung, unabhängiger Review vor PR-Merge noch ausstehend.
+- **Gitstatus:** Produktcommit `59a87de` liegt ausschließlich auf `feat/203-version-settings`;
+  `master` und `origin/master` bleiben auf `0ce48e6`. Der versehentliche lokale Commit auf
+  `master` wurde vor jedem Push korrigiert.
+- **Zustand:** `in_progress` bis PR, Review und Merge.
+- **plan_updated_at:** 2026-08-30T09:34:14+02:00
+
+## Issue #203 — Review und Reparatur — 2026-08-30
+
+- **Reviewbefund:** Die erste Implementierung enthielt in 17 Locale-Dateien englische
+  Fallback-Texte statt lokalisierter Versionslabels. Das verletzte das #203-Kriterium zur
+  Darstellung in allen unterstützten Sprachen.
+- **Reparatur:** Versionsbereich, Versionslabel, Code-Label und Fehlertext in allen betroffenen
+  Sprachen übersetzt. Der allgemeine Ressourcen-Audit bleibt als #205 abgegrenzt.
+- **Nachreparatur-Gates:** Fokussierter `KeepADBVersionContractTest` und
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` vollständig grün.
+- **Zustand:** `in_progress` bis PR-Review und Merge.
+- **plan_updated_at:** 2026-08-30T09:40:00+02:00
+
+## Issue #203 — Reviewbefunde repariert — 2026-08-30
+
+- **SemVer-Befund:** Die neue Settings-Funktion ist ein Minor-Feature. Der Bump wurde von
+  `1.3.5`/Code 10 auf `1.4.0`/Code 11 korrigiert.
+- **Testbefund:** Der Contract-Test prüft jetzt das letzte Layout-Panel, den Bind-Aufruf,
+  den Fehlerpfad, alle 19 Locale-Dateien und die beiden Formatplatzhalter.
+- **Nachreparatur-Gates:** Fokussierter `KeepADBVersionContractTest` und vollständiger
+  `./bin/verify` sind nach der Reparatur erneut auszuführen.
+- **Zustand:** `in_progress` bis unabhängiger Review und PR-Abschluss.
+- **plan_updated_at:** 2026-08-30T10:00:00+02:00

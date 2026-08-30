@@ -435,3 +435,25 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Die übergeordnete Versionierungsregel überschreibt die entgegenstehenden Issue-Nicht-Ziele
   zur Versionsanhebung.
 - Keine Implementierung, kein Build, kein Gerätetest und keine GitHub Action ausgeführt.
+
+## 2026-08-30 — Issue #203 Versionsanzeige
+
+- `SettingsActivity` zeigt Version und Version Code aus `PackageInfo` am Seitenende.
+- Version auf `1.3.5` / Code 10 erhöht; Changelog, README sowie lokalisierte Texte in allen
+  19 Locale-Resource-Dateien aktualisiert. Contract-Test ergänzt.
+- Erster fokussierter Testlauf scheiterte an `Files.readString`; auf `Files.readAllBytes`
+  korrigiert. Danach fokussierter Test und `./bin/verify` vollständig grün.
+- Produktcommit `59a87de` liegt auf `feat/203-version-settings`; `master` blieb unverändert.
+- Kein Gerätetest und keine GitHub Action ausgeführt.
+
+## 2026-08-30 — Issue #203 Review-Reparatur
+
+- Reviewbefund: 17 Locale-Dateien enthielten zunächst englische Fallback-Texte für die neuen
+  Versionslabels. Die Texte wurden sprachspezifisch ergänzt; der allgemeine Audit bleibt #205.
+- Fokussierter Contract-Test und `./bin/verify` nach der Reparatur vollständig grün.
+
+## 2026-08-30 — Issue #203 unabhängige Review-Reparatur
+
+- SemVer-Befund behoben: Feature-Bump auf `1.4.0` / Code 11 korrigiert.
+- Contract-Test um Layout-Ende, Bind-Aufruf, Fehlertext und Platzhalterabdeckung erweitert.
+- Vollständiger Verify-Lauf nach der Reparatur erneut grün.
