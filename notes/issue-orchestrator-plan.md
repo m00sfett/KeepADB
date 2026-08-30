@@ -5460,3 +5460,32 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   waren erfolgreich. Board-Sync meldete 0 Änderungen, Drift meldet keine Befunde.
 - **Zustand:** `complete` für Versionsregel, Changelog-Pflege, Verify, Review und PR-Lifecycle.
 - **plan_updated_at:** 2026-08-30T10:15:00+02:00
+
+## Erweiterte Roadmap — alle offenen Issues — 2026-08-30
+
+- **Roadmap-Ziel:** Den Einstellungsbereich vollständig, nachvollziehbar und für alle
+  unterstützten Sprachen nutzbar machen. Die Roadmap umfasst alle aktuell offenen Issues.
+- **Issue-Snapshot:** 2026-08-30T09:27:07+02:00; GitHub meldet #203, #204 und #205 offen,
+  keine offenen Pull Requests.
+- **Reihenfolge:**
+  1. [#203](https://github.com/m00sfett/KeepADB/issues/203) — Versions- und Codeversion-
+     anzeige aus Package-Metadaten.
+  2. [#204](https://github.com/m00sfett/KeepADB/issues/204) — feste Reihenfolge der
+     Settings-Bereiche, einschließlich der Anzeige aus #203 am Seitenende.
+  3. [#205](https://github.com/m00sfett/KeepADB/issues/205) — Ressourcen-, Literal-,
+     Platzhalter- und Terminologie-Audit nach den UI-Änderungen.
+- **Zusammenhang:** #204 baut auf der Versionsanzeige aus #203 auf. #205 folgt danach,
+  damit die finalen Settings-Texte und alle neu sichtbaren Literale geprüft werden.
+- **Nicht-Ziele:** Keine Änderung der unterstützten Sprachliste, keine automatische
+  Übersetzung ohne Prüfung, keine Release-Erstellung und keine Geräteaktion als Teil der
+  Roadmap-Erweiterung.
+- **Versionsregel:** Die Issue-Nicht-Ziele „keine Versionsanhebung“ in #203 und #205 werden
+  durch die übergeordnete Nutzerregel überschrieben. Jede Umsetzung erhält den passenden
+  Patch-/Minor-Bump und einen Changelog-Eintrag im selben PR.
+- **Stufen und Gates:** #203 S2 mit Contract-/UI-Test und lokalen Gates; #204 S2 mit
+  Layout-/Contract-Test und lokalen Gates; #205 S2 mit reproduzierbarem Ressourcen-/Literal-
+  Audit, Unit-Tests, Lint und Build. Geräteaktionen und GitHub-Actions bleiben separate
+  typisierte Freigaben.
+- **Zustand:** `not approved` für die Implementierung; Roadmap-Erweiterung vorbereitet,
+  Umsetzung von #203 beginnt erst nach PR-Merge dieser Planänderung.
+- **plan_updated_at:** 2026-08-30T09:27:07+02:00

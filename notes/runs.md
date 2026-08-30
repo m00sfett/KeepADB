@@ -426,3 +426,12 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - PR #206 wurde nach ausdrücklicher Freigabe per Squash gemergt; Merge-Commit `eedddba` liegt
   auf `master`. Der Feature-Branch wurde entfernt.
 - `master` und `origin/master` sind synchron. Board-Sync und Drift-Readback sind sauber.
+
+## 2026-08-30 — Roadmap auf alle offenen Issues erweitert
+
+- GitHub-Abgleich: #203, #204 und #205 offen; keine offenen PRs.
+- Reihenfolge festgelegt: #203 Versionsanzeige, #204 Settings-Reihenfolge, #205
+  Ressourcen-/Literal-Audit. #204 hängt fachlich an #203; #205 folgt nach den UI-Änderungen.
+- Die übergeordnete Versionierungsregel überschreibt die entgegenstehenden Issue-Nicht-Ziele
+  zur Versionsanhebung.
+- Keine Implementierung, kein Build, kein Gerätetest und keine GitHub Action ausgeführt.
