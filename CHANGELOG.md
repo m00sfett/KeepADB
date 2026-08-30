@@ -5,7 +5,7 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] - Unreleased
+## [1.3.4] - Unreleased
 
 ### Added
 - Distinct app, widget, and Quick Settings states for off, missing permission, disconnected, and connected conditions.
@@ -15,6 +15,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Activity, widget, and Tile now refresh after asynchronous endpoint discovery.
 - Tile-owned discovery is cancelled or invalidated at the end of the Tile lifecycle, preventing stale notification, register, and recovery side effects.
 - Keep-Alive survives reboot, Wi-Fi AP changes, and temporary connection drops more reliably.
+
+### Versioning note
+- Each implemented issue increments the next patch or minor version. The intermediate bumps below are recorded retrospectively; they were not published as separate tags or releases.
+
+## Retrospective issue version history
+
+- `1.2.1` — #192: Keep-Alive remains active across reboot, Wi-Fi AP changes, and temporary connection drops.
+- `1.3.0` — #193: App, widget, and Quick Settings Tile distinguish all operational states.
+- `1.3.1` — #196: Fresh-process Tile discovery starts without Keep-Alive.
+- `1.3.2` — #197: All UI surfaces refresh after asynchronous endpoint discovery.
+- `1.3.3` — #198: Tile discovery uses the normal Tile lifecycle in fresh processes.
+- `1.3.4` — #200: Tile-owned discovery cannot publish stale effects after lifecycle end.
 
 ## [1.2.0] - 2026-08-29
 
