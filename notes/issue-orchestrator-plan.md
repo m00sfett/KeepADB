@@ -5877,3 +5877,17 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Status:** `complete` für Implementierung, Review, lokale Gates, PR-Lifecycle, Board-Sync und
   Issue-Schließung.
 - **plan_updated_at:** 2026-08-30T13:45:00+02:00
+
+## Issue #213 — UI-Folgefix und Versionspflege — 2026-08-30
+
+- **UI-Folgefix:** Der Berichtsdialog nutzt jetzt eine kompakte, scrollbarere Vorschau mit
+  sichtbaren Aktionen; der Einleitungstext ist begrenzt und Markdown-Abschnitte bleiben lesbar.
+- **Versionierung:** `versionName 1.4.3`, `versionCode 14`; der Changelog-Eintrag beschreibt den
+  Folgefix.
+- **Validierung:** `git diff --check` und `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./gradlew
+  assembleDebug` erfolgreich. Die korrigierte Oberfläche wurde auf dem Galaxy S20 installiert
+  und per Screenshot/UI-Dump geprüft; der Dialog zeigt beide Buttons vollständig.
+- **Server-/Gitstatus:** PR [#216](https://github.com/m00sfett/KeepADB/pull/216) mit Merge-Commit
+  `cab1e214ae7931685a19352c8089144fd074c4c9` per Squash gemergt; keine GitHub-Actions gestartet.
+- **Status:** `complete` für UI-Folgefix, Versionspflege und PR-Merge; Issue #213 bleibt geschlossen.
+- **plan_updated_at:** 2026-08-30T13:35:00+02:00
