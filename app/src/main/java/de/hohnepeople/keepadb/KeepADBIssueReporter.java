@@ -51,7 +51,7 @@ final class KeepADBIssueReporter {
                 context.getString(R.string.issue_report_placeholder_logs),
                 context.getString(R.string.issue_report_placeholder_screenshots),
                 context.getString(R.string.issue_report_placeholder_notes));
-        return body;
+        return body.replaceAll("\\s+##\\s+", "\n## ");
     }
 
     static String buildUrl(Context context, boolean includeDiagnostics) {

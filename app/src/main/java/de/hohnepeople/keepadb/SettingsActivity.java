@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -397,19 +398,37 @@ public class SettingsActivity extends Activity {
         int padding = (int) (20 * getResources().getDisplayMetrics().density);
         content.setPadding(padding, 0, padding, 0);
 
+        TextView intro = new TextView(this);
+        intro.setText(R.string.settings_issue_report_dialog_message);
+        intro.setTextSize(13);
+        intro.setMaxLines(3);
+        intro.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        content.addView(intro);
+
         CheckBox diagnostics = new CheckBox(this);
         diagnostics.setText(R.string.settings_issue_report_include_diagnostics);
         diagnostics.setContentDescription(getString(R.string.settings_issue_report_include_diagnostics));
         content.addView(diagnostics);
 
+        ScrollView previewScroll = new ScrollView(this);
+        previewScroll.setFillViewport(true);
+        previewScroll.setScrollbarFadingEnabled(false);
+        LinearLayout.LayoutParams previewScrollParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, (int) (280 * getResources().getDisplayMetrics().density));
+        previewScrollParams.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
+        previewScroll.setLayoutParams(previewScrollParams);
+
         EditText preview = new EditText(this);
         preview.setGravity(android.view.Gravity.TOP | android.view.Gravity.START);
         preview.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
                 | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        preview.setMinHeight((int) (260 * getResources().getDisplayMetrics().density));
+        preview.setTextSize(13);
+        preview.setBackgroundResource(R.drawable.bg_input);
+        preview.setPadding(padding, padding, padding, padding);
         preview.setHint(R.string.settings_issue_report_preview_hint);
         preview.setContentDescription(getString(R.string.settings_issue_report_preview));
-        content.addView(preview);
+        previewScroll.addView(preview);
+        content.addView(previewScroll);
 
         String withoutDiagnostics = KeepADBIssueReporter.buildBody(this, false);
         final String[] diagnosticsSection = {null};
@@ -432,7 +451,6 @@ public class SettingsActivity extends Activity {
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.settings_issue_report_dialog_title)
-                .setMessage(R.string.settings_issue_report_dialog_message)
                 .setView(content)
                 .setPositiveButton(R.string.settings_issue_report_open_github, null)
                 .setNegativeButton(android.R.string.cancel, null)
