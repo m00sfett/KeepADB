@@ -492,3 +492,10 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   unveränderte `SettingsActivity`-Logik sowie konsistente Versionierungsdokumentation.
 - Reviewer änderte keine Dateien und führte keine Tests, Geräteaktionen oder GitHub Actions aus.
 - Merge bleibt bis zur ausdrücklichen Nutzerfreigabe aus.
+
+## 2026-08-30 — Issue #204 Mergeabschluss
+
+- PR #211 nach ausdrücklicher Freigabe per Squash gemergt (`cabcda3`); Feature-Branch entfernt.
+- Issue #204 ist geschlossen. `master` und `origin/master` sind synchron.
+- Board-Sync meldete 0 Änderungen; Drift-Readback ist sauber.
+- Keine Geräteaktion und keine GitHub Action ausgeführt.
