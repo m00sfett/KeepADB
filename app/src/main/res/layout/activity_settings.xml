@@ -138,9 +138,9 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Notification Section -->
+        <!-- Security & Network Advice Section -->
         <LinearLayout
-            android:id="@+id/settings_notification_panel"
+            android:id="@+id/settings_security_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -152,18 +152,47 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_notification"
+                android:text="@string/settings_section_security"
+                android:textColor="@color/title_yellow"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:lineSpacingExtra="3dp"
+                android:text="@string/settings_security_body"
+                android:textColor="@color/night_text"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Webhook Section -->
+        <LinearLayout
+            android:id="@+id/settings_webhook_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_webhook_title"
                 android:textColor="@color/title_yellow"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
             <Switch
-                android:id="@+id/settings_hide_notification_toggle"
+                android:id="@+id/settings_webhook_toggle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
                 android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_hide_notification_toggle"
+                android:text="@string/settings_webhook_toggle"
                 android:textColor="@color/text_yellow"
                 android:textSize="17sp" />
 
@@ -171,10 +200,85 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp"
                 android:fontFamily="sans-serif"
-                android:text="@string/settings_hide_notification_subtext"
+                android:text="@string/settings_webhook_subtext"
                 android:textColor="@color/night_muted"
                 android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_webhook_url_label"
+                android:textColor="@color/night_text"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/settings_webhook_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_input"
+                android:fontFamily="monospace"
+                android:hint="@string/settings_webhook_url_hint"
+                android:inputType="textUri"
+                android:minHeight="48dp"
+                android:padding="12dp"
+                android:textColor="@color/night_text"
+                android:textColorHint="@color/night_muted"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/settings_webhook_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFamily="sans-serif"
+                android:textColor="@color/link_red"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="end"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/settings_webhook_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_btn_secondary"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/settings_webhook_btn_clear"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/settings_webhook_save"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_btn_primary"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/settings_webhook_btn_save"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- USB-ADB Notification Section -->
@@ -322,9 +426,9 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Webhook Section -->
+        <!-- Notification Section -->
         <LinearLayout
-            android:id="@+id/settings_webhook_panel"
+            android:id="@+id/settings_notification_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -336,18 +440,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_webhook_title"
+                android:text="@string/settings_section_notification"
                 android:textColor="@color/title_yellow"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
             <Switch
-                android:id="@+id/settings_webhook_toggle"
+                android:id="@+id/settings_hide_notification_toggle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
                 android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_webhook_toggle"
+                android:text="@string/settings_hide_notification_toggle"
                 android:textColor="@color/text_yellow"
                 android:textSize="17sp" />
 
@@ -355,85 +459,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:layout_marginBottom="12dp"
                 android:fontFamily="sans-serif"
-                android:text="@string/settings_webhook_subtext"
+                android:text="@string/settings_hide_notification_subtext"
                 android:textColor="@color/night_muted"
                 android:textSize="13sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_webhook_url_label"
-                android:textColor="@color/night_text"
-                android:textSize="15sp" />
-
-            <EditText
-                android:id="@+id/settings_webhook_url"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_input"
-                android:fontFamily="monospace"
-                android:hint="@string/settings_webhook_url_hint"
-                android:inputType="textUri"
-                android:minHeight="48dp"
-                android:padding="12dp"
-                android:textColor="@color/night_text"
-                android:textColorHint="@color/night_muted"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/settings_webhook_error"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/link_red"
-                android:textSize="13sp"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="end"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/settings_webhook_clear"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_btn_secondary"
-                    android:fontFamily="sans-serif-condensed"
-                    android:minHeight="48dp"
-                    android:paddingStart="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="16dp"
-                    android:paddingBottom="8dp"
-                    android:text="@string/settings_webhook_btn_clear"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/settings_webhook_save"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_btn_primary"
-                    android:fontFamily="sans-serif-condensed"
-                    android:minHeight="48dp"
-                    android:paddingStart="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="16dp"
-                    android:paddingBottom="8dp"
-                    android:text="@string/settings_webhook_btn_save"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
         </LinearLayout>
 
         <!-- Diagnostics Section -->
@@ -477,35 +506,6 @@
                 android:textColor="@color/text_yellow"
                 android:textSize="15sp"
                 android:textStyle="bold" />
-        </LinearLayout>
-
-        <!-- Security & Network Advice Section -->
-        <LinearLayout
-            android:id="@+id/settings_security_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_security"
-                android:textColor="@color/title_yellow"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:lineSpacingExtra="3dp"
-                android:text="@string/settings_security_body"
-                android:textColor="@color/night_text"
-                android:textSize="13sp" />
         </LinearLayout>
 
         <!-- Version Section -->
