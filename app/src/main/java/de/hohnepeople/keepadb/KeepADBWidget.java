@@ -6,15 +6,18 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
 public class KeepADBWidget extends AppWidgetProvider {
     private static final String ACTION_TOGGLE = "de.hohnepeople.keepadb.TOGGLE";
+    private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
 
     @Override
     public void onUpdate(Context context, AppWidgetManager mgr, int[] ids) {
-        for (int id : ids) render(context, mgr, id);
+        for (int id : ids) render(context, mgr, id, true);
     }
 
     @Override
@@ -37,7 +40,7 @@ public class KeepADBWidget extends AppWidgetProvider {
         }
     }
 
-    private void render(Context context, AppWidgetManager mgr, int id) {
+    private void render(Context context, AppWidgetManager mgr, int id, boolean refreshNotification) {
         Context localizedContext = KeepADBLocaleHelper.wrapContext(context);
         KeepADB.State state = KeepADB.getState(context);
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_keepadb);
@@ -73,16 +76,34 @@ public class KeepADBWidget extends AppWidgetProvider {
         views.setOnClickPendingIntent(R.id.widget_label, pi);
 
         mgr.updateAppWidget(id, views);
-        KeepADBNotification.refresh(context);
+        if (refreshNotification) {
+            KeepADBNotification.refresh(context);
+        }
     }
 
     /** Aktualisiert alle platzierten Widgets (auch nach Änderung via App/Tile aufrufbar). */
     static void refreshAll(Context context) {
+        refreshAll(context, true);
+    }
+
+    /** Renders the current state without starting another endpoint discovery pass. */
+    static void refreshAllState(Context context) {
+        refreshAll(context, false);
+    }
+
+    private static void refreshAll(Context context, boolean refreshNotification) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            MAIN_HANDLER.post(() -> refreshAll(context, refreshNotification));
+            return;
+        }
         AppWidgetManager mgr = AppWidgetManager.getInstance(context);
         if (mgr == null) return;
         ComponentName cn = new ComponentName(context, KeepADBWidget.class);
         int[] ids = mgr.getAppWidgetIds(cn);
         if (ids == null || ids.length == 0) return;
-        new KeepADBWidget().onUpdate(context, mgr, ids);
+        KeepADBWidget provider = new KeepADBWidget();
+        for (int id : ids) {
+            provider.render(context, mgr, id, refreshNotification);
+        }
     }
 }
