@@ -399,3 +399,24 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   Android 12) installiert; beide Readbacks bestätigen 1.3.0/Code 4.
 - Shared-Prefs und Diagnosedaten vorab gesichert; keine Deinstallation oder Datenlöschung.
 - Keine UI-/Funktionsabnahme, kein Release, kein Tag und kein GitHub-Action-Run.
+
+## 2026-08-30 — Rückwirkende Issue-Versionierung und Changelog-Regel
+
+- Die Nutzerregel „nach jedem umgesetzten Issue Patch oder Minor bumpen und den Changelog
+  pflegen“ wurde umgesetzt.
+- Seit `v1.2.0` wurden die abgeschlossenen Issues rückwirkend als Implementierungsfolge
+  `#192 → 1.2.1`, `#193 → 1.3.0`, `#196 → 1.3.1`, `#197 → 1.3.2`, `#198 → 1.3.3` und
+  `#200 → 1.3.4` dokumentiert.
+- Der aktuelle Buildstand ist `versionName 1.3.4` / `versionCode 9`; `CHANGELOG.md` bleibt
+  `Unreleased`. Separate Tags, Releases und GitHub-Actions wurden nicht ausgelöst.
+- `git diff --check` erfolgreich. Gradle-Verify nicht ausgeführt, da für Tests/Builds in diesem
+  Lauf keine typisierte Freigabe vorlag.
+
+## 2026-08-30 — PR #206 Verify und Review
+
+- `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` vollständig erfolgreich: Diff-Check,
+  Unit-Tests, Lint sowie Debug-/Release-Build.
+- Der enge S1-Review des PR-Diffs fand keine Befunde. Die Versionierungsfolge und die
+  rückwirkende Kennzeichnung sind konsistent.
+- PR #206 bleibt offen und ist laut GitHub `CLEAN`, meldet aber keine Checks. Kein Merge,
+  Release oder GitHub-Actions-Run ausgeführt.

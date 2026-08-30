@@ -5400,3 +5400,53 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Zustand:** `complete` für die Issue-Erfassung; die drei Issues warten auf eine spätere
   separate Umsetzungsfreigabe.
 - **plan_updated_at:** 2026-08-30T09:00:00+02:00
+
+## Neue Nutzerregel — Versionierung und Changelog — 2026-08-30
+
+- **Regel:** Nach jedem umgesetzten Issue wird die Appversion gemäß SemVer um einen Patch-
+  oder Minor-Schritt erhöht; `CHANGELOG.md` wird im selben Arbeitsschritt gepflegt. Bereits
+  umgesetzte Issues werden bei Einführung der Regel rückwirkend erfasst.
+- **Rückwirkende Zuordnung seit `v1.2.0`** (keine nachträglich behaupteten Releases): #192 →
+  `1.2.1`, #193 → `1.3.0`, #196 → `1.3.1`, #197 → `1.3.2`, #198 → `1.3.3`, #200 → `1.3.4`.
+- **Aktueller Stand:** `app/build.gradle` steht auf `versionName 1.3.4` und `versionCode 9`;
+  `CHANGELOG.md` führt `1.3.4` als `Unreleased`. Die README-Installationsreferenz ist
+  ebenfalls auf `KeepADB-v1.3.4.apk` aktualisiert.
+- **Nicht-Ziele:** Kein Tag, kein GitHub-Release und kein GitHub-Actions-Run; die historische
+  Zuordnung dokumentiert Implementierungs-Bumps, nicht separat veröffentlichte Artefakte.
+- **Validierung:** Nach der Dokumentations-/Metadatenänderung sind `git diff --check` und der
+  dokumentierte lokale Verify-Lauf auszuführen.
+- **Zustand:** `complete` für die Versions-/Changelog-Regel, rückwirkende Dokumentation sowie
+  Commit/Push. `git diff --check` ist bestanden; der Gradle-Verify blieb ohne typisierte
+  Test-/Buildfreigabe aus.
+- **Commit/Push:** `4058978` und `758114a` liegen auf `chore/version-issue-changelog` und
+  `origin/chore/version-issue-changelog`; `master` wurde auf den Vorzustand `7989af5`
+  zurückgesetzt.
+- **plan_updated_at:** 2026-08-30T09:35:00+02:00
+
+## Korrektur des direkten Pushes — 2026-08-30
+
+- **Rollback:** Die direkten Commits `4058978` und `758114a` wurden mit einem gebundenen
+  `--force-with-lease` von `master` entfernt. `origin/master` steht wieder auf `7989af5`.
+- **Ordentlicher Lifecycle:** Die unveränderten Änderungen liegen auf Branch
+  `chore/version-issue-changelog`; PR [#206](https://github.com/m00sfett/KeepADB/pull/206)
+  ist gegen `master` eröffnet.
+- **Board/Drift:** Board-Sync meldete 0 Änderungen. Drift meldet ausschließlich den offenen
+  PR und den noch nicht gemergten Feature-Branch.
+- **Freigaben:** Der Rollback und der PR-Lifecycle wurden durch den aktuellen Nutzerauftrag
+  ausdrücklich freigegeben. GitHub Actions sowie Gradle-Verify wurden nicht gestartet.
+- **Zustand:** `not approved` bis PR-Review, erforderlichen grünen Checks und Merge. Es wurde
+  kein Release ausgelöst.
+- **plan_updated_at:** 2026-08-30T09:45:00+02:00
+
+## PR #206 — Verify und Review — 2026-08-30
+
+- **Lokale Gates:** `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erfolgreich;
+  Diff-Check, Unit-Tests, Lint sowie Debug-/Release-Build grün.
+- **Review:** S1-Akzeptanzcheck ohne Befund. Version `1.3.4` / Code 9, README-Referenz,
+  Changelog-Zuordnung und historische Kennzeichnung stimmen überein. Keine Geräteprüfung,
+  kein Release und kein GitHub-Actions-Run erforderlich.
+- **PR-Status:** PR #206 ist offen, `mergeStateStatus: CLEAN`, aber ohne Checks. Ein Merge
+  wurde nicht ausgeführt, weil kein unabhängiges GitHub-Review und keine grünen Remote-Checks
+  vorliegen.
+- **Zustand:** `not approved` bis zur separaten Mergefreigabe und dem Abschluss des PR-Lifecycle.
+- **plan_updated_at:** 2026-08-30T10:00:00+02:00
