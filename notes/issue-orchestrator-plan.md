@@ -5056,3 +5056,108 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   Lifecycle-Ende ein frühes Kriterium bei asynchronen Tile-Pfaden.
 - **Zustand:** `complete` für Issue #196 und den autorisierten externen Abschluss.
 - **plan_updated_at:** 2026-08-29T23:12:00+02:00
+
+## Orchestrator-Lauf — Auswahl-/Delta-Checkpoint Issue #197 2026-08-29
+
+- **Plan-first/Delta:** Der gespeicherte Snapshot enthielt #196 als letzten offenen Review-
+  Befund. Der aktuelle GitHub-Abgleich bestätigt #196 geschlossen, #197 offen und #200 als
+  registriertes Folgeissue. `master` und `origin/master` stehen sauber auf `14e87da`; kein
+  offener PR, kein aktiver Run, kein Branch-Protection-Gate. `github-drift` meldet Repository
+  und Project #8 übereinstimmend.
+- **Roadmap-Abgleich (wörtlich):** „Review-Folgeissues“. #197 dient diesem Ziel direkt: Es ist
+  der noch offene Review-Befund zur Weitergabe erfolgreicher Endpoint-Discovery an Activity,
+  Widget und Tile.
+- **Ausgewähltes Paket:** Issue #197 — `fix: UI-Oberflächen nach asynchroner Endpoint-Discovery
+  aktualisieren`.
+- **Ziel:** Nach erfolgreicher Discovery den Zustand aller betroffenen Oberflächen zeitnah,
+  threadsicher und über bestehende UI-/Broadcast-Pfade von `ENABLED_DISCONNECTED` nach
+  `ENABLED_CONNECTED` aktualisieren; Fehler-, Abbruch- und fehlende-Endpoint-Pfade bleiben
+  getrennt und dürfen keine Verbunden-Anzeige erzeugen.
+- **Prämissenprüfung:** `KeepADB.getState()` liest `KeepADBNotification`-Endpoint-Zustand;
+  `KeepADBNotification` veröffentlicht Discovery-Ergebnisse bereits an Notification und Tile,
+  während `MainActivity` und `KeepADBWidget` im erfolgreichen Callbackpfad nicht zuverlässig
+  refreshed werden. `KeepADBService` besitzt eigene Refresh-Aufrufstellen. Die Änderung darf
+  weder `KeepADBEndpoint`/Transport noch die Zustandsdefinition aus #193 oder die Toggle-
+  Semantik ändern.
+- **Dateiscope:** `app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java`,
+  `KeepADB.java`, `MainActivity.java`, `KeepADBWidget.java`, gegebenenfalls der bereits
+  betroffene Contract-Test `app/src/test/java/de/hohnepeople/keepadb/KeepADBTileDiscoveryContractTest.java`
+  oder ein neuer eng begrenzter Test unter `app/src/test/java/de/hohnepeople/keepadb/`.
+- **Nicht-Ziele:** kein Discovery-Transport-/Endpoint-Auswahl-Fix, keine neue persistente
+  Ablage, keine Zustandsdefinitionsänderung, keine Änderung an Toggle-/Keep-Alive-Semantik,
+  keine Geräteaktion und kein GitHub-Action-Run.
+- **Paketstufe:** S2; lokalisierter Cross-Surface-Callback mit deterministischen Contract-Gates,
+  ohne neue Architektur- oder Datenmodellentscheidung.
+- **Muss-Akzeptanzfälle:** erfolgreicher asynchroner Callback aktualisiert Activity, Widget und
+  Tile; Fehler/Abbruch/fehlender Endpoint bleiben getrennt; Generation-/Thread-Sicherheit und
+  bestehende UI-/Broadcast-Pfade bleiben erhalten; Contract-Test pinnt den Statusübergang.
+- **Minimale Gates:** nach typisierter Freigabe fokussierter Unit-/Contract-Test, danach
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`; kein Gerätegate eingeplant, solange
+  keine Geräteakzeptanz als erledigt behauptet wird.
+- **Freigaben:** Auswahl und Planpflege erfolgt. Implementierung, lokale Tests/Builds, ein
+  unabhängiger S2-Review sowie Commit/Push/PR-/Issue-Lifecycle sind noch nicht freigegeben;
+  GitHub Actions und Geräteaktionen bleiben separat ausgeschlossen.
+- **Zustand:** `not approved` für die Umsetzung bis zur typisierten Nutzerfreigabe.
+- **issue_snapshot_at:** 2026-08-29T23:20:00+02:00
+- **plan_updated_at:** 2026-08-29T23:20:00+02:00
+
+## Issue #197 — Implementierung und lokale Gates 2026-08-30
+
+- **Bearbeiter/Paket:** Subagent `Newton`, Implementierung, S2; konfiguriert mit
+  `gpt-5.6-luna` / `max`. Der Laufzeitwert ist nicht separat verifiziert.
+- **Umsetzung:** Erfolgs-/Fehler-/Abbruchpfade in `KeepADBNotification` posten einen gemeinsamen
+  Main-Thread-Refresh für Widget und Tile; `MainActivity` refreshed bei beiden Endpoint-
+  Listener-Richtungen; `KeepADBWidget.refreshAllState` rendert ohne Discovery-Rekursion;
+  `KeepADB.hasCurrentEndpoint()` liest das Endpoint-Paar atomar. Discovery-Transport,
+  Zustandsdefinition und Toggle-Semantik blieben unverändert.
+- **Teständerung:** Neuer fokussierter Contract-Test `KeepADBAsyncSurfaceRefreshContractTest`
+  sowie Anpassungen an `KeepADBTileDiscoveryContractTest` prüfen Erfolgsreihenfolge,
+  Fehler-/fehlenden-Endpoint-Pfade, Generation-Sicherheit, Activity-Refresh und Widget-
+  Main-Thread-Verhalten.
+- **Gatebefund:** Der erste fokussierte Lauf hatte 17/18 Tests grün; der neue Activity-Test
+  war wegen einer zu frühen String-Endmarke falsch-rot. Die Endmarke wurde auf die zeilen- bzw.
+  einrückungssichere Form korrigiert; der betroffene Test lief danach grün.
+- **Lokale Gates:** `git diff --check` erfolgreich; fokussierte Activity-Prüfung erfolgreich;
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erfolgreich mit Unit-Tests, Lint,
+  Debug- und Release-Build. Keine Geräteaktion und keine GitHub Action.
+- **Offen:** Unabhängiger S2-Review `review and repair`; danach atomarer Commit/Push und
+  PR-/Issue-Lifecycle nur im Rahmen der erteilten Abschlussfreigabe, soweit keine weitere
+  typisierte Entscheidung nötig wird.
+- **Zustand:** `in_progress`, lokale Gates bestanden; Review offen.
+- **plan_updated_at:** 2026-08-30T00:05:00+02:00
+
+## Issue #197 — Unabhängiger Review und lokale Abschlussabnahme 2026-08-30
+
+- **Reviewer/Paket:** Subagent `Helmholtz`, `review and repair`, Paketstufe S2; konfiguriert
+  mit `gpt-5.6-luna` / `max`, Laufzeitwert nicht separat verifiziert.
+- **Reviewbefund:** Medium — Activity-Callbacks konnten nach `onPause()` oder Recreation noch
+  UI-Views aktualisieren. Repariert durch Lifecycle-Active- und Generation-Guards in
+  `MainActivity`. Low — der Test pinte nicht beide Zustandsrichtungen; Erfolgs- und
+  Missing-Endpoint-Richtung ergänzt.
+- **Reviewurteil:** `APPROVED`; alle sechs Akzeptanzkriterien und die Gegenrichtung der
+  Aufrufpfade geprüft. Keine offenen Findings im Scope, kein Folgeissue erforderlich.
+- **Nachreparatur-Gates:** `git diff --check` sowie `JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+  ./bin/verify` erfolgreich; Unit-Tests, Lint sowie Debug- und Release-Build grün. Keine
+  Geräteaktion und keine GitHub Action.
+- **Zustandsabfrage:** Issue #197 bleibt OPEN; keine offenen PRs; `github-drift --repo
+  m00sfett/KeepADB` meldet Repository und Project #8 übereinstimmend. Der Arbeitsbaum enthält
+  ausschließlich die #197-Code-/Teständerungen und die Planpflege; Commit/Push/PR wurden nicht
+  ausgeführt.
+- **Übergabe-Checkpoint:** Erledigt sind alle sechs Kriterien auf Code-/Contract-/lokaler
+  Gate-Ebene. Nicht geprüft sind Geräte-/End-to-End-Eigenschaften; sie waren nicht freigegeben
+  und sind für diesen Callback-Fix nicht als Abschlusskriterium erforderlich. Offener Scope:
+  externer Commit-/PR-/Issue-Lifecycle.
+- **Retrospektive:** Die Reihenfolge Discovery-Code → fokussierter Contract-Test → vollständige
+  lokale Gates → unabhängiger Review → vollständige Wiederholung war sinnvoll. Der erste Test
+  fand eine false-negative Endmarke; der Review fand zusätzlich einen realen Lifecycle-Befund,
+  den Build und statische Sichtprüfung nicht beweisen. Die Delegation war für die Implementierung
+  und den unabhängigen Review erkenntniswirksam; S2 war angemessen, S3/S4 nicht begründet. Für
+  den nächsten Lauf: Contract-Tests bei verschachtelten Java-Lambdas mit zeilenverankerten
+  Abschnittsgrenzen schreiben und Lifecycle-Ende schon im ersten Implementierungsauftrag als
+  eigenes Kriterium verlangen.
+- **Aufwandsprotokoll:** Geplant 1 Issue / 1 S2-Paket; tatsächlich 1 Implementierung, 1
+  Reparaturschleife nach lokalem Test, 1 unabhängiger Review mit 2 Reparaturen und 2 vollständige
+  `verify`-Läufe plus fokussierte Tests. Laufzeit-/Token-/Abrechnungswerte nicht beobachtbar.
+- **Zustand:** `complete` für die freigegebene Implementierung, Review-Reparatur und lokale
+  Abnahme; externer Lifecycle bleibt offen und ist nicht als erledigt behauptet.
+- **plan_updated_at:** 2026-08-30T00:39:16+02:00
