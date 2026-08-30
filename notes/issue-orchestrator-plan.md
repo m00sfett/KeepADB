@@ -5741,6 +5741,23 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   `510551a`, Serverstatus `CLEAN`, Remote-Checks leer.
 - **plan_updated_at:** 2026-08-30T11:45:00+02:00
 
+## Issue #205 — Abschluss nach Merge — 2026-08-30
+
+- **PR:** #214 per Squash gemergt; Merge-Commit `55442a94b6a51a33028ae050c9c15e494b5fadbc`
+  liegt auf `master` und `origin/master`.
+- **Issue:** #205 ist durch `Fixes #205` geschlossen.
+- **Abnahme:** Lokale Verify-Gates grün; unabhängiger Review reparierte technische Muss-Fixes.
+  Die fehlende Muttersprachlerprüfung bleibt als vom Nutzer akzeptiertes Restrisiko dokumentiert.
+- **Folgeissue:** #213 bleibt offen und im Board auf `backlog`; es wurde nicht implementiert.
+- **Board/Drift:** Nach Merge erneut abgefragt; Board-Sync ohne Änderungen, Drift ohne Befund.
+- **Aufwand:** Drei S1-Locale-Subagenten, ein unabhängiger S1-Review, zwei lokale Verify-Läufe
+  nach Reparaturen/Versionsänderung; beobachtete Token-/Abrechnungswerte unbekannt.
+- **Retrospektive:** Die Zerlegung nach Locale hielt Schreibbereiche getrennt. AAPT2 vor dem
+  ersten Worker-Commit hätte die späteren Escape-/Duplikatfehler früher gefunden. Für Folge-
+  pakete wird AAPT2 als frühes Ressourcen-Gate in den Auftrag aufgenommen.
+- **Zustand:** `complete` für #205 und den PR-Lifecycle; #213 ist der klare nächste Scope.
+- **plan_updated_at:** 2026-08-30T12:05:00+02:00
+
 ## Nutzerentscheidung und Folgeissue — 2026-08-30
 
 - **Entscheidung:** Die fehlende Muttersprachlerprüfung ist für diesen Lauf kein Blocker;
