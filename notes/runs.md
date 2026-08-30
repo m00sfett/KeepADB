@@ -420,3 +420,9 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   rückwirkende Kennzeichnung sind konsistent.
 - PR #206 bleibt offen und ist laut GitHub `CLEAN`, meldet aber keine Checks. Kein Merge,
   Release oder GitHub-Actions-Run ausgeführt.
+
+## 2026-08-30 — PR #206 Mergeabschluss
+
+- PR #206 wurde nach ausdrücklicher Freigabe per Squash gemergt; Merge-Commit `eedddba` liegt
+  auf `master`. Der Feature-Branch wurde entfernt.
+- `master` und `origin/master` sind synchron. Board-Sync und Drift-Readback sind sauber.

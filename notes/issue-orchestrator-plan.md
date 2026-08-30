@@ -5450,3 +5450,13 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   vorliegen.
 - **Zustand:** `not approved` bis zur separaten Mergefreigabe und dem Abschluss des PR-Lifecycle.
 - **plan_updated_at:** 2026-08-30T10:00:00+02:00
+
+## PR #206 — Mergeabschluss — 2026-08-30
+
+- **Serverstatus:** PR #206 wurde nach der erteilten Mergefreigabe per Squash gemergt;
+  Merge-Commit `eedddba5068b2500d69031f2253ca6fbe0e51a8c` liegt auf `master`. Der
+  Feature-Branch wurde entfernt.
+- **Nachweis:** `master` und `origin/master` sind synchron; lokaler Verify und S1-Review
+  waren erfolgreich. Board-Sync meldete 0 Änderungen, Drift meldet keine Befunde.
+- **Zustand:** `complete` für Versionsregel, Changelog-Pflege, Verify, Review und PR-Lifecycle.
+- **plan_updated_at:** 2026-08-30T10:15:00+02:00
