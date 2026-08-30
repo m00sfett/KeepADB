@@ -51,7 +51,7 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
     public void successfulDiscoveryPublishesBeforeRefreshingEverySurface() throws IOException {
         String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
         String discoveryBody = methodBody(notification,
-                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager) {");
+                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,");
         String callbackBody = methodBody(discoveryBody,
                 discoveryBody.indexOf("public void onEndpoint(String host, int port) {"));
         String refreshBody = methodBody(notification,
@@ -76,7 +76,7 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
     public void unavailableDiscoveryClearsStateBeforeRefreshingSurfaces() throws IOException {
         String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
         String discoveryBody = methodBody(notification,
-                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager) {");
+                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,");
         String callbackBody = methodBody(discoveryBody,
                 discoveryBody.indexOf("public void onUnavailable() {"));
 
@@ -93,10 +93,11 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
     @Test
     public void missingEndpointRefreshesDisconnectedSurfacesBeforeRetryingDiscovery() throws IOException {
         String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String refreshBody = methodBody(notification, "static synchronized void refresh(Context context) {");
+        String refreshBody = methodBody(notification,
+                "private static synchronized void refreshInternal(Context context, Object discoveryOwner) {");
 
         int unavailable = refreshBody.indexOf("if (endpointListener != null) endpointListener.onUnavailable();");
-        int discovery = refreshBody.indexOf("startDiscoveryDirectLocked(appContext, manager);");
+        int discovery = refreshBody.indexOf("startDiscoveryDirectLocked(appContext, manager, discoveryOwner);");
         int surfaceRefresh = refreshBody.indexOf("postSurfaceRefresh(appContext);");
 
         assertTrue(unavailable >= 0);

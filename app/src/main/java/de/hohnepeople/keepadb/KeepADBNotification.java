@@ -25,6 +25,7 @@ final class KeepADBNotification {
     private static final long RETRY_DELAY_INITIAL_MS = 2000;
     private static final long RETRY_DELAY_BACKOFF_MS = 5000;
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
+    private static final Object GLOBAL_DISCOVERY_OWNER = new Object();
 
     private static KeepADBEndpoint endpoint;
     private static String currentHost;
@@ -33,6 +34,7 @@ final class KeepADBNotification {
     private static Runnable pendingRetryRunnable;
     private static int retryAttempt;
     private static long discoveryRequestGeneration;
+    private static Object activeDiscoveryOwner;
 
     interface EndpointListener {
         void onEndpoint(String host, int port);
@@ -94,6 +96,7 @@ final class KeepADBNotification {
         cancelRetryLocked();
         retryAttempt = 0;
         discoveryRequestGeneration++;
+        activeDiscoveryOwner = null;
         if (endpoint != null) {
             endpoint.stop();
         }
@@ -109,10 +112,20 @@ final class KeepADBNotification {
         Context appContext = KeepADBLocaleHelper.wrapContext(context.getApplicationContext());
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
         if (manager == null || currentHost == null || currentPort <= 0) return;
-        verifyCachedEndpointAsync(appContext, manager, currentHost, currentPort);
+        claimDiscoveryOwnerLocked(GLOBAL_DISCOVERY_OWNER);
+        verifyCachedEndpointAsync(appContext, manager, currentHost, currentPort,
+                GLOBAL_DISCOVERY_OWNER);
     }
 
     static synchronized void refresh(Context context) {
+        refreshInternal(context, GLOBAL_DISCOVERY_OWNER);
+    }
+
+    static synchronized void refreshForTile(Context context, Object tileOwner) {
+        refreshInternal(context, tileOwner);
+    }
+
+    private static synchronized void refreshInternal(Context context, Object discoveryOwner) {
         Context appContext = KeepADBLocaleHelper.wrapContext(context.getApplicationContext());
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
         if (manager == null) return;
@@ -133,7 +146,8 @@ final class KeepADBNotification {
             // its own (e.g. after a Wi-Fi roam or an internal restart) without adb_wifi_enabled
             // changing, so the ContentObserver never fires. Without this check the notification
             // kept showing a dead port until the process was killed and relaunched.
-            verifyCachedEndpointAsync(appContext, manager, currentHost, currentPort);
+            claimDiscoveryOwnerLocked(discoveryOwner);
+            verifyCachedEndpointAsync(appContext, manager, currentHost, currentPort, discoveryOwner);
             // Otherwise, enabling the webhook while a connection is already cached never
             // reports it: updateEndpointAsync() is normally only reached from a fresh
             // discovery's onEndpoint() callback below, which won't fire again until the next
@@ -150,19 +164,25 @@ final class KeepADBNotification {
         }
 
         cancelRetryLocked();
-        startDiscoveryDirectLocked(appContext, manager);
+        startDiscoveryDirectLocked(appContext, manager, discoveryOwner);
         postSurfaceRefresh(appContext);
     }
 
-    private static void verifyCachedEndpointAsync(Context appContext, NotificationManager manager, String host, int port) {
+    private static void verifyCachedEndpointAsync(Context appContext, NotificationManager manager,
+            String host, int port, Object discoveryOwner) {
         new Thread(() -> {
             boolean reachable = KeepADBEndpoint.isPortReachable(host, port, 500);
-            if (reachable) return;
-            Log.w(TAG, "Cached endpoint " + host + ":" + port + " no longer reachable; invalidating and rediscovering");
             synchronized (KeepADBNotification.class) {
+                if (activeDiscoveryOwner != discoveryOwner) return;
                 if (!host.equals(currentHost) || port != currentPort) {
                     return; // superseded by a newer refresh/discovery in the meantime
                 }
+                if (reachable) {
+                    activeDiscoveryOwner = null;
+                    return;
+                }
+                Log.w(TAG, "Cached endpoint " + host + ":" + port
+                        + " no longer reachable; invalidating and rediscovering");
                 currentHost = null;
                 currentPort = 0;
                 if (endpointListener != null) {
@@ -174,7 +194,7 @@ final class KeepADBNotification {
                             appContext.getString(R.string.notification_text_searching));
                 }
                 cancelRetryLocked();
-                startDiscoveryDirectLocked(appContext, manager);
+                startDiscoveryDirectLocked(appContext, manager, discoveryOwner);
             }
             postSurfaceRefresh(appContext);
         }, "KeepADBEndpointVerify").start();
@@ -197,6 +217,7 @@ final class KeepADBNotification {
     private static void scheduleRetryLocked(Context appContext, NotificationManager manager) {
         if (!KeepADB.isEnabled(appContext)) {
             retryAttempt = 0;
+            activeDiscoveryOwner = null;
             return;
         }
         cancelRetryLocked();
@@ -207,20 +228,24 @@ final class KeepADBNotification {
                 pendingRetryRunnable = null;
                 if (!KeepADB.isEnabled(appContext)) {
                     retryAttempt = 0;
+                    activeDiscoveryOwner = null;
                     return;
                 }
                 if (currentHost != null && currentPort > 0) {
                     retryAttempt = 0;
+                    activeDiscoveryOwner = null;
                     return;
                 }
-                startDiscoveryDirectLocked(appContext, manager);
+                startDiscoveryDirectLocked(appContext, manager, activeDiscoveryOwner);
             }
         };
         MAIN_HANDLER.postDelayed(pendingRetryRunnable, delay);
     }
 
-    private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager) {
+    private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,
+            Object discoveryOwner) {
         if (endpoint == null) endpoint = new KeepADBEndpoint(appContext);
+        claimDiscoveryOwnerLocked(discoveryOwner);
         final long requestGeneration = ++discoveryRequestGeneration;
         endpoint.discover(new KeepADBEndpoint.Listener() {
             @Override
@@ -229,6 +254,7 @@ final class KeepADBNotification {
                     if (requestGeneration != discoveryRequestGeneration) return;
                     currentHost = host;
                     currentPort = port;
+                    activeDiscoveryOwner = null;
                     retryAttempt = 0;
                     cancelRetryLocked();
                     show(appContext, manager, host, port);
@@ -265,7 +291,15 @@ final class KeepADBNotification {
                         "no_live_endpoint");
                 postSurfaceRefresh(appContext);
             }
-        });
+        }, activeDiscoveryOwner == GLOBAL_DISCOVERY_OWNER);
+    }
+
+    private static void claimDiscoveryOwnerLocked(Object discoveryOwner) {
+        // A Tile can replace another Tile owner, and a global caller can promote a Tile run.
+        // A Tile must never adopt an active global discovery or its pending retry.
+        if (activeDiscoveryOwner == null || activeDiscoveryOwner != GLOBAL_DISCOVERY_OWNER) {
+            activeDiscoveryOwner = discoveryOwner;
+        }
     }
 
     private static synchronized void stop(Context context, NotificationManager manager) {
@@ -273,6 +307,7 @@ final class KeepADBNotification {
         cancelRetryLocked();
         retryAttempt = 0;
         discoveryRequestGeneration++;
+        activeDiscoveryOwner = null;
         if (endpoint != null) {
             endpoint.stop();
             endpoint = null;
@@ -283,6 +318,18 @@ final class KeepADBNotification {
         manager.cancel(NOTIFICATION_ID);
         KeepADBRegisterClient.markUnavailableAsync(context.getApplicationContext());
         postSurfaceRefresh(context.getApplicationContext());
+    }
+
+    static synchronized void cancelTileDiscovery(Object tileOwner) {
+        if (tileOwner == null || activeDiscoveryOwner != tileOwner) return;
+        discoveryRequestGeneration++;
+        activeDiscoveryOwner = null;
+        cancelRetryLocked();
+        retryAttempt = 0;
+        if (endpoint != null) {
+            endpoint.stop();
+            endpoint = null;
+        }
     }
 
     private static void ensureChannel(Context context, NotificationManager manager) {
