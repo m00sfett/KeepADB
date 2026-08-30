@@ -499,3 +499,16 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Issue #204 ist geschlossen. `master` und `origin/master` sind synchron.
 - Board-Sync meldete 0 Änderungen; Drift-Readback ist sauber.
 - Keine Geräteaktion und keine GitHub Action ausgeführt.
+
+## 2026-08-30 — F-Droid-Releasevorbereitung 1.4.3
+
+- Nach ausdrücklicher Freigabe wurden `CHANGELOG.md`, `README.md` und der Fastlane-Changelog
+  `fastlane/metadata/android/en-US/changelogs/14.txt` für Version `1.4.3` / Code `14` angepasst.
+- `jdk21-openjdk` wurde installiert, weil die F-Droid-/KeepADB-Releasematrix JDK 21 vorgibt;
+  `fdroidserver` war bereits als temporäre Umgebung in Version 2.4.2 vorhanden.
+- `JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./bin/verify` war vollständig erfolgreich.
+- F-Droid `readmeta`, `lint` und der isolierte Build liefen für den bestehenden MR-Stand
+  `1.2.0` / Code `3` erfolgreich; der Build wurde gegen das veröffentlichte `v1.2.0`-APK
+  reproduzierbar verifiziert.
+- Der Kandidat `1.4.3` ist noch nicht getaggt oder committed. Kein Commit, Push, Release,
+  GitHub-Action-Run, fdroiddata-Remote-Update oder MR-Update wurde ausgeführt.
