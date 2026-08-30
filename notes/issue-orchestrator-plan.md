@@ -5309,3 +5309,35 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   diese Nachweise gelten für den Commitinhalt vor der PR-Eröffnung.
 - **Zustand:** `in_progress`, PR-Eröffnung und serverseitiger Abschluss ausstehend.
 - **plan_updated_at:** 2026-08-30T07:51:14+02:00
+
+## Issue #200 — Merge und Abschluss — 2026-08-30
+
+- **PR:** [#202](https://github.com/m00sfett/KeepADB/pull/202) wurde per Squash in `master`
+  gemergt; Merge-Commit `c96e69b74bff8281dc394d20177fdb13c5cd3073`. Der Feature-Branch wurde
+  nach dem Merge entfernt.
+- **Akzeptanzprüfung:** (1) Stop und Destroy invalidieren die Tile-Session und stoppen deren
+  Discovery/Retry. (2) Späte Erfolge, Nichtverfügbarkeit und Cache-Prüfungen scheitern an
+  Owner-/Generation-Guards und publizieren keine veralteten globalen Zustände. (3) Eine neue
+  Session ist durch Endpoint-Neuerzeugung und neue Generation möglich. (4) Activity, Widget
+  und Keep-Alive nutzen weiterhin den globalen Discovery-Owner. (5) Contract-Tests decken
+  Lifecycle-Grenzen, späte Ergebnisse, Nichtverfügbarkeit, Cache-Prüfung, Folgesession,
+  Owner-Wechsel und Recovery-Puls ab.
+- **Gates:** Fokustest 20/20; `git diff --check`; `JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+  ./bin/verify` mit vollständiger Unit-Suite, Lint sowie Debug-/Release-Build erfolgreich.
+  Keine Geräteaktion und kein GitHub-Action-Run.
+- **Serverstatus:** Issue #200 CLOSED; PR #202 MERGED; `master` und `origin/master` auf
+  `c96e69b`; keine offenen PRs. Board-Sync ohne Änderungen, Drift-Readback nach Abschluss
+  noch ausstehend.
+- **Retrospektive:** Die Reihenfolge Code → fokussierte Contract-Tests → vollständige lokale
+  Gates → unabhängiger S3-Review → Reparatur → erneute Gates war sinnvoll. Der Review fand
+  drei reale Ownership-/Lifecycle-Fehler, die der erste Testlauf nicht abdeckte. S3 war wegen
+  asynchroner globaler Nebenwirkungen begründet; ein Gerätegate hätte diesen Codepfad nicht
+  zusätzlich bewiesen. Für kommende asynchrone UI-/Tile-Pakete bleibt die Gegenprüfung globaler
+  Nebenwirkungen nach Lifecycle-Ende Pflicht im ersten Reviewauftrag.
+- **Aufwandsprotokoll:** Geplant 1 Issue / 1 S3-Paket; tatsächlich 1 Implementierung, 1
+  unabhängiger S3-Review mit 3 Reparaturen, 1 Anpassung veralteter Contract-Anker, 2 fokussierte
+  Testläufe und 2 vollständige `verify`-Läufe. Laufzeit-/Token-/Abrechnungswerte nicht
+  beobachtbar.
+- **Zustand:** `complete` für Issue #200, Review, lokale Gates, PR-/Merge-Lifecycle und
+  Issue-Abschluss.
+- **plan_updated_at:** 2026-08-30T07:51:14+02:00
