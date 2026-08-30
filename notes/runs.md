@@ -463,3 +463,32 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - SemVer-Befund behoben: Feature-Bump auf `1.4.0` / Code 11 korrigiert.
 - Contract-Test um Layout-Ende, Bind-Aufruf, Fehlertext und Platzhalterabdeckung erweitert.
 - Vollständiger Verify-Lauf nach der Reparatur erneut grün.
+
+## 2026-08-30 — Issue #204 Settings-Reihenfolge
+
+- Nach ausdrücklicher Freigabe wurde Issue #204 auf `feat/204-settings-order` umgesetzt.
+- Die acht regulären Settings-Panels wurden ohne Änderung ihrer IDs, Listener oder Zustände
+  in die geforderte Produktreihenfolge verschoben; ein Contract-Test sichert die Reihenfolge.
+- Version auf `1.4.1` / Code 12 erhöht; CHANGELOG und README aktualisiert.
+- Fokussierter Contract-Test und `./bin/verify` erfolgreich, einschließlich Unit-Tests, Lint
+  sowie Debug-/Release-Build.
+- Ein fehlerhafter erster lokaler Reorder-Versuch wurde vor dem Commit erkannt und vollständig
+  korrigiert; es gab keinen Push dieses Zwischenstands.
+- Produktcommit `69bc115`; kein Gerätetest, keine GitHub Action und noch kein PR-Merge.
+
+## 2026-08-30 — Issue #204 PR-Checkpoint
+
+- Feature-Branch `feat/204-settings-order` mit den atomaren Commits `69bc115` und `3c74dfb`
+  gepusht; kein direkter Push auf `master`.
+- PR [#211](https://github.com/m00sfett/KeepADB/pull/211) eröffnet, Status `OPEN`/`CLEAN`,
+  mit `Fixes #204`.
+- Board-Sync: 0 Änderungen. Drift-Readback: nur erwarteter offener PR und Feature-Branch.
+- Kein Merge, kein Gerätetest und keine GitHub Action.
+
+## 2026-08-30 — Issue #204 unabhängiger Review
+
+- S2-Review für PR #211 abgeschlossen: `APPROVED`.
+- Bestätigt wurden die exakte Panel-Reihenfolge, der Erhalt aller 27 Layout-IDs, die
+  unveränderte `SettingsActivity`-Logik sowie konsistente Versionierungsdokumentation.
+- Reviewer änderte keine Dateien und führte keine Tests, Geräteaktionen oder GitHub Actions aus.
+- Merge bleibt bis zur ausdrücklichen Nutzerfreigabe aus.

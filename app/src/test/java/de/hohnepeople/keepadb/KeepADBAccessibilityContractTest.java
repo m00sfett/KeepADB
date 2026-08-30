@@ -140,6 +140,28 @@ public class KeepADBAccessibilityContractTest {
     }
 
     @Test
+    public void settingsPanelsFollowProductOrder() throws IOException {
+        String settings = read("app/src/main/res/layout/activity_settings.xml");
+        String[] panels = {
+                "settings_language_panel",
+                "settings_security_panel",
+                "settings_webhook_panel",
+                "settings_usb_notification_panel",
+                "settings_usb_handover_panel",
+                "settings_notification_panel",
+                "settings_diagnostics_panel",
+                "settings_version_panel",
+        };
+        int previous = -1;
+        for (String panel : panels) {
+            int current = settings.indexOf("android:id=\"@+id/" + panel + "\"");
+            assertTrue("Missing settings panel " + panel, current >= 0);
+            assertTrue("Settings panel out of order: " + panel, current > previous);
+            previous = current;
+        }
+    }
+
+    @Test
     public void settingsActivityIncludesNotificationSettingsPanel() throws IOException {
         String settings = read("app/src/main/res/layout/activity_settings.xml");
         assertTrue(settings.contains("android:id=\"@+id/settings_notification_panel\""));

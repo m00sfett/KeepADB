@@ -5,7 +5,7 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.0] - Unreleased
+## [1.4.1] - Unreleased
 
 ### Added
 - Distinct app, widget, and Quick Settings states for off, missing permission, disconnected, and connected conditions.
@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Activity, widget, and Tile now refresh after asynchronous endpoint discovery.
 - Tile-owned discovery is cancelled or invalidated at the end of the Tile lifecycle, preventing stale notification, register, and recovery side effects.
 - Keep-Alive survives reboot, Wi-Fi AP changes, and temporary connection drops more reliably.
+
+### Changed
+- Settings sections now follow the product order from language and security through version information.
 
 ### Versioning note
 - Each implemented issue increments the next patch or minor version. The intermediate bumps below are recorded retrospectively; they were not published as separate tags or releases.
@@ -29,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `1.3.3` — #198: Tile discovery uses the normal Tile lifecycle in fresh processes.
 - `1.3.4` — #200: Tile-owned discovery cannot publish stale effects after lifecycle end.
 - `1.4.0` — #203: Settings displays the installed app version and version code.
+- `1.4.1` — #204: Settings sections follow the defined product order.
 
 ## [1.2.0] - 2026-08-29
 

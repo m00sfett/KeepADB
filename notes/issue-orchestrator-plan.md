@@ -5545,3 +5545,44 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   `./bin/verify` sind nach der Reparatur erneut auszuführen.
 - **Zustand:** `in_progress` bis unabhängiger Review und PR-Abschluss.
 - **plan_updated_at:** 2026-08-30T10:00:00+02:00
+
+## Issue #204 — Implementierung und lokale Gates — 2026-08-30
+
+- **Freigabe:** Die Nutzerfreigabe wurde als Umsetzung von #204 mit lokalen Gates und PR-
+  Lifecycle interpretiert; keine Geräteaktion und keine GitHub-Action.
+- **Umsetzung:** Die acht regulären Settings-Bereiche folgen jetzt exakt der festgelegten
+  Produktreihenfolge: Sprache, Sicherheitshinweise, Webhook, USB-ADB-Benachrichtigung,
+  USB-zu-WLAN-ADB-Übergabe, Benachrichtigung, Diagnose sowie Version/Codeversion. IDs,
+  Listener, Zustände und Funktionen wurden unverändert beibehalten.
+- **Absicherung:** `KeepADBAccessibilityContractTest.settingsPanelsFollowProductOrder`
+  pinnt die Reihenfolge und die Existenz aller acht Panel-IDs.
+- **Versionierung:** `1.4.0`/Code 11 → `1.4.1`/Code 12; Changelog und README aktualisiert.
+- **Tests/Gates:** Fokussierter Contract-Test und
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` vollständig grün. Ein erster
+  automatisierter Layout-Reorder-Versuch wurde vor Commit erkannt und ohne Folgen korrigiert.
+- **Gitstatus:** Produktcommit `69bc115` liegt auf `feat/204-settings-order`; `master` blieb
+  unverändert.
+- **Review:** Unabhängiger S2-Review vor PR-Merge noch ausstehend.
+- **Zustand:** `in_progress` bis PR, Review und Merge.
+- **plan_updated_at:** 2026-08-30T10:30:00+02:00
+
+## Issue #204 — PR-Checkpoint — 2026-08-30
+
+- **PR:** [#211](https://github.com/m00sfett/KeepADB/pull/211) ist offen mit `Fixes #204`.
+- **Serverstatus:** PR `OPEN`, `CLEAN`, keine Remote-Checks; Board-Sync ohne Änderungen.
+  Drift zeigt ausschließlich den erwarteten offenen PR und den zugehörigen Feature-Branch.
+- **Merge:** Noch nicht ausgeführt. Der unabhängige S2-Review und eine separate Mergefreigabe
+  bleiben erforderlich.
+- **Zustand:** `not approved` bis Review und Mergefreigabe.
+- **plan_updated_at:** 2026-08-30T10:40:00+02:00
+
+## Issue #204 — Unabhängiger Review — 2026-08-30
+
+- **Review:** Unabhängiger S2-Review für PR #211 ist `APPROVED`.
+- **Nachweis:** Exakte Panel-Reihenfolge bestätigt; alle 27 Layout-IDs erhalten;
+  `SettingsActivity.java` unverändert; Listener, Zustände, Persistenz und konditionale
+  Sichtbarkeitslogik erhalten; RTL-/Reihenfolge-Absicherung vorhanden. Version 1.4.1 / Code 12,
+  CHANGELOG und README konsistent.
+- **Änderungen:** Keine Reviewer-Änderungen, keine Tests, Geräteaktionen oder GitHub Actions.
+- **Zustand:** `not approved` bis zur separaten Mergefreigabe.
+- **plan_updated_at:** 2026-08-30T11:00:00+02:00
