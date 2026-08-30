@@ -132,4 +132,62 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">Версія додатка: %1$s</string>
     <string name="settings_version_code_value">Код версії: %1$d</string>
     <string name="settings_version_unavailable">Інформація про версію недоступна</string>
+    <string name="settings_issue_report_button">Повідомити про проблему або переклад</string>
+    <string name="settings_issue_report_accessibility">Відкрити попередньо заповнений звіт GitHub</string>
+    <string name="settings_issue_report_dialog_title">Переглянути звіт</string>
+    <string name="settings_issue_report_dialog_message">Перегляньте й доповніть цей чернетковий звіт перед відкриттям GitHub. Нічого не надсилається автоматично. Додаткові діагностичні дані містять відредаговані локальні події життєвого циклу; мережеві адреси, секрети, дані вебхука та приватні дані виключаються.</string>
+    <string name="settings_issue_report_include_diagnostics">Додати відредаговані діагностичні дані</string>
+    <string name="settings_issue_report_preview">Попередній перегляд звіту</string>
+    <string name="settings_issue_report_preview_hint">Переглянути й додати деталі</string>
+    <string name="settings_issue_report_open_github">Відкрити GitHub</string>
+    <string name="issue_report_title">Звіт про проблему KeepADB</string>
+    <string name="issue_report_unavailable">Недоступно</string>
+    <string name="issue_report_body">## Тип проблеми
+%1$s
+
+## Мова / локаль
+%2$s
+
+## Очікувана поведінка
+%3$s
+
+## Фактична поведінка
+%4$s
+
+## Кроки відтворення
+%5$s
+
+## Версія застосунку
+%6$s
+
+## Код версії
+%7$s
+
+## Версія Android
+%8$s
+
+## Рівень API Android
+%9$s
+
+## Модель пристрою
+%10$s
+
+## Журнали
+%11$s
+
+## Знімки екрана
+%12$s
+
+## Додаткові примітки
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">Помилка / переклад / інтерфейс / збій / інше</string>
+    <string name="issue_report_placeholder_expected">Опишіть очікувану поведінку.</string>
+    <string name="issue_report_placeholder_actual">Опишіть фактичну поведінку.</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">Вставте сюди відповідні журнали. Видаліть приватні дані.</string>
+    <string name="issue_report_placeholder_screenshots">Опишіть знімки екрана або додайте їх вручну.</string>
+    <string name="issue_report_placeholder_notes">Додайте будь-яку іншу корисну інформацію.</string>
+    <string name="issue_report_diagnostics_section">Додаткові відредаговані діагностичні дані KeepADB (перевірте перед надсиланням)</string>
 </resources>

@@ -132,4 +132,62 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">Versi aplikasi: %1$s</string>
     <string name="settings_version_code_value">Kode versi: %1$d</string>
     <string name="settings_version_unavailable">Informasi versi tidak tersedia</string>
+    <string name="settings_issue_report_button">Laporkan masalah atau terjemahan</string>
+    <string name="settings_issue_report_accessibility">Buka laporan GitHub yang telah diisi</string>
+    <string name="settings_issue_report_dialog_title">Tinjau laporan</string>
+    <string name="settings_issue_report_dialog_message">Tinjau dan lengkapi draf ini sebelum membuka GitHub. Tidak ada yang dikirim otomatis. Diagnostik opsional berisi peristiwa siklus hidup lokal yang telah disamarkan; alamat jaringan, rahasia, data webhook, dan data pribadi tidak disertakan.</string>
+    <string name="settings_issue_report_include_diagnostics">Sertakan data diagnostik yang telah disamarkan</string>
+    <string name="settings_issue_report_preview">Pratinjau laporan</string>
+    <string name="settings_issue_report_preview_hint">Tinjau dan tambahkan detail</string>
+    <string name="settings_issue_report_open_github">Buka GitHub</string>
+    <string name="issue_report_title">Laporan masalah KeepADB</string>
+    <string name="issue_report_unavailable">Tidak tersedia</string>
+    <string name="issue_report_body">## Jenis masalah
+%1$s
+
+## Bahasa / lokal yang terdampak
+%2$s
+
+## Perilaku yang diharapkan
+%3$s
+
+## Perilaku yang terjadi
+%4$s
+
+## Langkah reproduksi
+%5$s
+
+## Versi aplikasi
+%6$s
+
+## Kode versi
+%7$s
+
+## Versi Android
+%8$s
+
+## Level API Android
+%9$s
+
+## Model perangkat
+%10$s
+
+## Log
+%11$s
+
+## Tangkapan layar
+%12$s
+
+## Catatan tambahan
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">Bug / terjemahan / UI / crash / lainnya</string>
+    <string name="issue_report_placeholder_expected">Jelaskan apa yang seharusnya terjadi.</string>
+    <string name="issue_report_placeholder_actual">Jelaskan apa yang terjadi.</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">Tempel log yang relevan di sini. Hapus data pribadi.</string>
+    <string name="issue_report_placeholder_screenshots">Jelaskan atau lampirkan tangkapan layar secara manual.</string>
+    <string name="issue_report_placeholder_notes">Tambahkan informasi berguna lainnya.</string>
+    <string name="issue_report_diagnostics_section">Data diagnostik KeepADB opsional yang telah disamarkan (tinjau sebelum mengirim)</string>
 </resources>

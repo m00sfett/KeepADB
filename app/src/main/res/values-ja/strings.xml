@@ -132,4 +132,62 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">アプリバージョン: %1$s</string>
     <string name="settings_version_code_value">バージョンコード: %1$d</string>
     <string name="settings_version_unavailable">バージョン情報を利用できません</string>
+    <string name="settings_issue_report_button">問題または翻訳を報告</string>
+    <string name="settings_issue_report_accessibility">事前入力済みの GitHub Issue を開く</string>
+    <string name="settings_issue_report_dialog_title">Issue レポートを確認</string>
+    <string name="settings_issue_report_dialog_message">GitHub を開く前に、この下書きを確認して完成させてください。自動送信は行われません。任意の診断データには、編集済みのローカルなライフサイクルイベントが含まれます。ネットワークアドレス、秘密情報、Webhook データ、個人データは除外されます。</string>
+    <string name="settings_issue_report_include_diagnostics">編集済みの診断データを含める</string>
+    <string name="settings_issue_report_preview">Issue レポートのプレビュー</string>
+    <string name="settings_issue_report_preview_hint">確認して詳細を追加</string>
+    <string name="settings_issue_report_open_github">GitHub を開く</string>
+    <string name="issue_report_title">KeepADB 問題レポート</string>
+    <string name="issue_report_unavailable">利用できません</string>
+    <string name="issue_report_body">## 問題の種類
+%1$s
+
+## 影響を受ける言語 / ロケール
+%2$s
+
+## 期待される動作
+%3$s
+
+## 実際の動作
+%4$s
+
+## 再現手順
+%5$s
+
+## アプリのバージョン
+%6$s
+
+## バージョンコード
+%7$s
+
+## Android バージョン
+%8$s
+
+## Android API レベル
+%9$s
+
+## デバイスモデル
+%10$s
+
+## ログ
+%11$s
+
+## スクリーンショット
+%12$s
+
+## 追加のメモ
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">バグ / 翻訳 / UI / クラッシュ / その他</string>
+    <string name="issue_report_placeholder_expected">期待される動作を説明してください。</string>
+    <string name="issue_report_placeholder_actual">発生した動作を説明してください。</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">関連するログをここに貼り付けてください。個人情報は削除してください。</string>
+    <string name="issue_report_placeholder_screenshots">スクリーンショットを説明するか、手動で添付してください。</string>
+    <string name="issue_report_placeholder_notes">その他の役立つ情報を追加してください。</string>
+    <string name="issue_report_diagnostics_section">任意の編集済み KeepADB 診断データ（送信前に確認してください）</string>
 </resources>

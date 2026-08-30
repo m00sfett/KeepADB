@@ -132,4 +132,62 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">Версия приложения: %1$s</string>
     <string name="settings_version_code_value">Код версии: %1$d</string>
     <string name="settings_version_unavailable">Информация о версии недоступна</string>
+    <string name="settings_issue_report_button">Сообщить о проблеме или переводе</string>
+    <string name="settings_issue_report_accessibility">Открыть предварительно заполненный отчёт GitHub</string>
+    <string name="settings_issue_report_dialog_title">Проверить отчёт</string>
+    <string name="settings_issue_report_dialog_message">Проверьте и дополните этот черновик перед открытием GitHub. Ничего не отправляется автоматически. Дополнительная диагностика содержит отредактированные локальные события жизненного цикла; сетевые адреса, секреты, данные вебхука и личные данные исключаются.</string>
+    <string name="settings_issue_report_include_diagnostics">Включить отредактированные диагностические данные</string>
+    <string name="settings_issue_report_preview">Предпросмотр отчёта</string>
+    <string name="settings_issue_report_preview_hint">Проверить и добавить сведения</string>
+    <string name="settings_issue_report_open_github">Открыть GitHub</string>
+    <string name="issue_report_title">Отчёт о проблеме KeepADB</string>
+    <string name="issue_report_unavailable">Недоступно</string>
+    <string name="issue_report_body">## Тип проблемы
+%1$s
+
+## Затронутый язык / локаль
+%2$s
+
+## Ожидаемое поведение
+%3$s
+
+## Фактическое поведение
+%4$s
+
+## Шаги воспроизведения
+%5$s
+
+## Версия приложения
+%6$s
+
+## Код версии
+%7$s
+
+## Версия Android
+%8$s
+
+## Уровень API Android
+%9$s
+
+## Модель устройства
+%10$s
+
+## Журналы
+%11$s
+
+## Снимки экрана
+%12$s
+
+## Дополнительные примечания
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">Ошибка / перевод / интерфейс / сбой / другое</string>
+    <string name="issue_report_placeholder_expected">Опишите ожидаемое поведение.</string>
+    <string name="issue_report_placeholder_actual">Опишите фактическое поведение.</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">Вставьте сюда важные журналы. Удалите личные данные.</string>
+    <string name="issue_report_placeholder_screenshots">Опишите снимки экрана или прикрепите их вручную.</string>
+    <string name="issue_report_placeholder_notes">Добавьте любую другую полезную информацию.</string>
+    <string name="issue_report_diagnostics_section">Дополнительные отредактированные диагностические данные KeepADB (проверьте перед отправкой)</string>
 </resources>
