@@ -5418,5 +5418,22 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Zustand:** `complete` für die Versions-/Changelog-Regel, rückwirkende Dokumentation sowie
   Commit/Push. `git diff --check` ist bestanden; der Gradle-Verify blieb ohne typisierte
   Test-/Buildfreigabe aus.
-- **Commit/Push:** `4058978` auf `master` und `origin/master`.
+- **Commit/Push:** `4058978` und `758114a` liegen auf `chore/version-issue-changelog` und
+  `origin/chore/version-issue-changelog`; `master` wurde auf den Vorzustand `7989af5`
+  zurückgesetzt.
 - **plan_updated_at:** 2026-08-30T09:35:00+02:00
+
+## Korrektur des direkten Pushes — 2026-08-30
+
+- **Rollback:** Die direkten Commits `4058978` und `758114a` wurden mit einem gebundenen
+  `--force-with-lease` von `master` entfernt. `origin/master` steht wieder auf `7989af5`.
+- **Ordentlicher Lifecycle:** Die unveränderten Änderungen liegen auf Branch
+  `chore/version-issue-changelog`; PR [#206](https://github.com/m00sfett/KeepADB/pull/206)
+  ist gegen `master` eröffnet.
+- **Board/Drift:** Board-Sync meldete 0 Änderungen. Drift meldet ausschließlich den offenen
+  PR und den noch nicht gemergten Feature-Branch.
+- **Freigaben:** Der Rollback und der PR-Lifecycle wurden durch den aktuellen Nutzerauftrag
+  ausdrücklich freigegeben. GitHub Actions sowie Gradle-Verify wurden nicht gestartet.
+- **Zustand:** `not approved` bis PR-Review, erforderlichen grünen Checks und Merge. Es wurde
+  kein Release ausgelöst.
+- **plan_updated_at:** 2026-08-30T09:45:00+02:00
