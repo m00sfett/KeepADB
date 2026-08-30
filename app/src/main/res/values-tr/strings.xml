@@ -132,4 +132,62 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">Uygulama sürümü: %1$s</string>
     <string name="settings_version_code_value">Sürüm kodu: %1$d</string>
     <string name="settings_version_unavailable">Sürüm bilgisi kullanılamıyor</string>
+    <string name="settings_issue_report_button">Sorun veya çeviri bildir</string>
+    <string name="settings_issue_report_accessibility">Önceden doldurulmuş GitHub bildirimi aç</string>
+    <string name="settings_issue_report_dialog_title">Bildirim raporunu incele</string>
+    <string name="settings_issue_report_dialog_message">GitHub’ı açmadan önce bu taslağı inceleyip tamamlayın. Hiçbir şey otomatik olarak gönderilmez. İsteğe bağlı tanılama verileri, redakte edilmiş yerel yaşam döngüsü olaylarını içerir; ağ adresleri, gizli bilgiler, Webhook verileri ve özel veriler hariç tutulur.</string>
+    <string name="settings_issue_report_include_diagnostics">Redakte edilmiş tanılama verilerini ekle</string>
+    <string name="settings_issue_report_preview">Bildirim önizlemesi</string>
+    <string name="settings_issue_report_preview_hint">İncele ve ayrıntı ekle</string>
+    <string name="settings_issue_report_open_github">GitHub’ı aç</string>
+    <string name="issue_report_title">KeepADB sorun bildirimi</string>
+    <string name="issue_report_unavailable">Kullanılamıyor</string>
+    <string name="issue_report_body">## Sorun türü
+%1$s
+
+## Etkilenen dil / yerel ayar
+%2$s
+
+## Beklenen davranış
+%3$s
+
+## Gerçekleşen davranış
+%4$s
+
+## Yeniden oluşturma adımları
+%5$s
+
+## Uygulama sürümü
+%6$s
+
+## Sürüm kodu
+%7$s
+
+## Android sürümü
+%8$s
+
+## Android API düzeyi
+%9$s
+
+## Cihaz modeli
+%10$s
+
+## Günlükler
+%11$s
+
+## Ekran görüntüleri
+%12$s
+
+## Ek notlar
+%13$s</string>
+    <string name="issue_report_placeholder_problem_type">Hata / çeviri / arayüz / çökme / diğer</string>
+    <string name="issue_report_placeholder_expected">Ne olması gerektiğini açıklayın.</string>
+    <string name="issue_report_placeholder_actual">Ne olduğunu açıklayın.</string>
+    <string name="issue_report_placeholder_steps">1. …
+2. …
+3. …</string>
+    <string name="issue_report_placeholder_logs">İlgili günlükleri buraya yapıştırın. Özel verileri kaldırın.</string>
+    <string name="issue_report_placeholder_screenshots">Ekran görüntülerini açıklayın veya manuel olarak ekleyin.</string>
+    <string name="issue_report_placeholder_notes">Yararlı başka bilgileri ekleyin.</string>
+    <string name="issue_report_diagnostics_section">İsteğe bağlı redakte edilmiş KeepADB tanılama verileri (göndermeden önce inceleyin)</string>
 </resources>
