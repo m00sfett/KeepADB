@@ -5784,3 +5784,83 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Trennung:** #213 bleibt Erfassungs-/Folgearbeit; keine Implementierung im #205-PR.
 - **Zustand:** `complete` für Issue-Erfassung und Board-Sync; #205-Lifecycle folgt.
 - **plan_updated_at:** 2026-08-30T11:35:00+02:00
+
+## Aktuelles Paket — Issue #213 Umsetzung — 2026-08-30
+
+- **Issue:** [#213](https://github.com/m00sfett/KeepADB/issues/213) `feat: add prefilled GitHub issue reporting link in Settings`.
+- **Roadmap-Abgleich (wörtlich):** „Den Einstellungsbereich vollständig, nachvollziehbar und für alle unterstützten Sprachen nutzbar machen.“ Das Paket dient diesem Ziel direkt: Es ergänzt den nachvollziehbaren Settings-Einstieg und nutzt den bestehenden 19-Locale-Ressourcenpfad.
+- **Ziel:** Einen lokalisierten Melde-Einstieg mit vorbefülltem, bearbeitbarem GitHub-New-Issue-Entwurf bereitstellen. Sensible oder netzwerkbezogene Werte werden nie automatisch eingefügt.
+- **Zerlegung:** (1) S2 lokaler Entwurfs-Builder und Contract-Test; (2) S2 Settings-Dialog mit optionalem Diagnose-Häkchen und Vorschau; (3) S1 Ressourcen-/Accessibility-Key-Parität über alle 19 Locales. Gemeinsamer Rollback über einen PR, aber getrennte technische Prüfpunkte.
+- **Muss-Akzeptanzfälle:** richtiger New-Issue-Endpunkt und URL-Encoding; strukturierte editierbare Felder; Version/Code/API/Gerät nur bei zuverlässiger lokaler Ermittlung; Diagnosedaten standardmäßig nicht enthalten und bei Häkchen als redigierte Daten vor dem Browser-Aufruf vollständig sichtbar; kein automatischer Upload; neue sichtbare Texte und Accessibility-Texte in allen 19 Locales; Contract-/Unit-Test, Lint und lokale Gates grün.
+- **Nicht-Ziele:** keine GitHub-API/Auth, kein automatisches Absenden, kein Upload von Screenshots/Dateien, keine Webhook-/Endpoint-/IP-/privaten Nutzerdaten, keine neue Sprache und keine Änderung bestehender Diagnoseaufzeichnung.
+- **Daten-/Rollbackrisiko:** Der Dialog verarbeitet lokale Diagnoseausgabe und öffnet erst nach Nutzerbestätigung eine externe GitHub-URL. URL-Builder und redigierte Diagnosequelle müssen getrennt bleiben; Rückrollpfad ist der atomare PR-Commit.
+- **Stufe/Gates:** S2 für Builder/Dialog, S1 für Ressourcen. Minimum: `git diff --check`, fokussierter Contract-Test, danach `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`. `approved` bedeutet alle Muss-Akzeptanzfälle und lokale Gates grün; Geräteprüfung ist für diesen Settings-/Browser-Pfad nicht vorgesehen.
+- **Freigaben:** Implementierung ist durch den Nutzerauftrag umfasst. Tests, Lint und Build benötigen noch typisierte Nutzerfreigabe; kein Gerätezugriff und keine GitHub Action. Subagent-Delegation ist nicht vorgesehen, da die Paketgrenzen klein genug für direkte Umsetzung sind.
+- **Offene Risiken:** Android-Dialoggröße bei langen Diagnosedaten; GitHub-URL-Längenlimit; zuverlässige Paketmetadaten bei ungewöhnlicher Installation; fachliche Qualität neuer Übersetzungen ohne Muttersprachlerprüfung.
+- **Issue-Snapshot:** 2026-08-30T10:30:07+02:00; #213 offen, kein offener PR, kein aktiver Run für den aktuellen `master`-Head `5f2f6cd`.
+- **Implementierung:** `KeepADBIssueReporter`, bearbeitbare Vorschau mit optionalem Diagnose-Häkchen in `SettingsActivity`, Settings-Einstieg, Contract-Test und neue Ressourcen in allen 19 Locales angelegt. Diagnosedaten kommen ausschließlich aus der bestehenden redigierten Exportfunktion; es gibt keinen automatischen Upload oder API-Aufruf.
+- **Validierung:** `git diff --check` und `xmllint` für alle Locale-Dateien grün. Erster Verify-Lauf scheiterte an zwei türkischen Apostroph-Escapes in AAPT2; nach dem engen Ressourcenfix bestand `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` mit Unit-Tests, Lint sowie Debug-/Release-Build erfolgreich.
+- **Status:** `not approved` für die vollständige lokale Abnahme; Review/Repair ist abgeschlossen. Issue #213 bleibt offen, PR-/Commit-Lifecycle wurde nicht ausgeführt.
+- **Review:** `review and repair` als S2 durch den Hauptagenten; gemäß aktuellem Nutzerauftrag kein neuer Agent.
+- **plan_updated_at:** 2026-08-30T12:34:24+02:00
+
+## Issue #213 — Review-/Repair-Bericht — 2026-08-30
+
+- **Reviewumfang:** Ausschließlich `KeepADBIssueReporter.java`, `SettingsActivity.java`,
+  `activity_settings.xml`, die 19 `strings.xml`-Locale-Dateien, der zugehörige Contract-Test
+  und dieser #213-Planabschnitt. Keine Geräte-, GitHub-Write- oder GitHub-Actions-Aktion.
+- **Aufrufpfad:** `MainActivity` öffnet `SettingsActivity`; der neue Settings-Button registriert
+  ausschließlich den lokalen `showIssueReportDialog()`-Listener. Der Dialog wird weder aus
+  `onResume()` noch aus einem Receiver/Service automatisch geöffnet. Abbrechen beendet ohne
+  externe Aktion; nur der positive Button öffnet per `ACTION_VIEW` die New-Issue-URL.
+- **Befund 1 — Muss-Fix:** Der ursprüngliche positive Button rief `buildUrl(this,
+  diagnostics.isChecked())` auf und verwarf damit alle Edits der Vorschau. Reparatur:
+  `buildUrl(Context, String)` und Übergabe von `preview.getText().toString()`; der Contract-Test
+  pinnt diese Gegenrichtung.
+- **Befund 2 — Muss-Fix/Privacy:** Die bestehende Diagnosehistorie kann im Ereignis
+  `endpoint_discovered` `host=… port=…` enthalten. Der ursprüngliche Reportpfad übernahm den
+  Export unverändert. Reparatur: erneute URL-/Secret-Redaktion plus Host-/Port-Redaktion in
+  `KeepADBIssueReporter`; der UI-Pfad liest Diagnosen erst nach explizitem Häkchen.
+- **Befund 3 — Muss-Fix:** Beim Umschalten wurden Nutzeränderungen nur für einen unveränderten
+  Ausgangstext berücksichtigt; ein bearbeiteter Diagnoseblock konnte beim Abwählen verbleiben.
+  Reparatur: Einfügen vor dem letzten Markdown-Abschnitt, Entfernen bis zum nächsten Heading,
+  Schutzbereinigung nochmals beim positiven Klick; Bearbeitungen außerhalb des Diagnoseblocks
+  bleiben erhalten.
+- **Befund 4 — Muss-Fix/i18n:** Template-Überschriften, Platzhalter, `Unavailable` und der
+  Diagnosetext waren in den 18 nicht-englischen Locales noch englische Fallbacks. Reparatur:
+  alle sichtbaren Reporttexte und der Datenschutzhinweis wurden in allen 19 Locale-Dateien
+  lokalisiert; Formatargumente `%1$s` bis `%13$s` blieben positionsgleich.
+- **Befund 5 — Testlücke:** Der ursprüngliche Contract-Test prüfte nur Quelltextfragmente und
+  keine Feldvollständigkeit, Diagnose-Redaktion oder Toggle-Reversibilität. Reparatur:
+  Assertions für Ziel/Query-Builder, aktuelle Vorschauübergabe, 13 strukturierte Felder,
+  verbotene Datenquellen, URL-/Secret-/Host-/Port-Redaktion, Toggle-Roundtrip und exakt 19
+  Locale-Keysets ergänzt.
+- **Akzeptanzstatus:** New-Issue-Endpunkt, URL-encodierte Query-Parameter, editierbare Felder,
+  lokale Paket-/Android-/Modellmetadaten, Opt-in-Diagnosen, keine API/Auth/Auto-Übertragung,
+  19 Locales und Contract-Abdeckung erfüllt. Der Browser-Aufruf bleibt eine explizite
+  Nutzeraktion; ein Issue wird nicht automatisch erstellt. Die vollständige lokale Abnahme
+  bleibt offen, weil der letzte Verify-Lauf ausschließlich in einem fremden asynchronen
+  USB-Register-Test scheiterte.
+- **Nachweise:** `git diff --check`; `xmllint --noout` für 19 Locale-Dateien; eigener Read-only-
+  Key-/Placeholder-Audit; der letzte `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`
+  kompilierte den Reparaturstand und meldete 152 Tests mit genau einem Fehler in
+  `KeepADBUsbRegisterClientTest.testProcessRestartWithCableDisconnectedSendsInactiveCleanup`.
+  Der fokussierte Wiederholungslauf dieses Tests war erfolgreich. Der vorherige vollständige
+  Lauf vor dem letzten zeilenweisen Redaktions-Micro-Fix war mit 146 Unit-Tests, Lint sowie
+  Debug-/Release-Build erfolgreich; Lint/Release des finalen Micro-Fixes wurden wegen des
+  fremden Testfehlers nicht erneut erreicht.
+- **Server-/Gitstatus:** Issue #213 read-only als `OPEN` geprüft; aktueller Checkout `master`
+  auf `5f2f6cd`; keine Änderungen an Issue, Board, PR, Commit, Push oder Actions. Die sichtbaren
+  älteren erfolgreichen Runs gehören nicht zum aktuellen Head und wurden nicht als Nachweis
+  verwendet.
+- **Restrisiko:** Die bestehenden Diagnoseereignisse sind technisch begrenzt, aber ein sehr
+  langer optionaler Export kann weiterhin die URL-Längenlimits einzelner Browser erreichen;
+  dieses Verhalten wurde nicht als Scope-Erweiterung verändert. Übersetzungen wurden auf
+  Ressourcen-/Formatkonsistenz geprüft, nicht durch Muttersprachler gegengelesen.
+- **Retrospektive:** Die Reihenfolge Aufrufpfad/Privatsphäre → Reparatur → Contract-Test →
+  lokale Gates war sinnvoll; ein grüner Vorab-Verify hätte die verworfenen Vorschau-Edits nicht
+  gefunden. Der günstigere Static-/Contract-Gate hätte den Datenflussfehler nur mit den neuen
+  Gegenprüfungen sichtbar gemacht. Für den nächsten Lauf wird jede editierbare Vorschau als
+  eigene Datenquelle behandelt und der finale String explizit bis zum externen Intent verfolgt.
+  Der finale Gate-Blocker liegt außerhalb des Scopes und wurde wegen des ausdrücklichen Verbots
+  von Issue-Änderungen nicht separat erfasst.
