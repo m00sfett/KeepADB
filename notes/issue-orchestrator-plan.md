@@ -5496,8 +5496,7 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   Lifecycle interpretiert; keine Geräteaktion und keine GitHub-Action.
 - **Umsetzung:** `SettingsActivity` zeigt am Ende der Settings-Seite Version und Version Code
   aus `PackageInfo`. Die Anzeige nutzt zurückhaltende Typografie und mittleren Kontrast.
-  Resource-Keys sind in allen 19 Locale-Verzeichnissen vorhanden; Deutsch und Englisch sind
-  übersetzt, die übrigen Fallback-Texte bleiben Bestandteil des Folgeaudits #205.
+  Resource-Keys und lokalisierte Texte sind in allen 19 Locale-Verzeichnissen vorhanden.
 - **Versionierung:** `1.3.4`/Code 9 → `1.3.5`/Code 10; Changelog und README aktualisiert.
 - **Tests/Gates:** Fokussierter `KeepADBVersionContractTest` nach Reparatur 1/1 grün;
   `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` vollständig grün mit Unit-Tests,
@@ -5509,3 +5508,15 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   `master` wurde vor jedem Push korrigiert.
 - **Zustand:** `in_progress` bis PR, Review und Merge.
 - **plan_updated_at:** 2026-08-30T09:34:14+02:00
+
+## Issue #203 — Review und Reparatur — 2026-08-30
+
+- **Reviewbefund:** Die erste Implementierung enthielt in 17 Locale-Dateien englische
+  Fallback-Texte statt lokalisierter Versionslabels. Das verletzte das #203-Kriterium zur
+  Darstellung in allen unterstützten Sprachen.
+- **Reparatur:** Versionsbereich, Versionslabel, Code-Label und Fehlertext in allen betroffenen
+  Sprachen übersetzt. Der allgemeine Ressourcen-Audit bleibt als #205 abgegrenzt.
+- **Nachreparatur-Gates:** Fokussierter `KeepADBVersionContractTest` und
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` vollständig grün.
+- **Zustand:** `in_progress` bis PR-Review und Merge.
+- **plan_updated_at:** 2026-08-30T09:40:00+02:00
