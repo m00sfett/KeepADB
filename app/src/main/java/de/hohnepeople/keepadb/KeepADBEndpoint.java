@@ -95,6 +95,7 @@ final class KeepADBEndpoint {
     private Thread coordinatorThread;
     private final AtomicBoolean endpointDelivered = new AtomicBoolean(false);
     private Runnable recoveryPulseRunnable;
+    private boolean recoveryPulseEnabled;
     private Runnable overallTimeoutRunnable;
 
     KeepADBEndpoint(Context context) {
@@ -109,17 +110,24 @@ final class KeepADBEndpoint {
         }
     }
 
-    synchronized void discover(Listener listener) {
-        this.currentListener = listener;
+    synchronized void discover(Listener listener, boolean allowRecoveryPulse) {
         if (discovering && !endpointDelivered.get()) {
-            Log.d(TAG, "discover called while already discovering (gen=" + discoveryGeneration + "); attached listener to active probe");
-            return;
+            if (!allowRecoveryPulse || recoveryPulseEnabled) {
+                currentListener = listener;
+                Log.d(TAG, "discover called while already discovering (gen=" + discoveryGeneration
+                        + "); attached listener to active probe");
+                return;
+            }
+            // A global caller joined a Tile-only read. Restart so the global path retains its
+            // recovery pulse and full timeout while the abandoned Tile session is invalidated.
+            stop();
         }
         if (discovering) {
             stop();
         }
+        currentListener = listener;
         if (nsdManager == null) {
-            this.currentListener = null;
+            currentListener = null;
             if (listener != null) {
                 listener.onUnavailable();
             }
@@ -127,6 +135,7 @@ final class KeepADBEndpoint {
         }
 
         discovering = true;
+        recoveryPulseEnabled = allowRecoveryPulse;
         endpointDelivered.set(false);
 
         if (multicastLock != null && !multicastLock.isHeld()) {
@@ -190,8 +199,10 @@ final class KeepADBEndpoint {
         // adbd may have accepted the toggle mid-teardown of a previous session without ever
         // binding a listener. Pulse it once to force a clean restart, then give mDNS a fresh
         // chance to pick up the new advertisement before giving up entirely.
-        recoveryPulseRunnable = () -> maybeSendRecoveryPulse(generation);
-        mainHandler.postDelayed(recoveryPulseRunnable, RECOVERY_PULSE_DELAY_MS);
+        if (allowRecoveryPulse) {
+            recoveryPulseRunnable = () -> maybeSendRecoveryPulse(generation);
+            mainHandler.postDelayed(recoveryPulseRunnable, RECOVERY_PULSE_DELAY_MS);
+        }
         overallTimeoutRunnable = () -> giveUpIfStillUnresolved(generation);
         mainHandler.postDelayed(overallTimeoutRunnable, OVERALL_TIMEOUT_MS);
     }
@@ -381,6 +392,7 @@ final class KeepADBEndpoint {
             mainHandler.removeCallbacks(recoveryPulseRunnable);
             recoveryPulseRunnable = null;
         }
+        recoveryPulseEnabled = false;
         if (overallTimeoutRunnable != null) {
             mainHandler.removeCallbacks(overallTimeoutRunnable);
             overallTimeoutRunnable = null;

@@ -20,19 +20,21 @@ public class KeepADBTileService extends TileService {
     @Override
     public void onStartListening() {
         registerListeningInstance(this);
-        KeepADBNotification.refresh(this);
+        KeepADBNotification.refreshForTile(this, this);
         updateTile();
     }
 
     @Override
     public void onStopListening() {
         discardListeningInstance(this);
+        KeepADBNotification.cancelTileDiscovery(this);
         super.onStopListening();
     }
 
     @Override
     public void onDestroy() {
         discardListeningInstance(this);
+        KeepADBNotification.cancelTileDiscovery(this);
         super.onDestroy();
     }
 
