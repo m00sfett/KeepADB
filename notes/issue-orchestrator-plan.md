@@ -5489,3 +5489,23 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Zustand:** `not approved` für die Implementierung; Roadmap-Erweiterung vorbereitet,
   Umsetzung von #203 beginnt erst nach PR-Merge dieser Planänderung.
 - **plan_updated_at:** 2026-08-30T09:27:07+02:00
+
+## Issue #203 — Implementierung und lokale Gates — 2026-08-30
+
+- **Freigabe:** Die Nutzerfreigabe wurde als Umsetzung von #203 mit lokalen Gates und PR-
+  Lifecycle interpretiert; keine Geräteaktion und keine GitHub-Action.
+- **Umsetzung:** `SettingsActivity` zeigt am Ende der Settings-Seite Version und Version Code
+  aus `PackageInfo`. Die Anzeige nutzt zurückhaltende Typografie und mittleren Kontrast.
+  Resource-Keys sind in allen 19 Locale-Verzeichnissen vorhanden; Deutsch und Englisch sind
+  übersetzt, die übrigen Fallback-Texte bleiben Bestandteil des Folgeaudits #205.
+- **Versionierung:** `1.3.4`/Code 9 → `1.3.5`/Code 10; Changelog und README aktualisiert.
+- **Tests/Gates:** Fokussierter `KeepADBVersionContractTest` nach Reparatur 1/1 grün;
+  `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` vollständig grün mit Unit-Tests,
+  Lint sowie Debug-/Release-Build. Erster Testlauf scheiterte an nicht verfügbarer
+  `Files.readString`-API und wurde auf `Files.readAllBytes` korrigiert.
+- **Review:** S2-Implementierung, unabhängiger Review vor PR-Merge noch ausstehend.
+- **Gitstatus:** Produktcommit `59a87de` liegt ausschließlich auf `feat/203-version-settings`;
+  `master` und `origin/master` bleiben auf `0ce48e6`. Der versehentliche lokale Commit auf
+  `master` wurde vor jedem Push korrigiert.
+- **Zustand:** `in_progress` bis PR, Review und Merge.
+- **plan_updated_at:** 2026-08-30T09:34:14+02:00
