@@ -5800,9 +5800,9 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Issue-Snapshot:** 2026-08-30T10:30:07+02:00; #213 offen, kein offener PR, kein aktiver Run für den aktuellen `master`-Head `5f2f6cd`.
 - **Implementierung:** `KeepADBIssueReporter`, bearbeitbare Vorschau mit optionalem Diagnose-Häkchen in `SettingsActivity`, Settings-Einstieg, Contract-Test und neue Ressourcen in allen 19 Locales angelegt. Diagnosedaten kommen ausschließlich aus der bestehenden redigierten Exportfunktion; es gibt keinen automatischen Upload oder API-Aufruf.
 - **Validierung:** `git diff --check` und `xmllint` für alle Locale-Dateien grün. Erster Verify-Lauf scheiterte an zwei türkischen Apostroph-Escapes in AAPT2; nach dem engen Ressourcenfix bestand `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` mit Unit-Tests, Lint sowie Debug-/Release-Build erfolgreich.
-- **Status:** `not approved` für die vollständige lokale Abnahme; Review/Repair ist abgeschlossen. Issue #213 bleibt offen, PR-/Commit-Lifecycle wurde nicht ausgeführt.
-- **Review:** `review and repair` als S2 durch den Hauptagenten; gemäß aktuellem Nutzerauftrag kein neuer Agent.
-- **plan_updated_at:** 2026-08-30T12:34:24+02:00
+- **Status:** `not approved` für die vollständige lokale Abnahme; Review/Repair ist abgeschlossen. Issue #213 bleibt offen, PR-/Commit-Lifecycle wurde zu diesem Zeitpunkt noch nicht ausgeführt.
+- **Review:** `review and repair` als S2 durch den unabhängigen Subagenten Maxwell; Modell `gpt-5.6-luna` und Effort `max` konfiguriert.
+- **plan_updated_at:** 2026-08-30T13:05:00+02:00
 
 ## Issue #213 — Review-/Repair-Bericht — 2026-08-30
 
@@ -5839,20 +5839,15 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   lokale Paket-/Android-/Modellmetadaten, Opt-in-Diagnosen, keine API/Auth/Auto-Übertragung,
   19 Locales und Contract-Abdeckung erfüllt. Der Browser-Aufruf bleibt eine explizite
   Nutzeraktion; ein Issue wird nicht automatisch erstellt. Die vollständige lokale Abnahme
-  bleibt offen, weil der letzte Verify-Lauf ausschließlich in einem fremden asynchronen
-  USB-Register-Test scheiterte.
+  ist nach der Reparatur bestätigt.
 - **Nachweise:** `git diff --check`; `xmllint --noout` für 19 Locale-Dateien; eigener Read-only-
-  Key-/Placeholder-Audit; der letzte `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`
-  kompilierte den Reparaturstand und meldete 152 Tests mit genau einem Fehler in
-  `KeepADBUsbRegisterClientTest.testProcessRestartWithCableDisconnectedSendsInactiveCleanup`.
-  Der fokussierte Wiederholungslauf dieses Tests war erfolgreich. Der vorherige vollständige
-  Lauf vor dem letzten zeilenweisen Redaktions-Micro-Fix war mit 146 Unit-Tests, Lint sowie
-  Debug-/Release-Build erfolgreich; Lint/Release des finalen Micro-Fixes wurden wegen des
-  fremden Testfehlers nicht erneut erreicht.
-- **Server-/Gitstatus:** Issue #213 read-only als `OPEN` geprüft; aktueller Checkout `master`
-  auf `5f2f6cd`; keine Änderungen an Issue, Board, PR, Commit, Push oder Actions. Die sichtbaren
-  älteren erfolgreichen Runs gehören nicht zum aktuellen Head und wurden nicht als Nachweis
-  verwendet.
+  Key-/Placeholder-Audit; der finale `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify`
+  nach dem Review bestand mit 152 Unit-Tests, Lint sowie Debug-/Release-Build. Ein früherer
+  Reviewer-Lauf meldete einmalig einen Fehler in `KeepADBUsbRegisterClientTest`, der im
+  fokussierten Wiederholungslauf und im finalen vollständigen Lauf nicht reproduziert wurde.
+- **Server-/Gitstatus:** Issue #213 read-only als `OPEN` geprüft; der Feature-Branch wurde
+  gepusht, PR #215 gegen `master` eröffnet, Head `ed7b30c`, Merge-State `CLEAN`. Keine
+  GitHub-Checks gemeldet, weil CI nur per `workflow_dispatch` läuft; keine Action gestartet.
 - **Restrisiko:** Die bestehenden Diagnoseereignisse sind technisch begrenzt, aber ein sehr
   langer optionaler Export kann weiterhin die URL-Längenlimits einzelner Browser erreichen;
   dieses Verhalten wurde nicht als Scope-Erweiterung verändert. Übersetzungen wurden auf
@@ -5864,3 +5859,15 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   eigene Datenquelle behandelt und der finale String explizit bis zum externen Intent verfolgt.
   Der finale Gate-Blocker liegt außerhalb des Scopes und wurde wegen des ausdrücklichen Verbots
   von Issue-Änderungen nicht separat erfasst.
+
+## Issue #213 — PR-Lifecycle — 2026-08-30
+
+- **Commits:** `3996e6d` Feature-Implementierung und `ed7b30c` Plan-/Review-Checkpoint auf
+  `origin/feat/213-github-issue-report` gepusht.
+- **PR:** [#215](https://github.com/m00sfett/KeepADB/pull/215) gegen `master`, `OPEN`,
+  `CLEAN`, `Fixes #213`, keine Remote-Checks.
+- **Board/Drift:** Board-Sync ohne Änderungen. Drift meldet erwartungsgemäß den offenen PR
+  und den zugehörigen ungemergten Feature-Branch.
+- **Status:** `not approved` für Merge und Issue-Schließung; Implementierung, Review und lokale
+  Gates sind abgeschlossen. Mergefreigabe steht aus.
+- **plan_updated_at:** 2026-08-30T13:30:00+02:00
