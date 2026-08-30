@@ -128,4 +128,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="tile_state_connected">Connected</string>
     <string name="tile_state_connected_format">%1$s:%2$d</string>
     <string name="tile_state_permission_missing">Permission missing</string>
+    <string name="settings_section_version">Wersja</string>
+    <string name="settings_version_value">Wersja aplikacji: %1$s</string>
+    <string name="settings_version_code_value">Kod wersji: %1$d</string>
+    <string name="settings_version_unavailable">Informacje o wersji są niedostępne</string>
 </resources>

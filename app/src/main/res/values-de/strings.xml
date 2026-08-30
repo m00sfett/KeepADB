@@ -127,4 +127,8 @@
     <string name="usb_notification_enable_wlan_handover">WLAN-ADB aktivieren</string>
     <string name="usb_notification_handover_error">WLAN-ADB konnte nicht aktiviert werden. Berechtigung prüfen.</string>
     <string name="notification_action_disable">WLAN-ADB ausschalten</string>
+    <string name="settings_section_version">Version</string>
+    <string name="settings_version_value">App-Version: %1$s</string>
+    <string name="settings_version_code_value">Versionscode: %1$d</string>
+    <string name="settings_version_unavailable">Versionsinformationen nicht verfügbar</string>
 </resources>

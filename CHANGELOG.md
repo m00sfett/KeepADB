@@ -5,11 +5,12 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.4] - Unreleased
+## [1.4.0] - Unreleased
 
 ### Added
 - Distinct app, widget, and Quick Settings states for off, missing permission, disconnected, and connected conditions.
 - Fresh-process endpoint discovery from the normal Quick Settings Tile without Keep-Alive.
+- Version and version code display in Settings, read from installed package metadata.
 
 ### Fixed
 - Activity, widget, and Tile now refresh after asynchronous endpoint discovery.
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `1.3.2` — #197: All UI surfaces refresh after asynchronous endpoint discovery.
 - `1.3.3` — #198: Tile discovery uses the normal Tile lifecycle in fresh processes.
 - `1.3.4` — #200: Tile-owned discovery cannot publish stale effects after lifecycle end.
+- `1.4.0` — #203: Settings displays the installed app version and version code.
 
 ## [1.2.0] - 2026-08-29
 
