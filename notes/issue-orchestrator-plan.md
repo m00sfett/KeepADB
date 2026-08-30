@@ -5565,3 +5565,13 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Review:** Unabhängiger S2-Review vor PR-Merge noch ausstehend.
 - **Zustand:** `in_progress` bis PR, Review und Merge.
 - **plan_updated_at:** 2026-08-30T10:30:00+02:00
+
+## Issue #204 — PR-Checkpoint — 2026-08-30
+
+- **PR:** [#211](https://github.com/m00sfett/KeepADB/pull/211) ist offen mit `Fixes #204`.
+- **Serverstatus:** PR `OPEN`, `CLEAN`, keine Remote-Checks; Board-Sync ohne Änderungen.
+  Drift zeigt ausschließlich den erwarteten offenen PR und den zugehörigen Feature-Branch.
+- **Merge:** Noch nicht ausgeführt. Der unabhängige S2-Review und eine separate Mergefreigabe
+  bleiben erforderlich.
+- **Zustand:** `not approved` bis Review und Mergefreigabe.
+- **plan_updated_at:** 2026-08-30T10:40:00+02:00

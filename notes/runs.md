@@ -475,3 +475,12 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Ein fehlerhafter erster lokaler Reorder-Versuch wurde vor dem Commit erkannt und vollständig
   korrigiert; es gab keinen Push dieses Zwischenstands.
 - Produktcommit `69bc115`; kein Gerätetest, keine GitHub Action und noch kein PR-Merge.
+
+## 2026-08-30 — Issue #204 PR-Checkpoint
+
+- Feature-Branch `feat/204-settings-order` mit den atomaren Commits `69bc115` und `3c74dfb`
+  gepusht; kein direkter Push auf `master`.
+- PR [#211](https://github.com/m00sfett/KeepADB/pull/211) eröffnet, Status `OPEN`/`CLEAN`,
+  mit `Fixes #204`.
+- Board-Sync: 0 Änderungen. Drift-Readback: nur erwarteter offener PR und Feature-Branch.
+- Kein Merge, kein Gerätetest und keine GitHub Action.
