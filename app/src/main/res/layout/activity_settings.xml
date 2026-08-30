@@ -508,6 +508,42 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
+        <!-- Version Section -->
+        <LinearLayout
+            android:id="@+id/settings_version_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_section_version"
+                android:textColor="@color/title_yellow"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/settings_version_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:textColor="@color/night_muted"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/settings_version_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:textColor="@color/night_muted"
+                android:textSize="12sp" />
+        </LinearLayout>
+
     </LinearLayout>
     </ScrollView>
 </LinearLayout>
