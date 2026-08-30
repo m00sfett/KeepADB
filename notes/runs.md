@@ -452,6 +452,12 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   Versionslabels. Die Texte wurden sprachspezifisch ergänzt; der allgemeine Audit bleibt #205.
 - Fokussierter Contract-Test und `./bin/verify` nach der Reparatur vollständig grün.
 
+## 2026-08-30 — Issue #203 Mergeabschluss
+
+- PR #209 per Squash gemergt (`5fee8fa`), Issue #203 durch `Fixes #203` geschlossen.
+- `master` und `origin/master` synchron; Board-Sync und Drift-Readback sauber.
+- Version `1.4.0` / Code 11, keine Geräteaktion und keine GitHub Action.
+
 ## 2026-08-30 — Issue #203 unabhängige Review-Reparatur
 
 - SemVer-Befund behoben: Feature-Bump auf `1.4.0` / Code 11 korrigiert.

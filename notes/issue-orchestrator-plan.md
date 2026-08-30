@@ -5521,6 +5521,20 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Zustand:** `in_progress` bis PR-Review und Merge.
 - **plan_updated_at:** 2026-08-30T09:40:00+02:00
 
+## Issue #203 — Mergeabschluss — 2026-08-30
+
+- **PR:** [#209](https://github.com/m00sfett/KeepADB/pull/209) wurde nach unabhängiger
+  S2-Prüfung und Reparatur per Squash gemergt; Merge-Commit `5fee8fa` liegt auf `master`.
+- **Akzeptanz:** Versionsanzeige und Version Code kommen aus `PackageInfo`, stehen am Ende
+  der Settings-Seite, sind in allen 19 Locale-Dateien vorhanden und werden durch den
+  Contract-Test abgesichert. Keine Persistenz oder bestehende Settings-Funktion geändert.
+- **Versionierung:** `1.4.0` / Code 11; Changelog und README sind aktualisiert.
+- **Gates:** Fokustest und vollständiger `./bin/verify` nach Review-Reparatur grün. Keine
+  Geräteaktion und keine GitHub Action.
+- **Serverstatus:** Issue #203 CLOSED, PR #209 MERGED; Board-Sync und Drift sauber.
+- **Zustand:** `complete` für Issue #203, Review, lokale Gates und PR-/Issue-Lifecycle.
+- **plan_updated_at:** 2026-08-30T09:50:41+02:00
+
 ## Issue #203 — Reviewbefunde repariert — 2026-08-30
 
 - **SemVer-Befund:** Die neue Settings-Funktion ist ein Minor-Feature. Der Bump wurde von
