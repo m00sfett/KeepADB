@@ -5950,7 +5950,12 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   wurden entsprechend ergänzt.
 - Versionierung: `1.4.4` / VersionCode `15`; Changelog-Eintrag ergänzt.
 - Lokales Gate: `git diff --check` erfolgreich.
-- Nicht ausgeführt: Unit-/Build-/Lint-Gates, da die Projektregel dafür eine ausdrückliche
-  Testfreigabe verlangt; Geräte-/Update-Smoke ebenfalls nicht freigegeben.
-- Status: `not approved` bis die lokalen Gates ausgeführt und bestanden sind; Issue #219 bleibt
-  offen.
+- Lokale Gates: `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erfolgreich mit
+  `git diff --check`, Unit-Tests, Lint sowie Debug- und Release-Build.
+- Nicht ausgeführt: Geräte-/Update-Smoke; dafür lag keine separate Gerätefreigabe vor.
+- Abschluss: Commit `364d401` auf `origin/master`; Issue #219 geschlossen, Boardstatus `Done`,
+  `github-drift` sauber.
+- Retrospektive: Ein Contract-Test schützt den neuen Manifest-/Receiver-Pfad; der lokale Verify-
+  Lauf deckte die Implementierung ab. Ein echter Update-Smoke bleibt der sinnvolle nächste
+  hardwarebezogene Nachweis, ist für den Codeabschluss aber nicht erforderlich.
+- Status: `complete` für Issue #219.

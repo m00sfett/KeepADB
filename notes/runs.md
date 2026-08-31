@@ -536,8 +536,8 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Version auf `1.4.4` / Code `15` erhöht, Changelog und Boot-Receiver-Contract-Test angepasst.
 - `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erfolgreich: Diff-Check, Unit-Tests,
   Lint sowie Debug- und Release-Build.
-- Keine Geräteaktion und keine GitHub Action ausgeführt. Issue bleibt bis zum Commit-/Push-
-  Abschluss offen.
+- Keine Geräteaktion und keine GitHub Action ausgeführt. Commit `364d401` wurde auf
+  `origin/master` gepusht; Issue #219 ist geschlossen und im Board auf `Done`.
 
 ## 2026-08-31 — Diagnose rolfphone: WLAN-ADB nach langer Inaktivität aus
 
