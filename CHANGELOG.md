@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Keep-Alive now restarts after a KeepADB app update and can restore Wireless Debugging without
   requiring the user to open the app.
 
+### Documentation
+- Release- und Signierungshinweise trennen den veröffentlichten Stand `v1.4.3` vom aktuellen,
+  noch unveröffentlichten Entwicklungsstand `1.4.4`; historische Nachweise bleiben unverändert.
+
 ## [1.4.3] - 2026-08-30
 
 ### Added
