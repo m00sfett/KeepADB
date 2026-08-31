@@ -539,6 +539,25 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Keine Geräteaktion und keine GitHub Action ausgeführt. Commit `364d401` wurde auf
   `origin/master` gepusht; Issue #219 ist geschlossen und im Board auf `Done`.
 
+## 2026-08-31 — Issue #218 Release-Dokumentation auf v1.4.3 synchronisiert
+
+- Issue [#218](https://github.com/m00sfett/KeepADB/issues/218) gegen den aktuellen Bestand
+  geprüft: Der veröffentlichte GitHub-Stand ist `v1.4.3` auf Commit `51175de`; die Release-
+  Artefakte heißen `KeepADB-v1.4.3.apk` und `KeepADB-v1.4.3.apk.sha256`.
+- `docs/release-signing.md` nennt jetzt den aktuellen Release, den kanonischen Workflow und die
+  tatsächlich verwendete Release-Toolchain (JDK 21, Gradle 8.9, AGP 8.7.2, SDK 35,
+  Build-Tools 34.0.0). Der historische `v1.1.0`-Nachweis wurde als aktueller Verweis ersetzt,
+  die übrigen historischen Einträge bleiben unverändert.
+- `CHANGELOG.md` dokumentiert die redaktionelle Synchronisierung. Keine App-Versionierung,
+  Veröffentlichung, Workflow-Änderung, F-Droid-MR-Änderung oder Geräteaktion.
+- Lokale Dokumentations-Gates stehen nach Nutzerfreigabe noch aus.
+
+### Nachtrag — Aktualitätskorrektur
+
+- Der Entwicklungsstand wurde inzwischen auf `1.4.4` / VersionCode `15` angehoben. Der aktuelle
+  veröffentlichte GitHub-Release bleibt `v1.4.3`; die Dokumentation weist beide Stände nun
+  ausdrücklich getrennt aus.
+
 ## 2026-08-31 — Diagnose rolfphone: WLAN-ADB nach langer Inaktivität aus
 
 - Der registrierte WLAN-ADB-Pfad `192.168.178.52:46193` war erreichbar; das Ziel wurde als

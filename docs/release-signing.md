@@ -1,11 +1,26 @@
 # KeepADB-Release-Signatur
 
-Stand: 2026-08-29
+Stand: 2026-08-31
 
 KeepADB verwendet für GitHub-Releases und die reproduzierbare Veröffentlichung über F-Droid
 eine dauerhafte Upstream-Signieridentität. Sie darf nicht pro Release neu erzeugt oder ohne
 einen ausdrücklich geplanten, mit Android und den Stores kompatiblen Migrationsweg ersetzt
 werden.
+
+## Aktueller Veröffentlichungsstand
+
+Der aktuell veröffentlichte Stand ist [KeepADB v1.4.3](https://github.com/m00sfett/KeepADB/releases/tag/v1.4.3)
+auf dem Quell-Commit `51175de193b3be20be14848b072060717d0ae2db`. Die zugehörigen GitHub-Release-
+Artefakte heißen `KeepADB-v1.4.3.apk` und `KeepADB-v1.4.3.apk.sha256`.
+
+Der aktuelle Entwicklungsstand ist `1.4.4` / VersionCode `15` und noch nicht veröffentlicht.
+Ein neuer Release darf erst nach dem dafür vorgesehenen Freigabe- und Release-Gate als
+veröffentlicht dokumentiert werden.
+
+Der Release-Build verwendet den Gradle-Wrapper mit Gradle 8.9, Android Gradle Plugin 8.7.2,
+JDK 21, compileSdk 35 und Android Build-Tools 34.0.0. Der maßgebliche Ablauf ist in
+`.github/workflows/release.yml` festgehalten; lokal ist der unsigned Build mit
+`JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew assembleRelease` reproduzierbar zu prüfen.
 
 ## Öffentliche Identität
 
@@ -73,4 +88,4 @@ erzeugt werden.
 
 Letzter Wiederherstellungsnachweis: 2026-08-29. Der aus Vaultwarden wiederhergestellte
 Keystore war bytegleich zur geschützten lokalen Referenz; sein Zertifikat stimmte mit dem
-veröffentlichten APK `v1.1.0` überein.
+veröffentlichten APK `v1.4.3` überein.
