@@ -5916,3 +5916,41 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **issue_snapshot_at:** 2026-08-30T13:47:11+02:00
 - **plan_updated_at:** 2026-08-30T13:47:11+02:00
 - **Zustand:** `complete` für den Orchestrator-Lauf; kein Implementierungsscope offen.
+
+## Aktuelles Paket — Issue #219
+
+- Issue: [#219](https://github.com/m00sfett/KeepADB/issues/219) — Keep-Alive nach App-Updates
+  automatisch wieder starten.
+- Ziel: Nach `MY_PACKAGE_REPLACED` den bestehenden Keep-Alive-Service wieder anstoßen, sofern
+  `keep_alive_enabled=true` gespeichert ist; die vorhandene Zustands- und Toggle-Semantik bleibt
+  unverändert.
+- Zusammenhang: Ursache aus der rolfphone-Diagnose vom 2026-08-31; der App-Update-Prozess
+  beendet den Foreground-Service, startet ihn aber derzeit nicht erneut.
+- Paketgrenze: `BootReceiver.java`, `AndroidManifest.xml`, passende Versions-/Changelog-Dateien;
+  kein Register-/Transport- oder Workflow-Code.
+- Nicht-Ziele: keine neue periodische Hintergrundarbeit, keine Änderung der Keep-Alive- oder
+  WLAN-ADB-Semantik, keine Release-Veröffentlichung.
+- Einstufung: S2, lokalisierte Lifecycle-Verhaltensänderung mit deterministischen Gates; direkte
+  Umsetzung durch den Hauptagenten, keine Delegation.
+- Muss-Akzeptanzfälle: Update-Broadcast startet Service nur bei aktiviertem Keep-Alive; deaktivierter
+  Keep-Alive bleibt inaktiv; bestehende Boot-/Toggle-/USB-/Widget-/Tile-Pfade bleiben unverändert;
+  Diagnoseeintrag wird geschrieben.
+- `approved`: lokaler Verify-Lauf erfolgreich. Physische Geräteprüfung ist separat und in diesem
+  Auftrag nicht freigegeben.
+- Maximale Reparaturrunden: zwei lokale Reparaturschleifen; kein Architekturwechsel.
+- Freigabe: Issue-Anlage und direkte Implementierung erteilt; Tests/Geräteaktion bleiben bis zur
+  ausdrücklichen typisierten Freigabe ausgesetzt.
+- Serverstatus: Issue #219 offen, Boardstatus Todo, Board-Drift read-only geprüft und sauber.
+- Arbeitsbaum: vorbestehende untracked Datei `docs/marketing-screenshots-todo.md` sowie die
+  bestehende Änderung an `notes/runs.md` bleiben unangetastet.
+### Implementierungsstatus — 2026-08-31
+
+- Umsetzung: `BootReceiver.java` verarbeitet zusätzlich `MY_PACKAGE_REPLACED`; bei aktiviertem
+  Keep-Alive wird der bestehende `KeepADBService.start()`-Pfad genutzt. Manifest und Contract-Test
+  wurden entsprechend ergänzt.
+- Versionierung: `1.4.4` / VersionCode `15`; Changelog-Eintrag ergänzt.
+- Lokales Gate: `git diff --check` erfolgreich.
+- Nicht ausgeführt: Unit-/Build-/Lint-Gates, da die Projektregel dafür eine ausdrückliche
+  Testfreigabe verlangt; Geräte-/Update-Smoke ebenfalls nicht freigegeben.
+- Status: `not approved` bis die lokalen Gates ausgeführt und bestanden sind; Issue #219 bleibt
+  offen.

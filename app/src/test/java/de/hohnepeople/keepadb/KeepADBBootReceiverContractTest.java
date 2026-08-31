@@ -15,7 +15,7 @@ import org.junit.Test;
 public class KeepADBBootReceiverContractTest {
 
     @Test
-    public void bootReceiverIsSystemOnlyAndAcceptsOnlyBootCompleted() throws IOException {
+    public void bootReceiverIsSystemOnlyAndAcceptsBootAndPackageReplacement() throws IOException {
         String manifest = read("app/src/main/AndroidManifest.xml");
         String receiver = read("app/src/main/java/de/hohnepeople/keepadb/BootReceiver.java");
         String receiverManifest = manifest.substring(
@@ -24,9 +24,12 @@ public class KeepADBBootReceiverContractTest {
 
         assertTrue(receiverManifest.contains("android:exported=\"false\""));
         assertTrue(receiverManifest.contains("<action android:name=\"android.intent.action.BOOT_COMPLETED\" />"));
+        assertTrue(receiverManifest.contains("<action android:name=\"android.intent.action.MY_PACKAGE_REPLACED\" />"));
         assertFalse(receiverManifest.contains("QUICKBOOT_POWERON"));
         assertFalse(receiver.contains("QUICKBOOT_POWERON"));
         assertTrue(receiver.contains("Intent.ACTION_BOOT_COMPLETED.equals(action)"));
+        assertTrue(receiver.contains("Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)"));
+        assertTrue(receiver.contains("package_recovery"));
         assertFalse(receiver.contains("KeepADB.setEnabled"));
         assertFalse(receiver.contains("KeepADBNotification.refresh"));
         assertFalse(receiver.contains("KeepADBWidget.refreshAll"));

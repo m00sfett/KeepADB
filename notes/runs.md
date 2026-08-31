@@ -524,3 +524,39 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
 - Die MR-Beschreibung enthält noch veraltete `1.2.0`-Release-Evidenz und muss beim nächsten
   MR-Update auf den Kandidatenstand gebracht oder auf das reine App-Inclusion-Template gekürzt
   werden.
+
+## 2026-08-31 — Issue #219 Keep-Alive nach App-Updates
+
+- Issue [#219](https://github.com/m00sfett/KeepADB/issues/219) angelegt und im Project #8
+  synchronisiert. Ursache war ein nach `installPackageLI` beendeter Keep-Alive-Dienst ohne
+  Neustart nach App-Update.
+- `MY_PACKAGE_REPLACED` im bestehenden `BootReceiver` ergänzt; bei aktiviertem Keep-Alive wird
+  der vorhandene Foreground-Service-Startpfad wiederverwendet. Bei deaktiviertem Keep-Alive
+  bleibt der Pfad inaktiv.
+- Version auf `1.4.4` / Code `15` erhöht, Changelog und Boot-Receiver-Contract-Test angepasst.
+- `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` erfolgreich: Diff-Check, Unit-Tests,
+  Lint sowie Debug- und Release-Build.
+- Keine Geräteaktion und keine GitHub Action ausgeführt. Issue bleibt bis zum Commit-/Push-
+  Abschluss offen.
+
+## 2026-08-31 — Diagnose rolfphone: WLAN-ADB nach langer Inaktivität aus
+
+- Der registrierte WLAN-ADB-Pfad `192.168.178.52:46193` war erreichbar; das Ziel wurde als
+  CUBOT P60, Android 12, Seriennummer `P60221209010167` validiert. Der Registereintrag war
+  zuvor inkonsistent mit dem hinterlegten Galaxy-S20-Profil und wurde durch die erfolgreiche
+  Verbindung aktualisiert.
+- KeepADB war nicht deaktiviert: `installed=true`, `hidden=false`, `suspended=false`,
+  `stopped=false`, `enabled=0` (Defaultzustand), `WRITE_SECURE_SETTINGS` weiterhin erteilt;
+  Keep-Alive war in den App-Einstellungen `true` und die App stand auf der Power-Whitelist.
+- Der persistierte Diagnoseverlauf zeigt am 2026-08-30 um 13:07:45 noch einen laufenden Dienst
+  mit `adb_wifi_enabled=true`. `dumpsys activity exit-info` weist um 13:08:18 den Prozess-Exit
+  mit `reason=USER REQUESTED` und `description=stop ... due to installPackageLI` nach; zugleich
+  wurde Version 1.4.2 installiert. Das war ein App-Update, keine Systemdeaktivierung.
+- Danach fehlt bis 2026-08-31 09:28:39 ein Dienst-Heartbeat. Beim Öffnen der App war
+  `adb_wifi_enabled=false`; der wieder gestartete Dienst erkannte `keepAlive=true` und setzte
+  den Wert erfolgreich auf `true`, anschließend wurde der ADB-Endpunkt gefunden.
+- Schlussfolgerung: Das App-Update hat den Keep-Alive-Dienst beendet und nicht automatisch
+  wieder gestartet. Das spätere Ausschalten von WLAN-ADB fällt in diese unbeobachtete Lücke;
+  der konkrete Systemauslöser ist wegen fehlender historischer Settings-Auditdaten nicht mehr
+  beweisbar. Der beobachtete ON-Schalter entsprach dem gewünschten/persistierten Zustand; die
+  reale Systemverbindung war erst nach dem Dienst-Recovery wieder vorhanden.

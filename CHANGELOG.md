@@ -5,6 +5,12 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.4] - Unreleased
+
+### Fixed
+- Keep-Alive now restarts after a KeepADB app update and can restore Wireless Debugging without
+  requiring the user to open the app.
+
 ## [1.4.3] - 2026-08-30
 
 ### Added
