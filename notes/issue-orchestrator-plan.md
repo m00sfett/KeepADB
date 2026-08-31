@@ -5959,3 +5959,62 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   Lauf deckte die Implementierung ab. Ein echter Update-Smoke bleibt der sinnvolle nächste
   hardwarebezogene Nachweis, ist für den Codeabschluss aber nicht erforderlich.
 - Status: `complete` für Issue #219.
+
+## Orchestrator-Lauf — Issue #218 — 2026-08-31
+
+- **Nutzervorgabe:** Issue [#218](https://github.com/m00sfett/KeepADB/issues/218) als konkretes
+  Paket ausgewählt; sie überschreibt für diesen Lauf die ältere Roadmap-Aussage zum bereits
+  abgeschlossenen Settings-Strang.
+- **Roadmap-Abgleich:** Die gespeicherte Roadmap-Aussage lautet wörtlich „Den Einstellungsbereich
+  vollständig, nachvollziehbar und für alle unterstützten Sprachen nutzbar machen.“ #218 dient
+  diesem alten Ziel nicht; die konkrete Issue-ID ist hier die maßgebliche Auswahlvorgabe. Das
+  Paket verfolgt stattdessen das explizite Ziel, die veröffentlichungsrelevante Dokumentation
+  auf den veröffentlichten `v1.4.3`-Stand und den aktuellen, noch unveröffentlichten
+  Entwicklungsstand `1.4.4` zu synchronisieren.
+- **Issue-Snapshot:** GitHub-Readback am 2026-08-31 bestätigte #218 als offen, Label
+  `documentation`, erstellt/aktualisiert um 2026-08-31T08:07:54Z; keine offenen PRs.
+- **CI-/Serverstatus:** `master` und `origin/master` stehen auf `e9f8f85`; kein aktiver Run für
+  diesen Head. `ci.yml` ist `workflow_dispatch`-only, `release.yml` tag-basiert. Der letzte
+  erfolgreiche Release-Run gehört dem älteren Release-Head und wird nicht als Nachweis für
+  dieses Paket verwendet. Branch Protection ist nicht konfiguriert.
+- **Paket:** S1, direkte Umsetzung durch den Hauptagenten; Dokumentationsreferenzen und
+  historische Kennzeichnung in `docs/release-signing.md`, `CHANGELOG.md`, `notes/runs.md` sowie
+  dieser Plandatei.
+- **Ziel:** Keine lebende Anleitung behauptet `v1.1.0` als aktuellen Release; veröffentlichter
+  Release `v1.4.3`, Entwicklungsstand `1.4.4`, Artefaktnamen, kanonischer Workflow und
+  Release-Toolchain sind nachvollziehbar getrennt dokumentiert; historische Nachweise bleiben
+  erhalten.
+- **Nicht-Ziele:** Kein App-Code, keine Versions-/VersionCode-Änderung, kein Release, keine
+  GitHub-Action, keine F-Droid-MR- oder Store-Änderung, keine Screenshot-Erstellung, keine
+  Geräteaktion.
+- **Freigaben:** Implementierung der Issue-Dokumentation erteilt durch den konkreten
+  Issue-Auftrag. Ausdrückliche lokale Gate-Freigabe für `git diff --check` und den gezielten
+  Dokumentations-Referenzcheck steht noch aus; kein Build ist für dieses S1-Dokumentationspaket
+  erforderlich.
+- **Validierungsstatus:** Textänderungen umgesetzt; lokale Gates nicht ausgeführt, da die
+  globale Regel Tests/Prüfungen ohne typisierte Freigabe untersagt.
+- **Offene Punkte:** `git diff --check`; Referenzcheck auf alte lebende `v1.1.0`-Behauptungen sowie
+  korrekte Trennung von veröffentlichtem `v1.4.3` und Entwicklungsstand `1.4.4`. Die historischen
+  Einträge in `notes/runs.md` sind bewusst nicht zu löschen.
+- **Review:** `not applicable` für das rein redaktionelle S1-Paket; Abnahme gegen Issue-
+  Kriterien durch den Hauptagenten.
+- **Übergabe:** Die vorbestehende untracked Datei `docs/marketing-screenshots-todo.md` bleibt
+  unangetastet. Nach den lokalen Gates folgt Readback von Issue/Board/Drift und der atomare
+  Dokumentationsabschluss.
+- **issue_snapshot_at:** 2026-08-31T08:07:54Z
+- **plan_updated_at:** 2026-08-31T10:28:35+02:00
+- **Zustand:** `complete` für die Dokumentationsanpassung; veröffentlicht bleibt `v1.4.3`,
+  Entwicklungsstand ist `1.4.4` / VersionCode `15`.
+
+### Abschluss — Aktualitätskorrektur
+
+- Der Issue-Text wurde auf die getrennte Darstellung von veröffentlichtem `v1.4.3` und noch
+  unveröffentlichtem Entwicklungsstand `1.4.4` aktualisiert; Board-Sync und Drift-Readback folgen
+  im Abschluss.
+- `docs/release-signing.md`, `CHANGELOG.md`, `notes/runs.md` und dieser Plan wurden entsprechend
+  präzisiert. Historische Release-Nachweise blieben unverändert.
+- Nachweise: `git diff --check` sowie gezielter Referenzcheck der lebenden Dokumentation bestanden.
+- Keine Builds, Geräteaktionen, GitHub Actions oder Veröffentlichungen ausgeführt.
+- Review: `not applicable` (S1-Dokumentationspaket); Abnahme durch den Hauptagenten gegen die
+  aktualisierten Akzeptanzkriterien.
+- **plan_updated_at:** 2026-08-31T12:00:00+02:00
