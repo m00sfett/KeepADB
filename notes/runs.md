@@ -558,6 +558,19 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   veröffentlichte GitHub-Release bleibt `v1.4.3`; die Dokumentation weist beide Stände nun
   ausdrücklich getrennt aus.
 
+## 2026-09-01 — Feedback-Eingang ohne GitHub-Konto
+
+- Website-Issue [#32](https://github.com/m00sfett/hohnepeople-de/issues/32) für ein anonym
+  nutzbares KeepADB-Feedbackformular auf `https://hohnepeople.de/keepadb/feedback` angelegt.
+- KeepADB-Issue [#221](https://github.com/m00sfett/KeepADB/issues/221) für das Entfernen des
+  GitHub-New-Issue-Einstiegs und die Verlinkung auf die Website angelegt.
+- Beide Issues enthalten die Sicherheitsgrenze: Nutzertext bleibt untrusted input und darf erst
+  nach menschlicher Prüfung/Normalisierung in GitHub oder den Orchestrator gelangen.
+- Board-Sync: Website #32 in Project #10 als `Todo`; KeepADB #221 war bereits in Project #8 und
+  steht dort als `Todo`. `github-drift`: KeepADB sauber; Website mit bekanntem Branch-Befund
+  `master` ohne gemergten PR.
+- Keine Codeänderung, kein Build, keine Geräteaktion und keine GitHub Action ausgeführt.
+
 ## 2026-08-31 — Diagnose rolfphone: WLAN-ADB nach langer Inaktivität aus
 
 - Der registrierte WLAN-ADB-Pfad `192.168.178.52:46193` war erreichbar; das Ziel wurde als

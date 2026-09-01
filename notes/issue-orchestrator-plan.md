@@ -6018,3 +6018,110 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - Review: `not applicable` (S1-Dokumentationspaket); Abnahme durch den Hauptagenten gegen die
   aktualisierten Akzeptanzkriterien.
 - **plan_updated_at:** 2026-08-31T12:00:00+02:00
+
+## Orchestrator-Lauf — Feedback-Eingang ohne GitHub-Konto — 2026-09-01
+
+- **Nutzervorgabe:** Einen anonym nutzbaren Website-Eingang vorbereiten, den GitHub-Einstieg aus
+  der App entfernen und die App auf die Website-Unterseite verweisen; keine Implementierung in
+  diesem Lauf.
+- **Issues:** KeepADB [#221](https://github.com/m00sfett/KeepADB/issues/221), Website
+  [#32](https://github.com/m00sfett/hohnepeople-de/issues/32).
+- **Paketgrenze:** Website-Formular und App-Anpassung bleiben getrennte Issues/Repositories;
+  die App hängt vom öffentlichen Ziel `https://hohnepeople.de/keepadb/feedback` ab.
+- **Sicherheitsgrenze:** Nutzereingaben sind untrusted input. Keine direkte GitHub- oder
+  Orchestrator-Zufuhr; menschliche Prüfung und Normalisierung sind vorgeschaltet.
+- **Validierung:** Beide Issues nach Anlage read-only abgefragt; Website #32 im Project #10 als
+  `Todo` bestätigt. KeepADB #221 im Project #8 als `Todo` bestätigt; `github-drift` meldet
+  KeepADB sauber. Website-Drift meldet ausschließlich den bereits bekannten Branch-Befund
+  `master` ohne gemergten PR.
+- **Status:** `complete` für Issue-Erfassung und Board-Sync; Implementierung, Builds, Geräte- und
+  Release-Aktionen nicht ausgeführt.
+
+## Orchestrator-Lauf — Untersuchung & Stufeneinschätzung #221 — 2026-09-01
+
+- **Plan-first:** Vorheriger Snapshot (Lauf 2026-09-01, Feedback-Eingang) gelesen; seither ein
+  neues Issue: #221 (dieser Lauf legte es selbst an, siehe vorheriger Abschnitt).
+- **Issue-Quelle:** `gh issue list --repo m00sfett/KeepADB --state open` → genau ein offenes
+  Issue, #221 „feat: Feedback-Einstieg auf Website statt GitHub-Issue umstellen“,
+  `createdAt=updatedAt=2026-09-01T19:27:58Z`.
+- **Roadmap-Abgleich:** Direkte Fortsetzung des Feedback-Stroms aus dem vorherigen Lauf
+  (Website-Ziel `hohnepeople.de/keepadb/feedback`, Website-Issue
+  [hohnepeople-de#32](https://github.com/m00sfett/hohnepeople-de/issues/32)). Dient dem
+  bestätigten Ziel, den GitHub-Issue-Einstieg aus der App zu entfernen.
+- **Codeinventur:** Betroffen ist ausschließlich `KeepADBIssueReporter.java` (112 Zeilen) plus
+  `KeepADBIssueReporterContractTest.java` (151 Zeilen) sowie String-Ressourcen in 19
+  `strings.xml`-Locales (inkl. `values/` Default). Kein Datenmodell, keine Migration, keine
+  Auth-/Sicherheitsarchitektur betroffen; Sicherheitsgrenze ist bereits im Issue-Text als
+  Nicht-Ziel fixiert (kein automatischer Versand, kein Schreibpfad zu GitHub/Orchestrator).
+- **Zerlegung:** Ein zusammenhängendes Paket — ein Aufrufpfad (Settings-Feedback-Eintrag), eine
+  Klasse, ein Contract-Test, gemeinsame Lokalisierungsdateien. Keine unabhängigen Risiko- oder
+  Rollback-Grenzen erkennbar, die eine Aufteilung rechtfertigen würden.
+- **Einstufung:** **S2** (lokalisierte UI-/Verhaltensänderung mit deterministischen Gates,
+  keine Architektur-/Datenmodell-/Sicherheitsentscheidung) — konsistent mit der Einstufung des
+  vorangegangenen vergleichbaren Settings-Pakets (#213). Delegation an `worker-s2` vorgesehen;
+  die 19-Locale-Stringpflege bleibt im selben Paket, da sie semantisches Urteil (Übersetzung)
+  statt rein mechanischer Ersetzung braucht.
+- **Cross-Repo-Abhängigkeit (kein Blocker für die Umsetzung):** Die Zielseite
+  `https://hohnepeople.de/keepadb/feedback` existiert laut Website-Issue #32 noch nicht live.
+  Die App-Änderung selbst kann unabhängig implementiert werden (statische URL), ist aber erst
+  nutzbar, sobald die Website-Seite veröffentlicht ist. Wird im Plan als offener Punkt geführt,
+  nicht als `blocked by CI` — kein CI-Gate betroffen.
+- **Nicht ausgeführt:** keine Implementierung, keine Tests, keine Delegation in diesem Lauf —
+  reine Untersuchungs-/Stufeneinschätzung wie beauftragt.
+- **issue_snapshot_at:** 2026-09-01T19:27:58Z
+- **plan_updated_at:** 2026-09-01T20:05:00+02:00
+- **Zustand:** `complete` für Untersuchung/Zerlegung/Stufeneinschätzung; Implementierung wartet
+  auf ausdrückliche Freigabe zur Delegation an `worker-s2`.
+
+## Abschluss — Issue #221 — 2026-09-01T20:45:00+02:00
+
+- **Delegation:** Implementierung `worker-s3` (Nutzerfreigabe „freigabe #221 worker-s3 (!)"),
+  unabhängiger Review `worker-s3` frischer Kontext (Nutzerfreigabe „freigabe").
+- **Review-Ergebnis:** Alle 7 wörtlich geprüften Implementierungsbehauptungen bestätigt, alle
+  Issue-Akzeptanzkriterien einzeln als erfüllt verifiziert, Aufrufpfad (`showIssueReportDialog()`
+  hat genau einen Aufrufer — Button-Klick) geprüft. Kein Muss-Fix, keine Reparatur nötig.
+- **Finding registriert:** Copy-Chip-Verfügbarkeit im Share-Sheet auf Samsung One UI ungeprüft →
+  [#222](https://github.com/m00sfett/KeepADB/issues/222) (S1–S2), Board-Sync bestätigt (`backlog`).
+- **Gates:** `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` zweifach unabhängig grün
+  (Implementierung + Review): `git diff --check`, `testDebugUnitTest` 153/153, `lintDebug`,
+  `assembleDebug`, `assembleRelease`. Ein diff-fremder Test
+  (`KeepADBUsbRegisterClientTest.testProcessRestartWithCableDisconnectedSendsInactiveCleanup`)
+  wurde als vorbestehend flaky eingestuft; Review reproduzierte ihn 3× isoliert grün, konnte
+  Flakiness aber nicht beweisen — kein Blocker, kein neues Issue (außerhalb des Paketscopes,
+  keine Regression durch dieses Paket nachweisbar).
+- **CI-/Serverstatus:** Keine aktiven oder erforderlichen GitHub-Checks (`ci.yml` ist
+  `workflow_dispatch`-only, keine Branch Protection); `gh pr checks 223` meldete „no checks
+  reported". Kein GitHub-Actions-Run gestartet.
+- **Merge:** PR [#223](https://github.com/m00sfett/KeepADB/pull/223), Squash-Merge
+  `8d87c10ba13f13c75fac265b4963431cf7e07cf8`, Branch `feature/221-feedback-website` gelöscht.
+  Issue #221 automatisch geschlossen (`closedAt` 2026-09-01T20:38:54Z). `master`/`origin/master`
+  lokal auf `8d87c10` fast-forwarded.
+- **Board/Drift:** `github-board-sync` und `github-drift` nach #222-Anlage und nach Merge erneut
+  gelaufen — Repository und Project #8 stimmen überein, kein Drift.
+- **Nicht ausgeführt:** keine Geräteaktion, kein Release, keine GitHub Action ausgelöst.
+- **Cross-Repo-Hinweis bleibt offen:** Zielseite `hohnepeople.de/keepadb/feedback` laut
+  Website-Issue `hohnepeople-de#32` vermutlich noch nicht live — kein neuer Befund, weiterhin
+  kein Blocker für diesen App-seitigen Merge.
+- **Strangzähler:** Feedback-Strom (Issues #221/#222/hohnepeople-de#32) erzeugte mit #221 ein
+  nutzersichtbares Ergebnis (gemergter Code). #222 ist Folgearbeit desselben Strangs.
+- **Retrospektive:**
+  1. Reihenfolge Delegation → unabhängiger Review → Merge war angemessen: Der Review fand keine
+     Fehler, bestätigte aber sieben konkrete Behauptungen unabhängig, statt sie zu glauben —
+     ein früherer Merge ohne Review hätte dieselbe Sicherheit nur behauptet, nicht nachgewiesen.
+  2. Kein Test fand einen echten Defekt in diesem Paket; der einzige Fehlschlag war vorbestehend
+     diff-fremd. Ein günstigeres Gate hätte hier nichts zusätzlich aufgedeckt.
+  3. Der Review brachte echten Erkenntnisgewinn (Copy-Chip-Lücke, Vollständigkeits-Check aller
+     19 Locale-Key-Diffs unabhängig von der Selbstauskunft) und rechtfertigte den S3-Aufwand
+     für dieses mehrteilige Paket (24 geänderte Dateien).
+  4. Für den nächsten Lauf: Bei GitHub-Verbindungen mit `workflow_dispatch`-only-CI vor dem
+     PR-Merge explizit `gh pr checks` protokollieren (nicht nur prüfen), damit der fehlende
+     CI-Nachweis im Plan sichtbar begründet ist statt implizit angenommen.
+- **Aufwandsprotokoll:** 1 Issue umgesetzt (#221), 1 Folge-Issue registriert (#222); 2 Subagenten
+  (`worker-s3` Implementierung, `worker-s3` Review), sequenziell, je eine eigene Freigabe;
+  2× vollständiger `./bin/verify`-Lauf; 1 PR, 1 Squash-Merge. Token-/Punktekosten: unbekannt
+  (Subagent-Tokenwerte aus Task-Notifications: Implementierung ~138980, Review ~126676 —
+  als beobachtete, nicht abgerechnete Werte).
+- **issue_snapshot_at:** 2026-09-01T19:27:58Z
+- **plan_updated_at:** 2026-09-01T20:45:00+02:00
+- **Zustand:** `complete`. Kein offenes Paket in diesem Strang; #222 ist als neues,
+  eigenständiges Paket für eine künftige Auswahlrunde verfügbar (Geräteaktion nötig).
