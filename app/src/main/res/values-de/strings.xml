@@ -132,13 +132,14 @@
     <string name="settings_version_code_value">Versionscode: %1$d</string>
     <string name="settings_version_unavailable">Versionsinformationen nicht verfügbar</string>
     <string name="settings_issue_report_button">Fehler oder Übersetzung melden</string>
-    <string name="settings_issue_report_accessibility">Vorgefüllten GitHub-Issue-Bericht öffnen</string>
+    <string name="settings_issue_report_accessibility">Feedback zu einem Problem oder einer Übersetzung öffnen</string>
     <string name="settings_issue_report_dialog_title">Issue-Bericht prüfen</string>
-    <string name="settings_issue_report_dialog_message">Prüfe und vervollständige diesen Entwurf, bevor GitHub geöffnet wird. Es wird nichts automatisch gesendet. Die optionalen Diagnosedaten enthalten redigierte lokale Lebenszyklusereignisse; Netzwerkadressen, Geheimnisse, Webhook-Daten und private Daten werden ausgeschlossen.</string>
+    <string name="settings_issue_report_dialog_message">Prüfe und vervollständige diesen Entwurf. Es wird nichts automatisch gesendet. Öffne die Feedback-Seite im Browser oder teile diesen Bericht selbst. Die optionalen Diagnosedaten enthalten redigierte lokale Lebenszyklusereignisse; Netzwerkadressen, Geheimnisse, Webhook-Daten und private Daten werden ausgeschlossen.</string>
     <string name="settings_issue_report_include_diagnostics">Redigierte Diagnosedaten einfügen</string>
     <string name="settings_issue_report_preview">Vorschau des Issue-Berichts</string>
     <string name="settings_issue_report_preview_hint">Prüfen und Details ergänzen</string>
-    <string name="settings_issue_report_open_github">GitHub öffnen</string>
+    <string name="settings_issue_report_open_feedback">Feedback-Seite öffnen</string>
+    <string name="settings_issue_report_share">Bericht teilen</string>
     <string name="issue_report_title">KeepADB-Problembericht</string>
     <string name="issue_report_unavailable">Nicht verfügbar</string>
     <string name="issue_report_body">## Problemtyp

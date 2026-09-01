@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">版本代碼：%1$d</string>
     <string name="settings_version_unavailable">版本資訊無法使用</string>
     <string name="settings_issue_report_button">回報問題或翻譯錯誤</string>
-    <string name="settings_issue_report_accessibility">開啟預先填寫的 GitHub 問題報告</string>
+    <string name="settings_issue_report_accessibility">開啟關於問題或翻譯的意見回饋</string>
     <string name="settings_issue_report_dialog_title">檢視問題報告</string>
-    <string name="settings_issue_report_dialog_message">開啟 GitHub 前，請檢視並完成此草稿。不會自動傳送任何內容。選用的診斷資料包含已去除敏感資訊的本機生命週期事件；網路位址、機密、Webhook 資料與私人資料都會排除。</string>
+    <string name="settings_issue_report_dialog_message">請檢視並完成此草稿。不會自動傳送任何內容。在瀏覽器中開啟意見回饋頁面，或自行分享此報告。選用的診斷資料包含已去除敏感資訊的本機生命週期事件；網路位址、機密、Webhook 資料與私人資料都會排除。</string>
     <string name="settings_issue_report_include_diagnostics">包含已去除敏感資訊的診斷資料</string>
     <string name="settings_issue_report_preview">問題報告預覽</string>
     <string name="settings_issue_report_preview_hint">檢視並新增詳細資料</string>
-    <string name="settings_issue_report_open_github">開啟 GitHub</string>
+    <string name="settings_issue_report_open_feedback">開啟意見回饋頁面</string>
+    <string name="settings_issue_report_share">分享報告</string>
     <string name="issue_report_title">KeepADB 問題回報</string>
     <string name="issue_report_unavailable">無法使用</string>
     <string name="issue_report_body">## 問題類型

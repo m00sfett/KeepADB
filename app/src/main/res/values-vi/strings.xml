@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">Mã phiên bản: %1$d</string>
     <string name="settings_version_unavailable">Không có thông tin phiên bản</string>
     <string name="settings_issue_report_button">Báo cáo lỗi hoặc bản dịch</string>
-    <string name="settings_issue_report_accessibility">Mở báo cáo GitHub đã điền sẵn</string>
+    <string name="settings_issue_report_accessibility">Mở phản hồi về sự cố hoặc bản dịch</string>
     <string name="settings_issue_report_dialog_title">Xem lại báo cáo</string>
-    <string name="settings_issue_report_dialog_message">Hãy xem lại và hoàn thiện bản nháp này trước khi mở GitHub. Không có dữ liệu nào được tự động gửi. Dữ liệu chẩn đoán tùy chọn chỉ chứa các sự kiện vòng đời cục bộ đã loại bỏ thông tin nhạy cảm; địa chỉ mạng, bí mật, dữ liệu webhook và dữ liệu riêng tư đều bị loại trừ.</string>
+    <string name="settings_issue_report_dialog_message">Hãy xem lại và hoàn thiện bản nháp này. Không có dữ liệu nào được tự động gửi. Hãy mở trang phản hồi trong trình duyệt hoặc tự chia sẻ báo cáo này. Dữ liệu chẩn đoán tùy chọn chỉ chứa các sự kiện vòng đời cục bộ đã loại bỏ thông tin nhạy cảm; địa chỉ mạng, bí mật, dữ liệu webhook và dữ liệu riêng tư đều bị loại trừ.</string>
     <string name="settings_issue_report_include_diagnostics">Bao gồm dữ liệu chẩn đoán đã loại bỏ thông tin riêng tư</string>
     <string name="settings_issue_report_preview">Xem trước báo cáo</string>
     <string name="settings_issue_report_preview_hint">Xem lại và thêm chi tiết</string>
-    <string name="settings_issue_report_open_github">Mở GitHub</string>
+    <string name="settings_issue_report_open_feedback">Mở trang phản hồi</string>
+    <string name="settings_issue_report_share">Chia sẻ báo cáo</string>
     <string name="issue_report_title">Báo cáo sự cố KeepADB</string>
     <string name="issue_report_unavailable">Không khả dụng</string>
     <string name="issue_report_body">## Loại vấn đề

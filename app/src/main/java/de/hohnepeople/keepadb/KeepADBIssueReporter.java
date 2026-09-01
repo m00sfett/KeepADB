@@ -2,14 +2,13 @@ package de.hohnepeople.keepadb;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
-import android.net.Uri;
 import android.os.Build;
 
 import java.util.regex.Pattern;
 
-/** Builds a user-editable, privacy-safe GitHub issue draft. */
+/** Builds a user-editable, privacy-safe feedback report draft. */
 final class KeepADBIssueReporter {
-    static final String ISSUE_URL = "https://github.com/m00sfett/KeepADB/issues/new";
+    static final String FEEDBACK_URL = "https://hohnepeople.de/keepadb/feedback";
     private static final Pattern NETWORK_HOST = Pattern.compile("(?i)\\bhost=[^\\s]+");
     private static final Pattern NETWORK_PORT = Pattern.compile("(?i)\\bport=\\d+");
 
@@ -52,17 +51,6 @@ final class KeepADBIssueReporter {
                 context.getString(R.string.issue_report_placeholder_screenshots),
                 context.getString(R.string.issue_report_placeholder_notes));
         return body.replaceAll("\\s+##\\s+", "\n## ");
-    }
-
-    static String buildUrl(Context context, boolean includeDiagnostics) {
-        return buildUrl(context, buildBody(context, includeDiagnostics));
-    }
-
-    static String buildUrl(Context context, String body) {
-        return Uri.parse(ISSUE_URL).buildUpon()
-                .appendQueryParameter("title", context.getString(R.string.issue_report_title))
-                .appendQueryParameter("body", body)
-                .build().toString();
     }
 
     static String buildDiagnosticsSection(Context context) {

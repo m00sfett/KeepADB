@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">Код версии: %1$d</string>
     <string name="settings_version_unavailable">Информация о версии недоступна</string>
     <string name="settings_issue_report_button">Сообщить о проблеме или переводе</string>
-    <string name="settings_issue_report_accessibility">Открыть предварительно заполненный отчёт GitHub</string>
+    <string name="settings_issue_report_accessibility">Открыть отзыв о проблеме или переводе</string>
     <string name="settings_issue_report_dialog_title">Проверить отчёт</string>
-    <string name="settings_issue_report_dialog_message">Проверьте и дополните этот черновик перед открытием GitHub. Ничего не отправляется автоматически. Дополнительная диагностика содержит отредактированные локальные события жизненного цикла; сетевые адреса, секреты, данные вебхука и личные данные исключаются.</string>
+    <string name="settings_issue_report_dialog_message">Проверьте и дополните этот черновик. Ничего не отправляется автоматически. Откройте страницу отзывов в браузере или поделитесь этим отчётом самостоятельно. Дополнительная диагностика содержит отредактированные локальные события жизненного цикла; сетевые адреса, секреты, данные вебхука и личные данные исключаются.</string>
     <string name="settings_issue_report_include_diagnostics">Включить отредактированные диагностические данные</string>
     <string name="settings_issue_report_preview">Предпросмотр отчёта</string>
     <string name="settings_issue_report_preview_hint">Проверить и добавить сведения</string>
-    <string name="settings_issue_report_open_github">Открыть GitHub</string>
+    <string name="settings_issue_report_open_feedback">Открыть страницу отзывов</string>
+    <string name="settings_issue_report_share">Поделиться отчётом</string>
     <string name="issue_report_title">Отчёт о проблеме KeepADB</string>
     <string name="issue_report_unavailable">Недоступно</string>
     <string name="issue_report_body">## Тип проблемы
