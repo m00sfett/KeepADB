@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">Код версії: %1$d</string>
     <string name="settings_version_unavailable">Інформація про версію недоступна</string>
     <string name="settings_issue_report_button">Повідомити про проблему або переклад</string>
-    <string name="settings_issue_report_accessibility">Відкрити попередньо заповнений звіт GitHub</string>
+    <string name="settings_issue_report_accessibility">Відкрити відгук про проблему або переклад</string>
     <string name="settings_issue_report_dialog_title">Переглянути звіт</string>
-    <string name="settings_issue_report_dialog_message">Перегляньте й доповніть цей чернетковий звіт перед відкриттям GitHub. Нічого не надсилається автоматично. Додаткові діагностичні дані містять відредаговані локальні події життєвого циклу; мережеві адреси, секрети, дані вебхука та приватні дані виключаються.</string>
+    <string name="settings_issue_report_dialog_message">Перегляньте й доповніть цей чернетковий звіт. Нічого не надсилається автоматично. Відкрийте сторінку відгуків у браузері або поділіться цим звітом самостійно. Додаткові діагностичні дані містять відредаговані локальні події життєвого циклу; мережеві адреси, секрети, дані вебхука та приватні дані виключаються.</string>
     <string name="settings_issue_report_include_diagnostics">Додати відредаговані діагностичні дані</string>
     <string name="settings_issue_report_preview">Попередній перегляд звіту</string>
     <string name="settings_issue_report_preview_hint">Переглянути й додати деталі</string>
-    <string name="settings_issue_report_open_github">Відкрити GitHub</string>
+    <string name="settings_issue_report_open_feedback">Відкрити сторінку відгуків</string>
+    <string name="settings_issue_report_share">Поділитися звітом</string>
     <string name="issue_report_title">Звіт про проблему KeepADB</string>
     <string name="issue_report_unavailable">Недоступно</string>
     <string name="issue_report_body">## Тип проблеми

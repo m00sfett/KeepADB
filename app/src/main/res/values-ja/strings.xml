@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">バージョンコード: %1$d</string>
     <string name="settings_version_unavailable">バージョン情報を利用できません</string>
     <string name="settings_issue_report_button">問題または翻訳を報告</string>
-    <string name="settings_issue_report_accessibility">事前入力済みの GitHub Issue を開く</string>
+    <string name="settings_issue_report_accessibility">問題や翻訳についてのフィードバックを開く</string>
     <string name="settings_issue_report_dialog_title">Issue レポートを確認</string>
-    <string name="settings_issue_report_dialog_message">GitHub を開く前に、この下書きを確認して完成させてください。自動送信は行われません。任意の診断データには、編集済みのローカルなライフサイクルイベントが含まれます。ネットワークアドレス、秘密情報、Webhook データ、個人データは除外されます。</string>
+    <string name="settings_issue_report_dialog_message">この下書きを確認して完成させてください。自動送信は行われません。ブラウザでフィードバックページを開くか、この報告を自分で共有してください。任意の診断データには、編集済みのローカルなライフサイクルイベントが含まれます。ネットワークアドレス、秘密情報、Webhook データ、個人データは除外されます。</string>
     <string name="settings_issue_report_include_diagnostics">編集済みの診断データを含める</string>
     <string name="settings_issue_report_preview">Issue レポートのプレビュー</string>
     <string name="settings_issue_report_preview_hint">確認して詳細を追加</string>
-    <string name="settings_issue_report_open_github">GitHub を開く</string>
+    <string name="settings_issue_report_open_feedback">フィードバックページを開く</string>
+    <string name="settings_issue_report_share">レポートを共有</string>
     <string name="issue_report_title">KeepADB 問題レポート</string>
     <string name="issue_report_unavailable">利用できません</string>
     <string name="issue_report_body">## 問題の種類

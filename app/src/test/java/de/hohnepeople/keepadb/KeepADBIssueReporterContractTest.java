@@ -13,23 +13,33 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 
-/** Static contracts for the privacy-safe GitHub issue draft flow. */
+/** Static contracts for the privacy-safe feedback report draft flow. */
 public class KeepADBIssueReporterContractTest {
     @Test
-    public void builderUsesNewIssueEndpointAndEncodedQueryParameters() throws IOException {
+    public void builderTargetsTheStaticFeedbackPageInsteadOfGitHub() throws IOException {
         String reporter = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBIssueReporter.java");
         String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
-        assertTrue(reporter.contains("https://github.com/m00sfett/KeepADB/issues/new"));
-        assertTrue(reporter.contains("Uri.parse(ISSUE_URL).buildUpon()"));
-        assertTrue(reporter.contains("appendQueryParameter(\"title\""));
-        assertTrue(reporter.contains("appendQueryParameter(\"body\""));
-        assertTrue(reporter.contains("static String buildUrl(Context context, String body)"));
+        assertTrue(reporter.contains("https://hohnepeople.de/keepadb/feedback"));
+        assertFalse(reporter.contains("github.com"));
+        assertFalse(reporter.contains("issues/new"));
         assertTrue(reporter.contains("KeepADBDiagnostics.export(context)"));
-        assertTrue(activity.contains("KeepADBIssueReporter.buildUrl"));
+        assertTrue(activity.contains("KeepADBIssueReporter.FEEDBACK_URL"));
+        assertFalse(activity.contains("github.com"));
+        assertFalse(activity.contains("issues/new"));
         assertTrue(activity.contains("preview.getText().toString()"));
-        assertTrue(activity.contains("KeepADBIssueReporter.buildUrl(this, body)"));
         assertTrue(activity.contains("Intent.ACTION_VIEW"));
         assertTrue(activity.contains("setText(withoutDiagnostics)"));
+    }
+
+    @Test
+    public void shareActionSendsTheEditableBodyWithoutAnyGitHubOrIssueTrackerDependency()
+            throws IOException {
+        String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
+        assertTrue(activity.contains("setNeutralButton(R.string.settings_issue_report_share"));
+        assertTrue(activity.contains("BUTTON_NEUTRAL"));
+        assertTrue(activity.contains("new Intent(Intent.ACTION_SEND)"));
+        assertTrue(activity.contains("Intent.EXTRA_TEXT"));
+        assertTrue(activity.contains("Intent.createChooser("));
     }
 
     @Test
@@ -38,7 +48,7 @@ public class KeepADBIssueReporterContractTest {
         assertTrue(activity.contains("settings_issue_report_include_diagnostics"));
         assertTrue(activity.contains("setOnCheckedChangeListener"));
         assertTrue(activity.contains("setInputType(InputType.TYPE_CLASS_TEXT"));
-        assertTrue(activity.contains("setPositiveButton(R.string.settings_issue_report_open_github"));
+        assertTrue(activity.contains("setPositiveButton(R.string.settings_issue_report_open_feedback"));
         assertTrue(activity.contains("removeDiagnosticsSection"));
         assertTrue(activity.contains("buildDiagnosticsSection"));
         assertTrue(activity.indexOf("buildDiagnosticsSection(this)")
@@ -102,7 +112,8 @@ public class KeepADBIssueReporterContractTest {
                 "settings_issue_report_button", "settings_issue_report_accessibility",
                 "settings_issue_report_dialog_title", "settings_issue_report_dialog_message",
                 "settings_issue_report_include_diagnostics", "settings_issue_report_preview",
-                "settings_issue_report_preview_hint", "settings_issue_report_open_github",
+                "settings_issue_report_preview_hint", "settings_issue_report_open_feedback",
+                "settings_issue_report_share",
                 "issue_report_title", "issue_report_unavailable", "issue_report_body",
                 "issue_report_placeholder_problem_type", "issue_report_placeholder_expected",
                 "issue_report_placeholder_actual", "issue_report_placeholder_steps",

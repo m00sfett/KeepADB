@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">Codice versione: %1$d</string>
     <string name="settings_version_unavailable">Informazioni sulla versione non disponibili</string>
     <string name="settings_issue_report_button">Segnala un problema o una traduzione</string>
-    <string name="settings_issue_report_accessibility">Apri una segnalazione GitHub precompilata</string>
+    <string name="settings_issue_report_accessibility">Invia un feedback su un problema o una traduzione</string>
     <string name="settings_issue_report_dialog_title">Rivedi la segnalazione</string>
-    <string name="settings_issue_report_dialog_message">Rivedi e completa questa bozza prima di aprire GitHub. Non viene inviato nulla automaticamente. I dati diagnostici opzionali contengono eventi locali del ciclo di vita con le informazioni sensibili rimosse; indirizzi di rete, segreti, dati webhook e dati privati sono esclusi.</string>
+    <string name="settings_issue_report_dialog_message">Rivedi e completa questa bozza. Non viene inviato nulla automaticamente. Apri la pagina di feedback nel browser oppure condividi tu stesso questo report. I dati diagnostici opzionali contengono eventi locali del ciclo di vita con le informazioni sensibili rimosse; indirizzi di rete, segreti, dati webhook e dati privati sono esclusi.</string>
     <string name="settings_issue_report_include_diagnostics">Includi dati diagnostici oscurati</string>
     <string name="settings_issue_report_preview">Anteprima della segnalazione</string>
     <string name="settings_issue_report_preview_hint">Rivedi e aggiungi dettagli</string>
-    <string name="settings_issue_report_open_github">Apri GitHub</string>
+    <string name="settings_issue_report_open_feedback">Apri la pagina di feedback</string>
+    <string name="settings_issue_report_share">Condividi report</string>
     <string name="issue_report_title">Segnalazione di problema KeepADB</string>
     <string name="issue_report_unavailable">Non disponibile</string>
     <string name="issue_report_body">## Tipo di problema

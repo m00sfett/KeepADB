@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">版本代码：%1$d</string>
     <string name="settings_version_unavailable">版本信息不可用</string>
     <string name="settings_issue_report_button">报告问题或翻译错误</string>
-    <string name="settings_issue_report_accessibility">打开预填充的 GitHub 问题报告</string>
+    <string name="settings_issue_report_accessibility">打开关于问题或翻译的反馈</string>
     <string name="settings_issue_report_dialog_title">查看问题报告</string>
-    <string name="settings_issue_report_dialog_message">打开 GitHub 前请查看并完成此草稿。不会自动发送任何内容。可选诊断数据包含已脱敏的本地生命周期事件；网络地址、机密、Webhook 数据和私人数据均会排除。</string>
+    <string name="settings_issue_report_dialog_message">请查看并完成此草稿。不会自动发送任何内容。请在浏览器中打开反馈页面，或自行分享此报告。可选诊断数据包含已脱敏的本地生命周期事件；网络地址、机密、Webhook 数据和私人数据均会排除。</string>
     <string name="settings_issue_report_include_diagnostics">包含已脱敏的诊断数据</string>
     <string name="settings_issue_report_preview">问题报告预览</string>
     <string name="settings_issue_report_preview_hint">查看并添加详细信息</string>
-    <string name="settings_issue_report_open_github">打开 GitHub</string>
+    <string name="settings_issue_report_open_feedback">打开反馈页面</string>
+    <string name="settings_issue_report_share">分享报告</string>
     <string name="issue_report_title">KeepADB 问题报告</string>
     <string name="issue_report_unavailable">不可用</string>
     <string name="issue_report_body">## 问题类型

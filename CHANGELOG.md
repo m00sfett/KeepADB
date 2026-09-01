@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.4] - Unreleased
 
+### Changed
+- The Settings feedback entry now opens the public `hohnepeople.de/keepadb/feedback` page instead
+  of a prefilled GitHub issue; the app no longer links to `github.com/.../issues/new` from the
+  normal user flow.
+- Sharing or copying the editable, privacy-safe report draft remains available as a separate
+  action so users without a GitHub account can still hand over a report.
+
 ### Fixed
 - Keep-Alive now restarts after a KeepADB app update and can restore Wireless Debugging without
   requiring the user to open the app.
