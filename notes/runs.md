@@ -592,3 +592,12 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   der konkrete Systemauslöser ist wegen fehlender historischer Settings-Auditdaten nicht mehr
   beweisbar. Der beobachtete ON-Schalter entsprach dem gewünschten/persistierten Zustand; die
   reale Systemverbindung war erst nach dem Dienst-Recovery wieder vorhanden.
+
+## 2026-09-01 — Feedback-Einstieg umgesetzt, One-UI-Copy-Chip verifiziert
+
+- Issue #221 (Feedback-Einstieg App→Website) via `worker-s3` implementiert, unabhängig
+  reviewt (keine Reparatur nötig), PR #223 squash-gemergt (`8d87c10`).
+- Folgeissue #222 (Copy-Chip-Verfügbarkeit im Share-Sheet auf Samsung One UI) angelegt, per
+  Gerätetest auf `s20` (SM-G780G) verifiziert: One-UI-Share-Sheet bietet einen eigenen
+  "Kopieren"-Chip; kein zusätzlicher Code nötig, Issue geschlossen.
+- Register für `s20` nach erfolgreicher Verbindung aktualisiert.

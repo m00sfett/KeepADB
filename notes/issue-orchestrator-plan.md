@@ -6125,3 +6125,31 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **plan_updated_at:** 2026-09-01T20:45:00+02:00
 - **Zustand:** `complete`. Kein offenes Paket in diesem Strang; #222 ist als neues,
   eigenständiges Paket für eine künftige Auswahlrunde verfügbar (Geräteaktion nötig).
+
+## Abschluss — Issue #222 — Geräteprüfung — 2026-09-01T23:15:00+02:00
+
+- **Freigabe:** Nutzer gab Gerätetests auf `s20` frei ("freigabe, s20 freigegeben für
+  Gerätetests").
+- **Register/Transport:** `phone-register get s20` → `wlan-adb 192.168.178.24:33155`;
+  Fingerprint per `getprop ro.build.fingerprint` validiert (`SM-G780G`, Serial `RF8T307S88H`,
+  `samsung/r8qeea/r8q:13/TP1A.220624.014/G780GXXSHEYJ1:user/release-keys`). Register nach
+  erfolgreicher Verbindung aktualisiert (`phone-register record`).
+- **Vorbereitung:** `assembleDebug` neu gebaut (versionCode 16, enthält den #221-Merge),
+  installiert und Version am Gerät via `dumpsys package` bestätigt.
+- **Testablauf (UI-Automation über `uiautomator dump`/`input tap`):** Launcher → Settings-Icon →
+  scrollen zu Diagnostics → "REPORT A PROBLEM OR TRANSLATION" → Dialog zeigt "OPEN FEEDBACK
+  PAGE"/"CANCEL"/"SHARE REPORT", Accessibility-Text "Open feedback about a problem or a
+  translation" (GitHub-frei, live bestätigt) → "SHARE REPORT" getippt.
+- **Befund:** Das Samsung-One-UI-Share-Sheet (`android:id/sem_chooser_*`) zeigt einen eigenen
+  "Kopieren"-Chip direkt neben den App-Zielen. Copy-to-Clipboard ist auf dem Zielgerät ohne
+  Codeänderung vorhanden — die im Review offen gelassene Sorge (#222) bestätigt sich nicht.
+- **Abschluss #222:** Befund als Kommentar dokumentiert, Issue mit `not planned` geschlossen
+  (kein Funktionsbedarf). `github-board-sync`/`github-drift` erneut sauber.
+- **Nicht ausgeführt:** keine Codeänderung, kein Release, keine GitHub Action.
+- **Strangzähler:** Feedback-Strom (#221 gemergt, #222 durch Geräteprüfung geklärt und
+  geschlossen) hat mit #221 ein nutzersichtbares Ergebnis erzeugt; #222 war reine Verifikation,
+  keine neue Codearbeit nötig. Kein offenes Paket in diesem Strang mehr — Cross-Repo-Abhängigkeit
+  (Website-Seite `hohnepeople.de/keepadb/feedback`) bleibt außerhalb dieses Repos.
+- **issue_snapshot_at:** 2026-09-01T19:27:58Z
+- **plan_updated_at:** 2026-09-01T23:15:00+02:00
+- **Zustand:** `complete`. Aktuell keine offenen Issues im Repository.
