@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">Kod wersji: %1$d</string>
     <string name="settings_version_unavailable">Informacje o wersji są niedostępne</string>
     <string name="settings_issue_report_button">Zgłoś problem lub błąd tłumaczenia</string>
-    <string name="settings_issue_report_accessibility">Otwórz wstępnie wypełnione zgłoszenie GitHub</string>
+    <string name="settings_issue_report_accessibility">Otwórz opinię o problemie lub tłumaczeniu</string>
     <string name="settings_issue_report_dialog_title">Sprawdź zgłoszenie</string>
-    <string name="settings_issue_report_dialog_message">Sprawdź i uzupełnij ten szkic przed otwarciem GitHub. Nic nie zostanie wysłane automatycznie. Opcjonalne dane diagnostyczne zawierają zredagowane lokalne zdarzenia cyklu życia; adresy sieciowe, sekrety, dane webhooka i dane prywatne są wykluczane.</string>
+    <string name="settings_issue_report_dialog_message">Sprawdź i uzupełnij ten szkic. Nic nie zostanie wysłane automatycznie. Otwórz stronę opinii w przeglądarce lub udostępnij ten raport samodzielnie. Opcjonalne dane diagnostyczne zawierają zredagowane lokalne zdarzenia cyklu życia; adresy sieciowe, sekrety, dane webhooka i dane prywatne są wykluczane.</string>
     <string name="settings_issue_report_include_diagnostics">Dołącz zredagowane dane diagnostyczne</string>
     <string name="settings_issue_report_preview">Podgląd zgłoszenia</string>
     <string name="settings_issue_report_preview_hint">Sprawdź i dodaj szczegóły</string>
-    <string name="settings_issue_report_open_github">Otwórz GitHub</string>
+    <string name="settings_issue_report_open_feedback">Otwórz stronę opinii</string>
+    <string name="settings_issue_report_share">Udostępnij raport</string>
     <string name="issue_report_title">Zgłoszenie problemu KeepADB</string>
     <string name="issue_report_unavailable">Niedostępne</string>
     <string name="issue_report_body">## Typ problemu

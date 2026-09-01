@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">Sürüm kodu: %1$d</string>
     <string name="settings_version_unavailable">Sürüm bilgisi kullanılamıyor</string>
     <string name="settings_issue_report_button">Sorun veya çeviri bildir</string>
-    <string name="settings_issue_report_accessibility">Önceden doldurulmuş GitHub bildirimi aç</string>
+    <string name="settings_issue_report_accessibility">Bir sorun veya çeviri hakkında geri bildirim açın</string>
     <string name="settings_issue_report_dialog_title">Bildirim raporunu incele</string>
-    <string name="settings_issue_report_dialog_message">GitHub’ı açmadan önce bu taslağı inceleyip tamamlayın. Hiçbir şey otomatik olarak gönderilmez. İsteğe bağlı tanılama verileri, redakte edilmiş yerel yaşam döngüsü olaylarını içerir; ağ adresleri, gizli bilgiler, Webhook verileri ve özel veriler hariç tutulur.</string>
+    <string name="settings_issue_report_dialog_message">Bu taslağı inceleyip tamamlayın. Hiçbir şey otomatik olarak gönderilmez. Geri bildirim sayfasını tarayıcınızda açın veya bu raporu kendiniz paylaşın. İsteğe bağlı tanılama verileri, redakte edilmiş yerel yaşam döngüsü olaylarını içerir; ağ adresleri, gizli bilgiler, Webhook verileri ve özel veriler hariç tutulur.</string>
     <string name="settings_issue_report_include_diagnostics">Redakte edilmiş tanılama verilerini ekle</string>
     <string name="settings_issue_report_preview">Bildirim önizlemesi</string>
     <string name="settings_issue_report_preview_hint">İncele ve ayrıntı ekle</string>
-    <string name="settings_issue_report_open_github">GitHub’ı aç</string>
+    <string name="settings_issue_report_open_feedback">Geri bildirim sayfasını aç</string>
+    <string name="settings_issue_report_share">Raporu paylaş</string>
     <string name="issue_report_title">KeepADB sorun bildirimi</string>
     <string name="issue_report_unavailable">Kullanılamıyor</string>
     <string name="issue_report_body">## Sorun türü

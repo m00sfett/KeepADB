@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">Kode versi: %1$d</string>
     <string name="settings_version_unavailable">Informasi versi tidak tersedia</string>
     <string name="settings_issue_report_button">Laporkan masalah atau terjemahan</string>
-    <string name="settings_issue_report_accessibility">Buka laporan GitHub yang telah diisi</string>
+    <string name="settings_issue_report_accessibility">Buka umpan balik tentang masalah atau terjemahan</string>
     <string name="settings_issue_report_dialog_title">Tinjau laporan</string>
-    <string name="settings_issue_report_dialog_message">Tinjau dan lengkapi draf ini sebelum membuka GitHub. Tidak ada yang dikirim otomatis. Diagnostik opsional berisi peristiwa siklus hidup lokal yang telah disamarkan; alamat jaringan, rahasia, data webhook, dan data pribadi tidak disertakan.</string>
+    <string name="settings_issue_report_dialog_message">Tinjau dan lengkapi draf ini. Tidak ada yang dikirim otomatis. Buka halaman umpan balik di browser Anda atau bagikan laporan ini sendiri. Diagnostik opsional berisi peristiwa siklus hidup lokal yang telah disamarkan; alamat jaringan, rahasia, data webhook, dan data pribadi tidak disertakan.</string>
     <string name="settings_issue_report_include_diagnostics">Sertakan data diagnostik yang telah disamarkan</string>
     <string name="settings_issue_report_preview">Pratinjau laporan</string>
     <string name="settings_issue_report_preview_hint">Tinjau dan tambahkan detail</string>
-    <string name="settings_issue_report_open_github">Buka GitHub</string>
+    <string name="settings_issue_report_open_feedback">Buka halaman umpan balik</string>
+    <string name="settings_issue_report_share">Bagikan laporan</string>
     <string name="issue_report_title">Laporan masalah KeepADB</string>
     <string name="issue_report_unavailable">Tidak tersedia</string>
     <string name="issue_report_body">## Jenis masalah

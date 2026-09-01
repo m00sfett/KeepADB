@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">Versiecode: %1$d</string>
     <string name="settings_version_unavailable">Versiegegevens niet beschikbaar</string>
     <string name="settings_issue_report_button">Probleem of vertaling melden</string>
-    <string name="settings_issue_report_accessibility">Vooraf ingevuld GitHub-issue openen</string>
+    <string name="settings_issue_report_accessibility">Feedback over een probleem of vertaling openen</string>
     <string name="settings_issue_report_dialog_title">Issue-rapport controleren</string>
-    <string name="settings_issue_report_dialog_message">Controleer en vul dit concept aan voordat GitHub wordt geopend. Er wordt niets automatisch verzonden. Optionele diagnostische gegevens bevatten geredigeerde lokale levenscyclusgebeurtenissen; netwerkadressen, geheimen, webhookgegevens en privégegevens worden uitgesloten.</string>
+    <string name="settings_issue_report_dialog_message">Controleer en vul dit concept aan. Er wordt niets automatisch verzonden. Open de feedbackpagina in je browser of deel dit rapport zelf. Optionele diagnostische gegevens bevatten geredigeerde lokale levenscyclusgebeurtenissen; netwerkadressen, geheimen, webhookgegevens en privégegevens worden uitgesloten.</string>
     <string name="settings_issue_report_include_diagnostics">Geredigeerde diagnostische gegevens opnemen</string>
     <string name="settings_issue_report_preview">Voorbeeld van issue-rapport</string>
     <string name="settings_issue_report_preview_hint">Controleren en details toevoegen</string>
-    <string name="settings_issue_report_open_github">GitHub openen</string>
+    <string name="settings_issue_report_open_feedback">Feedbackpagina openen</string>
+    <string name="settings_issue_report_share">Rapport delen</string>
     <string name="issue_report_title">KeepADB-probleemrapport</string>
     <string name="issue_report_unavailable">Niet beschikbaar</string>
     <string name="issue_report_body">## Probleemtype

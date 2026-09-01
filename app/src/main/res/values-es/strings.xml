@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">Código de versión: %1$d</string>
     <string name="settings_version_unavailable">Información de versión no disponible</string>
     <string name="settings_issue_report_button">Informar de un problema o traducción</string>
-    <string name="settings_issue_report_accessibility">Abrir un informe de GitHub rellenado</string>
+    <string name="settings_issue_report_accessibility">Abrir comentarios sobre un problema o una traducción</string>
     <string name="settings_issue_report_dialog_title">Revisar informe</string>
-    <string name="settings_issue_report_dialog_message">Revisa y completa este borrador antes de abrir GitHub. No se envía nada automáticamente. Los diagnósticos opcionales contienen eventos locales del ciclo de vida redactados; se excluyen las direcciones de red, los secretos, los datos de Webhook y los datos privados.</string>
+    <string name="settings_issue_report_dialog_message">Revisa y completa este borrador. No se envía nada automáticamente. Abre la página de comentarios en tu navegador o comparte este informe tú mismo. Los diagnósticos opcionales contienen eventos locales del ciclo de vida redactados; se excluyen las direcciones de red, los secretos, los datos de Webhook y los datos privados.</string>
     <string name="settings_issue_report_include_diagnostics">Incluir datos de diagnóstico redactados</string>
     <string name="settings_issue_report_preview">Vista previa del informe</string>
     <string name="settings_issue_report_preview_hint">Revisar y añadir detalles</string>
-    <string name="settings_issue_report_open_github">Abrir GitHub</string>
+    <string name="settings_issue_report_open_feedback">Abrir página de comentarios</string>
+    <string name="settings_issue_report_share">Compartir informe</string>
     <string name="issue_report_title">Informe de problema de KeepADB</string>
     <string name="issue_report_unavailable">No disponible</string>
     <string name="issue_report_body">## Tipo de problema

@@ -452,21 +452,35 @@ public class SettingsActivity extends Activity {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.settings_issue_report_dialog_title)
                 .setView(content)
-                .setPositiveButton(R.string.settings_issue_report_open_github, null)
+                .setPositiveButton(R.string.settings_issue_report_open_feedback, null)
+                .setNeutralButton(R.string.settings_issue_report_share, null)
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
-        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                .setOnClickListener(v -> {
-                    String body = preview.getText().toString();
-                    if (!diagnostics.isChecked()) {
-                        body = KeepADBIssueReporter.removeDiagnosticsSection(body, diagnosticsTitle);
-                        preview.setText(body);
-                    }
-                    Intent browser = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                            KeepADBIssueReporter.buildUrl(this, body)));
-                    startActivity(browser);
-                    dialog.dismiss();
-                }));
+        dialog.setOnShowListener(ignored -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                if (!diagnostics.isChecked()) {
+                    preview.setText(KeepADBIssueReporter.removeDiagnosticsSection(
+                            preview.getText().toString(), diagnosticsTitle));
+                }
+                Intent browser = new Intent(Intent.ACTION_VIEW,
+                        Uri.parse(KeepADBIssueReporter.FEEDBACK_URL));
+                startActivity(browser);
+                dialog.dismiss();
+            });
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> {
+                String body = preview.getText().toString();
+                if (!diagnostics.isChecked()) {
+                    body = KeepADBIssueReporter.removeDiagnosticsSection(body, diagnosticsTitle);
+                    preview.setText(body);
+                }
+                Intent share = new Intent(Intent.ACTION_SEND)
+                        .setType("text/plain")
+                        .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.issue_report_title))
+                        .putExtra(Intent.EXTRA_TEXT, body);
+                startActivity(Intent.createChooser(
+                        share, getString(R.string.settings_issue_report_share)));
+            });
+        });
         dialog.show();
     }
 

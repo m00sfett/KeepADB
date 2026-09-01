@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">संस्करण कोड: %1$d</string>
     <string name="settings_version_unavailable">संस्करण की जानकारी उपलब्ध नहीं है</string>
     <string name="settings_issue_report_button">समस्या या अनुवाद की रिपोर्ट करें</string>
-    <string name="settings_issue_report_accessibility">पहले से भरी GitHub रिपोर्ट खोलें</string>
+    <string name="settings_issue_report_accessibility">किसी समस्या या अनुवाद पर फ़ीडबैक खोलें</string>
     <string name="settings_issue_report_dialog_title">समस्या रिपोर्ट की समीक्षा करें</string>
-    <string name="settings_issue_report_dialog_message">GitHub खोलने से पहले इस ड्राफ़्ट की समीक्षा करके इसे पूरा करें। कुछ भी अपने आप नहीं भेजा जाएगा। वैकल्पिक निदान में संवेदनशील जानकारी हटाई गई स्थानीय जीवनचक्र घटनाएँ होती हैं; नेटवर्क पते, सीक्रेट, Webhook डेटा और निजी डेटा शामिल नहीं किए जाते।</string>
+    <string name="settings_issue_report_dialog_message">इस ड्राफ़्ट की समीक्षा करके इसे पूरा करें। कुछ भी अपने आप नहीं भेजा जाएगा। ब्राउज़र में फ़ीडबैक पेज खोलें या यह रिपोर्ट स्वयं साझा करें। वैकल्पिक निदान में संवेदनशील जानकारी हटाई गई स्थानीय जीवनचक्र घटनाएँ होती हैं; नेटवर्क पते, सीक्रेट, Webhook डेटा और निजी डेटा शामिल नहीं किए जाते।</string>
     <string name="settings_issue_report_include_diagnostics">साफ़ किए गए निदान डेटा को शामिल करें</string>
     <string name="settings_issue_report_preview">समस्या रिपोर्ट का पूर्वावलोकन</string>
     <string name="settings_issue_report_preview_hint">समीक्षा करें और विवरण जोड़ें</string>
-    <string name="settings_issue_report_open_github">GitHub खोलें</string>
+    <string name="settings_issue_report_open_feedback">फ़ीडबैक पेज खोलें</string>
+    <string name="settings_issue_report_share">रिपोर्ट साझा करें</string>
     <string name="issue_report_title">KeepADB समस्या रिपोर्ट</string>
     <string name="issue_report_unavailable">उपलब्ध नहीं</string>
     <string name="issue_report_body">## समस्या का प्रकार

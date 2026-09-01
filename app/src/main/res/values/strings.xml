@@ -132,13 +132,14 @@
     <string name="settings_version_code_value">Version code: %1$d</string>
     <string name="settings_version_unavailable">Version information unavailable</string>
     <string name="settings_issue_report_button">Report a problem or translation</string>
-    <string name="settings_issue_report_accessibility">Open a prefilled GitHub issue report</string>
+    <string name="settings_issue_report_accessibility">Open feedback about a problem or a translation</string>
     <string name="settings_issue_report_dialog_title">Review issue report</string>
-    <string name="settings_issue_report_dialog_message">Review and complete this draft before opening GitHub. Nothing is sent automatically. Optional diagnostics contain redacted local lifecycle events; network addresses, secrets, webhook data, and private data are excluded.</string>
+    <string name="settings_issue_report_dialog_message">Review and complete this draft. Nothing is sent automatically. Open the feedback page in your browser or share this report yourself. Optional diagnostics contain redacted local lifecycle events; network addresses, secrets, webhook data, and private data are excluded.</string>
     <string name="settings_issue_report_include_diagnostics">Include redacted diagnostic data</string>
     <string name="settings_issue_report_preview">Issue report preview</string>
     <string name="settings_issue_report_preview_hint">Review and add details</string>
-    <string name="settings_issue_report_open_github">Open GitHub</string>
+    <string name="settings_issue_report_open_feedback">Open feedback page</string>
+    <string name="settings_issue_report_share">Share report</string>
     <string name="issue_report_title">KeepADB issue report</string>
     <string name="issue_report_unavailable">Unavailable</string>
     <string name="issue_report_body">## Problem type

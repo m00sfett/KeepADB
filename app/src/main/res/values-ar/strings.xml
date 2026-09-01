@@ -133,13 +133,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_code_value">رمز الإصدار: %1$d</string>
     <string name="settings_version_unavailable">معلومات الإصدار غير متاحة</string>
     <string name="settings_issue_report_button">الإبلاغ عن مشكلة أو ترجمة</string>
-    <string name="settings_issue_report_accessibility">فتح تقرير GitHub مُعبّأ مسبقًا</string>
+    <string name="settings_issue_report_accessibility">فتح ملاحظات حول مشكلة أو ترجمة</string>
     <string name="settings_issue_report_dialog_title">مراجعة تقرير المشكلة</string>
-    <string name="settings_issue_report_dialog_message">راجع هذه المسودة وأكملها قبل فتح GitHub. لن يُرسل أي شيء تلقائيًا. تتضمن بيانات التشخيص الاختيارية أحداثًا محلية منقّحة لدورة حياة التطبيق؛ وتُستبعد عناوين الشبكة والأسرار وبيانات Webhook والبيانات الخاصة.</string>
+    <string name="settings_issue_report_dialog_message">راجع هذه المسودة وأكملها. لن يُرسل أي شيء تلقائيًا. افتح صفحة الملاحظات في المتصفح أو شارك هذا التقرير بنفسك. تتضمن بيانات التشخيص الاختيارية أحداثًا محلية منقّحة لدورة حياة التطبيق؛ وتُستبعد عناوين الشبكة والأسرار وبيانات Webhook والبيانات الخاصة.</string>
     <string name="settings_issue_report_include_diagnostics">تضمين بيانات التشخيص المنقّحة</string>
     <string name="settings_issue_report_preview">معاينة تقرير المشكلة</string>
     <string name="settings_issue_report_preview_hint">المراجعة وإضافة التفاصيل</string>
-    <string name="settings_issue_report_open_github">فتح GitHub</string>
+    <string name="settings_issue_report_open_feedback">فتح صفحة الملاحظات</string>
+    <string name="settings_issue_report_share">مشاركة التقرير</string>
     <string name="issue_report_title">تقرير مشكلة KeepADB</string>
     <string name="issue_report_unavailable">غير متاح</string>
     <string name="issue_report_body">## نوع المشكلة
