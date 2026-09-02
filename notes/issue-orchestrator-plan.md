@@ -6153,3 +6153,59 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **issue_snapshot_at:** 2026-09-01T19:27:58Z
 - **plan_updated_at:** 2026-09-01T23:15:00+02:00
 - **Zustand:** `complete`. Aktuell keine offenen Issues im Repository.
+
+## Cleanup — Release-Vorbereitung v1.4.4 — 2026-09-02T23:55:00+02:00
+
+- **Übergabeumfang/Ausgangspunkt:** Baseline letzte Veröffentlichung `v1.4.3`
+  (`gh release list`); Kandidat-Head `a1410ae` (release: prepare v1.4.4 release metadata and
+  documentation). Kein aktiver GitHub-Actions-Run (`ci.yml` ist `workflow_dispatch`-only,
+  `release.yml` triggert nur auf `v*`-Tags — kein Tag für 1.4.4 gesetzt, kein Run ausgelöst).
+- **Arbeitsbaum:** `git status --short` zeigt zwei ungetrackte Fundstücke —
+  `docs/marketing-screenshots-todo.md` und `res/img/screenshots_v1.4.4/` (8 Rohscreenshots,
+  ~1,5 MB). Nutzerentscheidung: als lokale Arbeitsdateien belassen (bewusst noch nicht in
+  `fastlane/metadata/android/en-US/images/phoneScreenshots/` überführt, siehe Ablage-Hinweis in
+  der Todo-Datei selbst). Nichts committet, nichts gelöscht.
+- **Issue-/Akzeptanz-Ledger seit v1.4.3:** #219 (Keep-Alive-Neustart nach App-Update, Commit
+  `364d401`), #221/#223 (Feedback-Einstieg auf Website statt GitHub-Issue, PR #223, Commit
+  `8d87c10`), #222 (Copy-Chip-Verifikation auf Gerät, `not planned` geschlossen, reine
+  Verifikation ohne Codeänderung). `gh issue list --state open` → leer, `gh pr list --state
+  open` → leer. Kein Kriterium mit fehlendem Nachweis gefunden.
+- **Versions-/Doku-Ledger:** `versionCode 16` / `versionName '1.4.4'`
+  (`app/build.gradle.kts`/`.gradle`), `CHANGELOG.md` Eintrag `[1.4.4] - 2026-09-02` vorhanden
+  und deckt beide gemergten Änderungen inhaltlich ab, `fastlane/metadata/android/en-US/
+  changelogs/16.txt` vorhanden und konsistent zum Changelog. Kein Tag `v1.4.4` gesetzt — Release
+  ist vorbereitet, aber (korrekt) noch nicht ausgelöst.
+- **Externe Produktwahrheit:** Neu eingeführte öffentliche URL
+  `https://hohnepeople.de/keepadb/feedback` (aus #223,
+  `KeepADBIssueReporter.java`) geprüft. Nutzer hat den Direktzugriff für diese eigene Domain
+  ausdrücklich freigegeben (Ausnahme von der Web-Recherche-Firewall für diesen einen Aufruf,
+  kein `s0-securesearch`-Start). Befund: `HTTP 200`, liefert die vorgeschaltete OpenResty-
+  `aes.js`-Bot-Challenge des Hosters (InfinityFree) statt direktem Formularinhalt; lokale
+  TLS-Kettenprüfung schlägt mit „unable to get local issuer certificate" fehl. Beides ist im
+  Schwesterprojekt `hohnepeople-de` bereits bekannt und dokumentiert (`notes/issue-orchestrator-
+  plan.md` dort, Zeilen ~134/635/1101) — kein neuer Befund, kein neues Issue. Zugehöriges
+  Website-Issue [`hohnepeople-de#32`](https://github.com/m00sfett/hohnepeople-de/issues/32) ist
+  `CLOSED`/`Done`; offen bleibt dort nur das unabhängige `hohnepeople-de#34` (Turnstile/CAPTCHA-
+  Spamschutz), kein Bezug zu TLS/Bot-Challenge.
+- **Repo-Hygiene:** `github-drift --repo m00sfett/KeepADB` → „Repository und Project #8 stimmen
+  überein", kein `github-board-sync` nötig (nichts geändert). Kein `TODO`/`FIXME`/`XXX` ohne
+  passendes Issue in getrackten Dateien (einziger Treffer ist ein Datumsformat-Literal
+  `.SSSXXX` in `KeepADBDiagnostics.java`, kein offener Marker).
+- **Kandidatengenaue Abnahme:** `JAVA_HOME=/usr/lib/jvm/java-17-openjdk ./bin/verify` frisch
+  gegen Head `a1410ae` gelaufen (Nutzerfreigabe „Ja, ./bin/verify jetzt laufen lassen"): Diff-
+  Check, Unit-Tests, Lint, Debug- und Release-Build vollständig grün. Der letzte Commit vor
+  diesem Verify-Lauf war reines Doku-/Metadaten-Update (`CHANGELOG.md`, `README.md`,
+  `docs/release-signing.md`, `fastlane/.../16.txt`), keine Coderegression zu erwarten und
+  keine gefunden.
+- **Roadmap-Abgleich:** Kein separates Roadmap-Dokument über den Plan hinaus in diesem Projekt;
+  keine veraltete Aussage zu korrigieren.
+- **Strangzähler:** Feedback-Strom (#219, #221–#223) ist mit dem gemergten Code und der
+  vorbereiteten 1.4.4-Metadatenaktualisierung abgeschlossen. Aktuell kein offenes Paket in
+  diesem Repository.
+- **Nicht ausgeführt:** kein Tag, kein GitHub Release, keine Signierung, keine Store-/F-Droid-
+  Einreichung, keine F-Droid-MR-Änderung, kein GitHub-Actions-Run ausgelöst — alles außerhalb
+  des Cleanup-Modus.
+- **plan_updated_at:** 2026-09-02T23:55:00+02:00
+- **Übergabe: cleanup-ready** — Repository- und Produktzustand für einen separaten Release-Audit
+  bereit (dies ist keine Releasefreigabe). Nächster Schritt laut Übergabekette wäre
+  `$release-fdroid --dry`.
