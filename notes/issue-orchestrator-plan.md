@@ -6209,3 +6209,59 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **Übergabe: cleanup-ready** — Repository- und Produktzustand für einen separaten Release-Audit
   bereit (dies ist keine Releasefreigabe). Nächster Schritt laut Übergabekette wäre
   `$release-fdroid --dry`.
+
+## Release v1.4.4 — echter Ablauf über $release-fdroid (Default-Modus) — 2026-09-02T22:35:00+02:00
+
+- **Vorlauf:** `--cleanup` (`cleanup-ready`) und zwei `--dry`-Läufe (`dry-ready`) bereits
+  dokumentiert. Auf explizite Nutzerfreigabe wurden die beiden `--dry`-Befunde vorab behoben:
+  `fdroidserver` 2.4.5 und `apksigcopier` 1.1.1 via `pipx` installiert (S1-Subagent), das dritte
+  "Toolchain-Loch" (`build-tools 34.0.0`) war ein Eigenfehler im Preflight-Aufruf (falscher
+  SDK-Pfad `/opt/android-sdk` statt `~/Android/Sdk`) — bereits vorhanden, kein Nachinstallieren
+  nötig.
+- **Gate-Ablauf (jedes einzeln freigegeben):**
+  1. Upstream-Edit-/Validierungs-Gate: entfielen, Version/Changelog/lokale Tests bereits aus
+     `--cleanup` aktuell.
+  2. Release-Candidate-Preflight-Gate (Freigabe erteilt): lokaler `fdroid build` in isolierter
+     Scratch-Kopie von `agent/workspace/fdroiddata-pre-gate2`, Metadaten-YAML lokal auf
+     `1.4.4`/`versionCode 16`/`commit a1410ae0d6779618d159bf0d3e42001ebf683a7a` gesetzt.
+     `fdroid rewritemeta` sauber (nur die erwartete Versionsänderung). Erster `fdroid build`-Lauf
+     scheiterte an fehlendem `gradlew-fdroid` (kein Bestandteil des `fdroidserver`-pip-Pakets) —
+     als Infrastruktur-Fehlerklasse eingeordnet, nicht als Metadaten-/Build-Fehler. Nach
+     Freigabe: zweiter S1-Subagent lud das offizielle Skript von
+     `gitlab.com/fdroid/gradlew-fdroid` (Default-Branch `main`, nicht `master`) und installierte
+     es zusätzlich manuell an den von `fdroidserver/common.py` intern erwarteten Pfad
+     (`…/site-packages/gradlew-fdroid`, nicht PATH-basiert). Danach `fdroid build -v -l
+     de.hohnepeople.keepadb` **erfolgreich**, unsignierte Referenz-APK erzeugt.
+  3. Tag-Gate + GitHub-Release-Gate (gemeinsam freigegeben): Tag `v1.4.4` auf `a1410ae0d67796…`
+     gesetzt und gepusht → `.github/workflows/release.yml` lief automatisch durch (Run
+     `33690434456`, `completed`/`success`), GitHub Release `v1.4.4` mit `KeepADB-v1.4.4.apk`
+     (SHA-256 `a535009661992c69748ffa01965baaf16717b7ba4078d0d19d8c23006aa4e680`) veröffentlicht.
+  4. Live-Publikations-Verifikationsgate (im Zuge der Freigabe für Schritt 3 miterledigt): Asset
+     erneut heruntergeladen, SHA-256 bestätigt; `apksigner verify` liefert Zertifikat-Fingerprint
+     `c52bcd171b5ccee887f3c16cc3a474b38bd9ccd771ca8cd992f82e4d17753c04` — identisch mit
+     `AllowedAPKSigningKeys`. `apksigcopier compare --unsigned` zwischen dem signierten
+     Live-Release-APK und dem lokal per echtem F-Droid-Build erzeugten unsignierten APK
+     **erfolgreich** — Reproduzierbarkeit für 1.4.4 bestätigt.
+  5. `fdroiddata`-Edit-Gate + MR-Aktions-Gate (freigegeben): Fork `85658298`, Branch
+     `add-de.hohnepeople.keepadb` (Tip vor Schreibzugriff frisch gelesen und mit dem lokal
+     geplanten Diff abgeglichen, kein Konflikt) über die GitLab-Commits-API aktualisiert —
+     Commit `5f6cd03695787777df19eca19c01ad6c0e84b26a` „Update KeepADB to 1.4.4": Build-Eintrag
+     `1.4.3`→`1.4.4`/`versionCode 16`/`commit a1410ae…`, `CurrentVersion`/`CurrentVersionCode`
+     aktualisiert. Inhalt am neuen HEAD gegengelesen, stimmt exakt. Evidenz-Kommentar auf MR
+     [!46500](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/46500) gepostet
+     (`note_id 3778367749`) mit Live-Asset-Hash, Fingerprint und Reproduzierbarkeitsnachweis.
+     Kein Issuebot-Trigger, keine Label-/Titeländerung — Template/Checkliste blieben unverändert
+     gültig.
+- **Nicht ausgeführt:** kein `fdroid publish`, keine Behauptung von Kontrolle über den
+  offiziellen Katalog, kein GitLab-Pipeline-Retrigger, kein Issuebot-Lauf.
+- **Signing/Vaultwarden:** unverändert, keine Schlüsseländerung. Recovery-Nachweis vom
+  2026-08-29 weiterhin gültig (Fingerprint-Kontinuität über v1.4.3→v1.4.4 bestätigt).
+- **Monitoring-Zustand:** `review-requested`/`waiting-on-response` (MR weiterhin offen, Labels
+  unverändert `New App`/`reproducible-builds`/`review-requested`) — neuer Kandidatenstand
+  bereitgestellt, Pipeline für den neuen Commit noch nicht beobachtet (Folgeschritt
+  `$release-fdroid --check`).
+- **plan_updated_at:** 2026-09-02T22:35:00+02:00
+- **Zustand:** `complete` für den GitHub-Release-Teil (v1.4.4 live, verifiziert). F-Droid-Seite
+  `closed-pending-decision` im Sinne von „bei F-Droid/Maintainer" — nächster Schritt ist
+  Monitoring über `$release-fdroid --check`, keine weitere Aktion dieses Skills nötig, bis
+  neues Signal von GitLab kommt.
