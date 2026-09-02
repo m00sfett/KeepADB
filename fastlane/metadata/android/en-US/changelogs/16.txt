@@ -1,0 +1,1 @@
+Update feedback entry to open the hohnepeople.de/keepadb/feedback page with an optional share sheet draft instead of a prefilled GitHub issue. Automatically restart Keep-Alive after KeepADB app updates to restore Wireless Debugging seamlessly.

@@ -53,7 +53,7 @@ Download the latest APK from the [GitHub Releases](https://github.com/m00sfett/K
 
 Or install manually via USB:
 ```bash
-adb install -r KeepADB-v1.4.3.apk
+adb install -r KeepADB-v1.4.4.apk
 ```
 
 ### 2. Grant Permission (One-Time Setup)
