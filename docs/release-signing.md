@@ -13,7 +13,7 @@ Der aktuell veröffentlichte Stand ist [KeepADB v1.4.3](https://github.com/m00sf
 auf dem Quell-Commit `51175de193b3be20be14848b072060717d0ae2db`. Die zugehörigen GitHub-Release-
 Artefakte heißen `KeepADB-v1.4.3.apk` und `KeepADB-v1.4.3.apk.sha256`.
 
-Der aktuelle Entwicklungsstand ist `1.4.4` / VersionCode `15` und noch nicht veröffentlicht.
+Der aktuelle Entwicklungsstand ist `1.4.4` / VersionCode `16` und für den Release vorbereitet.
 Ein neuer Release darf erst nach dem dafür vorgesehenen Freigabe- und Release-Gate als
 veröffentlicht dokumentiert werden.
 
