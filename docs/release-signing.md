@@ -1,6 +1,6 @@
 # KeepADB-Release-Signatur
 
-Stand: 2026-08-31
+Stand: 2026-09-03
 
 KeepADB verwendet für GitHub-Releases und die reproduzierbare Veröffentlichung über F-Droid
 eine dauerhafte Upstream-Signieridentität. Sie darf nicht pro Release neu erzeugt oder ohne
@@ -19,8 +19,65 @@ veröffentlicht dokumentiert werden.
 
 Der Release-Build verwendet den Gradle-Wrapper mit Gradle 8.9, Android Gradle Plugin 8.7.2,
 JDK 21, compileSdk 35 und Android Build-Tools 34.0.0. Der maßgebliche Ablauf ist in
-`.github/workflows/release.yml` festgehalten; lokal ist der unsigned Build mit
-`JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew assembleRelease` reproduzierbar zu prüfen.
+`.github/workflows/release.yml` festgehalten.
+
+## Lokaler Build + Signing: `bin/build-signed-release.sh`
+
+Der einzige unterstützte Weg, lokal ein signiertes Release-APK zu erzeugen, ist
+`./bin/build-signed-release.sh` (keine Argumente). Es spiegelt `.github/workflows/release.yml`
+Schritt für Schritt, damit ein lokaler Lauf und der CI-Lauf vergleichbare Ergebnisse liefern:
+
+1. Keystore aus Vaultwarden (`android/keepadb-signing`) wiederherstellen.
+2. **Fail-closed:** Keystore-SHA-256 gegen den unten dokumentierten Fingerprint prüfen — bei
+   Abweichung sofort abbrechen, bevor irgendetwas signiert wird.
+3. `./gradlew testDebugUnitTest lintDebug assembleRelease` mit JDK 21 — identisch zu
+   `release.yml`, Schritt „Build unsigned release APK".
+4. Mit `apksigner sign` aus Build-Tools **34.0.0** signieren, exakt mit den in `release.yml`
+   gesetzten Flags: `--v1-signing-enabled false --v2-signing-enabled true
+   --v3-signing-enabled true --v4-signing-enabled false`.
+5. **Fail-closed:** Zertifikats-SHA-256 des signierten APKs gegen den dokumentierten
+   Fingerprint prüfen — bei Abweichung das Artefakt löschen und abbrechen.
+6. `sha256sum` als `.sha256`-Datei neben das APK schreiben.
+
+Keystore und die aus Vaultwarden gelesene Notiz liegen nur in einem `mktemp -d`-Arbeitsbereich
+mit Modus `700`/`600` und werden über einen `trap ... EXIT` in jedem Fall — auch bei Fehlern —
+mit `shred -u` entfernt. Passwörter verlassen nie Shell-Variablen und werden nie ausgegeben.
+
+Ergebnis: `app/build/outputs/apk/release/KeepADB-v<versionName>.apk` (+ `.sha256`), Version wird
+automatisch aus `app/build.gradle` gelesen.
+
+### Warum nicht `jarsigner` und nicht separates `zipalign`
+
+Zwei Fallstricke, die hier bewusst vermieden werden und beim nächsten Mal nicht neu entdeckt
+werden müssen:
+
+- **`jarsigner` reicht nicht.** `targetSdk 35` verlangt mindestens APK Signature Scheme v2.
+  `jarsigner` erzeugt nur eine v1-(JAR-)Signatur; `apksigner verify` lehnt ein so signiertes
+  APK mit `DOES NOT VERIFY … requires a minimum of signature scheme v2` ab. Immer
+  `apksigner sign` verwenden, nie `jarsigner`.
+- **Kein separates `zipalign` vor `apksigner sign` nötig.** Der von
+  `./gradlew assembleRelease` erzeugte `app-release-unsigned.apk` ist von AGP bereits
+  zipaligned. Ein nachträgliches `zipalign` nach `jarsigner` (falls doch versehentlich
+  `jarsigner` verwendet wurde) erzeugt ein technisch gültiges, aber von der CI abweichendes
+  Artefakt — deshalb spiegelt das Skript exakt die CI-Reihenfolge: Gradle-Output direkt an
+  `apksigner sign` übergeben, kein Zwischenschritt.
+
+## Vor der Geräteinstallation: Downgrade- und Signaturkonflikt prüfen
+
+Vor jeder Installation eines neu gebauten Release-APKs auf einem physischen Gerät:
+
+1. **Versionsvergleich:** `dumpsys package de.hohnepeople.keepadb | grep versionCode` auf dem
+   Zielgerät gegen `versionCode` im neuen APK vergleichen. Ist die installierte Version höher
+   als die neue, ist das kein normaler Fortschritt — entweder ist auf dem Gerät ein Testbuild
+   installiert, der nicht aus diesem Repository stammt, oder das lokale Repository ist nicht
+   aktuell. In jedem Fall vor der Installation klären, nicht stillschweigend downgraden.
+2. **Zertifikatsvergleich:** installiertes APK vom Gerät ziehen (`pm path` + `adb pull`) und mit
+   `apksigner verify --print-certs` gegen das neue, signierte APK vergleichen. Weicht der
+   `SHA-256 digest` ab, ist die installierte App mit einem anderen Schlüssel signiert
+   (typischerweise ein lokaler Debug-Build) — `adb install -r` schlägt dann mit
+   `INSTALL_FAILED_UPDATE_INCOMPATIBLE` fehl oder verlangt eine Deinstallation. Nie
+   deinstallieren oder `pm clear` ohne eine ausdrückliche, auf den Datenverlust hinweisende
+   Freigabe.
 
 ## Öffentliche Identität
 
@@ -73,19 +130,28 @@ Vor Tag und Veröffentlichung sind nach gesonderter Freigabe mindestens diese Pu
 prüfen:
 
 1. Der Vaultwarden-Keystore lässt sich in einer geschützten temporären Umgebung
-   wiederherstellen.
-2. Sein SHA-256-Wert entspricht dem dokumentierten Keystore-Fingerprint.
+   wiederherstellen. — automatisiert durch `bin/build-signed-release.sh`, Schritt 1.
+2. Sein SHA-256-Wert entspricht dem dokumentierten Keystore-Fingerprint. — automatisiert,
+   fail-closed, Schritt 2.
 3. Alias, Zertifikatsfingerprint und Gültigkeit entsprechen diesem Dokument.
-4. Das signierte APK trägt dieselbe Zertifikatsidentität.
+4. Das signierte APK trägt dieselbe Zertifikatsidentität. — automatisiert, fail-closed,
+   Schritt 5.
 5. Paket-ID, `versionName`, `versionCode`, Tag und Quell-Commit stimmen überein.
 6. Bei reproduzierbarer F-Droid-Veröffentlichung stimmen F-Droid-Neubau und Upstream-APK
    außerhalb der Signatur überein.
+7. Vor jeder Geräteinstallation zusätzlich Abschnitt „Vor der Geräteinstallation" oben
+   durchgehen (Downgrade- und Signaturkonflikt).
 
 Temporär wiederhergestellte Schlüsseldateien müssen mit Modus `0600` angelegt und nach der
 Prüfung sicher entfernt werden. Fehlt der Vaultwarden-Eintrag, scheitert die Wiederherstellung
 oder weicht ein Fingerprint ab, ist das Release blockiert. Es darf dann kein Ersatzschlüssel
 erzeugt werden.
 
-Letzter Wiederherstellungsnachweis: 2026-08-29. Der aus Vaultwarden wiederhergestellte
-Keystore war bytegleich zur geschützten lokalen Referenz; sein Zertifikat stimmte mit dem
-veröffentlichten APK `v1.4.3` überein.
+Letzter Wiederherstellungsnachweis: 2026-09-03, via `bin/build-signed-release.sh`. Der aus
+Vaultwarden wiederhergestellte Keystore stimmte mit dem dokumentierten Keystore-Fingerprint
+überein; das damit erzeugte APK (`versionName=1.4.5`, `versionCode=17`) trug das dokumentierte
+Zertifikat (`SHA-256 c52bcd17…753c04`), verifiziert v3-signiert über
+`apksigner verify --print-certs`.
+
+Vorheriger Nachweis: 2026-08-29 (manuell, bytegleich zur geschützten lokalen Referenz, Zertifikat
+stimmte mit dem veröffentlichten APK `v1.4.3` überein).
