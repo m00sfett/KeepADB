@@ -6924,3 +6924,26 @@ die App-Buildkette ab sofort automatisch, ob so etwas nochmal passiert.
 - **Zustand:** `ready for review` (lokale Gates bestätigt, PR bereit, Review/Gerät ausstehend)
 
 **Nächster Schritt:** Mechanische Review (Codex-task read-only) + s20 Screenshot-Verifikation, dann Merge-Freigabe.
+
+---
+
+## Abschluss #240 — Merge & Issue-Closure — 2026-09-05 ~01:00 UTC
+
+**Review:** s2-worker, approved ✓ (Diff korrekt, Build grün, keine Reparatur nötig)  
+**Geräte-Verifikation:** s2-worker, verified ✓ (s20 Screenshot zeigt Toggle mit Rahmen, konsistent)  
+**Merge:** PR #241 squash-merged nach `master`.  
+**Issue:** #240 automatisch geschlossen via `Fixes #240`.  
+**Board:** `github-board-sync` hat 0 Änderungen durchgeführt (sauber).
+
+**Nachweis:**
+- PR #241 gemerged (squash-commit in master)
+- Issue #240 state=CLOSED
+- Screenshot ~/Schreibtisch/240-s20-toggle-clean.png: Sicherheits- & Netzwerkhinweis-Panel mit rotem Rahmen sichtbar
+- `github-board-sync` sauber
+
+**Strangzähler:** #240 ist ein einzelner, unabhängiger UI-Consistency-Fix — nicht aus einem größeren Strang. Abgeschlossen.
+
+- **plan_updated_at:** 2026-09-05T~01:00:00Z
+- **Zustand:** `complete` (#240 vollständig abgeschlossen)
+
+**Nächste Auswahl:** #237 (S1, check-i18n Reparationen) oder #238 (S2, Audit)?
