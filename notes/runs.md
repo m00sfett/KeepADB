@@ -601,3 +601,29 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   Gerätetest auf `s20` (SM-G780G) verifiziert: One-UI-Share-Sheet bietet einen eigenen
   "Kopieren"-Chip; kein zusätzlicher Code nötig, Issue geschlossen.
 - Register für `s20` nach erfolgreicher Verbindung aktualisiert.
+
+## 2026-09-03 — Issue #226: Advice banner toggle live update
+
+- Auftrag: `$issue-orchestrator-eco #226` (Advice-Banner-Toggle in Settings aktualisiert
+  MainActivity nicht live, erst nach Neustart).
+- Fix: `MainActivity.onResume()` liest `advice_banner_visible` jetzt bei jedem Resume neu
+  (analog zum #224-Muster für `keep_display_on_enabled`). Eine Zeile, S1 direkt umgesetzt
+  (Delegation wäre teurer als die Aufgabe gewesen).
+- Gates: `./bin/verify` (Build Debug+Release, Unit-Tests, Lint) grün.
+- Geräte-Smoke-Test auf S20 (`RF8T307S88H`, Register aktuell): Toggle in der laufenden
+  `SettingsActivity` per `uiautomator`/`input tap` real umgeschaltet (nicht nur Preference-
+  Datei editiert — das wird wegen des In-Memory-SharedPreferences-Caches nicht vom laufenden
+  Prozess bemerkt), zurück zu `MainActivity` navigiert ohne Prozess-Neustart, Banner
+  verschwindet/erscheint live in der UI-Hierarchie. Ausgangszustand der Preferences danach
+  vollständig wiederhergestellt.
+- Lehre: Ein erster Testversuch per direktem `sed`-Edit der `shared_prefs`-XML-Datei hat
+  versehentlich mit einem ungezielten `s/true/false/`-Pattern **alle** Bool-Werte der Datei
+  auf dem echten Gerät verändert, nicht nur `advice_banner_visible` — musste per präzisen,
+  anker-gebundenen `sed`-Aufrufen zeilenweise wiederhergestellt werden. Zusätzlich zeigte sich,
+  dass eine externe Dateiänderung ohnehin nicht taugt: Der laufende App-Prozess hält die
+  SharedPreferences im Speicher gecacht und bemerkt eine externe XML-Änderung nicht — der
+  reale Test musste über die echte Settings-UI laufen.
+- PR: #227 (squash-merged nach `master`, Branch gelöscht). Issue #226 automatisch per
+  `Fixes #226` geschlossen. `github-board-sync`/`github-drift`: sauber, kein Drift.
+- Changelog: Eintrag unter dem bestehenden unveröffentlichten `[1.4.5]`-Block ergänzt (kein
+  neuer Versionsbump nötig, da 1.4.5 noch nicht getaggt/released ist).
