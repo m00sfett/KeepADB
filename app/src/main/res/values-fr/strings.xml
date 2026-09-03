@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_enabled_toast">Synchronisation Webhook activée</string>
     <string name="settings_webhook_disabled_toast">Synchronisation Webhook désactivée</string>
     <string name="webhook_status_title">Webhook</string>
+    <string name="webhook_setup_button">Configurer Webhook</string>
     <string name="webhook_status_hint">URL : %1$s\nDernier point de terminaison signalé : %2$s\nDernier signalement : %3$s</string>
     <string name="webhook_status_never">jamais</string>
     <string name="webhook_status_no_endpoint">aucun pour l’instant</string>

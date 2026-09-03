@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional "Keep display on while KeepADB is in the foreground" setting (default off, issue #224).
   When enabled, the screen only stays on while the app is open; leaving the app or disabling the
   setting releases the screen-on flag again.
+- The main screen shows a "Set up webhook" button instead of an empty panel when no webhook is
+  configured or enabled; tapping it opens Settings scrolled and focused on the webhook section
+  (issue #232).
 
 ### Changed
 - The security advice banner on the main screen is readable again: dark amber surface with a drawn

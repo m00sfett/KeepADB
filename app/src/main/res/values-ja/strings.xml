@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_enabled_toast">Webhook 同期を有効にしました</string>
     <string name="settings_webhook_disabled_toast">Webhook 同期を無効にしました</string>
     <string name="webhook_status_title">Webhook</string>
+    <string name="webhook_setup_button">Webhook を設定</string>
     <string name="webhook_status_hint">URL: %1$s\n最後に報告されたエンドポイント: %2$s\n最終報告: %3$s</string>
     <string name="webhook_status_never">なし</string>
     <string name="webhook_status_no_endpoint">まだなし</string>
