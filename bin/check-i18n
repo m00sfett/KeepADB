@@ -8,6 +8,38 @@ vorhanden ist -- nur der Wert stimmt zufällig/versehentlich überein.
 
 Exit-Code 0: keine unerwarteten Treffer. Exit-Code 1: mindestens ein
 String ist identisch zur Referenz und steht nicht auf der Allowlist.
+
+Erkennungsgrenze (#238):
+Das Skript beweist ausschließlich: Für keinen geparsten `<string>`-Key ist
+der Wert in einer Sprachdatei wortidentisch zum englischen Referenzwert
+(sofern nicht in der ALLOWLIST). Es garantiert damit den Ausschluss von
+Copy-Paste-Kopien der Referenz, sonst nichts. Es beweist ausdrücklich
+NICHT die Korrektheit, Vollständigkeit oder Sprachrichtigkeit einer
+Übersetzung. Zwei bekannte blinde Flecken:
+
+1. Teilübersetzung: Ein String mit stehen gelassenem englischem Fragment
+   (z. B. "Aktiviere Wireless debugging" statt "Aktiviere Drahtloses
+   Debugging") ist ungleich der Referenz und wird deshalb nicht gemeldet.
+2. Sprachverwechslung: Text der falschen Sprache in einer values-xx-Datei
+   (z. B. spanischer Text in values-it/strings.xml) gilt als "ungleich der
+   Referenz" und damit fälschlich als übersetzt.
+
+Konsequenz für ./bin/verify: check-i18n ist ein notwendiges, aber kein
+hinreichendes Gate. Es schließt Copy-Paste aus, nicht aber alle
+Übersetzungsfehler. Fall 2 wird nicht automatisiert geprüft, sondern
+manuell beim Anlegen neuer Sprachen.
+
+Zu Fall 1 wurde eine Heuristik geprüft (#238): In nicht-lateinischen
+Zielsprachen (ar, hi, ja, ko, ru, uk, zh-rCN, zh-rTW) lateinische
+Wortketten außerhalb einer Allowlist melden. Prototyp getestet gegen den
+aktuellen Bestand: 215 Treffer über 8 Sprachen bei 158 Referenz-Keys --
+fast ausschließlich Rauschen aus Shell-Befehlen, Permission-Konstanten
+(WRITE_SECURE_SETTINGS), Format-Platzhaltern (host:port, IP, HTTP-Verben)
+und Produkt-/Protokollbegriffen (USB-ADB, Wifi-ADB, Tailnet). Eine
+Allowlist, die das auf ein brauchbares Signal-Rausch-Verhältnis drückt,
+müsste praktisch jeden technischen String einzeln freischalten und wäre
+damit teurer als der Nutzen. Entscheidung: nicht implementiert, siehe
+AGENTS.md.
 """
 
 import glob
