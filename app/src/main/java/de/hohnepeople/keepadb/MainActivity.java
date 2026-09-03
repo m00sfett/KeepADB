@@ -22,6 +22,7 @@ public class MainActivity extends Activity {
     private TextView endpoint;
     private TextView webhookStatus;
     private View webhookStatusPanel;
+    private View webhookSetupButton;
     private View setupPanel;
     private View notificationPermissionPanel;
     private View batteryOptimizationPanel;
@@ -45,6 +46,12 @@ public class MainActivity extends Activity {
         endpoint = findViewById(R.id.endpoint);
         webhookStatus = findViewById(R.id.webhook_status);
         webhookStatusPanel = findViewById(R.id.webhook_status_panel);
+        webhookSetupButton = findViewById(R.id.webhook_setup_button);
+        webhookSetupButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, true);
+            startActivity(intent);
+        });
         setupPanel = findViewById(R.id.setup_panel);
         notificationPermissionPanel = findViewById(R.id.notification_permission_panel);
         batteryOptimizationPanel = findViewById(R.id.battery_optimization_panel);
@@ -234,8 +241,10 @@ public class MainActivity extends Activity {
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
         if (!enabled || url == null || url.trim().isEmpty()) {
             webhookStatusPanel.setVisibility(View.GONE);
+            webhookSetupButton.setVisibility(View.VISIBLE);
             return;
         }
+        webhookSetupButton.setVisibility(View.GONE);
         long lastReportedAt = KeepADBPreferences.getWebhookLastReportedAt(this);
         String lastReported;
         if (lastReportedAt <= 0) {

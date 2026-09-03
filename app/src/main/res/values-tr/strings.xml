@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_enabled_toast">Webhook senkronizasyonu etkinleştirildi</string>
     <string name="settings_webhook_disabled_toast">Webhook senkronizasyonu devre dışı bırakıldı</string>
     <string name="webhook_status_title">Webhook</string>
+    <string name="webhook_setup_button">Webhook Kur</string>
     <string name="webhook_status_hint">URL: %1$s\nSon bildirilen uç nokta: %2$s\nSon bildirim: %3$s</string>
     <string name="webhook_status_never">hiçbir zaman</string>
     <string name="webhook_status_no_endpoint">henüz yok</string>
