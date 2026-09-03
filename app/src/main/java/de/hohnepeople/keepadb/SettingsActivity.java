@@ -30,6 +30,7 @@ public class SettingsActivity extends Activity {
 
     private Switch hideNotificationToggle;
     private Switch keepDisplayOnToggle;
+    private Switch adviceBannerToggle;
     private Switch usbNotificationToggle;
     private Switch usbProfileNotificationToggle;
     private TextView usbProfileSummary;
@@ -81,6 +82,10 @@ public class SettingsActivity extends Activity {
         keepDisplayOnToggle = findViewById(R.id.settings_keep_display_on_toggle);
         keepDisplayOnToggle.setOnClickListener(v ->
                 KeepADBPreferences.setKeepDisplayOnEnabled(this, keepDisplayOnToggle.isChecked()));
+
+        adviceBannerToggle = findViewById(R.id.settings_advice_banner_toggle);
+        adviceBannerToggle.setOnClickListener(v ->
+                KeepADBPreferences.setAdviceBannerVisible(this, adviceBannerToggle.isChecked()));
 
         usbNotificationToggle = findViewById(R.id.settings_usb_notification_toggle);
         usbProfileNotificationToggle = findViewById(R.id.settings_usb_profile_notification_toggle);
@@ -507,6 +512,8 @@ public class SettingsActivity extends Activity {
         hideNotificationToggle.setChecked(notificationHidden);
 
         keepDisplayOnToggle.setChecked(KeepADBPreferences.isKeepDisplayOnEnabled(this));
+
+        adviceBannerToggle.setChecked(KeepADBPreferences.isAdviceBannerVisible(this));
 
         usbNotificationToggle.setChecked(KeepADBUsbProfile.isNotificationEnabled(this));
         usbProfileNotificationToggle.setChecked(KeepADBUsbProfile.isProfileNotificationEnabled(this));
