@@ -193,4 +193,6 @@
     <string name="issue_report_placeholder_screenshots">Describe or attach screenshots manually.</string>
     <string name="issue_report_placeholder_notes">Add any other useful information here.</string>
     <string name="issue_report_diagnostics_section">Optional redacted KeepADB diagnostics (review before submitting)</string>
+    <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
+    <string name="action_dismiss">Dismiss</string>
 </resources>

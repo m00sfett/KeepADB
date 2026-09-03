@@ -194,4 +194,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_screenshots">Jelaskan atau lampirkan tangkapan layar secara manual.</string>
     <string name="issue_report_placeholder_notes">Tambahkan informasi berguna lainnya.</string>
     <string name="issue_report_diagnostics_section">Data diagnostik KeepADB opsional yang telah disamarkan (tinjau sebelum mengirim)</string>
+    <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
+    <string name="action_dismiss">Dismiss</string>
 </resources>

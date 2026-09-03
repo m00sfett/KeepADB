@@ -193,4 +193,6 @@
     <string name="issue_report_placeholder_screenshots">Beschreibe Screenshots oder füge sie manuell an.</string>
     <string name="issue_report_placeholder_notes">Füge weitere hilfreiche Informationen hinzu.</string>
     <string name="issue_report_diagnostics_section">Optionale redigierte KeepADB-Diagnosedaten (vor dem Senden prüfen)</string>
+    <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
+    <string name="action_dismiss">Dismiss</string>
 </resources>

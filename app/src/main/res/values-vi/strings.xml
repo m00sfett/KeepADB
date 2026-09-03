@@ -194,4 +194,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_screenshots">Mô tả hoặc đính kèm ảnh chụp màn hình theo cách thủ công.</string>
     <string name="issue_report_placeholder_notes">Thêm bất kỳ thông tin hữu ích nào khác.</string>
     <string name="issue_report_diagnostics_section">Dữ liệu chẩn đoán KeepADB tùy chọn đã loại bỏ thông tin nhạy cảm (xem lại trước khi gửi)</string>
+    <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
+    <string name="action_dismiss">Dismiss</string>
 </resources>
