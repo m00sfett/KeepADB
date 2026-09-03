@@ -1,0 +1,9 @@
+{
+  "224": {
+    "title": "feat: option to keep display awake while app is in foreground",
+    "scope": "Neue Einstellung: Display bleibt eingeschaltet, solange KeepADB im Vordergrund ist; Default aus, Freigabe beim Verlassen/Deaktivieren, WLAN-ADB-Logik unberührt.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-03T10:04:20Z"
+  }
+}

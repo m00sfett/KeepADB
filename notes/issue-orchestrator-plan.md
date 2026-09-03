@@ -6312,3 +6312,39 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 Reviewer-Blocker sichtbar. PAT und temporäre Scratch-Dateien nach Gebrauch gelöscht.
 
 Nächster sinnvoller Schritt: `$release-fdroid --check` bei neuer Reviewer-/Bot-Reaktion.
+
+## --plan-Lauf: Einordnung #224 — 2026-09-03T12:00:00+02:00
+
+**Auslöser:** `$issue-orchestrator-eco --plan`. Snapshot-Vergleich: letzter Snapshot
+2026-09-01T19:27:58Z, seitdem ein neues Issue (#224, erstellt 2026-09-03T09:37:06Z).
+
+**Bestandsaufnahme:** Genau ein offenes Issue im Repository (`gh issue list --state open`).
+Kein Sichtungs-Subagent nötig — Kapazitätsschwelle (5×8–12) bei weitem nicht erreicht, ein
+einzelnes Issue wird direkt gelesen statt Delegationsoverhead zu erzeugen.
+
+**Issue #224 — "feat: option to keep display awake while app is in foreground":**
+- Quelle: Memo-Transkript `2026-09-03_11-22-02` (bereits als GitHub-Issue erfasst, keine
+  weitere Memo-Auswertung nötig).
+- Akzeptanzkriterien: Einstellung sichtbar, Default aus, Display bleibt nur im Vordergrund an,
+  zuverlässige Freigabe beim Verlassen/Deaktivieren, WLAN-ADB-Schalt-/Keep-Alive-Logik
+  unverändert.
+- **Zerlegung:** Einzelpaket ausreichend — ein Codepfad (Settings-Toggle + Activity-Lifecycle-
+  gebundenes `FLAG_KEEP_SCREEN_ON` bzw. äquivalenter Wakelock-Mechanismus), keine unabhängigen
+  Akzeptanzpfade, keine eigene Rollback-Grenze.
+- **Stufe:** `agent-stage:s2` — kleine, klar abgegrenzte UI-/Lifecycle-Ergänzung ohne Daten-
+  modell-, Migrations- oder Sicherheitsrisiko; passt auf S2 (kleine bis mittlere, risikoarme
+  Implementierung) laut SSOT-Rubrik. Label auf GitHub gesetzt.
+
+**Cache:** `notes/issue-orchestrator-issues.json` neu angelegt (existierte vorher nicht) mit
+dem Eintrag für #224.
+
+**Roadmap-Abgleich:** Kein separates Roadmap-Dokument über diesen Plan hinaus; kein
+nachzuziehender Altstand.
+
+**Strangzähler:** Neuer eigenständiger Strang (Display-Wach-Feature), unabhängig vom
+abgeschlossenen v1.4.4-Release-/Feedback-Strang.
+
+- **issue_snapshot_at:** 2026-09-03T12:00:00Z
+- **plan_updated_at:** 2026-09-03T12:00:00+02:00
+- **Zustand:** `complete (Planung)` — keine Implementierung, kein Build/Test, kein PR/Merge.
+  Nächster Schritt: reguläre Auswahl (`$issue-orchestrator-eco`) für #224 auf `agent-stage:s2`.
