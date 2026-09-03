@@ -6394,3 +6394,35 @@ bereits ein nutzersichtbares Ergebnis (Code gemergt, wartet nur noch auf Geräte
 - **plan_updated_at:** 2026-09-03T12:36:00+02:00
 - **Zustand:** `closed-pending-decision` — Code fertig und gepusht, Geräte-Smoke-Test für die
   beiden Verhaltenskriterien braucht eine eigene Freigabe (Abschnitt 4, physisches Gerät).
+
+## Geräte-Smoke-Test #224 (S20) — 2026-09-03T13:15:00+02:00
+
+**Transportkette (Abschnitt 4):** `phone-register get s20` → WLAN-ADB `192.168.178.24:38557`
+(zuletzt validiert heute 12:22). `android-target s20 -- shell getprop ro.serialno;
+ro.product.model` → `RF8T307S88H`/`SM-G780G`, deckt sich mit Register — Fingerprint
+validiert, kein neuer Registereintrag nötig (Pfad unverändert erfolgreich).
+
+**Ablauf:** Debug-APK aus dem `s2-worker`-`./bin/verify`-Lauf installiert (`adb install -r`).
+Per `uiautomator dump`/`input tap` navigiert: MainActivity → Settings → Display-Sektion
+(neuer Panel `settings_display_panel`, Switch `settings_keep_display_on_toggle`) →
+aktiviert. Zurück zu MainActivity: `dumpsys window windows` zeigt
+`mHoldScreenWindow=Window{…MainActivity}` und `mLastWakeLockHoldingWindow=Window{…
+MainActivity}` — direkter Systembeleg, dass `FLAG_KEEP_SCREEN_ON` aktiv greift. `HOME`
+gedrückt (App verlässt Vordergrund) → beide Felder sofort `null` — Freigabe bestätigt.
+Toggle danach wieder auf „aus" zurückgesetzt (Default-Zustand wiederhergestellt), App auf
+Home geschickt.
+
+**Ergebnis:** Beide zuvor offenen Verhaltenskriterien geräteseitig bewiesen:
+- ✅ Display bleibt nur während Vordergrundnutzung an (`mHoldScreenWindow` gesetzt, solange
+  MainActivity im Vordergrund).
+- ✅ Freigabe beim Verlassen zuverlässig (`mHoldScreenWindow`/`mLastWakeLockHoldingWindow`
+  sofort `null` nach `HOME`).
+
+**Nebenbefund (kein neuer Fund, korrigiert):** Ein Navigationsfehler während des manuellen
+Testlaufs öffnete versehentlich den „Switch host profile"-Dialog (unbeabsichtigter Tap auf
+verschobene Koordinaten nach Bildschirm-Reflow). Dialog per CANCEL geschlossen, keine
+Profiländerung vorgenommen — kein Produktdefekt, reiner Bedienfehler während des Tests.
+
+- **plan_updated_at:** 2026-09-03T13:15:00+02:00
+- **Zustand:** `complete` — alle fünf Akzeptanzkriterien von #224 nachgewiesen (Code + Gerät).
+  Issue wird geschlossen (`Fixes #224` nachträglich per Kommentar/Close, da bereits gemergt).
