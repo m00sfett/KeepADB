@@ -6493,3 +6493,20 @@ nutzersichtbarem Ergebnis.
 - **plan_updated_at:** 2026-09-03T14:00:00+02:00
 - **Zustand:** Warte auf Ausführungsentscheidung (Designer-Skill vs. direkter S2-Worker) und
   Subagent-Freigabe. Keine Implementierung, kein Build/Test, kein PR/Merge in dieser Runde.
+
+## Übergabe-Checkpoint — #228 abgeschlossen — 2026-09-03T15:16:00+02:00
+
+**Bearbeiter:** `ux-designer` (S5, Opus/medium laut Mapping, konfiguriert), technische Läufe an `ux-probe` delegiert. Hauptagent-Rolle: Orchestrierung (Designer-Skill-Einstieg statt direkter S2-Delegation, siehe Auswahlrunde oben), Freigabe-Einholung, Nebenbefund-Weiterleitung, Abschlussprüfung.
+
+**Ergebnis:** PR #231 squash-merged nach `master` (`4d03772`), Branch gelöscht. Issue #228 geschlossen. `github-drift`: Repository und Project #8 stimmen überein, kein Board-Drift.
+
+**Akzeptanzkriterien — alle nachgewiesen:** Kontrast (13,1:1 Body / 11,2:1 Titel statt ~1,5:1), Warnicon klar erkennbar (gezeichnetes Dreieck statt Emoji), Settings-Sicherheitsbereich entfernt, Texte zusammengeführt, Anzeige-/Ausblendlogik und Live-Update aus #226 nicht regressiert (Gerätebeleg), 19 Locales konsistent, lokale Gates dreimal grün.
+
+**Nebenbefunde registriert, nicht behoben:** #229 (lückenhafte Fastlane-Changelogs), #230 (Build braucht explizites JAVA_HOME auf java-17). Warten auf Umsetzungsfreigabe.
+
+**Kein Versionsbump** in diesem Paket — 1.4.5 ist noch nicht getaggt, Changelog-Eintrag ging in den offenen `[1.4.5]`-Block.
+
+**Strangzähler:** Drittes Paket im Advice-Banner-Strang (#225 → #226 → #228), durchgehend nutzersichtbares Ergebnis. Keine offene Roadmap-Aussage zu diesem Strang, die noch nachzuziehen wäre.
+
+- **plan_updated_at:** 2026-09-03T15:16:00+02:00
+- **Zustand:** `complete` (#228). #229/#230 offen und unbewertet (agent-stage fehlt noch), Kandidaten für nächste Auswahlrunde oder `--plan`.
