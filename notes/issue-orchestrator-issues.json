@@ -65,11 +65,11 @@
   },
   "235": {
     "title": "fix: 3 Strings in allen 18 Sprachvarianten unübersetzt",
-    "scope": "action_dismiss, settings_advice_banner_toggle, settings_advice_banner_subtext in allen 18 Sprachen inhaltlich übersetzen (nicht nur Struktur).",
+    "scope": "Erledigt: PR #239 gemerged (c06dec3), 54 Übersetzungen, check-i18n als Gate in ./bin/verify eingebunden, geräteverifiziert (s20, Hindi).",
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s1",
-    "updatedAt": "2026-09-03T21:10:00Z",
-    "status": "open"
+    "updatedAt": "2026-09-04T00:00:00Z",
+    "status": "closed"
   },
   "236": {
     "title": "chore: 8 Grenzfall-Keys aus check-i18n linguistisch klären (Lehnwort vs. echte Lücke)",

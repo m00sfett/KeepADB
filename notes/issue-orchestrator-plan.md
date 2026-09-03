@@ -6809,3 +6809,64 @@ Werkzeugarbeit. Vor einer vierten Runde lohnt die Frage, ob #235 (die eigentlich
 - **plan_updated_at:** 2026-09-03
 - **issue_snapshot_at:** 2026-09-03 (Stand nach Anlage von #237, #238)
 - **Zustand:** `complete` für Teil 1 von #236; Teil 2 (Gate) `blocked by #235`.
+
+## Übergabe-Checkpoint — #235 abgeschlossen — 2026-09-04 ~00:00 UTC
+
+**Bearbeiter:** Hauptagent direkt (kein Subagent — 54 kurze Übersetzungen plus Geräteverifikation
+waren im laufenden Kontext günstiger als ein Delegationsauftrag mit vollem Kontext-Scoping).
+
+**Ergebnis:** PR #239 squash-merged nach `master` (`c06dec3`), Branch gelöscht. Issue #235
+automatisch über `Fixes #235` geschlossen. `github-board-sync`: 0 Änderungen nötig.
+`github-drift`: sauber.
+
+**Akzeptanzkriterien:** Alle 3 Keys in allen 18 Sprachen — `./bin/check-i18n` bestätigt 0
+Findings (code-verifiziert). Format/Escaping erhalten — `git diff --check` und `lintDebug` grün,
+keine neuen Lint-Findings gegenüber Vorzustand. Geräte-Stichprobe — **erfüllt**: signierte
+Release-APK auf s20 (Sprache Hindi) installiert, Screenshot bestätigt `settings_advice_banner_toggle`,
+`settings_advice_banner_subtext` und `action_dismiss` (als `content-desc` des Dismiss-Buttons)
+vollständig auf Hindi.
+
+**Zusätzlich:** `bin/check-i18n` jetzt hartes Gate in `./bin/verify` (Schritt 2/4) — verhindert
+künftig automatisch genau diese Bug-Klasse (kopierter statt übersetzter Wert).
+
+**Gates:** `./bin/verify` grün (inkl. neuem `check-i18n`-Schritt, Unit-Tests, Lint, Debug-/
+Release-Build).
+
+**Kein Versionsbump** — Änderung ging in den bereits offenen `[1.4.5]`-Changelog-Block
+(versionCode 17, noch unreleased, letzte tatsächliche Veröffentlichung `v1.4.4`); der Block
+behauptete "übersetzt in alle 19 Sprachen" bereits vor diesem Fix — die Korrektur macht diese
+Behauptung nachträglich wahr, statt eine neue User-sichtbare Änderung zu sein.
+
+**Register-Pflege (Nebenbefund während Geräteaktion):** WLAN-ADB-Port für s20 hat sich zwischen
+den Läufen geändert (37367 → 38221, dynamische Portvergabe). Beide Male fingerprint-validiert
+über `phone-register record` nachgezogen.
+
+**Strangzähler:** Abschluss des #233→#235→#236-Strangs (i18n-Audit-Nachwirkungen). Alle drei
+Issues jetzt geschlossen, keine offenen Folgeissues aus diesem Strang bekannt.
+
+- **plan_updated_at:** 2026-09-04T~00:00:00Z
+- **Zustand:** `complete` (#235). Strang #233/#235/#236 vollständig abgeschlossen.
+
+**Projekt:** m00sfett/KeepADB (smartphone-wlan-adb-app)
+**Issues:** #235 (fix: 3 unübersetzte Strings)
+**Technische Zusammenfassung:** `action_dismiss`, `settings_advice_banner_toggle` und
+`settings_advice_banner_subtext` wurden in allen 18 nicht-englischen Sprachvarianten inhaltlich
+übersetzt (54 Übersetzungen). `bin/check-i18n` ist jetzt hartes Gate in `./bin/verify` und
+verhindert künftig automatisch, dass eine Sprachdatei mit unübersetztem Platzhalterwert
+unbemerkt bleibt.
+**Einfache Erklärung:** Die drei englisch gebliebenen Texte sind jetzt in allen 18 Sprachen
+richtig übersetzt — auf einem echten Handy mit Hindi-Einstellung nachgeprüft. Außerdem prüft
+die App-Buildkette ab sofort automatisch, ob so etwas nochmal passiert.
+**Bearbeiter:** Hauptagent (kein Subagent)
+**Paket:** #235
+**Paketstufe:** S1
+**Laufzeitmodell:** Sonnet 5 (Hauptagent-Basis)
+**Reasoning-Effort:** nicht exponiert
+**Status der Angaben:** Paketstufe abgeleitet; Geräteverifikation direkt beobachtet
+(Screenshot + uiautomator-Dump); Gates verifiziert (`./bin/verify` grün).
+**Zustand:** complete
+**Nachweis:** PR #239 gemerged (`c06dec3`), Issue #235 automatisch geschlossen, Screenshot
+`s20_advice_banner.png` (Hindi, alle 3 Strings übersetzt sichtbar), `github-board-sync`/
+`github-drift` sauber.
+**Probleme/Optionen:** Keine offenen Probleme.
+**Nächster Schritt:** Kein bekanntes offenes Paket aus diesem Strang. Warte auf neue Anweisung.
