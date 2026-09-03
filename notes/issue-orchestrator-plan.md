@@ -6727,3 +6727,85 @@ erstellt, Board-Sync/Drift sauber.
 **Probleme/Optionen:** Keine offenen Probleme.
 **Nächster Schritt:** Freigabe für Umsetzung von #235 (Übersetzung der 3 Keys in 18 Sprachen)
 abwarten.
+
+## Übergabe-Checkpoint — #236 Teil 1 abgeschlossen, Gate blockiert — 2026-09-03
+
+**Bearbeiter:** Hauptagent direkt (Nutzer hat Delegation ausdrücklich ausgeschlossen).
+
+**Auftrag:** #236 umsetzen, plus die ausdrückliche Frage, ob der bestehende Prüfansatz wirklich
+alle verbleibenden hardcoded literals findet.
+
+### Ergebnis der linguistischen Klärung
+
+1 echte Lücke, 7 legitim. Entscheidungsgrundlage war jeweils der Quervergleich mit den übrigen
+17 Sprachen, nicht das Sprachgefühl am Einzelwert:
+
+- `settings_section_display` (de) = "Display" → **echter Fehler**, übersetzt zu "Bildschirm".
+  Alle 17 anderen Sprachen wählen ihr Wort für Bildschirm; der Abschnittsuntertext sagt selbst
+  bereits "Bildschirm".
+- `webhook_status_title` (16 Sprachen), `settings_section_keep_alive` (14),
+  `settings_webhook_url_label` (ja) → Lehnwörter, sprachgranular allowlistet. Beleg für
+  Konsistenz: der Begriff bleibt lateinisch in sonst übersetzter Umgebung
+  (`Синхронизация Webhook`, `Webhook 同期`); hi/ko transliterieren bewusst (`वेबहुक`, `웹훅`),
+  zh glossiert `保持常驻 (Keep-Alive)`.
+- `settings_section_version` (de, fr), `settings_section_general` (es),
+  `settings_section_notification` (fr), `usb_profile_hostname_hint` (de) → in diesen Sprachen
+  das tatsächlich korrekte Wort.
+
+### Notwendige Skriptänderung (kein Scope-Zuwachs, sondern Voraussetzung)
+
+Die `ALLOWLIST` war key-global. Ein Eintrag `webhook_status_title` hätte die Prüfung auch für
+Hindi und Koreanisch abgeschaltet — genau für die zwei Sprachen, die korrekt übersetzt haben.
+Die Liste bildet jetzt `Key → Sprachen` ab; `ALL_LANGUAGES` bleibt Werten ohne natürliche
+Sprache vorbehalten. Regressionsnachweis geführt: dasselbe "Webhook" wird in Hindi gemeldet,
+in Russisch durchgelassen.
+
+### Antwort auf die Frage nach den verbleibenden hardcoded literals
+
+Alles mechanisch Prüfbare wurde geprüft und ist sauber:
+
+| Prüfung | Ergebnis |
+|---|---|
+| Fehlende Keys je Sprache | 0 — alle 18 Sprachen tragen exakt die 158 Referenz-Keys |
+| Hardcodes in Layout-XML | nur `android:text="▼"` (Glyphe, sprachfrei) |
+| `res/xml/`-Textattribute | keine |
+| Manifest `android:label` | durchweg `@string/…` |
+| NotificationChannel-Namen | durchweg `context.getString(R.string.…)` |
+| Java-Literale (ohne Kommentar/Log/Exception) | 3, alle legitim: Diagnose-Export-Header sowie zwei Endonyme im Sprachwähler ("Bahasa Indonesia", "Tiếng Việt") |
+| `locales_config.xml` vs. `values-*`-Ordner | deckungsgleich, 19 Sprachen |
+
+Nicht abgedeckt bleiben zwei Klassen, die der Exakt-Gleichheit-Vergleich prinzipiell nicht
+finden kann — als #238 erfasst: **Teilübersetzungen** (englisches Fragment im sonst übersetzten
+String) und **Sprachverwechslungen** (Text der falschen Sprache in einer `values-xx`-Datei).
+Genau die erste Klasse war der Grund, warum #233 zunächst falsch negativ war. Dazu drei latente
+Skriptlücken als #237 (`<plurals>`/`<string-array>` ungeparst, `translatable="false"` nicht
+automatisch ausgenommen, verwaiste Allowlist-Einträge unbemerkt).
+
+Nicht als Finding erfasst, nur als Beobachtung: `fastlane/metadata/android/` hat ausschließlich
+`en-US`, während die App 19 Sprachen führt. Das ist ein eigener Lokalisierungspfad und für
+F-Droid zulässig — kein Fehler, aber auch nicht von `check-i18n` abgedeckt.
+
+### Nachweise
+
+- Commits `bb7112f` (Allowlist sprachgranular), `4295cc4` (de-Übersetzung + Changelog), gepusht.
+- `./bin/verify` grün (Schongang: `nice -n 19 ionice -c 3`).
+- `./bin/check-i18n`: 91 → 54 Befunde; die 54 sind exakt 3 Keys × 18 Sprachen aus #235.
+- `github-board-sync`: #237, #238 aufgenommen. `github-drift`: übereinstimmend.
+- Version bleibt **1.4.5 / versionCode 17** — 1.4.5 ist noch unveröffentlicht (letztes Release
+  v1.4.4), die Änderung gehört daher in den bestehenden Eintrag statt in einen neuen Bump.
+
+### Offen
+
+`./bin/check-i18n` als hartes Gate in `./bin/verify` ist **erst nach #235** setzbar: Solange
+die 3 Keys unübersetzt sind, liefert das Skript Exit 1 und färbt `verify` sofort rot. #236
+bleibt dafür offen; `Fixes #236` wurde bewusst nicht gesetzt.
+
+**Strangzähler:** i18n-Strang, dritte Runde in Folge (#233 → #235/#236). Erzeugte diesmal ein
+nutzersichtbares Ergebnis (korrigierter deutscher Abschnittstitel) plus ein belastbareres
+Prüfwerkzeug. Der Strang läuft aber sichtbar auf sich selbst zu — #237/#238 sind erneut
+Werkzeugarbeit. Vor einer vierten Runde lohnt die Frage, ob #235 (die eigentliche
+Übersetzungsarbeit, nutzersichtbar) Vorrang vor weiterer Werkzeugpflege hat.
+
+- **plan_updated_at:** 2026-09-03
+- **issue_snapshot_at:** 2026-09-03 (Stand nach Anlage von #237, #238)
+- **Zustand:** `complete` für Teil 1 von #236; Teil 2 (Gate) `blocked by #235`.

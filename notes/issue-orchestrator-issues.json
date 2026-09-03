@@ -72,11 +72,27 @@
     "status": "open"
   },
   "236": {
-    "title": "chore: 8 Grenzfall-Keys aus check-i18n linguistisch klären",
-    "scope": "Pro Key/Sprache entscheiden: Lehnwort (Allowlist) vs. echte Lücke (übersetzen). Danach check-i18n hart in verify einbinden.",
+    "title": "chore: 8 Grenzfall-Keys aus check-i18n linguistisch klären (Lehnwort vs. echte Lücke)",
+    "scope": "Linguistische Klärung erledigt: 1 echte Lücke (settings_section_display de -> 'Bildschirm'), 7 legitim und sprachgranular allowlistet. ALLOWLIST von Key- auf Sprachgranularität umgestellt (bb7112f, 4295cc4). Befunde 91 -> 54. OFFEN: Einbindung als hartes Gate in ./bin/verify, blockiert durch #235.",
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s1",
-    "updatedAt": "2026-09-03T23:40:00Z",
+    "updatedAt": "2026-09-03T21:28:37Z",
+    "status": "open"
+  },
+  "237": {
+    "title": "build: check-i18n prüft nur <string>, nicht <plurals>/<string-array>, und meldet keine verwaisten Allowlist-Einträge",
+    "scope": "Drei latente Skript-Lücken aus #236: <plurals>/<string-array> ungeparst, translatable=\"false\" nicht automatisch ausgenommen, verwaiste ALLOWLIST-Einträge unbemerkt. Aktueller Bestand jeweils 0 Vorkommen, daher latent.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-03T21:27:50Z",
+    "status": "open"
+  },
+  "238": {
+    "title": "audit: check-i18n erkennt Teilübersetzungen und Sprachverwechslungen prinzipiell nicht",
+    "scope": "Methodische Grenze des Exakt-Gleichheit-Vergleichs: teilweise stehen gebliebene englische Fragmente und in die falsche Sprachdatei kopierter Text bleiben unsichtbar. Ziel ist Dokumentation der Grenze plus Prüfung einer Latin-Script-Heuristik für nicht-lateinische Sprachen.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-03T21:28:12Z",
     "status": "open"
   }
 }
