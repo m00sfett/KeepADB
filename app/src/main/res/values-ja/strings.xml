@@ -195,7 +195,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">任意の編集済み KeepADB 診断データ（送信前に確認してください）</string>
     <string name="advice_banner_title">セキュリティとネットワーク</string>
     <string name="advice_banner_text">ワイヤレスデバッグはネットワーク上に ADB ポートを開きます。信頼できる Wi-Fi または Tailscale などの VPN でのみ使用し、公共のホットスポットではオフにしてください。エンドポイントのアドレスを公開したり、身に覚えのないペアリングや認可の要求を許可したりしないでください。</string>
-    <string name="action_dismiss">Dismiss</string>
-    <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
-    <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
+    <string name="action_dismiss">閉じる</string>
+    <string name="settings_advice_banner_toggle">セキュリティとネットワークのアドバイスを表示</string>
+    <string name="settings_advice_banner_subtext">メイン画面の上部にセキュリティ警告バナーを表示します。</string>
 </resources>

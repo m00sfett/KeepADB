@@ -194,7 +194,7 @@
     <string name="issue_report_diagnostics_section">Optionale redigierte KeepADB-Diagnosedaten (vor dem Senden prüfen)</string>
     <string name="advice_banner_title">Sicherheit &amp; Netzwerk</string>
     <string name="advice_banner_text">Drahtloses Debugging öffnet einen ADB-Port im Netzwerk. Nutze es in vertrauenswürdigen WLANs oder über ein VPN wie Tailscale und schalte es in öffentlichen Hotspots aus. Gib deine Endpunkt-Adresse nie öffentlich weiter und bestätige niemals unerwartete Kopplungs- oder Autorisierungsanfragen.</string>
-    <string name="action_dismiss">Dismiss</string>
-    <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
-    <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
+    <string name="action_dismiss">Schließen</string>
+    <string name="settings_advice_banner_toggle">Sicherheits- &amp; Netzwerkhinweis anzeigen</string>
+    <string name="settings_advice_banner_subtext">Zeigt oben auf dem Hauptbildschirm einen Sicherheitshinweis an.</string>
 </resources>

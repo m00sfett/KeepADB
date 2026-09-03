@@ -195,7 +195,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">بيانات تشخيصية اختيارية منقّحة لـ KeepADB (راجعها قبل الإرسال)</string>
     <string name="advice_banner_title">الأمان والشبكة</string>
     <string name="advice_banner_text">يفتح تصحيح الأخطاء اللاسلكي منفذ ADB على شبكتك. استخدمه على شبكات Wi-Fi الموثوقة أو عبر شبكة VPN مثل Tailscale، وأوقفه في نقاط الاتصال العامة. لا تشارك عنوان نقطة النهاية علنًا مطلقًا، ولا تقبل أبدًا طلبات اقتران أو تفويض غير متوقعة.</string>
-    <string name="action_dismiss">Dismiss</string>
-    <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
-    <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
+    <string name="action_dismiss">إغلاق</string>
+    <string name="settings_advice_banner_toggle">إظهار نصائح الأمان والشبكة</string>
+    <string name="settings_advice_banner_subtext">عرض شريط تحذير أمني أعلى الشاشة الرئيسية.</string>
 </resources>

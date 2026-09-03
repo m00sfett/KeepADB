@@ -195,7 +195,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">可选的已脱敏 KeepADB 诊断数据（发送前请检查）</string>
     <string name="advice_banner_title">安全与网络</string>
     <string name="advice_banner_text">无线调试会在你的网络上开放一个 ADB 端口。请仅在受信任的 Wi-Fi 或 Tailscale 等 VPN 中使用，并在连接公共热点时关闭。切勿公开分享你的端点地址，也切勿接受意外的配对或授权请求。</string>
-    <string name="action_dismiss">Dismiss</string>
-    <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
-    <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
+    <string name="action_dismiss">关闭</string>
+    <string name="settings_advice_banner_toggle">显示安全与网络提示</string>
+    <string name="settings_advice_banner_subtext">在主屏幕顶部显示安全警告横幅。</string>
 </resources>

@@ -195,7 +195,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">Données de diagnostic KeepADB facultatives et expurgées (à vérifier avant l’envoi)</string>
     <string name="advice_banner_title">Sécurité et réseau</string>
     <string name="advice_banner_text">Le débogage sans fil ouvre un port ADB sur votre réseau. Utilisez-le sur un Wi-Fi de confiance ou via un VPN comme Tailscale, et désactivez-le sur les points d’accès publics. Ne partagez jamais publiquement l’adresse de votre point de terminaison et n’acceptez jamais une demande de couplage ou d’autorisation inattendue.</string>
-    <string name="action_dismiss">Dismiss</string>
-    <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
-    <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
+    <string name="action_dismiss">Fermer</string>
+    <string name="settings_advice_banner_toggle">Afficher les conseils de sécurité et réseau</string>
+    <string name="settings_advice_banner_subtext">Affiche une bannière d’avertissement de sécurité en haut de l’écran principal.</string>
 </resources>
