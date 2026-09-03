@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 - Backfilled the previously incomplete Fastlane "what's new" changelogs for all past versionCodes,
   and added a contract test requiring a changelog entry for the current versionCode (issue #229).
+- `./bin/gradlew` now sets `JAVA_HOME` to JDK 17 before delegating to the real Gradle wrapper, so
+  direct Gradle invocations no longer depend on the system default JDK (issue #230).
 
 ### Fixed
 - The advice banner toggle in Settings now updates MainActivity live; the banner's visibility is

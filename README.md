@@ -121,8 +121,9 @@ Run all checks (git diff, unit tests, lint, debug and release builds) with a sin
 
 ### Build Release APK
 ```bash
-./gradlew assembleRelease
+./bin/gradlew assembleRelease
 ```
+`bin/gradlew` sets `JAVA_HOME` to JDK 17 before invoking the real wrapper, so builds don't depend on the system default JDK. Prefer it over calling `./gradlew` directly.
 The unsigned APK used for reproducibility verification will be located at:
 `app/build/outputs/apk/release/app-release-unsigned.apk`.
 
