@@ -128,6 +128,10 @@ def main() -> int:
 
     reference, ref_translatable_false = parse_strings(REFERENCE)
     findings = []
+    # Tracks, per ALLOWLIST key, which languages actually produced a
+    # would-be finding that the allowlist suppressed -- used below to
+    # detect orphaned allowlist entries.
+    allowlist_hits = {key: set() for key in ALLOWLIST}
 
     for path_str in sorted(glob.glob(LANG_GLOB)):
         path = Path(path_str)
@@ -137,33 +141,65 @@ def main() -> int:
             key = base_key(display_key)
             if key in ref_translatable_false:
                 continue
-            allowed = ALLOWLIST.get(key)
-            if allowed is ALL_LANGUAGES or (allowed is not None and lang in allowed):
-                continue
             if display_key not in reference:
                 continue
             ref_value = reference[display_key].strip()
             if len(ref_value) <= 1:
                 continue
-            if ref_value == value.strip():
-                findings.append((lang, display_key, ref_value))
+            if ref_value != value.strip():
+                continue
 
-    if not findings:
+            allowed = ALLOWLIST.get(key)
+            if allowed is ALL_LANGUAGES:
+                allowlist_hits[key].add(ALL_LANGUAGES)
+                continue
+            if allowed is not None and lang in allowed:
+                allowlist_hits[key].add(lang)
+                continue
+            findings.append((lang, display_key, ref_value))
+
+    orphans = []
+    for key, allowed in ALLOWLIST.items():
+        if key not in ref_translatable_false and not any(base_key(k) == key for k in reference):
+            orphans.append(f"{key}: Key existiert nicht (mehr) in der Referenz")
+            continue
+        hits = allowlist_hits[key]
+        if allowed is ALL_LANGUAGES:
+            if ALL_LANGUAGES not in hits:
+                orphans.append(f"{key}: ALL_LANGUAGES erzeugt in keiner Sprache mehr einen Treffer")
+        else:
+            for lang in sorted(allowed - hits):
+                orphans.append(f"{key}: Sprache {lang!r} erzeugt keinen Treffer mehr")
+
+    exit_code = 0
+
+    if findings:
+        exit_code = 1
+        print(f"check-i18n: {len(findings)} vermutlich unübersetzte(r) String(s) gefunden:\n")
+        for lang, key, ref_value in findings:
+            print(f"  values-{lang}/strings.xml: {key} = {ref_value!r}")
+        print(
+            "\nWert ist wortidentisch zum englischen Original (values/strings.xml). "
+            "Entweder übersetzen, oder falls in genau dieser Sprache absichtlich "
+            "identisch (Lehnwort, Fachbegriff, gleiches Wort): Key in ALLOWLIST in "
+            "bin/check-i18n um diese Sprache ergänzen, mit Begründung. "
+            "ALL_LANGUAGES nur für Werte ohne natürliche Sprache (Markenname, "
+            "Shell-Befehl, reiner Format-String)."
+        )
+    else:
         print("check-i18n: keine unübersetzten (kopierten) Strings gefunden.")
-        return 0
 
-    print(f"check-i18n: {len(findings)} vermutlich unübersetzte(r) String(s) gefunden:\n")
-    for lang, key, ref_value in findings:
-        print(f"  values-{lang}/strings.xml: {key} = {ref_value!r}")
-    print(
-        "\nWert ist wortidentisch zum englischen Original (values/strings.xml). "
-        "Entweder übersetzen, oder falls in genau dieser Sprache absichtlich "
-        "identisch (Lehnwort, Fachbegriff, gleiches Wort): Key in ALLOWLIST in "
-        "bin/check-i18n um diese Sprache ergänzen, mit Begründung. "
-        "ALL_LANGUAGES nur für Werte ohne natürliche Sprache (Markenname, "
-        "Shell-Befehl, reiner Format-String)."
-    )
-    return 1
+    if orphans:
+        print(f"\ncheck-i18n: {len(orphans)} verwaiste(r) ALLOWLIST-Eintrag/Einträge:\n", file=sys.stderr)
+        for orphan in orphans:
+            print(f"  {orphan}", file=sys.stderr)
+        print(
+            "\nDieser Eintrag deckt aktuell nichts (mehr) ab -- Key umbenannt, gelöscht, "
+            "oder inzwischen tatsächlich übersetzt. ALLOWLIST-Eintrag entfernen oder anpassen.",
+            file=sys.stderr,
+        )
+
+    return exit_code
 
 
 if __name__ == "__main__":
