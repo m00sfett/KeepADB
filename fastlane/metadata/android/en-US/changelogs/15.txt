@@ -1,0 +1,1 @@
+Keep-Alive now restarts automatically after a KeepADB app update, restoring Wireless Debugging without requiring the user to open the app.

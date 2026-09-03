@@ -1,0 +1,1 @@
+The app, home screen widget, and Quick Settings Tile now show distinct states for off, missing permission, disconnected, and connected, instead of a single generic status.

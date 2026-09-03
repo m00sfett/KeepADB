@@ -1,0 +1,1 @@
+Settings sections are now ordered consistently from language and security through version information.

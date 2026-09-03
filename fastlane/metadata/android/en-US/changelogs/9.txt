@@ -1,0 +1,1 @@
+Quick Settings Tile discovery now starts correctly even in a fresh app process without Keep-Alive running. The app, widget, and Tile refresh reliably after endpoint discovery, and Tile-owned discovery can no longer leave stale notifications or status behind after the Tile closes.
