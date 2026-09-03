@@ -6510,3 +6510,20 @@ nutzersichtbarem Ergebnis.
 
 - **plan_updated_at:** 2026-09-03T15:16:00+02:00
 - **Zustand:** `complete` (#228). #229/#230 offen und unbewertet (agent-stage fehlt noch), Kandidaten für nächste Auswahlrunde oder `--plan`.
+
+## Umsetzung #229/#230 — Nebenbefund-Pakete — 2026-09-03T15:35:00+02:00
+
+**Bearbeiter:** Hauptagent selbst (S1/S2 auf eigener Stufe, Delegationsoverhead > Arbeitsumfang, Nutzerfreigabe für Selbstumsetzung erteilt).
+
+**#229 — Fastlane-Changelogs:** Grundsatzfrage aus dem Issue an den Nutzer vorgelegt (pflegen vs. abschaffen) — Nutzer wählte „pflegen". Fehlende Dateien 1, 4, 9, 11, 12, 13, 15 aus `CHANGELOG.md`-Historie (inkl. Retrospective-Abschnitt) und Git-`versionCode`-Historie rekonstruiert und nachgetragen. Neuer Contract-Test `KeepADBFastlaneChangelogContractTest` erzwingt künftig einen Changelog-Eintrag für den jeweils aktuellen `versionCode`. Commits `b580a48`, `1f1ada9`.
+
+**#230 — JAVA_HOME:** `bin/gradlew`-Wrapper angelegt (Muster von `bin/verify` übernommen), setzt `JAVA_HOME` auf JDK 17 vor Delegation an den echten Wrapper. README und die lokale `AGENTS.md` (ungetrackt) nachgezogen. Verifiziert mit `unset JAVA_HOME && ./bin/gradlew --version` — kein `androidJdkImage`-Fehler mehr. Commit `f85769e`.
+
+**Gates:** `./bin/verify` zweimal grün (vor und nach dem Commit-Split für atomare Commits).
+
+**Abschluss:** Beide Issues geschlossen mit Nachweis-Kommentar, kein Versionsbump (reine Doku-/Tooling-Änderung, CHANGELOG-Eintrag unter `[1.4.5]/### Documentation`). `github-board-sync`: 0 Änderungen nötig. `github-drift`: Repository und Project #8 stimmen überein.
+
+**Strangzähler:** Zwei unabhängige Nebenbefund-Pakete aus dem Advice-Banner-Strang, beide jetzt erledigt. Kein offener Strang mehr aus #225–#230.
+
+- **plan_updated_at:** 2026-09-03T15:35:00+02:00
+- **Zustand:** `complete` (#229, #230). Keine offenen Issues im Repository.
