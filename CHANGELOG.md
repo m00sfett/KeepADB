@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   main-screen banner. All other settings are unchanged, including the switch that shows or hides
   the banner.
 
+### Documentation
+- Backfilled the previously incomplete Fastlane "what's new" changelogs for all past versionCodes,
+  and added a contract test requiring a changelog entry for the current versionCode (issue #229).
+
 ### Fixed
 - The advice banner toggle in Settings now updates MainActivity live; the banner's visibility is
   re-read on every resume instead of requiring an app restart (issue #226).
