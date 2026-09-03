@@ -5,6 +5,13 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.5] - 2026-09-03
+
+### Added
+- Optional "Keep display on while KeepADB is in the foreground" setting (default off, issue #224).
+  When enabled, the screen only stays on while the app is open; leaving the app or disabling the
+  setting releases the screen-on flag again.
+
 ## [1.4.4] - 2026-09-02
 
 ### Changed

@@ -68,6 +68,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_notification">Сповіщення</string>
     <string name="settings_hide_notification_toggle">Приховати постійне сповіщення</string>
     <string name="settings_hide_notification_subtext">Приховує сповіщення про стан на панелі сповіщень. Keep-Alive та віджети працюватимуть як зазвичай.</string>
+    <string name="settings_section_display">Екран</string>
+    <string name="settings_keep_display_on_toggle">Тримати екран увімкненим, поки KeepADB на передньому плані</string>
+    <string name="settings_keep_display_on_subtext">Тримає екран увімкненим лише поки цей додаток відкритий. Екран вимикається як зазвичай, щойно ви виходите з додатка.</string>
     <string name="settings_notification_hidden_toast">Постійне сповіщення приховано</string>
     <string name="settings_notification_visible_toast">Постійне сповіщення увімкнено</string>
     <string name="back">Назад</string>

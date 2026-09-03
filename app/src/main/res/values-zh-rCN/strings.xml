@@ -68,6 +68,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">隐藏常驻通知</string>
     <string name="settings_hide_notification_subtext">隐藏通知栏中的状态通知。Keep-Alive 和桌面小组件仍将正常工作。</string>
+    <string name="settings_section_display">显示屏</string>
+    <string name="settings_keep_display_on_toggle">KeepADB 位于前台时保持屏幕常亮</string>
+    <string name="settings_keep_display_on_subtext">仅在此应用打开期间保持屏幕常亮。离开应用后屏幕会照常熄灭。</string>
     <string name="settings_notification_hidden_toast">常驻通知已隐藏</string>
     <string name="settings_notification_visible_toast">常驻通知已启用</string>
     <string name="back">返回</string>

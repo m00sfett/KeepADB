@@ -68,6 +68,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_notification">알림</string>
     <string name="settings_hide_notification_toggle">고정 알림 숨기기</string>
     <string name="settings_hide_notification_subtext">알림 창의 상태 알림을 숨깁니다. Keep-Alive 및 위젯은 정상적으로 계속 작동합니다.</string>
+    <string name="settings_section_display">디스플레이</string>
+    <string name="settings_keep_display_on_toggle">KeepADB가 포그라운드에 있는 동안 화면 켜짐 유지</string>
+    <string name="settings_keep_display_on_subtext">이 앱이 열려 있는 동안에만 화면을 켜진 상태로 유지합니다. 앱을 벗어나면 화면은 평소처럼 꺼집니다.</string>
     <string name="settings_notification_hidden_toast">고정 알림이 숨겨졌습니다</string>
     <string name="settings_notification_visible_toast">고정 알림이 활성화되었습니다</string>
     <string name="back">뒤로</string>

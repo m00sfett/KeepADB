@@ -465,6 +465,45 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
+        <!-- Display Section -->
+        <LinearLayout
+            android:id="@+id/settings_display_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_section_display"
+                android:textColor="@color/title_yellow"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <Switch
+                android:id="@+id/settings_keep_display_on_toggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_keep_display_on_toggle"
+                android:textColor="@color/text_yellow"
+                android:textSize="17sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif"
+                android:text="@string/settings_keep_display_on_subtext"
+                android:textColor="@color/night_muted"
+                android:textSize="13sp" />
+        </LinearLayout>
+
         <!-- Diagnostics Section -->
         <LinearLayout
             android:id="@+id/settings_diagnostics_panel"

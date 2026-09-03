@@ -25,6 +25,7 @@ final class KeepADBPreferences {
     private static final String KEY_USB_WEBHOOK_LAST_HOSTNAME = "usb_webhook_last_hostname";
     private static final String KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME = "usb_webhook_last_tailnet_hostname";
     private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
+    private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
 
     // #168: optional USB-ADB -> WLAN-ADB handover offered from the USB notification.
     static final String USB_WLAN_HANDOVER_MODE_OFF = "off";
@@ -80,6 +81,17 @@ final class KeepADBPreferences {
     static void setNotificationHidden(Context context, boolean hidden) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_HIDE_NOTIFICATION, hidden).apply();
+    }
+
+    /** #224: keeps the display on only while MainActivity is in the foreground. Default OFF. */
+    static boolean isKeepDisplayOnEnabled(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_KEEP_DISPLAY_ON, false);
+    }
+
+    static void setKeepDisplayOnEnabled(Context context, boolean enabled) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_KEEP_DISPLAY_ON, enabled).apply();
     }
 
     static boolean isKeepAliveEnabled(Context context) {

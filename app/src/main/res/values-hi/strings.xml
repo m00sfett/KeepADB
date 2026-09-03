@@ -68,6 +68,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_notification">सूचना</string>
     <string name="settings_hide_notification_toggle">स्थायी सूचना छुपाएं</string>
     <string name="settings_hide_notification_subtext">नोटिफिकेशन शेड में स्टेटस नोटिफिकेशन को छुपाता है। Keep-Alive और विजेट सामान्य रूप से काम करते रहेंगे।</string>
+    <string name="settings_section_display">डिस्प्ले</string>
+    <string name="settings_keep_display_on_toggle">जब तक KeepADB फ़ोरग्राउंड में है, डिस्प्ले चालू रखें</string>
+    <string name="settings_keep_display_on_subtext">यह सेटिंग केवल तब तक स्क्रीन को चालू रखती है जब तक यह ऐप खुला है। ऐप छोड़ते ही स्क्रीन सामान्य रूप से बंद हो जाती है।</string>
     <string name="settings_notification_hidden_toast">स्थायी सूचना छिपाई गई</string>
     <string name="settings_notification_visible_toast">स्थायी सूचना सक्षम की गई</string>
     <string name="back">वापस</string>

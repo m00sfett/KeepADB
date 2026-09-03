@@ -135,6 +135,13 @@ public class MainActivity extends Activity {
         // toggle's own click listener called sync() before; without it here, reopening the app
         // after such a kill never resurrects the service. See #106.
         KeepADBService.sync(this);
+        // #224: re-read the preference on every resume, since it may have changed in
+        // SettingsActivity while this activity was paused.
+        if (KeepADBPreferences.isKeepDisplayOnEnabled(this)) {
+            getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
         refresh();
         KeepADBNotification.refresh(this);
         KeepADBUsbReceiver.refresh(this);
@@ -146,6 +153,9 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
+        // #224: explicit clear on top of Android's own release when the window loses visibility,
+        // per the acceptance requirement that the flag is reliably released on leaving the app.
+        getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         endpointSurfaceActive = false;
         endpointListenerGeneration++;
         KeepADBNotification.clearEndpointListener();
