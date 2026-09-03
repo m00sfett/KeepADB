@@ -70,5 +70,13 @@
     "stage": "agent-stage:s1",
     "updatedAt": "2026-09-03T21:10:00Z",
     "status": "open"
+  },
+  "236": {
+    "title": "chore: 8 Grenzfall-Keys aus check-i18n linguistisch klären",
+    "scope": "Pro Key/Sprache entscheiden: Lehnwort (Allowlist) vs. echte Lücke (übersetzen). Danach check-i18n hart in verify einbinden.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-03T23:40:00Z",
+    "status": "open"
   }
 }
