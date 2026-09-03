@@ -33,10 +33,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and added a contract test requiring a changelog entry for the current versionCode (issue #229).
 - `./bin/gradlew` now sets `JAVA_HOME` to JDK 17 before delegating to the real Gradle wrapper, so
   direct Gradle invocations no longer depend on the system default JDK (issue #230).
+- `./bin/check-i18n` now allows an untranslated-looking value per language instead of per key. A
+  loanword such as "Webhook" can stay verbatim in the 16 languages that keep it, while the same
+  string copied into Hindi or Korean — which transliterate it — is still reported as a finding
+  (issue #236).
 
 ### Fixed
 - The advice banner toggle in Settings now updates MainActivity live; the banner's visibility is
   re-read on every resume instead of requiring an app restart (issue #226).
+- The German Settings heading for the screen options section now reads "Bildschirm" instead of the
+  untranslated English "Display" (issue #236).
 
 ## [1.4.4] - 2026-09-02
 
