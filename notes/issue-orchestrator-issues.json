@@ -1,11 +1,27 @@
 {
-  "225": {
-    "title": "Add Security & Network Advice banner to main UI",
-    "scope": "UI-Feature — Advice-Banner oben in der Hauptseite, ausblendbar mit Reset-Option in Einstellungen",
+  "228": {
+    "title": "UI: Security- und Network-Advice-Banner kontrastreich gestalten und Settings-Hinweis integrieren",
+    "scope": "UI/Barrierefreiheit — Bannerkontrast/Icon-Sichtbarkeit reparieren, doppelten Settings-Sicherheitshinweis entfernen, Texte zusammenführen, i18n-Konsistenz",
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-03T10:40:45Z",
+    "updatedAt": "2026-09-03T12:37:22Z",
     "status": "open"
+  },
+  "226": {
+    "title": "Advice banner toggle in settings should update MainActivity live",
+    "scope": "Umgesetzt (PR #227), geschlossen.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-03T11:06:07Z",
+    "status": "closed"
+  },
+  "225": {
+    "title": "Add Security & Network Advice banner to main UI",
+    "scope": "Umgesetzt, geschlossen.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-03T10:58:13Z",
+    "status": "closed"
   },
   "224": {
     "title": "feat: option to keep display awake while app is in foreground",

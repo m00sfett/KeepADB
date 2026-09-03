@@ -6458,3 +6458,38 @@ Profiländerung vorgenommen — kein Produktdefekt, reiner Bedienfehler während
 - Alle offenen Issues geladen und eingeordnet
 - Cache wird aktualisiert
 - Zustand: `complete (Planung)` — kein Implementierungs-Auftrag, nur Planung
+
+## Auswahlrunde — 2026-09-03T14:00:00+02:00
+
+**Auslöser:** `$issue-orchestrator-eco` (kommentarloser Start).
+
+**Snapshot-Abgleich:** Letzter Snapshot 2026-09-03T10:40:45Z (#225-Erfassung). Seitdem: #225 und
+#226 umgesetzt und geschlossen (Commits `503d29f`/`553...`/vorherige, siehe `runs.md`), neues
+Issue #226 (Live-Update-Fix) ebenfalls bereits erledigt. Genau ein offenes Issue verbleibt:
+**#228** — "UI: Security- und Network-Advice-Banner kontrastreich gestalten und Settings-Hinweis
+integrieren" (createdAt 2026-09-03T12:37:22Z).
+
+**Cache-Korrektur:** `issue-orchestrator-issues.json` hatte #225 fälschlich noch als `open`
+geführt (Stand vor Abschluss). Nachgezogen: #225/#226 auf `closed`, #228 neu ergänzt.
+
+**Issue #228 — Einordnung:**
+- Zerlegung: Einzelpaket ausreichend — ein zusammenhängender UI-Bereich (Banner-Layout/-Farben
+  in der Hauptseite, Settings-Bereichsentfernung, String-Zusammenführung), keine unabhängigen
+  Akzeptanzpfade oder Rollback-Grenzen.
+- Stufe: `agent-stage:s2` (gesetzt) — kleine bis mittlere UI-Änderung ohne Datenmodell-/
+  Sicherheitsrisiko.
+- **Fachliche Einordnung:** Kontrast/Icon-Sichtbarkeit ist Barrierefreiheits-/Designarbeit im
+  Sinne der globalen Bedingten Fachanweisung (`~/AGENTS.md`: UI/UX-Tabelle) — Einstieg dafür ist
+  regulär der Skill `designer`, fachliche Grundlage `impeccable`. Wird dem Nutzer als
+  Ausführungsoption vorgelegt statt stillschweigend am regulären S2-Worker-Pfad vorbeizulaufen.
+
+**Roadmap-Abgleich:** Kein separates Roadmap-Dokument über diesen Plan hinaus für dieses
+Repository; #228 ist direkte Fortsetzung/Korrektur des Advice-Banner-Strangs (#225/#226).
+
+**Strangzähler:** Drittes Paket im Advice-Banner-Strang (#225 → #226 → #228), jedes bisher mit
+nutzersichtbarem Ergebnis.
+
+- **issue_snapshot_at:** 2026-09-03T12:37:22Z
+- **plan_updated_at:** 2026-09-03T14:00:00+02:00
+- **Zustand:** Warte auf Ausführungsentscheidung (Designer-Skill vs. direkter S2-Worker) und
+  Subagent-Freigabe. Keine Implementierung, kein Build/Test, kein PR/Merge in dieser Runde.
