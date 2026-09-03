@@ -6633,3 +6633,39 @@ open) ergänzt.
 **Nachweis:** GitHub-Abfrage 2026-09-03 ~19:40 UTC; Label-Set via `gh issue edit`; Cache-Update zeitgleich.
 **Probleme/Optionen:** Keine — beide Issues sind unabhängig voneinander und vom vorherigen Strang.
 **Nächster Schritt:** Nutzer-Auftrag zur Implementierungsfreigabe für #232 und/oder #233 abwarten (kein automatischer Übergang in Umsetzung, da `--plan`).
+
+## Übergabe-Checkpoint — #232 abgeschlossen — 2026-09-03 (nach Planungsrunde ~19:40 UTC)
+
+**Bearbeiter:** `s2-worker` (S2, Sonnet 5 · medium, konfiguriert). Hauptagent-Rolle: Kontext-Scoping (relevante Codeblöcke aus MainActivity.java, SettingsActivity.java, activity_main.xml, activity_settings.xml vorab extrahiert), Freigabe-Einholung, eigene Diff-Prüfung (kein separater Review-Subagent — kleines, klar lokalisiertes UI-Paket ohne Security-/Migrations-/Auth-Bezug), Commit/PR/Merge/Abschluss.
+
+**Ergebnis:** PR #234 squash-merged nach `master` (`5e66fe3`), Branch gelöscht. Issue #232 automatisch über `Fixes #232` geschlossen. `github-board-sync`: 0 Änderungen nötig. `github-drift`: Repository und Project #8 stimmen überein.
+
+**Akzeptanzkriterien:** Button statt leerem Panel bei fehlendem/deaktiviertem Webhook — Code-verifiziert. Navigation zu SettingsActivity mit Fokus/Scroll auf Webhook-Bereich (neues Extra `EXTRA_FOCUS_WEBHOOK`, analog zum bestehenden `EXTRA_PROFILE_ACTION`-Muster) — Code-verifiziert. Unverändertes Verhalten bei aktivem Webhook — Code-verifiziert (Button auf GONE, bestehender Statuspfad unangetastet). String in allen 19 Sprachvarianten + Default — verifiziert.
+
+**Offener Punkt:** Kein Geräte-/Emulator-Smoke-Test (fehlte Freigabe in diesem Lauf) — insbesondere die Scroll-/Fokusoptik in Settings und die Button-Sichtbarkeit auf echtem Gerät sind nur code-, nicht gerätevalidiert.
+
+**Gates:** `./bin/verify` grün (Unit-Tests, Lint, Debug-/Release-Build).
+
+**Kein Versionsbump** — Änderung ging in den bereits offenen `[1.4.5]`-Changelog-Block (versionCode 17, noch unreleased), kein neuer Bump nötig.
+
+**Roadmap-Abgleich:** Kein separates Roadmap-Dokument über diesen Plan hinaus. #232 war eine eigenständige, neue Anforderung ohne Strangbezug zum vorherigen Advice-Banner-Strang (#225–#230).
+
+**Strangzähler:** Eigenständiges Einzelpaket, nutzersichtbares Ergebnis.
+
+- **plan_updated_at:** 2026-09-03T~20:10:00Z
+- **Zustand:** `complete` (#232). #233 (i18n-Audit, S1) bleibt offen und unbewertet für Umsetzung — wartet auf Freigabe.
+
+**Projekt:** m00sfett/KeepADB (smartphone-wlan-adb-app)
+**Issues:** #232 (feat: Webhook-einrichten-Button)
+**Technische Zusammenfassung:** `MainActivity` zeigt bei fehlendem/deaktiviertem Webhook jetzt einen Button statt eines leeren Panels; Tap navigiert mit neuem Intent-Extra zu `SettingsActivity` und scrollt/fokussiert dort automatisch den Webhook-Bereich. Verhalten bei aktivem Webhook unverändert. String in allen 19 Sprachvarianten ergänzt.
+**Einfache Erklärung:** Wer noch keinen Webhook eingerichtet hat, sieht jetzt einen klaren Button dafür statt einer leeren Fläche, und landet mit einem Tap direkt an der richtigen Stelle in den Einstellungen.
+**Bearbeiter:** s2-worker (Subagent), Hauptagent als Orchestrator
+**Paket:** #232
+**Paketstufe:** S2
+**Laufzeitmodell:** Sonnet 5 · medium
+**Reasoning-Effort:** medium
+**Status der Angaben:** Paketstufe abgeleitet; Laufzeitwerte konfiguriert (aus Delegation an `s2-worker`, nicht durch die Runtime selbst bestätigt).
+**Zustand:** complete
+**Nachweis:** `./bin/verify` grün, PR #234 gemerged (`5e66fe3`), Issue #232 automatisch geschlossen, `github-board-sync`/`github-drift` sauber.
+**Probleme/Optionen:** Gerätesmoke steht aus — bei Bedarf separat freigeben.
+**Nächster Schritt:** Warte auf Freigabe für #233 (i18n-Audit, S1) oder Gerätesmoke für #232.

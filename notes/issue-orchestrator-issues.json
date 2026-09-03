@@ -9,11 +9,11 @@
     },
     "232": {
         "title": "feat: Startseite zeigt \"Webhook einrichten\"-Button statt leerem Panel",
-        "scope": "UI — Button statt leerem webhook_status_panel wenn kein Webhook konfiguriert/aktiv, navigiert zu SettingsActivity-Webhook-Abschnitt. Keine Umsetzung ohne separate Freigabe.",
+        "scope": "Umgesetzt (PR #234, Commit 5e66fe3), geschlossen.",
         "decomposition": "Einzelpaket ausreichend",
         "stage": "agent-stage:s2",
         "updatedAt": "2026-09-03T19:34:01Z",
-        "status": "open"
+        "status": "closed"
     },
     "230": {
         "title": "Build schlägt mit System-Default-JDK fehl: JAVA_HOME muss explizit auf java-17 zeigen",
