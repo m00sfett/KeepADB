@@ -150,6 +150,9 @@ public class MainActivity extends Activity {
         } else {
             getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
+        // #226: re-read the preference on every resume, since it may have changed in
+        // SettingsActivity while this activity was paused.
+        updateAdviceBannerVisibility();
         refresh();
         KeepADBNotification.refresh(this);
         KeepADBUsbReceiver.refresh(this);
