@@ -6284,3 +6284,31 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
 - **plan_updated_at:** 2026-09-02T22:50:00+02:00
 - **Zustand:** `complete`. Kein weiterer Handlungsbedarf, bis F-Droid/Maintainer reagiert
   (`$release-fdroid --check`).
+
+## Checkpoint: fdroiddata Pipeline-Reparatur nach WebSite-Feld (2026-09-03)
+
+**Auslöser:** Nutzer meldete fehlgeschlagene GitLab-Pipeline nach dem letzten Update der MR
+!46500 ("die pipeline auf gitlab des letzten update ist failed").
+
+**Diagnose (read-only, `--check`-artig):**
+- Neueste Pipeline `2815012879` (Commit `fce8bd50`, "Add WebSite field") war `failed`.
+- Job-Aufschlüsselung: `fdroid build`, `check apk`, `fdroid lint`, `checkupdates`,
+  `schema validation` etc. alle `success`. Einziger fehlgeschlagener Job: `fdroid rewritemeta`.
+- Log zeigte reine Formatierungsabweichung: `metadata/de.hohnepeople.keepadb.yml` endete ohne
+  abschließenden Newline (`\ No newline at end of file`), verursacht durch den vorherigen
+  Commit `fce8bd50` (WebSite-Feld-Einfügung). Kein inhaltlicher/semantischer Fehler.
+
+**Freigabe:** Nutzer bestätigte "Ja, Newline-Fix committen" (AskUserQuestion, Repair-Gate).
+
+**Fix:** Rohinhalt der Datei via GitLab REST API gelesen, in Python ein `\n` angehängt und via
+`POST /projects/85658298/repository/commits` auf Branch `add-de.hohnepeople.keepadb` committet.
+- Commit: `2e7994d960c707e11d0afe13e3fd1d0c11b0f327` ("Fix missing trailing newline")
+- Neue Pipeline `2815077853` ausgelöst (automatisch durch GitLab MR-Pipeline-Trigger, nicht
+  manuell gestartet) → Status **success** nach ~2,5 Minuten.
+- MR-Zustand danach: weiterhin `opened`, Labels unverändert (`New App`, `reproducible-builds`,
+  `review-requested`), `merge_status: unchecked`.
+
+**Ergebnis:** MR !46500 ist wieder grün auf dem aktuellen HEAD (`2e7994d9`). Kein neuer
+Reviewer-Blocker sichtbar. PAT und temporäre Scratch-Dateien nach Gebrauch gelöscht.
+
+Nächster sinnvoller Schritt: `$release-fdroid --check` bei neuer Reviewer-/Bot-Reaktion.
