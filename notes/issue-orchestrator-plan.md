@@ -6348,3 +6348,49 @@ abgeschlossenen v1.4.4-Release-/Feedback-Strang.
 - **plan_updated_at:** 2026-09-03T12:00:00+02:00
 - **Zustand:** `complete (Planung)` — keine Implementierung, kein Build/Test, kein PR/Merge.
   Nächster Schritt: reguläre Auswahl (`$issue-orchestrator-eco`) für #224 auf `agent-stage:s2`.
+
+## Umsetzung #224 — Keep-Display-On-Einstellung — 2026-09-03T12:36:00+02:00
+
+**Delegation:** `s2-worker` (Sonnet · medium, Nutzerfreigabe erteilt) implementierte den
+Preference-Toggle (`KeepADBPreferences.java`), die UI in `SettingsActivity.java`/
+`activity_settings.xml` und den lifecyclegebundenen `FLAG_KEEP_SCREEN_ON`-Mechanismus in
+`MainActivity.java` (`onResume()` setzt, `onPause()` löscht explizit zusätzlich zum
+automatischen Android-Verhalten). Strings in allen 19 vorhandenen Locale-Dateien ergänzt
+(Contract-Test `KeepADBResourceContractTest` erzwingt vollständigen Schlüsselabgleich über
+alle Sprachen — kein Scope-Creep, reine Pflichtübersetzung derselben drei neuen Strings).
+
+**Version/Changelog:** Patch-Bump `versionCode 16→17`, `versionName 1.4.4→1.4.5` — innerhalb
+bestehender Freigabe (Abschnitt A6.1: Patch-Erhöhungen sind ohne separate Freigabe zulässig).
+
+**Nachweis:** Commit `4a976aa`, gepusht auf `master` (direkter Push, konsistent mit dem
+bisherigen Commit-Muster dieses Repositories). `JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+./bin/verify` grün: Diff-Check ok, 153/153 Unit-Tests grün (inkl. Resource-Contract-Test),
+Lint grün, Debug- und Release-Build `BUILD SUCCESSFUL`.
+
+**Akzeptanzkriterien — Stand:**
+- ✅ Einstellung sichtbar (Code-/Testnachweis).
+- ✅ Default „aus" (Code-/Testnachweis, Default `false`).
+- ⬜ „Display bleibt nur während Vordergrundnutzung an" — durch Code-Review plausibel
+  (`FLAG_KEEP_SCREEN_ON` in `onResume()`), aber **nicht geräteseitig bewiesen**. Build-/Unit-
+  Test-Erfolg beweist keine Geräteintegration (Eco-Grundsatz).
+- ⬜ „Freigabe beim Verlassen/Deaktivieren zuverlässig" — dito, Code-Review plausibel
+  (explizites `clearFlags` in `onPause()`), kein Geräte-Nachweis.
+- ✅ WLAN-ADB-Schalt-/Keep-Alive-Logik unverändert (Diff-Scope geprüft, keine Berührung von
+  `KeepADB.java`/`KeepADBService.java`).
+
+**Grund, warum das Issue offen bleibt:** Zwei der fünf Akzeptanzkriterien sind reine
+Verhaltenseigenschaften am echten Gerät (Bildschirm bleibt/geht an/aus), die Build und Unit-
+Tests konstruktionsbedingt nicht abdecken können. `Fixes #224` wäre eine Behauptung ohne
+Nachweis (Abschnitt 5, Punkt 7) — das Issue bleibt bewusst offen, referenziert aber bereits
+den Commit.
+
+**Repo-Hygiene:** `github-drift --repo m00sfett/KeepADB` → Repository und Project #8 stimmen
+überein, kein Board-Sync nötig (Label `agent-stage:s2` unverändert, kein neuer Registereintrag
+fällig).
+
+**Strangzähler:** Neuer, eigenständiger Strang (Display-Wach-Feature), erstes Paket erzeugt
+bereits ein nutzersichtbares Ergebnis (Code gemergt, wartet nur noch auf Geräte-Smoke-Test).
+
+- **plan_updated_at:** 2026-09-03T12:36:00+02:00
+- **Zustand:** `closed-pending-decision` — Code fertig und gepusht, Geräte-Smoke-Test für die
+  beiden Verhaltenskriterien braucht eine eigene Freigabe (Abschnitt 4, physisches Gerät).
