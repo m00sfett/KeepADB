@@ -6570,3 +6570,66 @@ nutzersichtbarem Ergebnis.
 **Nachweis:** GitHub-Abfrage 2026-09-03 15:52 UTC; Cache-Update zeitgleich.
 **Probleme/Optionen:** Keine.
 **Nächster Schritt:** Nutzer-Auftrag abwarten oder proaktiv `--cleanup` durchführen.
+
+## Plan-Update: 2026-09-03 ~19:40 UTC — Planungslauf `--plan`
+
+### Snapshot-Abgleich (Schritt 0)
+
+- **Letzter Snapshot:** 2026-09-03T15:52:00Z
+- **Neuer Snapshot (diese Abfrage):** `gh issue list --state all --limit 50` erneut ausgeführt.
+- **Ergebnis:** Zwei neue offene Issues seit letztem Snapshot, beide createdAt 2026-09-03T19:34Z:
+  - **#232** — "feat: Startseite zeigt 'Webhook einrichten'-Button statt leerem Panel"
+  - **#233** — "audit: Vollständiges i18n-Audit (hardcoded literals, fehlende Übersetzungen)"
+
+### Einordnung
+
+**#232:**
+- Zerlegung: Einzelpaket ausreichend — ein zusammenhängender UI-Pfad (MainActivity-Panel-Ersatz
+  durch Button, Navigation/Fokus zu SettingsActivity-Webhook-Abschnitt, neue Strings inkl. aller
+  Sprachvarianten).
+- Stufe: `agent-stage:s2` (gesetzt) — kleine, klar lokalisierte UI-Änderung ohne Datenmodell-
+  oder Sicherheitsrisiko, vergleichbar mit #225/#228.
+- Nicht-Ziele laut Issue: kein Eingriff in `KeepADBRegisterClient`, kein Verhaltensänderung bei
+  bereits eingerichtetem Webhook.
+- Issue nennt ausdrücklich: "keine Umsetzung ohne separate Freigabe."
+
+**#233:**
+- Zerlegung: Einzelpaket ausreichend — ein zusammenhängender Auditauftrag (hardcoded Literale +
+  Übersetzungsvollständigkeit + Stichprobenprüfung), Ergebnis ist ein Bericht, keine Codeänderung.
+- Stufe: `agent-stage:s1` (gesetzt) — reine Recherche-/Bestandsaufnahmearbeit (lokale Greps über
+  Java-Quellen und `values-*/strings.xml`), kein Urteilsrisiko, kein Datenmodell/Security-Bezug.
+  Vergleichbar mit vorherigen i18n-Audits (#205, bereits geschlossen).
+- Issue nennt ausdrücklich: "keine automatische Korrektur ohne separate Freigabe."
+
+### Roadmap-Abgleich
+
+Kein separates Roadmap-Dokument über diesen Plan hinaus. Beide Issues sind neue, unabhängige
+Anforderungen — kein Bezug zum abgeschlossenen Advice-Banner-Strang (#225–#230). Keine
+Abhängigkeit zwischen #232 und #233.
+
+### Cache-Update
+
+`issue-orchestrator-issues.json` um #232 (Stufe s2, status open) und #233 (Stufe s1, status
+open) ergänzt.
+
+### Abschluss
+
+- **issue_snapshot_at:** 2026-09-03T19:34:13Z (jüngstes `createdAt`, #233)
+- **plan_updated_at:** 2026-09-03T19:40:00Z (ca., UTC)
+- **Zustand:** `complete (Planung)` — beide Issues eingeordnet und gelabelt, keine
+  Implementierungsfreigabe erteilt, kein Code/Build/Test/PR in dieser Runde.
+
+**Projekt:** m00sfett/KeepADB (smartphone-wlan-adb-app)
+**Issues:** #232 (feat: Webhook-einrichten-Button), #233 (audit: i18n-Audit)
+**Technische Zusammenfassung:** #232 ersetzt das leere Webhook-Status-Panel auf der Startseite durch einen Einrichten-Button mit Sprung zu den Webhook-Settings, wenn kein Webhook konfiguriert ist. #233 ist ein reiner Lese-Auditauftrag über hardcoded UI-Strings und Übersetzungsvollständigkeit aller Sprachvarianten, Ergebnis ist ein Bericht ohne Codeänderung.
+**Einfache Erklärung:** Zwei neue Aufgaben wurden erfasst und eingestuft. #232 macht die Startseite verständlicher, wenn noch kein Webhook eingerichtet ist. #233 prüft nur, ob irgendwo Texte fest im Code stehen oder Übersetzungen fehlen — ändert aber noch nichts.
+**Bearbeiter:** issue-orchestrator-eco (Planungslauf)
+**Paket:** none (Bestandsaufnahme/Einordnung)
+**Paketstufe:** n.a. (Einordnung: #232 → S2, #233 → S1)
+**Laufzeitmodell:** Skill (Claude Code)
+**Reasoning-Effort:** nicht exponiert
+**Status der Angaben:** Paketstufe abgeleitet; GitHub-Metadaten verifiziert per `gh issue list`/`gh issue view`; Labels gesetzt; Cache aktualisiert.
+**Zustand:** complete (Planung)
+**Nachweis:** GitHub-Abfrage 2026-09-03 ~19:40 UTC; Label-Set via `gh issue edit`; Cache-Update zeitgleich.
+**Probleme/Optionen:** Keine — beide Issues sind unabhängig voneinander und vom vorherigen Strang.
+**Nächster Schritt:** Nutzer-Auftrag zur Implementierungsfreigabe für #232 und/oder #233 abwarten (kein automatischer Übergang in Umsetzung, da `--plan`).
