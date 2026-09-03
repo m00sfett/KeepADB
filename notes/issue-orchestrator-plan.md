@@ -6265,3 +6265,22 @@ Naechster Schritt: Auswahlrunde fuer #171, #173, #183 oder #185.
   `closed-pending-decision` im Sinne von „bei F-Droid/Maintainer" — nächster Schritt ist
   Monitoring über `$release-fdroid --check`, keine weitere Aktion dieses Skills nötig, bis
   neues Signal von GitLab kommt.
+
+## Nachtrag — WebSite-Feld in fdroiddata ergänzt — 2026-09-02T22:50:00+02:00
+
+- Nutzerhinweis: F-Droid Quick-Start-Guide sieht dedizierte Felder für App-Homepage und Spenden
+  vor, die bisher fehlten. Recherche über `s0-securesearch` (S0/haiku, Nutzerfreigabe) bestätigt
+  aktuell: Feldname `WebSite` (URL, empfohlen) für die App-eigene Homepage — ausdrücklich
+  getrennt von `AuthorWebSite`/`SourceCode`; `Donate` (bzw. spezialisiert `Liberapay`/
+  `OpenCollective`/`Bitcoin`/`Litecoin`) für Spenden, optional.
+- Nutzerentscheidung: `WebSite: https://hohnepeople.de/keepadb` ergänzen (echte App-Landingpage
+  mit Screenshots/Beschreibung/Download-Link, verifiziert in `hohnepeople-de/index.php`, Routing
+  über `includes/apps.php`/`i18n.php`) — kein `Donate`-Feld (kein Spendenkanal vorhanden).
+- fdroiddata-Edit-Gate (freigegeben): Branch-Tip vor Schreibzugriff frisch gelesen
+  (`5f6cd036…`, kein Konflikt), Commit `fce8bd50e6f80dba2dd17a9de0a2d5d8e467e5db` „Add WebSite
+  field" über die GitLab-Commits-API. Inhalt am neuen HEAD gegengelesen, stimmt. Kommentar auf
+  MR [!46500](https://gitlab.com/fdroid/fdroiddata/-/merge_requests/46500) gepostet
+  (`note_id 3778662689`).
+- **plan_updated_at:** 2026-09-02T22:50:00+02:00
+- **Zustand:** `complete`. Kein weiterer Handlungsbedarf, bis F-Droid/Maintainer reagiert
+  (`$release-fdroid --check`).
