@@ -1,0 +1,85 @@
+#!/usr/bin/env python3
+"""Findet Strings, die in einer Sprachvariante wortidentisch zum englischen
+Referenzwert (values/strings.xml) geblieben sind -- die häufigste Ursache
+dafür: eine neue Sprachdatei wurde mit dem englischen Platzhalterwert
+angelegt und der Key nie tatsächlich übersetzt. Ein reiner Key-Existenz-Diff
+(Android Lint "MissingTranslation") erkennt das nicht, weil der Key ja
+vorhanden ist -- nur der Wert stimmt zufällig/versehentlich überein.
+
+Exit-Code 0: keine unerwarteten Treffer. Exit-Code 1: mindestens ein
+String ist identisch zur Referenz und steht nicht auf der Allowlist.
+"""
+
+import glob
+import re
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+REFERENCE = REPO_ROOT / "app/src/main/res/values/strings.xml"
+LANG_GLOB = str(REPO_ROOT / "app/src/main/res/values-*/strings.xml")
+
+# Keys, die absichtlich in jeder Sprache identisch zum englischen Wert sind:
+# Markennamen, Shell-Befehle, reine Format-Strings ohne Fließtext, @string-
+# Referenzen. Neue legitime Ausnahmen hier ergänzen, mit kurzem Grund.
+ALLOWLIST = {
+    "app_name",                    # Markenname "KeepADB"
+    "title_keepadb",                # Markenname "KeepADB"
+    "setup_command",                # wörtlicher Shell-Befehl (adb shell pm grant ...)
+    "tile_label",                    # @string-Referenz, kein Fließtext
+    "tile_state_connected_format",   # reiner Format-String "%1$s:%2$d"
+    "endpoint_format",               # reiner Format-String "Endpoint: %1$s:%2$d"
+    "notification_text_active",      # reiner Format-String "Port %1$d @ %2$s"
+    "settings_webhook_url_hint",     # technisches URL-Beispiel, kein Fließtext
+    "issue_report_placeholder_steps",  # bewusst leerer String
+}
+
+STRING_RE = re.compile(r'<string\s+name="([^"]+)"[^>]*>(.*?)</string>', re.S)
+
+
+def parse_strings(path: Path) -> dict:
+    content = path.read_text(encoding="utf-8")
+    return dict(STRING_RE.findall(content))
+
+
+def main() -> int:
+    if not REFERENCE.exists():
+        print(f"Referenzdatei fehlt: {REFERENCE}", file=sys.stderr)
+        return 2
+
+    reference = parse_strings(REFERENCE)
+    findings = []
+
+    for path_str in sorted(glob.glob(LANG_GLOB)):
+        path = Path(path_str)
+        lang = path.parent.name.removeprefix("values-")
+        values = parse_strings(path)
+        for key, value in values.items():
+            if key in ALLOWLIST:
+                continue
+            if key not in reference:
+                continue
+            ref_value = reference[key].strip()
+            if len(ref_value) <= 1:
+                continue
+            if ref_value == value.strip():
+                findings.append((lang, key, ref_value))
+
+    if not findings:
+        print("check-i18n: keine unübersetzten (kopierten) Strings gefunden.")
+        return 0
+
+    print(f"check-i18n: {len(findings)} vermutlich unübersetzte(r) String(s) gefunden:\n")
+    for lang, key, ref_value in findings:
+        print(f"  values-{lang}/strings.xml: {key} = {ref_value!r}")
+    print(
+        "\nWert ist wortidentisch zum englischen Original (values/strings.xml). "
+        "Entweder übersetzen, oder falls absichtlich identisch (Markenname, "
+        "Format-String, technischer Begriff): Key in ALLOWLIST in bin/check-i18n "
+        "eintragen, mit Begründung."
+    )
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
