@@ -68,6 +68,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_notification">Bildirim</string>
     <string name="settings_hide_notification_toggle">Kalıcı bildirimi gizle</string>
     <string name="settings_hide_notification_subtext">Bildirim panelindeki durum bildirimini gizler. Keep-Alive ve widget’lar normal şekilde çalışmaya devam eder.</string>
+    <string name="settings_section_display">Ekran</string>
+    <string name="settings_keep_display_on_toggle">KeepADB ön planda olduğu sürece ekranı açık tut</string>
+    <string name="settings_keep_display_on_subtext">Ekranı yalnızca bu uygulama açıkken açık tutar. Uygulamadan çıkıldığında ekran normal şekilde kapanır.</string>
     <string name="settings_notification_hidden_toast">Kalıcı bildirim gizlendi</string>
     <string name="settings_notification_visible_toast">Kalıcı bildirim etkinleştirildi</string>
     <string name="back">Geri</string>

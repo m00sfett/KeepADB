@@ -68,6 +68,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_notification">Notifica</string>
     <string name="settings_hide_notification_toggle">Nascondi notifica permanente</string>
     <string name="settings_hide_notification_subtext">Nasconde la notifica di stato nel pannello delle notifiche. Keep-Alive e i widget continueranno a funzionare normalmente.</string>
+    <string name="settings_section_display">Schermo</string>
+    <string name="settings_keep_display_on_toggle">Mantieni lo schermo acceso mentre KeepADB è in primo piano</string>
+    <string name="settings_keep_display_on_subtext">Mantiene lo schermo acceso solo mentre questa app è aperta. Lo schermo si spegne normalmente non appena esci dall’app.</string>
     <string name="settings_notification_hidden_toast">Notifica permanente nascosta</string>
     <string name="settings_notification_visible_toast">Notifica permanente attivata</string>
     <string name="back">Indietro</string>

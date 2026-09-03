@@ -68,6 +68,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">常駐通知を非表示にする</string>
     <string name="settings_hide_notification_subtext">通知シェード内のステータス通知を非表示にします。Keep-Aliveやウィジェットは通常通り機能します。</string>
+    <string name="settings_section_display">ディスプレイ</string>
+    <string name="settings_keep_display_on_toggle">KeepADBが前面表示されている間、画面をオンのままにする</string>
+    <string name="settings_keep_display_on_subtext">このアプリを開いている間だけ画面をオンのままにします。アプリを離れると画面は通常どおり消灯します。</string>
     <string name="settings_notification_hidden_toast">常駐通知を非表示にしました</string>
     <string name="settings_notification_visible_toast">常駐通知を有効にしました</string>
     <string name="back">戻る</string>

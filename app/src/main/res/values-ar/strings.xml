@@ -68,6 +68,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_notification">الإشعارات</string>
     <string name="settings_hide_notification_toggle">إخفاء الإشعار الدائم</string>
     <string name="settings_hide_notification_subtext">يخفي إشعار الحالة في شريط الإشعارات. ستستمر ميزة Keep-Alive والأدوات في العمل بشكل طبيعي.</string>
+    <string name="settings_section_display">الشاشة</string>
+    <string name="settings_keep_display_on_toggle">إبقاء الشاشة قيد التشغيل أثناء تشغيل KeepADB في المقدمة</string>
+    <string name="settings_keep_display_on_subtext">يبقي الشاشة قيد التشغيل فقط أثناء فتح هذا التطبيق. تنطفئ الشاشة بشكل طبيعي بمجرد مغادرة التطبيق.</string>
     <string name="settings_notification_hidden_toast">تم إخفاء الإشعار الدائم</string>
     <string name="settings_notification_visible_toast">تم تفعيل الإشعار الدائم</string>
     <string name="back">رجوع</string>

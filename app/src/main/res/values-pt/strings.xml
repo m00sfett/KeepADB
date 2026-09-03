@@ -68,6 +68,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_notification">Notificação</string>
     <string name="settings_hide_notification_toggle">Ocultar notificação persistente</string>
     <string name="settings_hide_notification_subtext">Oculta a notificação de status no painel. O Keep-Alive e os widgets continuarão funcionando normalmente.</string>
+    <string name="settings_section_display">Tela</string>
+    <string name="settings_keep_display_on_toggle">Manter a tela ligada enquanto o KeepADB estiver em primeiro plano</string>
+    <string name="settings_keep_display_on_subtext">Mantém a tela ligada apenas enquanto este app está aberto. A tela se apaga normalmente assim que você sai do app.</string>
     <string name="settings_notification_hidden_toast">Notificação persistente ocultada</string>
     <string name="settings_notification_visible_toast">Notificação persistente ativada</string>
     <string name="back">Voltar</string>

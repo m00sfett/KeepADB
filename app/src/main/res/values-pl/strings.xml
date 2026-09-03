@@ -68,6 +68,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_notification">Powiadomienie</string>
     <string name="settings_hide_notification_toggle">Ukryj stałe powiadomienie</string>
     <string name="settings_hide_notification_subtext">Ukrywa powiadomienie o stanie w panelu powiadomień. Keep-Alive i widżety będą nadal działać normalnie.</string>
+    <string name="settings_section_display">Ekran</string>
+    <string name="settings_keep_display_on_toggle">Utrzymuj ekran włączony, gdy KeepADB działa na pierwszym planie</string>
+    <string name="settings_keep_display_on_subtext">Utrzymuje ekran włączony tylko wtedy, gdy ta aplikacja jest otwarta. Ekran gaśnie normalnie zaraz po opuszczeniu aplikacji.</string>
     <string name="settings_notification_hidden_toast">Ukryto stałe powiadomienie</string>
     <string name="settings_notification_visible_toast">Włączono stałe powiadomienie</string>
     <string name="back">Wstecz</string>
