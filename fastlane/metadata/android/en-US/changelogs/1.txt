@@ -1,0 +1,1 @@
+Initial release. Toggle Wireless Debugging from the app, a Quick Settings Tile, or a home screen widget, with a foreground Keep-Alive service that restores it after network drops, Wi-Fi roaming, or reboot. Guided first-time setup, high-speed endpoint discovery, and full localization into 19 languages.

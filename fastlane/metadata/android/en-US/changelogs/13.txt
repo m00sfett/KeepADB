@@ -1,0 +1,1 @@
+Internal quality release: automated checks now guard translation completeness and visible text across all 19 supported languages. No visible feature changes.

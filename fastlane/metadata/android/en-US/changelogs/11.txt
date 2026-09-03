@@ -1,0 +1,1 @@
+Settings now shows the installed app version and version code, read directly from the package metadata.
