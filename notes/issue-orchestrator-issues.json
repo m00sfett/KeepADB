@@ -1,66 +1,74 @@
 {
-    "233": {
-        "title": "audit: Vollständiges i18n-Audit (hardcoded literals, fehlende Übersetzungen)",
-        "scope": "Audit-only — hardcoded Literale in Java/Layouts finden, values-*/strings.xml gegen Referenz abgleichen, Bericht unter notes/reviews/. Keine Umsetzung ohne separate Freigabe.",
-        "decomposition": "Einzelpaket ausreichend",
-        "stage": "agent-stage:s1",
-        "updatedAt": "2026-09-03T19:34:13Z",
-        "status": "open"
-    },
-    "232": {
-        "title": "feat: Startseite zeigt \"Webhook einrichten\"-Button statt leerem Panel",
-        "scope": "Umgesetzt (PR #234, Commit 5e66fe3), geschlossen.",
-        "decomposition": "Einzelpaket ausreichend",
-        "stage": "agent-stage:s2",
-        "updatedAt": "2026-09-03T19:34:01Z",
-        "status": "closed"
-    },
-    "230": {
-        "title": "Build schlägt mit System-Default-JDK fehl: JAVA_HOME muss explizit auf java-17 zeigen",
-        "scope": "Build-Doku/Skript — explizites JAVA_HOME auf java-17 dokumentieren/erzwingen, da System-Default inzwischen java-26 ist",
-        "decomposition": "Einzelpaket ausreichend",
-        "stage": "agent-stage:s2",
-        "updatedAt": "2026-09-03T13:42:50Z",
-        "status": "closed"
-    },
-    "229": {
-        "title": "Fastlane-Changelogs sind lückenhaft: nur 2, 3, 14, 16 vorhanden",
-        "scope": "Dokumentation — fehlende fastlane/metadata changelogs (versionCodes) aus Git-Historie/CHANGELOG.md nachtragen",
-        "decomposition": "Einzelpaket ausreichend",
-        "stage": "agent-stage:s1",
-        "updatedAt": "2026-09-03T13:42:48Z",
-        "status": "closed"
-    },
-    "228": {
-        "title": "UI: Security- und Network-Advice-Banner kontrastreich gestalten und Settings-Hinweis integrieren",
-        "scope": "UI/Barrierefreiheit — Bannerkontrast/Icon-Sichtbarkeit reparieren, doppelten Settings-Sicherheitshinweis entfernen, Texte zusammenführen, i18n-Konsistenz",
-        "decomposition": "Einzelpaket ausreichend",
-        "stage": "agent-stage:s2",
-        "updatedAt": "2026-09-03T13:09:57Z",
-        "status": "closed"
-    },
-    "226": {
-        "title": "Advice banner toggle in settings should update MainActivity live",
-        "scope": "Umgesetzt (PR #227), geschlossen.",
-        "decomposition": "Einzelpaket ausreichend",
-        "stage": "agent-stage:s2",
-        "updatedAt": "2026-09-03T11:06:07Z",
-        "status": "closed"
-    },
-    "225": {
-        "title": "Add Security & Network Advice banner to main UI",
-        "scope": "Umgesetzt, geschlossen.",
-        "decomposition": "Einzelpaket ausreichend",
-        "stage": "agent-stage:s2",
-        "updatedAt": "2026-09-03T10:58:13Z",
-        "status": "closed"
-    },
-    "224": {
-        "title": "feat: option to keep display awake while app is in foreground",
-        "scope": "Umgesetzt (v1.4.5, Commit 4a976aa), geräteseitig verifiziert auf S20 — geschlossen.",
-        "decomposition": "Einzelpaket ausreichend",
-        "stage": "agent-stage:s2",
-        "updatedAt": "2026-09-03T10:36:20Z",
-        "status": "closed"
-    }
+  "233": {
+    "title": "audit: Vollständiges i18n-Audit (hardcoded literals, fehlende Übersetzungen)",
+    "scope": "Abgeschlossen mit korrigiertem Befund: Key-Existenz-Diff allein unzureichend, Geräte-Screenshot deckte 3 in allen 18 Sprachen unübersetzte Strings auf. Nacharbeit ausgelagert nach #235. Bericht: notes/reviews/2026-09-03-i18n-audit-233.md.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-03T21:10:00Z",
+    "status": "closed"
+  },
+  "232": {
+    "title": "feat: Startseite zeigt \"Webhook einrichten\"-Button statt leerem Panel",
+    "scope": "Umgesetzt (PR #234, Commit 5e66fe3), geschlossen.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-03T19:34:01Z",
+    "status": "closed"
+  },
+  "230": {
+    "title": "Build schlägt mit System-Default-JDK fehl: JAVA_HOME muss explizit auf java-17 zeigen",
+    "scope": "Build-Doku/Skript — explizites JAVA_HOME auf java-17 dokumentieren/erzwingen, da System-Default inzwischen java-26 ist",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-03T13:42:50Z",
+    "status": "closed"
+  },
+  "229": {
+    "title": "Fastlane-Changelogs sind lückenhaft: nur 2, 3, 14, 16 vorhanden",
+    "scope": "Dokumentation — fehlende fastlane/metadata changelogs (versionCodes) aus Git-Historie/CHANGELOG.md nachtragen",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-03T13:42:48Z",
+    "status": "closed"
+  },
+  "228": {
+    "title": "UI: Security- und Network-Advice-Banner kontrastreich gestalten und Settings-Hinweis integrieren",
+    "scope": "UI/Barrierefreiheit — Bannerkontrast/Icon-Sichtbarkeit reparieren, doppelten Settings-Sicherheitshinweis entfernen, Texte zusammenführen, i18n-Konsistenz",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-03T13:09:57Z",
+    "status": "closed"
+  },
+  "226": {
+    "title": "Advice banner toggle in settings should update MainActivity live",
+    "scope": "Umgesetzt (PR #227), geschlossen.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-03T11:06:07Z",
+    "status": "closed"
+  },
+  "225": {
+    "title": "Add Security & Network Advice banner to main UI",
+    "scope": "Umgesetzt, geschlossen.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-03T10:58:13Z",
+    "status": "closed"
+  },
+  "224": {
+    "title": "feat: option to keep display awake while app is in foreground",
+    "scope": "Umgesetzt (v1.4.5, Commit 4a976aa), geräteseitig verifiziert auf S20 — geschlossen.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-03T10:36:20Z",
+    "status": "closed"
+  },
+  "235": {
+    "title": "fix: 3 Strings in allen 18 Sprachvarianten unübersetzt",
+    "scope": "action_dismiss, settings_advice_banner_toggle, settings_advice_banner_subtext in allen 18 Sprachen inhaltlich übersetzen (nicht nur Struktur).",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-03T21:10:00Z",
+    "status": "open"
+  }
 }

@@ -6669,3 +6669,61 @@ open) ergänzt.
 **Nachweis:** `./bin/verify` grün, PR #234 gemerged (`5e66fe3`), Issue #232 automatisch geschlossen, `github-board-sync`/`github-drift` sauber.
 **Probleme/Optionen:** Gerätesmoke steht aus — bei Bedarf separat freigeben.
 **Nächster Schritt:** Warte auf Freigabe für #233 (i18n-Audit, S1) oder Gerätesmoke für #232.
+
+## Übergabe-Checkpoint — #233 abgeschlossen (korrigiert), #235 angelegt — 2026-09-03 ~23:10 UTC
+
+**Bearbeiter:** Hauptagent direkt (kein Subagent für die Korrektur — Wertevergleich und
+Geräteprüfung waren kein delegierbares Kleinstpaket mehr, sondern unmittelbare Reaktion auf
+einen Nutzerhinweis während des laufenden Laufs).
+
+**Ablauf:** `s1-scout` lieferte zunächst einen Key-Existenz-Diff ("0 fehlende Keys"). Der Nutzer
+bezweifelte die Methode ("Prüfung gegen eine Referenz klingt nicht nach gründlicher
+Untersuchung") und bat um Sichtprüfung eines echten Geräte-Screenshots (s20, Hindi). Der
+Screenshot zeigte zwei unübersetzte englische Strings im Settings-Screen trotz Hindi-Locale.
+Nachprüfung per Wertevergleich (Referenz vs. alle 18 Sprachvarianten, abzüglich plausibler
+Lehnwörter) bestätigte 3 Keys, die in ALLEN 18 Sprachen wortidentisch zum Original geblieben
+sind: `action_dismiss`, `settings_advice_banner_toggle`, `settings_advice_banner_subtext`.
+
+**Lehre (methodisch, für künftige i18n-Audits):** Ein Key-Existenz-Diff prüft nur Vorhandensein,
+nicht Übersetzungsqualität. Ein Wertevergleich (identischer String zwischen Referenz und
+Zielsprache) gehört zwingend zum Auditumfang, nicht nur die Struktur.
+
+**Ergebnis:**
+- Bericht korrigiert und committed/gepusht (`e57e69a`).
+- Register für s20 aktualisiert (fingerprint-validiert über `phone-register record`,
+  WLAN-Endpunkt `192.168.178.24:37367`).
+- Issue #233 geschlossen (Audit erledigt, Befund dokumentiert).
+- Neues Issue #235 angelegt für die eigentliche Übersetzungsarbeit (S1, alle 18 Sprachen, 3 Keys).
+- `github-board-sync`: #235 zum Board hinzugefügt (backlog). `github-drift`: sauber.
+- Issue-Übersichts-Cache (`issue-orchestrator-issues.json`) für #233 und #235 aktualisiert.
+
+**Strangzähler:** Eigenständiger Strang (Fortsetzung von #233), erzeugte ein nutzersichtbares
+Korrektur-Ergebnis (Befund + neues Issue #235), kein reiner Infrastruktur-Nebenstrang.
+
+- **plan_updated_at:** 2026-09-03T~23:10:00Z
+- **Zustand:** `complete` (#233, korrigiert). #235 offen, unbewertet für Umsetzung — wartet auf
+  Freigabe.
+
+**Projekt:** m00sfett/KeepADB (smartphone-wlan-adb-app)
+**Issues:** #233 (audit: i18n-Audit, geschlossen), #235 (fix: 3 unübersetzte Strings, neu, offen)
+**Technische Zusammenfassung:** Das ursprüngliche i18n-Audit (Key-Existenz-Diff) meldete
+fälschlich "0 Befunde". Ein Wertevergleich, ausgelöst durch einen Geräte-Screenshot, deckte auf,
+dass `action_dismiss`, `settings_advice_banner_toggle` und `settings_advice_banner_subtext` in
+allen 18 nicht-englischen Sprachvarianten wortidentisch zum englischen Original geblieben sind.
+**Einfache Erklärung:** Die erste automatische Prüfung hat nur geschaut, ob es die Übersetzungs-
+Textbausteine überhaupt gibt — nicht, ob sie auch wirklich übersetzt wurden. Auf einem echten
+Handy mit Hindi-Sprache sah man dann zwei englische Texte mitten im sonst übersetzten Bildschirm.
+Drei Textbausteine sind betroffen und wurden als eigenes Issue (#235) für die Übersetzung erfasst.
+**Bearbeiter:** Hauptagent (kein Subagent)
+**Paket:** #233 (Korrektur), #235 (neu angelegt, noch nicht umgesetzt)
+**Paketstufe:** S1
+**Laufzeitmodell:** Sonnet 5 (Hauptagent-Basis)
+**Reasoning-Effort:** nicht exponiert
+**Status der Angaben:** Paketstufe abgeleitet; GitHub-Aktionen verifiziert (Issue-Kommentar,
+Schließen, neues Issue, Board-Sync, Drift-Check).
+**Zustand:** complete (#233), #235 offen
+**Nachweis:** Commit `e57e69a` (korrigierter Bericht), GitHub-Kommentar auf #233, Issue #235
+erstellt, Board-Sync/Drift sauber.
+**Probleme/Optionen:** Keine offenen Probleme.
+**Nächster Schritt:** Freigabe für Umsetzung von #235 (Übersetzung der 3 Keys in 18 Sprachen)
+abwarten.
