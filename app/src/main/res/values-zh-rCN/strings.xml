@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_enabled_toast">Webhook 同步已启用</string>
     <string name="settings_webhook_disabled_toast">Webhook 同步已禁用</string>
     <string name="webhook_status_title">Webhook</string>
+    <string name="webhook_setup_button">设置 Webhook</string>
     <string name="webhook_status_hint">URL: %1$s\n最后报告的端点: %2$s\n最后报告时间: %3$s</string>
     <string name="webhook_status_never">从未</string>
     <string name="webhook_status_no_endpoint">尚无</string>

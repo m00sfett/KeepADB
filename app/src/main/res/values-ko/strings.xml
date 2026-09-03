@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_enabled_toast">웹훅 동기화가 활성화되었습니다</string>
     <string name="settings_webhook_disabled_toast">웹훅 동기화가 비활성화되었습니다</string>
     <string name="webhook_status_title">웹훅</string>
+    <string name="webhook_setup_button">웹훅 설정</string>
     <string name="webhook_status_hint">URL: %1$s\n마지막으로 보고된 엔드포인트: %2$s\n마지막 보고: %3$s</string>
     <string name="webhook_status_never">없음</string>
     <string name="webhook_status_no_endpoint">아직 없음</string>

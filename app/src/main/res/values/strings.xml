@@ -65,6 +65,7 @@
     <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>
     <string name="settings_webhook_disabled_toast">Webhook sync disabled</string>
     <string name="webhook_status_title">Webhook</string>
+    <string name="webhook_setup_button">Set up webhook</string>
     <string name="webhook_status_hint">URL: %1$s\nLast reported endpoint: %2$s\nLast reported: %3$s</string>
     <string name="webhook_status_never">never</string>
     <string name="webhook_status_no_endpoint">none yet</string>

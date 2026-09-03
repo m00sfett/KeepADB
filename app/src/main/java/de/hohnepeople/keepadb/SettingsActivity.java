@@ -24,6 +24,11 @@ import java.util.List;
 
 /** Central settings screen for KeepADB options (Keep-Alive, Language, Webhook, etc.). */
 public class SettingsActivity extends Activity {
+    /** Intent extra requesting that the webhook section be scrolled into view and focused. */
+    public static final String EXTRA_FOCUS_WEBHOOK = "focus_webhook";
+
+    private ScrollView scrollView;
+    private View webhookPanel;
     private View permissionPanel;
     private TextView languageSelectedText;
     private View languageSelector;
@@ -62,6 +67,8 @@ public class SettingsActivity extends Activity {
         bindVersionInfo();
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+        scrollView = findViewById(R.id.settings_scroll_view);
+        webhookPanel = findViewById(R.id.settings_webhook_panel);
         permissionPanel = findViewById(R.id.settings_permission_panel);
 
         languageSelectedText = findViewById(R.id.settings_language_selected_text);
@@ -201,6 +208,16 @@ public class SettingsActivity extends Activity {
             showProfileDialog(getIntent().getStringExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION));
             getIntent().removeExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION);
         }
+
+        if (getIntent().hasExtra(EXTRA_FOCUS_WEBHOOK)) {
+            focusWebhookPanel();
+            getIntent().removeExtra(EXTRA_FOCUS_WEBHOOK);
+        }
+    }
+
+    private void focusWebhookPanel() {
+        scrollView.post(() -> scrollView.smoothScrollTo(0, webhookPanel.getTop()));
+        webhookUrlInput.requestFocus();
     }
 
     private void showLanguageSelectionDialog() {

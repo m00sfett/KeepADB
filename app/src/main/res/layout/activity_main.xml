@@ -358,6 +358,24 @@
                         android:textSize="13sp"
                         tools:text="URL: http://example.com\nLast reported endpoint: 192.168.178.24:45149\nLast reported: never" />
                 </LinearLayout>
+
+                <Button
+                    android:id="@+id/webhook_setup_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_btn_primary"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/webhook_setup_button"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

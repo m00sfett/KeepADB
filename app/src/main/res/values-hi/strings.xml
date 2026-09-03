@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_enabled_toast">वेबहुक सिंक सक्षम किया गया</string>
     <string name="settings_webhook_disabled_toast">वेबहुक सिंक अक्षम किया गया</string>
     <string name="webhook_status_title">वेबहुक</string>
+    <string name="webhook_setup_button">वेबहुक सेट करें</string>
     <string name="webhook_status_hint">URL: %1$s\nअंतिम रिपोर्ट किया गया एंडपॉइंट: %2$s\nअंतिम रिपोर्ट: %3$s</string>
     <string name="webhook_status_never">कभी नहीं</string>
     <string name="webhook_status_no_endpoint">अभी तक कोई नहीं</string>
