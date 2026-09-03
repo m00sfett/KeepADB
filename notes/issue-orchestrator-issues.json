@@ -4,24 +4,24 @@
     "scope": "Build-Doku/Skript — explizites JAVA_HOME auf java-17 dokumentieren/erzwingen, da System-Default inzwischen java-26 ist",
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-03T13:07:16Z",
-    "status": "open"
+    "updatedAt": "2026-09-03T13:42:50Z",
+    "status": "closed"
   },
   "229": {
     "title": "Fastlane-Changelogs sind lückenhaft: nur 2, 3, 14, 16 vorhanden",
     "scope": "Dokumentation — fehlende fastlane/metadata changelogs (versionCodes) aus Git-Historie/CHANGELOG.md nachtragen",
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s1",
-    "updatedAt": "2026-09-03T13:07:03Z",
-    "status": "open"
+    "updatedAt": "2026-09-03T13:42:48Z",
+    "status": "closed"
   },
   "228": {
     "title": "UI: Security- und Network-Advice-Banner kontrastreich gestalten und Settings-Hinweis integrieren",
     "scope": "UI/Barrierefreiheit — Bannerkontrast/Icon-Sichtbarkeit reparieren, doppelten Settings-Sicherheitshinweis entfernen, Texte zusammenführen, i18n-Konsistenz",
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-03T12:37:22Z",
-    "status": "open"
+    "updatedAt": "2026-09-03T13:09:57Z",
+    "status": "closed"
   },
   "226": {
     "title": "Advice banner toggle in settings should update MainActivity live",
