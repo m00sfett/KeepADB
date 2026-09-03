@@ -19,19 +19,50 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 REFERENCE = REPO_ROOT / "app/src/main/res/values/strings.xml"
 LANG_GLOB = str(REPO_ROOT / "app/src/main/res/values-*/strings.xml")
 
-# Keys, die absichtlich in jeder Sprache identisch zum englischen Wert sind:
-# Markennamen, Shell-Befehle, reine Format-Strings ohne Fließtext, @string-
-# Referenzen. Neue legitime Ausnahmen hier ergänzen, mit kurzem Grund.
+# Sentinel for keys that are legitimately identical in *every* language.
+ALL_LANGUAGES = "*"
+
+# Keys whose value may legitimately match the English reference, mapped to the
+# languages where that is expected. Use ALL_LANGUAGES only for values that carry
+# no natural language at all (brand names, shell commands, pure format strings);
+# everything else lists its languages explicitly, so that the same word staying
+# untranslated in a *different* language still shows up as a finding.
+#
+# The explicit lists matter: several loanwords are kept verbatim in most target
+# languages but genuinely translated in some (Hindi and Korean transliterate
+# "Webhook", Chinese glosses "Keep-Alive"). A key-wide exemption would silently
+# hide a future regression in exactly those languages.
 ALLOWLIST = {
-    "app_name",                    # Markenname "KeepADB"
-    "title_keepadb",                # Markenname "KeepADB"
-    "setup_command",                # wörtlicher Shell-Befehl (adb shell pm grant ...)
-    "tile_label",                    # @string-Referenz, kein Fließtext
-    "tile_state_connected_format",   # reiner Format-String "%1$s:%2$d"
-    "endpoint_format",               # reiner Format-String "Endpoint: %1$s:%2$d"
-    "notification_text_active",      # reiner Format-String "Port %1$d @ %2$s"
-    "settings_webhook_url_hint",     # technisches URL-Beispiel, kein Fließtext
-    "issue_report_placeholder_steps",  # bewusst leerer String
+    # -- No natural language in the value at all --
+    "app_name": ALL_LANGUAGES,                   # brand name "KeepADB"
+    "title_keepadb": ALL_LANGUAGES,              # brand name "KeepADB"
+    "setup_command": ALL_LANGUAGES,              # literal shell command (adb shell pm grant ...)
+    "tile_label": ALL_LANGUAGES,                 # @string reference, not prose
+    "tile_state_connected_format": ALL_LANGUAGES,  # pure format string "%1$s:%2$d"
+    "endpoint_format": ALL_LANGUAGES,            # pure format string "Endpoint: %1$s:%2$d"
+    "notification_text_active": ALL_LANGUAGES,   # pure format string "Port %1$d @ %2$s"
+    "settings_webhook_url_hint": ALL_LANGUAGES,  # technical URL example, not prose
+    "issue_report_placeholder_steps": ALL_LANGUAGES,  # deliberately empty string
+
+    # -- Loanwords and technical terms, cleared per language (#236) --
+    # "Webhook": kept verbatim inside otherwise translated surroundings
+    # ("Синхронизация Webhook", "Webhook 同期", "مزامنة Webhook"). Hindi and
+    # Korean transliterate it instead and are therefore NOT listed here.
+    "webhook_status_title": {
+        "ar", "de", "es", "fr", "id", "it", "ja", "nl",
+        "pl", "pt", "ru", "tr", "uk", "vi", "zh-rCN", "zh-rTW",
+    },
+    # "Keep-Alive": TCP/HTTP term used verbatim. Chinese glosses it as
+    # "保持常驻 (Keep-Alive)" and is therefore not listed.
+    "settings_section_keep_alive": {
+        "ar", "fr", "hi", "id", "it", "ja", "ko",
+        "nl", "pl", "pt", "ru", "tr", "uk", "vi",
+    },
+    "settings_webhook_url_label": {"ja"},   # "Webhook URL" is the idiomatic Japanese form
+    "settings_section_version": {"de", "fr"},   # "Version" is the correct German and French word
+    "settings_section_general": {"es"},         # "General" is the correct Spanish word
+    "settings_section_notification": {"fr"},    # "Notification" is the correct French word
+    "usb_profile_hostname_hint": {"de"},        # "Hostname (optional)" is correct German (cf. nl "Hostnaam (optioneel)")
 }
 
 STRING_RE = re.compile(r'<string\s+name="([^"]+)"[^>]*>(.*?)</string>', re.S)
@@ -55,7 +86,8 @@ def main() -> int:
         lang = path.parent.name.removeprefix("values-")
         values = parse_strings(path)
         for key, value in values.items():
-            if key in ALLOWLIST:
+            allowed = ALLOWLIST.get(key)
+            if allowed is ALL_LANGUAGES or (allowed is not None and lang in allowed):
                 continue
             if key not in reference:
                 continue
@@ -74,9 +106,11 @@ def main() -> int:
         print(f"  values-{lang}/strings.xml: {key} = {ref_value!r}")
     print(
         "\nWert ist wortidentisch zum englischen Original (values/strings.xml). "
-        "Entweder übersetzen, oder falls absichtlich identisch (Markenname, "
-        "Format-String, technischer Begriff): Key in ALLOWLIST in bin/check-i18n "
-        "eintragen, mit Begründung."
+        "Entweder übersetzen, oder falls in genau dieser Sprache absichtlich "
+        "identisch (Lehnwort, Fachbegriff, gleiches Wort): Key in ALLOWLIST in "
+        "bin/check-i18n um diese Sprache ergänzen, mit Begründung. "
+        "ALL_LANGUAGES nur für Werte ohne natürliche Sprache (Markenname, "
+        "Shell-Befehl, reiner Format-String)."
     )
     return 1
 
