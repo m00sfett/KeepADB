@@ -195,7 +195,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">選用的已去除敏感資訊 KeepADB 診斷資料（傳送前請檢視）</string>
     <string name="advice_banner_title">安全與網路</string>
     <string name="advice_banner_text">無線偵錯會在你的網路上開啟一個 ADB 連接埠。請僅在受信任的 Wi-Fi 或 Tailscale 等 VPN 中使用，並在連接公共熱點時關閉。切勿公開分享你的端點位址，也切勿接受非預期的配對或授權要求。</string>
-    <string name="action_dismiss">Dismiss</string>
-    <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
-    <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
+    <string name="action_dismiss">關閉</string>
+    <string name="settings_advice_banner_toggle">顯示安全與網路提示</string>
+    <string name="settings_advice_banner_subtext">在主畫面頂部顯示安全警告橫幅。</string>
 </resources>

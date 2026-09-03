@@ -195,7 +195,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">Додаткові відредаговані діагностичні дані KeepADB (перевірте перед надсиланням)</string>
     <string name="advice_banner_title">Безпека та мережа</string>
     <string name="advice_banner_text">Бездротове налагодження відкриває порт ADB у вашій мережі. Використовуйте його в надійних мережах Wi-Fi або через VPN, наприклад Tailscale, і вимикайте в публічних точках доступу. Ніколи не публікуйте адресу своєї кінцевої точки та не приймайте несподівані запити на створення пари чи авторизацію.</string>
-    <string name="action_dismiss">Dismiss</string>
-    <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
-    <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
+    <string name="action_dismiss">Закрити</string>
+    <string name="settings_advice_banner_toggle">Показувати поради з безпеки та мережі</string>
+    <string name="settings_advice_banner_subtext">Показує банер попередження про безпеку вгорі головного екрана.</string>
 </resources>

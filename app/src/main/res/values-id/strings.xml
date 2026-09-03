@@ -195,7 +195,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">Data diagnostik KeepADB opsional yang telah disamarkan (tinjau sebelum mengirim)</string>
     <string name="advice_banner_title">Keamanan &amp; jaringan</string>
     <string name="advice_banner_text">Debugging nirkabel membuka port ADB di jaringan Anda. Gunakan hanya di Wi-Fi tepercaya atau melalui VPN seperti Tailscale, dan matikan di hotspot publik. Jangan pernah membagikan alamat endpoint Anda secara publik dan jangan pernah menyetujui permintaan penyandingan atau otorisasi yang tidak terduga.</string>
-    <string name="action_dismiss">Dismiss</string>
-    <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
-    <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
+    <string name="action_dismiss">Tutup</string>
+    <string name="settings_advice_banner_toggle">Tampilkan Saran Keamanan &amp; Jaringan</string>
+    <string name="settings_advice_banner_subtext">Menampilkan spanduk peringatan keamanan di bagian atas layar utama.</string>
 </resources>
