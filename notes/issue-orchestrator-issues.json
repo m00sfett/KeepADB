@@ -1,98 +1,50 @@
 {
-  "233": {
-    "title": "audit: Vollständiges i18n-Audit (hardcoded literals, fehlende Übersetzungen)",
-    "scope": "Abgeschlossen mit korrigiertem Befund: Key-Existenz-Diff allein unzureichend, Geräte-Screenshot deckte 3 in allen 18 Sprachen unübersetzte Strings auf. Nacharbeit ausgelagert nach #235. Bericht: notes/reviews/2026-09-03-i18n-audit-233.md.",
+  "240": {
+    "title": "Settings: Toggle 'Show security & network advice' missing border frame",
+    "scope": "UI-Bug: Toggle in Einstellungen für 'Show security & network advice' fehlt der Border/Rahmen, den andere Toggle-Elemente haben. Einstellungen-UI, eine oder mehrere Layout-Dateien oder Drawable-Ressourcen betroffen.",
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s1",
-    "updatedAt": "2026-09-03T21:10:00Z",
-    "status": "closed"
+    "updatedAt": "2026-09-03T21:52:56Z",
+    "status": "open"
   },
-  "232": {
-    "title": "feat: Startseite zeigt \"Webhook einrichten\"-Button statt leerem Panel",
-    "scope": "Umgesetzt (PR #234, Commit 5e66fe3), geschlossen.",
-    "decomposition": "Einzelpaket ausreichend",
+  "238": {
+    "title": "audit: check-i18n erkennt Teilübersetzungen und Sprachverwechslungen prinzipiell nicht",
+    "scope": "Audit-Dokumentation: Erkennungsgrenzen von check-i18n in Code und Projekt-Doku benennen. Optionale Heuristik-Prüfung für Teilübersetzungen in Non-Latin-Sprachen als Subziel — Machbarkeit und ROI unklar.",
+    "decomposition": "Einzelpaket ausreichend (oder abhängig von #237 Heuristik)",
     "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-03T19:34:01Z",
-    "status": "closed"
+    "updatedAt": "2026-09-03T21:28:12Z",
+    "status": "open"
   },
-  "230": {
-    "title": "Build schlägt mit System-Default-JDK fehl: JAVA_HOME muss explizit auf java-17 zeigen",
-    "scope": "Build-Doku/Skript — explizites JAVA_HOME auf java-17 dokumentieren/erzwingen, da System-Default inzwischen java-26 ist",
-    "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-03T13:42:50Z",
-    "status": "closed"
-  },
-  "229": {
-    "title": "Fastlane-Changelogs sind lückenhaft: nur 2, 3, 14, 16 vorhanden",
-    "scope": "Dokumentation — fehlende fastlane/metadata changelogs (versionCodes) aus Git-Historie/CHANGELOG.md nachtragen",
-    "decomposition": "Einzelpaket ausreichend",
+  "237": {
+    "title": "build: check-i18n prüft nur <string>, nicht <plurals>/<string-array>, und meldet keine verwaisten Allowlist-Einträge",
+    "scope": "Werkzeug-Reparatur: 3 Lücken in bin/check-i18n — (1) <plurals>/<string-array>-Parsing, (2) translatable=\"false\" ausnahmen, (3) verwaiste ALLOWLIST-Einträge melden. Drei Reparationen ggf. als atomare separate Commits (selber PR), aber logisch zusammenhängend.",
+    "decomposition": "Einzelpaket ausreichend (3 Reparationen in einer Etappe)",
     "stage": "agent-stage:s1",
-    "updatedAt": "2026-09-03T13:42:48Z",
-    "status": "closed"
+    "updatedAt": "2026-09-03T21:27:50Z",
+    "status": "open"
   },
-  "228": {
-    "title": "UI: Security- und Network-Advice-Banner kontrastreich gestalten und Settings-Hinweis integrieren",
-    "scope": "UI/Barrierefreiheit — Bannerkontrast/Icon-Sichtbarkeit reparieren, doppelten Settings-Sicherheitshinweis entfernen, Texte zusammenführen, i18n-Konsistenz",
+  "236": {
+    "title": "fix: translate German Settings section heading \"Display\" (#236)",
+    "scope": "Umgesetzt (Commit 4295cc4), geschlossen.",
     "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-03T13:09:57Z",
-    "status": "closed"
-  },
-  "226": {
-    "title": "Advice banner toggle in settings should update MainActivity live",
-    "scope": "Umgesetzt (PR #227), geschlossen.",
-    "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-03T11:06:07Z",
-    "status": "closed"
-  },
-  "225": {
-    "title": "Add Security & Network Advice banner to main UI",
-    "scope": "Umgesetzt, geschlossen.",
-    "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-03T10:58:13Z",
-    "status": "closed"
-  },
-  "224": {
-    "title": "feat: option to keep display awake while app is in foreground",
-    "scope": "Umgesetzt (v1.4.5, Commit 4a976aa), geräteseitig verifiziert auf S20 — geschlossen.",
-    "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-03T10:36:20Z",
+    "stage": "agent-stage:s0",
+    "updatedAt": "2026-09-03T20:15:32Z",
     "status": "closed"
   },
   "235": {
-    "title": "fix: 3 Strings in allen 18 Sprachvarianten unübersetzt",
-    "scope": "Erledigt: PR #239 gemerged (c06dec3), 54 Übersetzungen, check-i18n als Gate in ./bin/verify eingebunden, geräteverifiziert (s20, Hindi).",
+    "title": "fix: translate action_dismiss and advice banner strings in all 18 languages (#235) (#239)",
+    "scope": "Umgesetzt (PR #239, Commit c06dec3), geschlossen.",
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s1",
     "updatedAt": "2026-09-04T00:00:00Z",
     "status": "closed"
   },
-  "236": {
-    "title": "chore: 8 Grenzfall-Keys aus check-i18n linguistisch klären (Lehnwort vs. echte Lücke)",
-    "scope": "Linguistische Klärung erledigt: 1 echte Lücke (settings_section_display de -> 'Bildschirm'), 7 legitim und sprachgranular allowlistet. ALLOWLIST von Key- auf Sprachgranularität umgestellt (bb7112f, 4295cc4). Befunde 91 -> 54. OFFEN: Einbindung als hartes Gate in ./bin/verify, blockiert durch #235.",
+  "233": {
+    "title": "audit: Vollständiges i18n-Audit (hardcoded literals, fehlende Übersetzungen)",
+    "scope": "Abgeschlossen mit korrigiertem Befund: Geräte-Screenshot deckte 3 in allen 18 Sprachen unübersetzte Strings auf. Nacharbeit ausgelagert nach #235. Bericht: notes/reviews/2026-09-03-i18n-audit-233.md.",
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s1",
-    "updatedAt": "2026-09-03T21:28:37Z",
-    "status": "open"
-  },
-  "237": {
-    "title": "build: check-i18n prüft nur <string>, nicht <plurals>/<string-array>, und meldet keine verwaisten Allowlist-Einträge",
-    "scope": "Drei latente Skript-Lücken aus #236: <plurals>/<string-array> ungeparst, translatable=\"false\" nicht automatisch ausgenommen, verwaiste ALLOWLIST-Einträge unbemerkt. Aktueller Bestand jeweils 0 Vorkommen, daher latent.",
-    "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s1",
-    "updatedAt": "2026-09-03T21:27:50Z",
-    "status": "open"
-  },
-  "238": {
-    "title": "audit: check-i18n erkennt Teilübersetzungen und Sprachverwechslungen prinzipiell nicht",
-    "scope": "Methodische Grenze des Exakt-Gleichheit-Vergleichs: teilweise stehen gebliebene englische Fragmente und in die falsche Sprachdatei kopierter Text bleiben unsichtbar. Ziel ist Dokumentation der Grenze plus Prüfung einer Latin-Script-Heuristik für nicht-lateinische Sprachen.",
-    "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-03T21:28:12Z",
-    "status": "open"
+    "updatedAt": "2026-09-03T21:10:00Z",
+    "status": "closed"
   }
 }
