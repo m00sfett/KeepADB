@@ -63,8 +63,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Scegli la lingua dell’interfaccia per KeepADB</string>
     <string name="settings_language_system_default">Predefinita di sistema</string>
     <string name="settings_language_dialog_title">Seleziona lingua</string>
-    <string name="settings_section_security">Sicurezza e consigli di rete</string>
-    <string name="settings_security_body">Il debug wireless apre una porta di rete per ADB. Usa Keep-Alive principalmente su reti Wi-Fi affidabili o VPN. Disattiva il debug wireless su hotspot pubblici e non accettare mai richieste di associazione impreviste.</string>
     <string name="settings_section_notification">Notifica</string>
     <string name="settings_hide_notification_toggle">Nascondi notifica permanente</string>
     <string name="settings_hide_notification_subtext">Nasconde la notifica di stato nel pannello delle notifiche. Keep-Alive e i widget continueranno a funzionare normalmente.</string>
@@ -194,7 +192,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_screenshots">Descrivi o allega manualmente gli screenshot.</string>
     <string name="issue_report_placeholder_notes">Aggiungi qualsiasi altra informazione utile.</string>
     <string name="issue_report_diagnostics_section">Dati diagnostici KeepADB opzionali e oscurati (controllali prima dell’invio)</string>
-    <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
+    <string name="advice_banner_title">Sicurezza e rete</string>
+    <string name="advice_banner_text">Il debug wireless apre una porta ADB sulla tua rete. Usalo su reti Wi-Fi affidabili o tramite una VPN come Tailscale e disattivalo sugli hotspot pubblici. Non condividere mai pubblicamente l’indirizzo del tuo endpoint e non accettare mai richieste di associazione o autorizzazione impreviste.</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>

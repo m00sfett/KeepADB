@@ -75,12 +75,10 @@
     <string name="settings_language_subtext">Wähle die Anzeigesprache für KeepADB</string>
     <string name="settings_language_system_default">Systemstandard</string>
     <string name="settings_language_dialog_title">Sprache auswählen</string>
-    <string name="settings_section_security">Sicherheit &amp; Netzwerkhinweise</string>
     <string name="settings_diagnostics_title">Diagnose</string>
     <string name="settings_diagnostics_subtext">Speichert die letzten 128 bereinigten Ereignisse auf diesem Gerät. Der Export öffnet den Android-Teilen-Dialog.</string>
     <string name="settings_diagnostics_export">Diagnose exportieren</string>
     <string name="settings_diagnostics_export_subject">KeepADB-Diagnose</string>
-    <string name="settings_security_body">Drahtloses Debugging öffnet einen Netzwerk-Port für ADB. Nutze Keep-Alive vor allem in vertrauenswürdigen Heim- und Firmennetzwerken oder VPNs. Schalte Drahtlos-Debugging in öffentlichen Hotspots aus und bestätige niemals unerwartete Kopplungsanfragen.</string>
     <string name="settings_section_notification">Benachrichtigung</string>
     <string name="settings_hide_notification_toggle">Dauerhafte Benachrichtigung ausblenden</string>
     <string name="settings_hide_notification_subtext">Blendet die Status-Benachrichtigung in der Leiste aus. Keep-Alive und Widgets funktionieren weiterhin normal.</string>
@@ -193,7 +191,8 @@
     <string name="issue_report_placeholder_screenshots">Beschreibe Screenshots oder füge sie manuell an.</string>
     <string name="issue_report_placeholder_notes">Füge weitere hilfreiche Informationen hinzu.</string>
     <string name="issue_report_diagnostics_section">Optionale redigierte KeepADB-Diagnosedaten (vor dem Senden prüfen)</string>
-    <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
+    <string name="advice_banner_title">Sicherheit &amp; Netzwerk</string>
+    <string name="advice_banner_text">Drahtloses Debugging öffnet einen ADB-Port im Netzwerk. Nutze es in vertrauenswürdigen WLANs oder über ein VPN wie Tailscale und schalte es in öffentlichen Hotspots aus. Gib deine Endpunkt-Adresse nie öffentlich weiter und bestätige niemals unerwartete Kopplungs- oder Autorisierungsanfragen.</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>

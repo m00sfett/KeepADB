@@ -627,3 +627,41 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   `Fixes #226` geschlossen. `github-board-sync`/`github-drift`: sauber, kein Drift.
 - Changelog: Eintrag unter dem bestehenden unveröffentlichten `[1.4.5]`-Block ergänzt (kein
   neuer Versionsbump nötig, da 1.4.5 noch nicht getaggt/released ist).
+
+## 2026-09-03 — Issue #228: Advice banner contrast, icon and Settings merge
+
+- Auftrag: UI/UX-Fix über Profil `ux-designer` (Stufe S5), technische Läufe an `ux-probe`.
+- Befund: Banner war `banner_yellow` #FFC107 mit `night_text` #EDE6DC — rund 1,5:1, unlesbar.
+  Das Warnzeichen war ein ⚠️-Emoji im String, also gelb auf gelb und in keiner Sprache
+  anpassbar. Sicherheitshinweis stand doppelt (Banner + Settings-Abschnitt).
+- Umsetzung: dunkle amberstichige Fläche `advice_surface` #241A06 statt Gelbfläche (Body 13,1:1,
+  Titel `title_yellow` 11,2:1), 1dp-Haarlinie `advice_border` nach unten statt farbigem
+  Akzentbalken, gezeichnetes Material-Warndreieck `ic_warning.xml` in `bright_yellow` statt
+  Emoji, Titel + Fließtext statt Textwand (Titel als `accessibilityHeading`).
+  Schließen-Button von 40 auf 48 dp (Android-Minimum). `banner_yellow` entfernt, weil unbenutzt.
+- Texte: `advice_banner_title` neu, `advice_banner_text` als Zusammenführung beider bisheriger
+  Texte — in allen 19 Locales. `settings_section_security` und `settings_security_body`
+  überall entfernt. Nebenbefund miterledigt: `advice_banner_text` war bisher in allen 18
+  Locales unübersetzt englisch.
+- Fix-Batch nach der ersten Prüfrunde: Banner von außerhalb in die ScrollView verschoben. Außen
+  blockierte er bei `font_scale 1.3` dauerhaft rund ein Viertel des Bildschirms; Material
+  behandelt Banner ohnehin als Content unterhalb der App-Bar, nicht als fixe Leiste.
+- Tests nachgezogen: `KeepADBAccessibilityContractTest` prüft jetzt die Abwesenheit des
+  Settings-Panels und die Bestandteile des Banners; die Locale-Schleife verlangt
+  `advice_banner_title`/`advice_banner_text` statt der entfernten Settings-Keys.
+  `KeepADBVersionContractTest` hatte eine stille Assertion auf `settings_security_panel`
+  (indexOf == -1 wäre immer durchgelaufen) — auf `settings_language_panel` umgestellt.
+- Gates: `./bin/verify` dreimal grün (nach Bau, nach Fix-Batch, nach Changelog-Korrektur).
+- Geräteprüfung S20 (`RF8T307S88H`, mDNS/`adb-tls-connect`): zwei gebündelte `ux-probe`-Runden.
+  Belegt: Kontrast und Icon-Erkennbarkeit, `font_scale 1.3` ohne Clipping und ohne Overlap mit
+  dem X-Button, Banner scrollt sauber unter den Header, Settings ohne Security-Abschnitt,
+  Banner-Schalter unverändert vorhanden, Live-Update aus #226 nicht regressiert.
+  Erste Runde hatte drei unbrauchbare Bilder, weil der Banner-Toggle auf dem Gerät auf AUS
+  stand — in der Bestätigungsrunde nachgeholt. Gerätezustand danach wiederhergestellt.
+- Lehre: Die App hat kein Light-Theme (feste Farben, kein `values-night`). Ein Screenshot mit
+  `cmd uimode night no` sieht deshalb identisch aus — das ist Absicht, kein Defekt, und die
+  Prüfachse "hell/dunkel" ist hier nicht aussagekräftig.
+- Version: kein Bump. 1.4.5 ist noch nicht getaggt/released, der Eintrag ging in den offenen
+  `[1.4.5]`-Block; `fastlane/.../changelogs/17.txt` neu angelegt (fehlte bisher).
+- Nebenbefunde als Issues registriert, nicht behoben: #229 (lückenhafte Fastlane-Changelogs),
+  #230 (Build braucht explizites `JAVA_HOME` auf java-17, System-Default ist java-26).

@@ -75,12 +75,10 @@
     <string name="settings_language_subtext">Choose the interface language for KeepADB</string>
     <string name="settings_language_system_default">System default</string>
     <string name="settings_language_dialog_title">Select Language</string>
-    <string name="settings_section_security">Security &amp; Network Advice</string>
     <string name="settings_diagnostics_title">Diagnostics</string>
     <string name="settings_diagnostics_subtext">Keeps the latest 128 redacted events on this device. Export opens the Android share sheet.</string>
     <string name="settings_diagnostics_export">Export diagnostics</string>
     <string name="settings_diagnostics_export_subject">KeepADB diagnostics</string>
-    <string name="settings_security_body">Wireless Debugging opens a network port for ADB. Use Keep-Alive primarily on trusted private Wi-Fi networks or VPNs. Turn off Wireless Debugging when connecting to public hotspots, and never accept unexpected pairing or authorization prompts.</string>
     <string name="settings_section_notification">Notification</string>
     <string name="settings_hide_notification_toggle">Hide persistent notification</string>
     <string name="settings_hide_notification_subtext">Hides the status notification in the notification drawer. Keep-Alive and widgets will continue to work normally.</string>
@@ -193,7 +191,8 @@
     <string name="issue_report_placeholder_screenshots">Describe or attach screenshots manually.</string>
     <string name="issue_report_placeholder_notes">Add any other useful information here.</string>
     <string name="issue_report_diagnostics_section">Optional redacted KeepADB diagnostics (review before submitting)</string>
-    <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
+    <string name="advice_banner_title">Security &amp; network advice</string>
+    <string name="advice_banner_text">Wireless Debugging opens an ADB port on your network. Keep it on trusted private Wi-Fi or a VPN such as Tailscale, and turn it off on public hotspots. Never share your endpoint address publicly, and never accept an unexpected pairing or authorization prompt.</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
