@@ -65,29 +65,55 @@ ALLOWLIST = {
     "usb_profile_hostname_hint": {"de"},        # "Hostname (optional)" is correct German (cf. nl "Hostnaam (optioneel)")
 }
 
-STRING_RE = re.compile(r'<string\s+name="([^"]+)"[^>]*>(.*?)</string>', re.S)
-PLURALS_RE = re.compile(r'<plurals\s+name="([^"]+)"[^>]*>(.*?)</plurals>', re.S)
-STRING_ARRAY_RE = re.compile(r'<string-array\s+name="([^"]+)"[^>]*>(.*?)</string-array>', re.S)
+STRING_RE = re.compile(r'<string\b([^>]*)>(.*?)</string>', re.S)
+PLURALS_RE = re.compile(r'<plurals\b([^>]*)>(.*?)</plurals>', re.S)
+STRING_ARRAY_RE = re.compile(r'<string-array\b([^>]*)>(.*?)</string-array>', re.S)
 ITEM_RE = re.compile(r'<item\s+quantity="([^"]+)"[^>]*>(.*?)</item>', re.S)
 ARRAY_ITEM_RE = re.compile(r'<item[^>]*>(.*?)</item>', re.S)
 
 
-def parse_strings(path: Path) -> dict:
+def attr(attrs: str, name: str):
+    m = re.search(rf'{name}="([^"]*)"', attrs)
+    return m.group(1) if m else None
+
+
+def parse_strings(path: Path) -> tuple[dict, set]:
     """Parses <string>, <plurals> (per quantity) and <string-array> (per item)
     into a flat dict of {display_key: value}, e.g. "greeting", "days[one]" or
-    "colors[0]"."""
+    "colors[0]". Also returns the set of base keys marked
+    translatable="false" -- Android never offers those for translation, so
+    they are excluded from the check entirely."""
     content = path.read_text(encoding="utf-8")
-    units = dict(STRING_RE.findall(content))
+    units = {}
+    translatable_false = set()
 
-    for name, body in PLURALS_RE.findall(content):
+    for attrs, body in STRING_RE.findall(content):
+        name = attr(attrs, "name")
+        if name is None:
+            continue
+        if attr(attrs, "translatable") == "false":
+            translatable_false.add(name)
+        units[name] = body
+
+    for attrs, body in PLURALS_RE.findall(content):
+        name = attr(attrs, "name")
+        if name is None:
+            continue
+        if attr(attrs, "translatable") == "false":
+            translatable_false.add(name)
         for quantity, value in ITEM_RE.findall(body):
             units[f"{name}[{quantity}]"] = value
 
-    for name, body in STRING_ARRAY_RE.findall(content):
+    for attrs, body in STRING_ARRAY_RE.findall(content):
+        name = attr(attrs, "name")
+        if name is None:
+            continue
+        if attr(attrs, "translatable") == "false":
+            translatable_false.add(name)
         for index, value in enumerate(ARRAY_ITEM_RE.findall(body)):
             units[f"{name}[{index}]"] = value
 
-    return units
+    return units, translatable_false
 
 
 def base_key(display_key: str) -> str:
@@ -100,15 +126,17 @@ def main() -> int:
         print(f"Referenzdatei fehlt: {REFERENCE}", file=sys.stderr)
         return 2
 
-    reference = parse_strings(REFERENCE)
+    reference, ref_translatable_false = parse_strings(REFERENCE)
     findings = []
 
     for path_str in sorted(glob.glob(LANG_GLOB)):
         path = Path(path_str)
         lang = path.parent.name.removeprefix("values-")
-        values = parse_strings(path)
+        values, _lang_translatable_false = parse_strings(path)
         for display_key, value in values.items():
             key = base_key(display_key)
+            if key in ref_translatable_false:
+                continue
             allowed = ALLOWLIST.get(key)
             if allowed is ALL_LANGUAGES or (allowed is not None and lang in allowed):
                 continue
