@@ -63,8 +63,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">KeepADB の表示言語を選択してください</string>
     <string name="settings_language_system_default">システムデフォルト</string>
     <string name="settings_language_dialog_title">言語を選択</string>
-    <string name="settings_section_security">セキュリティとネットワークの注意点</string>
-    <string name="settings_security_body">ワイヤレスデバッグはADB用のネットワークポートを開きます。信頼できるWi-FiやVPNでのみKeep-Aliveを使用してください。公共Wi-Fiではオフにし、身に覚えのないペアリング要求は絶対に許可しないでください。</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">常駐通知を非表示にする</string>
     <string name="settings_hide_notification_subtext">通知シェード内のステータス通知を非表示にします。Keep-Aliveやウィジェットは通常通り機能します。</string>
@@ -194,7 +192,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_screenshots">スクリーンショットを説明するか、手動で添付してください。</string>
     <string name="issue_report_placeholder_notes">その他の役立つ情報を追加してください。</string>
     <string name="issue_report_diagnostics_section">任意の編集済み KeepADB 診断データ（送信前に確認してください）</string>
-    <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
+    <string name="advice_banner_title">セキュリティとネットワーク</string>
+    <string name="advice_banner_text">ワイヤレスデバッグはネットワーク上に ADB ポートを開きます。信頼できる Wi-Fi または Tailscale などの VPN でのみ使用し、公共のホットスポットではオフにしてください。エンドポイントのアドレスを公開したり、身に覚えのないペアリングや認可の要求を許可したりしないでください。</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>

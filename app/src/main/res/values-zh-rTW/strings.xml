@@ -63,8 +63,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">選擇 KeepADB 的介面語言</string>
     <string name="settings_language_system_default">系統預設</string>
     <string name="settings_language_dialog_title">選擇語言</string>
-    <string name="settings_section_security">安全與網路建議</string>
-    <string name="settings_security_body">無線除錯會為 ADB 開啟一個網路連接埠。建議主要在受信任的 Wi-Fi 網路或 VPN 中使用 Keep-Alive。連接公共熱點時請關閉無線除錯，切勿接受未知的配對或授權請求。</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">隱藏常駐通知</string>
     <string name="settings_hide_notification_subtext">隱藏通知欄中的狀態通知。Keep-Alive 和桌面小工具仍將正常運作。</string>
@@ -194,7 +192,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_screenshots">請描述螢幕截圖或手動附加截圖。</string>
     <string name="issue_report_placeholder_notes">新增其他有用的資訊。</string>
     <string name="issue_report_diagnostics_section">選用的已去除敏感資訊 KeepADB 診斷資料（傳送前請檢視）</string>
-    <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
+    <string name="advice_banner_title">安全與網路</string>
+    <string name="advice_banner_text">無線偵錯會在你的網路上開啟一個 ADB 連接埠。請僅在受信任的 Wi-Fi 或 Tailscale 等 VPN 中使用，並在連接公共熱點時關閉。切勿公開分享你的端點位址，也切勿接受非預期的配對或授權要求。</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>

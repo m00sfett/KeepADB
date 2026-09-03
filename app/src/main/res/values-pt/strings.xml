@@ -63,8 +63,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Escolha o idioma da interface para o KeepADB</string>
     <string name="settings_language_system_default">Padrão do sistema</string>
     <string name="settings_language_dialog_title">Selecionar idioma</string>
-    <string name="settings_section_security">Segurança e avisos de rede</string>
-    <string name="settings_security_body">A depuração sem fio abre uma porta de rede para o ADB. Use o Keep-Alive principalmente em redes Wi-Fi ou VPNs confiáveis. Desative-a em redes públicas e nunca aceite solicitações de emparelhamento inesperadas.</string>
     <string name="settings_section_notification">Notificação</string>
     <string name="settings_hide_notification_toggle">Ocultar notificação persistente</string>
     <string name="settings_hide_notification_subtext">Oculta a notificação de status no painel. O Keep-Alive e os widgets continuarão funcionando normalmente.</string>
@@ -194,7 +192,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_screenshots">Descreva ou anexe manualmente capturas de ecrã.</string>
     <string name="issue_report_placeholder_notes">Adicione qualquer outra informação útil.</string>
     <string name="issue_report_diagnostics_section">Dados de diagnóstico KeepADB opcionais e redigidos (verifique antes do envio)</string>
-    <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
+    <string name="advice_banner_title">Segurança e rede</string>
+    <string name="advice_banner_text">A depuração sem fio abre uma porta ADB na sua rede. Use-a em redes Wi-Fi confiáveis ou por meio de uma VPN como o Tailscale e desative-a em redes públicas. Nunca compartilhe publicamente o endereço do seu endpoint nem aceite solicitações de emparelhamento ou autorização inesperadas.</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>

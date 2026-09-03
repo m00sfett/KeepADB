@@ -12,7 +12,10 @@
     <color name="text_yellow">#E0B83A</color>
     <color name="soft_yellow">#C99F2E</color>
     <color name="bright_yellow">#FFE15A</color>
-    <color name="banner_yellow">#FFC107</color>
+    <!-- Advice banner: dark amber-tinted surface so body text and the warning
+         icon both keep high contrast (previously white-on-yellow, issue #228). -->
+    <color name="advice_surface">#241A06</color>
+    <color name="advice_border">#8A6A12</color>
     <color name="night_text">#EDE6DC</color>
     <color name="night_muted">#A79B8C</color>
 </resources>

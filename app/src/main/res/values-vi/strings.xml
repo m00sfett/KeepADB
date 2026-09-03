@@ -63,8 +63,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Chọn ngôn ngữ giao diện cho KeepADB</string>
     <string name="settings_language_system_default">Mặc định hệ thống</string>
     <string name="settings_language_dialog_title">Chọn ngôn ngữ</string>
-    <string name="settings_section_security">Bảo mật &amp; Lời khuyên mạng</string>
-    <string name="settings_security_body">Gỡ lỗi không dây mở một cổng mạng cho ADB. Sử dụng Keep-Alive chủ yếu trên các mạng Wi-Fi đáng tin cậy hoặc VPN. Tắt trên các điểm truy cập công cộng và không bao giờ chấp nhận các yêu cầu ghép nối lạ.</string>
     <string name="settings_section_notification">Thông báo</string>
     <string name="settings_hide_notification_toggle">Ẩn thông báo liên tục</string>
     <string name="settings_hide_notification_subtext">Ẩn thông báo trạng thái trên thanh thông báo. Keep-Alive và tiện ích con vẫn hoạt động bình thường.</string>
@@ -194,7 +192,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_screenshots">Mô tả hoặc đính kèm ảnh chụp màn hình theo cách thủ công.</string>
     <string name="issue_report_placeholder_notes">Thêm bất kỳ thông tin hữu ích nào khác.</string>
     <string name="issue_report_diagnostics_section">Dữ liệu chẩn đoán KeepADB tùy chọn đã loại bỏ thông tin nhạy cảm (xem lại trước khi gửi)</string>
-    <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
+    <string name="advice_banner_title">Bảo mật và mạng</string>
+    <string name="advice_banner_text">Gỡ lỗi không dây mở một cổng ADB trên mạng của bạn. Chỉ dùng trên Wi-Fi đáng tin cậy hoặc qua VPN như Tailscale, và tắt khi dùng điểm phát sóng công cộng. Đừng bao giờ chia sẻ công khai địa chỉ endpoint và đừng bao giờ chấp nhận yêu cầu ghép nối hay ủy quyền bất ngờ.</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
