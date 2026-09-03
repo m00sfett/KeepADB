@@ -6870,3 +6870,31 @@ die App-Buildkette ab sofort automatisch, ob so etwas nochmal passiert.
 `github-drift` sauber.
 **Probleme/Optionen:** Keine offenen Probleme.
 **Nächster Schritt:** Kein bekanntes offenes Paket aus diesem Strang. Warte auf neue Anweisung.
+
+---
+
+## `--plan`-Lauf 2026-09-04 ~ 21:55 UTC
+
+**Status:** Drei offene Issues sichtbar. #240 neu, #237/#238 bereits bewertet aus Audit-Findings.
+
+### Paketübersicht nach Sichtung
+
+| # | Titel | Umfang | Zerlegung | Stufe |
+|---|---|---|---|---|
+| 240 | Settings Toggle Border | UI-Fix, eine Layout/Drawable-Datei | Einzelpaket | S1 |
+| 237 | check-i18n Lücken: `<plurals>`, `translatable`, verwaist | 3 Reparationen in bin/check-i18n | Einzelpaket (3 atomare Commits) | S1 |
+| 238 | check-i18n Erkennungsgrenzen Audit | Doku + optionale Heuristik | Abh. von #237, dann opt. | S2 |
+
+### Abhängigkeiten und Reihenfolge
+
+- **#240 (S1):** Unabhängig, UI-Bug, sofort umsetzbar.
+- **#237 (S1) → #238 (S2):** #237 ist Vorbedingung für #238 (Audit nur sinnvoll nach Reparaturen).
+- **Strangzähler:** #237/#238 sind Werkzeugpflege-Nacharbeit aus dem #233→#235→#236-i18n-Strang. Allerdings ist die Benutzer-sichtbare Arbeit (#235) bereits abgeschlossen — dieser Strang läuft jetzt auf sich selbst zu (Audit der Grenzen, dann Werkzeugverbesserung). Vor einer vierten Runde (#238 heuristisch oder weitere Lücken) sollte die Frage stehen: Lohnt die Werkzeugpflege für künftige Sprachpflege noch, oder geht es danach zu einem Produktfeature über?
+
+### Empfehlung
+
+**Nächste Implementierungs-Etappe:** Reihenfolge #240 (S1, schnell), dann #237 (S1, 3 Reparationen), dann ggf. Entscheidung über #238 (S2, optional mit Heuristik).
+
+- **plan_updated_at:** 2026-09-04T21:55:00Z
+- **issue_snapshot_at:** 2026-09-04T21:55:00Z (nach GitHub-Fetch)
+- **Zustand:** `complete (Planung)` — kein Implementierungs-Start ohne weitere Anweisung.
