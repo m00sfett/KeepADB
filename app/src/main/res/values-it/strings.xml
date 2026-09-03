@@ -196,4 +196,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">Dati diagnostici KeepADB opzionali e oscurati (controllali prima dell’invio)</string>
     <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
     <string name="action_dismiss">Dismiss</string>
+    <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
+    <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
 </resources>

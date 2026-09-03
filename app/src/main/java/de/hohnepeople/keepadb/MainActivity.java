@@ -25,6 +25,7 @@ public class MainActivity extends Activity {
     private View setupPanel;
     private View notificationPermissionPanel;
     private View batteryOptimizationPanel;
+    private View adviceBanner;
     private boolean notificationPermissionRequestPending;
     private long endpointListenerGeneration;
     private boolean endpointSurfaceActive;
@@ -47,6 +48,7 @@ public class MainActivity extends Activity {
         setupPanel = findViewById(R.id.setup_panel);
         notificationPermissionPanel = findViewById(R.id.notification_permission_panel);
         batteryOptimizationPanel = findViewById(R.id.battery_optimization_panel);
+        adviceBanner = findViewById(R.id.advice_banner);
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
@@ -54,6 +56,12 @@ public class MainActivity extends Activity {
                 openNotificationSettings());
         findViewById(R.id.btn_open_battery_settings).setOnClickListener(v ->
                 KeepADBBatteryOptimization.openSettings(this));
+        findViewById(R.id.btn_dismiss_advice_banner).setOnClickListener(v -> {
+            KeepADBPreferences.setAdviceBannerVisible(this, false);
+            updateAdviceBannerVisibility();
+        });
+
+        updateAdviceBannerVisibility();
 
         if (shouldRequestNotificationPermission()) {
             getPreferences(MODE_PRIVATE).edit()
@@ -295,5 +303,10 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
         intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
         startActivity(intent);
+    }
+
+    private void updateAdviceBannerVisibility() {
+        boolean visible = KeepADBPreferences.isAdviceBannerVisible(this);
+        adviceBanner.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 }

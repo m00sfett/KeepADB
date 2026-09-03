@@ -195,4 +195,6 @@
     <string name="issue_report_diagnostics_section">Optionale redigierte KeepADB-Diagnosedaten (vor dem Senden prüfen)</string>
     <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
     <string name="action_dismiss">Dismiss</string>
+    <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
+    <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
 </resources>
