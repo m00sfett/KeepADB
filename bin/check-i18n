@@ -66,11 +66,33 @@ ALLOWLIST = {
 }
 
 STRING_RE = re.compile(r'<string\s+name="([^"]+)"[^>]*>(.*?)</string>', re.S)
+PLURALS_RE = re.compile(r'<plurals\s+name="([^"]+)"[^>]*>(.*?)</plurals>', re.S)
+STRING_ARRAY_RE = re.compile(r'<string-array\s+name="([^"]+)"[^>]*>(.*?)</string-array>', re.S)
+ITEM_RE = re.compile(r'<item\s+quantity="([^"]+)"[^>]*>(.*?)</item>', re.S)
+ARRAY_ITEM_RE = re.compile(r'<item[^>]*>(.*?)</item>', re.S)
 
 
 def parse_strings(path: Path) -> dict:
+    """Parses <string>, <plurals> (per quantity) and <string-array> (per item)
+    into a flat dict of {display_key: value}, e.g. "greeting", "days[one]" or
+    "colors[0]"."""
     content = path.read_text(encoding="utf-8")
-    return dict(STRING_RE.findall(content))
+    units = dict(STRING_RE.findall(content))
+
+    for name, body in PLURALS_RE.findall(content):
+        for quantity, value in ITEM_RE.findall(body):
+            units[f"{name}[{quantity}]"] = value
+
+    for name, body in STRING_ARRAY_RE.findall(content):
+        for index, value in enumerate(ARRAY_ITEM_RE.findall(body)):
+            units[f"{name}[{index}]"] = value
+
+    return units
+
+
+def base_key(display_key: str) -> str:
+    """Strips a "[quantity]"/"[index]" suffix back to the ALLOWLIST/reference key."""
+    return display_key.split("[", 1)[0]
 
 
 def main() -> int:
@@ -85,17 +107,18 @@ def main() -> int:
         path = Path(path_str)
         lang = path.parent.name.removeprefix("values-")
         values = parse_strings(path)
-        for key, value in values.items():
+        for display_key, value in values.items():
+            key = base_key(display_key)
             allowed = ALLOWLIST.get(key)
             if allowed is ALL_LANGUAGES or (allowed is not None and lang in allowed):
                 continue
-            if key not in reference:
+            if display_key not in reference:
                 continue
-            ref_value = reference[key].strip()
+            ref_value = reference[display_key].strip()
             if len(ref_value) <= 1:
                 continue
             if ref_value == value.strip():
-                findings.append((lang, key, ref_value))
+                findings.append((lang, display_key, ref_value))
 
     if not findings:
         print("check-i18n: keine unübersetzten (kopierten) Strings gefunden.")
