@@ -138,35 +138,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Security & Network Advice Section -->
-        <LinearLayout
-            android:id="@+id/settings_security_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_security"
-                android:textColor="@color/title_yellow"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:lineSpacingExtra="3dp"
-                android:text="@string/settings_security_body"
-                android:textColor="@color/night_text"
-                android:textSize="13sp" />
-        </LinearLayout>
-
         <!-- Webhook Section -->
         <LinearLayout
             android:id="@+id/settings_webhook_panel"

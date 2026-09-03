@@ -25,7 +25,8 @@ public class KeepADBVersionContractTest {
         assertTrue(layout.contains("android:id=\"@+id/settings_version_code\""));
         assertTrue(layout.contains("android:text=\"@string/settings_section_version\""));
         int versionPanelIndex = layout.indexOf("android:id=\"@+id/settings_version_panel\"");
-        assertTrue(layout.indexOf("settings_security_panel") < versionPanelIndex);
+        int languagePanelIndex = layout.indexOf("settings_language_panel");
+        assertTrue(languagePanelIndex >= 0 && languagePanelIndex < versionPanelIndex);
         assertTrue(layout.indexOf("</LinearLayout>\n\n    </LinearLayout>", versionPanelIndex) > versionPanelIndex);
         assertTrue(activity.contains("getPackageManager().getPackageInfo(getPackageName(), 0)"));
         assertTrue(activity.contains("bindVersionInfo();"));

@@ -63,8 +63,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">اختر لغة واجهة KeepADB</string>
     <string name="settings_language_system_default">افتراضي النظام</string>
     <string name="settings_language_dialog_title">اختر اللغة</string>
-    <string name="settings_section_security">الأمان وإرشادات الشبكة</string>
-    <string name="settings_security_body">يفتح تصحيح الأخطاء اللاسلكي منفذ شبكة لـ ADB. استخدم Keep-Alive بشكل أساسي على شبكات Wi-Fi الموثوقة أو VPN. أوقف تشغيل تصحيح الأخطاء في نقاط الاتصال العامة، ولا تقبل أبدًا طلبات الاقتران غير المتوقعة.</string>
     <string name="settings_section_notification">الإشعارات</string>
     <string name="settings_hide_notification_toggle">إخفاء الإشعار الدائم</string>
     <string name="settings_hide_notification_subtext">يخفي إشعار الحالة في شريط الإشعارات. ستستمر ميزة Keep-Alive والأدوات في العمل بشكل طبيعي.</string>
@@ -194,7 +192,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_screenshots">صف لقطات الشاشة أو أرفقها يدويًا.</string>
     <string name="issue_report_placeholder_notes">أضف أي معلومات أخرى مفيدة هنا.</string>
     <string name="issue_report_diagnostics_section">بيانات تشخيصية اختيارية منقّحة لـ KeepADB (راجعها قبل الإرسال)</string>
-    <string name="advice_banner_text">⚠️ Never share your Wireless Debugging endpoint publicly. Restrict network access and use Tailscale for VPN security.</string>
+    <string name="advice_banner_title">الأمان والشبكة</string>
+    <string name="advice_banner_text">يفتح تصحيح الأخطاء اللاسلكي منفذ ADB على شبكتك. استخدمه على شبكات Wi-Fi الموثوقة أو عبر شبكة VPN مثل Tailscale، وأوقفه في نقاط الاتصال العامة. لا تشارك عنوان نقطة النهاية علنًا مطلقًا، ولا تقبل أبدًا طلبات اقتران أو تفويض غير متوقعة.</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>

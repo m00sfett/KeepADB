@@ -12,6 +12,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   When enabled, the screen only stays on while the app is open; leaving the app or disabling the
   setting releases the screen-on flag again.
 
+### Changed
+- The security advice banner on the main screen is readable again: dark amber surface with a drawn
+  warning icon instead of white text and a yellow emoji on a yellow background (issue #228).
+- The banner now carries the full security advice — it merges the former banner sentence and the
+  separate "Security & Network Advice" section from Settings into one text, translated into all 19
+  supported languages. It scrolls with the page instead of occupying the top of the screen
+  permanently, and its dismiss button meets the 48 dp touch-target minimum.
+
+### Removed
+- The separate "Security & Network Advice" section in Settings; its content now lives in the
+  main-screen banner. All other settings are unchanged, including the switch that shows or hides
+  the banner.
+
 ### Fixed
 - The advice banner toggle in Settings now updates MainActivity live; the banner's visibility is
   re-read on every resume instead of requiring an app restart (issue #226).

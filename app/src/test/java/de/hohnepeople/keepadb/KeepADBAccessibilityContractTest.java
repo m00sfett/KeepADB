@@ -67,10 +67,10 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"back\""));
                 assertTrue("Missing standardized tile label in " + directory,
                         content.contains("<string name=\"tile_label\">@string/app_name</string>"));
-                assertTrue("Missing security section title in " + directory,
-                        content.contains("name=\"settings_section_security\""));
-                assertTrue("Missing security body in " + directory,
-                        content.contains("name=\"settings_security_body\""));
+                assertTrue("Missing advice banner title in " + directory,
+                        content.contains("name=\"advice_banner_title\""));
+                assertTrue("Missing advice banner text in " + directory,
+                        content.contains("name=\"advice_banner_text\""));
                 assertTrue("Missing notification section title in " + directory,
                         content.contains("name=\"settings_section_notification\""));
                 assertTrue("Missing hide notification toggle label in " + directory,
@@ -131,12 +131,21 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(xml.contains("android:scaleY=\"1.31\""));
     }
 
+    /** #228: the security advice lives in the main-screen banner, not in Settings. */
     @Test
-    public void settingsActivityIncludesSecurityAdvicePanel() throws IOException {
+    public void securityAdviceLivesInMainBannerOnly() throws IOException {
         String settings = read("app/src/main/res/layout/activity_settings.xml");
-        assertTrue(settings.contains("android:id=\"@+id/settings_security_panel\""));
-        assertTrue(settings.contains("android:text=\"@string/settings_section_security\""));
-        assertTrue(settings.contains("android:text=\"@string/settings_security_body\""));
+        assertFalse(settings.contains("settings_security_panel"));
+        assertFalse(settings.contains("@string/settings_section_security"));
+        assertFalse(settings.contains("@string/settings_security_body"));
+
+        String main = read("app/src/main/res/layout/activity_main.xml");
+        assertTrue(main.contains("android:id=\"@+id/advice_banner\""));
+        assertTrue(main.contains("android:background=\"@drawable/bg_advice_banner\""));
+        assertTrue(main.contains("android:src=\"@drawable/ic_warning\""));
+        assertTrue(main.contains("android:text=\"@string/advice_banner_title\""));
+        assertTrue(main.contains("android:text=\"@string/advice_banner_text\""));
+        assertTrue(main.contains("android:id=\"@+id/btn_dismiss_advice_banner\""));
     }
 
     @Test
@@ -144,7 +153,6 @@ public class KeepADBAccessibilityContractTest {
         String settings = read("app/src/main/res/layout/activity_settings.xml");
         String[] panels = {
                 "settings_language_panel",
-                "settings_security_panel",
                 "settings_webhook_panel",
                 "settings_usb_notification_panel",
                 "settings_usb_handover_panel",
