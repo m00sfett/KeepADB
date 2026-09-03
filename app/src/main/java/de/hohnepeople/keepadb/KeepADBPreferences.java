@@ -26,6 +26,7 @@ final class KeepADBPreferences {
     private static final String KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME = "usb_webhook_last_tailnet_hostname";
     private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
     private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
+    private static final String KEY_ADVICE_BANNER_VISIBLE = "advice_banner_visible";
 
     // #168: optional USB-ADB -> WLAN-ADB handover offered from the USB notification.
     static final String USB_WLAN_HANDOVER_MODE_OFF = "off";
@@ -324,5 +325,16 @@ final class KeepADBPreferences {
         } else {
             prefs.edit().putString(KEY_APP_LANGUAGE, languageTag.trim()).apply();
         }
+    }
+
+    /** #225: advice banner visibility. Default ON (true). */
+    static boolean isAdviceBannerVisible(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_ADVICE_BANNER_VISIBLE, true);
+    }
+
+    static void setAdviceBannerVisible(Context context, boolean visible) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_ADVICE_BANNER_VISIBLE, visible).apply();
     }
 }

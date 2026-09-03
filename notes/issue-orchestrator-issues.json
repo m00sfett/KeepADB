@@ -1,10 +1,18 @@
 {
+  "225": {
+    "title": "Add Security & Network Advice banner to main UI",
+    "scope": "UI-Feature — Advice-Banner oben in der Hauptseite, ausblendbar mit Reset-Option in Einstellungen",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-03T10:40:45Z",
+    "status": "open"
+  },
   "224": {
     "title": "feat: option to keep display awake while app is in foreground",
     "scope": "Umgesetzt (v1.4.5, Commit 4a976aa), geräteseitig verifiziert auf S20 — geschlossen.",
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-03T10:04:20Z",
+    "updatedAt": "2026-09-03T10:36:20Z",
     "status": "closed"
   }
 }

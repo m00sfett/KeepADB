@@ -6426,3 +6426,35 @@ Profiländerung vorgenommen — kein Produktdefekt, reiner Bedienfehler während
 - **plan_updated_at:** 2026-09-03T13:15:00+02:00
 - **Zustand:** `complete` — alle fünf Akzeptanzkriterien von #224 nachgewiesen (Code + Gerät).
   Issue wird geschlossen (`Fixes #224` nachträglich per Kommentar/Close, da bereits gemergt).
+
+## Planungs-Checkpoint — 2026-09-03
+
+**Neues Issue erkannt:**
+- #225 — Add Security & Network Advice banner to main UI
+  - createdAt: 2026-09-03T10:40:45Z
+  - state: OPEN
+  - label: agent-stage:s2
+  - Ziel: Sicherheits-/Netzwerk-Ratschlag-Banner oben in der Hauptseite, ausblendbar, mit Reset-Option in Einstellungen
+  - Zerlegung: Einzelpaket ausreichend — keine Abhängigkeiten zu anderen offenen Issues
+  - Stufe: S2 (UI-Feature, klare Grenzen, mittlere Komplexität)
+  - Nicht-Ziele: keine Banner-Content-Verwaltung (separate Issue), keine Animations
+  - Akzeptanzkriterien: Banner rendert oben, ist ausblendbar (Dismiss/Click), Präferenz persistiert, Settings-Option zum Reset, Widget-/Tile-Kompatibilität
+  - Status des Labels: gesetzt (agent-stage:s2)
+
+**Roadmap-Abgleich:**
+- Die letzte dokumentierte Roadmap-Aussage war die WLAN-ADB-Endpoint-Anzeige (#3/#4) vom 2026-08-20
+- Issue #225 ist eine neue Anforderung, nicht im roadmap-gelaufenen Strang
+- Produktkontext: Security-Advice ist orthogonal zu Debug-Transport; kein Konflikt
+
+**Übergabe-Checkpoint:**
+- Issue #225 ist erfasst und gelabelt (S2)
+- Verwandte Issues: keine
+- Abhängigkeiten: keine
+- Vorahnung Implementierung: S2 `sonnet` · `medium`, UI-Feature, kein Delegation-Overhead
+- Nächster Schritt: Implementierungsfreigabe vom Nutzer einholen (oder direct als nächstes Paket auswählen)
+
+**Plan-Status nach --plan:**
+- Snapshot: issue_snapshot_at `2026-09-03T10:40:45Z` (GitHub #225 createdAt)
+- Alle offenen Issues geladen und eingeordnet
+- Cache wird aktualisiert
+- Zustand: `complete (Planung)` — kein Implementierungs-Auftrag, nur Planung
