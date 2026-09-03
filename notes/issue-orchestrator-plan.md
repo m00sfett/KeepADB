@@ -6898,3 +6898,29 @@ die App-Buildkette ab sofort automatisch, ob so etwas nochmal passiert.
 - **plan_updated_at:** 2026-09-04T21:55:00Z
 - **issue_snapshot_at:** 2026-09-04T21:55:00Z (nach GitHub-Fetch)
 - **Zustand:** `complete (Planung)` — kein Implementierungs-Start ohne weitere Anweisung.
+
+---
+
+## Übergabe-Checkpoint — #240 (Settings Toggle Border) — 2026-09-05 ~00:30 UTC
+
+**Bearbeiter:** s2-worker (Claude Sonnet 5, medium)
+
+**Ergebnis:** PR #241 erstellt, Branch `fix/240-advice-banner-border`, Commit `2291c5c`, nicht gemergt.
+
+**Änderung:** Eine Zeile in `app/src/main/res/layout/activity_settings.xml` (Zeile 483): `android:background="@drawable/bg_panel"` auf der LinearLayout-Wrapper um `settings_advice_banner_toggle` ergänzt.
+
+**Gates:** `./bin/verify` grün (Unit-Tests, Lint Debug/Release, assembleDebug, assembleRelease). `git diff --check` sauber.
+
+**Akzeptanzkriterien:** Das Toggle hat jetzt einen visuellen Rahmen wie alle anderen Settings-Panels (Display, Webhook, etc.). Keine funktionalen Änderungen.
+
+**Ausstehend:**
+1. Unabhängiger Review (mechanische Diff-Validierung gegen Akzeptanzkriterien + PR-Text-Check).
+2. Geräte-Stichprobe auf s20 (Screenshot-Vergleich: Toggle-Rahmen sichtbar).
+3. Merge nach Freigaben.
+
+**Strangzähler:** #240 ist eine UI-Consistency-Reparatur, nicht aus einem größeren Strang. Unabhängige Aufgabe.
+
+- **plan_updated_at:** 2026-09-05T~00:30:00Z
+- **Zustand:** `ready for review` (lokale Gates bestätigt, PR bereit, Review/Gerät ausstehend)
+
+**Nächster Schritt:** Mechanische Review (Codex-task read-only) + s20 Screenshot-Verifikation, dann Merge-Freigabe.
