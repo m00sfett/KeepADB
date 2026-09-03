@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   When enabled, the screen only stays on while the app is open; leaving the app or disabling the
   setting releases the screen-on flag again.
 
+### Fixed
+- The advice banner toggle in Settings now updates MainActivity live; the banner's visibility is
+  re-read on every resume instead of requiring an app restart (issue #226).
+
 ## [1.4.4] - 2026-09-02
 
 ### Changed
