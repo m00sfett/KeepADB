@@ -7,7 +7,11 @@ local.properties
 captures/
 .DS_Store
 
+.claude/
+.agents/
+.codex/
+.playwright-mcp/
+
 AGENTS.md
 CLAUDE.md
 GEMINI.md
-.playwright-mcp/
