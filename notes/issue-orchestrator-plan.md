@@ -7021,3 +7021,42 @@ keine Aussage zum Nachziehen.
 **Nächster Schritt:** `https://hohnepeople.de/keepadb` außerhalb der Sandbox (z. B. Browser)
 verifizieren, danach `$release-fdroid --dry` erneut — der dort bereits behobene Changelog/Doku-
 Blocker entfällt jetzt.
+
+---
+
+## Abschluss `--cleanup`-Lauf — 2026-09-04
+
+**Fortsetzung des vorherigen `cleanup-unverified`-Standes:** Einziger offener Punkt war der externe
+Live-Readback von `https://hohnepeople.de/keepadb` (Feedback-Link aus
+`KeepADBIssueReporter.FEEDBACK_URL`, produktrelevant für KeepADB).
+
+**Readback-Ergebnis:** Sowohl `curl -v` (System-CA-Store) als auch eine unabhängige externe
+Fetch-Instanz (WebFetch, eigener CA-Store) melden übereinstimmend `unable to get local issuer
+certificate` — der Server liefert beim TLS-Handshake nur das Leaf-Zertifikat, nicht die
+Let's-Encrypt-Zwischenzertifikate. Zwei unabhängige Prüfpfade mit demselben Befund schließen ein
+Sandbox-Netzwerkartefakt aus; es ist ein echter Serverkonfigurationsfehler auf `hohnepeople.de`.
+
+**Einordnung:** Der Fix gehört ins Projekt `hohnepeople-de` (Webseiten-/TLS-Konfiguration), nicht
+nach KeepADB — siehe `AGENTS.md`: "Produktentscheidungen bleiben hier; Store- und
+Webseiten-Status dort." Finding registriert als
+[m00sfett/hohnepeople-de#35](https://github.com/m00sfett/hohnepeople-de/issues/35), Board dort
+synchronisiert (`github-board-sync`, 1 added/updated, Project #10).
+
+**KeepADB-Ledger (final, HEAD `90b9568`):**
+- `github-drift --repo m00sfett/KeepADB`: sauber, Board deckungsgleich, keine offenen
+  Issues/PRs.
+- Version/Doku-Ledger: unverändert konsistent (siehe vorheriger Checkpoint).
+- Arbeitsbaum: `git status --short` leer.
+- Der TLS-Befund ist kein KeepADB-Code-, Versions- oder Doku-Blocker — der Link ist korrekt
+  implementiert und getestet (`KeepADBIssueReporterContractTest`), das Problem liegt
+  ausschließlich serverseitig bei der Gegenstelle.
+
+**Roadmap:** kein separates Roadmap-Dokument in diesem Projekt (Plan-Datei übernimmt die Rolle).
+
+- **plan_updated_at:** 2026-09-04T~ende (Fortsetzungslauf)
+- **Zustand:** `cleanup-ready` — alle Produkt-/Versions-/Doku-/Repo-Gates erfüllt; der einzige
+  vormals offene externe Blocker ist diagnostiziert (echter Serverfehler, nicht Sandbox-Artefakt)
+  und als Follow-up im zuständigen Projekt registriert, nicht in KeepADB selbst behebbar.
+
+**Nächster Schritt:** `$release-fdroid --dry` erneut ausführen; danach reguläre Auswahl aus dem
+`--plan`-Backlog (aktuell keine offenen Issues in KeepADB).
