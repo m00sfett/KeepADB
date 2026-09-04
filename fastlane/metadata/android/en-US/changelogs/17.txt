@@ -1,1 +1,0 @@
-Optional "Keep display on" setting for foreground use. The security advice banner is readable again (dark surface, drawn icon, no more white-on-yellow), now carries the full advice in all 19 languages, and its Settings section is gone. Main screen shows a "Set up webhook" button when none is configured. Settings toggle borders fixed for consistency.

@@ -2,6 +2,13 @@
 
 Stand: 2026-09-04
 
+Lokale Pfade für dieses private Dokument:
+
+```bash
+metadata_root="/home/tobias/agent/projects/keepadb"
+version_root="$metadata_root/code/v1"
+```
+
 KeepADB verwendet für GitHub-Releases und die reproduzierbare Veröffentlichung über F-Droid
 eine dauerhafte Upstream-Signieridentität. Sie darf nicht pro Release neu erzeugt oder ohne
 einen ausdrücklich geplanten, mit Android und den Stores kompatiblen Migrationsweg ersetzt
@@ -18,21 +25,24 @@ Ein neuer Release darf erst nach dem dafür vorgesehenen Freigabe- und Release-G
 veröffentlicht dokumentiert werden.
 
 Der Release-Build verwendet den Gradle-Wrapper mit Gradle 8.9, Android Gradle Plugin 8.7.2,
-JDK 21, compileSdk 35 und Android Build-Tools 34.0.0. Der maßgebliche Ablauf ist in
-`.github/workflows/release.yml` festgehalten.
+JDK 21, compileSdk 35 und Android Build-Tools 34.0.0. Der maßgebliche lokale Ablauf ist in
+`$version_root/.github/workflows/release.yml` festgehalten; im öffentlichen Checkout bleibt der
+Workflow am Root unter `.github/workflows/release.yml`.
 
 ## Lokaler Build + Signing: `bin/build-signed-release.sh`
 
 Der einzige unterstützte Weg, lokal ein signiertes Release-APK zu erzeugen, ist
-`./bin/build-signed-release.sh` (keine Argumente). Es spiegelt `.github/workflows/release.yml`
+`(cd "$version_root" && ./bin/build-signed-release.sh)` (keine Argumente). Es spiegelt
+`$version_root/.github/workflows/release.yml`
 Schritt für Schritt, damit ein lokaler Lauf und der CI-Lauf vergleichbare Ergebnisse liefern:
 
 1. Keystore aus Vaultwarden (`android/keepadb-signing`) wiederherstellen.
 2. **Fail-closed:** Keystore-SHA-256 gegen den unten dokumentierten Fingerprint prüfen — bei
    Abweichung sofort abbrechen, bevor irgendetwas signiert wird.
-3. `./gradlew testDebugUnitTest lintDebug assembleRelease` mit JDK 21 — identisch zu
-   `release.yml`, Schritt „Build unsigned release APK".
-4. Mit `apksigner sign` aus Build-Tools **34.0.0** signieren, exakt mit den in `release.yml`
+3. `(cd "$version_root" && ./gradlew testDebugUnitTest lintDebug assembleRelease)` mit JDK 21 — identisch zu
+   `$version_root/.github/workflows/release.yml`, Schritt „Build unsigned release APK".
+4. Mit `apksigner sign` aus Build-Tools **34.0.0** signieren, exakt mit den in
+   `$version_root/.github/workflows/release.yml`
    gesetzten Flags: `--v1-signing-enabled false --v2-signing-enabled true
    --v3-signing-enabled true --v4-signing-enabled false`.
 5. **Fail-closed:** Zertifikats-SHA-256 des signierten APKs gegen den dokumentierten
@@ -43,8 +53,8 @@ Keystore und die aus Vaultwarden gelesene Notiz liegen nur in einem `mktemp -d`-
 mit Modus `700`/`600` und werden über einen `trap ... EXIT` in jedem Fall — auch bei Fehlern —
 mit `shred -u` entfernt. Passwörter verlassen nie Shell-Variablen und werden nie ausgegeben.
 
-Ergebnis: `app/build/outputs/apk/release/KeepADB-v<versionName>.apk` (+ `.sha256`), Version wird
-automatisch aus `app/build.gradle` gelesen.
+Ergebnis: `$version_root/app/build/outputs/apk/release/KeepADB-v<versionName>.apk` (+ `.sha256`), Version wird
+automatisch aus `$version_root/app/build.gradle` gelesen.
 
 ### Warum nicht `jarsigner` und nicht separates `zipalign`
 
@@ -56,7 +66,8 @@ werden müssen:
   APK mit `DOES NOT VERIFY … requires a minimum of signature scheme v2` ab. Immer
   `apksigner sign` verwenden, nie `jarsigner`.
 - **Kein separates `zipalign` vor `apksigner sign` nötig.** Der von
-  `./gradlew assembleRelease` erzeugte `app-release-unsigned.apk` ist von AGP bereits
+  `(cd "$version_root" && ./gradlew assembleRelease)` erzeugte
+  `$version_root/app/build/outputs/apk/release/app-release-unsigned.apk` ist von AGP bereits
   zipaligned. Ein nachträgliches `zipalign` nach `jarsigner` (falls doch versehentlich
   `jarsigner` verwendet wurde) erzeugt ein technisch gültiges, aber von der CI abweichendes
   Artefakt — deshalb spiegelt das Skript exakt die CI-Reihenfolge: Gradle-Output direkt an

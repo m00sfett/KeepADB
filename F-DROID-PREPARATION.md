@@ -8,6 +8,19 @@ Der zentrale, appübergreifende Ablauf steht in
 `/home/tobias/agent/projects/appstores/docs/f-droid-official-catalog-preparation.md`.
 Dieses Dokument enthält nur KeepADB-spezifische Aufgaben und Fragen.
 
+Lokale Root-Zuordnung für dieses private Dokument:
+
+```bash
+metadata_root="/home/tobias/agent/projects/keepadb"
+version_root="$metadata_root/code/v1"
+public_checkout_root="<public checkout root>"
+```
+
+`metadata_root` enthält private Projekt- und F-Droid-Vorbereitung. `version_root` ist der lokale
+Code-/Arbeits- und Git-Root. Im öffentlichen Checkout bleibt der Repository-Root flach: `app/`,
+`fastlane/metadata/android/...`, `.github/` und `CHANGELOG.md` liegen direkt am Checkout-Root;
+`code/v1` ist kein öffentlicher Unterpfad.
+
 ## Zielzustand
 
 KeepADB soll in den offiziellen F-Droid-Katalog eingereicht werden. Dafür muss der
@@ -18,9 +31,11 @@ Bekannte Identität:
 
 - App: KeepADB
 - Paket-ID: `de.hohnepeople.keepadb`
-- Produktpfad: dieses Repository
-- veröffentlichte Version: `1.1.0` / VersionCode `2`
-- vorbereitete Zielversion: `1.2.0` / VersionCode `3`
+- privater Metadatenpfad: `$metadata_root`
+- lokaler Code-/Arbeitsstand: `$version_root`
+- öffentlicher Checkout: `$public_checkout_root`
+- veröffentlichte Version: `v1.4.4` / VersionCode `16`
+- lokaler unreleaster Migrationsstand: `v1.4.5` / VersionCode `17`
 - bestehender Inclusion-MR: `fdroid/fdroiddata!46500` auf Branch
   `m00sfett/fdroiddata:add-de.hohnepeople.keepadb`
 - Ziel: offizieller F-Droid-Katalog
@@ -29,8 +44,16 @@ Bekannte Identität:
 
 Die dauerhafte Upstream-Signieridentität, ihre öffentliche Zertifikatskennung, die
 Vaultwarden-Ablage und der verpflichtende Wiederherstellungscheck sind in
-[`docs/release-signing.md`](docs/release-signing.md) dokumentiert. Private Schlüsselwerte
+`$metadata_root/docs/release-signing.md` ([Dokument](docs/release-signing.md)) dokumentiert. Private Schlüsselwerte
 gehören weder in diese Datei noch in andere Projektartefakte.
+
+Lokale Codebefehle werden immer aus dem `version_root` ausgeführt, zum Beispiel:
+
+```bash
+(cd "$version_root" && ./bin/verify)
+(cd "$version_root" && ./bin/check-i18n)
+(cd "$version_root" && git status --short)
+```
 
 ## Auftrag an den KeepADB-Produktagenten
 
@@ -80,7 +103,7 @@ ausdrückliche Freigabe des Nutzers.
 
 Nach Abschluss dieses Auftrags bitte den Befund hier ablegen:
 
-`notes/f-droid-intake-report.md`
+`$metadata_root/notes/f-droid-intake-report.md`
 
 Der Bericht muss enthalten:
 

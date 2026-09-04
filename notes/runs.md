@@ -703,3 +703,25 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   Kein Befund, kein Korrekturbedarf.
 - **Nicht durchgeführt:** Tag/GitHub-Release für 1.4.5, F-Droid-MR-Update — beides noch nicht
   freigegeben (Stand dieses Eintrags).
+
+## 2026-09-04 — Projektstruktur-Trennung `keepadb` ausgeführt
+
+- Die gemischte Arbeitskopie wurde history-preserving in den lokalen Metadaten-Root und den
+  unabhängigen Code-Root `code/v1` getrennt. Der äußere Root ist jetzt ein lokales Git-Repository
+  ohne GitHub-Remote; der innere Root arbeitet auf Branch `migration/code-v1` mit dem bestehenden
+  öffentlichen Repository als Remote.
+- Äußerer Commit: lokaler Metadaten-Commit auf Parent
+  `9bd9b77c8e3d337927f8a30ac13952b8acbf29c2` (exakter finaler Hash im Laufplan). Innerer Commit:
+  `9bbe22978c665a5be571b4085114d3d2b23b6d88` auf Parent
+  `46a1ec1826183893aaddfeb0f49e7aba7e998254`.
+- Der innere Remote-Branch zeigt auf den inneren Commit. Öffentlicher `master`, bestehende Tags,
+  Releases und F-Droid-MR `!46500` wurden nicht verändert; die alte öffentliche Historie bleibt
+  ausdrücklich unverändert und ist kein Blocker.
+- Die strukturelle Abnahme bestand: getrennte Git-Grenzen, Pfad-Allowlists, Historien-/Ref- und
+  Metadaten-Readbacks, Routing, F-Droid-Rootform, Besitzer/Modi und `fsck`. Tests, Builds,
+  Geräteaktionen, GitHub Actions, Releases und F-Droid-MR-Aktionen wurden in diesem Lauf nicht
+  ausgeführt.
+- Vollständige Backups und Quarantänebestände bleiben bis nach einem erfolgreich abgeschlossenen
+  F-Droid-Releasezyklus mit der neuen Struktur erhalten:
+  `/home/tobias/agent/backup/2026-09-04/keepadb-pre-structure-20260904T174004Z` und
+  `/home/tobias/agent/backup/2026-09-04/keepadb-structure-20260904T174004Z`.
