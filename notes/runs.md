@@ -725,3 +725,15 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   F-Droid-Releasezyklus mit der neuen Struktur erhalten:
   `/home/tobias/agent/backup/2026-09-04/keepadb-pre-structure-20260904T174004Z` und
   `/home/tobias/agent/backup/2026-09-04/keepadb-structure-20260904T174004Z`.
+
+## 2026-09-04 — Promotions- und F-Droid-Folgeplan
+
+- Der Folgeplan `notes/projektstruktur-trennung-promotionsplan.md` hält den nächsten Abschnitt
+  nach der Strukturtrennung dauerhaft fest: Übergangsbranch behalten, read-only Promotions- und
+  F-Droid-Vorprüfung, anschließend ausdrücklich freigegebene nicht-destruktive Promotion nach
+  `master`, danach der vollständige F-Droid-Zyklus.
+- Dokumentiert sind die lokale-vs.-öffentliche Git-Grenze, die Gründe für den Zwischenbranch, der
+  Umgang mit der gefilterten Historie ohne Force-Push, das Nachziehen des inneren Arbeitsbranches,
+  getrennte Release-Gates, Rückfallwege und die Backup-Aufbewahrung bis `published`.
+- In diesem Planungslauf wurden keine GitHub-, PR-, Merge-, Tag-, Release-, Workflow- oder
+  F-Droid-Aktionen ausgeführt.
