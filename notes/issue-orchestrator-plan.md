@@ -6971,3 +6971,53 @@ die App-Buildkette ab sofort automatisch, ob so etwas nochmal passiert.
 
 - **plan_updated_at:** 2026-09-05T~01:30:00Z
 - **Zustand:** `in progress (#237)`
+
+---
+
+## Übergabe-Checkpoint — `--cleanup`-Lauf — 2026-09-04
+
+**Auslöser:** `$release-fdroid --dry` fand zwei Blocker (Changelog/Doku-Lücken für #240/#241 und
+#237/#238; fehlender Review-Nachweis für #237/#238 trotz Nutzerauftrag „review für alle"), danach
+`$issue-orchestrator-eco --cleanup`.
+
+**#237/#238 abgeschlossen:** Beide Issues waren bereits gemergt (`752913e`, `b5295ad`), der Plan
+brach aber bei `in progress (#237)` ab. Review nachgeholt (siehe `notes/runs.md`,
+2026-09-04-Eintrag): `bin/check-i18n` erfüllt alle drei zugesagten Reparaturen, keine Funde. GitHub
+zeigt beide Issues als `CLOSED` (2026-09-03).
+
+**Changelog/Doku nachgezogen:** `CHANGELOG.md` `[1.4.5]` und `fastlane/.../changelogs/17.txt` um
+#240/#241 und #237/#238 ergänzt; `17.txt` war mit 583 Zeichen bereits vor der Ergänzung über dem
+F-Droid-Limit (500) — gekürzt auf 351 Zeichen. `README.md` und `docs/release-signing.md` von
+v1.4.3/v1.4.4 auf den tatsächlichen Stand (v1.4.4 veröffentlicht, 1.4.5/17 in Entwicklung)
+korrigiert. Commits `7d2d79f`, `182e3ca`, gepusht.
+
+**`--cleanup`-Ledger (Baseline v1.4.4 → HEAD `182e3ca`, 46 Commits):**
+- Offene Issues: keine. Offene PRs: keine. `github-drift`: sauber, Board deckungsgleich.
+- 13 seit Baseline geschlossene Issues (#224–#240) haben dokumentierte Gates/Geräte- oder
+  Reviewnachweise in `notes/runs.md`, bis auf #237/#238 (jetzt nachgeholt, siehe oben).
+- Versions-Ledger: `versionCode 17` / `versionName 1.4.5` durchgängig konsistent in
+  `app/build.gradle`, `CHANGELOG.md`, `fastlane/.../17.txt`, `README.md`,
+  `docs/release-signing.md`. Kein Minor/Major-Sprung, reiner Patch-Kandidat.
+- `git grep TODO/FIXME/XXX`: keine echten Funde (ein Treffer war ein Datumsformat-Muster).
+- `./bin/verify` grün (Unit-Tests inkl. `KeepADBFastlaneChangelogContractTest`, Lint, Debug+Release
+  Build) auf dem Stand nach den Doku-Fixes, vor dem Doku-Commit für `notes/runs.md` (dieser war
+  nicht-code, verify-Ergebnis bleibt gültig für `182e3ca`).
+- **Unverified:** Live-Readback von `https://hohnepeople.de/keepadb` (README/Settings-Verweis)
+  schlägt in dieser Sandbox nach TLS-Handshake mit `unexpected eof while reading` fehl — sieht
+  nach Sandbox-Netzwerkrestriktion aus (Handshake bis Zertifikatstausch läuft durch, DNS/IP
+  auflösbar), nicht zwingend nach echtem Serverdefekt. Kein Nachweis in dieser Umgebung möglich;
+  gehört vor `cleanup-ready` außerhalb der Sandbox oder vom Nutzer geprüft.
+- Signing-Kontinuität: `docs/release-signing.md` enthält bereits einen Wiederherstellungsnachweis
+  für `versionName=1.4.5`/`versionCode=17` vom 2026-09-03 (Zertifikat deckungsgleich mit
+  `AllowedAPKSigningKeys` in `fdroiddata`).
+
+**Roadmap:** kein separates Roadmap-Dokument in diesem Projekt (Plan-Datei übernimmt die Rolle);
+keine Aussage zum Nachziehen.
+
+- **plan_updated_at:** 2026-09-04T~ende
+- **Zustand:** `cleanup-unverified` (ein Punkt: externer Live-Readback in dieser Sandbox nicht
+  durchführbar, alles andere geprüft und sauber)
+
+**Nächster Schritt:** `https://hohnepeople.de/keepadb` außerhalb der Sandbox (z. B. Browser)
+verifizieren, danach `$release-fdroid --dry` erneut — der dort bereits behobene Changelog/Doku-
+Blocker entfällt jetzt.
