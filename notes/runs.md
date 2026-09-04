@@ -665,3 +665,30 @@ Festgehalten: Der Plan ist verbindlich vor dem GitLab-Gate; bei einem neuen Bloc
   `[1.4.5]`-Block; `fastlane/.../changelogs/17.txt` neu angelegt (fehlte bisher).
 - Nebenbefunde als Issues registriert, nicht behoben: #229 (lückenhafte Fastlane-Changelogs),
   #230 (Build braucht explizites `JAVA_HOME` auf java-17, System-Default ist java-26).
+
+## 2026-09-04 — `release-fdroid --dry` Auffälligkeiten behoben + Review #237/#238 nachgeholt
+
+- **Auslöser:** `$release-fdroid --dry` fand zwei Blocker für den unveröffentlichten Stand
+  `1.4.5`/VersionCode 17: (1) `CHANGELOG.md` und `fastlane/.../changelogs/17.txt` erwähnten die
+  bereits gemergten Fixes #240/#241 (Toggle-Border) und #237/#238 (check-i18n-Reparatur) nicht,
+  (2) `README.md` und `docs/release-signing.md` hingen bei v1.4.3/v1.4.4 nach.
+- **Zusatzfund:** `fastlane/.../changelogs/17.txt` überschritt mit 583 Zeichen bereits vor der
+  Ergänzung das F-Droid-Limit von 500 Zeichen — unabhängig vom eigentlichen Auftrag. Text gekürzt
+  und neu formuliert (351 Zeichen), #240 mit aufgenommen.
+- **Doku-Nachzug:** `README.md:56` Beispiel-APK-Name auf `v1.4.5`; `docs/release-signing.md`
+  „aktuell veröffentlicht" auf v1.4.4 (Commit `a1410ae0…`), „aktueller Entwicklungsstand" auf
+  1.4.5/VersionCode 17 korrigiert.
+- **Gates:** `./bin/verify` grün, `git diff --check` sauber, `python3 ./bin/check-i18n` grün.
+  Commit `7d2d79f`, gepusht nach `origin/master`.
+- **Review-Nachholung #237/#238:** Der `--dry`-Lauf stellte fest, dass `notes/issue-orchestrator-
+  plan.md` beim Zustand `in progress (#237)` abbricht, obwohl beide Issues laut Git-Log bereits
+  gemergt waren (`752913e`, `b5295ad`) — der vom Nutzer beauftragte „review für alle" fehlte für
+  diese beiden. Auf Nutzerentscheidung hin (Frage „Review-Lücke" → „Erst Review nachholen") jetzt
+  mechanisch nachgeholt: `bin/check-i18n` erfüllt alle drei zugesagten Reparaturen aus #237
+  (`<plurals>`/`<string-array>` erfasst, `translatable="false"` automatisch übersprungen, verwaiste
+  ALLOWLIST-Einträge auf stderr gemeldet, Exit-Code unbeeinflusst); die in #238 dokumentierten
+  Erkennungsgrenzen im Skript-Docstring decken sich mit dem entsprechenden Abschnitt in
+  `AGENTS.md`. Lauf gegen den aktuellen Bestand: keine Funde, keine verwaisten Allowlist-Einträge.
+  Kein Befund, kein Korrekturbedarf.
+- **Nicht durchgeführt:** Tag/GitHub-Release für 1.4.5, F-Droid-MR-Update — beides noch nicht
+  freigegeben (Stand dieses Eintrags).
