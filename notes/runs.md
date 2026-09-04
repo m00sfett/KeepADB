@@ -1,5 +1,16 @@
 # Runs
 
+## 2026-09-04 — Project rename to KeepADB
+
+- Renamed the canonical local project directory from `smartphone-wlan-adb-app` to `keepadb`.
+- Synchronized the project-container index, manual classification, structural inventory,
+  `~/P/keepadb`, Codex trust registration, website-drift tool configuration, and active
+  cross-project source references.
+- Kept the Android application ID, namespace, GitHub repository, F-Droid identity, and
+  historical audit/backup/session references unchanged.
+- No APK/build/test/device/release action performed; no application version bump because the
+  binary and public product identity did not change.
+
 ## 2026-08-22 — F-Droid preparation handoff
 
 - **Purpose:** Record the project-specific preparation for the official F-Droid catalog as

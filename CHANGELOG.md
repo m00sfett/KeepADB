@@ -29,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the banner.
 
 ### Documentation
+- Renamed the canonical local project directory to `keepadb` and synchronized the local
+  project registrations; the Android package and application identity remain unchanged.
 - Backfilled the previously incomplete Fastlane "what's new" changelogs for all past versionCodes,
   and added a contract test requiring a changelog entry for the current versionCode (issue #229).
 - `./bin/gradlew` now sets `JAVA_HOME` to JDK 17 before delegating to the real Gradle wrapper, so
