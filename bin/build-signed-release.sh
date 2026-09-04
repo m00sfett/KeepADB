@@ -5,25 +5,38 @@
 # Mirrors, step for step:
 #   - JDK 21 (release.yml: actions/setup-java with java-version 21)
 #   - Android build-tools 34.0.0 (release.yml: sdkmanager "build-tools;34.0.0")
-#   - ./gradlew testDebugUnitTest lintDebug assembleRelease (release.yml: "Build unsigned release APK")
+#   - "$VERSION_ROOT/gradlew" testDebugUnitTest lintDebug assembleRelease (release.yml: "Build unsigned release APK")
 #   - apksigner sign --v1-signing-enabled false --v2-signing-enabled true
 #     --v3-signing-enabled true --v4-signing-enabled false (release.yml: "Sign and verify release APK")
 #   - apksigner verify --verbose --print-certs
 #   - sha256sum > *.apk.sha256
 #
 # Fail-closed keystore verification (not present in CI, which trusts the GitHub Secret):
-#   - keystore SHA-256 checked against docs/release-signing.md BEFORE it is used to sign
-#   - resulting APK's certificate SHA-256 checked against docs/release-signing.md AFTER signing
+#   - keystore SHA-256 checked against the resolved signing document BEFORE it is used to sign
+#   - resulting APK's certificate SHA-256 checked against the resolved signing document AFTER signing
 # A mismatch at either point aborts before anything is written outside the temp workspace.
 #
 # Secrets are never printed: passwords stay in shell variables scoped to this script's
 # subshell, and the recovered keystore + vault notes are shredded in a trap on every exit path.
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$SCRIPT_DIR"
+VERSION_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+METADATA_ROOT="$(cd "$VERSION_ROOT/../.." && pwd)"
+cd "$VERSION_ROOT"
 
-DOC="docs/release-signing.md"
+if [[ -n "${KEEPADB_SIGNING_DOC:-}" ]]; then
+  [[ "$KEEPADB_SIGNING_DOC" = /* ]] || {
+    echo "FATAL: KEEPADB_SIGNING_DOC must be an absolute path." >&2
+    exit 1
+  }
+  DOC="$KEEPADB_SIGNING_DOC"
+else
+  DOC="$METADATA_ROOT/docs/release-signing.md"
+fi
+if [[ ! -f "$DOC" ]]; then
+  echo "FATAL: signing document not found at $DOC. Set KEEPADB_SIGNING_DOC to an absolute path in a public clone." >&2
+  exit 1
+fi
 BUILD_TOOLS="$HOME/Android/Sdk/build-tools/34.0.0"
 JAVA_HOME_RELEASE="/usr/lib/jvm/java-21-openjdk"
 VAULT_ENTRY="android/keepadb-signing"
@@ -37,10 +50,10 @@ if [[ ! -d "$JAVA_HOME_RELEASE" ]]; then
   exit 1
 fi
 
-VERSION_NAME=$(grep -oE "versionName\s+'[^']+'" app/build.gradle | grep -oE "'[^']+'" | tr -d "'")
-VERSION_CODE=$(grep -oE 'versionCode\s+[0-9]+' app/build.gradle | grep -oE '[0-9]+')
+VERSION_NAME=$(grep -oE "versionName\s+'[^']+'" "$VERSION_ROOT/app/build.gradle" | grep -oE "'[^']+'" | tr -d "'")
+VERSION_CODE=$(grep -oE 'versionCode\s+[0-9]+' "$VERSION_ROOT/app/build.gradle" | grep -oE '[0-9]+')
 if [[ -z "$VERSION_NAME" || -z "$VERSION_CODE" ]]; then
-  echo "FATAL: could not read versionName/versionCode from app/build.gradle." >&2
+  echo "FATAL: could not read versionName/versionCode from $VERSION_ROOT/app/build.gradle." >&2
   exit 1
 fi
 
@@ -78,7 +91,7 @@ echo "==> [2/6] Verifying keystore fingerprint (fail-closed)..."
 ACTUAL_KEYSTORE_SHA256=$(sha256sum "$KEYSTORE" | cut -d' ' -f1)
 if [[ "$ACTUAL_KEYSTORE_SHA256" != "$EXPECTED_KEYSTORE_SHA256" ]]; then
   echo "FATAL: keystore SHA-256 mismatch." >&2
-  echo "  expected (docs/release-signing.md): $EXPECTED_KEYSTORE_SHA256" >&2
+  echo "  expected (resolved signing document): $EXPECTED_KEYSTORE_SHA256" >&2
   echo "  actual (Vaultwarden recovery):      $ACTUAL_KEYSTORE_SHA256" >&2
   echo "  Refusing to sign with an unverified keystore. Do not proceed without resolving this." >&2
   exit 1
@@ -86,15 +99,15 @@ fi
 echo "    OK: keystore matches documented fingerprint."
 
 echo "==> [3/6] Building unsigned release APK (JDK 21, matches release.yml)..."
-JAVA_HOME="$JAVA_HOME_RELEASE" ./gradlew testDebugUnitTest lintDebug assembleRelease
+JAVA_HOME="$JAVA_HOME_RELEASE" "$VERSION_ROOT/gradlew" testDebugUnitTest lintDebug assembleRelease
 
-UNSIGNED_APK=$(find app/build/outputs/apk/release -maxdepth 1 -name "*-unsigned.apk" | head -1)
+UNSIGNED_APK=$(find "$VERSION_ROOT/app/build/outputs/apk/release" -maxdepth 1 -name "*-unsigned.apk" | head -1)
 if [[ -z "$UNSIGNED_APK" ]]; then
-  echo "FATAL: no unsigned release APK found under app/build/outputs/apk/release/." >&2
+  echo "FATAL: no unsigned release APK found under $VERSION_ROOT/app/build/outputs/apk/release/." >&2
   exit 1
 fi
 
-OUT_DIR="app/build/outputs/apk/release"
+OUT_DIR="$VERSION_ROOT/app/build/outputs/apk/release"
 FINAL_APK="$OUT_DIR/KeepADB-v${VERSION_NAME}.apk"
 
 echo "==> [4/6] Signing with apksigner (v2+v3 only, matches release.yml)..."
@@ -119,7 +132,7 @@ echo "==> [5/6] Verifying signature and certificate fingerprint (fail-closed)...
 ACTUAL_CERT_SHA256=$("$BUILD_TOOLS/apksigner" verify --print-certs "$FINAL_APK" 2>/dev/null \
   | grep "SHA-256 digest" | head -1 | grep -oE '[0-9a-f]{64}')
 if [[ "$ACTUAL_CERT_SHA256" != "$EXPECTED_CERT_SHA256" ]]; then
-  echo "FATAL: signed APK's certificate SHA-256 does not match docs/release-signing.md." >&2
+  echo "FATAL: signed APK's certificate SHA-256 does not match the resolved signing document." >&2
   echo "  expected: $EXPECTED_CERT_SHA256" >&2
   echo "  actual:   $ACTUAL_CERT_SHA256" >&2
   rm -f "$FINAL_APK"
