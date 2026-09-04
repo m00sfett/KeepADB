@@ -37,12 +37,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   loanword such as "Webhook" can stay verbatim in the 16 languages that keep it, while the same
   string copied into Hindi or Korean — which transliterate it — is still reported as a finding
   (issue #236).
+- `./bin/check-i18n` now also parses `<plurals>` and `<string-array>` entries instead of only
+  `<string>`, automatically skips `translatable="false"` reference keys, and reports orphaned
+  `ALLOWLIST` entries that no longer suppress a finding (issue #237).
+- Documented the detection limits of `./bin/check-i18n`: it proves the absence of an exact
+  word-for-word copy, not that a translation is correct, complete, or in the right language. A
+  partial translation with a leftover English fragment or text in the wrong target language both
+  pass silently. A prototyped heuristic for wrong-language detection was evaluated and rejected as
+  too noisy (issue #238).
 
 ### Fixed
 - The advice banner toggle in Settings now updates MainActivity live; the banner's visibility is
   re-read on every resume instead of requiring an app restart (issue #226).
 - The German Settings heading for the screen options section now reads "Bildschirm" instead of the
   untranslated English "Display" (issue #236).
+- The security & network advice toggle panel in Settings is missing its panel background and now
+  has a visible border like every other Settings panel (issue #240).
 
 ## [1.4.4] - 2026-09-02
 

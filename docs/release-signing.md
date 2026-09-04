@@ -1,6 +1,6 @@
 # KeepADB-Release-Signatur
 
-Stand: 2026-09-03
+Stand: 2026-09-04
 
 KeepADB verwendet für GitHub-Releases und die reproduzierbare Veröffentlichung über F-Droid
 eine dauerhafte Upstream-Signieridentität. Sie darf nicht pro Release neu erzeugt oder ohne
@@ -9,11 +9,11 @@ werden.
 
 ## Aktueller Veröffentlichungsstand
 
-Der aktuell veröffentlichte Stand ist [KeepADB v1.4.3](https://github.com/m00sfett/KeepADB/releases/tag/v1.4.3)
-auf dem Quell-Commit `51175de193b3be20be14848b072060717d0ae2db`. Die zugehörigen GitHub-Release-
-Artefakte heißen `KeepADB-v1.4.3.apk` und `KeepADB-v1.4.3.apk.sha256`.
+Der aktuell veröffentlichte Stand ist [KeepADB v1.4.4](https://github.com/m00sfett/KeepADB/releases/tag/v1.4.4)
+auf dem Quell-Commit `a1410ae0d6779618d159bf0d3e42001ebf683a7a`. Die zugehörigen GitHub-Release-
+Artefakte heißen `KeepADB-v1.4.4.apk` und `KeepADB-v1.4.4.apk.sha256`.
 
-Der aktuelle Entwicklungsstand ist `1.4.4` / VersionCode `16` und für den Release vorbereitet.
+Der aktuelle Entwicklungsstand ist `1.4.5` / VersionCode `17` und für den Release vorbereitet.
 Ein neuer Release darf erst nach dem dafür vorgesehenen Freigabe- und Release-Gate als
 veröffentlicht dokumentiert werden.
 
