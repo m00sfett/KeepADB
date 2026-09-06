@@ -24,10 +24,36 @@ public class KeepADBTrustedNetworkContractTest {
     public void automaticReEnableCallSitesAreGuarded() throws IOException {
         String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
         String endpoint = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
+        String usbHandover = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbHandover.java");
 
         assertTrue(service.contains("KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)"));
         assertTrue(service.contains("KeepADBTrustedNetwork.isCurrentNetworkTrusted(KeepADBService.this)"));
         assertTrue(endpoint.contains("KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext)"));
+        assertTrue(usbHandover.contains("KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext)"));
+        // The manual "Enable WLAN-ADB" notification action must stay ungated: it's a direct
+        // user request, not an automatic re-enable, so it must never mention the allowlist.
+        String manualActionBody = methodBody(usbHandover, "static boolean handleManualAction(Context context) {");
+        assertFalse(manualActionBody.contains("KeepADBTrustedNetwork"));
+    }
+
+    private static String methodBody(String source, String signature) {
+        int methodStart = source.indexOf(signature);
+        assertTrue("Missing method: " + signature, methodStart >= 0);
+        int openingBrace = source.indexOf('{', methodStart);
+        assertTrue("Missing opening brace: " + signature, openingBrace > methodStart);
+        int depth = 0;
+        int methodEnd = -1;
+        for (int i = openingBrace; i < source.length(); i++) {
+            char current = source.charAt(i);
+            if (current == '{') {
+                depth++;
+            } else if (current == '}' && --depth == 0) {
+                methodEnd = i;
+                break;
+            }
+        }
+        assertTrue("Missing closing brace: " + signature, methodEnd > openingBrace);
+        return source.substring(methodStart, methodEnd + 1);
     }
 
     @Test
