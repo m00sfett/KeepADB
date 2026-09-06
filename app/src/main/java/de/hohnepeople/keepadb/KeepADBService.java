@@ -66,15 +66,8 @@ public class KeepADBService extends Service {
     }
 
     static boolean isWifiConnected(Context context) {
-        ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
-        if (cm != null) {
-            for (Network network : cm.getAllNetworks()) {
-                NetworkCapabilities caps = cm.getNetworkCapabilities(network);
-                if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-                        && !caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
-                    return true;
-                }
-            }
+        if (KeepADBNetwork.get(context).isWifiConnected()) {
+            return true;
         }
         return KeepADBEndpoint.getWifiIpAddress(context) != null;
     }

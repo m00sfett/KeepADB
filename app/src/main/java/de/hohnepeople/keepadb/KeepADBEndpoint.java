@@ -1,11 +1,6 @@
 package de.hohnepeople.keepadb;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.LinkAddress;
-import android.net.LinkProperties;
-import android.net.Network;
-import android.net.NetworkCapabilities;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiInfo;
@@ -13,7 +8,6 @@ import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -596,23 +590,7 @@ final class KeepADBEndpoint {
         }
 
         try {
-            ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
-            if (cm != null) {
-                for (Network network : cm.getAllNetworks()) {
-                    NetworkCapabilities caps = cm.getNetworkCapabilities(network);
-                    if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                        LinkProperties lp = cm.getLinkProperties(network);
-                        if (lp != null) {
-                            for (LinkAddress la : lp.getLinkAddresses()) {
-                                InetAddress addr = la.getAddress();
-                                if (addr instanceof Inet4Address && !addr.isLoopbackAddress() && !addr.isLinkLocalAddress()) {
-                                    return addr.getHostAddress();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            return KeepADBNetwork.get(context).getWifiIpv4Address();
         } catch (Exception ignored) {
         }
         return null;
@@ -631,19 +609,7 @@ final class KeepADBEndpoint {
         if (addr.isLoopbackAddress() || addr.isLinkLocalAddress()) return true;
         if (context == null) return false;
         try {
-            ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
-            if (cm != null) {
-                for (Network network : cm.getAllNetworks()) {
-                    LinkProperties lp = cm.getLinkProperties(network);
-                    if (lp != null) {
-                        for (LinkAddress la : lp.getLinkAddresses()) {
-                            if (addr.equals(la.getAddress())) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
+            return KeepADBNetwork.get(context).isKnownLocalAddress(addr);
         } catch (Exception ignored) {
         }
         return false;
