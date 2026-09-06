@@ -87,15 +87,16 @@ kein Kandidatenblocker), und #259 als neues, noch unbewertetes Backlog-Item.
   Freigabe). `CHANGELOG.md` und `fastlane/.../changelogs/20.txt` nachgezogen.
 - **Ungeprüft/nachgelagert:** Geräte-/UI-Smoke-Test des Button-Umschaltens und der
   BSSID-Anzeige (keine Testfreigabe in diesem Lauf erteilt).
-- **Offene Freigabe:** Push + PR öffnen (löst CI-Run aus) — braucht explizite Freigabe für
-  genau diesen Workflow/Zweck, dann Auto-Finish (Checks abwarten, mergen, #262/#264 schließen).
+- **Nutzerentscheidung 2026-09-06:** Vorerst nicht pushen/PR öffnen (b) — Branch bleibt lokal,
+  kein CI-Run ausgelöst. #262/#264 bleiben auf GitHub offen, bis diese Entscheidung revidiert
+  wird.
 
 ## Nächster Schritt
 
-Nach Freigabe: Branch pushen, PR öffnen (`Fixes #262, Fixes #264`), CI-Checks abwarten, mergen,
-Board/Issues nachziehen. Danach bleiben **#259** (unabhängig, direkt startbar, S1), **#260**
-(Migrations-Entscheidung offen), **#263** (Wording-Entscheidung offen) und **#265** (reine
-Architekturfrage, kein Implementierungsauftrag) im Backlog.
+Branch `feature/262-264-trusted-network-button-bssid` (Commit `d8ae1b5`) bleibt lokal liegen,
+bis der Nutzer Push/PR freigibt. Bis dahin im Backlog verfügbar: **#259** (unabhängig, direkt
+startbar, S1), **#260** (Migrations-Entscheidung offen), **#263** (Wording-Entscheidung offen),
+**#265** (reine Architekturfrage, kein Implementierungsauftrag).
 
 - **issue_snapshot_at:** 2026-09-06T22:34Z (sechs offene Issues: #259, #260, #262, #263, #264, #265)
 - **plan_updated_at:** 2026-09-06
