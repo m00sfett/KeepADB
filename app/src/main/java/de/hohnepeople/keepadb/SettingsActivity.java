@@ -317,7 +317,11 @@ public class SettingsActivity extends Activity {
                 .setTitle(R.string.settings_trusted_network_permission_title)
                 .setMessage(R.string.settings_trusted_network_permission_message)
                 .setPositiveButton(R.string.settings_trusted_network_permission_grant, (dialog, which) ->
-                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        // Requested together per Android's guidance for FINE: the system then
+                        // offers the user a precise/approximate choice in one dialog. Only a
+                        // FINE grant is actually usable here (see onRequestPermissionsResult).
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION},
                                 TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST))
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
@@ -327,7 +331,14 @@ public class SettingsActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST) {
-            boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            boolean granted = false;
+            for (int i = 0; i < permissions.length; i++) {
+                if (Manifest.permission.ACCESS_FINE_LOCATION.equals(permissions[i])
+                        && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    granted = true;
+                    break;
+                }
+            }
             if (granted) {
                 KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
             } else {
