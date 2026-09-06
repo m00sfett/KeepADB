@@ -91,12 +91,21 @@ kein Kandidatenblocker), und #259 als neues, noch unbewertetes Backlog-Item.
   kein CI-Run ausgelöst. #262/#264 bleiben auf GitHub offen, bis diese Entscheidung revidiert
   wird.
 
+## Übergabe-Checkpoint — #265 entschieden, #266 neu (2026-09-06)
+
+- **Nutzerentscheidung:** Hybrid-Ansatz für Mesh-Verhalten (BSSID bleibt Vergleichsschlüssel,
+  zusätzlich Sammel-Hinzufügen bekannter BSSIDs derselben SSID). #265 geschlossen, als
+  Umsetzungs-Issue **#266** neu zugeschnitten (S3 — neue persistente Historie-Komponente,
+  Datenschutzanforderungen, UI-Erweiterung; kein triviales Paket).
+- Board/Cache/Drift nachgezogen; einziger verbleibender Drift-Fund (`migration/code-v1`)
+  unverändert, gehört nicht zu diesem Strang.
+
 ## Nächster Schritt
 
 Branch `feature/262-264-trusted-network-button-bssid` (Commit `d8ae1b5`) bleibt lokal liegen,
-bis der Nutzer Push/PR freigibt. Bis dahin im Backlog verfügbar: **#259** (unabhängig, direkt
-startbar, S1), **#260** (Migrations-Entscheidung offen), **#263** (Wording-Entscheidung offen),
-**#265** (reine Architekturfrage, kein Implementierungsauftrag).
+bis der Nutzer Push/PR freigibt. Offener Backlog: **#259** (unabhängig, direkt startbar, S1),
+**#260** (Migrations-Entscheidung offen), **#263** (Wording-Entscheidung offen), **#266**
+(Mesh-Hybrid, S3, direkt umsetzbar nach heutiger Entscheidung).
 
 - **issue_snapshot_at:** 2026-09-06T22:34Z (sechs offene Issues: #259, #260, #262, #263, #264, #265)
 - **plan_updated_at:** 2026-09-06

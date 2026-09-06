@@ -1,11 +1,19 @@
 {
+  "266": {
+    "title": "Trusted Networks: Mesh-Hybrid — BSSID-Historie je SSID + Sammel-Hinzufügen",
+    "scope": "Umsetzung der in #265 getroffenen Nutzerentscheidung (Hybrid): neue BSSID-Beobachtungshistorie je SSID, UI-Erweiterung beim Hinzufügen (Sammel-Übernahme bekannter BSSIDs), Datenschutzanforderungen an die Historie.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s3",
+    "updatedAt": "2026-09-06T22:50:00Z",
+    "status": "open"
+  },
   "265": {
     "title": "Trusted Networks: Verhalten bei Mesh-Netzwerken (AP-Wechsel, gleiche SSID) klären",
-    "scope": "Architekturentscheidung, kein Implementierungsauftrag: BSSID-Matching verliert Trust-Status beim Roaming zwischen APs derselben Mesh-SSID. Drei Optionen (Status quo pro-AP, SSID-Gruppierung, Hybrid) zur Nutzerentscheidung vorgelegt.",
-    "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-06T22:33:14Z",
-    "status": "open"
+    "scope": "Architekturentscheidung: Nutzerentscheidung 2026-09-06 für Hybrid-Ansatz gefallen, als #266 neu zugeschnitten.",
+    "decomposition": "zerlegt in #266",
+    "stage": "n/a (Entscheidungs-Issue, entschieden)",
+    "updatedAt": "2026-09-06T22:50:00Z",
+    "status": "closed"
   },
   "264": {
     "title": "Trusted Networks: BSSID in der Verwaltungsliste anzeigen",
