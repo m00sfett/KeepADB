@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_subtext">可選擇將 Keep-Alive 的自動重新啟用限制為您標記為受信任的 Wi-Fi 網路。無論此設定為何,手動切換一律有效。</string>
     <string name="settings_trusted_network_toggle">將 Keep-Alive 限制為受信任的網路</string>
     <string name="settings_trusted_network_add_button">新增目前網路</string>
+    <string name="settings_trusted_network_remove_button">移除目前網路</string>
     <string name="settings_trusted_network_manage_button">管理受信任的網路</string>
     <string name="settings_trusted_network_status_untrusted">自動重新啟用已暫停:此 Wi-Fi 網路不在您的受信任清單中。</string>
     <string name="settings_trusted_network_status_identity_unavailable">自動重新啟用已暫停:無法判斷目前網路的身分。</string>
@@ -62,6 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_permission_denied_toast">權限遭拒 — 將維持「所有 Wi-Fi 網路」模式。</string>
     <string name="settings_trusted_network_add_failed_toast">無法判斷目前網路。請檢查 Wi-Fi 連線與位置權限。</string>
     <string name="settings_trusted_network_added_toast">已將「%1$s」新增至受信任的網路</string>
+    <string name="settings_trusted_network_removed_toast">已將「%1$s」從受信任的網路中移除</string>
     <string name="settings_trusted_network_manage_title">受信任的網路</string>
     <string name="settings_trusted_network_empty_message">尚未新增受信任的網路。</string>
     <string name="settings_trusted_network_delete_button">移除</string>

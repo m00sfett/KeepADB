@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_subtext">Batasi pengaktifan ulang otomatis Keep-Alive secara opsional hanya pada jaringan Wi-Fi yang telah Anda tandai tepercaya. Peralihan manual selalu berfungsi terlepas dari pengaturan ini.</string>
     <string name="settings_trusted_network_toggle">Batasi Keep-Alive pada jaringan tepercaya</string>
     <string name="settings_trusted_network_add_button">Tambahkan jaringan saat ini</string>
+    <string name="settings_trusted_network_remove_button">Hapus jaringan saat ini</string>
     <string name="settings_trusted_network_manage_button">Kelola jaringan tepercaya</string>
     <string name="settings_trusted_network_status_untrusted">Pengaktifan ulang otomatis dijeda: jaringan Wi-Fi ini tidak ada dalam daftar tepercaya Anda.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Pengaktifan ulang otomatis dijeda: identitas jaringan saat ini tidak dapat ditentukan.</string>
@@ -62,6 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_permission_denied_toast">Izin ditolak — tetap pada mode \"semua jaringan Wi-Fi\".</string>
     <string name="settings_trusted_network_add_failed_toast">Tidak dapat menentukan jaringan saat ini. Periksa koneksi Wi-Fi dan izin lokasi.</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" ditambahkan ke jaringan tepercaya</string>
+    <string name="settings_trusted_network_removed_toast">"%1$s" dihapus dari jaringan tepercaya</string>
     <string name="settings_trusted_network_manage_title">Jaringan tepercaya</string>
     <string name="settings_trusted_network_empty_message">Belum ada jaringan tepercaya yang ditambahkan.</string>
     <string name="settings_trusted_network_delete_button">Hapus</string>

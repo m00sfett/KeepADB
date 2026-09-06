@@ -94,6 +94,24 @@ final class KeepADBTrustedNetwork {
         return entry;
     }
 
+    /** The current network's own allowlist entry, or null if unknown or not yet listed. */
+    static Entry findEntryForCurrentNetwork(Context context) {
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
+        if (!identity.isKnown()) return null;
+        for (Entry entry : getEntries(context)) {
+            if (entry.bssid.equalsIgnoreCase(identity.bssid)) return entry;
+        }
+        return null;
+    }
+
+    /** Removes the currently connected Wi-Fi network's entry, if it has one. Returns the
+     * removed entry, or null if the current network's identity is unknown or unlisted. */
+    static Entry removeCurrentNetwork(Context context) {
+        Entry entry = findEntryForCurrentNetwork(context);
+        if (entry == null) return null;
+        return remove(context, entry.id) ? entry : null;
+    }
+
     static boolean remove(Context context, int id) {
         SharedPreferences preferences = prefs(context);
         List<Entry> entries = getEntries(context);

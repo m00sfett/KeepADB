@@ -1,0 +1,1 @@
+Trusted-network allowlist: "Add current network" now switches to "Remove current network" for an already-trusted network, and the management list shows each entry's BSSID.

@@ -128,7 +128,7 @@ public class SettingsActivity extends Activity {
         trustedNetworkAdd = findViewById(R.id.settings_trusted_network_add);
         trustedNetworkManage = findViewById(R.id.settings_trusted_network_manage);
         trustedNetworkToggle.setOnClickListener(v -> onTrustedNetworkToggleClicked());
-        trustedNetworkAdd.setOnClickListener(v -> onAddCurrentNetworkClicked());
+        trustedNetworkAdd.setOnClickListener(v -> onAddOrRemoveCurrentNetworkClicked());
         trustedNetworkManage.setOnClickListener(v -> showTrustedNetworkManageDialog());
 
         findViewById(R.id.settings_diagnostics_export).setOnClickListener(v -> shareDiagnostics());
@@ -347,7 +347,18 @@ public class SettingsActivity extends Activity {
         }
     }
 
-    private void onAddCurrentNetworkClicked() {
+    private void onAddOrRemoveCurrentNetworkClicked() {
+        if (KeepADBTrustedNetwork.findEntryForCurrentNetwork(this) != null) {
+            KeepADBTrustedNetwork.Entry removed = KeepADBTrustedNetwork.removeCurrentNetwork(this);
+            if (removed == null) {
+                Toast.makeText(this, R.string.settings_trusted_network_add_failed_toast, Toast.LENGTH_LONG).show();
+                return;
+            }
+            Toast.makeText(this, getString(R.string.settings_trusted_network_removed_toast, removed.label),
+                    Toast.LENGTH_SHORT).show();
+            refresh();
+            return;
+        }
         KeepADBTrustedNetwork.Entry entry = KeepADBTrustedNetwork.addCurrentNetwork(this, null);
         if (entry == null) {
             Toast.makeText(this, R.string.settings_trusted_network_add_failed_toast, Toast.LENGTH_LONG).show();
@@ -376,11 +387,19 @@ public class SettingsActivity extends Activity {
         for (KeepADBTrustedNetwork.Entry entry : entries) {
             android.widget.LinearLayout row = new android.widget.LinearLayout(this);
             row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            android.widget.LinearLayout labelColumn = new android.widget.LinearLayout(this);
+            labelColumn.setOrientation(android.widget.LinearLayout.VERTICAL);
+            labelColumn.setLayoutParams(new android.widget.LinearLayout.LayoutParams(0,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1));
             TextView label = new TextView(this);
             label.setText(entry.label);
             label.setTextColor(getColor(R.color.night_text));
-            label.setLayoutParams(new android.widget.LinearLayout.LayoutParams(0,
-                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            TextView bssid = new TextView(this);
+            bssid.setText(entry.bssid);
+            bssid.setTextColor(getColor(R.color.night_muted));
+            bssid.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+            labelColumn.addView(label);
+            labelColumn.addView(bssid);
             Button delete = new Button(this);
             delete.setText(R.string.settings_trusted_network_delete_button);
             delete.setOnClickListener(v -> {
@@ -388,7 +407,7 @@ public class SettingsActivity extends Activity {
                 dialogHolder[0].dismiss();
                 refresh();
             });
-            row.addView(label);
+            row.addView(labelColumn);
             row.addView(delete);
             rows.addView(row);
         }
@@ -680,6 +699,9 @@ public class SettingsActivity extends Activity {
         } else {
             trustedNetworkStatus.setVisibility(View.GONE);
         }
+        trustedNetworkAdd.setText(KeepADBTrustedNetwork.findEntryForCurrentNetwork(this) != null
+                ? R.string.settings_trusted_network_remove_button
+                : R.string.settings_trusted_network_add_button);
 
         String savedWebhookUrl = KeepADBPreferences.getRegisterWebhookUrl(this);
         boolean showCleartextWarning = savedWebhookUrl != null

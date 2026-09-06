@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_subtext">Restreignez éventuellement la réactivation automatique de Keep-Alive aux réseaux Wi-Fi que vous avez marqués comme fiables. La bascule manuelle fonctionne toujours, quel que soit ce réglage.</string>
     <string name="settings_trusted_network_toggle">Restreindre Keep-Alive aux réseaux de confiance</string>
     <string name="settings_trusted_network_add_button">Ajouter le réseau actuel</string>
+    <string name="settings_trusted_network_remove_button">Supprimer le réseau actuel</string>
     <string name="settings_trusted_network_manage_button">Gérer les réseaux de confiance</string>
     <string name="settings_trusted_network_status_untrusted">Réactivation automatique en pause : ce réseau Wi-Fi n\'est pas dans votre liste de confiance.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Réactivation automatique en pause : l\'identité du réseau actuel est indéterminable.</string>
@@ -62,6 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_permission_denied_toast">Autorisation refusée — maintien du mode « tous les réseaux Wi-Fi ».</string>
     <string name="settings_trusted_network_add_failed_toast">Impossible de déterminer le réseau actuel. Vérifiez la connexion Wi-Fi et l\'autorisation de localisation.</string>
     <string name="settings_trusted_network_added_toast">« %1$s » ajouté aux réseaux de confiance</string>
+    <string name="settings_trusted_network_removed_toast">« %1$s » supprimé des réseaux de confiance</string>
     <string name="settings_trusted_network_manage_title">Réseaux de confiance</string>
     <string name="settings_trusted_network_empty_message">Aucun réseau de confiance ajouté pour l\'instant.</string>
     <string name="settings_trusted_network_delete_button">Supprimer</string>

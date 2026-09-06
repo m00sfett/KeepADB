@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_subtext">يمكنك تقييد إعادة التفعيل التلقائي لـ Keep-Alive على شبكات Wi-Fi التي حددتها كموثوقة. يظل التبديل اليدوي يعمل دائمًا بغض النظر عن هذا الإعداد.</string>
     <string name="settings_trusted_network_toggle">تقييد Keep-Alive على الشبكات الموثوقة</string>
     <string name="settings_trusted_network_add_button">إضافة الشبكة الحالية</string>
+    <string name="settings_trusted_network_remove_button">إزالة الشبكة الحالية</string>
     <string name="settings_trusted_network_manage_button">إدارة الشبكات الموثوقة</string>
     <string name="settings_trusted_network_status_untrusted">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: هذه الشبكة ليست ضمن قائمتك الموثوقة.</string>
     <string name="settings_trusted_network_status_identity_unavailable">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: لا يمكن تحديد هوية الشبكة الحالية.</string>
@@ -62,6 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_permission_denied_toast">تم رفض الإذن — البقاء في وضع «كل شبكات Wi-Fi».</string>
     <string name="settings_trusted_network_add_failed_toast">تعذر تحديد الشبكة الحالية. تحقق من اتصال Wi-Fi وإذن الموقع.</string>
     <string name="settings_trusted_network_added_toast">تمت إضافة \"%1$s\" إلى الشبكات الموثوقة</string>
+    <string name="settings_trusted_network_removed_toast">تمت إزالة "%1$s" من الشبكات الموثوقة</string>
     <string name="settings_trusted_network_manage_title">الشبكات الموثوقة</string>
     <string name="settings_trusted_network_empty_message">لم تتم إضافة أي شبكات موثوقة بعد.</string>
     <string name="settings_trusted_network_delete_button">إزالة</string>

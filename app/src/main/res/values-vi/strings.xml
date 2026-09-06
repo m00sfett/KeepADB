@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_subtext">Tùy chọn giới hạn việc tự động bật lại Keep-Alive chỉ với các mạng Wi-Fi bạn đã đánh dấu là đáng tin cậy. Chuyển đổi thủ công luôn hoạt động bất kể cài đặt này.</string>
     <string name="settings_trusted_network_toggle">Giới hạn Keep-Alive ở các mạng đáng tin cậy</string>
     <string name="settings_trusted_network_add_button">Thêm mạng hiện tại</string>
+    <string name="settings_trusted_network_remove_button">Xóa mạng hiện tại</string>
     <string name="settings_trusted_network_manage_button">Quản lý mạng đáng tin cậy</string>
     <string name="settings_trusted_network_status_untrusted">Tự động bật lại đã tạm dừng: mạng Wi-Fi này không có trong danh sách đáng tin cậy của bạn.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Tự động bật lại đã tạm dừng: không thể xác định danh tính của mạng hiện tại.</string>
@@ -62,6 +63,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_permission_denied_toast">Quyền bị từ chối — vẫn ở chế độ \"tất cả mạng Wi-Fi\".</string>
     <string name="settings_trusted_network_add_failed_toast">Không thể xác định mạng hiện tại. Kiểm tra kết nối Wi-Fi và quyền vị trí.</string>
     <string name="settings_trusted_network_added_toast">Đã thêm \"%1$s\" vào mạng đáng tin cậy</string>
+    <string name="settings_trusted_network_removed_toast">Đã xóa "%1$s" khỏi mạng đáng tin cậy</string>
     <string name="settings_trusted_network_manage_title">Mạng đáng tin cậy</string>
     <string name="settings_trusted_network_empty_message">Chưa có mạng đáng tin cậy nào được thêm.</string>
     <string name="settings_trusted_network_delete_button">Xóa</string>

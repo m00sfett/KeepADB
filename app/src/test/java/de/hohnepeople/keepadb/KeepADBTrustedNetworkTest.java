@@ -49,6 +49,15 @@ public class KeepADBTrustedNetworkTest {
     }
 
     @Test
+    public void findAndRemoveCurrentNetworkFailWithoutAKnownIdentity() {
+        FakeContext context = new FakeContext();
+        // Same JVM-test limitation as addCurrentNetworkFailsWithoutAKnownIdentity: no real
+        // WifiInfo is available, so the current network's identity is always unknown here.
+        assertNull(KeepADBTrustedNetwork.findEntryForCurrentNetwork(context));
+        assertNull(KeepADBTrustedNetwork.removeCurrentNetwork(context));
+    }
+
+    @Test
     public void entriesRoundTripThroughPreferences() {
         FakeContext context = new FakeContext();
         // Exercise the persistence layer directly with a fabricated id list, since a JVM unit

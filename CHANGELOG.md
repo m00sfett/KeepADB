@@ -5,6 +5,15 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-09-06
+
+### Changed
+- The trusted-network "Add current network" button now toggles to "Remove current network"
+  when the currently connected Wi-Fi is already in the allowlist, instead of showing the same
+  "Added" confirmation again (issue #262).
+- The trusted-network management dialog now shows each entry's BSSID under its label, so it's
+  visible which physical access point a listed entry actually matches (issue #264).
+
 ## [1.5.0] - 2026-09-06
 
 Retrospective entry for a batch of 9 issues (#245–#253) merged in PR #254 without a version
