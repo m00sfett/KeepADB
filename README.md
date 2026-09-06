@@ -129,6 +129,18 @@ The unsigned APK used for reproducibility verification will be located at:
 
 Published release APKs are signed separately with the project's stable release key. The private key and credentials are never stored in this repository. F-Droid can rebuild the unsigned APK from the tagged source and publish the upstream-signed APK only after both builds match.
 
+### Minification (R8)
+
+The release build type enables `minifyEnabled`/`shrinkResources` (see `app/proguard-rules.pro`).
+KeepADB has zero runtime dependencies, so R8's main effect is trimming unused platform-API
+wrapper code rather than removing a large dependency graph; every manifest-declared component
+(activities, services, receivers) is preserved automatically by AGP's manifest-based keep rules,
+reinforced with explicit `-keep` rules in `proguard-rules.pro` as documentation. If a future
+change ever needs to disable this (an R8-only crash that can't be fixed with a keep rule, or a
+reproducibility regression against F-Droid's rebuild), set `minifyEnabled false` back in
+`app/build.gradle` and record the reason next to it — R8 is a trade-off the project opted into,
+not an assumed default.
+
 ---
 
 ## Privacy & Security
