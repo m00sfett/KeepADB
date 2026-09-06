@@ -17,6 +17,14 @@ import android.net.wifi.WifiManager;
  */
 final class KeepADBNetworkIdentity {
     static final String REDACTED_BSSID = "02:00:00:00:00:00";
+    /**
+     * What WifiInfo reports for "no associated access point" on the devices/OEM builds that
+     * return a non-null placeholder instead of null. Treated exactly like {@link
+     * #REDACTED_BSSID}: storing it as an allowlist entry (by tapping "add current network"
+     * while not associated) would otherwise make every later disconnected state compare equal
+     * to a listed entry, i.e. fail open.
+     */
+    static final String UNSET_BSSID = "00:00:00:00:00:00";
 
     final String ssid;
     final String bssid;
@@ -45,7 +53,9 @@ final class KeepADBNetworkIdentity {
     }
 
     boolean isKnown() {
-        return bssid != null && !bssid.isEmpty() && !REDACTED_BSSID.equals(bssid);
+        return bssid != null && !bssid.isEmpty()
+                && !REDACTED_BSSID.equalsIgnoreCase(bssid)
+                && !UNSET_BSSID.equalsIgnoreCase(bssid);
     }
 
     /** Human-readable SSID with the surrounding quotes WifiInfo#getSSID() adds, if present. */

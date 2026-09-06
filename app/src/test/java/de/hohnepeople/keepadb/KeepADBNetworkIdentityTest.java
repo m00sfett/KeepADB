@@ -32,6 +32,12 @@ public class KeepADBNetworkIdentityTest {
     }
 
     @Test
+    public void unsetBssidIsNeverKnown() {
+        assertFalse(new KeepADBNetworkIdentity(null, KeepADBNetworkIdentity.UNSET_BSSID).isKnown());
+        assertFalse(new KeepADBNetworkIdentity("<unknown ssid>", "00:00:00:00:00:00").isKnown());
+    }
+
+    @Test
     public void aRealBssidIsKnown() {
         KeepADBNetworkIdentity identity = new KeepADBNetworkIdentity("\"home\"", "aa:bb:cc:dd:ee:ff");
         assertTrue(identity.isKnown());

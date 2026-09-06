@@ -34,6 +34,10 @@ individually, since they landed together.
 ### Security
 - Android backup and device-to-device transfer are disabled entirely (`allowBackup="false"`)
   instead of maintaining a growing per-key exclusion list (issue #252).
+- The trusted-network check now also treats the all-zero BSSID `00:00:00:00:00:00` (reported by
+  some devices while not associated with any access point) as an unknown identity, so it can
+  neither be stored as an allowlist entry nor match one later — closing a fail-open path in
+  which every disconnected state would have counted as trusted.
 
 ### Testing
 - Added deterministic tests for the toggle debounce/generation-token logic and endpoint
