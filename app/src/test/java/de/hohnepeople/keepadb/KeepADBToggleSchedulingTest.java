@@ -85,12 +85,13 @@ public class KeepADBToggleSchedulingTest {
         gateway = new KeepADBFakeSettingsGateway(true);
         KeepADB.setGatewayForTesting(gateway);
 
+        // KeepADBFakeScheduler's runAsync() runs synchronously and its sleep() only advances
+        // the virtual clock rather than blocking, so both pulse stages complete within this
+        // one call -- there is no external "advance past the pause" step with this scheduler
+        // (see the class javadoc; KeepADBRecoveryPulseInterruptionTest uses a real thread and
+        // latches instead specifically to observe the state in between the two stages).
         KeepADB.performRecoveryPulse(ctx);
-        assertEquals("stage 1 (disable) applies synchronously via runAsync()",
-                Arrays.asList(false), gateway.writes);
-
-        scheduler.advanceBy(KeepADB.RECOVERY_PULSE_OFF_MS);
-        assertEquals("stage 2 (re-enable) fires once the pause elapses, uninterrupted",
+        assertEquals("both pulse stages must apply when nothing intervenes",
                 Arrays.asList(false, true), gateway.writes);
         assertTrue(gateway.isEnabled(ctx));
     }
