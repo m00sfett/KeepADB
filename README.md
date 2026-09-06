@@ -163,6 +163,18 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
 1. **Trusted Networks Only:** Keep persistent Keep-Alive enabled primarily on trusted home/office Wi-Fi networks or isolated VPNs (e.g. Tailscale / WireGuard).
 2. **Public Wi-Fi Precaution:** When connecting to public Wi-Fi hotspots, guest networks, or unmanaged shared Wi-Fi, turn Wireless Debugging **OFF** (via 1-tap Tile, Widget, or Main App) to prevent unauthorized devices on the local subnet from attempting pairing requests.
 3. **Pairing Prompts:** Android requires TLS pairing authentication. **Never confirm unexpected pairing dialogs or unfamiliar RSA key fingerprints** on your device screen.
+4. **Trusted-Network Allowlist (optional):** Under Settings → Trusted Networks, you can restrict
+   automatic Keep-Alive re-enable to Wi-Fi networks you've explicitly added, instead of any
+   connected Wi-Fi network (the default, unchanged behavior). Manual toggling always works
+   regardless of this setting — the allowlist only ever gates *automatic* re-enable. Networks
+   are matched by BSSID (the access point's own identifier — stable, and not affected by
+   Android's per-device MAC-randomization privacy feature) rather than by SSID, since network
+   names are user-chosen and can collide between unrelated networks; SSID is shown only as a
+   label. Reading a real SSID/BSSID from Android requires the Location permission (a platform
+   restriction, not a KeepADB choice) — KeepADB requests it only when you turn the allowlist on,
+   with an in-app explanation, and never reads or stores your actual location. If permission is
+   denied, or the current network's identity can't be determined for any reason, automatic
+   re-enable is paused rather than silently allowed (fail closed) — Settings shows why.
 
 ## Project Identity
 

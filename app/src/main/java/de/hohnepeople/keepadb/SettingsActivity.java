@@ -44,6 +44,12 @@ public class SettingsActivity extends Activity {
     private TextView usbHandoverSelectedText;
     private View usbHandoverSelector;
 
+    private Switch trustedNetworkToggle;
+    private TextView trustedNetworkStatus;
+    private Button trustedNetworkAdd;
+    private Button trustedNetworkManage;
+    private static final int TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST = 20;
+
     private Switch webhookToggle;
     private EditText webhookUrlInput;
     private TextView webhookError;
@@ -116,6 +122,14 @@ public class SettingsActivity extends Activity {
         usbHandoverSelectedText = findViewById(R.id.settings_usb_handover_selected_text);
         usbHandoverSelector = findViewById(R.id.settings_usb_handover_selector);
         usbHandoverSelector.setOnClickListener(v -> showUsbHandoverModeDialog());
+
+        trustedNetworkToggle = findViewById(R.id.settings_trusted_network_toggle);
+        trustedNetworkStatus = findViewById(R.id.settings_trusted_network_status);
+        trustedNetworkAdd = findViewById(R.id.settings_trusted_network_add);
+        trustedNetworkManage = findViewById(R.id.settings_trusted_network_manage);
+        trustedNetworkToggle.setOnClickListener(v -> onTrustedNetworkToggleClicked());
+        trustedNetworkAdd.setOnClickListener(v -> onAddCurrentNetworkClicked());
+        trustedNetworkManage.setOnClickListener(v -> showTrustedNetworkManageDialog());
 
         findViewById(R.id.settings_diagnostics_export).setOnClickListener(v -> shareDiagnostics());
         findViewById(R.id.settings_issue_report).setOnClickListener(v -> showIssueReportDialog());
@@ -282,6 +296,99 @@ public class SettingsActivity extends Activity {
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
+    }
+
+    private void onTrustedNetworkToggleClicked() {
+        boolean wantAllowlist = trustedNetworkToggle.isChecked();
+        if (!wantAllowlist) {
+            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+            refresh();
+            return;
+        }
+        // Revert the switch until permission is confirmed; refresh() below re-derives the
+        // actual checked state from the persisted mode either way.
+        trustedNetworkToggle.setChecked(false);
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+            refresh();
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_trusted_network_permission_title)
+                .setMessage(R.string.settings_trusted_network_permission_message)
+                .setPositiveButton(R.string.settings_trusted_network_permission_grant, (dialog, which) ->
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST) {
+            boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            if (granted) {
+                KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+            } else {
+                Toast.makeText(this, R.string.settings_trusted_network_permission_denied_toast,
+                        Toast.LENGTH_LONG).show();
+            }
+            refresh();
+        }
+    }
+
+    private void onAddCurrentNetworkClicked() {
+        KeepADBTrustedNetwork.Entry entry = KeepADBTrustedNetwork.addCurrentNetwork(this, null);
+        if (entry == null) {
+            Toast.makeText(this, R.string.settings_trusted_network_add_failed_toast, Toast.LENGTH_LONG).show();
+            return;
+        }
+        Toast.makeText(this, getString(R.string.settings_trusted_network_added_toast, entry.label),
+                Toast.LENGTH_SHORT).show();
+        refresh();
+    }
+
+    private void showTrustedNetworkManageDialog() {
+        List<KeepADBTrustedNetwork.Entry> entries = KeepADBTrustedNetwork.getEntries(this);
+        if (entries.isEmpty()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.settings_trusted_network_manage_title)
+                    .setMessage(R.string.settings_trusted_network_empty_message)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+            return;
+        }
+        android.widget.LinearLayout rows = new android.widget.LinearLayout(this);
+        rows.setOrientation(android.widget.LinearLayout.VERTICAL);
+        int padding = (int) (20 * getResources().getDisplayMetrics().density);
+        rows.setPadding(padding, 0, padding, 0);
+        final AlertDialog[] dialogHolder = new AlertDialog[1];
+        for (KeepADBTrustedNetwork.Entry entry : entries) {
+            android.widget.LinearLayout row = new android.widget.LinearLayout(this);
+            row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            TextView label = new TextView(this);
+            label.setText(entry.label);
+            label.setTextColor(getColor(R.color.night_text));
+            label.setLayoutParams(new android.widget.LinearLayout.LayoutParams(0,
+                    android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            Button delete = new Button(this);
+            delete.setText(R.string.settings_trusted_network_delete_button);
+            delete.setOnClickListener(v -> {
+                KeepADBTrustedNetwork.remove(this, entry.id);
+                dialogHolder[0].dismiss();
+                refresh();
+            });
+            row.addView(label);
+            row.addView(delete);
+            rows.addView(row);
+        }
+        dialogHolder[0] = new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_trusted_network_manage_title)
+                .setView(rows)
+                .setPositiveButton(android.R.string.ok, null)
+                .create();
+        dialogHolder[0].show();
     }
 
     private void showProfileDialog(String action) {
@@ -552,6 +659,18 @@ public class SettingsActivity extends Activity {
         usbHandoverSelectedText.setText(handoverModeLabel);
         usbHandoverSelector.setContentDescription(
                 getString(R.string.settings_usb_handover_label) + ": " + getString(handoverModeLabel));
+
+        trustedNetworkToggle.setChecked(KeepADBTrustedNetwork.isAllowlistMode(this));
+        KeepADBTrustedNetwork.BlockReason blockReason = KeepADBTrustedNetwork.getBlockReason(this);
+        if (blockReason == KeepADBTrustedNetwork.BlockReason.UNTRUSTED_NETWORK) {
+            trustedNetworkStatus.setText(R.string.settings_trusted_network_status_untrusted);
+            trustedNetworkStatus.setVisibility(View.VISIBLE);
+        } else if (blockReason == KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE) {
+            trustedNetworkStatus.setText(R.string.settings_trusted_network_status_identity_unavailable);
+            trustedNetworkStatus.setVisibility(View.VISIBLE);
+        } else {
+            trustedNetworkStatus.setVisibility(View.GONE);
+        }
 
         String savedWebhookUrl = KeepADBPreferences.getRegisterWebhookUrl(this);
         boolean showCleartextWarning = savedWebhookUrl != null

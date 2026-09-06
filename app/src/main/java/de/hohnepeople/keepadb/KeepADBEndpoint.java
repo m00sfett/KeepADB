@@ -215,6 +215,10 @@ final class KeepADBEndpoint {
             if (!isCurrent(generation) || endpointDelivered.get()) return;
             if (!KeepADB.isEnabled(appContext) || KeepADB.wasLastExplicitIntentOff(appContext)) return;
         }
+        if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext)) {
+            Log.i(TAG, "gen=" + generation + " skipping recovery pulse on an untrusted Wi-Fi network");
+            return;
+        }
         long now = System.currentTimeMillis();
         synchronized (KeepADBEndpoint.class) {
             if (now - lastRecoveryPulseAtMs < RECOVERY_PULSE_COOLDOWN_MS) return;
