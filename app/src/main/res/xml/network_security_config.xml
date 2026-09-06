@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Cleartext HTTP is permitted for developer endpoints, LAN addresses, and Tailnet nodes -->
+    <!--
+      Cleartext HTTP is permitted globally because it is exercised by exactly one code
+      path: the optional developer webhook (KeepADBRegisterClient), whose target URL is
+      entered by the user at runtime and may point at any LAN/VPN/Tailnet host. Android's
+      network-security-config only supports scoping cleartext by literal domain names in
+      <domain-config>, not by IP range or "any private address"; since the webhook host
+      is unknown at build time, a per-domain allowlist cannot express this use case, so
+      global cleartextTrafficPermitted is the narrowest expression Android allows here
+      (#247). The app itself never issues cleartext requests to any fixed/known host;
+      SettingsActivity additionally warns the user in-app when they configure an
+      http:// webhook URL. See README "Privacy & Security" for user-facing documentation.
+    -->
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />

@@ -129,6 +129,18 @@ The unsigned APK used for reproducibility verification will be located at:
 
 Published release APKs are signed separately with the project's stable release key. The private key and credentials are never stored in this repository. F-Droid can rebuild the unsigned APK from the tagged source and publish the upstream-signed APK only after both builds match.
 
+### Minification (R8)
+
+The release build type enables `minifyEnabled`/`shrinkResources` (see `app/proguard-rules.pro`).
+KeepADB has zero runtime dependencies, so R8's main effect is trimming unused platform-API
+wrapper code rather than removing a large dependency graph; every manifest-declared component
+(activities, services, receivers) is preserved automatically by AGP's manifest-based keep rules,
+reinforced with explicit `-keep` rules in `proguard-rules.pro` as documentation. If a future
+change ever needs to disable this (an R8-only crash that can't be fixed with a keep rule, or a
+reproducibility regression against F-Droid's rebuild), set `minifyEnabled false` back in
+`app/build.gradle` and record the reason next to it — R8 is a trade-off the project opted into,
+not an assumed default.
+
 ---
 
 ## Privacy & Security
@@ -140,6 +152,21 @@ Published release APKs are signed separately with the project's stable release k
   contain an Android-provided device ID, the selected profile fields, and its active state.
   The device ID and profile data can identify the device or its configured host, so enable the
   webhook only for an endpoint you trust.
+- **Cleartext HTTP Scope:** The app's network-security configuration permits cleartext
+  (unencrypted) HTTP globally, but only one code path in the app ever issues an HTTP request:
+  the optional webhook above, whose target is a URL you type in yourself. Android's
+  network-security-config cannot scope cleartext permission to "arbitrary LAN/VPN hosts" —
+  only to specific known domain names — so a global allowance is the narrowest option
+  available when the host isn't known until you configure it. If you enter an `http://`
+  webhook URL, the Settings screen shows an explicit warning that the payload will be sent
+  unencrypted; prefer `https://` whenever your endpoint supports it, and only use `http://`
+  on a network you trust (LAN/VPN).
+- **Backup & Device Transfer:** KeepADB does not support Android cloud backup or
+  device-to-device transfer of app data (`android:allowBackup="false"`). All persisted
+  configuration — including webhook URLs, endpoint data, USB profiles, and diagnostics — is
+  lost on uninstall or device migration and must be reconfigured afterward. This is a
+  deliberate choice: it removes any risk of sensitive configuration being restored onto a
+  different device without the same trust assumptions.
 
 ### Security Considerations & Best Practices for Wireless Debugging
 
@@ -148,6 +175,18 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
 1. **Trusted Networks Only:** Keep persistent Keep-Alive enabled primarily on trusted home/office Wi-Fi networks or isolated VPNs (e.g. Tailscale / WireGuard).
 2. **Public Wi-Fi Precaution:** When connecting to public Wi-Fi hotspots, guest networks, or unmanaged shared Wi-Fi, turn Wireless Debugging **OFF** (via 1-tap Tile, Widget, or Main App) to prevent unauthorized devices on the local subnet from attempting pairing requests.
 3. **Pairing Prompts:** Android requires TLS pairing authentication. **Never confirm unexpected pairing dialogs or unfamiliar RSA key fingerprints** on your device screen.
+4. **Trusted-Network Allowlist (optional):** Under Settings → Trusted Networks, you can restrict
+   automatic Keep-Alive re-enable to Wi-Fi networks you've explicitly added, instead of any
+   connected Wi-Fi network (the default, unchanged behavior). Manual toggling always works
+   regardless of this setting — the allowlist only ever gates *automatic* re-enable. Networks
+   are matched by BSSID (the access point's own identifier — stable, and not affected by
+   Android's per-device MAC-randomization privacy feature) rather than by SSID, since network
+   names are user-chosen and can collide between unrelated networks; SSID is shown only as a
+   label. Reading a real SSID/BSSID from Android requires the Location permission (a platform
+   restriction, not a KeepADB choice) — KeepADB requests it only when you turn the allowlist on,
+   with an in-app explanation, and never reads or stores your actual location. If permission is
+   denied, or the current network's identity can't be determined for any reason, automatic
+   re-enable is paused rather than silently allowed (fail closed) — Settings shows why.
 
 ## Project Identity
 
@@ -155,6 +194,12 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
 - Maintainer: `m00sfett` (Tobias Schultheiß)
 - Open source on GitHub: [https://github.com/m00sfett/KeepADB](https://github.com/m00sfett/KeepADB)
 
+## Contributing & Security
+
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, verification, coding conventions, and
+  translation instructions.
+- See [SECURITY.md](SECURITY.md) for the threat model, supported versions, and how to report a
+  vulnerability privately (please don't use a public GitHub issue for that).
 
 ---
 

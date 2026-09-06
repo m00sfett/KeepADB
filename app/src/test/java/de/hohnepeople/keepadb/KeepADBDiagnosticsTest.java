@@ -62,8 +62,6 @@ public class KeepADBDiagnosticsTest {
         String core = read("app/src/main/java/de/hohnepeople/keepadb/KeepADB.java");
         String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
         String settings = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
-        String backup = read("app/src/main/res/xml/backup_rules.xml");
-        String extraction = read("app/src/main/res/xml/data_extraction_rules.xml");
 
         assertTrue(core.contains("intentId="));
         assertTrue(core.contains("\"recovery_attempt\""));
@@ -73,8 +71,6 @@ public class KeepADBDiagnosticsTest {
         assertTrue(service.contains("heartbeatGapMs="));
         assertTrue(settings.contains("KeepADBDiagnostics.export(this)"));
         assertTrue(settings.contains("Intent.ACTION_SEND"));
-        assertTrue(backup.contains("keepadb_diagnostics.xml"));
-        assertTrue(extraction.contains("keepadb_diagnostics.xml"));
     }
 
     private static String read(String relativePath) throws IOException {

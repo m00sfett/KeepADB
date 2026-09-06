@@ -1,19 +1,11 @@
 package de.hohnepeople.keepadb;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.LinkAddress;
-import android.net.LinkProperties;
-import android.net.Network;
-import android.net.NetworkCapabilities;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -81,9 +73,9 @@ final class KeepADBEndpoint {
     }
 
     private final Context appContext;
-    private final NsdManager nsdManager;
+    private final KeepADBNsdProbe nsdProbe;
+    private final KeepADBScheduler scheduler;
     private final WifiManager.MulticastLock multicastLock;
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private NsdManager.DiscoveryListener discoveryListener;
     private final Queue<NsdServiceInfo> resolveQueue = new ArrayDeque<>();
     private boolean resolving;
@@ -99,8 +91,14 @@ final class KeepADBEndpoint {
     private Runnable overallTimeoutRunnable;
 
     KeepADBEndpoint(Context context) {
+        this(context, defaultNsdProbe(context), new KeepADBAndroidScheduler());
+    }
+
+    /** Package-visible so tests can substitute a fake probe/scheduler (#249). */
+    KeepADBEndpoint(Context context, KeepADBNsdProbe nsdProbe, KeepADBScheduler scheduler) {
         appContext = context.getApplicationContext();
-        nsdManager = (NsdManager) appContext.getSystemService(Context.NSD_SERVICE);
+        this.nsdProbe = nsdProbe;
+        this.scheduler = scheduler;
         WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
         if (wifiManager != null) {
             multicastLock = wifiManager.createMulticastLock("de.hohnepeople.keepadb.KeepADBEndpoint");
@@ -108,6 +106,11 @@ final class KeepADBEndpoint {
         } else {
             multicastLock = null;
         }
+    }
+
+    private static KeepADBNsdProbe defaultNsdProbe(Context context) {
+        NsdManager nsdManager = (NsdManager) context.getApplicationContext().getSystemService(Context.NSD_SERVICE);
+        return nsdManager == null ? null : new KeepADBAndroidNsdProbe(nsdManager);
     }
 
     synchronized void discover(Listener listener, boolean allowRecoveryPulse) {
@@ -126,7 +129,7 @@ final class KeepADBEndpoint {
             stop();
         }
         currentListener = listener;
-        if (nsdManager == null) {
+        if (nsdProbe == null) {
             currentListener = null;
             if (listener != null) {
                 listener.onUnavailable();
@@ -189,7 +192,7 @@ final class KeepADBEndpoint {
         };
 
         try {
-            nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener);
+            nsdProbe.discoverServices(SERVICE_TYPE, discoveryListener);
         } catch (RuntimeException e) {
             Log.w(TAG, "Failed to start mDNS service discovery", e);
             discoveryListener = null;
@@ -201,10 +204,10 @@ final class KeepADBEndpoint {
         // chance to pick up the new advertisement before giving up entirely.
         if (allowRecoveryPulse) {
             recoveryPulseRunnable = () -> maybeSendRecoveryPulse(generation);
-            mainHandler.postDelayed(recoveryPulseRunnable, RECOVERY_PULSE_DELAY_MS);
+            scheduler.postDelayed(recoveryPulseRunnable, RECOVERY_PULSE_DELAY_MS);
         }
         overallTimeoutRunnable = () -> giveUpIfStillUnresolved(generation);
-        mainHandler.postDelayed(overallTimeoutRunnable, OVERALL_TIMEOUT_MS);
+        scheduler.postDelayed(overallTimeoutRunnable, OVERALL_TIMEOUT_MS);
     }
 
     // Static, not per-instance: toggling adb_wifi_enabled fires KeepADBService's/MainActivity's
@@ -220,6 +223,10 @@ final class KeepADBEndpoint {
         synchronized (this) {
             if (!isCurrent(generation) || endpointDelivered.get()) return;
             if (!KeepADB.isEnabled(appContext) || KeepADB.wasLastExplicitIntentOff(appContext)) return;
+        }
+        if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext)) {
+            Log.i(TAG, "gen=" + generation + " skipping recovery pulse on an untrusted Wi-Fi network");
+            return;
         }
         long now = System.currentTimeMillis();
         synchronized (KeepADBEndpoint.class) {
@@ -279,7 +286,7 @@ final class KeepADBEndpoint {
 
     private void cancelResolveWatchdogLocked() {
         if (resolveWatchdogRunnable != null) {
-            mainHandler.removeCallbacks(resolveWatchdogRunnable);
+            scheduler.removeCallbacks(resolveWatchdogRunnable);
             resolveWatchdogRunnable = null;
         }
     }
@@ -302,10 +309,10 @@ final class KeepADBEndpoint {
                 processNextResolveLocked(generation);
             }
         };
-        mainHandler.postDelayed(resolveWatchdogRunnable, RESOLVE_TIMEOUT_MS);
+        scheduler.postDelayed(resolveWatchdogRunnable, RESOLVE_TIMEOUT_MS);
 
         try {
-            nsdManager.resolveService(nextService, new NsdManager.ResolveListener() {
+            nsdProbe.resolveService(nextService, new NsdManager.ResolveListener() {
                 @Override
                 public void onResolveFailed(NsdServiceInfo ignored, int errorCode) {
                     synchronized (KeepADBEndpoint.this) {
@@ -389,12 +396,12 @@ final class KeepADBEndpoint {
             coordinatorThread = null;
         }
         if (recoveryPulseRunnable != null) {
-            mainHandler.removeCallbacks(recoveryPulseRunnable);
+            scheduler.removeCallbacks(recoveryPulseRunnable);
             recoveryPulseRunnable = null;
         }
         recoveryPulseEnabled = false;
         if (overallTimeoutRunnable != null) {
-            mainHandler.removeCallbacks(overallTimeoutRunnable);
+            scheduler.removeCallbacks(overallTimeoutRunnable);
             overallTimeoutRunnable = null;
         }
         NsdManager.DiscoveryListener listener = discoveryListener;
@@ -405,9 +412,9 @@ final class KeepADBEndpoint {
             } catch (RuntimeException ignored) {
             }
         }
-        if (nsdManager != null && listener != null) {
+        if (nsdProbe != null && listener != null) {
             try {
-                nsdManager.stopServiceDiscovery(listener);
+                nsdProbe.stopServiceDiscovery(listener);
             } catch (RuntimeException ignored) {
             }
         }
@@ -596,23 +603,7 @@ final class KeepADBEndpoint {
         }
 
         try {
-            ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
-            if (cm != null) {
-                for (Network network : cm.getAllNetworks()) {
-                    NetworkCapabilities caps = cm.getNetworkCapabilities(network);
-                    if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                        LinkProperties lp = cm.getLinkProperties(network);
-                        if (lp != null) {
-                            for (LinkAddress la : lp.getLinkAddresses()) {
-                                InetAddress addr = la.getAddress();
-                                if (addr instanceof Inet4Address && !addr.isLoopbackAddress() && !addr.isLinkLocalAddress()) {
-                                    return addr.getHostAddress();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            return KeepADBNetwork.get(context).getWifiIpv4Address();
         } catch (Exception ignored) {
         }
         return null;
@@ -631,19 +622,7 @@ final class KeepADBEndpoint {
         if (addr.isLoopbackAddress() || addr.isLinkLocalAddress()) return true;
         if (context == null) return false;
         try {
-            ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
-            if (cm != null) {
-                for (Network network : cm.getAllNetworks()) {
-                    LinkProperties lp = cm.getLinkProperties(network);
-                    if (lp != null) {
-                        for (LinkAddress la : lp.getLinkAddresses()) {
-                            if (addr.equals(la.getAddress())) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
+            return KeepADBNetwork.get(context).isKnownLocalAddress(addr);
         } catch (Exception ignored) {
         }
         return false;

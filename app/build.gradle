@@ -20,7 +20,12 @@ android {
             applicationIdSuffix '.debug'
         }
         release {
-            minifyEnabled false
+            // #251: evaluated and enabled. KeepADB has zero runtime dependencies, so R8's
+            // shrinker mainly trims unused platform-API wrapper code; proguard-rules.pro
+            // documents what's kept and why. See CHANGELOG/README for the size comparison.
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 

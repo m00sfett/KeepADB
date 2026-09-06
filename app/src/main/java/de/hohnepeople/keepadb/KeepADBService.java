@@ -66,15 +66,8 @@ public class KeepADBService extends Service {
     }
 
     static boolean isWifiConnected(Context context) {
-        ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
-        if (cm != null) {
-            for (Network network : cm.getAllNetworks()) {
-                NetworkCapabilities caps = cm.getNetworkCapabilities(network);
-                if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-                        && !caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
-                    return true;
-                }
-            }
+        if (KeepADBNetwork.get(context).isWifiConnected()) {
+            return true;
         }
         return KeepADBEndpoint.getWifiIpAddress(context) != null;
     }
@@ -222,13 +215,17 @@ public class KeepADBService extends Service {
                                 KeepADBNotification.refresh(KeepADBService.this);
                                 KeepADBWidget.refreshAll(KeepADBService.this);
                                 return;
-                            } else {
+                            } else if (KeepADBTrustedNetwork.isCurrentNetworkTrusted(KeepADBService.this)) {
                                 Log.i(TAG, "Wireless Debugging dropped while Wi-Fi connected; re-enabling...");
                                 if (!KeepADB.setEnabled(KeepADBService.this, true, "content_observer")) {
                                     Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
                                     KeepADBNotification.showPermissionMissing(KeepADBService.this);
                                     return;
                                 }
+                            } else {
+                                Log.i(TAG, "Wireless Debugging dropped on an untrusted Wi-Fi network; not auto re-enabling");
+                                KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
+                                        "blocked", "untrusted_network");
                             }
                         } else if (!KeepADB.isEnabled(KeepADBService.this)) {
                             if (KeepADB.consumeUserDisabled() || KeepADB.wasLastExplicitIntentOff(KeepADBService.this)) {
@@ -340,6 +337,13 @@ public class KeepADBService extends Service {
         if (KeepADBPreferences.isKeepAliveEnabled(this) && !KeepADB.wasLastExplicitIntentOff(this)) {
             if (isWifiConnected(this)) {
                 if (!KeepADB.isEnabled(this)) {
+                    if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)) {
+                        Log.i(TAG, "Wi-Fi connected but network is untrusted; not auto-enabling");
+                        KeepADBDiagnostics.event(this, "keep_alive_check", "service", "blocked", "untrusted_network");
+                        KeepADBNotification.refresh(this);
+                        KeepADBWidget.refreshAll(this);
+                        return;
+                    }
                     Log.i(TAG, "Auto-enabling Wireless Debugging (Wi-Fi connected)");
                     if (!KeepADB.setEnabled(this, true, "keep_alive_check")) {
                         Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");

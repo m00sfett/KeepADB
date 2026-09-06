@@ -1,5 +1,6 @@
 package de.hohnepeople.keepadb;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -173,6 +174,41 @@ public class KeepADBUsbHandoverTest {
         boolean manualResult = KeepADBUsbHandover.handleManualAction(ctx);
         assertTrue(manualResult);
         assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
+    }
+
+    @Test
+    public void automaticModeDoesNotEnableOnAnUntrustedNetwork() {
+        FakeContext ctx = new FakeContext();
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
+        KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000); // comfortably past TOGGLE_COOLDOWN_MS since "boot"
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(scheduler);
+
+        // No real WifiInfo is available in this plain JVM test, so the network's identity is
+        // unknown -- allowlist mode must fail closed and never enable WLAN-ADB automatically.
+        KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
+
+        assertTrue("no write should reach the gateway when the network is untrusted/unknown",
+                gateway.writes.isEmpty());
+    }
+
+    @Test
+    public void automaticModeStillEnablesInTheDefaultAllWifiMode() {
+        FakeContext ctx = new FakeContext();
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(scheduler);
+
+        KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
+
+        assertEquals("the default (opt-in-required) trusted-network mode must not block auto handover",
+                java.util.Arrays.asList(true), gateway.writes);
     }
 
     @Test

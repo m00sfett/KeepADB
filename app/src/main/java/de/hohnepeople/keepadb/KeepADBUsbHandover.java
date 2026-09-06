@@ -12,9 +12,12 @@ import android.content.Context;
  * {@code false} -- this class never disables WLAN-ADB:
  * <ul>
  *   <li>{@link #onRawUsbBroadcast(Context, boolean)} -- AUTOMATIC mode, called only from
- *       {@link KeepADBUsbReceiver#onReceive}'s real {@code USB_STATE} broadcasts.</li>
+ *       {@link KeepADBUsbReceiver#onReceive}'s real {@code USB_STATE} broadcasts. Gated by
+ *       {@link KeepADBTrustedNetwork} (#245) like KeepADBService's other auto re-enable
+ *       paths, since it's an automatic action, not a direct user request.</li>
  *   <li>{@link #handleManualAction(Context)} -- MANUAL mode, called from the USB notification's
- *       "Enable WLAN-ADB" action.</li>
+ *       "Enable WLAN-ADB" action. A direct, explicit user action, so it is never gated by the
+ *       trusted-network allowlist.</li>
  * </ul>
  */
 final class KeepADBUsbHandover {
@@ -41,6 +44,15 @@ final class KeepADBUsbHandover {
         // consumed by anything, so it can't be starved by that other reader.
         boolean lastIntentOff = KeepADB.wasLastExplicitIntentOff(appContext);
         if (onRawUsbBroadcastInternal(connected, mode, alreadyEnabled, lastIntentOff)) {
+            // #245: AUTOMATIC mode auto-enables WLAN-ADB the same way KeepADBService's own
+            // auto re-enable paths do, so it must respect the same trusted-network allowlist --
+            // otherwise plugging in a USB cable on an untrusted Wi-Fi network would silently
+            // bypass the very setting meant to prevent exactly that. handleManualAction() below
+            // is a direct, explicit user action and is deliberately never gated.
+            if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext)) {
+                KeepADBDiagnostics.event(appContext, "usb_handover", "usb", "blocked", "untrusted_network");
+                return;
+            }
             KeepADB.setEnabled(appContext, true, "usb_handover");
         }
     }

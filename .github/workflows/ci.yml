@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  push:
+  pull_request:
   workflow_dispatch:
 
 concurrency:
@@ -27,3 +29,6 @@ jobs:
 
       - name: Run Lint, Test & Assemble Debug APK
         run: ./gradlew testDebugUnitTest lintDebug assembleDebug
+
+      - name: Assemble Release APK (R8/resource shrinking)
+        run: ./gradlew assembleRelease
