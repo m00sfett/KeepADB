@@ -143,7 +143,7 @@ public class KeepADBTileDiscoveryContractTest {
                 "synchronized void discover(Listener listener, boolean allowRecoveryPulse) {");
         String stopBody = methodBody(endpoint, "synchronized void stop() {");
         int pulseGuard = discoverBody.indexOf("if (allowRecoveryPulse)");
-        int pulseSchedule = discoverBody.indexOf("mainHandler.postDelayed(recoveryPulseRunnable");
+        int pulseSchedule = discoverBody.indexOf("scheduler.postDelayed(recoveryPulseRunnable");
 
         assertTrue(pulseGuard >= 0);
         assertTrue(pulseSchedule > pulseGuard);
