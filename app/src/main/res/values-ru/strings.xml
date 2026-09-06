@@ -48,6 +48,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_btn_clear">Очистить</string>
     <string name="settings_webhook_error_invalid_url">Недействительный URL. Должен начинаться с http:// или https:// с корректным хостом.</string>
     <string name="settings_webhook_error_missing_url">Пожалуйста, введите корректный HTTP/HTTPS URL перед включением синхронизации.</string>
+    <string name="settings_webhook_cleartext_warning">Этот URL использует незашифрованный HTTP — данные передаются в открытом виде. Используйте только в доверенной локальной сети или VPN.</string>
     <string name="settings_webhook_saved_toast">URL Webhook сохранен</string>
     <string name="settings_webhook_cleared_toast">Конфигурация Webhook очищена</string>
     <string name="settings_webhook_enabled_toast">Синхронизация Webhook включена</string>

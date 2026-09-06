@@ -48,6 +48,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_btn_clear">지우기</string>
     <string name="settings_webhook_error_invalid_url">잘못된 URL입니다. 유효한 호스트와 함께 http:// 또는 https://로 시작해야 합니다.</string>
     <string name="settings_webhook_error_missing_url">동기화를 활성화하기 전에 유효한 HTTP/HTTPS URL을 입력하세요.</string>
+    <string name="settings_webhook_cleartext_warning">이 URL은 암호화되지 않은 HTTP를 사용합니다 — 데이터가 평문으로 전송됩니다. 신뢰할 수 있는 LAN 또는 VPN에서만 사용하세요.</string>
     <string name="settings_webhook_saved_toast">웹훅 URL이 저장되었습니다</string>
     <string name="settings_webhook_cleared_toast">웹훅 설정이 지워졌습니다</string>
     <string name="settings_webhook_enabled_toast">웹훅 동기화가 활성화되었습니다</string>

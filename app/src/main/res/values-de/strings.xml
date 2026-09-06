@@ -60,6 +60,7 @@
     <string name="settings_webhook_btn_clear">Löschen</string>
     <string name="settings_webhook_error_invalid_url">Ungültige URL. Muss mit http:// oder https:// und einem gültigen Host beginnen.</string>
     <string name="settings_webhook_error_missing_url">Bitte zuerst eine gültige HTTP/HTTPS-URL eingeben, bevor die Synchronisierung aktiviert wird.</string>
+    <string name="settings_webhook_cleartext_warning">Diese URL verwendet unverschlüsseltes HTTP – Daten werden im Klartext übertragen. Nur in einem vertrauenswürdigen LAN oder VPN verwenden.</string>
     <string name="settings_webhook_saved_toast">Webhook-URL gespeichert</string>
     <string name="settings_webhook_cleared_toast">Webhook-Konfiguration gelöscht</string>
     <string name="settings_webhook_enabled_toast">Webhook-Synchronisierung aktiviert</string>

@@ -48,6 +48,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_btn_clear">Wissen</string>
     <string name="settings_webhook_error_invalid_url">Ongeldige URL. Moet beginnen met http:// of https:// met een geldige host.</string>
     <string name="settings_webhook_error_missing_url">Voer een geldige HTTP/HTTPS-URL in voordat u synchronisatie inschakelt.</string>
+    <string name="settings_webhook_cleartext_warning">Deze URL gebruikt onversleuteld HTTP — gegevens worden als platte tekst verzonden. Gebruik dit alleen in een vertrouwd LAN of VPN.</string>
     <string name="settings_webhook_saved_toast">Webhook-URL opgeslagen</string>
     <string name="settings_webhook_cleared_toast">Webhook-configuratie gewist</string>
     <string name="settings_webhook_enabled_toast">Webhook-synchronisatie ingeschakeld</string>

@@ -48,6 +48,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_btn_clear">Cancella</string>
     <string name="settings_webhook_error_invalid_url">URL non valido. Deve iniziare con http:// o https:// con un host valido.</string>
     <string name="settings_webhook_error_missing_url">Inserisci un URL HTTP/HTTPS valido prima di abilitare la sincronizzazione.</string>
+    <string name="settings_webhook_cleartext_warning">Questo URL utilizza HTTP non crittografato: i dati vengono inviati in chiaro. Usalo solo su una LAN o VPN affidabile.</string>
     <string name="settings_webhook_saved_toast">URL del Webhook salvato</string>
     <string name="settings_webhook_cleared_toast">Configurazione Webhook cancellata</string>
     <string name="settings_webhook_enabled_toast">Sincronizzazione Webhook abilitata</string>

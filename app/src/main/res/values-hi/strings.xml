@@ -48,6 +48,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_btn_clear">साफ़ करें</string>
     <string name="settings_webhook_error_invalid_url">अमान्य URL। एक मान्य होस्ट के साथ http:// या https:// से शुरू होना चाहिए।</string>
     <string name="settings_webhook_error_missing_url">सिंक सक्षम करने से पहले कृपया एक मान्य HTTP/HTTPS URL दर्ज करें।</string>
+    <string name="settings_webhook_cleartext_warning">यह URL असुरक्षित HTTP का उपयोग करता है — डेटा सादे टेक्स्ट में भेजा जाता है। इसका उपयोग केवल किसी विश्वसनीय LAN या VPN पर करें।</string>
     <string name="settings_webhook_saved_toast">वेबहुक URL सहेजा गया</string>
     <string name="settings_webhook_cleared_toast">वेबहुक कॉन्फ़िगरेशन साफ़ किया गया</string>
     <string name="settings_webhook_enabled_toast">वेबहुक सिंक सक्षम किया गया</string>

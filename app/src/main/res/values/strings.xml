@@ -60,6 +60,7 @@
     <string name="settings_webhook_btn_clear">Clear</string>
     <string name="settings_webhook_error_invalid_url">Invalid URL. Must start with http:// or https:// with a valid host.</string>
     <string name="settings_webhook_error_missing_url">Please enter a valid HTTP/HTTPS URL before enabling sync.</string>
+    <string name="settings_webhook_cleartext_warning">This URL uses unencrypted HTTP — data is sent in plain text. Only use this on a trusted LAN or VPN.</string>
     <string name="settings_webhook_saved_toast">Webhook URL saved</string>
     <string name="settings_webhook_cleared_toast">Webhook configuration cleared</string>
     <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>

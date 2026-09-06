@@ -47,6 +47,7 @@ public class SettingsActivity extends Activity {
     private Switch webhookToggle;
     private EditText webhookUrlInput;
     private TextView webhookError;
+    private TextView webhookCleartextWarning;
     private Button webhookSave;
     private Button webhookClear;
     private TextView versionNameText;
@@ -122,6 +123,7 @@ public class SettingsActivity extends Activity {
         webhookToggle = findViewById(R.id.settings_webhook_toggle);
         webhookUrlInput = findViewById(R.id.settings_webhook_url);
         webhookError = findViewById(R.id.settings_webhook_error);
+        webhookCleartextWarning = findViewById(R.id.settings_webhook_cleartext_warning);
         webhookSave = findViewById(R.id.settings_webhook_save);
         webhookClear = findViewById(R.id.settings_webhook_clear);
 
@@ -550,6 +552,11 @@ public class SettingsActivity extends Activity {
         usbHandoverSelectedText.setText(handoverModeLabel);
         usbHandoverSelector.setContentDescription(
                 getString(R.string.settings_usb_handover_label) + ": " + getString(handoverModeLabel));
+
+        String savedWebhookUrl = KeepADBPreferences.getRegisterWebhookUrl(this);
+        boolean showCleartextWarning = savedWebhookUrl != null
+                && savedWebhookUrl.toLowerCase(java.util.Locale.ROOT).startsWith("http://");
+        webhookCleartextWarning.setVisibility(showCleartextWarning ? View.VISIBLE : View.GONE);
     }
 
     private void bindVersionInfo() {

@@ -140,6 +140,15 @@ Published release APKs are signed separately with the project's stable release k
   contain an Android-provided device ID, the selected profile fields, and its active state.
   The device ID and profile data can identify the device or its configured host, so enable the
   webhook only for an endpoint you trust.
+- **Cleartext HTTP Scope:** The app's network-security configuration permits cleartext
+  (unencrypted) HTTP globally, but only one code path in the app ever issues an HTTP request:
+  the optional webhook above, whose target is a URL you type in yourself. Android's
+  network-security-config cannot scope cleartext permission to "arbitrary LAN/VPN hosts" —
+  only to specific known domain names — so a global allowance is the narrowest option
+  available when the host isn't known until you configure it. If you enter an `http://`
+  webhook URL, the Settings screen shows an explicit warning that the payload will be sent
+  unencrypted; prefer `https://` whenever your endpoint supports it, and only use `http://`
+  on a network you trust (LAN/VPN).
 
 ### Security Considerations & Best Practices for Wireless Debugging
 
