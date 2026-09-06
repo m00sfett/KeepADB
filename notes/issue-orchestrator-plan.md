@@ -5,12 +5,18 @@ Verlaufshistorie abgeschlossener Pakete (bis 2026-09-05) archiviert unter
 
 ## Aktueller Stand
 
-- Offene GitHub-Issues (m00sfett/KeepADB): **#259** (neu, unbewertet — Lizenz-/Website-Zeile
-  in Settings, vom Nutzer/einer anderen Session direkt angelegt, außerhalb dieses Laufs).
+- Offene GitHub-Issues (m00sfett/KeepADB), alle bewertet und einsortiert (`--plan`-Lauf
+  2026-09-06): **#259** (Lizenz-/Website-Zeile in Settings, S1), **#260** (Trusted-Networks-
+  Default auf aktiv, S1, Migrationsentscheidung offen), **#262** (Button hinzufügen/entfernen,
+  S1), **#263** (Verwalten-Button-Wording, S1, Formulierung braucht Nutzerentscheidung),
+  **#264** (BSSID in Verwaltungsliste, S1), **#265** (Mesh-/AP-Wechsel-Verhalten, S2, reine
+  Architekturentscheidung, kein Umsetzungsauftrag). #261 war ein Sammel-Issue mit vier fachlich
+  unabhängigen Teilen (Bündelungsgrenze verletzt) und wurde in #262–#265 zerlegt, dann
+  geschlossen.
 - HEAD `master`: `879bb59`, versionCode 19 / versionName 1.5.0 (noch **nicht** als GitHub-Release
   getaggt/veröffentlicht — letzter veröffentlichter Tag bleibt `v1.4.5`).
-- Board (`Project #8`) und `github-drift` synchron; einziger verbliebener Drift-Fund
-  (`migration/code-v1`-Restbranch) gehört nicht zu diesem Strang, unangetastet gelassen.
+- Board (`Project #8`) und `github-drift` synchron bis auf einen bereits bekannten Fund
+  (`migration/code-v1`-Restbranch, gehört nicht zu diesem Strang, unangetastet gelassen).
 
 ## Abschluss `--cleanup`-Lauf — 2026-09-07
 
@@ -66,7 +72,12 @@ kein Kandidatenblocker), und #259 als neues, noch unbewertetes Backlog-Item.
 ## Nächster Schritt
 
 Bei Interesse an einer echten Veröffentlichung: `$release-fdroid --dry` auf dem aktuellen
-Kandidaten. Für den Issue-Backlog: `$issue-orchestrator-eco --plan` für #259.
+Kandidaten. Für den Issue-Backlog: regulärer `$issue-orchestrator-eco`-Umsetzungslauf. Größtes
+sinnvolles zusammenhängendes Paket: **#262 + #264** (teilen sich Codepfad
+`showTrustedNetworkManageDialog()`/Verwaltungsdialog, je S1). #263 hängt an einer noch
+ausstehenden Wording-Entscheidung, #260 an einer Migrations-Entscheidung, #265 ist reine
+Architekturfrage ohne Implementierungsfreigabe — alle drei brauchen vor Umsetzung erst die
+jeweilige Nutzerentscheidung. #259 ist unabhängig und direkt startbar.
 
-- **issue_snapshot_at:** 2026-09-07T00:15Z (ein offenes Issue, #259)
-- **plan_updated_at:** 2026-09-07
+- **issue_snapshot_at:** 2026-09-06T22:34Z (sechs offene Issues: #259, #260, #262, #263, #264, #265)
+- **plan_updated_at:** 2026-09-06

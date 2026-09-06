@@ -1,4 +1,60 @@
 {
+  "265": {
+    "title": "Trusted Networks: Verhalten bei Mesh-Netzwerken (AP-Wechsel, gleiche SSID) klären",
+    "scope": "Architekturentscheidung, kein Implementierungsauftrag: BSSID-Matching verliert Trust-Status beim Roaming zwischen APs derselben Mesh-SSID. Drei Optionen (Status quo pro-AP, SSID-Gruppierung, Hybrid) zur Nutzerentscheidung vorgelegt.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-06T22:33:14Z",
+    "status": "open"
+  },
+  "264": {
+    "title": "Trusted Networks: BSSID in der Verwaltungsliste anzeigen",
+    "scope": "UI-Ergänzung: Verwaltungsdialog zeigt aktuell nur SSID-Label, nicht die intern zum Matching genutzte BSSID. Sekundärzeile pro Eintrag ergänzen.",
+    "decomposition": "Einzelpaket ausreichend (Teilpaket aus #261)",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-06T22:33:02Z",
+    "status": "open"
+  },
+  "263": {
+    "title": "Trusted Networks: Beschriftung des 'Verwalten'-Buttons kürzen",
+    "scope": "Wording-Änderung von 'Vertrauenswürdige Netzwerke verwalten' zu kürzerer Form. Finale Formulierung braucht Nutzerentscheidung vor Umsetzung; danach i18n-Nachzug in allen Sprachen.",
+    "decomposition": "Einzelpaket ausreichend (Teilpaket aus #261)",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-06T22:32:54Z",
+    "status": "open"
+  },
+  "262": {
+    "title": "Trusted Networks: Button 'Aktuelles Netzwerk hinzufügen' zu 'entfernen' umschalten",
+    "scope": "Button-Text/Aktion dynamisch an Whitelist-Status koppeln (BSSID-basiert, Prüfung existiert bereits), inkl. differenzierter Toasts und i18n.",
+    "decomposition": "Einzelpaket ausreichend (Teilpaket aus #261)",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-06T22:32:46Z",
+    "status": "open"
+  },
+  "261": {
+    "title": "Trusted Networks Verwaltung: Button-Beschriftungen, BSSID-Anzeige und Mesh-/AP-Wechsel-Verhalten",
+    "scope": "Sammel-Issue, zerlegt in #262, #263, #264, #265.",
+    "decomposition": "zerlegt in #262, #263, #264, #265",
+    "stage": "n/a (Sammel-Issue)",
+    "updatedAt": "2026-09-06T22:34:00Z",
+    "status": "closed"
+  },
+  "260": {
+    "title": "Trusted Networks: Default-Schalterstellung auf aktiv umstellen",
+    "scope": "Default von MODE_ALL_WIFI auf Allowlist-aktiv umstellen, Subtext anpassen. Migrationsverhalten für Bestandsinstallationen (Breaking-Change-Charakter) vor Umsetzung mit Nutzer klären. i18n-Vollständigkeit der Karte bereits geprüft (alle 16 Strings, 19 Sprachen, kein Hardcoding) — kein Handlungsbedarf dort.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-06T22:26:24Z",
+    "status": "open"
+  },
+  "259": {
+    "title": "feat(settings): Lizenz- und Website-Zeile unter Versionsinformationen anzeigen",
+    "scope": "UI-Ergänzung unter Versionsinfo: AGPLv3-Lizenzzeile + anklickbarer HohnePeople.de-Link. Jahr-Frage (mit/ohne/dynamisch) bei Umsetzung klären. i18n-pflichtig.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-06T21:36:59Z",
+    "status": "open"
+  },
   "257": {
     "title": "build: PR #254 merged 9 issues without a version bump or changelog entry",
     "scope": "Doku-/Versions-Nachtrag: retrospektive CHANGELOG-Einträge für #245-#253, Minor-Bump (Nutzerentscheidung: 1.4.6->1.5.0 wegen neuer Permissions/Trusted-Network-Feature), Fastlane-Changelog.",
@@ -13,54 +69,6 @@
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s4",
     "updatedAt": "2026-09-06T20:57:13Z",
-    "status": "closed"
-  },
-  "240": {
-    "title": "Settings: Toggle 'Show security & network advice' missing border frame",
-    "scope": "UI-Bug: Toggle in Einstellungen für 'Show security & network advice' fehlt der Border/Rahmen, den andere Toggle-Elemente haben. Einstellungen-UI, eine oder mehrere Layout-Dateien oder Drawable-Ressourcen betroffen.",
-    "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s1",
-    "updatedAt": "2026-09-03T21:52:56Z",
-    "status": "open"
-  },
-  "238": {
-    "title": "audit: check-i18n erkennt Teilübersetzungen und Sprachverwechslungen prinzipiell nicht",
-    "scope": "Audit-Dokumentation: Erkennungsgrenzen von check-i18n in Code und Projekt-Doku benennen. Optionale Heuristik-Prüfung für Teilübersetzungen in Non-Latin-Sprachen als Subziel — Machbarkeit und ROI unklar.",
-    "decomposition": "Einzelpaket ausreichend (oder abhängig von #237 Heuristik)",
-    "stage": "agent-stage:s2",
-    "updatedAt": "2026-09-03T21:28:12Z",
-    "status": "open"
-  },
-  "237": {
-    "title": "build: check-i18n prüft nur <string>, nicht <plurals>/<string-array>, und meldet keine verwaisten Allowlist-Einträge",
-    "scope": "Werkzeug-Reparatur: 3 Lücken in bin/check-i18n — (1) <plurals>/<string-array>-Parsing, (2) translatable=\"false\" ausnahmen, (3) verwaiste ALLOWLIST-Einträge melden. Drei Reparationen ggf. als atomare separate Commits (selber PR), aber logisch zusammenhängend.",
-    "decomposition": "Einzelpaket ausreichend (3 Reparationen in einer Etappe)",
-    "stage": "agent-stage:s1",
-    "updatedAt": "2026-09-03T21:27:50Z",
-    "status": "open"
-  },
-  "236": {
-    "title": "fix: translate German Settings section heading \"Display\" (#236)",
-    "scope": "Umgesetzt (Commit 4295cc4), geschlossen.",
-    "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s0",
-    "updatedAt": "2026-09-03T20:15:32Z",
-    "status": "closed"
-  },
-  "235": {
-    "title": "fix: translate action_dismiss and advice banner strings in all 18 languages (#235) (#239)",
-    "scope": "Umgesetzt (PR #239, Commit c06dec3), geschlossen.",
-    "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s1",
-    "updatedAt": "2026-09-04T00:00:00Z",
-    "status": "closed"
-  },
-  "233": {
-    "title": "audit: Vollständiges i18n-Audit (hardcoded literals, fehlende Übersetzungen)",
-    "scope": "Abgeschlossen mit korrigiertem Befund: Geräte-Screenshot deckte 3 in allen 18 Sprachen unübersetzte Strings auf. Nacharbeit ausgelagert nach #235. Bericht: notes/reviews/2026-09-03-i18n-audit-233.md.",
-    "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s1",
-    "updatedAt": "2026-09-03T21:10:00Z",
     "status": "closed"
   }
 }
