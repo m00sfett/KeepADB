@@ -1,4 +1,12 @@
 {
+  "248": {
+    "title": "Separate KeepADB state management from Android side effects",
+    "scope": "Architektur-Refactor: KeepADB.java in State-Modell, Settings.Global-Writer, Preferences-Komponente, Orchestrierungs-Koordinator und Notification-/Widget-Effekte zerlegen, ohne Verhalten zu ändern.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s3",
+    "updatedAt": "2026-09-06T13:06:37Z",
+    "status": "open"
+  },
   "240": {
     "title": "Settings: Toggle 'Show security & network advice' missing border frame",
     "scope": "UI-Bug: Toggle in Einstellungen für 'Show security & network advice' fehlt der Border/Rahmen, den andere Toggle-Elemente haben. Einstellungen-UI, eine oder mehrere Layout-Dateien oder Drawable-Ressourcen betroffen.",
