@@ -47,7 +47,10 @@ public class KeepADBNetworkContractTest {
         // NetworkRequest.Builder#clearCapabilities() was added in API 31; minSdk is 30, so
         // using it unconditionally would throw NoSuchMethodError on real API 30 devices even
         // though it compiles fine and passes unit tests against the (API 35) mockable jar.
-        assertFalse(network.contains("clearCapabilities()"));
+        // Checked as an actual call (a leading dot), not a bare substring match, since the
+        // class javadoc legitimately mentions the method name itself to explain why it's
+        // avoided (via a "Builder#clearCapabilities()" javadoc {@code} link, not a "."-call).
+        assertFalse(network.contains(".clearCapabilities("));
         assertTrue(network.contains("registerDefaultNetworkCallback"));
         assertTrue(network.contains("addTransportType(NetworkCapabilities.TRANSPORT_WIFI)"));
         assertTrue(network.contains("hasTransport(NetworkCapabilities.TRANSPORT_WIFI)"));
