@@ -7,6 +7,8 @@ import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -40,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 final class KeepADBNetwork {
     private static volatile KeepADBNetwork instance;
 
+    private final Context appContext;
     private final ConnectivityManager connectivityManager;
     private final ConnectivityManager.NetworkCallback wifiCallback;
     private final ConnectivityManager.NetworkCallback defaultCallback;
@@ -48,7 +51,7 @@ final class KeepADBNetwork {
     private final Map<Network, LinkProperties> defaultLinkProperties = new ConcurrentHashMap<>();
 
     private KeepADBNetwork(Context context) {
-        Context appContext = context.getApplicationContext();
+        appContext = context.getApplicationContext();
         connectivityManager = appContext.getSystemService(ConnectivityManager.class);
         wifiCallback = new ConnectivityManager.NetworkCallback() {
             @Override
@@ -154,6 +157,12 @@ final class KeepADBNetwork {
      * pre-#250 behavior of checking literally every network Android knows about, in exchange
      * for not requiring API 31; adb-over-Wi-Fi endpoints are expected to resolve to a Wi-Fi
      * network address in practice.
+     *
+     * <p>Falls back to a synchronous {@link WifiManager} check against our own current Wi-Fi IP
+     * if neither map has a match: {@code onCapabilitiesChanged}/{@code onLinkPropertiesChanged}
+     * populate the maps asynchronously, so a query made immediately after the first-ever {@link
+     * #get} call in a process (before either callback has fired yet) would otherwise wrongly
+     * treat a legitimately local address as foreign.
      */
     boolean isKnownLocalAddress(InetAddress address) {
         if (address == null) return false;
@@ -163,7 +172,22 @@ final class KeepADBNetwork {
         for (LinkProperties linkProperties : defaultLinkProperties.values()) {
             if (containsAddress(linkProperties, address)) return true;
         }
-        return false;
+        return address.equals(synchronousWifiAddress());
+    }
+
+    private InetAddress synchronousWifiAddress() {
+        try {
+            WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
+            if (wifiManager == null) return null;
+            WifiInfo info = wifiManager.getConnectionInfo();
+            if (info == null) return null;
+            int ip = info.getIpAddress();
+            if (ip == 0) return null;
+            byte[] bytes = {(byte) ip, (byte) (ip >> 8), (byte) (ip >> 16), (byte) (ip >> 24)};
+            return InetAddress.getByAddress(bytes);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     private static boolean containsAddress(LinkProperties linkProperties, InetAddress address) {
