@@ -67,6 +67,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">विश्वसनीय नेटवर्क</string>
     <string name="settings_trusted_network_empty_message">अभी तक कोई विश्वसनीय नेटवर्क नहीं जोड़ा गया।</string>
     <string name="settings_trusted_network_delete_button">हटाएं</string>
+    <string name="settings_trusted_network_mesh_title">अन्य एक्सेस पॉइंट जोड़ें?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB ने %1$d अन्य एक्सेस पॉइंट भी देखे हैं जो \"%2$s\" प्रसारित करते हैं। क्या इन्हें भी विश्वसनीय सूची में जोड़ना है?</string>
+    <string name="settings_trusted_network_mesh_add_button">सभी जोड़ें</string>
+    <string name="settings_trusted_network_mesh_added_toast">%1$d और एक्सेस पॉइंट विश्वसनीय नेटवर्क में जोड़े गए</string>
     <string name="settings_webhook_saved_toast">वेबहुक URL सहेजा गया</string>
     <string name="settings_webhook_cleared_toast">वेबहुक कॉन्फ़िगरेशन साफ़ किया गया</string>
     <string name="settings_webhook_enabled_toast">वेबहुक सिंक सक्षम किया गया</string>

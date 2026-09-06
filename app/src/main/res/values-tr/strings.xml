@@ -67,6 +67,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Güvenilir ağlar</string>
     <string name="settings_trusted_network_empty_message">Henüz güvenilir ağ eklenmedi.</string>
     <string name="settings_trusted_network_delete_button">Kaldır</string>
+    <string name="settings_trusted_network_mesh_title">Diğer erişim noktaları eklensin mi?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB, %1$d erişim noktasının daha \"%2$s\" yayınladığını tespit etti. Bunlar da güvenilir listeye eklensin mi?</string>
+    <string name="settings_trusted_network_mesh_add_button">Tümünü ekle</string>
+    <string name="settings_trusted_network_mesh_added_toast">%1$d erişim noktası daha güvenilir ağlara eklendi</string>
     <string name="settings_webhook_saved_toast">Webhook URL’si kaydedildi</string>
     <string name="settings_webhook_cleared_toast">Webhook yapılandırması temizlendi</string>
     <string name="settings_webhook_enabled_toast">Webhook senkronizasyonu etkinleştirildi</string>

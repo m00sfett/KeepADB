@@ -67,6 +67,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Vertrouwde netwerken</string>
     <string name="settings_trusted_network_empty_message">Nog geen vertrouwde netwerken toegevoegd.</string>
     <string name="settings_trusted_network_delete_button">Verwijderen</string>
+    <string name="settings_trusted_network_mesh_title">Andere access points toevoegen?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB heeft ook %1$d andere access points gezien die \"%2$s\" uitzenden. Wil je deze ook toevoegen aan de vertrouwde lijst?</string>
+    <string name="settings_trusted_network_mesh_add_button">Alles toevoegen</string>
+    <string name="settings_trusted_network_mesh_added_toast">%1$d extra access points toegevoegd aan vertrouwde netwerken</string>
     <string name="settings_webhook_saved_toast">Webhook-URL opgeslagen</string>
     <string name="settings_webhook_cleared_toast">Webhook-configuratie gewist</string>
     <string name="settings_webhook_enabled_toast">Webhook-synchronisatie ingeschakeld</string>

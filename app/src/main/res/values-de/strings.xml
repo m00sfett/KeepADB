@@ -79,6 +79,10 @@
     <string name="settings_trusted_network_manage_title">Vertrauenswürdige Netzwerke</string>
     <string name="settings_trusted_network_empty_message">Noch keine vertrauenswürdigen Netzwerke hinzugefügt.</string>
     <string name="settings_trusted_network_delete_button">Entfernen</string>
+    <string name="settings_trusted_network_mesh_title">Weitere Access Points hinzufügen?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB hat außerdem %1$d weitere Access Points erkannt, die „%2$s“ ausstrahlen. Sollen sie ebenfalls zu den vertrauenswürdigen Netzwerken hinzugefügt werden?</string>
+    <string name="settings_trusted_network_mesh_add_button">Alle hinzufügen</string>
+    <string name="settings_trusted_network_mesh_added_toast">%1$d weitere Access Points zu vertrauenswürdigen Netzwerken hinzugefügt</string>
     <string name="settings_webhook_saved_toast">Webhook-URL gespeichert</string>
     <string name="settings_webhook_cleared_toast">Webhook-Konfiguration gelöscht</string>
     <string name="settings_webhook_enabled_toast">Webhook-Synchronisierung aktiviert</string>

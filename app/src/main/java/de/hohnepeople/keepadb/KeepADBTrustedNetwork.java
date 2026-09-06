@@ -74,17 +74,32 @@ final class KeepADBTrustedNetwork {
     static Entry addCurrentNetwork(Context context, String label) {
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
         if (!identity.isKnown()) return null;
-        for (Entry entry : getEntries(context)) {
-            if (entry.bssid.equalsIgnoreCase(identity.bssid)) return entry;
-        }
-        SharedPreferences preferences = prefs(context);
-        int id = preferences.getInt(KEY_NEXT_ID, 1);
         String cleanLabel = clean(label);
         if (cleanLabel.isEmpty()) {
             String ssid = identity.displaySsid();
             cleanLabel = (ssid == null || ssid.isEmpty()) ? identity.bssid : ssid;
         }
-        Entry entry = new Entry(id, cleanLabel, identity.bssid);
+        return addBssid(context, identity.bssid, cleanLabel);
+    }
+
+    /**
+     * Adds an arbitrary BSSID to the allowlist, independent of what network is currently
+     * connected (#266: used to add further mesh access points of an SSID that a network's own
+     * {@link #addCurrentNetwork} call already made trusted). Returns null only if {@code bssid}
+     * is null/blank; an already-listed BSSID is returned unchanged, matching {@link
+     * #addCurrentNetwork}'s dedup behavior.
+     */
+    static Entry addBssid(Context context, String bssid, String label) {
+        String cleanBssid = clean(bssid);
+        if (cleanBssid.isEmpty()) return null;
+        for (Entry entry : getEntries(context)) {
+            if (entry.bssid.equalsIgnoreCase(cleanBssid)) return entry;
+        }
+        SharedPreferences preferences = prefs(context);
+        int id = preferences.getInt(KEY_NEXT_ID, 1);
+        String cleanLabel = clean(label);
+        if (cleanLabel.isEmpty()) cleanLabel = cleanBssid;
+        Entry entry = new Entry(id, cleanLabel, cleanBssid);
         write(preferences, entry);
         String ids = preferences.getString(KEY_IDS, "");
         preferences.edit()

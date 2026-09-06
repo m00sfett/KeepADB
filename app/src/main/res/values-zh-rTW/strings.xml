@@ -67,6 +67,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">受信任的網路</string>
     <string name="settings_trusted_network_empty_message">尚未新增受信任的網路。</string>
     <string name="settings_trusted_network_delete_button">移除</string>
+    <string name="settings_trusted_network_mesh_title">是否新增其他無線基地台?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB 也偵測到其他 %1$d 個廣播「%2$s」的無線基地台。要一併新增到信任清單嗎?</string>
+    <string name="settings_trusted_network_mesh_add_button">全部新增</string>
+    <string name="settings_trusted_network_mesh_added_toast">已將另外 %1$d 個無線基地台新增至受信任的網路</string>
     <string name="settings_webhook_saved_toast">Webhook URL 已儲存</string>
     <string name="settings_webhook_cleared_toast">Webhook 設定已清除</string>
     <string name="settings_webhook_enabled_toast">Webhook 同步已啟用</string>

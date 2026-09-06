@@ -67,6 +67,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">信頼できるネットワーク</string>
     <string name="settings_trusted_network_empty_message">まだ信頼できるネットワークが追加されていません。</string>
     <string name="settings_trusted_network_delete_button">削除</string>
+    <string name="settings_trusted_network_mesh_title">他のアクセスポイントも追加しますか?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADBは他に%1$d件のアクセスポイントが「%2$s」を発信しているのを検出しました。信頼できるネットワークに追加しますか?</string>
+    <string name="settings_trusted_network_mesh_add_button">すべて追加</string>
+    <string name="settings_trusted_network_mesh_added_toast">%1$d件のアクセスポイントを信頼できるネットワークに追加しました</string>
     <string name="settings_webhook_saved_toast">Webhook URL を保存しました</string>
     <string name="settings_webhook_cleared_toast">Webhook 設定をクリアしました</string>
     <string name="settings_webhook_enabled_toast">Webhook 同期を有効にしました</string>

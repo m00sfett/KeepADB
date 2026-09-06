@@ -67,6 +67,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Mạng đáng tin cậy</string>
     <string name="settings_trusted_network_empty_message">Chưa có mạng đáng tin cậy nào được thêm.</string>
     <string name="settings_trusted_network_delete_button">Xóa</string>
+    <string name="settings_trusted_network_mesh_title">Thêm các điểm truy cập khác?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB cũng đã phát hiện %1$d điểm truy cập khác phát tín hiệu \"%2$s\". Bạn có muốn thêm chúng vào danh sách tin cậy không?</string>
+    <string name="settings_trusted_network_mesh_add_button">Thêm tất cả</string>
+    <string name="settings_trusted_network_mesh_added_toast">Đã thêm %1$d điểm truy cập khác vào mạng đáng tin cậy</string>
     <string name="settings_webhook_saved_toast">Đã lưu URL Webhook</string>
     <string name="settings_webhook_cleared_toast">Đã xóa cấu hình Webhook</string>
     <string name="settings_webhook_enabled_toast">Đã bật đồng bộ hóa Webhook</string>

@@ -1,113 +1,109 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
 
-public class KeepADBTrustedNetworkTest {
+/**
+ * Unit tests for the mesh-BSSID observation history (#266): size-bounded per-SSID history,
+ * oldest-entry eviction, and the no-entry-without-a-known-SSID rule.
+ */
+public class KeepADBBssidHistoryTest {
 
     @Test
-    public void defaultModeIsAllWifiAndTrustsEveryNetwork() {
+    public void recordsAndReturnsAKnownBssidForItsSsid() {
         FakeContext context = new FakeContext();
-        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
-        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
-        // No known network identity is available in a plain JVM test (no real WifiInfo), yet
-        // MODE_ALL_WIFI must still trust the network -- this is the fail-open-by-design default
-        // that preserves pre-#245 behavior for upgrading users.
-        assertTrue(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
-        assertEquals(KeepADBTrustedNetwork.BlockReason.NONE, KeepADBTrustedNetwork.getBlockReason(context));
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01");
+
+        List<String> known = KeepADBBssidHistory.getKnownBssids(context, "HomeMesh");
+        assertEquals(1, known.size());
+        assertEquals("aa:aa:aa:aa:aa:01", known.get(0));
     }
 
     @Test
-    public void allowlistModeFailsClosedWithNoKnownIdentity() {
+    public void ignoresObservationsWithoutAKnownSsid() {
         FakeContext context = new FakeContext();
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
-        // Without a real WifiInfo, KeepADBNetworkIdentity.current() can't know the network --
-        // allowlist mode must fail closed rather than trusting it.
-        assertFalse(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
-        assertEquals(KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE,
-                KeepADBTrustedNetwork.getBlockReason(context));
+        KeepADBBssidHistory.recordObservation(context, null, "aa:aa:aa:aa:aa:01");
+        KeepADBBssidHistory.recordObservation(context, "", "aa:aa:aa:aa:aa:02");
+        KeepADBBssidHistory.recordObservation(context, "   ", "aa:aa:aa:aa:aa:03");
+
+        assertTrue(KeepADBBssidHistory.getKnownBssids(context, "").isEmpty());
+        assertTrue(KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").isEmpty());
     }
 
     @Test
-    public void addCurrentNetworkFailsWithoutAKnownIdentity() {
+    public void ignoresObservationsWithoutAKnownBssid() {
         FakeContext context = new FakeContext();
-        assertNull(KeepADBTrustedNetwork.addCurrentNetwork(context, "Home"));
-        assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", null);
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "");
+
+        assertTrue(KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").isEmpty());
     }
 
     @Test
-    public void removeIsANoOpForAnUnknownId() {
+    public void recordingTheSameBssidTwiceDoesNotDuplicateIt() {
         FakeContext context = new FakeContext();
-        assertFalse(KeepADBTrustedNetwork.remove(context, 999));
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01");
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "AA:AA:AA:AA:AA:01");
+
+        assertEquals(1, KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").size());
     }
 
     @Test
-    public void findAndRemoveCurrentNetworkFailWithoutAKnownIdentity() {
+    public void separatesHistoryPerSsid() {
         FakeContext context = new FakeContext();
-        // Same JVM-test limitation as addCurrentNetworkFailsWithoutAKnownIdentity: no real
-        // WifiInfo is available, so the current network's identity is always unknown here.
-        assertNull(KeepADBTrustedNetwork.findEntryForCurrentNetwork(context));
-        assertNull(KeepADBTrustedNetwork.removeCurrentNetwork(context));
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01");
+        KeepADBBssidHistory.recordObservation(context, "OfficeMesh", "bb:bb:bb:bb:bb:01");
+
+        assertEquals(1, KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").size());
+        assertEquals(1, KeepADBBssidHistory.getKnownBssids(context, "OfficeMesh").size());
+        assertEquals("bb:bb:bb:bb:bb:01", KeepADBBssidHistory.getKnownBssids(context, "OfficeMesh").get(0));
     }
 
     @Test
-    public void entriesRoundTripThroughPreferences() {
+    public void evictsTheOldestBssidOnceThePerSsidLimitIsExceeded() {
         FakeContext context = new FakeContext();
-        // Exercise the persistence layer directly with a fabricated id list, since a JVM unit
-        // test can't produce a real WifiInfo for addCurrentNetwork() to persist through.
-        context.getSharedPreferences("keepadb_prefs", 0).edit()
-                .putString("trusted_network_ids", "1,2")
-                .putString("trusted_network_1_label", "Home")
-                .putString("trusted_network_1_bssid", "aa:bb:cc:dd:ee:ff")
-                .putString("trusted_network_2_label", "Office")
-                .putString("trusted_network_2_bssid", "11:22:33:44:55:66")
-                .apply();
+        for (int i = 1; i <= KeepADBBssidHistory.MAX_BSSIDS_PER_SSID + 2; i++) {
+            KeepADBBssidHistory.recordObservation(context, "HomeMesh", bssid(i));
+        }
 
-        List<KeepADBTrustedNetwork.Entry> entries = KeepADBTrustedNetwork.getEntries(context);
-        assertEquals(2, entries.size());
-        assertEquals("Home", entries.get(0).label);
-        assertEquals("aa:bb:cc:dd:ee:ff", entries.get(0).bssid);
-
-        assertTrue(KeepADBTrustedNetwork.remove(context, 1));
-        assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
-        assertEquals("Office", KeepADBTrustedNetwork.getEntries(context).get(0).label);
+        List<String> known = KeepADBBssidHistory.getKnownBssids(context, "HomeMesh");
+        assertEquals(KeepADBBssidHistory.MAX_BSSIDS_PER_SSID, known.size());
+        // The two oldest (1 and 2) must have been evicted; the two newest must be present.
+        assertTrue(known.contains(bssid(3)));
+        assertTrue(known.contains(bssid(KeepADBBssidHistory.MAX_BSSIDS_PER_SSID + 2)));
+        assertTrue(!known.contains(bssid(1)));
+        assertTrue(!known.contains(bssid(2)));
     }
 
     @Test
-    public void addBssidAddsAnArbitraryEntryIndependentOfTheCurrentNetwork() {
-        // #266: addBssid() is how the mesh "add other access points too?" flow adds further
-        // BSSIDs of an already-trusted SSID, none of which is necessarily the one currently
-        // connected -- so it must work without relying on KeepADBNetworkIdentity.current() at
-        // all (unlike addCurrentNetwork(), which is unusable in this JVM test environment).
+    public void additionalBssidsExcludeAlreadyListedOnesCaseInsensitively() {
         FakeContext context = new FakeContext();
-        KeepADBTrustedNetwork.Entry entry = KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "Mesh AP 2");
-        assertEquals("aa:bb:cc:dd:ee:01", entry.bssid);
-        assertEquals("Mesh AP 2", entry.label);
-        assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01");
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:02");
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:03");
+
+        List<String> additional = KeepADBBssidHistory.getAdditionalBssids(context, "HomeMesh",
+                Collections.singletonList("AA:AA:AA:AA:AA:01"));
+
+        assertEquals(2, additional.size());
+        assertTrue(additional.contains("aa:aa:aa:aa:aa:02"));
+        assertTrue(additional.contains("aa:aa:aa:aa:aa:03"));
     }
 
     @Test
-    public void addBssidIsANoOpForABlankBssid() {
+    public void additionalBssidsIsEmptyForAnUnseenSsid() {
         FakeContext context = new FakeContext();
-        assertNull(KeepADBTrustedNetwork.addBssid(context, null, "label"));
-        assertNull(KeepADBTrustedNetwork.addBssid(context, "  ", "label"));
-        assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
+        assertTrue(KeepADBBssidHistory.getAdditionalBssids(context, "UnknownSsid", Collections.emptyList())
+                .isEmpty());
     }
 
-    @Test
-    public void addBssidReturnsTheExistingEntryWithoutDuplicatingIt() {
-        FakeContext context = new FakeContext();
-        KeepADBTrustedNetwork.Entry first = KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "First");
-        KeepADBTrustedNetwork.Entry second = KeepADBTrustedNetwork.addBssid(context, "AA:BB:CC:DD:EE:01", "Second");
-        assertEquals(first.id, second.id);
-        assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
+    private static String bssid(int index) {
+        return String.format(java.util.Locale.US, "aa:aa:aa:aa:aa:%02x", index);
     }
 
     private static final class FakeContext extends android.content.ContextWrapper {

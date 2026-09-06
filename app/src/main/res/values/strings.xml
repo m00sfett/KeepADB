@@ -79,6 +79,10 @@
     <string name="settings_trusted_network_manage_title">Trusted networks</string>
     <string name="settings_trusted_network_empty_message">No trusted networks added yet.</string>
     <string name="settings_trusted_network_delete_button">Remove</string>
+    <string name="settings_trusted_network_mesh_title">Add other access points?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB has also seen %1$d other access points broadcasting \"%2$s\". Add them to your trusted list too?</string>
+    <string name="settings_trusted_network_mesh_add_button">Add all</string>
+    <string name="settings_trusted_network_mesh_added_toast">Added %1$d more access points to trusted networks</string>
     <string name="settings_webhook_saved_toast">Webhook URL saved</string>
     <string name="settings_webhook_cleared_toast">Webhook configuration cleared</string>
     <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>

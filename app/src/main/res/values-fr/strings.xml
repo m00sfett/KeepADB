@@ -67,6 +67,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Réseaux de confiance</string>
     <string name="settings_trusted_network_empty_message">Aucun réseau de confiance ajouté pour l\'instant.</string>
     <string name="settings_trusted_network_delete_button">Supprimer</string>
+    <string name="settings_trusted_network_mesh_title">Ajouter d\'autres points d\'accès ?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB a également détecté %1$d autres points d\'accès diffusant « %2$s ». Voulez-vous les ajouter aussi à votre liste de confiance ?</string>
+    <string name="settings_trusted_network_mesh_add_button">Tout ajouter</string>
+    <string name="settings_trusted_network_mesh_added_toast">%1$d points d\'accès supplémentaires ajoutés aux réseaux de confiance</string>
     <string name="settings_webhook_saved_toast">URL du Webhook enregistrée</string>
     <string name="settings_webhook_cleared_toast">Configuration du Webhook effacée</string>
     <string name="settings_webhook_enabled_toast">Synchronisation Webhook activée</string>

@@ -67,6 +67,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Redes confiáveis</string>
     <string name="settings_trusted_network_empty_message">Nenhuma rede confiável adicionada ainda.</string>
     <string name="settings_trusted_network_delete_button">Remover</string>
+    <string name="settings_trusted_network_mesh_title">Adicionar outros pontos de acesso?</string>
+    <string name="settings_trusted_network_mesh_message">O KeepADB também detectou %1$d outros pontos de acesso transmitindo \"%2$s\". Deseja adicioná-los também à lista de confiança?</string>
+    <string name="settings_trusted_network_mesh_add_button">Adicionar todos</string>
+    <string name="settings_trusted_network_mesh_added_toast">Adicionados %1$d pontos de acesso a mais às redes confiáveis</string>
     <string name="settings_webhook_saved_toast">URL do Webhook salva</string>
     <string name="settings_webhook_cleared_toast">Configuração do Webhook limpa</string>
     <string name="settings_webhook_enabled_toast">Sincronização Webhook ativada</string>

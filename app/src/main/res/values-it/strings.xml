@@ -67,6 +67,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Reti attendibili</string>
     <string name="settings_trusted_network_empty_message">Nessuna rete attendibile ancora aggiunta.</string>
     <string name="settings_trusted_network_delete_button">Rimuovi</string>
+    <string name="settings_trusted_network_mesh_title">Aggiungere altri access point?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB ha rilevato anche %1$d altri access point che trasmettono \"%2$s\". Vuoi aggiungerli anche alla lista attendibile?</string>
+    <string name="settings_trusted_network_mesh_add_button">Aggiungi tutti</string>
+    <string name="settings_trusted_network_mesh_added_toast">Aggiunti %1$d access point in più alle reti attendibili</string>
     <string name="settings_webhook_saved_toast">URL del Webhook salvato</string>
     <string name="settings_webhook_cleared_toast">Configurazione Webhook cancellata</string>
     <string name="settings_webhook_enabled_toast">Sincronizzazione Webhook abilitata</string>

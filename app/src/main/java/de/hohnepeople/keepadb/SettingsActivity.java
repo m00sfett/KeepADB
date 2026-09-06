@@ -366,7 +366,44 @@ public class SettingsActivity extends Activity {
         }
         Toast.makeText(this, getString(R.string.settings_trusted_network_added_toast, entry.label),
                 Toast.LENGTH_SHORT).show();
+        offerAdditionalMeshBssids();
         refresh();
+    }
+
+    /**
+     * After adding the current network, offers to also add any other BSSIDs the observation
+     * history (#266) has seen broadcasting the same SSID -- covers Wi-Fi mesh setups (several
+     * access points, one SSID, different BSSIDs) without ever trusting by SSID: declining still
+     * keeps only the just-added BSSID trusted, and accepting adds each additional BSSID through
+     * the same {@link KeepADBTrustedNetwork} entry point as a normal manual add.
+     */
+    private void offerAdditionalMeshBssids() {
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(this);
+        if (!identity.isKnown()) return;
+        String ssid = identity.displaySsid();
+        if (ssid == null || ssid.isEmpty()) return;
+
+        List<String> alreadyListed = new java.util.ArrayList<>();
+        for (KeepADBTrustedNetwork.Entry listed : KeepADBTrustedNetwork.getEntries(this)) {
+            alreadyListed.add(listed.bssid);
+        }
+        List<String> additional = KeepADBBssidHistory.getAdditionalBssids(this, ssid, alreadyListed);
+        if (additional.isEmpty()) return;
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_trusted_network_mesh_title)
+                .setMessage(getString(R.string.settings_trusted_network_mesh_message, additional.size(), ssid))
+                .setPositiveButton(R.string.settings_trusted_network_mesh_add_button, (dialog, which) -> {
+                    for (String bssid : additional) {
+                        KeepADBTrustedNetwork.addBssid(this, bssid, ssid);
+                    }
+                    Toast.makeText(this,
+                            getString(R.string.settings_trusted_network_mesh_added_toast, additional.size()),
+                            Toast.LENGTH_SHORT).show();
+                    refresh();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     private void showTrustedNetworkManageDialog() {
@@ -687,6 +724,13 @@ public class SettingsActivity extends Activity {
         usbHandoverSelectedText.setText(handoverModeLabel);
         usbHandoverSelector.setContentDescription(
                 getString(R.string.settings_usb_handover_label) + ": " + getString(handoverModeLabel));
+
+        // Piggyback the mesh-BSSID observation history (#266) on this already-happening
+        // identity read instead of adding a new background poll/service for it.
+        KeepADBNetworkIdentity currentIdentity = KeepADBNetworkIdentity.current(this);
+        if (currentIdentity.isKnown()) {
+            KeepADBBssidHistory.recordObservation(this, currentIdentity.displaySsid(), currentIdentity.bssid);
+        }
 
         trustedNetworkToggle.setChecked(KeepADBTrustedNetwork.isAllowlistMode(this));
         KeepADBTrustedNetwork.BlockReason blockReason = KeepADBTrustedNetwork.getBlockReason(this);

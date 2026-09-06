@@ -67,6 +67,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Jaringan tepercaya</string>
     <string name="settings_trusted_network_empty_message">Belum ada jaringan tepercaya yang ditambahkan.</string>
     <string name="settings_trusted_network_delete_button">Hapus</string>
+    <string name="settings_trusted_network_mesh_title">Tambahkan titik akses lain?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB juga mendeteksi %1$d titik akses lain yang menyiarkan \"%2$s\". Tambahkan juga ke daftar tepercaya?</string>
+    <string name="settings_trusted_network_mesh_add_button">Tambahkan semua</string>
+    <string name="settings_trusted_network_mesh_added_toast">%1$d titik akses lain ditambahkan ke jaringan tepercaya</string>
     <string name="settings_webhook_saved_toast">URL Webhook disimpan</string>
     <string name="settings_webhook_cleared_toast">Konfigurasi Webhook dihapus</string>
     <string name="settings_webhook_enabled_toast">Sinkronisasi Webhook diaktifkan</string>

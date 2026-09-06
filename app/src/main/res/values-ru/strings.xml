@@ -67,6 +67,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Доверенные сети</string>
     <string name="settings_trusted_network_empty_message">Доверенные сети ещё не добавлены.</string>
     <string name="settings_trusted_network_delete_button">Удалить</string>
+    <string name="settings_trusted_network_mesh_title">Добавить другие точки доступа?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB также обнаружил %1$d других точек доступа, транслирующих «%2$s». Добавить их тоже в доверенные сети?</string>
+    <string name="settings_trusted_network_mesh_add_button">Добавить все</string>
+    <string name="settings_trusted_network_mesh_added_toast">Добавлено ещё %1$d точек доступа в доверенные сети</string>
     <string name="settings_webhook_saved_toast">URL Webhook сохранен</string>
     <string name="settings_webhook_cleared_toast">Конфигурация Webhook очищена</string>
     <string name="settings_webhook_enabled_toast">Синхронизация Webhook включена</string>

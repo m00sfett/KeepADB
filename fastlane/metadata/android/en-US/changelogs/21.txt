@@ -1,0 +1,1 @@
+Trusted networks now handle Wi-Fi mesh setups: KeepADB remembers which BSSIDs it has seen under the same network name and offers to add them all when you add the current one. BSSID stays the only trust check, and this history is never sent to your webhook.
