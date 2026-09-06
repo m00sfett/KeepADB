@@ -1,11 +1,19 @@
 {
+  "257": {
+    "title": "build: PR #254 merged 9 issues without a version bump or changelog entry",
+    "scope": "Doku-/Versions-Nachtrag: retrospektive CHANGELOG-Einträge für #245-#253, Versionsbump (vermutlich Minor wegen neuer Permissions), Fastlane-Changelog. Kein Codepfad.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "unbewertet",
+    "updatedAt": "2026-09-06T20:58:00Z",
+    "status": "open"
+  },
   "248": {
     "title": "Separate KeepADB state management from Android side effects",
-    "scope": "Architektur-Refactor: KeepADB.java in State-Modell, Settings.Global-Writer, Preferences-Komponente, Orchestrierungs-Koordinator und Notification-/Widget-Effekte zerlegen, ohne Verhalten zu ändern.",
+    "scope": "Architektur-Refactor: KeepADB.java-Toggle-Kern in plattformunabhängiges KeepADBToggleState, Settings.Global-Gateway (bereits aus PR #254), neue KeepADBSurfaceRefresher-Grenze zerlegt. Musste mit paralleler PR #254 rekonziliert werden (zwei unabhängige Designs).",
     "decomposition": "Einzelpaket ausreichend",
-    "stage": "agent-stage:s3",
-    "updatedAt": "2026-09-06T13:06:37Z",
-    "status": "open"
+    "stage": "agent-stage:s4",
+    "updatedAt": "2026-09-06T20:57:13Z",
+    "status": "closed"
   },
   "240": {
     "title": "Settings: Toggle 'Show security & network advice' missing border frame",
