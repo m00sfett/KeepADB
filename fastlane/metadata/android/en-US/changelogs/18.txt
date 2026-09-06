@@ -1,0 +1,1 @@
+Internal refactor: separated the ADB toggle's state handling from Android settings writes and UI refreshes for better testability. No visible behavior change.
