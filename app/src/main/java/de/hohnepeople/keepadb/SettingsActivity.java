@@ -331,14 +331,12 @@ public class SettingsActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST) {
-            boolean granted = false;
-            for (int i = 0; i < permissions.length; i++) {
-                if (Manifest.permission.ACCESS_FINE_LOCATION.equals(permissions[i])
-                        && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    granted = true;
-                    break;
-                }
-            }
+            // grantResults can be shorter than permissions (even empty) if the request was
+            // interrupted (e.g. the app was backgrounded while the system dialog was up), so
+            // re-query the actual permission state instead of indexing into it, matching
+            // MainActivity's existing onRequestPermissionsResult pattern.
+            boolean granted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED;
             if (granted) {
                 KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
             } else {

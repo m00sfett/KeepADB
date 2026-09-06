@@ -340,6 +340,8 @@ public class KeepADBService extends Service {
                     if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)) {
                         Log.i(TAG, "Wi-Fi connected but network is untrusted; not auto-enabling");
                         KeepADBDiagnostics.event(this, "keep_alive_check", "service", "blocked", "untrusted_network");
+                        KeepADBNotification.refresh(this);
+                        KeepADBWidget.refreshAll(this);
                         return;
                     }
                     Log.i(TAG, "Auto-enabling Wireless Debugging (Wi-Fi connected)");

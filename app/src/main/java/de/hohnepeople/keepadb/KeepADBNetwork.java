@@ -18,17 +18,24 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@code ConnectivityManager.getAllNetworks()} enumeration (deprecated since API 31) used
  * throughout {@link KeepADBService} and {@link KeepADBEndpoint} (#250).
  *
- * <p>Two {@link ConnectivityManager.NetworkCallback}s feed the same backing maps: one scoped to
- * {@code TRANSPORT_WIFI} (matching the existing Wi-Fi-scoped request already used elsewhere in
- * the codebase), and one from {@link ConnectivityManager#registerDefaultNetworkCallback}
- * (tracking whatever the current default route is -- cellular, VPN, ethernet, etc.). This
- * combination, rather than a single capabilities-cleared "match everything" request, is
- * deliberate: {@code NetworkRequest.Builder#clearCapabilities()} was added in API 31, but this
- * app's {@code minSdk} is 30, so using it unconditionally would throw {@code
- * NoSuchMethodError} on real API 30 devices. Per the platform contract, {@code
+ * <p>Two {@link ConnectivityManager.NetworkCallback}s each keep their own pair of backing maps:
+ * one scoped to {@code TRANSPORT_WIFI} (matching the existing Wi-Fi-scoped request already used
+ * elsewhere in the codebase), and one from {@link ConnectivityManager#registerDefaultNetworkCallback}
+ * (tracking whatever the current default route is -- cellular, VPN, ethernet, etc.). The two are
+ * deliberately kept separate rather than sharing one map: a default-network callback's {@code
+ * onLost} fires whenever that network stops being the *default* route, not only when it actually
+ * disconnects (e.g. turning on a VPN fires {@code onLost} for Wi-Fi from the default callback's
+ * perspective, even though Wi-Fi is still connected and the Wi-Fi-scoped callback never saw its
+ * own {@code onLost}). Sharing one map would let that default-route change wrongly evict a
+ * still-connected Wi-Fi network's cached data.
+ *
+ * <p>This combination, rather than a single capabilities-cleared "match everything" request, is
+ * also deliberate for a second reason: {@code NetworkRequest.Builder#clearCapabilities()} was
+ * added in API 31, but this app's {@code minSdk} is 30, so using it unconditionally would throw
+ * {@code NoSuchMethodError} on real API 30 devices. Per the platform contract, {@code
  * onCapabilitiesChanged}/{@code onLinkPropertiesChanged} fire at least once for every network a
  * request matches -- including ones that already existed at registration time -- so no separate
- * {@code onAvailable} bookkeeping is required; {@code onLost} removes the entry.
+ * {@code onAvailable} bookkeeping is required.
  */
 final class KeepADBNetwork {
     private static volatile KeepADBNetwork instance;
@@ -36,14 +43,41 @@ final class KeepADBNetwork {
     private final ConnectivityManager connectivityManager;
     private final ConnectivityManager.NetworkCallback wifiCallback;
     private final ConnectivityManager.NetworkCallback defaultCallback;
-    private final Map<Network, NetworkCapabilities> capabilitiesByNetwork = new ConcurrentHashMap<>();
-    private final Map<Network, LinkProperties> linkPropertiesByNetwork = new ConcurrentHashMap<>();
+    private final Map<Network, NetworkCapabilities> wifiCapabilities = new ConcurrentHashMap<>();
+    private final Map<Network, LinkProperties> wifiLinkProperties = new ConcurrentHashMap<>();
+    private final Map<Network, LinkProperties> defaultLinkProperties = new ConcurrentHashMap<>();
 
     private KeepADBNetwork(Context context) {
         Context appContext = context.getApplicationContext();
         connectivityManager = appContext.getSystemService(ConnectivityManager.class);
-        wifiCallback = newTrackingCallback();
-        defaultCallback = newTrackingCallback();
+        wifiCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
+                wifiCapabilities.put(network, capabilities);
+            }
+
+            @Override
+            public void onLinkPropertiesChanged(Network network, LinkProperties linkProperties) {
+                wifiLinkProperties.put(network, linkProperties);
+            }
+
+            @Override
+            public void onLost(Network network) {
+                wifiCapabilities.remove(network);
+                wifiLinkProperties.remove(network);
+            }
+        };
+        defaultCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onLinkPropertiesChanged(Network network, LinkProperties linkProperties) {
+                defaultLinkProperties.put(network, linkProperties);
+            }
+
+            @Override
+            public void onLost(Network network) {
+                defaultLinkProperties.remove(network);
+            }
+        };
         if (connectivityManager != null) {
             try {
                 NetworkRequest wifiRequest = new NetworkRequest.Builder()
@@ -59,26 +93,6 @@ final class KeepADBNetwork {
             } catch (RuntimeException ignored) {
             }
         }
-    }
-
-    private ConnectivityManager.NetworkCallback newTrackingCallback() {
-        return new ConnectivityManager.NetworkCallback() {
-            @Override
-            public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
-                capabilitiesByNetwork.put(network, capabilities);
-            }
-
-            @Override
-            public void onLinkPropertiesChanged(Network network, LinkProperties linkProperties) {
-                linkPropertiesByNetwork.put(network, linkProperties);
-            }
-
-            @Override
-            public void onLost(Network network) {
-                capabilitiesByNetwork.remove(network);
-                linkPropertiesByNetwork.remove(network);
-            }
-        };
     }
 
     static synchronized KeepADBNetwork get(Context context) {
@@ -110,7 +124,7 @@ final class KeepADBNetwork {
     }
 
     boolean isWifiConnected() {
-        for (NetworkCapabilities capabilities : capabilitiesByNetwork.values()) {
+        for (NetworkCapabilities capabilities : wifiCapabilities.values()) {
             if (isEligibleWifiTransport(capabilities)) {
                 return true;
             }
@@ -120,9 +134,9 @@ final class KeepADBNetwork {
 
     /** First non-loopback, non-link-local IPv4 address bound to an eligible Wi-Fi network, if any. */
     String getWifiIpv4Address() {
-        for (Map.Entry<Network, NetworkCapabilities> entry : capabilitiesByNetwork.entrySet()) {
+        for (Map.Entry<Network, NetworkCapabilities> entry : wifiCapabilities.entrySet()) {
             if (!isEligibleWifiTransport(entry.getValue())) continue;
-            LinkProperties linkProperties = linkPropertiesByNetwork.get(entry.getKey());
+            LinkProperties linkProperties = wifiLinkProperties.get(entry.getKey());
             if (linkProperties == null) continue;
             for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
                 InetAddress address = linkAddress.getAddress();
@@ -143,11 +157,19 @@ final class KeepADBNetwork {
      */
     boolean isKnownLocalAddress(InetAddress address) {
         if (address == null) return false;
-        for (LinkProperties linkProperties : linkPropertiesByNetwork.values()) {
-            for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
-                if (address.equals(linkAddress.getAddress())) {
-                    return true;
-                }
+        for (LinkProperties linkProperties : wifiLinkProperties.values()) {
+            if (containsAddress(linkProperties, address)) return true;
+        }
+        for (LinkProperties linkProperties : defaultLinkProperties.values()) {
+            if (containsAddress(linkProperties, address)) return true;
+        }
+        return false;
+    }
+
+    private static boolean containsAddress(LinkProperties linkProperties, InetAddress address) {
+        for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
+            if (address.equals(linkAddress.getAddress())) {
+                return true;
             }
         }
         return false;
