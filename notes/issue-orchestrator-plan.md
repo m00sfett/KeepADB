@@ -69,15 +69,33 @@ Verlaufshistorie abgeschlossener Pakete (bis 2026-09-05) archiviert unter
 Releasefreigabe. Einzige offene Randnotiz: s20 aktuell nicht erreichbar (Nutzeraktion nötig,
 kein Kandidatenblocker), und #259 als neues, noch unbewertetes Backlog-Item.
 
+## Übergabe-Checkpoint — #262 + #264 (2026-09-06)
+
+- **Paket:** #262 (Button hinzufügen/entfernen dynamisch) + #264 (BSSID in Verwaltungsliste),
+  S1, selbst umgesetzt (kein Subagent, kein separater Review nötig unter S2).
+- **Branch:** `feature/262-264-trusted-network-button-bssid`, Commit `d8ae1b5`
+  (`code/v1`-Repo). **Nicht gepusht** — Push/PR würde laut Projekt-CI (seit #246: läuft auf
+  jedem Push/PR) einen neuen GitHub-Actions-Run auslösen, der eine eigene Freigabe braucht.
+- **Erledigte Akzeptanzkriterien:** Button-Text wechselt dynamisch (`refresh()`), Tap auf
+  "entfernen" entfernt BSSID-basiert, unterschiedliche Toasts (added/removed/failed), BSSID als
+  Sekundärzeile im Verwaltungsdialog, keine neuen hardcodierten Strings.
+- **Ausgeführte Gates:** `bin/check-i18n` sauber (alle 18 Sprachen inkl. der 2 neuen Strings
+  `settings_trusted_network_remove_button`/`_removed_toast`), `bin/verify` grün (Unit-Tests
+  inkl. neuem `findAndRemoveCurrentNetworkFailWithoutAKnownIdentity`, Lint, Debug- und
+  Release-Build).
+- **Versionsnachweis:** versionCode 19→20, versionName 1.5.0→1.5.1 (Patch, innerhalb bestehender
+  Freigabe). `CHANGELOG.md` und `fastlane/.../changelogs/20.txt` nachgezogen.
+- **Ungeprüft/nachgelagert:** Geräte-/UI-Smoke-Test des Button-Umschaltens und der
+  BSSID-Anzeige (keine Testfreigabe in diesem Lauf erteilt).
+- **Offene Freigabe:** Push + PR öffnen (löst CI-Run aus) — braucht explizite Freigabe für
+  genau diesen Workflow/Zweck, dann Auto-Finish (Checks abwarten, mergen, #262/#264 schließen).
+
 ## Nächster Schritt
 
-Bei Interesse an einer echten Veröffentlichung: `$release-fdroid --dry` auf dem aktuellen
-Kandidaten. Für den Issue-Backlog: regulärer `$issue-orchestrator-eco`-Umsetzungslauf. Größtes
-sinnvolles zusammenhängendes Paket: **#262 + #264** (teilen sich Codepfad
-`showTrustedNetworkManageDialog()`/Verwaltungsdialog, je S1). #263 hängt an einer noch
-ausstehenden Wording-Entscheidung, #260 an einer Migrations-Entscheidung, #265 ist reine
-Architekturfrage ohne Implementierungsfreigabe — alle drei brauchen vor Umsetzung erst die
-jeweilige Nutzerentscheidung. #259 ist unabhängig und direkt startbar.
+Nach Freigabe: Branch pushen, PR öffnen (`Fixes #262, Fixes #264`), CI-Checks abwarten, mergen,
+Board/Issues nachziehen. Danach bleiben **#259** (unabhängig, direkt startbar, S1), **#260**
+(Migrations-Entscheidung offen), **#263** (Wording-Entscheidung offen) und **#265** (reine
+Architekturfrage, kein Implementierungsauftrag) im Backlog.
 
 - **issue_snapshot_at:** 2026-09-06T22:34Z (sechs offene Issues: #259, #260, #262, #263, #264, #265)
 - **plan_updated_at:** 2026-09-06
