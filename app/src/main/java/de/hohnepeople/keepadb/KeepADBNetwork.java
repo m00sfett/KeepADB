@@ -18,26 +18,51 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@code ConnectivityManager.getAllNetworks()} enumeration (deprecated since API 31) used
  * throughout {@link KeepADBService} and {@link KeepADBEndpoint} (#250).
  *
- * <p>A single {@link ConnectivityManager.NetworkCallback} is registered against a request
- * with capabilities cleared (matches every network, not just internet-validated ones, since
- * Wireless Debugging over a purely local Wi-Fi network never carries validated internet
- * capability). Per the platform contract, {@code onCapabilitiesChanged}/{@code
- * onLinkPropertiesChanged} fire at least once for every network the request matches --
- * including ones that already existed at registration time -- so no separate {@code
- * onAvailable} bookkeeping is required; {@code onLost} removes the entry.
+ * <p>Two {@link ConnectivityManager.NetworkCallback}s feed the same backing maps: one scoped to
+ * {@code TRANSPORT_WIFI} (matching the existing Wi-Fi-scoped request already used elsewhere in
+ * the codebase), and one from {@link ConnectivityManager#registerDefaultNetworkCallback}
+ * (tracking whatever the current default route is -- cellular, VPN, ethernet, etc.). This
+ * combination, rather than a single capabilities-cleared "match everything" request, is
+ * deliberate: {@code NetworkRequest.Builder#clearCapabilities()} was added in API 31, but this
+ * app's {@code minSdk} is 30, so using it unconditionally would throw {@code
+ * NoSuchMethodError} on real API 30 devices. Per the platform contract, {@code
+ * onCapabilitiesChanged}/{@code onLinkPropertiesChanged} fire at least once for every network a
+ * request matches -- including ones that already existed at registration time -- so no separate
+ * {@code onAvailable} bookkeeping is required; {@code onLost} removes the entry.
  */
 final class KeepADBNetwork {
     private static volatile KeepADBNetwork instance;
 
     private final ConnectivityManager connectivityManager;
-    private final ConnectivityManager.NetworkCallback callback;
+    private final ConnectivityManager.NetworkCallback wifiCallback;
+    private final ConnectivityManager.NetworkCallback defaultCallback;
     private final Map<Network, NetworkCapabilities> capabilitiesByNetwork = new ConcurrentHashMap<>();
     private final Map<Network, LinkProperties> linkPropertiesByNetwork = new ConcurrentHashMap<>();
 
     private KeepADBNetwork(Context context) {
         Context appContext = context.getApplicationContext();
         connectivityManager = appContext.getSystemService(ConnectivityManager.class);
-        callback = new ConnectivityManager.NetworkCallback() {
+        wifiCallback = newTrackingCallback();
+        defaultCallback = newTrackingCallback();
+        if (connectivityManager != null) {
+            try {
+                NetworkRequest wifiRequest = new NetworkRequest.Builder()
+                        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                        .build();
+                connectivityManager.registerNetworkCallback(wifiRequest, wifiCallback);
+            } catch (RuntimeException ignored) {
+                // Best-effort: isWifiConnected()/getWifiIpv4Address()/isKnownLocalAddress()
+                // simply see fewer tracked networks if registration fails.
+            }
+            try {
+                connectivityManager.registerDefaultNetworkCallback(defaultCallback);
+            } catch (RuntimeException ignored) {
+            }
+        }
+    }
+
+    private ConnectivityManager.NetworkCallback newTrackingCallback() {
+        return new ConnectivityManager.NetworkCallback() {
             @Override
             public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
                 capabilitiesByNetwork.put(network, capabilities);
@@ -54,15 +79,6 @@ final class KeepADBNetwork {
                 linkPropertiesByNetwork.remove(network);
             }
         };
-        if (connectivityManager != null) {
-            try {
-                NetworkRequest request = new NetworkRequest.Builder().clearCapabilities().build();
-                connectivityManager.registerNetworkCallback(request, callback);
-            } catch (RuntimeException ignored) {
-                // Best-effort: isWifiConnected()/getWifiIpv4Address()/isKnownLocalAddress()
-                // simply see no tracked networks if registration fails.
-            }
-        }
     }
 
     static synchronized KeepADBNetwork get(Context context) {
@@ -75,7 +91,11 @@ final class KeepADBNetwork {
     static synchronized void resetForTesting() {
         if (instance != null && instance.connectivityManager != null) {
             try {
-                instance.connectivityManager.unregisterNetworkCallback(instance.callback);
+                instance.connectivityManager.unregisterNetworkCallback(instance.wifiCallback);
+            } catch (RuntimeException ignored) {
+            }
+            try {
+                instance.connectivityManager.unregisterNetworkCallback(instance.defaultCallback);
             } catch (RuntimeException ignored) {
             }
         }
@@ -114,7 +134,13 @@ final class KeepADBNetwork {
         return null;
     }
 
-    /** Whether {@code address} is bound to any currently tracked network, of any transport. */
+    /**
+     * Whether {@code address} is bound to any currently tracked network -- every Wi-Fi network
+     * plus whatever the current default route is (see the class javadoc). This narrows the
+     * pre-#250 behavior of checking literally every network Android knows about, in exchange
+     * for not requiring API 31; adb-over-Wi-Fi endpoints are expected to resolve to a Wi-Fi
+     * network address in practice.
+     */
     boolean isKnownLocalAddress(InetAddress address) {
         if (address == null) return false;
         for (LinkProperties linkProperties : linkPropertiesByNetwork.values()) {

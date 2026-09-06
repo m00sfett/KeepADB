@@ -42,9 +42,14 @@ public class KeepADBNetworkContractTest {
     }
 
     @Test
-    public void networkCallbackMatchesEveryTransportNotJustInternetValidated() throws IOException {
+    public void networkTrackingAvoidsTheApi31OnlyClearCapabilitiesCall() throws IOException {
         String network = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNetwork.java");
-        assertTrue(network.contains("clearCapabilities()"));
+        // NetworkRequest.Builder#clearCapabilities() was added in API 31; minSdk is 30, so
+        // using it unconditionally would throw NoSuchMethodError on real API 30 devices even
+        // though it compiles fine and passes unit tests against the (API 35) mockable jar.
+        assertFalse(network.contains("clearCapabilities()"));
+        assertTrue(network.contains("registerDefaultNetworkCallback"));
+        assertTrue(network.contains("addTransportType(NetworkCapabilities.TRANSPORT_WIFI)"));
         assertTrue(network.contains("hasTransport(NetworkCapabilities.TRANSPORT_WIFI)"));
         assertTrue(network.contains("!capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)"));
         assertTrue(network.contains("resetForTesting"));
