@@ -3,10 +3,6 @@ package de.hohnepeople.keepadb;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
-import android.provider.Settings;
 import android.util.Log;
 
 /** Liest/schreibt Androids "Wireless debugging"-Schalter (Settings.Global.adb_wifi_enabled). */
@@ -20,13 +16,19 @@ final class KeepADB {
     static final long TOGGLE_COOLDOWN_MS = 1500;
     static final long RECOVERY_PULSE_OFF_MS = 800;
 
-    private static Handler toggleHandler;
+    // #248: Settings.Global access and the debounce/recovery-pulse timing primitives are
+    // reached only through these two collaborators, so the token/lock logic below can be
+    // exercised deterministically in a test via setGatewayForTesting()/setSchedulerForTesting()
+    // instead of a real ContentResolver, Handler, and Thread.
+    private static volatile KeepADBSettingsGateway gateway = new KeepADBAndroidSettingsGateway();
+    private static volatile KeepADBScheduler scheduler = new KeepADBAndroidScheduler();
 
-    private static synchronized Handler toggleHandler() {
-        if (toggleHandler == null) {
-            toggleHandler = new Handler(Looper.getMainLooper());
-        }
-        return toggleHandler;
+    static void setGatewayForTesting(KeepADBSettingsGateway testGateway) {
+        gateway = testGateway;
+    }
+
+    static void setSchedulerForTesting(KeepADBScheduler testScheduler) {
+        scheduler = testScheduler;
     }
 
     // Set right after a user-initiated disable, consumed once by KeepADBService's
@@ -60,7 +62,7 @@ final class KeepADB {
     private KeepADB() {}
 
     static boolean isEnabled(Context ctx) {
-        return Settings.Global.getInt(ctx.getContentResolver(), KEY, 0) == 1;
+        return gateway.isEnabled(ctx);
     }
 
     static boolean isUserDisabled() {
@@ -149,15 +151,15 @@ final class KeepADB {
             lastDesiredOn = on;
             KeepADBPreferences.setLastDesiredOn(appContext, on);
             if (pendingToggleRunnable != null) {
-                toggleHandler().removeCallbacks(pendingToggleRunnable);
+                scheduler.removeCallbacks(pendingToggleRunnable);
                 pendingToggleRunnable = null;
             }
-            long sinceLastMs = SystemClock.elapsedRealtime() - lastAppliedChangeMs;
+            long sinceLastMs = scheduler.elapsedRealtimeMs() - lastAppliedChangeMs;
             if (sinceLastMs < TOGGLE_COOLDOWN_MS) {
                 delayMs = TOGGLE_COOLDOWN_MS - sinceLastMs;
                 final long scheduledToken = token;
                 pendingToggleRunnable = () -> applyNow(appContext, on, source, scheduledToken);
-                toggleHandler().postDelayed(pendingToggleRunnable, delayMs);
+                scheduler.postDelayed(pendingToggleRunnable, delayMs);
             }
         }
         KeepADBDiagnostics.event(appContext, eventName, source,
@@ -177,12 +179,11 @@ final class KeepADB {
         }
         pendingToggleRunnable = null;
         try {
-            boolean writeAccepted = Settings.Global.putInt(
-                    appContext.getContentResolver(), KEY, on ? 1 : 0);
+            boolean writeAccepted = gateway.write(appContext, on);
             userDisabled = !on;
             lastDesiredOn = on;
             KeepADBPreferences.setLastDesiredOn(appContext, on);
-            lastAppliedChangeMs = SystemClock.elapsedRealtime();
+            lastAppliedChangeMs = scheduler.elapsedRealtimeMs();
             boolean actual = isEnabled(appContext);
             KeepADBDiagnostics.event(appContext, eventName, source,
                     writeAccepted && actual == on ? "success" : "state_mismatch",
@@ -230,10 +231,10 @@ final class KeepADB {
         KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "started",
                 "intentId=" + pulseToken + " observed=" + observed);
 
-        new Thread(() -> {
+        scheduler.runAsync(() -> {
             try {
-                boolean writeAccepted = Settings.Global.putInt(appContext.getContentResolver(), KEY, 0);
-                lastAppliedChangeMs = SystemClock.elapsedRealtime();
+                boolean writeAccepted = gateway.write(appContext, false);
+                lastAppliedChangeMs = scheduler.elapsedRealtimeMs();
                 boolean actual = isEnabled(appContext);
                 KeepADBDiagnostics.event(appContext, "recovery_state", "endpoint",
                         writeAccepted && !actual ? "success" : "state_mismatch",
@@ -246,7 +247,7 @@ final class KeepADB {
             }
 
             try {
-                Thread.sleep(RECOVERY_PULSE_OFF_MS);
+                scheduler.sleep(RECOVERY_PULSE_OFF_MS);
             } catch (InterruptedException ignored) {
             }
 
@@ -260,8 +261,8 @@ final class KeepADB {
             }
 
             try {
-                boolean writeAccepted = Settings.Global.putInt(appContext.getContentResolver(), KEY, 1);
-                lastAppliedChangeMs = SystemClock.elapsedRealtime();
+                boolean writeAccepted = gateway.write(appContext, true);
+                lastAppliedChangeMs = scheduler.elapsedRealtimeMs();
                 boolean actual = isEnabled(appContext);
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint",
                         writeAccepted && actual ? "success" : "state_mismatch",
@@ -274,7 +275,7 @@ final class KeepADB {
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "failed",
                         "intentId=" + pulseToken + " stage=enable reason=security_exception");
             }
-        }, "KeepADBRecoveryPulse").start();
+        });
     }
 
     /** Consumes and returns whether the last disable was user-initiated (vs. an external drop). */
@@ -284,16 +285,19 @@ final class KeepADB {
         return was;
     }
 
-    /** Reset state for unit tests. */
+    /** Reset state for unit tests. Also restores the production gateway/scheduler; a test
+     * that wants fakes must call setGatewayForTesting()/setSchedulerForTesting() afterward. */
     static synchronized void resetForTesting() {
-        if (pendingToggleRunnable != null && toggleHandler != null) {
-            toggleHandler.removeCallbacks(pendingToggleRunnable);
+        if (pendingToggleRunnable != null) {
+            scheduler.removeCallbacks(pendingToggleRunnable);
             pendingToggleRunnable = null;
         }
         userDisabled = false;
         lastDesiredOn = true;
         lastAppliedChangeMs = 0;
         currentIntentToken = 0;
+        gateway = new KeepADBAndroidSettingsGateway();
+        scheduler = new KeepADBAndroidScheduler();
     }
 
     static synchronized void resetForTesting(Context ctx) {
