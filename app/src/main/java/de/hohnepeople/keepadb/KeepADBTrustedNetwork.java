@@ -124,12 +124,7 @@ final class KeepADBTrustedNetwork {
      */
     static boolean isCurrentNetworkTrusted(Context context) {
         if (!isAllowlistMode(context)) return true;
-        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
-        if (!identity.isKnown()) return false;
-        for (Entry entry : getEntries(context)) {
-            if (entry.bssid.equalsIgnoreCase(identity.bssid)) return true;
-        }
-        return false;
+        return isTrusted(context, KeepADBNetworkIdentity.current(context));
     }
 
     /** Why automatic re-enable is currently blocked, for Settings UI messaging. */
@@ -137,7 +132,18 @@ final class KeepADBTrustedNetwork {
         if (!isAllowlistMode(context)) return BlockReason.NONE;
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
         if (!identity.isKnown()) return BlockReason.IDENTITY_UNAVAILABLE;
-        return isCurrentNetworkTrusted(context) ? BlockReason.NONE : BlockReason.UNTRUSTED_NETWORK;
+        return isTrusted(context, identity) ? BlockReason.NONE : BlockReason.UNTRUSTED_NETWORK;
+    }
+
+    /** Shared by {@link #isCurrentNetworkTrusted} and {@link #getBlockReason} so callers that
+     * already resolved a {@link KeepADBNetworkIdentity} don't trigger a second synchronous
+     * WifiManager lookup just to re-derive the same identity. */
+    private static boolean isTrusted(Context context, KeepADBNetworkIdentity identity) {
+        if (!identity.isKnown()) return false;
+        for (Entry entry : getEntries(context)) {
+            if (entry.bssid.equalsIgnoreCase(identity.bssid)) return true;
+        }
+        return false;
     }
 
     private static Entry read(Context context, int id) {
