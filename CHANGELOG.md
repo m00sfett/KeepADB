@@ -5,6 +5,40 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-09-06
+
+Retrospective entry for a batch of 9 issues (#245–#253) merged in PR #254 without a version
+bump or changelog entry at the time (see issue #257). Grouped here by theme rather than
+individually, since they landed together.
+
+### Added
+- An opt-in trusted-network allowlist for Keep-Alive: automatic re-enable (service recheck,
+  content-observer recovery, endpoint recovery pulse, and automatic USB→WLAN-ADB handover) can
+  be gated on the current Wi-Fi network's identity (BSSID) matching a user-added entry; manual
+  toggling is never gated. `ACCESS_FINE_LOCATION`/`ACCESS_COARSE_LOCATION` are requested only
+  when the user turns the allowlist on, with an in-app rationale (issue #245).
+- `CONTRIBUTING.md`, `SECURITY.md` (with private vulnerability reporting), and issue/PR
+  templates (issue #253).
+
+### Changed
+- CI now runs on every push and pull request instead of only on manual dispatch, and includes a
+  release-build (R8) step (issue #246).
+- Cleartext-HTTP scope is documented and narrowed to the webhook use case; the app warns
+  in-app when a configured webhook URL is `http://` (issue #247).
+- Active-network detection no longer uses the deprecated
+  `ConnectivityManager.getAllNetworks()`; a new `KeepADBNetwork` tracker uses two
+  `NetworkCallback` registrations (Wi-Fi-scoped and default-route) instead, API 30-compatible
+  (issue #250).
+- Release builds now enable R8 minification and resource shrinking (issue #251).
+
+### Security
+- Android backup and device-to-device transfer are disabled entirely (`allowBackup="false"`)
+  instead of maintaining a growing per-key exclusion list (issue #252).
+
+### Testing
+- Added deterministic tests for the toggle debounce/generation-token logic and endpoint
+  discovery lifecycle, using hand-rolled fakes (issue #249).
+
 ## [1.4.6] - 2026-09-06
 
 ### Changed

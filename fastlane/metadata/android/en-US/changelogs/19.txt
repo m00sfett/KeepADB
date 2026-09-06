@@ -1,0 +1,1 @@
+New: optional trusted-network allowlist for Keep-Alive (opt-in, needs location permission). Security: disabled Android backup entirely, narrowed cleartext HTTP to the webhook use case, modernized network detection, enabled release build minification.
