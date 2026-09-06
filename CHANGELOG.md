@@ -5,6 +5,14 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.6] - 2026-09-06
+
+### Changed
+- Internal refactor: `KeepADB`'s toggle state handling is now separated from `Settings.Global`
+  writes and UI (notification/widget) refreshes into dedicated components, with a
+  platform-independent state model that is unit-testable without Android framework
+  side effects. No user-visible behavior change (issue #248).
+
 ## [1.4.5] - 2026-09-03
 
 ### Added
