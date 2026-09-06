@@ -5,23 +5,39 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
-/** Liest/schreibt Androids "Wireless debugging"-Schalter (Settings.Global.adb_wifi_enabled). */
+/**
+ * Liest/schreibt Androids "Wireless debugging"-Schalter (Settings.Global.adb_wifi_enabled).
+ *
+ * <p>#248: this class is now purely the Android-facing orchestrator. Every decision about
+ * <em>what</em> should happen -- user intent, generation tokens, debounce timing -- lives in the
+ * framework-free {@link KeepADBToggleState}; every <em>effect</em> goes through one of three
+ * explicit boundaries: {@link KeepADBSettingsGateway} for Settings.Global, {@link KeepADBScheduler}
+ * for delay/thread/clock, and {@link KeepADBSurfaceRefresher} for the service/notification/widget
+ * fan-out. What remains here is the glue that ties a decision to its effects: permission checks,
+ * the persisted last-intent preference, diagnostics, and the locking that keeps a decision and the
+ * write it authorizes atomic.
+ */
 final class KeepADB {
     private static final String TAG = "KeepADB";
     static final String KEY = "adb_wifi_enabled";
 
-    // #114: a bare rapid off/on write can catch the system's AdbService mid-teardown of the
-    // previous session. Debouncing actual writes by this cooldown gives adbd time to finish
-    // tearing down before it sees the next transition.
-    static final long TOGGLE_COOLDOWN_MS = 1500;
-    static final long RECOVERY_PULSE_OFF_MS = 800;
+    // Kept on KeepADB as the public names callers and tests already use; the values (and the
+    // reasoning behind them) live with the state machine that applies them.
+    static final long TOGGLE_COOLDOWN_MS = KeepADBToggleState.TOGGLE_COOLDOWN_MS;
+    static final long RECOVERY_PULSE_OFF_MS = KeepADBToggleState.RECOVERY_PULSE_OFF_MS;
 
-    // #248: Settings.Global access and the debounce/recovery-pulse timing primitives are
-    // reached only through these two collaborators, so the token/lock logic below can be
-    // exercised deterministically in a test via setGatewayForTesting()/setSchedulerForTesting()
-    // instead of a real ContentResolver, Handler, and Thread.
+    // #248: static mutable state is down to four slots -- one decision core plus the three
+    // effect boundaries -- from the previous four loose state fields plus two collaborators.
+    // Their lifecycle is deliberately process-wide and explicitly justified: KeepADB is reached
+    // from a tile service, an app widget receiver, a boot receiver, a foreground service and two
+    // activities, i.e. from several independently created Android components that must agree on
+    // one debounce window and one generation-token sequence. There is no instance any of them
+    // could share instead, so the toggle state is process-scoped by necessity, not by habit; it
+    // is reset wholesale by resetForTesting(). The three boundaries are swapped only by tests.
     private static volatile KeepADBSettingsGateway gateway = new KeepADBAndroidSettingsGateway();
     private static volatile KeepADBScheduler scheduler = new KeepADBAndroidScheduler();
+    private static volatile KeepADBSurfaceRefresher surfaces = new KeepADBAndroidSurfaceRefresher();
+    private static final KeepADBToggleState state = new KeepADBToggleState();
 
     static void setGatewayForTesting(KeepADBSettingsGateway testGateway) {
         gateway = testGateway;
@@ -31,32 +47,10 @@ final class KeepADB {
         scheduler = testScheduler;
     }
 
-    // Set right after a user-initiated disable, consumed once by KeepADBService's
-    // keep-alive observer so it doesn't immediately re-enable a deliberate shutoff.
-    private static volatile boolean userDisabled;
+    static void setSurfaceRefresherForTesting(KeepADBSurfaceRefresher testSurfaces) {
+        surfaces = testSurfaces;
+    }
 
-    // Independent, non-consumed counterpart to userDisabled: the on/off state of the last
-    // explicit setEnabled() call. userDisabled is a one-shot token with exactly one intended
-    // consumer (KeepADBService's content observer, deciding "stop recovering" vs. "recover").
-    // #168 added a second, independent reader of that same field (KeepADBUsbHandover's "did the
-    // user just turn this off?" guard) -- two independent consumers of a one-shot token is a
-    // bug: whichever reads first "uses it up" for the other. Confirmed on real hardware: a
-    // manual off -> content-observer's consumeUserDisabled() (unrelated Keep-Alive decision,
-    // resets userDisabled as a side effect) -> a later genuine USB reconnect wrongly saw
-    // isUserDisabled()==false and re-enabled WLAN-ADB despite the explicit manual off.
-    // lastDesiredOn fixes this by never being consumed -- only ever overwritten by the next
-    // setEnabled() call -- so a read here can't starve any other reader.
-    //
-    // performRecoveryPulse() deliberately does NOT update this field: it only ever runs when
-    // userDisabled is false, i.e. the last explicit intent was already "on", so the pulse is a
-    // same-state bounce (on -> brief off -> on) rather than a new intent and can never need to
-    // flip this. The content observer's own recovery re-enable (source="content_observer") DOES
-    // go through setEnabled(ctx, true, ...) like any other caller and is treated as a legitimate
-    // "intent is now on" update: Keep-Alive's whole purpose is to restore the on-state, so an
-    // automatic recovery re-enable is as much an intent as a manual tap.
-    private static volatile boolean lastDesiredOn = true;
-    private static volatile long lastAppliedChangeMs = 0;
-    private static volatile long currentIntentToken = 0;
     private static Runnable pendingToggleRunnable;
 
     private KeepADB() {}
@@ -66,27 +60,27 @@ final class KeepADB {
     }
 
     static boolean isUserDisabled() {
-        return userDisabled;
+        return state.isUserDisabled();
     }
 
     /**
      * Non-consumed counterpart to {@link #isUserDisabled()}: reflects the on/off state of the
      * last explicit {@link #setEnabled} call and is never reset as a side effect of an unrelated
-     * {@link #consumeUserDisabled()} read. See the {@code lastDesiredOn} field comment for why
-     * two independent flags exist.
+     * {@link #consumeUserDisabled()} read. See the {@code lastDesiredOn} field comment in
+     * {@link KeepADBToggleState} for why two independent flags exist.
      */
     static boolean wasLastExplicitIntentOff() {
-        return !lastDesiredOn;
+        return state.wasLastExplicitIntentOff();
     }
 
     static boolean wasLastExplicitIntentOff(Context ctx) {
         if (ctx == null) return wasLastExplicitIntentOff();
         boolean prefOn = KeepADBPreferences.getLastDesiredOn(ctx.getApplicationContext());
         if (!prefOn) {
-            lastDesiredOn = false;
+            state.forceLastDesiredOn(false);
             return true;
         }
-        return !lastDesiredOn;
+        return state.wasLastExplicitIntentOff();
     }
 
     enum State {
@@ -143,22 +137,20 @@ final class KeepADB {
             return false;
         }
 
-        long token;
-        long delayMs = 0;
+        final long token;
+        final long delayMs;
         synchronized (KeepADB.class) {
-            token = ++currentIntentToken;
-            userDisabled = !on;
-            lastDesiredOn = on;
+            KeepADBToggleState.ToggleDecision decision =
+                    state.requestToggle(on, scheduler.elapsedRealtimeMs());
+            token = decision.token;
+            delayMs = decision.delayMs;
             KeepADBPreferences.setLastDesiredOn(appContext, on);
             if (pendingToggleRunnable != null) {
                 scheduler.removeCallbacks(pendingToggleRunnable);
                 pendingToggleRunnable = null;
             }
-            long sinceLastMs = scheduler.elapsedRealtimeMs() - lastAppliedChangeMs;
-            if (sinceLastMs < TOGGLE_COOLDOWN_MS) {
-                delayMs = TOGGLE_COOLDOWN_MS - sinceLastMs;
-                final long scheduledToken = token;
-                pendingToggleRunnable = () -> applyNow(appContext, on, source, scheduledToken);
+            if (!decision.isImmediate()) {
+                pendingToggleRunnable = () -> applyNow(appContext, on, source, token);
                 scheduler.postDelayed(pendingToggleRunnable, delayMs);
             }
         }
@@ -172,7 +164,7 @@ final class KeepADB {
 
     private static synchronized boolean applyNow(Context appContext, boolean on, String source, long token) {
         String eventName = diagnosticEventName(source);
-        if (token != currentIntentToken) {
+        if (!state.isCurrentIntent(token)) {
             KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
                     "intentId=" + token + " reason=newer_intent");
             return false; // Superseded by a newer toggle intent
@@ -180,18 +172,14 @@ final class KeepADB {
         pendingToggleRunnable = null;
         try {
             boolean writeAccepted = gateway.write(appContext, on);
-            userDisabled = !on;
-            lastDesiredOn = on;
+            state.recordApplied(on, scheduler.elapsedRealtimeMs());
             KeepADBPreferences.setLastDesiredOn(appContext, on);
-            lastAppliedChangeMs = scheduler.elapsedRealtimeMs();
             boolean actual = isEnabled(appContext);
             KeepADBDiagnostics.event(appContext, eventName, source,
                     writeAccepted && actual == on ? "success" : "state_mismatch",
                     "intentId=" + token + " desired=" + on + " actual=" + actual
                             + " writeAccepted=" + writeAccepted);
-            KeepADBService.sync(appContext);
-            KeepADBNotification.refresh(appContext);
-            KeepADBWidget.refreshAll(appContext);
+            surfaces.refreshAll(appContext);
             return true;
         } catch (SecurityException e) {
             Log.e(TAG, "Missing WRITE_SECURE_SETTINGS when applying toggle", e);
@@ -221,12 +209,12 @@ final class KeepADB {
 
         final long pulseToken;
         synchronized (KeepADB.class) {
-            if (userDisabled || wasLastExplicitIntentOff(appContext) || !isEnabled(appContext)) {
+            if (state.isUserDisabled() || wasLastExplicitIntentOff(appContext) || !isEnabled(appContext)) {
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "skipped",
                         "stage=request observed=" + observed + " reason=user_disabled_or_state_off");
                 return;
             }
-            pulseToken = ++currentIntentToken;
+            pulseToken = state.beginPulse();
         }
         KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "started",
                 "intentId=" + pulseToken + " observed=" + observed);
@@ -234,7 +222,7 @@ final class KeepADB {
         scheduler.runAsync(() -> {
             try {
                 boolean writeAccepted = gateway.write(appContext, false);
-                lastAppliedChangeMs = scheduler.elapsedRealtimeMs();
+                state.recordAppliedTime(scheduler.elapsedRealtimeMs());
                 boolean actual = isEnabled(appContext);
                 KeepADBDiagnostics.event(appContext, "recovery_state", "endpoint",
                         writeAccepted && !actual ? "success" : "state_mismatch",
@@ -252,7 +240,8 @@ final class KeepADB {
             }
 
             synchronized (KeepADB.class) {
-                if (pulseToken != currentIntentToken || userDisabled || wasLastExplicitIntentOff(appContext)) {
+                if (!state.isCurrentIntent(pulseToken) || state.isUserDisabled()
+                        || wasLastExplicitIntentOff(appContext)) {
                     Log.i(TAG, "Recovery pulse cancelled by newer user intent");
                     KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "cancelled",
                             "intentId=" + pulseToken + " reason=newer_user_intent");
@@ -262,15 +251,13 @@ final class KeepADB {
 
             try {
                 boolean writeAccepted = gateway.write(appContext, true);
-                lastAppliedChangeMs = scheduler.elapsedRealtimeMs();
+                state.recordAppliedTime(scheduler.elapsedRealtimeMs());
                 boolean actual = isEnabled(appContext);
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint",
                         writeAccepted && actual ? "success" : "state_mismatch",
                         "intentId=" + pulseToken + " stage=enable actual=" + actual
                                 + " writeAccepted=" + writeAccepted);
-                KeepADBService.sync(appContext);
-                KeepADBNotification.refresh(appContext);
-                KeepADBWidget.refreshAll(appContext);
+                surfaces.refreshAll(appContext);
             } catch (SecurityException ignored) {
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "failed",
                         "intentId=" + pulseToken + " stage=enable reason=security_exception");
@@ -280,24 +267,20 @@ final class KeepADB {
 
     /** Consumes and returns whether the last disable was user-initiated (vs. an external drop). */
     static synchronized boolean consumeUserDisabled() {
-        boolean was = userDisabled;
-        userDisabled = false;
-        return was;
+        return state.consumeUserDisabled();
     }
 
-    /** Reset state for unit tests. Also restores the production gateway/scheduler; a test
-     * that wants fakes must call setGatewayForTesting()/setSchedulerForTesting() afterward. */
+    /** Reset state for unit tests. Also restores the production gateway/scheduler/surface
+     * refresher; a test that wants fakes must call the corresponding setter afterward. */
     static synchronized void resetForTesting() {
         if (pendingToggleRunnable != null) {
             scheduler.removeCallbacks(pendingToggleRunnable);
             pendingToggleRunnable = null;
         }
-        userDisabled = false;
-        lastDesiredOn = true;
-        lastAppliedChangeMs = 0;
-        currentIntentToken = 0;
+        state.reset();
         gateway = new KeepADBAndroidSettingsGateway();
         scheduler = new KeepADBAndroidScheduler();
+        surfaces = new KeepADBAndroidSurfaceRefresher();
     }
 
     static synchronized void resetForTesting(Context ctx) {

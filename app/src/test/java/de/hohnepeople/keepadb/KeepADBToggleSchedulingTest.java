@@ -33,6 +33,7 @@ import org.junit.Test;
 public class KeepADBToggleSchedulingTest {
     private KeepADBFakeScheduler scheduler;
     private KeepADBFakeSettingsGateway gateway;
+    private KeepADBFakeSurfaceRefresher surfaces;
     private FakeContext ctx;
 
     @Before
@@ -41,8 +42,10 @@ public class KeepADBToggleSchedulingTest {
         scheduler = new KeepADBFakeScheduler();
         scheduler.setClockMs(100_000); // comfortably past TOGGLE_COOLDOWN_MS since "boot"
         gateway = new KeepADBFakeSettingsGateway(false);
+        surfaces = new KeepADBFakeSurfaceRefresher();
         KeepADB.setSchedulerForTesting(scheduler);
         KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSurfaceRefresherForTesting(surfaces);
         ctx = new FakeContext();
     }
 
@@ -78,6 +81,22 @@ public class KeepADBToggleSchedulingTest {
         assertEquals("the superseded false intent must never reach the gateway",
                 Arrays.asList(true, true), gateway.writes);
         assertTrue(gateway.isEnabled(ctx));
+    }
+
+    @Test
+    public void surfacesAreRefreshedOncePerAppliedWriteAndNeverForASupersededOne() {
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertEquals("an applied write must fan out to the surfaces exactly once",
+                1, surfaces.refreshCount);
+
+        // Throttled, then immediately superseded: neither the gateway nor the surfaces may see it.
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertEquals(1, surfaces.refreshCount);
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals("only the surviving intent may refresh the surfaces",
+                2, surfaces.refreshCount);
     }
 
     @Test
