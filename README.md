@@ -149,6 +149,12 @@ Published release APKs are signed separately with the project's stable release k
   webhook URL, the Settings screen shows an explicit warning that the payload will be sent
   unencrypted; prefer `https://` whenever your endpoint supports it, and only use `http://`
   on a network you trust (LAN/VPN).
+- **Backup & Device Transfer:** KeepADB does not support Android cloud backup or
+  device-to-device transfer of app data (`android:allowBackup="false"`). All persisted
+  configuration — including webhook URLs, endpoint data, USB profiles, and diagnostics — is
+  lost on uninstall or device migration and must be reconfigured afterward. This is a
+  deliberate choice: it removes any risk of sensitive configuration being restored onto a
+  different device without the same trust assumptions.
 
 ### Security Considerations & Best Practices for Wireless Debugging
 
