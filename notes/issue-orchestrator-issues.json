@@ -1,10 +1,10 @@
 {
   "257": {
     "title": "build: PR #254 merged 9 issues without a version bump or changelog entry",
-    "scope": "Doku-/Versions-Nachtrag: retrospektive CHANGELOG-Einträge für #245-#253, Versionsbump (vermutlich Minor wegen neuer Permissions), Fastlane-Changelog. Kein Codepfad.",
+    "scope": "Doku-/Versions-Nachtrag: retrospektive CHANGELOG-Einträge für #245-#253, Versionsbump (Minor-vs-Patch braucht Nutzerentscheidung wegen neuer Permissions/Trusted-Network-Feature), Fastlane-Changelog. Kein Codepfad.",
     "decomposition": "Einzelpaket ausreichend",
-    "stage": "unbewertet",
-    "updatedAt": "2026-09-06T20:58:00Z",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-06T20:58:24Z",
     "status": "open"
   },
   "248": {
