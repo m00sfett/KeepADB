@@ -182,6 +182,12 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
 - Maintainer: `m00sfett` (Tobias Schultheiß)
 - Open source on GitHub: [https://github.com/m00sfett/KeepADB](https://github.com/m00sfett/KeepADB)
 
+## Contributing & Security
+
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, verification, coding conventions, and
+  translation instructions.
+- See [SECURITY.md](SECURITY.md) for the threat model, supported versions, and how to report a
+  vulnerability privately (please don't use a public GitHub issue for that).
 
 ---
 
