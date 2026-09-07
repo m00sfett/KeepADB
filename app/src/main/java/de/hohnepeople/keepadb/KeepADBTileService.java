@@ -59,7 +59,19 @@ public class KeepADBTileService extends TileService {
             // on) but no endpoint is known yet. A tap here must trigger a fresh discovery /
             // reconnect attempt, not read as "currently off" and switch WLAN-ADB off.
             KeepADBDiagnostics.event(this, "user_action", "tile", "reconnect", "tap");
-            KeepADBNotification.refreshForTile(this, this);
+            if (!KeepADB.isEnabled(this)) {
+                // WLAN-ADB itself is actually off here -- Keep-Alive is only waiting for its own
+                // timer/observer to turn it back on. KeepADBNotification.refreshForTile() is a
+                // no-op in this case (refreshInternal() just calls stop() while disabled), so a
+                // tap would otherwise do nothing. Force the reconnect immediately instead, the
+                // same way the keep-alive check and the "re-enable" button in MainActivity do.
+                if (!KeepADB.setEnabled(this, true, "tile")) {
+                    Toast.makeText(this, getString(R.string.tile_permission_error),
+                            Toast.LENGTH_LONG).show();
+                }
+            } else {
+                KeepADBNotification.refreshForTile(this, this);
+            }
             updateTile();
             return;
         }

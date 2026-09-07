@@ -407,8 +407,35 @@ public class KeepADBTileDiscoveryContractTest {
                 earlyReturn > reconnectCall);
         assertTrue("The toggle (which could disable WLAN-ADB) must be unreachable from that branch",
                 wantAssignment > earlyReturn);
-        assertFalse("The ENABLED_DISCONNECTED branch must never call KeepADB.setEnabled",
-                body.substring(disconnectedBranch, earlyReturn).contains("KeepADB.setEnabled"));
+        assertFalse("The ENABLED_DISCONNECTED branch must never call KeepADB.setEnabled(..., false, ...)",
+                body.substring(disconnectedBranch, earlyReturn).contains("KeepADB.setEnabled(this, false"));
+    }
+
+    @Test
+    public void clickingTheTileWhileWirelessDebuggingIsActuallyOffForcesAnImmediateReenable()
+            throws IOException {
+        // Regression test found during independent review of issue #267 (2): the ENABLED_DISCONNECTED
+        // branch called KeepADBNotification.refreshForTile() unconditionally. But refreshInternal()
+        // starts with "if (!KeepADB.isEnabled(appContext)) { stop(...); return; }" -- when WLAN-ADB
+        // is actually off (Keep-Alive is merely waiting for its own timer to turn it back on), that
+        // call is a no-op (worse: it tears down any cached endpoint/notification), so the tap did not
+        // "trigger... den Reconnect" as issue #267 requires. Tapping in that sub-case must instead
+        // force KeepADB.setEnabled(this, true, "tile"), mirroring the keep_alive_check/MainActivity
+        // re-enable path, which -- unlike refreshForTile() -- actually turns WLAN-ADB back on and
+        // (via KeepADBAndroidSurfaceRefresher) starts discovery afterward.
+        String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
+        String body = methodBody(tile, "public void onClick() {");
+
+        int disconnectedBranch = body.indexOf("if (state == KeepADB.State.ENABLED_DISCONNECTED) {");
+        int earlyReturn = body.indexOf("return;", disconnectedBranch);
+        String disconnectedBody = body.substring(disconnectedBranch, earlyReturn);
+
+        assertTrue("Must branch on whether WLAN-ADB is actually enabled",
+                disconnectedBody.contains("!KeepADB.isEnabled(this)"));
+        assertTrue("The actually-off sub-case must force an immediate re-enable",
+                disconnectedBody.contains("KeepADB.setEnabled(this, true, \"tile\")"));
+        assertTrue("The still-on sub-case must keep retriggering discovery",
+                disconnectedBody.contains("KeepADBNotification.refreshForTile(this, this);"));
     }
 
     private static String read(String relativePath) throws IOException {
