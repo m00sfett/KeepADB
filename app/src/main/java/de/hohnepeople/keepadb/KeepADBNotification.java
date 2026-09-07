@@ -179,10 +179,14 @@ final class KeepADBNotification {
                 }
                 if (reachable) {
                     activeDiscoveryOwner = null;
+                    KeepADBDiagnostics.event(appContext, "endpoint_verified", "nsd_or_probe",
+                            "reachable", "host=" + host + " port=" + port);
                     return;
                 }
                 Log.w(TAG, "Cached endpoint " + host + ":" + port
                         + " no longer reachable; invalidating and rediscovering");
+                KeepADBDiagnostics.event(appContext, "endpoint_verified", "nsd_or_probe",
+                        "stale_invalidated", "host=" + host + " port=" + port);
                 currentHost = null;
                 currentPort = 0;
                 if (endpointListener != null) {

@@ -321,6 +321,8 @@ public class KeepADBService extends Service {
                     if (now - lastCapabilitiesRecheckTime < CAPABILITIES_RECHECK_MIN_INTERVAL_MS) return;
                     lastCapabilitiesRecheckTime = now;
                     Log.d(TAG, "NetworkCallback: Wi-Fi capabilities changed; re-verifying cached endpoint");
+                    KeepADBDiagnostics.event(KeepADBService.this, "wifi_change", "network_callback",
+                            "capabilities_changed", "reverify_triggered");
                     KeepADBNotification.verifyEndpointHealth(KeepADBService.this);
                 }
             };
