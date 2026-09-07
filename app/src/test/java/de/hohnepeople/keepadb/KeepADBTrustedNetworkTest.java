@@ -110,6 +110,131 @@ public class KeepADBTrustedNetworkTest {
         assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
     }
 
+    // #270: Android 12+ masks BSSID to REDACTED_BSSID for backgrounded apps without
+    // background-location access. These tests exercise the fallback directly through
+    // isTrustedForTesting()/an explicit KeepADBNetworkIdentity, since isCurrentNetworkTrusted()
+    // always sees an unknown identity in a plain JVM test (no real WifiManager).
+
+    @Test
+    public void maskedBssidStaysTrustedForTheSamePreviouslyVerifiedSsid() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+
+        // Foreground read (or an earlier background read before masking kicked in): real BSSID,
+        // matches the allowlist -- this is what must have verified trust before any fallback.
+        KeepADBNetworkIdentity verified = new KeepADBNetworkIdentity("\"Home\"", "aa:bb:cc:dd:ee:ff");
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+
+        // App goes to background; the platform now masks BSSID, but SSID still reads the same.
+        KeepADBNetworkIdentity masked =
+                new KeepADBNetworkIdentity("\"Home\"", KeepADBNetworkIdentity.REDACTED_BSSID);
+        assertTrue("masked BSSID on the same SSID as a just-verified trusted network must "
+                        + "still be treated as trusted (#270)",
+                KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+    }
+
+    @Test
+    public void maskedBssidFailsClosedWithoutAnyPriorVerification() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+
+        // No real BSSID was ever verified trusted in this process -- the masked reading alone,
+        // even with a plausible-looking SSID, must not be trusted.
+        KeepADBNetworkIdentity masked =
+                new KeepADBNetworkIdentity("\"Home\"", KeepADBNetworkIdentity.REDACTED_BSSID);
+        assertFalse(KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+    }
+
+    @Test
+    public void maskedBssidFailsClosedForADifferentSsidThanLastVerified() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+
+        KeepADBNetworkIdentity verified = new KeepADBNetworkIdentity("\"Home\"", "aa:bb:cc:dd:ee:ff");
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+
+        // A different SSID shows up with a masked BSSID (e.g. roamed to a neighbor's network
+        // whose BSSID also happens to get masked) -- must not inherit the earlier trust.
+        KeepADBNetworkIdentity maskedOther =
+                new KeepADBNetworkIdentity("\"Neighbor\"", KeepADBNetworkIdentity.REDACTED_BSSID);
+        assertFalse(KeepADBTrustedNetwork.isTrustedForTesting(context, maskedOther));
+    }
+
+    @Test
+    public void disconnectClearsVerifiedTrustSoASubsequentMaskedReadingFailsClosed() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+
+        KeepADBNetworkIdentity verified = new KeepADBNetworkIdentity("\"Home\"", "aa:bb:cc:dd:ee:ff");
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+
+        // An observed disconnect (not associated to anything) breaks the "uninterrupted
+        // connection" the fallback relies on.
+        KeepADBNetworkIdentity unset =
+                new KeepADBNetworkIdentity(null, KeepADBNetworkIdentity.UNSET_BSSID);
+        assertFalse(KeepADBTrustedNetwork.isTrustedForTesting(context, unset));
+
+        // Even though the SSID matches what was verified before the disconnect, the fallback
+        // must not resurrect trust for a new, separate connection.
+        KeepADBNetworkIdentity maskedAfterReconnect =
+                new KeepADBNetworkIdentity("\"Home\"", KeepADBNetworkIdentity.REDACTED_BSSID);
+        assertFalse(KeepADBTrustedNetwork.isTrustedForTesting(context, maskedAfterReconnect));
+    }
+
+    @Test
+    public void roamingToAKnownUntrustedNetworkClearsVerifiedTrust() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+
+        KeepADBNetworkIdentity verified = new KeepADBNetworkIdentity("\"Home\"", "aa:bb:cc:dd:ee:ff");
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+
+        // Device roams to a different, readable (unmasked) network that shares the same SSID
+        // label but is genuinely not listed -- must be rejected, and must not leave stale trust
+        // behind for a later masked reading to exploit.
+        KeepADBNetworkIdentity untrustedSameSsid =
+                new KeepADBNetworkIdentity("\"Home\"", "11:22:33:44:55:66");
+        assertFalse(KeepADBTrustedNetwork.isTrustedForTesting(context, untrustedSameSsid));
+
+        KeepADBNetworkIdentity maskedAfterRoam =
+                new KeepADBNetworkIdentity("\"Home\"", KeepADBNetworkIdentity.REDACTED_BSSID);
+        assertFalse(KeepADBTrustedNetwork.isTrustedForTesting(context, maskedAfterRoam));
+    }
+
+    @Test
+    public void removingTheAllowlistEntryClearsVerifiedTrustSoAMaskedReadingFailsClosed() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.Entry entry =
+                KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+
+        KeepADBNetworkIdentity verified = new KeepADBNetworkIdentity("\"Home\"", "aa:bb:cc:dd:ee:ff");
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+
+        // User explicitly revokes trust for "Home" (e.g. from the Settings list) while still
+        // connected to it -- KeepADBTrustedNetwork.remove() doesn't require the identity to be
+        // known/unmasked, so this can happen entirely independently of the next Wi-Fi read.
+        assertTrue(KeepADBTrustedNetwork.remove(context, entry.id));
+
+        // A subsequent masked-BSSID background reading of the same SSID must not resurrect the
+        // just-revoked trust from the stale in-process cache.
+        KeepADBNetworkIdentity maskedAfterRemoval =
+                new KeepADBNetworkIdentity("\"Home\"", KeepADBNetworkIdentity.REDACTED_BSSID);
+        assertFalse("removing the allowlist entry must clear the verified-trust cache too",
+                KeepADBTrustedNetwork.isTrustedForTesting(context, maskedAfterRemoval));
+    }
+
     private static final class FakeContext extends android.content.ContextWrapper {
         private final android.content.SharedPreferences preferences = new MemoryPreferences();
 

@@ -26,6 +26,31 @@ final class KeepADBTrustedNetwork {
     static final String MODE_ALL_WIFI = "all_wifi";
     static final String MODE_ALLOWLIST = "allowlist";
 
+    /**
+     * In-process memory of the last real, BSSID-verified trust decision (#270). Android 12+
+     * masks {@code WifiInfo#getBSSID()} to {@link KeepADBNetworkIdentity#REDACTED_BSSID} for
+     * background apps without background-location access, which would otherwise make {@link
+     * #isCurrentNetworkTrusted} fail closed on every background check even on a genuinely
+     * trusted, still-connected network -- KeepADB then never re-enables Wi-Fi debugging in the
+     * background at all, only once the user brings the app to the foreground.
+     *
+     * <p>Design choice: "retain the last verified state for the connection" rather than an
+     * SSID-only allowlist fallback. A pure SSID fallback (match the allowlist by SSID whenever
+     * BSSID is redacted) was considered and rejected: SSID is a user-chosen, freely reused
+     * string (see {@link KeepADBNetworkIdentity} class javadoc), so a rogue access point could
+     * impersonate a trusted network's SSID and be matched without ever having its BSSID
+     * checked. The chosen design still uses SSID, but only as the continuity signal for a
+     * connection whose BSSID *was* actually verified against the allowlist moments earlier in
+     * this process -- it never searches the allowlist by SSID. Residual risk: if the device
+     * silently roams from the real trusted AP to a rogue AP sharing its SSID while BSSID stays
+     * masked the whole time (no observed disconnect in between), the fallback would wrongly
+     * keep trusting it. This mirrors the exact tradeoff the issue's own "keep last verified
+     * state" proposal accepts, and is a strictly smaller exposure window than the rejected
+     * SSID-only allowlist match (which would trust *any* first sighting of that SSID, not only
+     * a continuation of an already-verified session).
+     */
+    private static volatile String lastVerifiedTrustedSsid;
+
     enum BlockReason { NONE, UNTRUSTED_NETWORK, IDENTITY_UNAVAILABLE }
 
     static final class Entry {
@@ -146,6 +171,16 @@ final class KeepADBTrustedNetwork {
             editor.putString(KEY_IDS, ids.toString());
         }
         editor.apply();
+        // #270 follow-up: removing an entry revokes trust for whatever BSSID it named. The
+        // masked-BSSID fallback below only ever compares against an SSID, not a BSSID, so it
+        // can't tell whether the just-removed entry was the one that produced the cached SSID
+        // -- e.g. the user is still connected to the now-removed network and its masked-BSSID
+        // background reading would otherwise keep matching the stale cache and stay trusted
+        // after the user explicitly revoked it. Clearing unconditionally on every removal is
+        // the safe (fail-closed) choice: it can cost one extra background cycle of the fallback
+        // not applying to an unrelated, still-trusted network, but it can never leave a revoked
+        // network fail-open.
+        forgetVerifiedTrust();
         return true;
     }
 
@@ -164,19 +199,77 @@ final class KeepADBTrustedNetwork {
     static BlockReason getBlockReason(Context context) {
         if (!isAllowlistMode(context)) return BlockReason.NONE;
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
-        if (!identity.isKnown()) return BlockReason.IDENTITY_UNAVAILABLE;
-        return isTrusted(context, identity) ? BlockReason.NONE : BlockReason.UNTRUSTED_NETWORK;
+        if (isTrusted(context, identity)) return BlockReason.NONE;
+        // isTrusted() already tried the masked-BSSID fallback below -- if it still couldn't
+        // decide, tell the difference between "we can see it's unlisted" (identity known) and
+        // "we can't even tell what network this is" (identity unknown), same as before #270.
+        return identity.isKnown() ? BlockReason.UNTRUSTED_NETWORK : BlockReason.IDENTITY_UNAVAILABLE;
     }
 
     /** Shared by {@link #isCurrentNetworkTrusted} and {@link #getBlockReason} so callers that
      * already resolved a {@link KeepADBNetworkIdentity} don't trigger a second synchronous
      * WifiManager lookup just to re-derive the same identity. */
     private static boolean isTrusted(Context context, KeepADBNetworkIdentity identity) {
-        if (!identity.isKnown()) return false;
+        if (identity.isKnown()) {
+            boolean trusted = matchesAllowlist(context, identity.bssid);
+            if (trusted) {
+                rememberVerifiedTrust(identity);
+            } else {
+                // A genuinely readable network that isn't listed -- whatever we verified
+                // earlier no longer describes what we're connected to right now.
+                forgetVerifiedTrust();
+            }
+            return trusted;
+        }
+        if (KeepADBNetworkIdentity.UNSET_BSSID.equalsIgnoreCase(identity.bssid)) {
+            // Not associated to any access point -- can't be a continuation of anything.
+            forgetVerifiedTrust();
+            return false;
+        }
+        // BSSID is REDACTED_BSSID: Android 12+ background masking (#270), not a real unknown
+        // network. Only this precise, narrow condition may use the fallback below -- any other
+        // "identity not known" case (null/empty BSSID, UNSET_BSSID, handled above) still fails
+        // closed exactly as before.
+        return hasMatchingVerifiedTrust(identity);
+    }
+
+    private static boolean matchesAllowlist(Context context, String bssid) {
         for (Entry entry : getEntries(context)) {
-            if (entry.bssid.equalsIgnoreCase(identity.bssid)) return true;
+            if (entry.bssid.equalsIgnoreCase(bssid)) return true;
         }
         return false;
+    }
+
+    private static void rememberVerifiedTrust(KeepADBNetworkIdentity identity) {
+        // Only remember it if we have an SSID to anchor a later fallback match to; otherwise
+        // there's nothing safe to compare a subsequent masked reading against.
+        lastVerifiedTrustedSsid = identity.displaySsid();
+    }
+
+    private static void forgetVerifiedTrust() {
+        lastVerifiedTrustedSsid = null;
+    }
+
+    private static boolean hasMatchingVerifiedTrust(KeepADBNetworkIdentity identity) {
+        String cachedSsid = lastVerifiedTrustedSsid;
+        if (cachedSsid == null) return false;
+        String currentSsid = identity.displaySsid();
+        return currentSsid != null && cachedSsid.equals(currentSsid);
+    }
+
+    /** Test-only: clears the in-process verified-trust memory so tests don't leak state into
+     * each other (the cache is intentionally static/process-wide in production). */
+    static void resetVerifiedTrustForTesting() {
+        lastVerifiedTrustedSsid = null;
+    }
+
+    /** Test-only seam: exercises the same trust decision as {@link #isCurrentNetworkTrusted}
+     * against an explicit identity, since a plain JVM unit test can't make {@link
+     * KeepADBNetworkIdentity#current} return anything but an unknown identity (no real
+     * WifiManager). Production call sites always go through {@link #isCurrentNetworkTrusted}
+     * or {@link #getBlockReason}, never this method directly. */
+    static boolean isTrustedForTesting(Context context, KeepADBNetworkIdentity identity) {
+        return isTrusted(context, identity);
     }
 
     private static Entry read(Context context, int id) {
