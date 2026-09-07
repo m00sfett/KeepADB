@@ -1,0 +1,1 @@
+Fixed Keep-Alive repeatedly searching for an adb endpoint and pulsing Wireless Debugging while Wi-Fi is disconnected, including right after a restart while Wi-Fi is already off. No change to reconnect/roam behavior while Wi-Fi is active.
