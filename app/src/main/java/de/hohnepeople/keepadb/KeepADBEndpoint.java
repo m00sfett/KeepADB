@@ -224,6 +224,15 @@ final class KeepADBEndpoint {
             if (!isCurrent(generation) || endpointDelivered.get()) return;
             if (!KeepADB.isEnabled(appContext) || KeepADB.wasLastExplicitIntentOff(appContext)) return;
         }
+        // #296: "trusted network" is a policy decision about an SSID/BSSID allowlist -- it says
+        // nothing about whether the device is actually still on a Wi-Fi transport at all right
+        // now. Without this, a device that lost Wi-Fi entirely (but still remembers a trusted
+        // network from moments ago) would keep pulsing adb_wifi_enabled every
+        // RECOVERY_PULSE_COOLDOWN_MS with no Wi-Fi listener for adbd to ever bind on.
+        if (!KeepADBService.isWifiConnected(appContext)) {
+            Log.i(TAG, "gen=" + generation + " skipping recovery pulse without an active Wi-Fi connection");
+            return;
+        }
         if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext)) {
             Log.i(TAG, "gen=" + generation + " skipping recovery pulse on an untrusted Wi-Fi network");
             return;
