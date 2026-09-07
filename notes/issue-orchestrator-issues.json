@@ -1,4 +1,20 @@
 {
+  "270": {
+    "title": "Trusted-Network-Check robust gegen Hintergrund-BSSID-Maskierung (Android 12+)",
+    "scope": "Aus #267 ausgelagertes Teilpaket (Root Cause 4): Android 12+ maskiert WifiInfo.getBSSID() im Hintergrund ohne Background-Location-Permission -> Trusted-Network-Check schlaegt faelschlich fehl, WLAN-ADB wird im Hintergrund nicht auto-aktiviert. Anderer Codepfad (KeepADBNetworkIdentity) und eigene Risikoklasse als #267.",
+    "decomposition": "Einzelpaket ausreichend (Teilpaket aus #267)",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-07T09:00:00Z",
+    "status": "open"
+  },
+  "267": {
+    "title": "fix(tile): Quick Settings Tile zeigt faelschlich 'Nicht verbunden' bei aktivem oder suchendem WLAN-ADB",
+    "scope": "Tile-Statusanzeige/Klick-Semantik/Discovery-Lifecycle in KeepADBTileService: kein Uebergangszustand bei ENABLED_DISCONNECTED, synchrone Tile-Anzeige vor Abschluss der mDNS-Discovery, gefaehrliche Klick-Semantik (schaltet ab statt Re-Discovery). Root Cause 4 (Hintergrund-BSSID-Maskierung) nach #270 ausgelagert. Akzeptanzkriterium 5 (Label-Formatierung) bereits erledigt.",
+    "decomposition": "Einzelpaket ausreichend (Teilpaket B nach #270 ausgelagert)",
+    "stage": "agent-stage:s2",
+    "updatedAt": "2026-09-07T08:43:27Z",
+    "status": "open"
+  },
   "269": {
     "title": "KeepADBNetworkIdentity: Platzhalter-SSID (UNKNOWN_SSID) könnte unsinnigen Historie-Bucket erzeugen",
     "scope": "Sehr niedriger Review-Fund aus #266: vorbestehende Randbedingung, keine Regression. Kein akuter Handlungsbedarf.",

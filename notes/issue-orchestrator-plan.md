@@ -112,13 +112,29 @@ kein Kandidatenblocker), und #259 als neues, noch unbewertetes Backlog-Item.
 - **#266 bleibt auf GitHub offen** — Commit ist lokal auf dem Feature-Branch, noch nicht
   gepusht/gemerged; Schließen erst beim tatsächlichen Merge (Abschnitt 5, Punkt 7).
 
+## `--plan`-Lauf — 2026-09-07
+
+Neu seit letztem Snapshot: **#267** (Tile zeigt fälschlich „Nicht verbunden" bei aktivem/
+suchendem WLAN-ADB, extern angelegt mit Label `agent-stage:s2`). Bündelte fünf technisch
+unabhängige Root Causes über zwei Codepfade hinweg (Tile-Statusanzeige/Klick-Semantik/
+Discovery-Lifecycle in `KeepADBTileService` vs. Trusted-Network-Check in
+`KeepADBNetworkIdentity`, letzterer mit eigener Risikoklasse) — Bündelungsgrenze verletzt.
+Zerlegt: Root Cause 4 (Hintergrund-BSSID-Maskierung, Android 12+) nach **#270** ausgelagert,
+Label-Formatierung (Kriterium 5) war bereits erledigt. #267 bleibt für die drei
+Tile-bezogenen Punkte zuständig. Beide S2, Board/Drift synchron nachgezogen.
+
+Alle übrigen offenen Issues (#259, #260, #262, #263, #264, #266, #268, #269) waren bereits
+gelabelt und im Cache vorhanden — keine erneute Sichtung nötig.
+
 ## Nächster Schritt
 
 Branch `feature/262-264-trusted-network-button-bssid` (jetzt HEAD `7d7c7e6`, enthält #262+#264
 +#266) bleibt lokal liegen, bis der Nutzer Push/PR freigibt — dann Auto-Finish (Checks abwarten,
 mergen, #262/#264/#266 schließen). Bis dahin im Backlog verfügbar: **#259** (unabhängig, direkt
 startbar, S1), **#260** (Migrations-Entscheidung offen), **#263** (Wording-Entscheidung offen),
-**#268** (S1, direkt startbar), **#269** (S0, direkt startbar, sehr geringe Priorität).
+**#267** (S2, direkt startbar, Tile-Bug), **#268** (S1, direkt startbar), **#269** (S0, direkt
+startbar, sehr geringe Priorität), **#270** (S2, direkt startbar, Trust-Check-Bug).
 
-- **issue_snapshot_at:** 2026-09-06T22:34Z (sechs offene Issues: #259, #260, #262, #263, #264, #265)
-- **plan_updated_at:** 2026-09-06
+- **issue_snapshot_at:** 2026-09-07T09:00Z (zehn offene Issues: #259, #260, #262, #263, #264,
+  #266, #267, #268, #269, #270)
+- **plan_updated_at:** 2026-09-07
