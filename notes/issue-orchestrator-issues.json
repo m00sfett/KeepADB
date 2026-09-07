@@ -1,10 +1,26 @@
 {
+  "269": {
+    "title": "KeepADBNetworkIdentity: Platzhalter-SSID (UNKNOWN_SSID) könnte unsinnigen Historie-Bucket erzeugen",
+    "scope": "Sehr niedriger Review-Fund aus #266: vorbestehende Randbedingung, keine Regression. Kein akuter Handlungsbedarf.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s0",
+    "updatedAt": "2026-09-06T23:10:00Z",
+    "status": "open"
+  },
+  "268": {
+    "title": "KeepADBBssidHistory: Gesamtzahl beobachteter SSIDs unbegrenzt (nur pro-SSID-Kappung vorhanden)",
+    "scope": "Review-Fund aus #266: Gesamt-Deckelung über alle SSIDs fehlt noch (nur Pro-SSID-Kappung auf 8 vorhanden). Produktentscheidung zu Obergrenze/Verdrängungsstrategie offen.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-06T23:10:00Z",
+    "status": "open"
+  },
   "266": {
     "title": "Trusted Networks: Mesh-Hybrid — BSSID-Historie je SSID + Sammel-Hinzufügen",
-    "scope": "Umsetzung der in #265 getroffenen Nutzerentscheidung (Hybrid): neue BSSID-Beobachtungshistorie je SSID, UI-Erweiterung beim Hinzufügen (Sammel-Übernahme bekannter BSSIDs), Datenschutzanforderungen an die Historie.",
+    "scope": "Umsetzung der in #265 getroffenen Nutzerentscheidung (Hybrid): neue BSSID-Beobachtungshistorie je SSID, UI-Erweiterung beim Hinzufügen (Sammel-Übernahme bekannter BSSIDs), Datenschutzanforderungen an die Historie. Implementiert (Commit 7d7c7e6) und unabhängig reviewt (approved, keine Muss-Fixes) auf Branch feature/262-264-trusted-network-button-bssid. Noch nicht gepusht/gemerged, daher Issue weiter offen.",
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s3",
-    "updatedAt": "2026-09-06T22:50:00Z",
+    "updatedAt": "2026-09-06T23:10:00Z",
     "status": "open"
   },
   "265": {

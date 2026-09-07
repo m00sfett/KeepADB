@@ -91,21 +91,34 @@ kein Kandidatenblocker), und #259 als neues, noch unbewertetes Backlog-Item.
   kein CI-Run ausgelöst. #262/#264 bleiben auf GitHub offen, bis diese Entscheidung revidiert
   wird.
 
-## Übergabe-Checkpoint — #265 entschieden, #266 neu (2026-09-06)
+## Übergabe-Checkpoint — #266 implementiert und reviewt (2026-09-06)
 
-- **Nutzerentscheidung:** Hybrid-Ansatz für Mesh-Verhalten (BSSID bleibt Vergleichsschlüssel,
-  zusätzlich Sammel-Hinzufügen bekannter BSSIDs derselben SSID). #265 geschlossen, als
-  Umsetzungs-Issue **#266** neu zugeschnitten (S3 — neue persistente Historie-Komponente,
-  Datenschutzanforderungen, UI-Erweiterung; kein triviales Paket).
-- Board/Cache/Drift nachgezogen; einziger verbleibender Drift-Fund (`migration/code-v1`)
-  unverändert, gehört nicht zu diesem Strang.
+- **#266 (Mesh-Hybrid) umgesetzt** von `s3-worker` (sonnet·high) auf Branch
+  `feature/262-264-trusted-network-button-bssid`, Commit `7d7c7e6` (auf `d8ae1b5` aufbauend).
+  Neue Komponente `KeepADBBssidHistory` (Pro-SSID-BSSID-Historie, max. 8, FIFO-Verdrängung),
+  UI-Erweiterung (`offerAdditionalMeshBssids()` in `SettingsActivity`), 11 neue Tests, 4 neue
+  Strings in allen 19 Sprachen, versionCode 20→21 / 1.5.1→1.5.2.
+- **Unabhängiger Review** (frischer `s3-worker`, sonnet·high, `review and repair`): **approved**,
+  alle 5 geprüften Implementierer-Behauptungen bestätigt (BSSID-only-Trust unverändert, Historie
+  strukturell ohne SSID-lose Einträge, Dialog-Ablehnen ohne Seiteneffekt, `addCurrentNetwork()`
+  verhaltensidentisch, kein Datenleck über Webhook/Diagnostics), alle 6 Akzeptanzkriterien und
+  beide Nicht-Ziele aus #266 erfüllt. Keine Muss-Fixes, kein Reparatur-Commit nötig.
+  `bin/check-i18n` und `bin/verify` vom Reviewer selbst erneut ausgeführt, beide grün.
+- **Zwei niedrigschwellige Folgefunde registriert** (kein Blocker für #266): **#268**
+  (Gesamtzahl beobachteter SSIDs unbegrenzt, nur Pro-SSID-Kappung vorhanden, S1) und **#269**
+  (theoretischer `UNKNOWN_SSID`-Platzhalter-Edge-Case, vorbestehend, keine Regression, S0).
+  Board/Drift nachgezogen — nur der bekannte `migration/code-v1`-Fund bleibt, gehört nicht zu
+  diesem Strang.
+- **#266 bleibt auf GitHub offen** — Commit ist lokal auf dem Feature-Branch, noch nicht
+  gepusht/gemerged; Schließen erst beim tatsächlichen Merge (Abschnitt 5, Punkt 7).
 
 ## Nächster Schritt
 
-Branch `feature/262-264-trusted-network-button-bssid` (Commit `d8ae1b5`) bleibt lokal liegen,
-bis der Nutzer Push/PR freigibt. Offener Backlog: **#259** (unabhängig, direkt startbar, S1),
-**#260** (Migrations-Entscheidung offen), **#263** (Wording-Entscheidung offen), **#266**
-(Mesh-Hybrid, S3, direkt umsetzbar nach heutiger Entscheidung).
+Branch `feature/262-264-trusted-network-button-bssid` (jetzt HEAD `7d7c7e6`, enthält #262+#264
++#266) bleibt lokal liegen, bis der Nutzer Push/PR freigibt — dann Auto-Finish (Checks abwarten,
+mergen, #262/#264/#266 schließen). Bis dahin im Backlog verfügbar: **#259** (unabhängig, direkt
+startbar, S1), **#260** (Migrations-Entscheidung offen), **#263** (Wording-Entscheidung offen),
+**#268** (S1, direkt startbar), **#269** (S0, direkt startbar, sehr geringe Priorität).
 
 - **issue_snapshot_at:** 2026-09-06T22:34Z (sechs offene Issues: #259, #260, #262, #263, #264, #265)
 - **plan_updated_at:** 2026-09-06
