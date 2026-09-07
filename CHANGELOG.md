@@ -5,6 +5,18 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.8] - 2026-09-07
+
+### Changed
+- Added an injectable `KeepADBWifiProbe` test-only seam to `KeepADBNetwork` (matching the existing
+  `KeepADBNsdProbe`/`KeepADBScheduler` pattern) plus `KeepADBNotification.hasActiveDiscoveryAttemptForTesting()`/
+  `resetForTesting()`, and migrated one example test (`KeepADBWifiGatedDiscoveryBehaviorTest`) from
+  source-content contract checking to a real Robolectric-driven behavioral test of the #296 Wi-Fi
+  discovery gate. Production code always falls through to the real transport-capability check;
+  the existing `KeepADBWifiGatedDiscoveryContractTest`/`KeepADBNetworkContractTest` contract tests
+  stay in place unmodified as a fast regression guard (issue #303, entry step; no other contract
+  tests migrated yet, no production behavior change).
+
 ## [1.5.7] - 2026-09-07
 
 ### Fixed

@@ -1,0 +1,1 @@
+Internal testing improvement only, no user-facing changes: added an injectable test-only seam for the Wi-Fi discovery gate and migrated one test to exercise real app behavior instead of just parsing source code.
