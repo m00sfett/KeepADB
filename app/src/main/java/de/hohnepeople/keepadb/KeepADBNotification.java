@@ -35,6 +35,13 @@ final class KeepADBNotification {
     private static int retryAttempt;
     private static long discoveryRequestGeneration;
     private static Object activeDiscoveryOwner;
+    // #297: verifyCachedEndpointAsync() is reached both by the throttled roam trigger and by the
+    // unthrottled 60s heartbeat. Without this flag every routine "still reachable" heartbeat
+    // confirmation persisted its own endpoint_verified/reachable diagnostics event, flooding the
+    // bounded MAX_EVENTS ring buffer with redundant confirmations and pushing out rarer events.
+    // Reset to false whenever the cached endpoint changes (fresh discovery), is invalidated as
+    // stale, or torn down, so the next confirmation for the new state is logged exactly once.
+    private static boolean endpointReachableConfirmed;
 
     interface EndpointListener {
         void onEndpoint(String host, int port);
@@ -102,6 +109,7 @@ final class KeepADBNotification {
         }
         currentHost = null;
         currentPort = 0;
+        resetReachableConfirmed();
         if (endpointListener != null) {
             endpointListener.onUnavailable();
         }
@@ -192,14 +200,17 @@ final class KeepADBNotification {
                 }
                 if (reachable) {
                     activeDiscoveryOwner = null;
-                    KeepADBDiagnostics.event(appContext, "endpoint_verified", "nsd_or_probe",
-                            "reachable", "host=" + host + " port=" + port);
+                    if (shouldLogReachable()) {
+                        KeepADBDiagnostics.event(appContext, "endpoint_verified", "nsd_or_probe",
+                                "reachable", "host=" + host + " port=" + port);
+                    }
                     return;
                 }
                 Log.w(TAG, "Cached endpoint " + host + ":" + port
                         + " no longer reachable; invalidating and rediscovering");
                 KeepADBDiagnostics.event(appContext, "endpoint_verified", "nsd_or_probe",
                         "stale_invalidated", "host=" + host + " port=" + port);
+                resetReachableConfirmed();
                 currentHost = null;
                 currentPort = 0;
                 if (endpointListener != null) {
@@ -215,6 +226,26 @@ final class KeepADBNotification {
             }
             postSurfaceRefresh(appContext);
         }, "KeepADBEndpointVerify").start();
+    }
+
+    /**
+     * Returns {@code true} exactly once per confirmed-reachable state, i.e. the first time it is
+     * called after the cached endpoint changed, was invalidated, or was torn down; every
+     * subsequent call before the next such reset returns {@code false}. Pulled out as a small,
+     * pure static so #297's state-change gate can be unit-tested without spinning up the
+     * background verification thread or a real socket (see {@code KeepADBNotification} field
+     * comment on {@code endpointReachableConfirmed}).
+     */
+    static synchronized boolean shouldLogReachable() {
+        if (endpointReachableConfirmed) {
+            return false;
+        }
+        endpointReachableConfirmed = true;
+        return true;
+    }
+
+    static synchronized void resetReachableConfirmed() {
+        endpointReachableConfirmed = false;
     }
 
     private static void postSurfaceRefresh(Context appContext) {
@@ -287,6 +318,7 @@ final class KeepADBNotification {
                     if (requestGeneration != discoveryRequestGeneration) return;
                     currentHost = host;
                     currentPort = port;
+                    resetReachableConfirmed();
                     activeDiscoveryOwner = null;
                     retryAttempt = 0;
                     cancelRetryLocked();
@@ -347,6 +379,7 @@ final class KeepADBNotification {
         }
         currentHost = null;
         currentPort = 0;
+        resetReachableConfirmed();
         if (endpointListener != null) endpointListener.onUnavailable();
         manager.cancel(NOTIFICATION_ID);
         KeepADBRegisterClient.markUnavailableAsync(context.getApplicationContext());
