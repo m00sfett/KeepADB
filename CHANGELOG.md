@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   may be blocked until at least one network is added to the allowlist (issue #260).
 
 ### Fixed
+- The persistent notification no longer shows a stale/dead endpoint after a same-SSID mesh
+  Wi-Fi roam (new BSSID, same Network object), which fires neither `onAvailable()` nor
+  `onLost()` on the registered network callback; it now re-verifies the cached endpoint on
+  `onCapabilitiesChanged()` (throttled to once per 5s), matching the Quick Settings Tile's
+  behaviour instead of lagging behind it until the next 60s heartbeat (issue #276).
 - Shortened the trusted-network management button label to "Manage whitelist" / "Whitelist
   verwalten" across all supported languages (issue #263).
 - Resolved a test-only race in `KeepADBUsbRegisterClientTest` that could intermittently fail
