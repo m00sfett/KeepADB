@@ -50,7 +50,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_error_missing_url">启用同步前请输入有效的 HTTP/HTTPS URL。</string>
     <string name="settings_webhook_cleartext_warning">此 URL 使用未加密的 HTTP — 数据以明文形式发送。仅在受信任的局域网或 VPN 中使用。</string>
     <string name="settings_section_trusted_network">受信任的网络</string>
-    <string name="settings_trusted_network_subtext">可选择将 Keep-Alive 的自动重新启用限制为您标记为受信任的 Wi-Fi 网络。无论此设置如何,手动切换始终有效。</string>
+    <string name="settings_trusted_network_subtext">默认情况下,Keep-Alive 的自动重新启用仅限于您标记为受信任的 Wi-Fi 网络。无论此设置如何,手动切换始终有效。</string>
     <string name="settings_trusted_network_toggle">将 Keep-Alive 限制为受信任的网络</string>
     <string name="settings_trusted_network_add_button">添加当前网络</string>
     <string name="settings_trusted_network_remove_button">移除当前网络</string>

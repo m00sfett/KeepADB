@@ -50,7 +50,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_error_missing_url">Пожалуйста, введите корректный HTTP/HTTPS URL перед включением синхронизации.</string>
     <string name="settings_webhook_cleartext_warning">Этот URL использует незашифрованный HTTP — данные передаются в открытом виде. Используйте только в доверенной локальной сети или VPN.</string>
     <string name="settings_section_trusted_network">Доверенные сети</string>
-    <string name="settings_trusted_network_subtext">При желании ограничьте автоматическое повторное включение Keep-Alive сетями Wi-Fi, отмеченными как доверенные. Ручное переключение всегда работает независимо от этой настройки.</string>
+    <string name="settings_trusted_network_subtext">По умолчанию автоматическое повторное включение Keep-Alive ограничено сетями Wi-Fi, отмеченными как доверенные. Ручное переключение всегда работает независимо от этой настройки.</string>
     <string name="settings_trusted_network_toggle">Ограничить Keep-Alive доверенными сетями</string>
     <string name="settings_trusted_network_add_button">Добавить текущую сеть</string>
     <string name="settings_trusted_network_remove_button">Удалить текущую сеть</string>

@@ -50,7 +50,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_error_missing_url">Digite uma URL HTTP/HTTPS válida antes de ativar a sincronização.</string>
     <string name="settings_webhook_cleartext_warning">Esta URL usa HTTP não criptografado — os dados são enviados em texto simples. Use apenas em uma LAN ou VPN confiável.</string>
     <string name="settings_section_trusted_network">Redes confiáveis</string>
-    <string name="settings_trusted_network_subtext">Restrinja opcionalmente a reativação automática do Keep-Alive a redes Wi-Fi marcadas como confiáveis. A alternância manual sempre funciona, independentemente desta configuração.</string>
+    <string name="settings_trusted_network_subtext">Por padrão, a reativação automática do Keep-Alive é restrita a redes Wi-Fi marcadas como confiáveis. A alternância manual sempre funciona, independentemente desta configuração.</string>
     <string name="settings_trusted_network_toggle">Restringir Keep-Alive a redes confiáveis</string>
     <string name="settings_trusted_network_add_button">Adicionar rede atual</string>
     <string name="settings_trusted_network_remove_button">Remover rede atual</string>

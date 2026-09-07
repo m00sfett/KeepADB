@@ -50,7 +50,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_error_missing_url">सिंक सक्षम करने से पहले कृपया एक मान्य HTTP/HTTPS URL दर्ज करें।</string>
     <string name="settings_webhook_cleartext_warning">यह URL असुरक्षित HTTP का उपयोग करता है — डेटा सादे टेक्स्ट में भेजा जाता है। इसका उपयोग केवल किसी विश्वसनीय LAN या VPN पर करें।</string>
     <string name="settings_section_trusted_network">विश्वसनीय नेटवर्क</string>
-    <string name="settings_trusted_network_subtext">वैकल्पिक रूप से Keep-Alive के स्वचालित पुनः-सक्षमन को उन्हीं Wi-Fi नेटवर्क तक सीमित करें जिन्हें आपने विश्वसनीय के रूप में चिह्नित किया है। मैन्युअल टॉगल इस सेटिंग की परवाह किए बिना हमेशा काम करता है।</string>
+    <string name="settings_trusted_network_subtext">डिफ़ॉल्ट रूप से, Keep-Alive का स्वचालित पुनः-सक्षमन केवल उन्हीं Wi-Fi नेटवर्क तक सीमित है जिन्हें आपने विश्वसनीय के रूप में चिह्नित किया है। मैन्युअल टॉगल इस सेटिंग की परवाह किए बिना हमेशा काम करता है।</string>
     <string name="settings_trusted_network_toggle">Keep-Alive को विश्वसनीय नेटवर्क तक सीमित करें</string>
     <string name="settings_trusted_network_add_button">वर्तमान नेटवर्क जोड़ें</string>
     <string name="settings_trusted_network_remove_button">वर्तमान नेटवर्क हटाएं</string>

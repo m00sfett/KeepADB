@@ -50,7 +50,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_error_missing_url">Voer een geldige HTTP/HTTPS-URL in voordat u synchronisatie inschakelt.</string>
     <string name="settings_webhook_cleartext_warning">Deze URL gebruikt onversleuteld HTTP — gegevens worden als platte tekst verzonden. Gebruik dit alleen in een vertrouwd LAN of VPN.</string>
     <string name="settings_section_trusted_network">Vertrouwde netwerken</string>
-    <string name="settings_trusted_network_subtext">Beperk het automatisch opnieuw inschakelen van Keep-Alive optioneel tot Wi-Fi-netwerken die u als vertrouwd hebt gemarkeerd. Handmatig schakelen werkt altijd, ongeacht deze instelling.</string>
+    <string name="settings_trusted_network_subtext">Standaard is het automatisch opnieuw inschakelen van Keep-Alive beperkt tot Wi-Fi-netwerken die u als vertrouwd hebt gemarkeerd. Handmatig schakelen werkt altijd, ongeacht deze instelling.</string>
     <string name="settings_trusted_network_toggle">Keep-Alive beperken tot vertrouwde netwerken</string>
     <string name="settings_trusted_network_add_button">Huidig netwerk toevoegen</string>
     <string name="settings_trusted_network_remove_button">Huidig netwerk verwijderen</string>

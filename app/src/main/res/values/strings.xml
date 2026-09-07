@@ -63,7 +63,7 @@
     <string name="settings_webhook_error_missing_url">Please enter a valid HTTP/HTTPS URL before enabling sync.</string>
     <string name="settings_webhook_cleartext_warning">This URL uses unencrypted HTTP — data is sent in plain text. Only use this on a trusted LAN or VPN.</string>
     <string name="settings_section_trusted_network">Trusted Networks</string>
-    <string name="settings_trusted_network_subtext">Optionally restrict automatic Keep-Alive re-enable to Wi-Fi networks you\'ve explicitly marked as trusted. Manual toggling always works regardless of this setting.</string>
+    <string name="settings_trusted_network_subtext">By default, automatic Keep-Alive re-enable is restricted to Wi-Fi networks you\'ve explicitly marked as trusted. Manual toggling always works regardless of this setting.</string>
     <string name="settings_trusted_network_toggle">Restrict Keep-Alive to trusted networks</string>
     <string name="settings_trusted_network_add_button">Add current network</string>
     <string name="settings_trusted_network_remove_button">Remove current network</string>

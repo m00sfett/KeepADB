@@ -63,7 +63,7 @@
     <string name="settings_webhook_error_missing_url">Bitte zuerst eine gültige HTTP/HTTPS-URL eingeben, bevor die Synchronisierung aktiviert wird.</string>
     <string name="settings_webhook_cleartext_warning">Diese URL verwendet unverschlüsseltes HTTP – Daten werden im Klartext übertragen. Nur in einem vertrauenswürdigen LAN oder VPN verwenden.</string>
     <string name="settings_section_trusted_network">Vertrauenswürdige Netzwerke</string>
-    <string name="settings_trusted_network_subtext">Optional: automatisches Wiedereinschalten von Keep-Alive auf WLANs beschränken, die du als vertrauenswürdig markiert hast. Manuelles Umschalten funktioniert unabhängig von dieser Einstellung immer.</string>
+    <string name="settings_trusted_network_subtext">Standardmäßig ist das automatische Wiedereinschalten von Keep-Alive auf WLANs beschränkt, die du als vertrauenswürdig markiert hast. Manuelles Umschalten funktioniert unabhängig von dieser Einstellung immer.</string>
     <string name="settings_trusted_network_toggle">Keep-Alive auf vertrauenswürdige Netzwerke beschränken</string>
     <string name="settings_trusted_network_add_button">Aktuelles Netzwerk hinzufügen</string>
     <string name="settings_trusted_network_remove_button">Aktuelles Netzwerk entfernen</string>
