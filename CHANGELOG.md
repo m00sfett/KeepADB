@@ -5,6 +5,14 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.4] - 2026-09-07
+
+### Fixed
+- `KeepADBNetworkIdentity` now treats the platform's `UNKNOWN_SSID` placeholder (BSSID known,
+  SSID unreadable at query time) as no SSID instead of a real one, so it no longer files
+  BSSID-history observations or mesh-add labels under the literal placeholder string
+  (issue #269).
+
 ## [1.5.3] - 2026-09-07
 
 ### Fixed

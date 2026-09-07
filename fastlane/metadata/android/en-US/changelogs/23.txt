@@ -1,0 +1,1 @@
+Fixed a low-impact edge case where a rare platform placeholder value could be filed as if it were a real Wi-Fi network name in the trusted-network mesh history.

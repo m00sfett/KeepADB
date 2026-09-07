@@ -11,7 +11,7 @@ import android.net.wifi.WifiManager;
  * freely reused string, so two unrelated networks can share the same name). SSID is kept only
  * as a human-readable label. Reading either field requires ACCESS_FINE_LOCATION on Android; if
  * that permission is missing (or location is off), the platform returns the placeholder values
- * {@link WifiInfo#UNKNOWN_SSID} and {@link #REDACTED_BSSID} instead of throwing, so {@link
+ * {@link WifiManager#UNKNOWN_SSID} and {@link #REDACTED_BSSID} instead of throwing, so {@link
  * #isKnown()} must be checked before treating the identity as a real, matchable value -- using
  * the placeholder as-is would make every unrecognized network compare equal (fail-open).
  */
@@ -58,9 +58,15 @@ final class KeepADBNetworkIdentity {
                 && !UNSET_BSSID.equalsIgnoreCase(bssid);
     }
 
-    /** Human-readable SSID with the surrounding quotes WifiInfo#getSSID() adds, if present. */
+    /**
+     * Human-readable SSID with the surrounding quotes WifiInfo#getSSID() adds, if present.
+     * Returns null for {@link WifiManager#UNKNOWN_SSID} (BSSID known, SSID unreadable at the
+     * moment of the query -- issue #269): treating that placeholder as a real SSID would file
+     * BSSID-history observations and mesh-add labels under the literal placeholder string
+     * instead of correctly falling back to "no SSID known".
+     */
     String displaySsid() {
-        if (ssid == null) return null;
+        if (ssid == null || WifiManager.UNKNOWN_SSID.equals(ssid)) return null;
         if (ssid.length() >= 2 && ssid.startsWith("\"") && ssid.endsWith("\"")) {
             return ssid.substring(1, ssid.length() - 1);
         }
