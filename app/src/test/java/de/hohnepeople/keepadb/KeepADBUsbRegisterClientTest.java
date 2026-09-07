@@ -279,6 +279,12 @@ public class KeepADBUsbRegisterClientTest {
         KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, url(), "dev1",
                 5, "Office", "192.168.1.10", "host1", "tail1");
         waitUntil(() -> recordedRequests.size() >= 2, 2000);
+        // Wait for the client to fully process the response (in-memory state + SharedPreferences
+        // write happen only after the HTTP response is read, asynchronously in the executor).
+        // Waiting only for the server-side request record is a race under CPU load: the reset()
+        // below can run before the client's own bookkeeping completes, causing a spurious extra
+        // HTTP call and flaky failures (issue #283).
+        waitUntil(() -> url().equals(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting()), 2000);
         int initialCount = recordedRequests.size();
 
         // Simulate process death (memory wiped, SharedPreferences preserved)
@@ -301,6 +307,13 @@ public class KeepADBUsbRegisterClientTest {
         KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, url(), "dev1",
                 5, "Office", "192.168.1.10", "host1", "tail1");
         waitUntil(() -> recordedRequests.size() >= 2, 2000);
+        // Wait for the client to fully process the response (in-memory state + SharedPreferences
+        // write happen only after the HTTP response is read, asynchronously in the executor).
+        // Waiting only for the server-side request record is a race under CPU load: the reset()
+        // below can run before the client's own bookkeeping completes, causing this test's
+        // subsequent markUsbInactiveAsyncInternal to see no prior state and become a no-op
+        // (issue #283).
+        waitUntil(() -> url().equals(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting()), 2000);
         int countBeforeRestart = recordedRequests.size();
 
         // Simulate process death (memory wiped, SharedPreferences preserved)
