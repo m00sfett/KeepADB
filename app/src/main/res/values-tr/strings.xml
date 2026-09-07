@@ -50,7 +50,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_error_missing_url">Senkronizasyonu etkinleştirmeden önce lütfen geçerli bir HTTP/HTTPS URL’si girin.</string>
     <string name="settings_webhook_cleartext_warning">Bu URL şifrelenmemiş HTTP kullanıyor — veriler düz metin olarak gönderilir. Yalnızca güvenilir bir LAN veya VPN üzerinde kullanın.</string>
     <string name="settings_section_trusted_network">Güvenilir Ağlar</string>
-    <string name="settings_trusted_network_subtext">Keep-Alive\'ın otomatik olarak yeniden etkinleştirilmesini isteğe bağlı olarak güvenilir olarak işaretlediğiniz Wi-Fi ağlarıyla sınırlayın. Manuel geçiş bu ayardan bağımsız olarak her zaman çalışır.</string>
+    <string name="settings_trusted_network_subtext">Varsayılan olarak, Keep-Alive\'ın otomatik olarak yeniden etkinleştirilmesi yalnızca güvenilir olarak işaretlediğiniz Wi-Fi ağlarıyla sınırlıdır. Manuel geçiş bu ayardan bağımsız olarak her zaman çalışır.</string>
     <string name="settings_trusted_network_toggle">Keep-Alive\'ı güvenilir ağlarla sınırla</string>
     <string name="settings_trusted_network_add_button">Mevcut ağı ekle</string>
     <string name="settings_trusted_network_remove_button">Mevcut ağı kaldır</string>

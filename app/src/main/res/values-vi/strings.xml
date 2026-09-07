@@ -50,7 +50,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_webhook_error_missing_url">Vui lòng nhập URL HTTP/HTTPS hợp lệ trước khi bật đồng bộ hóa.</string>
     <string name="settings_webhook_cleartext_warning">URL này sử dụng HTTP không mã hóa — dữ liệu được gửi dưới dạng văn bản thuần túy. Chỉ sử dụng trong LAN hoặc VPN đáng tin cậy.</string>
     <string name="settings_section_trusted_network">Mạng đáng tin cậy</string>
-    <string name="settings_trusted_network_subtext">Tùy chọn giới hạn việc tự động bật lại Keep-Alive chỉ với các mạng Wi-Fi bạn đã đánh dấu là đáng tin cậy. Chuyển đổi thủ công luôn hoạt động bất kể cài đặt này.</string>
+    <string name="settings_trusted_network_subtext">Theo mặc định, việc tự động bật lại Keep-Alive chỉ giới hạn ở các mạng Wi-Fi bạn đã đánh dấu là đáng tin cậy. Chuyển đổi thủ công luôn hoạt động bất kể cài đặt này.</string>
     <string name="settings_trusted_network_toggle">Giới hạn Keep-Alive ở các mạng đáng tin cậy</string>
     <string name="settings_trusted_network_add_button">Thêm mạng hiện tại</string>
     <string name="settings_trusted_network_remove_button">Xóa mạng hiện tại</string>

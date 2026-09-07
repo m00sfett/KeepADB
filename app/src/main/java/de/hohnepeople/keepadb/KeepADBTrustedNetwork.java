@@ -9,12 +9,16 @@ import java.util.List;
 /**
  * Persisted trusted-network allowlist policy for automatic Keep-Alive re-enable (#245).
  *
- * <p>{@link #MODE_ALL_WIFI} is the default and preserves KeepADB's original behavior (any
- * connected Wi-Fi network may trigger auto re-enable) so upgrading users see no change unless
- * they deliberately opt into {@link #MODE_ALLOWLIST}. Once in allowlist mode, an unlisted or
- * unrecognizable network is never trusted (fail closed) -- this policy only ever gates
- * *automatic* re-enable call sites; manual toggling is never affected, by design of where
- * callers apply {@link #isCurrentNetworkTrusted(Context)}, not by anything in this class.
+ * <p>{@link #MODE_ALLOWLIST} is the default (#260): a freshly installed device is protected
+ * immediately, and only Wi-Fi networks the user explicitly adds are trusted for automatic
+ * re-enable. {@link #MODE_ALL_WIFI} remains available as an opt-out for users who prefer the
+ * original, pre-#245 behavior (any connected Wi-Fi network may trigger auto re-enable). This
+ * default applies uniformly -- including to upgrading installations that never set a mode --
+ * by deliberate decision (#260); there is no migration path that special-cases existing users.
+ * Once in allowlist mode, an unlisted or unrecognizable network is never trusted (fail closed)
+ * -- this policy only ever gates *automatic* re-enable call sites; manual toggling is never
+ * affected, by design of where callers apply {@link #isCurrentNetworkTrusted(Context)}, not by
+ * anything in this class.
  */
 final class KeepADBTrustedNetwork {
     private static final String PREFS_NAME = "keepadb_prefs";
@@ -68,7 +72,7 @@ final class KeepADBTrustedNetwork {
     private KeepADBTrustedNetwork() {}
 
     static String getMode(Context context) {
-        return prefs(context).getString(KEY_MODE, MODE_ALL_WIFI);
+        return prefs(context).getString(KEY_MODE, MODE_ALLOWLIST);
     }
 
     static void setMode(Context context, String mode) {
@@ -185,10 +189,10 @@ final class KeepADBTrustedNetwork {
     }
 
     /**
-     * The policy gate for automatic re-enable call sites. In {@link #MODE_ALL_WIFI} (default)
-     * every network is trusted, matching pre-#245 behavior. In {@link #MODE_ALLOWLIST}, the
-     * current network's identity must be known and match a listed BSSID -- an unavailable
-     * identity or an unlisted network is never trusted.
+     * The policy gate for automatic re-enable call sites. In {@link #MODE_ALLOWLIST} (default,
+     * #260), the current network's identity must be known and match a listed BSSID -- an
+     * unavailable identity or an unlisted network is never trusted. In {@link #MODE_ALL_WIFI},
+     * every network is trusted, matching pre-#245 behavior.
      */
     static boolean isCurrentNetworkTrusted(Context context) {
         if (!isAllowlistMode(context)) return true;

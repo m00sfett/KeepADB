@@ -12,27 +12,30 @@ import org.junit.Test;
 public class KeepADBTrustedNetworkTest {
 
     @Test
-    public void defaultModeIsAllWifiAndTrustsEveryNetwork() {
+    public void defaultModeIsAllowlistAndFailsClosedWithNoKnownIdentity() {
         FakeContext context = new FakeContext();
-        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
-        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
-        // No known network identity is available in a plain JVM test (no real WifiInfo), yet
-        // MODE_ALL_WIFI must still trust the network -- this is the fail-open-by-design default
-        // that preserves pre-#245 behavior for upgrading users.
-        assertTrue(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
-        assertEquals(KeepADBTrustedNetwork.BlockReason.NONE, KeepADBTrustedNetwork.getBlockReason(context));
-    }
-
-    @Test
-    public void allowlistModeFailsClosedWithNoKnownIdentity() {
-        FakeContext context = new FakeContext();
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        // #260: a freshly installed device (no stored mode) defaults to allowlist mode, so it's
+        // protected immediately -- there is no fail-open default anymore, and no migration path
+        // that special-cases pre-existing installations either.
+        assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
         assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
         // Without a real WifiInfo, KeepADBNetworkIdentity.current() can't know the network --
         // allowlist mode must fail closed rather than trusting it.
         assertFalse(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
         assertEquals(KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE,
                 KeepADBTrustedNetwork.getBlockReason(context));
+    }
+
+    @Test
+    public void allWifiModeTrustsEveryNetworkWhenExplicitlySelected() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
+        // No known network identity is available in a plain JVM test (no real WifiInfo), yet
+        // MODE_ALL_WIFI must still trust the network -- this preserves pre-#245 behavior for
+        // users who explicitly opt out of the allowlist default.
+        assertTrue(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
+        assertEquals(KeepADBTrustedNetwork.BlockReason.NONE, KeepADBTrustedNetwork.getBlockReason(context));
     }
 
     @Test

@@ -196,7 +196,10 @@ public class KeepADBUsbHandoverTest {
     }
 
     @Test
-    public void automaticModeStillEnablesInTheDefaultAllWifiMode() {
+    public void automaticModeDoesNotEnableWithNoModeSetSinceAllowlistIsNowTheDefault() {
+        // #260: with no trusted-network mode stored at all (a fresh install), the default is
+        // now MODE_ALLOWLIST, not MODE_ALL_WIFI -- so this behaves exactly like
+        // automaticModeDoesNotEnableOnAnUntrustedNetwork() above without ever calling setMode().
         FakeContext ctx = new FakeContext();
         KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
@@ -207,7 +210,25 @@ public class KeepADBUsbHandoverTest {
 
         KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
 
-        assertEquals("the default (opt-in-required) trusted-network mode must not block auto handover",
+        assertTrue("the new default (allowlist, opt-out-required) must block auto handover "
+                        + "until a network is explicitly trusted",
+                gateway.writes.isEmpty());
+    }
+
+    @Test
+    public void automaticModeStillEnablesWhenAllWifiModeIsExplicitlySelected() {
+        FakeContext ctx = new FakeContext();
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
+        KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(scheduler);
+
+        KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
+
+        assertEquals("explicitly selecting MODE_ALL_WIFI must not block auto handover",
                 java.util.Arrays.asList(true), gateway.writes);
     }
 
