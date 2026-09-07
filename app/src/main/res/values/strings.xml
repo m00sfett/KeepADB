@@ -221,4 +221,7 @@
     <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
+    <string name="settings_license_line">Licensed under the GNU Affero General Public License v3 (AGPLv3)</string>
+    <string name="settings_website_link">HohnePeople.de</string>
+    <string name="settings_website_link_accessibility">Open HohnePeople.de in your browser</string>
 </resources>

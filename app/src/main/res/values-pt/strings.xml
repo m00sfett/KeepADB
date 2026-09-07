@@ -222,4 +222,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="action_dismiss">Fechar</string>
     <string name="settings_advice_banner_toggle">Mostrar aviso de segurança e rede</string>
     <string name="settings_advice_banner_subtext">Exibe um banner de aviso de segurança na parte superior da tela principal.</string>
+    <string name="settings_license_line">Licenciado sob a GNU Affero General Public License v3 (AGPLv3)</string>
+    <string name="settings_website_link">HohnePeople.de</string>
+    <string name="settings_website_link_accessibility">Abrir HohnePeople.de no navegador</string>
 </resources>

@@ -222,4 +222,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="action_dismiss">閉じる</string>
     <string name="settings_advice_banner_toggle">セキュリティとネットワークのアドバイスを表示</string>
     <string name="settings_advice_banner_subtext">メイン画面の上部にセキュリティ警告バナーを表示します。</string>
+    <string name="settings_license_line">GNU Affero General Public License v3（AGPLv3）の下でライセンスされています</string>
+    <string name="settings_website_link">HohnePeople.de</string>
+    <string name="settings_website_link_accessibility">ブラウザでHohnePeople.deを開く</string>
 </resources>

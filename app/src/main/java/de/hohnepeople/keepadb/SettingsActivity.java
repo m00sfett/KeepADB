@@ -58,6 +58,9 @@ public class SettingsActivity extends Activity {
     private Button webhookClear;
     private TextView versionNameText;
     private TextView versionCodeText;
+    private TextView websiteLinkText;
+
+    static final String WEBSITE_URL = "https://hohnepeople.de";
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -72,6 +75,11 @@ public class SettingsActivity extends Activity {
         versionNameText = findViewById(R.id.settings_version_name);
         versionCodeText = findViewById(R.id.settings_version_code);
         bindVersionInfo();
+
+        websiteLinkText = findViewById(R.id.settings_website_link);
+        websiteLinkText.setPaintFlags(websiteLinkText.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
+        websiteLinkText.setOnClickListener(v ->
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(WEBSITE_URL))));
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         scrollView = findViewById(R.id.settings_scroll_view);

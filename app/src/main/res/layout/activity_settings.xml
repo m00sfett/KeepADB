@@ -692,6 +692,27 @@
                 android:fontFamily="sans-serif"
                 android:textColor="@color/night_muted"
                 android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/settings_license_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="sans-serif"
+                android:text="@string/settings_license_line"
+                android:textColor="@color/night_muted"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/settings_website_link"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:contentDescription="@string/settings_website_link_accessibility"
+                android:fontFamily="sans-serif"
+                android:text="@string/settings_website_link"
+                android:textColor="@color/text_yellow"
+                android:textSize="12sp" />
         </LinearLayout>
 
     </LinearLayout>
