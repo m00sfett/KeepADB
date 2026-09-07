@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">تقييد Keep-Alive على الشبكات الموثوقة</string>
     <string name="settings_trusted_network_add_button">إضافة الشبكة الحالية</string>
     <string name="settings_trusted_network_remove_button">إزالة الشبكة الحالية</string>
-    <string name="settings_trusted_network_manage_button">إدارة الشبكات الموثوقة</string>
+    <string name="settings_trusted_network_manage_button">إدارة القائمة البيضاء</string>
     <string name="settings_trusted_network_status_untrusted">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: هذه الشبكة ليست ضمن قائمتك الموثوقة.</string>
     <string name="settings_trusted_network_status_identity_unavailable">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: لا يمكن تحديد هوية الشبكة الحالية.</string>
     <string name="settings_trusted_network_permission_title">إذن الموقع مطلوب</string>

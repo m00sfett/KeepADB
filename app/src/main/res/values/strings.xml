@@ -67,7 +67,7 @@
     <string name="settings_trusted_network_toggle">Restrict Keep-Alive to trusted networks</string>
     <string name="settings_trusted_network_add_button">Add current network</string>
     <string name="settings_trusted_network_remove_button">Remove current network</string>
-    <string name="settings_trusted_network_manage_button">Manage trusted networks</string>
+    <string name="settings_trusted_network_manage_button">Manage whitelist</string>
     <string name="settings_trusted_network_status_untrusted">Keep-Alive auto re-enable is paused: this Wi-Fi network isn\'t in your trusted list.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Keep-Alive auto re-enable is paused: the current network\'s identity can\'t be determined.</string>
     <string name="settings_trusted_network_permission_title">Location permission needed</string>

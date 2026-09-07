@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">Обмежити Keep-Alive довіреними мережами</string>
     <string name="settings_trusted_network_add_button">Додати поточну мережу</string>
     <string name="settings_trusted_network_remove_button">Видалити поточну мережу</string>
-    <string name="settings_trusted_network_manage_button">Керування довіреними мережами</string>
+    <string name="settings_trusted_network_manage_button">Керування білим списком</string>
     <string name="settings_trusted_network_status_untrusted">Автоматичне повторне ввімкнення призупинено: цієї мережі Wi-Fi немає у вашому списку довірених.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Автоматичне повторне ввімкнення призупинено: не вдається визначити ідентифікатор поточної мережі.</string>
     <string name="settings_trusted_network_permission_title">Потрібен дозвіл на геолокацію</string>

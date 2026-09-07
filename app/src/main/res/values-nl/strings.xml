@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">Keep-Alive beperken tot vertrouwde netwerken</string>
     <string name="settings_trusted_network_add_button">Huidig netwerk toevoegen</string>
     <string name="settings_trusted_network_remove_button">Huidig netwerk verwijderen</string>
-    <string name="settings_trusted_network_manage_button">Vertrouwde netwerken beheren</string>
+    <string name="settings_trusted_network_manage_button">Whitelist beheren</string>
     <string name="settings_trusted_network_status_untrusted">Automatisch opnieuw inschakelen gepauzeerd: dit Wi-Fi-netwerk staat niet op uw vertrouwde lijst.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Automatisch opnieuw inschakelen gepauzeerd: de identiteit van het huidige netwerk kan niet worden bepaald.</string>
     <string name="settings_trusted_network_permission_title">Locatietoestemming vereist</string>

@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">Giới hạn Keep-Alive ở các mạng đáng tin cậy</string>
     <string name="settings_trusted_network_add_button">Thêm mạng hiện tại</string>
     <string name="settings_trusted_network_remove_button">Xóa mạng hiện tại</string>
-    <string name="settings_trusted_network_manage_button">Quản lý mạng đáng tin cậy</string>
+    <string name="settings_trusted_network_manage_button">Quản lý danh sách trắng</string>
     <string name="settings_trusted_network_status_untrusted">Tự động bật lại đã tạm dừng: mạng Wi-Fi này không có trong danh sách đáng tin cậy của bạn.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Tự động bật lại đã tạm dừng: không thể xác định danh tính của mạng hiện tại.</string>
     <string name="settings_trusted_network_permission_title">Cần quyền vị trí</string>

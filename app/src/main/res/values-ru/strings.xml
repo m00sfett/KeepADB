@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">Ограничить Keep-Alive доверенными сетями</string>
     <string name="settings_trusted_network_add_button">Добавить текущую сеть</string>
     <string name="settings_trusted_network_remove_button">Удалить текущую сеть</string>
-    <string name="settings_trusted_network_manage_button">Управление доверенными сетями</string>
+    <string name="settings_trusted_network_manage_button">Управление белым списком</string>
     <string name="settings_trusted_network_status_untrusted">Автоматическое повторное включение приостановлено: этой сети Wi-Fi нет в вашем списке доверенных.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Автоматическое повторное включение приостановлено: не удаётся определить идентификатор текущей сети.</string>
     <string name="settings_trusted_network_permission_title">Требуется разрешение на геолокацию</string>

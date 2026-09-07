@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">Ogranicz Keep-Alive do zaufanych sieci</string>
     <string name="settings_trusted_network_add_button">Dodaj bieżącą sieć</string>
     <string name="settings_trusted_network_remove_button">Usuń bieżącą sieć</string>
-    <string name="settings_trusted_network_manage_button">Zarządzaj zaufanymi sieciami</string>
+    <string name="settings_trusted_network_manage_button">Zarządzaj białą listą</string>
     <string name="settings_trusted_network_status_untrusted">Automatyczne ponowne włączanie wstrzymane: tej sieci Wi-Fi nie ma na liście zaufanych.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Automatyczne ponowne włączanie wstrzymane: nie można określić tożsamości bieżącej sieci.</string>
     <string name="settings_trusted_network_permission_title">Wymagane uprawnienie lokalizacji</string>
