@@ -41,6 +41,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 final class KeepADBNetwork {
     private static volatile KeepADBNetwork instance;
+    // #303: test-only override for isWifiConnected(), see KeepADBWifiProbe's javadoc for why it
+    // lives here instead of on KeepADBService/KeepADBNotification. null in production, where
+    // isWifiConnected() always falls through to the real transport-capability check below.
+    private static volatile KeepADBWifiProbe wifiConnectivityOverride;
 
     private final Context appContext;
     private final ConnectivityManager connectivityManager;
@@ -117,6 +121,17 @@ final class KeepADBNetwork {
             }
         }
         instance = null;
+        wifiConnectivityOverride = null;
+    }
+
+    /**
+     * Test-only seam (#303): replaces {@link #isWifiConnected()}'s real transport-capability
+     * check with {@code override}, or restores it when passed {@code null}. See {@link
+     * KeepADBWifiProbe}'s javadoc for why this lives here rather than as a seam on {@code
+     * KeepADBService}/{@code KeepADBNotification}.
+     */
+    static void setWifiConnectivityOverrideForTesting(KeepADBWifiProbe override) {
+        wifiConnectivityOverride = override;
     }
 
     /** Wi-Fi transport, excluding VPN-over-Wi-Fi -- unchanged from the prior getAllNetworks() predicate. */
@@ -127,6 +142,10 @@ final class KeepADBNetwork {
     }
 
     boolean isWifiConnected() {
+        KeepADBWifiProbe override = wifiConnectivityOverride;
+        if (override != null) {
+            return override.isWifiConnected();
+        }
         for (NetworkCapabilities capabilities : wifiCapabilities.values()) {
             if (isEligibleWifiTransport(capabilities)) {
                 return true;
