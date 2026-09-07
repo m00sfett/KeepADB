@@ -150,6 +150,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_permission_missing">KeepADB: немає дозволу</string>
     <string name="tile_state_off">Вимкнено</string>
     <string name="tile_state_disconnected">Не підключено</string>
+    <string name="tile_state_searching">Пошук…</string>
     <string name="tile_state_connected">Підключено</string>
     <string name="tile_state_connected_format">%1$s:%2$d</string>
     <string name="tile_state_permission_missing">Немає дозволу</string>

@@ -99,10 +99,20 @@ public class KeepADBTileDiscoveryContractTest {
         String startBody = methodBody(tile, "public void onStartListening() {");
         String stopBody = methodBody(tile, "public void onStopListening() {");
         String destroyBody = methodBody(tile, "public void onDestroy() {");
+        String scheduleCancelBody = methodBody(tile, "private void schedulePendingDiscoveryCancel() {");
         String cancelBody = methodBody(notification, "static synchronized void cancelTileDiscovery(Object tileOwner) {");
 
         assertTrue(startBody.contains("KeepADBNotification.refreshForTile(this, this);"));
-        assertTrue(stopBody.contains("KeepADBNotification.cancelTileDiscovery(this);"));
+        // Issue #267 (3): onStopListening() no longer cancels the discovery synchronously --
+        // a brief panel close/reopen must not abort a search that is still in flight. It only
+        // schedules the cancellation; onStartListening() cancels that schedule if the panel
+        // reopens in time. onDestroy() still cancels immediately, unconditionally.
+        assertTrue(startBody.contains("cancelPendingDiscoveryCancel();"));
+        assertTrue(stopBody.contains("schedulePendingDiscoveryCancel();"));
+        assertFalse(stopBody.contains("KeepADBNotification.cancelTileDiscovery(this);"));
+        assertTrue(scheduleCancelBody.contains("KeepADBNotification.cancelTileDiscovery(this);"));
+        assertTrue(scheduleCancelBody.contains("handler.postDelayed("));
+        assertTrue(destroyBody.contains("cancelPendingDiscoveryCancel();"));
         assertTrue(destroyBody.contains("KeepADBNotification.cancelTileDiscovery(this);"));
         assertTrue(cancelBody.contains("activeDiscoveryOwner != tileOwner"));
         assertTrue(cancelBody.contains("discoveryRequestGeneration++"));
@@ -111,6 +121,26 @@ public class KeepADBTileDiscoveryContractTest {
         assertFalse(cancelBody.contains("markUnavailableAsync"));
         assertFalse(cancelBody.contains("manager.cancel"));
         assertFalse(cancelBody.contains("postSurfaceRefresh"));
+    }
+
+    @Test
+    public void closingThePanelBrieflyDoesNotCancelAnInFlightDiscovery() throws IOException {
+        // Regression test for issue #267 (3): before the fix, onStopListening() called
+        // KeepADBNotification.cancelTileDiscovery(this) directly and unconditionally, so a
+        // 1-2s open/close of the Quick Settings panel aborted a still-running discovery
+        // before it could resolve an endpoint. This asserts the grace-period mechanism that
+        // replaces that immediate cancellation is actually wired up end to end.
+        String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
+        String stopBody = methodBody(tile, "public void onStopListening() {");
+        String startBody = methodBody(tile, "public void onStartListening() {");
+
+        assertFalse("onStopListening() must not cancel discovery synchronously anymore",
+                stopBody.contains("KeepADBNotification.cancelTileDiscovery(this);"));
+        assertTrue("onStopListening() must schedule a delayed cancellation instead",
+                stopBody.contains("schedulePendingDiscoveryCancel();"));
+        assertTrue("Reopening the panel must cancel the pending delayed cancellation",
+                startBody.contains("cancelPendingDiscoveryCancel();"));
+        assertTrue(tile.contains("STOP_LISTENING_CANCEL_GRACE_MS"));
     }
 
     @Test
@@ -353,6 +383,59 @@ public class KeepADBTileDiscoveryContractTest {
         assertTrue(endpoint.contains("if (discovering) {\n            stop();\n        }"));
         assertTrue(endpoint.contains("if (!isCurrent(generation) || endpointDelivered.get()"));
         assertTrue(endpoint.contains("if (!isCurrent(generation) || currentResolveAttemptToken != attemptToken"));
+    }
+
+    @Test
+    public void clickingTheTileWhileEnabledDisconnectedTriggersReconnectInsteadOfDisabling() throws IOException {
+        // Regression test for issue #267 (2): before the fix, onClick() computed
+        // `want = (state == KeepADB.State.OFF)`, which is false for ENABLED_DISCONNECTED, so a
+        // tap on a tile that only *looked* disconnected (WLAN-ADB actually still on, or
+        // Keep-Alive waiting to turn it back on) called KeepADB.setEnabled(this, false, ...)
+        // and switched Wireless Debugging off instead of retrying discovery.
+        String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
+        String body = methodBody(tile, "public void onClick() {");
+
+        int disconnectedBranch = body.indexOf("if (state == KeepADB.State.ENABLED_DISCONNECTED) {");
+        int reconnectCall = body.indexOf("KeepADBNotification.refreshForTile(this, this);", disconnectedBranch);
+        int earlyReturn = body.indexOf("return;", disconnectedBranch);
+        int wantAssignment = body.indexOf("boolean want = (state == KeepADB.State.OFF);");
+
+        assertTrue("onClick() must special-case ENABLED_DISCONNECTED", disconnectedBranch >= 0);
+        assertTrue("The ENABLED_DISCONNECTED branch must retrigger discovery",
+                reconnectCall > disconnectedBranch);
+        assertTrue("The ENABLED_DISCONNECTED branch must return before reaching the toggle logic",
+                earlyReturn > reconnectCall);
+        assertTrue("The toggle (which could disable WLAN-ADB) must be unreachable from that branch",
+                wantAssignment > earlyReturn);
+        assertFalse("The ENABLED_DISCONNECTED branch must never call KeepADB.setEnabled(..., false, ...)",
+                body.substring(disconnectedBranch, earlyReturn).contains("KeepADB.setEnabled(this, false"));
+    }
+
+    @Test
+    public void clickingTheTileWhileWirelessDebuggingIsActuallyOffForcesAnImmediateReenable()
+            throws IOException {
+        // Regression test found during independent review of issue #267 (2): the ENABLED_DISCONNECTED
+        // branch called KeepADBNotification.refreshForTile() unconditionally. But refreshInternal()
+        // starts with "if (!KeepADB.isEnabled(appContext)) { stop(...); return; }" -- when WLAN-ADB
+        // is actually off (Keep-Alive is merely waiting for its own timer to turn it back on), that
+        // call is a no-op (worse: it tears down any cached endpoint/notification), so the tap did not
+        // "trigger... den Reconnect" as issue #267 requires. Tapping in that sub-case must instead
+        // force KeepADB.setEnabled(this, true, "tile"), mirroring the keep_alive_check/MainActivity
+        // re-enable path, which -- unlike refreshForTile() -- actually turns WLAN-ADB back on and
+        // (via KeepADBAndroidSurfaceRefresher) starts discovery afterward.
+        String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
+        String body = methodBody(tile, "public void onClick() {");
+
+        int disconnectedBranch = body.indexOf("if (state == KeepADB.State.ENABLED_DISCONNECTED) {");
+        int earlyReturn = body.indexOf("return;", disconnectedBranch);
+        String disconnectedBody = body.substring(disconnectedBranch, earlyReturn);
+
+        assertTrue("Must branch on whether WLAN-ADB is actually enabled",
+                disconnectedBody.contains("!KeepADB.isEnabled(this)"));
+        assertTrue("The actually-off sub-case must force an immediate re-enable",
+                disconnectedBody.contains("KeepADB.setEnabled(this, true, \"tile\")"));
+        assertTrue("The still-on sub-case must keep retriggering discovery",
+                disconnectedBody.contains("KeepADBNotification.refreshForTile(this, this);"));
     }
 
     private static String read(String relativePath) throws IOException {
