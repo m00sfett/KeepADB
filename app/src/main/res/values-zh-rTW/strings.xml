@@ -222,4 +222,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="action_dismiss">關閉</string>
     <string name="settings_advice_banner_toggle">顯示安全與網路提示</string>
     <string name="settings_advice_banner_subtext">在主畫面頂部顯示安全警告橫幅。</string>
+    <string name="settings_license_line">依 GNU Affero 通用公共授權條款第三版（AGPLv3）授權</string>
+    <string name="settings_website_link">HohnePeople.de</string>
+    <string name="settings_website_link_accessibility">在瀏覽器中開啟 HohnePeople.de</string>
 </resources>
