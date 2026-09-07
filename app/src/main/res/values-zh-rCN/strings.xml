@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">将 Keep-Alive 限制为受信任的网络</string>
     <string name="settings_trusted_network_add_button">添加当前网络</string>
     <string name="settings_trusted_network_remove_button">移除当前网络</string>
-    <string name="settings_trusted_network_manage_button">管理受信任的网络</string>
+    <string name="settings_trusted_network_manage_button">管理白名单</string>
     <string name="settings_trusted_network_status_untrusted">自动重新启用已暂停:此 Wi-Fi 网络不在您的受信任列表中。</string>
     <string name="settings_trusted_network_status_identity_unavailable">自动重新启用已暂停:无法确定当前网络的身份。</string>
     <string name="settings_trusted_network_permission_title">需要位置权限</string>

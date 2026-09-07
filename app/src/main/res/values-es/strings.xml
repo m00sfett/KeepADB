@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">Restringir Keep-Alive a redes de confianza</string>
     <string name="settings_trusted_network_add_button">Añadir red actual</string>
     <string name="settings_trusted_network_remove_button">Quitar red actual</string>
-    <string name="settings_trusted_network_manage_button">Gestionar redes de confianza</string>
+    <string name="settings_trusted_network_manage_button">Gestionar lista blanca</string>
     <string name="settings_trusted_network_status_untrusted">Reactivación automática pausada: esta red Wi-Fi no está en tu lista de confianza.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Reactivación automática pausada: no se puede determinar la identidad de la red actual.</string>
     <string name="settings_trusted_network_permission_title">Se requiere permiso de ubicación</string>

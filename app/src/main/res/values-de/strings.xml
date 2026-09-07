@@ -67,7 +67,7 @@
     <string name="settings_trusted_network_toggle">Keep-Alive auf vertrauenswürdige Netzwerke beschränken</string>
     <string name="settings_trusted_network_add_button">Aktuelles Netzwerk hinzufügen</string>
     <string name="settings_trusted_network_remove_button">Aktuelles Netzwerk entfernen</string>
-    <string name="settings_trusted_network_manage_button">Vertrauenswürdige Netzwerke verwalten</string>
+    <string name="settings_trusted_network_manage_button">Whitelist verwalten</string>
     <string name="settings_trusted_network_status_untrusted">Automatisches Wiedereinschalten pausiert: Dieses WLAN steht nicht auf deiner vertrauenswürdigen Liste.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Automatisches Wiedereinschalten pausiert: Die Identität des aktuellen Netzwerks kann nicht ermittelt werden.</string>
     <string name="settings_trusted_network_permission_title">Standortzugriff erforderlich</string>

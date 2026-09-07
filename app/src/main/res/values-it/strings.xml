@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">Limita Keep-Alive alle reti attendibili</string>
     <string name="settings_trusted_network_add_button">Aggiungi rete attuale</string>
     <string name="settings_trusted_network_remove_button">Rimuovi rete attuale</string>
-    <string name="settings_trusted_network_manage_button">Gestisci reti attendibili</string>
+    <string name="settings_trusted_network_manage_button">Gestisci whitelist</string>
     <string name="settings_trusted_network_status_untrusted">Riattivazione automatica in pausa: questa rete Wi-Fi non è nella tua lista attendibile.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Riattivazione automatica in pausa: impossibile determinare l\'identità della rete attuale.</string>
     <string name="settings_trusted_network_permission_title">Autorizzazione posizione necessaria</string>

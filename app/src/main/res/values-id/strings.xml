@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">Batasi Keep-Alive pada jaringan tepercaya</string>
     <string name="settings_trusted_network_add_button">Tambahkan jaringan saat ini</string>
     <string name="settings_trusted_network_remove_button">Hapus jaringan saat ini</string>
-    <string name="settings_trusted_network_manage_button">Kelola jaringan tepercaya</string>
+    <string name="settings_trusted_network_manage_button">Kelola daftar putih</string>
     <string name="settings_trusted_network_status_untrusted">Pengaktifan ulang otomatis dijeda: jaringan Wi-Fi ini tidak ada dalam daftar tepercaya Anda.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Pengaktifan ulang otomatis dijeda: identitas jaringan saat ini tidak dapat ditentukan.</string>
     <string name="settings_trusted_network_permission_title">Izin lokasi diperlukan</string>

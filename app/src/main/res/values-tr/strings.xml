@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">Keep-Alive\'ı güvenilir ağlarla sınırla</string>
     <string name="settings_trusted_network_add_button">Mevcut ağı ekle</string>
     <string name="settings_trusted_network_remove_button">Mevcut ağı kaldır</string>
-    <string name="settings_trusted_network_manage_button">Güvenilir ağları yönet</string>
+    <string name="settings_trusted_network_manage_button">Beyaz listeyi yönet</string>
     <string name="settings_trusted_network_status_untrusted">Otomatik yeniden etkinleştirme duraklatıldı: bu Wi-Fi ağı güvenilir listenizde değil.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Otomatik yeniden etkinleştirme duraklatıldı: mevcut ağın kimliği belirlenemiyor.</string>
     <string name="settings_trusted_network_permission_title">Konum izni gerekli</string>

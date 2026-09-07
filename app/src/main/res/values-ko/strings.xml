@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">Keep-Alive를 신뢰할 수 있는 네트워크로 제한</string>
     <string name="settings_trusted_network_add_button">현재 네트워크 추가</string>
     <string name="settings_trusted_network_remove_button">현재 네트워크 제거</string>
-    <string name="settings_trusted_network_manage_button">신뢰할 수 있는 네트워크 관리</string>
+    <string name="settings_trusted_network_manage_button">화이트리스트 관리</string>
     <string name="settings_trusted_network_status_untrusted">자동 재활성화가 일시 중지됨: 이 Wi-Fi 네트워크는 신뢰 목록에 없습니다.</string>
     <string name="settings_trusted_network_status_identity_unavailable">자동 재활성화가 일시 중지됨: 현재 네트워크의 ID를 확인할 수 없습니다.</string>
     <string name="settings_trusted_network_permission_title">위치 권한 필요</string>

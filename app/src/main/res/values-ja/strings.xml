@@ -54,7 +54,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_toggle">Keep-Alive を信頼できるネットワークに制限</string>
     <string name="settings_trusted_network_add_button">現在のネットワークを追加</string>
     <string name="settings_trusted_network_remove_button">現在のネットワークを削除</string>
-    <string name="settings_trusted_network_manage_button">信頼できるネットワークを管理</string>
+    <string name="settings_trusted_network_manage_button">ホワイトリストを管理</string>
     <string name="settings_trusted_network_status_untrusted">自動再有効化は一時停止中です:このWi-Fiネットワークは信頼リストにありません。</string>
     <string name="settings_trusted_network_status_identity_unavailable">自動再有効化は一時停止中です:現在のネットワークの識別情報を判別できません。</string>
     <string name="settings_trusted_network_permission_title">位置情報の権限が必要です</string>
