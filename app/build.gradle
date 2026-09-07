@@ -11,8 +11,8 @@ android {
         applicationId 'de.hohnepeople.keepadb'
         minSdk 30
         targetSdk 35
-        versionCode 24
-        versionName '1.5.5'
+        versionCode 25
+        versionName '1.5.6'
     }
 
     buildTypes {
@@ -36,9 +36,17 @@ android {
 
     testOptions {
         unitTests.returnDefaultValues = true
+        unitTests.includeAndroidResources = true
     }
 
     dependencies {
         testImplementation 'junit:junit:4.13.2'
+        // #286 entry step: Robolectric + androidx.test:core are a deliberate, test-scope-only
+        // exception to the zero-runtime-dependency line documented at #251 (see app/build.gradle
+        // comment above and AGENTS.md). They let a small, growing set of tests drive real
+        // (shadowed) framework classes (ConnectivityManager, NotificationManager, ...) instead of
+        // parsing production source as text. Runtime/release code stays dependency-free.
+        testImplementation 'org.robolectric:robolectric:4.13'
+        testImplementation 'androidx.test:core:1.6.1'
     }
 }

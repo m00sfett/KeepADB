@@ -1,0 +1,1 @@
+Internal testing improvement only, no user-facing changes: added Robolectric as a test-only dependency and migrated one test to exercise real Android framework behavior instead of just parsing source code.
