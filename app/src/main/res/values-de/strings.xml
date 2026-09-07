@@ -65,6 +65,7 @@
     <string name="settings_trusted_network_subtext">Optional: automatisches Wiedereinschalten von Keep-Alive auf WLANs beschränken, die du als vertrauenswürdig markiert hast. Manuelles Umschalten funktioniert unabhängig von dieser Einstellung immer.</string>
     <string name="settings_trusted_network_toggle">Keep-Alive auf vertrauenswürdige Netzwerke beschränken</string>
     <string name="settings_trusted_network_add_button">Aktuelles Netzwerk hinzufügen</string>
+    <string name="settings_trusted_network_remove_button">Aktuelles Netzwerk entfernen</string>
     <string name="settings_trusted_network_manage_button">Vertrauenswürdige Netzwerke verwalten</string>
     <string name="settings_trusted_network_status_untrusted">Automatisches Wiedereinschalten pausiert: Dieses WLAN steht nicht auf deiner vertrauenswürdigen Liste.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Automatisches Wiedereinschalten pausiert: Die Identität des aktuellen Netzwerks kann nicht ermittelt werden.</string>
@@ -74,9 +75,14 @@
     <string name="settings_trusted_network_permission_denied_toast">Berechtigung verweigert – bleibt im Modus „Alle WLANs“.</string>
     <string name="settings_trusted_network_add_failed_toast">Aktuelles Netzwerk konnte nicht ermittelt werden. WLAN-Verbindung und Standortberechtigung prüfen.</string>
     <string name="settings_trusted_network_added_toast">„%1$s“ zu vertrauenswürdigen Netzwerken hinzugefügt</string>
+    <string name="settings_trusted_network_removed_toast">„%1$s“ aus vertrauenswürdigen Netzwerken entfernt</string>
     <string name="settings_trusted_network_manage_title">Vertrauenswürdige Netzwerke</string>
     <string name="settings_trusted_network_empty_message">Noch keine vertrauenswürdigen Netzwerke hinzugefügt.</string>
     <string name="settings_trusted_network_delete_button">Entfernen</string>
+    <string name="settings_trusted_network_mesh_title">Weitere Access Points hinzufügen?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB hat außerdem %1$d weitere Access Points erkannt, die „%2$s“ ausstrahlen. Sollen sie ebenfalls zu den vertrauenswürdigen Netzwerken hinzugefügt werden?</string>
+    <string name="settings_trusted_network_mesh_add_button">Alle hinzufügen</string>
+    <string name="settings_trusted_network_mesh_added_toast">%1$d weitere Access Points zu vertrauenswürdigen Netzwerken hinzugefügt</string>
     <string name="settings_webhook_saved_toast">Webhook-URL gespeichert</string>
     <string name="settings_webhook_cleared_toast">Webhook-Konfiguration gelöscht</string>
     <string name="settings_webhook_enabled_toast">Webhook-Synchronisierung aktiviert</string>

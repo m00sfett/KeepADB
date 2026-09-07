@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_subtext">वैकल्पिक रूप से Keep-Alive के स्वचालित पुनः-सक्षमन को उन्हीं Wi-Fi नेटवर्क तक सीमित करें जिन्हें आपने विश्वसनीय के रूप में चिह्नित किया है। मैन्युअल टॉगल इस सेटिंग की परवाह किए बिना हमेशा काम करता है।</string>
     <string name="settings_trusted_network_toggle">Keep-Alive को विश्वसनीय नेटवर्क तक सीमित करें</string>
     <string name="settings_trusted_network_add_button">वर्तमान नेटवर्क जोड़ें</string>
+    <string name="settings_trusted_network_remove_button">वर्तमान नेटवर्क हटाएं</string>
     <string name="settings_trusted_network_manage_button">विश्वसनीय नेटवर्क प्रबंधित करें</string>
     <string name="settings_trusted_network_status_untrusted">स्वचालित पुनः-सक्षमन रोका गया: यह Wi-Fi नेटवर्क आपकी विश्वसनीय सूची में नहीं है।</string>
     <string name="settings_trusted_network_status_identity_unavailable">स्वचालित पुनः-सक्षमन रोका गया: वर्तमान नेटवर्क की पहचान निर्धारित नहीं की जा सकती।</string>
@@ -62,9 +63,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_permission_denied_toast">अनुमति अस्वीकृत — \"सभी Wi-Fi नेटवर्क\" मोड में बना रहेगा।</string>
     <string name="settings_trusted_network_add_failed_toast">वर्तमान नेटवर्क निर्धारित नहीं किया जा सका। Wi-Fi कनेक्शन और स्थान अनुमति जांचें।</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" को विश्वसनीय नेटवर्क में जोड़ा गया</string>
+    <string name="settings_trusted_network_removed_toast">"%1$s" को विश्वसनीय नेटवर्क से हटाया गया</string>
     <string name="settings_trusted_network_manage_title">विश्वसनीय नेटवर्क</string>
     <string name="settings_trusted_network_empty_message">अभी तक कोई विश्वसनीय नेटवर्क नहीं जोड़ा गया।</string>
     <string name="settings_trusted_network_delete_button">हटाएं</string>
+    <string name="settings_trusted_network_mesh_title">अन्य एक्सेस पॉइंट जोड़ें?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB ने %1$d अन्य एक्सेस पॉइंट भी देखे हैं जो \"%2$s\" प्रसारित करते हैं। क्या इन्हें भी विश्वसनीय सूची में जोड़ना है?</string>
+    <string name="settings_trusted_network_mesh_add_button">सभी जोड़ें</string>
+    <string name="settings_trusted_network_mesh_added_toast">%1$d और एक्सेस पॉइंट विश्वसनीय नेटवर्क में जोड़े गए</string>
     <string name="settings_webhook_saved_toast">वेबहुक URL सहेजा गया</string>
     <string name="settings_webhook_cleared_toast">वेबहुक कॉन्फ़िगरेशन साफ़ किया गया</string>
     <string name="settings_webhook_enabled_toast">वेबहुक सिंक सक्षम किया गया</string>

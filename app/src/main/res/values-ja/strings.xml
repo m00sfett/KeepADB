@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_subtext">Keep-Alive の自動再有効化を、信頼できるとマークしたWi-Fiネットワークのみに制限できます。手動での切り替えは、この設定に関係なく常に機能します。</string>
     <string name="settings_trusted_network_toggle">Keep-Alive を信頼できるネットワークに制限</string>
     <string name="settings_trusted_network_add_button">現在のネットワークを追加</string>
+    <string name="settings_trusted_network_remove_button">現在のネットワークを削除</string>
     <string name="settings_trusted_network_manage_button">信頼できるネットワークを管理</string>
     <string name="settings_trusted_network_status_untrusted">自動再有効化は一時停止中です:このWi-Fiネットワークは信頼リストにありません。</string>
     <string name="settings_trusted_network_status_identity_unavailable">自動再有効化は一時停止中です:現在のネットワークの識別情報を判別できません。</string>
@@ -62,9 +63,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_permission_denied_toast">権限が拒否されました — 「すべてのWi-Fiネットワーク」モードのままです。</string>
     <string name="settings_trusted_network_add_failed_toast">現在のネットワークを判別できませんでした。Wi-Fi接続と位置情報の権限を確認してください。</string>
     <string name="settings_trusted_network_added_toast">「%1$s」を信頼できるネットワークに追加しました</string>
+    <string name="settings_trusted_network_removed_toast">「%1$s」を信頼できるネットワークから削除しました</string>
     <string name="settings_trusted_network_manage_title">信頼できるネットワーク</string>
     <string name="settings_trusted_network_empty_message">まだ信頼できるネットワークが追加されていません。</string>
     <string name="settings_trusted_network_delete_button">削除</string>
+    <string name="settings_trusted_network_mesh_title">他のアクセスポイントも追加しますか?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADBは他に%1$d件のアクセスポイントが「%2$s」を発信しているのを検出しました。信頼できるネットワークに追加しますか?</string>
+    <string name="settings_trusted_network_mesh_add_button">すべて追加</string>
+    <string name="settings_trusted_network_mesh_added_toast">%1$d件のアクセスポイントを信頼できるネットワークに追加しました</string>
     <string name="settings_webhook_saved_toast">Webhook URL を保存しました</string>
     <string name="settings_webhook_cleared_toast">Webhook 設定をクリアしました</string>
     <string name="settings_webhook_enabled_toast">Webhook 同期を有効にしました</string>

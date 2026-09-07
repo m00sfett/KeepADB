@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_subtext">可选择将 Keep-Alive 的自动重新启用限制为您标记为受信任的 Wi-Fi 网络。无论此设置如何,手动切换始终有效。</string>
     <string name="settings_trusted_network_toggle">将 Keep-Alive 限制为受信任的网络</string>
     <string name="settings_trusted_network_add_button">添加当前网络</string>
+    <string name="settings_trusted_network_remove_button">移除当前网络</string>
     <string name="settings_trusted_network_manage_button">管理受信任的网络</string>
     <string name="settings_trusted_network_status_untrusted">自动重新启用已暂停:此 Wi-Fi 网络不在您的受信任列表中。</string>
     <string name="settings_trusted_network_status_identity_unavailable">自动重新启用已暂停:无法确定当前网络的身份。</string>
@@ -62,9 +63,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_permission_denied_toast">权限被拒绝 — 将保持"所有 Wi-Fi 网络"模式。</string>
     <string name="settings_trusted_network_add_failed_toast">无法确定当前网络。请检查 Wi-Fi 连接和位置权限。</string>
     <string name="settings_trusted_network_added_toast">已将"%1$s"添加到受信任的网络</string>
+    <string name="settings_trusted_network_removed_toast">已将"%1$s"从受信任的网络中移除</string>
     <string name="settings_trusted_network_manage_title">受信任的网络</string>
     <string name="settings_trusted_network_empty_message">尚未添加受信任的网络。</string>
     <string name="settings_trusted_network_delete_button">移除</string>
+    <string name="settings_trusted_network_mesh_title">是否添加其他接入点?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB 还检测到 %1$d 个广播\"%2$s\"的其他接入点。是否也将它们添加到受信任列表?</string>
+    <string name="settings_trusted_network_mesh_add_button">全部添加</string>
+    <string name="settings_trusted_network_mesh_added_toast">已将另外 %1$d 个接入点添加到受信任的网络</string>
     <string name="settings_webhook_saved_toast">Webhook URL 已保存</string>
     <string name="settings_webhook_cleared_toast">Webhook 配置已清除</string>
     <string name="settings_webhook_enabled_toast">Webhook 同步已启用</string>

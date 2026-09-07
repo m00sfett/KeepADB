@@ -5,6 +5,25 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2026-09-07
+
+### Added
+- Trusted networks now handle Wi-Fi mesh setups: the app keeps a local, size-bounded history of
+  which BSSIDs have been seen broadcasting which SSID (capped at 8 BSSIDs per SSID, oldest
+  evicted first), and after adding the current network offers to add any other already-seen
+  BSSIDs of the same SSID in one step. BSSID stays the sole trust comparison key -- no SSID is
+  ever trusted on its own -- and this history is never sent to the webhook/register-sync
+  endpoint (issue #266).
+
+## [1.5.1] - 2026-09-06
+
+### Changed
+- The trusted-network "Add current network" button now toggles to "Remove current network"
+  when the currently connected Wi-Fi is already in the allowlist, instead of showing the same
+  "Added" confirmation again (issue #262).
+- The trusted-network management dialog now shows each entry's BSSID under its label, so it's
+  visible which physical access point a listed entry actually matches (issue #264).
+
 ## [1.5.0] - 2026-09-06
 
 Retrospective entry for a batch of 9 issues (#245–#253) merged in PR #254 without a version

@@ -65,6 +65,7 @@
     <string name="settings_trusted_network_subtext">Optionally restrict automatic Keep-Alive re-enable to Wi-Fi networks you\'ve explicitly marked as trusted. Manual toggling always works regardless of this setting.</string>
     <string name="settings_trusted_network_toggle">Restrict Keep-Alive to trusted networks</string>
     <string name="settings_trusted_network_add_button">Add current network</string>
+    <string name="settings_trusted_network_remove_button">Remove current network</string>
     <string name="settings_trusted_network_manage_button">Manage trusted networks</string>
     <string name="settings_trusted_network_status_untrusted">Keep-Alive auto re-enable is paused: this Wi-Fi network isn\'t in your trusted list.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Keep-Alive auto re-enable is paused: the current network\'s identity can\'t be determined.</string>
@@ -74,9 +75,14 @@
     <string name="settings_trusted_network_permission_denied_toast">Permission denied — staying on \"all Wi-Fi networks\" mode.</string>
     <string name="settings_trusted_network_add_failed_toast">Couldn\'t determine the current network. Check that Wi-Fi is connected and Location permission is granted.</string>
     <string name="settings_trusted_network_added_toast">Added \"%1$s\" to trusted networks</string>
+    <string name="settings_trusted_network_removed_toast">Removed \"%1$s\" from trusted networks</string>
     <string name="settings_trusted_network_manage_title">Trusted networks</string>
     <string name="settings_trusted_network_empty_message">No trusted networks added yet.</string>
     <string name="settings_trusted_network_delete_button">Remove</string>
+    <string name="settings_trusted_network_mesh_title">Add other access points?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB has also seen %1$d other access points broadcasting \"%2$s\". Add them to your trusted list too?</string>
+    <string name="settings_trusted_network_mesh_add_button">Add all</string>
+    <string name="settings_trusted_network_mesh_added_toast">Added %1$d more access points to trusted networks</string>
     <string name="settings_webhook_saved_toast">Webhook URL saved</string>
     <string name="settings_webhook_cleared_toast">Webhook configuration cleared</string>
     <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>

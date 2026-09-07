@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_subtext">За бажанням обмежте автоматичне повторне ввімкнення Keep-Alive мережами Wi-Fi, позначеними як довірені. Ручне перемикання завжди працює незалежно від цього налаштування.</string>
     <string name="settings_trusted_network_toggle">Обмежити Keep-Alive довіреними мережами</string>
     <string name="settings_trusted_network_add_button">Додати поточну мережу</string>
+    <string name="settings_trusted_network_remove_button">Видалити поточну мережу</string>
     <string name="settings_trusted_network_manage_button">Керування довіреними мережами</string>
     <string name="settings_trusted_network_status_untrusted">Автоматичне повторне ввімкнення призупинено: цієї мережі Wi-Fi немає у вашому списку довірених.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Автоматичне повторне ввімкнення призупинено: не вдається визначити ідентифікатор поточної мережі.</string>
@@ -62,9 +63,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_permission_denied_toast">У дозволі відмовлено — залишається режим «усі мережі Wi-Fi».</string>
     <string name="settings_trusted_network_add_failed_toast">Не вдалося визначити поточну мережу. Перевірте підключення Wi-Fi і дозвіл на геолокацію.</string>
     <string name="settings_trusted_network_added_toast">«%1$s» додано до довірених мереж</string>
+    <string name="settings_trusted_network_removed_toast">«%1$s» видалено з довірених мереж</string>
     <string name="settings_trusted_network_manage_title">Довірені мережі</string>
     <string name="settings_trusted_network_empty_message">Довірених мереж ще не додано.</string>
     <string name="settings_trusted_network_delete_button">Видалити</string>
+    <string name="settings_trusted_network_mesh_title">Додати інші точки доступу?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB також виявив %1$d інших точок доступу, що транслюють «%2$s». Додати їх також до довірених мереж?</string>
+    <string name="settings_trusted_network_mesh_add_button">Додати всі</string>
+    <string name="settings_trusted_network_mesh_added_toast">Додано ще %1$d точок доступу до довірених мереж</string>
     <string name="settings_webhook_saved_toast">URL-адресу Webhook збережено</string>
     <string name="settings_webhook_cleared_toast">Конфігурацію Webhook очищено</string>
     <string name="settings_webhook_enabled_toast">Синхронізацію Webhook увімкнено</string>

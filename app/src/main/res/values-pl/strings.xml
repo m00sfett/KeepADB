@@ -53,6 +53,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_subtext">Opcjonalnie ogranicz automatyczne ponowne włączanie Keep-Alive do sieci Wi-Fi oznaczonych jako zaufane. Ręczne przełączanie zawsze działa niezależnie od tego ustawienia.</string>
     <string name="settings_trusted_network_toggle">Ogranicz Keep-Alive do zaufanych sieci</string>
     <string name="settings_trusted_network_add_button">Dodaj bieżącą sieć</string>
+    <string name="settings_trusted_network_remove_button">Usuń bieżącą sieć</string>
     <string name="settings_trusted_network_manage_button">Zarządzaj zaufanymi sieciami</string>
     <string name="settings_trusted_network_status_untrusted">Automatyczne ponowne włączanie wstrzymane: tej sieci Wi-Fi nie ma na liście zaufanych.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Automatyczne ponowne włączanie wstrzymane: nie można określić tożsamości bieżącej sieci.</string>
@@ -62,9 +63,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_permission_denied_toast">Odmówiono uprawnienia — pozostaje tryb „wszystkie sieci Wi-Fi”.</string>
     <string name="settings_trusted_network_add_failed_toast">Nie można określić bieżącej sieci. Sprawdź połączenie Wi-Fi i uprawnienie lokalizacji.</string>
     <string name="settings_trusted_network_added_toast">Dodano „%1$s” do zaufanych sieci</string>
+    <string name="settings_trusted_network_removed_toast">Usunięto „%1$s” z zaufanych sieci</string>
     <string name="settings_trusted_network_manage_title">Zaufane sieci</string>
     <string name="settings_trusted_network_empty_message">Nie dodano jeszcze żadnych zaufanych sieci.</string>
     <string name="settings_trusted_network_delete_button">Usuń</string>
+    <string name="settings_trusted_network_mesh_title">Dodać inne punkty dostępu?</string>
+    <string name="settings_trusted_network_mesh_message">KeepADB wykrył także %1$d innych punktów dostępu nadających „%2$s”. Dodać je również do zaufanych sieci?</string>
+    <string name="settings_trusted_network_mesh_add_button">Dodaj wszystkie</string>
+    <string name="settings_trusted_network_mesh_added_toast">Dodano %1$d dodatkowych punktów dostępu do zaufanych sieci</string>
     <string name="settings_webhook_saved_toast">Zapisano adres URL Webhooka</string>
     <string name="settings_webhook_cleared_toast">Wyczyszczono konfigurację Webhooka</string>
     <string name="settings_webhook_enabled_toast">Włączono synchronizację Webhook</string>
