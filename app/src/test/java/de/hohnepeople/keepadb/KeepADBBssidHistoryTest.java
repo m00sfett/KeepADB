@@ -102,6 +102,46 @@ public class KeepADBBssidHistoryTest {
                 .isEmpty());
     }
 
+    @Test
+    public void evictsTheLeastRecentlyObservedSsidOnceTheTotalSsidLimitIsExceeded() {
+        FakeContext context = new FakeContext();
+        for (int i = 1; i <= KeepADBBssidHistory.MAX_SSIDS + 2; i++) {
+            KeepADBBssidHistory.recordObservation(context, ssid(i), "aa:aa:aa:aa:aa:01");
+        }
+
+        // The two least-recently-observed SSIDs (1 and 2) must have been evicted entirely.
+        assertTrue(KeepADBBssidHistory.getKnownBssids(context, ssid(1)).isEmpty());
+        assertTrue(KeepADBBssidHistory.getKnownBssids(context, ssid(2)).isEmpty());
+        assertEquals(1, KeepADBBssidHistory.getKnownBssids(context, ssid(3)).size());
+        assertEquals(1,
+                KeepADBBssidHistory.getKnownBssids(context, ssid(KeepADBBssidHistory.MAX_SSIDS + 2)).size());
+    }
+
+    @Test
+    public void reObservingAnSsidCountsAsRecentAndProtectsItFromEviction() {
+        FakeContext context = new FakeContext();
+        KeepADBBssidHistory.recordObservation(context, "OldButRefreshed", "aa:aa:aa:aa:aa:01");
+        for (int i = 1; i <= KeepADBBssidHistory.MAX_SSIDS - 1; i++) {
+            KeepADBBssidHistory.recordObservation(context, ssid(i), "aa:aa:aa:aa:aa:01");
+        }
+        // Touch it again -- it is now the most-recently-observed SSID, not the oldest.
+        KeepADBBssidHistory.recordObservation(context, "OldButRefreshed", "aa:aa:aa:aa:aa:02");
+        // One more distinct SSID pushes the total to MAX_SSIDS + 1; without the touch above,
+        // "OldButRefreshed" would be the least-recently-observed and get evicted here.
+        KeepADBBssidHistory.recordObservation(context, "OneMore", "aa:aa:aa:aa:aa:01");
+
+        List<String> known = KeepADBBssidHistory.getKnownBssids(context, "OldButRefreshed");
+        assertEquals(2, known.size());
+        assertTrue(known.contains("aa:aa:aa:aa:aa:01"));
+        assertTrue(known.contains("aa:aa:aa:aa:aa:02"));
+        // The actual least-recently-observed SSID (ssid(1)) must be the one evicted instead.
+        assertTrue(KeepADBBssidHistory.getKnownBssids(context, ssid(1)).isEmpty());
+    }
+
+    private static String ssid(int index) {
+        return "Ssid" + index;
+    }
+
     private static String bssid(int index) {
         return String.format(java.util.Locale.US, "aa:aa:aa:aa:aa:%02x", index);
     }

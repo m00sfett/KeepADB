@@ -29,6 +29,13 @@ final class KeepADBBssidHistory {
     /** Oldest BSSID is evicted once a single SSID's history would exceed this size. */
     static final int MAX_BSSIDS_PER_SSID = 8;
 
+    /**
+     * Least-recently-observed SSID (and its whole BSSID history) is evicted once the total
+     * number of distinct SSIDs would exceed this size (#268 -- unbounded growth over a device's
+     * lifetime otherwise).
+     */
+    static final int MAX_SSIDS = 50;
+
     private KeepADBBssidHistory() {}
 
     /**
@@ -99,16 +106,30 @@ final class KeepADBBssidHistory {
         return null;
     }
 
+    /**
+     * Returns the local id for {@code ssid}, creating it if unseen. Touches the SSID's
+     * least-recently-observed position to most-recently-observed (moves it to the end of {@link
+     * #KEY_SSID_IDS}) either way, then evicts the least-recently-observed SSID -- and its whole
+     * BSSID history -- once the total distinct-SSID count would exceed {@link #MAX_SSIDS}.
+     */
     private static int findOrCreateSsidId(SharedPreferences preferences, String ssid) {
+        List<String> ids = idsOf(preferences);
         Integer existing = findSsidId(preferences, ssid);
-        if (existing != null) return existing;
-        int id = preferences.getInt(KEY_NEXT_ID, 1);
-        String ids = preferences.getString(KEY_SSID_IDS, "");
-        preferences.edit()
-                .putString(KEY_SSID_IDS, ids.isEmpty() ? String.valueOf(id) : ids + "," + id)
-                .putString(PREFIX + id + "_ssid", ssid)
-                .putInt(KEY_NEXT_ID, id + 1)
-                .apply();
+        SharedPreferences.Editor editor = preferences.edit();
+        int id;
+        if (existing != null) {
+            id = existing;
+            ids.remove(String.valueOf(id));
+        } else {
+            id = preferences.getInt(KEY_NEXT_ID, 1);
+            editor.putString(PREFIX + id + "_ssid", ssid).putInt(KEY_NEXT_ID, id + 1);
+        }
+        ids.add(String.valueOf(id));
+        while (ids.size() > MAX_SSIDS) {
+            int evictedId = Integer.parseInt(ids.remove(0));
+            editor.remove(PREFIX + evictedId + "_ssid").remove(PREFIX + evictedId + "_bssids");
+        }
+        editor.putString(KEY_SSID_IDS, String.join(",", ids)).apply();
         return id;
     }
 
