@@ -1,0 +1,1 @@
+Trusted networks are now protected by default: a fresh or existing install starts with the allowlist active instead of trusting every Wi-Fi network. Also shortened the "manage trusted networks" button label and fixed a flaky test with no user-facing effect.

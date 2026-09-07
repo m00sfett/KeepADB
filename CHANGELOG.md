@@ -5,6 +5,20 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.5] - 2026-09-07
+
+### Changed
+- Trusted networks now default to allowlist-active on both new and existing installations
+  (previously off, trusting every Wi-Fi network by default). Existing installations are not
+  migrated specially -- the new default applies uniformly, so Wireless Debugging auto-enable
+  may be blocked until at least one network is added to the allowlist (issue #260).
+
+### Fixed
+- Shortened the trusted-network management button label to "Manage whitelist" / "Whitelist
+  verwalten" across all supported languages (issue #263).
+- Resolved a test-only race in `KeepADBUsbRegisterClientTest` that could intermittently fail
+  under CI load without any change to the tested production logic (issue #283).
+
 ## [1.5.4] - 2026-09-07
 
 ### Fixed
