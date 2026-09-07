@@ -5,6 +5,16 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.6] - 2026-09-07
+
+### Changed
+- Added `org.robolectric:robolectric:4.13` and `androidx.test:core:1.6.1` as `testImplementation`
+  dependencies (test-scope only; runtime/release code stays dependency-free per issue #251) and
+  migrated one contract test to drive `KeepADBNotification`/`KeepADBService` against real,
+  Robolectric-shadowed `NotificationManager`/`ConnectivityManager` instances instead of parsing
+  source as text. `android.useAndroidX=true` is required for `androidx.test:core` and is likewise
+  test-scope only (issue #286, entry step; no other tests migrated yet).
+
 ## [1.5.5] - 2026-09-07
 
 ### Changed
