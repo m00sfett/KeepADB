@@ -48,6 +48,40 @@ final class KeepADBNotification {
         void onUnavailable();
     }
 
+    /**
+     * Whether a real {@link KeepADBEndpoint} discovery attempt is currently in flight (#303) --
+     * {@code endpoint} is only ever assigned inside {@code startDiscoveryDirectLocked()}, so this
+     * is an observable proxy for "discovery was actually started", usable by a test that drives
+     * {@link #refresh(Context)} end-to-end via the {@link KeepADBWifiProbe} seam in {@link
+     * KeepADBNetwork} instead of grepping {@code refreshInternal()}'s source for the
+     * wifi-check-before-discovery-start ordering (see {@link KeepADBWifiGatedDiscoveryContractTest},
+     * which stays in place as a fast regression guard alongside that behavioral test).
+     */
+    static synchronized boolean hasActiveDiscoveryAttemptForTesting() {
+        return endpoint != null;
+    }
+
+    /**
+     * Resets every static field this class keeps as process-wide discovery/retry/notification
+     * state (#303) back to a clean slate. A test that drives {@link #refresh(Context)} or {@link
+     * #refreshForTile(Context, Object)} end-to-end must call this in an {@code @After} so no
+     * cached endpoint/retry/owner state leaks into a later test sharing this JVM.
+     */
+    static synchronized void resetForTesting() {
+        cancelRetryLocked();
+        retryAttempt = 0;
+        discoveryRequestGeneration++;
+        activeDiscoveryOwner = null;
+        if (endpoint != null) {
+            endpoint.stop();
+            endpoint = null;
+        }
+        currentHost = null;
+        currentPort = 0;
+        endpointListener = null;
+        resetReachableConfirmed();
+    }
+
     static synchronized String getCurrentHost() {
         return currentHost;
     }
