@@ -13,7 +13,7 @@
     "decomposition": "Einzelpaket ausreichend (Teilpaket B nach #270 ausgelagert)",
     "stage": "agent-stage:s2",
     "updatedAt": "2026-09-07T08:43:27Z",
-    "status": "open"
+    "status": "closed"
   },
   "269": {
     "title": "KeepADBNetworkIdentity: Platzhalter-SSID (UNKNOWN_SSID) könnte unsinnigen Historie-Bucket erzeugen",
@@ -37,7 +37,7 @@
     "decomposition": "Einzelpaket ausreichend",
     "stage": "agent-stage:s3",
     "updatedAt": "2026-09-06T23:10:00Z",
-    "status": "open"
+    "status": "closed"
   },
   "265": {
     "title": "Trusted Networks: Verhalten bei Mesh-Netzwerken (AP-Wechsel, gleiche SSID) klären",
@@ -53,7 +53,7 @@
     "decomposition": "Einzelpaket ausreichend (Teilpaket aus #261)",
     "stage": "agent-stage:s1",
     "updatedAt": "2026-09-06T22:33:02Z",
-    "status": "open"
+    "status": "closed"
   },
   "263": {
     "title": "Trusted Networks: Beschriftung des 'Verwalten'-Buttons kürzen",
@@ -69,7 +69,7 @@
     "decomposition": "Einzelpaket ausreichend (Teilpaket aus #261)",
     "stage": "agent-stage:s1",
     "updatedAt": "2026-09-06T22:32:46Z",
-    "status": "open"
+    "status": "closed"
   },
   "261": {
     "title": "Trusted Networks Verwaltung: Button-Beschriftungen, BSSID-Anzeige und Mesh-/AP-Wechsel-Verhalten",
@@ -110,5 +110,13 @@
     "stage": "agent-stage:s4",
     "updatedAt": "2026-09-06T20:57:13Z",
     "status": "closed"
+  },
+  "273": {
+    "title": "CI: doppelter Actions-Run pro Push auf einen offenen PR-Branch",
+    "scope": "Workflow triggert auf push (ohne Filter) UND pull_request, dadurch zwei Runs pro Commit auf PR-Branches (beobachtet bei PR #271/#272). Ziel: push-Trigger auf schuetzenswerte Branches eingrenzen oder entfernen.",
+    "decomposition": "Einzelpaket ausreichend",
+    "stage": "agent-stage:s1",
+    "updatedAt": "2026-09-07T09:19:00Z",
+    "status": "open"
   }
 }
