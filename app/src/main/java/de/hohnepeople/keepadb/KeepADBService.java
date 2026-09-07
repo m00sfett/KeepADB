@@ -29,6 +29,10 @@ public class KeepADBService extends Service {
     private boolean isRegisteredNetworkCallback = false;
     private boolean foregroundReady = false;
     private long lastRecheckTime = 0;
+    // #276: onCapabilitiesChanged() fires on every routine RSSI update, not just a roam, so the
+    // re-verification it triggers is throttled independently of recheckAndEnable()'s own debounce.
+    private long lastCapabilitiesRecheckTime = 0;
+    private static final long CAPABILITIES_RECHECK_MIN_INTERVAL_MS = 5000;
 
     static void sync(Context context) {
         boolean shouldRun = KeepADBPreferences.isKeepAliveEnabled(context)
@@ -296,6 +300,28 @@ public class KeepADBService extends Service {
                     KeepADBNotification.invalidateEndpoint(KeepADBService.this);
                     KeepADBNotification.refresh(KeepADBService.this);
                     KeepADBWidget.refreshAll(KeepADBService.this);
+                }
+
+                // Issue #276: a same-SSID mesh roam (new BSSID, same physical Wi-Fi Network
+                // object) fires neither onAvailable() nor onLost() above, so adbd rotating its
+                // wireless-debugging port on such a roam previously went undetected until the
+                // next 60s heartbeat (KeepADBNotification.verifyEndpointHealth() via
+                // heartbeatNow()) -- KeepADBTileService picked up the new endpoint immediately
+                // because it re-verifies on every onStartListening(), which is what made the
+                // notification lag behind it. onCapabilitiesChanged() is documented (see
+                // KeepADBNetwork) to fire at least once on registration for an already-existing
+                // network, and is the established Android mechanism for reporting capability
+                // changes -- including a roam -- on an already-tracked network, so re-verifying
+                // here closes that gap. Throttled since it also fires for routine RSSI updates,
+                // not just roams.
+                @Override
+                public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
+                    if (!foregroundReady) return;
+                    long now = SystemClock.elapsedRealtime();
+                    if (now - lastCapabilitiesRecheckTime < CAPABILITIES_RECHECK_MIN_INTERVAL_MS) return;
+                    lastCapabilitiesRecheckTime = now;
+                    Log.d(TAG, "NetworkCallback: Wi-Fi capabilities changed; re-verifying cached endpoint");
+                    KeepADBNotification.verifyEndpointHealth(KeepADBService.this);
                 }
             };
             cm.registerNetworkCallback(request, networkCallback, new Handler(Looper.getMainLooper()));
