@@ -5,6 +5,19 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.7] - 2026-09-07
+
+### Fixed
+- Discovery retry and the recovery pulse no longer keep hammering while Wi-Fi is disconnected.
+  `KeepADBNotification.refreshInternal()` now checks the active Wi-Fi connection state
+  (`KeepADBService.isWifiConnected()`) before starting discovery, `scheduleRetryLocked()` aborts
+  its 2s/5s backoff retry chain once Wi-Fi drops instead of retrying unbounded, and
+  `KeepADBEndpoint.maybeSendRecoveryPulse()` now also checks the actual Wi-Fi transport in
+  addition to the existing trusted-network allowlist check. This also covers a service restart
+  (process kill, reboot) while Wi-Fi is already off, which previously started a doomed discovery
+  attempt right away. The event-driven reconnect (#22/#192) and mesh-roam re-verification
+  (#276/#285) paths are unaffected (issue #296).
+
 ## [1.5.6] - 2026-09-07
 
 ### Changed

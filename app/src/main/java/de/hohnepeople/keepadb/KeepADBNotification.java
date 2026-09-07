@@ -164,7 +164,20 @@ final class KeepADBNotification {
         }
 
         cancelRetryLocked();
-        startDiscoveryDirectLocked(appContext, manager, discoveryOwner);
+        // #296: never start discovery without an active Wi-Fi connection -- there is nothing on
+        // the network for adbd's wireless-debugging listener to be reachable on, so scanning was
+        // guaranteed to fail and previously just fed straight into an unbounded retry loop (see
+        // scheduleRetryLocked()). This also covers a service restart (process kill/reboot) while
+        // Wi-Fi is already off: onCreate()/onStartCommand() route through recheckAndEnable() ->
+        // refresh() -> this method on every (re)start.
+        if (KeepADBService.isWifiConnected(appContext)) {
+            startDiscoveryDirectLocked(appContext, manager, discoveryOwner);
+        } else {
+            retryAttempt = 0;
+            activeDiscoveryOwner = null;
+            KeepADBDiagnostics.event(appContext, "endpoint_discovery_skipped", "network", "skipped",
+                    "wifi_disconnected");
+        }
         postSurfaceRefresh(appContext);
     }
 
@@ -224,6 +237,17 @@ final class KeepADBNotification {
             activeDiscoveryOwner = null;
             return;
         }
+        // #296: without an active Wi-Fi connection there is nothing for discovery to find, so
+        // planning yet another retry would just retry forever (2s/5s backoff, unbounded) while
+        // Wi-Fi stays off. The event-driven NetworkCallback.onLost() path already cancels any
+        // pending retry as soon as Wi-Fi drops (see KeepADBService/invalidateEndpoint()); this is
+        // the belt-and-suspenders guard for every other path that can reach here, e.g. a service
+        // restart while Wi-Fi is already off.
+        if (!KeepADBService.isWifiConnected(appContext)) {
+            retryAttempt = 0;
+            activeDiscoveryOwner = null;
+            return;
+        }
         cancelRetryLocked();
         long delay = (retryAttempt == 0) ? RETRY_DELAY_INITIAL_MS : RETRY_DELAY_BACKOFF_MS;
         retryAttempt++;
@@ -236,6 +260,11 @@ final class KeepADBNotification {
                     return;
                 }
                 if (currentHost != null && currentPort > 0) {
+                    retryAttempt = 0;
+                    activeDiscoveryOwner = null;
+                    return;
+                }
+                if (!KeepADBService.isWifiConnected(appContext)) {
                     retryAttempt = 0;
                     activeDiscoveryOwner = null;
                     return;
