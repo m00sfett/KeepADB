@@ -150,6 +150,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_permission_missing">KeepADB: Thiếu quyền</string>
     <string name="tile_state_off">Tắt</string>
     <string name="tile_state_disconnected">Đã ngắt kết nối</string>
+    <string name="tile_state_searching">Đang tìm…</string>
     <string name="tile_state_connected">Đã kết nối</string>
     <string name="tile_state_connected_format">%1$s:%2$d</string>
     <string name="tile_state_permission_missing">Thiếu quyền</string>

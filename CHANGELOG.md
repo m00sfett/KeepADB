@@ -5,6 +5,22 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.3] - 2026-09-07
+
+### Fixed
+- The Quick Settings Tile no longer shows the misleading "Disconnected" subtitle while
+  Wireless Debugging is actually on (or Keep-Alive is still waiting to turn it back on) and a
+  fresh endpoint is being searched for; it now shows a "Searching…" transitional state instead
+  (issue #267, criterion 1).
+- Tapping the tile while it is in that searching/`ENABLED_DISCONNECTED` state now retries
+  discovery/reconnect instead of reading as "currently off" and switching Wireless Debugging
+  off; this now also covers the case where Wireless Debugging is actually off and Keep-Alive is
+  merely waiting, which previously stayed a no-op (issue #267, criterion 2).
+- Briefly opening and closing the Quick Settings panel no longer aborts an in-flight endpoint
+  discovery: `onStopListening()` now only schedules the discovery cancellation after a grace
+  period, which `onStartListening()` cancels if the panel is reopened in time (issue #267,
+  criterion 3).
+
 ## [1.5.2] - 2026-09-07
 
 ### Added

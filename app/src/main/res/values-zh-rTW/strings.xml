@@ -150,6 +150,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_permission_missing">KeepADB：缺少權限</string>
     <string name="tile_state_off">關閉</string>
     <string name="tile_state_disconnected">未連線</string>
+    <string name="tile_state_searching">搜尋中…</string>
     <string name="tile_state_connected">已連線</string>
     <string name="tile_state_connected_format">%1$s:%2$d</string>
     <string name="tile_state_permission_missing">缺少權限</string>

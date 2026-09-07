@@ -24,6 +24,7 @@
     <string name="tile_label">@string/app_name</string>
     <string name="tile_state_off">Aus</string>
     <string name="tile_state_disconnected">Nicht verbunden</string>
+    <string name="tile_state_searching">Suche …</string>
     <string name="tile_state_connected">Verbunden</string>
     <string name="tile_state_connected_format">%1$s:%2$d</string>
     <string name="tile_state_permission_missing">Berechtigung fehlt</string>
