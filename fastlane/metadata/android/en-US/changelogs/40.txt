@@ -1,0 +1,1 @@
+Enabling Keep-Alive while disconnected from Wi-Fi now resets any prior manual-off state, arming KeepADBService in standby so Wireless Debugging automatically activates when connecting to a trusted Wi-Fi network.

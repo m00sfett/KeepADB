@@ -109,6 +109,10 @@ final class KeepADBPreferences {
     static void setKeepAliveEnabled(Context context, boolean enabled) {
         KeepADBDiagnostics.event(context, "keep_alive_setting", "app", enabled ? "enabled" : "disabled", "user_setting");
         KeepADB.consumeUserDisabled();
+        if (enabled) {
+            KeepADB.recordExplicitIntent(context, true);
+        }
+        if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_KEEP_ALIVE, enabled).apply();
     }
