@@ -69,6 +69,23 @@ public class KeepADBService extends Service {
         KeepADBDiagnostics.event(context, "service_stop", "state_change", "requested", "stopService");
     }
 
+    /**
+     * The Keep-Alive auto-enable preconditions, re-evaluated as a {@link KeepADB.EnableGuard}
+     * immediately before a debounced automatic enable actually writes (#310). Both signals are
+     * read fresh: the Keep-Alive setting may have been switched off, and the device may have
+     * moved to a network that is no longer on the trusted allowlist, while the enable sat in the
+     * TOGGLE_COOLDOWN_MS window. Deliberately static and lock-free -- KeepADB invokes it while
+     * holding {@code KeepADB.class}, so taking this service's own monitor here (as the
+     * synchronized {@link #recheckAndEnable()} does on the way *in*) would invert the lock order.
+     *
+     * <p>#245 stays intact: the trust/Keep-Alive policy lives here at the automatic call site,
+     * never inside the toggle facade, so a manual toggle can never be gated by either.
+     */
+    static boolean isAutoEnableStillPermitted(Context context) {
+        return KeepADBPreferences.isKeepAliveEnabled(context)
+                && KeepADBTrustedNetwork.isCurrentNetworkTrusted(context);
+    }
+
     static boolean isWifiConnected(Context context) {
         if (KeepADBNetwork.get(context).isWifiConnected()) {
             return true;
@@ -221,7 +238,8 @@ public class KeepADBService extends Service {
                                 return;
                             } else if (KeepADBTrustedNetwork.isCurrentNetworkTrusted(KeepADBService.this)) {
                                 Log.i(TAG, "Wireless Debugging dropped while Wi-Fi connected; re-enabling...");
-                                if (!KeepADB.setEnabled(KeepADBService.this, true, "content_observer")) {
+                                if (!KeepADB.setEnabled(KeepADBService.this, true, "content_observer",
+                                        KeepADBService::isAutoEnableStillPermitted)) {
                                     Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
                                     KeepADBNotification.showPermissionMissing(KeepADBService.this);
                                     return;
@@ -285,18 +303,28 @@ public class KeepADBService extends Service {
                 @Override
                 public void onAvailable(Network network) {
                     Log.d(TAG, "NetworkCallback: Wi-Fi network available");
-                    KeepADBDiagnostics.event(KeepADBService.this, "wifi_change", "network_callback", "available", "network");
+                    // #310: advance the generation *before* recheckAndEnable() plans a new
+                    // intent, so the new intent is stamped with the network it was planned for
+                    // and every intent planned for the previous network is now stale.
+                    long generation = KeepADB.noteNetworkChanged();
+                    KeepADBDiagnostics.event(KeepADBService.this, "wifi_change", "network_callback",
+                            "available", "network generation=" + generation);
                     recheckAndEnable();
                 }
 
                 @Override
                 public void onLost(Network network) {
+                    // #310: unconditional, and ahead of the foregroundReady gate -- a pending
+                    // automatic enable can outlive foreground promotion state, and losing the
+                    // network invalidates it either way.
+                    long generation = KeepADB.noteNetworkChanged();
                     if (!foregroundReady) {
                         Log.d(TAG, "Ignoring network loss before foreground promotion");
                         return;
                     }
                     Log.d(TAG, "NetworkCallback: Wi-Fi network lost");
-                    KeepADBDiagnostics.event(KeepADBService.this, "wifi_change", "network_callback", "lost", "network");
+                    KeepADBDiagnostics.event(KeepADBService.this, "wifi_change", "network_callback",
+                            "lost", "network generation=" + generation);
                     KeepADBNotification.invalidateEndpoint(KeepADBService.this);
                     KeepADBNotification.refresh(KeepADBService.this);
                     KeepADBWidget.refreshAll(KeepADBService.this);
@@ -314,6 +342,13 @@ public class KeepADBService extends Service {
                 // changes -- including a roam -- on an already-tracked network, so re-verifying
                 // here closes that gap. Throttled since it also fires for routine RSSI updates,
                 // not just roams.
+                //
+                // #310: deliberately does NOT advance KeepADB's network generation. It cannot
+                // distinguish a roam from an RSSI update, so counting it would cancel perfectly
+                // valid automatic enables at random on a busy link -- the exact false-negative
+                // the throttle above already exists to bound. A genuine network change reaches
+                // onAvailable()/onLost(); a same-network roam to another BSSID is still caught
+                // at write time by the trust re-check in isAutoEnableStillPermitted().
                 @Override
                 public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
                     if (!foregroundReady) return;
@@ -373,7 +408,8 @@ public class KeepADBService extends Service {
                         return;
                     }
                     Log.i(TAG, "Auto-enabling Wireless Debugging (Wi-Fi connected)");
-                    if (!KeepADB.setEnabled(this, true, "keep_alive_check")) {
+                    if (!KeepADB.setEnabled(this, true, "keep_alive_check",
+                            KeepADBService::isAutoEnableStillPermitted)) {
                         Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
                         KeepADBNotification.showPermissionMissing(this);
                         return;

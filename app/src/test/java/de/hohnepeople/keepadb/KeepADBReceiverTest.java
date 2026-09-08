@@ -73,6 +73,9 @@ public class KeepADBReceiverTest {
     @Test
     public void handleDisableActionDirectlyReturnsSuccessOrFailure() {
         FakeContext permittedContext = new FakeContext(true);
+        // #310: "notification" is a manual source, so the disable is applied immediately and
+        // actually reaches a gateway now -- which has to be the in-memory one here.
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         assertTrue(KeepADBReceiver.handleDisableAction(permittedContext));
         assertTrue(KeepADB.wasLastExplicitIntentOff());
 

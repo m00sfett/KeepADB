@@ -32,6 +32,9 @@ import org.junit.Test;
  * against the production gateway/scheduler, so it isn't duplicated here.
  */
 public class KeepADBToggleSchedulingTest {
+    /** An automatic source: still debounced by TOGGLE_COOLDOWN_MS after #310. */
+    private static final String AUTO = "keep_alive_check";
+
     private KeepADBFakeScheduler scheduler;
     private KeepADBFakeSettingsGateway gateway;
     private KeepADBFakeSurfaceRefresher surfaces;
@@ -47,12 +50,16 @@ public class KeepADBToggleSchedulingTest {
         KeepADB.setSchedulerForTesting(scheduler);
         KeepADB.setGatewayForTesting(gateway);
         KeepADB.setSurfaceRefresherForTesting(surfaces);
+        // The verified-trust memory is intentionally process-wide in production, so it has to be
+        // cleared here or a neighbouring test could leave this one's trust checks fail-open.
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
         ctx = new FakeContext();
     }
 
     @After
     public void tearDown() {
         KeepADB.resetForTesting();
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
     }
 
     @Test
@@ -64,19 +71,21 @@ public class KeepADBToggleSchedulingTest {
 
     @Test
     public void rapidSecondToggleIsDebouncedAndANewerIntentSupersedesTheDelayedOne() {
+        // #310: the debounce is now scoped to *automatic* sources, so this scenario drives one
+        // (AUTO) throughout; the manual counterpart is manualTogglesAreNeverDelayed() below.
         // First call applies immediately (clock is far past the cooldown window).
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
         assertEquals(1, gateway.writes.size());
 
         // A second call at the same instant is within the cooldown window and gets scheduled
         // instead of applied immediately.
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
         assertEquals("the throttled call must not have written yet", 1, gateway.writes.size());
         assertTrue(scheduler.hasAnyPending());
 
         // A third, newer call before the scheduled one fires must supersede it -- the "false"
         // intent in between must never reach the gateway.
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
         assertEquals("the superseded false intent must never reach the gateway",
@@ -86,14 +95,14 @@ public class KeepADBToggleSchedulingTest {
 
     @Test
     public void surfacesAreRefreshedOncePerAppliedWriteAndNeverForASupersededOne() {
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
         assertEquals("an applied write must fan out to the surfaces exactly once",
                 1, surfaces.refreshCount);
 
         // Throttled, then immediately superseded: neither the gateway nor the surfaces may see it.
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
         assertEquals(1, surfaces.refreshCount);
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
         assertEquals("only the surviving intent may refresh the surfaces",
@@ -144,8 +153,10 @@ public class KeepADBToggleSchedulingTest {
     public void aRejectedWriteFailsTheToggleAndIsNotBookedAsApplied() {
         gateway.setWriteSuccess(false);
 
+        // AUTO throughout: after #310 only an automatic source is debounced at all, so only an
+        // automatic retry can still observe whether the rejected write moved the debounce anchor.
         assertFalse("a gateway that rejected the write must not report success",
-                KeepADB.setEnabled(ctx, true, "app"));
+                KeepADB.setEnabled(ctx, true, AUTO));
         assertEquals(Arrays.asList(true), gateway.writes);
         assertFalse(gateway.isEnabled(ctx));
         assertEquals("a write that never landed must not fan out to the surfaces",
@@ -155,10 +166,172 @@ public class KeepADBToggleSchedulingTest {
         // applied, it would have moved the debounce anchor to "now" and this immediate retry
         // would be delayed instead of writing straight away.
         gateway.setWriteSuccess(true);
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
         assertEquals("the retry after a rejected write must not be debounced",
                 Arrays.asList(true, true), gateway.writes);
         assertTrue(gateway.isEnabled(ctx));
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // #310: automatic enables are revalidated at write time; manual ones are never delayed.
+    // ---------------------------------------------------------------------------------------
+
+    /**
+     * Acceptance criterion 2: "Manuelles Einschalten durch den Nutzer bleibt als expliziter
+     * Override ohne Verzögerung erhalten." Every manual surface must write straight away even
+     * deep inside the cooldown window that would delay an automatic caller (proven by the
+     * automatic control case at the end, which *is* delayed at the very same clock reading).
+     */
+    @Test
+    public void manualTogglesAreNeverDelayed() {
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertEquals(1, gateway.writes.size());
+
+        // Each of these lands well inside TOGGLE_COOLDOWN_MS of the previous write.
+        assertTrue(KeepADB.setEnabled(ctx, false, "tile"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "widget"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "notification"));
+        assertTrue(KeepADB.setEnabled(ctx, true, KeepADB.SOURCE_USB_HANDOVER_MANUAL));
+
+        assertFalse("a manual toggle must never be parked on the scheduler",
+                scheduler.hasAnyPending());
+        assertEquals("every manual toggle must have reached the gateway immediately",
+                Arrays.asList(true, false, true, false, true), gateway.writes);
+        assertTrue(gateway.isEnabled(ctx));
+
+        // Control: at this very same clock reading an automatic source is still debounced, so
+        // the assertions above are about the manual/automatic split, not about a wide-open
+        // cooldown window.
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertEquals(5, gateway.writes.size());
+        assertTrue(scheduler.hasAnyPending());
+    }
+
+    /**
+     * Acceptance criterion 1, network half: the Wi-Fi changed while an automatic enable sat in
+     * its cooldown window, so the enable must be dropped. The counter-probe below runs the
+     * identical sequence without the network change and proves the write does land otherwise.
+     */
+    @Test
+    public void pendingAutomaticEnableIsDroppedWhenTheNetworkChangedDuringTheCooldown() {
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO)); // anchors the cooldown window
+        assertEquals(1, gateway.writes.size());
+
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true));
+        assertTrue("the automatic enable must have been scheduled, not applied",
+                scheduler.hasAnyPending());
+
+        KeepADB.noteNetworkChanged(); // e.g. KeepADBService's onLost()/onAvailable()
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals("an enable planned for a network we left must never be written",
+                Arrays.asList(false), gateway.writes);
+        assertFalse(gateway.isEnabled(ctx));
+    }
+
+    @Test
+    public void pendingAutomaticEnableSurvivesWhenTheNetworkDidNotChange() {
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true));
+        assertTrue(scheduler.hasAnyPending());
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals("without a network change the pending enable must still be applied",
+                Arrays.asList(false, true), gateway.writes);
+        assertTrue(gateway.isEnabled(ctx));
+    }
+
+    /**
+     * Acceptance criterion 1, Keep-Alive half -- driven through the real production guard
+     * {@link KeepADBService#isAutoEnableStillPermitted}, not a stand-in, so this pins the actual
+     * wiring KeepADBService uses. MODE_ALL_WIFI keeps the trusted-network half of that guard out
+     * of the way (a plain JVM test has no WifiManager, so allowlist mode always fails closed);
+     * the trusted-network half is covered separately below.
+     */
+    @Test
+    public void pendingAutomaticEnableIsDroppedWhenKeepAliveIsDisabledDuringTheCooldown() {
+        KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setKeepAliveEnabled(ctx, true);
+
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, KeepADBService::isAutoEnableStillPermitted));
+        assertTrue(scheduler.hasAnyPending());
+
+        KeepADBPreferences.setKeepAliveEnabled(ctx, false);
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals("a Keep-Alive enable must not fire after Keep-Alive was switched off",
+                Arrays.asList(false), gateway.writes);
+        assertFalse(gateway.isEnabled(ctx));
+    }
+
+    @Test
+    public void pendingAutomaticEnableSurvivesWhenKeepAliveStaysEnabled() {
+        KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setKeepAliveEnabled(ctx, true);
+
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, KeepADBService::isAutoEnableStillPermitted));
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals("the counter-probe: with Keep-Alive left on the enable must be applied",
+                Arrays.asList(false, true), gateway.writes);
+        assertTrue(gateway.isEnabled(ctx));
+    }
+
+    /**
+     * Acceptance criterion 1, trust half: the same production guard must also drop the pending
+     * enable when the network stops being trusted mid-cooldown -- here by switching the policy
+     * back to allowlist mode, which this JVM test's contextless WifiManager can never satisfy.
+     */
+    @Test
+    public void pendingAutomaticEnableIsDroppedWhenTheNetworkIsNoLongerTrusted() {
+        KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setKeepAliveEnabled(ctx, true);
+
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, KeepADBService::isAutoEnableStillPermitted));
+        assertTrue(scheduler.hasAnyPending());
+
+        KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals("an enable must not fire onto a network that is no longer trusted",
+                Arrays.asList(false), gateway.writes);
+        assertFalse(gateway.isEnabled(ctx));
+    }
+
+    /**
+     * The guard must not leak into the disable direction: #310 is explicitly scoped to the
+     * automatic ON path, and a guard that says "no" must never stop an automatic OFF.
+     */
+    @Test
+    public void anAutomaticDisableIsNeverBlockedByTheGuard() {
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO, appContext -> false));
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+
+        assertEquals(Arrays.asList(true, false), gateway.writes);
+        assertFalse(gateway.isEnabled(ctx));
+    }
+
+    /**
+     * A manual toggle landing during the cooldown must still supersede a pending automatic one
+     * (non-goal: #310 removes the manual *delay*, never the token-superseding race protection).
+     */
+    @Test
+    public void aManualToggleStillSupersedesAPendingAutomaticEnable() {
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true));
+        assertTrue(scheduler.hasAnyPending());
+
+        assertTrue("the manual off must be applied at once", KeepADB.setEnabled(ctx, false, "app"));
+        assertEquals(Arrays.asList(false, false), gateway.writes);
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals("the superseded automatic enable must never reach the gateway",
+                Arrays.asList(false, false), gateway.writes);
+        assertFalse(gateway.isEnabled(ctx));
     }
 
     private static final class FakeContext extends ContextWrapper {

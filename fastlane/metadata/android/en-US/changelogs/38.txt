@@ -1,0 +1,1 @@
+Delayed automatic enables are now re-checked right before they write, so a Wi-Fi change, an untrusted network, or Keep-Alive being switched off during the cooldown cancels them. Manual switching from the app, tile, widget, and notifications now takes effect immediately.

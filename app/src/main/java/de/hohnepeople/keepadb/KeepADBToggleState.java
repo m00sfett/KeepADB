@@ -59,14 +59,25 @@ final class KeepADBToggleState {
     private long lastAppliedChangeMs;
     private long currentIntentToken;
 
+    // #310: monotonic counter of observed Wi-Fi identity changes (connect/disconnect), advanced
+    // by KeepADB.noteNetworkChanged() from KeepADBService's network callback. It is toggle
+    // infrastructure, not a trust detail: it says only "the network this decision was planned
+    // for is no longer the network we are on", never *which* network or whether it is trusted.
+    // That distinction is what lets KeepADB compare it inline while the actual trust/Keep-Alive
+    // policy stays at the call sites (#245).
+    private long networkGeneration;
+
     /** Result of {@link #requestToggle}: what the caller should do about scheduling the write. */
     static final class ToggleDecision {
         final long token;
         final long delayMs;
+        /** Network generation observed when this intent was planned; see {@link #networkGeneration}. */
+        final long networkGeneration;
 
-        ToggleDecision(long token, long delayMs) {
+        ToggleDecision(long token, long delayMs, long networkGeneration) {
             this.token = token;
             this.delayMs = delayMs;
+            this.networkGeneration = networkGeneration;
         }
 
         /** True when the caller should write straight away instead of scheduling. */
@@ -79,19 +90,44 @@ final class KeepADBToggleState {
      * Records a new explicit on/off intent and computes the debounce delay, if any, against the
      * monotonic clock reading of the last applied write. Always issues a fresh intent token,
      * superseding any not-yet-applied pending toggle or in-flight recovery pulse.
+     *
+     * <p>#310: {@code debounced} separates the two kinds of caller. An automatic caller
+     * (Keep-Alive recheck, content observer, USB handover broadcast) keeps the #114 cooldown --
+     * it is a machine reacting to a machine, so waiting out adbd's teardown costs nothing. A
+     * manual caller (app, tile, widget, notification) is an explicit user override and must take
+     * effect at once; delaying it made the user's tap land up to {@link #TOGGLE_COOLDOWN_MS}
+     * later, under conditions that may since have changed. Only the *delay* is dropped: a manual
+     * call still issues a fresh token here, so the rapid-toggle superseding protection (an older
+     * pending intent can never overwrite a newer one) applies to manual and automatic alike.
      */
-    synchronized ToggleDecision requestToggle(boolean on, long nowElapsedMs) {
+    synchronized ToggleDecision requestToggle(boolean on, long nowElapsedMs, boolean debounced) {
         long token = ++currentIntentToken;
         userDisabled = !on;
         lastDesiredOn = on;
-        long sinceLastMs = nowElapsedMs - lastAppliedChangeMs;
-        long delayMs = sinceLastMs < TOGGLE_COOLDOWN_MS ? TOGGLE_COOLDOWN_MS - sinceLastMs : 0;
-        return new ToggleDecision(token, delayMs);
+        long delayMs = 0;
+        if (debounced) {
+            long sinceLastMs = nowElapsedMs - lastAppliedChangeMs;
+            delayMs = sinceLastMs < TOGGLE_COOLDOWN_MS ? TOGGLE_COOLDOWN_MS - sinceLastMs : 0;
+        }
+        return new ToggleDecision(token, delayMs, networkGeneration);
     }
 
     /** True iff the given intent token is still the newest one issued, i.e. not superseded. */
     synchronized boolean isCurrentIntent(long token) {
         return token == currentIntentToken;
+    }
+
+    /**
+     * Advances the network generation because a Wi-Fi connect/disconnect was observed, and
+     * returns the new value. Every automatic intent planned before this call is now stale.
+     */
+    synchronized long noteNetworkChanged() {
+        return ++networkGeneration;
+    }
+
+    /** True iff the network has not changed since {@code generation} was captured. */
+    synchronized boolean isCurrentNetworkGeneration(long generation) {
+        return generation == networkGeneration;
     }
 
     /** Records that {@code on} was actually applied at {@code nowElapsedMs}. */
@@ -146,5 +182,6 @@ final class KeepADBToggleState {
         lastDesiredOn = true;
         lastAppliedChangeMs = 0;
         currentIntentToken = 0;
+        networkGeneration = 0;
     }
 }

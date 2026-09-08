@@ -64,8 +64,10 @@ public class KeepADBRecoveryPulseInterruptionTest {
                 Arrays.asList(false), gateway.writes);
 
         // A manual disable arrives on this (test/main) thread while the pulse thread is parked
-        // in its pause. This must update KeepADB's generation token/userDisabled/lastDesiredOn
-        // regardless of whether the debounce itself applies immediately.
+        // in its pause. This must update KeepADB's generation token/userDisabled/lastDesiredOn.
+        // #310: as a manual source it is also applied at once instead of being debounced, which
+        // is why a second "false" write appears below -- the pulse's stage-1 write had just moved
+        // the debounce anchor, so before #310 the user's tap sat in the cooldown and never landed.
         assertTrue(KeepADB.setEnabled(ctx, false, "app"));
         assertTrue("an explicit disable must be recorded as the last intent",
                 KeepADB.wasLastExplicitIntentOff(ctx));
@@ -74,7 +76,7 @@ public class KeepADBRecoveryPulseInterruptionTest {
         assertTrue("pulse thread must finish within the timeout", scheduler.awaitThreadFinished());
 
         assertEquals("the pulse's restore stage must never have written 'true'",
-                Arrays.asList(false), gateway.writes);
+                Arrays.asList(false, false), gateway.writes);
         assertFalse(gateway.isEnabled(ctx));
     }
 

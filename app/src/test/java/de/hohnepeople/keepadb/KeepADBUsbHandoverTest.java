@@ -147,6 +147,10 @@ public class KeepADBUsbHandoverTest {
     @Test
     public void rawUsbBroadcastEntrypointExercisesAutomaticHandoverAndProtectsUserOff() {
         Context ctx = new FakeContext();
+        // #310: manual sources now write straight away instead of being parked on the debounce,
+        // so this test needs the in-memory gateway rather than the production one that a plain
+        // JVM test cannot satisfy (it used to never reach any gateway at all).
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
         KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
 
         // Start with lastDesiredOn = true (default)
@@ -235,6 +239,9 @@ public class KeepADBUsbHandoverTest {
     @Test
     public void handleManualActionExecutionWithAndWithoutPermission() {
         FakeContext permittedContext = new FakeContext(true);
+        // #310: the manual notification action is applied immediately now, so it actually
+        // reaches the gateway -- which has to be the in-memory one in a plain JVM test.
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
         assertTrue(KeepADBUsbHandover.handleManualAction(permittedContext));
         assertFalse(KeepADB.wasLastExplicitIntentOff(permittedContext));
 
