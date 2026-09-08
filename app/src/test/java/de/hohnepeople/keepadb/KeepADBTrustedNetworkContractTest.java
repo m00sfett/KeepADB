@@ -48,10 +48,19 @@ public class KeepADBTrustedNetworkContractTest {
                 statements.startsWith("KeepADBTrustedNetwork.forgetVerifiedTrust();"));
         int invalidation = onLost.indexOf("KeepADBTrustedNetwork.forgetVerifiedTrust();");
         assertTrue("onLost must discard verified trust", invalidation >= 0);
+        // Locate the anchors before comparing against them: a plain "invalidation < indexOf(...)"
+        // silently turns a vanished anchor into -1 and then reports a misleading ordering
+        // failure, when the real cause is that the construct this test orders against is gone.
+        int foregroundGate = onLost.indexOf("if (!foregroundReady)");
+        assertTrue("onLost no longer contains the foreground-ready gate this test orders "
+                + "against -- update this contract test to the new control flow", foregroundGate >= 0);
+        int earlyReturn = onLost.indexOf("return;");
+        assertTrue("onLost no longer contains an early return this test orders against -- "
+                + "update this contract test to the new control flow", earlyReturn >= 0);
         assertTrue("Trust invalidation must precede the foreground gate",
-                invalidation < onLost.indexOf("if (!foregroundReady)"));
+                invalidation < foregroundGate);
         assertTrue("Trust invalidation must precede any early return",
-                invalidation < onLost.indexOf("return;"));
+                invalidation < earlyReturn);
     }
 
     private static String methodBody(String source, String signature) {

@@ -71,8 +71,21 @@ public class KeepADBTrustedNetworkTest {
         }
     }
 
+    /**
+     * Covers the cache semantics of {@link KeepADBTrustedNetwork#forgetVerifiedTrust()} alone:
+     * after it runs, a masked BSSID is no longer trusted until a fresh verified sighting
+     * restores it.
+     *
+     * <p>This test deliberately calls the production method directly, so it proves nothing
+     * about the caller. That {@code KeepADBService.onLost()} actually invokes it -- and does so
+     * unconditionally, ahead of the {@code foregroundReady} early return -- is asserted
+     * separately by {@code KeepADBTrustedNetworkContractTest
+     * .networkLossInvalidatesVerifiedTrustBeforeAnyEarlyReturn}. Both are required: drop the
+     * contract test and a silently removed {@code onLost()} call would still leave this one
+     * green.
+     */
     @Test
-    public void networkLossRequiresFreshVerificationForMaskedReconnect() {
+    public void forgetVerifiedTrustClearsCacheForMaskedReconnect() {
         FakeContext context = new FakeContext();
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
         KeepADBNetworkIdentity verified =
@@ -82,7 +95,7 @@ public class KeepADBTrustedNetworkTest {
         assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
         assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
 
-        // The service's onLost callback invokes this production invalidation method.
+        // Direct call -- the wiring from onLost() is the contract test's job, not this one's.
         KeepADBTrustedNetwork.forgetVerifiedTrust();
         assertFalse(KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
         assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
