@@ -1,0 +1,1 @@
+Add failure injection and deterministic test fakes for settings writes and register webhook transport.

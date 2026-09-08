@@ -12,10 +12,15 @@ import java.util.List;
  */
 final class KeepADBFakeSettingsGateway implements KeepADBSettingsGateway {
     private boolean enabled;
+    private boolean writeSuccess = true;
     final List<Boolean> writes = new ArrayList<>();
 
     KeepADBFakeSettingsGateway(boolean initiallyEnabled) {
         this.enabled = initiallyEnabled;
+    }
+
+    void setWriteSuccess(boolean writeSuccess) {
+        this.writeSuccess = writeSuccess;
     }
 
     @Override
@@ -25,8 +30,11 @@ final class KeepADBFakeSettingsGateway implements KeepADBSettingsGateway {
 
     @Override
     public boolean write(Context appContext, boolean on) {
-        enabled = on;
         writes.add(on);
+        if (!writeSuccess) {
+            return false;
+        }
+        enabled = on;
         return true;
     }
 }
