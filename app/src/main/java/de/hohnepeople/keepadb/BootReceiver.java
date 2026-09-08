@@ -23,6 +23,10 @@ public class BootReceiver extends BroadcastReceiver {
         String recoveryEvent = packageReplaced ? "package_recovery" : "boot_recovery";
         KeepADBDiagnostics.event(context, event, "system", "received", "keepAlive=" + keepAlive);
         if (keepAlive) {
+            if (!KeepADBService.shouldRun(context)) {
+                KeepADBDiagnostics.event(context, recoveryEvent, "boot_receiver", "skipped", "persisted_intent_off");
+                return;
+            }
             if (!KeepADBService.start(context)) {
                 KeepADBDiagnostics.event(context, recoveryEvent, "boot_receiver", "failed", "service_start");
                 Log.e(TAG, "BootReceiver: Failed to start KeepADB foreground service");

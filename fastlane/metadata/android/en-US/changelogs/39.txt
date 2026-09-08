@@ -1,0 +1,1 @@
+Boot and package replacement recovery now respects explicit OFF intents, skipping service start if Wireless Debugging was turned off by the user. If started, KeepADBService immediately cleans up and stops foreground mode if it should not run.

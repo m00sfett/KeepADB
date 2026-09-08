@@ -5,6 +5,12 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.20] - 2026-09-08
+
+### Fixed
+- Boot and package replacement recovery no longer starts `KeepADBService` when Keep-Alive is enabled but the user previously turned Wireless Debugging OFF (issue #311).
+- `KeepADBService.onStartCommand` now evaluates `shouldRun` immediately after foreground promotion, cleanly stopping foreground mode and returning `START_NOT_STICKY` when the service should not run, rather than running indefinitely in the background (issue #311).
+
 ## [1.5.19] - 2026-09-08
 
 ### Fixed
