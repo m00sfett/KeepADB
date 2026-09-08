@@ -21,11 +21,78 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Verify release tag and version metadata consistency
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          ref_name="$RELEASE_TAG"
+          if [[ -z "$ref_name" ]]; then
+            echo "::error::Release tag is empty"
+            exit 1
+          fi
+
+          tag_version="${ref_name#v}"
+          if [[ -z "$tag_version" || "$tag_version" == "$ref_name" ]]; then
+            echo "::error::Release tag does not start with 'v' followed by a version: $ref_name"
+            exit 1
+          fi
+
+          version_name=$(sed -n -E "s/^[[:space:]]*versionName([[:space:]]*=[[:space:]]*|[[:space:]]+)['\"]([^'\"]+)['\"].*$/\2/p" app/build.gradle)
+          version_code=$(sed -n -E "s/^[[:space:]]*versionCode([[:space:]]*=[[:space:]]*|[[:space:]]+)([0-9]+).*$/\2/p" app/build.gradle)
+          changelog_version=$(sed -n -E '/^## \[([0-9]+\.[0-9]+\.[0-9]+)\]/{ s/^## \[([0-9]+\.[0-9]+\.[0-9]+)\].*$/\1/p; q; }' CHANGELOG.md)
+
+          if [[ -z "$version_name" ]]; then
+            echo "::error::Could not extract versionName from app/build.gradle"
+            exit 1
+          fi
+
+          if [[ -z "$version_code" ]]; then
+            echo "::error::Could not extract versionCode from app/build.gradle"
+            exit 1
+          fi
+
+          if [[ -z "$changelog_version" ]]; then
+            echo "::error::Could not extract latest version from CHANGELOG.md"
+            exit 1
+          fi
+
+          echo "Release tag: $RELEASE_TAG (version: $tag_version)"
+          echo "app/build.gradle: versionName=$version_name, versionCode=$version_code"
+          echo "CHANGELOG.md: latest version=$changelog_version"
+
+          if [[ "$tag_version" != "$version_name" ]]; then
+            echo "::error::Release tag version ($tag_version) does not match app/build.gradle versionName ($version_name)"
+            exit 1
+          fi
+
+          if [[ "$tag_version" != "$changelog_version" ]]; then
+            echo "::error::Release tag version ($tag_version) does not match CHANGELOG.md latest version ($changelog_version)"
+            exit 1
+          fi
+
+          fastlane_file="fastlane/metadata/android/en-US/changelogs/${version_code}.txt"
+          if [[ ! -f "$fastlane_file" ]]; then
+            echo "::error::Fastlane changelog file does not exist: $fastlane_file"
+            exit 1
+          fi
+
+          if [[ ! -s "$fastlane_file" || -z "$(tr -d '[:space:]' < "$fastlane_file")" ]]; then
+            echo "::error::Fastlane changelog file is empty: $fastlane_file"
+            exit 1
+          fi
+
+          echo "Fastlane changelog verified: $fastlane_file"
+          echo "Release version metadata consistency check passed!"
+
+      - name: Check translation consistency
+        run: python3 bin/check-i18n
+
+      - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4

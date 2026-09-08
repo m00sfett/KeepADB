@@ -5,6 +5,11 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.14] - 2026-09-08
+
+### Changed
+- Unified CI and release workflows: restricted documentation triggers to conserve Actions minutes, added `check-i18n` gate parity, unified release build to JDK 17, and added tag and changelog consistency checks (issue #327).
+
 ## [1.5.13] - 2026-09-08
 
 ### Added
