@@ -1,0 +1,1 @@
+Make dialog lists scrollable, add contextual TalkBack action labels, preserve form drafts across rotation, and show complete feedback privacy notice.

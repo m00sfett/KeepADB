@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Reti attendibili</string>
     <string name="settings_trusted_network_empty_message">Nessuna rete attendibile ancora aggiunta.</string>
     <string name="settings_trusted_network_delete_button">Rimuovi</string>
+    <string name="settings_trusted_network_delete_accessibility">Rimuovi rete attendibile &quot;%1$s&quot;</string>
     <string name="settings_trusted_network_mesh_title">Aggiungere altri access point?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB ha rilevato anche %1$d altri access point che trasmettono \"%2$s\". Vuoi aggiungerli anche alla lista attendibile?</string>
     <string name="settings_trusted_network_mesh_add_button">Aggiungi tutti</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">Elimina</string>
     <string name="usb_profile_delete_title">Elimina profilo host</string>
     <string name="usb_profile_delete_message">Eliminare il profilo host &quot;%1$s&quot;?</string>
+    <string name="usb_profile_edit_action_accessibility">Modifica profilo host &quot;%1$s&quot;</string>
+    <string name="usb_profile_delete_action_accessibility">Elimina profilo host &quot;%1$s&quot;</string>
     <string name="usb_profile_edit_title">Modifica profilo host</string>
     <string name="settings_diagnostics_title">Diagnostica</string>
     <string name="settings_diagnostics_subtext">Conserva gli ultimi 128 eventi oscurati sul dispositivo. L’esportazione apre il menu di condivisione Android.</string>

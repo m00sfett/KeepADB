@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">信頼できるネットワーク</string>
     <string name="settings_trusted_network_empty_message">まだ信頼できるネットワークが追加されていません。</string>
     <string name="settings_trusted_network_delete_button">削除</string>
+    <string name="settings_trusted_network_delete_accessibility">信頼できるネットワーク「%1$s」を削除</string>
     <string name="settings_trusted_network_mesh_title">他のアクセスポイントも追加しますか?</string>
     <string name="settings_trusted_network_mesh_message">KeepADBは他に%1$d件のアクセスポイントが「%2$s」を発信しているのを検出しました。信頼できるネットワークに追加しますか?</string>
     <string name="settings_trusted_network_mesh_add_button">すべて追加</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">削除</string>
     <string name="usb_profile_delete_title">ホストプロファイルを削除</string>
     <string name="usb_profile_delete_message">ホストプロファイル &quot;%1$s&quot; を削除しますか？</string>
+    <string name="usb_profile_edit_action_accessibility">ホストプロファイル「%1$s」を編集</string>
+    <string name="usb_profile_delete_action_accessibility">ホストプロファイル「%1$s」を削除</string>
     <string name="usb_profile_edit_title">ホストプロファイルを編集</string>
     <string name="settings_diagnostics_title">診断</string>
     <string name="settings_diagnostics_subtext">編集済みの最新128件のイベントをこの端末に保持します。エクスポートするとAndroidの共有画面が開きます。</string>

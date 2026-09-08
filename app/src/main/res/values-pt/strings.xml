@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Redes confiáveis</string>
     <string name="settings_trusted_network_empty_message">Nenhuma rede confiável adicionada ainda.</string>
     <string name="settings_trusted_network_delete_button">Remover</string>
+    <string name="settings_trusted_network_delete_accessibility">Remover rede confiável &quot;%1$s&quot;</string>
     <string name="settings_trusted_network_mesh_title">Adicionar outros pontos de acesso?</string>
     <string name="settings_trusted_network_mesh_message">O KeepADB também detectou %1$d outros pontos de acesso transmitindo \"%2$s\". Deseja adicioná-los também à lista de confiança?</string>
     <string name="settings_trusted_network_mesh_add_button">Adicionar todos</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">Excluir</string>
     <string name="usb_profile_delete_title">Excluir perfil de host</string>
     <string name="usb_profile_delete_message">Excluir o perfil de host &quot;%1$s&quot;?</string>
+    <string name="usb_profile_edit_action_accessibility">Editar perfil de host &quot;%1$s&quot;</string>
+    <string name="usb_profile_delete_action_accessibility">Excluir perfil de host &quot;%1$s&quot;</string>
     <string name="usb_profile_edit_title">Editar perfil de host</string>
     <string name="settings_diagnostics_title">Diagnóstico</string>
     <string name="settings_diagnostics_subtext">Mantém os últimos 128 eventos editados neste dispositivo. A exportação abre a folha de partilha do Android.</string>

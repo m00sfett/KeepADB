@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">विश्वसनीय नेटवर्क</string>
     <string name="settings_trusted_network_empty_message">अभी तक कोई विश्वसनीय नेटवर्क नहीं जोड़ा गया।</string>
     <string name="settings_trusted_network_delete_button">हटाएं</string>
+    <string name="settings_trusted_network_delete_accessibility">विश्वसनीय नेटवर्क &quot;%1$s&quot; हटाएं</string>
     <string name="settings_trusted_network_mesh_title">अन्य एक्सेस पॉइंट जोड़ें?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB ने %1$d अन्य एक्सेस पॉइंट भी देखे हैं जो \"%2$s\" प्रसारित करते हैं। क्या इन्हें भी विश्वसनीय सूची में जोड़ना है?</string>
     <string name="settings_trusted_network_mesh_add_button">सभी जोड़ें</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">हटाएँ</string>
     <string name="usb_profile_delete_title">होस्ट प्रोफ़ाइल हटाएँ</string>
     <string name="usb_profile_delete_message">होस्ट प्रोफ़ाइल &quot;%1$s&quot; हटाएँ?</string>
+    <string name="usb_profile_edit_action_accessibility">होस्ट प्रोफ़ाइल &quot;%1$s&quot; बदलें</string>
+    <string name="usb_profile_delete_action_accessibility">होस्ट प्रोफ़ाइल &quot;%1$s&quot; हटाएँ</string>
     <string name="usb_profile_edit_title">होस्ट प्रोफ़ाइल बदलें</string>
     <string name="settings_diagnostics_title">निदान</string>
     <string name="settings_diagnostics_subtext">इस डिवाइस पर नवीनतम 128 संशोधित इवेंट रखता है। निर्यात Android शेयर शीट खोलता है।</string>

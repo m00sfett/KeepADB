@@ -80,6 +80,7 @@
     <string name="settings_trusted_network_manage_title">Trusted networks</string>
     <string name="settings_trusted_network_empty_message">No trusted networks added yet.</string>
     <string name="settings_trusted_network_delete_button">Remove</string>
+    <string name="settings_trusted_network_delete_accessibility">Remove trusted network \"%1$s\"</string>
     <string name="settings_trusted_network_mesh_title">Add other access points?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB has also seen %1$d other access points broadcasting \"%2$s\". Add them to your trusted list too?</string>
     <string name="settings_trusted_network_mesh_add_button">Add all</string>
@@ -141,9 +142,11 @@
     <string name="usb_profile_name_required">Enter a profile name.</string>
     <string name="usb_profile_edit_button">Edit</string>
     <string name="usb_profile_edit_title">Edit host profile</string>
+    <string name="usb_profile_edit_action_accessibility">Edit host profile \"%1$s\"</string>
     <string name="usb_profile_delete_button">Delete</string>
     <string name="usb_profile_delete_title">Delete host profile</string>
     <string name="usb_profile_delete_message">Delete host profile "%1$s"?</string>
+    <string name="usb_profile_delete_action_accessibility">Delete host profile \"%1$s\"</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB Handover</string>
     <string name="settings_usb_handover_subtext">Optionally offer or automatically enable WLAN-ADB from an active USB-ADB connection. Off by default; a manual OFF is never overridden.</string>
     <string name="settings_usb_handover_label">Handover mode</string>

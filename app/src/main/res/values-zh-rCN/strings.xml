@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">受信任的网络</string>
     <string name="settings_trusted_network_empty_message">尚未添加受信任的网络。</string>
     <string name="settings_trusted_network_delete_button">移除</string>
+    <string name="settings_trusted_network_delete_accessibility">移除受信任的网络“%1$s”</string>
     <string name="settings_trusted_network_mesh_title">是否添加其他接入点?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB 还检测到 %1$d 个广播\"%2$s\"的其他接入点。是否也将它们添加到受信任列表?</string>
     <string name="settings_trusted_network_mesh_add_button">全部添加</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">删除</string>
     <string name="usb_profile_delete_title">删除主机配置</string>
     <string name="usb_profile_delete_message">要删除主机配置“%1$s”吗？</string>
+    <string name="usb_profile_edit_action_accessibility">编辑主机配置“%1$s”</string>
+    <string name="usb_profile_delete_action_accessibility">删除主机配置“%1$s”</string>
     <string name="usb_profile_edit_title">编辑主机配置</string>
     <string name="settings_diagnostics_title">诊断</string>
     <string name="settings_diagnostics_subtext">在此设备上保留最近 128 条已脱敏事件。导出会打开 Android 分享面板。</string>

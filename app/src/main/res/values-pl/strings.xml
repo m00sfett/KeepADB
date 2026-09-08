@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Zaufane sieci</string>
     <string name="settings_trusted_network_empty_message">Nie dodano jeszcze żadnych zaufanych sieci.</string>
     <string name="settings_trusted_network_delete_button">Usuń</string>
+    <string name="settings_trusted_network_delete_accessibility">Usuń zaufaną sieć „%1$s”</string>
     <string name="settings_trusted_network_mesh_title">Dodać inne punkty dostępu?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB wykrył także %1$d innych punktów dostępu nadających „%2$s”. Dodać je również do zaufanych sieci?</string>
     <string name="settings_trusted_network_mesh_add_button">Dodaj wszystkie</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">Usuń</string>
     <string name="usb_profile_delete_title">Usuń profil hosta</string>
     <string name="usb_profile_delete_message">Usunąć profil hosta &quot;%1$s&quot;?</string>
+    <string name="usb_profile_edit_action_accessibility">Edytuj profil hosta „%1$s”</string>
+    <string name="usb_profile_delete_action_accessibility">Usuń profil hosta „%1$s”</string>
     <string name="usb_profile_edit_title">Edytuj profil hosta</string>
     <string name="settings_diagnostics_title">Diagnostyka</string>
     <string name="settings_diagnostics_subtext">Przechowuje na tym urządzeniu 128 ostatnich zredagowanych zdarzeń. Eksport otwiera arkusz udostępniania Androida.</string>

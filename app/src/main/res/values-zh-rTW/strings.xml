@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">受信任的網路</string>
     <string name="settings_trusted_network_empty_message">尚未新增受信任的網路。</string>
     <string name="settings_trusted_network_delete_button">移除</string>
+    <string name="settings_trusted_network_delete_accessibility">移除受信任的網路「%1$s」</string>
     <string name="settings_trusted_network_mesh_title">是否新增其他無線基地台?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB 也偵測到其他 %1$d 個廣播「%2$s」的無線基地台。要一併新增到信任清單嗎?</string>
     <string name="settings_trusted_network_mesh_add_button">全部新增</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">刪除</string>
     <string name="usb_profile_delete_title">刪除主機設定檔</string>
     <string name="usb_profile_delete_message">要刪除主機設定檔「%1$s」嗎？</string>
+    <string name="usb_profile_edit_action_accessibility">編輯主機設定檔「%1$s」</string>
+    <string name="usb_profile_delete_action_accessibility">刪除主機設定檔「%1$s」</string>
     <string name="usb_profile_edit_title">編輯主機設定檔</string>
     <string name="settings_diagnostics_title">診斷</string>
     <string name="settings_diagnostics_subtext">在此裝置上保留最近 128 筆已遮蔽事件。匯出會開啟 Android 分享面板。</string>

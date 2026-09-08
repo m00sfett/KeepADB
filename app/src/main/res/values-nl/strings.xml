@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Vertrouwde netwerken</string>
     <string name="settings_trusted_network_empty_message">Nog geen vertrouwde netwerken toegevoegd.</string>
     <string name="settings_trusted_network_delete_button">Verwijderen</string>
+    <string name="settings_trusted_network_delete_accessibility">Vertrouwd netwerk &quot;%1$s&quot; verwijderen</string>
     <string name="settings_trusted_network_mesh_title">Andere access points toevoegen?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB heeft ook %1$d andere access points gezien die \"%2$s\" uitzenden. Wil je deze ook toevoegen aan de vertrouwde lijst?</string>
     <string name="settings_trusted_network_mesh_add_button">Alles toevoegen</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">Verwijderen</string>
     <string name="usb_profile_delete_title">Hostprofiel verwijderen</string>
     <string name="usb_profile_delete_message">Hostprofiel &quot;%1$s&quot; verwijderen?</string>
+    <string name="usb_profile_edit_action_accessibility">Hostprofiel &quot;%1$s&quot; bewerken</string>
+    <string name="usb_profile_delete_action_accessibility">Hostprofiel &quot;%1$s&quot; verwijderen</string>
     <string name="usb_profile_edit_title">Hostprofiel bewerken</string>
     <string name="settings_diagnostics_title">Diagnostiek</string>
     <string name="settings_diagnostics_subtext">Bewaart de laatste 128 geredigeerde gebeurtenissen op dit apparaat. Exporteren opent het Android-deelvenster.</string>

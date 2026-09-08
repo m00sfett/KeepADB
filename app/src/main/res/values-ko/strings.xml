@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">신뢰할 수 있는 네트워크</string>
     <string name="settings_trusted_network_empty_message">아직 추가된 신뢰할 수 있는 네트워크가 없습니다.</string>
     <string name="settings_trusted_network_delete_button">제거</string>
+    <string name="settings_trusted_network_delete_accessibility">신뢰할 수 있는 네트워크 &quot;%1$s&quot; 제거</string>
     <string name="settings_trusted_network_mesh_title">다른 액세스 포인트도 추가할까요?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB가 다른 액세스 포인트 %1$d개가 \"%2$s\"을(를) 방송하는 것을 감지했습니다. 신뢰할 수 있는 목록에 함께 추가할까요?</string>
     <string name="settings_trusted_network_mesh_add_button">모두 추가</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">삭제</string>
     <string name="usb_profile_delete_title">호스트 프로필 삭제</string>
     <string name="usb_profile_delete_message">호스트 프로필 &quot;%1$s&quot;을(를) 삭제하시겠습니까?</string>
+    <string name="usb_profile_edit_action_accessibility">호스트 프로필 &quot;%1$s&quot; 편집</string>
+    <string name="usb_profile_delete_action_accessibility">호스트 프로필 &quot;%1$s&quot; 삭제</string>
     <string name="usb_profile_edit_title">호스트 프로필 편집</string>
     <string name="settings_diagnostics_title">진단</string>
     <string name="settings_diagnostics_subtext">수정된 최신 이벤트 128개를 이 기기에 보관합니다. 내보내기를 누르면 Android 공유 화면이 열립니다.</string>

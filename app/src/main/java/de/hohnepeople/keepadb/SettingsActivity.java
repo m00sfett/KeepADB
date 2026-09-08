@@ -26,7 +26,16 @@ import java.util.List;
 public class SettingsActivity extends Activity {
     /** Intent extra requesting that the webhook section be scrolled into view and focused. */
     public static final String EXTRA_FOCUS_WEBHOOK = "focus_webhook";
-    private static final String STATE_WEBHOOK_DRAFT_URL = "settings_webhook_draft_url";
+    static final String STATE_WEBHOOK_DRAFT_URL = "settings_webhook_draft_url";
+    static final String STATE_ISSUE_REPORT_SHOWING = "settings_issue_report_showing";
+    static final String STATE_ISSUE_REPORT_DRAFT = "settings_issue_report_draft";
+    static final String STATE_ISSUE_REPORT_DIAGNOSTICS = "settings_issue_report_diagnostics";
+    static final String STATE_PROFILE_EDIT_SHOWING = "settings_profile_edit_showing";
+    static final String STATE_PROFILE_EDIT_ID = "settings_profile_edit_id";
+    static final String STATE_PROFILE_EDIT_NAME = "settings_profile_edit_name";
+    static final String STATE_PROFILE_EDIT_IP = "settings_profile_edit_ip";
+    static final String STATE_PROFILE_EDIT_HOSTNAME = "settings_profile_edit_hostname";
+    static final String STATE_PROFILE_EDIT_TAILNET = "settings_profile_edit_tailnet";
 
     private ScrollView scrollView;
     private View webhookPanel;
@@ -61,6 +70,21 @@ public class SettingsActivity extends Activity {
     private TextView versionNameText;
     private TextView versionCodeText;
     private TextView websiteLinkText;
+
+    private AlertDialog activeIssueReportDialog;
+    private EditText activeIssueReportPreview;
+    private CheckBox activeIssueReportDiagnostics;
+
+    private AlertDialog activeProfileEditDialog;
+    private Integer activeProfileEditId;
+    private EditText activeProfileEditName;
+    private EditText activeProfileEditIp;
+    private EditText activeProfileEditHostname;
+    private EditText activeProfileEditTailnet;
+
+    private AlertDialog activeManageNetworksDialog;
+    private AlertDialog activeSwitchProfileDialog;
+    private AlertDialog activeDeleteConfirmDialog;
 
     static final String WEBSITE_URL = "https://hohnepeople.de";
 
@@ -151,11 +175,36 @@ public class SettingsActivity extends Activity {
         webhookSave = findViewById(R.id.settings_webhook_save);
         webhookClear = findViewById(R.id.settings_webhook_clear);
 
-        if (savedInstanceState != null && savedInstanceState.containsKey(STATE_WEBHOOK_DRAFT_URL)) {
-            webhookUrlInput.setText(resolveWebhookDraft(
-                    KeepADBPreferences.getRegisterWebhookUrl(this),
-                    savedInstanceState.getString(STATE_WEBHOOK_DRAFT_URL), true));
-            webhookDraftInitialized = true;
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(STATE_WEBHOOK_DRAFT_URL)) {
+                webhookUrlInput.setText(resolveWebhookDraft(
+                        KeepADBPreferences.getRegisterWebhookUrl(this),
+                        savedInstanceState.getString(STATE_WEBHOOK_DRAFT_URL), true));
+                webhookDraftInitialized = true;
+            }
+            if (savedInstanceState.getBoolean(STATE_ISSUE_REPORT_SHOWING, false)) {
+                String draftBody = savedInstanceState.getString(STATE_ISSUE_REPORT_DRAFT);
+                boolean includeDiagnostics = savedInstanceState.getBoolean(
+                        STATE_ISSUE_REPORT_DIAGNOSTICS, false);
+                showIssueReportDialog(draftBody, includeDiagnostics);
+            }
+            if (savedInstanceState.getBoolean(STATE_PROFILE_EDIT_SHOWING, false)) {
+                int profileId = savedInstanceState.getInt(STATE_PROFILE_EDIT_ID, -1);
+                KeepADBUsbProfile.Profile editingProfile = null;
+                if (profileId != -1) {
+                    for (KeepADBUsbProfile.Profile p : KeepADBUsbProfile.getProfiles(this)) {
+                        if (p.id == profileId) {
+                            editingProfile = p;
+                            break;
+                        }
+                    }
+                }
+                String draftName = savedInstanceState.getString(STATE_PROFILE_EDIT_NAME);
+                String draftIp = savedInstanceState.getString(STATE_PROFILE_EDIT_IP);
+                String draftHostname = savedInstanceState.getString(STATE_PROFILE_EDIT_HOSTNAME);
+                String draftTailnet = savedInstanceState.getString(STATE_PROFILE_EDIT_TAILNET);
+                showProfileEditDialog(editingProfile, draftName, draftIp, draftHostname, draftTailnet);
+            }
         }
 
         webhookToggle.setOnClickListener(v -> {
@@ -252,6 +301,77 @@ public class SettingsActivity extends Activity {
         super.onSaveInstanceState(outState);
         outState.putString(STATE_WEBHOOK_DRAFT_URL,
                 webhookUrlInput.getText() == null ? "" : webhookUrlInput.getText().toString());
+        if (activeIssueReportDialog != null && activeIssueReportDialog.isShowing()) {
+            outState.putBoolean(STATE_ISSUE_REPORT_SHOWING, true);
+            outState.putString(STATE_ISSUE_REPORT_DRAFT,
+                    activeIssueReportPreview != null && activeIssueReportPreview.getText() != null
+                            ? activeIssueReportPreview.getText().toString() : "");
+            outState.putBoolean(STATE_ISSUE_REPORT_DIAGNOSTICS,
+                    activeIssueReportDiagnostics != null && activeIssueReportDiagnostics.isChecked());
+        }
+        if (activeProfileEditDialog != null && activeProfileEditDialog.isShowing()) {
+            outState.putBoolean(STATE_PROFILE_EDIT_SHOWING, true);
+            outState.putInt(STATE_PROFILE_EDIT_ID, activeProfileEditId != null ? activeProfileEditId : -1);
+            outState.putString(STATE_PROFILE_EDIT_NAME,
+                    activeProfileEditName != null && activeProfileEditName.getText() != null
+                            ? activeProfileEditName.getText().toString() : "");
+            outState.putString(STATE_PROFILE_EDIT_IP,
+                    activeProfileEditIp != null && activeProfileEditIp.getText() != null
+                            ? activeProfileEditIp.getText().toString() : "");
+            outState.putString(STATE_PROFILE_EDIT_HOSTNAME,
+                    activeProfileEditHostname != null && activeProfileEditHostname.getText() != null
+                            ? activeProfileEditHostname.getText().toString() : "");
+            outState.putString(STATE_PROFILE_EDIT_TAILNET,
+                    activeProfileEditTailnet != null && activeProfileEditTailnet.getText() != null
+                            ? activeProfileEditTailnet.getText().toString() : "");
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (activeIssueReportDialog != null) {
+            if (activeIssueReportDialog.isShowing()) {
+                activeIssueReportDialog.dismiss();
+            }
+            activeIssueReportDialog = null;
+        }
+        activeIssueReportPreview = null;
+        activeIssueReportDiagnostics = null;
+
+        if (activeProfileEditDialog != null) {
+            if (activeProfileEditDialog.isShowing()) {
+                activeProfileEditDialog.dismiss();
+            }
+            activeProfileEditDialog = null;
+        }
+        activeProfileEditId = null;
+        activeProfileEditName = null;
+        activeProfileEditIp = null;
+        activeProfileEditHostname = null;
+        activeProfileEditTailnet = null;
+
+        if (activeManageNetworksDialog != null) {
+            if (activeManageNetworksDialog.isShowing()) {
+                activeManageNetworksDialog.dismiss();
+            }
+            activeManageNetworksDialog = null;
+        }
+
+        if (activeSwitchProfileDialog != null) {
+            if (activeSwitchProfileDialog.isShowing()) {
+                activeSwitchProfileDialog.dismiss();
+            }
+            activeSwitchProfileDialog = null;
+        }
+
+        if (activeDeleteConfirmDialog != null) {
+            if (activeDeleteConfirmDialog.isShowing()) {
+                activeDeleteConfirmDialog.dismiss();
+            }
+            activeDeleteConfirmDialog = null;
+        }
+
+        super.onDestroy();
     }
 
     static String resolveWebhookDraft(String savedUrl, String currentDraft, boolean hasCurrentDraft) {
@@ -469,6 +589,8 @@ public class SettingsActivity extends Activity {
             labelColumn.addView(bssid);
             Button delete = new Button(this);
             delete.setText(R.string.settings_trusted_network_delete_button);
+            delete.setContentDescription(getString(
+                    R.string.settings_trusted_network_delete_accessibility, entry.label));
             delete.setOnClickListener(v -> {
                 KeepADBTrustedNetwork.remove(this, entry.id);
                 dialogHolder[0].dismiss();
@@ -478,11 +600,19 @@ public class SettingsActivity extends Activity {
             row.addView(delete);
             rows.addView(row);
         }
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(rows);
         dialogHolder[0] = new AlertDialog.Builder(this)
                 .setTitle(R.string.settings_trusted_network_manage_title)
-                .setView(rows)
+                .setView(scroll)
                 .setPositiveButton(android.R.string.ok, null)
                 .create();
+        activeManageNetworksDialog = dialogHolder[0];
+        dialogHolder[0].setOnDismissListener(d -> {
+            if (activeManageNetworksDialog == d) {
+                activeManageNetworksDialog = null;
+            }
+        });
         dialogHolder[0].show();
     }
 
@@ -514,12 +644,16 @@ public class SettingsActivity extends Activity {
                 });
                 android.widget.Button edit = new android.widget.Button(this);
                 edit.setText(R.string.usb_profile_edit_button);
+                edit.setContentDescription(getString(
+                        R.string.usb_profile_edit_action_accessibility, profile.name));
                 edit.setOnClickListener(v -> {
                     dialogHolder[0].dismiss();
                     showProfileEditDialog(profile);
                 });
                 android.widget.Button delete = new android.widget.Button(this);
                 delete.setText(R.string.usb_profile_delete_button);
+                delete.setContentDescription(getString(
+                        R.string.usb_profile_delete_action_accessibility, profile.name));
                 delete.setOnClickListener(v -> {
                     dialogHolder[0].dismiss();
                     showProfileDeleteDialog(profile);
@@ -529,14 +663,22 @@ public class SettingsActivity extends Activity {
                 row.addView(delete);
                 options.addView(row);
             }
+            ScrollView scroll = new ScrollView(this);
+            scroll.addView(options);
             AlertDialog dialog = new AlertDialog.Builder(this)
                     .setTitle(R.string.usb_profile_switch_title)
-                    .setView(options)
+                    .setView(scroll)
                     .setPositiveButton(R.string.usb_profile_new_button, (buttonDialog, which) -> showProfileDialog(
                             KeepADBUsbNotification.ACTION_CREATE))
                     .setNegativeButton(android.R.string.cancel, null)
                     .create();
             dialogHolder[0] = dialog;
+            activeSwitchProfileDialog = dialog;
+            dialog.setOnDismissListener(d -> {
+                if (activeSwitchProfileDialog == d) {
+                    activeSwitchProfileDialog = null;
+                }
+            });
             dialog.show();
             return;
         }
@@ -545,7 +687,12 @@ public class SettingsActivity extends Activity {
     }
 
     private void showProfileEditDialog(KeepADBUsbProfile.Profile profile) {
+        showProfileEditDialog(profile, null, null, null, null);
+    }
 
+    private void showProfileEditDialog(KeepADBUsbProfile.Profile profile,
+            String draftName, String draftIp, String draftHostname, String draftTailnet) {
+        ScrollView scroll = new ScrollView(this);
         android.widget.LinearLayout fields = new android.widget.LinearLayout(this);
         fields.setOrientation(android.widget.LinearLayout.VERTICAL);
         int padding = (int) (20 * getResources().getDisplayMetrics().density);
@@ -560,17 +707,44 @@ public class SettingsActivity extends Activity {
             hostname.setText(profile.hostname);
             tailnet.setText(profile.tailnetHostname);
         }
+        if (draftName != null) {
+            name.setText(draftName);
+        }
+        if (draftIp != null) {
+            ip.setText(draftIp);
+        }
+        if (draftHostname != null) {
+            hostname.setText(draftHostname);
+        }
+        if (draftTailnet != null) {
+            tailnet.setText(draftTailnet);
+        }
         fields.addView(name);
         fields.addView(ip);
         fields.addView(hostname);
         fields.addView(tailnet);
+        scroll.addView(fields);
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(profile == null ? R.string.usb_profile_create_title
                         : R.string.usb_profile_edit_title)
-                .setView(fields)
+                .setView(scroll)
                 .setPositiveButton(R.string.usb_profile_save_button, null)
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
+        activeProfileEditDialog = dialog;
+        activeProfileEditId = profile != null ? profile.id : null;
+        activeProfileEditName = name;
+        activeProfileEditIp = ip;
+        activeProfileEditHostname = hostname;
+        activeProfileEditTailnet = tailnet;
+        dialog.setOnDismissListener(d -> {
+            activeProfileEditDialog = null;
+            activeProfileEditId = null;
+            activeProfileEditName = null;
+            activeProfileEditIp = null;
+            activeProfileEditHostname = null;
+            activeProfileEditTailnet = null;
+        });
         dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             if (name.getText().toString().trim().isEmpty()) {
                 name.setError(getString(R.string.usb_profile_name_required));
@@ -593,17 +767,24 @@ public class SettingsActivity extends Activity {
     }
 
     private void showProfileDeleteDialog(KeepADBUsbProfile.Profile profile) {
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.usb_profile_delete_title)
                 .setMessage(getString(R.string.usb_profile_delete_message, profile.name))
-                .setPositiveButton(R.string.usb_profile_delete_button, (dialog, which) -> {
+                .setPositiveButton(R.string.usb_profile_delete_button, (d, which) -> {
                     if (KeepADBUsbProfile.delete(this, profile.id)) {
                         KeepADBUsbReceiver.refresh(this);
                         refresh();
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+        activeDeleteConfirmDialog = dialog;
+        dialog.setOnDismissListener(d -> {
+            if (activeDeleteConfirmDialog == d) {
+                activeDeleteConfirmDialog = null;
+            }
+        });
+        dialog.show();
     }
 
     private EditText profileField(int hint) {
@@ -624,6 +805,10 @@ public class SettingsActivity extends Activity {
     }
 
     private void showIssueReportDialog() {
+        showIssueReportDialog(null, false);
+    }
+
+    private void showIssueReportDialog(String draftBody, boolean includeDiagnostics) {
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         int padding = (int) (20 * getResources().getDisplayMetrics().density);
@@ -632,8 +817,6 @@ public class SettingsActivity extends Activity {
         TextView intro = new TextView(this);
         intro.setText(R.string.settings_issue_report_dialog_message);
         intro.setTextSize(13);
-        intro.setMaxLines(3);
-        intro.setEllipsize(android.text.TextUtils.TruncateAt.END);
         content.addView(intro);
 
         CheckBox diagnostics = new CheckBox(this);
@@ -665,6 +848,12 @@ public class SettingsActivity extends Activity {
         final String[] diagnosticsSection = {null};
         String diagnosticsTitle = getString(R.string.issue_report_diagnostics_section);
         preview.setText(withoutDiagnostics);
+        if (draftBody != null) {
+            preview.setText(draftBody);
+        }
+        if (includeDiagnostics) {
+            diagnostics.setChecked(true);
+        }
         diagnostics.setOnCheckedChangeListener((button, checked) -> {
             String current = preview.getText().toString();
             if (checked && !KeepADBIssueReporter.containsDiagnosticsSection(current, diagnosticsTitle)) {
@@ -687,6 +876,14 @@ public class SettingsActivity extends Activity {
                 .setNeutralButton(R.string.settings_issue_report_share, null)
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
+        activeIssueReportDialog = dialog;
+        activeIssueReportPreview = preview;
+        activeIssueReportDiagnostics = diagnostics;
+        dialog.setOnDismissListener(d -> {
+            activeIssueReportDialog = null;
+            activeIssueReportPreview = null;
+            activeIssueReportDiagnostics = null;
+        });
         dialog.setOnShowListener(ignored -> {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
                 if (!diagnostics.isChecked()) {
@@ -713,6 +910,22 @@ public class SettingsActivity extends Activity {
             });
         });
         dialog.show();
+    }
+
+    AlertDialog getActiveIssueReportDialog() {
+        return activeIssueReportDialog;
+    }
+
+    AlertDialog getActiveProfileEditDialog() {
+        return activeProfileEditDialog;
+    }
+
+    AlertDialog getActiveManageNetworksDialog() {
+        return activeManageNetworksDialog;
+    }
+
+    AlertDialog getActiveSwitchProfileDialog() {
+        return activeSwitchProfileDialog;
     }
 
     private void refresh() {

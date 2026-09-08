@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Güvenilir ağlar</string>
     <string name="settings_trusted_network_empty_message">Henüz güvenilir ağ eklenmedi.</string>
     <string name="settings_trusted_network_delete_button">Kaldır</string>
+    <string name="settings_trusted_network_delete_accessibility">&quot;%1$s&quot; güvenilir ağını kaldır</string>
     <string name="settings_trusted_network_mesh_title">Diğer erişim noktaları eklensin mi?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB, %1$d erişim noktasının daha \"%2$s\" yayınladığını tespit etti. Bunlar da güvenilir listeye eklensin mi?</string>
     <string name="settings_trusted_network_mesh_add_button">Tümünü ekle</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">Sil</string>
     <string name="usb_profile_delete_title">Ana bilgisayar profilini sil</string>
     <string name="usb_profile_delete_message">&quot;%1$s&quot; ana bilgisayar profili silinsin mi?</string>
+    <string name="usb_profile_edit_action_accessibility">&quot;%1$s&quot; ana bilgisayar profilini düzenle</string>
+    <string name="usb_profile_delete_action_accessibility">&quot;%1$s&quot; ana bilgisayar profilini sil</string>
     <string name="usb_profile_edit_title">Ana bilgisayar profilini düzenle</string>
     <string name="settings_diagnostics_title">Tanılama</string>
     <string name="settings_diagnostics_subtext">Düzenlenmiş son 128 olayı bu cihazda tutar. Dışa aktarma, Android paylaşım sayfasını açar.</string>
