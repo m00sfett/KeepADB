@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">الشبكات الموثوقة</string>
     <string name="settings_trusted_network_empty_message">لم تتم إضافة أي شبكات موثوقة بعد.</string>
     <string name="settings_trusted_network_delete_button">إزالة</string>
+    <string name="settings_trusted_network_delete_accessibility">إزالة الشبكة الموثوقة &quot;%1$s&quot;</string>
     <string name="settings_trusted_network_mesh_title">إضافة نقاط وصول أخرى؟</string>
     <string name="settings_trusted_network_mesh_message">رصد KeepADB أيضًا %1$d نقطة وصول أخرى تبث \"%2$s\". هل تريد إضافتها جميعًا إلى الشبكات الموثوقة؟</string>
     <string name="settings_trusted_network_mesh_add_button">إضافة الكل</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">حذف</string>
     <string name="usb_profile_delete_title">حذف ملف تعريف المضيف</string>
     <string name="usb_profile_delete_message">حذف ملف تعريف المضيف &quot;%1$s&quot;؟</string>
+    <string name="usb_profile_edit_action_accessibility">تعديل ملف تعريف المضيف &quot;%1$s&quot;</string>
+    <string name="usb_profile_delete_action_accessibility">حذف ملف تعريف المضيف &quot;%1$s&quot;</string>
     <string name="usb_profile_edit_title">تعديل ملف تعريف المضيف</string>
     <string name="settings_diagnostics_title">التشخيص</string>
     <string name="settings_diagnostics_subtext">يحتفظ بآخر 128 حدثًا منقحًا على هذا الجهاز. يفتح التصدير نافذة المشاركة في Android.</string>

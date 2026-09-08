@@ -101,6 +101,12 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"usb_profile_delete_title\""));
                 assertTrue("Missing USB profile delete message in " + directory,
                         content.contains("name=\"usb_profile_delete_message\""));
+                assertTrue("Missing trusted network delete accessibility in " + directory,
+                        content.contains("name=\"settings_trusted_network_delete_accessibility\""));
+                assertTrue("Missing USB profile edit accessibility in " + directory,
+                        content.contains("name=\"usb_profile_edit_action_accessibility\""));
+                assertTrue("Missing USB profile delete accessibility in " + directory,
+                        content.contains("name=\"usb_profile_delete_action_accessibility\""));
                 assertTrue("Missing notification disable action in " + directory,
                         content.contains("name=\"notification_action_disable\""));
             }

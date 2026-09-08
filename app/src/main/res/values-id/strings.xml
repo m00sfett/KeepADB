@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Jaringan tepercaya</string>
     <string name="settings_trusted_network_empty_message">Belum ada jaringan tepercaya yang ditambahkan.</string>
     <string name="settings_trusted_network_delete_button">Hapus</string>
+    <string name="settings_trusted_network_delete_accessibility">Hapus jaringan tepercaya &quot;%1$s&quot;</string>
     <string name="settings_trusted_network_mesh_title">Tambahkan titik akses lain?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB juga mendeteksi %1$d titik akses lain yang menyiarkan \"%2$s\". Tambahkan juga ke daftar tepercaya?</string>
     <string name="settings_trusted_network_mesh_add_button">Tambahkan semua</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">Hapus</string>
     <string name="usb_profile_delete_title">Hapus profil host</string>
     <string name="usb_profile_delete_message">Hapus profil host &quot;%1$s&quot;?</string>
+    <string name="usb_profile_edit_action_accessibility">Ubah profil host &quot;%1$s&quot;</string>
+    <string name="usb_profile_delete_action_accessibility">Hapus profil host &quot;%1$s&quot;</string>
     <string name="usb_profile_edit_title">Ubah profil host</string>
     <string name="settings_diagnostics_title">Diagnostik</string>
     <string name="settings_diagnostics_subtext">Menyimpan 128 peristiwa tersunting terbaru di perangkat ini. Ekspor membuka lembar berbagi Android.</string>

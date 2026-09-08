@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Доверенные сети</string>
     <string name="settings_trusted_network_empty_message">Доверенные сети ещё не добавлены.</string>
     <string name="settings_trusted_network_delete_button">Удалить</string>
+    <string name="settings_trusted_network_delete_accessibility">Удалить доверенную сеть «%1$s»</string>
     <string name="settings_trusted_network_mesh_title">Добавить другие точки доступа?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB также обнаружил %1$d других точек доступа, транслирующих «%2$s». Добавить их тоже в доверенные сети?</string>
     <string name="settings_trusted_network_mesh_add_button">Добавить все</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">Удалить</string>
     <string name="usb_profile_delete_title">Удалить профиль хоста</string>
     <string name="usb_profile_delete_message">Удалить профиль хоста &quot;%1$s&quot;?</string>
+    <string name="usb_profile_edit_action_accessibility">Изменить профиль хоста «%1$s»</string>
+    <string name="usb_profile_delete_action_accessibility">Удалить профиль хоста «%1$s»</string>
     <string name="usb_profile_edit_title">Изменить профиль хоста</string>
     <string name="settings_diagnostics_title">Диагностика</string>
     <string name="settings_diagnostics_subtext">Хранит на устройстве последние 128 отредактированных событий. Экспорт открывает меню «Поделиться» Android.</string>

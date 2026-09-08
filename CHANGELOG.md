@@ -5,6 +5,14 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.16] - 2026-09-08
+
+### Fixed
+- Made trusted networks, profile selection, and profile edit dialogs scrollable to prevent clipping with many entries or large accessibility font scaling (issue #322).
+- Added contextual TalkBack content descriptions to delete and edit action buttons in trusted network and host profile lists (issue #322).
+- Preserved user drafts in the issue report and profile edit dialogs across screen orientation changes and activity recreations (issue #322).
+- Prevented truncation of the issue report privacy notice by displaying full descriptive text (issue #322).
+
 ## [1.5.15] - 2026-09-08
 
 ### Fixed

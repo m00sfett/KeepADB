@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Mạng đáng tin cậy</string>
     <string name="settings_trusted_network_empty_message">Chưa có mạng đáng tin cậy nào được thêm.</string>
     <string name="settings_trusted_network_delete_button">Xóa</string>
+    <string name="settings_trusted_network_delete_accessibility">Xóa mạng đáng tin cậy &quot;%1$s&quot;</string>
     <string name="settings_trusted_network_mesh_title">Thêm các điểm truy cập khác?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB cũng đã phát hiện %1$d điểm truy cập khác phát tín hiệu \"%2$s\". Bạn có muốn thêm chúng vào danh sách tin cậy không?</string>
     <string name="settings_trusted_network_mesh_add_button">Thêm tất cả</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">Xóa</string>
     <string name="usb_profile_delete_title">Xóa hồ sơ máy chủ</string>
     <string name="usb_profile_delete_message">Xóa hồ sơ máy chủ &quot;%1$s&quot;?</string>
+    <string name="usb_profile_edit_action_accessibility">Chỉnh sửa hồ sơ máy chủ &quot;%1$s&quot;</string>
+    <string name="usb_profile_delete_action_accessibility">Xóa hồ sơ máy chủ &quot;%1$s&quot;</string>
     <string name="usb_profile_edit_title">Chỉnh sửa hồ sơ máy chủ</string>
     <string name="settings_diagnostics_title">Chẩn đoán</string>
     <string name="settings_diagnostics_subtext">Lưu 128 sự kiện đã biên tập gần nhất trên thiết bị này. Thao tác xuất sẽ mở bảng chia sẻ Android.</string>

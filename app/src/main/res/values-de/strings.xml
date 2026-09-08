@@ -80,6 +80,7 @@
     <string name="settings_trusted_network_manage_title">Vertrauenswürdige Netzwerke</string>
     <string name="settings_trusted_network_empty_message">Noch keine vertrauenswürdigen Netzwerke hinzugefügt.</string>
     <string name="settings_trusted_network_delete_button">Entfernen</string>
+    <string name="settings_trusted_network_delete_accessibility">Vertrauenswürdiges Netzwerk „%1$s“ entfernen</string>
     <string name="settings_trusted_network_mesh_title">Weitere Access Points hinzufügen?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB hat außerdem %1$d weitere Access Points erkannt, die „%2$s“ ausstrahlen. Sollen sie ebenfalls zu den vertrauenswürdigen Netzwerken hinzugefügt werden?</string>
     <string name="settings_trusted_network_mesh_add_button">Alle hinzufügen</string>
@@ -141,9 +142,11 @@
     <string name="usb_profile_name_required">Bitte einen Profilnamen eingeben.</string>
     <string name="usb_profile_edit_button">Bearbeiten</string>
     <string name="usb_profile_edit_title">Hostprofil bearbeiten</string>
+    <string name="usb_profile_edit_action_accessibility">Hostprofil „%1$s“ bearbeiten</string>
     <string name="usb_profile_delete_button">Löschen</string>
     <string name="usb_profile_delete_title">Hostprofil löschen</string>
     <string name="usb_profile_delete_message">Hostprofil „%1$s“ löschen?</string>
+    <string name="usb_profile_delete_action_accessibility">Hostprofil „%1$s“ löschen</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB-Übergabe</string>
     <string name="settings_usb_handover_subtext">Bietet optional an oder aktiviert automatisch Drahtloses Debugging bei aktiver USB-ADB-Verbindung. Standardmäßig aus; ein manuelles AUS wird nie überschrieben.</string>
     <string name="settings_usb_handover_label">Übergabemodus</string>

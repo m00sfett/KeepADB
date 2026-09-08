@@ -67,6 +67,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_manage_title">Réseaux de confiance</string>
     <string name="settings_trusted_network_empty_message">Aucun réseau de confiance ajouté pour l\'instant.</string>
     <string name="settings_trusted_network_delete_button">Supprimer</string>
+    <string name="settings_trusted_network_delete_accessibility">Supprimer le réseau de confiance « %1$s »</string>
     <string name="settings_trusted_network_mesh_title">Ajouter d\'autres points d\'accès ?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB a également détecté %1$d autres points d\'accès diffusant « %2$s ». Voulez-vous les ajouter aussi à votre liste de confiance ?</string>
     <string name="settings_trusted_network_mesh_add_button">Tout ajouter</string>
@@ -126,6 +127,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_delete_button">Supprimer</string>
     <string name="usb_profile_delete_title">Supprimer le profil d’hôte</string>
     <string name="usb_profile_delete_message">Supprimer le profil d’hôte « %1$s » ?</string>
+    <string name="usb_profile_edit_action_accessibility">Modifier le profil d’hôte « %1$s »</string>
+    <string name="usb_profile_delete_action_accessibility">Supprimer le profil d’hôte « %1$s »</string>
     <string name="usb_profile_edit_title">Modifier le profil d’hôte</string>
     <string name="settings_diagnostics_title">Diagnostic</string>
     <string name="settings_diagnostics_subtext">Conserve les 128 derniers événements expurgés sur cet appareil. L’exportation ouvre la feuille de partage Android.</string>
