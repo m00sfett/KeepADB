@@ -435,6 +435,8 @@ final class KeepADBRegisterClient {
         clearUsbStateLocked(null);
         usbStateInitialized = false;
         currentUsbOpGeneration = 0;
+        resetHttpTransport();
+        mainHandler = null;
     }
 
     // ---- Test-only accessors: keep WLAN and USB state independently verifiable. ----
@@ -514,64 +516,92 @@ final class KeepADBRegisterClient {
         }
     }
 
+    interface HttpTransport {
+        boolean postJson(String targetUrl, String payload, String logLabel);
+        boolean delete(String targetUrl);
+    }
+
+    private static final class DefaultHttpTransport implements HttpTransport {
+        @Override
+        public boolean postJson(String targetUrl, String payload, String logLabel) {
+            HttpURLConnection conn = null;
+            try {
+                byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
+
+                URL url = new URL(targetUrl);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setInstanceFollowRedirects(false);
+                conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
+                conn.setDoOutput(true);
+                conn.setFixedLengthStreamingMode(bytes.length);
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(bytes);
+                    os.flush();
+                }
+
+                int code = conn.getResponseCode();
+                Log.d(TAG, "Register update for " + logLabel + " returned HTTP " + code);
+                return code >= 200 && code < 300;
+            } catch (IOException e) {
+                Log.w(TAG, "Could not update register at " + sanitizeUrl(targetUrl));
+                return false;
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+        }
+
+        @Override
+        public boolean delete(String targetUrl) {
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(targetUrl);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("DELETE");
+                conn.setInstanceFollowRedirects(false);
+                conn.setConnectTimeout(TIMEOUT_MS);
+                conn.setReadTimeout(TIMEOUT_MS);
+
+                int code = conn.getResponseCode();
+                Log.d(TAG, "Register delete returned HTTP " + code);
+                return code >= 200 && code < 300;
+            } catch (IOException e) {
+                Log.w(TAG, "Could not reach register to unregister at " + sanitizeUrl(targetUrl));
+                return false;
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+        }
+    }
+
+    private static final HttpTransport DEFAULT_TRANSPORT = new DefaultHttpTransport();
+    private static volatile HttpTransport httpTransport = DEFAULT_TRANSPORT;
+
+    static void setHttpTransport(HttpTransport transport) {
+        httpTransport = (transport != null) ? transport : DEFAULT_TRANSPORT;
+    }
+
+    static void resetHttpTransport() {
+        httpTransport = DEFAULT_TRANSPORT;
+    }
+
     static boolean postEndpoint(String targetUrl, String endpoint) {
         String payload = String.format(java.util.Locale.US, "{\"method\":\"wlan-adb\",\"endpoint\":\"%s\"}", endpoint);
         return sendJsonPost(targetUrl, payload, endpoint);
     }
 
     private static boolean sendJsonPost(String targetUrl, String payload, String logLabel) {
-        HttpURLConnection conn = null;
-        try {
-            byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
-
-            URL url = new URL(targetUrl);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setInstanceFollowRedirects(false);
-            conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-            conn.setConnectTimeout(TIMEOUT_MS);
-            conn.setReadTimeout(TIMEOUT_MS);
-            conn.setDoOutput(true);
-            conn.setFixedLengthStreamingMode(bytes.length);
-
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(bytes);
-                os.flush();
-            }
-
-            int code = conn.getResponseCode();
-            Log.d(TAG, "Register update for " + logLabel + " returned HTTP " + code);
-            return code >= 200 && code < 300;
-        } catch (IOException e) {
-            Log.w(TAG, "Could not update register at " + sanitizeUrl(targetUrl));
-            return false;
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
+        return httpTransport.postJson(targetUrl, payload, logLabel);
     }
 
     static boolean deleteEndpoint(String targetUrl) {
-        HttpURLConnection conn = null;
-        try {
-            URL url = new URL(targetUrl);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("DELETE");
-            conn.setInstanceFollowRedirects(false);
-            conn.setConnectTimeout(TIMEOUT_MS);
-            conn.setReadTimeout(TIMEOUT_MS);
-
-            int code = conn.getResponseCode();
-            Log.d(TAG, "Register delete returned HTTP " + code);
-            return code >= 200 && code < 300;
-        } catch (IOException e) {
-            Log.w(TAG, "Could not reach register to unregister at " + sanitizeUrl(targetUrl));
-            return false;
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
+        return httpTransport.delete(targetUrl);
     }
 }

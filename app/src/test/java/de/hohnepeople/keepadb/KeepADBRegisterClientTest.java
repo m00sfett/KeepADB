@@ -2,8 +2,12 @@ package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
+import androidx.test.core.app.ApplicationProvider;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -13,12 +17,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
 
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 34)
 public class KeepADBRegisterClientTest {
 
     private ServerSocket testServer;
@@ -30,7 +43,10 @@ public class KeepADBRegisterClientTest {
 
     @Before
     public void setUp() throws Exception {
+        clearPreferences();
+        KeepADBRegisterClient.resetHttpTransport();
         KeepADBRegisterClient.resetForTesting();
+        KeepADB.resetForTesting();
         testServer = new ServerSocket(0);
         testServerPort = testServer.getLocalPort();
         running.set(true);
@@ -84,7 +100,15 @@ public class KeepADBRegisterClientTest {
         if (serverThread != null) {
             serverThread.interrupt();
         }
+        clearPreferences();
+        KeepADBRegisterClient.resetHttpTransport();
         KeepADBRegisterClient.resetForTesting();
+        KeepADB.resetForTesting();
+    }
+
+    private void clearPreferences() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
     }
 
     @Test
@@ -144,5 +168,317 @@ public class KeepADBRegisterClientTest {
         }
         String xml = new String(java.nio.file.Files.readAllBytes(directory.resolve("app/src/main/res/xml/network_security_config.xml")), StandardCharsets.UTF_8);
         assertTrue(xml.contains("<base-config cleartextTrafficPermitted=\"true\">"));
+    }
+
+    @Test
+    public void testFakeSettingsGatewayDefaultSuccess() {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        assertFalse(gateway.isEnabled(context));
+
+        boolean ok = gateway.write(context, true);
+        assertTrue(ok);
+        assertTrue(gateway.isEnabled(context));
+        assertEquals(1, gateway.writes.size());
+        assertTrue(gateway.writes.get(0));
+    }
+
+    @Test
+    public void testFakeSettingsGatewayWriteFailureInjection() {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        gateway.setWriteSuccess(false);
+
+        boolean ok = gateway.write(context, true);
+        assertFalse(ok);
+        assertFalse(gateway.isEnabled(context));
+        assertEquals(1, gateway.writes.size());
+        assertTrue(gateway.writes.get(0));
+
+        // State remains false on subsequent read
+        assertFalse(gateway.isEnabled(context));
+
+        // Test with initially enabled = true attempting to write false
+        KeepADBFakeSettingsGateway gatewayEnabled = new KeepADBFakeSettingsGateway(true);
+        gatewayEnabled.setWriteSuccess(false);
+
+        boolean okDisable = gatewayEnabled.write(context, false);
+        assertFalse(okDisable);
+        assertTrue(gatewayEnabled.isEnabled(context));
+        assertEquals(1, gatewayEnabled.writes.size());
+        assertFalse(gatewayEnabled.writes.get(0));
+    }
+
+    @Test
+    public void testKeepADBApplyDesiredStateWithFailingGateway() {
+        Context context = ApplicationProvider.getApplicationContext();
+        org.robolectric.Shadows.shadowOf((android.app.Application) context)
+                .grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(scheduler);
+
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        gateway.setWriteSuccess(false);
+        KeepADB.setGatewayForTesting(gateway);
+
+        // Apply toggle ON: gateway rejects write
+        boolean applied = KeepADB.setEnabled(context, true, "test");
+        assertTrue(applied);
+        assertFalse(KeepADB.isEnabled(context));
+        assertEquals(1, gateway.writes.size());
+        assertTrue(gateway.writes.get(0));
+    }
+
+    @Test
+    public void testFakeHttpTransportConfigurationAndRecording() {
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        assertTrue(transport.postJson("http://test.url/post", "{\"key\":\"value\"}", "label"));
+        assertTrue(transport.delete("http://test.url/delete"));
+
+        assertEquals(2, transport.getRequestCount());
+        assertEquals("POST", transport.recordedRequests.get(0).method);
+        assertEquals("http://test.url/post", transport.recordedRequests.get(0).url);
+        assertEquals("{\"key\":\"value\"}", transport.recordedRequests.get(0).payload);
+        assertEquals("label", transport.recordedRequests.get(0).logLabel);
+
+        assertEquals("DELETE", transport.recordedRequests.get(1).method);
+        assertEquals("http://test.url/delete", transport.recordedRequests.get(1).url);
+        assertEquals(transport.recordedRequests.get(1), transport.getLastRequest());
+
+        // Test failure injection for POST
+        transport.setPostSuccess(false);
+        assertFalse(transport.postJson("http://test.url/post2", "{}", "label2"));
+
+        // Test response codes
+        transport.setPostResponseCode(500);
+        assertEquals(500, transport.getPostResponseCode());
+        assertFalse(transport.postJson("http://test.url/post3", "{}", "label3"));
+
+        transport.setPostResponseCode(200);
+        assertTrue(transport.postJson("http://test.url/post4", "{}", "label4"));
+
+        // Test failure injection for DELETE
+        transport.setDeleteResponseCode(404);
+        assertFalse(transport.delete("http://test.url/delete2"));
+
+        // Test callbacks
+        AtomicBoolean failureCallbackRan = new AtomicBoolean(false);
+        transport.setFailureCallback(() -> failureCallbackRan.set(true));
+        transport.setPostSuccess(false);
+        transport.postJson("http://test.url/fail", "{}", "fail");
+        assertTrue(failureCallbackRan.get());
+
+        List<KeepADBFakeHttpTransport.Request> callbackRequests = new ArrayList<>();
+        transport.setRequestCallback(callbackRequests::add);
+        transport.setPostSuccess(true);
+        transport.postJson("http://test.url/cb", "{\"a\":1}", "cb");
+        assertEquals(1, callbackRequests.size());
+        assertEquals("http://test.url/cb", callbackRequests.get(0).url);
+
+        // Test simulated latency
+        long start = System.currentTimeMillis();
+        transport.setSimulatedLatencyMs(30);
+        transport.delete("http://test.url/latency");
+        long elapsed = System.currentTimeMillis() - start;
+        assertTrue(elapsed >= 25);
+
+        transport.clearRequests();
+        assertEquals(0, transport.getRequestCount());
+        assertNull(transport.getLastRequest());
+    }
+
+    @Test
+    public void testPostEndpointFailureWithFakeTransport() {
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setPostSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        boolean success = KeepADBRegisterClient.postEndpoint("http://test.url/register", "192.168.1.50:41234");
+        assertFalse(success);
+        assertEquals(1, transport.getRequestCount());
+        assertEquals("POST", transport.getLastRequest().method);
+    }
+
+    @Test
+    public void testDeleteEndpointFailureWithFakeTransport() {
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        boolean success = KeepADBRegisterClient.deleteEndpoint("http://test.url/register");
+        assertFalse(success);
+        assertEquals(1, transport.getRequestCount());
+        assertEquals("DELETE", transport.getLastRequest().method);
+    }
+
+    @Test
+    public void testUpdateEndpointAsyncFailureUpdatesStatusAndNotifiesListener() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setPostSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        AtomicBoolean listenerNotified = new AtomicBoolean(false);
+        KeepADBRegisterClient.setRegisterStateListener(() -> listenerNotified.set(true));
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+
+        waitUntil(() -> {
+            ShadowLooper.idleMainLooper();
+            return listenerNotified.get();
+        }, 3000);
+
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertTrue(listenerNotified.get());
+        assertEquals(1, transport.getRequestCount());
+    }
+
+    @Test
+    public void testMarkUnavailableAsyncFailureUpdatesStatusAndNotifiesListener() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        AtomicBoolean listenerNotified = new AtomicBoolean(false);
+        KeepADBRegisterClient.setRegisterStateListener(() -> listenerNotified.set(true));
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+
+        waitUntil(() -> {
+            ShadowLooper.idleMainLooper();
+            return listenerNotified.get();
+        }, 3000);
+
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertTrue(listenerNotified.get());
+        assertEquals(1, transport.getRequestCount());
+    }
+
+    @Test
+    public void testUsbEndpointFailureDoesNotUpdateReportedState() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setPostSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, "http://fake.url/register",
+                "device123", 1, "Desk", "192.168.1.20", "host", "tailhost");
+
+        waitUntil(() -> transport.getRequestCount() >= 1, 3000);
+        Thread.sleep(100);
+
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
+    }
+
+    @Test
+    public void testInFlightUpdateSupersededByNewerUpdate() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        CountDownLatch firstRequestStarted = new CountDownLatch(1);
+        CountDownLatch canFinishFirstRequest = new CountDownLatch(1);
+
+        transport.setRequestCallback(req -> {
+            if (req.payload != null && req.payload.contains("41234")) {
+                firstRequestStarted.countDown();
+                try {
+                    canFinishFirstRequest.await(3, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+
+        // Trigger in-flight POST with port 41234
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
+        assertTrue(firstRequestStarted.await(3, TimeUnit.SECONDS));
+
+        // While first POST is in-flight, trigger newer update with port 41235
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41235);
+
+        // Allow first in-flight POST to finish
+        canFinishFirstRequest.countDown();
+
+        // Wait until second update completes
+        waitUntil(() -> "192.168.1.50:41235".equals(
+                KeepADBPreferences.getWebhookLastReportedEndpoint(context)), 3000);
+
+        ShadowLooper.idleMainLooper();
+
+        // Verify the final registered endpoint is the newer one (41235), not the stale one (41234)
+        assertEquals("192.168.1.50:41235", KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+        assertEquals("192.168.1.50:41235", KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+    }
+
+    @Test
+    public void testInFlightUsbRegistrationSupersededByNewerProfile() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        CountDownLatch firstRequestStarted = new CountDownLatch(1);
+        CountDownLatch canFinishFirstRequest = new CountDownLatch(1);
+
+        transport.setRequestCallback(req -> {
+            if (req.payload != null && req.payload.contains("Desk")) {
+                firstRequestStarted.countDown();
+                try {
+                    canFinishFirstRequest.await(3, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+
+        // Start Desk registration (in-flight)
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, "http://fake.url/register",
+                "device123", 1, "Desk", "192.168.1.20", "host", "tailhost");
+        assertTrue(firstRequestStarted.await(3, TimeUnit.SECONDS));
+
+        // Supersede with Laptop registration
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, "http://fake.url/register",
+                "device123", 2, "Laptop", "192.168.1.30", "lap-host", "lap-tailhost");
+
+        // Allow Desk to finish
+        canFinishFirstRequest.countDown();
+
+        // Wait until Laptop state is recorded
+        waitUntil(() -> Integer.valueOf(2).equals(KeepADBRegisterClient.getLastRegisteredUsbProfileIdForTesting()), 3000);
+        waitUntil(() -> "Laptop".equals(KeepADBPreferences.getUsbWebhookLastProfileName(context)), 3000);
+
+        assertEquals("Laptop", KeepADBRegisterClient.getLastRegisteredUsbProfileNameForTesting());
+        assertEquals("Laptop", KeepADBPreferences.getUsbWebhookLastProfileName(context));
+    }
+
+    private static void waitUntil(Callable<Boolean> condition, long timeoutMs) throws Exception {
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < deadline) {
+            if (Boolean.TRUE.equals(condition.call())) return;
+            Thread.sleep(20);
+        }
+        throw new AssertionError("Condition timed out after " + timeoutMs + " ms");
     }
 }
