@@ -14,10 +14,12 @@ import android.content.Context;
  *   <li>{@link #onRawUsbBroadcast(Context, boolean)} -- AUTOMATIC mode, called only from
  *       {@link KeepADBUsbReceiver#onReceive}'s real {@code USB_STATE} broadcasts. Gated by
  *       {@link KeepADBTrustedNetwork} (#245) like KeepADBService's other auto re-enable
- *       paths, since it's an automatic action, not a direct user request.</li>
+ *       paths, since it's an automatic action, not a direct user request. Source
+ *       {@code "usb_handover"}, i.e. debounced and revalidated at write time (#310).</li>
  *   <li>{@link #handleManualAction(Context)} -- MANUAL mode, called from the USB notification's
  *       "Enable WLAN-ADB" action. A direct, explicit user action, so it is never gated by the
- *       trusted-network allowlist.</li>
+ *       trusted-network allowlist and, since #310, carries its own source
+ *       {@link KeepADB#SOURCE_USB_HANDOVER_MANUAL} so KeepADB applies it without delay.</li>
  * </ul>
  */
 final class KeepADBUsbHandover {
@@ -53,8 +55,23 @@ final class KeepADBUsbHandover {
                 KeepADBDiagnostics.event(appContext, "usb_handover", "usb", "blocked", "untrusted_network");
                 return;
             }
-            KeepADB.setEnabled(appContext, true, "usb_handover");
+            // #310: the check above happens now; the write may happen up to TOGGLE_COOLDOWN_MS
+            // later. The same policy is handed along as a guard so it is re-evaluated at write
+            // time -- otherwise plugging in the cable just before leaving a trusted network
+            // would still enable WLAN-ADB on the network the device switched to.
+            KeepADB.setEnabled(appContext, true, "usb_handover",
+                    KeepADBUsbHandover::isAutoHandoverStillPermitted);
         }
+    }
+
+    /**
+     * The automatic handover's re-check for {@link KeepADB.EnableGuard}. Keep-Alive is
+     * deliberately not part of it: the USB handover is its own feature with its own mode setting
+     * and works with Keep-Alive off. Static and lock-free, since KeepADB invokes it while holding
+     * its own monitor (and this class's {@code synchronized} decision core is never on that path).
+     */
+    static boolean isAutoHandoverStillPermitted(Context appContext) {
+        return KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext);
     }
 
     /**
@@ -82,9 +99,15 @@ final class KeepADBUsbHandover {
      * MANUAL mode notification action. Returns whatever {@link KeepADB#setEnabled} returns, so
      * the caller (the USB notification) can show a clear error instead of implying success on a
      * missing-permission failure.
+     *
+     * <p>#310: uses its own source string. It used to share {@code "usb_handover"} with the
+     * automatic broadcast path above, which made the two indistinguishable to KeepADB even
+     * though only this one is a direct user action -- so a user tap was debounced (and would now
+     * additionally be revalidated) like an automatic enable.
      */
     static boolean handleManualAction(Context context) {
-        return KeepADB.setEnabled(context.getApplicationContext(), true, "usb_handover");
+        return KeepADB.setEnabled(context.getApplicationContext(), true,
+                KeepADB.SOURCE_USB_HANDOVER_MANUAL);
     }
 
     /** Reset state for unit tests. */

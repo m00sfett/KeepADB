@@ -5,6 +5,11 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Liest/schreibt Androids "Wireless debugging"-Schalter (Settings.Global.adb_wifi_enabled).
  *
@@ -52,6 +57,48 @@ final class KeepADB {
     }
 
     private static Runnable pendingToggleRunnable;
+
+    // #310: source strings whose caller is a direct, explicit user action. Everything else is
+    // treated as automatic, so an unrecognized/new source keeps today's conservative behavior
+    // (debounced, never written straight away) instead of silently gaining an instant write.
+    // The USB handover has one entry per entry point on purpose: its automatic broadcast path
+    // and its notification-action tap used to share one source string, which made the two
+    // indistinguishable here even though only one of them is a user action.
+    static final String SOURCE_APP = "app";
+    static final String SOURCE_TILE = "tile";
+    static final String SOURCE_WIDGET = "widget";
+    static final String SOURCE_NOTIFICATION = "notification";
+    static final String SOURCE_USB_HANDOVER_MANUAL = "usb_handover_manual";
+
+    private static final Set<String> MANUAL_SOURCES = Collections.unmodifiableSet(new HashSet<>(
+            Arrays.asList(SOURCE_APP, SOURCE_TILE, SOURCE_WIDGET, SOURCE_NOTIFICATION,
+                    SOURCE_USB_HANDOVER_MANUAL)));
+
+    /** True for the sources that represent a direct user action rather than an automatic one. */
+    static boolean isManualSource(String source) {
+        return MANUAL_SOURCES.contains(source);
+    }
+
+    /**
+     * Caller-supplied re-check evaluated immediately before an automatic enable actually writes
+     * (#310). It exists so the toggle facade can revalidate a delayed intent without knowing
+     * <em>what</em> makes it valid: the Keep-Alive setting and the trusted-network allowlist stay
+     * with the call sites that own that policy (#245), and this class never learns about either.
+     * Implementations must not block and must not acquire another lock -- they are invoked while
+     * {@code KeepADB.class} is held, together with the write they authorize.
+     */
+    interface EnableGuard {
+        /** False aborts the pending enable exactly like a superseded intent: no write at all. */
+        boolean stillApplies(Context appContext);
+    }
+
+    /**
+     * Records that the connected Wi-Fi network changed, invalidating every automatic intent that
+     * was planned for the previous one. Returns the new generation for diagnostics.
+     */
+    static long noteNetworkChanged() {
+        return state.noteNetworkChanged();
+    }
 
     private KeepADB() {}
 
@@ -119,15 +166,25 @@ final class KeepADB {
     }
 
     /**
-     * Schaltet Wireless Debugging um.
-     * Bei schnellen wiederholten Aufrufen innerhalb TOGGLE_COOLDOWN_MS wird die letzte
-     * gewünschte Absicht debounced eingeplant.
+     * Schaltet Wireless Debugging um. Bei schnellen wiederholten Aufrufen aus einer
+     * <em>automatischen</em> Quelle innerhalb TOGGLE_COOLDOWN_MS wird die letzte gewünschte
+     * Absicht debounced eingeplant; manuelle Quellen ({@link #isManualSource}) schreiben sofort.
      */
     static boolean setEnabled(Context ctx, boolean on) {
         return setEnabled(ctx, on, "app");
     }
 
     static boolean setEnabled(Context ctx, boolean on, String source) {
+        return setEnabled(ctx, on, source, null);
+    }
+
+    /**
+     * Toggle variant for automatic enable callers (#310). {@code guard} is re-evaluated
+     * immediately before the write -- after any debounce delay -- and aborts the toggle if the
+     * conditions that justified it no longer hold. It is only consulted for {@code on == true};
+     * a disable is never blocked by it.
+     */
+    static boolean setEnabled(Context ctx, boolean on, String source, EnableGuard guard) {
         Context appContext = ctx.getApplicationContext();
         boolean observed = isEnabled(appContext);
         String eventName = diagnosticEventName(source);
@@ -139,18 +196,21 @@ final class KeepADB {
 
         final long token;
         final long delayMs;
+        final long networkGeneration;
         synchronized (KeepADB.class) {
-            KeepADBToggleState.ToggleDecision decision =
-                    state.requestToggle(on, scheduler.elapsedRealtimeMs());
+            KeepADBToggleState.ToggleDecision decision = state.requestToggle(
+                    on, scheduler.elapsedRealtimeMs(), !isManualSource(source));
             token = decision.token;
             delayMs = decision.delayMs;
+            networkGeneration = decision.networkGeneration;
             KeepADBPreferences.setLastDesiredOn(appContext, on);
             if (pendingToggleRunnable != null) {
                 scheduler.removeCallbacks(pendingToggleRunnable);
                 pendingToggleRunnable = null;
             }
             if (!decision.isImmediate()) {
-                pendingToggleRunnable = () -> applyNow(appContext, on, source, token);
+                pendingToggleRunnable =
+                        () -> applyNow(appContext, on, source, token, networkGeneration, guard);
                 scheduler.postDelayed(pendingToggleRunnable, delayMs);
             }
         }
@@ -159,10 +219,11 @@ final class KeepADB {
                 "intentId=" + token + " desired=" + on + " observed=" + observed
                         + (delayMs > 0 ? " delayMs=" + delayMs : ""));
         if (delayMs > 0) return true;
-        return applyNow(appContext, on, source, token);
+        return applyNow(appContext, on, source, token, networkGeneration, guard);
     }
 
-    private static synchronized boolean applyNow(Context appContext, boolean on, String source, long token) {
+    private static synchronized boolean applyNow(Context appContext, boolean on, String source,
+            long token, long networkGeneration, EnableGuard guard) {
         String eventName = diagnosticEventName(source);
         if (!state.isCurrentIntent(token)) {
             KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
@@ -170,6 +231,22 @@ final class KeepADB {
             return false; // Superseded by a newer toggle intent
         }
         pendingToggleRunnable = null;
+        // #310: an automatic enable was authorized under conditions read at planning time, up to
+        // TOGGLE_COOLDOWN_MS ago. Re-check them here, inside the same lock as the write they
+        // authorize, so a network change or a withdrawn Keep-Alive during the delay cancels the
+        // write instead of being written blind. Treated exactly like a superseded intent.
+        if (on && guard != null) {
+            if (!state.isCurrentNetworkGeneration(networkGeneration)) {
+                KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
+                        "intentId=" + token + " reason=network_changed");
+                return false;
+            }
+            if (!guard.stillApplies(appContext)) {
+                KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
+                        "intentId=" + token + " reason=preconditions_changed");
+                return false;
+            }
+        }
         try {
             boolean writeAccepted = gateway.write(appContext, on);
             if (!writeAccepted) {
