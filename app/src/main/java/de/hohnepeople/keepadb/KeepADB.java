@@ -172,6 +172,15 @@ final class KeepADB {
         pendingToggleRunnable = null;
         try {
             boolean writeAccepted = gateway.write(appContext, on);
+            if (!writeAccepted) {
+                // #309: a rejected write is a failure, not a success with a footnote. Recording
+                // it as applied would move the debounce anchor and the persisted last-intent to
+                // a state the system never actually reached, and returning true would tell the
+                // caller (tile, widget, service) the toggle went through.
+                KeepADBDiagnostics.event(appContext, eventName, source, "failed",
+                        "intentId=" + token + " desired=" + on + " reason=write_rejected");
+                return false;
+            }
             state.recordApplied(on, scheduler.elapsedRealtimeMs());
             KeepADBPreferences.setLastDesiredOn(appContext, on);
             boolean actual = isEnabled(appContext);
@@ -220,49 +229,86 @@ final class KeepADB {
                 "intentId=" + pulseToken + " observed=" + observed);
 
         scheduler.runAsync(() -> {
-            try {
-                boolean writeAccepted = gateway.write(appContext, false);
-                state.recordAppliedTime(scheduler.elapsedRealtimeMs());
-                boolean actual = isEnabled(appContext);
-                KeepADBDiagnostics.event(appContext, "recovery_state", "endpoint",
-                        writeAccepted && !actual ? "success" : "state_mismatch",
-                        "intentId=" + pulseToken + " stage=disable actual=" + actual
-                                + " writeAccepted=" + writeAccepted);
-            } catch (SecurityException e) {
+            // #309: both pulse stages re-check the guards *inside* the same lock that covers the
+            // write they authorize. Checking outside (or, as before, not at all for the disable
+            // stage) leaves a window in which a manual toggle lands between the decision and the
+            // write, so a superseded pulse would overwrite a newer explicit user intent.
+            boolean disableRejected;
+            boolean disableSecurityException = false;
+            boolean disableActual = false;
+            synchronized (KeepADB.class) {
+                if (pulseSuperseded(appContext, pulseToken)) {
+                    logPulseCancelled(appContext, pulseToken, "disable");
+                    return;
+                }
+                try {
+                    disableRejected = !gateway.write(appContext, false);
+                    state.recordAppliedTime(scheduler.elapsedRealtimeMs());
+                    disableActual = isEnabled(appContext);
+                } catch (SecurityException e) {
+                    disableRejected = true;
+                    disableSecurityException = true;
+                }
+            }
+            if (disableSecurityException) {
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "failed",
                         "intentId=" + pulseToken + " stage=disable reason=security_exception");
                 return;
             }
+            KeepADBDiagnostics.event(appContext, "recovery_state", "endpoint",
+                    !disableRejected && !disableActual ? "success" : "state_mismatch",
+                    "intentId=" + pulseToken + " stage=disable actual=" + disableActual
+                            + " writeAccepted=" + !disableRejected);
 
             try {
                 scheduler.sleep(RECOVERY_PULSE_OFF_MS);
             } catch (InterruptedException ignored) {
             }
 
+            boolean enableRejected;
+            boolean enableSecurityException = false;
+            boolean enableActual = false;
             synchronized (KeepADB.class) {
-                if (!state.isCurrentIntent(pulseToken) || state.isUserDisabled()
-                        || wasLastExplicitIntentOff(appContext)) {
-                    Log.i(TAG, "Recovery pulse cancelled by newer user intent");
-                    KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "cancelled",
-                            "intentId=" + pulseToken + " reason=newer_user_intent");
+                if (pulseSuperseded(appContext, pulseToken)) {
+                    logPulseCancelled(appContext, pulseToken, "enable");
                     return;
                 }
+                try {
+                    enableRejected = !gateway.write(appContext, true);
+                    state.recordAppliedTime(scheduler.elapsedRealtimeMs());
+                    enableActual = isEnabled(appContext);
+                } catch (SecurityException e) {
+                    enableRejected = true;
+                    enableSecurityException = true;
+                }
             }
-
-            try {
-                boolean writeAccepted = gateway.write(appContext, true);
-                state.recordAppliedTime(scheduler.elapsedRealtimeMs());
-                boolean actual = isEnabled(appContext);
-                KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint",
-                        writeAccepted && actual ? "success" : "state_mismatch",
-                        "intentId=" + pulseToken + " stage=enable actual=" + actual
-                                + " writeAccepted=" + writeAccepted);
-                surfaces.refreshAll(appContext);
-            } catch (SecurityException ignored) {
+            if (enableSecurityException) {
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "failed",
                         "intentId=" + pulseToken + " stage=enable reason=security_exception");
+                return;
             }
+            KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint",
+                    !enableRejected && enableActual ? "success" : "state_mismatch",
+                    "intentId=" + pulseToken + " stage=enable actual=" + enableActual
+                            + " writeAccepted=" + !enableRejected);
+            surfaces.refreshAll(appContext);
         });
+    }
+
+    /**
+     * True when the in-flight recovery pulse identified by {@code pulseToken} must not write:
+     * a newer intent superseded it, or the user disabled wireless debugging in the meantime.
+     * Must be called while holding {@code KeepADB.class}, together with the write it guards.
+     */
+    private static boolean pulseSuperseded(Context appContext, long pulseToken) {
+        return !state.isCurrentIntent(pulseToken) || state.isUserDisabled()
+                || wasLastExplicitIntentOff(appContext);
+    }
+
+    private static void logPulseCancelled(Context appContext, long pulseToken, String stage) {
+        Log.i(TAG, "Recovery pulse cancelled by newer user intent");
+        KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "cancelled",
+                "intentId=" + pulseToken + " stage=" + stage + " reason=newer_user_intent");
     }
 
     /** Consumes and returns whether the last disable was user-initiated (vs. an external drop). */

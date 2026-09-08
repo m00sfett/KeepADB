@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -112,6 +113,51 @@ public class KeepADBToggleSchedulingTest {
         KeepADB.performRecoveryPulse(ctx);
         assertEquals("both pulse stages must apply when nothing intervenes",
                 Arrays.asList(false, true), gateway.writes);
+        assertTrue(gateway.isEnabled(ctx));
+    }
+
+    @Test
+    public void recoveryPulseAbortsBeforeItsDisableWriteWhenANewerIntentLandedFirst() {
+        gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        // The pulse body is queued rather than run inline, which reproduces the real gap between
+        // beginPulse() on the calling thread and the pulse body starting on its own thread.
+        scheduler.setDeferAsync(true);
+
+        KeepADB.performRecoveryPulse(ctx);
+        assertEquals("nothing may be written before the pulse body runs", 0, gateway.writes.size());
+
+        // A manual "on" tap lands in that gap. It issues a newer intent token, so the pulse is
+        // already stale when its *first* (disable) write would happen -- #309: before the fix
+        // only the second (restore) stage checked the token, so this off-write went through and
+        // switched wireless debugging back off behind the user's back.
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertEquals(Arrays.asList(true), gateway.writes);
+
+        scheduler.runDeferredAsync();
+        assertEquals("a superseded pulse must not reach the gateway at all",
+                Arrays.asList(true), gateway.writes);
+        assertTrue("the manual intent must survive the stale pulse", gateway.isEnabled(ctx));
+    }
+
+    @Test
+    public void aRejectedWriteFailsTheToggleAndIsNotBookedAsApplied() {
+        gateway.setWriteSuccess(false);
+
+        assertFalse("a gateway that rejected the write must not report success",
+                KeepADB.setEnabled(ctx, true, "app"));
+        assertEquals(Arrays.asList(true), gateway.writes);
+        assertFalse(gateway.isEnabled(ctx));
+        assertEquals("a write that never landed must not fan out to the surfaces",
+                0, surfaces.refreshCount);
+
+        // #309: recordApplied() must have been skipped too. Had the failed write been booked as
+        // applied, it would have moved the debounce anchor to "now" and this immediate retry
+        // would be delayed instead of writing straight away.
+        gateway.setWriteSuccess(true);
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertEquals("the retry after a rejected write must not be debounced",
+                Arrays.asList(true, true), gateway.writes);
         assertTrue(gateway.isEnabled(ctx));
     }
 

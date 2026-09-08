@@ -13,6 +13,8 @@ import java.util.List;
  */
 final class KeepADBFakeScheduler implements KeepADBScheduler {
     private final List<Scheduled> scheduled = new ArrayList<>();
+    private final List<Runnable> deferredAsync = new ArrayList<>();
+    private boolean deferAsync;
     private long clockMs;
 
     private static final class Scheduled {
@@ -85,8 +87,30 @@ final class KeepADBFakeScheduler implements KeepADBScheduler {
         }
     }
 
+    /**
+     * Makes {@link #runAsync} queue its runnable instead of running it inline (#309), so a test
+     * can act on KeepADB's state in the gap between a caller handing work to the scheduler and
+     * that work actually starting -- the gap a real background thread has too.
+     */
+    void setDeferAsync(boolean deferAsync) {
+        this.deferAsync = deferAsync;
+    }
+
+    /** Runs every runnable queued by {@link #runAsync} while {@link #setDeferAsync} was on. */
+    void runDeferredAsync() {
+        List<Runnable> due = new ArrayList<>(deferredAsync);
+        deferredAsync.clear();
+        for (Runnable runnable : due) {
+            runnable.run();
+        }
+    }
+
     @Override
     public void runAsync(Runnable runnable) {
+        if (deferAsync) {
+            deferredAsync.add(runnable);
+            return;
+        }
         runnable.run();
     }
 

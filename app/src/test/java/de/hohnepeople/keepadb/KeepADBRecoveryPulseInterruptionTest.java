@@ -9,12 +9,16 @@ import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.After;
 import org.junit.Before;
@@ -89,6 +93,139 @@ public class KeepADBRecoveryPulseInterruptionTest {
 
         assertEquals(Arrays.asList(false, true), gateway.writes);
         assertTrue(gateway.isEnabled(ctx));
+    }
+
+    /**
+     * #309: the narrow window the previous code left open. The pulse's restore stage checked the
+     * intent token inside {@code synchronized (KeepADB.class)} but wrote *after* releasing that
+     * lock, so a manual disable could complete in between and then be silently overwritten by
+     * the pulse. Here the gateway parks the pulse inside its restore write while a second thread
+     * issues that manual disable: with the write covered by the same lock as the guard, the
+     * manual call cannot squeeze in between, and whichever order the two end up in, the user's
+     * explicit off is the last thing applied.
+     */
+    @Test
+    public void aManualDisableRacingTheRestoreWriteIsNeverOverwrittenByThePulse() throws InterruptedException {
+        FakeContext ctx = new FakeContext();
+        LatchedGateway gateway = new LatchedGateway(true);
+        RacingScheduler scheduler = new RacingScheduler();
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADB.setSurfaceRefresherForTesting(new KeepADBFakeSurfaceRefresher());
+
+        KeepADB.performRecoveryPulse(ctx);
+        assertTrue("the pulse must reach its restore write", gateway.awaitRestoreEntered());
+        assertEquals("only the disable stage may have been applied so far",
+                Arrays.asList(false), gateway.writes());
+
+        CountDownLatch manualFinished = new CountDownLatch(1);
+        Thread manual = new Thread(() -> {
+            KeepADB.setEnabled(ctx, false, "app");
+            manualFinished.countDown();
+        }, "test-manual-disable");
+        manual.start();
+        // Bounded wait that is *expected* to time out once the barrier is in place: the manual
+        // disable is blocked on KeepADB.class, which the pulse holds across its restore write.
+        // Without the barrier it completes right here -- and the pulse then overwrites it.
+        manualFinished.await(500, TimeUnit.MILLISECONDS);
+
+        gateway.releaseRestore();
+        assertTrue("the manual disable must finish once the pulse released the lock",
+                manualFinished.await(5, TimeUnit.SECONDS));
+        assertTrue(scheduler.awaitThreadFinished());
+        manual.join(5000);
+
+        assertEquals("the manual disable must be applied after the pulse's restore, not before it",
+                Arrays.asList(false, true, false), gateway.writes());
+        assertFalse("the user's manual disable must win", gateway.isEnabled(ctx));
+    }
+
+    /**
+     * {@link KeepADBSettingsGateway} fake that parks the caller inside the recovery pulse's
+     * restore write (the {@code true} write) until the test releases it, so the test can act
+     * while the pulse is mid-write.
+     */
+    private static final class LatchedGateway implements KeepADBSettingsGateway {
+        private final CountDownLatch restoreEntered = new CountDownLatch(1);
+        private final CountDownLatch restoreGate = new CountDownLatch(1);
+        private final List<Boolean> writes = Collections.synchronizedList(new ArrayList<>());
+        private volatile boolean enabled;
+
+        LatchedGateway(boolean initiallyEnabled) {
+            this.enabled = initiallyEnabled;
+        }
+
+        @Override
+        public boolean isEnabled(Context context) {
+            return enabled;
+        }
+
+        @Override
+        public boolean write(Context appContext, boolean on) {
+            if (on && restoreEntered.getCount() > 0) {
+                restoreEntered.countDown();
+                try {
+                    restoreGate.await(5, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            writes.add(on);
+            enabled = on;
+            return true;
+        }
+
+        List<Boolean> writes() {
+            return new ArrayList<>(writes);
+        }
+
+        boolean awaitRestoreEntered() throws InterruptedException {
+            return restoreEntered.await(5, TimeUnit.SECONDS);
+        }
+
+        void releaseRestore() {
+            restoreGate.countDown();
+        }
+    }
+
+    /**
+     * Runs the pulse on a real thread and hands out a strictly increasing monotonic clock: every
+     * reading is a full toggle cooldown past the previous one, so no toggle in this test is ever
+     * debounced and the write order alone decides the outcome.
+     */
+    private static final class RacingScheduler implements KeepADBScheduler {
+        private final AtomicLong clockMs = new AtomicLong();
+        private final CountDownLatch threadFinished = new CountDownLatch(1);
+
+        @Override
+        public void postDelayed(Runnable runnable, long delayMs) {
+            throw new AssertionError("no toggle in this test may be debounced");
+        }
+
+        @Override
+        public void removeCallbacks(Runnable runnable) {
+        }
+
+        @Override
+        public void runAsync(Runnable runnable) {
+            new Thread(() -> {
+                runnable.run();
+                threadFinished.countDown();
+            }, "test-recovery-pulse").start();
+        }
+
+        @Override
+        public void sleep(long delayMs) {
+        }
+
+        @Override
+        public long elapsedRealtimeMs() {
+            return clockMs.addAndGet(10 * KeepADB.TOGGLE_COOLDOWN_MS);
+        }
+
+        boolean awaitThreadFinished() throws InterruptedException {
+            return threadFinished.await(5, TimeUnit.SECONDS);
+        }
     }
 
     private static final class LatchedScheduler implements KeepADBScheduler {
