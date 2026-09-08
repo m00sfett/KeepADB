@@ -33,13 +33,13 @@ final class KeepADBFakeHttpTransport implements KeepADBRegisterClient.HttpTransp
         void onRequest(Request request);
     }
 
-    private boolean postSuccess = true;
-    private boolean deleteSuccess = true;
-    private int postResponseCode = 200;
-    private int deleteResponseCode = 200;
-    private long simulatedLatencyMs = 0;
-    private RequestCallback requestCallback;
-    private Runnable failureCallback;
+    private volatile boolean postSuccess = true;
+    private volatile boolean deleteSuccess = true;
+    private volatile int postResponseCode = 200;
+    private volatile int deleteResponseCode = 200;
+    private volatile long simulatedLatencyMs = 0;
+    private volatile RequestCallback requestCallback;
+    private volatile Runnable failureCallback;
 
     final List<Request> recordedRequests = Collections.synchronizedList(new ArrayList<>());
 

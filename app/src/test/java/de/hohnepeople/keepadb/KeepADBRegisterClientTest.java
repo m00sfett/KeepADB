@@ -473,6 +473,103 @@ public class KeepADBRegisterClientTest {
         assertEquals("Laptop", KeepADBPreferences.getUsbWebhookLastProfileName(context));
     }
 
+    @Test
+    public void testInFlightUpdateSupersededByDisconnect() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        CountDownLatch firstRequestStarted = new CountDownLatch(1);
+        CountDownLatch canFinishFirstRequest = new CountDownLatch(1);
+
+        transport.setRequestCallback(req -> {
+            if ("POST".equals(req.method) && req.payload != null && req.payload.contains("41234")) {
+                firstRequestStarted.countDown();
+                try {
+                    canFinishFirstRequest.await(3, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+
+        // Trigger in-flight POST with port 41234
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
+        assertTrue(firstRequestStarted.await(3, TimeUnit.SECONDS));
+
+        // While first POST is still in-flight, disconnect/turn off wireless debugging
+        KeepADBRegisterClient.markUnavailableAsync(context);
+
+        // Allow first in-flight POST to finish
+        canFinishFirstRequest.countDown();
+
+        // Wait until DELETE request is recorded
+        waitUntil(() -> transport.getRequestCount() >= 2, 3000);
+        ShadowLooper.idleMainLooper();
+
+        // Verify the in-flight update did not revive the endpoint after disconnect
+        assertNull(KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+        assertNull(KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+    }
+
+    @Test
+    public void testInFlightUsbRegistrationSupersededByDisconnect() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        CountDownLatch firstRequestStarted = new CountDownLatch(1);
+        CountDownLatch canFinishFirstRequest = new CountDownLatch(1);
+
+        transport.setRequestCallback(req -> {
+            if ("POST".equals(req.method) && req.payload != null && req.payload.contains("Desk")) {
+                firstRequestStarted.countDown();
+                try {
+                    canFinishFirstRequest.await(3, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+
+        // Start Desk registration (in-flight)
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, "http://fake.url/register",
+                "device123", 1, "Desk", "192.168.1.20", "host", "tailhost");
+        assertTrue(firstRequestStarted.await(3, TimeUnit.SECONDS));
+
+        // While Desk is in-flight, USB disconnects (markUsbInactiveAsync)
+        KeepADBRegisterClient.markUsbInactiveAsyncInternal(context, true, "http://fake.url/register", "device123");
+
+        // Allow Desk to finish
+        canFinishFirstRequest.countDown();
+
+        // Wait until inactive request is processed
+        waitUntil(() -> transport.getRequestCount() >= 2, 3000);
+        ShadowLooper.idleMainLooper();
+
+        // Verify Desk was superseded and not registered
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbProfileNameForTesting());
+        assertNull(KeepADBPreferences.getUsbWebhookLastProfileName(context));
+    }
+
+    @Test
+    public void testDefaultHttpTransportPostFailureOnUnreachableHost() {
+        String url = "http://127.0.0.1:1/register";
+        boolean success = KeepADBRegisterClient.postEndpoint(url, "192.168.1.50:41234");
+        assertFalse(success);
+    }
+
+    @Test
+    public void testDefaultHttpTransportDeleteFailureOn500() {
+        responseCode.set(500);
+        String url = "http://127.0.0.1:" + testServerPort + "/register";
+        boolean success = KeepADBRegisterClient.deleteEndpoint(url);
+        assertFalse(success);
+    }
+
     private static void waitUntil(Callable<Boolean> condition, long timeoutMs) throws Exception {
         long deadline = System.currentTimeMillis() + timeoutMs;
         while (System.currentTimeMillis() < deadline) {

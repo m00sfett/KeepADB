@@ -59,6 +59,7 @@ final class KeepADBRegisterClient {
     private static volatile String lastRegisteredEndpoint = null;
     private static volatile boolean stateInitialized = false;
     private static volatile long currentOpGeneration = 0;
+    private static volatile boolean wlanUpdateInFlight = false;
 
     // USB-ADB registration state is intentionally separate from the WLAN-ADB fields above:
     // the two register calls must be able to run concurrently without racing or clobbering
@@ -72,6 +73,7 @@ final class KeepADBRegisterClient {
     private static volatile String lastRegisteredUsbTailnetHostname = null;
     private static volatile boolean usbStateInitialized = false;
     private static volatile long currentUsbOpGeneration = 0;
+    private static volatile boolean usbUpdateInFlight = false;
 
     private KeepADBRegisterClient() {}
 
@@ -117,6 +119,7 @@ final class KeepADBRegisterClient {
                 return;
             }
             opGen = ++currentOpGeneration;
+            wlanUpdateInFlight = true;
         }
 
         EXECUTOR.execute(() -> {
@@ -135,9 +138,10 @@ final class KeepADBRegisterClient {
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
             ensureStateInitializedLocked(appContext);
-            if (lastRegisteredEndpoint == null && lastRegisteredUrl == null) {
+            if (lastRegisteredEndpoint == null && lastRegisteredUrl == null && !wlanUpdateInFlight) {
                 return;
             }
+            wlanUpdateInFlight = false;
             opGen = ++currentOpGeneration;
         }
 
@@ -154,6 +158,7 @@ final class KeepADBRegisterClient {
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
             ensureStateInitializedLocked(appContext);
+            wlanUpdateInFlight = false;
             opGen = ++currentOpGeneration;
         }
 
@@ -193,6 +198,7 @@ final class KeepADBRegisterClient {
                 return;
             }
             opGen = ++currentUsbOpGeneration;
+            usbUpdateInFlight = true;
         }
 
         EXECUTOR.execute(() -> {
@@ -200,6 +206,7 @@ final class KeepADBRegisterClient {
             if (sendJsonPost(targetUrl, payload, "usb-adb")) {
                 synchronized (KeepADBRegisterClient.class) {
                     if (opGen == currentUsbOpGeneration) {
+                        usbUpdateInFlight = false;
                         lastRegisteredUsbUrl = targetUrl;
                         lastRegisteredUsbPayload = payload;
                         lastRegisteredUsbProfileId = profileId;
@@ -212,6 +219,12 @@ final class KeepADBRegisterClient {
                                     profileId, profileName, ipAddress, hostname, tailnetHostname);
                         }
                         notifyRegisterStateListener();
+                    }
+                }
+            } else {
+                synchronized (KeepADBRegisterClient.class) {
+                    if (opGen == currentUsbOpGeneration) {
+                        usbUpdateInFlight = false;
                     }
                 }
             }
@@ -243,9 +256,10 @@ final class KeepADBRegisterClient {
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
             ensureUsbStateInitializedLocked(context);
-            if (lastRegisteredUsbUrl == null && lastRegisteredUsbPayload == null) {
+            if (lastRegisteredUsbUrl == null && lastRegisteredUsbPayload == null && !usbUpdateInFlight) {
                 return;
             }
+            usbUpdateInFlight = false;
             urlToUse = (lastRegisteredUsbUrl != null) ? lastRegisteredUsbUrl : configuredUrl;
             profileId = lastRegisteredUsbProfileId;
             profileName = lastRegisteredUsbProfileName;
@@ -281,6 +295,7 @@ final class KeepADBRegisterClient {
     }
 
     private static void clearUsbStateLocked(Context context) {
+        usbUpdateInFlight = false;
         lastRegisteredUsbUrl = null;
         lastRegisteredUsbPayload = null;
         lastRegisteredUsbProfileId = null;
@@ -367,6 +382,7 @@ final class KeepADBRegisterClient {
         if (postEndpoint(targetUrl, targetEndpoint)) {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
+                    wlanUpdateInFlight = false;
                     lastRegisteredUrl = targetUrl;
                     lastRegisteredEndpoint = targetEndpoint;
                     KeepADBPreferences.setWebhookLastReportedAtNow(context);
@@ -380,6 +396,7 @@ final class KeepADBRegisterClient {
         } else {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
+                    wlanUpdateInFlight = false;
                     KeepADBPreferences.setWebhookLastReportStatus(
                             context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
                     notifyRegisterStateListener();
@@ -393,6 +410,7 @@ final class KeepADBRegisterClient {
         synchronized (KeepADBRegisterClient.class) {
             urlToDelete = (lastRegisteredUrl != null) ? lastRegisteredUrl : targetUrl;
             if (urlToDelete == null || urlToDelete.trim().isEmpty()) {
+                wlanUpdateInFlight = false;
                 lastRegisteredUrl = null;
                 lastRegisteredEndpoint = null;
                 KeepADBPreferences.setWebhookLastReportedUrl(context, null);
@@ -405,6 +423,7 @@ final class KeepADBRegisterClient {
         if (deleteEndpoint(urlToDelete)) {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
+                    wlanUpdateInFlight = false;
                     lastRegisteredUrl = null;
                     lastRegisteredEndpoint = null;
                     KeepADBPreferences.setWebhookLastReportedAtNow(context);
@@ -418,6 +437,7 @@ final class KeepADBRegisterClient {
         } else {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
+                    wlanUpdateInFlight = false;
                     KeepADBPreferences.setWebhookLastReportStatus(
                             context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
                     notifyRegisterStateListener();
@@ -431,10 +451,12 @@ final class KeepADBRegisterClient {
         lastRegisteredEndpoint = null;
         stateInitialized = false;
         currentOpGeneration = 0;
+        wlanUpdateInFlight = false;
         registerStateListener = null;
         clearUsbStateLocked(null);
         usbStateInitialized = false;
         currentUsbOpGeneration = 0;
+        usbUpdateInFlight = false;
         resetHttpTransport();
         mainHandler = null;
     }
