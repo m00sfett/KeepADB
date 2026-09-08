@@ -210,14 +210,22 @@ final class KeepADBEndpoint {
         scheduler.postDelayed(overallTimeoutRunnable, OVERALL_TIMEOUT_MS);
     }
 
+    private static final long RECOVERY_PULSE_COOLDOWN_MS = 20_000;
     // Static, not per-instance: toggling adb_wifi_enabled fires KeepADBService's/MainActivity's
     // ContentObserver, which tears down and recreates the KeepADBEndpoint instance (see
     // KeepADBNotification.stop()/startDiscoveryDirectLocked()). An instance-scoped "already
     // pulsed" flag would reset with every such recreation, causing our own pulse to retrigger
     // itself every ~6.5s in an endless loop that never gave mDNS a real chance to resolve
     // anything -- found live: the recovery pulse fired repeatedly for 40+ seconds straight.
-    private static volatile long lastRecoveryPulseAtMs = 0;
-    private static final long RECOVERY_PULSE_COOLDOWN_MS = 20_000;
+    //
+    // #309: a monotonic reading (SystemClock.elapsedRealtime() behind KeepADBScheduler), never
+    // System.currentTimeMillis(): a wall-clock jump (NTP correction, timezone/manual clock
+    // change) would either park the cooldown arbitrarily far in the future -- suppressing every
+    // recovery pulse until real time caught up -- or jump backwards past it and let the pulse
+    // fire far more often than the cooldown allows. Seeded a full cooldown in the past so the
+    // first pulse is allowed even while elapsedRealtime() is still below the cooldown, i.e.
+    // within the first 20s after boot, where a plain 0 would have suppressed it.
+    private static volatile long lastRecoveryPulseAtMs = -RECOVERY_PULSE_COOLDOWN_MS;
 
     private void maybeSendRecoveryPulse(long generation) {
         synchronized (this) {
@@ -237,7 +245,7 @@ final class KeepADBEndpoint {
             Log.i(TAG, "gen=" + generation + " skipping recovery pulse on an untrusted Wi-Fi network");
             return;
         }
-        long now = System.currentTimeMillis();
+        long now = scheduler.elapsedRealtimeMs();
         synchronized (KeepADBEndpoint.class) {
             if (now - lastRecoveryPulseAtMs < RECOVERY_PULSE_COOLDOWN_MS) return;
             lastRecoveryPulseAtMs = now;

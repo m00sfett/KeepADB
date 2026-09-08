@@ -1,0 +1,1 @@
+Fixed recovery-pulse races that could undo a manual toggle, stopped reporting rejected settings writes as success, and moved the recovery cooldown to a monotonic clock.
