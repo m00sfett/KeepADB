@@ -298,6 +298,70 @@ public class SettingsActivityTest {
                 profileActivity.getActiveProfileEditDialog());
     }
 
+    @Test
+    public void languageAndHandoverSelectorsHaveFormattedAccessibilityDescriptions() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        View languageSelector = activity.findViewById(R.id.settings_language_selector);
+        assertNotNull(languageSelector);
+        String currentLanguageTag = KeepADBLocaleHelper.getSelectedLanguageTag(activity);
+        String languageDisplayName = KeepADBLocaleHelper.getLanguageDisplayName(activity, currentLanguageTag);
+        assertEquals(activity.getString(R.string.settings_language_accessibility, languageDisplayName),
+                languageSelector.getContentDescription());
+
+        View handoverSelector = activity.findViewById(R.id.settings_usb_handover_selector);
+        assertNotNull(handoverSelector);
+        assertEquals(activity.getString(R.string.settings_usb_handover_accessibility,
+                        activity.getString(R.string.settings_usb_handover_mode_off)),
+                handoverSelector.getContentDescription());
+    }
+
+    @Test
+    public void languageSelectionTriggersUsbNotificationRefresh() {
+        org.robolectric.Shadows.shadowOf(RuntimeEnvironment.getApplication())
+                .grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        KeepADBUsbProfile.setNotificationEnabled(activity, true);
+
+        android.content.Intent stickyUsbState = new android.content.Intent(KeepADBUsbReceiver.ACTION_USB_STATE)
+                .putExtra("connected", true)
+                .putExtra("configured", true)
+                .putExtra("adb", true);
+        RuntimeEnvironment.getApplication().sendStickyBroadcast(stickyUsbState);
+
+        activity.findViewById(R.id.settings_language_selector).performClick();
+        ShadowLooper.idleMainLooper();
+
+        AlertDialog dialog = (AlertDialog) org.robolectric.shadows.ShadowDialog.getLatestDialog();
+        assertNotNull("Language selection dialog should be showing", dialog);
+        assertTrue(dialog.isShowing());
+
+        int deIndex = -1;
+        for (int i = 0; i < KeepADBLocaleHelper.SUPPORTED_LANGUAGES.length; i++) {
+            if ("de".equals(KeepADBLocaleHelper.SUPPORTED_LANGUAGES[i].tag)) {
+                deIndex = i;
+                break;
+            }
+        }
+        assertTrue(deIndex >= 0);
+
+        dialog.getListView().performItemClick(
+                dialog.getListView().getChildAt(deIndex),
+                deIndex,
+                dialog.getListView().getAdapter().getItemId(deIndex));
+        ShadowLooper.idleMainLooper();
+
+        android.app.NotificationManager manager = activity.getSystemService(android.app.NotificationManager.class);
+        android.app.Notification notification = org.robolectric.Shadows.shadowOf(manager)
+                .getNotification(KeepADBUsbNotification.NOTIFICATION_ID);
+        assertNotNull("Active USB notification should be refreshed on language change", notification);
+    }
+
     @SuppressWarnings("unchecked")
     private static <T extends View> T findViewByType(View root, Class<T> type) {
         if (root == null) return null;

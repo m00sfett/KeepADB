@@ -86,6 +86,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_permission_warning">सिस्टम अनुमति WRITE_SECURE_SETTINGS गायब है। अनुमति दिए जाने तक KeepADB वायरलेस डीबगिंग को टॉगल नहीं कर सकता।</string>
     <string name="settings_section_language">भाषा</string>
     <string name="settings_language_label">ऐप की भाषा</string>
+    <string name="settings_language_accessibility">ऐप की भाषा: %1$s</string>
     <string name="settings_language_subtext">KeepADB के लिए इंटरफ़ेस भाषा चुनें</string>
     <string name="settings_language_system_default">सिस्टम डिफ़ॉल्ट</string>
     <string name="settings_language_dialog_title">भाषा चुनें</string>
@@ -140,6 +141,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_usb_handover">USB से WLAN-ADB हैंडओवर</string>
     <string name="settings_usb_handover_subtext">सक्रिय USB-ADB कनेक्शन से वैकल्पिक रूप से WLAN-ADB ऑफ़र करें या अपने-आप सक्षम करें। डिफ़ॉल्ट रूप से बंद; मैन्युअल रूप से किया गया बंद कभी ओवरराइड नहीं होता।</string>
     <string name="settings_usb_handover_label">हैंडओवर मोड</string>
+    <string name="settings_usb_handover_accessibility">USB हैंडओवर मोड: %1$s</string>
     <string name="settings_usb_handover_dialog_title">हैंडओवर मोड चुनें</string>
     <string name="settings_usb_handover_mode_off">बंद</string>
     <string name="settings_usb_handover_mode_manual">मैन्युअल (USB सूचना में कार्रवाई दिखाएँ)</string>

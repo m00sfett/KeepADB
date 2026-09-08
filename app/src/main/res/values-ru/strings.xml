@@ -86,6 +86,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_permission_warning">Отсутствует системное разрешение WRITE_SECURE_SETTINGS. KeepADB не может переключать беспроводную отладку до предоставления разрешения.</string>
     <string name="settings_section_language">Язык</string>
     <string name="settings_language_label">Язык приложения</string>
+    <string name="settings_language_accessibility">Язык приложения: %1$s</string>
     <string name="settings_language_subtext">Выберите язык интерфейса для KeepADB</string>
     <string name="settings_language_system_default">По умолчанию в системе</string>
     <string name="settings_language_dialog_title">Выберите язык</string>
@@ -140,6 +141,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_usb_handover">Передача USB → WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Разрешить или автоматически включать WLAN-ADB из активного USB-ADB-подключения. По умолчанию отключено; ручное отключение никогда не отменяется.</string>
     <string name="settings_usb_handover_label">Режим передачи</string>
+    <string name="settings_usb_handover_accessibility">Режим передачи USB: %1$s</string>
     <string name="settings_usb_handover_dialog_title">Выберите режим передачи</string>
     <string name="settings_usb_handover_mode_off">Отключено</string>
     <string name="settings_usb_handover_mode_manual">Вручную (показывать действие в уведомлении USB)</string>

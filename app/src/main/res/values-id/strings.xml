@@ -86,6 +86,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_permission_warning">Izin sistem WRITE_SECURE_SETTINGS tidak ada. KeepADB tidak dapat beralih Debugging Nirkabel sampai izin diberikan.</string>
     <string name="settings_section_language">Bahasa</string>
     <string name="settings_language_label">Bahasa Aplikasi</string>
+    <string name="settings_language_accessibility">Bahasa Aplikasi: %1$s</string>
     <string name="settings_language_subtext">Pilih bahasa antarmuka untuk KeepADB</string>
     <string name="settings_language_system_default">Default sistem</string>
     <string name="settings_language_dialog_title">Pilih Bahasa</string>
@@ -140,6 +141,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_usb_handover">Pengalihan USB ke WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Tawarkan atau aktifkan WLAN-ADB secara otomatis dari koneksi USB-ADB yang aktif. Nonaktif secara default; penonaktifan manual tidak pernah ditimpa.</string>
     <string name="settings_usb_handover_label">Mode pengalihan</string>
+    <string name="settings_usb_handover_accessibility">Mode Pengalihan USB: %1$s</string>
     <string name="settings_usb_handover_dialog_title">Pilih mode pengalihan</string>
     <string name="settings_usb_handover_mode_off">Nonaktif</string>
     <string name="settings_usb_handover_mode_manual">Manual (tampilkan tindakan di notifikasi USB)</string>

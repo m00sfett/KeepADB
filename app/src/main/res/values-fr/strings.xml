@@ -86,6 +86,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_permission_warning">Autorisation système WRITE_SECURE_SETTINGS manquante. KeepADB ne peut pas basculer le débogage sans fil tant que l’autorisation n’est pas accordée.</string>
     <string name="settings_section_language">Langue</string>
     <string name="settings_language_label">Langue de l’application</string>
+    <string name="settings_language_accessibility">Langue de l’application : %1$s</string>
     <string name="settings_language_subtext">Choisissez la langue de l’interface pour KeepADB</string>
     <string name="settings_language_system_default">Langue du système</string>
     <string name="settings_language_dialog_title">Sélectionner la langue</string>
@@ -140,6 +141,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_usb_handover">Transfert USB vers WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Proposer WLAN-ADB ou l’activer automatiquement depuis une connexion USB-ADB active. Désactivé par défaut ; une désactivation manuelle n’est jamais annulée.</string>
     <string name="settings_usb_handover_label">Mode de transfert</string>
+    <string name="settings_usb_handover_accessibility">Mode de transfert USB : %1$s</string>
     <string name="settings_usb_handover_dialog_title">Sélectionner le mode de transfert</string>
     <string name="settings_usb_handover_mode_off">Désactivé</string>
     <string name="settings_usb_handover_mode_manual">Manuel (afficher l’action dans la notification USB)</string>

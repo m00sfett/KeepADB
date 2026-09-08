@@ -31,7 +31,7 @@ final class KeepADBUsbNotification {
     private KeepADBUsbNotification() {}
 
     static void refresh(Context context, boolean connected) {
-        Context appContext = context.getApplicationContext();
+        Context appContext = KeepADBLocaleHelper.wrapContext(context.getApplicationContext());
         if (connected) {
             KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.getSelected(appContext);
             if (selected != null) {
@@ -51,7 +51,8 @@ final class KeepADBUsbNotification {
             lastHandoverActionFailed = false;
         }
 
-        NotificationManager manager = appContext.getSystemService(NotificationManager.class);
+        NotificationManager manager = context.getApplicationContext()
+                .getSystemService(NotificationManager.class);
         if (manager == null) return;
         ensureChannel(appContext, manager);
 

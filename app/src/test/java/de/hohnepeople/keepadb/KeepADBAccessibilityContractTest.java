@@ -109,6 +109,45 @@ public class KeepADBAccessibilityContractTest {
                         content.contains("name=\"usb_profile_delete_action_accessibility\""));
                 assertTrue("Missing notification disable action in " + directory,
                         content.contains("name=\"notification_action_disable\""));
+                assertTrue("Missing language accessibility in " + directory,
+                        content.contains("name=\"settings_language_accessibility\""));
+                assertTrue("Missing USB handover accessibility in " + directory,
+                        content.contains("name=\"settings_usb_handover_accessibility\""));
+            }
+        }
+    }
+
+    @Test
+    public void settingsAccessibilityStringsUseFormattedResourcesWithoutHardcodedColon() throws IOException {
+        String settingsActivity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
+
+        assertTrue(settingsActivity.contains("R.string.settings_language_accessibility"));
+        assertTrue(settingsActivity.contains("R.string.settings_usb_handover_accessibility"));
+
+        assertFalse(settingsActivity.contains("getString(R.string.settings_language_label) + \": \""));
+        assertFalse(settingsActivity.contains("getString(R.string.settings_usb_handover_label) + \": \""));
+
+        Path valuesRoot = projectPath("app/src/main/res");
+        try (Stream<Path> paths = Files.list(valuesRoot)) {
+            List<Path> localeDirectories = paths
+                    .filter(path -> path.getFileName().toString().startsWith("values"))
+                    .toList();
+            for (Path directory : localeDirectories) {
+                Path strings = directory.resolve("strings.xml");
+                String content = readFile(strings);
+                Matcher langMatcher = Pattern.compile(
+                        "<string name=\"settings_language_accessibility\">([^<]+)</string>")
+                        .matcher(content);
+                assertTrue("Missing settings_language_accessibility tag in " + directory, langMatcher.find());
+                assertTrue("settings_language_accessibility must contain %1$s in " + directory,
+                        langMatcher.group(1).contains("%1$s"));
+
+                Matcher handoverMatcher = Pattern.compile(
+                        "<string name=\"settings_usb_handover_accessibility\">([^<]+)</string>")
+                        .matcher(content);
+                assertTrue("Missing settings_usb_handover_accessibility tag in " + directory, handoverMatcher.find());
+                assertTrue("settings_usb_handover_accessibility must contain %1$s in " + directory,
+                        handoverMatcher.group(1).contains("%1$s"));
             }
         }
     }

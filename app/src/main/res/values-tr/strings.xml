@@ -86,6 +86,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_permission_warning">Sistem izni WRITE_SECURE_SETTINGS eksik. KeepADB izin verilene kadar Kablosuz Hata Ayıklamayı değiştiremez.</string>
     <string name="settings_section_language">Dil</string>
     <string name="settings_language_label">Uygulama Dili</string>
+    <string name="settings_language_accessibility">Uygulama Dili: %1$s</string>
     <string name="settings_language_subtext">KeepADB için arayüz dilini seçin</string>
     <string name="settings_language_system_default">Sistem varsayılanı</string>
     <string name="settings_language_dialog_title">Dil Seçin</string>
@@ -140,6 +141,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB aktarımı</string>
     <string name="settings_usb_handover_subtext">Etkin bir USB-ADB bağlantısından WLAN-ADB’yi isteğe bağlı olarak sunar veya otomatik etkinleştirir. Varsayılan olarak kapalıdır; manuel KAPALI ayarı asla geçersiz kılınmaz.</string>
     <string name="settings_usb_handover_label">Aktarım modu</string>
+    <string name="settings_usb_handover_accessibility">USB Aktarım Modu: %1$s</string>
     <string name="settings_usb_handover_dialog_title">Aktarım modunu seçin</string>
     <string name="settings_usb_handover_mode_off">Kapalı</string>
     <string name="settings_usb_handover_mode_manual">Manuel (USB bildiriminde eylemi göster)</string>

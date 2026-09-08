@@ -86,6 +86,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_permission_warning">Falta el permiso del sistema WRITE_SECURE_SETTINGS. KeepADB no puede alternar la depuración inalámbrica hasta que se conceda el permiso.</string>
     <string name="settings_section_language">Idioma</string>
     <string name="settings_language_label">Idioma de la aplicación</string>
+    <string name="settings_language_accessibility">Idioma de la aplicación: %1$s</string>
     <string name="settings_language_subtext">Elige el idioma de la interfaz para KeepADB</string>
     <string name="settings_language_system_default">Predeterminado del sistema</string>
     <string name="settings_language_dialog_title">Seleccionar idioma</string>
@@ -140,6 +141,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_usb_handover">Transferencia de USB a WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Ofrece WLAN-ADB opcionalmente o actívalo de forma automática desde una conexión USB-ADB activa. Está desactivado de forma predeterminada; una desactivación manual nunca se anula.</string>
     <string name="settings_usb_handover_label">Modo de transferencia</string>
+    <string name="settings_usb_handover_accessibility">Modo de transferencia USB: %1$s</string>
     <string name="settings_usb_handover_dialog_title">Seleccionar modo de transferencia</string>
     <string name="settings_usb_handover_mode_off">Desactivado</string>
     <string name="settings_usb_handover_mode_manual">Manual (mostrar acción en la notificación USB)</string>

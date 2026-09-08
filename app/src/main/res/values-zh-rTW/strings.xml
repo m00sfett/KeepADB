@@ -86,6 +86,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_permission_warning">缺少系統權限 WRITE_SECURE_SETTINGS。在授予權限之前，KeepADB 無法切換無線偵錯。</string>
     <string name="settings_section_language">語言</string>
     <string name="settings_language_label">應用程式語言</string>
+    <string name="settings_language_accessibility">應用程式語言：%1$s</string>
     <string name="settings_language_subtext">選擇 KeepADB 的介面語言</string>
     <string name="settings_language_system_default">系統預設</string>
     <string name="settings_language_dialog_title">選擇語言</string>
@@ -140,6 +141,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB 交接</string>
     <string name="settings_usb_handover_subtext">可從啟用中的 USB-ADB 連線提供或自動啟用 WLAN-ADB。預設為關閉；手動關閉後不會被覆寫。</string>
     <string name="settings_usb_handover_label">交接模式</string>
+    <string name="settings_usb_handover_accessibility">USB 交接模式：%1$s</string>
     <string name="settings_usb_handover_dialog_title">選取交接模式</string>
     <string name="settings_usb_handover_mode_off">關閉</string>
     <string name="settings_usb_handover_mode_manual">手動（在 USB 通知中顯示操作）</string>
