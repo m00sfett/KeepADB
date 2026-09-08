@@ -2,6 +2,7 @@ package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
@@ -147,6 +148,70 @@ public class KeepADBPreferencesTest {
         KeepADBPreferences.setWebhookLastReportedAtNow(context);
         assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
                 KeepADBPreferences.getWebhookLastReportStatus(context));
+    }
+
+    @Test
+    public void testSanitizeWebhookUrlStripsUserinfoAndFragment() {
+        assertEquals("http://100.111.111.21:50829/register/s20?foo=bar",
+                KeepADBPreferences.sanitizeWebhookUrl(
+                        "http://user:pass@100.111.111.21:50829/register/s20?foo=bar#section"));
+        assertEquals("http://example.com/test",
+                KeepADBPreferences.sanitizeWebhookUrl("HTTP://user:pass@example.com/test#fragment"));
+        assertEquals("http://example.com:8080/path",
+                KeepADBPreferences.sanitizeWebhookUrl("http://user@example.com:8080/path"));
+        assertEquals("http://example.com:8080/path",
+                KeepADBPreferences.sanitizeWebhookUrl("http://:pass@example.com:8080/path"));
+        assertEquals("https://example.com/api",
+                KeepADBPreferences.sanitizeWebhookUrl("https://example.com/api#section"));
+        assertEquals("http://example.com",
+                KeepADBPreferences.sanitizeWebhookUrl("http://example.com"));
+        assertNull(KeepADBPreferences.sanitizeWebhookUrl(null));
+        assertEquals("", KeepADBPreferences.sanitizeWebhookUrl(""));
+        assertEquals("", KeepADBPreferences.sanitizeWebhookUrl("   "));
+        assertEquals("not-a-url", KeepADBPreferences.sanitizeWebhookUrl("not-a-url"));
+        assertEquals("http://", KeepADBPreferences.sanitizeWebhookUrl("http://user:pass@"));
+        assertEquals("http://example.com/api?email=alice@example.com",
+                KeepADBPreferences.sanitizeWebhookUrl("http://user:pass@example.com/api?email=alice@example.com#section"));
+        assertEquals("http://example.com?email=alice@example.com",
+                KeepADBPreferences.sanitizeWebhookUrl("http://user:pass@example.com?email=alice@example.com#section"));
+    }
+
+    @Test
+    public void testMaskWebhookUrlMasksIpv4AndRemovesUserinfo() {
+        assertEquals("http://100.111.***.**:50829/register/s20?foo=bar",
+                KeepADBPreferences.maskWebhookUrl(
+                        "http://user:pass@100.111.111.21:50829/register/s20?foo=bar#hash"));
+        assertEquals("http://100.111.***.**:50829/register/s20",
+                KeepADBPreferences.maskWebhookUrl("http://100.111.111.21:50829/register/s20"));
+        assertEquals("http://192.168.*.***:8080/endpoint",
+                KeepADBPreferences.maskWebhookUrl("http://192.168.1.100:8080/endpoint"));
+        assertEquals("http://10.0.*.*",
+                KeepADBPreferences.maskWebhookUrl("http://10.0.0.1"));
+        assertEquals("https://example.com/webhook",
+                KeepADBPreferences.maskWebhookUrl("https://user:pass@example.com/webhook#secret"));
+        assertEquals("", KeepADBPreferences.maskWebhookUrl(null));
+        assertEquals("", KeepADBPreferences.maskWebhookUrl(""));
+        assertEquals("", KeepADBPreferences.maskWebhookUrl("   "));
+    }
+
+    @Test
+    public void testSetRegisterWebhookUrlStripsUserinfoOnWrite() {
+        FakeContext context = new FakeContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context,
+                "http://admin:secret123@100.111.111.21:50829/register/s20#section");
+        assertEquals("http://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.getRegisterWebhookUrl(context));
+    }
+
+    @Test
+    public void testGetRegisterWebhookUrlStripsUserinfoOnRead() {
+        FakeContext context = new FakeContext();
+        context.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE)
+                .edit()
+                .putString("register_webhook_url", "http://user:pass@100.111.111.21:50829/register/s20#frag")
+                .apply();
+        assertEquals("http://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.getRegisterWebhookUrl(context));
     }
 
     private static final class FakeContext extends android.content.ContextWrapper {

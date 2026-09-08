@@ -5,6 +5,13 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.23] - 2026-09-08
+
+### Fixed
+- Added live validation for the cleartext HTTP webhook warning in Settings so the warning appears immediately upon typing an unencrypted `http://` address before saving or toggling (issue #319).
+- Stripped embedded credentials (`user:password@`) and fragments (`#...`) from webhook URLs before persisting or transmitting them, preventing accidental plaintext credential storage (issue #319).
+- Masked IPv4 host octets in `MainActivity` when displaying the registered webhook URL and ensured embedded credentials are never displayed (issue #319).
+
 ## [1.5.22] - 2026-09-08
 
 ### Fixed

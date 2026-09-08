@@ -9,7 +9,9 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -21,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Locale;
 
 /** Central settings screen for KeepADB options (Keep-Alive, Language, Webhook, etc.). */
 public class SettingsActivity extends Activity {
@@ -175,6 +178,21 @@ public class SettingsActivity extends Activity {
         webhookSave = findViewById(R.id.settings_webhook_save);
         webhookClear = findViewById(R.id.settings_webhook_clear);
 
+        webhookUrlInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int count, int after) {
+                String text = s != null ? s.toString().trim().toLowerCase(Locale.ROOT) : "";
+                boolean isHttp = text.startsWith("http://");
+                webhookCleartextWarning.setVisibility(isHttp ? View.VISIBLE : View.GONE);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
         if (savedInstanceState != null) {
             if (savedInstanceState.containsKey(STATE_WEBHOOK_DRAFT_URL)) {
                 webhookUrlInput.setText(resolveWebhookDraft(
@@ -212,6 +230,11 @@ public class SettingsActivity extends Activity {
             if (wantEnabled) {
                 String inputUrl = webhookUrlInput.getText() != null
                         ? webhookUrlInput.getText().toString().trim() : "";
+                String sanitized = KeepADBPreferences.sanitizeWebhookUrl(inputUrl);
+                if (sanitized != null && !sanitized.equals(inputUrl)) {
+                    webhookUrlInput.setText(sanitized);
+                    inputUrl = sanitized;
+                }
                 if (!KeepADBPreferences.isValidWebhookUrl(inputUrl)) {
                     webhookToggle.setChecked(false);
                     webhookError.setText(R.string.settings_webhook_error_missing_url);
@@ -236,6 +259,11 @@ public class SettingsActivity extends Activity {
         webhookSave.setOnClickListener(v -> {
             String inputUrl = webhookUrlInput.getText() != null
                     ? webhookUrlInput.getText().toString().trim() : "";
+            String sanitized = KeepADBPreferences.sanitizeWebhookUrl(inputUrl);
+            if (sanitized != null && !sanitized.equals(inputUrl)) {
+                webhookUrlInput.setText(sanitized);
+                inputUrl = sanitized;
+            }
             if (inputUrl.isEmpty()) {
                 if (KeepADBPreferences.isRegisterWebhookEnabled(this)) {
                     webhookError.setText(R.string.settings_webhook_error_missing_url);
@@ -929,7 +957,7 @@ public class SettingsActivity extends Activity {
         return activeSwitchProfileDialog;
     }
 
-    private void refresh() {
+    void refresh() {
         boolean hasPermission = checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
                 == PackageManager.PERMISSION_GRANTED;
         permissionPanel.setVisibility(hasPermission ? View.GONE : View.VISIBLE);
@@ -991,9 +1019,11 @@ public class SettingsActivity extends Activity {
                 ? R.string.settings_trusted_network_remove_button
                 : R.string.settings_trusted_network_add_button);
 
-        String savedWebhookUrl = KeepADBPreferences.getRegisterWebhookUrl(this);
-        boolean showCleartextWarning = savedWebhookUrl != null
-                && savedWebhookUrl.toLowerCase(java.util.Locale.ROOT).startsWith("http://");
+        String urlToCheck = (webhookUrlInput != null && webhookUrlInput.getText() != null)
+                ? webhookUrlInput.getText().toString().trim()
+                : KeepADBPreferences.getRegisterWebhookUrl(this);
+        boolean showCleartextWarning = urlToCheck != null
+                && urlToCheck.toLowerCase(Locale.ROOT).startsWith("http://");
         webhookCleartextWarning.setVisibility(showCleartextWarning ? View.VISIBLE : View.GONE);
     }
 

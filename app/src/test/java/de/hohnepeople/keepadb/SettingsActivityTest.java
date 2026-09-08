@@ -12,12 +12,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +46,16 @@ public class SettingsActivityTest {
                 .edit()
                 .clear()
                 .commit();
+    }
+
+    @After
+    public void tearDown() {
+        RuntimeEnvironment.getApplication()
+                .getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE)
+                .edit()
+                .clear()
+                .commit();
+        KeepADB.resetForTesting();
     }
 
     @Test
@@ -360,6 +373,91 @@ public class SettingsActivityTest {
         android.app.Notification notification = org.robolectric.Shadows.shadowOf(manager)
                 .getNotification(KeepADBUsbNotification.NOTIFICATION_ID);
         assertNotNull("Active USB notification should be refreshed on language change", notification);
+    }
+
+    @Test
+    public void liveCleartextWarningAppearsOnTypingHttp() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        EditText input = activity.findViewById(R.id.settings_webhook_url);
+        TextView warning = activity.findViewById(R.id.settings_webhook_cleartext_warning);
+        assertNotNull(input);
+        assertNotNull(warning);
+
+        assertEquals(View.GONE, warning.getVisibility());
+
+        input.setText("http://");
+        assertEquals(View.VISIBLE, warning.getVisibility());
+
+        input.setText("http://example.com/endpoint");
+        assertEquals(View.VISIBLE, warning.getVisibility());
+
+        input.setText("HTTP://100.111.111.21:50829/register/s20");
+        assertEquals(View.VISIBLE, warning.getVisibility());
+
+        input.setText("https://example.com/endpoint");
+        assertEquals(View.GONE, warning.getVisibility());
+
+        input.setText("");
+        assertEquals(View.GONE, warning.getVisibility());
+    }
+
+    @Test
+    public void savingUrlWithCredentialsStripsUserinfo() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        EditText input = activity.findViewById(R.id.settings_webhook_url);
+        Button saveButton = activity.findViewById(R.id.settings_webhook_save);
+        Switch toggle = activity.findViewById(R.id.settings_webhook_toggle);
+        assertNotNull(input);
+        assertNotNull(saveButton);
+        assertNotNull(toggle);
+
+        // Test save button sanitization
+        input.setText("http://user:secret@100.111.111.21:50829/register/s20#frag");
+        saveButton.performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals("http://100.111.111.21:50829/register/s20", input.getText().toString());
+        assertEquals("http://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.getRegisterWebhookUrl(activity));
+
+        // Test toggle button sanitization
+        input.setText("http://admin:pass@100.111.111.21:50829/register/s20");
+        toggle.performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals("http://100.111.111.21:50829/register/s20", input.getText().toString());
+        assertEquals("http://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.getRegisterWebhookUrl(activity));
+        assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+    }
+
+    @Test
+    public void clearingInputHidesCleartextWarningEvenWithSavedHttpUrl() {
+        KeepADBPreferences.setRegisterWebhookUrl(RuntimeEnvironment.getApplication(),
+                "http://100.111.111.21:50829/register/s20");
+
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        EditText input = activity.findViewById(R.id.settings_webhook_url);
+        TextView warning = activity.findViewById(R.id.settings_webhook_cleartext_warning);
+        assertNotNull(input);
+        assertNotNull(warning);
+
+        assertEquals(View.VISIBLE, warning.getVisibility());
+
+        input.setText("");
+        assertEquals(View.GONE, warning.getVisibility());
+
+        activity.refresh();
+        assertEquals(View.GONE, warning.getVisibility());
     }
 
     @SuppressWarnings("unchecked")

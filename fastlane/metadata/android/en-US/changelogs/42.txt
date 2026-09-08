@@ -1,0 +1,1 @@
+Settings now validates cleartext HTTP webhook URLs live as you type, stripping embedded credentials and fragments before saving. MainActivity displays masked webhook URLs without exposing plaintext credentials.
