@@ -57,6 +57,13 @@ public class KeepADBServiceLifecycleRobolectricTest {
                 .edit()
                 .clear()
                 .commit();
+        context.getSharedPreferences("keepadb_trusted_networks", Context.MODE_PRIVATE)
+                .edit()
+                .clear()
+                .commit();
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        KeepADBNotification.resetForTesting();
+        KeepADBNetwork.resetForTesting();
         KeepADB.resetForTesting();
     }
 
@@ -226,6 +233,121 @@ public class KeepADBServiceLifecycleRobolectricTest {
         String export = KeepADBDiagnostics.export(context);
         assertTrue(export.contains("event=boot_completed source=system outcome=received detail=keepAlive=false"));
         assertFalse(export.contains("source=boot_receiver"));
+    }
+
+    @Test
+    public void keepAliveArmWithoutWifiStartsServiceForLaterReconnect() {
+        // Step 1: User switches ADB manually off (L = OFF, lastDesiredOn = false, wasLastExplicitIntentOff = true)
+        KeepADB.recordExplicitIntent(context, false);
+        assertTrue("wasLastExplicitIntentOff must be true after manual OFF",
+                KeepADB.wasLastExplicitIntentOff(context));
+        assertFalse("shouldRun must be false when manual intent is OFF",
+                KeepADBService.shouldRun(context));
+
+        // Step 2: Wi-Fi disconnects and ADB is disabled
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+        assertFalse("ADB must be disabled", KeepADB.isEnabled(context));
+        assertFalse("Wi-Fi must be disconnected", KeepADBService.isWifiConnected(context));
+
+        // Step 3: User enables Keep-Alive in Settings / MainActivity
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+
+        // Step 4: Verify wasLastExplicitIntentOff is now false and shouldRun is true
+        assertFalse("wasLastExplicitIntentOff must be false after Keep-Alive is enabled",
+                KeepADB.wasLastExplicitIntentOff(context));
+        assertTrue("shouldRun must be true even without active Wi-Fi",
+                KeepADBService.shouldRun(context));
+
+        // Step 5: Verify that KeepADBService.sync(context) requests service start in standby
+        KeepADBService.sync(context);
+
+        Intent started = shadowOf((Application) context).getNextStartedService();
+        assertNotNull("Service must be started to wait for reconnect", started);
+        assertEquals(KeepADBService.class.getName(), started.getComponent().getClassName());
+    }
+
+    @Test
+    public void keepAliveArmWithoutWifiAfterManualSetEnabledOffStartsService() {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+
+        // Step 1: User switches ADB manually off via setEnabled("app")
+        assertTrue(KeepADB.setEnabled(context, false, "app"));
+        assertFalse(KeepADB.isEnabled(context));
+        assertTrue("wasLastExplicitIntentOff must be true after manual setEnabled(false)",
+                KeepADB.wasLastExplicitIntentOff(context));
+        assertFalse(KeepADBService.shouldRun(context));
+
+        // Step 2: Wi-Fi disconnects
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+        assertFalse(KeepADBService.isWifiConnected(context));
+
+        // Step 3: User enables Keep-Alive
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+
+        // Step 4: Intent is reset, service should run
+        assertFalse("wasLastExplicitIntentOff must be false after Keep-Alive is enabled",
+                KeepADB.wasLastExplicitIntentOff(context));
+        assertTrue("shouldRun must be true even without active Wi-Fi",
+                KeepADBService.shouldRun(context));
+
+        // Step 5: Service sync starts service
+        KeepADBService.sync(context);
+        Intent started = shadowOf((Application) context).getNextStartedService();
+        assertNotNull("Service must be started in standby", started);
+        assertEquals(KeepADBService.class.getName(), started.getComponent().getClassName());
+    }
+
+    @Test
+    public void fullLifecycleManualOffDisconnectKeepAliveOnReconnectAutoEnablesAdb() {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+
+        // 1. Manual OFF
+        assertTrue(KeepADB.setEnabled(context, false, "app"));
+        assertFalse(KeepADB.isEnabled(context));
+        assertTrue(KeepADB.wasLastExplicitIntentOff(context));
+        assertFalse(KeepADBService.shouldRun(context));
+
+        // 2. Wi-Fi disconnect
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+        assertFalse(KeepADBService.isWifiConnected(context));
+
+        // 3. Keep-Alive ON
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        assertFalse(KeepADB.wasLastExplicitIntentOff(context));
+        assertTrue(KeepADBService.shouldRun(context));
+
+        // 4. Start service in standby
+        ConnectivityManager connectivityManager = context.getSystemService(ConnectivityManager.class);
+        ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            int result = controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            assertEquals(Service.START_STICKY, result);
+            ShadowLooper.idleMainLooper();
+            assertFalse("ADB must still be disabled while disconnected", gateway.isEnabled(context));
+            assertFalse("Network callback must be registered", shadowConnectivityManager.getNetworkCallbacks().isEmpty());
+
+            // 5. Wi-Fi connect: advance time to clear recheck cooldown, reconnect Wi-Fi, trigger network callback
+            android.os.SystemClock.sleep(350);
+            KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+            KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+            for (ConnectivityManager.NetworkCallback cb : shadowConnectivityManager.getNetworkCallbacks()) {
+                cb.onAvailable(connectivityManager.getActiveNetwork());
+            }
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1200));
+
+            assertTrue("Gateway must have received enable write", gateway.writes.contains(true));
+            assertTrue("Wireless Debugging must be auto-enabled upon Wi-Fi reconnect", gateway.isEnabled(context));
+            assertTrue("KeepADB.isEnabled must return true", KeepADB.isEnabled(context));
+        } finally {
+            controller.destroy();
+        }
     }
 
     @Test

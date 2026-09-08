@@ -130,6 +130,17 @@ final class KeepADB {
         return state.wasLastExplicitIntentOff();
     }
 
+    /**
+     * Records an explicit on/off intent without initiating a toggle write. Used when Keep-Alive
+     * is enabled while Wi-Fi is disconnected so the standby service can auto-enable upon reconnect (#312).
+     */
+    static synchronized void recordExplicitIntent(Context ctx, boolean on) {
+        state.forceLastDesiredOn(on);
+        if (ctx != null) {
+            KeepADBPreferences.setLastDesiredOn(ctx.getApplicationContext(), on);
+        }
+    }
+
     enum State {
         PERMISSION_MISSING,
         OFF,

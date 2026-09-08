@@ -4,9 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.After;
 import org.junit.Test;
 
 public class KeepADBPreferencesTest {
+
+    @After
+    public void tearDown() {
+        KeepADB.resetForTesting();
+    }
 
     @Test
     public void testValidHttpUrl() {
@@ -98,6 +104,19 @@ public class KeepADBPreferencesTest {
     public void testLastDesiredOnNullContextSafety() {
         assertTrue(KeepADBPreferences.getLastDesiredOn(null));
         KeepADBPreferences.setLastDesiredOn(null, false);
+    }
+
+    @Test
+    public void testSetKeepAliveEnabledResetsExplicitIntent() {
+        FakeContext context = new FakeContext();
+        KeepADB.resetForTesting();
+        KeepADB.recordExplicitIntent(context, false);
+        assertTrue(KeepADB.wasLastExplicitIntentOff(context));
+
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        assertTrue(KeepADBPreferences.isKeepAliveEnabled(context));
+        assertFalse(KeepADB.wasLastExplicitIntentOff(context));
+        assertTrue(KeepADBPreferences.getLastDesiredOn(context));
     }
 
     @Test
