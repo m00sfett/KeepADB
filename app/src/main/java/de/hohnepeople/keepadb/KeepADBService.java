@@ -326,6 +326,9 @@ public class KeepADBService extends Service {
 
                 @Override
                 public void onLost(Network network) {
+                    // #313: a masked reconnect must require fresh BSSID verification,
+                    // even when foreground promotion has not completed.
+                    KeepADBTrustedNetwork.forgetVerifiedTrust();
                     // #310: unconditional, and ahead of the foregroundReady gate -- a pending
                     // automatic enable can outlive foreground promotion state, and losing the
                     // network invalidates it either way.

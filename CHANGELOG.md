@@ -5,6 +5,14 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.24] - 2026-09-08
+
+### Fixed
+- Der SSID-Fallback für automatisch aktiviertes WLAN-Debugging greift nur noch bei exakt maskierter BSSID und zuvor verifiziertem Vertrauen; fehlende oder unbekannte Identitäten verwerfen den Vertrauenscache (issue #313).
+- Auch eine unbekannte oder abweichende SSID bei maskierter BSSID verwirft den Cache; die Rückkehr zur alten SSID allein stellt das Vertrauen nicht wieder her (issue #313).
+- WLAN-Verlust löscht den Vertrauenscache auch vor abgeschlossener Vordergrundaktivierung; eine maskierte Wiederverbindung benötigt eine neue BSSID-Verifizierung (issue #313).
+- Unbekannte Vertrauensmoduswerte fallen auf die Allowlist zurück. Manuelles Schalten und ausdrücklich gewähltes „Alle WLANs“ bleiben unverändert (issue #313).
+
 ## [1.5.23] - 2026-09-08
 
 ### Fixed

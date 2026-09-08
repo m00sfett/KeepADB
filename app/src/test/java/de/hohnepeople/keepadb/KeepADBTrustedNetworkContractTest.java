@@ -36,6 +36,24 @@ public class KeepADBTrustedNetworkContractTest {
         assertFalse(manualActionBody.contains("KeepADBTrustedNetwork"));
     }
 
+    @Test
+    public void networkLossInvalidatesVerifiedTrustBeforeAnyEarlyReturn() throws IOException {
+        String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
+        String onLost = methodBody(service, "public void onLost(Network network) {");
+        // Ordering alone would also accept an invalidation guarded by a condition.
+        // Require the production call as the first statement, outside any conditional.
+        String statements = onLost.substring(onLost.indexOf('{') + 1)
+                .replaceAll("(?s)/\\*.*?\\*/|//[^\\r\\n]*", "").trim();
+        assertTrue("Trust invalidation must be unconditional at callback entry",
+                statements.startsWith("KeepADBTrustedNetwork.forgetVerifiedTrust();"));
+        int invalidation = onLost.indexOf("KeepADBTrustedNetwork.forgetVerifiedTrust();");
+        assertTrue("onLost must discard verified trust", invalidation >= 0);
+        assertTrue("Trust invalidation must precede the foreground gate",
+                invalidation < onLost.indexOf("if (!foregroundReady)"));
+        assertTrue("Trust invalidation must precede any early return",
+                invalidation < onLost.indexOf("return;"));
+    }
+
     private static String methodBody(String source, String signature) {
         int methodStart = source.indexOf(signature);
         assertTrue("Missing method: " + signature, methodStart >= 0);

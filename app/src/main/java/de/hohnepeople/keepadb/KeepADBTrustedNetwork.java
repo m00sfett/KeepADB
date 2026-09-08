@@ -72,7 +72,8 @@ final class KeepADBTrustedNetwork {
     private KeepADBTrustedNetwork() {}
 
     static String getMode(Context context) {
-        return prefs(context).getString(KEY_MODE, MODE_ALLOWLIST);
+        String mode = prefs(context).getString(KEY_MODE, MODE_ALLOWLIST);
+        return MODE_ALL_WIFI.equals(mode) ? MODE_ALL_WIFI : MODE_ALLOWLIST;
     }
 
     static void setMode(Context context, String mode) {
@@ -225,16 +226,16 @@ final class KeepADBTrustedNetwork {
             }
             return trusted;
         }
-        if (KeepADBNetworkIdentity.UNSET_BSSID.equalsIgnoreCase(identity.bssid)) {
-            // Not associated to any access point -- can't be a continuation of anything.
+        if (!KeepADBNetworkIdentity.REDACTED_BSSID.equals(identity.bssid)) {
+            // Unknown or disconnected identity breaks continuity; only exact platform
+            // masking may retain a previously verified connection's trust (#313).
             forgetVerifiedTrust();
             return false;
         }
-        // BSSID is REDACTED_BSSID: Android 12+ background masking (#270), not a real unknown
-        // network. Only this precise, narrow condition may use the fallback below -- any other
-        // "identity not known" case (null/empty BSSID, UNSET_BSSID, handled above) still fails
-        // closed exactly as before.
-        return hasMatchingVerifiedTrust(identity);
+        if (hasMatchingVerifiedTrust(identity)) return true;
+        // An unreadable or changed SSID also breaks the verified connection's continuity.
+        forgetVerifiedTrust();
+        return false;
     }
 
     private static boolean matchesAllowlist(Context context, String bssid) {
@@ -250,7 +251,8 @@ final class KeepADBTrustedNetwork {
         lastVerifiedTrustedSsid = identity.displaySsid();
     }
 
-    private static void forgetVerifiedTrust() {
+    /** Invalidates connection-scoped trust, including on an observed network loss. */
+    static void forgetVerifiedTrust() {
         lastVerifiedTrustedSsid = null;
     }
 
