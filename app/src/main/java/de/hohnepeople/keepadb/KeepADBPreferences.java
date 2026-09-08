@@ -128,16 +128,19 @@ final class KeepADBPreferences {
     }
 
     static String getRegisterWebhookUrl(Context context) {
+        if (context == null) return null;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(KEY_REGISTER_URL, null);
+        return sanitizeWebhookUrl(prefs.getString(KEY_REGISTER_URL, null));
     }
 
     static void setRegisterWebhookUrl(Context context, String url) {
+        if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if (url == null || url.trim().isEmpty()) {
+        String sanitized = sanitizeWebhookUrl(url);
+        if (sanitized == null || sanitized.trim().isEmpty()) {
             prefs.edit().remove(KEY_REGISTER_URL).apply();
         } else {
-            prefs.edit().putString(KEY_REGISTER_URL, url.trim()).apply();
+            prefs.edit().putString(KEY_REGISTER_URL, sanitized.trim()).apply();
         }
     }
 
@@ -344,6 +347,104 @@ final class KeepADBPreferences {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    static String sanitizeWebhookUrl(String rawUrl) {
+        if (rawUrl == null) return null;
+        String trimmed = rawUrl.trim();
+        if (trimmed.isEmpty()) return "";
+
+        try {
+            java.net.URI uri = new java.net.URI(trimmed);
+            String scheme = uri.getScheme();
+            String host = uri.getHost();
+            if (scheme != null && host != null) {
+                String path = uri.getPath();
+                if (path != null && path.isEmpty()) {
+                    path = null;
+                }
+                java.net.URI sanitized = new java.net.URI(
+                        scheme.toLowerCase(java.util.Locale.ROOT),
+                        null,
+                        host,
+                        uri.getPort(),
+                        path,
+                        uri.getQuery(),
+                        null);
+                return sanitized.toString();
+            }
+        } catch (Exception ignored) {
+            // Non-standard URI syntax; fallback to manual stripping below.
+        }
+
+        String result = trimmed;
+        int hashIdx = result.indexOf('#');
+        if (hashIdx >= 0) {
+            result = result.substring(0, hashIdx);
+        }
+        int schemeIdx = result.indexOf("://");
+        if (schemeIdx >= 0) {
+            String schemePart = result.substring(0, schemeIdx + 3).toLowerCase(java.util.Locale.ROOT);
+            String remainder = result.substring(schemeIdx + 3);
+            int atIdx = remainder.indexOf('@');
+            int slashIdx = remainder.indexOf('/');
+            int queryIdx = remainder.indexOf('?');
+            int authEnd = (slashIdx >= 0 && queryIdx >= 0)
+                    ? Math.min(slashIdx, queryIdx)
+                    : (slashIdx >= 0 ? slashIdx : queryIdx);
+            if (atIdx >= 0 && (authEnd < 0 || atIdx < authEnd)) {
+                remainder = remainder.substring(atIdx + 1);
+            }
+            result = schemePart + remainder;
+        }
+        return result;
+    }
+
+    private static String maskIpv4Host(String host) {
+        if (host == null) return null;
+        String[] parts = host.split("\\.", -1);
+        if (parts.length != 4) return host;
+        for (String part : parts) {
+            if (part.isEmpty() || part.length() > 3) return host;
+            for (int i = 0; i < part.length(); i++) {
+                if (!Character.isDigit(part.charAt(i))) return host;
+            }
+            int val = Integer.parseInt(part);
+            if (val < 0 || val > 255) return host;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(parts[0]).append('.').append(parts[1]).append('.');
+        for (int i = 0; i < parts[2].length(); i++) sb.append('*');
+        sb.append('.');
+        for (int i = 0; i < parts[3].length(); i++) sb.append('*');
+        return sb.toString();
+    }
+
+    static String maskWebhookUrl(String rawUrl) {
+        String sanitized = sanitizeWebhookUrl(rawUrl);
+        if (sanitized == null || sanitized.isEmpty()) {
+            return "";
+        }
+        try {
+            java.net.URI uri = new java.net.URI(sanitized);
+            String host = uri.getHost();
+            String scheme = uri.getScheme();
+            if (host != null && scheme != null) {
+                String maskedHost = maskIpv4Host(host);
+                if (!host.equals(maskedHost)) {
+                    int schemeEnd = sanitized.indexOf("://");
+                    if (schemeEnd >= 0) {
+                        int hostStart = schemeEnd + 3;
+                        return sanitized.substring(0, hostStart)
+                                + maskedHost
+                                + sanitized.substring(hostStart + host.length());
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            // Malformed URL, return sanitized as-is.
+        }
+        return sanitized;
     }
 
     /** Marks the moment the foreground service was known alive; used to log restart gaps. */

@@ -267,7 +267,8 @@ public class MainActivity extends Activity {
                     ? getString(R.string.webhook_status_deregistered)
                     : getString(R.string.webhook_status_no_endpoint);
         }
-        webhookStatus.setText(getString(R.string.webhook_status_hint, url, lastEndpoint, lastReported));
+        webhookStatus.setText(getString(R.string.webhook_status_hint,
+                KeepADBPreferences.maskWebhookUrl(url), lastEndpoint, lastReported));
         webhookStatusPanel.setVisibility(View.VISIBLE);
     }
 
