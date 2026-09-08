@@ -33,6 +33,7 @@ public class KeepADBUsbRegisterClientTest {
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final List<String> recordedRequests = Collections.synchronizedList(new ArrayList<>());
     private final AtomicInteger responseCode = new AtomicInteger(200);
+    private final AtomicInteger deleteResponseCode = new AtomicInteger(200);
 
     @Before
     public void setUp() throws Exception {
@@ -42,15 +43,17 @@ public class KeepADBUsbRegisterClientTest {
         running.set(true);
         recordedRequests.clear();
         responseCode.set(200);
+        deleteResponseCode.set(200);
 
         serverThread = new Thread(() -> {
             while (running.get() && !testServer.isClosed()) {
                 try (Socket socket = testServer.accept()) {
                     socket.setSoTimeout(2000);
                     BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-                    String line = reader.readLine();
-                    if (line != null) {
-                        recordedRequests.add(line);
+                    String requestLine = reader.readLine();
+                    String line;
+                    if (requestLine != null) {
+                        recordedRequests.add(requestLine);
                     }
                     int contentLength = 0;
                     while ((line = reader.readLine()) != null && !line.isEmpty()) {
@@ -66,7 +69,8 @@ public class KeepADBUsbRegisterClientTest {
                         }
                     }
                     OutputStream out = socket.getOutputStream();
-                    int code = responseCode.get();
+                    int code = requestLine != null && requestLine.startsWith("DELETE")
+                            ? deleteResponseCode.get() : responseCode.get();
                     String statusText = (code == 200) ? "OK" : "Error";
                     String response = "HTTP/1.1 " + code + " " + statusText + "\r\nContent-Length: 0\r\n\r\n";
                     out.write(response.getBytes(StandardCharsets.UTF_8));
@@ -213,6 +217,95 @@ public class KeepADBUsbRegisterClientTest {
         assertFalse(recordedRequests.isEmpty());
         assertTrue(recordedRequests.get(0).startsWith("POST"));
         assertEquals("{\"method\":\"wlan-adb\",\"endpoint\":\"192.168.1.50:41234\"}", recordedRequests.get(1));
+    }
+
+    @Test
+    public void testWlanSuccessPersistsSuccessStatus() throws Exception {
+        FakeContext context = configureWlanWebhook();
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_SUCCESS.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 2000);
+        assertEquals("192.168.1.50:41234",
+                KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        assertTrue(KeepADBPreferences.getWebhookLastReportedAt(context) > 0L);
+    }
+
+    @Test
+    public void testWlanDeregistrationPersistsDeregisteredStatus() throws Exception {
+        FakeContext context = configureWlanWebhook();
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_SUCCESS.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 2000);
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 2000);
+        assertNull(KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        assertTrue(KeepADBPreferences.getWebhookLastReportedAt(context) > 0L);
+    }
+
+    @Test
+    public void testFailedDeregistrationKeepsLastSuccessfulEndpoint() throws Exception {
+        FakeContext context = configureWlanWebhook();
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_SUCCESS.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 2000);
+        deleteResponseCode.set(500);
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 2000);
+        assertEquals("192.168.1.50:41234",
+                KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+    }
+
+    @Test
+    public void testWlanFailurePersistsFailedStatusWithoutOverwritingLastSuccess() throws Exception {
+        FakeContext context = configureWlanWebhook();
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_SUCCESS.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 2000);
+        responseCode.set(500);
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 2000);
+        assertEquals("192.168.1.50:41234",
+                KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+    }
+
+    @Test
+    public void testFailedReportAfterSuccessfulUrlChangeKeepsLastSuccessfulEndpoint() throws Exception {
+        FakeContext context = configureWlanWebhook();
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_SUCCESS.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 2000);
+
+        String previousUrl = KeepADBPreferences.getRegisterWebhookUrl(context);
+        String replacementUrl = previousUrl + "/replacement";
+        KeepADBPreferences.setRegisterWebhookUrl(context, replacementUrl);
+        responseCode.set(500);
+        deleteResponseCode.set(200);
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 2000);
+        assertEquals("192.168.1.50:41234",
+                KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        assertEquals(previousUrl, KeepADBPreferences.getWebhookLastReportedUrl(context));
+    }
+
+    private FakeContext configureWlanWebhook() {
+        FakeContext context = new FakeContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, url());
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        return context;
     }
 
     @Test

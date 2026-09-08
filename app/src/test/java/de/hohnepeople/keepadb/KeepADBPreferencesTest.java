@@ -1,5 +1,6 @@
 package de.hohnepeople.keepadb;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -97,6 +98,36 @@ public class KeepADBPreferencesTest {
     public void testLastDesiredOnNullContextSafety() {
         assertTrue(KeepADBPreferences.getLastDesiredOn(null));
         KeepADBPreferences.setLastDesiredOn(null, false);
+    }
+
+    @Test
+    public void testWebhookReportStatusRoundTripAndLegacyInference() {
+        FakeContext context = new FakeContext();
+
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_NEVER,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+
+        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+
+        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+
+        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+
+        // Existing installations have no status key; infer the old success/deregistration state.
+        KeepADBPreferences.setWebhookLastReportStatus(context, null);
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.0.2.10:40000");
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, null);
+        KeepADBPreferences.setWebhookLastReportedAtNow(context);
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
     }
 
     private static final class FakeContext extends android.content.ContextWrapper {

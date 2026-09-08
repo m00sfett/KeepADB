@@ -26,6 +26,7 @@ import java.util.List;
 public class SettingsActivity extends Activity {
     /** Intent extra requesting that the webhook section be scrolled into view and focused. */
     public static final String EXTRA_FOCUS_WEBHOOK = "focus_webhook";
+    private static final String STATE_WEBHOOK_DRAFT_URL = "settings_webhook_draft_url";
 
     private ScrollView scrollView;
     private View webhookPanel;
@@ -56,6 +57,7 @@ public class SettingsActivity extends Activity {
     private TextView webhookCleartextWarning;
     private Button webhookSave;
     private Button webhookClear;
+    private boolean webhookDraftInitialized;
     private TextView versionNameText;
     private TextView versionCodeText;
     private TextView websiteLinkText;
@@ -149,6 +151,13 @@ public class SettingsActivity extends Activity {
         webhookSave = findViewById(R.id.settings_webhook_save);
         webhookClear = findViewById(R.id.settings_webhook_clear);
 
+        if (savedInstanceState != null && savedInstanceState.containsKey(STATE_WEBHOOK_DRAFT_URL)) {
+            webhookUrlInput.setText(resolveWebhookDraft(
+                    KeepADBPreferences.getRegisterWebhookUrl(this),
+                    savedInstanceState.getString(STATE_WEBHOOK_DRAFT_URL), true));
+            webhookDraftInitialized = true;
+        }
+
         webhookToggle.setOnClickListener(v -> {
             boolean wantEnabled = webhookToggle.isChecked();
             if (wantEnabled) {
@@ -220,11 +229,10 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        String savedUrl = KeepADBPreferences.getRegisterWebhookUrl(this);
-        if (savedUrl != null) {
-            webhookUrlInput.setText(savedUrl);
-        } else {
-            webhookUrlInput.setText("");
+        if (!webhookDraftInitialized) {
+            webhookUrlInput.setText(resolveWebhookDraft(
+                    KeepADBPreferences.getRegisterWebhookUrl(this), null, false));
+            webhookDraftInitialized = true;
         }
         refresh();
 
@@ -237,6 +245,20 @@ public class SettingsActivity extends Activity {
             focusWebhookPanel();
             getIntent().removeExtra(EXTRA_FOCUS_WEBHOOK);
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(STATE_WEBHOOK_DRAFT_URL,
+                webhookUrlInput.getText() == null ? "" : webhookUrlInput.getText().toString());
+    }
+
+    static String resolveWebhookDraft(String savedUrl, String currentDraft, boolean hasCurrentDraft) {
+        if (hasCurrentDraft) {
+            return currentDraft == null ? "" : currentDraft;
+        }
+        return savedUrl == null ? "" : savedUrl;
     }
 
     private void focusWebhookPanel() {

@@ -5,6 +5,30 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.12] - 2026-09-08
+
+### Fixed
+- The webhook status now distinguishes never reported, successful, deregistered, and failed
+  reports, with failed report results persisted for the main-screen status (issue #306).
+
+## [1.5.11] - 2026-09-08
+
+### Fixed
+- The webhook URL draft now survives settings rotation and normal activity recreation without
+  saving, enabling, disabling, or resetting the configured webhook state (issue #307).
+
+## [1.5.10] - 2026-09-08
+
+### Fixed
+- The main-screen webhook status now observes reports before refreshing the cached endpoint,
+  so a successful report updates the displayed endpoint and timestamp immediately.
+
+## [1.5.9] - 2026-09-07
+
+### Documentation
+- Synchronized the release-signing and installation documentation with the current candidate
+  version and the latest published release. No user-facing behavior change.
+
 ## [1.5.8] - 2026-09-07
 
 ### Changed

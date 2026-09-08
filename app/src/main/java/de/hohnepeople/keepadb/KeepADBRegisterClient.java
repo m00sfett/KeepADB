@@ -352,17 +352,10 @@ final class KeepADBRegisterClient {
 
         // If URL changed and an old URL was registered, DELETE from old URL first
         if (oldUrl != null && !oldUrl.equals(targetUrl) && oldEndpoint != null) {
-            boolean deleted = deleteEndpoint(oldUrl);
-            if (deleted) {
-                synchronized (KeepADBRegisterClient.class) {
-                    if (oldUrl.equals(lastRegisteredUrl)) {
-                        lastRegisteredUrl = null;
-                        lastRegisteredEndpoint = null;
-                        KeepADBPreferences.setWebhookLastReportedUrl(context, null);
-                        KeepADBPreferences.setWebhookLastReportedEndpoint(context, null);
-                    }
-                }
-            } else {
+            // Keep the previous successful report until the replacement POST succeeds. If the
+            // new target fails, the UI must still show the last endpoint that was actually
+            // reported successfully rather than losing it during this transition.
+            if (!deleteEndpoint(oldUrl)) {
                 Log.w(TAG, "Failed to deregister from old URL " + sanitizeUrl(oldUrl)
                         + " during URL change; proceeding with new registration");
             }
@@ -379,6 +372,16 @@ final class KeepADBRegisterClient {
                     KeepADBPreferences.setWebhookLastReportedAtNow(context);
                     KeepADBPreferences.setWebhookLastReportedUrl(context, targetUrl);
                     KeepADBPreferences.setWebhookLastReportedEndpoint(context, targetEndpoint);
+                    KeepADBPreferences.setWebhookLastReportStatus(
+                            context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
+                    notifyRegisterStateListener();
+                }
+            }
+        } else {
+            synchronized (KeepADBRegisterClient.class) {
+                if (opGen == currentOpGeneration) {
+                    KeepADBPreferences.setWebhookLastReportStatus(
+                            context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
                     notifyRegisterStateListener();
                 }
             }
@@ -407,6 +410,16 @@ final class KeepADBRegisterClient {
                     KeepADBPreferences.setWebhookLastReportedAtNow(context);
                     KeepADBPreferences.setWebhookLastReportedUrl(context, null);
                     KeepADBPreferences.setWebhookLastReportedEndpoint(context, null);
+                    KeepADBPreferences.setWebhookLastReportStatus(
+                            context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
+                    notifyRegisterStateListener();
+                }
+            }
+        } else {
+            synchronized (KeepADBRegisterClient.class) {
+                if (opGen == currentOpGeneration) {
+                    KeepADBPreferences.setWebhookLastReportStatus(
+                            context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
                     notifyRegisterStateListener();
                 }
             }

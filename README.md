@@ -51,7 +51,7 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
 ### 1. Install APK
 Download the latest APK from the [GitHub Releases](https://github.com/m00sfett/KeepADB/releases). Inclusion in the official F-Droid catalog is pending.
 
-Or install manually via USB:
+Or install the currently published APK manually via USB:
 ```bash
 adb install -r KeepADB-v1.4.5.apk
 ```
