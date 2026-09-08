@@ -12,6 +12,7 @@ final class KeepADBPreferences {
     private static final String KEY_WEBHOOK_LAST_REPORTED = "register_webhook_last_reported";
     private static final String KEY_WEBHOOK_LAST_ENDPOINT = "register_webhook_last_endpoint";
     private static final String KEY_WEBHOOK_LAST_URL = "register_webhook_last_url";
+    private static final String KEY_WEBHOOK_LAST_STATUS = "register_webhook_last_status";
     private static final String KEY_APP_LANGUAGE = "app_language";
     private static final String KEY_SERVICE_LAST_HEARTBEAT = "service_last_heartbeat";
     private static final String KEY_HIDE_NOTIFICATION = "hide_notification_enabled";
@@ -34,6 +35,11 @@ final class KeepADBPreferences {
     static final String USB_WLAN_HANDOVER_MODE_AUTOMATIC = "automatic";
 
     private KeepADBPreferences() {}
+
+    static final String WEBHOOK_STATUS_NEVER = "never";
+    static final String WEBHOOK_STATUS_SUCCESS = "success";
+    static final String WEBHOOK_STATUS_DEREGISTERED = "deregistered";
+    static final String WEBHOOK_STATUS_FAILED = "failed";
 
     /**
      * Persisted record of the last explicit on/off user intent. Survives process death and LMK
@@ -167,6 +173,40 @@ final class KeepADBPreferences {
         } else {
             prefs.edit().putString(KEY_WEBHOOK_LAST_URL, url).apply();
         }
+    }
+
+    /**
+     * Returns the last WLAN-ADB webhook result. Missing status is derived from the legacy fields
+     * so existing installations keep their previous success/deregistration meaning.
+     */
+    static String getWebhookLastReportStatus(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String stored = prefs.getString(KEY_WEBHOOK_LAST_STATUS, null);
+        if (isWebhookReportStatus(stored)) {
+            return stored;
+        }
+        String endpoint = prefs.getString(KEY_WEBHOOK_LAST_ENDPOINT, null);
+        if (endpoint != null && !endpoint.trim().isEmpty()) {
+            return WEBHOOK_STATUS_SUCCESS;
+        }
+        return prefs.getLong(KEY_WEBHOOK_LAST_REPORTED, 0L) > 0L
+                ? WEBHOOK_STATUS_DEREGISTERED : WEBHOOK_STATUS_NEVER;
+    }
+
+    static void setWebhookLastReportStatus(Context context, String status) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (isWebhookReportStatus(status)) {
+            prefs.edit().putString(KEY_WEBHOOK_LAST_STATUS, status).apply();
+        } else {
+            prefs.edit().remove(KEY_WEBHOOK_LAST_STATUS).apply();
+        }
+    }
+
+    private static boolean isWebhookReportStatus(String status) {
+        return WEBHOOK_STATUS_SUCCESS.equals(status)
+                || WEBHOOK_STATUS_DEREGISTERED.equals(status)
+                || WEBHOOK_STATUS_FAILED.equals(status)
+                || WEBHOOK_STATUS_NEVER.equals(status);
     }
 
     static long getUsbWebhookLastReportedAt(Context context) {

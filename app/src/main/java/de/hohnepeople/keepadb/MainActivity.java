@@ -145,6 +145,9 @@ public class MainActivity extends Activity {
                 postEndpointUnavailable(listenerGeneration);
             }
         });
+        // Register before refreshing the notification: a cached endpoint can trigger a webhook
+        // report during refresh(), and the completed background report must reach this screen.
+        KeepADBRegisterClient.setRegisterStateListener(this::refreshWebhookStatus);
         // Keep-Alive is a persisted preference, but the foreground service backing it can die
         // (OEM battery optimization, process kill) without the preference changing. Only the
         // toggle's own click listener called sync() before; without it here, reopening the app
@@ -163,10 +166,6 @@ public class MainActivity extends Activity {
         refresh();
         KeepADBNotification.refresh(this);
         KeepADBUsbReceiver.refresh(this);
-        // The webhook POST/DELETE round-trip runs on a background thread well after refresh()
-        // above returns, so the displayed status would otherwise stay stale until the next
-        // unrelated refresh() call (#118).
-        KeepADBRegisterClient.setRegisterStateListener(this::refreshWebhookStatus);
     }
 
     @Override
@@ -245,9 +244,12 @@ public class MainActivity extends Activity {
             return;
         }
         webhookSetupButton.setVisibility(View.GONE);
+        String reportStatus = KeepADBPreferences.getWebhookLastReportStatus(this);
         long lastReportedAt = KeepADBPreferences.getWebhookLastReportedAt(this);
         String lastReported;
-        if (lastReportedAt <= 0) {
+        if (KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(reportStatus)) {
+            lastReported = getString(R.string.webhook_status_failed);
+        } else if (lastReportedAt <= 0) {
             lastReported = getString(R.string.webhook_status_never);
         } else {
             java.util.Date date = new java.util.Date(lastReportedAt);
@@ -261,7 +263,7 @@ public class MainActivity extends Activity {
             // Distinguish "never reported anything yet" from "was reported, then successfully
             // deregistered" -- both leave no current endpoint, but reusing the same "none yet"
             // text for a just-completed deregistration reads as if one were still pending.
-            lastEndpoint = lastReportedAt > 0
+            lastEndpoint = KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(reportStatus)
                     ? getString(R.string.webhook_status_deregistered)
                     : getString(R.string.webhook_status_no_endpoint);
         }

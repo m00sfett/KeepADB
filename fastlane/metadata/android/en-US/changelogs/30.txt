@@ -1,0 +1,1 @@
+Preserve the webhook URL draft during settings activity recreation without changing webhook state.

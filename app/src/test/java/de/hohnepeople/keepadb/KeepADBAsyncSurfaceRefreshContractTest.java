@@ -120,6 +120,42 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
     }
 
     @Test
+    public void activityRegistersWebhookListenerBeforeRefreshingNotification() throws IOException {
+        String activity = read("app/src/main/java/de/hohnepeople/keepadb/MainActivity.java");
+        String resumeBody = methodBody(activity, "protected void onResume() {");
+        String pauseBody = methodBody(activity, "protected void onPause() {");
+
+        int endpointListener = resumeBody.indexOf("KeepADBNotification.setEndpointListener(");
+        int registerListener = resumeBody.indexOf(
+                "KeepADBRegisterClient.setRegisterStateListener(this::refreshWebhookStatus);");
+        int notificationRefresh = resumeBody.indexOf("KeepADBNotification.refresh(this);");
+
+        assertTrue(endpointListener >= 0);
+        assertTrue(registerListener > endpointListener);
+        assertTrue(notificationRefresh > registerListener);
+        assertTrue(pauseBody.contains("KeepADBRegisterClient.clearRegisterStateListener();"));
+    }
+
+    @Test
+    public void activityRendersEveryPersistedWebhookReportState() throws IOException {
+        String preferences = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBPreferences.java");
+        String activity = read("app/src/main/java/de/hohnepeople/keepadb/MainActivity.java");
+        String statusBody = methodBody(activity, "private void refreshWebhookStatus() {");
+
+        assertTrue(preferences.contains("WEBHOOK_STATUS_NEVER = \"never\""));
+        assertTrue(preferences.contains("WEBHOOK_STATUS_SUCCESS = \"success\""));
+        assertTrue(preferences.contains("WEBHOOK_STATUS_DEREGISTERED = \"deregistered\""));
+        assertTrue(preferences.contains("WEBHOOK_STATUS_FAILED = \"failed\""));
+        assertTrue(statusBody.contains("getWebhookLastReportStatus(this)"));
+        assertTrue(statusBody.contains("WEBHOOK_STATUS_FAILED"));
+        assertTrue(statusBody.contains("R.string.webhook_status_failed"));
+        assertTrue(statusBody.contains("WEBHOOK_STATUS_DEREGISTERED"));
+        assertTrue(statusBody.contains("R.string.webhook_status_deregistered"));
+        assertTrue(statusBody.contains("R.string.webhook_status_no_endpoint"));
+        assertTrue(statusBody.contains("webhookStatus.setText("));
+    }
+
+    @Test
     public void activityDropsQueuedEndpointCallbacksAfterPauseAndRecreation() throws IOException {
         String activity = read("app/src/main/java/de/hohnepeople/keepadb/MainActivity.java");
         String resumeBody = methodBody(activity, "protected void onResume() {");

@@ -1,0 +1,1 @@
+Show the latest reported webhook endpoint in the main-screen status immediately after a successful report.
