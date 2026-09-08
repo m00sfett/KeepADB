@@ -1,0 +1,1 @@
+Bind USB notifications to per-app language, refresh active USB notifications on language change, and localize accessibility descriptions.

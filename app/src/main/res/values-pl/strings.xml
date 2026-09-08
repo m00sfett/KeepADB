@@ -86,6 +86,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_permission_warning">Brak uprawnienia systemowego WRITE_SECURE_SETTINGS. KeepADB nie może sterować debugowaniem bezprzewodowym przed nadaniem uprawnień.</string>
     <string name="settings_section_language">Język</string>
     <string name="settings_language_label">Język aplikacji</string>
+    <string name="settings_language_accessibility">Język aplikacji: %1$s</string>
     <string name="settings_language_subtext">Wybierz język interfejsu KeepADB</string>
     <string name="settings_language_system_default">Domyślny systemowy</string>
     <string name="settings_language_dialog_title">Wybierz język</string>
@@ -140,6 +141,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_usb_handover">Przekazanie USB → WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Opcjonalnie proponuje lub automatycznie włącza WLAN-ADB z aktywnego połączenia USB-ADB. Domyślnie wyłączone; ręczne wyłączenie nigdy nie jest nadpisywane.</string>
     <string name="settings_usb_handover_label">Tryb przekazania</string>
+    <string name="settings_usb_handover_accessibility">Tryb przekazania USB: %1$s</string>
     <string name="settings_usb_handover_dialog_title">Wybierz tryb przekazania</string>
     <string name="settings_usb_handover_mode_off">Wyłączone</string>
     <string name="settings_usb_handover_mode_manual">Ręczny (pokaż działanie w powiadomieniu USB)</string>

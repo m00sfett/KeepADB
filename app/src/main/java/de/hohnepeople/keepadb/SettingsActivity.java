@@ -411,6 +411,7 @@ public class SettingsActivity extends Activity {
                     KeepADBLocaleHelper.setAppLanguage(this, chosenTag);
                     KeepADBWidget.refreshAll(this);
                     KeepADBNotification.refresh(this);
+                    KeepADBUsbReceiver.refresh(this);
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
@@ -937,7 +938,7 @@ public class SettingsActivity extends Activity {
         String displayName = KeepADBLocaleHelper.getLanguageDisplayName(this, currentLanguageTag);
         languageSelectedText.setText(displayName);
         languageSelector.setContentDescription(
-                getString(R.string.settings_language_label) + ": " + displayName);
+                getString(R.string.settings_language_accessibility, displayName));
 
         boolean webhookEnabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
         webhookToggle.setChecked(webhookEnabled);
@@ -966,7 +967,7 @@ public class SettingsActivity extends Activity {
                         : R.string.settings_usb_handover_mode_off;
         usbHandoverSelectedText.setText(handoverModeLabel);
         usbHandoverSelector.setContentDescription(
-                getString(R.string.settings_usb_handover_label) + ": " + getString(handoverModeLabel));
+                getString(R.string.settings_usb_handover_accessibility, getString(handoverModeLabel)));
 
         // Piggyback the mesh-BSSID observation history (#266) on this already-happening
         // identity read instead of adding a new background poll/service for it.

@@ -86,6 +86,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_permission_warning">시스템 권한 WRITE_SECURE_SETTINGS가 없습니다. 권한이 부여될 때까지 KeepADB는 무선 디버깅을 전환할 수 없습니다.</string>
     <string name="settings_section_language">언어</string>
     <string name="settings_language_label">앱 언어</string>
+    <string name="settings_language_accessibility">앱 언어: %1$s</string>
     <string name="settings_language_subtext">KeepADB의 인터페이스 언어를 선택하세요</string>
     <string name="settings_language_system_default">시스템 기본값</string>
     <string name="settings_language_dialog_title">언어 선택</string>
@@ -140,6 +141,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB 전환</string>
     <string name="settings_usb_handover_subtext">활성 USB-ADB 연결에서 WLAN-ADB 활성화를 선택적으로 제안하거나 자동으로 실행합니다. 기본값은 꺼짐이며 수동으로 끈 설정은 절대 덮어쓰지 않습니다.</string>
     <string name="settings_usb_handover_label">핸드오버 모드</string>
+    <string name="settings_usb_handover_accessibility">USB 핸드오버 모드: %1$s</string>
     <string name="settings_usb_handover_dialog_title">핸드오버 모드 선택</string>
     <string name="settings_usb_handover_mode_off">꺼짐</string>
     <string name="settings_usb_handover_mode_manual">수동(USB 알림에 작업 표시)</string>
