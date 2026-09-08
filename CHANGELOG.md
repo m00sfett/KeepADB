@@ -5,6 +5,13 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.15] - 2026-09-08
+
+### Fixed
+- Added polite accessibility live regions to dynamic status and error texts so TalkBack announces state updates dynamically (issue #321).
+- Improved color contrast for `link_red` (WCAG AA >= 4.5:1 text contrast) and `border_red` (WCAG 1.4.11 >= 3.0:1 non-text boundary contrast) against dark panels (issue #321).
+- Expanded the touch target size of the HohnePeople website link in Settings to meet the 48x48 dp accessibility minimum (issue #321).
+
 ## [1.5.14] - 2026-09-08
 
 ### Changed

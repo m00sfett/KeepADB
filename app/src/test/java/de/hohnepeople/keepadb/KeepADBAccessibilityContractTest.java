@@ -9,6 +9,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -275,6 +277,124 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(deleteDialog.contains("KeepADBUsbReceiver.refresh(this)"));
         assertTrue(deleteDialog.contains("refresh();"));
         assertFalse(notification.contains("ACTION_DELETE"));
+    }
+
+    @Test
+    public void dynamicStatusAndErrorViewsDeclarePoliteLiveRegions() throws IOException {
+        String main = read("app/src/main/res/layout/activity_main.xml");
+        String settings = read("app/src/main/res/layout/activity_settings.xml");
+
+        int statusIndex = main.indexOf("android:id=\"@+id/status\"");
+        assertTrue("Missing status view in main", statusIndex >= 0);
+        int statusEndIndex = main.indexOf("/>", statusIndex);
+        String statusBlock = main.substring(statusIndex, statusEndIndex);
+        assertTrue("status must declare polite live region",
+                statusBlock.contains("android:accessibilityLiveRegion=\"polite\""));
+
+        int webhookStatusIndex = main.indexOf("android:id=\"@+id/webhook_status\"");
+        assertTrue("Missing webhook_status view in main", webhookStatusIndex >= 0);
+        int webhookStatusEndIndex = main.indexOf("/>", webhookStatusIndex);
+        String webhookStatusBlock = main.substring(webhookStatusIndex, webhookStatusEndIndex);
+        assertTrue("webhook_status must declare polite live region",
+                webhookStatusBlock.contains("android:accessibilityLiveRegion=\"polite\""));
+
+        int webhookErrorIndex = settings.indexOf("android:id=\"@+id/settings_webhook_error\"");
+        assertTrue("Missing settings_webhook_error in settings", webhookErrorIndex >= 0);
+        int webhookErrorEndIndex = settings.indexOf("/>", webhookErrorIndex);
+        String webhookErrorBlock = settings.substring(webhookErrorIndex, webhookErrorEndIndex);
+        assertTrue("settings_webhook_error must declare polite live region",
+                webhookErrorBlock.contains("android:accessibilityLiveRegion=\"polite\""));
+
+        int cleartextWarningIndex = settings.indexOf("android:id=\"@+id/settings_webhook_cleartext_warning\"");
+        assertTrue("Missing settings_webhook_cleartext_warning in settings", cleartextWarningIndex >= 0);
+        int cleartextWarningEndIndex = settings.indexOf("/>", cleartextWarningIndex);
+        String cleartextWarningBlock = settings.substring(cleartextWarningIndex, cleartextWarningEndIndex);
+        assertTrue("settings_webhook_cleartext_warning must declare polite live region",
+                cleartextWarningBlock.contains("android:accessibilityLiveRegion=\"polite\""));
+
+        int trustedNetworkStatusIndex = settings.indexOf("android:id=\"@+id/settings_trusted_network_status\"");
+        assertTrue("Missing settings_trusted_network_status in settings", trustedNetworkStatusIndex >= 0);
+        int trustedNetworkStatusEndIndex = settings.indexOf("/>", trustedNetworkStatusIndex);
+        String trustedNetworkStatusBlock = settings.substring(trustedNetworkStatusIndex, trustedNetworkStatusEndIndex);
+        assertTrue("settings_trusted_network_status must declare polite live region",
+                trustedNetworkStatusBlock.contains("android:accessibilityLiveRegion=\"polite\""));
+    }
+
+    @Test
+    public void settingsWebsiteLinkHasAccessibleTouchTarget() throws IOException {
+        String settings = read("app/src/main/res/layout/activity_settings.xml");
+        int linkIndex = settings.indexOf("android:id=\"@+id/settings_website_link\"");
+        assertTrue("Missing settings_website_link", linkIndex >= 0);
+        int linkEndIndex = settings.indexOf("/>", linkIndex);
+        String linkBlock = settings.substring(linkIndex, linkEndIndex);
+
+        assertTrue("settings_website_link must specify minHeight 48dp",
+                linkBlock.contains("android:minHeight=\"48dp\""));
+        assertTrue("settings_website_link must specify minWidth 48dp",
+                linkBlock.contains("android:minWidth=\"48dp\""));
+        assertTrue("settings_website_link must specify center_vertical gravity",
+                linkBlock.contains("android:gravity=\"center_vertical\""));
+        assertTrue("settings_website_link must specify vertical padding",
+                linkBlock.contains("android:paddingTop=\"8dp\"")
+                        && linkBlock.contains("android:paddingBottom=\"8dp\""));
+        assertTrue("settings_website_link must specify horizontal padding",
+                linkBlock.contains("android:paddingStart=\"4dp\"")
+                        && linkBlock.contains("android:paddingEnd=\"4dp\""));
+    }
+
+    @Test
+    public void themeColorsMeetWcagContrastRequirements() throws IOException {
+        String colors = read("app/src/main/res/values/colors.xml");
+        String groundHex = extractColorHex(colors, "ground");
+        String panelHex = extractColorHex(colors, "panel");
+        String panelStrongHex = extractColorHex(colors, "panel_strong");
+        String linkRedHex = extractColorHex(colors, "link_red");
+        String borderRedHex = extractColorHex(colors, "border_red");
+
+        // WCAG AA for normal text requires >= 4.5:1
+        assertTrue("link_red must achieve >= 4.5:1 contrast against ground",
+                contrastRatio(linkRedHex, groundHex) >= 4.5);
+        assertTrue("link_red must achieve >= 4.5:1 contrast against panel",
+                contrastRatio(linkRedHex, panelHex) >= 4.5);
+        assertTrue("link_red must achieve >= 4.5:1 contrast against panel_strong",
+                contrastRatio(linkRedHex, panelStrongHex) >= 4.5);
+
+        // WCAG 1.4.11 Non-text Contrast for graphical objects / UI boundaries requires >= 3.0:1
+        assertTrue("border_red must achieve >= 3.0:1 contrast against ground",
+                contrastRatio(borderRedHex, groundHex) >= 3.0);
+        assertTrue("border_red must achieve >= 3.0:1 contrast against panel",
+                contrastRatio(borderRedHex, panelHex) >= 3.0);
+        assertTrue("border_red must achieve >= 3.0:1 contrast against panel_strong",
+                contrastRatio(borderRedHex, panelStrongHex) >= 3.0);
+    }
+
+    private static String extractColorHex(String colorsXml, String colorName) {
+        Matcher matcher = Pattern.compile(
+                "<color\\s+name=\\\"" + Pattern.quote(colorName) + "\\\">#?([0-9a-fA-F]{6})</color>")
+                .matcher(colorsXml);
+        assertTrue("Could not find color " + colorName, matcher.find());
+        return matcher.group(1);
+    }
+
+    private static double contrastRatio(String hex1, String hex2) {
+        double l1 = relativeLuminance(hex1);
+        double l2 = relativeLuminance(hex2);
+        double lighter = Math.max(l1, l2);
+        double darker = Math.min(l1, l2);
+        return (lighter + 0.05) / (darker + 0.05);
+    }
+
+    private static double relativeLuminance(String hex) {
+        int r = Integer.parseInt(hex.substring(0, 2), 16);
+        int g = Integer.parseInt(hex.substring(2, 4), 16);
+        int b = Integer.parseInt(hex.substring(4, 6), 16);
+        return 0.2126 * linearComponent(r / 255.0)
+                + 0.7152 * linearComponent(g / 255.0)
+                + 0.0722 * linearComponent(b / 255.0);
+    }
+
+    private static double linearComponent(double c) {
+        return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
     }
 
     private static String read(String relativePath) throws IOException {
