@@ -66,6 +66,11 @@ public class KeepADBNotificationRobolectricTest {
         setStatic("currentHost", null);
         setStatic("currentPort", 0);
         setStatic("endpointListener", null);
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
+                .edit()
+                .clear()
+                .commit();
+        KeepADB.resetForTesting();
     }
 
     @Test
@@ -135,6 +140,9 @@ public class KeepADBNotificationRobolectricTest {
     public void wifiNetworkCallbackIsRegisteredAgainstARealConnectivityManager() {
         ConnectivityManager connectivityManager = context.getSystemService(ConnectivityManager.class);
         ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
+
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
 
         ServiceController<KeepADBService> controller = org.robolectric.Robolectric.buildService(KeepADBService.class);
         try {

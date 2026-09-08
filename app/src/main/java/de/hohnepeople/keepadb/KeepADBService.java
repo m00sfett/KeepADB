@@ -34,9 +34,14 @@ public class KeepADBService extends Service {
     private long lastCapabilitiesRecheckTime = 0;
     private static final long CAPABILITIES_RECHECK_MIN_INTERVAL_MS = 5000;
 
-    static void sync(Context context) {
-        boolean shouldRun = KeepADBPreferences.isKeepAliveEnabled(context)
+    static boolean shouldRun(Context context) {
+        if (context == null) return false;
+        return KeepADBPreferences.isKeepAliveEnabled(context)
                 && (KeepADB.isEnabled(context) || !KeepADB.wasLastExplicitIntentOff(context));
+    }
+
+    static void sync(Context context) {
+        boolean shouldRun = shouldRun(context);
         KeepADBDiagnostics.event(context, "service_sync", "state_change",
                 shouldRun ? "start_requested" : "stop_requested",
                 "keepAlive=" + KeepADBPreferences.isKeepAliveEnabled(context)
@@ -125,6 +130,13 @@ public class KeepADBService extends Service {
         }
         foregroundReady = true;
         KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "ready", "foreground=true");
+        if (!shouldRun(this)) {
+            Log.i(TAG, "onStartCommand: service should not run; stopping foreground mode");
+            KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "stopped", "should_not_run");
+            stopForeground(STOP_FOREGROUND_REMOVE);
+            stopSelfResult(startId);
+            return START_NOT_STICKY;
+        }
         heartbeatNow();
         registerAdbObserver();
         registerNetworkCallback();

@@ -73,9 +73,12 @@ public class KeepADBBootReceiverContractTest {
     @Test
     public void serviceStopsAndRemovesNotificationWhenDisabled() throws IOException {
         String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
+        String receiver = read("app/src/main/java/de/hohnepeople/keepadb/BootReceiver.java");
         String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
 
-        assertTrue(service.contains("boolean shouldRun = KeepADBPreferences.isKeepAliveEnabled(context)"));
+        assertTrue(service.contains("static boolean shouldRun(Context context)"));
+        assertTrue(service.contains("if (!shouldRun(this))"));
+        assertTrue(receiver.contains("if (!KeepADBService.shouldRun(context))"));
         assertTrue(service.contains("stopForeground(STOP_FOREGROUND_REMOVE)"));
         assertTrue(notification.contains("manager.cancel(NOTIFICATION_ID);"));
         assertFalse(notification.contains("showPlaceholder(context, manager,"));
