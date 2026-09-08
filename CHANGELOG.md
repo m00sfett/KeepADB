@@ -5,6 +5,12 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.22] - 2026-09-08
+
+### Fixed
+- Aborting an initial in-flight register POST when Wireless Debugging is turned OFF or USB is disconnected now reliably invalidates the pending operation and dispatches a cleanup transaction behind it, preventing the device from being retained as active on the register server (issue #316).
+- Preserved USB profile parameters during in-flight registrations so a disconnect occurring before the initial registration finishes still delivers an inactive payload with the selected profile's metadata to the register server (issue #316).
+
 ## [1.5.21] - 2026-09-08
 
 ### Fixed

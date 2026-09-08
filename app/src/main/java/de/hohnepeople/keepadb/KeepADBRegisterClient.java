@@ -75,6 +75,13 @@ final class KeepADBRegisterClient {
     private static volatile long currentUsbOpGeneration = 0;
     private static volatile boolean usbUpdateInFlight = false;
 
+    private static volatile String inFlightUsbTargetUrl = null;
+    private static volatile Integer inFlightUsbProfileId = null;
+    private static volatile String inFlightUsbProfileName = null;
+    private static volatile String inFlightUsbIpAddress = null;
+    private static volatile String inFlightUsbHostname = null;
+    private static volatile String inFlightUsbTailnetHostname = null;
+
     private KeepADBRegisterClient() {}
 
     static synchronized void ensureStateInitializedLocked(Context context) {
@@ -138,11 +145,13 @@ final class KeepADBRegisterClient {
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
             ensureStateInitializedLocked(appContext);
-            if (lastRegisteredEndpoint == null && lastRegisteredUrl == null && !wlanUpdateInFlight) {
-                return;
-            }
+            boolean wasInFlight = wlanUpdateInFlight;
+            boolean hadPrior = (lastRegisteredEndpoint != null || lastRegisteredUrl != null);
             wlanUpdateInFlight = false;
             opGen = ++currentOpGeneration;
+            if (!wasInFlight && !hadPrior) {
+                return;
+            }
         }
 
         EXECUTOR.execute(() -> {
@@ -199,6 +208,12 @@ final class KeepADBRegisterClient {
             }
             opGen = ++currentUsbOpGeneration;
             usbUpdateInFlight = true;
+            inFlightUsbTargetUrl = targetUrl;
+            inFlightUsbProfileId = profileId;
+            inFlightUsbProfileName = profileName;
+            inFlightUsbIpAddress = ipAddress;
+            inFlightUsbHostname = hostname;
+            inFlightUsbTailnetHostname = tailnetHostname;
         }
 
         EXECUTOR.execute(() -> {
@@ -207,6 +222,12 @@ final class KeepADBRegisterClient {
                 synchronized (KeepADBRegisterClient.class) {
                     if (opGen == currentUsbOpGeneration) {
                         usbUpdateInFlight = false;
+                        inFlightUsbTargetUrl = null;
+                        inFlightUsbProfileId = null;
+                        inFlightUsbProfileName = null;
+                        inFlightUsbIpAddress = null;
+                        inFlightUsbHostname = null;
+                        inFlightUsbTailnetHostname = null;
                         lastRegisteredUsbUrl = targetUrl;
                         lastRegisteredUsbPayload = payload;
                         lastRegisteredUsbProfileId = profileId;
@@ -225,6 +246,12 @@ final class KeepADBRegisterClient {
                 synchronized (KeepADBRegisterClient.class) {
                     if (opGen == currentUsbOpGeneration) {
                         usbUpdateInFlight = false;
+                        inFlightUsbTargetUrl = null;
+                        inFlightUsbProfileId = null;
+                        inFlightUsbProfileName = null;
+                        inFlightUsbIpAddress = null;
+                        inFlightUsbHostname = null;
+                        inFlightUsbTailnetHostname = null;
                     }
                 }
             }
@@ -256,17 +283,29 @@ final class KeepADBRegisterClient {
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
             ensureUsbStateInitializedLocked(context);
-            if (lastRegisteredUsbUrl == null && lastRegisteredUsbPayload == null && !usbUpdateInFlight) {
+            boolean wasInFlight = usbUpdateInFlight;
+            boolean hadPrior = (lastRegisteredUsbUrl != null || lastRegisteredUsbPayload != null);
+            usbUpdateInFlight = false;
+            opGen = ++currentUsbOpGeneration;
+
+            urlToUse = (lastRegisteredUsbUrl != null) ? lastRegisteredUsbUrl
+                    : ((inFlightUsbTargetUrl != null) ? inFlightUsbTargetUrl : configuredUrl);
+            profileId = (lastRegisteredUsbProfileId != null) ? lastRegisteredUsbProfileId : inFlightUsbProfileId;
+            profileName = (lastRegisteredUsbProfileName != null) ? lastRegisteredUsbProfileName : inFlightUsbProfileName;
+            ipAddress = (lastRegisteredUsbIpAddress != null) ? lastRegisteredUsbIpAddress : inFlightUsbIpAddress;
+            hostname = (lastRegisteredUsbHostname != null) ? lastRegisteredUsbHostname : inFlightUsbHostname;
+            tailnetHostname = (lastRegisteredUsbTailnetHostname != null) ? lastRegisteredUsbTailnetHostname : inFlightUsbTailnetHostname;
+
+            inFlightUsbTargetUrl = null;
+            inFlightUsbProfileId = null;
+            inFlightUsbProfileName = null;
+            inFlightUsbIpAddress = null;
+            inFlightUsbHostname = null;
+            inFlightUsbTailnetHostname = null;
+
+            if (!wasInFlight && !hadPrior) {
                 return;
             }
-            usbUpdateInFlight = false;
-            urlToUse = (lastRegisteredUsbUrl != null) ? lastRegisteredUsbUrl : configuredUrl;
-            profileId = lastRegisteredUsbProfileId;
-            profileName = lastRegisteredUsbProfileName;
-            ipAddress = lastRegisteredUsbIpAddress;
-            hostname = lastRegisteredUsbHostname;
-            tailnetHostname = lastRegisteredUsbTailnetHostname;
-            opGen = ++currentUsbOpGeneration;
         }
 
         if (urlToUse == null || urlToUse.trim().isEmpty()) {
@@ -296,6 +335,12 @@ final class KeepADBRegisterClient {
 
     private static void clearUsbStateLocked(Context context) {
         usbUpdateInFlight = false;
+        inFlightUsbTargetUrl = null;
+        inFlightUsbProfileId = null;
+        inFlightUsbProfileName = null;
+        inFlightUsbIpAddress = null;
+        inFlightUsbHostname = null;
+        inFlightUsbTailnetHostname = null;
         lastRegisteredUsbUrl = null;
         lastRegisteredUsbPayload = null;
         lastRegisteredUsbProfileId = null;
@@ -519,6 +564,18 @@ final class KeepADBRegisterClient {
 
     static boolean isUsbStateInitializedForTesting() {
         return usbStateInitialized;
+    }
+
+    static boolean isWlanUpdateInFlightForTesting() {
+        return wlanUpdateInFlight;
+    }
+
+    static boolean isUsbUpdateInFlightForTesting() {
+        return usbUpdateInFlight;
+    }
+
+    static Integer getInFlightUsbProfileIdForTesting() {
+        return inFlightUsbProfileId;
     }
 
     static String sanitizeUrl(String rawUrl) {

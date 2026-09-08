@@ -513,8 +513,15 @@ public class KeepADBRegisterClientTest {
         // Verify the in-flight update did not revive the endpoint after disconnect
         assertNull(KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
         assertNull(KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        assertNull(KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+        assertNull(KeepADBPreferences.getWebhookLastReportedUrl(context));
+        assertEquals(2, transport.getRequestCount());
+        assertEquals("POST", transport.recordedRequests.get(0).method);
+        assertEquals("DELETE", transport.recordedRequests.get(1).method);
+        assertEquals("http://fake.url/register", transport.recordedRequests.get(1).url);
         assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
                 KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertFalse(KeepADBRegisterClient.isWlanUpdateInFlightForTesting());
     }
 
     @Test
@@ -554,6 +561,102 @@ public class KeepADBRegisterClientTest {
         // Verify Desk was superseded and not registered
         assertNull(KeepADBRegisterClient.getLastRegisteredUsbProfileNameForTesting());
         assertNull(KeepADBPreferences.getUsbWebhookLastProfileName(context));
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbPayloadForTesting());
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedPayload(context));
+
+        // Verify inactive payload was sent with profile metadata
+        assertEquals(2, transport.getRequestCount());
+        assertEquals("POST", transport.recordedRequests.get(0).method);
+        assertTrue(transport.recordedRequests.get(0).payload.contains("\"active\":true"));
+        KeepADBFakeHttpTransport.Request inactiveReq = transport.recordedRequests.get(1);
+        assertEquals("POST", inactiveReq.method);
+        assertEquals("http://fake.url/register", inactiveReq.url);
+        assertTrue(inactiveReq.payload.contains("\"active\":false"));
+        assertTrue(inactiveReq.payload.contains("\"profileId\":1"));
+        assertTrue(inactiveReq.payload.contains("\"profileName\":\"Desk\""));
+        assertTrue(inactiveReq.payload.contains("\"ipAddress\":\"192.168.1.20\""));
+
+        // Verify USB state is cleared
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbProfileIdForTesting());
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
+        assertFalse(KeepADBRegisterClient.isUsbUpdateInFlightForTesting());
+    }
+
+    @Test
+    public void testInFlightInitialUsbUpdateSupersededViaMarkUsbInactiveAsync() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        CountDownLatch firstRequestStarted = new CountDownLatch(1);
+        CountDownLatch canFinishFirstRequest = new CountDownLatch(1);
+
+        transport.setRequestCallback(req -> {
+            if ("POST".equals(req.method) && req.payload != null && req.payload.contains("Workstation")) {
+                firstRequestStarted.countDown();
+                try {
+                    canFinishFirstRequest.await(3, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+
+        KeepADBUsbProfile.Profile profile = new KeepADBUsbProfile.Profile(
+                7, "Workstation", "10.0.0.99", "work-pc", "work.tailnet.ts.net");
+
+        // Start initial USB registration (in-flight)
+        KeepADBRegisterClient.updateUsbEndpointAsync(context, profile);
+        assertTrue(firstRequestStarted.await(3, TimeUnit.SECONDS));
+
+        // While initial POST is in-flight, USB disconnects via public API
+        KeepADBRegisterClient.markUsbInactiveAsync(context);
+
+        // Allow initial POST to finish
+        canFinishFirstRequest.countDown();
+
+        // Wait until inactive request is processed
+        waitUntil(() -> transport.getRequestCount() >= 2, 3000);
+        ShadowLooper.idleMainLooper();
+
+        // Assert 1: In-flight POST completion does not persist active state
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbProfileNameForTesting());
+        assertNull(KeepADBPreferences.getUsbWebhookLastProfileName(context));
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbPayloadForTesting());
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedPayload(context));
+
+        // Assert 2: Inactive USB payload (active: false) is sent to the server with profile metadata
+        assertEquals(2, transport.getRequestCount());
+        KeepADBFakeHttpTransport.Request inactiveReq = transport.recordedRequests.get(1);
+        assertEquals("POST", inactiveReq.method);
+        assertTrue(inactiveReq.payload.contains("\"active\":false"));
+        assertTrue(inactiveReq.payload.contains("\"profileId\":7"));
+        assertTrue(inactiveReq.payload.contains("\"profileName\":\"Workstation\""));
+        assertTrue(inactiveReq.payload.contains("\"ipAddress\":\"10.0.0.99\""));
+
+        // Assert 3: USB state is cleared
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbProfileIdForTesting());
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
+        assertFalse(KeepADBRegisterClient.isUsbUpdateInFlightForTesting());
+    }
+
+    @Test
+    public void testMarkUnavailableAsyncWhenNothingRegisteredOrInFlightIsNoOp() {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+
+        assertEquals(0, transport.getRequestCount());
+        assertNull(KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
     }
 
     @Test

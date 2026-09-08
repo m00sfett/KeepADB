@@ -1,0 +1,1 @@
+Turning off Wireless Debugging or disconnecting USB while an initial registration is in flight now reliably cancels the pending update and sends a cleanup request, preventing the device from remaining active on the register server.
