@@ -5,6 +5,14 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.30] - 2026-09-09
+
+### Fixed
+- The main switch in the app now shows only whether wireless debugging is actually switched on in the Android system. Until now it stood on "ON" while the system setting was off and Keep-Alive was merely waiting to switch it back on — the app claimed a state the device did not have. The wait is now shown as a separate line of text below the switch instead (issue #318).
+- The quick settings tile, the home screen widget and the switch in the app now react identically to a tap in the same situation. Previously the tile started a reconnect where the widget switched wireless debugging off, so the same picture led to opposite results depending on where it was tapped. A tap now always requests the opposite of the real system setting; the tile still starts a fresh endpoint search whenever the quick settings panel is opened (issue #318).
+- While a switch-over is still waiting out the internal delay of up to 1.5 seconds, all three surfaces now say so instead of continuing to show the old value (issue #318).
+- A failed switch-over is now reported for what it is. So far every failure was reported as a missing permission, even when the permission was granted and only the write to the system setting was rejected (issue #318).
+
 ## [1.5.29] - 2026-09-09
 
 ### Fixed
