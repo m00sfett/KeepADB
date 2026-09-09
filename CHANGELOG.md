@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Log entries now hide the same parts as the app screen. So far they showed IPv4 addresses unmasked, and an IPv6 address with an interface suffix made the redaction fail entirely (issue #350).
 - A webhook URL saved by an older version of the app is cleaned up when it is read, not only when it is written. Such a stored value is also used as the target when deregistering from a previous URL, so a user name and password contained in it could previously be sent over the network. Existing installations are covered without any action by the user (issue #350).
 
-
+## [1.5.28] - 2026-09-09
 
 ### Fixed
 - Reconnecting to Wi-Fi now always requires a fresh verification of the access point: Android does not guarantee that the loss of the old network is reported before the new one becomes available, so automatic re-enable could briefly evaluate the new connection against the previous one's remembered trust. If the new connection's access point address was hidden from the app and its network name happened to match, wireless debugging could be switched on automatically on a network that was never checked (issue #354).
