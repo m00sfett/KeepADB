@@ -314,6 +314,16 @@ public class KeepADBService extends Service {
             networkCallback = new ConnectivityManager.NetworkCallback() {
                 @Override
                 public void onAvailable(Network network) {
+                    // #354: ConnectivityManager does not guarantee that onLost(old) is delivered
+                    // before onAvailable(new). Relying on onLost alone (#313) left a window in
+                    // which recheckAndEnable() below evaluated the *new* connection against a
+                    // cache still describing the *old* one -- and a masked BSSID plus a matching
+                    // SSID would then have inherited trust it never earned. Invalidating here as
+                    // well closes that window from the other side. Deliberate consequence,
+                    // decided on the issue: the #270 masked-BSSID convenience does not survive a
+                    // reconnect, so a fresh BSSID verification is required afterwards. Must stay
+                    // the first statement -- everything below can read the cache.
+                    KeepADBTrustedNetwork.forgetVerifiedTrust();
                     Log.d(TAG, "NetworkCallback: Wi-Fi network available");
                     // #310: advance the generation *before* recheckAndEnable() plans a new
                     // intent, so the new intent is stamped with the network it was planned for
@@ -378,6 +388,11 @@ public class KeepADBService extends Service {
             };
             cm.registerNetworkCallback(request, networkCallback, new Handler(Looper.getMainLooper()));
             isRegisteredNetworkCallback = true;
+            // #354: only now is an invalidator actually live, so only now may the masked-BSSID
+            // fallback be offered. Deliberately after the register call -- the reverse order
+            // would open a window that advertises an observer which isn't watching yet. A failed
+            // registration falls into the catch below and leaves the flag false (fail closed).
+            KeepADBTrustedNetwork.setVerifiedTrustObserverActive(true);
         } catch (RuntimeException e) {
             Log.e(TAG, "Failed to register network callback", e);
             KeepADBDiagnostics.event(this, "wifi_change", "network_callback", "failed", "registration_exception");
@@ -389,6 +404,9 @@ public class KeepADBService extends Service {
         ConnectivityManager.NetworkCallback callback = networkCallback;
         isRegisteredNetworkCallback = false;
         networkCallback = null;
+        // #354: ahead of the actual unregister call (and of anything that can throw), so the
+        // fallback is withdrawn before the observer stops watching, never after.
+        KeepADBTrustedNetwork.setVerifiedTrustObserverActive(false);
         try {
             ConnectivityManager cm = getSystemService(ConnectivityManager.class);
             if (cm != null) {

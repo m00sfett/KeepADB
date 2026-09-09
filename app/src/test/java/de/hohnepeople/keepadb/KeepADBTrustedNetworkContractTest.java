@@ -63,6 +63,65 @@ public class KeepADBTrustedNetworkContractTest {
                 invalidation < earlyReturn);
     }
 
+    /**
+     * #354: {@code ConnectivityManager} gives no ordering guarantee between {@code onLost(old)}
+     * and {@code onAvailable(new)}. Invalidating only in {@code onLost} (#313) therefore left a
+     * window in which {@code onAvailable} -&gt; {@code recheckAndEnable()} -&gt; {@code
+     * isCurrentNetworkTrusted()} evaluated the new connection against the old connection's cache.
+     * The invalidation must be unconditional and first, i.e. ahead of every statement in the
+     * callback that can reach the cache.
+     */
+    @Test
+    public void networkAvailabilityInvalidatesVerifiedTrustBeforeAnyTrustRead() throws IOException {
+        String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
+        String onAvailable = methodBody(service, "public void onAvailable(Network network) {");
+        String statements = onAvailable.substring(onAvailable.indexOf('{') + 1)
+                .replaceAll("(?s)/\\*.*?\\*/|//[^\\r\\n]*", "").trim();
+        assertTrue("Trust invalidation must be the unconditional first statement of onAvailable",
+                statements.startsWith("KeepADBTrustedNetwork.forgetVerifiedTrust();"));
+        int invalidation = onAvailable.indexOf("KeepADBTrustedNetwork.forgetVerifiedTrust();");
+        assertTrue("onAvailable must discard verified trust", invalidation >= 0);
+        // Locate the anchor first, so a vanished recheck call reports its own cause instead of
+        // a misleading ordering failure (same reasoning as the onLost test above).
+        int recheck = onAvailable.indexOf("recheckAndEnable();");
+        assertTrue("onAvailable no longer calls recheckAndEnable() -- update this contract test "
+                + "to the new control flow", recheck >= 0);
+        assertTrue("Trust invalidation must precede the recheck that reads the trust cache",
+                invalidation < recheck);
+    }
+
+    /**
+     * #354, secondary finding: {@code onLost}/{@code onAvailable} only fire while {@link
+     * KeepADBService} has its callback registered, yet {@code KeepADBEndpoint} and {@code
+     * KeepADBUsbHandover} read the trust policy on paths that do not require a running service.
+     * The masked-BSSID fallback is therefore gated on a live invalidator, and this pins that
+     * KeepADBService is what actually declares -- and withdraws -- that state.
+     */
+    @Test
+    public void theMaskedBssidFallbackIsTiedToTheLiveNetworkCallback() throws IOException {
+        String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
+        String register = methodBody(service, "private void registerNetworkCallback() {");
+        String unregister = methodBody(service, "private void unregisterNetworkCallback() {");
+        assertTrue("registerNetworkCallback() must announce the live invalidator",
+                register.contains("KeepADBTrustedNetwork.setVerifiedTrustObserverActive(true);"));
+        assertTrue("unregisterNetworkCallback() must withdraw it again",
+                unregister.contains("KeepADBTrustedNetwork.setVerifiedTrustObserverActive(false);"));
+
+        // Ordering in both methods must keep the unsafe combination ("fallback offered, nobody
+        // watching") impossible: announce only after registering, withdraw before unregistering.
+        int registerCall = register.indexOf("cm.registerNetworkCallback(");
+        assertTrue("registerNetworkCallback() no longer registers the callback the way this "
+                + "contract test orders against", registerCall >= 0);
+        assertTrue("The fallback must not be announced before the callback is registered",
+                registerCall < register.indexOf("KeepADBTrustedNetwork.setVerifiedTrustObserverActive(true);"));
+        int unregisterCall = unregister.indexOf("cm.unregisterNetworkCallback(");
+        assertTrue("unregisterNetworkCallback() no longer unregisters the callback the way this "
+                + "contract test orders against", unregisterCall >= 0);
+        assertTrue("The fallback must be withdrawn before the callback stops watching",
+                unregister.indexOf("KeepADBTrustedNetwork.setVerifiedTrustObserverActive(false);")
+                        < unregisterCall);
+    }
+
     private static String methodBody(String source, String signature) {
         int methodStart = source.indexOf(signature);
         assertTrue("Missing method: " + signature, methodStart >= 0);
