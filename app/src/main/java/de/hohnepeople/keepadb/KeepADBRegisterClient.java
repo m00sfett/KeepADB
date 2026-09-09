@@ -218,9 +218,18 @@ final class KeepADBRegisterClient {
 
         EXECUTOR.execute(() -> {
             if (opGen != currentUsbOpGeneration) return;
+            flushPendingCleanups(context);
+            final PendingUsbCleanup unfinishedCleanup = deactivateSupersededUsbRegistration(targetUrl, deviceId);
+            if (opGen != currentUsbOpGeneration) return;
             if (sendJsonPost(targetUrl, payload, "usb-adb")) {
                 synchronized (KeepADBRegisterClient.class) {
                     if (opGen == currentUsbOpGeneration) {
+                        // Write-ahead, as in the WLAN path: remember the unfinished cleanup before
+                        // the state stops pointing at the old URL.
+                        if (unfinishedCleanup != null) {
+                            KeepADBPreferences.addPendingUsbWebhookCleanup(context,
+                                    unfinishedCleanup.url, unfinishedCleanup.payload);
+                        }
                         usbUpdateInFlight = false;
                         inFlightUsbTargetUrl = null;
                         inFlightUsbProfileId = null;
@@ -237,7 +246,8 @@ final class KeepADBRegisterClient {
                         lastRegisteredUsbTailnetHostname = tailnetHostname;
                         if (context != null) {
                             KeepADBPreferences.setUsbWebhookLastReportedState(context, targetUrl, payload,
-                                    profileId, profileName, ipAddress, hostname, tailnetHostname);
+                                    profileId, profileName, ipAddress, hostname, tailnetHostname,
+                                    KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
                         }
                         notifyRegisterStateListener();
                     }
@@ -252,10 +262,86 @@ final class KeepADBRegisterClient {
                         inFlightUsbIpAddress = null;
                         inFlightUsbHostname = null;
                         inFlightUsbTailnetHostname = null;
+                        // #317: symmetric to the WLAN path -- a failed USB report is recorded and
+                        // surfaced instead of dying silently inside the executor.
+                        KeepADBPreferences.setUsbWebhookLastReportStatus(
+                                context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+                        notifyRegisterStateListener();
                     }
                 }
             }
         });
+    }
+
+    /**
+     * #317: when the webhook URL changes, tell the previous URL that this device is gone.
+     * The WLAN path always did this (via DELETE); USB silently left an active registration behind.
+     * A failed deactivation is kept as a retryable pending cleanup instead of being dropped.
+     */
+    private static PendingUsbCleanup deactivateSupersededUsbRegistration(String newUrl, String deviceId) {
+        final String oldUrl;
+        final Integer oldProfileId;
+        final String oldProfileName;
+        final String oldIpAddress;
+        final String oldHostname;
+        final String oldTailnetHostname;
+        synchronized (KeepADBRegisterClient.class) {
+            oldUrl = lastRegisteredUsbUrl;
+            if (oldUrl == null || oldUrl.equals(newUrl)) {
+                return null;
+            }
+            oldProfileId = lastRegisteredUsbProfileId;
+            oldProfileName = lastRegisteredUsbProfileName;
+            oldIpAddress = lastRegisteredUsbIpAddress;
+            oldHostname = lastRegisteredUsbHostname;
+            oldTailnetHostname = lastRegisteredUsbTailnetHostname;
+        }
+
+        String inactivePayload = buildUsbPayload(deviceId, oldProfileId, oldProfileName, oldIpAddress,
+                oldHostname, oldTailnetHostname, false);
+        if (sendJsonPost(oldUrl, inactivePayload, "usb-adb")) {
+            return null;
+        }
+        Log.w(TAG, "Failed to deactivate USB registration at old URL " + sanitizeUrl(oldUrl)
+                + " during URL change; keeping the cleanup for a later retry");
+        return new PendingUsbCleanup(oldUrl, inactivePayload);
+    }
+
+    /** An {@code active:false} report for a superseded URL that still has to be delivered. */
+    private static final class PendingUsbCleanup {
+        final String url;
+        final String payload;
+
+        PendingUsbCleanup(String url, String payload) {
+            this.url = url;
+            this.payload = payload;
+        }
+    }
+
+    /**
+     * #317: retries cleanups that a previous URL change could not deliver. Runs on the register
+     * executor before the transaction that triggered it, so a lost cleanup is retried at the next
+     * register activity (endpoint change, deregistration, USB connect) rather than being forgotten.
+     * The backlog is capped by {@link KeepADBPreferences#MAX_PENDING_CLEANUPS}.
+     */
+    private static void flushPendingCleanups(Context context) {
+        if (context == null) return;
+        for (String url : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
+            if (deleteEndpoint(url)) {
+                KeepADBPreferences.removePendingWebhookCleanupUrl(context, url);
+            }
+        }
+        for (String entry : KeepADBPreferences.getPendingUsbWebhookCleanups(context)) {
+            String url = KeepADBPreferences.pendingCleanupUrl(entry);
+            String payload = KeepADBPreferences.pendingCleanupPayload(entry);
+            if (url == null || payload == null) {
+                KeepADBPreferences.removePendingUsbWebhookCleanup(context, entry);
+                continue;
+            }
+            if (sendJsonPost(url, payload, "usb-adb")) {
+                KeepADBPreferences.removePendingUsbWebhookCleanup(context, entry);
+            }
+        }
     }
 
     /** Marks the previously-registered USB-ADB profile inactive; a no-op if nothing was registered. */
@@ -325,7 +411,17 @@ final class KeepADBRegisterClient {
             if (sendJsonPost(urlToUse, payload, "usb-adb")) {
                 synchronized (KeepADBRegisterClient.class) {
                     if (opGen == currentUsbOpGeneration) {
-                        clearUsbStateLocked(context);
+                        clearUsbStateLocked(context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
+                        notifyRegisterStateListener();
+                    }
+                }
+            } else {
+                // #317: a failed deactivation is reported like a failed WLAN deregistration, and
+                // the registration stays known so a later attempt can still clean it up.
+                synchronized (KeepADBRegisterClient.class) {
+                    if (opGen == currentUsbOpGeneration) {
+                        KeepADBPreferences.setUsbWebhookLastReportStatus(
+                                context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
                         notifyRegisterStateListener();
                     }
                 }
@@ -334,6 +430,10 @@ final class KeepADBRegisterClient {
     }
 
     private static void clearUsbStateLocked(Context context) {
+        clearUsbStateLocked(context, null);
+    }
+
+    private static void clearUsbStateLocked(Context context, String status) {
         usbUpdateInFlight = false;
         inFlightUsbTargetUrl = null;
         inFlightUsbProfileId = null;
@@ -349,7 +449,7 @@ final class KeepADBRegisterClient {
         lastRegisteredUsbHostname = null;
         lastRegisteredUsbTailnetHostname = null;
         if (context != null) {
-            KeepADBPreferences.clearUsbWebhookReportedState(context);
+            KeepADBPreferences.clearUsbWebhookReportedState(context, status);
         }
     }
 
@@ -403,6 +503,8 @@ final class KeepADBRegisterClient {
     }
 
     private static void performUpdateTransaction(Context context, String targetUrl, String targetEndpoint, long opGen) {
+        flushPendingCleanups(context);
+
         String oldUrl;
         String oldEndpoint;
         synchronized (KeepADBRegisterClient.class) {
@@ -411,30 +513,40 @@ final class KeepADBRegisterClient {
         }
 
         // If URL changed and an old URL was registered, DELETE from old URL first
+        String unfinishedCleanupUrl = null;
         if (oldUrl != null && !oldUrl.equals(targetUrl) && oldEndpoint != null) {
             // Keep the previous successful report until the replacement POST succeeds. If the
             // new target fails, the UI must still show the last endpoint that was actually
             // reported successfully rather than losing it during this transition.
             if (!deleteEndpoint(oldUrl)) {
                 Log.w(TAG, "Failed to deregister from old URL " + sanitizeUrl(oldUrl)
-                        + " during URL change; proceeding with new registration");
+                        + " during URL change; keeping the cleanup for a later retry");
+                unfinishedCleanupUrl = oldUrl;
             }
         }
 
         if (opGen != currentOpGeneration) return;
 
         // POST to new target URL
+        final String cleanupToRemember = unfinishedCleanupUrl;
         if (postEndpoint(targetUrl, targetEndpoint)) {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
+                    // #317: write-ahead. The retry entry is persisted BEFORE the in-memory and
+                    // stored state move on to the new URL, so a crash in between can only cause a
+                    // redundant cleanup of a still-registered URL -- never a forgotten one. If the
+                    // POST below had failed instead, the old URL would still be the registered one
+                    // and the next transaction retries the migration on its own.
+                    if (cleanupToRemember != null) {
+                        KeepADBPreferences.addPendingWebhookCleanupUrl(context, cleanupToRemember);
+                    }
                     wlanUpdateInFlight = false;
                     lastRegisteredUrl = targetUrl;
                     lastRegisteredEndpoint = targetEndpoint;
-                    KeepADBPreferences.setWebhookLastReportedAtNow(context);
-                    KeepADBPreferences.setWebhookLastReportedUrl(context, targetUrl);
-                    KeepADBPreferences.setWebhookLastReportedEndpoint(context, targetEndpoint);
-                    KeepADBPreferences.setWebhookLastReportStatus(
-                            context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
+                    // #317: one editor transaction; four separate apply() calls could be torn apart
+                    // by a crash and leave a URL without its endpoint.
+                    KeepADBPreferences.setWebhookReportSnapshot(context, targetUrl, targetEndpoint,
+                            KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
                     notifyRegisterStateListener();
                 }
             }
@@ -451,6 +563,8 @@ final class KeepADBRegisterClient {
     }
 
     private static void performDeleteTransaction(Context context, String targetUrl, long opGen) {
+        flushPendingCleanups(context);
+
         String urlToDelete;
         synchronized (KeepADBRegisterClient.class) {
             urlToDelete = (lastRegisteredUrl != null) ? lastRegisteredUrl : targetUrl;
@@ -458,8 +572,7 @@ final class KeepADBRegisterClient {
                 wlanUpdateInFlight = false;
                 lastRegisteredUrl = null;
                 lastRegisteredEndpoint = null;
-                KeepADBPreferences.setWebhookLastReportedUrl(context, null);
-                KeepADBPreferences.setWebhookLastReportedEndpoint(context, null);
+                KeepADBPreferences.setWebhookReportSnapshot(context, null, null, null, false);
                 notifyRegisterStateListener();
                 return;
             }
@@ -471,11 +584,8 @@ final class KeepADBRegisterClient {
                     wlanUpdateInFlight = false;
                     lastRegisteredUrl = null;
                     lastRegisteredEndpoint = null;
-                    KeepADBPreferences.setWebhookLastReportedAtNow(context);
-                    KeepADBPreferences.setWebhookLastReportedUrl(context, null);
-                    KeepADBPreferences.setWebhookLastReportedEndpoint(context, null);
-                    KeepADBPreferences.setWebhookLastReportStatus(
-                            context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
+                    KeepADBPreferences.setWebhookReportSnapshot(context, null, null,
+                            KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED, true);
                     notifyRegisterStateListener();
                 }
             }

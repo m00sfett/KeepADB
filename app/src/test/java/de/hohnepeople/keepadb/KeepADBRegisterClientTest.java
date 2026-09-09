@@ -393,6 +393,63 @@ public class KeepADBRegisterClientTest {
     }
 
     @Test
+    public void testUsbEndpointFailureUpdatesStatusAndNotifiesListener() throws Exception {
+        // #317: the USB path used to abort silently on a failed POST -- no persisted status and
+        // no listener callback -- while the WLAN path recorded both.
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setPostSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        AtomicBoolean listenerNotified = new AtomicBoolean(false);
+        KeepADBRegisterClient.setRegisterStateListener(() -> listenerNotified.set(true));
+
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, "http://fake.url/register",
+                "device123", 1, "Desk", "192.168.1.20", "host", "tailhost");
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
+                KeepADBPreferences.getUsbWebhookLastReportStatus(context)), 3000);
+        waitUntil(() -> {
+            ShadowLooper.idleMainLooper();
+            return listenerNotified.get();
+        }, 3000);
+
+        assertTrue(listenerNotified.get());
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
+        assertEquals(1, transport.getRequestCount());
+    }
+
+    @Test
+    public void testUsbDeactivationFailureUpdatesStatusAndNotifiesListener() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, "http://fake.url/register",
+                "device123", 1, "Desk", "192.168.1.20", "host", "tailhost");
+        waitUntil(() -> "http://fake.url/register".equals(
+                KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting()), 3000);
+
+        transport.setPostSuccess(false);
+        AtomicBoolean listenerNotified = new AtomicBoolean(false);
+        KeepADBRegisterClient.setRegisterStateListener(() -> listenerNotified.set(true));
+
+        KeepADBRegisterClient.markUsbInactiveAsyncInternal(context, true, "http://fake.url/register",
+                "device123");
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
+                KeepADBPreferences.getUsbWebhookLastReportStatus(context)), 3000);
+        waitUntil(() -> {
+            ShadowLooper.idleMainLooper();
+            return listenerNotified.get();
+        }, 3000);
+
+        assertTrue(listenerNotified.get());
+        // The registration is still known, so the cleanup remains possible.
+        assertEquals("http://fake.url/register", KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+    }
+
+    @Test
     public void testInFlightUpdateSupersededByNewerUpdate() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
@@ -508,6 +565,12 @@ public class KeepADBRegisterClientTest {
 
         // Wait until DELETE request is recorded
         waitUntil(() -> transport.getRequestCount() >= 2, 3000);
+        // The request is recorded when it starts, the bookkeeping follows once it returns, so wait
+        // for the transaction's own result before asserting on it (#356). Since #317 that result is
+        // one atomic preferences write instead of four, which leaves no half-written intermediate
+        // state for a racing read to mistake for a finished transaction.
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
         ShadowLooper.idleMainLooper();
 
         // Verify the in-flight update did not revive the endpoint after disconnect
