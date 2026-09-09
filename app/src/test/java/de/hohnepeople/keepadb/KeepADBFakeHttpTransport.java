@@ -40,6 +40,7 @@ final class KeepADBFakeHttpTransport implements KeepADBRegisterClient.HttpTransp
     private volatile long simulatedLatencyMs = 0;
     private volatile RequestCallback requestCallback;
     private volatile Runnable failureCallback;
+    private volatile String failingUrl;
 
     final List<Request> recordedRequests = Collections.synchronizedList(new ArrayList<>());
 
@@ -80,6 +81,14 @@ final class KeepADBFakeHttpTransport implements KeepADBRegisterClient.HttpTransp
 
     int getDeleteResponseCode() {
         return deleteResponseCode;
+    }
+
+    /**
+     * Fails requests to exactly this URL while all other URLs keep their configured outcome
+     * (#317: a URL migration where only the superseded endpoint is unreachable).
+     */
+    void setFailingUrl(String url) {
+        this.failingUrl = url;
     }
 
     void setSimulatedLatencyMs(long ms) {
@@ -125,7 +134,7 @@ final class KeepADBFakeHttpTransport implements KeepADBRegisterClient.HttpTransp
             requestCallback.onRequest(req);
         }
 
-        if (!postSuccess) {
+        if (!postSuccess || targetUrl != null && targetUrl.equals(failingUrl)) {
             if (failureCallback != null) {
                 failureCallback.run();
             }
@@ -151,7 +160,7 @@ final class KeepADBFakeHttpTransport implements KeepADBRegisterClient.HttpTransp
             requestCallback.onRequest(req);
         }
 
-        if (!deleteSuccess) {
+        if (!deleteSuccess || targetUrl != null && targetUrl.equals(failingUrl)) {
             if (failureCallback != null) {
                 failureCallback.run();
             }
