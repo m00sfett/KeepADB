@@ -231,4 +231,11 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_license_line">Розповсюджується за ліцензією GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Відкрити HohnePeople.de у браузері</string>
+    <string name="status_off_keep_alive_waiting">Бездротове налагодження ВИМКНЕНО — Keep-Alive чекає на мережу</string>
+    <string name="status_pending">Перемикання…</string>
+    <string name="state_pending">Перемикання…</string>
+    <string name="tile_state_keep_alive_waiting">Вимкнено — Keep-Alive чекає</string>
+    <string name="widget_text_keep_alive_waiting">Бездротове налагодження: ВИМК (очікування)</string>
+    <string name="widget_text_pending">Бездротове налагодження: перемикання…</string>
+    <string name="toggle_failed_toast">Не вдалося перемкнути бездротове налагодження. Спробуйте ще раз.</string>
 </resources>

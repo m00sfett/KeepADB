@@ -230,4 +230,11 @@
     <string name="settings_license_line">Lizenziert unter der GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">HohnePeople.de im Browser öffnen</string>
+    <string name="status_off_keep_alive_waiting">Drahtloses Debugging ist AUS – Keep-Alive wartet auf das Netzwerk</string>
+    <string name="status_pending">Wird umgeschaltet …</string>
+    <string name="state_pending">Wird umgeschaltet …</string>
+    <string name="tile_state_keep_alive_waiting">Aus – Keep-Alive wartet</string>
+    <string name="widget_text_keep_alive_waiting">Drahtloses Debugging: AUS (wartet)</string>
+    <string name="widget_text_pending">Drahtloses Debugging: wird umgeschaltet …</string>
+    <string name="toggle_failed_toast">Drahtloses Debugging konnte nicht umgeschaltet werden. Bitte erneut versuchen.</string>
 </resources>

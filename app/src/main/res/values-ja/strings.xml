@@ -231,4 +231,11 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_license_line">GNU Affero General Public License v3（AGPLv3）の下でライセンスされています</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">ブラウザでHohnePeople.deを開く</string>
+    <string name="status_off_keep_alive_waiting">ワイヤレスデバッグは OFF です – Keep-Alive がネットワークを待機中</string>
+    <string name="status_pending">切り替え中…</string>
+    <string name="state_pending">切り替え中…</string>
+    <string name="tile_state_keep_alive_waiting">オフ – Keep-Alive 待機中</string>
+    <string name="widget_text_keep_alive_waiting">ワイヤレスデバッグ: OFF（待機中）</string>
+    <string name="widget_text_pending">ワイヤレスデバッグ: 切り替え中…</string>
+    <string name="toggle_failed_toast">ワイヤレスデバッグを切り替えられませんでした。もう一度お試しください。</string>
 </resources>

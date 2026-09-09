@@ -43,7 +43,8 @@ public class KeepADBTest {
 
     @Test
     public void stateEnumAndNullContextHandling() {
-        assertEquals(4, KeepADB.State.values().length);
+        // #318 split OFF_KEEP_ALIVE_WAITING out of ENABLED_DISCONNECTED.
+        assertEquals(5, KeepADB.State.values().length);
         assertEquals(KeepADB.State.OFF, KeepADB.getState(null));
         assertFalse(KeepADB.hasPermission(null));
     }

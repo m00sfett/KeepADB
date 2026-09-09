@@ -231,4 +231,11 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_license_line">根据 GNU Affero 通用公共许可证 v3（AGPLv3）授权</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">在浏览器中打开 HohnePeople.de</string>
+    <string name="status_off_keep_alive_waiting">无线调试已关闭 – Keep-Alive 正在等待网络</string>
+    <string name="status_pending">正在切换…</string>
+    <string name="state_pending">正在切换…</string>
+    <string name="tile_state_keep_alive_waiting">关闭 – Keep-Alive 等待中</string>
+    <string name="widget_text_keep_alive_waiting">无线调试：关（等待中）</string>
+    <string name="widget_text_pending">无线调试：正在切换…</string>
+    <string name="toggle_failed_toast">无法切换无线调试，请重试。</string>
 </resources>

@@ -80,11 +80,15 @@ public class MainActivity extends Activity {
 
         // OnClick fires only for user interaction, unlike OnCheckedChanged during refresh().
         toggle.setOnClickListener(v -> {
-            boolean want = toggle.isChecked();
+            // #318: the desired value comes from the shared click semantics in KeepADB, not from
+            // the view's own checked state, so this switch, the tile and the widget request the
+            // same thing for the same state. refresh() below re-renders the switch from the real
+            // adb_wifi_enabled value either way.
+            boolean want = KeepADB.desiredOnForClick(KeepADB.getState(this));
             KeepADBDiagnostics.event(this, "user_action", "app", want ? "enable" : "disable", "toggle");
             if (!KeepADB.setEnabled(this, want, "app")) {
                 toggle.setChecked(!want);
-                showPermissionErrorToast();
+                showToggleErrorToast();
             }
             KeepADBService.sync(this);
             refreshUiAndComponents();
@@ -96,7 +100,7 @@ public class MainActivity extends Activity {
             KeepADBPreferences.setKeepAliveEnabled(this, wantKeepAlive);
             if (wantKeepAlive && KeepADBService.isWifiConnected(this) && !KeepADB.isEnabled(this)) {
                 if (!KeepADB.setEnabled(this, true, "app")) {
-                    showPermissionErrorToast();
+                    showToggleErrorToast();
                 }
             }
             KeepADBService.sync(this);
@@ -200,7 +204,11 @@ public class MainActivity extends Activity {
     private void refresh() {
         KeepADB.State appState = KeepADB.getState(this);
         boolean configured = (appState != KeepADB.State.PERMISSION_MISSING);
-        boolean on = (appState == KeepADB.State.ENABLED_CONNECTED || appState == KeepADB.State.ENABLED_DISCONNECTED);
+        // #318 (acceptance criterion 1): the main switch mirrors Settings.Global.adb_wifi_enabled
+        // and nothing else. It is deliberately read straight from the gateway rather than derived
+        // from appState, so no future state value can make the switch claim "on" while the system
+        // setting is 0. "Keep-Alive is waiting" is a separate dimension and lives in the subtext.
+        boolean on = configured && KeepADB.isEnabled(this);
         boolean notificationsDenied = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && !notificationPermissionRequestPending
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
@@ -213,8 +221,13 @@ public class MainActivity extends Activity {
         toggle.setChecked(on);
         if (!configured) {
             status.setText(getString(R.string.status_permission_missing));
+        } else if (KeepADB.isTogglePending()) {
+            // #318: a scheduled-but-not-yet-written toggle is its own visible state.
+            status.setText(getString(R.string.status_pending));
         } else if (appState == KeepADB.State.OFF) {
             status.setText(getString(R.string.status_off));
+        } else if (appState == KeepADB.State.OFF_KEEP_ALIVE_WAITING) {
+            status.setText(getString(R.string.status_off_keep_alive_waiting));
         } else if (appState == KeepADB.State.ENABLED_DISCONNECTED) {
             status.setText(getString(R.string.status_enabled_disconnected));
         } else {
@@ -309,9 +322,18 @@ public class MainActivity extends Activity {
         KeepADBUsbReceiver.refresh(this);
     }
 
-    private void showPermissionErrorToast() {
-        Toast.makeText(this, getString(R.string.permission_error_toast, getPackageName()),
-                Toast.LENGTH_LONG).show();
+    /**
+     * #318: a failed toggle used to always blame a missing permission, even when the permission was
+     * granted and the Settings.Global write itself was rejected (#309). Report the two causes
+     * separately so a rejected write is visible instead of being disguised as a setup problem.
+     */
+    private void showToggleErrorToast() {
+        if (!hasSecureSettingsPermission()) {
+            Toast.makeText(this, getString(R.string.permission_error_toast, getPackageName()),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        Toast.makeText(this, getString(R.string.toggle_failed_toast), Toast.LENGTH_LONG).show();
     }
 
     private void openNotificationSettings() {

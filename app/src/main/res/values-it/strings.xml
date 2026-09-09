@@ -231,4 +231,11 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_license_line">Concesso in licenza con GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Apri HohnePeople.de nel browser</string>
+    <string name="status_off_keep_alive_waiting">Debug wireless DISATTIVO – Keep-Alive attende la rete</string>
+    <string name="status_pending">Cambio in corso…</string>
+    <string name="state_pending">Cambio in corso…</string>
+    <string name="tile_state_keep_alive_waiting">Disattivato – Keep-Alive in attesa</string>
+    <string name="widget_text_keep_alive_waiting">Debug wireless: DISATTIVO (in attesa)</string>
+    <string name="widget_text_pending">Debug wireless: cambio in corso…</string>
+    <string name="toggle_failed_toast">Impossibile cambiare il debug wireless. Riprova.</string>
 </resources>
