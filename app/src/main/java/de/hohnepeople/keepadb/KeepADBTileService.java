@@ -54,32 +54,33 @@ public class KeepADBTileService extends TileService {
     @Override
     public void onClick() {
         KeepADB.State state = KeepADB.getState(this);
+        // THE ONE DELIBERATE EXCEPTION to the shared click semantics of #318, kept by explicit
+        // user decision on issue #318 (comment 5605497911) so the behavior introduced by #267
+        // survives. Scope of the exception: this surface, this state, nothing else.
+        //
+        // Why the tile and not the other two: the tile is the surface a user reaches *while*
+        // waiting for an endpoint, and #267 established that a tap there must retry discovery
+        // rather than switch WLAN-ADB off. MainActivity's switch and the widget stay on the
+        // uniform semantics -- a switch that refuses to switch off would be worse than the
+        // inconsistency #318 set out to remove.
+        //
+        // Note what is *not* special-cased here any more: since #318 split the enum, reaching
+        // ENABLED_DISCONNECTED proves adb_wifi_enabled == 1, so refreshForTile() genuinely
+        // retriggers discovery instead of being the no-op that #267's follow-up review found.
+        // The "WLAN-ADB actually off, Keep-Alive merely waiting" sub-case is now
+        // OFF_KEEP_ALIVE_WAITING and is handled by desiredOnForClick() as a plain enable, on
+        // all three surfaces alike.
         if (state == KeepADB.State.ENABLED_DISCONNECTED) {
-            // Issue #267 (2): WLAN-ADB is already on (or Keep-Alive is waiting to turn it back
-            // on) but no endpoint is known yet. A tap here must trigger a fresh discovery /
-            // reconnect attempt, not read as "currently off" and switch WLAN-ADB off.
             KeepADBDiagnostics.event(this, "user_action", "tile", "reconnect", "tap");
-            if (!KeepADB.isEnabled(this)) {
-                // WLAN-ADB itself is actually off here -- Keep-Alive is only waiting for its own
-                // timer/observer to turn it back on. KeepADBNotification.refreshForTile() is a
-                // no-op in this case (refreshInternal() just calls stop() while disabled), so a
-                // tap would otherwise do nothing. Force the reconnect immediately instead, the
-                // same way the keep-alive check and the "re-enable" button in MainActivity do.
-                if (!KeepADB.setEnabled(this, true, "tile")) {
-                    Toast.makeText(this, getString(R.string.tile_permission_error),
-                            Toast.LENGTH_LONG).show();
-                }
-            } else {
-                KeepADBNotification.refreshForTile(this, this);
-            }
+            KeepADBNotification.refreshForTile(this, this);
             updateTile();
             return;
         }
-        boolean want = (state == KeepADB.State.OFF);
+        // Everything below is the shared definition, identical to MainActivity and the widget.
+        boolean want = KeepADB.desiredOnForClick(state);
         KeepADBDiagnostics.event(this, "user_action", "tile", want ? "enable" : "disable", "tap");
         if (!KeepADB.setEnabled(this, want, "tile")) {
-            Toast.makeText(this, getString(R.string.tile_permission_error),
-                    Toast.LENGTH_LONG).show();
+            showToggleErrorToast();
         }
         KeepADBService.sync(this);
         updateTile();
@@ -103,8 +104,17 @@ public class KeepADBTileService extends TileService {
                 tile.setSubtitle(getString(R.string.tile_state_off));
                 tile.setIcon(Icon.createWithResource(this, R.drawable.ic_keepadb));
                 break;
-            case ENABLED_DISCONNECTED:
+            case OFF_KEEP_ALIVE_WAITING:
+                // #318: off is off. The tile stays INACTIVE like any other off state; only the
+                // subtitle says that Keep-Alive will switch it back on by itself.
                 tile.setState(Tile.STATE_INACTIVE);
+                tile.setSubtitle(getString(R.string.tile_state_keep_alive_waiting));
+                tile.setIcon(Icon.createWithResource(this, R.drawable.ic_keepadb_disconnected));
+                break;
+            case ENABLED_DISCONNECTED:
+                // #318: adb_wifi_enabled is 1 here, so the tile reads ACTIVE. It used to render
+                // INACTIVE, which is what made a tap that disables wireless debugging feel wrong.
+                tile.setState(Tile.STATE_ACTIVE);
                 tile.setSubtitle(getString(isSearchingForEndpoint()
                         ? R.string.tile_state_searching : R.string.tile_state_disconnected));
                 tile.setIcon(Icon.createWithResource(this, R.drawable.ic_keepadb_disconnected));
@@ -121,19 +131,39 @@ public class KeepADBTileService extends TileService {
                 tile.setIcon(Icon.createWithResource(this, R.drawable.ic_keepadb));
                 break;
         }
+        // #318: a scheduled but not yet written toggle overrides the subtitle, so the debounce
+        // window is visible instead of silently showing the old value.
+        if (state != KeepADB.State.PERMISSION_MISSING && KeepADB.isTogglePending()) {
+            tile.setSubtitle(getString(R.string.state_pending));
+        }
         tile.updateTile();
     }
 
     /**
-     * Issue #267 (1): {@code ENABLED_DISCONNECTED} is reached for two different underlying
-     * reasons (see {@link KeepADB#getState}) -- only one of them is a genuine dead end:
+     * #318: distinguishes a missing permission from a Settings.Global write that was rejected
+     * despite the permission being granted, instead of blaming setup for both.
+     */
+    private void showToggleErrorToast() {
+        Toast.makeText(this, getString(KeepADB.hasPermission(this)
+                        ? R.string.toggle_failed_toast : R.string.tile_permission_error),
+                Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Issue #267 (1): tells the two {@code ENABLED_DISCONNECTED} sub-cases apart -- only one is a
+     * genuine dead end:
      * <ul>
-     *     <li>WLAN-ADB is off but Keep-Alive is still enabled and waiting to turn it back on, or
-     *         WLAN-ADB is on and Wi-Fi is connected but mDNS discovery has not found an endpoint
-     *         yet -- both are transitional and should read as "searching", not "disconnected".</li>
+     *     <li>WLAN-ADB is on and Wi-Fi is connected, but mDNS discovery has not found an endpoint
+     *         yet -- transitional, so it should read as "searching", not "disconnected".</li>
      *     <li>WLAN-ADB is on but there is no Wi-Fi connection at all -- nothing is in flight, so
      *         "disconnected" remains accurate.</li>
      * </ul>
+     *
+     * <p>#318 moved the third former sub-case (WLAN-ADB off, Keep-Alive waiting) out of
+     * {@code ENABLED_DISCONNECTED} into {@code OFF_KEEP_ALIVE_WAITING}, which has its own subtitle.
+     * The {@code !KeepADB.isEnabled(this)} check below is kept as a defensive fallback: state and
+     * this helper read {@code adb_wifi_enabled} at two different moments, so the setting can flip
+     * in between, and "searching" is the better reading of that race than "disconnected".
      */
     private boolean isSearchingForEndpoint() {
         if (!KeepADB.isEnabled(this)) {

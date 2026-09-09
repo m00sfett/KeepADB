@@ -17,6 +17,7 @@ public class KeepADBMultiStateContractTest {
         String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
         assertTrue(tile.contains("case PERMISSION_MISSING:"));
         assertTrue(tile.contains("case OFF:"));
+        assertTrue(tile.contains("case OFF_KEEP_ALIVE_WAITING:"));
         assertTrue(tile.contains("case ENABLED_DISCONNECTED:"));
         assertTrue(tile.contains("case ENABLED_CONNECTED:"));
         assertTrue(tile.contains("tile.setSubtitle("));
@@ -29,6 +30,7 @@ public class KeepADBMultiStateContractTest {
         String widget = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBWidget.java");
         assertTrue(widget.contains("case PERMISSION_MISSING:"));
         assertTrue(widget.contains("case OFF:"));
+        assertTrue(widget.contains("case OFF_KEEP_ALIVE_WAITING:"));
         assertTrue(widget.contains("case ENABLED_DISCONNECTED:"));
         assertTrue(widget.contains("case ENABLED_CONNECTED:"));
     }

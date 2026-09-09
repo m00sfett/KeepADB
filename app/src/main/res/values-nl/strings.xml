@@ -231,4 +231,11 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_license_line">Uitgebracht onder de GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">HohnePeople.de openen in browser</string>
+    <string name="status_off_keep_alive_waiting">Draadloze foutopsporing is UIT – Keep-Alive wacht op het netwerk</string>
+    <string name="status_pending">Bezig met omschakelen…</string>
+    <string name="state_pending">Bezig met omschakelen…</string>
+    <string name="tile_state_keep_alive_waiting">Uit – Keep-Alive wacht</string>
+    <string name="widget_text_keep_alive_waiting">Draadloze foutopsporing: UIT (wacht)</string>
+    <string name="widget_text_pending">Draadloze foutopsporing: omschakelen…</string>
+    <string name="toggle_failed_toast">Draadloze foutopsporing kon niet worden omgeschakeld. Probeer het opnieuw.</string>
 </resources>

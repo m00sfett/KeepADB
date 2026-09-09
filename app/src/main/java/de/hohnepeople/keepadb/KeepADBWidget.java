@@ -27,10 +27,16 @@ public class KeepADBWidget extends AppWidgetProvider {
         if (ACTION_TOGGLE.equals(intent.getAction())) {
             KeepADBDiagnostics.event(context, "user_action", "widget", "toggle", "tap");
             KeepADB.State state = KeepADB.getState(context);
-            boolean want = (state == KeepADB.State.OFF);
+            // #318: shared click semantics with MainActivity's switch and the tile.
+            boolean want = KeepADB.desiredOnForClick(state);
             if (!KeepADB.setEnabled(context, want, "widget")) {
+                // #318: separate a missing permission from a rejected write instead of always
+                // pointing at the one-time setup.
                 Toast.makeText(context,
-                        localizedContext.getString(R.string.permission_error_toast, context.getPackageName()),
+                        KeepADB.hasPermission(context)
+                                ? localizedContext.getString(R.string.toggle_failed_toast)
+                                : localizedContext.getString(R.string.permission_error_toast,
+                                        context.getPackageName()),
                         Toast.LENGTH_LONG).show();
             }
             KeepADBService.sync(context);
@@ -52,6 +58,10 @@ public class KeepADBWidget extends AppWidgetProvider {
             case OFF:
                 widgetText = localizedContext.getString(R.string.widget_text_off);
                 break;
+            case OFF_KEEP_ALIVE_WAITING:
+                // #318: off, with the Keep-Alive wait as the explanation -- not an on state.
+                widgetText = localizedContext.getString(R.string.widget_text_keep_alive_waiting);
+                break;
             case ENABLED_DISCONNECTED:
                 widgetText = localizedContext.getString(R.string.widget_text_disconnected);
                 break;
@@ -66,6 +76,10 @@ public class KeepADBWidget extends AppWidgetProvider {
             default:
                 widgetText = localizedContext.getString(R.string.widget_text_off);
                 break;
+        }
+        // #318: show the debounce window instead of the stale pre-toggle value.
+        if (state != KeepADB.State.PERMISSION_MISSING && KeepADB.isTogglePending()) {
+            widgetText = localizedContext.getString(R.string.widget_text_pending);
         }
         views.setTextViewText(R.id.widget_label, widgetText);
         views.setContentDescription(R.id.widget_label, widgetText);

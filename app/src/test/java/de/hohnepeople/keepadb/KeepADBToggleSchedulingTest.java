@@ -99,14 +99,41 @@ public class KeepADBToggleSchedulingTest {
         assertEquals("an applied write must fan out to the surfaces exactly once",
                 1, surfaces.refreshCount);
 
-        // Throttled, then immediately superseded: neither the gateway nor the surfaces may see it.
+        // Throttled, then immediately superseded. #318: scheduling a write now fans out too, so
+        // the surfaces can show the pending state during the debounce window -- that is a render
+        // of "a write is in flight", not a claim that anything was applied (the gateway assertions
+        // in throttledTogglesCollapseToTheNewestIntent() pin the applied side).
         assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
-        assertEquals(1, surfaces.refreshCount);
+        assertEquals("scheduling must make the pending state visible", 2, surfaces.refreshCount);
         assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertEquals(3, surfaces.refreshCount);
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
-        assertEquals("only the surviving intent may refresh the surfaces",
-                2, surfaces.refreshCount);
+        assertEquals("only the surviving intent may refresh the surfaces on apply",
+                4, surfaces.refreshCount);
+        assertFalse("the debounce window must be over", KeepADB.isTogglePending());
+    }
+
+    @Test
+    public void aGuardAbortedAutomaticEnableClearsThePendingIndicator() {
+        // #318: an automatic enable that is cancelled by its own #310 guard has no successor that
+        // could refresh the surfaces -- unlike a supersession, where the newer intent does it. It
+        // must therefore fan out itself, or widget, tile and notification keep showing
+        // "switching…" until something unrelated happens to refresh them.
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        int afterFirstWrite = surfaces.refreshCount;
+
+        assertTrue("the second automatic call must be debounced, not written",
+                KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertTrue("the debounce window must be visible while it lasts", KeepADB.isTogglePending());
+        assertEquals("scheduling fans out once", afterFirstWrite + 1, surfaces.refreshCount);
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals("a guard-aborted intent must not reach the gateway",
+                Arrays.asList(true), gateway.writes);
+        assertFalse("nothing may stay pending after the abort", KeepADB.isTogglePending());
+        assertEquals("the abort must clear the pending indicator on the surfaces",
+                afterFirstWrite + 2, surfaces.refreshCount);
     }
 
     @Test
@@ -159,8 +186,11 @@ public class KeepADBToggleSchedulingTest {
                 KeepADB.setEnabled(ctx, true, AUTO));
         assertEquals(Arrays.asList(true), gateway.writes);
         assertFalse(gateway.isEnabled(ctx));
-        assertEquals("a write that never landed must not fan out to the surfaces",
-                0, surfaces.refreshCount);
+        // #318: a rejected write does fan out -- not to publish a new state, but so the surfaces
+        // drop any pending indicator and fall back to the real, unchanged setting. What must not
+        // happen is the *bookkeeping* of an applied write, which the retry below pins.
+        assertEquals("a rejected write must resolve the pending indicator exactly once",
+                1, surfaces.refreshCount);
 
         // #309: recordApplied() must have been skipped too. Had the failed write been booked as
         // applied, it would have moved the debounce anchor to "now" and this immediate retry

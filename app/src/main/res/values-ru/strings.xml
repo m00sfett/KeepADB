@@ -231,4 +231,11 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_license_line">Распространяется по лицензии GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Открыть HohnePeople.de в браузере</string>
+    <string name="status_off_keep_alive_waiting">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive ждёт сеть</string>
+    <string name="status_pending">Переключение…</string>
+    <string name="state_pending">Переключение…</string>
+    <string name="tile_state_keep_alive_waiting">Выключено — Keep-Alive ждёт</string>
+    <string name="widget_text_keep_alive_waiting">Беспроводная отладка: ВЫКЛ (ожидание)</string>
+    <string name="widget_text_pending">Беспроводная отладка: переключение…</string>
+    <string name="toggle_failed_toast">Не удалось переключить беспроводную отладку. Повторите попытку.</string>
 </resources>

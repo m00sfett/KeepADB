@@ -160,6 +160,9 @@ public class KeepADBTrustedNetworkContractTest {
         assertTrue(enumDeclaration.contains("PERMISSION_MISSING"));
         assertTrue(enumDeclaration.contains("ENABLED_DISCONNECTED"));
         assertTrue(enumDeclaration.contains("ENABLED_CONNECTED"));
+        // #318 split this one out of ENABLED_DISCONNECTED; it is a UI/state-reporting split, not
+        // a trust concept, so it must not be read as the allowlist leaking into the state enum.
+        assertTrue(enumDeclaration.contains("OFF_KEEP_ALIVE_WAITING"));
         assertFalse(enumDeclaration.contains("UNTRUSTED"));
         assertFalse(enumDeclaration.contains("BLOCKED"));
     }

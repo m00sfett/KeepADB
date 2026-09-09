@@ -141,11 +141,59 @@ final class KeepADB {
         }
     }
 
+    /**
+     * The four operational states plus the one that #318 split out of {@code ENABLED_DISCONNECTED}.
+     *
+     * <p>Invariant introduced by #318: the {@code ENABLED_*} values mean, and only ever mean, that
+     * {@code Settings.Global.adb_wifi_enabled == 1}. Before, {@code ENABLED_DISCONNECTED} was also
+     * returned while the setting was {@code 0} and Keep-Alive was merely waiting to switch it back
+     * on, which made MainActivity render its main switch as checked ("ON") while wireless debugging
+     * was in fact off in the Android system. That case is now {@link #OFF_KEEP_ALIVE_WAITING}: an
+     * off state with an explanatory subtext, never an on state.
+     */
     enum State {
         PERMISSION_MISSING,
         OFF,
+        // adb_wifi_enabled is 0, but Keep-Alive is on and the last explicit intent was "on", so
+        // the standby service will switch it back on once the network allows it (#318).
+        OFF_KEEP_ALIVE_WAITING,
         ENABLED_DISCONNECTED,
         ENABLED_CONNECTED
+    }
+
+    /**
+     * #318: single, shared definition of what a click means, so MainActivity's switch, the quick
+     * settings tile and the home screen widget cannot drift apart again. A click always requests
+     * the opposite of the <em>real</em> {@code adb_wifi_enabled} value:
+     *
+     * <ul>
+     *     <li>{@code OFF} and {@code OFF_KEEP_ALIVE_WAITING} -&gt; enable now. For the waiting case
+     *         this is the deliberate "don't wait for Keep-Alive's own timer" shortcut from #267;
+     *         it is now the behavior of all three surfaces instead of the tile alone.</li>
+     *     <li>{@code ENABLED_DISCONNECTED} and {@code ENABLED_CONNECTED} -&gt; disable. Wireless
+     *         debugging really is on in both, so switching it off is what the surfaces show.</li>
+     *     <li>{@code PERMISSION_MISSING} -&gt; the surfaces disable the control instead of
+     *         clicking; the value below is irrelevant there.</li>
+     * </ul>
+     *
+     * <p>There is exactly one sanctioned exception, and it is not expressed here: the quick
+     * settings tile intercepts {@code ENABLED_DISCONNECTED} before consulting this method and
+     * retriggers endpoint discovery instead of disabling (#267, upheld for #318 by explicit user
+     * decision). See the comment in {@code KeepADBTileService.onClick()}. Any further divergence
+     * belongs in this method, so that it applies to every surface at once.
+     */
+    static boolean desiredOnForClick(State state) {
+        return state == State.OFF || state == State.OFF_KEEP_ALIVE_WAITING;
+    }
+
+    /**
+     * True while a toggle write has been accepted but not yet applied, i.e. during the debounce
+     * window of up to {@link #TOGGLE_COOLDOWN_MS}. The surfaces render this as an explicit pending
+     * state (#318) instead of showing the stale pre-toggle value with no hint that a write is in
+     * flight.
+     */
+    static synchronized boolean isTogglePending() {
+        return pendingToggleRunnable != null;
     }
 
     static boolean hasPermission(Context ctx) {
@@ -162,8 +210,11 @@ final class KeepADB {
         }
         boolean enabled = isEnabled(appContext);
         if (!enabled) {
+            // #318: this used to return ENABLED_DISCONNECTED, which claimed wireless debugging was
+            // on while the setting read 0. Keep-Alive waiting is a separate dimension, not an
+            // on-state; it gets its own value so no surface can render it as "switched on".
             if (KeepADBPreferences.isKeepAliveEnabled(appContext) && !wasLastExplicitIntentOff(appContext)) {
-                return State.ENABLED_DISCONNECTED;
+                return State.OFF_KEEP_ALIVE_WAITING;
             }
             return State.OFF;
         }
@@ -229,7 +280,14 @@ final class KeepADB {
                 delayMs > 0 ? "scheduled" : "accepted",
                 "intentId=" + token + " desired=" + on + " observed=" + observed
                         + (delayMs > 0 ? " delayMs=" + delayMs : ""));
-        if (delayMs > 0) return true;
+        if (delayMs > 0) {
+            // #318: make the debounce window visible. Without this the surfaces keep rendering the
+            // pre-toggle value for up to TOGGLE_COOLDOWN_MS with no indication that a write is
+            // already scheduled; isTogglePending() is what they render, and it is true from here
+            // until applyNow() clears the pending runnable.
+            surfaces.refreshAll(appContext);
+            return true;
+        }
         return applyNow(appContext, on, source, token, networkGeneration, guard);
     }
 
@@ -247,14 +305,20 @@ final class KeepADB {
         // authorize, so a network change or a withdrawn Keep-Alive during the delay cancels the
         // write instead of being written blind. Treated exactly like a superseded intent.
         if (on && guard != null) {
+            // #318: unlike a supersession -- where a newer intent is already in flight and will
+            // refresh the surfaces itself -- these two abort without any successor. The pending
+            // runnable was cleared just above, so without a fan-out the surfaces would keep
+            // showing "switching…" indefinitely.
             if (!state.isCurrentNetworkGeneration(networkGeneration)) {
                 KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
                         "intentId=" + token + " reason=network_changed");
+                surfaces.refreshAll(appContext);
                 return false;
             }
             if (!guard.stillApplies(appContext)) {
                 KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
                         "intentId=" + token + " reason=preconditions_changed");
+                surfaces.refreshAll(appContext);
                 return false;
             }
         }
@@ -267,6 +331,9 @@ final class KeepADB {
                 // caller (tile, widget, service) the toggle went through.
                 KeepADBDiagnostics.event(appContext, eventName, source, "failed",
                         "intentId=" + token + " desired=" + on + " reason=write_rejected");
+                // #318: clear the pending indicator the surfaces are showing; a rejected write
+                // must end in the real state, not in a pending state that never resolves.
+                surfaces.refreshAll(appContext);
                 return false;
             }
             state.recordApplied(on, scheduler.elapsedRealtimeMs());
@@ -282,6 +349,7 @@ final class KeepADB {
             Log.e(TAG, "Missing WRITE_SECURE_SETTINGS when applying toggle", e);
             KeepADBDiagnostics.event(appContext, eventName, source, "failed",
                     "intentId=" + token + " reason=security_exception");
+            surfaces.refreshAll(appContext); // #318: never leave the surfaces stuck in pending.
             return false;
         }
     }
