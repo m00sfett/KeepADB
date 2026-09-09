@@ -5,6 +5,13 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.25] - 2026-09-09
+
+### Fixed
+- Discovery retries now use a bounded exponential backoff and stop after a finite retry budget when no endpoint can be found (issue #315).
+- Cached endpoint verification now uses attempt tokens, so a stale verification thread cannot invalidate a newer discovery result for the same host and port (issue #315).
+- Tile refreshes preserve an ongoing global verification; failed cache checks recheck Wi-Fi before rediscovery and stop when wireless debugging is disabled (issue #315).
+
 ## [1.5.24] - 2026-09-08
 
 ### Fixed
