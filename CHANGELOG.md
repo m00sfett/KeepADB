@@ -5,7 +5,15 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.5.28] - 2026-09-09
+## [1.5.29] - 2026-09-09
+
+### Fixed
+- Webhook URLs shown in the app no longer reveal their query parameters. Only the fact that parameters exist is shown (`?***`), so a token or password passed as a parameter stays hidden even when someone is looking at the screen (issue #350).
+- IPv6 addresses in a webhook URL are now hidden completely, in every notation — shortened, full, with or without an interface suffix, with or without a port. Previously only IPv4 addresses were partly masked and IPv6 hosts were shown in full (issue #350).
+- Log entries now hide the same parts as the app screen. So far they showed IPv4 addresses unmasked, and an IPv6 address with an interface suffix made the redaction fail entirely (issue #350).
+- A webhook URL saved by an older version of the app is cleaned up when it is read, not only when it is written. Such a stored value is also used as the target when deregistering from a previous URL, so a user name and password contained in it could previously be sent over the network. Existing installations are covered without any action by the user (issue #350).
+
+
 
 ### Fixed
 - Reconnecting to Wi-Fi now always requires a fresh verification of the access point: Android does not guarantee that the loss of the old network is reported before the new one becomes available, so automatic re-enable could briefly evaluate the new connection against the previous one's remembered trust. If the new connection's access point address was hidden from the app and its network name happened to match, wireless debugging could be switched on automatically on a network that was never checked (issue #354).
