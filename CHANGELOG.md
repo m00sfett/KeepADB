@@ -5,6 +5,12 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.36] - 2026-09-09
+
+### Fixed
+- The in-flight wireless-debugging register test now waits for the actual disconnect request
+  and terminal deregistration state instead of relying on request-list timing or order (issue #356).
+
 ## [1.5.35] - 2026-09-09
 
 ### Fixed

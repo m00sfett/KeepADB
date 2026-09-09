@@ -540,7 +540,8 @@ public class KeepADBRegisterClientTest {
     @Test
     public void testInFlightUpdateSupersededByDisconnect() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        String targetUrl = "http://fake.url/register/" + testServerPort;
+        KeepADBPreferences.setRegisterWebhookUrl(context, targetUrl);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
 
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
@@ -548,6 +549,15 @@ public class KeepADBRegisterClientTest {
 
         CountDownLatch firstRequestStarted = new CountDownLatch(1);
         CountDownLatch canFinishFirstRequest = new CountDownLatch(1);
+        CountDownLatch deleteRequestStarted = new CountDownLatch(1);
+        CountDownLatch deregistrationNotified = new CountDownLatch(1);
+
+        KeepADBRegisterClient.setRegisterStateListener(() -> {
+            if (KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
+                    KeepADBPreferences.getWebhookLastReportStatus(context))) {
+                deregistrationNotified.countDown();
+            }
+        });
 
         transport.setRequestCallback(req -> {
             if ("POST".equals(req.method) && req.payload != null && req.payload.contains("41234")) {
@@ -556,41 +566,65 @@ public class KeepADBRegisterClientTest {
                     canFinishFirstRequest.await(3, TimeUnit.SECONDS);
                 } catch (InterruptedException ignored) {
                 }
+            } else if ("DELETE".equals(req.method)
+                    && targetUrl.equals(req.url)) {
+                deleteRequestStarted.countDown();
             }
         });
 
-        // Trigger in-flight POST with port 41234
-        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
-        assertTrue(firstRequestStarted.await(3, TimeUnit.SECONDS));
+        try {
+            // Trigger in-flight POST with port 41234
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 41234);
+            assertTrue(firstRequestStarted.await(3, TimeUnit.SECONDS));
 
-        // While first POST is still in-flight, disconnect/turn off wireless debugging
-        KeepADBRegisterClient.markUnavailableAsync(context);
+            // While first POST is still in-flight, disconnect/turn off wireless debugging
+            KeepADBRegisterClient.markUnavailableAsync(context);
 
-        // Allow first in-flight POST to finish
-        canFinishFirstRequest.countDown();
+            // Allow first in-flight POST to finish
+            canFinishFirstRequest.countDown();
 
-        // Wait until DELETE request is recorded
-        waitUntil(() -> transport.getRequestCount() >= 2, 3000);
-        // The request is recorded when it starts, the bookkeeping follows once it returns, so wait
-        // for the transaction's own result before asserting on it (#356). Since #317 that result is
-        // one atomic preferences write instead of four, which leaves no half-written intermediate
-        // state for a racing read to mistake for a finished transaction.
-        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
-                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
-        ShadowLooper.idleMainLooper();
+            // Synchronize on the operation itself, then on its terminal state. A request is
+            // recorded before its transport call returns, so request count alone is not a
+            // completion signal.
+            assertTrue(deleteRequestStarted.await(3, TimeUnit.SECONDS));
+            awaitMainLooperSignal(deregistrationNotified, 3000);
 
-        // Verify the in-flight update did not revive the endpoint after disconnect
-        assertNull(KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
-        assertNull(KeepADBPreferences.getWebhookLastReportedEndpoint(context));
-        assertNull(KeepADBRegisterClient.getLastRegisteredUrlForTesting());
-        assertNull(KeepADBPreferences.getWebhookLastReportedUrl(context));
-        assertEquals(2, transport.getRequestCount());
-        assertEquals("POST", transport.recordedRequests.get(0).method);
-        assertEquals("DELETE", transport.recordedRequests.get(1).method);
-        assertEquals("http://fake.url/register", transport.recordedRequests.get(1).url);
-        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
-                KeepADBPreferences.getWebhookLastReportStatus(context));
-        assertFalse(KeepADBRegisterClient.isWlanUpdateInFlightForTesting());
+            // Verify the in-flight update did not revive the endpoint after disconnect
+            assertNull(KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+            assertNull(KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+            assertNull(KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+            assertNull(KeepADBPreferences.getWebhookLastReportedUrl(context));
+            List<KeepADBFakeHttpTransport.Request> requests;
+            synchronized (transport.recordedRequests) {
+                requests = new ArrayList<>(transport.recordedRequests);
+            }
+            assertEquals(2, requests.size());
+            KeepADBFakeHttpTransport.Request updateRequest = null;
+            KeepADBFakeHttpTransport.Request disconnectRequest = null;
+            for (KeepADBFakeHttpTransport.Request request : requests) {
+                if ("POST".equals(request.method) && request.payload != null
+                        && request.payload.contains("41234")) {
+                    updateRequest = request;
+                } else if ("DELETE".equals(request.method)
+                        && targetUrl.equals(request.url)) {
+                    disconnectRequest = request;
+                }
+            }
+            assertNotNull(updateRequest);
+            assertEquals(targetUrl, updateRequest.url);
+            assertEquals("{\"method\":\"wlan-adb\",\"endpoint\":\"192.168.1.50:41234\"}",
+                    updateRequest.payload);
+            assertNotNull(disconnectRequest);
+            assertEquals(targetUrl, disconnectRequest.url);
+            assertNull(disconnectRequest.payload);
+            assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
+                    KeepADBPreferences.getWebhookLastReportStatus(context));
+            assertFalse(KeepADBRegisterClient.isWlanUpdateInFlightForTesting());
+        } finally {
+            // Do not leave the blocked worker or a test listener behind when an assertion fails.
+            canFinishFirstRequest.countDown();
+            KeepADBRegisterClient.clearRegisterStateListener();
+        }
     }
 
     @Test
@@ -750,5 +784,20 @@ public class KeepADBRegisterClientTest {
             Thread.sleep(20);
         }
         throw new AssertionError("Condition timed out after " + timeoutMs + " ms");
+    }
+
+    private static void awaitMainLooperSignal(CountDownLatch signal, long timeoutMs) throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMs);
+        while (true) {
+            ShadowLooper.idleMainLooper();
+            long remainingNanos = deadline - System.nanoTime();
+            if (remainingNanos <= 0) {
+                throw new AssertionError("Signal timed out after " + timeoutMs + " ms");
+            }
+            if (signal.await(Math.min(remainingNanos, TimeUnit.MILLISECONDS.toNanos(20)),
+                    TimeUnit.NANOSECONDS)) {
+                return;
+            }
+        }
     }
 }
