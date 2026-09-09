@@ -59,6 +59,13 @@ final class KeepADBNetwork {
     private final ConnectivityManager.NetworkCallback defaultCallback;
     private final Map<Network, NetworkCapabilities> wifiCapabilities = new ConcurrentHashMap<>();
     private final Map<Network, LinkProperties> wifiLinkProperties = new ConcurrentHashMap<>();
+    // #314: written by defaultCallback, deliberately read by nothing any more -- the former
+    // reader isKnownLocalAddress() was the very leak this issue closed (the default route may be
+    // cellular, VPN, USB tethering or ethernet, none of which can host our Wi-Fi endpoint). The
+    // callback itself stays registered rather than being dropped along with its last reader:
+    // KeepADBNetworkContractTest pins registerDefaultNetworkCallback() as part of the #250
+    // contract (it is what keeps the API-31-only clearCapabilities() unnecessary), and keeping
+    // the map is what keeps that callback's onLost bookkeeping correct if a reader returns.
     private final Map<Network, LinkProperties> defaultLinkProperties = new ConcurrentHashMap<>();
 
     private KeepADBNetwork(Context context) {
@@ -239,6 +246,19 @@ final class KeepADBNetwork {
      * addresses are rejected outright: they are never a usable {@code adb connect} target from
      * another host, so accepting one could only ever register a local service of some other
      * kind.
+     *
+     * <p>Comparison is {@link InetAddress#equals} and therefore <em>scope-id blind</em> for IPv6:
+     * {@code Inet6Address.equals()} compares the 16 address bytes only, so {@code fe80::1%wlan0},
+     * {@code fe80::1%rmnet0} and a scopeless {@code fe80::1} all compare equal. This is
+     * deliberate in this direction: {@code NsdManager} hands back a resolved link-local address
+     * carrying an interface scope, while the {@code LinkAddress}es of the tracked Wi-Fi network
+     * generally do not, so a scope-strict comparison would reject our <em>own</em> advertised
+     * link-local endpoint -- and adbd has been observed advertising IPv6-only. The accepted cost
+     * is the reverse: an address numerically identical to our Wi-Fi link-local but living on
+     * another interface (our own cellular link-local, or a device duplicating our interface
+     * identifier on the same link) is not distinguished. Both require an address collision with
+     * a randomly assigned/EUI-64 identifier, and neither is what the port behind the address
+     * actually is -- that proof is R13 on #314, still open.
      */
     static boolean matchesActiveWifiAddress(InetAddress candidate, List<InetAddress> activeWifiAddresses) {
         if (candidate == null || activeWifiAddresses == null) return false;

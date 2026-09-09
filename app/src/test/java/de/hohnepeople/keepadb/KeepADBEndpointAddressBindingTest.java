@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.content.ContextWrapper;
 
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,6 +85,38 @@ public class KeepADBEndpointAddressBindingTest {
         assertTrue("our own Wi-Fi link-local address must stay accepted",
                 KeepADBNetwork.matchesActiveWifiAddress(
                         InetAddress.getByName("fe80::1"), activeWifiAddresses));
+    }
+
+    /**
+     * The scope-id direction of the link-local comparison: {@code NsdManager} resolves a
+     * link-local address with an interface scope ({@code fe80::1%wlan0}), while the tracked
+     * Wi-Fi network's {@code LinkAddress}es generally carry none. Since adbd has been observed
+     * advertising IPv6-only, a scope-strict comparison would reject our own endpoint -- so this
+     * pins that a scope-id difference alone never causes a rejection. The deliberate cost of
+     * that (an identical address on another interface is not distinguished) is documented on
+     * {@link KeepADBNetwork#matchesActiveWifiAddress} and is not asserted here.
+     */
+    @Test
+    public void ownLinkLocalIsAcceptedRegardlessOfItsScopeIdRepresentation() throws Exception {
+        byte[] linkLocalBytes = InetAddress.getByName("fe80::1").getAddress();
+        List<InetAddress> scopelessWifiAddress = Collections.singletonList(
+                InetAddress.getByName("fe80::1"));
+
+        assertTrue("a resolved link-local address with an interface scope must still match our"
+                        + " scopeless Wi-Fi link address",
+                KeepADBNetwork.matchesActiveWifiAddress(
+                        Inet6Address.getByAddress(null, linkLocalBytes, 1), scopelessWifiAddress));
+
+        // ...and the same the other way around, if the tracked address is the scoped one.
+        assertTrue(KeepADBNetwork.matchesActiveWifiAddress(
+                InetAddress.getByName("fe80::1"),
+                Collections.singletonList(
+                        Inet6Address.getByAddress(null, linkLocalBytes, 1))));
+
+        // A different link-local address stays rejected, scope id or not.
+        assertFalse(KeepADBNetwork.matchesActiveWifiAddress(
+                Inet6Address.getByAddress(null, InetAddress.getByName("fe80::2").getAddress(), 1),
+                scopelessWifiAddress));
     }
 
     @Test
