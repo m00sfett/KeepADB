@@ -29,7 +29,10 @@ public class KeepADBNetworkContractTest {
 
         assertTrue(service.contains("KeepADBNetwork.get(context).isWifiConnected()"));
         assertTrue(endpoint.contains("KeepADBNetwork.get(context).getWifiIpv4Address()"));
-        assertTrue(endpoint.contains("KeepADBNetwork.get(context).isKnownLocalAddress(addr)"));
+        // #314 narrowed the former isKnownLocalAddress() (any tracked network, including the
+        // default route) to the active Wi-Fi network's own addresses; the delegation to the
+        // single KeepADBNetwork tracker that #250 established is unchanged.
+        assertTrue(endpoint.contains("KeepADBNetwork.get(context).isActiveWifiAddress(addr)"));
     }
 
     @Test
