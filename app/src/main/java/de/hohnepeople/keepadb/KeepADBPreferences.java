@@ -171,17 +171,26 @@ final class KeepADBPreferences {
         }
     }
 
+    /**
+     * #350: sanitised on read, not only on write. Installations that stored this value before
+     * {@link #setRegisterWebhookUrl(Context, String)} started stripping userinfo still hold a raw
+     * URL here, and this value is not just displayed — the register client uses it as the DELETE /
+     * {@code active:false} target when the webhook URL changes. Sanitising at the read boundary
+     * means such a legacy value can neither reach the network with its credentials attached nor
+     * reach a log line, without needing a one-shot migration that a downgrade could undo.
+     */
     static String getWebhookLastReportedUrl(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(KEY_WEBHOOK_LAST_URL, null);
+        return sanitizeWebhookUrl(prefs.getString(KEY_WEBHOOK_LAST_URL, null));
     }
 
     static void setWebhookLastReportedUrl(Context context, String url) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if (url == null) {
+        String sanitized = sanitizeWebhookUrl(url);
+        if (sanitized == null) {
             prefs.edit().remove(KEY_WEBHOOK_LAST_URL).apply();
         } else {
-            prefs.edit().putString(KEY_WEBHOOK_LAST_URL, url).apply();
+            prefs.edit().putString(KEY_WEBHOOK_LAST_URL, sanitized).apply();
         }
     }
 
@@ -235,10 +244,11 @@ final class KeepADBPreferences {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
-        if (url == null) {
+        String sanitizedUrl = sanitizeWebhookUrl(url);
+        if (sanitizedUrl == null) {
             editor.remove(KEY_WEBHOOK_LAST_URL);
         } else {
-            editor.putString(KEY_WEBHOOK_LAST_URL, url);
+            editor.putString(KEY_WEBHOOK_LAST_URL, sanitizedUrl);
         }
         if (endpoint == null) {
             editor.remove(KEY_WEBHOOK_LAST_ENDPOINT);
@@ -360,19 +370,21 @@ final class KeepADBPreferences {
         return prefs.getLong(KEY_USB_WEBHOOK_LAST_REPORTED, 0L);
     }
 
+    /** #350: same read-boundary sanitisation as {@link #getWebhookLastReportedUrl(Context)}. */
     static String getUsbWebhookLastReportedUrl(Context context) {
         if (context == null) return null;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(KEY_USB_WEBHOOK_LAST_URL, null);
+        return sanitizeWebhookUrl(prefs.getString(KEY_USB_WEBHOOK_LAST_URL, null));
     }
 
     static void setUsbWebhookLastReportedUrl(Context context, String url) {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if (url == null) {
+        String sanitized = sanitizeWebhookUrl(url);
+        if (sanitized == null) {
             prefs.edit().remove(KEY_USB_WEBHOOK_LAST_URL).apply();
         } else {
-            prefs.edit().putString(KEY_USB_WEBHOOK_LAST_URL, url).apply();
+            prefs.edit().putString(KEY_USB_WEBHOOK_LAST_URL, sanitized).apply();
         }
     }
 
@@ -469,7 +481,7 @@ final class KeepADBPreferences {
             editor.remove(KEY_USB_WEBHOOK_LAST_URL);
             editor.remove(KEY_USB_WEBHOOK_LAST_REPORTED);
         } else {
-            editor.putString(KEY_USB_WEBHOOK_LAST_URL, url);
+            editor.putString(KEY_USB_WEBHOOK_LAST_URL, sanitizeWebhookUrl(url));
             editor.putLong(KEY_USB_WEBHOOK_LAST_REPORTED, System.currentTimeMillis());
         }
         if (payload == null) {
@@ -586,51 +598,15 @@ final class KeepADBPreferences {
         return result;
     }
 
-    private static String maskIpv4Host(String host) {
-        if (host == null) return null;
-        String[] parts = host.split("\\.", -1);
-        if (parts.length != 4) return host;
-        for (String part : parts) {
-            if (part.isEmpty() || part.length() > 3) return host;
-            for (int i = 0; i < part.length(); i++) {
-                if (!Character.isDigit(part.charAt(i))) return host;
-            }
-            int val = Integer.parseInt(part);
-            if (val < 0 || val > 255) return host;
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append(parts[0]).append('.').append(parts[1]).append('.');
-        for (int i = 0; i < parts[2].length(); i++) sb.append('*');
-        sb.append('.');
-        for (int i = 0; i < parts[3].length(); i++) sb.append('*');
-        return sb.toString();
-    }
-
+    /**
+     * #350: UI-facing redaction. Delegates to {@link KeepADBUrlRedaction}, the one place that
+     * decides how userinfo, host, port, path, query and fragment are treated. This method used to
+     * mask IPv4 hosts only, leaving query parameters and IPv6 literals fully readable.
+     *
+     * <p>Never feed the result into a request — it is display text, not a URL.
+     */
     static String maskWebhookUrl(String rawUrl) {
-        String sanitized = sanitizeWebhookUrl(rawUrl);
-        if (sanitized == null || sanitized.isEmpty()) {
-            return "";
-        }
-        try {
-            java.net.URI uri = new java.net.URI(sanitized);
-            String host = uri.getHost();
-            String scheme = uri.getScheme();
-            if (host != null && scheme != null) {
-                String maskedHost = maskIpv4Host(host);
-                if (!host.equals(maskedHost)) {
-                    int schemeEnd = sanitized.indexOf("://");
-                    if (schemeEnd >= 0) {
-                        int hostStart = schemeEnd + 3;
-                        return sanitized.substring(0, hostStart)
-                                + maskedHost
-                                + sanitized.substring(hostStart + host.length());
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-            // Malformed URL, return sanitized as-is.
-        }
-        return sanitized;
+        return KeepADBUrlRedaction.forDisplay(rawUrl);
     }
 
     /** Marks the moment the foreground service was known alive; used to log restart gaps. */
