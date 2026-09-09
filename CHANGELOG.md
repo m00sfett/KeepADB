@@ -5,6 +5,14 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.27] - 2026-09-09
+
+### Fixed
+- A failed cleanup at the previous webhook URL no longer drops that registration: the app keeps a bounded retry backlog and flushes it at the next register activity, instead of persisting the new URL and leaving the old registration active on the server forever (issue #317).
+- Switching the webhook URL now also deactivates the previous USB-ADB registration, which was reported to the old URL only for wireless debugging before (issue #317).
+- A failed USB-ADB webhook report is recorded as a failed status and reported to the app, symmetric to the wireless-debugging path, instead of being dropped silently in the background (issue #317).
+- The wireless-debugging webhook result (timestamp, URL, endpoint, status) is written in a single preferences transaction, so a crash can no longer leave a stored URL without its endpoint (issue #317).
+
 ## [1.5.26] - 2026-09-09
 
 ### Fixed
