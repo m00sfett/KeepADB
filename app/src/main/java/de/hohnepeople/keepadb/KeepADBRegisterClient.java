@@ -699,21 +699,16 @@ final class KeepADBRegisterClient {
         return inFlightUsbProfileId;
     }
 
+    /**
+     * #350: log-facing redaction. Delegates to {@link KeepADBUrlRedaction} so logs and UI apply the
+     * same rule for userinfo, host, port and fragment; the log variant additionally drops the path.
+     * The previous {@link java.net.URI}-based version left IPv4 hosts unmasked and threw on an
+     * un-encoded IPv6 zone id, degrading the very inputs that most needed redacting.
+     */
     static String sanitizeUrl(String rawUrl) {
         if (rawUrl == null) return "null";
-        try {
-            java.net.URI uri = new java.net.URI(rawUrl);
-            String scheme = uri.getScheme();
-            String host = uri.getHost();
-            int port = uri.getPort();
-            StringBuilder sb = new StringBuilder();
-            if (scheme != null) sb.append(scheme).append("://");
-            if (host != null) sb.append(host);
-            if (port > 0) sb.append(":").append(port);
-            return sb.toString();
-        } catch (Exception e) {
-            return "redacted-url";
-        }
+        String redacted = KeepADBUrlRedaction.forLog(rawUrl);
+        return redacted.isEmpty() ? KeepADBUrlRedaction.UNPARSEABLE : redacted;
     }
 
     interface HttpTransport {

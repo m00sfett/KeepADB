@@ -152,9 +152,15 @@ public class KeepADBRegisterClientTest {
     public void testSanitizeUrl() {
         assertEquals("https://example.com:8443",
                 KeepADBRegisterClient.sanitizeUrl("https://user:password@example.com:8443/api/register?token=secret#fragment"));
-        assertEquals("http://192.168.1.10:8080",
+        // #350: logs now apply the same host rule as the UI, so an IPv4 literal is masked here too.
+        assertEquals("http://192.168.*.**:8080",
                 KeepADBRegisterClient.sanitizeUrl("http://192.168.1.10:8080/hook?secret=12345"));
+        // #350: an IPv6 literal used to reach the log intact -- java.net.URI even threw on an
+        // un-encoded zone id, so the whole raw string was replaced by a useless placeholder.
+        assertEquals("https://[***]:8443",
+                KeepADBRegisterClient.sanitizeUrl("https://user:pw@[fe80::1%eth0]:8443/hook?token=secret"));
         assertEquals("null", KeepADBRegisterClient.sanitizeUrl(null));
+        assertEquals("[redacted-url]", KeepADBRegisterClient.sanitizeUrl("not-a-url"));
     }
 
     @Test

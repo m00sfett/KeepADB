@@ -178,7 +178,8 @@ public class KeepADBPreferencesTest {
 
     @Test
     public void testMaskWebhookUrlMasksIpv4AndRemovesUserinfo() {
-        assertEquals("http://100.111.***.**:50829/register/s20?foo=bar",
+        // #350: the query string used to be printed verbatim here ("?foo=bar").
+        assertEquals("http://100.111.***.**:50829/register/s20?***",
                 KeepADBPreferences.maskWebhookUrl(
                         "http://user:pass@100.111.111.21:50829/register/s20?foo=bar#hash"));
         assertEquals("http://100.111.***.**:50829/register/s20",
@@ -212,6 +213,53 @@ public class KeepADBPreferencesTest {
                 .apply();
         assertEquals("http://100.111.111.21:50829/register/s20",
                 KeepADBPreferences.getRegisterWebhookUrl(context));
+    }
+
+    /**
+     * #350, acceptance criterion 2: a value written by an older app version, before
+     * {@code setWebhookLastReportedUrl} sanitised anything. It is not merely displayed -- the
+     * register client uses it as the DELETE target when the webhook URL changes, so an unsanitised
+     * read would put the stored credentials on the wire.
+     */
+    @Test
+    public void testGetWebhookLastReportedUrlSanitizesLegacyValueOnRead() {
+        FakeContext context = new FakeContext();
+        context.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE)
+                .edit()
+                .putString("register_webhook_last_url",
+                        "http://admin:hunter2@100.111.111.21:50829/register/s20#frag")
+                .apply();
+        assertEquals("http://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.getWebhookLastReportedUrl(context));
+    }
+
+    @Test
+    public void testGetUsbWebhookLastReportedUrlSanitizesLegacyValueOnRead() {
+        FakeContext context = new FakeContext();
+        context.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE)
+                .edit()
+                .putString("usb_webhook_last_url",
+                        "https://admin:hunter2@register.example/register/s20?token=abc#frag")
+                .apply();
+        // The query survives sanitisation on purpose: this value is a transport target, and
+        // stripping its parameters would break a webhook that relies on them. Display and log
+        // redaction is what removes the query -- see KeepADBUrlRedactionTest.
+        assertEquals("https://register.example/register/s20?token=abc",
+                KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
+    }
+
+    /** #350: the legacy value must also be unreadable through the display boundary. */
+    @Test
+    public void testLegacyLastReportedUrlIsFullyRedactedForDisplay() {
+        FakeContext context = new FakeContext();
+        context.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE)
+                .edit()
+                .putString("register_webhook_last_url",
+                        "http://admin:hunter2@[2001:db8::1]:50829/register/s20?token=abc#frag")
+                .apply();
+        assertEquals("http://[***]:50829/register/s20?***",
+                KeepADBPreferences.maskWebhookUrl(
+                        KeepADBPreferences.getWebhookLastReportedUrl(context)));
     }
 
     private static final class FakeContext extends android.content.ContextWrapper {
