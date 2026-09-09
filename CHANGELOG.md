@@ -5,6 +5,13 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.28] - 2026-09-09
+
+### Fixed
+- Reconnecting to Wi-Fi now always requires a fresh verification of the access point: Android does not guarantee that the loss of the old network is reported before the new one becomes available, so automatic re-enable could briefly evaluate the new connection against the previous one's remembered trust. If the new connection's access point address was hidden from the app and its network name happened to match, wireless debugging could be switched on automatically on a network that was never checked (issue #354).
+- Consequence of this fix, deliberately accepted: the convenience introduced in #270 — keeping trust while the access point address is hidden from the app in the background — no longer carries over a reconnect. After reconnecting, the network must be recognizable once (open the app or grant background location access) before automatic re-enable applies again.
+- Remembered trust is no longer used at all while no Keep-Alive service is running to notice network changes. USB handover and the endpoint recovery pulse also read this state and are reachable without a running service, where a stale entry could otherwise survive any number of unnoticed network changes (issue #354).
+
 ## [1.5.27] - 2026-09-09
 
 ### Fixed
