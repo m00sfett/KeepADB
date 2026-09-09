@@ -102,7 +102,6 @@ public class KeepADBTrustedNetworkTest {
         assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
     }
 
-
     @Test
     public void defaultModeIsAllowlistAndFailsClosedWithNoKnownIdentity() {
         FakeContext context = new FakeContext();

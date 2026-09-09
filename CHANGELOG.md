@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.5.24] - 2026-09-08
 
 ### Fixed
-- Der SSID-Fallback für automatisch aktiviertes WLAN-Debugging greift nur noch bei exakt maskierter BSSID und zuvor verifiziertem Vertrauen; fehlende oder unbekannte Identitäten verwerfen den Vertrauenscache (issue #313).
-- Auch eine unbekannte oder abweichende SSID bei maskierter BSSID verwirft den Cache; die Rückkehr zur alten SSID allein stellt das Vertrauen nicht wieder her (issue #313).
-- WLAN-Verlust löscht den Vertrauenscache auch vor abgeschlossener Vordergrundaktivierung; eine maskierte Wiederverbindung benötigt eine neue BSSID-Verifizierung (issue #313).
-- Unbekannte Vertrauensmoduswerte fallen auf die Allowlist zurück. Manuelles Schalten und ausdrücklich gewähltes „Alle WLANs“ bleiben unverändert (issue #313).
+- The SSID fallback for automatically enabled wireless debugging now applies only to an exactly masked BSSID with previously verified trust; a missing or unknown identity discards the trust cache (issue #313).
+- An unreadable or changed SSID alongside a masked BSSID also discards the cache, so returning to the earlier SSID alone no longer restores trust (issue #313).
+- Losing the Wi-Fi network clears the trust cache even before foreground promotion has completed, so a masked reconnect requires fresh BSSID verification (issue #313).
+- Unknown trusted-network mode values now fall back to the allowlist. Manual toggling and the explicitly selected "all Wi-Fi networks" mode are unchanged (issue #313).
 
 ## [1.5.23] - 2026-09-08
 
