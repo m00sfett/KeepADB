@@ -298,6 +298,21 @@ final class KeepADBPreferences {
         removePendingCleanup(context, KEY_USB_WEBHOOK_PENDING_CLEANUP, entry);
     }
 
+    /**
+     * Drops every pending USB cleanup that targets {@code url}. A cleanup only means "the server at
+     * this URL still lists an outdated registration for this device"; once a fresh registration has
+     * been accepted by that same URL, the outdated record has been overwritten and the queued
+     * {@code active:false} would deactivate the live registration instead of an orphan.
+     */
+    static void removePendingUsbWebhookCleanupsForUrl(Context context, String url) {
+        if (context == null || url == null) return;
+        for (String entry : getPendingUsbWebhookCleanups(context)) {
+            if (url.equals(pendingCleanupUrl(entry))) {
+                removePendingCleanup(context, KEY_USB_WEBHOOK_PENDING_CLEANUP, entry);
+            }
+        }
+    }
+
     static String pendingCleanupUrl(String entry) {
         if (entry == null) return null;
         int index = entry.indexOf(PENDING_SEPARATOR);

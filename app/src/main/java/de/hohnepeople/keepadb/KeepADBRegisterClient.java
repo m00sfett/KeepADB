@@ -230,6 +230,10 @@ final class KeepADBRegisterClient {
                             KeepADBPreferences.addPendingUsbWebhookCleanup(context,
                                     unfinishedCleanup.url, unfinishedCleanup.payload);
                         }
+                        // A queued cleanup for the URL we just registered with is obsolete: the
+                        // POST above overwrote the very record it was meant to retire. Keeping it
+                        // would let a later flush deactivate the live registration.
+                        KeepADBPreferences.removePendingUsbWebhookCleanupsForUrl(context, targetUrl);
                         usbUpdateInFlight = false;
                         inFlightUsbTargetUrl = null;
                         inFlightUsbProfileId = null;
@@ -540,6 +544,13 @@ final class KeepADBRegisterClient {
                     if (cleanupToRemember != null) {
                         KeepADBPreferences.addPendingWebhookCleanupUrl(context, cleanupToRemember);
                     }
+                    // A queued DELETE for the URL we just registered with is obsolete: the POST
+                    // above replaced the very record it was meant to retire. A DELETE at this URL
+                    // can be raised by a failing cleanup (an already-absent record answers 404,
+                    // which counts as a failure) while the POST that follows succeeds; flushing it
+                    // later -- from a USB transaction, which does not re-post -- would silently
+                    // erase the live registration.
+                    KeepADBPreferences.removePendingWebhookCleanupUrl(context, targetUrl);
                     wlanUpdateInFlight = false;
                     lastRegisteredUrl = targetUrl;
                     lastRegisteredEndpoint = targetEndpoint;

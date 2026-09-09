@@ -145,6 +145,49 @@ public class KeepADBRegisterCleanupLifecycleTest {
         assertTrue(transport.recordedRequests.get(0).payload.contains("\"active\":false"));
     }
 
+    // ---- Invariant: a pending cleanup never targets the currently registered URL. ----
+
+    @Test
+    public void wlanPendingCleanupForTheUrlJustRegisteredIsDropped() throws Exception {
+        // A cleanup can survive its own flush: an already-absent record answers a DELETE with 404,
+        // which counts as a failure, while the POST that follows in the same transaction succeeds.
+        // The entry would then queue a DELETE for the URL that is now live -- and a later flush
+        // from a USB transaction does not re-post, so the registration would vanish silently.
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, NEW_URL);
+        transport.setDeleteSuccess(false);
+        configureWebhook(NEW_URL);
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+        waitUntil(() -> NEW_URL.equals(KeepADBPreferences.getWebhookLastReportedUrl(context)), 3000);
+        Thread.sleep(100);
+
+        assertTrue("a cleanup must not point at the live registration",
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
+
+    @Test
+    public void usbPendingCleanupForTheUrlJustRegisteredIsDropped() throws Exception {
+        KeepADBPreferences.addPendingUsbWebhookCleanup(context, NEW_URL,
+                KeepADBRegisterClient.buildUsbPayload("dev1", 5, "Office", "10.0.0.5", "h1", "t1", false));
+
+        // The flushed cleanup fails, the registration POST right behind it succeeds.
+        AtomicInteger requests = new AtomicInteger();
+        transport.setPostSuccess(false);
+        transport.setRequestCallback(req -> {
+            if (requests.getAndIncrement() >= 1) {
+                transport.setPostSuccess(true);
+            }
+        });
+
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, NEW_URL, "dev1",
+                5, "Office", "10.0.0.5", "h1", "t1");
+        waitUntil(() -> NEW_URL.equals(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting()), 3000);
+        Thread.sleep(100);
+
+        assertTrue("a cleanup must not deactivate the live registration",
+                KeepADBPreferences.getPendingUsbWebhookCleanups(context).isEmpty());
+    }
+
     // ---- Criterion 2: USB failures are recorded and surfaced, like WLAN failures. ----
 
     @Test
