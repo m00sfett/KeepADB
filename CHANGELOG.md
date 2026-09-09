@@ -5,6 +5,11 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.34] - 2026-09-09
+
+### Fixed
+- Discovery callbacks now invalidate stale endpoint verification work at the point where an unavailable endpoint clears the cached endpoint, even if the caller already bumped the token (issue #360).
+
 ## [1.5.33] - 2026-09-09
 
 ### Changed

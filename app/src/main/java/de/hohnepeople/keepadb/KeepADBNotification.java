@@ -412,6 +412,9 @@ final class KeepADBNotification {
             public void onUnavailable() {
                 synchronized (KeepADBNotification.class) {
                     if (requestGeneration != discoveryRequestGeneration) return;
+                    // Every endpoint-state mutation must bump this token at its mutation site,
+                    // independent of caller-side bumps.
+                    endpointVerificationToken++;
                     currentHost = null;
                     currentPort = 0;
                     scheduleRetryLocked(appContext, manager);

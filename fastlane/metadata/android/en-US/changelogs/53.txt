@@ -1,0 +1,1 @@
+Discovery callbacks now invalidate stale endpoint verification work at the endpoint-state mutation site when an unavailable endpoint clears the cached endpoint, even if the caller already bumped the token (issue #360).

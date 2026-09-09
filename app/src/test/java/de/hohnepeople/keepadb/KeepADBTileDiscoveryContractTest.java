@@ -195,6 +195,8 @@ public class KeepADBTileDiscoveryContractTest {
     @Test
     public void cachedEndpointVerificationRejectsStaleAttemptTokens() throws IOException {
         String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        String discoveryBody = methodBody(notification,
+                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,");
         String verifyBody = methodBody(notification,
                 "private static void verifyCachedEndpointAsync(Context appContext, NotificationManager manager,");
 
@@ -238,12 +240,41 @@ public class KeepADBTileDiscoveryContractTest {
             assertTrue(signature + " must invalidate older verification attempts",
                     methodBody(notification, signature).contains("endpointVerificationToken++"));
         }
-        String replacement = methodBody(notification, "public void onEndpoint(String host, int port) {");
+        String replacement = methodBody(discoveryBody, "public void onEndpoint(String host, int port) {");
         int replacementToken = replacement.indexOf("endpointVerificationToken++;");
         assertTrue(replacementToken > replacement.indexOf(
                 "if (requestGeneration != discoveryRequestGeneration) return;"));
         assertTrue(replacementToken < replacement.indexOf("currentHost = host;"));
         assertTrue(replacementToken < replacement.indexOf("currentPort = port;"));
+    }
+
+    @Test
+    public void unavailableDiscoveryCallbackBumpsTokenAtTheMutationSite() throws IOException {
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        String discoveryBody = methodBody(notification,
+                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,");
+        String unavailableBody = methodBody(discoveryBody, "public void onUnavailable() {");
+
+        int generationGuard = unavailableBody.indexOf(
+                "if (requestGeneration != discoveryRequestGeneration) return;");
+        int lock = unavailableBody.indexOf("synchronized (KeepADBNotification.class) {");
+        int lockOpeningBrace = unavailableBody.indexOf('{', lock);
+        int lockEnd = findMatchingBrace(unavailableBody, lockOpeningBrace);
+        int tokenBump = unavailableBody.indexOf("endpointVerificationToken++;");
+        int hostClear = unavailableBody.indexOf("currentHost = null;");
+        int portClear = unavailableBody.indexOf("currentPort = 0;");
+
+        assertTrue(lock >= 0);
+        assertTrue(lockOpeningBrace > lock);
+        assertTrue(lockEnd > lockOpeningBrace);
+        assertTrue(generationGuard > lockOpeningBrace);
+        assertTrue(generationGuard < lockEnd);
+        assertTrue(tokenBump > generationGuard);
+        assertTrue(tokenBump < lockEnd);
+        assertTrue(tokenBump < hostClear);
+        assertTrue(tokenBump < portClear);
+        assertTrue(unavailableBody.contains("Every endpoint-state mutation must bump this token at its mutation site"));
+        assertTrue(unavailableBody.contains("independent of caller-side bumps"));
     }
 
     @Test
