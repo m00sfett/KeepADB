@@ -100,6 +100,12 @@ public class SettingsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        // #324: keep header and content clear of the system bars and the keyboard under forced
+        // edge-to-edge.
+        KeepADBWindowInsets.apply(
+                getWindow(),
+                findViewById(R.id.header_bar),
+                findViewById(R.id.settings_scroll_view));
 
         versionNameText = findViewById(R.id.settings_version_name);
         versionCodeText = findViewById(R.id.settings_version_code);

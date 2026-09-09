@@ -5,6 +5,12 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.31] - 2026-09-09
+
+### Fixed
+- App screen and settings screen now keep clear of the system bars. On Android 15 the system draws apps of this kind from edge to edge, which could put the title bar behind the clock and battery display and the lowest buttons behind the navigation bar. Title bar and content are now shifted by exactly the space the system bars occupy — including a display cutout at the side (issue #324).
+- The settings screen now makes room for the on-screen keyboard: when a text field such as the webhook URL is tapped, the content moves up far enough that the field being edited stays visible instead of disappearing behind the keyboard (issue #324).
+
 ## [1.5.30] - 2026-09-09
 
 ### Fixed
