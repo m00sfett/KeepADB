@@ -1,0 +1,1 @@
+Fixed trusted-network checks (#313): only the exact masked BSSID may reuse previously verified trust. Missing identities, unknown or changed SSIDs, and Wi-Fi loss clear cached trust, so masked reconnects require fresh verification. Unknown modes default to the allowlist. Manual toggles and explicitly selected all-Wi-Fi mode are unchanged.

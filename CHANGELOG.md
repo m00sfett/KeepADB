@@ -5,6 +5,14 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.24] - 2026-09-08
+
+### Fixed
+- The SSID fallback for automatically enabled wireless debugging now applies only to an exactly masked BSSID with previously verified trust; a missing or unknown identity discards the trust cache (issue #313).
+- An unreadable or changed SSID alongside a masked BSSID also discards the cache, so returning to the earlier SSID alone no longer restores trust (issue #313).
+- Losing the Wi-Fi network clears the trust cache even before foreground promotion has completed, so a masked reconnect requires fresh BSSID verification (issue #313).
+- Unknown trusted-network mode values now fall back to the allowlist. Manual toggling and the explicitly selected "all Wi-Fi networks" mode are unchanged (issue #313).
+
 ## [1.5.23] - 2026-09-08
 
 ### Fixed

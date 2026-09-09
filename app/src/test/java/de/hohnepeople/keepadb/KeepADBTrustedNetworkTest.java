@@ -7,9 +7,100 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class KeepADBTrustedNetworkTest {
+
+    @Before
+    public void resetVerifiedTrust() {
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+    }
+
+    @Test
+    public void unknownModesDefaultToAllowlistAndFailClosed() {
+        for (String mode : new String[] { null, "", "unknown", "ALL_WIFI" }) {
+            FakeContext context = new FakeContext();
+            context.getSharedPreferences("keepadb_prefs", 0).edit()
+                    .putString("trusted_network_mode", mode).apply();
+            assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST,
+                    KeepADBTrustedNetwork.getMode(context));
+            assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
+            assertFalse(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
+            assertEquals(KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE,
+                    KeepADBTrustedNetwork.getBlockReason(context));
+        }
+    }
+
+    @Test
+    public void onlyExactRedactedBssidMayReuseVerifiedTrust() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+        KeepADBNetworkIdentity verified =
+                new KeepADBNetworkIdentity("Home", "aa:bb:cc:dd:ee:ff");
+        KeepADBNetworkIdentity masked =
+                new KeepADBNetworkIdentity("Home", KeepADBNetworkIdentity.REDACTED_BSSID);
+        for (String bssid : new String[] { null, "", KeepADBNetworkIdentity.UNSET_BSSID,
+                "unknown", " ", KeepADBNetworkIdentity.REDACTED_BSSID + " " }) {
+            assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+            assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+            assertFalse("Must reject BSSID: " + bssid, KeepADBTrustedNetwork.isTrustedForTesting(
+                    context, new KeepADBNetworkIdentity("Home", bssid)));
+            assertFalse("Must discard stale trust after BSSID: " + bssid,
+                    KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+        }
+    }
+
+    @Test
+    public void maskedBssidWithUnavailableOrChangedSsidClearsVerifiedTrust() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+        KeepADBNetworkIdentity verified =
+                new KeepADBNetworkIdentity("Home", "aa:bb:cc:dd:ee:ff");
+        KeepADBNetworkIdentity masked =
+                new KeepADBNetworkIdentity("Home", KeepADBNetworkIdentity.REDACTED_BSSID);
+        for (String ssid : new String[] { null, android.net.wifi.WifiManager.UNKNOWN_SSID,
+                "", "\"\"", "Neighbor" }) {
+            assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+            assertFalse(KeepADBTrustedNetwork.isTrustedForTesting(context,
+                    new KeepADBNetworkIdentity(ssid, KeepADBNetworkIdentity.REDACTED_BSSID)));
+            assertFalse("Must discard stale trust after SSID: " + ssid,
+                    KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+            assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+            assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+        }
+    }
+
+    /**
+     * Covers the cache semantics of {@link KeepADBTrustedNetwork#forgetVerifiedTrust()} alone:
+     * after it runs, a masked BSSID is no longer trusted until a fresh verified sighting
+     * restores it.
+     *
+     * <p>This test deliberately calls the production method directly, so it proves nothing
+     * about the caller. That {@code KeepADBService.onLost()} actually invokes it -- and does so
+     * unconditionally, ahead of the {@code foregroundReady} early return -- is asserted
+     * separately by {@code KeepADBTrustedNetworkContractTest
+     * .networkLossInvalidatesVerifiedTrustBeforeAnyEarlyReturn}. Both are required: drop the
+     * contract test and a silently removed {@code onLost()} call would still leave this one
+     * green.
+     */
+    @Test
+    public void forgetVerifiedTrustClearsCacheForMaskedReconnect() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+        KeepADBNetworkIdentity verified =
+                new KeepADBNetworkIdentity("Home", "aa:bb:cc:dd:ee:ff");
+        KeepADBNetworkIdentity masked =
+                new KeepADBNetworkIdentity("Home", KeepADBNetworkIdentity.REDACTED_BSSID);
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+
+        // Direct call -- the wiring from onLost() is the contract test's job, not this one's.
+        KeepADBTrustedNetwork.forgetVerifiedTrust();
+        assertFalse(KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+    }
 
     @Test
     public void defaultModeIsAllowlistAndFailsClosedWithNoKnownIdentity() {
