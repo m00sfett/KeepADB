@@ -55,6 +55,30 @@ final class KeepADBTrustedNetwork {
      */
     private static volatile String lastVerifiedTrustedSsid;
 
+    /**
+     * Whether something is currently watching for the connection changes that {@link
+     * #lastVerifiedTrustedSsid} is only meaningful in the absence of (#354). The cache above does
+     * not stand for "this SSID is trusted"; it stands for "the connection verified moments ago is
+     * still the same one". Nothing in a masked reading can establish that on its own -- the claim
+     * only holds because {@link KeepADBService}'s Wi-Fi {@code NetworkCallback} invalidates the
+     * cache on every {@code onAvailable}/{@code onLost}, i.e. on every event that could have
+     * substituted a different connection underneath us.
+     *
+     * <p>Without that callback registered, nobody clears the cache: a process that stays alive
+     * with the service stopped (the app was opened once, a {@code KeepADBUsbReceiver} broadcast
+     * woke the process, ...) can carry a verified SSID for an unbounded time across arbitrarily
+     * many unobserved network changes, and {@link KeepADBEndpoint}'s recovery pulse and {@link
+     * KeepADBUsbHandover}'s automatic handover both read the policy on exactly those paths. So
+     * the fallback is only offered while an invalidator is demonstrably live, and fails closed
+     * otherwise; this is the same fail-closed direction the rest of the class takes.
+     *
+     * <p>#270 is not lost by this: its actual use case is the background Keep-Alive re-enable,
+     * which by construction only runs while {@link KeepADBService} -- and therefore its callback
+     * -- is running. A foreground app is not subject to the platform's background BSSID masking
+     * in the first place and never reaches the fallback.
+     */
+    private static volatile boolean verifiedTrustObserverActive;
+
     enum BlockReason { NONE, UNTRUSTED_NETWORK, IDENTITY_UNAVAILABLE }
 
     static final class Entry {
@@ -232,6 +256,12 @@ final class KeepADBTrustedNetwork {
             forgetVerifiedTrust();
             return false;
         }
+        if (!verifiedTrustObserverActive) {
+            // #354: no live invalidator, so "the connection is still the same one" is an
+            // unbacked claim -- see the field's javadoc. Drop the cache instead of trusting it.
+            forgetVerifiedTrust();
+            return false;
+        }
         if (hasMatchingVerifiedTrust(identity)) return true;
         // An unreadable or changed SSID also breaks the verified connection's continuity.
         forgetVerifiedTrust();
@@ -256,6 +286,22 @@ final class KeepADBTrustedNetwork {
         lastVerifiedTrustedSsid = null;
     }
 
+    /**
+     * Declares whether a live {@code NetworkCallback} is currently invalidating this cache on
+     * every connection change (#354). Called by {@link KeepADBService} around its Wi-Fi callback
+     * registration; see {@link #verifiedTrustObserverActive}.
+     *
+     * <p>Every transition -- in either direction -- also drops the cached SSID: the identity of
+     * who is watching just changed, so no previously cached reading can still claim uninterrupted
+     * observation. The three statements are deliberately ordered so a concurrent reader can only
+     * ever observe a *stricter* state than the final one, never "active with a stale entry".
+     */
+    static void setVerifiedTrustObserverActive(boolean active) {
+        verifiedTrustObserverActive = false;
+        forgetVerifiedTrust();
+        verifiedTrustObserverActive = active;
+    }
+
     private static boolean hasMatchingVerifiedTrust(KeepADBNetworkIdentity identity) {
         String cachedSsid = lastVerifiedTrustedSsid;
         if (cachedSsid == null) return false;
@@ -263,10 +309,13 @@ final class KeepADBTrustedNetwork {
         return currentSsid != null && cachedSsid.equals(currentSsid);
     }
 
-    /** Test-only: clears the in-process verified-trust memory so tests don't leak state into
-     * each other (the cache is intentionally static/process-wide in production). */
+    /** Test-only: clears the in-process verified-trust memory <em>and</em> the #354 observer
+     * flag, so tests don't leak state into each other (both are intentionally static/process-wide
+     * in production). Resetting to the fail-closed state means a test that wants to exercise the
+     * masked-BSSID fallback has to state that precondition explicitly. */
     static void resetVerifiedTrustForTesting() {
         lastVerifiedTrustedSsid = null;
+        verifiedTrustObserverActive = false;
     }
 
     /** Test-only seam: exercises the same trust decision as {@link #isCurrentNetworkTrusted}
