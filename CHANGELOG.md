@@ -5,6 +5,13 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.26] - 2026-09-09
+
+### Fixed
+- Endpoint candidates are now bound to the active Wi-Fi interface: an mDNS service is only registered when its address is one currently held by this device's Wi-Fi network, instead of any loopback, link-local or otherwise "known local" address (issue #314).
+- Without a determinable Wi-Fi address — for example with Wi-Fi disconnected — no endpoint is registered at all, rather than falling back to an unrelated local listener (issue #314).
+- The quick port probe no longer stops at the first open loopback port: it checks the next candidates against the Wi-Fi address, so an unrelated local service can no longer shadow the real wireless-debugging listener (issue #314).
+
 ## [1.5.25] - 2026-09-09
 
 ### Fixed
