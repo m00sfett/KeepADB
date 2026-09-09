@@ -23,7 +23,8 @@ final class KeepADBNotification {
     static final String CHANNEL_ID = "keepadb_endpoint";
     static final int NOTIFICATION_ID = 1;
     private static final long RETRY_DELAY_INITIAL_MS = 2000;
-    private static final long RETRY_DELAY_BACKOFF_MS = 5000;
+    private static final long RETRY_DELAY_MAX_MS = 30_000;
+    private static final int MAX_RETRY_ATTEMPTS = 5;
     private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
     private static final Object GLOBAL_DISCOVERY_OWNER = new Object();
 
@@ -34,6 +35,7 @@ final class KeepADBNotification {
     private static Runnable pendingRetryRunnable;
     private static int retryAttempt;
     private static long discoveryRequestGeneration;
+    private static long endpointVerificationToken;
     private static Object activeDiscoveryOwner;
     // #297: verifyCachedEndpointAsync() is reached both by the throttled roam trigger and by the
     // unthrottled 60s heartbeat. Without this flag every routine "still reachable" heartbeat
@@ -71,6 +73,7 @@ final class KeepADBNotification {
         cancelRetryLocked();
         retryAttempt = 0;
         discoveryRequestGeneration++;
+        endpointVerificationToken++;
         activeDiscoveryOwner = null;
         if (endpoint != null) {
             endpoint.stop();
@@ -137,6 +140,7 @@ final class KeepADBNotification {
         cancelRetryLocked();
         retryAttempt = 0;
         discoveryRequestGeneration++;
+        endpointVerificationToken++;
         activeDiscoveryOwner = null;
         if (endpoint != null) {
             endpoint.stop();
@@ -225,12 +229,23 @@ final class KeepADBNotification {
 
     private static void verifyCachedEndpointAsync(Context appContext, NotificationManager manager,
             String host, int port, Object discoveryOwner) {
+        final long verificationToken;
+        synchronized (KeepADBNotification.class) {
+            // A Tile must not supersede a verification retained by the global owner.
+            if (activeDiscoveryOwner != discoveryOwner) return;
+            verificationToken = ++endpointVerificationToken;
+        }
         new Thread(() -> {
             boolean reachable = KeepADBEndpoint.isPortReachable(host, port, 500);
             synchronized (KeepADBNotification.class) {
+                if (verificationToken != endpointVerificationToken) return;
                 if (activeDiscoveryOwner != discoveryOwner) return;
                 if (!host.equals(currentHost) || port != currentPort) {
                     return; // superseded by a newer refresh/discovery in the meantime
+                }
+                if (!KeepADB.isEnabled(appContext)) {
+                    stop(appContext, manager);
+                    return;
                 }
                 if (reachable) {
                     activeDiscoveryOwner = null;
@@ -256,7 +271,15 @@ final class KeepADBNotification {
                             appContext.getString(R.string.notification_text_searching));
                 }
                 cancelRetryLocked();
-                startDiscoveryDirectLocked(appContext, manager, discoveryOwner);
+                if (KeepADBService.isWifiConnected(appContext)) {
+                    startDiscoveryDirectLocked(appContext, manager, discoveryOwner);
+                } else {
+                    endpointVerificationToken++;
+                    retryAttempt = 0;
+                    activeDiscoveryOwner = null;
+                    if (endpoint != null) endpoint.stop();
+                    KeepADBRegisterClient.markUnavailableAsync(appContext);
+                }
             }
             postSurfaceRefresh(appContext);
         }, "KeepADBEndpointVerify").start();
@@ -303,18 +326,24 @@ final class KeepADBNotification {
             return;
         }
         // #296: without an active Wi-Fi connection there is nothing for discovery to find, so
-        // planning yet another retry would just retry forever (2s/5s backoff, unbounded) while
-        // Wi-Fi stays off. The event-driven NetworkCallback.onLost() path already cancels any
-        // pending retry as soon as Wi-Fi drops (see KeepADBService/invalidateEndpoint()); this is
-        // the belt-and-suspenders guard for every other path that can reach here, e.g. a service
-        // restart while Wi-Fi is already off.
+        // planning yet another retry would otherwise keep a discovery circuit alive forever while
+        // Wi-Fi stays unavailable. The event-driven NetworkCallback.onLost() path already cancels
+        // any pending retry as soon as Wi-Fi drops (see KeepADBService/invalidateEndpoint()); the
+        // finite budget below also covers repeated discovery failures while Wi-Fi remains up.
         if (!KeepADBService.isWifiConnected(appContext)) {
             retryAttempt = 0;
             activeDiscoveryOwner = null;
             return;
         }
+        if (retryAttempt >= MAX_RETRY_ATTEMPTS) {
+            retryAttempt = 0;
+            activeDiscoveryOwner = null;
+            KeepADBDiagnostics.event(appContext, "endpoint_discovery", "retry", "exhausted",
+                    "max_attempts=" + MAX_RETRY_ATTEMPTS);
+            return;
+        }
         cancelRetryLocked();
-        long delay = (retryAttempt == 0) ? RETRY_DELAY_INITIAL_MS : RETRY_DELAY_BACKOFF_MS;
+        long delay = retryDelayMsForAttemptForTesting(retryAttempt);
         retryAttempt++;
         pendingRetryRunnable = () -> {
             synchronized (KeepADBNotification.class) {
@@ -340,8 +369,19 @@ final class KeepADBNotification {
         MAIN_HANDLER.postDelayed(pendingRetryRunnable, delay);
     }
 
+    /** Returns the bounded exponential delay used by the discovery retry circuit. */
+    static long retryDelayMsForAttemptForTesting(int attempt) {
+        long delay = RETRY_DELAY_INITIAL_MS;
+        for (int i = 0; i < Math.max(0, attempt); i++) {
+            if (delay >= RETRY_DELAY_MAX_MS / 2) return RETRY_DELAY_MAX_MS;
+            delay *= 2;
+        }
+        return Math.min(delay, RETRY_DELAY_MAX_MS);
+    }
+
     private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,
             Object discoveryOwner) {
+        endpointVerificationToken++;
         if (endpoint == null) endpoint = new KeepADBEndpoint(appContext);
         claimDiscoveryOwnerLocked(discoveryOwner);
         final long requestGeneration = ++discoveryRequestGeneration;
@@ -350,6 +390,7 @@ final class KeepADBNotification {
             public void onEndpoint(String host, int port) {
                 synchronized (KeepADBNotification.class) {
                     if (requestGeneration != discoveryRequestGeneration) return;
+                    endpointVerificationToken++;
                     currentHost = host;
                     currentPort = port;
                     resetReachableConfirmed();
@@ -406,6 +447,7 @@ final class KeepADBNotification {
         cancelRetryLocked();
         retryAttempt = 0;
         discoveryRequestGeneration++;
+        endpointVerificationToken++;
         activeDiscoveryOwner = null;
         if (endpoint != null) {
             endpoint.stop();
@@ -423,6 +465,7 @@ final class KeepADBNotification {
     static synchronized void cancelTileDiscovery(Object tileOwner) {
         if (tileOwner == null || activeDiscoveryOwner != tileOwner) return;
         discoveryRequestGeneration++;
+        endpointVerificationToken++;
         activeDiscoveryOwner = null;
         cancelRetryLocked();
         retryAttempt = 0;

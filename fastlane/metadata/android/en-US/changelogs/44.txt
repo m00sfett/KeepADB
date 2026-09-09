@@ -1,0 +1,1 @@
+Discovery retries now use a bounded backoff and a finite retry budget. Cached endpoint checks reject stale verification results, preserve global ownership during Tile refreshes, and recheck Wi-Fi and wireless debugging before rediscovery (issue #315).

@@ -167,6 +167,85 @@ public class KeepADBTileDiscoveryContractTest {
     }
 
     @Test
+    public void discoveryRetriesUseAFiniteExponentialBudget() throws IOException {
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        String retryBody = methodBody(notification,
+                "private static void scheduleRetryLocked(Context appContext, NotificationManager manager) {");
+
+        assertTrue(retryBody.contains("MAX_RETRY_ATTEMPTS"));
+        assertTrue(retryBody.contains("retryAttempt >= MAX_RETRY_ATTEMPTS"));
+        assertTrue(retryBody.contains("retryDelayMsForAttemptForTesting(retryAttempt)"));
+        assertTrue(retryBody.contains("KeepADBDiagnostics.event(appContext, \"endpoint_discovery\""));
+        String exhausted = methodBody(retryBody, "if (retryAttempt >= MAX_RETRY_ATTEMPTS) {");
+        assertTrue(exhausted.contains("activeDiscoveryOwner = null;"));
+        assertTrue(exhausted.contains("return;"));
+        assertFalse(exhausted.contains("postDelayed("));
+        assertFalse(exhausted.contains("startDiscoveryDirectLocked("));
+        assertTrue(retryBody.indexOf("if (retryAttempt >= MAX_RETRY_ATTEMPTS)")
+                < retryBody.indexOf("MAIN_HANDLER.postDelayed("));
+
+        String delayMethod = methodBody(notification,
+                "static long retryDelayMsForAttemptForTesting(int attempt) {");
+        assertTrue(delayMethod.contains("RETRY_DELAY_MAX_MS"));
+        assertTrue(delayMethod.contains("Math.min(delay, RETRY_DELAY_MAX_MS)"));
+        assertTrue(delayMethod.contains("delay *= 2;"));
+    }
+
+    @Test
+    public void cachedEndpointVerificationRejectsStaleAttemptTokens() throws IOException {
+        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        String verifyBody = methodBody(notification,
+                "private static void verifyCachedEndpointAsync(Context appContext, NotificationManager manager,");
+
+        assertTrue(verifyBody.contains("final long verificationToken"));
+        assertTrue(verifyBody.contains("++endpointVerificationToken"));
+        assertTrue(verifyBody.contains("if (verificationToken != endpointVerificationToken) return;"));
+        int tokenGuard = verifyBody.indexOf(
+                "if (verificationToken != endpointVerificationToken) return;");
+        int worker = verifyBody.indexOf("new Thread(() -> {");
+        int lock = verifyBody.indexOf("synchronized (KeepADBNotification.class) {", worker);
+        int lockEnd = findMatchingBrace(verifyBody, verifyBody.indexOf('{', lock));
+        assertTrue(tokenGuard > lock && tokenGuard < lockEnd);
+        for (String mutation : new String[] { "stop(appContext, manager);",
+                "activeDiscoveryOwner = null;", "shouldLogReachable()",
+                "resetReachableConfirmed();", "currentHost = null;", "currentPort = 0;",
+                "endpointListener.onUnavailable();", "cancelRetryLocked();",
+                "startDiscoveryDirectLocked(appContext, manager, discoveryOwner);" }) {
+            int position = verifyBody.indexOf(mutation);
+            assertTrue(mutation + " must follow the token guard under the same lock",
+                    position > tokenGuard && position < lockEnd);
+        }
+
+        // Refusing Tile ownership must not first invalidate the global worker's token.
+        int ownershipGuard = verifyBody.indexOf("if (activeDiscoveryOwner != discoveryOwner) return;");
+        int capture = verifyBody.indexOf("verificationToken = ++endpointVerificationToken;");
+        assertTrue(ownershipGuard >= 0 && ownershipGuard < capture && capture < worker);
+
+        String wifiBranch = methodBody(verifyBody,
+                "if (KeepADBService.isWifiConnected(appContext)) {");
+        assertTrue(wifiBranch.contains("startDiscoveryDirectLocked(appContext, manager, discoveryOwner);"));
+        assertTrue(verifyBody.indexOf("if (!KeepADB.isEnabled(appContext))") <
+                verifyBody.indexOf("if (reachable)"));
+
+        for (String signature : new String[] {
+                "static synchronized void resetForTesting() {",
+                "static synchronized void invalidateEndpoint(Context context) {",
+                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,",
+                "private static synchronized void stop(Context context, NotificationManager manager) {",
+                "static synchronized void cancelTileDiscovery(Object tileOwner) {"
+        }) {
+            assertTrue(signature + " must invalidate older verification attempts",
+                    methodBody(notification, signature).contains("endpointVerificationToken++"));
+        }
+        String replacement = methodBody(notification, "public void onEndpoint(String host, int port) {");
+        int replacementToken = replacement.indexOf("endpointVerificationToken++;");
+        assertTrue(replacementToken > replacement.indexOf(
+                "if (requestGeneration != discoveryRequestGeneration) return;"));
+        assertTrue(replacementToken < replacement.indexOf("currentHost = host;"));
+        assertTrue(replacementToken < replacement.indexOf("currentPort = port;"));
+    }
+
+    @Test
     public void tileOnlyDiscoveryCannotScheduleTheGlobalRecoveryPulse() throws IOException {
         String endpoint = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
         String discoverBody = methodBody(endpoint,
