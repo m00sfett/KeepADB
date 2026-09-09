@@ -12,6 +12,8 @@ import android.net.wifi.WifiManager;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,6 +32,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * perspective, even though Wi-Fi is still connected and the Wi-Fi-scoped callback never saw its
  * own {@code onLost}). Sharing one map would let that default-route change wrongly evict a
  * still-connected Wi-Fi network's cached data.
+ *
+ * <p>Since #314 the default network's link properties are tracked but deliberately not consulted
+ * by any endpoint decision: a wireless-debugging endpoint is only ever valid on an address bound
+ * to an eligible Wi-Fi network of this device (see {@link #isActiveWifiAddress(InetAddress)}),
+ * never on the current default route when that route is cellular, VPN, USB tethering or ethernet.
  *
  * <p>This combination, rather than a single capabilities-cleared "match everything" request, is
  * also deliberate for a second reason: {@code NetworkRequest.Builder#clearCapabilities()} was
@@ -52,6 +59,13 @@ final class KeepADBNetwork {
     private final ConnectivityManager.NetworkCallback defaultCallback;
     private final Map<Network, NetworkCapabilities> wifiCapabilities = new ConcurrentHashMap<>();
     private final Map<Network, LinkProperties> wifiLinkProperties = new ConcurrentHashMap<>();
+    // #314: written by defaultCallback, deliberately read by nothing any more -- the former
+    // reader isKnownLocalAddress() was the very leak this issue closed (the default route may be
+    // cellular, VPN, USB tethering or ethernet, none of which can host our Wi-Fi endpoint). The
+    // callback itself stays registered rather than being dropped along with its last reader:
+    // KeepADBNetworkContractTest pins registerDefaultNetworkCallback() as part of the #250
+    // contract (it is what keeps the API-31-only clearCapabilities() unnecessary), and keeping
+    // the map is what keeps that callback's onLost bookkeeping correct if a reader returns.
     private final Map<Network, LinkProperties> defaultLinkProperties = new ConcurrentHashMap<>();
 
     private KeepADBNetwork(Context context) {
@@ -92,8 +106,9 @@ final class KeepADBNetwork {
                         .build();
                 connectivityManager.registerNetworkCallback(wifiRequest, wifiCallback);
             } catch (RuntimeException ignored) {
-                // Best-effort: isWifiConnected()/getWifiIpv4Address()/isKnownLocalAddress()
-                // simply see fewer tracked networks if registration fails.
+                // Best-effort: isWifiConnected()/getWifiIpv4Address()/isActiveWifiAddress()
+                // simply see fewer tracked networks if registration fails -- which for
+                // isActiveWifiAddress() means rejecting candidates, never accepting one.
             }
             try {
                 connectivityManager.registerDefaultNetworkCallback(defaultCallback);
@@ -171,27 +186,90 @@ final class KeepADBNetwork {
     }
 
     /**
-     * Whether {@code address} is bound to any currently tracked network -- every Wi-Fi network
-     * plus whatever the current default route is (see the class javadoc). This narrows the
-     * pre-#250 behavior of checking literally every network Android knows about, in exchange
-     * for not requiring API 31; adb-over-Wi-Fi endpoints are expected to resolve to a Wi-Fi
-     * network address in practice.
+     * Whether {@code address} is one of the addresses bound to an <em>eligible Wi-Fi network of
+     * this device right now</em> (#314) -- the only addresses a genuine wireless-debugging
+     * endpoint of ours can be reached on via {@code adb connect <host>:<port>}.
      *
-     * <p>Falls back to a synchronous {@link WifiManager} check against our own current Wi-Fi IP
-     * if neither map has a match: {@code onCapabilitiesChanged}/{@code onLinkPropertiesChanged}
-     * populate the maps asynchronously, so a query made immediately after the first-ever {@link
-     * #get} call in a process (before either callback has fired yet) would otherwise wrongly
-     * treat a legitimately local address as foreign.
+     * <p>This deliberately replaces the former {@code isKnownLocalAddress()}, which also
+     * accepted addresses of the current default route (cellular, VPN, USB tethering, ethernet)
+     * and, together with {@link KeepADBEndpoint}'s blanket loopback/link-local shortcut, let any
+     * unrelated local TCP listener pass as an endpoint candidate. Two properties matter here:
+     *
+     * <ul>
+     *   <li><b>Bound, not merely "reachable" or "in our subnet":</b> the candidate must equal an
+     *       address the Wi-Fi interface itself holds. A neighbour's address on the same subnet,
+     *       another device's IPv6 link-local, or a service on our own cellular/VPN interface is
+     *       rejected.</li>
+     *   <li><b>Fail-closed:</b> with no eligible Wi-Fi network tracked and no synchronous Wi-Fi
+     *       IP available (e.g. Wi-Fi off), the candidate set is empty and every candidate is
+     *       rejected rather than optimistically accepted.</li>
+     * </ul>
+     *
+     * <p>The synchronous {@link WifiManager} address is kept as an additional candidate because
+     * {@code onCapabilitiesChanged}/{@code onLinkPropertiesChanged} populate the maps
+     * asynchronously: a query made immediately after the first-ever {@link #get} call in a
+     * process (before either callback has fired) would otherwise wrongly treat our own Wi-Fi
+     * address as foreign.
+     *
+     * <p>Note what this does <em>not</em> establish: that whatever listens on the port is really
+     * adbd rather than some other service the device itself exposes on its Wi-Fi address. That
+     * remains open follow-up work (adbd authenticity, R13 on #314) and is out of scope here.
      */
-    boolean isKnownLocalAddress(InetAddress address) {
-        if (address == null) return false;
-        for (LinkProperties linkProperties : wifiLinkProperties.values()) {
-            if (containsAddress(linkProperties, address)) return true;
+    boolean isActiveWifiAddress(InetAddress address) {
+        return matchesActiveWifiAddress(address, activeWifiAddresses());
+    }
+
+    /** Addresses currently bound to an eligible (non-VPN) Wi-Fi network of this device. */
+    private List<InetAddress> activeWifiAddresses() {
+        List<InetAddress> addresses = new ArrayList<>();
+        for (Map.Entry<Network, NetworkCapabilities> entry : wifiCapabilities.entrySet()) {
+            if (!isEligibleWifiTransport(entry.getValue())) continue;
+            LinkProperties linkProperties = wifiLinkProperties.get(entry.getKey());
+            if (linkProperties == null) continue;
+            for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
+                InetAddress address = linkAddress.getAddress();
+                if (address != null) {
+                    addresses.add(address);
+                }
+            }
         }
-        for (LinkProperties linkProperties : defaultLinkProperties.values()) {
-            if (containsAddress(linkProperties, address)) return true;
+        InetAddress synchronousAddress = synchronousWifiAddress();
+        if (synchronousAddress != null) {
+            addresses.add(synchronousAddress);
         }
-        return address.equals(synchronousWifiAddress());
+        return addresses;
+    }
+
+    /**
+     * Pure decision behind {@link #isActiveWifiAddress(InetAddress)}, separated so it is
+     * testable without a real {@link ConnectivityManager}. Loopback, wildcard and multicast
+     * addresses are rejected outright: they are never a usable {@code adb connect} target from
+     * another host, so accepting one could only ever register a local service of some other
+     * kind.
+     *
+     * <p>Comparison is {@link InetAddress#equals} and therefore <em>scope-id blind</em> for IPv6:
+     * {@code Inet6Address.equals()} compares the 16 address bytes only, so {@code fe80::1%wlan0},
+     * {@code fe80::1%rmnet0} and a scopeless {@code fe80::1} all compare equal. This is
+     * deliberate in this direction: {@code NsdManager} hands back a resolved link-local address
+     * carrying an interface scope, while the {@code LinkAddress}es of the tracked Wi-Fi network
+     * generally do not, so a scope-strict comparison would reject our <em>own</em> advertised
+     * link-local endpoint -- and adbd has been observed advertising IPv6-only. The accepted cost
+     * is the reverse: an address numerically identical to our Wi-Fi link-local but living on
+     * another interface (our own cellular link-local, or a device duplicating our interface
+     * identifier on the same link) is not distinguished. Both require an address collision with
+     * a randomly assigned/EUI-64 identifier, and neither is what the port behind the address
+     * actually is -- that proof is R13 on #314, still open.
+     */
+    static boolean matchesActiveWifiAddress(InetAddress candidate, List<InetAddress> activeWifiAddresses) {
+        if (candidate == null || activeWifiAddresses == null) return false;
+        if (candidate.isLoopbackAddress() || candidate.isAnyLocalAddress()
+                || candidate.isMulticastAddress()) {
+            return false;
+        }
+        for (InetAddress address : activeWifiAddresses) {
+            if (candidate.equals(address)) return true;
+        }
+        return false;
     }
 
     private InetAddress synchronousWifiAddress() {
@@ -207,14 +285,5 @@ final class KeepADBNetwork {
         } catch (Exception ignored) {
             return null;
         }
-    }
-
-    private static boolean containsAddress(LinkProperties linkProperties, InetAddress address) {
-        for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
-            if (address.equals(linkAddress.getAddress())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

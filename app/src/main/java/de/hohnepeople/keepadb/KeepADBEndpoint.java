@@ -56,6 +56,9 @@ final class KeepADBEndpoint {
                 t.setDaemon(true);
                 return t;
             });
+    // #314: how many of the quick probe's open loopback ports are checked against the Wi-Fi
+    // address before giving up for this cycle. See selectWifiVerifiedPort().
+    static final int QUICK_PROBE_MAX_CANDIDATES = 8;
     private static final long RECOVERY_PULSE_DELAY_MS = 5000;
     private static final long RECOVERY_PULSE_OFF_MS = 800;
     // Must stay comfortably above RECOVERY_PULSE_DELAY_MS + RECOVERY_PULSE_OFF_MS (5800ms):
@@ -275,13 +278,19 @@ final class KeepADBEndpoint {
             if (openPorts.isEmpty() || !isCurrent(generation) || endpointDelivered.get()) {
                 return;
             }
+            // Fail-closed (#314): without a current Wi-Fi address there is nothing to bind the
+            // candidate to, so no endpoint is registered -- never fall back to the loopback
+            // address the scan itself used.
             String targetHost = getWifiIpAddress(appContext);
             if (targetHost == null) {
                 return;
             }
-            int candidatePort = openPorts.get(0);
-            if (!isPortReachable(targetHost, candidatePort, 300)) {
-                Log.w(TAG, "QuickProbe candidate port " + candidatePort + " not reachable on Wi-Fi host " + targetHost);
+            final int candidatePort = selectWifiVerifiedPort(targetHost, openPorts,
+                    port -> isCurrent(generation) && !endpointDelivered.get()
+                            && isPortReachable(targetHost, port, 300));
+            if (candidatePort < 0) {
+                Log.w(TAG, "QuickProbe gen=" + generation + ": none of " + openPorts
+                        + " answered on Wi-Fi host " + targetHost);
                 return;
             }
             Listener targetListener = null;
@@ -354,8 +363,8 @@ final class KeepADBEndpoint {
                             return;
                         }
                         final InetAddress addr = resolved.getHost();
-                        if (!isLocalAddress(appContext, addr)) {
-                            Log.w(TAG, "Ignoring mDNS ADB service from foreign non-local IP: " + addr);
+                        if (!isOwnWifiAddress(appContext, addr)) {
+                            Log.w(TAG, "Ignoring mDNS ADB service that is not on our active Wi-Fi address: " + addr);
                             resolving = false;
                             processNextResolveLocked(generation);
                             return;
@@ -576,6 +585,34 @@ final class KeepADBEndpoint {
         return openPorts;
     }
 
+    /**
+     * Picks the first scanned loopback port that also answers on {@code wifiHost} (#314).
+     *
+     * <p>The loopback scan finds every local listener, not only adbd's, so its first hit is not
+     * automatically the endpoint: an unrelated local service used to shadow the real adbd port
+     * for the whole quick-probe shortcut. Walking the candidates instead lets the real listener
+     * still be found, while the "must answer on the Wi-Fi address" requirement keeps a purely
+     * loopback-bound service from ever being registered.
+     *
+     * <p>Bounded by {@link #QUICK_PROBE_MAX_CANDIDATES}: each check costs a blocking connect
+     * with its own timeout, and the quick probe is only ever a best-effort shortcut alongside
+     * mDNS -- it must not turn into a second long-running scan.
+     *
+     * @return the verified port, or {@code -1} if none qualifies (including a {@code null}
+     *         {@code wifiHost}, i.e. no Wi-Fi address to bind to).
+     */
+    static int selectWifiVerifiedPort(String wifiHost, List<Integer> openPorts,
+                                      java.util.function.IntPredicate reachableOnWifiHost) {
+        if (wifiHost == null || openPorts == null) return -1;
+        int checked = 0;
+        for (Integer port : openPorts) {
+            if (port == null) continue;
+            if (checked++ >= QUICK_PROBE_MAX_CANDIDATES) break;
+            if (reachableOnWifiHost.test(port)) return port;
+        }
+        return -1;
+    }
+
     private static void closeQuietly(SocketChannel channel) {
         if (channel == null) return;
         try {
@@ -634,12 +671,29 @@ final class KeepADBEndpoint {
         return host + ":" + port;
     }
 
-    static boolean isLocalAddress(Context context, InetAddress addr) {
-        if (addr == null) return false;
-        if (addr.isLoopbackAddress() || addr.isLinkLocalAddress()) return true;
-        if (context == null) return false;
+    /**
+     * Whether {@code addr} may be registered as a wireless-debugging endpoint at all (#314):
+     * it must be an address currently bound to an eligible Wi-Fi network of this device.
+     *
+     * <p>The predecessor {@code isLocalAddress()} returned {@code true} for <em>every</em>
+     * loopback and link-local address before it ever looked at our own interfaces, so an
+     * unrelated service -- a neighbour's mDNS responder on an IPv6 link-local address, or any
+     * local listener at all -- could be registered as "the" endpoint. Registering a wrong
+     * endpoint is worse than registering none: the reported host:port is then handed out as the
+     * {@code adb connect} target and blocks the paths that would have found the real listener.
+     *
+     * <p>Fail-closed by construction: a {@code null} context, an unavailable {@link
+     * KeepADBNetwork}, or simply no Wi-Fi connection all yield an empty candidate set and thus
+     * {@code false} -- no endpoint is registered rather than a guessed one.
+     *
+     * <p>Out of scope here (R13 on #314, still open): proving that whatever listens behind the
+     * port is really adbd. This gate only proves <em>where</em> the candidate lives, not
+     * <em>what</em> it is.
+     */
+    static boolean isOwnWifiAddress(Context context, InetAddress addr) {
+        if (addr == null || context == null) return false;
         try {
-            return KeepADBNetwork.get(context).isKnownLocalAddress(addr);
+            return KeepADBNetwork.get(context).isActiveWifiAddress(addr);
         } catch (Exception ignored) {
         }
         return false;

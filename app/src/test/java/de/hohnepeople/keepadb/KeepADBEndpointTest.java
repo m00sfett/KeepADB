@@ -72,15 +72,24 @@ public class KeepADBEndpointTest {
         assertEquals(":41234", KeepADBEndpoint.formatEndpoint(null, 41234));
     }
 
+    /**
+     * #314: loopback and link-local addresses used to be accepted unconditionally here, which
+     * is exactly what let a foreign local service pass as an endpoint. The candidate now has to
+     * be bound to our active Wi-Fi network; without a context none can be, so all of these are
+     * rejected. The accepting direction is covered in
+     * {@link KeepADBEndpointAddressBindingTest}, which can supply a candidate address set.
+     */
     @Test
-    public void isLocalAddressHandlesLoopbackAndLinkLocal() throws Exception {
+    public void addressesAreRejectedWhenNoActiveWifiAddressCanBeDetermined() throws Exception {
         InetAddress loopbackV4 = InetAddress.getByName("127.0.0.1");
         InetAddress loopbackV6 = InetAddress.getByName("::1");
         InetAddress linkLocalV6 = InetAddress.getByName("fe80::1");
+        InetAddress routableV4 = InetAddress.getByName("192.168.178.50");
 
-        assertTrue(KeepADBEndpoint.isLocalAddress(null, loopbackV4));
-        assertTrue(KeepADBEndpoint.isLocalAddress(null, loopbackV6));
-        assertTrue(KeepADBEndpoint.isLocalAddress(null, linkLocalV6));
-        assertFalse(KeepADBEndpoint.isLocalAddress(null, null));
+        assertFalse(KeepADBEndpoint.isOwnWifiAddress(null, loopbackV4));
+        assertFalse(KeepADBEndpoint.isOwnWifiAddress(null, loopbackV6));
+        assertFalse(KeepADBEndpoint.isOwnWifiAddress(null, linkLocalV6));
+        assertFalse(KeepADBEndpoint.isOwnWifiAddress(null, routableV4));
+        assertFalse(KeepADBEndpoint.isOwnWifiAddress(null, null));
     }
 }
