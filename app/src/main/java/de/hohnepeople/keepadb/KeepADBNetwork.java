@@ -99,8 +99,9 @@ final class KeepADBNetwork {
                         .build();
                 connectivityManager.registerNetworkCallback(wifiRequest, wifiCallback);
             } catch (RuntimeException ignored) {
-                // Best-effort: isWifiConnected()/getWifiIpv4Address()/isKnownLocalAddress()
-                // simply see fewer tracked networks if registration fails.
+                // Best-effort: isWifiConnected()/getWifiIpv4Address()/isActiveWifiAddress()
+                // simply see fewer tracked networks if registration fails -- which for
+                // isActiveWifiAddress() means rejecting candidates, never accepting one.
             }
             try {
                 connectivityManager.registerDefaultNetworkCallback(defaultCallback);
