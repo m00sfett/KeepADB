@@ -5,6 +5,11 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.33] - 2026-09-09
+
+### Changed
+- Documented the Android permission boundary for reading and writing the wireless-debugging setting. The recovery-pulse exception handling remains defensive for provider-specific or future restrictions (issue #339).
+
 ## [1.5.32] - 2026-09-09
 
 ### Changed

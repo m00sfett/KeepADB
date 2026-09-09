@@ -7,6 +7,10 @@ import android.provider.Settings;
 final class KeepADBAndroidSettingsGateway implements KeepADBSettingsGateway {
     @Override
     public boolean isEnabled(Context context) {
+        // AOSP permits applications to read this @Readable Settings.Global key, while the
+        // corresponding write requires WRITE_SECURE_SETTINGS. Keep the recovery-pulse catch
+        // defensive: an OEM or future provider may impose additional read restrictions and
+        // throw SecurityException after accepting the write.
         return Settings.Global.getInt(context.getContentResolver(), KeepADB.KEY, 0) == 1;
     }
 

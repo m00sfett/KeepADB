@@ -1,0 +1,1 @@
+The Android permission boundary for reading and writing the wireless-debugging setting is now documented. Recovery-pulse exception handling remains defensive for provider-specific or future restrictions (issue #339).
