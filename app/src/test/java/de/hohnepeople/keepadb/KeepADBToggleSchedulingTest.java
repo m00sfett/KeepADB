@@ -9,6 +9,11 @@ import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -200,6 +205,74 @@ public class KeepADBToggleSchedulingTest {
         assertEquals("the retry after a rejected write must not be debounced",
                 Arrays.asList(true, true), gateway.writes);
         assertTrue(gateway.isEnabled(ctx));
+    }
+
+    @Test
+    public void anAcceptedWriteWithAStaleReadKeepsTheMismatchDiagnostic() throws IOException {
+        KeepADB.setGatewayForTesting(new KeepADBSettingsGateway() {
+            @Override
+            public boolean isEnabled(Context context) {
+                return false;
+            }
+
+            @Override
+            public boolean write(Context appContext, boolean on) {
+                return true;
+            }
+        });
+
+        assertTrue("an accepted write keeps the existing applyNow return value",
+                KeepADB.setEnabled(ctx, true, "app"));
+        String events = ctx.getSharedPreferences("keepadb_diagnostics", 0)
+                .getString("events", "");
+        assertTrue("a stale reread must remain a state mismatch",
+                events.contains("event=toggle_attempt source=app outcome=state_mismatch"));
+        assertTrue("the diagnostic detail must preserve the accepted-write field",
+                events.contains("actual=false writeAccepted=true"));
+
+        // The runtime setup necessarily reaches this diagnostic only with writeAccepted=true:
+        // #309 returns before it when the gateway rejects a write. Keep the behavior probe above,
+        // and pin the source-level mutation separately so the old redundant conjunction cannot
+        // silently return in a future cleanup.
+        String applyNow = methodBody(read("app/src/main/java/de/hohnepeople/keepadb/KeepADB.java"),
+                "private static synchronized boolean applyNow(Context appContext, boolean on, String source,");
+        assertFalse("the diagnostic must not restore the dead writeAccepted conjunction",
+                applyNow.contains("writeAccepted && actual == on"));
+        assertTrue("the diagnostic must classify from the post-write state reread",
+                applyNow.contains("actual == on ? \"success\" : \"state_mismatch\""));
+    }
+
+    private static String read(String relativePath) throws IOException {
+        Path directory = Paths.get("").toAbsolutePath();
+        while (directory != null && !Files.exists(directory.resolve("settings.gradle"))) {
+            directory = directory.getParent();
+        }
+        if (directory == null) {
+            throw new IllegalStateException("Could not locate project root");
+        }
+        return new String(Files.readAllBytes(directory.resolve(relativePath)), StandardCharsets.UTF_8);
+    }
+
+    private static String methodBody(String source, String signature) {
+        int start = source.indexOf(signature);
+        assertTrue("Could not find " + signature, start >= 0);
+        return source.substring(start, findMatchingBraceEnd(source, source.indexOf('{', start)));
+    }
+
+    private static int findMatchingBraceEnd(String source, int openBraceIndex) {
+        int depth = 0;
+        for (int i = openBraceIndex; i < source.length(); i++) {
+            char c = source.charAt(i);
+            if (c == '{') {
+                depth++;
+            } else if (c == '}') {
+                depth--;
+                if (depth == 0) {
+                    return i + 1;
+                }
+            }
+        }
+        throw new IllegalStateException("Unbalanced braces from index " + openBraceIndex);
     }
 
     // ---------------------------------------------------------------------------------------

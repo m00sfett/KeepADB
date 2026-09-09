@@ -340,7 +340,7 @@ final class KeepADB {
             KeepADBPreferences.setLastDesiredOn(appContext, on);
             boolean actual = isEnabled(appContext);
             KeepADBDiagnostics.event(appContext, eventName, source,
-                    writeAccepted && actual == on ? "success" : "state_mismatch",
+                    actual == on ? "success" : "state_mismatch",
                     "intentId=" + token + " desired=" + on + " actual=" + actual
                             + " writeAccepted=" + writeAccepted);
             surfaces.refreshAll(appContext);

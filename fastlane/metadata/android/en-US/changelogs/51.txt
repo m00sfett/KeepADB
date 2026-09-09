@@ -1,0 +1,1 @@
+The successful toggle diagnostic path now depends directly on the wireless-debugging state read back after an accepted system-setting write. Existing mismatch reporting is unchanged (issue #337).
