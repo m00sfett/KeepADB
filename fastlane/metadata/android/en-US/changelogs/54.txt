@@ -1,0 +1,1 @@
+Cached endpoint verification now releases the stopped endpoint and records the same Wi-Fi-disconnected discovery-skip diagnostic as the normal refresh path (issue #361).

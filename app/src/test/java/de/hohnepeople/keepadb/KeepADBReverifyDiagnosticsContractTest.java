@@ -75,6 +75,50 @@ public class KeepADBReverifyDiagnosticsContractTest {
                 staleBody.indexOf("KeepADBDiagnostics.event(") < staleBody.indexOf("currentHost = null;"));
     }
 
+    @Test
+    public void verifyCachedEndpointWifiLossClearsEndpointAndRecordsDiscoverySkip() throws IOException {
+        String body = verifyCachedEndpointAsyncBody();
+
+        int wifiCheck = body.indexOf("if (KeepADBService.isWifiConnected(appContext)) {");
+        assertTrue(wifiCheck >= 0);
+        int wifiBlockEnd = findMatchingBrace(body, body.indexOf('{', wifiCheck));
+        int elseStart = body.indexOf("else {", wifiBlockEnd);
+        assertTrue(elseStart > wifiBlockEnd);
+        int elseOpeningBrace = body.indexOf('{', elseStart);
+        int elseEnd = findMatchingBrace(body, elseOpeningBrace);
+        assertTrue(elseEnd > elseOpeningBrace);
+        String wifiLostBody = body.substring(elseStart, elseEnd + 1);
+
+        int tokenBump = wifiLostBody.indexOf("endpointVerificationToken++;");
+        int ownerClear = wifiLostBody.indexOf("activeDiscoveryOwner = null;");
+        int stop = wifiLostBody.indexOf("endpoint.stop();");
+        int endpointClear = wifiLostBody.indexOf("endpoint = null;");
+        int endpointGuard = wifiLostBody.indexOf("if (endpoint != null) {");
+        int endpointGuardEnd = findMatchingBrace(wifiLostBody,
+                wifiLostBody.indexOf('{', endpointGuard));
+        int diagnostics = wifiLostBody.indexOf("KeepADBDiagnostics.event(");
+        int markUnavailable = wifiLostBody.indexOf("KeepADBRegisterClient.markUnavailableAsync(appContext);");
+        assertTrue("Wi-Fi loss must invalidate the verification token before cleanup",
+                tokenBump >= 0 && tokenBump < stop);
+        assertTrue("Wi-Fi loss must release discovery ownership before stopping the endpoint",
+                ownerClear > tokenBump && ownerClear < stop);
+        assertTrue("Wi-Fi loss must clear the stopped endpoint reference",
+                stop >= 0 && stop < endpointClear);
+        assertTrue("the discovery-skip diagnostic must not depend on an endpoint instance",
+                endpointGuard >= 0 && endpointGuardEnd > endpointGuard
+                        && diagnostics > endpointGuardEnd);
+        assertTrue(wifiLostBody.contains("\"endpoint_discovery_skipped\""));
+        assertTrue(wifiLostBody.contains("\"network\""));
+        assertTrue(wifiLostBody.contains("\"skipped\""));
+        assertTrue(wifiLostBody.contains("\"wifi_disconnected\""));
+        assertTrue("Wi-Fi loss must retain the register-unavailable cleanup flow",
+                markUnavailable > diagnostics);
+
+        assertTrue("the stale cached endpoint must be cleared before the Wi-Fi branch",
+                body.indexOf("currentHost = null;") < wifiCheck
+                        && body.indexOf("currentPort = 0;") < wifiCheck);
+    }
+
     private static String verifyCachedEndpointAsyncBody() throws IOException {
         String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
         return methodBody(notification, "private static void verifyCachedEndpointAsync(");

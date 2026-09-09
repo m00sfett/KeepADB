@@ -277,7 +277,12 @@ final class KeepADBNotification {
                     endpointVerificationToken++;
                     retryAttempt = 0;
                     activeDiscoveryOwner = null;
-                    if (endpoint != null) endpoint.stop();
+                    if (endpoint != null) {
+                        endpoint.stop();
+                        endpoint = null;
+                    }
+                    KeepADBDiagnostics.event(appContext, "endpoint_discovery_skipped", "network",
+                            "skipped", "wifi_disconnected");
                     KeepADBRegisterClient.markUnavailableAsync(appContext);
                 }
             }
