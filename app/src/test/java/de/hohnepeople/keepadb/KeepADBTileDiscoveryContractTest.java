@@ -1,5 +1,6 @@
 package de.hohnepeople.keepadb;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -483,26 +484,58 @@ public class KeepADBTileDiscoveryContractTest {
                 clickBody.contains("state == State.OFF_KEEP_ALIVE_WAITING"));
         assertTrue("The tile must route its tap through the shared click semantics",
                 tileClick.contains("KeepADB.desiredOnForClick(state)"));
-        assertFalse("The tile must not reintroduce its own state special-casing",
-                tileClick.contains("if (state == KeepADB.State."));
     }
 
     @Test
-    public void tappingTheTileWhileEnabledButDisconnectedDisablesLikeEverySurface()
+    public void tappingTheTileWhileEnabledButDisconnectedStillReconnectsInsteadOfDisabling()
             throws IOException {
-        // #318 acceptance criterion 2. ENABLED_DISCONNECTED now only ever means
-        // adb_wifi_enabled == 1, so a tap disables it -- the same action MainActivity's switch and
-        // the widget perform for that state. The discovery retrigger #267 bound to this tap lives
-        // in onStartListening(), so opening the quick settings panel still starts a fresh pass.
-        String keepAdb = read("app/src/main/java/de/hohnepeople/keepadb/KeepADB.java");
+        // Issue #267 (2), upheld across #318 by explicit user decision (#318 comment 5605497911):
+        // ENABLED_DISCONNECTED means WLAN-ADB is on but no endpoint is known, and a tap on the
+        // tile in that situation must retry discovery, never switch WLAN-ADB off. This is the one
+        // sanctioned deviation from the otherwise uniform click semantics; MainActivity's switch
+        // and the widget deliberately keep disabling for the same state.
         String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
-        String clickBody = methodBody(keepAdb, "static boolean desiredOnForClick(State state) {");
+        String body = methodBody(tile, "public void onClick() {");
 
-        assertFalse("ENABLED_DISCONNECTED must not resolve to an enable",
-                clickBody.contains("ENABLED_DISCONNECTED"));
-        assertTrue("Opening the panel must still retrigger discovery",
-                methodBody(tile, "public void onStartListening() {")
-                        .contains("KeepADBNotification.refreshForTile(this, this);"));
+        int disconnectedBranch = body.indexOf("if (state == KeepADB.State.ENABLED_DISCONNECTED) {");
+        int reconnectCall = body.indexOf("KeepADBNotification.refreshForTile(this, this);", disconnectedBranch);
+        int earlyReturn = body.indexOf("return;", disconnectedBranch);
+        int wantAssignment = body.indexOf("boolean want = KeepADB.desiredOnForClick(state);");
+
+        assertTrue("onClick() must keep the documented ENABLED_DISCONNECTED exception",
+                disconnectedBranch >= 0);
+        assertTrue("The exception must retrigger discovery", reconnectCall > disconnectedBranch);
+        assertTrue("It must return before reaching the shared toggle logic",
+                earlyReturn > reconnectCall);
+        assertTrue("The toggle (which would disable WLAN-ADB) must be unreachable from it",
+                wantAssignment > earlyReturn);
+        assertFalse("The exception must never disable wireless debugging",
+                body.substring(disconnectedBranch, earlyReturn).contains("KeepADB.setEnabled(this, false"));
+        assertFalse("It must not fall back to the shared definition for this state either",
+                body.substring(disconnectedBranch, earlyReturn).contains("desiredOnForClick"));
+
+        // The exception must be exactly one state wide: no other state may be intercepted before
+        // the shared definition is consulted.
+        assertEquals("only ENABLED_DISCONNECTED may be intercepted", 1,
+                countOccurrences(body.substring(0, wantAssignment), "if (state == KeepADB.State."));
+
+        // ... and it must stay a tile-only exception.
+        String main = read("app/src/main/java/de/hohnepeople/keepadb/MainActivity.java");
+        String widget = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBWidget.java");
+        assertFalse("MainActivity must not adopt the tile exception",
+                main.contains("if (state == KeepADB.State.ENABLED_DISCONNECTED)"));
+        assertFalse("The widget must not adopt the tile exception",
+                widget.contains("if (state == KeepADB.State.ENABLED_DISCONNECTED)"));
+        assertFalse("Only the tile may retrigger discovery from a tap",
+                main.contains("refreshForTile") || widget.contains("refreshForTile"));
+    }
+
+    private static int countOccurrences(String haystack, String needle) {
+        int count = 0;
+        for (int i = haystack.indexOf(needle); i >= 0; i = haystack.indexOf(needle, i + 1)) {
+            count++;
+        }
+        return count;
     }
 
     private static String read(String relativePath) throws IOException {

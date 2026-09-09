@@ -125,6 +125,10 @@ public class KeepADBStatusDecouplingTest {
      * tap, a widget broadcast and a switch tap in one process without three framework harnesses,
      * so the invariant is pinned where it can actually diverge again: each surface must ask
      * {@link KeepADB#desiredOnForClick} instead of computing its own desired value.
+     *
+     * <p>The tile's single sanctioned exception for {@code ENABLED_DISCONNECTED} (#267, upheld by
+     * user decision on #318) is pinned separately, including its width and its tile-only scope, by
+     * {@code KeepADBTileDiscoveryContractTest}.
      */
     @Test
     public void everySurfaceDerivesItsClickActionFromTheSharedDefinition() throws IOException {

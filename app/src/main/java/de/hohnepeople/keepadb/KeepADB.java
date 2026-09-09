@@ -171,14 +171,16 @@ final class KeepADB {
      *         this is the deliberate "don't wait for Keep-Alive's own timer" shortcut from #267;
      *         it is now the behavior of all three surfaces instead of the tile alone.</li>
      *     <li>{@code ENABLED_DISCONNECTED} and {@code ENABLED_CONNECTED} -&gt; disable. Wireless
-     *         debugging really is on in both, so switching it off is what the surfaces show.
-     *         Re-triggering endpoint discovery is no longer bound to a tap (the tile still starts
-     *         a discovery pass whenever the quick settings panel opens, see
-     *         {@code onStartListening()}), because a tap that sometimes toggled and sometimes
-     *         rediscovered was exactly the inconsistency #318 reports.</li>
+     *         debugging really is on in both, so switching it off is what the surfaces show.</li>
      *     <li>{@code PERMISSION_MISSING} -&gt; the surfaces disable the control instead of
      *         clicking; the value below is irrelevant there.</li>
      * </ul>
+     *
+     * <p>There is exactly one sanctioned exception, and it is not expressed here: the quick
+     * settings tile intercepts {@code ENABLED_DISCONNECTED} before consulting this method and
+     * retriggers endpoint discovery instead of disabling (#267, upheld for #318 by explicit user
+     * decision). See the comment in {@code KeepADBTileService.onClick()}. Any further divergence
+     * belongs in this method, so that it applies to every surface at once.
      */
     static boolean desiredOnForClick(State state) {
         return state == State.OFF || state == State.OFF_KEEP_ALIVE_WAITING;
@@ -303,14 +305,20 @@ final class KeepADB {
         // authorize, so a network change or a withdrawn Keep-Alive during the delay cancels the
         // write instead of being written blind. Treated exactly like a superseded intent.
         if (on && guard != null) {
+            // #318: unlike a supersession -- where a newer intent is already in flight and will
+            // refresh the surfaces itself -- these two abort without any successor. The pending
+            // runnable was cleared just above, so without a fan-out the surfaces would keep
+            // showing "switching…" indefinitely.
             if (!state.isCurrentNetworkGeneration(networkGeneration)) {
                 KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
                         "intentId=" + token + " reason=network_changed");
+                surfaces.refreshAll(appContext);
                 return false;
             }
             if (!guard.stillApplies(appContext)) {
                 KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
                         "intentId=" + token + " reason=preconditions_changed");
+                surfaces.refreshAll(appContext);
                 return false;
             }
         }

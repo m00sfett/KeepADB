@@ -54,14 +54,29 @@ public class KeepADBTileService extends TileService {
     @Override
     public void onClick() {
         KeepADB.State state = KeepADB.getState(this);
-        // #318: the tile no longer decides for itself what a tap means. It asks the shared
-        // definition in KeepADB.desiredOnForClick(), the same one MainActivity's switch and the
-        // widget use, so identical state produces an identical action on all three surfaces.
-        // OFF_KEEP_ALIVE_WAITING keeps issue #267's "force the re-enable now instead of waiting
-        // for Keep-Alive's own timer" behavior -- it is simply expressed as a normal enable now.
-        // ENABLED_DISCONNECTED means WLAN-ADB really is on, so a tap disables it; the discovery
-        // retrigger that used to live here still happens in onStartListening() whenever the quick
-        // settings panel is opened, which is where it belongs.
+        // THE ONE DELIBERATE EXCEPTION to the shared click semantics of #318, kept by explicit
+        // user decision on issue #318 (comment 5605497911) so the behavior introduced by #267
+        // survives. Scope of the exception: this surface, this state, nothing else.
+        //
+        // Why the tile and not the other two: the tile is the surface a user reaches *while*
+        // waiting for an endpoint, and #267 established that a tap there must retry discovery
+        // rather than switch WLAN-ADB off. MainActivity's switch and the widget stay on the
+        // uniform semantics -- a switch that refuses to switch off would be worse than the
+        // inconsistency #318 set out to remove.
+        //
+        // Note what is *not* special-cased here any more: since #318 split the enum, reaching
+        // ENABLED_DISCONNECTED proves adb_wifi_enabled == 1, so refreshForTile() genuinely
+        // retriggers discovery instead of being the no-op that #267's follow-up review found.
+        // The "WLAN-ADB actually off, Keep-Alive merely waiting" sub-case is now
+        // OFF_KEEP_ALIVE_WAITING and is handled by desiredOnForClick() as a plain enable, on
+        // all three surfaces alike.
+        if (state == KeepADB.State.ENABLED_DISCONNECTED) {
+            KeepADBDiagnostics.event(this, "user_action", "tile", "reconnect", "tap");
+            KeepADBNotification.refreshForTile(this, this);
+            updateTile();
+            return;
+        }
+        // Everything below is the shared definition, identical to MainActivity and the widget.
         boolean want = KeepADB.desiredOnForClick(state);
         KeepADBDiagnostics.event(this, "user_action", "tile", want ? "enable" : "disable", "tap");
         if (!KeepADB.setEnabled(this, want, "tile")) {

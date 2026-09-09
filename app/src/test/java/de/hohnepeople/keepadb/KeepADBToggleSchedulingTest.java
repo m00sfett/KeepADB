@@ -115,6 +115,28 @@ public class KeepADBToggleSchedulingTest {
     }
 
     @Test
+    public void aGuardAbortedAutomaticEnableClearsThePendingIndicator() {
+        // #318: an automatic enable that is cancelled by its own #310 guard has no successor that
+        // could refresh the surfaces -- unlike a supersession, where the newer intent does it. It
+        // must therefore fan out itself, or widget, tile and notification keep showing
+        // "switching…" until something unrelated happens to refresh them.
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        int afterFirstWrite = surfaces.refreshCount;
+
+        assertTrue("the second automatic call must be debounced, not written",
+                KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertTrue("the debounce window must be visible while it lasts", KeepADB.isTogglePending());
+        assertEquals("scheduling fans out once", afterFirstWrite + 1, surfaces.refreshCount);
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals("a guard-aborted intent must not reach the gateway",
+                Arrays.asList(true), gateway.writes);
+        assertFalse("nothing may stay pending after the abort", KeepADB.isTogglePending());
+        assertEquals("the abort must clear the pending indicator on the surfaces",
+                afterFirstWrite + 2, surfaces.refreshCount);
+    }
+
+    @Test
     public void recoveryPulseRestoresWhenUninterrupted() {
         gateway = new KeepADBFakeSettingsGateway(true);
         KeepADB.setGatewayForTesting(gateway);
