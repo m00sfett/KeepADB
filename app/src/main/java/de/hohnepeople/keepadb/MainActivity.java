@@ -40,6 +40,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // #324: keep header and content clear of the system bars under forced edge-to-edge.
+        KeepADBWindowInsets.apply(
+                getWindow(), findViewById(R.id.header_bar), findViewById(R.id.content_scroll));
         toggle = findViewById(R.id.toggle);
         keepAliveToggle = findViewById(R.id.keep_alive_toggle);
         status = findViewById(R.id.status);
