@@ -1,0 +1,2 @@
+Rejected writes roll back stale intent state; rapid manual OFF/ON toggles get only a short
+teardown gap (issues #333 and #335).

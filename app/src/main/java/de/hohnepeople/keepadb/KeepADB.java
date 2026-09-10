@@ -29,6 +29,7 @@ final class KeepADB {
     // Kept on KeepADB as the public names callers and tests already use; the values (and the
     // reasoning behind them) live with the state machine that applies them.
     static final long TOGGLE_COOLDOWN_MS = KeepADBToggleState.TOGGLE_COOLDOWN_MS;
+    static final long MANUAL_REENABLE_GAP_MS = KeepADBToggleState.MANUAL_REENABLE_GAP_MS;
     static final long RECOVERY_PULSE_OFF_MS = KeepADBToggleState.RECOVERY_PULSE_OFF_MS;
 
     // #248: static mutable state is down to four slots -- one decision core plus the three
@@ -259,20 +260,25 @@ final class KeepADB {
         final long token;
         final long delayMs;
         final long networkGeneration;
+        final boolean previousLastDesiredOn;
         synchronized (KeepADB.class) {
+            previousLastDesiredOn = state.lastDesiredOn();
             KeepADBToggleState.ToggleDecision decision = state.requestToggle(
                     on, scheduler.elapsedRealtimeMs(), !isManualSource(source));
             token = decision.token;
             delayMs = decision.delayMs;
             networkGeneration = decision.networkGeneration;
+            // Persist the requested intent while it is pending; applyNow() rolls it back if the
+            // actual Settings.Global write is rejected.
             KeepADBPreferences.setLastDesiredOn(appContext, on);
             if (pendingToggleRunnable != null) {
                 scheduler.removeCallbacks(pendingToggleRunnable);
                 pendingToggleRunnable = null;
             }
             if (!decision.isImmediate()) {
-                pendingToggleRunnable =
-                        () -> applyNow(appContext, on, source, token, networkGeneration, guard);
+                        pendingToggleRunnable =
+                        () -> applyNow(appContext, on, source, token, networkGeneration, guard,
+                                previousLastDesiredOn);
                 scheduler.postDelayed(pendingToggleRunnable, delayMs);
             }
         }
@@ -288,11 +294,12 @@ final class KeepADB {
             surfaces.refreshAll(appContext);
             return true;
         }
-        return applyNow(appContext, on, source, token, networkGeneration, guard);
+        return applyNow(appContext, on, source, token, networkGeneration, guard,
+                previousLastDesiredOn);
     }
 
     private static synchronized boolean applyNow(Context appContext, boolean on, String source,
-            long token, long networkGeneration, EnableGuard guard) {
+            long token, long networkGeneration, EnableGuard guard, boolean previousLastDesiredOn) {
         String eventName = diagnosticEventName(source);
         if (!state.isCurrentIntent(token)) {
             KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
@@ -331,6 +338,7 @@ final class KeepADB {
                 // caller (tile, widget, service) the toggle went through.
                 KeepADBDiagnostics.event(appContext, eventName, source, "failed",
                         "intentId=" + token + " desired=" + on + " reason=write_rejected");
+                state.rollbackIntent(previousLastDesiredOn);
                 // #318: clear the pending indicator the surfaces are showing; a rejected write
                 // must end in the real state, not in a pending state that never resolves.
                 surfaces.refreshAll(appContext);

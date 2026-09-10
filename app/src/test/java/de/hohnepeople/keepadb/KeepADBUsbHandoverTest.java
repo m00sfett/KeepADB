@@ -24,6 +24,8 @@ import org.junit.Test;
  */
 public class KeepADBUsbHandoverTest {
 
+    private KeepADBFakeScheduler scheduler;
+
     private static final String OFF = KeepADBPreferences.USB_WLAN_HANDOVER_MODE_OFF;
     private static final String MANUAL = KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL;
     private static final String AUTOMATIC = KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC;
@@ -32,6 +34,9 @@ public class KeepADBUsbHandoverTest {
     public void setUp() {
         KeepADBUsbHandover.resetForTesting();
         KeepADB.resetForTesting();
+        scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(scheduler);
         KeepADBUsbNotification.resetForTesting();
     }
 
@@ -118,6 +123,7 @@ public class KeepADBUsbHandoverTest {
     @Test
     public void consumeUserDisabledMidSequenceDoesNotUnblockAGenuineLaterUsbReconnect() {
         Context ctx = new FakeContext();
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
 
         // 1. User manually turns WLAN-ADB off via the app toggle.
@@ -150,7 +156,7 @@ public class KeepADBUsbHandoverTest {
         // #310: manual sources now write straight away instead of being parked on the debounce,
         // so this test needs the in-memory gateway rather than the production one that a plain
         // JVM test cannot satisfy (it used to never reach any gateway at all).
-        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
 
         // Start with lastDesiredOn = true (default)
@@ -177,6 +183,7 @@ public class KeepADBUsbHandoverTest {
         // 6. Manual action button overrides and enables
         boolean manualResult = KeepADBUsbHandover.handleManualAction(ctx);
         assertTrue(manualResult);
+        scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS + 1);
         assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
     }
 
@@ -290,6 +297,7 @@ public class KeepADBUsbHandoverTest {
     @Test
     public void lastDesiredOnPreferencesPersistenceAcrossSimulatedRestart() {
         FakeContext ctx = new FakeContext();
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
 
         // 1. User disables WLAN-ADB
         KeepADB.setEnabled(ctx, false, "app");
@@ -298,6 +306,7 @@ public class KeepADBUsbHandoverTest {
 
         // 2. Simulate process death / LMK where in-memory static state resets
         KeepADB.resetForTesting();
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         // Even though in-memory reset defaults lastDesiredOn to true, checking with ctx reads persisted prefs
         assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
 

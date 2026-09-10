@@ -75,6 +75,18 @@ public class KeepADBToggleStateTest {
         assertFalse(state.requestToggle(false, 100_000, true).isImmediate());
     }
 
+    @Test
+    public void manualReenableGetsOnlyTheShortTeardownGapAfterManualDisable() {
+        state.recordApplied(false, 100_000);
+
+        KeepADBToggleState.ToggleDecision decision = state.requestToggle(true, 100_000, false);
+
+        assertFalse(decision.isImmediate());
+        assertEquals(KeepADBToggleState.MANUAL_REENABLE_GAP_MS, decision.delayMs);
+        assertTrue(state.requestToggle(true, 100_000 + KeepADBToggleState.MANUAL_REENABLE_GAP_MS,
+                false).isImmediate());
+    }
+
     /** #310: dropping the delay must not drop the superseding protection along with it. */
     @Test
     public void anUndebouncedRequestStillSupersedesThePreviousToken() {

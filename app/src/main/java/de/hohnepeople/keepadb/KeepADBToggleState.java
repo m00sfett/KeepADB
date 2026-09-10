@@ -28,6 +28,9 @@ final class KeepADBToggleState {
     // previous session. Debouncing actual writes by this cooldown gives adbd time to finish
     // tearing down before it sees the next transition.
     static final long TOGGLE_COOLDOWN_MS = 1500;
+    // #335: give adbd a short teardown window for a manual OFF -> ON pair without restoring the
+    // user-visible 1500 ms debounce removed by #310.
+    static final long MANUAL_REENABLE_GAP_MS = 100;
     static final long RECOVERY_PULSE_OFF_MS = 800;
 
     // Set right after a user-initiated disable, consumed once by KeepADBService's keep-alive
@@ -102,12 +105,17 @@ final class KeepADBToggleState {
      */
     synchronized ToggleDecision requestToggle(boolean on, long nowElapsedMs, boolean debounced) {
         long token = ++currentIntentToken;
+        boolean previousLastDesiredOn = lastDesiredOn;
         userDisabled = !on;
         lastDesiredOn = on;
         long delayMs = 0;
         if (debounced) {
             long sinceLastMs = nowElapsedMs - lastAppliedChangeMs;
             delayMs = sinceLastMs < TOGGLE_COOLDOWN_MS ? TOGGLE_COOLDOWN_MS - sinceLastMs : 0;
+        } else if (on && !previousLastDesiredOn) {
+            long sinceLastMs = nowElapsedMs - lastAppliedChangeMs;
+            delayMs = sinceLastMs < MANUAL_REENABLE_GAP_MS
+                    ? MANUAL_REENABLE_GAP_MS - sinceLastMs : 0;
         }
         return new ToggleDecision(token, delayMs, networkGeneration);
     }
@@ -162,6 +170,17 @@ final class KeepADBToggleState {
     /** Non-consumed counterpart to {@link #isUserDisabled()}; see the field comment above. */
     synchronized boolean wasLastExplicitIntentOff() {
         return !lastDesiredOn;
+    }
+
+    /** Returns the last explicit intent so a rejected write can restore it. */
+    synchronized boolean lastDesiredOn() {
+        return lastDesiredOn;
+    }
+
+    /** Rolls back intent bookkeeping when the corresponding system write was rejected. */
+    synchronized void rollbackIntent(boolean on) {
+        userDisabled = !on;
+        lastDesiredOn = on;
     }
 
     /** Overrides the in-memory last-intent flag, e.g. when a persisted preference disagrees. */
