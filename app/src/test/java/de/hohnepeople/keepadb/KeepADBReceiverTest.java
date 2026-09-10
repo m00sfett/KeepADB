@@ -46,6 +46,7 @@ public class KeepADBReceiverTest {
     @Test
     public void disableActionInvokesSetEnabledFalseAndRecordsDiagnostics() {
         FakeContext context = new FakeContext(true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBReceiver receiver = new KeepADBReceiver();
         receiver.onReceive(context, new TestIntent(KeepADBReceiver.ACTION_DISABLE));
 

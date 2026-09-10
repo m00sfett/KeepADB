@@ -191,6 +191,8 @@ public class KeepADBToggleSchedulingTest {
                 KeepADB.setEnabled(ctx, true, AUTO));
         assertEquals(Arrays.asList(true), gateway.writes);
         assertFalse(gateway.isEnabled(ctx));
+        assertFalse("a rejected enable must not leave a persisted off-intent behind",
+                KeepADB.wasLastExplicitIntentOff(ctx));
         // #318: a rejected write does fan out -- not to publish a new state, but so the surfaces
         // drop any pending indicator and fall back to the real, unchanged setting. What must not
         // happen is the *bookkeeping* of an applied write, which the retry below pins.
@@ -205,6 +207,33 @@ public class KeepADBToggleSchedulingTest {
         assertEquals("the retry after a rejected write must not be debounced",
                 Arrays.asList(true, true), gateway.writes);
         assertTrue(gateway.isEnabled(ctx));
+    }
+
+    @Test
+    public void aRejectedWriteRestoresThePreviousPersistedIntent() {
+        KeepADBPreferences.setLastDesiredOn(ctx, false);
+        KeepADB.resetForTesting();
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setLastDesiredOn(ctx, false);
+        gateway.setWriteSuccess(false);
+
+        assertFalse(KeepADB.setEnabled(ctx, true, "app"));
+        assertFalse(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+    }
+
+    @Test
+    public void aRejectedDisableRestoresThePreviousOnIntent() {
+        KeepADBPreferences.setLastDesiredOn(ctx, true);
+        gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        gateway.setWriteSuccess(false);
+
+        assertFalse(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
     }
 
     @Test
@@ -276,14 +305,14 @@ public class KeepADBToggleSchedulingTest {
     }
 
     // ---------------------------------------------------------------------------------------
-    // #310: automatic enables are revalidated at write time; manual ones are never delayed.
+    // #310/#335: automatic enables are revalidated at write time; manual ones avoid the long
+    // debounce, with only the short OFF -> ON teardown gap from #335.
     // ---------------------------------------------------------------------------------------
 
     /**
      * Acceptance criterion 2: "Manuelles Einschalten durch den Nutzer bleibt als expliziter
-     * Override ohne Verzögerung erhalten." Every manual surface must write straight away even
-     * deep inside the cooldown window that would delay an automatic caller (proven by the
-     * automatic control case at the end, which *is* delayed at the very same clock reading).
+     * Override ohne den langen Debounce erhalten." A rapid manual OFF -> ON pair gets only the
+     * short technical teardown gap; other manual toggles still write straight away.
      */
     @Test
     public void manualTogglesAreNeverDelayed() {
@@ -296,17 +325,16 @@ public class KeepADBToggleSchedulingTest {
         assertTrue(KeepADB.setEnabled(ctx, false, "notification"));
         assertTrue(KeepADB.setEnabled(ctx, true, KeepADB.SOURCE_USB_HANDOVER_MANUAL));
 
-        assertFalse("a manual toggle must never be parked on the scheduler",
-                scheduler.hasAnyPending());
-        assertEquals("every manual toggle must have reached the gateway immediately",
-                Arrays.asList(true, false, true, false, true), gateway.writes);
+        scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS + 1);
+        assertEquals("the short gap must not restore the long user debounce: " + gateway.writes,
+                Arrays.asList(true, false, false, true), gateway.writes);
         assertTrue(gateway.isEnabled(ctx));
 
         // Control: at this very same clock reading an automatic source is still debounced, so
         // the assertions above are about the manual/automatic split, not about a wide-open
         // cooldown window.
         assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
-        assertEquals(5, gateway.writes.size());
+        assertEquals(4, gateway.writes.size());
         assertTrue(scheduler.hasAnyPending());
     }
 
