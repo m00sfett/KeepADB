@@ -8,12 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.5.39] - 2026-09-10
 
 ### Fixed
+- Accessibility, multi-state and resource contract suites now exercise inflated Android views
+  and runtime resources through Robolectric instead of parsing production source text (issue #325).
+
+## [1.5.38] - 2026-09-10
+
+### Fixed
 - A rejected wireless-debugging setting write no longer leaves the app's remembered intent
   claiming that the requested state was applied (issue #333).
 - Rapid manual OFF/ON toggles now receive only a short technical teardown gap, preserving the
   immediate manual behavior without restoring the former 1500 ms debounce (issue #335).
-- Accessibility, multi-state and resource contract suites now exercise inflated Android views
-  and runtime resources through Robolectric instead of parsing production source text (issue #325).
 
 ## [1.5.36] - 2026-09-09
 
