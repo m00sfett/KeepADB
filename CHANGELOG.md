@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.5.39] - 2026-09-10
 
 ### Fixed
-- Accessibility, multi-state and resource contract suites now exercise inflated Android views
-  and runtime resources through Robolectric instead of parsing production source text (issue #325).
+- Accessibility, multi-state and resource contract suites now exercise full Android view/action
+  semantics through Robolectric, including all five states, the tile reconnect path, measured
+  touch targets, and compiled locale-key provenance across all supported language buckets
+  (issue #325).
 
 ## [1.5.38] - 2026-09-10
 
