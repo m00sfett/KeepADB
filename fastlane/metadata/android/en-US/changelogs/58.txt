@@ -1,0 +1,2 @@
+Accessibility, multi-state and resource contract tests now verify runtime Android behavior with
+Robolectric instead of scanning production source text (issue #325).

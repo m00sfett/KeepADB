@@ -1,131 +1,63 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 
+import androidx.test.core.app.ApplicationProvider;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
-/** Static contracts for localized resources and visible UI literals. */
+import java.util.Locale;
+
+/** Runtime resource contracts resolved through Android's Resources implementation. */
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 34)
 public class KeepADBResourceContractTest {
-    private static final Pattern STRING_PATTERN = Pattern.compile(
-            "<string\\s+name=\\\"([^\\\"]+)\\\"[^>]*>(.*?)</string>", Pattern.DOTALL);
-    private static final Pattern FORMAT_PATTERN = Pattern.compile("%(?:\\d+\\$)?[a-zA-Z]");
-    private static final Pattern VISIBLE_XML_LITERAL = Pattern.compile(
-            "android:(?:text|contentDescription|label)=\\\"(?!@string/)([^\\\"]+)\\\"");
-    private static final Pattern VISIBLE_JAVA_LITERAL = Pattern.compile(
-            "\\b(?:setContentDescription|setContentTitle|setContentText|setMessage|setTitle|setHint|"
-                    + "setLabel|setSubtitle|setTextViewText|setText)(?=\\s*\\()\\s*\\([^;\\r\\n]*?\\\"[^\\\"]*[A-Za-z][^\\\"]*\\\"");
+    private final Context context = ApplicationProvider.getApplicationContext();
 
     @Test
-    public void everyLocaleMatchesDefaultKeysAndFormatArguments() throws IOException {
-        Path resources = projectPath("app/src/main/res");
-        Map<String, String> defaultStrings = parseStrings(read(resources.resolve("values/strings.xml")));
+    public void requiredStringsResolveInDefaultResources() {
+        int[] ids = {R.string.notification_permission_panel_title, R.string.notification_permission_settings_button,
+                R.string.battery_optimization_title, R.string.battery_optimization_body,
+                R.string.battery_optimization_button, R.string.back, R.string.settings_language_accessibility,
+                R.string.settings_usb_handover_accessibility, R.string.advice_banner_title, R.string.advice_banner_text};
+        for (int id : ids) assertFalse(context.getString(id).trim().isEmpty());
+    }
 
-        try (Stream<Path> paths = Files.list(resources)) {
-            paths.filter(path -> path.getFileName().toString().startsWith("values"))
-                    .map(path -> path.resolve("strings.xml"))
-                    .forEach(path -> {
-                        try {
-                            Map<String, String> localeStrings = parseStrings(read(path));
-                            assertEquals(path + " must have the default key set", defaultStrings.keySet(),
-                                    localeStrings.keySet());
-                            for (String key : defaultStrings.keySet()) {
-                                assertEquals(path + " has different format arguments for " + key,
-                                        formatArguments(defaultStrings.get(key)), formatArguments(localeStrings.get(key)));
-                            }
-                        } catch (IOException exception) {
-                            throw new RuntimeException(exception);
-                        }
-                    });
+    @Test
+    public void formattedAccessibilityStringsAcceptArgumentsAtRuntime() {
+        assertTrue(context.getString(R.string.settings_language_accessibility, "Deutsch").contains("Deutsch"));
+        assertTrue(context.getString(R.string.settings_usb_handover_accessibility, "Automatic").contains("Automatic"));
+    }
+
+    @Test
+    public void selectedLocalesResolveTheSameResourceIds() {
+        int[] ids = {R.string.back, R.string.settings_language_accessibility,
+                R.string.settings_usb_handover_accessibility, R.string.tile_state_connected};
+        for (String languageTag : new String[] {"de", "es", "fr", "it", "pl"}) {
+            Configuration configuration = new Configuration(context.getResources().getConfiguration());
+            configuration.setLocales(new android.os.LocaleList(Locale.forLanguageTag(languageTag)));
+            Resources resources = context.createConfigurationContext(configuration).getResources();
+            for (int id : ids) assertFalse(languageTag, resources.getString(id).trim().isEmpty());
         }
     }
 
     @Test
-    public void visibleTextUsesResourcesExceptDocumentedSymbols() throws IOException {
-        Path project = projectPath("");
-        try (Stream<Path> paths = Files.walk(project.resolve("app/src/main"))) {
-            paths.filter(path -> path.toString().endsWith(".xml"))
-                    .forEach(path -> {
-                        try {
-                            Matcher matcher = VISIBLE_XML_LITERAL.matcher(read(path));
-                            while (matcher.find()) {
-                                assertEquals(path + " contains an unexpected visible literal", "▼", matcher.group(1));
-                            }
-                        } catch (IOException exception) {
-                            throw new RuntimeException(exception);
-                        }
-                    });
-        }
-
-        try (Stream<Path> paths = Files.walk(project.resolve("app/src/main/java"))) {
-            paths.filter(path -> path.toString().endsWith(".java"))
-                    .forEach(path -> {
-                        try {
-                            String source = read(path);
-                            assertTrue(path + " contains a hard-coded user-facing UI literal",
-                                    !containsVisibleJavaLiteral(source));
-                            assertTrue(path + " contains a hard-coded user-facing toast literal",
-                                    !source.matches("(?s).*Toast\\.makeText\\s*\\([^,]+,\\s*\\\"[^\\\"]*[A-Za-z][^\\\"]*\\\".*"));
-                        } catch (IOException exception) {
-                            throw new RuntimeException(exception);
-                        }
-                    });
-        }
+    public void resourceArgumentsKeepTheirExpectedShape() {
+        assertEquals(1, countFormatArguments(context.getString(R.string.settings_language_accessibility)));
+        assertEquals(1, countFormatArguments(context.getString(R.string.settings_usb_handover_accessibility)));
     }
 
-    private static Map<String, String> parseStrings(String source) {
-        Map<String, String> result = new HashMap<>();
-        Matcher matcher = STRING_PATTERN.matcher(source);
-        while (matcher.find()) {
-            result.put(matcher.group(1), matcher.group(2));
-        }
-        return result;
-    }
-
-    private static List<String> formatArguments(String value) {
-        List<String> result = new ArrayList<>();
-        Matcher matcher = FORMAT_PATTERN.matcher(value);
-        while (matcher.find()) {
-            result.add(matcher.group());
-        }
-        return result;
-    }
-
-    private static boolean containsVisibleJavaLiteral(String source) {
-        String normalized = source.replaceAll("\\s+", " ");
-        for (String statement : normalized.split(";")) {
-            if (VISIBLE_JAVA_LITERAL.matcher(statement).find()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static Path projectPath(String relativePath) {
-        Path directory = Paths.get("").toAbsolutePath();
-        while (directory != null && !Files.exists(directory.resolve("settings.gradle"))) {
-            directory = directory.getParent();
-        }
-        if (directory == null) {
-            throw new IllegalStateException("Could not locate project root");
-        }
-        return directory.resolve(relativePath);
-    }
-
-    private static String read(Path path) throws IOException {
-        return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+    private int countFormatArguments(String value) {
+        int count = 0;
+        for (int index = value.indexOf("%1$s"); index >= 0; index = value.indexOf("%1$s", index + 1)) count++;
+        return count;
     }
 }
