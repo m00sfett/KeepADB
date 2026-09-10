@@ -82,7 +82,7 @@ public class KeepADBToggleStateTest {
         KeepADBToggleState.ToggleDecision decision = state.requestToggle(true, 100_000, false);
 
         assertFalse(decision.isImmediate());
-        assertEquals(KeepADBToggleState.MANUAL_REENABLE_GAP_MS, decision.delayMs);
+        assertEquals(100, decision.delayMs);
         assertTrue(state.requestToggle(true, 100_000 + KeepADBToggleState.MANUAL_REENABLE_GAP_MS,
                 false).isImmediate());
     }

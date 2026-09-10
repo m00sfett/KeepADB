@@ -210,6 +210,33 @@ public class KeepADBToggleSchedulingTest {
     }
 
     @Test
+    public void aRejectedWriteRestoresThePreviousPersistedIntent() {
+        KeepADBPreferences.setLastDesiredOn(ctx, false);
+        KeepADB.resetForTesting();
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setLastDesiredOn(ctx, false);
+        gateway.setWriteSuccess(false);
+
+        assertFalse(KeepADB.setEnabled(ctx, true, "app"));
+        assertFalse(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+    }
+
+    @Test
+    public void aRejectedDisableRestoresThePreviousOnIntent() {
+        KeepADBPreferences.setLastDesiredOn(ctx, true);
+        gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        gateway.setWriteSuccess(false);
+
+        assertFalse(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
+    }
+
+    @Test
     public void anAcceptedWriteWithAStaleReadKeepsTheMismatchDiagnostic() throws IOException {
         KeepADB.setGatewayForTesting(new KeepADBSettingsGateway() {
             @Override

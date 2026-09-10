@@ -262,7 +262,7 @@ final class KeepADB {
         final long networkGeneration;
         final boolean previousLastDesiredOn;
         synchronized (KeepADB.class) {
-            previousLastDesiredOn = state.lastDesiredOn();
+            previousLastDesiredOn = !wasLastExplicitIntentOff(appContext);
             KeepADBToggleState.ToggleDecision decision = state.requestToggle(
                     on, scheduler.elapsedRealtimeMs(), !isManualSource(source));
             token = decision.token;
@@ -339,6 +339,7 @@ final class KeepADB {
                 KeepADBDiagnostics.event(appContext, eventName, source, "failed",
                         "intentId=" + token + " desired=" + on + " reason=write_rejected");
                 state.rollbackIntent(previousLastDesiredOn);
+                KeepADBPreferences.setLastDesiredOn(appContext, previousLastDesiredOn);
                 // #318: clear the pending indicator the surfaces are showing; a rejected write
                 // must end in the real state, not in a pending state that never resolves.
                 surfaces.refreshAll(appContext);
