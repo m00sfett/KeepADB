@@ -1,0 +1,1 @@
+Contract tests now check live Activity/Dialog views and action effects, widget PendingIntent clicks, visible vector output, and compiled values/format arguments in all 18 locales. Robolectric's Indonesian fallback is explicitly guarded. The suite has 421 tests (420 before this repair, not 413). No app behavior change (issue #325).

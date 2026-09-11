@@ -1,115 +1,388 @@
 package de.hohnepeople.keepadb;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.robolectric.Shadows.shadowOf;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import android.app.Application;
+import android.appwidget.AppWidgetManager;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Looper;
+import android.service.quicksettings.Tile;
+import android.view.View;
+import android.widget.Switch;
+import android.widget.TextView;
 
+import androidx.test.core.app.ApplicationProvider;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.android.controller.ActivityController;
+import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowAppWidgetManager;
+import org.robolectric.shadows.ShadowLooper;
 
+import java.lang.reflect.Field;
+import java.net.ServerSocket;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+
+/** Runtime state contracts; no production-source parsing is used here. */
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 34)
 public class KeepADBMultiStateContractTest {
+    private Context context;
+    private ServerSocket endpointServer;
 
-    @Test
-    public void tileHandlesAllOperationalStates() throws IOException {
-        String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
-        assertTrue(tile.contains("case PERMISSION_MISSING:"));
-        assertTrue(tile.contains("case OFF:"));
-        assertTrue(tile.contains("case OFF_KEEP_ALIVE_WAITING:"));
-        assertTrue(tile.contains("case ENABLED_DISCONNECTED:"));
-        assertTrue(tile.contains("case ENABLED_CONNECTED:"));
-        assertTrue(tile.contains("tile.setSubtitle("));
-        assertTrue(tile.contains("R.drawable.ic_keepadb_disconnected"));
-        assertTrue(tile.contains("requestRefresh(Context context)"));
+    @Before
+    public void setUp() {
+        context = ApplicationProvider.getApplicationContext();
+        shadowOf((Application) context).grantPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS,
+                android.Manifest.permission.POST_NOTIFICATIONS);
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
+                .edit().clear().commit();
+        KeepADBNetwork.resetForTesting();
+        KeepADBNotification.resetForTesting();
+        KeepADB.resetForTesting(context);
+    }
+
+    @After
+    public void tearDown() {
+        closeEndpointServer();
+        KeepADBNetwork.resetForTesting();
+        KeepADBNotification.resetForTesting();
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
+                .edit().clear().commit();
+        KeepADB.resetForTesting();
     }
 
     @Test
-    public void widgetHandlesAllOperationalStates() throws IOException {
-        String widget = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBWidget.java");
-        assertTrue(widget.contains("case PERMISSION_MISSING:"));
-        assertTrue(widget.contains("case OFF:"));
-        assertTrue(widget.contains("case OFF_KEEP_ALIVE_WAITING:"));
-        assertTrue(widget.contains("case ENABLED_DISCONNECTED:"));
-        assertTrue(widget.contains("case ENABLED_CONNECTED:"));
+    public void clickIntentMapsOnlyRealOffStatesToEnable() {
+        assertTrue(KeepADB.desiredOnForClick(KeepADB.State.OFF));
+        assertTrue(KeepADB.desiredOnForClick(KeepADB.State.OFF_KEEP_ALIVE_WAITING));
+        assertFalse(KeepADB.desiredOnForClick(KeepADB.State.ENABLED_DISCONNECTED));
+        assertFalse(KeepADB.desiredOnForClick(KeepADB.State.ENABLED_CONNECTED));
+        assertFalse(KeepADB.desiredOnForClick(KeepADB.State.PERMISSION_MISSING));
     }
 
     @Test
-    public void tileDifferentiatesSearchingFromGenuineDisconnectedState() throws IOException {
-        // Regression test for issue #267 (1): before the fix, ENABLED_DISCONNECTED was mapped
-        // unconditionally to R.string.tile_state_disconnected ("Nicht verbunden"), even though
-        // that state is reached while WLAN-ADB is still on (or Keep-Alive is waiting to turn it
-        // back on) and a fresh endpoint is being searched for -- which reads as misleadingly
-        // "off" to the user.
-        String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
-        String updateTileBody = methodBody(tile, "private void updateTile() {");
-        String disconnectedCase = updateTileBody.substring(
-                updateTileBody.indexOf("case ENABLED_DISCONNECTED:"),
-                updateTileBody.indexOf("case ENABLED_CONNECTED:"));
-        String helperBody = methodBody(tile, "private boolean isSearchingForEndpoint() {");
+    public void everySurfaceRendersTheOffStateAtRuntime() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
 
-        assertTrue("The ENABLED_DISCONNECTED tile branch must consult the searching helper",
-                disconnectedCase.contains("isSearchingForEndpoint()"));
-        assertTrue("The searching branch must still fall back to tile_state_disconnected",
-                disconnectedCase.contains("R.string.tile_state_disconnected"));
-        assertTrue("The searching branch must offer tile_state_searching as the transitional text",
-                disconnectedCase.contains("R.string.tile_state_searching"));
-        assertTrue("WLAN-ADB off (Keep-Alive still waiting) must read as searching",
-                helperBody.contains("!KeepADB.isEnabled(this)"));
-        assertTrue("WLAN-ADB on with Wi-Fi connected (mDNS discovery in flight) must read as searching",
-                helperBody.contains("KeepADBService.isWifiConnected(this)"));
+        ActivityController<MainActivity> activity = Robolectric.buildActivity(MainActivity.class).setup();
+        assertFalse(((Switch) activity.get().findViewById(R.id.toggle)).isChecked());
+        assertEquals(context.getString(R.string.status_off),
+                ((TextView) activity.get().findViewById(R.id.status)).getText().toString());
+        activity.pause().close();
+
+        View widget = renderWidget();
+        assertEquals(context.getString(R.string.widget_text_off), widgetText(widget));
+
+        KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
+                .create().get();
+        tileService.onStartListening();
+        Tile tile = tileService.getQsTile();
+        assertNotNull(tile);
+        assertEquals(Tile.STATE_INACTIVE, tile.getState());
+        assertEquals(context.getString(R.string.tile_state_off), tile.getSubtitle());
+        stopTileService(tileService);
     }
 
-    private static String methodBody(String source, String signature) {
-        int methodStart = source.indexOf(signature);
-        assertTrue("Missing method: " + signature, methodStart >= 0);
-        int openingBrace = source.indexOf('{', methodStart);
-        assertTrue("Missing opening brace: " + signature, openingBrace > methodStart);
-        int methodEnd = findMatchingBrace(source, openingBrace);
-        assertTrue("Missing closing brace: " + signature, methodEnd > openingBrace);
-        return source.substring(methodStart, methodEnd + 1);
+    @Test
+    public void everySurfaceRendersTheKeepAliveWaitingStateAtRuntime() {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADB.recordExplicitIntent(context, true);
+
+        ActivityController<MainActivity> activity = Robolectric.buildActivity(MainActivity.class).setup();
+        assertFalse(((Switch) activity.get().findViewById(R.id.toggle)).isChecked());
+        assertEquals(context.getString(R.string.status_off_keep_alive_waiting),
+                ((TextView) activity.get().findViewById(R.id.status)).getText().toString());
+        activity.pause().close();
+
+        assertEquals(context.getString(R.string.widget_text_keep_alive_waiting), widgetText(renderWidget()));
+
+        KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
+                .create().get();
+        tileService.onStartListening();
+        assertEquals(Tile.STATE_INACTIVE, tileService.getQsTile().getState());
+        assertEquals(context.getString(R.string.tile_state_keep_alive_waiting),
+                tileService.getQsTile().getSubtitle());
+        stopTileService(tileService);
     }
 
-    private static int findMatchingBrace(String source, int openingBrace) {
-        int depth = 0;
-        for (int i = openingBrace; i < source.length(); i++) {
-            char current = source.charAt(i);
-            if (current == '{') {
-                depth++;
-            } else if (current == '}' && --depth == 0) {
-                return i;
-            }
+    @Test
+    public void everySurfaceRendersAnEnabledDisconnectedStateAtRuntime() {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+
+        ActivityController<MainActivity> activity = Robolectric.buildActivity(MainActivity.class).setup();
+        assertTrue(((Switch) activity.get().findViewById(R.id.toggle)).isChecked());
+        assertEquals(context.getString(R.string.status_enabled_disconnected),
+                ((TextView) activity.get().findViewById(R.id.status)).getText().toString());
+        activity.pause().close();
+
+        assertEquals(context.getString(R.string.widget_text_disconnected), widgetText(renderWidget()));
+
+        KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
+                .create().get();
+        tileService.onStartListening();
+        assertEquals(Tile.STATE_ACTIVE, tileService.getQsTile().getState());
+        assertEquals(context.getString(R.string.tile_state_disconnected),
+                tileService.getQsTile().getSubtitle());
+        stopTileService(tileService);
+    }
+
+    @Test
+    public void everySurfaceRendersAnEnabledConnectedStateAtRuntime() throws Exception {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        int endpointPort = openEndpointServer();
+        seedEndpoint("127.0.0.1", endpointPort);
+
+        ActivityController<MainActivity> activity = Robolectric.buildActivity(MainActivity.class).setup();
+        shadowOf(Looper.getMainLooper()).idle();
+        assertTrue(((Switch) activity.get().findViewById(R.id.toggle)).isChecked());
+        assertEquals(context.getString(R.string.status_on),
+                ((TextView) activity.get().findViewById(R.id.status)).getText().toString());
+        assertEquals(context.getString(R.string.endpoint_format, "127.0.0.1", endpointPort),
+                ((TextView) activity.get().findViewById(R.id.endpoint)).getText().toString());
+        activity.pause().close();
+
+        assertEquals(context.getString(R.string.widget_text_connected_format, endpointPort),
+                widgetText(renderWidget()));
+
+        KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
+                .create().get();
+        tileService.onStartListening();
+        assertEquals(Tile.STATE_ACTIVE, tileService.getQsTile().getState());
+        assertEquals(context.getString(R.string.tile_state_connected_format,
+                        "127.0.0.1", endpointPort), tileService.getQsTile().getSubtitle());
+        stopTileService(tileService);
+    }
+
+    @Test
+    public void enabledDisconnectedTileRendersSearchingWhenWifiIsConnected() {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+
+        KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
+                .create().get();
+        tileService.onStartListening();
+        assertEquals(KeepADB.State.ENABLED_DISCONNECTED, KeepADB.getState(context));
+        assertEquals(Tile.STATE_ACTIVE, tileService.getQsTile().getState());
+        assertEquals(context.getString(R.string.tile_state_searching),
+                tileService.getQsTile().getSubtitle());
+        assertTrue("A connected Wi-Fi must start the real tile discovery path",
+                KeepADBNotification.hasActiveDiscoveryAttemptForTesting());
+        stopTileService(tileService);
+    }
+
+    @Test
+    public void permissionMissingIsRenderedAndCannotTriggerAnySurfaceAction() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        shadowOf((Application) context).denyPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        assertEquals(KeepADB.State.PERMISSION_MISSING, KeepADB.getState(context));
+
+        ActivityController<MainActivity> activity = Robolectric.buildActivity(MainActivity.class).setup();
+        assertFalse(activity.get().findViewById(R.id.toggle).isEnabled());
+        assertEquals(context.getString(R.string.status_permission_missing),
+                ((TextView) activity.get().findViewById(R.id.status)).getText().toString());
+        ((Switch) activity.get().findViewById(R.id.toggle)).performClick();
+        assertTrue(gateway.writes.isEmpty());
+        activity.pause().close();
+
+        View widget = renderWidget();
+        assertEquals(context.getString(R.string.widget_text_permission_missing), widgetText(widget));
+        clickWidget(widget);
+        assertTrue(gateway.writes.isEmpty());
+
+        KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
+                .create().get();
+        tileService.onStartListening();
+        assertEquals(Tile.STATE_UNAVAILABLE, tileService.getQsTile().getState());
+        tileService.onClick();
+        assertTrue(gateway.writes.isEmpty());
+        stopTileService(tileService);
+    }
+
+    @Test
+    public void mainActivityActionsExecuteTheSharedOperationalStateMatrix() throws Exception {
+        assertMainAction(KeepADB.State.OFF, true, false);
+        assertMainAction(KeepADB.State.OFF_KEEP_ALIVE_WAITING, true, false);
+        assertMainAction(KeepADB.State.ENABLED_DISCONNECTED, false, false);
+        assertMainAction(KeepADB.State.ENABLED_CONNECTED, false, true);
+    }
+
+    @Test
+    public void widgetActionsExecuteTheSharedOperationalStateMatrix() throws Exception {
+        assertWidgetAction(KeepADB.State.OFF, true, false);
+        assertWidgetAction(KeepADB.State.OFF_KEEP_ALIVE_WAITING, true, false);
+        assertWidgetAction(KeepADB.State.ENABLED_DISCONNECTED, false, false);
+        assertWidgetAction(KeepADB.State.ENABLED_CONNECTED, false, true);
+    }
+
+    @Test
+    public void tileActionsExecuteTheSharedMatrixAndKeepItsReconnectException() throws Exception {
+        assertTileAction(KeepADB.State.OFF, true, false);
+        assertTileAction(KeepADB.State.OFF_KEEP_ALIVE_WAITING, true, false);
+        assertTileAction(KeepADB.State.ENABLED_CONNECTED, false, true);
+
+        KeepADBFakeSettingsGateway gateway = prepareState(KeepADB.State.ENABLED_DISCONNECTED, true);
+        KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
+                .create().get();
+        gateway.writes.clear();
+        tileService.onClick();
+        assertTrue("The tile reconnect exception must not write a disable", gateway.writes.isEmpty());
+        assertEquals(KeepADB.State.ENABLED_DISCONNECTED, KeepADB.getState(context));
+        assertTrue("The tile reconnect exception must start endpoint discovery",
+                KeepADBNotification.hasActiveDiscoveryAttemptForTesting());
+        stopTileService(tileService);
+    }
+
+    @Test
+    public void allOperationalStateLabelsResolve() {
+        assertTrue(context.getString(R.string.status_enabled_disconnected).length() > 0);
+        assertTrue(context.getString(R.string.tile_state_disconnected).length() > 0);
+        assertTrue(context.getString(R.string.tile_state_searching).length() > 0);
+        assertTrue(context.getString(R.string.tile_state_connected).length() > 0);
+        assertTrue(context.getString(R.string.widget_text_disconnected).length() > 0);
+    }
+
+    private View renderWidget() {
+        AppWidgetManager manager = AppWidgetManager.getInstance(context);
+        ShadowAppWidgetManager shadowManager = shadowOf(manager);
+        int widgetId = shadowManager.createWidget(KeepADBWidget.class, R.layout.widget_keepadb);
+        new KeepADBWidget().onUpdate(context, manager, new int[] {widgetId});
+        View view = shadowManager.getViewFor(widgetId);
+        assertNotNull(view);
+        return view;
+    }
+
+    private String widgetText(View view) {
+        TextView label = view.findViewById(R.id.widget_label);
+        assertNotNull(label);
+        assertTrue(label.getText().length() > 0);
+        return label.getText().toString();
+    }
+
+    private void stopTileService(KeepADBTileService tileService) {
+        tileService.onStopListening();
+        ShadowLooper shadowLooper = shadowOf(Looper.getMainLooper());
+        shadowLooper.idleFor(3000, TimeUnit.MILLISECONDS);
+    }
+
+    private void assertMainAction(KeepADB.State expectedState, boolean expectedWrite,
+            boolean wifiConnected) throws Exception {
+        KeepADBFakeSettingsGateway gateway = prepareState(expectedState, wifiConnected);
+        ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup();
+        assertEquals(expectedState, KeepADB.getState(context));
+        gateway.writes.clear();
+        ((Switch) controller.get().findViewById(R.id.toggle)).performClick();
+        assertEquals(Arrays.asList(expectedWrite), gateway.writes);
+        controller.pause().close();
+    }
+
+    private void assertWidgetAction(KeepADB.State expectedState, boolean expectedWrite,
+            boolean wifiConnected) throws Exception {
+        KeepADBFakeSettingsGateway gateway = prepareState(expectedState, wifiConnected);
+        View widget = renderWidget();
+        assertEquals(expectedState, KeepADB.getState(context));
+        gateway.writes.clear();
+        clickWidget(widget);
+        assertEquals(Arrays.asList(expectedWrite), gateway.writes);
+        assertEquals(expectedWrite, gateway.isEnabled(context));
+    }
+
+    private void clickWidget(View widget) {
+        int before = shadowOf((Application) context).getBroadcastIntents().size();
+        assertTrue("The rendered RemoteViews label must dispatch its PendingIntent",
+                widget.findViewById(R.id.widget_label).performClick());
+        shadowOf(Looper.getMainLooper()).idle();
+        // This also guards the Robolectric dispatch path: use the manifest receiver, never
+        // manually call onReceive or install a test-owned listener/receiver.
+        java.util.List<Intent> broadcasts = shadowOf((Application) context).getBroadcastIntents();
+        assertTrue("Widget click did not send a broadcast", broadcasts.size() > before);
+        Intent sent = broadcasts.get(before);
+        assertEquals("de.hohnepeople.keepadb.TOGGLE", sent.getAction());
+        assertNotNull(sent.getComponent());
+        assertEquals(KeepADBWidget.class.getName(), sent.getComponent().getClassName());
+    }
+
+    private void assertTileAction(KeepADB.State expectedState, boolean expectedWrite,
+            boolean wifiConnected) throws Exception {
+        KeepADBFakeSettingsGateway gateway = prepareState(expectedState, wifiConnected);
+        KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
+                .create().get();
+        assertEquals(expectedState, KeepADB.getState(context));
+        gateway.writes.clear();
+        tileService.onClick();
+        assertEquals(Arrays.asList(expectedWrite), gateway.writes);
+        stopTileService(tileService);
+    }
+
+    private KeepADBFakeSettingsGateway prepareState(KeepADB.State expectedState,
+            boolean wifiConnected) throws Exception {
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
+                .edit().clear().commit();
+        KeepADBNetwork.resetForTesting();
+        KeepADBNotification.resetForTesting();
+        KeepADB.resetForTesting(context);
+        if (wifiConnected) {
+            KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
         }
-        return -1;
+        boolean enabled = expectedState == KeepADB.State.ENABLED_DISCONNECTED
+                || expectedState == KeepADB.State.ENABLED_CONNECTED;
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(enabled);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSurfaceRefresherForTesting(new KeepADBFakeSurfaceRefresher());
+        if (expectedState == KeepADB.State.OFF_KEEP_ALIVE_WAITING) {
+            KeepADBPreferences.setKeepAliveEnabled(context, true);
+            KeepADB.recordExplicitIntent(context, true);
+        } else {
+            KeepADBPreferences.setKeepAliveEnabled(context, false);
+            KeepADB.recordExplicitIntent(context, false);
+        }
+        if (expectedState == KeepADB.State.ENABLED_CONNECTED) {
+            seedEndpoint("127.0.0.1", openEndpointServer());
+        }
+        assertEquals(expectedState, KeepADB.getState(context));
+        return gateway;
     }
 
-    @Test
-    public void stringResourcesContainMultiStateStrings() throws IOException {
-        String defaultStrings = read("app/src/main/res/values/strings.xml");
-        String germanStrings = read("app/src/main/res/values-de/strings.xml");
-
-        assertTrue(defaultStrings.contains("name=\"status_enabled_disconnected\""));
-        assertTrue(defaultStrings.contains("name=\"tile_state_disconnected\""));
-        assertTrue(defaultStrings.contains("name=\"tile_state_searching\""));
-        assertTrue(defaultStrings.contains("name=\"tile_state_connected\""));
-        assertTrue(defaultStrings.contains("name=\"widget_text_disconnected\""));
-
-        assertTrue(germanStrings.contains("name=\"status_enabled_disconnected\""));
-        assertTrue(germanStrings.contains("name=\"tile_state_disconnected\""));
-        assertTrue(germanStrings.contains("name=\"tile_state_searching\""));
-        assertTrue(germanStrings.contains("name=\"tile_state_connected\""));
-        assertTrue(germanStrings.contains("name=\"widget_text_disconnected\""));
+    private void seedEndpoint(String host, int port) throws Exception {
+        synchronized (KeepADBNotification.class) {
+            setStaticNotificationField("currentHost", host);
+            setStaticNotificationField("currentPort", port);
+        }
     }
 
-    private static String read(String relativePath) throws IOException {
-        Path directory = Paths.get("").toAbsolutePath();
-        while (directory != null && !Files.exists(directory.resolve("settings.gradle"))) {
-            directory = directory.getParent();
+    private void setStaticNotificationField(String fieldName, Object value) throws Exception {
+        Field field = KeepADBNotification.class.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(null, value);
+    }
+
+    private int openEndpointServer() throws java.io.IOException {
+        closeEndpointServer();
+        endpointServer = new ServerSocket(0);
+        return endpointServer.getLocalPort();
+    }
+
+    private void closeEndpointServer() {
+        if (endpointServer == null) return;
+        try {
+            endpointServer.close();
+        } catch (java.io.IOException ignored) {
         }
-        if (directory == null) {
-            throw new IllegalStateException("Could not locate project root");
-        }
-        return new String(Files.readAllBytes(directory.resolve(relativePath)), StandardCharsets.UTF_8);
+        endpointServer = null;
     }
 }
