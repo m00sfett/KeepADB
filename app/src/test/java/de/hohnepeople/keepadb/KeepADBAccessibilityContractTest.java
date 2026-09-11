@@ -7,14 +7,21 @@ import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.VectorDrawable;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -34,9 +41,9 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.GraphicsMode;
 import org.robolectric.shadows.ShadowDialog;
 import org.robolectric.shadows.ShadowLooper;
-import org.xmlpull.v1.XmlPullParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +52,8 @@ import java.util.List;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class KeepADBAccessibilityContractTest {
-    private static final String ANDROID_NS = "http://schemas.android.com/apk/res/android";
     private Context context;
+    private final List<ActivityController<?>> activities = new ArrayList<>();
 
     @Before
     public void setUp() {
@@ -63,6 +70,10 @@ public class KeepADBAccessibilityContractTest {
 
     @After
     public void tearDown() {
+        for (int i = activities.size() - 1; i >= 0; i--) {
+            activities.get(i).pause().stop().destroy();
+        }
+        activities.clear();
         KeepADBNetwork.resetForTesting();
         KeepADBNotification.resetForTesting();
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
@@ -72,11 +83,21 @@ public class KeepADBAccessibilityContractTest {
 
     @Test
     public void interactiveViewsKeep48DpTouchTargetsAfterMeasurement() {
-        View main = inflate(R.layout.activity_main);
-        View settings = inflate(R.layout.activity_settings);
-        View widget = inflate(R.layout.widget_keepadb);
-        main.findViewById(R.id.notification_permission_panel).setVisibility(View.VISIBLE);
-        main.findViewById(R.id.webhook_setup_button).setVisibility(View.VISIBLE);
+        shadowOf((Application) context).denyPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS,
+                android.Manifest.permission.POST_NOTIFICATIONS);
+        MainActivity activity = startActivity(MainActivity.class);
+        // Deliver the actual permission-request result so the denied-notification panel is
+        // displayed by refresh(), rather than making a hidden fixture visible ourselves.
+        activity.onRequestPermissionsResult(10,
+                new String[] {android.Manifest.permission.POST_NOTIFICATIONS},
+                new int[] {android.content.pm.PackageManager.PERMISSION_DENIED});
+        View main = activity.getWindow().getDecorView();
+        View settings = runtimeView(R.layout.activity_settings);
+        View widget = runtimeView(R.layout.widget_keepadb);
+        assertTrue(main.findViewById(R.id.setup_refresh).isShown());
+        assertTrue(main.findViewById(R.id.btn_open_notification_settings).isShown());
+        assertTrue(main.findViewById(R.id.webhook_setup_button).isShown());
         measureAndLayout(main, 360, 2400);
         measureAndLayout(settings, 360, 2400);
         measureAndLayout(widget, 360, 160);
@@ -105,10 +126,25 @@ public class KeepADBAccessibilityContractTest {
 
     @Test
     public void activitiesInstallInteractiveAndAccessibleRuntimeContracts() {
-        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        shadowOf((Application) context).denyPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
         ActivityController<MainActivity> mainController =
                 Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity main = mainController.get();
+        assertEquals(View.VISIBLE, main.findViewById(R.id.setup_panel).getVisibility());
+        assertEquals(main.getString(R.string.status_permission_missing),
+                ((TextView) main.findViewById(R.id.status)).getText().toString());
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        gateway.write(context, true);
+        gateway.writes.clear();
+        assertTrue(main.findViewById(R.id.setup_refresh).performClick());
+        assertEquals(View.GONE, main.findViewById(R.id.setup_panel).getVisibility());
+        assertTrue(main.findViewById(R.id.toggle).isEnabled());
+        assertTrue(((android.widget.Switch) main.findViewById(R.id.toggle)).isChecked());
+        assertEquals(main.getString(R.string.status_enabled_disconnected),
+                ((TextView) main.findViewById(R.id.status)).getText().toString());
+        assertTrue(gateway.writes.isEmpty());
         assertNotNull(main.findViewById(R.id.toggle));
         assertTrue(main.findViewById(R.id.btn_open_settings).hasOnClickListeners());
         assertTrue(main.findViewById(R.id.btn_dismiss_advice_banner).hasOnClickListeners());
@@ -122,6 +158,10 @@ public class KeepADBAccessibilityContractTest {
         assertEquals(main.getString(R.string.title_keepadb), mainTitle.getText().toString());
         assertEquals(main.getString(R.string.action_settings),
                 main.findViewById(R.id.btn_open_settings).getContentDescription());
+        assertTrue(main.findViewById(R.id.btn_open_settings).performClick());
+        Intent openedSettings = shadowOf(main).getNextStartedActivity();
+        assertNotNull(openedSettings);
+        assertEquals(SettingsActivity.class.getName(), openedSettings.getComponent().getClassName());
 
         ActivityController<SettingsActivity> settingsController =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
@@ -161,7 +201,7 @@ public class KeepADBAccessibilityContractTest {
 
     @Test
     public void settingsBackButtonUsesAnAutoMirroredRuntimeDrawable() {
-        View settings = inflate(R.layout.activity_settings);
+        View settings = runtimeView(R.layout.activity_settings);
         ImageButton back = (ImageButton) settings.findViewById(R.id.btn_back);
         Drawable drawable = back.getDrawable();
         assertNotNull(drawable);
@@ -173,8 +213,8 @@ public class KeepADBAccessibilityContractTest {
 
     @Test
     public void importantAccessibilityTextAndLiveRegionsResolveOnRuntimeViews() {
-        View main = inflate(R.layout.activity_main);
-        View settings = inflate(R.layout.activity_settings);
+        View main = runtimeView(R.layout.activity_main);
+        View settings = runtimeView(R.layout.activity_settings);
 
         assertHasText(main.findViewById(R.id.advice_banner),
                 context.getString(R.string.advice_banner_title));
@@ -223,7 +263,7 @@ public class KeepADBAccessibilityContractTest {
         main.findViewById(R.id.btn_dismiss_advice_banner).performClick();
         assertEquals(View.GONE, banner.getVisibility());
 
-        View settings = inflate(R.layout.activity_settings);
+        View settings = runtimeView(R.layout.activity_settings);
         assertFalse(containsText(settings, context.getString(R.string.advice_banner_title)));
         assertFalse(containsText(settings, context.getString(R.string.advice_banner_text)));
         controller.pause().stop().destroy();
@@ -231,7 +271,7 @@ public class KeepADBAccessibilityContractTest {
 
     @Test
     public void settingsPanelsFollowProductOrderInTheInflatedHierarchy() {
-        View settings = inflate(R.layout.activity_settings);
+        View settings = runtimeView(R.layout.activity_settings);
         ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
                 settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
         int[] panels = {
@@ -262,7 +302,18 @@ public class KeepADBAccessibilityContractTest {
         ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity main = controller.get();
-        main.findViewById(R.id.btn_open_battery_settings).performClick();
+        assertEquals(View.VISIBLE, main.findViewById(R.id.battery_optimization_panel).getVisibility());
+        assertTrue(main.findViewById(R.id.btn_open_battery_settings).performClick());
+        Intent intent = shadowOf(main).getNextStartedActivity();
+        assertNotNull("The battery action must open system settings", intent);
+        assertEquals(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, intent.getAction());
+        assertEquals("package:" + main.getPackageName(), intent.getDataString());
+        controller.pause();
+        shadowOf((PowerManager) context.getSystemService(Context.POWER_SERVICE))
+                .setIgnoringBatteryOptimizations(context.getPackageName(), true);
+        controller.resume();
+        assertEquals("Returning from settings must refresh the battery panel", View.GONE,
+                main.findViewById(R.id.battery_optimization_panel).getVisibility());
         assertTrue("The battery-settings action must not write adb_wifi_enabled",
                 gateway.writes.isEmpty());
         assertFalse(KeepADBPreferences.isKeepAliveEnabled(main));
@@ -287,7 +338,8 @@ public class KeepADBAccessibilityContractTest {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity settings = controller.get();
-        KeepADBUsbProfile.add(settings, "RuntimeHost", "192.0.2.10", "runtime.local", "runtime.tail");
+        KeepADBUsbProfile.Profile original = KeepADBUsbProfile.add(
+                settings, "RuntimeHost", "192.0.2.10", "runtime.local", "runtime.tail");
         settings.findViewById(R.id.settings_usb_profile_action).performClick();
         AlertDialog switchDialog = settings.getActiveSwitchProfileDialog();
         assertNotNull(switchDialog);
@@ -301,22 +353,47 @@ public class KeepADBAccessibilityContractTest {
                 settings.getString(R.string.usb_profile_delete_button));
         assertNotNull(edit);
         assertNotNull(delete);
+        measureAndLayout(switchDialog.getWindow().getDecorView(), 480, 800);
+        assertMinSize(edit);
+        assertMinSize(delete);
         assertEquals(settings.getString(R.string.usb_profile_edit_action_accessibility, "RuntimeHost"),
                 edit.getContentDescription());
         assertEquals(settings.getString(R.string.usb_profile_delete_action_accessibility, "RuntimeHost"),
                 delete.getContentDescription());
 
         edit.performClick();
+        ShadowLooper.idleMainLooper();
         AlertDialog editDialog = settings.getActiveProfileEditDialog();
         assertNotNull(editDialog);
         assertTrue(editDialog.isShowing());
         List<EditText> fields = findViewsByType(editDialog.getWindow().getDecorView(), EditText.class);
         assertEquals(4, fields.size());
         assertEquals("RuntimeHost", fields.get(0).getText().toString());
+        measureAndLayout(editDialog.getWindow().getDecorView(), 480, 800);
+        for (EditText field : fields) assertMinSize(field);
+        assertMinSize(editDialog.getButton(AlertDialog.BUTTON_POSITIVE));
+        assertMinSize(editDialog.getButton(AlertDialog.BUTTON_NEGATIVE));
         assertNotNull(editDialog.getButton(AlertDialog.BUTTON_NEGATIVE));
         assertEquals(settings.getString(android.R.string.cancel),
                 editDialog.getButton(AlertDialog.BUTTON_NEGATIVE).getText().toString());
-        editDialog.dismiss();
+        fields.get(0).setText("EditedHost");
+        fields.get(1).setText("192.0.2.20");
+        fields.get(2).setText("edited.local");
+        fields.get(3).setText("edited.tail");
+        assertTrue(editDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick());
+        ShadowLooper.idleMainLooper();
+        assertFalse(editDialog.isShowing());
+        assertEquals(1, KeepADBUsbProfile.getProfiles(settings).size());
+        KeepADBUsbProfile.Profile saved = KeepADBUsbProfile.getSelected(settings);
+        assertNotNull(saved);
+        assertEquals(original.id, saved.id);
+        assertEquals("EditedHost", saved.name);
+        assertEquals("192.0.2.20", saved.ipAddress);
+        assertEquals("edited.local", saved.hostname);
+        assertEquals("edited.tail", saved.tailnetHostname);
+        assertEquals(settings.getString(R.string.usb_profile_selected,
+                        "EditedHost · 192.0.2.20 · edited.local · edited.tail"),
+                ((TextView) settings.findViewById(R.id.settings_usb_profile_summary)).getText().toString());
         ShadowLooper.idleMainLooper();
 
         settings.findViewById(R.id.settings_usb_profile_action).performClick();
@@ -332,16 +409,37 @@ public class KeepADBAccessibilityContractTest {
         assertHasText(deleteDialog.getWindow().getDecorView(),
                 settings.getString(R.string.usb_profile_delete_title));
         assertHasText(deleteDialog.getWindow().getDecorView(),
-                settings.getString(R.string.usb_profile_delete_message, "RuntimeHost"));
+                settings.getString(R.string.usb_profile_delete_message, "EditedHost"));
+        measureAndLayout(deleteDialog.getWindow().getDecorView(), 480, 800);
+        assertMinSize(deleteDialog.getButton(AlertDialog.BUTTON_POSITIVE));
+        assertMinSize(deleteDialog.getButton(AlertDialog.BUTTON_NEGATIVE));
         assertNotNull(deleteDialog.getButton(AlertDialog.BUTTON_NEGATIVE));
         deleteDialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();
+        ShadowLooper.idleMainLooper();
         assertFalse(KeepADBUsbProfile.getProfiles(settings).isEmpty());
+        settings.findViewById(R.id.settings_usb_profile_action).performClick();
+        switchDialog = settings.getActiveSwitchProfileDialog();
+        delete = findButtonWithText(findViewsByType(switchDialog.getWindow().getDecorView(), Button.class),
+                settings.getString(R.string.usb_profile_delete_button));
+        assertNotNull(delete);
+        assertTrue(delete.performClick());
+        ShadowLooper.idleMainLooper();
+        deleteDialog = (AlertDialog) ShadowDialog.getLatestDialog();
+        assertTrue(deleteDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick());
+        ShadowLooper.idleMainLooper();
+        assertFalse(deleteDialog.isShowing());
+        assertTrue(KeepADBUsbProfile.getProfiles(settings).isEmpty());
+        assertEquals(null, KeepADBUsbProfile.getSelected(settings));
+        assertEquals(settings.getString(R.string.usb_profile_none),
+                ((TextView) settings.findViewById(R.id.settings_usb_profile_summary)).getText().toString());
+        assertEquals(settings.getString(R.string.usb_profile_create_button),
+                ((TextView) settings.findViewById(R.id.settings_usb_profile_action)).getText().toString());
         controller.pause().stop().destroy();
     }
 
     @Test
     public void websiteLinkKeepsItsMeasuredTargetAndRuntimeAccessibilityProperties() {
-        View settings = inflate(R.layout.activity_settings);
+        View settings = runtimeView(R.layout.activity_settings);
         measureAndLayout(settings, 360, 2400);
         TextView link = (TextView) settings.findViewById(R.id.settings_website_link);
         int minimum = dp(48);
@@ -354,47 +452,55 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(link.getPaddingEnd() >= dp(4));
         assertEquals(context.getString(R.string.settings_website_link_accessibility),
                 link.getContentDescription());
+        assertEquals(255, Color.alpha(link.getCurrentTextColor()));
+        assertTrue("The actual link text must contrast with its actual background",
+                contrastRatio(link.getCurrentTextColor(), backgroundColor(link)) >= 4.5);
     }
 
     @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
     public void keepAdbVectorIsAReal24DpDrawableWithTheNotificationVisualContract() throws Exception {
         Drawable drawable = context.getResources().getDrawable(R.drawable.ic_keepadb);
         assertTrue(drawable instanceof VectorDrawable);
         assertEquals(dp(24), drawable.getIntrinsicWidth());
         assertEquals(dp(24), drawable.getIntrinsicHeight());
 
-        android.content.res.XmlResourceParser parser =
-                context.getResources().getXml(R.drawable.ic_keepadb);
-        boolean vectorSeen = false;
-        boolean groupSeen = false;
-        boolean fillSeen = false;
-        try {
-            for (int event = parser.getEventType(); event != XmlPullParser.END_DOCUMENT;
-                    event = parser.next()) {
-                if (event != XmlPullParser.START_TAG) continue;
-                String name = parser.getName();
-                if ("vector".equals(name)) {
-                    vectorSeen = true;
-                    assertEquals("24.0dip", parser.getAttributeValue(ANDROID_NS, "width"));
-                    assertEquals("24.0dip", parser.getAttributeValue(ANDROID_NS, "height"));
-                    assertEquals("24.0", parser.getAttributeValue(ANDROID_NS, "viewportWidth"));
-                    assertEquals("24.0", parser.getAttributeValue(ANDROID_NS, "viewportHeight"));
-                } else if ("group".equals(name)) {
-                    groupSeen = true;
-                    assertEquals(1.31f, parser.getAttributeFloatValue(ANDROID_NS, "scaleX", 0), 0.001f);
-                    assertEquals(1.31f, parser.getAttributeFloatValue(ANDROID_NS, "scaleY", 0), 0.001f);
-                } else if ("path".equals(name)
-                        && parser.getAttributeResourceValue(ANDROID_NS, "fillColor", 0)
-                        == R.color.bright_yellow) {
-                    fillSeen = true;
+        // Native Canvas is necessary: legacy Robolectric records draw calls without proving
+        // their visible result. Inspect the compiled drawable, including all transforms/tints.
+        Bitmap bitmap = Bitmap.createBitmap(240, 240, Bitmap.Config.ARGB_8888);
+        drawable.setBounds(0, 0, 240, 240);
+        drawable.draw(new Canvas(bitmap));
+        int visible = 0;
+        int opaque = 0;
+        int left = 240, top = 240, right = -1, bottom = -1;
+        int yellow = context.getColor(R.color.bright_yellow);
+        assertTrue("Notification icon color must remain visible on the app background",
+                contrastRatio(yellow, context.getColor(R.color.ground)) >= 3.0);
+        for (int y = 0; y < 240; y++) {
+            for (int x = 0; x < 240; x++) {
+                int pixel = bitmap.getPixel(x, y);
+                if (Color.alpha(pixel) > 0) {
+                    visible++;
+                    left = Math.min(left, x);
+                    right = Math.max(right, x);
+                    top = Math.min(top, y);
+                    bottom = Math.max(bottom, y);
+                }
+                if (Color.alpha(pixel) == 255) {
+                    opaque++;
+                    assertEquals("Visible icon pixels must use the notification yellow", yellow, pixel);
                 }
             }
-        } finally {
-            parser.close();
         }
-        assertTrue(vectorSeen);
-        assertTrue(groupSeen);
-        assertTrue(fillSeen);
+        // Broad visual bounds, not a pixel-perfect golden: the centered, enlarged mark must
+        // occupy the viewport and keep its thin strokes rather than disappear or fill it.
+        assertTrue("Expected visible strokes, got " + visible, visible > 5000 && visible < 10000);
+        assertTrue("Expected opaque colored strokes", opaque > 3000);
+        assertTrue("Horizontal transform clipped or shrank the mark: " + left + ".." + right,
+                left >= 10 && left <= 30 && right >= 210 && right <= 230);
+        assertTrue("Vertical transform clipped or shrank the mark: " + top + ".." + bottom,
+                top >= 10 && top <= 30 && bottom >= 210 && bottom <= 230);
+        bitmap.recycle();
     }
 
     @Test
@@ -413,8 +519,42 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(contrastRatio(borderRed, panelStrong) >= 3.0);
     }
 
-    private View inflate(int layout) {
-        return LayoutInflater.from(context).inflate(layout, null, false);
+    private View runtimeView(int layout) {
+        if (layout == R.layout.widget_keepadb) {
+            org.robolectric.shadows.ShadowAppWidgetManager manager = shadowOf(
+                    android.appwidget.AppWidgetManager.getInstance(context));
+            int id = manager.createWidget(KeepADBWidget.class, layout);
+            return manager.getViewFor(id);
+        }
+        Activity activity = layout == R.layout.activity_main
+                ? startActivity(MainActivity.class) : startActivity(SettingsActivity.class);
+        View root = activity.getWindow().getDecorView();
+        measureAndLayout(root, 360, 2400);
+        return root;
+    }
+
+    private <T extends Activity> T startActivity(Class<T> type) {
+        ActivityController<T> controller = Robolectric.buildActivity(type).setup().visible();
+        activities.add(controller);
+        return controller.get();
+    }
+
+    private int backgroundColor(View view) {
+        Drawable background = view.getBackground();
+        if (background != null) {
+            Drawable current = background.getCurrent();
+            Integer color = current instanceof ColorDrawable ? ((ColorDrawable) current).getColor()
+                    : current instanceof GradientDrawable && ((GradientDrawable) current).getColor() != null
+                            ? ((GradientDrawable) current).getColor().getColorForState(view.getDrawableState(), 0)
+                            : null;
+            assertNotNull("Unsupported background; resolve its actual visible color", color);
+            if (Color.alpha(color) != 0) {
+                assertEquals("Translucent background needs compositing", 255, Color.alpha(color));
+                return color;
+            }
+        }
+        assertTrue("No opaque background in the actual view hierarchy", view.getParent() instanceof View);
+        return backgroundColor((View) view.getParent());
     }
 
     private void measureAndLayout(View root, int widthDp, int heightDp) {

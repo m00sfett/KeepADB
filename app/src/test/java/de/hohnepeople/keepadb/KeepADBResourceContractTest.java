@@ -54,18 +54,25 @@ public class KeepADBResourceContractTest {
     };
 
     private final Context context = ApplicationProvider.getApplicationContext();
+    private Map<String, Map<String, String>> compiledStrings;
 
     @Test
-    public void everyGeneratedStringResolvesInEverySupportedLocale() throws IllegalAccessException {
+    public void everyGeneratedStringResolvesInEverySupportedLocale() throws Exception {
         for (String languageTag : SUPPORTED_LOCALES.keySet()) {
             Resources resources = resourcesFor(languageTag);
             for (Field field : stringResourceFields()) {
                 int id = field.getInt(null);
-                String value = resources.getString(id);
+                String value = compiledValue(field.getName(), SUPPORTED_LOCALES.get(languageTag));
                 assertFalse(languageTag + " returned an empty value for " + field.getName(),
                         value.trim().isEmpty());
                 assertEquals(languageTag + " changed format arguments for " + field.getName(),
-                        formatArguments(context.getString(id)), formatArguments(value));
+                        formatArguments(compiledValue(field.getName(), "")), formatArguments(value));
+                // All selectable buckets must agree with the actual linked table. Indonesian
+                // is checked below with an explicit guard for Robolectric 4.13's fallback.
+                if (!"id".equals(languageTag)) {
+                    assertEquals(languageTag + "/" + field.getName() + " compiled/runtime mismatch",
+                            value, resources.getString(id));
+                }
             }
         }
     }
@@ -97,32 +104,83 @@ public class KeepADBResourceContractTest {
     }
 
     @Test
-    public void translatedContractStringsDoNotSilentlyFallBackToEnglishWhereRuntimeCanSelectThem() {
-        // The compiled-table test above covers all keys and all buckets. This smaller runtime
-        // check additionally proves that Android's selected configuration is not just the
-        // default table for the locale buckets Robolectric can switch at runtime.
+    public void translatedContractStringsDoNotSilentlyFallBackToEnglishWhereRuntimeCanSelectThem()
+            throws Exception {
         for (String languageTag : SUPPORTED_LOCALES.keySet()) {
-            if ("id".equals(languageTag)) continue;
-            Resources resources = resourcesFor(languageTag);
             for (int id : TRANSLATED_CONTRACTS) {
+                String name = context.getResources().getResourceEntryName(id);
                 assertNotEquals(languageTag + " fell back to the default value for "
-                                + context.getResources().getResourceEntryName(id),
-                        context.getString(id), resources.getString(id));
+                                + name,
+                        compiledValue(name, ""), compiledValue(name, SUPPORTED_LOCALES.get(languageTag)));
             }
         }
     }
 
     @Test
-    public void formattedAccessibilityStringsAcceptArgumentsInEveryLocale() {
+    public void formattedAccessibilityStringsAcceptArgumentsInEveryLocale() throws Exception {
         for (String languageTag : SUPPORTED_LOCALES.keySet()) {
-            Resources resources = resourcesFor(languageTag);
             assertTrue(languageTag + " must preserve the language argument",
-                    resources.getString(R.string.settings_language_accessibility, "Deutsch")
+                    String.format(Locale.forLanguageTag(languageTag),
+                            compiledValue("settings_language_accessibility", SUPPORTED_LOCALES.get(languageTag)), "Deutsch")
                             .contains("Deutsch"));
             assertTrue(languageTag + " must preserve the USB handover argument",
-                    resources.getString(R.string.settings_usb_handover_accessibility, "Automatic")
+                    String.format(Locale.forLanguageTag(languageTag),
+                            compiledValue("settings_usb_handover_accessibility", SUPPORTED_LOCALES.get(languageTag)), "Automatic")
                             .contains("Automatic"));
         }
+    }
+
+    @Test
+    public void indonesianFallbackAndDumpDecodingHaveExplicitProvenance() throws Exception {
+        // Guard the known Robolectric 4.13 limitation: when selection changes, remove the
+        // exception in the all-key runtime comparison, rather than silently keeping it.
+        Resources indonesian = resourcesFor("id");
+        for (Field field : stringResourceFields()) {
+            assertEquals("Default dump decoding must match Android for " + field.getName(),
+                    context.getString(field.getInt(null)), compiledValue(field.getName(), ""));
+            assertEquals("Robolectric Indonesian selection changed; revisit the fallback exception",
+                    context.getString(field.getInt(null)), indonesian.getString(field.getInt(null)));
+        }
+        assertNotEquals(compiledValue("settings_language_accessibility", ""),
+                compiledValue("settings_language_accessibility", "id"));
+    }
+
+    private String compiledValue(String name, String locale) throws Exception {
+        return compiledValue(name, locale, new LinkedHashSet<>());
+    }
+
+    private String compiledValue(String name, String locale, Set<String> visited) throws Exception {
+        assertTrue("Cyclic compiled string alias: " + name, visited.add(name));
+        if (compiledStrings == null) {
+            compiledStrings = new LinkedHashMap<>();
+            String dump = runAapt2Dump();
+            Matcher resource = STRING_RESOURCE.matcher(dump);
+            Pattern entry = Pattern.compile("(?ms)^      \\(([^)]*)\\) (.*?)(?=\\n      \\(|\\s*\\z)");
+            while (resource.find()) {
+                int end = dump.indexOf("\n    resource ", resource.end());
+                int nextType = dump.indexOf("\n  type ", resource.end());
+                if (nextType >= 0 && (end < 0 || nextType < end)) end = nextType;
+                String block = dump.substring(resource.end(), end < 0 ? dump.length() : end);
+                Map<String, String> values = new LinkedHashMap<>();
+                Matcher value = entry.matcher(block);
+                // AAPT2 indents continuation lines by six spaces. The all-key runtime
+                // comparisons guard this dump-format dependency, including multiline text.
+                while (value.find()) {
+                    values.put(value.group(1), value.group(2).replace("\n      ", "\n"));
+                }
+                compiledStrings.put(resource.group(1), values);
+            }
+        }
+        Map<String, String> values = compiledStrings.get(name);
+        assertTrue("Missing compiled string " + name, values != null);
+        assertTrue("Missing compiled value " + locale + "/" + name, values.containsKey(locale));
+        String raw = values.get(locale);
+        if (raw.startsWith("@string/")) {
+            return compiledValue(raw.substring("@string/".length()), locale, visited);
+        }
+        assertTrue("Unsupported AAPT2 string encoding: " + locale + "/" + name,
+                raw.startsWith("\"") && raw.endsWith("\""));
+        return raw.substring(1, raw.length() - 1);
     }
 
     private Resources resourcesFor(String languageTag) {
@@ -185,15 +243,35 @@ public class KeepADBResourceContractTest {
     }
 
     private String aapt2Command() {
-        String sdkRoot = System.getenv("ANDROID_SDK_ROOT");
-        if (sdkRoot == null || sdkRoot.isBlank()) sdkRoot = System.getenv("ANDROID_HOME");
-        if (sdkRoot != null && !sdkRoot.isBlank()) {
-            Path candidate = Paths.get(sdkRoot, "build-tools", "35.0.0", "aapt2");
+        List<Path> candidates = new ArrayList<>();
+        addAapt2Candidates(candidates, System.getenv("ANDROID_SDK_ROOT"));
+        addAapt2Candidates(candidates, System.getenv("ANDROID_HOME"));
+        Path localProperties = projectRoot().resolve("local.properties");
+        if (Files.isRegularFile(localProperties)) {
+            try {
+                for (String line : Files.readAllLines(localProperties, StandardCharsets.UTF_8)) {
+                    if (line.startsWith("sdk.dir=")) {
+                        addAapt2Candidates(candidates,
+                                line.substring("sdk.dir=".length()).replace("\\:", ":"));
+                    }
+                }
+            } catch (IOException ignored) {
+                // The executable on PATH remains a valid fallback for the same build.
+            }
+        }
+        for (Path candidate : candidates) {
             if (Files.isExecutable(candidate)) return candidate.toString();
         }
         Path commonPath = Paths.get("/usr/bin/aapt2");
         if (Files.isExecutable(commonPath)) return commonPath.toString();
         return "aapt2";
+    }
+
+    private void addAapt2Candidates(List<Path> candidates, String sdkRoot) {
+        if (sdkRoot == null || sdkRoot.isBlank()) return;
+        for (String version : new String[] {"34.0.0", "35.0.0"}) {
+            candidates.add(Paths.get(sdkRoot, "build-tools", version, "aapt2"));
+        }
     }
 
     private Path projectRoot() {

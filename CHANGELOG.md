@@ -8,10 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.5.39] - 2026-09-10
 
 ### Fixed
-- Accessibility, multi-state and resource contract suites now exercise full Android view/action
-  semantics through Robolectric, including all five states, the tile reconnect path, measured
-  touch targets, and compiled locale-key provenance across all supported language buckets
-  (issue #325).
+- Accessibility, multi-state and resource contract suites check Activity/Dialog views after
+  lifecycle and layout, refresh/settings/profile action effects, widget PendingIntent clicks
+  in all five states, and visible vector rendering through Robolectric (issue #325).
+- Resource contracts validate compiled values and format arguments in all 18 locale buckets;
+  an explicit guard covers Robolectric 4.13's Indonesian fallback and AAPT2 dump decoding.
+  The local suite contains 421 tests (420 on the initial PR head, not 413). App behavior and
+  version 1.5.39 / code 58 are unchanged by this test repair.
 
 ## [1.5.38] - 2026-09-10
 

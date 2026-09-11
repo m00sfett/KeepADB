@@ -200,9 +200,9 @@ public class KeepADBMultiStateContractTest {
         assertTrue(gateway.writes.isEmpty());
         activity.pause().close();
 
-        assertEquals(context.getString(R.string.widget_text_permission_missing),
-                widgetText(renderWidget()));
-        new KeepADBWidget().onReceive(context, new Intent("de.hohnepeople.keepadb.TOGGLE"));
+        View widget = renderWidget();
+        assertEquals(context.getString(R.string.widget_text_permission_missing), widgetText(widget));
+        clickWidget(widget);
         assertTrue(gateway.writes.isEmpty());
 
         KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
@@ -294,10 +294,27 @@ public class KeepADBMultiStateContractTest {
     private void assertWidgetAction(KeepADB.State expectedState, boolean expectedWrite,
             boolean wifiConnected) throws Exception {
         KeepADBFakeSettingsGateway gateway = prepareState(expectedState, wifiConnected);
+        View widget = renderWidget();
         assertEquals(expectedState, KeepADB.getState(context));
         gateway.writes.clear();
-        new KeepADBWidget().onReceive(context, new Intent("de.hohnepeople.keepadb.TOGGLE"));
+        clickWidget(widget);
         assertEquals(Arrays.asList(expectedWrite), gateway.writes);
+        assertEquals(expectedWrite, gateway.isEnabled(context));
+    }
+
+    private void clickWidget(View widget) {
+        int before = shadowOf((Application) context).getBroadcastIntents().size();
+        assertTrue("The rendered RemoteViews label must dispatch its PendingIntent",
+                widget.findViewById(R.id.widget_label).performClick());
+        shadowOf(Looper.getMainLooper()).idle();
+        // This also guards the Robolectric dispatch path: use the manifest receiver, never
+        // manually call onReceive or install a test-owned listener/receiver.
+        java.util.List<Intent> broadcasts = shadowOf((Application) context).getBroadcastIntents();
+        assertTrue("Widget click did not send a broadcast", broadcasts.size() > before);
+        Intent sent = broadcasts.get(before);
+        assertEquals("de.hohnepeople.keepadb.TOGGLE", sent.getAction());
+        assertNotNull(sent.getComponent());
+        assertEquals(KeepADBWidget.class.getName(), sent.getComponent().getClassName());
     }
 
     private void assertTileAction(KeepADB.State expectedState, boolean expectedWrite,
