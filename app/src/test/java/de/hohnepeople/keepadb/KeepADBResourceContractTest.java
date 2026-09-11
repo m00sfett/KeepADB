@@ -20,6 +20,7 @@ import java.nio.file.Paths;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.IllegalFormatException;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,7 +39,8 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class KeepADBResourceContractTest {
-    private static final Pattern FORMAT_ARGUMENT = Pattern.compile("%(?:\\d+\\$)?[a-zA-Z]");
+    private static final Pattern FORMAT_ARGUMENT = Pattern.compile(
+            "%(?:(\\d+)\\$)?([-+# 0,(<]*)(\\d+)?(?:\\.(\\d+))?([tT])?([a-zA-Z%])");
     private static final Pattern STRING_RESOURCE = Pattern.compile(
             "(?m)^    resource 0x[0-9a-f]+ string/([^\\s]+)\\s*$");
     private static final Pattern RESOURCE_CONFIGURATION = Pattern.compile(
@@ -54,6 +56,7 @@ public class KeepADBResourceContractTest {
     };
 
     private final Context context = ApplicationProvider.getApplicationContext();
+    private final Map<String, Object[]> formatArgumentWitnesses = formatArgumentWitnesses();
     private Map<String, Map<String, String>> compiledStrings;
 
     @Test
@@ -118,16 +121,25 @@ public class KeepADBResourceContractTest {
 
     @Test
     public void formattedAccessibilityStringsAcceptArgumentsInEveryLocale() throws Exception {
-        for (String languageTag : SUPPORTED_LOCALES.keySet()) {
-            assertTrue(languageTag + " must preserve the language argument",
-                    String.format(Locale.forLanguageTag(languageTag),
-                            compiledValue("settings_language_accessibility", SUPPORTED_LOCALES.get(languageTag)), "Deutsch")
-                            .contains("Deutsch"));
-            assertTrue(languageTag + " must preserve the USB handover argument",
-                    String.format(Locale.forLanguageTag(languageTag),
-                            compiledValue("settings_usb_handover_accessibility", SUPPORTED_LOCALES.get(languageTag)), "Automatic")
-                            .contains("Automatic"));
+        Set<String> formattedResources = new LinkedHashSet<>();
+        for (Field field : stringResourceFields()) {
+            String name = field.getName();
+            String defaultValue = compiledValue(name, "");
+            if (formatArguments(defaultValue).isEmpty()) continue;
+            formattedResources.add(name);
+
+            Object[] arguments = formatArgumentWitnesses.get(name);
+            assertTrue("Missing real-argument witness for " + name, arguments != null);
+            assertEquals(name + " witness must cover every argument position",
+                    highestArgumentIndex(formatArguments(defaultValue)), arguments.length);
+            assertFormats("default", name, defaultValue, arguments);
+            for (String languageTag : SUPPORTED_LOCALES.keySet()) {
+                assertFormats(languageTag, name,
+                        compiledValue(name, SUPPORTED_LOCALES.get(languageTag)), arguments);
+            }
         }
+        assertEquals("Every formatted compiled resource needs a real-argument witness",
+                formattedResources, new LinkedHashSet<>(formatArgumentWitnesses.keySet()));
     }
 
     @Test
@@ -199,11 +211,117 @@ public class KeepADBResourceContractTest {
         return fields.toArray(new Field[0]);
     }
 
-    private List<String> formatArguments(String value) {
-        List<String> result = new ArrayList<>();
+    private List<FormatArgument> formatArguments(String value) {
+        List<FormatArgument> result = new ArrayList<>();
         Matcher matcher = FORMAT_ARGUMENT.matcher(value);
-        while (matcher.find()) result.add(matcher.group());
+        int nextImplicitArgument = 1;
+        int previousArgument = 0;
+        while (matcher.find()) {
+            char conversion = matcher.group(6).charAt(0);
+            if (conversion == '%' || conversion == 'n') continue;
+
+            int argument;
+            if (matcher.group(2).indexOf('<') >= 0) {
+                if (previousArgument == 0) {
+                    throw new IllegalArgumentException("Relative format argument without predecessor: "
+                            + matcher.group());
+                }
+                argument = previousArgument;
+            } else if (matcher.group(1) != null) {
+                argument = Integer.parseInt(matcher.group(1));
+            } else {
+                argument = nextImplicitArgument++;
+            }
+            if (argument < 1) {
+                throw new IllegalArgumentException("Format argument indexes start at 1: "
+                        + matcher.group());
+            }
+            previousArgument = argument;
+            String type = (matcher.group(5) == null ? "" : matcher.group(5)) + conversion;
+            result.add(new FormatArgument(argument, type, matcher.group()));
+        }
         return result;
+    }
+
+    private int highestArgumentIndex(List<FormatArgument> arguments) {
+        int highest = 0;
+        for (FormatArgument argument : arguments) highest = Math.max(highest, argument.index);
+        return highest;
+    }
+
+    private void assertFormats(String languageTag, String name, String value, Object[] arguments) {
+        Locale locale = "default".equals(languageTag)
+                ? Locale.ROOT : Locale.forLanguageTag(languageTag);
+        try {
+            String.format(locale, value, arguments);
+        } catch (IllegalFormatException exception) {
+            throw new AssertionError(languageTag + "/" + name
+                    + " cannot be formatted with its real arguments", exception);
+        }
+    }
+
+    private Map<String, Object[]> formatArgumentWitnesses() {
+        Map<String, Object[]> result = new LinkedHashMap<>();
+        String stringWitness = context.getPackageName();
+        int integerWitness = context.getApplicationInfo().uid;
+        long longWitness = integerWitness;
+        result.put("endpoint_format", new Object[] {stringWitness, integerWitness});
+        result.put("widget_text_connected_format", new Object[] {integerWitness});
+        result.put("tile_state_connected_format", new Object[] {stringWitness, integerWitness});
+        result.put("permission_error_toast", new Object[] {stringWitness});
+        result.put("notification_text_active", new Object[] {integerWitness, stringWitness});
+        result.put("settings_trusted_network_added_toast", new Object[] {stringWitness});
+        result.put("settings_trusted_network_removed_toast", new Object[] {stringWitness});
+        result.put("settings_trusted_network_delete_accessibility", new Object[] {stringWitness});
+        result.put("settings_trusted_network_mesh_message", new Object[] {integerWitness, stringWitness});
+        result.put("settings_trusted_network_mesh_added_toast", new Object[] {integerWitness});
+        result.put("webhook_status_hint", new Object[] {
+                stringWitness, stringWitness, stringWitness});
+        result.put("settings_language_accessibility", new Object[] {stringWitness});
+        result.put("usb_profile_selected", new Object[] {stringWitness});
+        result.put("usb_profile_edit_action_accessibility", new Object[] {stringWitness});
+        result.put("usb_profile_delete_message", new Object[] {stringWitness});
+        result.put("usb_profile_delete_action_accessibility", new Object[] {stringWitness});
+        result.put("settings_usb_handover_accessibility", new Object[] {stringWitness});
+        result.put("settings_version_value", new Object[] {stringWitness});
+        result.put("settings_version_code_value", new Object[] {longWitness});
+        result.put("issue_report_body", new Object[] {
+                stringWitness, stringWitness, stringWitness, stringWitness, stringWitness,
+                stringWitness, stringWitness, stringWitness, stringWitness, stringWitness,
+                stringWitness, stringWitness, stringWitness});
+        return result;
+    }
+
+    private static final class FormatArgument {
+        private final int index;
+        private final String type;
+        private final String token;
+
+        private FormatArgument(int index, String type, String token) {
+            this.index = index;
+            this.type = type;
+            this.token = token;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (!(other instanceof FormatArgument)) return false;
+            FormatArgument argument = (FormatArgument) other;
+            return index == argument.index && type.equals(argument.type)
+                    && token.equals(argument.token);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = index;
+            result = 31 * result + type.hashCode();
+            return 31 * result + token.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return token + " -> argument " + index + " (" + type + ")";
+        }
     }
 
     private Map<String, Set<String>> parseStringConfigurations(String dump) {

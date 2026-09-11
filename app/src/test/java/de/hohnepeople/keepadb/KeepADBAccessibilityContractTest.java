@@ -453,6 +453,8 @@ public class KeepADBAccessibilityContractTest {
         assertEquals(context.getString(R.string.settings_website_link_accessibility),
                 link.getContentDescription());
         assertEquals(255, Color.alpha(link.getCurrentTextColor()));
+        assertEquals("The website link and its parents must remain fully opaque", 1f,
+                effectiveAlpha(link), 0.0001f);
         assertTrue("The actual link text must contrast with its actual background",
                 contrastRatio(link.getCurrentTextColor(), backgroundColor(link)) >= 4.5);
     }
@@ -555,6 +557,16 @@ public class KeepADBAccessibilityContractTest {
         }
         assertTrue("No opaque background in the actual view hierarchy", view.getParent() instanceof View);
         return backgroundColor((View) view.getParent());
+    }
+
+    private float effectiveAlpha(View view) {
+        float result = 1f;
+        View current = view;
+        while (current != null) {
+            result *= current.getAlpha();
+            current = current.getParent() instanceof View ? (View) current.getParent() : null;
+        }
+        return result;
     }
 
     private void measureAndLayout(View root, int widthDp, int heightDp) {
