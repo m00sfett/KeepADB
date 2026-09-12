@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
@@ -19,6 +20,14 @@ import org.json.JSONObject;
 final class KeepADBRegisterClient {
     private static final String TAG = "KeepADBRegisterClient";
     private static final int TIMEOUT_MS = 2000;
+    private static final String PREFS_NAME = "keepadb_prefs";
+    private static final String KEY_PENDING_CLEANUP_RETRY_STATE =
+            "register_webhook_pending_cleanup_retry_state";
+    static final int MAX_PENDING_CLEANUP_ATTEMPTS = 3;
+    static final long PENDING_CLEANUP_EXPIRY_MS = 24L * 60L * 60L * 1000L;
+    static final long PENDING_CLEANUP_INITIAL_BACKOFF_MS = 30_000L;
+    static final long PENDING_CLEANUP_MAX_BACKOFF_MS = 5L * 60L * 1000L;
+    private static volatile Long pendingCleanupNowForTesting;
     private static Handler mainHandler;
 
     private static synchronized Handler mainHandler() {
@@ -233,6 +242,7 @@ final class KeepADBRegisterClient {
                         // A queued cleanup for the URL we just registered with is obsolete: the
                         // POST above overwrote the very record it was meant to retire. Keeping it
                         // would let a later flush deactivate the live registration.
+                        removePendingUsbCleanupRetryStateForUrl(context, targetUrl);
                         KeepADBPreferences.removePendingUsbWebhookCleanupsForUrl(context, targetUrl);
                         usbUpdateInFlight = false;
                         inFlightUsbTargetUrl = null;
@@ -331,8 +341,14 @@ final class KeepADBRegisterClient {
     private static void flushPendingCleanups(Context context) {
         if (context == null) return;
         for (String url : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
+            if (!shouldAttemptPendingCleanup(context, url)) {
+                continue;
+            }
             if (deleteEndpoint(url)) {
                 KeepADBPreferences.removePendingWebhookCleanupUrl(context, url);
+                removePendingCleanupRetryState(context, url);
+            } else {
+                recordPendingCleanupFailure(context, url);
             }
         }
         for (String entry : KeepADBPreferences.getPendingUsbWebhookCleanups(context)) {
@@ -340,11 +356,168 @@ final class KeepADBRegisterClient {
             String payload = KeepADBPreferences.pendingCleanupPayload(entry);
             if (url == null || payload == null) {
                 KeepADBPreferences.removePendingUsbWebhookCleanup(context, entry);
+                removePendingCleanupRetryState(context, entry);
+                continue;
+            }
+            if (!shouldAttemptPendingCleanup(context, entry)) {
                 continue;
             }
             if (sendJsonPost(url, payload, "usb-adb")) {
                 KeepADBPreferences.removePendingUsbWebhookCleanup(context, entry);
+                removePendingCleanupRetryState(context, entry);
+            } else {
+                recordPendingCleanupFailure(context, entry);
             }
+        }
+    }
+
+    /**
+     * A pending cleanup is deliberately bounded independently of the four-entry FIFO cap in
+     * {@link KeepADBPreferences}. Each entry gets a persisted expiry, attempt budget and
+     * exponential backoff, so an unreachable host cannot block every later register transaction.
+     */
+    private static boolean shouldAttemptPendingCleanup(Context context, String entry) {
+        long now = pendingCleanupNow();
+        PendingCleanupRetryState state = readPendingCleanupRetryState(context, entry, now);
+        if (now >= state.expiresAt) {
+            discardPendingCleanup(context, entry, "expired");
+            return false;
+        }
+        if (state.attempts >= MAX_PENDING_CLEANUP_ATTEMPTS) {
+            discardPendingCleanup(context, entry, "attempt_limit");
+            return false;
+        }
+        return now >= state.nextAttemptAt;
+    }
+
+    private static void recordPendingCleanupFailure(Context context, String entry) {
+        long now = pendingCleanupNow();
+        PendingCleanupRetryState state = readPendingCleanupRetryState(context, entry, now);
+        state.attempts++;
+        if (state.attempts >= MAX_PENDING_CLEANUP_ATTEMPTS) {
+            discardPendingCleanup(context, entry, "attempt_limit");
+            return;
+        }
+        state.nextAttemptAt = saturatingAdd(now, pendingCleanupBackoffMs(state.attempts));
+        writePendingCleanupRetryState(context, entry, state);
+    }
+
+    private static void discardPendingCleanup(Context context, String entry, String reason) {
+        if (entry == null) return;
+        String logTarget;
+        if (entry.indexOf('\n') >= 0) {
+            KeepADBPreferences.removePendingUsbWebhookCleanup(context, entry);
+            logTarget = KeepADBPreferences.pendingCleanupUrl(entry);
+        } else {
+            KeepADBPreferences.removePendingWebhookCleanupUrl(context, entry);
+            logTarget = entry;
+        }
+        removePendingCleanupRetryState(context, entry);
+        Log.w(TAG, "Dropping pending register cleanup (" + reason + "): " + sanitizeUrl(logTarget));
+    }
+
+    private static void removePendingUsbCleanupRetryStateForUrl(Context context, String url) {
+        if (context == null || url == null) return;
+        for (String entry : KeepADBPreferences.getPendingUsbWebhookCleanups(context)) {
+            if (url.equals(KeepADBPreferences.pendingCleanupUrl(entry))) {
+                removePendingCleanupRetryState(context, entry);
+            }
+        }
+    }
+
+    private static long pendingCleanupNow() {
+        Long testNow = pendingCleanupNowForTesting;
+        return testNow != null ? testNow : System.currentTimeMillis();
+    }
+
+    private static long pendingCleanupBackoffMs(int attempts) {
+        long backoff = PENDING_CLEANUP_INITIAL_BACKOFF_MS;
+        for (int i = 1; i < attempts && backoff < PENDING_CLEANUP_MAX_BACKOFF_MS; i++) {
+            if (backoff > PENDING_CLEANUP_MAX_BACKOFF_MS / 2L) {
+                return PENDING_CLEANUP_MAX_BACKOFF_MS;
+            }
+            backoff *= 2L;
+        }
+        return Math.min(backoff, PENDING_CLEANUP_MAX_BACKOFF_MS);
+    }
+
+    private static long saturatingAdd(long left, long right) {
+        if (right > 0L && left > Long.MAX_VALUE - right) return Long.MAX_VALUE;
+        return left + right;
+    }
+
+    private static final class PendingCleanupRetryState {
+        int attempts;
+        long nextAttemptAt;
+        long expiresAt;
+
+        PendingCleanupRetryState(int attempts, long nextAttemptAt, long expiresAt) {
+            this.attempts = attempts;
+            this.nextAttemptAt = nextAttemptAt;
+            this.expiresAt = expiresAt;
+        }
+    }
+
+    private static PendingCleanupRetryState readPendingCleanupRetryState(Context context, String entry,
+            long now) {
+        PendingCleanupRetryState fallback = new PendingCleanupRetryState(0, now,
+                saturatingAdd(now, PENDING_CLEANUP_EXPIRY_MS));
+        if (context == null || entry == null) return fallback;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String stored = prefs.getString(KEY_PENDING_CLEANUP_RETRY_STATE, null);
+        if (stored == null || stored.trim().isEmpty()) return fallback;
+        try {
+            JSONObject root = new JSONObject(stored);
+            JSONObject record = root.optJSONObject(entry);
+            if (record == null) return fallback;
+            int attempts = Math.max(0, record.optInt("attempts", 0));
+            long nextAttemptAt = record.optLong("nextAttemptAt", now);
+            long expiresAt = record.optLong("expiresAt", fallback.expiresAt);
+            return new PendingCleanupRetryState(attempts, nextAttemptAt, expiresAt);
+        } catch (JSONException e) {
+            Log.w(TAG, "Ignoring malformed pending cleanup retry state");
+            return fallback;
+        }
+    }
+
+    private static void writePendingCleanupRetryState(Context context, String entry,
+            PendingCleanupRetryState state) {
+        if (context == null || entry == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        JSONObject root;
+        try {
+            String stored = prefs.getString(KEY_PENDING_CLEANUP_RETRY_STATE, null);
+            root = (stored == null || stored.trim().isEmpty()) ? new JSONObject() : new JSONObject(stored);
+            JSONObject record = new JSONObject();
+            record.put("attempts", state.attempts);
+            record.put("nextAttemptAt", state.nextAttemptAt);
+            record.put("expiresAt", state.expiresAt);
+            root.put(entry, record);
+            prefs.edit().putString(KEY_PENDING_CLEANUP_RETRY_STATE, root.toString()).apply();
+        } catch (JSONException e) {
+            Log.w(TAG, "Could not persist pending cleanup retry state");
+        }
+    }
+
+    private static void removePendingCleanupRetryState(Context context, String entry) {
+        if (context == null || entry == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String stored = prefs.getString(KEY_PENDING_CLEANUP_RETRY_STATE, null);
+        if (stored == null || stored.trim().isEmpty()) return;
+        try {
+            JSONObject root = new JSONObject(stored);
+            if (root.optJSONObject(entry) == null) return;
+            root.remove(entry);
+            SharedPreferences.Editor editor = prefs.edit();
+            if (root.length() == 0) {
+                editor.remove(KEY_PENDING_CLEANUP_RETRY_STATE);
+            } else {
+                editor.putString(KEY_PENDING_CLEANUP_RETRY_STATE, root.toString());
+            }
+            editor.apply();
+        } catch (JSONException e) {
+            prefs.edit().remove(KEY_PENDING_CLEANUP_RETRY_STATE).apply();
+            Log.w(TAG, "Clearing malformed pending cleanup retry state");
         }
     }
 
@@ -550,6 +723,7 @@ final class KeepADBRegisterClient {
                     // which counts as a failure) while the POST that follows succeeds; flushing it
                     // later -- from a USB transaction, which does not re-post -- would silently
                     // erase the live registration.
+                    removePendingCleanupRetryState(context, targetUrl);
                     KeepADBPreferences.removePendingWebhookCleanupUrl(context, targetUrl);
                     wlanUpdateInFlight = false;
                     lastRegisteredUrl = targetUrl;
@@ -623,11 +797,20 @@ final class KeepADBRegisterClient {
         usbStateInitialized = false;
         currentUsbOpGeneration = 0;
         usbUpdateInFlight = false;
+        pendingCleanupNowForTesting = null;
         resetHttpTransport();
         mainHandler = null;
     }
 
     // ---- Test-only accessors: keep WLAN and USB state independently verifiable. ----
+
+    static void flushPendingCleanupsForTesting(Context context) {
+        flushPendingCleanups(context);
+    }
+
+    static void setPendingCleanupNowForTesting(long now) {
+        pendingCleanupNowForTesting = now;
+    }
 
     static void setWlanStateForTesting(String url, String endpoint) {
         lastRegisteredUrl = url;

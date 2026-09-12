@@ -1,0 +1,1 @@
+Pending register cleanups now expire, back off between attempts and stop after a bounded retry budget so an unreachable old host cannot delay later register transactions indefinitely.

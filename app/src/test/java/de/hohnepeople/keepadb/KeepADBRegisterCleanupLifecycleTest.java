@@ -309,6 +309,63 @@ public class KeepADBRegisterCleanupLifecycleTest {
                 .contains("http://host0/register"));
     }
 
+    @Test
+    public void unreachablePendingCleanupIsBackedOffBetweenFlushes() {
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, OLD_URL);
+        transport.setDeleteSuccess(false);
+
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
+        KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+        assertEquals(1, transport.getRequestCount());
+
+        // A subsequent register transaction must not synchronously retry the same unreachable
+        // host while its persisted backoff window is still open.
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_001L);
+        KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+        assertEquals(1, transport.getRequestCount());
+
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(
+                1_000L + KeepADBRegisterClient.PENDING_CLEANUP_INITIAL_BACKOFF_MS);
+        KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+        assertEquals(2, transport.getRequestCount());
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(OLD_URL));
+    }
+
+    @Test
+    public void unreachablePendingCleanupIsDroppedAfterItsAttemptBudget() {
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, OLD_URL);
+        transport.setDeleteSuccess(false);
+
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
+        KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+        for (int attempt = 1; attempt < KeepADBRegisterClient.MAX_PENDING_CLEANUP_ATTEMPTS; attempt++) {
+            KeepADBRegisterClient.setPendingCleanupNowForTesting(
+                    1_000_000L + attempt * KeepADBRegisterClient.PENDING_CLEANUP_MAX_BACKOFF_MS);
+            KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+        }
+
+        assertEquals(KeepADBRegisterClient.MAX_PENDING_CLEANUP_ATTEMPTS,
+                transport.getRequestCount());
+        assertTrue("An unreachable cleanup must not remain in every future transaction",
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
+
+    @Test
+    public void stalePendingCleanupExpiresWithoutAnotherNetworkAttempt() {
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, OLD_URL);
+        transport.setDeleteSuccess(false);
+
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(2_000L);
+        KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(
+                2_000L + KeepADBRegisterClient.PENDING_CLEANUP_EXPIRY_MS + 1L);
+        KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+
+        assertEquals(1, transport.getRequestCount());
+        assertTrue("Expired cleanup must be removed without another DELETE",
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
+
     private void configureWebhook(String url) {
         KeepADBPreferences.setRegisterWebhookUrl(context, url);
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
