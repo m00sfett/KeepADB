@@ -133,6 +133,10 @@ final class KeepADBToggleState {
         return ++networkGeneration;
     }
 
+    synchronized long currentNetworkGeneration() {
+        return networkGeneration;
+    }
+
     /** True iff the network has not changed since {@code generation} was captured. */
     synchronized boolean isCurrentNetworkGeneration(long generation) {
         return generation == networkGeneration;

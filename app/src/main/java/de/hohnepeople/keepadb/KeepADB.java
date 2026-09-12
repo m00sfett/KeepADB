@@ -101,6 +101,10 @@ final class KeepADB {
         return state.noteNetworkChanged();
     }
 
+    static long currentNetworkGeneration() {
+        return state.currentNetworkGeneration();
+    }
+
     private KeepADB() {}
 
     static boolean isEnabled(Context ctx) {

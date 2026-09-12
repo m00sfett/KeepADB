@@ -63,6 +63,8 @@ public class KeepADBRecoveryPulseContractTest {
                 body.contains("System.currentTimeMillis()"));
         assertTrue("the seeded start value must let the first pulse through right after boot",
                 source.contains("lastRecoveryPulseAtMs = -RECOVERY_PULSE_COOLDOWN_MS"));
+        assertTrue("the recovery pulse must capture the KeepADB network generation",
+                body.contains("KeepADB.currentNetworkGeneration()"));
     }
 
     private static String methodBody(String source, String signature) {
