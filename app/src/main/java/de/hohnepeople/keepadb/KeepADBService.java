@@ -105,9 +105,21 @@ public class KeepADBService extends Service {
                 && KeepADBTrustedNetwork.isCurrentNetworkTrusted(context);
     }
 
+    /**
+     * #352: the synchronous {@code KeepADBEndpoint.getWifiIpAddress()} fallback below reads a
+     * {@code WifiInfo} snapshot that can be stale -- e.g. briefly still reporting a just-dropped
+     * connection's address. Falling back to it unconditionally would let that staleness produce
+     * a false "connected" when {@link KeepADBNetwork}'s live, callback-driven state has already
+     * and correctly answered "no". The fallback is therefore only trusted when {@link
+     * KeepADBNetwork#isWifiCallbackRegistered()} says this tracker's callback never actually
+     * registered -- the one case where its negative answer is not "disconnected" but "unknown".
+     */
     static boolean isWifiConnected(Context context) {
         if (KeepADBNetwork.get(context).isWifiConnected()) {
             return true;
+        }
+        if (KeepADBNetwork.get(context).isWifiCallbackRegistered()) {
+            return false;
         }
         return KeepADBEndpoint.getWifiIpAddress(context) != null;
     }
