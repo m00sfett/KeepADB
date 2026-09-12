@@ -79,6 +79,12 @@ public class KeepADBRecoveryPulseInterruptionTest {
         assertEquals("the pulse's restore stage must never have written 'true'",
                 Arrays.asList(false, false), gateway.writes);
         assertFalse(gateway.isEnabled(ctx));
+        String diagnostics = KeepADBDiagnostics.export(ctx);
+        assertTrue("a superseded pulse must identify the newer user intent: " + diagnostics,
+                diagnostics.contains("stage=enable reason=newer_user_intent"));
+        assertFalse("a superseded pulse must not claim changed endpoint preconditions: "
+                        + diagnostics,
+                diagnostics.contains("stage=enable reason=preconditions_changed"));
     }
 
     @Test
@@ -170,6 +176,8 @@ public class KeepADBRecoveryPulseInterruptionTest {
             assertTrue("the recovery pulse must preserve the interrupt for its caller",
                     Thread.currentThread().isInterrupted());
             assertEquals(Arrays.asList(false), gateway.writes);
+            assertTrue(KeepADBDiagnostics.export(ctx)
+                    .contains("stage=sleep reason=interrupted"));
         } finally {
             Thread.interrupted();
         }

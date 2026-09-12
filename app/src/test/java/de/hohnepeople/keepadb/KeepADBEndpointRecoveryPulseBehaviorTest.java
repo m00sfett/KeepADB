@@ -1,6 +1,8 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
@@ -95,6 +97,11 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
 
         assertEquals("a network change during the pause must prevent the stale restore write",
                 Arrays.asList(false), gateway.writes);
+        String diagnostics = KeepADBDiagnostics.export(context);
+        assertTrue("a guard cancellation must identify changed preconditions: " + diagnostics,
+                diagnostics.contains("stage=enable reason=preconditions_changed"));
+        assertFalse("a guard cancellation must not claim a newer user intent: " + diagnostics,
+                diagnostics.contains("stage=enable reason=newer_user_intent"));
     }
 
     private static final class NetworkChangingScheduler extends KeepADBFakeScheduler {

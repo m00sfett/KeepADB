@@ -410,8 +410,12 @@ final class KeepADB {
             boolean disableSecurityException = false;
             boolean disableActual = false;
             synchronized (KeepADB.class) {
-                if (pulseSuperseded(appContext, pulseToken) || !guardStillApplies(guard, appContext)) {
-                    logPulseCancelled(appContext, pulseToken, "disable");
+                if (pulseSuperseded(appContext, pulseToken)) {
+                    logPulseCancelled(appContext, pulseToken, "disable", "newer_user_intent");
+                    return;
+                }
+                if (!guardStillApplies(guard, appContext)) {
+                    logPulseCancelled(appContext, pulseToken, "disable", "preconditions_changed");
                     return;
                 }
                 try {
@@ -440,7 +444,7 @@ final class KeepADB {
                 scheduler.sleep(RECOVERY_PULSE_OFF_MS);
             } catch (InterruptedException interrupted) {
                 Thread.currentThread().interrupt();
-                logPulseCancelled(appContext, pulseToken, "sleep_interrupted");
+                logPulseCancelled(appContext, pulseToken, "sleep", "interrupted");
                 return;
             }
 
@@ -448,8 +452,12 @@ final class KeepADB {
             boolean enableSecurityException = false;
             boolean enableActual = false;
             synchronized (KeepADB.class) {
-                if (pulseSuperseded(appContext, pulseToken) || !guardStillApplies(guard, appContext)) {
-                    logPulseCancelled(appContext, pulseToken, "enable");
+                if (pulseSuperseded(appContext, pulseToken)) {
+                    logPulseCancelled(appContext, pulseToken, "enable", "newer_user_intent");
+                    return;
+                }
+                if (!guardStillApplies(guard, appContext)) {
+                    logPulseCancelled(appContext, pulseToken, "enable", "preconditions_changed");
                     return;
                 }
                 try {
@@ -488,10 +496,11 @@ final class KeepADB {
                 || wasLastExplicitIntentOff(appContext);
     }
 
-    private static void logPulseCancelled(Context appContext, long pulseToken, String stage) {
-        Log.i(TAG, "Recovery pulse cancelled by newer user intent");
+    private static void logPulseCancelled(Context appContext, long pulseToken, String stage,
+            String reason) {
+        Log.i(TAG, "Recovery pulse cancelled: " + reason);
         KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "cancelled",
-                "intentId=" + pulseToken + " stage=" + stage + " reason=newer_user_intent");
+                "intentId=" + pulseToken + " stage=" + stage + " reason=" + reason);
     }
 
     /** Consumes and returns whether the last disable was user-initiated (vs. an external drop). */

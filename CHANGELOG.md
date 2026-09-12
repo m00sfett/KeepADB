@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Recovery pulses now abort on interrupted waits, rejected disable writes, or changed
-  network/trust context before restoring wireless debugging (issue #347).
+  network/trust context before restoring wireless debugging, and diagnostics distinguish
+  changed preconditions from newer user intent (issue #347).
 
 ## [1.5.51] - 2026-09-12
 
