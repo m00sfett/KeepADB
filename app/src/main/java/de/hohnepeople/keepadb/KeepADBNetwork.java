@@ -81,6 +81,13 @@ final class KeepADBNetwork {
     // synchronous WifiInfo snapshot instead of trusting isWifiConnected()'s (necessarily false)
     // answer. See KeepADBService#isWifiConnected(Context).
     private volatile boolean wifiCallbackRegistered;
+    // #390: whether wifiCallback has been invoked at least once. Registration succeeds
+    // synchronously, but the framework delivers the first onCapabilitiesChanged/
+    // onLinkPropertiesChanged/onLost asynchronously, so "registered" alone does not yet mean
+    // "authoritative". Only once this is true do the (possibly empty) tracked maps represent the
+    // framework's own answer -- which is when activeWifiAddresses() stops adding the potentially
+    // stale synchronous WifiInfo snapshot as an endpoint candidate.
+    private volatile boolean wifiCallbackObserved;
     // #314: written by defaultCallback, deliberately read by nothing any more -- the former
     // reader isKnownLocalAddress() was the very leak this issue closed (the default route may be
     // cellular, VPN, USB tethering or ethernet, none of which can host our Wi-Fi endpoint). The
@@ -97,17 +104,20 @@ final class KeepADBNetwork {
             @Override
             public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
                 wifiCapabilities.put(network, capabilities);
+                wifiCallbackObserved = true;
             }
 
             @Override
             public void onLinkPropertiesChanged(Network network, LinkProperties linkProperties) {
                 wifiLinkProperties.put(network, linkProperties);
+                wifiCallbackObserved = true;
             }
 
             @Override
             public void onLost(Network network) {
                 wifiCapabilities.remove(network);
                 wifiLinkProperties.remove(network);
+                wifiCallbackObserved = true;
             }
         };
         defaultCallback = new ConnectivityManager.NetworkCallback() {
@@ -284,11 +294,17 @@ final class KeepADBNetwork {
      *       rejected rather than optimistically accepted.</li>
      * </ul>
      *
-     * <p>The synchronous {@link WifiManager} address is kept as an additional candidate because
-     * {@code onCapabilitiesChanged}/{@code onLinkPropertiesChanged} populate the maps
-     * asynchronously: a query made immediately after the first-ever {@link #get} call in a
-     * process (before either callback has fired) would otherwise wrongly treat our own Wi-Fi
-     * address as foreign.
+     * <p>The synchronous {@link WifiManager} address is kept as an additional candidate <em>only
+     * while this tracker cannot know better</em> (#390): {@code onCapabilitiesChanged}/{@code
+     * onLinkPropertiesChanged} populate the maps asynchronously, so a query made immediately
+     * after the first-ever {@link #get} call in a process (before any callback has fired), or
+     * one made when the callback failed to register at all, would otherwise wrongly treat our own
+     * Wi-Fi address as foreign. Once the callback is registered and has fired at least once (see
+     * {@link #isWifiTrackingAuthoritative()}), the tracked maps are the authoritative answer and
+     * the snapshot is dropped: {@code WifiManager.getConnectionInfo()} is known to keep reporting
+     * a just-dropped address across fast connection changes, and adding it additively would let
+     * exactly that stale address pass as a live endpoint while the callback already says no
+     * eligible Wi-Fi network exists -- defeating the fail-closed property above.
      *
      * <p>Note what this does <em>not</em> establish: that whatever listens on the port is really
      * adbd rather than some other service the device itself exposes on its Wi-Fi address. That
@@ -296,6 +312,18 @@ final class KeepADBNetwork {
      */
     boolean isActiveWifiAddress(InetAddress address) {
         return matchesActiveWifiAddress(address, activeWifiAddresses());
+    }
+
+    /**
+     * Whether this tracker's own view of Wi-Fi state is authoritative (#390): its callback is
+     * registered <em>and</em> has actually been invoked at least once. Both halves are needed --
+     * an unregistered callback can never observe anything, and a registered one that has not
+     * fired yet leaves the tracked maps empty for reasons that have nothing to do with Wi-Fi
+     * being off. Only when this is {@code true} does an empty candidate set mean "no Wi-Fi",
+     * rather than "nothing known yet".
+     */
+    private boolean isWifiTrackingAuthoritative() {
+        return isWifiCallbackRegistered() && wifiCallbackObserved;
     }
 
     /** Addresses currently bound to an eligible (non-VPN) Wi-Fi network of this device. */
@@ -312,9 +340,11 @@ final class KeepADBNetwork {
                 }
             }
         }
-        InetAddress synchronousAddress = synchronousWifiAddress();
-        if (synchronousAddress != null) {
-            addresses.add(synchronousAddress);
+        if (!isWifiTrackingAuthoritative()) {
+            InetAddress synchronousAddress = synchronousWifiAddress();
+            if (synchronousAddress != null) {
+                addresses.add(synchronousAddress);
+            }
         }
         return addresses;
     }

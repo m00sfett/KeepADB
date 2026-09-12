@@ -1,0 +1,3 @@
+Tightened the endpoint address check: a Wi-Fi address the phone has just left is no longer
+accepted as a wireless-debugging endpoint once the system has reported the disconnect. The
+fallback for the moments right after app start, when nothing is known yet, is unchanged.
