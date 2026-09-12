@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
@@ -12,13 +13,19 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /** Sends optional background reachability updates to a custom register or webhook endpoint. */
 final class KeepADBRegisterClient {
     private static final String TAG = "KeepADBRegisterClient";
     private static final int TIMEOUT_MS = 2000;
+    private static final String PREFS_NAME = "keepadb_prefs";
+    private static final String KEY_PENDING_CLEANUP_RETRY_STATE =
+            "register_webhook_pending_cleanup_retry_state";
+    static final int MAX_PENDING_CLEANUP_ATTEMPTS = 3;
+    static final long PENDING_CLEANUP_EXPIRY_MS = 24L * 60L * 60L * 1000L;
+    static final long PENDING_CLEANUP_INITIAL_BACKOFF_MS = 30_000L;
+    static final long PENDING_CLEANUP_MAX_BACKOFF_MS = 5L * 60L * 1000L;
+    private static volatile Long pendingCleanupNowForTesting;
     private static Handler mainHandler;
 
     private static synchronized Handler mainHandler() {
@@ -202,7 +209,10 @@ final class KeepADBRegisterClient {
                 tailnetHostname, true);
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
-            ensureUsbStateInitializedLocked(context);
+            // Cross-protocol cleanup decisions also need the persisted WLAN snapshot. A USB
+            // broadcast can wake a fresh process before the WLAN service has initialized its
+            // state; loading only USB here would then fail open and clear the shared alias record.
+            ensureStateInitializedLocked(context);
             if (targetUrl.equals(lastRegisteredUsbUrl) && payload.equals(lastRegisteredUsbPayload)) {
                 return;
             }
@@ -233,7 +243,7 @@ final class KeepADBRegisterClient {
                         // A queued cleanup for the URL we just registered with is obsolete: the
                         // POST above overwrote the very record it was meant to retire. Keeping it
                         // would let a later flush deactivate the live registration.
-                        KeepADBPreferences.removePendingUsbWebhookCleanupsForUrl(context, targetUrl);
+                        removePendingCleanupsForResource(context, targetUrl);
                         usbUpdateInFlight = false;
                         inFlightUsbTargetUrl = null;
                         inFlightUsbProfileId = null;
@@ -303,6 +313,9 @@ final class KeepADBRegisterClient {
 
         String inactivePayload = buildUsbPayload(deviceId, oldProfileId, oldProfileName, oldIpAddress,
                 oldHostname, oldTailnetHostname, false);
+        if (hasLiveOtherProtocolRegistrationAtUrl(oldUrl, true)) {
+            return null;
+        }
         if (sendJsonPost(oldUrl, inactivePayload, "usb-adb")) {
             return null;
         }
@@ -331,8 +344,18 @@ final class KeepADBRegisterClient {
     private static void flushPendingCleanups(Context context) {
         if (context == null) return;
         for (String url : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
-            if (deleteEndpoint(url)) {
-                KeepADBPreferences.removePendingWebhookCleanupUrl(context, url);
+            String sanitizedUrl = sanitizePendingCleanupUrl(url);
+            if (hasLiveRegistrationAtUrl(sanitizedUrl)) {
+                removePendingCleanupsForResource(context, sanitizedUrl);
+                continue;
+            }
+            if (!shouldAttemptPendingCleanup(context, url, false)) {
+                continue;
+            }
+            if (sanitizedUrl != null && deleteEndpoint(sanitizedUrl)) {
+                removePendingCleanupsForResource(context, sanitizedUrl);
+            } else {
+                recordPendingCleanupFailure(context, url, false);
             }
         }
         for (String entry : KeepADBPreferences.getPendingUsbWebhookCleanups(context)) {
@@ -340,12 +363,181 @@ final class KeepADBRegisterClient {
             String payload = KeepADBPreferences.pendingCleanupPayload(entry);
             if (url == null || payload == null) {
                 KeepADBPreferences.removePendingUsbWebhookCleanup(context, entry);
+                removePendingCleanupRetryState(context, entry);
                 continue;
             }
-            if (sendJsonPost(url, payload, "usb-adb")) {
-                KeepADBPreferences.removePendingUsbWebhookCleanup(context, entry);
+            String sanitizedUrl = sanitizePendingCleanupUrl(url);
+            if (hasLiveRegistrationAtUrl(sanitizedUrl)) {
+                removePendingCleanupsForResource(context, sanitizedUrl);
+                continue;
+            }
+            if (!shouldAttemptPendingCleanup(context, entry, true)) {
+                continue;
+            }
+            if (sanitizedUrl != null && sendJsonPost(sanitizedUrl, payload, "usb-adb")) {
+                removePendingCleanupsForResource(context, sanitizedUrl);
+            } else {
+                recordPendingCleanupFailure(context, entry, true);
             }
         }
+    }
+
+    /**
+     * A pending cleanup is deliberately bounded independently of the four-entry FIFO cap in
+     * {@link KeepADBPreferences}. Each entry gets a persisted expiry, attempt budget and
+     * exponential backoff, so an unreachable host cannot block every later register transaction.
+     */
+    private static boolean shouldAttemptPendingCleanup(Context context, String entry, boolean isUsb) {
+        long now = pendingCleanupNow();
+        PendingCleanupRetryState state = readPendingCleanupRetryState(context, entry, now);
+        if (now >= state.expiresAt) {
+            discardPendingCleanup(context, entry, isUsb, "expired");
+            return false;
+        }
+        if (state.attempts >= MAX_PENDING_CLEANUP_ATTEMPTS) {
+            discardPendingCleanup(context, entry, isUsb, "attempt_limit");
+            return false;
+        }
+        return now >= state.nextAttemptAt;
+    }
+
+    private static void recordPendingCleanupFailure(Context context, String entry, boolean isUsb) {
+        long now = pendingCleanupNow();
+        PendingCleanupRetryState state = readPendingCleanupRetryState(context, entry, now);
+        state.attempts++;
+        if (state.attempts >= MAX_PENDING_CLEANUP_ATTEMPTS) {
+            discardPendingCleanup(context, entry, isUsb, "attempt_limit");
+            return;
+        }
+        state.nextAttemptAt = saturatingAdd(now, pendingCleanupBackoffMs(state.attempts));
+        writePendingCleanupRetryState(context, entry, state);
+    }
+
+    private static void discardPendingCleanup(Context context, String entry, boolean isUsb, String reason) {
+        if (entry == null) return;
+        String logTarget;
+        if (isUsb) {
+            KeepADBPreferences.removePendingUsbWebhookCleanup(context, entry);
+            logTarget = KeepADBPreferences.pendingCleanupUrl(entry);
+        } else {
+            KeepADBPreferences.removePendingWebhookCleanupUrl(context, entry);
+            logTarget = entry;
+        }
+        removePendingCleanupRetryState(context, entry);
+        Log.w(TAG, "Dropping pending register cleanup (" + reason + "): " + sanitizeUrl(logTarget));
+    }
+
+    /**
+     * A successful registration or cleanup overwrites/clears the shared register record for its
+     * URL. Drop obsolete cleanups from both protocol queues, including legacy entries whose stored
+     * URL still contains userinfo or a fragment. The stored raw entry is still removed exactly;
+     * only the resource comparison is canonicalized for server route identity.
+     */
+    private static void removePendingCleanupsForResource(Context context, String targetUrl) {
+        if (context == null || targetUrl == null) return;
+        String targetKey = registrationResourceKey(targetUrl);
+        if (targetKey == null) return;
+
+        for (String rawUrl : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
+            if (targetKey.equals(registrationResourceKey(rawUrl))) {
+                KeepADBPreferences.removePendingWebhookCleanupUrl(context, rawUrl);
+                removePendingCleanupRetryState(context, rawUrl);
+            }
+        }
+        for (String entry : KeepADBPreferences.getPendingUsbWebhookCleanups(context)) {
+            String rawUrl = KeepADBPreferences.pendingCleanupUrl(entry);
+            if (targetKey.equals(registrationResourceKey(rawUrl))) {
+                KeepADBPreferences.removePendingUsbWebhookCleanup(context, entry);
+                removePendingCleanupRetryState(context, entry);
+            }
+        }
+    }
+
+    private static long pendingCleanupNow() {
+        Long testNow = pendingCleanupNowForTesting;
+        return testNow != null ? testNow : System.currentTimeMillis();
+    }
+
+    private static long pendingCleanupBackoffMs(int attempts) {
+        long backoff = PENDING_CLEANUP_INITIAL_BACKOFF_MS;
+        for (int i = 1; i < attempts && backoff < PENDING_CLEANUP_MAX_BACKOFF_MS; i++) {
+            if (backoff > PENDING_CLEANUP_MAX_BACKOFF_MS / 2L) {
+                return PENDING_CLEANUP_MAX_BACKOFF_MS;
+            }
+            backoff *= 2L;
+        }
+        return Math.min(backoff, PENDING_CLEANUP_MAX_BACKOFF_MS);
+    }
+
+    private static long saturatingAdd(long left, long right) {
+        if (right > 0L && left > Long.MAX_VALUE - right) return Long.MAX_VALUE;
+        return left + right;
+    }
+
+    private static final class PendingCleanupRetryState {
+        int attempts;
+        long nextAttemptAt;
+        long expiresAt;
+
+        PendingCleanupRetryState(int attempts, long nextAttemptAt, long expiresAt) {
+            this.attempts = attempts;
+            this.nextAttemptAt = nextAttemptAt;
+            this.expiresAt = expiresAt;
+        }
+    }
+
+    private static PendingCleanupRetryState readPendingCleanupRetryState(Context context, String entry,
+            long now) {
+        PendingCleanupRetryState fallback = new PendingCleanupRetryState(0, now,
+                saturatingAdd(now, PENDING_CLEANUP_EXPIRY_MS));
+        if (context == null || entry == null) return fallback;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String stored = prefs.getString(pendingCleanupRetryStateKey(entry), null);
+        if (stored == null || stored.trim().isEmpty()) return fallback;
+        String[] fields = stored.split(",", -1);
+        if (fields.length != 3) {
+            Log.w(TAG, "Ignoring malformed pending cleanup retry state");
+            return fallback;
+        }
+        try {
+            int attempts = Math.max(0, Integer.parseInt(fields[0]));
+            long nextAttemptAt = Long.parseLong(fields[1]);
+            long expiresAt = Long.parseLong(fields[2]);
+            return new PendingCleanupRetryState(attempts, nextAttemptAt, expiresAt);
+        } catch (NumberFormatException e) {
+            Log.w(TAG, "Ignoring malformed pending cleanup retry state");
+            return fallback;
+        }
+    }
+
+    private static void writePendingCleanupRetryState(Context context, String entry,
+            PendingCleanupRetryState state) {
+        if (context == null || entry == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String encoded = state.attempts + "," + state.nextAttemptAt + "," + state.expiresAt;
+        prefs.edit().putString(pendingCleanupRetryStateKey(entry), encoded).apply();
+    }
+
+    private static void removePendingCleanupRetryState(Context context, String entry) {
+        if (context == null || entry == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String key = pendingCleanupRetryStateKey(entry);
+        if (prefs.getString(key, null) == null) return;
+        prefs.edit().remove(key).apply();
+    }
+
+    private static String pendingCleanupRetryStateKey(String entry) {
+        return KEY_PENDING_CLEANUP_RETRY_STATE + ":" + entry;
+    }
+
+    /**
+     * #377: legacy pending entries may contain userinfo even though new entries are sanitised on
+     * write. Keep the stored entry unchanged so exact set removal still works, and only use the
+     * sanitised URL for the outgoing cleanup request.
+     */
+    private static String sanitizePendingCleanupUrl(String rawUrl) {
+        String sanitized = KeepADBPreferences.sanitizeWebhookUrl(rawUrl);
+        return sanitized == null || sanitized.trim().isEmpty() ? null : sanitized;
     }
 
     /** Marks the previously-registered USB-ADB profile inactive; a no-op if nothing was registered. */
@@ -372,7 +564,9 @@ final class KeepADBRegisterClient {
         final String tailnetHostname;
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
-            ensureUsbStateInitializedLocked(context);
+            // The USB disconnect path can be the first register activity after process restart.
+            // Load the peer WLAN snapshot before deciding whether an alias-wide cleanup is safe.
+            ensureStateInitializedLocked(context);
             boolean wasInFlight = usbUpdateInFlight;
             boolean hadPrior = (lastRegisteredUsbUrl != null || lastRegisteredUsbPayload != null);
             usbUpdateInFlight = false;
@@ -401,7 +595,12 @@ final class KeepADBRegisterClient {
         if (urlToUse == null || urlToUse.trim().isEmpty()) {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentUsbOpGeneration) {
-                    clearUsbStateLocked(context);
+                    // #372: an existing USB report with no usable URL cannot be sent anywhere,
+                    // but it still needs to leave the local and persisted state as explicitly
+                    // inactive. The no-op return above remains before this branch when nothing
+                    // was registered or in flight.
+                    clearUsbStateLocked(context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
+                    notifyRegisterStateListener();
                 }
             }
             return;
@@ -412,7 +611,10 @@ final class KeepADBRegisterClient {
 
         EXECUTOR.execute(() -> {
             if (opGen != currentUsbOpGeneration) return;
-            if (sendJsonPost(urlToUse, payload, "usb-adb")) {
+            boolean cleanupCompleted = hasLiveOtherProtocolRegistrationAtUrl(urlToUse, true)
+                    || sendJsonPost(urlToUse, payload, "usb-adb");
+            if (cleanupCompleted) {
+                removePendingCleanupsForResource(context, urlToUse);
                 synchronized (KeepADBRegisterClient.class) {
                     if (opGen == currentUsbOpGeneration) {
                         clearUsbStateLocked(context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
@@ -522,7 +724,10 @@ final class KeepADBRegisterClient {
             // Keep the previous successful report until the replacement POST succeeds. If the
             // new target fails, the UI must still show the last endpoint that was actually
             // reported successfully rather than losing it during this transition.
-            if (!deleteEndpoint(oldUrl)) {
+            if (hasLiveOtherProtocolRegistrationAtUrl(oldUrl, false)) {
+                // phone-register-server stores one last_successful_reach per alias; DELETE is not
+                // protocol-specific. Leave the shared record alone while USB still uses this URL.
+            } else if (!deleteEndpoint(oldUrl)) {
                 Log.w(TAG, "Failed to deregister from old URL " + sanitizeUrl(oldUrl)
                         + " during URL change; keeping the cleanup for a later retry");
                 unfinishedCleanupUrl = oldUrl;
@@ -550,7 +755,7 @@ final class KeepADBRegisterClient {
                     // which counts as a failure) while the POST that follows succeeds; flushing it
                     // later -- from a USB transaction, which does not re-post -- would silently
                     // erase the live registration.
-                    KeepADBPreferences.removePendingWebhookCleanupUrl(context, targetUrl);
+                    removePendingCleanupsForResource(context, targetUrl);
                     wlanUpdateInFlight = false;
                     lastRegisteredUrl = targetUrl;
                     lastRegisteredEndpoint = targetEndpoint;
@@ -589,7 +794,10 @@ final class KeepADBRegisterClient {
             }
         }
 
-        if (deleteEndpoint(urlToDelete)) {
+        boolean cleanupCompleted = hasLiveOtherProtocolRegistrationAtUrl(urlToDelete, false)
+                || deleteEndpoint(urlToDelete);
+        if (cleanupCompleted) {
+            removePendingCleanupsForResource(context, urlToDelete);
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
                     wlanUpdateInFlight = false;
@@ -612,6 +820,69 @@ final class KeepADBRegisterClient {
         }
     }
 
+    /**
+     * The register server has one {@code last_successful_reach} record per alias, so a cleanup
+     * request for one protocol also clears a live registration made by the other protocol. The
+     * protocol-local successful snapshots are the client-side ownership signal. The URL alone is
+     * sufficient: older installations can have a partially persisted snapshot without its
+     * endpoint or payload, and deleting in that state would still clear the peer's alias-wide
+     * server record. The comparison deliberately ignores query and trailing-slash differences,
+     * matching phone-register-server's route identity; this is only a fail-closed cleanup guard,
+     * never a rewrite of the outgoing request target.
+     */
+    private static synchronized boolean hasLiveOtherProtocolRegistrationAtUrl(String cleanupUrl,
+            boolean cleanupIsUsb) {
+        if (cleanupUrl == null || cleanupUrl.trim().isEmpty()) {
+            return false;
+        }
+        if (cleanupIsUsb) {
+            return sameRegistrationResource(cleanupUrl, lastRegisteredUrl);
+        }
+        return sameRegistrationResource(cleanupUrl, lastRegisteredUsbUrl);
+    }
+
+    private static synchronized boolean hasLiveRegistrationAtUrl(String cleanupUrl) {
+        if (cleanupUrl == null || cleanupUrl.trim().isEmpty()) {
+            return false;
+        }
+        return sameRegistrationResource(cleanupUrl, lastRegisteredUrl)
+                || sameRegistrationResource(cleanupUrl, lastRegisteredUsbUrl);
+    }
+
+    private static boolean sameRegistrationResource(String leftUrl, String rightUrl) {
+        String leftKey = registrationResourceKey(leftUrl);
+        String rightKey = registrationResourceKey(rightUrl);
+        return leftKey != null && leftKey.equals(rightKey);
+    }
+
+    private static String registrationResourceKey(String rawUrl) {
+        String sanitizedUrl = sanitizePendingCleanupUrl(rawUrl);
+        if (sanitizedUrl == null) return null;
+        try {
+            java.net.URI uri = new java.net.URI(sanitizedUrl);
+            String scheme = uri.getScheme();
+            String host = uri.getHost();
+            if (scheme == null || host == null) return sanitizedUrl;
+            scheme = scheme.toLowerCase(java.util.Locale.ROOT);
+            host = host.toLowerCase(java.util.Locale.ROOT);
+            if (host.indexOf(':') >= 0) {
+                host = "[" + host + "]";
+            }
+            int port = uri.getPort();
+            if (port < 0) {
+                port = "https".equals(scheme) ? 443 : 80;
+            }
+            String path = uri.getRawPath();
+            if (path == null || path.isEmpty()) path = "/";
+            while (path.length() > 1 && path.endsWith("/")) {
+                path = path.substring(0, path.length() - 1);
+            }
+            return scheme + "://" + host + ":" + port + path;
+        } catch (Exception ignored) {
+            return sanitizedUrl;
+        }
+    }
+
     static synchronized void resetForTesting() {
         lastRegisteredUrl = null;
         lastRegisteredEndpoint = null;
@@ -623,11 +894,20 @@ final class KeepADBRegisterClient {
         usbStateInitialized = false;
         currentUsbOpGeneration = 0;
         usbUpdateInFlight = false;
+        pendingCleanupNowForTesting = null;
         resetHttpTransport();
         mainHandler = null;
     }
 
     // ---- Test-only accessors: keep WLAN and USB state independently verifiable. ----
+
+    static void flushPendingCleanupsForTesting(Context context) {
+        flushPendingCleanups(context);
+    }
+
+    static void setPendingCleanupNowForTesting(long now) {
+        pendingCleanupNowForTesting = now;
+    }
 
     static void setWlanStateForTesting(String url, String endpoint) {
         lastRegisteredUrl = url;

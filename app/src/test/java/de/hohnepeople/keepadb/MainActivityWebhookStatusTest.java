@@ -1,10 +1,12 @@
 package de.hohnepeople.keepadb;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.view.View;
 import android.widget.TextView;
 
 import org.junit.After;
@@ -83,5 +85,24 @@ public class MainActivityWebhookStatusTest {
         assertFalse("Fragment must not be exposed: " + text, text.contains("#section"));
         assertTrue("Expected masked URL in status text: " + text,
                 text.contains("http://100.111.***.**:50829/register/s20"));
+    }
+
+    @Test
+    public void failedUsbWebhookStatusIsVisibleAlongsideWlanStatus() {
+        Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "https://register.example/device");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setUsbWebhookLastReportStatus(
+                context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        MainActivity activity = controller.get();
+
+        TextView usbStatus = activity.findViewById(R.id.webhook_usb_status);
+        assertNotNull(usbStatus);
+        assertEquals(View.VISIBLE, usbStatus.getVisibility());
+        assertEquals(activity.getString(R.string.webhook_status_usb_failed),
+                usbStatus.getText().toString());
     }
 }

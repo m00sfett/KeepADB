@@ -12,6 +12,10 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Network;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -24,6 +28,7 @@ import org.robolectric.android.controller.ServiceController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowConnectivityManager;
 import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowNetwork;
 import org.robolectric.shadows.ShadowService;
 
 /**
@@ -65,6 +70,7 @@ public class KeepADBServiceLifecycleRobolectricTest {
         KeepADBNotification.resetForTesting();
         KeepADBNetwork.resetForTesting();
         KeepADB.resetForTesting();
+        KeepADBRegisterClient.resetForTesting();
     }
 
     @Test
@@ -195,6 +201,121 @@ public class KeepADBServiceLifecycleRobolectricTest {
             assertTrue(export.contains("event=service_start_command source=lifecycle outcome=ready detail=foreground=true"));
         } finally {
             controller.destroy();
+        }
+    }
+
+    @Test
+    public void networkCallbackOnLostInvalidatesWlanRegistrationAndSurfacesCleanupFailure()
+            throws InterruptedException {
+        final String webhookUrl = "http://register.example/register";
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADBPreferences.setRegisterWebhookUrl(context, webhookUrl);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+        KeepADBRegisterClient.setWlanStateForTesting(webhookUrl, "test-wlan-endpoint");
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+        CountDownLatch listenerNotified = new CountDownLatch(1);
+        KeepADBRegisterClient.setRegisterStateListener(listenerNotified::countDown);
+
+        ConnectivityManager connectivityManager = context.getSystemService(ConnectivityManager.class);
+        ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            assertEquals(Service.START_STICKY,
+                    controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1));
+            ShadowLooper.idleMainLooper();
+
+            assertFalse(shadowConnectivityManager.getNetworkCallbacks().isEmpty());
+            for (ConnectivityManager.NetworkCallback callback
+                    : shadowConnectivityManager.getNetworkCallbacks()) {
+                callback.onLost(connectivityManager.getActiveNetwork());
+            }
+
+            awaitMainLooperSignal(listenerNotified, 3000);
+
+            assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
+                    KeepADBPreferences.getWebhookLastReportStatus(context));
+            assertTrue("Network loss cleanup failure must reach the register listener",
+                    listenerNotified.getCount() == 0);
+            assertEquals("DELETE", transport.getLastRequest().method);
+            assertEquals(webhookUrl, transport.getLastRequest().url);
+            assertEquals("Failed cleanup must remain retryable via the last-known WLAN state",
+                    webhookUrl, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+            assertEquals("test-wlan-endpoint",
+                    KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    @Test
+    public void lateLossOfOldWifiNetworkDoesNotInvalidateTheStillAvailableNetwork()
+            throws InterruptedException {
+        final String webhookUrl = "http://register.example/register";
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADBPreferences.setRegisterWebhookUrl(context, webhookUrl);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBRegisterClient.setWlanStateForTesting(webhookUrl, "test-wlan-endpoint");
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setDeleteSuccess(false);
+        CountDownLatch unexpectedCleanup = new CountDownLatch(1);
+        transport.setFailureCallback(unexpectedCleanup::countDown);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        ConnectivityManager connectivityManager = context.getSystemService(ConnectivityManager.class);
+        ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            assertEquals(Service.START_STICKY,
+                    controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1));
+            ShadowLooper.idleMainLooper();
+
+            Network oldNetwork = ShadowNetwork.newInstance(1001);
+            Network newNetwork = ShadowNetwork.newInstance(1002);
+            for (ConnectivityManager.NetworkCallback callback
+                    : shadowConnectivityManager.getNetworkCallbacks()) {
+                callback.onAvailable(newNetwork);
+            }
+            for (ConnectivityManager.NetworkCallback callback
+                    : shadowConnectivityManager.getNetworkCallbacks()) {
+                callback.onLost(oldNetwork);
+            }
+            ShadowLooper.idleMainLooper();
+
+            assertFalse("A late old-network loss must not start a failed cleanup",
+                    unexpectedCleanup.await(500, TimeUnit.MILLISECONDS));
+            assertEquals("A late loss of the old network must not queue WLAN cleanup", 0,
+                    transport.getRequestCount());
+            assertEquals(webhookUrl, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    private static void awaitMainLooperSignal(CountDownLatch signal, long timeoutMs)
+            throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMs);
+        while (true) {
+            ShadowLooper.idleMainLooper();
+            long remainingNanos = deadline - System.nanoTime();
+            if (remainingNanos <= 0) {
+                throw new AssertionError("Signal timed out after " + timeoutMs + " ms");
+            }
+            if (signal.await(Math.min(remainingNanos, TimeUnit.MILLISECONDS.toNanos(20)),
+                    TimeUnit.NANOSECONDS)) {
+                return;
+            }
         }
     }
 

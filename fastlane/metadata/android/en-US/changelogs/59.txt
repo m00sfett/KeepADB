@@ -1,0 +1,1 @@
+Wi-Fi loss now invalidates the local endpoint before cleaning up the remote WLAN register entry. Cleanup failures remain retryable and visible to the app.

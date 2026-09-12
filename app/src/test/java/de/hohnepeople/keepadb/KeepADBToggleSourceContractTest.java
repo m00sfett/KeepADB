@@ -70,11 +70,12 @@ public class KeepADBToggleSourceContractTest {
         int callSites = 0;
         Path mainRoot = projectPath("app/src/main/java/de/hohnepeople/keepadb");
         Pattern call = Pattern.compile(
-                "KeepADB\\.setEnabled\\s*\\([^;]*?,\\s*(?:\"([a-z_]+)\"|KeepADB\\.(SOURCE_[A-Z_]+))",
+                "KeepADB\\s*\\.\\s*setEnabled\\s*\\([^;]*?,\\s*(?:\"([a-z_]+)\"|KeepADB\\.(SOURCE_[A-Z_]+))",
                 Pattern.DOTALL);
-        Pattern anyCall = Pattern.compile("KeepADB\\.setEnabled\\s*\\(");
-        try (Stream<Path> paths = Files.list(mainRoot)) {
-            for (Path path : paths.filter(p -> p.toString().endsWith(".java")).toArray(Path[]::new)) {
+        Pattern anyCall = Pattern.compile("KeepADB\\s*\\.\\s*setEnabled\\s*\\(");
+        try (Stream<Path> paths = Files.walk(mainRoot)) {
+            for (Path path : paths.filter(Files::isRegularFile)
+                    .filter(p -> p.toString().endsWith(".java")).toArray(Path[]::new)) {
                 // Comments are stripped first: several of them quote a KeepADB.setEnabled(...)
                 // call in prose, and matching those would report sources that no code passes.
                 String source = stripComments(

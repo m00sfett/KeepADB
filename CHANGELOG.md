@@ -5,6 +5,82 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.51] - 2026-09-12
+
+### Fixed
+- USB webhook cleanup now loads the persisted WLAN registration snapshot before applying the
+  cross-protocol guard after a process restart (issue #370).
+
+## [1.5.50] - 2026-09-12
+
+### Fixed
+- Control-bearing legacy webhook URLs are rejected before they can reach the HTTP transport;
+  redacted UI and log output continues to escape such input (issue #379).
+
+## [1.5.49] - 2026-09-12
+
+### Fixed
+- Wi-Fi handover cleanup no longer treats a late loss of the old network as a loss of the still
+  active new network (issue #349).
+- Cross-protocol cleanup now fails closed for partially persisted peer snapshots, and successful
+  registration removes equivalent legacy cleanup entries from both protocol queues (issues #369,
+  #370, #377).
+- Legacy pending URLs with an '@' in userinfo are sanitized completely before an outgoing retry
+  (issue #377).
+
+## [1.5.48] - 2026-09-12
+
+### Fixed
+- Pending webhook cleanup retry state is now persisted reliably, so backoff, expiry and the
+  attempt limit prevent repeated network requests (issue #369).
+
+## [1.5.47] - 2026-09-12
+
+### Fixed
+- Control characters in redacted webhook display and log output are now escaped (issue #379).
+
+## [1.5.46] - 2026-09-12
+
+### Fixed
+- IPv4 webhook host masking now covers decimal, hexadecimal and trailing-dot notation while
+  keeping DNS names visible (issue #378).
+
+## [1.5.45] - 2026-09-12
+
+### Fixed
+- Legacy pending webhook cleanups no longer send stored URL userinfo when retried (issue #377).
+
+## [1.5.44] - 2026-09-12
+
+### Fixed
+- USB-ADB webhook failures are now shown in the main-screen webhook status alongside the existing
+  WLAN-ADB status (issue #371).
+
+## [1.5.43] - 2026-09-12
+
+### Fixed
+- WLAN and USB webhook cleanups no longer clear a live registration from the other protocol when
+  both use the same register URL (issue #370).
+
+## [1.5.42] - 2026-09-12
+
+### Fixed
+- USB webhook deactivation with an empty URL now clears stale local and persisted registration
+  state, records an explicit inactive status and notifies listeners; a genuine no-op remains a
+  no-op (issue #372).
+
+## [1.5.41] - 2026-09-12
+
+### Fixed
+- Pending register cleanups now expire, back off between attempts and stop after a bounded
+  retry budget, so an unreachable old host cannot delay later register transactions indefinitely
+  (issue #369).
+
+## [1.5.40] - 2026-09-12
+
+### Fixed
+- Wi-Fi network loss now invalidates the local endpoint before queueing remote WLAN register
+  cleanup; failed cleanup remains retryable and is surfaced to register-state listeners (issue #349).
 ## [1.5.39] - 2026-09-10
 
 ### Fixed

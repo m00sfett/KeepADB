@@ -1,0 +1,1 @@
+USB-ADB webhook failures are now shown in the main-screen webhook status alongside the existing WLAN-ADB status (issue #371).

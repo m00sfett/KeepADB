@@ -1,0 +1,1 @@
+Wi-Fi handover cleanup no longer treats a late loss of the old network as a loss of the still active new network; cross-protocol cleanup fails closed for partial peer snapshots, equivalent legacy cleanup entries are retired after successful registration, and legacy userinfo is fully removed before retry (issues #349, #369, #370, #377).

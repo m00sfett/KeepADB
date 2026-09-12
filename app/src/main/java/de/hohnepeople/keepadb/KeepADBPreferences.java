@@ -551,6 +551,9 @@ final class KeepADBPreferences {
         if (rawUrl == null) return null;
         String trimmed = rawUrl.trim();
         if (trimmed.isEmpty()) return "";
+        for (int i = 0; i < trimmed.length(); i++) {
+            if (Character.isISOControl(trimmed.charAt(i))) return null;
+        }
 
         try {
             java.net.URI uri = new java.net.URI(trimmed);
@@ -584,12 +587,18 @@ final class KeepADBPreferences {
         if (schemeIdx >= 0) {
             String schemePart = result.substring(0, schemeIdx + 3).toLowerCase(java.util.Locale.ROOT);
             String remainder = result.substring(schemeIdx + 3);
-            int atIdx = remainder.indexOf('@');
             int slashIdx = remainder.indexOf('/');
             int queryIdx = remainder.indexOf('?');
             int authEnd = (slashIdx >= 0 && queryIdx >= 0)
                     ? Math.min(slashIdx, queryIdx)
                     : (slashIdx >= 0 ? slashIdx : queryIdx);
+            // A password may contain '@'. Strip the complete userinfo authority suffix, not just
+            // the part before its first embedded '@' (legacy values can reach this fallback when
+            // URI parsing rejects a non-standard host such as an IPv6 zone-id literal). Ignore
+            // any '@' that belongs to the path or query when locating that authority delimiter.
+            int atIdx = authEnd >= 0
+                    ? remainder.lastIndexOf('@', authEnd - 1)
+                    : remainder.lastIndexOf('@');
             if (atIdx >= 0 && (authEnd < 0 || atIdx < authEnd)) {
                 remainder = remainder.substring(atIdx + 1);
             }

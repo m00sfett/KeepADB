@@ -1,0 +1,1 @@
+USB webhook deactivation with an empty URL now clears stale registration state, records an inactive status and notifies listeners. Genuine no-op calls remain no-ops.

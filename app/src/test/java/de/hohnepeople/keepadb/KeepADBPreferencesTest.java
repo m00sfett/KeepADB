@@ -174,6 +174,15 @@ public class KeepADBPreferencesTest {
                 KeepADBPreferences.sanitizeWebhookUrl("http://user:pass@example.com/api?email=alice@example.com#section"));
         assertEquals("http://example.com?email=alice@example.com",
                 KeepADBPreferences.sanitizeWebhookUrl("http://user:pass@example.com?email=alice@example.com#section"));
+        // A legacy URL with an embedded '@' in its password and a non-standard IPv6 zone id takes
+        // the manual fallback path. The complete userinfo must still be removed.
+        assertEquals("http://[fe80::1%wlan0]:8443/register",
+                KeepADBPreferences.sanitizeWebhookUrl(
+                        "http://user:p@ss@[fe80::1%wlan0]:8443/register"));
+        assertEquals("http://[fe80::1%wlan0]:8443/register?email=x@y",
+                KeepADBPreferences.sanitizeWebhookUrl(
+                        "http://user:p@ss@[fe80::1%wlan0]:8443/register?email=x@y"));
+        assertNull(KeepADBPreferences.sanitizeWebhookUrl("http://legacy.example/register\nnext"));
     }
 
     @Test

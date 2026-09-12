@@ -21,6 +21,7 @@ public class MainActivity extends Activity {
     private TextView status;
     private TextView endpoint;
     private TextView webhookStatus;
+    private TextView webhookUsbStatus;
     private View webhookStatusPanel;
     private View webhookSetupButton;
     private View setupPanel;
@@ -48,6 +49,7 @@ public class MainActivity extends Activity {
         status = findViewById(R.id.status);
         endpoint = findViewById(R.id.endpoint);
         webhookStatus = findViewById(R.id.webhook_status);
+        webhookUsbStatus = findViewById(R.id.webhook_usb_status);
         webhookStatusPanel = findViewById(R.id.webhook_status_panel);
         webhookSetupButton = findViewById(R.id.webhook_setup_button);
         webhookSetupButton.setOnClickListener(v -> {
@@ -255,6 +257,7 @@ public class MainActivity extends Activity {
         String url = KeepADBPreferences.getRegisterWebhookUrl(this);
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
         if (!enabled || url == null || url.trim().isEmpty()) {
+            webhookUsbStatus.setVisibility(View.GONE);
             webhookStatusPanel.setVisibility(View.GONE);
             webhookSetupButton.setVisibility(View.VISIBLE);
             return;
@@ -285,6 +288,13 @@ public class MainActivity extends Activity {
         }
         webhookStatus.setText(getString(R.string.webhook_status_hint,
                 KeepADBPreferences.maskWebhookUrl(url), lastEndpoint, lastReported));
+        if (KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
+                KeepADBPreferences.getUsbWebhookLastReportStatus(this))) {
+            webhookUsbStatus.setText(R.string.webhook_status_usb_failed);
+            webhookUsbStatus.setVisibility(View.VISIBLE);
+        } else {
+            webhookUsbStatus.setVisibility(View.GONE);
+        }
         webhookStatusPanel.setVisibility(View.VISIBLE);
     }
 

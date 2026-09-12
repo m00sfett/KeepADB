@@ -96,6 +96,7 @@
     <string name="webhook_status_no_endpoint">noch keiner</string>
     <string name="webhook_status_deregistered">abgemeldet</string>
     <string name="webhook_status_failed">fehlgeschlagen</string>
+    <string name="webhook_status_usb_failed">USB-ADB-Webhook: fehlgeschlagen</string>
     <string name="settings_permission_warning">Systemberechtigung WRITE_SECURE_SETTINGS fehlt. KeepADB kann Drahtloses Debugging erst nach Berechtigungsvergabe steuern.</string>
     <string name="settings_section_language">Sprache</string>
     <string name="settings_language_label">App-Sprache</string>
