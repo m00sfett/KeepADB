@@ -230,7 +230,9 @@ final class KeepADBEndpoint {
     // within the first 20s after boot, where a plain 0 would have suppressed it.
     private static volatile long lastRecoveryPulseAtMs = -RECOVERY_PULSE_COOLDOWN_MS;
 
-    private void maybeSendRecoveryPulse(long generation) {
+    // Package-visible so the endpoint-owned recovery guard can be exercised end-to-end without
+    // waiting for the discovery watchdog. This is not part of the app's public API.
+    void maybeSendRecoveryPulse(long generation) {
         synchronized (this) {
             if (!isCurrent(generation) || endpointDelivered.get()) return;
             if (!KeepADB.isEnabled(appContext) || KeepADB.wasLastExplicitIntentOff(appContext)) return;

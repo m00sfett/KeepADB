@@ -55,7 +55,7 @@ public class KeepADBRecoveryPulseContractTest {
     @Test
     public void endpointRecoveryCooldownUsesAMonotonicClock() throws IOException {
         String source = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
-        String body = methodBody(source, "private void maybeSendRecoveryPulse(long generation)");
+        String body = methodBody(source, "void maybeSendRecoveryPulse(long generation)");
 
         assertTrue("the cooldown must be measured against the monotonic scheduler clock",
                 body.contains("scheduler.elapsedRealtimeMs()"));

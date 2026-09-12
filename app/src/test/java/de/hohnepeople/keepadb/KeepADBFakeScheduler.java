@@ -11,7 +11,7 @@ import java.util.List;
  * as two separate clock sources, purely so tests stay deterministic; this class does not model
  * concurrency, only ordering.
  */
-final class KeepADBFakeScheduler implements KeepADBScheduler {
+class KeepADBFakeScheduler implements KeepADBScheduler {
     private final List<Scheduled> scheduled = new ArrayList<>();
     private final List<Runnable> deferredAsync = new ArrayList<>();
     private boolean deferAsync;
