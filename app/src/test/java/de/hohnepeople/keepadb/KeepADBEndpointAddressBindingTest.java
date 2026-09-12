@@ -119,6 +119,31 @@ public class KeepADBEndpointAddressBindingTest {
                 scopelessWifiAddress));
     }
 
+    /**
+     * #364: once *both* sides resolved to a concrete, nonzero numeric scope, a byte-identical
+     * link-local candidate whose scope disagrees is a different real interface, not our own Wi-Fi
+     * endpoint, and must be rejected -- the collision this issue is about (e.g. a device on a
+     * cellular/USB-tethering/VPN interface numerically colliding with our Wi-Fi link-local
+     * address). Matching scopes on both sides still stays accepted.
+     */
+    @Test
+    public void linkLocalWithDisagreeingResolvedScopeIsRejectedButAgreeingScopeIsAccepted()
+            throws Exception {
+        byte[] linkLocalBytes = InetAddress.getByName("fe80::1").getAddress();
+        List<InetAddress> ownWifiScopedAddress = Collections.singletonList(
+                Inet6Address.getByAddress(null, linkLocalBytes, 7));
+
+        assertFalse("a candidate resolved on a different real interface must be rejected even "
+                        + "though the bytes match our own Wi-Fi link-local address",
+                KeepADBNetwork.matchesActiveWifiAddress(
+                        Inet6Address.getByAddress(null, linkLocalBytes, 9), ownWifiScopedAddress));
+
+        assertTrue("a candidate resolved on the same real interface as our own Wi-Fi link-local "
+                        + "address must still be accepted",
+                KeepADBNetwork.matchesActiveWifiAddress(
+                        Inet6Address.getByAddress(null, linkLocalBytes, 7), ownWifiScopedAddress));
+    }
+
     @Test
     public void loopbackIsRejectedEvenIfItSomehowEntersTheCandidateSet() throws Exception {
         List<InetAddress> withLoopback = Arrays.asList(
