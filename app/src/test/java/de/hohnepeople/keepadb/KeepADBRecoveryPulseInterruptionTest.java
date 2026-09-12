@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -165,6 +166,21 @@ public class KeepADBRecoveryPulseInterruptionTest {
         KeepADB.performRecoveryPulse(ctx);
 
         assertEquals(Arrays.asList(false), gateway.writes);
+    }
+
+    @Test
+    public void recoveryGuardIsRecheckedBeforeTheRestoreStage() {
+        FakeContext ctx = new FakeContext();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(new KeepADBFakeScheduler());
+        AtomicInteger guardCalls = new AtomicInteger();
+
+        KeepADB.performRecoveryPulse(ctx, ignored -> guardCalls.incrementAndGet() == 1);
+
+        assertEquals("the guard must be checked before both pulse writes", 2, guardCalls.get());
+        assertEquals("a changed context must cancel the restore write", Arrays.asList(false),
+                gateway.writes);
     }
 
     /**
