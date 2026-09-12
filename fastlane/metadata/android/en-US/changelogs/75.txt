@@ -1,0 +1,2 @@
+Fixed a rare battery/resource leak where an unlucky failure while starting Wi-Fi discovery
+could leave the multicast lock held indefinitely instead of being released.

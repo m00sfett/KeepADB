@@ -5,6 +5,15 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.56] - 2026-09-12
+
+### Fixed
+- `discover()` now releases the Wi-Fi multicast lock it holds during mDNS discovery if an
+  exception is thrown after acquiring it but before the overall-timeout watchdog is armed
+  (e.g. a failed background-probe thread start); previously such an exception left the lock
+  held indefinitely, since the timeout that would otherwise release it never got scheduled
+  (issue #359).
+
 ## [1.5.55] - 2026-09-12
 
 ### Fixed
