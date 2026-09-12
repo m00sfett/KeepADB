@@ -61,7 +61,7 @@ public class KeepADBUsbHandoverContractTest {
     @Test
     public void endpointRecoveryPulseUsesNonConsumingIntentCheck() throws IOException {
         String endpoint = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
-        int methodStart = endpoint.indexOf("private void maybeSendRecoveryPulse(long generation)");
+        int methodStart = endpoint.indexOf("void maybeSendRecoveryPulse(long generation)");
         int methodEnd = findMatchingBraceEnd(endpoint, endpoint.indexOf('{', methodStart));
         String body = endpoint.substring(methodStart, methodEnd);
         assertTrue(body.contains("KeepADB.wasLastExplicitIntentOff(appContext)"));

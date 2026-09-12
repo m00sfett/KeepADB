@@ -230,7 +230,9 @@ final class KeepADBEndpoint {
     // within the first 20s after boot, where a plain 0 would have suppressed it.
     private static volatile long lastRecoveryPulseAtMs = -RECOVERY_PULSE_COOLDOWN_MS;
 
-    private void maybeSendRecoveryPulse(long generation) {
+    // Package-visible so the endpoint-owned recovery guard can be exercised end-to-end without
+    // waiting for the discovery watchdog. This is not part of the app's public API.
+    void maybeSendRecoveryPulse(long generation) {
         synchronized (this) {
             if (!isCurrent(generation) || endpointDelivered.get()) return;
             if (!KeepADB.isEnabled(appContext) || KeepADB.wasLastExplicitIntentOff(appContext)) return;
@@ -255,7 +257,17 @@ final class KeepADBEndpoint {
         }
         Log.w(TAG, "gen=" + generation + " found no adbd listener after " + RECOVERY_PULSE_DELAY_MS
                 + "ms while enabled; pulsing adb_wifi_enabled to recover");
-        KeepADB.performRecoveryPulse(appContext);
+        long keepAdbNetworkGeneration = KeepADB.currentNetworkGeneration();
+        KeepADB.performRecoveryPulse(appContext,
+                context -> isCurrent(generation)
+                        && KeepADB.currentNetworkGeneration() == keepAdbNetworkGeneration
+                        && KeepADBService.isWifiConnected(context)
+                        && KeepADBTrustedNetwork.isCurrentNetworkTrusted(context)
+                        && !KeepADB.wasLastExplicitIntentOff(context));
+    }
+
+    static synchronized void resetForTesting() {
+        lastRecoveryPulseAtMs = -RECOVERY_PULSE_COOLDOWN_MS;
     }
 
     private void giveUpIfStillUnresolved(long generation) {

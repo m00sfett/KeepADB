@@ -18,17 +18,17 @@ import org.junit.Test;
  * <p>{@link KeepADBToggleSchedulingTest} and {@link KeepADBRecoveryPulseInterruptionTest} prove
  * the two pulse stages behave correctly; what they cannot prove is that every future gateway
  * write added to {@code performRecoveryPulse} stays inside the lock that also holds its guard --
- * a structural property, so it is pinned structurally here. The endpoint cooldown's clock source
- * has no behavioural test at all: {@code maybeSendRecoveryPulse} is private and reachable only
- * behind {@code KeepADBService.isWifiConnected} / {@code KeepADBTrustedNetwork} framework calls,
- * so this contract is what keeps the cooldown off the wall clock.
+ * a structural property, so it is pinned structurally here. The endpoint's guard behavior is
+ * covered by {@link KeepADBEndpointRecoveryPulseBehaviorTest}; this contract separately keeps
+ * the cooldown tied to a monotonic clock.
  */
 public class KeepADBRecoveryPulseContractTest {
 
     @Test
     public void everyRecoveryPulseWriteIsGuardedInsideTheSameLock() throws IOException {
         String source = read("app/src/main/java/de/hohnepeople/keepadb/KeepADB.java");
-        String body = methodBody(source, "static void performRecoveryPulse(Context ctx)");
+        String body = methodBody(source,
+                "static void performRecoveryPulse(Context ctx, EnableGuard guard)");
 
         assertEquals("performRecoveryPulse must write exactly twice (off, then on)",
                 2, count(body, "gateway.write("));
@@ -54,7 +54,7 @@ public class KeepADBRecoveryPulseContractTest {
     @Test
     public void endpointRecoveryCooldownUsesAMonotonicClock() throws IOException {
         String source = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
-        String body = methodBody(source, "private void maybeSendRecoveryPulse(long generation)");
+        String body = methodBody(source, "void maybeSendRecoveryPulse(long generation)");
 
         assertTrue("the cooldown must be measured against the monotonic scheduler clock",
                 body.contains("scheduler.elapsedRealtimeMs()"));
@@ -62,6 +62,8 @@ public class KeepADBRecoveryPulseContractTest {
                 body.contains("System.currentTimeMillis()"));
         assertTrue("the seeded start value must let the first pulse through right after boot",
                 source.contains("lastRecoveryPulseAtMs = -RECOVERY_PULSE_COOLDOWN_MS"));
+        assertTrue("the recovery pulse must capture the KeepADB network generation",
+                body.contains("KeepADB.currentNetworkGeneration()"));
     }
 
     private static String methodBody(String source, String signature) {

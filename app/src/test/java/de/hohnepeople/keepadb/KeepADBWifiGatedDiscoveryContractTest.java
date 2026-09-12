@@ -77,7 +77,7 @@ public class KeepADBWifiGatedDiscoveryContractTest {
     @Test
     public void recoveryPulseChecksTheActualWifiTransportInAdditionToTrustedNetwork() throws IOException {
         String source = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
-        String methodBody = methodBody(source, "private void maybeSendRecoveryPulse(long generation) {");
+        String methodBody = methodBody(source, "void maybeSendRecoveryPulse(long generation) {");
 
         int wifiCheckIndex = methodBody.indexOf("KeepADBService.isWifiConnected(appContext)");
         int trustedNetworkCheckIndex = methodBody.indexOf("KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext)");

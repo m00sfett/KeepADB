@@ -97,8 +97,12 @@ final class KeepADB {
      * Records that the connected Wi-Fi network changed, invalidating every automatic intent that
      * was planned for the previous one. Returns the new generation for diagnostics.
      */
-    static long noteNetworkChanged() {
+    static synchronized long noteNetworkChanged() {
         return state.noteNetworkChanged();
+    }
+
+    static long currentNetworkGeneration() {
+        return state.currentNetworkGeneration();
     }
 
     private KeepADB() {}
@@ -373,6 +377,10 @@ final class KeepADB {
      * Bricht ab, wenn der Nutzer während des Pulses manuell ausgeschaltet hat.
      */
     static void performRecoveryPulse(Context ctx) {
+        performRecoveryPulse(ctx, null);
+    }
+
+    static void performRecoveryPulse(Context ctx, EnableGuard guard) {
         Context appContext = ctx.getApplicationContext();
         boolean observed = isEnabled(appContext);
         if (!hasPermission(appContext)) {
@@ -403,7 +411,11 @@ final class KeepADB {
             boolean disableActual = false;
             synchronized (KeepADB.class) {
                 if (pulseSuperseded(appContext, pulseToken)) {
-                    logPulseCancelled(appContext, pulseToken, "disable");
+                    logPulseCancelled(appContext, pulseToken, "disable", "newer_user_intent");
+                    return;
+                }
+                if (!guardStillApplies(guard, appContext)) {
+                    logPulseCancelled(appContext, pulseToken, "disable", "preconditions_changed");
                     return;
                 }
                 try {
@@ -424,10 +436,16 @@ final class KeepADB {
                     !disableRejected && !disableActual ? "success" : "state_mismatch",
                     "intentId=" + pulseToken + " stage=disable actual=" + disableActual
                             + " writeAccepted=" + !disableRejected);
+            if (disableRejected) {
+                return;
+            }
 
             try {
                 scheduler.sleep(RECOVERY_PULSE_OFF_MS);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                logPulseCancelled(appContext, pulseToken, "sleep", "interrupted");
+                return;
             }
 
             boolean enableRejected;
@@ -435,7 +453,11 @@ final class KeepADB {
             boolean enableActual = false;
             synchronized (KeepADB.class) {
                 if (pulseSuperseded(appContext, pulseToken)) {
-                    logPulseCancelled(appContext, pulseToken, "enable");
+                    logPulseCancelled(appContext, pulseToken, "enable", "newer_user_intent");
+                    return;
+                }
+                if (!guardStillApplies(guard, appContext)) {
+                    logPulseCancelled(appContext, pulseToken, "enable", "preconditions_changed");
                     return;
                 }
                 try {
@@ -460,6 +482,10 @@ final class KeepADB {
         });
     }
 
+    private static boolean guardStillApplies(EnableGuard guard, Context appContext) {
+        return guard == null || guard.stillApplies(appContext);
+    }
+
     /**
      * True when the in-flight recovery pulse identified by {@code pulseToken} must not write:
      * a newer intent superseded it, or the user disabled wireless debugging in the meantime.
@@ -470,10 +496,11 @@ final class KeepADB {
                 || wasLastExplicitIntentOff(appContext);
     }
 
-    private static void logPulseCancelled(Context appContext, long pulseToken, String stage) {
-        Log.i(TAG, "Recovery pulse cancelled by newer user intent");
+    private static void logPulseCancelled(Context appContext, long pulseToken, String stage,
+            String reason) {
+        Log.i(TAG, "Recovery pulse cancelled: " + reason);
         KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "cancelled",
-                "intentId=" + pulseToken + " stage=" + stage + " reason=newer_user_intent");
+                "intentId=" + pulseToken + " stage=" + stage + " reason=" + reason);
     }
 
     /** Consumes and returns whether the last disable was user-initiated (vs. an external drop). */

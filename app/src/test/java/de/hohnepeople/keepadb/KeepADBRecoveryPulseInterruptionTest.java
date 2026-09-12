@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.After;
@@ -78,6 +79,12 @@ public class KeepADBRecoveryPulseInterruptionTest {
         assertEquals("the pulse's restore stage must never have written 'true'",
                 Arrays.asList(false, false), gateway.writes);
         assertFalse(gateway.isEnabled(ctx));
+        String diagnostics = KeepADBDiagnostics.export(ctx);
+        assertTrue("a superseded pulse must identify the newer user intent: " + diagnostics,
+                diagnostics.contains("stage=enable reason=newer_user_intent"));
+        assertFalse("a superseded pulse must not claim changed endpoint preconditions: "
+                        + diagnostics,
+                diagnostics.contains("stage=enable reason=preconditions_changed"));
     }
 
     @Test
@@ -140,6 +147,73 @@ public class KeepADBRecoveryPulseInterruptionTest {
         assertEquals("the manual disable must be applied after the pulse's restore, not before it",
                 Arrays.asList(false, true, false), gateway.writes());
         assertFalse("the user's manual disable must win", gateway.isEnabled(ctx));
+    }
+
+    @Test
+    public void rejectedDisableMustNotReachTheRestoreStage() {
+        FakeContext ctx = new FakeContext();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        gateway.setWriteSuccess(false);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(new KeepADBFakeScheduler());
+
+        KeepADB.performRecoveryPulse(ctx);
+
+        assertEquals(Arrays.asList(false), gateway.writes);
+    }
+
+    @Test
+    public void interruptedPauseMustNotReachTheRestoreStage() {
+        FakeContext ctx = new FakeContext();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(new InterruptingScheduler());
+
+        assertFalse("test thread must start without a stale interrupt", Thread.interrupted());
+        try {
+            KeepADB.performRecoveryPulse(ctx);
+
+            assertTrue("the recovery pulse must preserve the interrupt for its caller",
+                    Thread.currentThread().isInterrupted());
+            assertEquals(Arrays.asList(false), gateway.writes);
+            assertTrue(KeepADBDiagnostics.export(ctx)
+                    .contains("stage=sleep reason=interrupted"));
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
+    public void recoveryGuardIsRecheckedBeforeTheRestoreStage() {
+        FakeContext ctx = new FakeContext();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(new KeepADBFakeScheduler());
+        AtomicInteger guardCalls = new AtomicInteger();
+
+        KeepADB.performRecoveryPulse(ctx, ignored -> guardCalls.incrementAndGet() == 1);
+
+        assertEquals("the guard must be checked before both pulse writes", 2, guardCalls.get());
+        assertEquals("a changed context must cancel the restore write", Arrays.asList(false),
+                gateway.writes);
+    }
+
+    @Test
+    public void endpointOwnedGuardCancelsWhenNetworkGenerationChanges() {
+        FakeContext ctx = new FakeContext();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(new KeepADBFakeScheduler());
+        long plannedGeneration = KeepADB.currentNetworkGeneration();
+        AtomicInteger checks = new AtomicInteger();
+
+        KeepADB.performRecoveryPulse(ctx, ignored -> {
+            if (checks.incrementAndGet() == 2) KeepADB.noteNetworkChanged();
+            return KeepADB.currentNetworkGeneration() == plannedGeneration;
+        });
+
+        assertEquals("the endpoint guard must cancel before a stale restore", Arrays.asList(false),
+                gateway.writes);
     }
 
     /**
@@ -228,6 +302,16 @@ public class KeepADBRecoveryPulseInterruptionTest {
         boolean awaitThreadFinished() throws InterruptedException {
             return threadFinished.await(5, TimeUnit.SECONDS);
         }
+    }
+
+    private static final class InterruptingScheduler implements KeepADBScheduler {
+        @Override public void postDelayed(Runnable runnable, long delayMs) { }
+        @Override public void removeCallbacks(Runnable runnable) { }
+        @Override public void runAsync(Runnable runnable) { runnable.run(); }
+        @Override public void sleep(long delayMs) throws InterruptedException {
+            throw new InterruptedException("test interruption");
+        }
+        @Override public long elapsedRealtimeMs() { return 10 * KeepADB.TOGGLE_COOLDOWN_MS; }
     }
 
     private static final class LatchedScheduler implements KeepADBScheduler {
