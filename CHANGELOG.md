@@ -5,6 +5,15 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.55] - 2026-09-12
+
+### Fixed
+- `setMode()` now invalidates the in-process verified-trust cache, matching what `remove()`
+  already did: switching the trusted-network policy (e.g. `ALLOWLIST` -> `ALL_WIFI` ->
+  `ALLOWLIST`) used to leave a stale "trusted" cache entry in place, which could let a
+  masked-BSSID background reading fail open onto a rogue access point impersonating a
+  previously trusted SSID instead of forcing a fresh BSSID verification (issue #353).
+
 ## [1.5.54] - 2026-09-12
 
 ### Fixed

@@ -102,6 +102,14 @@ final class KeepADBTrustedNetwork {
 
     static void setMode(Context context, String mode) {
         prefs(context).edit().putString(KEY_MODE, mode).apply();
+        // #353: a mode switch is the same security-relevant event as remove() below -- whatever
+        // was verified trusted under the old policy must not silently carry over under the new
+        // one (e.g. ALLOWLIST -> ALL_WIFI -> ALLOWLIST could otherwise let a masked-BSSID
+        // reading of a rogue AP that impersonated a trusted SSID while ALL_WIFI was active reuse
+        // stale trust it was never actually verified against). Clearing unconditionally forces a
+        // fresh verification after every mode change, fail-closed like every other invalidation
+        // site in this class.
+        forgetVerifiedTrust();
     }
 
     static boolean isAllowlistMode(Context context) {

@@ -1,0 +1,3 @@
+Fixed a security gap where switching the trusted-network mode did not clear the app's
+verified-trust memory, which could let a background reconnect wrongly reuse trust from
+before the switch instead of requiring a fresh network check.

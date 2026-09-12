@@ -339,6 +339,65 @@ public class KeepADBTrustedNetworkTest {
                 KeepADBTrustedNetwork.isTrustedForTesting(context, maskedAfterRemoval));
     }
 
+    /**
+     * #353: a mode switch is the same security-relevant event as {@link
+     * KeepADBTrustedNetwork#remove}, which already clears the cache (see {@link
+     * #removingTheAllowlistEntryClearsVerifiedTrustSoAMaskedReadingFailsClosed}). Reproduces the
+     * issue's attack scenario: verified trust in ALLOWLIST mode must not survive a round trip
+     * through ALL_WIFI and back -- a masked-BSSID reading after switching back must require fresh
+     * BSSID verification instead of resurrecting the stale cache entry.
+     */
+    @Test
+    public void setModeClearsVerifiedTrustSoAMaskedReadingFailsClosedAfterAModeRoundTrip() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        KeepADBTrustedNetwork.setVerifiedTrustObserverActive(true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+
+        KeepADBNetworkIdentity verified = new KeepADBNetworkIdentity("\"Home\"", "aa:bb:cc:dd:ee:ff");
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+        KeepADBNetworkIdentity masked =
+                new KeepADBNetworkIdentity("\"Home\"", KeepADBNetworkIdentity.REDACTED_BSSID);
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+
+        // User switches to ALL_WIFI, then back to ALLOWLIST -- e.g. after an intervening
+        // connection to a rogue AP impersonating "Home" whose BSSID was never checked while
+        // ALL_WIFI was active.
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+
+        assertFalse("a mode switch must clear the verified-trust cache like remove() does",
+                KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+        // A fresh, real BSSID verification must still work afterwards.
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+    }
+
+    /**
+     * Also covers switching directly between allowlist entries -- even without ever visiting
+     * ALL_WIFI, re-selecting ALLOWLIST mode (e.g. after toggling it off and on again in the
+     * Settings UI) must require fresh verification rather than trusting the leftover cache.
+     */
+    @Test
+    public void setModeToTheSameModeStillClearsVerifiedTrust() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        KeepADBTrustedNetwork.setVerifiedTrustObserverActive(true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+
+        KeepADBNetworkIdentity verified = new KeepADBNetworkIdentity("\"Home\"", "aa:bb:cc:dd:ee:ff");
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, verified));
+
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+
+        KeepADBNetworkIdentity masked =
+                new KeepADBNetworkIdentity("\"Home\"", KeepADBNetworkIdentity.REDACTED_BSSID);
+        assertFalse("re-setting the same mode must still invalidate the cache",
+                KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+    }
+
     // #354: the masked-BSSID fallback claims "this is still the connection whose BSSID was
     // verified moments ago". Only an invalidator that sees every connection change can back that
     // claim, so the fallback is gated on one being live.
