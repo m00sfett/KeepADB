@@ -313,6 +313,9 @@ final class KeepADBRegisterClient {
 
         String inactivePayload = buildUsbPayload(deviceId, oldProfileId, oldProfileName, oldIpAddress,
                 oldHostname, oldTailnetHostname, false);
+        if (hasLiveOtherProtocolRegistrationAtUrl(oldUrl, true)) {
+            return null;
+        }
         if (sendJsonPost(oldUrl, inactivePayload, "usb-adb")) {
             return null;
         }
@@ -341,6 +344,9 @@ final class KeepADBRegisterClient {
     private static void flushPendingCleanups(Context context) {
         if (context == null) return;
         for (String url : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
+            if (hasLiveOtherProtocolRegistrationAtUrl(url, false)) {
+                continue;
+            }
             if (!shouldAttemptPendingCleanup(context, url)) {
                 continue;
             }
@@ -357,6 +363,9 @@ final class KeepADBRegisterClient {
             if (url == null || payload == null) {
                 KeepADBPreferences.removePendingUsbWebhookCleanup(context, entry);
                 removePendingCleanupRetryState(context, entry);
+                continue;
+            }
+            if (hasLiveOtherProtocolRegistrationAtUrl(url, true)) {
                 continue;
             }
             if (!shouldAttemptPendingCleanup(context, entry)) {
@@ -590,7 +599,9 @@ final class KeepADBRegisterClient {
 
         EXECUTOR.execute(() -> {
             if (opGen != currentUsbOpGeneration) return;
-            if (sendJsonPost(urlToUse, payload, "usb-adb")) {
+            boolean cleanupCompleted = hasLiveOtherProtocolRegistrationAtUrl(urlToUse, true)
+                    || sendJsonPost(urlToUse, payload, "usb-adb");
+            if (cleanupCompleted) {
                 synchronized (KeepADBRegisterClient.class) {
                     if (opGen == currentUsbOpGeneration) {
                         clearUsbStateLocked(context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
@@ -700,7 +711,10 @@ final class KeepADBRegisterClient {
             // Keep the previous successful report until the replacement POST succeeds. If the
             // new target fails, the UI must still show the last endpoint that was actually
             // reported successfully rather than losing it during this transition.
-            if (!deleteEndpoint(oldUrl)) {
+            if (hasLiveOtherProtocolRegistrationAtUrl(oldUrl, false)) {
+                // phone-register-server stores one last_successful_reach per alias; DELETE is not
+                // protocol-specific. Leave the shared record alone while USB still uses this URL.
+            } else if (!deleteEndpoint(oldUrl)) {
                 Log.w(TAG, "Failed to deregister from old URL " + sanitizeUrl(oldUrl)
                         + " during URL change; keeping the cleanup for a later retry");
                 unfinishedCleanupUrl = oldUrl;
@@ -768,7 +782,9 @@ final class KeepADBRegisterClient {
             }
         }
 
-        if (deleteEndpoint(urlToDelete)) {
+        boolean cleanupCompleted = hasLiveOtherProtocolRegistrationAtUrl(urlToDelete, false)
+                || deleteEndpoint(urlToDelete);
+        if (cleanupCompleted) {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
                     wlanUpdateInFlight = false;
@@ -789,6 +805,27 @@ final class KeepADBRegisterClient {
                 }
             }
         }
+    }
+
+    /**
+     * The register server has one {@code last_successful_reach} record per alias, so a cleanup
+     * request for one protocol also clears a live registration made by the other protocol. The
+     * protocol-local successful snapshots are the client-side ownership signal; skip only the
+     * cross-protocol cleanup when that peer snapshot still points at the same URL.
+     */
+    private static synchronized boolean hasLiveOtherProtocolRegistrationAtUrl(String cleanupUrl,
+            boolean cleanupIsUsb) {
+        if (cleanupUrl == null || cleanupUrl.trim().isEmpty()) {
+            return false;
+        }
+        if (cleanupIsUsb) {
+            return cleanupUrl.equals(lastRegisteredUrl) && hasText(lastRegisteredEndpoint);
+        }
+        return cleanupUrl.equals(lastRegisteredUsbUrl) && hasText(lastRegisteredUsbPayload);
+    }
+
+    private static boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 
     static synchronized void resetForTesting() {

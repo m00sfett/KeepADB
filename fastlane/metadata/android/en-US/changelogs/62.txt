@@ -1,0 +1,1 @@
+WLAN and USB webhook cleanups no longer clear a live registration from the other protocol when both use the same register URL (issue #370).

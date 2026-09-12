@@ -188,6 +188,113 @@ public class KeepADBRegisterCleanupLifecycleTest {
                 KeepADBPreferences.getPendingUsbWebhookCleanups(context).isEmpty());
     }
 
+    // ---- #370: the server cleanup endpoint is shared by WLAN and USB. ----
+
+    @Test
+    public void wlanCleanupSkipsDeleteWhenUsbRegistrationIsLiveAtSameUrl() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBRegisterClient.setWlanStateForTesting(NEW_URL, "192.168.1.51:41235");
+        KeepADBRegisterClient.setUsbStateForTesting(NEW_URL,
+                KeepADBRegisterClient.buildUsbPayload("dev1", 5, "Office", "10.0.0.5", "h1", "t1", true),
+                5, "Office", "10.0.0.5", "h1", "t1");
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+
+        assertEquals(0, transport.getRequestCount());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+        assertEquals(NEW_URL, KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+    }
+
+    @Test
+    public void usbCleanupSkipsInactivePostWhenWlanRegistrationIsLiveAtSameUrl() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBRegisterClient.setWlanStateForTesting(NEW_URL, "192.168.1.51:41235");
+        KeepADBRegisterClient.setUsbStateForTesting(NEW_URL,
+                KeepADBRegisterClient.buildUsbPayload("dev1", 5, "Office", "10.0.0.5", "h1", "t1", true),
+                5, "Office", "10.0.0.5", "h1", "t1");
+
+        KeepADBRegisterClient.markUsbInactiveAsyncInternal(context, true, NEW_URL, "dev1");
+
+        waitUntil(() -> KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting() == null, 3000);
+
+        assertEquals(0, transport.getRequestCount());
+        assertEquals(NEW_URL, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+        assertEquals("192.168.1.51:41235",
+                KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+    }
+
+    @Test
+    public void wlanPendingCleanupWaitsWhileUsbRegistrationIsLiveAtSameUrl() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, NEW_URL);
+        KeepADBRegisterClient.setUsbStateForTesting(NEW_URL,
+                KeepADBRegisterClient.buildUsbPayload("dev1", 5, "Office", "10.0.0.5", "h1", "t1", true),
+                5, "Office", "10.0.0.5", "h1", "t1");
+
+        KeepADBRegisterClient.unregisterAndDisableAsync(context);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+
+        assertEquals(0, transport.getRequestCount());
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(NEW_URL));
+        assertEquals(NEW_URL, KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+    }
+
+    @Test
+    public void usbPendingCleanupWaitsWhileWlanRegistrationIsLiveAtSameUrl() throws Exception {
+        configureWebhook(NEW_URL);
+        String inactivePayload = KeepADBRegisterClient.buildUsbPayload(
+                "dev1", 5, "Office", "10.0.0.5", "h1", "t1", false);
+        KeepADBPreferences.addPendingUsbWebhookCleanup(context, NEW_URL, inactivePayload);
+        KeepADBRegisterClient.setWlanStateForTesting(NEW_URL, "192.168.1.51:41235");
+
+        KeepADBRegisterClient.unregisterAndDisableAsync(context);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+
+        assertEquals(1, transport.getRequestCount());
+        assertEquals("DELETE", transport.recordedRequests.get(0).method);
+        assertTrue(KeepADBPreferences.getPendingUsbWebhookCleanups(context).contains(
+                NEW_URL + "\n" + inactivePayload));
+    }
+
+    @Test
+    public void wlanCleanupStillDeletesWhenUsbHasNoLiveRegistration() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBRegisterClient.setWlanStateForTesting(NEW_URL, "192.168.1.51:41235");
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+
+        assertEquals(1, transport.getRequestCount());
+        assertEquals("DELETE", transport.recordedRequests.get(0).method);
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+    }
+
+    @Test
+    public void usbCleanupStillPostsInactiveWhenWlanHasNoLiveRegistration() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBRegisterClient.setUsbStateForTesting(NEW_URL,
+                KeepADBRegisterClient.buildUsbPayload("dev1", 5, "Office", "10.0.0.5", "h1", "t1", true),
+                5, "Office", "10.0.0.5", "h1", "t1");
+
+        KeepADBRegisterClient.markUsbInactiveAsyncInternal(context, true, NEW_URL, "dev1");
+
+        waitUntil(() -> KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting() == null, 3000);
+
+        assertEquals(1, transport.getRequestCount());
+        assertEquals("POST", transport.recordedRequests.get(0).method);
+        assertTrue(transport.recordedRequests.get(0).payload.contains("\"active\":false"));
+        assertNull(KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+    }
+
     // ---- Criterion 2: USB failures are recorded and surfaced, like WLAN failures. ----
 
     @Test
