@@ -13,7 +13,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -211,13 +212,13 @@ public class KeepADBServiceLifecycleRobolectricTest {
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
-        KeepADBRegisterClient.setWlanStateForTesting(webhookUrl, "192.168.1.50:41234");
+        KeepADBRegisterClient.setWlanStateForTesting(webhookUrl, "test-wlan-endpoint");
 
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
         transport.setDeleteSuccess(false);
         KeepADBRegisterClient.setHttpTransport(transport);
-        AtomicBoolean listenerNotified = new AtomicBoolean(false);
-        KeepADBRegisterClient.setRegisterStateListener(() -> listenerNotified.set(true));
+        CountDownLatch listenerNotified = new CountDownLatch(1);
+        KeepADBRegisterClient.setRegisterStateListener(listenerNotified::countDown);
 
         ConnectivityManager connectivityManager = context.getSystemService(ConnectivityManager.class);
         ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
@@ -234,29 +235,36 @@ public class KeepADBServiceLifecycleRobolectricTest {
                 callback.onLost(connectivityManager.getActiveNetwork());
             }
 
-            long deadline = System.currentTimeMillis() + 3000;
-            while (System.currentTimeMillis() < deadline) {
-                ShadowLooper.idleMainLooper();
-                if (KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
-                        KeepADBPreferences.getWebhookLastReportStatus(context))
-                        && listenerNotified.get()) {
-                    break;
-                }
-                Thread.sleep(20);
-            }
+            awaitMainLooperSignal(listenerNotified, 3000);
 
             assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
                     KeepADBPreferences.getWebhookLastReportStatus(context));
             assertTrue("Network loss cleanup failure must reach the register listener",
-                    listenerNotified.get());
+                    listenerNotified.getCount() == 0);
             assertEquals("DELETE", transport.getLastRequest().method);
             assertEquals(webhookUrl, transport.getLastRequest().url);
             assertEquals("Failed cleanup must remain retryable via the last-known WLAN state",
                     webhookUrl, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
-            assertEquals("192.168.1.50:41234",
+            assertEquals("test-wlan-endpoint",
                     KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
         } finally {
             controller.destroy();
+        }
+    }
+
+    private static void awaitMainLooperSignal(CountDownLatch signal, long timeoutMs)
+            throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMs);
+        while (true) {
+            ShadowLooper.idleMainLooper();
+            long remainingNanos = deadline - System.nanoTime();
+            if (remainingNanos <= 0) {
+                throw new AssertionError("Signal timed out after " + timeoutMs + " ms");
+            }
+            if (signal.await(Math.min(remainingNanos, TimeUnit.MILLISECONDS.toNanos(20)),
+                    TimeUnit.NANOSECONDS)) {
+                return;
+            }
         }
     }
 
