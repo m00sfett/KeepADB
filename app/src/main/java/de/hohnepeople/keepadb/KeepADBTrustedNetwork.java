@@ -76,6 +76,19 @@ final class KeepADBTrustedNetwork {
      * which by construction only runs while {@link KeepADBService} -- and therefore its callback
      * -- is running. A foreground app is not subject to the platform's background BSSID masking
      * in the first place and never reaches the fallback.
+     *
+     * <p>#355: is the "BSSID redacted, SSID still readable" case this fallback exists for
+     * actually reachable? Source-level analysis of AOSP's {@code WifiServiceImpl.getConnectionInfo()}
+     * says no on stock Android: SSID, BSSID and network ID are hidden together behind one single
+     * {@code canAccessScanResults(...)} permission check on the same {@code WifiInfo} snapshot --
+     * there's no code path that redacts BSSID while leaving SSID intact, so on AOSP-faithful
+     * builds {@link #hasMatchingVerifiedTrust} can never actually be reached with a non-null
+     * {@link KeepADBNetworkIdentity#displaySsid()}. This wasn't re-verified with a live
+     * permission-toggle experiment on hardware (analysis was judged sufficient for this pass);
+     * kept as a defensive fallback anyway rather than removed, because an OEM Wi-Fi stack that
+     * splits the two checks (or a future AOSP version that does) would silently reintroduce the
+     * failure mode #270 was written to prevent, and the fallback is inert -- not merely unlikely
+     * to fire -- everywhere it doesn't apply. See the issue for the full reasoning.
      */
     private static volatile boolean verifiedTrustObserverActive;
 
