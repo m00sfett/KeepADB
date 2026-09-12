@@ -1,0 +1,3 @@
+Fixed a Wi-Fi connectivity check that could report "connected" from a stale snapshot even
+after the live network tracker correctly saw a disconnect, and made picking the active
+Wi-Fi address deterministic when more than one Wi-Fi network is active at once.

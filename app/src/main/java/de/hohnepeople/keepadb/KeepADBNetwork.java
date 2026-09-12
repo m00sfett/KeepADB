@@ -13,6 +13,7 @@ import android.net.wifi.WifiManager;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,6 +46,16 @@ import java.util.concurrent.ConcurrentHashMap;
  * onCapabilitiesChanged}/{@code onLinkPropertiesChanged} fire at least once for every network a
  * request matches -- including ones that already existed at registration time -- so no separate
  * {@code onAvailable} bookkeeping is required.
+ *
+ * <p>#352 hardened three edge cases found in cumulative review R20: {@code onLost} only ever
+ * removes the map entries of the specific {@code Network} it names, so losing one eligible Wi-Fi
+ * network while another is still tracked never wrongly invalidates the survivor; {@link
+ * #getWifiIpv4Address()} evaluates candidates in a fixed order when more than one eligible Wi-Fi
+ * network is tracked at once, rather than depending on {@code ConcurrentHashMap}'s unspecified
+ * iteration order; and {@link #isWifiCallbackRegistered()} lets callers with their own
+ * synchronous fallback (see {@link KeepADBService#isWifiConnected(Context)}) distinguish a
+ * genuinely negative, authoritative answer from "this tracker never managed to register its
+ * callback and cannot know".
  */
 final class KeepADBNetwork {
     private static volatile KeepADBNetwork instance;
@@ -52,6 +63,11 @@ final class KeepADBNetwork {
     // lives here instead of on KeepADBService/KeepADBNotification. null in production, where
     // isWifiConnected() always falls through to the real transport-capability check below.
     private static volatile KeepADBWifiProbe wifiConnectivityOverride;
+    // #352: test-only override for isWifiCallbackRegistered(), letting tests simulate a
+    // registerNetworkCallback() failure without needing ConnectivityManager itself to throw.
+    // null in production, where isWifiCallbackRegistered() always reports the real outcome of
+    // the registration attempt below.
+    private static volatile Boolean wifiCallbackRegisteredOverride;
 
     private final Context appContext;
     private final ConnectivityManager connectivityManager;
@@ -59,6 +75,12 @@ final class KeepADBNetwork {
     private final ConnectivityManager.NetworkCallback defaultCallback;
     private final Map<Network, NetworkCapabilities> wifiCapabilities = new ConcurrentHashMap<>();
     private final Map<Network, LinkProperties> wifiLinkProperties = new ConcurrentHashMap<>();
+    // #352: whether registerNetworkCallback() for wifiCallback actually succeeded. false means
+    // this tracker has no way of observing Wi-Fi network state at all -- neither a positive nor
+    // a negative one is authoritative -- which is the one case callers may fall back to a
+    // synchronous WifiInfo snapshot instead of trusting isWifiConnected()'s (necessarily false)
+    // answer. See KeepADBService#isWifiConnected(Context).
+    private volatile boolean wifiCallbackRegistered;
     // #314: written by defaultCallback, deliberately read by nothing any more -- the former
     // reader isKnownLocalAddress() was the very leak this issue closed (the default route may be
     // cellular, VPN, USB tethering or ethernet, none of which can host our Wi-Fi endpoint). The
@@ -105,10 +127,13 @@ final class KeepADBNetwork {
                         .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                         .build();
                 connectivityManager.registerNetworkCallback(wifiRequest, wifiCallback);
+                wifiCallbackRegistered = true;
             } catch (RuntimeException ignored) {
                 // Best-effort: isWifiConnected()/getWifiIpv4Address()/isActiveWifiAddress()
                 // simply see fewer tracked networks if registration fails -- which for
                 // isActiveWifiAddress() means rejecting candidates, never accepting one.
+                // wifiCallbackRegistered stays false (#352), signalling callers that this
+                // tracker's negative isWifiConnected() answer is not authoritative here.
             }
             try {
                 connectivityManager.registerDefaultNetworkCallback(defaultCallback);
@@ -137,6 +162,7 @@ final class KeepADBNetwork {
         }
         instance = null;
         wifiConnectivityOverride = null;
+        wifiCallbackRegisteredOverride = null;
     }
 
     /**
@@ -147,6 +173,34 @@ final class KeepADBNetwork {
      */
     static void setWifiConnectivityOverrideForTesting(KeepADBWifiProbe override) {
         wifiConnectivityOverride = override;
+    }
+
+    /**
+     * Test-only seam (#352): forces {@link #isWifiCallbackRegistered()} to {@code forcedValue},
+     * or restores the real registration outcome when passed {@code null}. Lets tests simulate a
+     * {@code registerNetworkCallback()} failure (forcedValue {@code false}) or a successful,
+     * live registration (forcedValue {@code true}) without needing a real {@link
+     * ConnectivityManager} to actually throw.
+     */
+    static void setWifiCallbackRegisteredOverrideForTesting(Boolean forcedValue) {
+        wifiCallbackRegisteredOverride = forcedValue;
+    }
+
+    /**
+     * Whether this tracker's Wi-Fi {@link ConnectivityManager.NetworkCallback} is actually
+     * registered and therefore authoritative. When {@code false} (registration failed at
+     * construction time, see the constructor's catch block), {@link #isWifiConnected()} can only
+     * ever answer {@code false} -- not because Wi-Fi is disconnected, but because this tracker
+     * has no way of observing it. Callers with a synchronous fallback of their own (see {@link
+     * KeepADBService#isWifiConnected(Context)}) must use this to decide whether a negative
+     * answer here is trustworthy or merely "unknown" (#352).
+     */
+    boolean isWifiCallbackRegistered() {
+        Boolean override = wifiCallbackRegisteredOverride;
+        if (override != null) {
+            return override;
+        }
+        return wifiCallbackRegistered;
     }
 
     /** Wi-Fi transport, excluding VPN-over-Wi-Fi -- unchanged from the prior getAllNetworks() predicate. */
@@ -169,10 +223,16 @@ final class KeepADBNetwork {
         return false;
     }
 
-    /** First non-loopback, non-link-local IPv4 address bound to an eligible Wi-Fi network, if any. */
+    /**
+     * First non-loopback, non-link-local IPv4 address bound to an eligible Wi-Fi network, if
+     * any. When more than one eligible Wi-Fi network is simultaneously tracked (#352 -- e.g. a
+     * multi-internet-capable device, or a brief overlap during a network handover), candidates
+     * are evaluated in a fixed, deterministic order rather than {@code wifiCapabilities}'
+     * unspecified {@link ConcurrentHashMap} iteration order, so repeated calls against the same
+     * tracked state always agree instead of depending on incidental map/hash ordering.
+     */
     String getWifiIpv4Address() {
-        for (Map.Entry<Network, NetworkCapabilities> entry : wifiCapabilities.entrySet()) {
-            if (!isEligibleWifiTransport(entry.getValue())) continue;
+        for (Map.Entry<Network, NetworkCapabilities> entry : eligibleWifiEntriesInDeterministicOrder()) {
             LinkProperties linkProperties = wifiLinkProperties.get(entry.getKey());
             if (linkProperties == null) continue;
             for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
@@ -183,6 +243,25 @@ final class KeepADBNetwork {
             }
         }
         return null;
+    }
+
+    /**
+     * Snapshot of {@link #wifiCapabilities}' eligible entries, sorted by {@link
+     * Network#getNetworkHandle()} -- a stable, monotonically-assigned identifier available on
+     * every {@code Network} since API 23 (well below this app's minSdk 30) that does not depend
+     * on {@link ConcurrentHashMap}'s unspecified iteration order. Ascending order deterministically
+     * prefers the longest-tracked (earliest-connected) eligible network as the "currently active"
+     * candidate over one that started coexisting more recently (#352).
+     */
+    private List<Map.Entry<Network, NetworkCapabilities>> eligibleWifiEntriesInDeterministicOrder() {
+        List<Map.Entry<Network, NetworkCapabilities>> entries = new ArrayList<>();
+        for (Map.Entry<Network, NetworkCapabilities> entry : wifiCapabilities.entrySet()) {
+            if (isEligibleWifiTransport(entry.getValue())) {
+                entries.add(entry);
+            }
+        }
+        entries.sort(Comparator.comparingLong(entry -> entry.getKey().getNetworkHandle()));
+        return entries;
     }
 
     /**

@@ -5,6 +5,16 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.54] - 2026-09-12
+
+### Fixed
+- The Wi-Fi connectivity check no longer lets a stale, synchronous `WifiInfo` snapshot override
+  the live network tracker's authoritative "not connected" answer; the snapshot is now only
+  trusted as a fallback when the tracker's callback truly failed to register (issue #352).
+- Resolving the currently active Wi-Fi address, when more than one eligible Wi-Fi network is
+  tracked at once, is now deterministic instead of depending on unspecified map iteration order
+  (issue #352).
+
 ## [1.5.53] - 2026-09-12
 
 ### Fixed
