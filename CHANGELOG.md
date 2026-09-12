@@ -5,6 +5,15 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.59] - 2026-09-13
+
+### Fixed
+- Repeated cached-endpoint re-verification triggers (the 60s heartbeat and a Wi-Fi roam callback
+  can both land within a short window) no longer each start their own background worker thread
+  and socket check. A verification already in flight now coalesces further triggers instead of
+  running concurrently alongside it; the #315 verification token still guarantees a superseded
+  check cannot mutate the cached endpoint after a newer event has already changed it (issue #351).
+
 ## [1.5.58] - 2026-09-13
 
 ### Fixed

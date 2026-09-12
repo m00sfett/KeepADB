@@ -1,0 +1,4 @@
+Repeated triggers to re-check a cached wireless-debugging endpoint (a routine heartbeat and a
+Wi-Fi roam can both fire in a short window) no longer each start their own background check.
+They now coalesce into whichever check is already running, without weakening the existing
+protection against a stale check overwriting a newer result.

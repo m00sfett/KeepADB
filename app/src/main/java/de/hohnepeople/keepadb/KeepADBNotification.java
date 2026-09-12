@@ -37,6 +37,22 @@ final class KeepADBNotification {
     private static long discoveryRequestGeneration;
     private static long endpointVerificationToken;
     private static Object activeDiscoveryOwner;
+    // #351: whether a verifyCachedEndpointAsync() worker Thread is currently running. Repeated
+    // triggers (the unthrottled 60s heartbeat and the throttled roam callback can both land here
+    // within a short window) used to each spawn their own raw Thread + blocking socket check, so
+    // they could pile up while older ones were still in flight. The #315 token/owner/state checks
+    // already made a superseded worker's *result* harmless, but did nothing to bound how many
+    // socket checks ran concurrently. This flag coalesces same-target triggers into the single
+    // in-flight worker instead of stacking a new one; it is only ever read/written under the
+    // class monitor and is always cleared by the worker itself once its socket check returns.
+    private static boolean verificationInFlight;
+    // Test-only seam (#351): lets a test substitute a slow/deterministic fake for the real
+    // blocking socket check in KeepADBEndpoint.isPortReachable(), which a raw unit/Robolectric
+    // test cannot otherwise drive without hanging or flaking (see KeepADBNotificationRobolectricTest).
+    private static ReachabilityProbe reachabilityProbe = KeepADBEndpoint::isPortReachable;
+    // Test-only counter (#351): number of verification worker Threads actually started, so a test
+    // can assert that coalesced triggers did not each spawn their own worker.
+    private static int verificationWorkerStartCountForTesting;
     // #297: verifyCachedEndpointAsync() is reached both by the throttled roam trigger and by the
     // unthrottled 60s heartbeat. Without this flag every routine "still reachable" heartbeat
     // confirmation persisted its own endpoint_verified/reachable diagnostics event, flooding the
@@ -48,6 +64,25 @@ final class KeepADBNotification {
     interface EndpointListener {
         void onEndpoint(String host, int port);
         void onUnavailable();
+    }
+
+    /** Test-only seam (#351) for the blocking reachability check performed by a verification worker. */
+    interface ReachabilityProbe {
+        boolean isReachable(String host, int port, int timeoutMs);
+    }
+
+    /** Substitutes the real socket-based reachability check with {@code probe} for a test. */
+    static synchronized void setReachabilityProbeForTesting(ReachabilityProbe probe) {
+        reachabilityProbe = probe != null ? probe : KeepADBEndpoint::isPortReachable;
+    }
+
+    /** Number of verification worker Threads actually started since the last {@link #resetForTesting()}. */
+    static synchronized int getVerificationWorkerStartCountForTesting() {
+        return verificationWorkerStartCountForTesting;
+    }
+
+    static synchronized boolean isVerificationInFlightForTesting() {
+        return verificationInFlight;
     }
 
     /**
@@ -83,6 +118,9 @@ final class KeepADBNotification {
         currentPort = 0;
         endpointListener = null;
         resetReachableConfirmed();
+        verificationInFlight = false;
+        verificationWorkerStartCountForTesting = 0;
+        reachabilityProbe = KeepADBEndpoint::isPortReachable;
     }
 
     static synchronized String getCurrentHost() {
@@ -233,11 +271,22 @@ final class KeepADBNotification {
         synchronized (KeepADBNotification.class) {
             // A Tile must not supersede a verification retained by the global owner.
             if (activeDiscoveryOwner != discoveryOwner) return;
+            // #351: coalesce this trigger into an already-running verification worker instead of
+            // stacking another concurrent socket check. The in-flight worker re-reads
+            // currentHost/currentPort (and the token/owner below) right before it would mutate
+            // anything, so it already covers this trigger's target as long as the cached endpoint
+            // hasn't changed since it started; if it has, the checks below make it a no-op and the
+            // next trigger (next heartbeat tick, or an explicit invalidate/rediscovery) starts a
+            // fresh worker for the new state.
+            if (verificationInFlight) return;
             verificationToken = ++endpointVerificationToken;
+            verificationInFlight = true;
+            verificationWorkerStartCountForTesting++;
         }
         new Thread(() -> {
-            boolean reachable = KeepADBEndpoint.isPortReachable(host, port, 500);
+            boolean reachable = reachabilityProbe.isReachable(host, port, 500);
             synchronized (KeepADBNotification.class) {
+                verificationInFlight = false;
                 if (verificationToken != endpointVerificationToken) return;
                 if (activeDiscoveryOwner != discoveryOwner) return;
                 if (!host.equals(currentHost) || port != currentPort) {
