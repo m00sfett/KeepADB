@@ -5,6 +5,13 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.42] - 2026-09-12
+
+### Fixed
+- USB webhook deactivation with an empty URL now clears stale local and persisted registration
+  state, records an explicit inactive status and notifies listeners; a genuine no-op remains a
+  no-op (issue #372).
+
 ## [1.5.41] - 2026-09-12
 
 ### Fixed

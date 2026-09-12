@@ -574,7 +574,12 @@ final class KeepADBRegisterClient {
         if (urlToUse == null || urlToUse.trim().isEmpty()) {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentUsbOpGeneration) {
-                    clearUsbStateLocked(context);
+                    // #372: an existing USB report with no usable URL cannot be sent anywhere,
+                    // but it still needs to leave the local and persisted state as explicitly
+                    // inactive. The no-op return above remains before this branch when nothing
+                    // was registered or in flight.
+                    clearUsbStateLocked(context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
+                    notifyRegisterStateListener();
                 }
             }
             return;

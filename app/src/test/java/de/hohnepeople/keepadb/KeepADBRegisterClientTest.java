@@ -456,6 +456,52 @@ public class KeepADBRegisterClientTest {
     }
 
     @Test
+    public void testEmptyUsbUrlClearsStaleStateAndNotifiesListener() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        String payload = KeepADBRegisterClient.buildUsbPayload(
+                "device123", 1, "Desk", "192.168.1.20", "host", "tailhost", true);
+        KeepADBRegisterClient.setUsbStateForTesting(null, payload, 1, "Desk", "192.168.1.20",
+                "host", "tailhost");
+        KeepADBPreferences.setUsbWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        AtomicBoolean listenerNotified = new AtomicBoolean(false);
+        KeepADBRegisterClient.setRegisterStateListener(() -> listenerNotified.set(true));
+
+        KeepADBRegisterClient.markUsbInactiveAsyncInternal(context, true, "", "device123");
+        waitUntil(() -> {
+            ShadowLooper.idleMainLooper();
+            return listenerNotified.get();
+        }, 3000);
+
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED,
+                KeepADBPreferences.getUsbWebhookLastReportStatus(context));
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUsbPayloadForTesting());
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
+        assertNull(KeepADBPreferences.getUsbWebhookLastReportedPayload(context));
+        assertEquals("No URL means no remote request is possible", 0, transport.getRequestCount());
+    }
+
+    @Test
+    public void testEmptyUsbUrlWithNoPriorStateRemainsANoop() {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        AtomicBoolean listenerNotified = new AtomicBoolean(false);
+        KeepADBRegisterClient.setRegisterStateListener(() -> listenerNotified.set(true));
+
+        KeepADBRegisterClient.markUsbInactiveAsyncInternal(context, true, "", "device123");
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_NEVER,
+                KeepADBPreferences.getUsbWebhookLastReportStatus(context));
+        assertFalse(listenerNotified.get());
+        assertEquals(0, transport.getRequestCount());
+    }
+
+    @Test
     public void testInFlightUpdateSupersededByNewerUpdate() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
