@@ -1,0 +1,1 @@
+USB webhook cleanup now loads the persisted WLAN registration snapshot before applying the cross-protocol guard after a process restart (issue #370).

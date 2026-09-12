@@ -209,7 +209,10 @@ final class KeepADBRegisterClient {
                 tailnetHostname, true);
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
-            ensureUsbStateInitializedLocked(context);
+            // Cross-protocol cleanup decisions also need the persisted WLAN snapshot. A USB
+            // broadcast can wake a fresh process before the WLAN service has initialized its
+            // state; loading only USB here would then fail open and clear the shared alias record.
+            ensureStateInitializedLocked(context);
             if (targetUrl.equals(lastRegisteredUsbUrl) && payload.equals(lastRegisteredUsbPayload)) {
                 return;
             }
@@ -561,7 +564,9 @@ final class KeepADBRegisterClient {
         final String tailnetHostname;
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
-            ensureUsbStateInitializedLocked(context);
+            // The USB disconnect path can be the first register activity after process restart.
+            // Load the peer WLAN snapshot before deciding whether an alias-wide cleanup is safe.
+            ensureStateInitializedLocked(context);
             boolean wasInFlight = usbUpdateInFlight;
             boolean hadPrior = (lastRegisteredUsbUrl != null || lastRegisteredUsbPayload != null);
             usbUpdateInFlight = false;

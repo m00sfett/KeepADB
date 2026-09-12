@@ -334,6 +334,28 @@ public class KeepADBRegisterCleanupLifecycleTest {
     }
 
     @Test
+    public void usbCleanupLoadsPersistedPartialWlanSnapshotBeforeGuarding() throws Exception {
+        configureWebhook(NEW_URL);
+        // Simulate process death after the WLAN URL reached disk but before its endpoint did.
+        KeepADBPreferences.setWebhookReportSnapshot(context, NEW_URL, null,
+                KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
+        String payload = KeepADBRegisterClient.buildUsbPayload(
+                "dev1", 5, "Office", "test-usb-ip", "h1", "t1", true);
+        KeepADBRegisterClient.resetForTesting();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        KeepADBRegisterClient.setUsbStateForTesting(NEW_URL, payload,
+                5, "Office", "test-usb-ip", "h1", "t1");
+
+        KeepADBRegisterClient.markUsbInactiveAsyncInternal(context, true, NEW_URL, "dev1");
+
+        waitUntil(() -> KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting() == null, 3000);
+
+        assertEquals("A persisted partial WLAN snapshot must protect the shared server record", 0,
+                transport.getRequestCount());
+        assertEquals(NEW_URL, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+    }
+
+    @Test
     public void wlanPendingCleanupIsDroppedWhenUsbRegistrationIsLiveAtSameUrl() throws Exception {
         configureWebhook(NEW_URL);
         KeepADBPreferences.addPendingWebhookCleanupUrl(context, NEW_URL);
