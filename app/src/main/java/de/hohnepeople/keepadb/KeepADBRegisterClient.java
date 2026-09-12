@@ -344,13 +344,14 @@ final class KeepADBRegisterClient {
     private static void flushPendingCleanups(Context context) {
         if (context == null) return;
         for (String url : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
-            if (hasLiveOtherProtocolRegistrationAtUrl(url, false)) {
+            String sanitizedUrl = sanitizePendingCleanupUrl(url);
+            if (hasLiveOtherProtocolRegistrationAtUrl(sanitizedUrl, false)) {
                 continue;
             }
             if (!shouldAttemptPendingCleanup(context, url)) {
                 continue;
             }
-            if (deleteEndpoint(url)) {
+            if (sanitizedUrl != null && deleteEndpoint(sanitizedUrl)) {
                 KeepADBPreferences.removePendingWebhookCleanupUrl(context, url);
                 removePendingCleanupRetryState(context, url);
             } else {
@@ -365,13 +366,14 @@ final class KeepADBRegisterClient {
                 removePendingCleanupRetryState(context, entry);
                 continue;
             }
-            if (hasLiveOtherProtocolRegistrationAtUrl(url, true)) {
+            String sanitizedUrl = sanitizePendingCleanupUrl(url);
+            if (hasLiveOtherProtocolRegistrationAtUrl(sanitizedUrl, true)) {
                 continue;
             }
             if (!shouldAttemptPendingCleanup(context, entry)) {
                 continue;
             }
-            if (sendJsonPost(url, payload, "usb-adb")) {
+            if (sanitizedUrl != null && sendJsonPost(sanitizedUrl, payload, "usb-adb")) {
                 KeepADBPreferences.removePendingUsbWebhookCleanup(context, entry);
                 removePendingCleanupRetryState(context, entry);
             } else {
@@ -528,6 +530,16 @@ final class KeepADBRegisterClient {
             prefs.edit().remove(KEY_PENDING_CLEANUP_RETRY_STATE).apply();
             Log.w(TAG, "Clearing malformed pending cleanup retry state");
         }
+    }
+
+    /**
+     * #377: legacy pending entries may contain userinfo even though new entries are sanitised on
+     * write. Keep the stored entry unchanged so exact set removal still works, and only use the
+     * sanitised URL for the outgoing cleanup request.
+     */
+    private static String sanitizePendingCleanupUrl(String rawUrl) {
+        String sanitized = KeepADBPreferences.sanitizeWebhookUrl(rawUrl);
+        return sanitized == null || sanitized.trim().isEmpty() ? null : sanitized;
     }
 
     /** Marks the previously-registered USB-ADB profile inactive; a no-op if nothing was registered. */

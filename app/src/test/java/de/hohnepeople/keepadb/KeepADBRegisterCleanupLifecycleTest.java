@@ -82,6 +82,31 @@ public class KeepADBRegisterCleanupLifecycleTest {
     }
 
     @Test
+    public void legacyPendingCleanupUrlsAreSanitizedBeforeRetryAndRemovedByOriginalEntry()
+            throws Exception {
+        String legacyWlanUrl = "http://admin:secret@legacy.example/register?token=abc";
+        String legacyUsbUrl = "https://usbadmin:secret@usb-legacy.example/register#fragment";
+        String payload = KeepADBRegisterClient.buildUsbPayload(
+                "device", 1, "Office", "host", "hostname", "tailnet", false);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, legacyWlanUrl);
+        KeepADBPreferences.addPendingUsbWebhookCleanup(context, legacyUsbUrl, payload);
+
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true,
+                "http://new.example/register", "device", 1, "Office", "host", "hostname", "tailnet");
+        waitUntil(() -> KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty()
+                && KeepADBPreferences.getPendingUsbWebhookCleanups(context).isEmpty(), 3000);
+
+        KeepADBFakeHttpTransport.Request wlanCleanup = transport.recordedRequests.get(0);
+        assertEquals("DELETE", wlanCleanup.method);
+        assertEquals("http://legacy.example/register?token=abc", wlanCleanup.url);
+        KeepADBFakeHttpTransport.Request usbCleanup = transport.recordedRequests.get(1);
+        assertEquals("POST", usbCleanup.method);
+        assertEquals("https://usb-legacy.example/register", usbCleanup.url);
+        assertFalse(wlanCleanup.url.contains("secret"));
+        assertFalse(usbCleanup.url.contains("secret"));
+    }
+
+    @Test
     public void usbUrlChangeDeactivatesThePreviousRegistration() throws Exception {
         KeepADBRegisterClient.setUsbStateForTesting(OLD_URL,
                 KeepADBRegisterClient.buildUsbPayload("dev1", 5, "Office", "10.0.0.5", "h1", "t1", true),

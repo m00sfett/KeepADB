@@ -1,0 +1,1 @@
+Legacy pending webhook cleanups no longer send stored URL userinfo when retried (issue #377).
