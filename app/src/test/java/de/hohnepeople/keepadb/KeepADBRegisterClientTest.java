@@ -459,8 +459,8 @@ public class KeepADBRegisterClientTest {
     public void testEmptyUsbUrlClearsStaleStateAndNotifiesListener() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         String payload = KeepADBRegisterClient.buildUsbPayload(
-                "device123", 1, "Desk", "192.168.1.20", "host", "tailhost", true);
-        KeepADBRegisterClient.setUsbStateForTesting(null, payload, 1, "Desk", "192.168.1.20",
+                "device123", 1, "Desk", "test-usb-ip", "host", "tailhost", true);
+        KeepADBRegisterClient.setUsbStateForTesting(null, payload, 1, "Desk", "test-usb-ip",
                 "host", "tailhost");
         KeepADBPreferences.setUsbWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
 
