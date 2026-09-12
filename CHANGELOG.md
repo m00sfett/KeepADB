@@ -5,6 +5,17 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.49] - 2026-09-12
+
+### Fixed
+- Wi-Fi handover cleanup no longer treats a late loss of the old network as a loss of the still
+  active new network (issue #349).
+- Cross-protocol cleanup now fails closed for partially persisted peer snapshots, and successful
+  registration removes equivalent legacy cleanup entries from both protocol queues (issues #369,
+  #370, #377).
+- Legacy pending URLs with an '@' in userinfo are sanitized completely before an outgoing retry
+  (issue #377).
+
 ## [1.5.48] - 2026-09-12
 
 ### Fixed

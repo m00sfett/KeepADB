@@ -16,6 +16,9 @@ import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Foreground service that monitors Wi-Fi connectivity and wireless debugging state
  * to automatically re-enable Wireless Debugging and push new endpoints to the register.
@@ -28,6 +31,9 @@ public class KeepADBService extends Service {
     private boolean isRegisteredObserver = false;
     private boolean isRegisteredNetworkCallback = false;
     private boolean foregroundReady = false;
+    // Network callbacks may overlap during a Wi-Fi handover. Keep the callback's own view so a
+    // late onLost(old) cannot invalidate the still-live onAvailable(new) connection.
+    private final Set<Network> availableWifiNetworks = ConcurrentHashMap.newKeySet();
     private long lastRecheckTime = 0;
     // #276: onCapabilitiesChanged() fires on every routine RSSI update, not just a roam, so the
     // re-verification it triggers is throttled independently of recheckAndEnable()'s own debounce.
@@ -324,6 +330,9 @@ public class KeepADBService extends Service {
                     // reconnect, so a fresh BSSID verification is required afterwards. Must stay
                     // the first statement -- everything below can read the cache.
                     KeepADBTrustedNetwork.forgetVerifiedTrust();
+                    if (network != null) {
+                        availableWifiNetworks.add(network);
+                    }
                     Log.d(TAG, "NetworkCallback: Wi-Fi network available");
                     // #310: advance the generation *before* recheckAndEnable() plans a new
                     // intent, so the new intent is stamped with the network it was planned for
@@ -339,6 +348,13 @@ public class KeepADBService extends Service {
                     // #313: a masked reconnect must require fresh BSSID verification,
                     // even when foreground promotion has not completed.
                     KeepADBTrustedNetwork.forgetVerifiedTrust();
+                    if (network != null) {
+                        availableWifiNetworks.remove(network);
+                    }
+                    if (!availableWifiNetworks.isEmpty()) {
+                        Log.d(TAG, "Ignoring network loss while another Wi-Fi network remains");
+                        return;
+                    }
                     // #310: unconditional, and ahead of the foregroundReady gate -- a pending
                     // automatic enable can outlive foreground promotion state, and losing the
                     // network invalidates it either way.
@@ -410,6 +426,7 @@ public class KeepADBService extends Service {
         ConnectivityManager.NetworkCallback callback = networkCallback;
         isRegisteredNetworkCallback = false;
         networkCallback = null;
+        availableWifiNetworks.clear();
         // #354: ahead of the actual unregister call (and of anything that can throw), so the
         // fallback is withdrawn before the observer stops watching, never after.
         KeepADBTrustedNetwork.setVerifiedTrustObserverActive(false);

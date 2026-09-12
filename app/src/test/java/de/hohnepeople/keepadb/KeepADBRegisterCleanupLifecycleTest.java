@@ -213,6 +213,36 @@ public class KeepADBRegisterCleanupLifecycleTest {
                 KeepADBPreferences.getPendingUsbWebhookCleanups(context).isEmpty());
     }
 
+    @Test
+    public void wlanRegistrationDropsEquivalentLegacyPendingCleanup() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context,
+                "http://user:secret@new.example/register");
+        transport.setDeleteSuccess(false);
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+        waitUntil(() -> "192.168.1.51:41235".equals(
+                KeepADBPreferences.getWebhookLastReportedEndpoint(context)), 3000);
+
+        assertTrue("a legacy cleanup for the newly registered URL must be obsolete",
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
+
+    @Test
+    public void usbRegistrationDropsEquivalentLegacyWlanPendingCleanup() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context,
+                "http://user:secret@new.example/register");
+        transport.setDeleteSuccess(false);
+
+        KeepADBRegisterClient.updateUsbEndpointAsyncInternal(context, true, NEW_URL, "dev1",
+                5, "Office", "10.0.0.5", "h1", "t1");
+        waitUntil(() -> NEW_URL.equals(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting()), 3000);
+
+        assertTrue("a legacy WLAN cleanup must not deactivate the new USB registration",
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
+
     // ---- #370: the server cleanup endpoint is shared by WLAN and USB. ----
 
     @Test
@@ -234,6 +264,40 @@ public class KeepADBRegisterCleanupLifecycleTest {
     }
 
     @Test
+    public void wlanCleanupSkipsDeleteWhenUsbUrlSnapshotIsPartial() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBRegisterClient.setWlanStateForTesting(NEW_URL, "192.168.1.51:41235");
+        KeepADBRegisterClient.setUsbStateForTesting(NEW_URL, null, null, null, null, null, null);
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+
+        assertEquals("A partial USB snapshot must still protect the shared server record", 0,
+                transport.getRequestCount());
+        assertEquals(NEW_URL, KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+    }
+
+    @Test
+    public void wlanCleanupSkipsDeleteWhenUsbUsesEquivalentServerUrl() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBRegisterClient.setWlanStateForTesting(NEW_URL, "192.168.1.51:41235");
+        KeepADBRegisterClient.setUsbStateForTesting(NEW_URL + "/?token=rotated", "payload",
+                5, "Office", "10.0.0.5", "h1", "t1");
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+
+        assertEquals("Query and trailing-slash variants share the server record", 0,
+                transport.getRequestCount());
+        assertEquals(NEW_URL + "/?token=rotated",
+                KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
+    }
+
+    @Test
     public void usbCleanupSkipsInactivePostWhenWlanRegistrationIsLiveAtSameUrl() throws Exception {
         configureWebhook(NEW_URL);
         KeepADBRegisterClient.setWlanStateForTesting(NEW_URL, "192.168.1.51:41235");
@@ -252,7 +316,25 @@ public class KeepADBRegisterCleanupLifecycleTest {
     }
 
     @Test
-    public void wlanPendingCleanupWaitsWhileUsbRegistrationIsLiveAtSameUrl() throws Exception {
+    public void usbCleanupSkipsInactivePostWhenWlanUrlSnapshotIsPartial() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBRegisterClient.setWlanStateForTesting(NEW_URL, null);
+        String payload = KeepADBRegisterClient.buildUsbPayload(
+                "dev1", 5, "Office", "10.0.0.5", "h1", "t1", true);
+        KeepADBRegisterClient.setUsbStateForTesting(NEW_URL, payload,
+                5, "Office", "10.0.0.5", "h1", "t1");
+
+        KeepADBRegisterClient.markUsbInactiveAsyncInternal(context, true, NEW_URL, "dev1");
+
+        waitUntil(() -> KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting() == null, 3000);
+
+        assertEquals("A partial WLAN snapshot must still protect the shared server record", 0,
+                transport.getRequestCount());
+        assertEquals(NEW_URL, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+    }
+
+    @Test
+    public void wlanPendingCleanupIsDroppedWhenUsbRegistrationIsLiveAtSameUrl() throws Exception {
         configureWebhook(NEW_URL);
         KeepADBPreferences.addPendingWebhookCleanupUrl(context, NEW_URL);
         KeepADBRegisterClient.setUsbStateForTesting(NEW_URL,
@@ -265,12 +347,13 @@ public class KeepADBRegisterCleanupLifecycleTest {
                 KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
 
         assertEquals(0, transport.getRequestCount());
-        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(NEW_URL));
+        assertTrue("The peer registration already replaced the shared cleanup target",
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
         assertEquals(NEW_URL, KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting());
     }
 
     @Test
-    public void usbPendingCleanupWaitsWhileWlanRegistrationIsLiveAtSameUrl() throws Exception {
+    public void usbPendingCleanupIsDroppedWhenWlanRegistrationIsLiveAtSameUrl() throws Exception {
         configureWebhook(NEW_URL);
         String inactivePayload = KeepADBRegisterClient.buildUsbPayload(
                 "dev1", 5, "Office", "10.0.0.5", "h1", "t1", false);
@@ -284,8 +367,8 @@ public class KeepADBRegisterCleanupLifecycleTest {
 
         assertEquals(1, transport.getRequestCount());
         assertEquals("DELETE", transport.recordedRequests.get(0).method);
-        assertTrue(KeepADBPreferences.getPendingUsbWebhookCleanups(context).contains(
-                NEW_URL + "\n" + inactivePayload));
+        assertTrue("The peer registration already replaced the shared cleanup target",
+                KeepADBPreferences.getPendingUsbWebhookCleanups(context).isEmpty());
     }
 
     @Test
@@ -495,6 +578,24 @@ public class KeepADBRegisterCleanupLifecycleTest {
 
         assertEquals(1, transport.getRequestCount());
         assertTrue("Expired cleanup must be removed without another DELETE",
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
+
+    @Test
+    public void wlanPendingCleanupWithNewlineIsRemovedFromTheWlanQueueAfterBudget() {
+        String malformedLegacyUrl = OLD_URL + "\nlegacy";
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, malformedLegacyUrl);
+        transport.setDeleteSuccess(false);
+
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
+        KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+        for (int attempt = 1; attempt < KeepADBRegisterClient.MAX_PENDING_CLEANUP_ATTEMPTS; attempt++) {
+            KeepADBRegisterClient.setPendingCleanupNowForTesting(
+                    1_000_000L + attempt * KeepADBRegisterClient.PENDING_CLEANUP_MAX_BACKOFF_MS);
+            KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+        }
+
+        assertTrue("The retry budget must remove malformed WLAN entries from the WLAN queue",
                 KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
     }
 
