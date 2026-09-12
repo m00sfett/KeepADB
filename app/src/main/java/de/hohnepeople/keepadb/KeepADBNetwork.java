@@ -11,7 +11,9 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -326,7 +328,16 @@ final class KeepADBNetwork {
         return isWifiCallbackRegistered() && wifiCallbackObserved;
     }
 
-    /** Addresses currently bound to an eligible (non-VPN) Wi-Fi network of this device. */
+    /**
+     * Addresses currently bound to an eligible (non-VPN) Wi-Fi network of this device.
+     *
+     * <p>#364: a link-local ({@code fe80::/10}) {@link Inet6Address} is stamped with this
+     * network's own real interface index (via {@link LinkProperties#getInterfaceName()} and
+     * {@link NetworkInterface#getByName(String)}) before being added, whenever that lookup
+     * succeeds. This gives {@link #matchesActiveWifiAddress} something concrete to compare a
+     * scoped candidate's interface against; see its javadoc for why an unresolvable stamp still
+     * has to fail open rather than reject.
+     */
     private List<InetAddress> activeWifiAddresses() {
         List<InetAddress> addresses = new ArrayList<>();
         for (Map.Entry<Network, NetworkCapabilities> entry : wifiCapabilities.entrySet()) {
@@ -336,7 +347,7 @@ final class KeepADBNetwork {
             for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
                 InetAddress address = linkAddress.getAddress();
                 if (address != null) {
-                    addresses.add(address);
+                    addresses.add(stampLinkLocalScope(address, linkProperties.getInterfaceName()));
                 }
             }
         }
@@ -350,24 +361,52 @@ final class KeepADBNetwork {
     }
 
     /**
+     * Stamps a link-local {@code address} with {@code interfaceName}'s real scope (interface
+     * index), so a later comparison in {@link #matchesActiveWifiAddress} has something concrete
+     * to check a scoped candidate against. Returns {@code address} unchanged for anything that
+     * is not a link-local {@link Inet6Address}, or when {@code interfaceName} is {@code null} or
+     * cannot be resolved to a live {@link NetworkInterface} -- both of which leave the scope
+     * check below unable to reject, exactly like an address that was never stamped.
+     */
+    private static InetAddress stampLinkLocalScope(InetAddress address, String interfaceName) {
+        if (!(address instanceof Inet6Address) || !address.isLinkLocalAddress() || interfaceName == null) {
+            return address;
+        }
+        try {
+            NetworkInterface networkInterface = NetworkInterface.getByName(interfaceName);
+            if (networkInterface == null) return address;
+            return Inet6Address.getByAddress(null, address.getAddress(), networkInterface.getIndex());
+        } catch (Exception ignored) {
+            // Best-effort (#364): an unresolvable interface name must not turn into a rejection,
+            // it must fall back to the pre-#364 scope-blind comparison for this address.
+            return address;
+        }
+    }
+
+    /**
      * Pure decision behind {@link #isActiveWifiAddress(InetAddress)}, separated so it is
      * testable without a real {@link ConnectivityManager}. Loopback, wildcard and multicast
      * addresses are rejected outright: they are never a usable {@code adb connect} target from
      * another host, so accepting one could only ever register a local service of some other
      * kind.
      *
-     * <p>Comparison is {@link InetAddress#equals} and therefore <em>scope-id blind</em> for IPv6:
-     * {@code Inet6Address.equals()} compares the 16 address bytes only, so {@code fe80::1%wlan0},
-     * {@code fe80::1%rmnet0} and a scopeless {@code fe80::1} all compare equal. This is
-     * deliberate in this direction: {@code NsdManager} hands back a resolved link-local address
-     * carrying an interface scope, while the {@code LinkAddress}es of the tracked Wi-Fi network
-     * generally do not, so a scope-strict comparison would reject our <em>own</em> advertised
-     * link-local endpoint -- and adbd has been observed advertising IPv6-only. The accepted cost
-     * is the reverse: an address numerically identical to our Wi-Fi link-local but living on
-     * another interface (our own cellular link-local, or a device duplicating our interface
-     * identifier on the same link) is not distinguished. Both require an address collision with
-     * a randomly assigned/EUI-64 identifier, and neither is what the port behind the address
-     * actually is -- that proof is R13 on #314, still open.
+     * <p>The core comparison is {@link InetAddress#equals}, which is <em>scope-id blind</em> for
+     * IPv6: {@code Inet6Address.equals()} compares the 16 address bytes only, so {@code
+     * fe80::1%wlan0}, {@code fe80::1%rmnet0} and a scopeless {@code fe80::1} all compare equal.
+     * On top of that, for a link-local ({@code fe80::/10}) match, #364 additionally compares
+     * {@link Inet6Address#getScopeId()} whenever <em>both</em> sides resolved to a nonzero
+     * numeric scope, and rejects a byte-identical candidate whose scope disagrees -- a real
+     * device on a different interface (cellular, USB tethering, a VPN endpoint under attacker
+     * control) numerically colliding with our own Wi-Fi link-local address, formerly
+     * indistinguishable from the real thing. This still fails open rather than closed whenever
+     * either side's scope could not be resolved to a concrete interface (scope id {@code 0}):
+     * {@code NsdManager} does not always hand back a resolved link-local address with a scope,
+     * and the {@code LinkAddress}es of the tracked Wi-Fi network only carry one when {@link
+     * #stampLinkLocalScope} could resolve the network's interface name -- either gap must keep
+     * accepting our own advertised link-local endpoint, since adbd has been observed advertising
+     * IPv6-only and a scope-strict comparison would otherwise reject it. Proving that whatever
+     * listens behind a matched address really is adbd remains separate, open follow-up work
+     * (R13 on #314).
      */
     static boolean matchesActiveWifiAddress(InetAddress candidate, List<InetAddress> activeWifiAddresses) {
         if (candidate == null || activeWifiAddresses == null) return false;
@@ -376,7 +415,16 @@ final class KeepADBNetwork {
             return false;
         }
         for (InetAddress address : activeWifiAddresses) {
-            if (candidate.equals(address)) return true;
+            if (!candidate.equals(address)) continue;
+            if (candidate instanceof Inet6Address && address instanceof Inet6Address
+                    && candidate.isLinkLocalAddress()) {
+                int candidateScope = ((Inet6Address) candidate).getScopeId();
+                int activeScope = ((Inet6Address) address).getScopeId();
+                if (candidateScope != 0 && activeScope != 0 && candidateScope != activeScope) {
+                    continue; // Byte-identical, but bound to two different real interfaces (#364).
+                }
+            }
+            return true;
         }
         return false;
     }

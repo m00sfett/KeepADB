@@ -1,0 +1,4 @@
+The Wi-Fi endpoint address check now also compares the network interface for a link-local IPv6
+candidate, not just its numeric address bytes. A device reachable on a different interface
+(cellular, USB tethering, or a rogue VPN endpoint) that numerically collides with this phone's
+own Wi-Fi address can no longer be mistaken for the real wireless-debugging endpoint.

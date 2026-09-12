@@ -5,6 +5,17 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.60] - 2026-09-13
+
+### Fixed
+- The Wi-Fi endpoint address check now also compares the resolved network interface for a
+  link-local (`fe80::/10`) IPv6 candidate, not just its numeric bytes. A device reachable on a
+  different real interface (cellular, USB tethering, or an attacker-controlled VPN endpoint) that
+  numerically collides with this device's own Wi-Fi link-local address is now rejected instead of
+  being indistinguishable from the real endpoint. Our own link-local endpoint stays accepted
+  whenever either side's resolved scope is unavailable, which is still routinely the case for
+  addresses handed back by mDNS discovery (issue #364).
+
 ## [1.5.59] - 2026-09-13
 
 ### Fixed
