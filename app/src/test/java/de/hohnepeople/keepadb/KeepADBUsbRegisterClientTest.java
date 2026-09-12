@@ -132,9 +132,14 @@ public class KeepADBUsbRegisterClientTest {
         KeepADBRegisterClient.updateUsbEndpointAsyncInternal(true, url(), "abc123",
                 7, "Desk", "192.168.1.20", "desk-host", "desk.tailnet.ts.net");
         waitUntil(() -> recordedRequests.size() >= 2, 2000);
+        String expectedPayload = KeepADBRegisterClient.buildUsbPayload(
+                "abc123", 7, "Desk", "192.168.1.20", "desk-host", "desk.tailnet.ts.net", true);
+        waitUntil(() -> url().equals(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting())
+                && expectedPayload.equals(KeepADBRegisterClient.getLastRegisteredUsbPayloadForTesting()), 2000);
         int countAfterFirst = recordedRequests.size();
 
-        // Same profile, same connected state -> must be a synchronous no-op, no extra request.
+        // Same profile, same connected state -> must be a no-op after the first async update has
+        // completed its state bookkeeping, with no extra request.
         KeepADBRegisterClient.updateUsbEndpointAsyncInternal(true, url(), "abc123",
                 7, "Desk", "192.168.1.20", "desk-host", "desk.tailnet.ts.net");
         Thread.sleep(300);
