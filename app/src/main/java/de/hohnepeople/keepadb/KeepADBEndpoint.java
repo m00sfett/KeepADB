@@ -78,7 +78,7 @@ final class KeepADBEndpoint {
     private final Context appContext;
     private final KeepADBNsdProbe nsdProbe;
     private final KeepADBScheduler scheduler;
-    private final WifiManager.MulticastLock multicastLock;
+    private final KeepADBMulticastLock multicastLock;
     private NsdManager.DiscoveryListener discoveryListener;
     private final Queue<NsdServiceInfo> resolveQueue = new ArrayDeque<>();
     private boolean resolving;
@@ -99,15 +99,27 @@ final class KeepADBEndpoint {
 
     /** Package-visible so tests can substitute a fake probe/scheduler (#249). */
     KeepADBEndpoint(Context context, KeepADBNsdProbe nsdProbe, KeepADBScheduler scheduler) {
+        this(context, nsdProbe, scheduler, null);
+    }
+
+    /** Package-visible so tests can additionally substitute a fake multicast lock (#359). */
+    KeepADBEndpoint(Context context, KeepADBNsdProbe nsdProbe, KeepADBScheduler scheduler,
+            KeepADBMulticastLock multicastLockOverride) {
         appContext = context.getApplicationContext();
         this.nsdProbe = nsdProbe;
         this.scheduler = scheduler;
-        WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
-        if (wifiManager != null) {
-            multicastLock = wifiManager.createMulticastLock("de.hohnepeople.keepadb.KeepADBEndpoint");
-            multicastLock.setReferenceCounted(false);
+        if (multicastLockOverride != null) {
+            multicastLock = multicastLockOverride;
         } else {
-            multicastLock = null;
+            WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
+            if (wifiManager != null) {
+                WifiManager.MulticastLock lock =
+                        wifiManager.createMulticastLock("de.hohnepeople.keepadb.KeepADBEndpoint");
+                lock.setReferenceCounted(false);
+                multicastLock = new KeepADBAndroidMulticastLock(lock);
+            } else {
+                multicastLock = null;
+            }
         }
     }
 
@@ -153,64 +165,82 @@ final class KeepADBEndpoint {
 
         final long generation = discoveryGeneration;
 
-        // 1. Best-effort, tightly time-boxed local port probe (see SCAN_BATCH_TIMEOUT_MS) --
-        // covers the common case where adbd's listener is already up, without blocking mDNS.
-        startQuickProbe(generation);
-
-        // 2. mDNS discovery -- the primary, continuously running discovery path.
-        discoveryListener = new NsdManager.DiscoveryListener() {
-            @Override
-            public void onDiscoveryStarted(String serviceType) {
-                Log.d(TAG, "mDNS discovery started");
-            }
-
-            @Override
-            public void onServiceFound(NsdServiceInfo serviceInfo) {
-                if (!isCurrent(generation) || endpointDelivered.get() || !sameServiceType(serviceInfo.getServiceType())) {
-                    return;
-                }
-                synchronized (KeepADBEndpoint.this) {
-                    if (!isCurrent(generation) || endpointDelivered.get()) return;
-                    resolveQueue.offer(serviceInfo);
-                    processNextResolveLocked(generation);
-                }
-            }
-
-            @Override
-            public void onServiceLost(NsdServiceInfo serviceInfo) {
-            }
-
-            @Override
-            public void onDiscoveryStopped(String serviceType) {
-            }
-
-            @Override
-            public void onStartDiscoveryFailed(String serviceType, int errorCode) {
-                Log.w(TAG, "mDNS start discovery failed with code: " + errorCode);
-            }
-
-            @Override
-            public void onStopDiscoveryFailed(String serviceType, int errorCode) {
-            }
-        };
-
+        // #359: everything from here down to the overall-timeout post below can throw (e.g.
+        // startQuickProbe()'s coordinatorThread.start() under thread-limit exhaustion). Without
+        // this try/finally, such an exception would leave the multicast lock acquired above held
+        // indefinitely -- neither the timeout nor any other path would ever release it, since the
+        // timeout runnable itself never got posted. The finally block below calls stop() (its
+        // existing full teardown, already used on every other discover()-abort path) so the lock
+        // and every other resource acquired in this window is released before the exception is
+        // passed on or handled, whichever the caller does.
+        boolean timeoutArmed = false;
         try {
-            nsdProbe.discoverServices(SERVICE_TYPE, discoveryListener);
-        } catch (RuntimeException e) {
-            Log.w(TAG, "Failed to start mDNS service discovery", e);
-            discoveryListener = null;
-        }
+            // 1. Best-effort, tightly time-boxed local port probe (see SCAN_BATCH_TIMEOUT_MS) --
+            // covers the common case where adbd's listener is already up, without blocking mDNS.
+            startQuickProbe(generation);
 
-        // 3. #114 safety net: if adb_wifi_enabled is on but nothing was found after a while,
-        // adbd may have accepted the toggle mid-teardown of a previous session without ever
-        // binding a listener. Pulse it once to force a clean restart, then give mDNS a fresh
-        // chance to pick up the new advertisement before giving up entirely.
-        if (allowRecoveryPulse) {
-            recoveryPulseRunnable = () -> maybeSendRecoveryPulse(generation);
-            scheduler.postDelayed(recoveryPulseRunnable, RECOVERY_PULSE_DELAY_MS);
+            // 2. mDNS discovery -- the primary, continuously running discovery path.
+            discoveryListener = new NsdManager.DiscoveryListener() {
+                @Override
+                public void onDiscoveryStarted(String serviceType) {
+                    Log.d(TAG, "mDNS discovery started");
+                }
+
+                @Override
+                public void onServiceFound(NsdServiceInfo serviceInfo) {
+                    if (!isCurrent(generation) || endpointDelivered.get() || !sameServiceType(serviceInfo.getServiceType())) {
+                        return;
+                    }
+                    synchronized (KeepADBEndpoint.this) {
+                        if (!isCurrent(generation) || endpointDelivered.get()) return;
+                        resolveQueue.offer(serviceInfo);
+                        processNextResolveLocked(generation);
+                    }
+                }
+
+                @Override
+                public void onServiceLost(NsdServiceInfo serviceInfo) {
+                }
+
+                @Override
+                public void onDiscoveryStopped(String serviceType) {
+                }
+
+                @Override
+                public void onStartDiscoveryFailed(String serviceType, int errorCode) {
+                    Log.w(TAG, "mDNS start discovery failed with code: " + errorCode);
+                }
+
+                @Override
+                public void onStopDiscoveryFailed(String serviceType, int errorCode) {
+                }
+            };
+
+            try {
+                nsdProbe.discoverServices(SERVICE_TYPE, discoveryListener);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "Failed to start mDNS service discovery", e);
+                discoveryListener = null;
+            }
+
+            // 3. #114 safety net: if adb_wifi_enabled is on but nothing was found after a while,
+            // adbd may have accepted the toggle mid-teardown of a previous session without ever
+            // binding a listener. Pulse it once to force a clean restart, then give mDNS a fresh
+            // chance to pick up the new advertisement before giving up entirely.
+            if (allowRecoveryPulse) {
+                recoveryPulseRunnable = () -> maybeSendRecoveryPulse(generation);
+                scheduler.postDelayed(recoveryPulseRunnable, RECOVERY_PULSE_DELAY_MS);
+            }
+            overallTimeoutRunnable = () -> giveUpIfStillUnresolved(generation);
+            scheduler.postDelayed(overallTimeoutRunnable, OVERALL_TIMEOUT_MS);
+            timeoutArmed = true;
+        } finally {
+            if (!timeoutArmed) {
+                Log.w(TAG, "gen=" + generation
+                        + " discover() failed before the overall timeout was armed; releasing resources");
+                stop();
+            }
         }
-        overallTimeoutRunnable = () -> giveUpIfStillUnresolved(generation);
-        scheduler.postDelayed(overallTimeoutRunnable, OVERALL_TIMEOUT_MS);
     }
 
     private static final long RECOVERY_PULSE_COOLDOWN_MS = 20_000;
