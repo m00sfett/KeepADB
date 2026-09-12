@@ -1,0 +1,2 @@
+Recovery pulses now stop safely when their disable step is rejected, interrupted, or no longer
+matches the current network and trust context.

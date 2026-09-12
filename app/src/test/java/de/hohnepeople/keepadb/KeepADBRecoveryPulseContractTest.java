@@ -28,7 +28,8 @@ public class KeepADBRecoveryPulseContractTest {
     @Test
     public void everyRecoveryPulseWriteIsGuardedInsideTheSameLock() throws IOException {
         String source = read("app/src/main/java/de/hohnepeople/keepadb/KeepADB.java");
-        String body = methodBody(source, "static void performRecoveryPulse(Context ctx)");
+        String body = methodBody(source,
+                "static void performRecoveryPulse(Context ctx, EnableGuard guard)");
 
         assertEquals("performRecoveryPulse must write exactly twice (off, then on)",
                 2, count(body, "gateway.write("));

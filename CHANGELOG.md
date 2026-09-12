@@ -5,6 +5,12 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.52] - 2026-09-12
+
+### Fixed
+- Recovery pulses now abort on interrupted waits, rejected disable writes, or changed
+  network/trust context before restoring wireless debugging (issue #347).
+
 ## [1.5.51] - 2026-09-12
 
 ### Fixed

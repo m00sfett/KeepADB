@@ -255,7 +255,11 @@ final class KeepADBEndpoint {
         }
         Log.w(TAG, "gen=" + generation + " found no adbd listener after " + RECOVERY_PULSE_DELAY_MS
                 + "ms while enabled; pulsing adb_wifi_enabled to recover");
-        KeepADB.performRecoveryPulse(appContext);
+        KeepADB.performRecoveryPulse(appContext,
+                context -> isCurrent(generation)
+                        && KeepADBService.isWifiConnected(context)
+                        && KeepADBTrustedNetwork.isCurrentNetworkTrusted(context)
+                        && !KeepADB.wasLastExplicitIntentOff(context));
     }
 
     private void giveUpIfStillUnresolved(long generation) {

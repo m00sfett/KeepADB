@@ -373,6 +373,10 @@ final class KeepADB {
      * Bricht ab, wenn der Nutzer während des Pulses manuell ausgeschaltet hat.
      */
     static void performRecoveryPulse(Context ctx) {
+        performRecoveryPulse(ctx, null);
+    }
+
+    static void performRecoveryPulse(Context ctx, EnableGuard guard) {
         Context appContext = ctx.getApplicationContext();
         boolean observed = isEnabled(appContext);
         if (!hasPermission(appContext)) {
@@ -402,7 +406,7 @@ final class KeepADB {
             boolean disableSecurityException = false;
             boolean disableActual = false;
             synchronized (KeepADB.class) {
-                if (pulseSuperseded(appContext, pulseToken)) {
+                if (pulseSuperseded(appContext, pulseToken) || !guardStillApplies(guard, appContext)) {
                     logPulseCancelled(appContext, pulseToken, "disable");
                     return;
                 }
@@ -424,17 +428,23 @@ final class KeepADB {
                     !disableRejected && !disableActual ? "success" : "state_mismatch",
                     "intentId=" + pulseToken + " stage=disable actual=" + disableActual
                             + " writeAccepted=" + !disableRejected);
+            if (disableRejected) {
+                return;
+            }
 
             try {
                 scheduler.sleep(RECOVERY_PULSE_OFF_MS);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                logPulseCancelled(appContext, pulseToken, "sleep_interrupted");
+                return;
             }
 
             boolean enableRejected;
             boolean enableSecurityException = false;
             boolean enableActual = false;
             synchronized (KeepADB.class) {
-                if (pulseSuperseded(appContext, pulseToken)) {
+                if (pulseSuperseded(appContext, pulseToken) || !guardStillApplies(guard, appContext)) {
                     logPulseCancelled(appContext, pulseToken, "enable");
                     return;
                 }
@@ -458,6 +468,10 @@ final class KeepADB {
                             + " writeAccepted=" + !enableRejected);
             surfaces.refreshAll(appContext);
         });
+    }
+
+    private static boolean guardStillApplies(EnableGuard guard, Context appContext) {
+        return guard == null || guard.stillApplies(appContext);
     }
 
     /**
