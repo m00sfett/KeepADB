@@ -80,6 +80,23 @@ public class KeepADBUrlRedactionTest {
                 KeepADBUrlRedaction.forDisplay("http://register.example./x"));
     }
 
+    // ---- control characters -------------------------------------------------------------------
+
+    @Test
+    public void controlCharactersAreEscapedInDisplayAndLogOutput() {
+        String raw = "http://register\n.example/path\rname";
+        assertEquals("http://register\\n.example/path\\rname",
+                KeepADBUrlRedaction.forDisplay(raw));
+        assertEquals("http://register\\n.example",
+                KeepADBUrlRedaction.forLog(raw));
+    }
+
+    @Test
+    public void otherControlCharactersAreEscapedAsUnicode() {
+        assertEquals("http://register\\u0000.example/x",
+                KeepADBUrlRedaction.forDisplay("http://register\u0000.example/x"));
+    }
+
     // ---- IPv6 ---------------------------------------------------------------------------------
 
     @Test

@@ -133,7 +133,7 @@ final class KeepADBUrlRedaction {
             result.append(path);
             if (hadQuery) result.append('?').append(QUERY_MASK);
         }
-        return result.toString();
+        return escapeControlCharacters(result.toString());
     }
 
     /** {@code ""} or {@code ":<digits>"} after a bracketed host; {@code null} if it is neither. */
@@ -232,5 +232,32 @@ final class KeepADBUrlRedaction {
         sb.append('.');
         for (int i = 0; i < parts[3].length(); i++) sb.append('*');
         return sb.toString();
+    }
+
+    /** Keeps redacted display and log text single-line and visibly marks other control input. */
+    private static String escapeControlCharacters(String value) {
+        StringBuilder escaped = null;
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (!Character.isISOControl(c)) {
+                if (escaped != null) escaped.append(c);
+                continue;
+            }
+            if (escaped == null) {
+                escaped = new StringBuilder(value.length() + 8);
+                escaped.append(value, 0, i);
+            }
+            switch (c) {
+                case '\n': escaped.append("\\n"); break;
+                case '\r': escaped.append("\\r"); break;
+                case '\t': escaped.append("\\t"); break;
+                default:
+                    escaped.append("\\u");
+                    String hex = Integer.toHexString(c);
+                    for (int padding = hex.length(); padding < 4; padding++) escaped.append('0');
+                    escaped.append(hex);
+            }
+        }
+        return escaped == null ? value : escaped.toString();
     }
 }
