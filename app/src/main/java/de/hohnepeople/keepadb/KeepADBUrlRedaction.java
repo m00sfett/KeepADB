@@ -153,17 +153,79 @@ final class KeepADBUrlRedaction {
         return true;
     }
 
-    /** Keeps the first two octets of a dotted-quad literal and masks the rest digit by digit. */
+    /** Keeps the first two octets of an IPv4 literal and masks the rest digit by digit. */
     private static String maskIpv4Host(String host) {
         String[] parts = host.split("\\.", -1);
-        if (parts.length != 4) return host;
-        for (String part : parts) {
-            if (part.isEmpty() || part.length() > 3) return host;
-            for (int i = 0; i < part.length(); i++) {
-                if (!Character.isDigit(part.charAt(i))) return host;
-            }
-            if (Integer.parseInt(part) > 255) return host;
+        if (parts.length == 4 && areDecimalOctets(parts)) {
+            return maskIpv4Parts(parts);
         }
+
+        Long address = parseIpv4Address(host);
+        if (address == null) return host;
+        String[] canonicalParts = {
+            String.valueOf((address >>> 24) & 0xff),
+            String.valueOf((address >>> 16) & 0xff),
+            String.valueOf((address >>> 8) & 0xff),
+            String.valueOf(address & 0xff)
+        };
+        return maskIpv4Parts(canonicalParts);
+    }
+
+    private static boolean areDecimalOctets(String[] parts) {
+        for (String part : parts) {
+            if (part.isEmpty() || part.length() > 3) return false;
+            for (int i = 0; i < part.length(); i++) {
+                if (!Character.isDigit(part.charAt(i))) return false;
+            }
+            if (Integer.parseInt(part) > 255) return false;
+        }
+        return true;
+    }
+
+    /** Parses the historical one- to four-part IPv4 notation, including hexadecimal parts. */
+    private static Long parseIpv4Address(String host) {
+        String normalized = host.endsWith(".") ? host.substring(0, host.length() - 1) : host;
+        if (normalized.isEmpty()) return null;
+        String[] parts = normalized.split("\\.", -1);
+        if (parts.length < 1 || parts.length > 4) return null;
+
+        long address = 0L;
+        for (int i = 0; i < parts.length; i++) {
+            int bits;
+            if (parts.length == 1) {
+                bits = 32;
+            } else if (i == parts.length - 1) {
+                bits = parts.length == 2 ? 24 : (parts.length == 3 ? 16 : 8);
+            } else {
+                bits = 8;
+            }
+            Long value = parseIpv4Part(parts[i]);
+            if (value == null || value < 0 || value >= (1L << bits)) return null;
+            address = (address << bits) | value;
+        }
+        return address;
+    }
+
+    private static Long parseIpv4Part(String part) {
+        if (part.isEmpty()) return null;
+        int radix = 10;
+        int offset = 0;
+        if (part.startsWith("0x") || part.startsWith("0X")) {
+            radix = 16;
+            offset = 2;
+            if (offset == part.length()) return null;
+        }
+        for (int i = offset; i < part.length(); i++) {
+            if (Character.digit(part.charAt(i), radix) < 0) return null;
+        }
+        try {
+            return Long.parseLong(part.substring(offset), radix);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private static String maskIpv4Parts(String[] parts) {
         StringBuilder sb = new StringBuilder();
         sb.append(parts[0]).append('.').append(parts[1]).append('.');
         for (int i = 0; i < parts[2].length(); i++) sb.append('*');

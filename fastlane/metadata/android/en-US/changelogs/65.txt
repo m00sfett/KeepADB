@@ -1,0 +1,1 @@
+IPv4 webhook host masking now covers decimal, hexadecimal and trailing-dot notation while keeping DNS names visible (issue #378).

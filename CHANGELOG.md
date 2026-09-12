@@ -5,6 +5,12 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.46] - 2026-09-12
+
+### Fixed
+- IPv4 webhook host masking now covers decimal, hexadecimal and trailing-dot notation while
+  keeping DNS names visible (issue #378).
+
 ## [1.5.45] - 2026-09-12
 
 ### Fixed

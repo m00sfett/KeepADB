@@ -57,6 +57,29 @@ public class KeepADBUrlRedactionTest {
         assertEquals("http://10.0.0.999/x", KeepADBUrlRedaction.forDisplay("http://10.0.0.999/x"));
     }
 
+    @Test
+    public void alternateIpv4NotationsAreMaskedLikeTheirDottedAddress() {
+        assertEquals("http://127.0.*.*/x",
+                KeepADBUrlRedaction.forDisplay("http://2130706433/x"));
+        assertEquals("http://127.0.*.*/x",
+                KeepADBUrlRedaction.forDisplay("http://0x7f.0.0.1/x"));
+        assertEquals("http://100.111.***.**/x",
+                KeepADBUrlRedaction.forDisplay("http://100.111.111.21./x"));
+    }
+
+    @Test
+    public void alternateIpv4NotationKeepsOtherRedactionRulesIndependent() {
+        assertEquals("http://127.0.*.*/x?***",
+                KeepADBUrlRedaction.forDisplay(
+                        "http://user:pass@2130706433/x?token=secret#fragment"));
+    }
+
+    @Test
+    public void trailingDotDnsNameRemainsVisible() {
+        assertEquals("http://register.example./x",
+                KeepADBUrlRedaction.forDisplay("http://register.example./x"));
+    }
+
     // ---- IPv6 ---------------------------------------------------------------------------------
 
     @Test
