@@ -218,6 +218,17 @@ final class KeepADBTrustedNetwork {
      * #260), the current network's identity must be known and match a listed BSSID -- an
      * unavailable identity or an unlisted network is never trusted. In {@link #MODE_ALL_WIFI},
      * every network is trusted, matching pre-#245 behavior.
+     *
+     * <p>#348: this method alone is never sufficient to permit an automatic re-enable. It
+     * answers "is whatever network we're on acceptable", never "is a Wi-Fi transport actually
+     * connected right now" -- {@link #MODE_ALL_WIFI} in particular trusts unconditionally without
+     * that question ever being asked. Every automatic re-enable call site (currently {@link
+     * KeepADBService#isAutoEnableStillPermitted}, {@link KeepADBService}'s content-observer and
+     * {@code recheckAndEnable()} paths, {@link KeepADBUsbHandover#isAutoHandoverStillPermitted}/
+     * {@link KeepADBUsbHandover#onRawUsbBroadcast}, and {@link
+     * KeepADBEndpoint#maybeSendRecoveryPulse}) must independently require {@link
+     * KeepADBService#isWifiConnected(Context)} in addition to this method, never this method by
+     * itself.
      */
     static boolean isCurrentNetworkTrusted(Context context) {
         if (!isAllowlistMode(context)) return true;

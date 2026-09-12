@@ -1,0 +1,3 @@
+Automatic re-enable (Keep-Alive service and USB WLAN handover) now requires an actually
+connected Wi-Fi connection, not just an accepted network mode, before turning wireless
+debugging back on.

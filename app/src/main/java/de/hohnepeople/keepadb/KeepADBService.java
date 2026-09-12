@@ -91,9 +91,17 @@ public class KeepADBService extends Service {
      *
      * <p>#245 stays intact: the trust/Keep-Alive policy lives here at the automatic call site,
      * never inside the toggle facade, so a manual toggle can never be gated by either.
+     *
+     * <p>#348: {@link KeepADBTrustedNetwork#isCurrentNetworkTrusted} alone is not enough. In
+     * {@code MODE_ALL_WIFI} it trusts unconditionally, without ever asking whether a Wi-Fi
+     * transport is actually connected right now -- a device can keep that mode set while Wi-Fi
+     * dropped in the background moments earlier. The active-transport check must gate the
+     * decision independently, matching the invariant {@link
+     * KeepADBEndpoint#maybeSendRecoveryPulse} already established for the recovery pulse (#296).
      */
     static boolean isAutoEnableStillPermitted(Context context) {
         return KeepADBPreferences.isKeepAliveEnabled(context)
+                && isWifiConnected(context)
                 && KeepADBTrustedNetwork.isCurrentNetworkTrusted(context);
     }
 

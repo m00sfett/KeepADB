@@ -51,6 +51,16 @@ final class KeepADBUsbHandover {
             // otherwise plugging in a USB cable on an untrusted Wi-Fi network would silently
             // bypass the very setting meant to prevent exactly that. handleManualAction() below
             // is a direct, explicit user action and is deliberately never gated.
+            //
+            // #348: trust alone is not enough. KeepADBTrustedNetwork.MODE_ALL_WIFI trusts
+            // unconditionally without ever asking whether a Wi-Fi transport is actually
+            // connected right now, so this must independently require one -- otherwise plugging
+            // in USB while the phone has no Wi-Fi at all (but still remembers MODE_ALL_WIFI)
+            // would auto-enable WLAN-ADB with no listener for adbd to ever bind on.
+            if (!KeepADBService.isWifiConnected(appContext)) {
+                KeepADBDiagnostics.event(appContext, "usb_handover", "usb", "blocked", "no_wifi_transport");
+                return;
+            }
             if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext)) {
                 KeepADBDiagnostics.event(appContext, "usb_handover", "usb", "blocked", "untrusted_network");
                 return;
@@ -69,9 +79,14 @@ final class KeepADBUsbHandover {
      * deliberately not part of it: the USB handover is its own feature with its own mode setting
      * and works with Keep-Alive off. Static and lock-free, since KeepADB invokes it while holding
      * its own monitor (and this class's {@code synchronized} decision core is never on that path).
+     *
+     * <p>#348: mirrors the active-Wi-Fi-transport gate applied at the initial check in {@link
+     * #onRawUsbBroadcast} -- the debounced write this guards may happen after Wi-Fi has since
+     * dropped, and {@code MODE_ALL_WIFI} trust alone would not catch that.
      */
     static boolean isAutoHandoverStillPermitted(Context appContext) {
-        return KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext);
+        return KeepADBService.isWifiConnected(appContext)
+                && KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext);
     }
 
     /**

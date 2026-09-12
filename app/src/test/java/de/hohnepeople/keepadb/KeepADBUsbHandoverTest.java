@@ -38,6 +38,9 @@ public class KeepADBUsbHandoverTest {
         scheduler.setClockMs(100_000);
         KeepADB.setSchedulerForTesting(scheduler);
         KeepADBUsbNotification.resetForTesting();
+        // #348: fail-closed default (no Wi-Fi transport) between tests -- individual tests opt
+        // into an active transport via KeepADBNetwork.setWifiConnectivityOverrideForTesting().
+        KeepADBNetwork.resetForTesting();
     }
 
     @Test
@@ -231,6 +234,9 @@ public class KeepADBUsbHandoverTest {
         FakeContext ctx = new FakeContext();
         KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
         KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        // #348: MODE_ALL_WIFI alone no longer suffices -- an active Wi-Fi transport is required
+        // too, so this "still enables" case must actually simulate one being connected.
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
         KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
         scheduler.setClockMs(100_000);
@@ -239,8 +245,33 @@ public class KeepADBUsbHandoverTest {
 
         KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
 
-        assertEquals("explicitly selecting MODE_ALL_WIFI must not block auto handover",
+        assertEquals("explicitly selecting MODE_ALL_WIFI with an active Wi-Fi transport must not "
+                        + "block auto handover",
                 java.util.Arrays.asList(true), gateway.writes);
+    }
+
+    /**
+     * #348: {@code MODE_ALL_WIFI} is a trust decision about which network is acceptable, not
+     * proof that a Wi-Fi transport is connected at all right now -- a device can keep that mode
+     * set while Wi-Fi dropped in the background. Automatic USB handover must not auto-enable in
+     * that case, even though the trust check alone would say "trusted".
+     */
+    @Test
+    public void automaticModeDoesNotEnableInAllWifiModeWithoutAnActiveWifiTransport() {
+        FakeContext ctx = new FakeContext();
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
+        KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(scheduler);
+
+        KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
+
+        assertTrue("MODE_ALL_WIFI must not bypass the active-Wi-Fi-transport gate",
+                gateway.writes.isEmpty());
     }
 
     @Test
