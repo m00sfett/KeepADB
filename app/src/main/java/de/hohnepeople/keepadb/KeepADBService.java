@@ -351,6 +351,12 @@ public class KeepADBService extends Service {
                     KeepADBDiagnostics.event(KeepADBService.this, "wifi_change", "network_callback",
                             "lost", "network generation=" + generation);
                     KeepADBNotification.invalidateEndpoint(KeepADBService.this);
+                    // #349: invalidate the local endpoint and its discovery generation before
+                    // queueing remote cleanup. This prevents stale local work from re-registering
+                    // the lost endpoint; markUnavailableAsync() then retains a failed cleanup's
+                    // last-known registration and reports the error through the register listener.
+                    // Refresh comes last so it cannot race ahead of either invalidation step.
+                    KeepADBRegisterClient.markUnavailableAsync(KeepADBService.this);
                     KeepADBNotification.refresh(KeepADBService.this);
                     KeepADBWidget.refreshAll(KeepADBService.this);
                 }
