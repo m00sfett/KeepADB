@@ -551,6 +551,9 @@ final class KeepADBPreferences {
         if (rawUrl == null) return null;
         String trimmed = rawUrl.trim();
         if (trimmed.isEmpty()) return "";
+        for (int i = 0; i < trimmed.length(); i++) {
+            if (Character.isISOControl(trimmed.charAt(i))) return null;
+        }
 
         try {
             java.net.URI uri = new java.net.URI(trimmed);

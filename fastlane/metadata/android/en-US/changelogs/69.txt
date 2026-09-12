@@ -1,0 +1,1 @@
+Control-bearing legacy webhook URLs are rejected before they can reach the HTTP transport; redacted UI and log output continues to escape such input (issue #379).
