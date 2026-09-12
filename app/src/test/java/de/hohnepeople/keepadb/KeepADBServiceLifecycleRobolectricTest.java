@@ -28,6 +28,7 @@ import org.robolectric.android.controller.ServiceController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowConnectivityManager;
 import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowNetwork;
 import org.robolectric.shadows.ShadowService;
 
 /**
@@ -280,8 +281,8 @@ public class KeepADBServiceLifecycleRobolectricTest {
                     controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1));
             ShadowLooper.idleMainLooper();
 
-            Network oldNetwork = Network.fromNetworkHandle(1001L);
-            Network newNetwork = Network.fromNetworkHandle(1002L);
+            Network oldNetwork = ShadowNetwork.newInstance(1001);
+            Network newNetwork = ShadowNetwork.newInstance(1002);
             for (ConnectivityManager.NetworkCallback callback
                     : shadowConnectivityManager.getNetworkCallbacks()) {
                 callback.onAvailable(newNetwork);
