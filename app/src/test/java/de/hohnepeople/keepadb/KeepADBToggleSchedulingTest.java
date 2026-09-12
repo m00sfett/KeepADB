@@ -58,6 +58,8 @@ public class KeepADBToggleSchedulingTest {
         // The verified-trust memory is intentionally process-wide in production, so it has to be
         // cleared here or a neighbouring test could leave this one's trust checks fail-open.
         KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        // #348: same reasoning for the Wi-Fi-transport override -- it's a static seam too.
+        KeepADBNetwork.resetForTesting();
         ctx = new FakeContext();
     }
 
@@ -65,6 +67,7 @@ public class KeepADBToggleSchedulingTest {
     public void tearDown() {
         KeepADB.resetForTesting();
         KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        KeepADBNetwork.resetForTesting();
     }
 
     @Test
@@ -400,6 +403,9 @@ public class KeepADBToggleSchedulingTest {
     public void pendingAutomaticEnableSurvivesWhenKeepAliveStaysEnabled() {
         KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBPreferences.setKeepAliveEnabled(ctx, true);
+        // #348: isAutoEnableStillPermitted() now also requires an actually connected Wi-Fi
+        // transport -- this positive counter-probe must simulate one being present.
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
 
         assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
         assertTrue(KeepADB.setEnabled(ctx, true, AUTO, KeepADBService::isAutoEnableStillPermitted));

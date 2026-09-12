@@ -5,6 +5,13 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.53] - 2026-09-12
+
+### Fixed
+- Automatic re-enable (Keep-Alive service and USB WLAN handover) now requires an actually
+  connected Wi-Fi transport in addition to the trusted-network policy; `MODE_ALL_WIFI` alone
+  no longer auto-enables while Wi-Fi is disconnected in the background (issue #348).
+
 ## [1.5.52] - 2026-09-12
 
 ### Fixed
