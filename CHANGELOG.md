@@ -5,6 +5,16 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.58] - 2026-09-13
+
+### Fixed
+- The endpoint address check no longer accepts a stale Wi-Fi address: once the network callback
+  is registered and has actually reported the current state, a just-dropped address still handed
+  out by the system's synchronous Wi-Fi snapshot is rejected as a wireless-debugging endpoint
+  instead of being accepted additively. The snapshot keeps covering the two cases where the
+  tracker genuinely knows nothing yet -- right after app start, before the first callback fires,
+  and when callback registration failed altogether (issue #390).
+
 ## [1.5.57] - 2026-09-12
 
 ### Fixed
