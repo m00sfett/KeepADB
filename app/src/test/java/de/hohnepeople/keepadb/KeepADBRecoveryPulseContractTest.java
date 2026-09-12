@@ -18,10 +18,9 @@ import org.junit.Test;
  * <p>{@link KeepADBToggleSchedulingTest} and {@link KeepADBRecoveryPulseInterruptionTest} prove
  * the two pulse stages behave correctly; what they cannot prove is that every future gateway
  * write added to {@code performRecoveryPulse} stays inside the lock that also holds its guard --
- * a structural property, so it is pinned structurally here. The endpoint cooldown's clock source
- * has no behavioural test at all: {@code maybeSendRecoveryPulse} is private and reachable only
- * behind {@code KeepADBService.isWifiConnected} / {@code KeepADBTrustedNetwork} framework calls,
- * so this contract is what keeps the cooldown off the wall clock.
+ * a structural property, so it is pinned structurally here. The endpoint's guard behavior is
+ * covered by {@link KeepADBEndpointRecoveryPulseBehaviorTest}; this contract separately keeps
+ * the cooldown tied to a monotonic clock.
  */
 public class KeepADBRecoveryPulseContractTest {
 

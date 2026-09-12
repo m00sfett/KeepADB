@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.After;
 import org.junit.Before;
@@ -163,9 +163,16 @@ public class KeepADBRecoveryPulseInterruptionTest {
         KeepADB.setGatewayForTesting(gateway);
         KeepADB.setSchedulerForTesting(new InterruptingScheduler());
 
-        KeepADB.performRecoveryPulse(ctx);
+        assertFalse("test thread must start without a stale interrupt", Thread.interrupted());
+        try {
+            KeepADB.performRecoveryPulse(ctx);
 
-        assertEquals(Arrays.asList(false), gateway.writes);
+            assertTrue("the recovery pulse must preserve the interrupt for its caller",
+                    Thread.currentThread().isInterrupted());
+            assertEquals(Arrays.asList(false), gateway.writes);
+        } finally {
+            Thread.interrupted();
+        }
     }
 
     @Test
