@@ -142,6 +142,31 @@ public class KeepADBRecoveryPulseInterruptionTest {
         assertFalse("the user's manual disable must win", gateway.isEnabled(ctx));
     }
 
+    @Test
+    public void rejectedDisableMustNotReachTheRestoreStage() {
+        FakeContext ctx = new FakeContext();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        gateway.setWriteSuccess(false);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(new KeepADBFakeScheduler());
+
+        KeepADB.performRecoveryPulse(ctx);
+
+        assertEquals(Arrays.asList(false), gateway.writes);
+    }
+
+    @Test
+    public void interruptedPauseMustNotReachTheRestoreStage() {
+        FakeContext ctx = new FakeContext();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(new InterruptingScheduler());
+
+        KeepADB.performRecoveryPulse(ctx);
+
+        assertEquals(Arrays.asList(false), gateway.writes);
+    }
+
     /**
      * {@link KeepADBSettingsGateway} fake that parks the caller inside the recovery pulse's
      * restore write (the {@code true} write) until the test releases it, so the test can act
@@ -228,6 +253,16 @@ public class KeepADBRecoveryPulseInterruptionTest {
         boolean awaitThreadFinished() throws InterruptedException {
             return threadFinished.await(5, TimeUnit.SECONDS);
         }
+    }
+
+    private static final class InterruptingScheduler implements KeepADBScheduler {
+        @Override public void postDelayed(Runnable runnable, long delayMs) { }
+        @Override public void removeCallbacks(Runnable runnable) { }
+        @Override public void runAsync(Runnable runnable) { runnable.run(); }
+        @Override public void sleep(long delayMs) throws InterruptedException {
+            throw new InterruptedException("test interruption");
+        }
+        @Override public long elapsedRealtimeMs() { return 10 * KeepADB.TOGGLE_COOLDOWN_MS; }
     }
 
     private static final class LatchedScheduler implements KeepADBScheduler {
