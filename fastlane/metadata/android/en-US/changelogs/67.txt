@@ -1,0 +1,1 @@
+Pending webhook cleanup retry state is now persisted reliably, so backoff, expiry and the attempt limit prevent repeated network requests (issue #369).

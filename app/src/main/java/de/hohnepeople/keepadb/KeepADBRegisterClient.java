@@ -13,8 +13,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /** Sends optional background reachability updates to a custom register or webhook endpoint. */
 final class KeepADBRegisterClient {
@@ -475,17 +473,19 @@ final class KeepADBRegisterClient {
                 saturatingAdd(now, PENDING_CLEANUP_EXPIRY_MS));
         if (context == null || entry == null) return fallback;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String stored = prefs.getString(KEY_PENDING_CLEANUP_RETRY_STATE, null);
+        String stored = prefs.getString(pendingCleanupRetryStateKey(entry), null);
         if (stored == null || stored.trim().isEmpty()) return fallback;
+        String[] fields = stored.split(",", -1);
+        if (fields.length != 3) {
+            Log.w(TAG, "Ignoring malformed pending cleanup retry state");
+            return fallback;
+        }
         try {
-            JSONObject root = new JSONObject(stored);
-            JSONObject record = root.optJSONObject(entry);
-            if (record == null) return fallback;
-            int attempts = Math.max(0, record.optInt("attempts", 0));
-            long nextAttemptAt = record.optLong("nextAttemptAt", now);
-            long expiresAt = record.optLong("expiresAt", fallback.expiresAt);
+            int attempts = Math.max(0, Integer.parseInt(fields[0]));
+            long nextAttemptAt = Long.parseLong(fields[1]);
+            long expiresAt = Long.parseLong(fields[2]);
             return new PendingCleanupRetryState(attempts, nextAttemptAt, expiresAt);
-        } catch (JSONException e) {
+        } catch (NumberFormatException e) {
             Log.w(TAG, "Ignoring malformed pending cleanup retry state");
             return fallback;
         }
@@ -495,41 +495,20 @@ final class KeepADBRegisterClient {
             PendingCleanupRetryState state) {
         if (context == null || entry == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        JSONObject root;
-        try {
-            String stored = prefs.getString(KEY_PENDING_CLEANUP_RETRY_STATE, null);
-            root = (stored == null || stored.trim().isEmpty()) ? new JSONObject() : new JSONObject(stored);
-            JSONObject record = new JSONObject();
-            record.put("attempts", state.attempts);
-            record.put("nextAttemptAt", state.nextAttemptAt);
-            record.put("expiresAt", state.expiresAt);
-            root.put(entry, record);
-            prefs.edit().putString(KEY_PENDING_CLEANUP_RETRY_STATE, root.toString()).apply();
-        } catch (JSONException e) {
-            Log.w(TAG, "Could not persist pending cleanup retry state");
-        }
+        String encoded = state.attempts + "," + state.nextAttemptAt + "," + state.expiresAt;
+        prefs.edit().putString(pendingCleanupRetryStateKey(entry), encoded).apply();
     }
 
     private static void removePendingCleanupRetryState(Context context, String entry) {
         if (context == null || entry == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String stored = prefs.getString(KEY_PENDING_CLEANUP_RETRY_STATE, null);
-        if (stored == null || stored.trim().isEmpty()) return;
-        try {
-            JSONObject root = new JSONObject(stored);
-            if (root.optJSONObject(entry) == null) return;
-            root.remove(entry);
-            SharedPreferences.Editor editor = prefs.edit();
-            if (root.length() == 0) {
-                editor.remove(KEY_PENDING_CLEANUP_RETRY_STATE);
-            } else {
-                editor.putString(KEY_PENDING_CLEANUP_RETRY_STATE, root.toString());
-            }
-            editor.apply();
-        } catch (JSONException e) {
-            prefs.edit().remove(KEY_PENDING_CLEANUP_RETRY_STATE).apply();
-            Log.w(TAG, "Clearing malformed pending cleanup retry state");
-        }
+        String key = pendingCleanupRetryStateKey(entry);
+        if (prefs.getString(key, null) == null) return;
+        prefs.edit().remove(key).apply();
+    }
+
+    private static String pendingCleanupRetryStateKey(String entry) {
+        return KEY_PENDING_CLEANUP_RETRY_STATE + ":" + entry;
     }
 
     /**
