@@ -27,6 +27,7 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         KeepADB.resetForTesting();
         KeepADBNetwork.resetForTesting();
+        KeepADBEndpoint.resetForTesting();
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
     }
@@ -35,33 +36,58 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
     public void tearDown() {
         KeepADBNetwork.resetForTesting();
         KeepADB.resetForTesting();
+        KeepADBEndpoint.resetForTesting();
     }
 
     @Test
     public void endpointGuardCancelsRestoreWhenNetworkChangesDuringPulse() {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
-        NetworkChangingScheduler scheduler = new NetworkChangingScheduler();
+        NetworkChangingScheduler scheduler = new NetworkChangingScheduler(() -> KeepADB.noteNetworkChanged());
+        assertRecoveryRestoreIsCancelled(gateway, scheduler);
+    }
+
+    @Test
+    public void endpointGuardCancelsRestoreWhenWifiDisconnectsDuringPulse() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        NetworkChangingScheduler scheduler = new NetworkChangingScheduler(
+                () -> KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false));
+        assertRecoveryRestoreIsCancelled(gateway, scheduler);
+    }
+
+    @Test
+    public void endpointGuardCancelsRestoreWhenTrustIsWithdrawnDuringPulse() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        NetworkChangingScheduler scheduler = new NetworkChangingScheduler(
+                () -> KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST));
+        assertRecoveryRestoreIsCancelled(gateway, scheduler);
+    }
+
+    private void assertRecoveryRestoreIsCancelled(KeepADBFakeSettingsGateway gateway,
+            NetworkChangingScheduler scheduler) {
         KeepADB.setGatewayForTesting(gateway);
         KeepADB.setSchedulerForTesting(scheduler);
 
         KeepADBEndpoint endpoint = new KeepADBEndpoint(context, new KeepADBFakeNsdProbe(), scheduler);
         endpoint.maybeSendRecoveryPulse(0L);
 
-        assertEquals("the endpoint must disable debugging before its recovery pause",
-                Arrays.asList(false), gateway.writes);
         assertEquals("a network change during the pause must prevent the stale restore write",
                 Arrays.asList(false), gateway.writes);
     }
 
     private static final class NetworkChangingScheduler extends KeepADBFakeScheduler {
+        private final Runnable change;
         private boolean changed;
+
+        NetworkChangingScheduler(Runnable change) {
+            this.change = change;
+        }
 
         @Override
         public void sleep(long delayMs) {
             super.sleep(delayMs);
             if (!changed) {
                 changed = true;
-                KeepADB.noteNetworkChanged();
+                change.run();
             }
         }
 

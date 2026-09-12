@@ -266,6 +266,10 @@ final class KeepADBEndpoint {
                         && !KeepADB.wasLastExplicitIntentOff(context));
     }
 
+    static synchronized void resetForTesting() {
+        lastRecoveryPulseAtMs = -RECOVERY_PULSE_COOLDOWN_MS;
+    }
+
     private void giveUpIfStillUnresolved(long generation) {
         Listener targetListener;
         synchronized (this) {

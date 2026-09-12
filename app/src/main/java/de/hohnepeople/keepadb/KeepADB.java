@@ -97,7 +97,7 @@ final class KeepADB {
      * Records that the connected Wi-Fi network changed, invalidating every automatic intent that
      * was planned for the previous one. Returns the new generation for diagnostics.
      */
-    static long noteNetworkChanged() {
+    static synchronized long noteNetworkChanged() {
         return state.noteNetworkChanged();
     }
 
