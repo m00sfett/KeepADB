@@ -1,0 +1,3 @@
+Closed a gap where the fast endpoint check could be fooled by an unrelated service listening
+on all network interfaces of the phone; it now also checks for an adb-typical response before
+trusting a candidate.
