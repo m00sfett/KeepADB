@@ -83,6 +83,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_no_endpoint">jeszcze brak</string>
     <string name="webhook_status_deregistered">wyrejestrowany</string>
     <string name="webhook_status_failed">niepowodzenie</string>
+    <string name="webhook_status_usb_failed">Webhook USB-ADB: niepowodzenie</string>
     <string name="settings_permission_warning">Brak uprawnienia systemowego WRITE_SECURE_SETTINGS. KeepADB nie może sterować debugowaniem bezprzewodowym przed nadaniem uprawnień.</string>
     <string name="settings_section_language">Język</string>
     <string name="settings_language_label">Język aplikacji</string>

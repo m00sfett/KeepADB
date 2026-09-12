@@ -5,6 +5,12 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.44] - 2026-09-12
+
+### Fixed
+- USB-ADB webhook failures are now shown in the main-screen webhook status alongside the existing
+  WLAN-ADB status (issue #371).
+
 ## [1.5.43] - 2026-09-12
 
 ### Fixed

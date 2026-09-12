@@ -83,6 +83,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_no_endpoint">aucun pour l’instant</string>
     <string name="webhook_status_deregistered">désenregistré</string>
     <string name="webhook_status_failed">échec</string>
+    <string name="webhook_status_usb_failed">Webhook USB-ADB : échec</string>
     <string name="settings_permission_warning">Autorisation système WRITE_SECURE_SETTINGS manquante. KeepADB ne peut pas basculer le débogage sans fil tant que l’autorisation n’est pas accordée.</string>
     <string name="settings_section_language">Langue</string>
     <string name="settings_language_label">Langue de l’application</string>
