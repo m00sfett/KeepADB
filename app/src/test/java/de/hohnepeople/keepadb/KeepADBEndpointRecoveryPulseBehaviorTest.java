@@ -7,6 +7,8 @@ import android.app.Application;
 import android.content.Context;
 
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -62,6 +64,24 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
         assertRecoveryRestoreIsCancelled(gateway, scheduler);
     }
 
+    @Test
+    public void networkGenerationChangeCannotInterleaveWithRestoreWrite() throws Exception {
+        AtomicGenerationGateway gateway = new AtomicGenerationGateway();
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(scheduler);
+
+        long plannedGeneration = KeepADB.currentNetworkGeneration();
+        KeepADBEndpoint endpoint = new KeepADBEndpoint(context, new KeepADBFakeNsdProbe(), scheduler);
+        endpoint.maybeSendRecoveryPulse(0L);
+
+        assertEquals("the restore write must still be covered by KeepADB.class",
+                plannedGeneration, gateway.generationDuringRestore);
+        assertEquals("the competing network change must run after the write lock is released",
+                plannedGeneration + 1, KeepADB.currentNetworkGeneration());
+        gateway.awaitNetworkChange();
+    }
+
     private void assertRecoveryRestoreIsCancelled(KeepADBFakeSettingsGateway gateway,
             NetworkChangingScheduler scheduler) {
         KeepADB.setGatewayForTesting(gateway);
@@ -94,6 +114,49 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
         @Override
         public long elapsedRealtimeMs() {
             return 10 * KeepADB.TOGGLE_COOLDOWN_MS;
+        }
+    }
+
+    private static final class AtomicGenerationGateway implements KeepADBSettingsGateway {
+        private final CountDownLatch networkChangeStarted = new CountDownLatch(1);
+        private final CountDownLatch networkChangeFinished = new CountDownLatch(1);
+        private volatile long generationDuringRestore = -1;
+        private boolean enabled = true;
+
+        @Override
+        public boolean isEnabled(Context context) {
+            return enabled;
+        }
+
+        @Override
+        public boolean write(Context context, boolean on) {
+            if (on) {
+                Thread networkChange = new Thread(() -> {
+                    networkChangeStarted.countDown();
+                    KeepADB.noteNetworkChanged();
+                    networkChangeFinished.countDown();
+                });
+                networkChange.start();
+                try {
+                    if (!networkChangeStarted.await(5, TimeUnit.SECONDS)) {
+                        throw new AssertionError("network change thread did not start");
+                    }
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new AssertionError("interrupted while starting network change", interrupted);
+                }
+                generationDuringRestore = KeepADB.currentNetworkGeneration();
+                enabled = true;
+                return true;
+            }
+            enabled = false;
+            return true;
+        }
+
+        void awaitNetworkChange() throws InterruptedException {
+            if (!networkChangeFinished.await(5, TimeUnit.SECONDS)) {
+                throw new AssertionError("network change thread did not finish");
+            }
         }
     }
 }
