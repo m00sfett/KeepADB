@@ -6,6 +6,7 @@ import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
+import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -14,6 +15,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -329,7 +331,7 @@ final class KeepADBEndpoint {
             }
             final int candidatePort = selectWifiVerifiedPort(targetHost, openPorts,
                     port -> isCurrent(generation) && !endpointDelivered.get()
-                            && isPortReachable(targetHost, port, 300));
+                            && probeAdbTlsPort(targetHost, port, 300));
             if (candidatePort < 0) {
                 Log.w(TAG, "QuickProbe gen=" + generation + ": none of " + openPorts
                         + " answered on Wi-Fi host " + targetHost);
@@ -636,9 +638,9 @@ final class KeepADBEndpoint {
      * still be found, while the "must answer on the Wi-Fi address" requirement keeps a purely
      * loopback-bound service from ever being registered.
      *
-     * <p>Bounded by {@link #QUICK_PROBE_MAX_CANDIDATES}: each check costs a blocking connect
-     * with its own timeout, and the quick probe is only ever a best-effort shortcut alongside
-     * mDNS -- it must not turn into a second long-running scan.
+     * <p>Bounded by {@link #QUICK_PROBE_MAX_CANDIDATES}: each check costs a blocking connect plus
+     * a small TLS sniff (#363), each with its own timeout, and the quick probe is only ever a
+     * best-effort shortcut alongside mDNS -- it must not turn into a second long-running scan.
      *
      * @return the verified port, or {@code -1} if none qualifies (including a {@code null}
      *         {@code wifiHost}, i.e. no Wi-Fi address to bind to).
@@ -679,6 +681,110 @@ final class KeepADBEndpoint {
         } catch (Exception ignored) {
             return false;
         }
+    }
+
+    /**
+     * #363: a bounded subset of the still-open R13 authenticity proof, scoped to the quick
+     * probe's Wi-Fi-side verification only (see {@link #selectWifiVerifiedPort}).
+     *
+     * <p>#314 made the quick probe require its candidate to answer on our own Wi-Fi address, not
+     * just on loopback. That closed the "any local listener" gap, but left this residual: a
+     * foreign, unrelated service that happens to bind {@code 0.0.0.0} (all interfaces) instead of
+     * loopback-only answers on the Wi-Fi address too, since address binding alone says nothing
+     * about <em>which</em> service picked up the connection -- a plain {@code connect()} success
+     * (the old {@link #isPortReachable}) cannot tell them apart.
+     *
+     * <p>Rather than the full, deferred TLS handshake (which would need a pairing-bound
+     * certificate this app does not have -- that is R13), this sends a syntactically valid TLS
+     * ClientHello and checks that a TLS-shaped record comes back (see
+     * {@link #looksLikeAdbTlsResponse}). A service that was never written to speak TLS on that
+     * port essentially never produces one. This is not an identity proof -- a TLS-terminating
+     * proxy or another TLS service bound to the same port would still pass, and that residual gap
+     * is left to R13 -- but it closes the specific "any TCP responder is accepted" hole #363 is
+     * about, at negligible extra cost over the plain connect it replaces.
+     */
+    private static boolean probeAdbTlsPort(InetAddress addr, int port, int timeoutMs) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(addr, port), timeoutMs);
+            socket.setSoTimeout(timeoutMs);
+            socket.getOutputStream().write(PROBE_CLIENT_HELLO);
+            socket.getOutputStream().flush();
+            byte[] response = new byte[64];
+            int read = socket.getInputStream().read(response);
+            if (read <= 0) return false;
+            return looksLikeAdbTlsResponse(Arrays.copyOf(response, read), PROBE_CLIENT_HELLO);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    /** Package-visible so the quick probe's TLS sniff can be exercised end-to-end (#363). */
+    static boolean probeAdbTlsPort(String host, int port, int timeoutMs) {
+        try {
+            return probeAdbTlsPort(InetAddress.getByName(host), port, timeoutMs);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    /**
+     * Whether {@code response} looks like a TLS record rather than an arbitrary TCP reply: a
+     * valid TLS content type ({@code 0x14}-{@code 0x17}, i.e. change_cipher_spec/alert/
+     * handshake/application_data) followed by the TLS major version byte ({@code 0x03}, constant
+     * across TLS 1.0-1.3) -- and, guarding against a service that merely echoes back whatever it
+     * receives, not byte-identical to what we sent.
+     *
+     * <p>Package-visible and side-effect-free so it can be exercised directly against fabricated
+     * "foreign service" and "real adbd" byte sequences without opening a real socket (#363).
+     */
+    static boolean looksLikeAdbTlsResponse(byte[] response, byte[] sent) {
+        if (response == null || response.length < 2 || sent == null) return false;
+        int contentType = response[0] & 0xFF;
+        int versionMajor = response[1] & 0xFF;
+        if (contentType < 0x14 || contentType > 0x17 || versionMajor != 0x03) return false;
+        return !Arrays.equals(response, sent);
+    }
+
+    /**
+     * A minimal but syntactically valid TLS 1.2-framed ClientHello proposing a TLS 1.3 cipher
+     * suite, built once. Its only purpose is to prompt a genuine TLS server into replying with
+     * *something* TLS-shaped (a ServerHello, or even an Alert on an otherwise-malformed hello);
+     * it is never used to complete an actual handshake or exchange application data (#363).
+     */
+    static final byte[] PROBE_CLIENT_HELLO = buildProbeClientHello();
+
+    private static byte[] buildProbeClientHello() {
+        ByteArrayOutputStream body = new ByteArrayOutputStream();
+        body.write(0x03);
+        body.write(0x03); // client_version: TLS 1.2
+        body.write(new byte[32], 0, 32); // client_random: zeroed, identity is irrelevant here
+        body.write(0x00); // session_id length: 0
+        body.write(0x00);
+        body.write(0x02); // cipher_suites length: 2 bytes (one suite)
+        body.write(0x13);
+        body.write(0x01); // TLS_AES_128_GCM_SHA256 (TLS 1.3), widely recognized
+        body.write(0x01); // compression_methods length: 1
+        body.write(0x00); // null compression
+        body.write(0x00);
+        body.write(0x00); // extensions length: 0
+        byte[] bodyBytes = body.toByteArray();
+
+        ByteArrayOutputStream handshake = new ByteArrayOutputStream();
+        handshake.write(0x01); // HandshakeType.client_hello
+        handshake.write((bodyBytes.length >> 16) & 0xFF);
+        handshake.write((bodyBytes.length >> 8) & 0xFF);
+        handshake.write(bodyBytes.length & 0xFF);
+        handshake.write(bodyBytes, 0, bodyBytes.length);
+        byte[] handshakeBytes = handshake.toByteArray();
+
+        ByteArrayOutputStream record = new ByteArrayOutputStream();
+        record.write(0x16); // ContentType.handshake
+        record.write(0x03);
+        record.write(0x01); // record-layer version: TLS 1.0, kept for backward compat
+        record.write((handshakeBytes.length >> 8) & 0xFF);
+        record.write(handshakeBytes.length & 0xFF);
+        record.write(handshakeBytes, 0, handshakeBytes.length);
+        return record.toByteArray();
     }
 
     static String getWifiIpAddress(Context context) {
