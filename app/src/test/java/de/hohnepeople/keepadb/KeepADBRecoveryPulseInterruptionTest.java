@@ -183,6 +183,24 @@ public class KeepADBRecoveryPulseInterruptionTest {
                 gateway.writes);
     }
 
+    @Test
+    public void endpointOwnedGuardCancelsWhenNetworkGenerationChanges() {
+        FakeContext ctx = new FakeContext();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(new KeepADBFakeScheduler());
+        long plannedGeneration = KeepADB.currentNetworkGeneration();
+        AtomicInteger checks = new AtomicInteger();
+
+        KeepADB.performRecoveryPulse(ctx, ignored -> {
+            if (checks.incrementAndGet() == 2) KeepADB.noteNetworkChanged();
+            return KeepADB.currentNetworkGeneration() == plannedGeneration;
+        });
+
+        assertEquals("the endpoint guard must cancel before a stale restore", Arrays.asList(false),
+                gateway.writes);
+    }
+
     /**
      * {@link KeepADBSettingsGateway} fake that parks the caller inside the recovery pulse's
      * restore write (the {@code true} write) until the test releases it, so the test can act
