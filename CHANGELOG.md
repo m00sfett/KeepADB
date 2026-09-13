@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clarified that the quick probe's per-candidate timeout constant is applied twice in
   `probeAdbTlsPort()` (connect and TLS-sniff read), so the actual worst-case budget per
   candidate is up to ~2x the configured value, not the value itself (issue #411).
+- The mDNS-resolved candidate address check only verified that the host:port accepted a TCP
+  connection, not that the answering service looked like adbd — the same "any TCP responder is
+  accepted" gap issue #363 had already closed for the quick probe and #394 had closed for cached-
+  endpoint re-verification. It now uses the same TLS-sniff check. The three related timeout
+  budgets for this class of reachability probe (quick probe, mDNS candidate verification, cached-
+  endpoint re-verification) are documented together at their declaration and kept intentionally
+  separate, since each guards a different call site with its own latency tolerance (issue #412).
 
 ## [1.5.63] - 2026-09-13
 

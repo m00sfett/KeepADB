@@ -61,6 +61,21 @@ final class KeepADBEndpoint {
     // #314: how many of the quick probe's open loopback ports are checked against the Wi-Fi
     // address before giving up for this cycle. See selectWifiVerifiedPort().
     static final int QUICK_PROBE_MAX_CANDIDATES = 8;
+    // #412: three timeout budgets exist for this same class of reachability probe (a TLS-sniffed
+    // or plain-connect socket check against a candidate ADB endpoint), deliberately *not*
+    // unified into one value, because each guards a different call site with its own latency
+    // tolerance and trust context:
+    //  - QUICK_PROBE_CANDIDATE_STEP_TIMEOUT_MS (150ms, below): the opportunistic local port-range
+    //    probe. Runs on every discovery cycle against up to QUICK_PROBE_MAX_CANDIDATES loopback
+    //    ports, so it must stay tight -- see the #366 comment below for the interrupt-related
+    //    worst-case math this budget bounds.
+    //  - NSD_ADDRESS_VERIFY_TIMEOUT_MS (400ms, see probeAdbTlsPort() call in the mDNS resolve
+    //    path below): runs once per resolved mDNS candidate, not in a tight loop, so it can
+    //    afford a somewhat larger margin for a real network round-trip.
+    //  - KeepADBNotification's cached-endpoint re-verification (500ms, hardcoded at that call
+    //    site since it belongs to that class's own heartbeat cadence): the least time-sensitive
+    //    of the three, since it only re-checks an already-cached, previously-working endpoint on
+    //    a periodic tick, not a fresh discovery attempt blocking endpoint delivery.
     // #366: plain Socket.connect()/read() do not honor Thread.interrupt(), so a stop() call
     // during a candidate's blocking probeAdbTlsPort() cannot abort it early -- it can only end
     // once that single in-flight attempt's own timeout budget elapses (the generation check in
@@ -71,6 +86,10 @@ final class KeepADBEndpoint {
     // once as the setSoTimeout() read timeout -- so the actual worst-case budget per candidate
     // is up to ~2x this value, not this value itself.
     private static final int QUICK_PROBE_CANDIDATE_STEP_TIMEOUT_MS = 150;
+    // #412: same budget class as QUICK_PROBE_CANDIDATE_STEP_TIMEOUT_MS above, sized for a single
+    // resolved mDNS candidate rather than a loopback port-range scan; see the bundled comment
+    // above for why the three related budgets in this codebase are kept separate.
+    private static final int NSD_ADDRESS_VERIFY_TIMEOUT_MS = 400;
     private static final long RECOVERY_PULSE_DELAY_MS = 5000;
     private static final long RECOVERY_PULSE_OFF_MS = 800;
     // Must stay comfortably above RECOVERY_PULSE_DELAY_MS + RECOVERY_PULSE_OFF_MS (5800ms):
@@ -431,7 +450,12 @@ final class KeepADBEndpoint {
                         }
                         final int port = resolved.getPort();
                         VERIFY_EXECUTOR.execute(() -> {
-                            boolean reachable = isPortReachable(addr, port, 400);
+                            // #412: was a plain isPortReachable() connect; switched to the same
+                            // TLS-sniffing probe as the quick probe (#363) so a resolved mDNS
+                            // candidate gets the same "any TCP responder" hole closed instead of
+                            // being trusted on a bare connect() success. See the constant's own
+                            // comment above for why this budget stays separate from the other two.
+                            boolean reachable = probeAdbTlsPort(addr, port, NSD_ADDRESS_VERIFY_TIMEOUT_MS);
                             Listener targetListener = null;
                             synchronized (KeepADBEndpoint.this) {
                                 if (!isCurrent(generation) || currentResolveAttemptToken != attemptToken) {
