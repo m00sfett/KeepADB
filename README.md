@@ -35,7 +35,7 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
   - **Main App**: Clean interface with status readout, keep-alive toggle, and current endpoint details.
 - 🔄 **Keep-Alive Foreground Service**: Keeps Wireless Debugging alive across reboots, network changes, and sleep states.
 - 🔍 **Endpoint Discovery**: mDNS (NSD) is the primary, continuously running discovery path, backed by a quick opportunistic loopback probe for the case where a listener is already up. Usually resolves the active `adbd` port within a few seconds (even with active VPNs like Tailscale), but this depends on network conditions and mDNS broadcast timing, not a guaranteed bound.
-- 🌐 **Automated Webhook Integration**: Configure a custom HTTP(S) endpoint (LAN, VPN/Tailscale, or local server) in Settings. KeepADB reports WLAN-ADB endpoints and optional USB host-profile state for local automation.
+- 🌐 **Automated Webhook Integration**: Configure a custom HTTP(S) endpoint (LAN, VPN/Tailscale, or local server) in Settings. KeepADB reports WLAN-ADB endpoints for local automation.
 - 📋 **Persistent Notification**: Displays the active connection string (`Port <port> @ <ip>`) for quick reference on your lock screen or notification panel.
 - 🔌 **USB-ADB Assistance**: Optional USB notification, editable host profiles, and manual or automatic USB-to-WLAN handover.
 - 🧰 **Diagnostics & Reliability**: Exportable redacted diagnostics, battery-optimization guidance, and a direct notification action to turn off WLAN-ADB.
@@ -90,11 +90,7 @@ For developers who want their PC, IDE, or CI setup to automatically discover and
    ```http
    DELETE /api/adb-register HTTP/1.1
    ```
-4. If a USB connection has a selected host profile, KeepADB sends separate `POST` updates
-   with `method: "usb-adb"`, an Android-provided device ID, the selected profile's name and
-   optional address fields, and `active: true` or `false`.
-   The USB notification is a separate user-visible setting and does not control webhook sync.
-5. Cleartext HTTP is supported for private LAN / VPN setups. Sensitive URL parts are redacted
+4. Cleartext HTTP is supported for private LAN / VPN setups. Sensitive URL parts are redacted
    from logs, and webhook URLs are excluded from Android cloud backups.
 
 ---

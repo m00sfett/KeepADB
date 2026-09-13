@@ -1,0 +1,1 @@
+Cleaned up webhook descriptions across all 19 app languages and documentation to remove obsolete references to USB-ADB reachability reporting, reflecting pure retry behavior on failure.

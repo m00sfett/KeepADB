@@ -41,7 +41,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_webhook">مزامنة Webhook</string>
     <string name="settings_webhook_title">مزامنة Webhook ونقطة النهاية</string>
     <string name="settings_webhook_toggle">تفعيل مزامنة Webhook</string>
-    <string name="settings_webhook_subtext">يرسل نقطة النهاية النشطة (IP:منفذ) عبر HTTP POST عند التفعيل، ويحاول إرسال DELETE عند التعطيل (تتم إعادة المحاولة لاحقًا في حال الفشل، أو يُتجاوز طالما لا يزال USB يستخدم نقطة النهاية نفسها).</string>
+    <string name="settings_webhook_subtext">يرسل نقطة النهاية النشطة (IP:منفذ) عبر HTTP POST عند التفعيل، ويحاول إرسال DELETE عند التعطيل (تتم إعادة المحاولة لاحقًا في حال الفشل).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">رابط Webhook</string>
     <string name="settings_webhook_btn_save">حفظ الرابط</string>
