@@ -1,0 +1,4 @@
+A byte-match fallback used to resolve the device's own network interface could pick the wrong
+interface when a link-local address was shared by two interfaces at once, causing a legitimate
+Wi-Fi endpoint to be rejected. This ambiguous case is now recognized and treated as unresolvable
+instead of guessed.

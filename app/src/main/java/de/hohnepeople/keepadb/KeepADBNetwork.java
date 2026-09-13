@@ -418,6 +418,19 @@ final class KeepADBNetwork {
      * leaving the genuinely-unresolvable case -- {@code address} bound to no interface this
      * process can currently enumerate -- to still fall back to the scope-blind comparison, as
      * documented on {@link #matchesActiveWifiAddress}.
+     *
+     * <p>#410: the byte-match scan used to hand back the <em>first</em> interface whose address
+     * list contained a byte-identical match, with no regard for whether that interface has
+     * anything to do with the tracked Wi-Fi network. A MAC-derived {@code fe80} link-local
+     * address can legitimately be bound to two interfaces at once (e.g. {@code wlan0} and a
+     * p2p/tethering interface sharing the same hardware address) -- "first wins" could then stamp
+     * the wrong one, causing {@link #matchesActiveWifiAddress} to reject a legitimate candidate
+     * whose real scope disagrees with the wrongly-stamped one. The scan is now restricted to
+     * interfaces that are actually live ({@link NetworkInterface#isUp()}) and not loopback, and an
+     * ambiguous result -- more than one such interface claiming the exact same address -- is
+     * treated the same as "unresolvable" (returns {@code null}, which leaves the address
+     * unstamped and falls back to the scope-blind comparison, {@link #matchesActiveWifiAddress}'s
+     * sink still making that observable) rather than guessing.
      */
     static NetworkInterface resolveScopeInterface(String interfaceName, InetAddress address) {
         if (interfaceName != null) {
@@ -431,19 +444,74 @@ final class KeepADBNetwork {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             if (interfaces == null) return null;
+            List<ScopeCandidate> candidates = new ArrayList<>();
             while (interfaces.hasMoreElements()) {
-                NetworkInterface candidate = interfaces.nextElement();
-                Enumeration<InetAddress> candidateAddresses = candidate.getInetAddresses();
-                while (candidateAddresses.hasMoreElements()) {
-                    if (Arrays.equals(candidateAddresses.nextElement().getAddress(), address.getAddress())) {
-                        return candidate;
-                    }
-                }
+                candidates.add(ScopeCandidate.of(interfaces.nextElement()));
             }
+            return resolveScopeInterfaceByByteMatch(candidates, address.getAddress());
         } catch (Exception ignored) {
             // Best-effort: an enumeration failure here must not turn into a rejection either.
         }
         return null;
+    }
+
+    /**
+     * Core of the byte-match scan (#410), separated from real {@link NetworkInterface} enumeration
+     * so the ambiguous case -- two distinct eligible interfaces both claiming {@code addressBytes}
+     * -- can be exercised in a unit test without needing two such real interfaces to exist on the
+     * machine running the test. Loopback and down interfaces are skipped outright; among the
+     * remaining eligible ones, a single match wins, but a second distinct match downgrades the
+     * result to {@code null} ("nicht auflösbar") instead of keeping the first one found.
+     */
+    static NetworkInterface resolveScopeInterfaceByByteMatch(List<ScopeCandidate> candidates,
+            byte[] addressBytes) {
+        NetworkInterface match = null;
+        for (ScopeCandidate candidate : candidates) {
+            if (!candidate.eligible || !candidate.hasAddress(addressBytes)) continue;
+            if (match != null) return null; // Ambiguous (#410): more than one interface qualifies.
+            match = candidate.networkInterface;
+        }
+        return match;
+    }
+
+    /**
+     * Snapshot of one {@link NetworkInterface}'s eligibility and address bytes for {@link
+     * #resolveScopeInterfaceByByteMatch}, package-visible so #410's regression test can construct
+     * synthetic candidates (e.g. two claiming the identical address) directly, without depending
+     * on the test machine's real network topology.
+     */
+    static final class ScopeCandidate {
+        final NetworkInterface networkInterface;
+        final boolean eligible;
+        private final List<byte[]> addresses;
+
+        ScopeCandidate(NetworkInterface networkInterface, boolean eligible, List<byte[]> addresses) {
+            this.networkInterface = networkInterface;
+            this.eligible = eligible;
+            this.addresses = addresses;
+        }
+
+        static ScopeCandidate of(NetworkInterface networkInterface) {
+            boolean eligible;
+            try {
+                eligible = networkInterface.isUp() && !networkInterface.isLoopback();
+            } catch (Exception ignored) {
+                eligible = false;
+            }
+            List<byte[]> addresses = new ArrayList<>();
+            Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+            while (inetAddresses.hasMoreElements()) {
+                addresses.add(inetAddresses.nextElement().getAddress());
+            }
+            return new ScopeCandidate(networkInterface, eligible, addresses);
+        }
+
+        boolean hasAddress(byte[] addressBytes) {
+            for (byte[] candidateAddress : addresses) {
+                if (Arrays.equals(candidateAddress, addressBytes)) return true;
+            }
+            return false;
+        }
     }
 
     /**

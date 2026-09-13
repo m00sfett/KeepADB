@@ -133,23 +133,67 @@ public class KeepADBScopeFallbackVisibilityTest {
      * #403 AC2: the own-side interface resolution must not depend solely on {@code
      * NetworkInterface.getByName(interfaceName)} -- when that direct lookup can't find anything
      * (bogus/stale interface name), a byte-match scan across all enumerable interfaces must still
-     * find the real one, using the loopback interface (guaranteed present on any JVM that can run
-     * this test) as a stand-in for "an interface that really holds this address".
+     * find the real one. Exercised via {@link KeepADBNetwork#resolveScopeInterfaceByByteMatch}
+     * directly (#410): the loopback interface used to stand in for "an interface that really
+     * holds this address" here, but #410 excludes loopback interfaces from the scan on purpose, so
+     * a synthetic, non-loopback-eligible candidate takes its place instead.
      */
     @Test
     public void resolveScopeInterfaceFallsBackToAByteMatchScanWhenTheNameLookupFails()
             throws Exception {
         NetworkInterface loopback = findLoopbackInterface();
         assumeTrue("test environment must expose a loopback interface", loopback != null);
-        InetAddress loopbackAddress = firstAddress(loopback);
-        assumeTrue("loopback interface must have at least one address", loopbackAddress != null);
+        byte[] addressBytes = InetAddress.getByName("fe80::1").getAddress();
+        KeepADBNetwork.ScopeCandidate eligibleCandidate = new KeepADBNetwork.ScopeCandidate(
+                loopback, true, Collections.singletonList(addressBytes));
 
-        NetworkInterface resolved = KeepADBNetwork.resolveScopeInterface(
-                "definitely-not-a-real-interface-403", loopbackAddress);
+        NetworkInterface resolved = KeepADBNetwork.resolveScopeInterfaceByByteMatch(
+                Collections.singletonList(eligibleCandidate), addressBytes);
 
         assertNotNull("the byte-match fallback must find the interface holding this address",
                 resolved);
         assertEquals(loopback.getName(), resolved.getName());
+    }
+
+    /**
+     * #410: two distinct interfaces claiming the identical (MAC-derived) fe80 address must not
+     * resolve to "first wins" -- the real regression named in the issue, where a wlan0/p2p pair
+     * sharing one link-local address could stamp the wrong interface's index. The ambiguous case
+     * must come back {@code null} (unresolvable), not a guess.
+     */
+    @Test
+    public void resolveScopeInterfaceByByteMatchTreatsTwoMatchingInterfacesAsUnresolvable()
+            throws Exception {
+        NetworkInterface loopback = findLoopbackInterface();
+        assumeTrue("test environment must expose a loopback interface", loopback != null);
+        byte[] addressBytes = InetAddress.getByName("fe80::1").getAddress();
+        List<byte[]> addresses = Collections.singletonList(addressBytes);
+        // Two eligible candidates (e.g. wlan0 and a p2p/tether interface) both reporting the same
+        // MAC-derived link-local address -- the exact ambiguity named in #410. The underlying real
+        // NetworkInterface object is reused for both synthetic candidates; only the "two eligible
+        // candidates hold the same address" shape matters for this decision.
+        KeepADBNetwork.ScopeCandidate wlan = new KeepADBNetwork.ScopeCandidate(loopback, true, addresses);
+        KeepADBNetwork.ScopeCandidate p2p = new KeepADBNetwork.ScopeCandidate(loopback, true, addresses);
+
+        NetworkInterface resolved = KeepADBNetwork.resolveScopeInterfaceByByteMatch(
+                java.util.Arrays.asList(wlan, p2p), addressBytes);
+
+        assertNull("an ambiguous match must be treated as unresolvable, not guessed", resolved);
+    }
+
+    /** A non-eligible (down, or loopback) candidate must never win, even if it holds the address. */
+    @Test
+    public void resolveScopeInterfaceByByteMatchIgnoresIneligibleCandidates() throws Exception {
+        NetworkInterface loopback = findLoopbackInterface();
+        assumeTrue(loopback != null);
+        byte[] addressBytes = InetAddress.getByName("fe80::1").getAddress();
+        KeepADBNetwork.ScopeCandidate ineligible = new KeepADBNetwork.ScopeCandidate(
+                loopback, false, Collections.singletonList(addressBytes));
+
+        NetworkInterface resolved = KeepADBNetwork.resolveScopeInterfaceByByteMatch(
+                Collections.singletonList(ineligible), addressBytes);
+
+        assertNull(resolved);
     }
 
     /** The direct name lookup still wins when it actually resolves -- no need for the fallback. */
