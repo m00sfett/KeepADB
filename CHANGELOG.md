@@ -5,6 +5,21 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.65] - 2026-09-13
+
+### Fixed
+- Corrected outdated security/behavior claims in `SECURITY.md`, `README.md`, and the webhook
+  help text (all languages): the trusted-network allowlist has defaulted to `MODE_ALLOWLIST`
+  since 1.5.5, so docs describing it as "opt-in"/"off by default" were stale — they now describe
+  the allowlist as on by default with the old "all Wi-Fi networks" behavior as an explicit
+  opt-out. The claim that automatic re-enable "never overrides an explicit manual OFF" is now
+  phrased as a property of the current intent-tracking implementation (tested as of issue #309)
+  rather than an unqualified absolute guarantee. The webhook help text no longer promises an
+  unconditional `DELETE` on every shutoff — it now says the app attempts one, retrying later on
+  failure, and skipping it while USB still uses the same endpoint. README's endpoint-discovery
+  timing ("within 1-2 seconds") is now phrased as a typical, non-guaranteed figure rather than a
+  fixed bound (issue #320).
+
 ## [1.5.64] - 2026-09-13
 
 ### Fixed

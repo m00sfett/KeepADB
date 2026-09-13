@@ -9,8 +9,10 @@ The security work in this project is about narrowing *when* and *how* that happe
 pretending the port isn't open. Concretely, KeepADB tries to:
 
 - avoid automatically re-enabling Wireless Debugging on networks the user hasn't marked as
-  trusted (see the trusted-network allowlist under Settings → Trusted Networks; opt-in, off by
-  default to preserve prior behavior);
+  trusted (see the trusted-network allowlist under Settings → Trusted Networks; on by default
+  since 1.5.5 — a freshly installed device only auto re-enables on networks you've explicitly
+  added, with the pre-1.5.5 "any connected Wi-Fi network" behavior still available as an
+  opt-out);
 - keep cleartext (unencrypted) HTTP scoped to the one feature that needs it — the optional,
   user-configured webhook — and warn in-app when a webhook URL is `http://` instead of `https://`;
 - avoid persisting anything sensitive where Android backup or device transfer could pick it up
@@ -32,9 +34,12 @@ support branch; please update to the latest version before reporting an issue.
 
 - Wireless Debugging requires `WRITE_SECURE_SETTINGS`, granted once via `adb shell pm grant`
   (see README "Getting Started") — KeepADB cannot grant this permission to itself.
-- Automatic re-enable (Keep-Alive) only fires while Wi-Fi is connected, and — if the
-  trusted-network allowlist is turned on — only on a network in that allowlist. It never
-  overrides an explicit manual OFF.
+- Automatic re-enable (Keep-Alive) only fires while Wi-Fi is connected, and — unless the
+  allowlist was switched to "all Wi-Fi networks" mode — only on a network in the trusted-network
+  allowlist. Every automatic re-enable path checks the last explicit user intent before acting,
+  so it does not fire while that intent is OFF; this is enforced in code (tracked and tested as
+  of issue #309), not merely a design intention, but it is a property of the current
+  implementation rather than an absolute physical guarantee.
 - Android still requires TLS pairing authentication for a new client to actually use the port;
   KeepADB does not, and cannot, bypass that.
 

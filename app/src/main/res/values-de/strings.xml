@@ -54,7 +54,7 @@
     <string name="settings_section_webhook">Webhook-Synchronisierung</string>
     <string name="settings_webhook_title">Webhook &amp; Endpunkt-Synchronisierung</string>
     <string name="settings_webhook_toggle">Webhook-Synchronisierung aktivieren</string>
-    <string name="settings_webhook_subtext">Sendet den aktiven Drahtlos-Debugging-Endpunkt (IP:Port) per HTTP POST bei Verfügbarkeit und meldet ihn per DELETE bei Deaktivierung ab.</string>
+    <string name="settings_webhook_subtext">Sendet den aktiven Drahtlos-Debugging-Endpunkt (IP:Port) per HTTP POST bei Verfügbarkeit und versucht, ihn per DELETE bei Deaktivierung abzumelden (bei Fehlschlag später erneut versucht, oder ausgelassen, solange USB denselben Endpunkt noch nutzt).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">Webhook-URL</string>
     <string name="settings_webhook_btn_save">URL speichern</string>

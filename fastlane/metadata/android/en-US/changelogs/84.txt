@@ -1,0 +1,5 @@
+Documentation fix: the Security Policy, README, and in-app webhook help text described the
+trusted-network allowlist and the webhook's DELETE behavior more strongly than the app actually
+guarantees. Corrected wording now matches real behavior: the trusted-network allowlist has been
+on by default since version 1.5.5, and the webhook DELETE on shutoff is a best-effort attempt
+with retry, not an unconditional guarantee. No functional change.
