@@ -1,0 +1,8 @@
+A link-local IPv6 scope mismatch could silently fall back to a less strict comparison when the
+device's own network interface could not be resolved, quietly reopening a spoofing gap that was
+meant to be closed. This is now caught and made visible, and the device's own interface is
+resolved more reliably. Stopping an active quick-probe scan now takes effect noticeably sooner.
+The pending webhook cleanup backlog now discards the oldest entry instead of the newest one when
+it overflows, and remembers the discard order across app restarts. The periodic health check of
+an already-registered endpoint now verifies it still looks like the real wireless-debugging
+service, not just that something answers on that port.

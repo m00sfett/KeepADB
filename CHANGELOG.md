@@ -5,6 +5,29 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.63] - 2026-09-13
+
+### Fixed
+- A link-local IPv6 scope mismatch could silently fall back to a scope-blind address comparison
+  when the device's own network interface could not be resolved by name, quietly reopening the
+  spoofing gap issue #364 had closed. The fallback is now visible as a diagnostics event, the
+  device's own interface is now also resolved by scanning for the matching address when the name
+  lookup fails, and the intentionally permanent scope-blind fallback on the candidate side is
+  documented as such (issue #403).
+- Stopping an active quick-probe scan could leave the scan thread running for up to roughly
+  600ms per already-in-flight candidate before it noticed the stop request, because the previous
+  connect and TLS-sniff timeouts were generous. Both are now tighter, so a stop request is
+  honored noticeably sooner (issue #366).
+- The pending webhook cleanup backlog evicted the newest entry on overflow instead of the oldest
+  one, discarding the endpoint most likely to still be a live orphan registration while keeping
+  the one most likely to be long gone. Eviction now removes the oldest entry, and pending
+  cleanups are persisted in their original order so this survives an app restart (issue #368).
+- The periodic re-verification of an already-registered wireless-debugging endpoint only checked
+  whether the host:port still accepted a TCP connection, not whether the answering service still
+  looked like adbd. A different service later taking over the same host:port would have kept
+  being treated as the valid endpoint. Re-verification now uses the same TLS-sniff check already
+  used when a new endpoint is first registered (issue #394).
+
 ## [1.5.62] - 2026-09-13
 
 ### Fixed
