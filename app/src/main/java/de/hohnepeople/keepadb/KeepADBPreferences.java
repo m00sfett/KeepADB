@@ -18,16 +18,6 @@ final class KeepADBPreferences {
     private static final String KEY_SERVICE_LAST_HEARTBEAT = "service_last_heartbeat";
     private static final String KEY_HIDE_NOTIFICATION = "hide_notification_enabled";
     private static final String KEY_USB_WLAN_HANDOVER_MODE = "usb_wlan_handover_mode";
-    private static final String KEY_USB_WEBHOOK_LAST_REPORTED = "usb_webhook_last_reported";
-    private static final String KEY_USB_WEBHOOK_LAST_URL = "usb_webhook_last_url";
-    private static final String KEY_USB_WEBHOOK_LAST_PAYLOAD = "usb_webhook_last_payload";
-    private static final String KEY_USB_WEBHOOK_LAST_PROFILE_ID = "usb_webhook_last_profile_id";
-    private static final String KEY_USB_WEBHOOK_LAST_PROFILE_NAME = "usb_webhook_last_profile_name";
-    private static final String KEY_USB_WEBHOOK_LAST_IP = "usb_webhook_last_ip";
-    private static final String KEY_USB_WEBHOOK_LAST_HOSTNAME = "usb_webhook_last_hostname";
-    private static final String KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME = "usb_webhook_last_tailnet_hostname";
-    private static final String KEY_USB_WEBHOOK_LAST_STATUS = "usb_webhook_last_status";
-    private static final String KEY_USB_WEBHOOK_PENDING_CLEANUP = "usb_webhook_pending_cleanup";
     private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
     private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
     private static final String KEY_ADVICE_BANNER_VISIBLE = "advice_banner_visible";
@@ -277,16 +267,12 @@ final class KeepADBPreferences {
      */
     static final int MAX_PENDING_CLEANUPS = 4;
 
-    /** Separator between URL and payload inside a pending USB cleanup entry. */
-    private static final String PENDING_SEPARATOR = "\n";
-
     /**
      * Separator joining entries in the ordered FIFO shadow list (#368). {@code SharedPreferences}
      * string sets have no defined iteration order, so the eviction order can't be derived from the
      * legacy {@code StringSet} keys alone; this ASCII Group Separator control character is joined
      * between entries in a plain {@code String} preference instead, preserving insertion order.
-     * Chosen because it cannot appear in a URL and predates the {@code "\n"} already used inside a
-     * USB entry ({@link #PENDING_SEPARATOR}).
+     * Chosen because it cannot appear in a URL.
      */
     private static final String ORDER_SEPARATOR = "\u001D";
 
@@ -301,48 +287,6 @@ final class KeepADBPreferences {
 
     static void removePendingWebhookCleanupUrl(Context context, String url) {
         removePendingCleanup(context, KEY_WEBHOOK_PENDING_CLEANUP, url);
-    }
-
-    static java.util.Set<String> getPendingUsbWebhookCleanups(Context context) {
-        return getPendingCleanups(context, KEY_USB_WEBHOOK_PENDING_CLEANUP);
-    }
-
-    /** A USB cleanup needs the exact payload to repost, so URL and payload are stored together. */
-    static void addPendingUsbWebhookCleanup(Context context, String url, String payload) {
-        if (url == null || url.trim().isEmpty() || payload == null) return;
-        if (url.contains(PENDING_SEPARATOR)) return;
-        addPendingCleanup(context, KEY_USB_WEBHOOK_PENDING_CLEANUP, url + PENDING_SEPARATOR + payload);
-    }
-
-    static void removePendingUsbWebhookCleanup(Context context, String entry) {
-        removePendingCleanup(context, KEY_USB_WEBHOOK_PENDING_CLEANUP, entry);
-    }
-
-    /**
-     * Drops every pending USB cleanup that targets {@code url}. A cleanup only means "the server at
-     * this URL still lists an outdated registration for this device"; once a fresh registration has
-     * been accepted by that same URL, the outdated record has been overwritten and the queued
-     * {@code active:false} would deactivate the live registration instead of an orphan.
-     */
-    static void removePendingUsbWebhookCleanupsForUrl(Context context, String url) {
-        if (context == null || url == null) return;
-        for (String entry : getPendingUsbWebhookCleanups(context)) {
-            if (url.equals(pendingCleanupUrl(entry))) {
-                removePendingCleanup(context, KEY_USB_WEBHOOK_PENDING_CLEANUP, entry);
-            }
-        }
-    }
-
-    static String pendingCleanupUrl(String entry) {
-        if (entry == null) return null;
-        int index = entry.indexOf(PENDING_SEPARATOR);
-        return index < 0 ? null : entry.substring(0, index);
-    }
-
-    static String pendingCleanupPayload(String entry) {
-        if (entry == null) return null;
-        int index = entry.indexOf(PENDING_SEPARATOR);
-        return index < 0 ? null : entry.substring(index + PENDING_SEPARATOR.length());
     }
 
     /** The ordered shadow key for a legacy pending-cleanup {@code StringSet} key. */
@@ -418,174 +362,6 @@ final class KeepADBPreferences {
         java.util.LinkedHashSet<String> pending = getPendingCleanups(context, key);
         if (!pending.remove(entry)) return;
         persistPendingCleanups(context, key, pending);
-    }
-
-    static long getUsbWebhookLastReportedAt(Context context) {
-        if (context == null) return 0L;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getLong(KEY_USB_WEBHOOK_LAST_REPORTED, 0L);
-    }
-
-    /** #350: same read-boundary sanitisation as {@link #getWebhookLastReportedUrl(Context)}. */
-    static String getUsbWebhookLastReportedUrl(Context context) {
-        if (context == null) return null;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return sanitizeWebhookUrl(prefs.getString(KEY_USB_WEBHOOK_LAST_URL, null));
-    }
-
-    static void setUsbWebhookLastReportedUrl(Context context, String url) {
-        if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String sanitized = sanitizeWebhookUrl(url);
-        if (sanitized == null) {
-            prefs.edit().remove(KEY_USB_WEBHOOK_LAST_URL).apply();
-        } else {
-            prefs.edit().putString(KEY_USB_WEBHOOK_LAST_URL, sanitized).apply();
-        }
-    }
-
-    static String getUsbWebhookLastReportedPayload(Context context) {
-        if (context == null) return null;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(KEY_USB_WEBHOOK_LAST_PAYLOAD, null);
-    }
-
-    static void setUsbWebhookLastReportedPayload(Context context, String payload) {
-        if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if (payload == null) {
-            prefs.edit().remove(KEY_USB_WEBHOOK_LAST_PAYLOAD).apply();
-        } else {
-            prefs.edit().putString(KEY_USB_WEBHOOK_LAST_PAYLOAD, payload).apply();
-        }
-    }
-
-    static Integer getUsbWebhookLastProfileId(Context context) {
-        if (context == null) return null;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if (!prefs.contains(KEY_USB_WEBHOOK_LAST_PROFILE_ID)) return null;
-        return prefs.getInt(KEY_USB_WEBHOOK_LAST_PROFILE_ID, 0);
-    }
-
-    static String getUsbWebhookLastProfileName(Context context) {
-        if (context == null) return null;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(KEY_USB_WEBHOOK_LAST_PROFILE_NAME, null);
-    }
-
-    static String getUsbWebhookLastIpAddress(Context context) {
-        if (context == null) return null;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(KEY_USB_WEBHOOK_LAST_IP, null);
-    }
-
-    static String getUsbWebhookLastHostname(Context context) {
-        if (context == null) return null;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(KEY_USB_WEBHOOK_LAST_HOSTNAME, null);
-    }
-
-    static String getUsbWebhookLastTailnetHostname(Context context) {
-        if (context == null) return null;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME, null);
-    }
-
-    /**
-     * #317: last USB-ADB webhook result, mirroring {@link #getWebhookLastReportStatus(Context)}.
-     * Installations written before this key existed derive their status from the legacy fields.
-     */
-    static String getUsbWebhookLastReportStatus(Context context) {
-        if (context == null) return WEBHOOK_STATUS_NEVER;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String stored = prefs.getString(KEY_USB_WEBHOOK_LAST_STATUS, null);
-        if (isWebhookReportStatus(stored)) {
-            return stored;
-        }
-        String url = prefs.getString(KEY_USB_WEBHOOK_LAST_URL, null);
-        if (url != null && !url.trim().isEmpty()) {
-            return WEBHOOK_STATUS_SUCCESS;
-        }
-        return prefs.getLong(KEY_USB_WEBHOOK_LAST_REPORTED, 0L) > 0L
-                ? WEBHOOK_STATUS_DEREGISTERED : WEBHOOK_STATUS_NEVER;
-    }
-
-    static void setUsbWebhookLastReportStatus(Context context, String status) {
-        if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if (isWebhookReportStatus(status)) {
-            prefs.edit().putString(KEY_USB_WEBHOOK_LAST_STATUS, status).apply();
-        } else {
-            prefs.edit().remove(KEY_USB_WEBHOOK_LAST_STATUS).apply();
-        }
-    }
-
-    static void setUsbWebhookLastReportedState(Context context, String url, String payload,
-            Integer profileId, String profileName, String ipAddress, String hostname, String tailnetHostname) {
-        setUsbWebhookLastReportedState(context, url, payload, profileId, profileName, ipAddress, hostname,
-                tailnetHostname, null);
-    }
-
-    /** A {@code null} {@code status} leaves the stored USB status untouched. */
-    static void setUsbWebhookLastReportedState(Context context, String url, String payload,
-            Integer profileId, String profileName, String ipAddress, String hostname, String tailnetHostname,
-            String status) {
-        if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        if (url == null) {
-            editor.remove(KEY_USB_WEBHOOK_LAST_URL);
-            editor.remove(KEY_USB_WEBHOOK_LAST_REPORTED);
-        } else {
-            editor.putString(KEY_USB_WEBHOOK_LAST_URL, sanitizeWebhookUrl(url));
-            editor.putLong(KEY_USB_WEBHOOK_LAST_REPORTED, System.currentTimeMillis());
-        }
-        if (payload == null) {
-            editor.remove(KEY_USB_WEBHOOK_LAST_PAYLOAD);
-        } else {
-            editor.putString(KEY_USB_WEBHOOK_LAST_PAYLOAD, payload);
-        }
-        if (profileId == null) {
-            editor.remove(KEY_USB_WEBHOOK_LAST_PROFILE_ID);
-        } else {
-            editor.putInt(KEY_USB_WEBHOOK_LAST_PROFILE_ID, profileId);
-        }
-        if (profileName == null) {
-            editor.remove(KEY_USB_WEBHOOK_LAST_PROFILE_NAME);
-        } else {
-            editor.putString(KEY_USB_WEBHOOK_LAST_PROFILE_NAME, profileName);
-        }
-        if (ipAddress == null) {
-            editor.remove(KEY_USB_WEBHOOK_LAST_IP);
-        } else {
-            editor.putString(KEY_USB_WEBHOOK_LAST_IP, ipAddress);
-        }
-        if (hostname == null) {
-            editor.remove(KEY_USB_WEBHOOK_LAST_HOSTNAME);
-        } else {
-            editor.putString(KEY_USB_WEBHOOK_LAST_HOSTNAME, hostname);
-        }
-        if (tailnetHostname == null) {
-            editor.remove(KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME);
-        } else {
-            editor.putString(KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME, tailnetHostname);
-        }
-        if (status != null) {
-            if (isWebhookReportStatus(status)) {
-                editor.putString(KEY_USB_WEBHOOK_LAST_STATUS, status);
-            } else {
-                editor.remove(KEY_USB_WEBHOOK_LAST_STATUS);
-            }
-        }
-        editor.apply();
-    }
-
-    static void clearUsbWebhookReportedState(Context context) {
-        clearUsbWebhookReportedState(context, null);
-    }
-
-    static void clearUsbWebhookReportedState(Context context, String status) {
-        setUsbWebhookLastReportedState(context, null, null, null, null, null, null, null, status);
     }
 
     static boolean isValidWebhookUrl(String url) {

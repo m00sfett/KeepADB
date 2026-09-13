@@ -90,23 +90,4 @@ public class MainActivityWebhookStatusTest {
         assertTrue("Expected masked URL in status text: " + text,
                 text.contains("http://100.111.***.**:50829/register/s20"));
     }
-
-    @Test
-    public void failedUsbWebhookStatusIsVisibleAlongsideWlanStatus() {
-        Context context = RuntimeEnvironment.getApplication();
-        KeepADBPreferences.setRegisterWebhookUrl(context, "https://register.example/device");
-        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
-        KeepADBPreferences.setUsbWebhookLastReportStatus(
-                context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
-
-        ActivityController<MainActivity> controller =
-                Robolectric.buildActivity(MainActivity.class).setup();
-        MainActivity activity = controller.get();
-
-        TextView usbStatus = activity.findViewById(R.id.webhook_usb_status);
-        assertNotNull(usbStatus);
-        assertEquals(View.VISIBLE, usbStatus.getVisibility());
-        assertEquals(activity.getString(R.string.webhook_status_usb_failed),
-                usbStatus.getText().toString());
-    }
 }
