@@ -5,6 +5,16 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.65] - 2026-09-13
+
+### Added
+- Added a source-based contract test pinning the statement order in
+  `KeepADBTrustedNetwork.setVerifiedTrustObserverActive()` (deactivate, forget verified trust,
+  then apply the requested state), following the same pattern already used elsewhere in
+  `KeepADBTrustedNetworkContractTest`. The ordering is what keeps the method race-free per #354's
+  own reasoning, but nothing previously pinned it, so a later reorder would have passed all unit
+  tests while silently reintroducing the race (issue #375).
+
 ## [1.5.64] - 2026-09-13
 
 ### Fixed

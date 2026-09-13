@@ -1,0 +1,3 @@
+No user-visible change: added a test that locks in the exact internal step order the app
+already uses to keep its network-trust checks race-free, so a future code cleanup can't
+accidentally reorder those steps without a test failing.
