@@ -1,0 +1,3 @@
+Removed USB-ADB webhook reachability reporting. The app now focuses its webhook reporting
+strictly on WLAN-ADB, simplifying background networking while keeping USB notifications and
+USB-to-WLAN handover fully intact.

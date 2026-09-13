@@ -32,16 +32,6 @@ final class KeepADBUsbNotification {
 
     static void refresh(Context context, boolean connected) {
         Context appContext = KeepADBLocaleHelper.wrapContext(context.getApplicationContext());
-        if (connected) {
-            KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.getSelected(appContext);
-            if (selected != null) {
-                KeepADBRegisterClient.updateUsbEndpointAsync(appContext, selected);
-            } else {
-                KeepADBRegisterClient.markUsbInactiveAsync(appContext);
-            }
-        } else {
-            KeepADBRegisterClient.markUsbInactiveAsync(appContext);
-        }
 
         boolean handoverActionVisible = connected
                 && KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL.equals(

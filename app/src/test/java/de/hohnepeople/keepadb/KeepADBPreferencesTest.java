@@ -41,53 +41,7 @@ public class KeepADBPreferencesTest {
         assertFalse(KeepADBPreferences.isValidWebhookUrl("://example.com"));
     }
 
-    @Test
-    public void testUsbPreferencesStateAndClear() {
-        FakeContext context = new FakeContext();
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastReportedPayload(context));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastProfileId(context));
-        org.junit.Assert.assertEquals(0L, KeepADBPreferences.getUsbWebhookLastReportedAt(context));
 
-        KeepADBPreferences.setUsbWebhookLastReportedState(context, "http://example.com/register", "{\"active\":true}",
-                7, "Desk", "192.168.1.50", "desk-host", "desk.tailnet.ts.net");
-
-        org.junit.Assert.assertEquals("http://example.com/register", KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
-        org.junit.Assert.assertEquals("{\"active\":true}", KeepADBPreferences.getUsbWebhookLastReportedPayload(context));
-        org.junit.Assert.assertEquals(Integer.valueOf(7), KeepADBPreferences.getUsbWebhookLastProfileId(context));
-        org.junit.Assert.assertEquals("Desk", KeepADBPreferences.getUsbWebhookLastProfileName(context));
-        org.junit.Assert.assertEquals("192.168.1.50", KeepADBPreferences.getUsbWebhookLastIpAddress(context));
-        org.junit.Assert.assertEquals("desk-host", KeepADBPreferences.getUsbWebhookLastHostname(context));
-        org.junit.Assert.assertEquals("desk.tailnet.ts.net", KeepADBPreferences.getUsbWebhookLastTailnetHostname(context));
-        assertTrue(KeepADBPreferences.getUsbWebhookLastReportedAt(context) > 0L);
-
-        KeepADBPreferences.clearUsbWebhookReportedState(context);
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastReportedPayload(context));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastProfileId(context));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastProfileName(context));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastIpAddress(context));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastHostname(context));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastTailnetHostname(context));
-        org.junit.Assert.assertEquals(0L, KeepADBPreferences.getUsbWebhookLastReportedAt(context));
-    }
-
-    @Test
-    public void testUsbPreferencesNullContextSafety() {
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastReportedUrl(null));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastReportedPayload(null));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastProfileId(null));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastProfileName(null));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastIpAddress(null));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastHostname(null));
-        org.junit.Assert.assertNull(KeepADBPreferences.getUsbWebhookLastTailnetHostname(null));
-        org.junit.Assert.assertEquals(0L, KeepADBPreferences.getUsbWebhookLastReportedAt(null));
-
-        KeepADBPreferences.setUsbWebhookLastReportedUrl(null, "http://example.com");
-        KeepADBPreferences.setUsbWebhookLastReportedPayload(null, "payload");
-        KeepADBPreferences.setUsbWebhookLastReportedState(null, "url", "payload", 1, "name", "ip", "host", "tail");
-        KeepADBPreferences.clearUsbWebhookReportedState(null);
-    }
 
     @Test
     public void testLastDesiredOnPreferenceDefaultAndRoundTrip() {
@@ -242,20 +196,7 @@ public class KeepADBPreferencesTest {
                 KeepADBPreferences.getWebhookLastReportedUrl(context));
     }
 
-    @Test
-    public void testGetUsbWebhookLastReportedUrlSanitizesLegacyValueOnRead() {
-        FakeContext context = new FakeContext();
-        context.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE)
-                .edit()
-                .putString("usb_webhook_last_url",
-                        "https://admin:hunter2@register.example/register/s20?token=abc#frag")
-                .apply();
-        // The query survives sanitisation on purpose: this value is a transport target, and
-        // stripping its parameters would break a webhook that relies on them. Display and log
-        // redaction is what removes the query -- see KeepADBUrlRedactionTest.
-        assertEquals("https://register.example/register/s20?token=abc",
-                KeepADBPreferences.getUsbWebhookLastReportedUrl(context));
-    }
+
 
     /** #350: the legacy value must also be unreadable through the display boundary. */
     @Test
