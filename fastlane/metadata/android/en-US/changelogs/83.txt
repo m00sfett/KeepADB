@@ -20,3 +20,7 @@ feature's network-trust check now runs alongside the actual wireless-debugging t
 both briefly holding the same internal lock, and asked whether that could measurably slow down
 a manual toggle. On-device measurement showed the added check takes a few dozen microseconds,
 far too small to notice, so nothing needed to change.
+
+Internal diagnostics improvement: the quick reconnect check now logs what it actually measured
+when probing a candidate port, making it easier to tell apart a real wireless-debugging service
+from an unrelated one during troubleshooting. No user-visible behavior change.

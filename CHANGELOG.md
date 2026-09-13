@@ -46,6 +46,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   came back at 32-42 microseconds, negligible next to the existing multi-hundred-millisecond
   lock hold time of the recovery pulse it already shares the lock with. No caching or lock-scope
   reduction applied; see issue #341 for the full measurement writeup.
+- Real-device measurement (Galaxy S20 FE, Android 13) of the quick probe's TLS sniff (#363)
+  against genuine adbd on the actual `_adb-tls-connect` port found it never returns a TLS-shaped
+  response to an unpaired client's ClientHello -- neither this app's own minimal hello nor a full
+  standards-compliant one built by OpenSSL. adbd either holds the connection open until the probe
+  times out or closes it with an empty reply, so the sniff currently never positively confirms a
+  real endpoint; it still safely returns "no match" either way, so no incorrect endpoint has ever
+  been accepted. The measured outcome (timeout / empty close / TLS-shaped match) is now logged per
+  attempt so this can be observed live instead of only inferred (issue #404).
 
 ## [1.5.63] - 2026-09-13
 
