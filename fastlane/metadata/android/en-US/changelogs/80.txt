@@ -1,0 +1,4 @@
+The quick synchronous Wi-Fi address check used right after app start now also covers an
+IPv6-only network, not just IPv4. On a network with no IPv4 address, the wireless-debugging
+endpoint is no longer briefly rejected during that short startup window. A dual-stack network
+still prefers IPv4, unchanged.
