@@ -69,9 +69,10 @@ final class KeepADBEndpoint {
     //    probe. Runs on every discovery cycle against up to QUICK_PROBE_MAX_CANDIDATES loopback
     //    ports, so it must stay tight -- see the #366 comment below for the interrupt-related
     //    worst-case math this budget bounds.
-    //  - NSD_ADDRESS_VERIFY_TIMEOUT_MS (400ms, see probeAdbTlsPort() call in the mDNS resolve
-    //    path below): runs once per resolved mDNS candidate, not in a tight loop, so it can
-    //    afford a somewhat larger margin for a real network round-trip.
+    //  - NSD_ADDRESS_VERIFY_TIMEOUT_MS (400ms, see isPortReachable() call in the mDNS resolve
+    //    path below -- was briefly probeAdbTlsPort(), reverted per #404/#424, see that call
+    //    site's own comment): runs once per resolved mDNS candidate, not in a tight loop, so it
+    //    can afford a somewhat larger margin for a real network round-trip.
     //  - KeepADBNotification's cached-endpoint re-verification (500ms, hardcoded at that call
     //    site since it belongs to that class's own heartbeat cadence): the least time-sensitive
     //    of the three, since it only re-checks an already-cached, previously-working endpoint on
@@ -447,12 +448,22 @@ final class KeepADBEndpoint {
                         }
                         final int port = resolved.getPort();
                         VERIFY_EXECUTOR.execute(() -> {
-                            // #412: was a plain isPortReachable() connect; switched to the same
-                            // TLS-sniffing probe as the quick probe (#363) so a resolved mDNS
-                            // candidate gets the same "any TCP responder" hole closed instead of
-                            // being trusted on a bare connect() success. See the constant's own
-                            // comment above for why this budget stays separate from the other two.
-                            boolean reachable = probeAdbTlsPort(addr, port, NSD_ADDRESS_VERIFY_TIMEOUT_MS);
+                            // #412: originally switched this to the same TLS-sniffing probe as the
+                            // quick probe (#363) so a resolved mDNS candidate would get the same
+                            // "any TCP responder" hole closed instead of being trusted on a bare
+                            // connect() success. Reverted after #404 proved on a real device that
+                            // probeAdbTlsPort() never returns true against genuine adbd -- neither
+                            // the timeout nor the EOF branch matches its actual TLS handshake
+                            // behavior. Since this mDNS path is the fallback net for the (also
+                            // broken, see #404) quick probe, the TLS-sniff switch made the app
+                            // unable to find any WLAN ADB endpoint at all -- a real availability
+                            // regression. Falling back to a plain isPortReachable() connect is the
+                            // deliberate, documented alternative named in #412's own acceptance
+                            // criterion ("... or a plain connect for a documented reason
+                            // suffices"), until the broader probe-architecture question is settled
+                            // in #424. See the constant's own comment above for why this budget
+                            // stays separate from the other two.
+                            boolean reachable = isPortReachable(addr, port, NSD_ADDRESS_VERIFY_TIMEOUT_MS);
                             Listener targetListener = null;
                             synchronized (KeepADBEndpoint.this) {
                                 if (!isCurrent(generation) || currentResolveAttemptToken != attemptToken) {
