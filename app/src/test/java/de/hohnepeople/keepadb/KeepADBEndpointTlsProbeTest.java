@@ -12,9 +12,12 @@ import java.util.Arrays;
 import org.junit.Test;
 
 /**
- * Behavior tests for #363: the quick probe's Wi-Fi-side reachability check must not accept a
- * foreign service purely because it answers a TCP connect() on our Wi-Fi address (the residual
- * gap #314 left open for a service bound to {@code 0.0.0.0}, "all interfaces").
+ * Behavior tests for #363: {@code probeAdbTlsPort()}'s Wi-Fi-side reachability check must not
+ * accept a foreign service purely because it answers a TCP connect() on our Wi-Fi address (the
+ * residual gap #314 left open for a service bound to {@code 0.0.0.0}, "all interfaces"). #424
+ * removed this method's original caller, the local port-range "quick probe" (see
+ * {@code KeepADBEndpoint}'s class doc); it is exercised here directly since its remaining caller
+ * is {@code KeepADBNotification}'s cached-endpoint re-verification (#394).
  *
  * <p>{@link KeepADBEndpoint#looksLikeAdbTlsResponse} is exercised directly against fabricated
  * byte sequences (no socket needed), and {@link KeepADBEndpoint#probeAdbTlsPort(String, int,

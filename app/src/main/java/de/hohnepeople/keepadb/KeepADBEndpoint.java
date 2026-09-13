@@ -10,9 +10,6 @@ import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,71 +22,39 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Discovers the active secure wireless-debugging endpoint advertised by adbd.
- * mDNS (NsdManager) is the primary, continuously running discovery path, since Android's
- * per-socket framework overhead (~4.6ms measured, regardless of thread count) makes scanning
- * the full local port range a multi-second operation, not the sub-second check it once was.
- * A tightly time-boxed local port probe still runs alongside it as a best-effort shortcut for
- * the common case where adbd's listener is already open.
+ * mDNS (NsdManager) is the sole discovery path: the local loopback port-range "quick probe"
+ * that used to run alongside it as a best-effort shortcut was removed in #424 after #404 showed
+ * on real devices that its TLS-sniff confirmation ({@link #probeAdbTlsPort}) never actually
+ * matches genuine adbd, so it never delivered an early confirmation -- only up to
+ * ~1.2s of worst-case latency per connection attempt for nothing.
  */
 final class KeepADBEndpoint {
     private static final String TAG = "KeepADBEndpoint";
     static final String SERVICE_TYPE = "_adb-tls-connect._tcp.";
     private static final long RESOLVE_TIMEOUT_MS = 1500;
-    static final int PROBE_START_PORT = 30000;
-    static final int PROBE_END_PORT = 50000;
-    // Measured live on-device: opening a plain SocketChannel and initiating a non-blocking
-    // connect() costs ~4.6ms of Android framework overhead PER SOCKET, regardless of whether
-    // the connect ever resolves and regardless of how many worker threads run concurrently
-    // (2501 ports alone took ~11.6s to just *open*, before any waiting). Scanning the full
-    // 20001-port range can therefore never be a "few hundred ms" operation on this device, so
-    // mDNS (below) is the primary discovery path; this quick probe is now a best-effort,
-    // tightly time-boxed opportunistic check only, not a loop.
-    private static final long SCAN_BATCH_TIMEOUT_MS = 300;
-    private static final int SCAN_WORKERS = 8;
-    private static final java.util.concurrent.ExecutorService SCAN_EXECUTOR =
-            java.util.concurrent.Executors.newFixedThreadPool(SCAN_WORKERS, r -> {
-                Thread t = new Thread(r, "KeepADBScanWorker");
-                t.setDaemon(true);
-                return t;
-            });
     private static final java.util.concurrent.ExecutorService VERIFY_EXECUTOR =
             java.util.concurrent.Executors.newFixedThreadPool(4, r -> {
                 Thread t = new Thread(r, "KeepADBVerifyWorker");
                 t.setDaemon(true);
                 return t;
             });
-    // #314: how many of the quick probe's open loopback ports are checked against the Wi-Fi
-    // address before giving up for this cycle. See selectWifiVerifiedPort().
-    static final int QUICK_PROBE_MAX_CANDIDATES = 8;
-    // #412: three timeout budgets exist for this same class of reachability probe (a TLS-sniffed
-    // or plain-connect socket check against a candidate ADB endpoint), deliberately *not*
-    // unified into one value, because each guards a different call site with its own latency
-    // tolerance and trust context:
-    //  - QUICK_PROBE_CANDIDATE_STEP_TIMEOUT_MS (150ms, below): the opportunistic local port-range
-    //    probe. Runs on every discovery cycle against up to QUICK_PROBE_MAX_CANDIDATES loopback
-    //    ports, so it must stay tight -- see the #366 comment below for the interrupt-related
-    //    worst-case math this budget bounds.
+    // #412: two timeout budgets exist for this same class of reachability probe (a plain-connect
+    // or TLS-sniffed socket check against a candidate ADB endpoint), deliberately *not* unified
+    // into one value, because each guards a different call site with its own latency tolerance
+    // and trust context:
     //  - NSD_ADDRESS_VERIFY_TIMEOUT_MS (400ms, see isPortReachable() call in the mDNS resolve
-    //    path below -- was briefly probeAdbTlsPort(), reverted per #404/#424, see that call
-    //    site's own comment): runs once per resolved mDNS candidate, not in a tight loop, so it
-    //    can afford a somewhat larger margin for a real network round-trip.
+    //    path below -- was briefly probeAdbTlsPort(), reverted per #404, see that call site's own
+    //    comment): runs once per resolved mDNS candidate, not in a tight loop, so it can afford a
+    //    somewhat larger margin for a real network round-trip.
     //  - KeepADBNotification's cached-endpoint re-verification (500ms, hardcoded at that call
     //    site since it belongs to that class's own heartbeat cadence): the least time-sensitive
-    //    of the three, since it only re-checks an already-cached, previously-working endpoint on
-    //    a periodic tick, not a fresh discovery attempt blocking endpoint delivery.
-    // #366: plain Socket.connect()/read() do not honor Thread.interrupt(), so a stop() call
-    // during a candidate's blocking probeAdbTlsPort() cannot abort it early -- it can only end
-    // once that single in-flight attempt's own timeout budget elapses (the generation check in
-    // the selectWifiVerifiedPort() predicate below already stops the loop from starting the
-    // *next* candidate, so this bounds the wait to one candidate, not all of them). Keeping this
-    // tight caps that unavoidable worst case at a still-generous margin for a loopback TLS sniff.
+    //    of the two, since it only re-checks an already-cached, previously-working endpoint on a
+    //    periodic tick, not a fresh discovery attempt blocking endpoint delivery. This is the
+    //    last caller of probeAdbTlsPort() left after #424 removed the local-port-range "quick
+    //    probe" that used to also call it.
     // #411: this value is applied twice in probeAdbTlsPort() -- once as the connect() timeout,
     // once as the setSoTimeout() read timeout -- so the actual worst-case budget per candidate
     // is up to ~2x this value, not this value itself.
-    private static final int QUICK_PROBE_CANDIDATE_STEP_TIMEOUT_MS = 150;
-    // #412: same budget class as QUICK_PROBE_CANDIDATE_STEP_TIMEOUT_MS above, sized for a single
-    // resolved mDNS candidate rather than a loopback port-range scan; see the bundled comment
-    // above for why the three related budgets in this codebase are kept separate.
     private static final int NSD_ADDRESS_VERIFY_TIMEOUT_MS = 400;
     private static final long RECOVERY_PULSE_DELAY_MS = 5000;
     private static final long RECOVERY_PULSE_OFF_MS = 800;
@@ -119,7 +84,6 @@ final class KeepADBEndpoint {
     private long currentResolveAttemptToken;
     private Listener currentListener;
     private boolean discovering;
-    private Thread coordinatorThread;
     private final AtomicBoolean endpointDelivered = new AtomicBoolean(false);
     private Runnable recoveryPulseRunnable;
     private boolean recoveryPulseEnabled;
@@ -197,8 +161,7 @@ final class KeepADBEndpoint {
 
         final long generation = discoveryGeneration;
 
-        // #359: everything from here down to the overall-timeout post below can throw (e.g.
-        // startQuickProbe()'s coordinatorThread.start() under thread-limit exhaustion). Without
+        // #359: everything from here down to the overall-timeout post below can throw. Without
         // this try/finally, such an exception would leave the multicast lock acquired above held
         // indefinitely -- neither the timeout nor any other path would ever release it, since the
         // timeout runnable itself never got posted. The finally block below calls stop() (its
@@ -207,11 +170,8 @@ final class KeepADBEndpoint {
         // passed on or handled, whichever the caller does.
         boolean timeoutArmed = false;
         try {
-            // 1. Best-effort, tightly time-boxed local port probe (see SCAN_BATCH_TIMEOUT_MS) --
-            // covers the common case where adbd's listener is already up, without blocking mDNS.
-            startQuickProbe(generation);
-
-            // 2. mDNS discovery -- the primary, continuously running discovery path.
+            // mDNS discovery -- the sole discovery path (#424 removed the local port-range
+            // "quick probe" that used to also run here, see the class doc above).
             discoveryListener = new NsdManager.DiscoveryListener() {
                 @Override
                 public void onDiscoveryStarted(String serviceType) {
@@ -345,45 +305,6 @@ final class KeepADBEndpoint {
         }
     }
 
-    private void startQuickProbe(long generation) {
-        coordinatorThread = new Thread(() -> {
-            List<Integer> openPorts = scanLocalOpenPortsBatch(PROBE_START_PORT, PROBE_END_PORT, generation);
-            Log.d(TAG, "QuickProbe gen=" + generation + ": openPorts=" + openPorts);
-            if (openPorts.isEmpty() || !isCurrent(generation) || endpointDelivered.get()) {
-                return;
-            }
-            // Fail-closed (#314): without a current Wi-Fi address there is nothing to bind the
-            // candidate to, so no endpoint is registered -- never fall back to the loopback
-            // address the scan itself used.
-            String targetHost = getWifiIpAddress(appContext);
-            if (targetHost == null) {
-                return;
-            }
-            final int candidatePort = selectWifiVerifiedPort(targetHost, openPorts,
-                    port -> isCurrent(generation) && !endpointDelivered.get()
-                            && probeAdbTlsPort(targetHost, port, QUICK_PROBE_CANDIDATE_STEP_TIMEOUT_MS));
-            if (candidatePort < 0) {
-                Log.w(TAG, "QuickProbe gen=" + generation + ": none of " + openPorts
-                        + " answered on Wi-Fi host " + targetHost);
-                return;
-            }
-            Listener targetListener = null;
-            synchronized (KeepADBEndpoint.this) {
-                if (!isCurrent(generation) || !endpointDelivered.compareAndSet(false, true)) {
-                    return;
-                }
-                Log.i(TAG, "QuickProbe verified live ADB endpoint: " + targetHost + ":" + candidatePort);
-                resolveQueue.clear();
-                targetListener = currentListener;
-                stop();
-            }
-            if (targetListener != null) {
-                targetListener.onEndpoint(targetHost, candidatePort);
-            }
-        }, "KeepADBQuickProbe");
-        coordinatorThread.start();
-    }
-
     private void cancelResolveWatchdogLocked() {
         if (resolveWatchdogRunnable != null) {
             scheduler.removeCallbacks(resolveWatchdogRunnable);
@@ -506,10 +427,6 @@ final class KeepADBEndpoint {
         cancelResolveWatchdogLocked();
         resolveQueue.clear();
         resolving = false;
-        if (coordinatorThread != null) {
-            coordinatorThread.interrupt();
-            coordinatorThread = null;
-        }
         if (recoveryPulseRunnable != null) {
             scheduler.removeCallbacks(recoveryPulseRunnable);
             recoveryPulseRunnable = null;
@@ -539,177 +456,6 @@ final class KeepADBEndpoint {
         return discoveryGeneration == generation;
     }
 
-    /**
-     * Non-blocking batch scan of [startPort, endPort] on loopback, bounded by
-     * {@link #SCAN_BATCH_TIMEOUT_MS} total regardless of how many ports don't answer -- unlike a
-     * per-port blocking connect() (with or without a timeout), a port that never responds cannot
-     * delay any other port's result, since every socket is polled concurrently via one Selector
-     * per worker. The range is split across {@link #SCAN_WORKERS} threads purely to parallelize
-     * the per-socket creation overhead; every worker shares the same absolute deadline.
-     */
-    private static final byte[] LOOPBACK_V4 = {127, 0, 0, 1};
-    private static final byte[] LOOPBACK_V6 =
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-
-    /**
-     * adbd's wireless-debugging TLS listener has been observed bound IPv6-only on this device
-     * (dual-stack is the common but not guaranteed case), so an IPv4-only loopback scan can
-     * silently find nothing even while the listener is up. Try IPv4 first (the common case,
-     * cheaper to rule out quickly) and only fall back to IPv6 if that comes up empty.
-     */
-    private List<Integer> scanLocalOpenPortsBatch(int startPort, int endPort, long generation) {
-        List<Integer> found = scanLocalOpenPortsBatch(startPort, endPort, generation, LOOPBACK_V4);
-        if (!found.isEmpty() || !isCurrent(generation) || endpointDelivered.get()) {
-            return found;
-        }
-        return scanLocalOpenPortsBatch(startPort, endPort, generation, LOOPBACK_V6);
-    }
-
-    private List<Integer> scanLocalOpenPortsBatch(int startPort, int endPort, long generation, byte[] loopbackBytes) {
-        final InetAddress loopback;
-        try {
-            loopback = InetAddress.getByAddress(loopbackBytes);
-        } catch (Exception e) {
-            return new ArrayList<>();
-        }
-        final int totalPorts = endPort - startPort + 1;
-        final int chunkSize = (totalPorts + SCAN_WORKERS - 1) / SCAN_WORKERS;
-        final long deadline = System.currentTimeMillis() + SCAN_BATCH_TIMEOUT_MS;
-        final List<java.util.concurrent.Future<List<Integer>>> futures = new ArrayList<>(SCAN_WORKERS);
-
-        for (int i = 0; i < SCAN_WORKERS; i++) {
-            final int chunkStart = startPort + i * chunkSize;
-            final int chunkEnd = Math.min(chunkStart + chunkSize - 1, endPort);
-            if (chunkStart > endPort) break;
-            futures.add(SCAN_EXECUTOR.submit(() -> scanChunkNonBlocking(chunkStart, chunkEnd, generation, deadline, loopback)));
-        }
-
-        final List<Integer> allOpenPorts = new ArrayList<>();
-        for (java.util.concurrent.Future<List<Integer>> f : futures) {
-            try {
-                allOpenPorts.addAll(f.get());
-            } catch (Exception ignored) {
-            }
-        }
-        return allOpenPorts;
-    }
-
-    private List<Integer> scanChunkNonBlocking(int startPort, int endPort, long generation, long deadline, InetAddress loopback) {
-        List<Integer> openPorts = new ArrayList<>();
-        Selector selector;
-        try {
-            selector = Selector.open();
-        } catch (Exception e) {
-            return openPorts;
-        }
-
-        List<SocketChannel> pending = new ArrayList<>();
-        try {
-            for (int port = startPort; port <= endPort; port++) {
-                // Opening a SocketChannel and initiating connect() has real per-call overhead
-                // (see SCAN_BATCH_TIMEOUT_MS doc); without this check the open loop alone could
-                // run well past the deadline before the wait phase below ever gets a chance to
-                // enforce it, on a large enough port range.
-                if (System.currentTimeMillis() >= deadline || !isCurrent(generation)
-                        || endpointDelivered.get() || Thread.currentThread().isInterrupted()) {
-                    return openPorts;
-                }
-                SocketChannel channel = null;
-                try {
-                    channel = SocketChannel.open();
-                    channel.configureBlocking(false);
-                    if (channel.connect(new InetSocketAddress(loopback, port))) {
-                        openPorts.add(port); // connected synchronously (rare, but possible)
-                        channel.close();
-                    } else {
-                        channel.register(selector, SelectionKey.OP_CONNECT, port);
-                        pending.add(channel);
-                    }
-                } catch (Exception ignored) {
-                    closeQuietly(channel);
-                }
-            }
-
-            while (!pending.isEmpty()) {
-                long remaining = deadline - System.currentTimeMillis();
-                if (remaining <= 0 || !isCurrent(generation) || endpointDelivered.get()
-                        || Thread.currentThread().isInterrupted()) {
-                    break;
-                }
-                int ready;
-                try {
-                    ready = selector.select(remaining);
-                } catch (Exception e) {
-                    break;
-                }
-                if (ready == 0) {
-                    continue; // re-check the deadline/generation above
-                }
-                for (SelectionKey key : selector.selectedKeys()) {
-                    SocketChannel channel = (SocketChannel) key.channel();
-                    Integer port = (Integer) key.attachment();
-                    key.cancel();
-                    pending.remove(channel);
-                    try {
-                        if (channel.finishConnect()) {
-                            openPorts.add(port);
-                        }
-                    } catch (Exception ignored) {
-                        // connection refused/reset -- port is closed
-                    } finally {
-                        closeQuietly(channel);
-                    }
-                }
-                selector.selectedKeys().clear();
-            }
-        } finally {
-            for (SocketChannel channel : pending) {
-                closeQuietly(channel);
-            }
-            try {
-                selector.close();
-            } catch (Exception ignored) {
-            }
-        }
-        return openPorts;
-    }
-
-    /**
-     * Picks the first scanned loopback port that also answers on {@code wifiHost} (#314).
-     *
-     * <p>The loopback scan finds every local listener, not only adbd's, so its first hit is not
-     * automatically the endpoint: an unrelated local service used to shadow the real adbd port
-     * for the whole quick-probe shortcut. Walking the candidates instead lets the real listener
-     * still be found, while the "must answer on the Wi-Fi address" requirement keeps a purely
-     * loopback-bound service from ever being registered.
-     *
-     * <p>Bounded by {@link #QUICK_PROBE_MAX_CANDIDATES}: each check costs a blocking connect plus
-     * a small TLS sniff (#363), each with its own timeout, and the quick probe is only ever a
-     * best-effort shortcut alongside mDNS -- it must not turn into a second long-running scan.
-     *
-     * @return the verified port, or {@code -1} if none qualifies (including a {@code null}
-     *         {@code wifiHost}, i.e. no Wi-Fi address to bind to).
-     */
-    static int selectWifiVerifiedPort(String wifiHost, List<Integer> openPorts,
-                                      java.util.function.IntPredicate reachableOnWifiHost) {
-        if (wifiHost == null || openPorts == null) return -1;
-        int checked = 0;
-        for (Integer port : openPorts) {
-            if (port == null) continue;
-            if (checked++ >= QUICK_PROBE_MAX_CANDIDATES) break;
-            if (reachableOnWifiHost.test(port)) return port;
-        }
-        return -1;
-    }
-
-    private static void closeQuietly(SocketChannel channel) {
-        if (channel == null) return;
-        try {
-            channel.close();
-        } catch (Exception ignored) {
-        }
-    }
-
     private static boolean isPortReachable(InetAddress addr, int port, int timeoutMs) {
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(addr, port), timeoutMs);
@@ -729,15 +475,19 @@ final class KeepADBEndpoint {
     }
 
     /**
-     * #363: a bounded subset of the still-open R13 authenticity proof, scoped to the quick
-     * probe's Wi-Fi-side verification only (see {@link #selectWifiVerifiedPort}).
+     * #363: a bounded subset of the still-open R13 authenticity proof, originally scoped to the
+     * local port-range "quick probe"'s Wi-Fi-side verification. #424 removed that quick probe
+     * entirely (see the class doc above); this method's only remaining caller is
+     * {@code KeepADBNotification}'s periodic re-verification of an already-cached endpoint
+     * (#394), which needs the same "any TCP responder is accepted" hole closed for its own
+     * target.
      *
-     * <p>#314 made the quick probe require its candidate to answer on our own Wi-Fi address, not
-     * just on loopback. That closed the "any local listener" gap, but left this residual: a
-     * foreign, unrelated service that happens to bind {@code 0.0.0.0} (all interfaces) instead of
-     * loopback-only answers on the Wi-Fi address too, since address binding alone says nothing
-     * about <em>which</em> service picked up the connection -- a plain {@code connect()} success
-     * (the old {@link #isPortReachable}) cannot tell them apart.
+     * <p>#314 made the (now-removed) quick probe require its candidate to answer on our own
+     * Wi-Fi address, not just on loopback. That closed the "any local listener" gap, but left
+     * this residual: a foreign, unrelated service that happens to bind {@code 0.0.0.0} (all
+     * interfaces) instead of loopback-only answers on the Wi-Fi address too, since address
+     * binding alone says nothing about <em>which</em> service picked up the connection -- a
+     * plain {@code connect()} success (the old {@link #isPortReachable}) cannot tell them apart.
      *
      * <p>Rather than the full, deferred TLS handshake (which would need a pairing-bound
      * certificate this app does not have -- that is R13), this sends a syntactically valid TLS
@@ -757,11 +507,13 @@ final class KeepADBEndpoint {
      * {@code read <= 0} branch) -- in both cases indistinguishable at this call site from a
      * foreign, unrelated service doing the same thing, so this method still correctly returns
      * {@code false} for either. The upshot is that the TLS-sniff confirmation this method
-     * performs currently never positively matches real adbd, and the "quick probe" that calls it
-     * is a still-safe (no false positives introduced) but presently dead shortcut. See #404 for
-     * the full writeup; the log line below exists so a live capture (logcat) can show the actual
-     * measured outcome per attempt without needing a `Context` threaded through this static
-     * utility just to raise a diagnostics event.
+     * performs never positively matches real adbd; #424 removed the quick probe that this fact
+     * made a dead shortcut (up to ~1.2s of worst-case latency per connection attempt for zero
+     * early-confirmation benefit), but the method itself stays for #394's use above, where it is
+     * still a correct (if never-positive) authenticity check, not a latency cost on the discovery
+     * path. See #404 for the full writeup; the log line below exists so a live capture (logcat)
+     * can show the actual measured outcome per attempt without needing a `Context` threaded
+     * through this static utility just to raise a diagnostics event.
      */
     private static boolean probeAdbTlsPort(InetAddress addr, int port, int timeoutMs) {
         try (Socket socket = new Socket()) {
@@ -789,7 +541,8 @@ final class KeepADBEndpoint {
         }
     }
 
-    /** Package-visible so the quick probe's TLS sniff can be exercised end-to-end (#363). */
+    /** Package-visible so this TLS sniff can be exercised end-to-end (#363); also used by
+     *  {@code KeepADBNotification}'s cached-endpoint re-verification (#394). */
     static boolean probeAdbTlsPort(String host, int port, int timeoutMs) {
         try {
             return probeAdbTlsPort(InetAddress.getByName(host), port, timeoutMs);

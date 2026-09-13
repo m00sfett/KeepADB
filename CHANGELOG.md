@@ -5,6 +5,19 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.66] - 2026-09-13
+
+### Removed
+- The local loopback port-range "quick probe" (#314/#363/#366) that used to run alongside mDNS
+  discovery as a best-effort shortcut. Three independent real-device measurements (#404) showed
+  its TLS-sniff confirmation (`probeAdbTlsPort()`) never gets a matching reply from genuine
+  adbd, so it never delivered an early confirmation -- only up to ~1.2s of worst-case added
+  latency per connection attempt (two connect()/read() timeouts of up to 150ms each, times up to
+  8 candidate ports). mDNS discovery is unaffected and is now the sole discovery path, as it
+  already was in practice after the #412 repairs. `probeAdbTlsPort()` itself stays: it is still
+  used by `KeepADBNotification`'s periodic re-verification of an already-cached endpoint (#394),
+  which is unaffected by this removal (issue #424).
+
 ## [1.5.65] - 2026-09-13
 
 ### Fixed

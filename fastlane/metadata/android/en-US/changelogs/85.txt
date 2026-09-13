@@ -1,0 +1,7 @@
+Removed a dead-weight local network probe used while searching for the wireless-debugging
+endpoint. Real-device measurements (issue #404) showed it never got a confirming reply from
+adbd, so it never sped anything up -- it only added up to about 1.2 seconds of worst-case delay
+to some connection attempts. mDNS discovery, the path that actually finds the endpoint, is
+unaffected and remains the sole discovery mechanism.
+
+Internal only: also removed the now-unused code and tests behind that probe.
