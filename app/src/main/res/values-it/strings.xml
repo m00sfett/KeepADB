@@ -41,7 +41,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_webhook">Sincronizzazione Webhook</string>
     <string name="settings_webhook_title">Sincronizzazione Webhook ed endpoint</string>
     <string name="settings_webhook_toggle">Abilita sincronizzazione Webhook</string>
-    <string name="settings_webhook_subtext">Invia lendpoint attivo (IP:porta) tramite HTTP POST quando abilitato e invia DELETE alla disattivazione.</string>
+    <string name="settings_webhook_subtext">Invia l\'endpoint attivo (IP:porta) tramite HTTP POST quando abilitato e tenta di inviare DELETE alla disattivazione (ritentato in seguito in caso di errore, oppure saltato finché USB utilizza ancora lo stesso endpoint).</string>
     <string name="settings_webhook_url_hint">http://host:porta/register/device</string>
     <string name="settings_webhook_url_label">URL del Webhook</string>
     <string name="settings_webhook_btn_save">Salva URL</string>

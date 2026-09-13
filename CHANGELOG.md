@@ -27,6 +27,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `KeepADBNetwork`'s singleton both before and after every test regardless of whether that test
   touches `KeepADBNetwork` directly, closing the gap structurally instead of relying on each test
   author to remember. No production code behavior changed.
+- Corrected outdated security/behavior claims in `SECURITY.md`, `README.md`, and the webhook
+  help text (all languages): the trusted-network allowlist has defaulted to `MODE_ALLOWLIST`
+  since 1.5.5, so docs describing it as "opt-in"/"off by default" were stale — they now describe
+  the allowlist as on by default with the old "all Wi-Fi networks" behavior as an explicit
+  opt-out. The claim that automatic re-enable "never overrides an explicit manual OFF" is now
+  phrased as a property of the current intent-tracking implementation (tested as of issue #309)
+  rather than an unqualified absolute guarantee. The webhook help text no longer promises an
+  unconditional `DELETE` on every shutoff — it now says the app attempts one, retrying later on
+  failure, and skipping it while USB still uses the same endpoint. README's endpoint-discovery
+  timing ("within 1-2 seconds") is now phrased as a typical, non-guaranteed figure rather than a
+  fixed bound (issue #320).
 
 ### Changed
 - Removed unused order-key constant definitions `KEY_WEBHOOK_PENDING_CLEANUP_ORDER` and

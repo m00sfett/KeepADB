@@ -4,6 +4,11 @@ enable could still go through once on a network you had marked as trusted. It no
 current mode again right before switching wireless debugging on, so turning it off during that
 short window reliably cancels the pending enable.
 
+Also corrected the Security Policy, README, and in-app webhook help text, which described the
+trusted-network allowlist and the webhook's DELETE behavior more strongly than the app actually
+guarantees: the trusted-network allowlist has been on by default since version 1.5.5, and the
+webhook DELETE on shutoff is a best-effort attempt with retry, not an unconditional guarantee.
+
 Also includes internal cleanup and test hardening: removed unused constant definitions that were
 never read, added a test that locks in the exact internal step order the app already uses to keep
 its network-trust checks race-free, and fixed a shared test-only safeguard that now resets an
