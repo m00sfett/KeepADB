@@ -5,6 +5,16 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.61] - 2026-09-13
+
+### Fixed
+- The synchronous best-effort Wi-Fi address fallback used right after app start (before the
+  network callback has fired for the first time) or when the callback failed to register at all
+  now also covers an IPv6-only Wi-Fi network. It used to only ever check for an IPv4 address
+  (`WifiInfo` has never exposed IPv6), so a wireless-debugging endpoint on an IPv6-only network
+  could be briefly rejected during that race window even though a valid address was reachable. A
+  dual-stack network is unaffected -- IPv4 is still preferred exactly as before (issue #365).
+
 ## [1.5.60] - 2026-09-13
 
 ### Fixed
