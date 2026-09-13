@@ -566,6 +566,65 @@ public class KeepADBRegisterCleanupLifecycleTest {
         }
     }
 
+    /**
+     * #414: the FIFO rework of #368 introduced an ordered shadow key that is only ever *read*
+     * from the code paths above -- every one of them starts from an empty backlog and therefore
+     * never exercises the migration branch in {@code KeepADBPreferences.getPendingCleanups} that
+     * fires when the order key is missing but the legacy {@code StringSet} key already holds
+     * entries (data written by an app version predating #368, or restored from a backup taken
+     * before it). This test writes exactly that pre-#368 shape directly into the fake prefs --
+     * legacy StringSet populated, order key absent -- and proves both migration-time behaviour
+     * (no entry lost while reconstructing order) and that the very next backlog-bound add still
+     * evicts FIFO-correctly off the reconstructed order, not off some corrupted or truncated
+     * state.
+     */
+    @Test
+    public void legacyStringSetWithoutOrderKeyMigratesAndEvictsFifoWithoutDataLoss() {
+        String legacyKey = "register_webhook_pending_cleanup";
+        String orderKey = legacyKey + "_order";
+        Set<String> legacyEntries = new java.util.HashSet<>(java.util.Arrays.asList(
+                "http://legacy0/register", "http://legacy1/register",
+                "http://legacy2/register", "http://legacy3/register"));
+        assertEquals("test fixture must match MAX_PENDING_CLEANUPS to exercise eviction",
+                KeepADBPreferences.MAX_PENDING_CLEANUPS, legacyEntries.size());
+
+        android.content.SharedPreferences prefs =
+                context.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE);
+        prefs.edit().putStringSet(legacyKey, legacyEntries).apply();
+        assertFalse("test precondition: order key must be absent before migration, "
+                        + "otherwise this test does not exercise the pre-#368 migration path",
+                prefs.contains(orderKey));
+
+        // Reading triggers best-effort order reconstruction from the Set's iteration order and
+        // immediately re-persists it in the new ordered format -- no entry may be lost here.
+        Set<String> afterMigrationRead = KeepADBPreferences.getPendingWebhookCleanupUrls(context);
+        assertEquals(legacyEntries, afterMigrationRead);
+
+        String persistedOrder = prefs.getString(orderKey, null);
+        assertTrue("migration must persist the ordered shadow key so future evictions are "
+                        + "FIFO-correct", persistedOrder != null && !persistedOrder.isEmpty());
+        String[] reconstructedOrder = persistedOrder.split("", -1);
+        assertEquals(KeepADBPreferences.MAX_PENDING_CLEANUPS, reconstructedOrder.length);
+        String expectedEvicted = reconstructedOrder[0];
+
+        // Backlog is already at MAX_PENDING_CLEANUPS; one more add must evict the reconstructed
+        // oldest entry (FIFO, #368), not silently grow past the bound or drop the newest one.
+        String newUrl = "http://new-after-migration/register";
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, newUrl);
+
+        Set<String> finalPending = KeepADBPreferences.getPendingWebhookCleanupUrls(context);
+        assertEquals(KeepADBPreferences.MAX_PENDING_CLEANUPS, finalPending.size());
+        assertTrue("newly added entry must be present", finalPending.contains(newUrl));
+        assertFalse("reconstructed oldest entry must have been evicted",
+                finalPending.contains(expectedEvicted));
+        for (String entry : legacyEntries) {
+            if (!entry.equals(expectedEvicted)) {
+                assertTrue("non-evicted legacy entry must survive migration and eviction intact: "
+                        + entry, finalPending.contains(entry));
+            }
+        }
+    }
+
     @Test
     public void unreachablePendingCleanupIsBackedOffBetweenFlushes() {
         KeepADBPreferences.addPendingWebhookCleanupUrl(context, OLD_URL);

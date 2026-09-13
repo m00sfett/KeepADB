@@ -32,6 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   It now falls back to the same synchronous `WifiInfo` snapshot already used elsewhere, exactly
   while the tracker's callback view is not yet authoritative (issue #396).
 
+### Added
+- A test now covers the #368 FIFO backlog's migration path: legacy `StringSet` entries written by
+  an app version predating #368, with the ordered shadow key absent, seeded directly into
+  preferences. It proves reading them loses no entry and that a subsequent overflow still evicts
+  the correct (reconstructed) oldest entry instead of growing past the bound or corrupting the
+  backlog (issue #414).
+
 ## [1.5.63] - 2026-09-13
 
 ### Fixed

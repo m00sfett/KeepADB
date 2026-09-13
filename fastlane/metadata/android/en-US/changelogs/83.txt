@@ -10,3 +10,7 @@ when its link-local address was ambiguously shared by two network interfaces at 
 
 Fixed a rare startup timing issue where the app could briefly report no Wi-Fi network even
 though the device was actually connected, right after the app started tracking the network.
+
+This release also adds test coverage only for one further case: it proves that the pending
+webhook cleanup backlog correctly migrates data saved by older app versions and still discards
+the right entry when it overflows afterwards.
