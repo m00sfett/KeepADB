@@ -587,6 +587,11 @@ final class KeepADBNotification {
             return;
         }
         if (KeepADBPreferences.isNotificationHidden(context)) {
+            if (KeepADBPreferences.isKeepAliveEnabled(context) && KeepADB.isEnabled(context)) {
+                Notification notification = buildNotification(context, host, port);
+                manager.notify(NOTIFICATION_ID, notification);
+                return;
+            }
             manager.cancel(NOTIFICATION_ID);
             return;
         }
@@ -599,6 +604,11 @@ final class KeepADBNotification {
             return;
         }
         if (KeepADBPreferences.isNotificationHidden(context)) {
+            if (KeepADBPreferences.isKeepAliveEnabled(context) && KeepADB.isEnabled(context)) {
+                Notification notification = buildPlaceholderNotification(context, title, text);
+                manager.notify(NOTIFICATION_ID, notification);
+                return;
+            }
             manager.cancel(NOTIFICATION_ID);
             return;
         }

@@ -161,6 +161,53 @@ public class KeepADBNotificationRobolectricTest {
         }
     }
 
+    @Test
+    public void notificationUpdatesWithEndpointWhenHiddenIfKeepAliveActive() throws Exception {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setNotificationHidden(context, true);
+
+        setStatic("currentHost", "192.168.1.50");
+        setStatic("currentPort", 39123);
+
+        KeepADBNotification.refresh(context);
+
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        ShadowNotificationManager shadowManager = shadowOf(manager);
+        Notification notification = shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID);
+        assertNotNull("Notification must update and be posted when Keep-Alive is active even if hidden",
+                notification);
+        assertEquals(context.getString(R.string.notification_title_active),
+                notification.extras.getString(Notification.EXTRA_TITLE));
+        String content = notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString();
+        assertTrue(content.contains("39123"));
+        assertTrue(content.contains("192.168.1.50"));
+    }
+
+    @Test
+    public void notificationIsCancelledWhenHiddenIfKeepAliveInactive() throws Exception {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(context, false);
+        KeepADBPreferences.setNotificationHidden(context, false);
+
+        setStatic("currentHost", "192.168.1.50");
+        setStatic("currentPort", 39123);
+
+        KeepADBNotification.refresh(context);
+
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        ShadowNotificationManager shadowManager = shadowOf(manager);
+        assertNotNull(shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID));
+
+        KeepADBPreferences.setNotificationHidden(context, true);
+        KeepADBNotification.refresh(context);
+
+        assertNull("Notification must be cancelled when Keep-Alive is inactive and hidden is true",
+                shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID));
+    }
+
     private static void setStatic(String fieldName, Object value) throws Exception {
         Field field = KeepADBNotification.class.getDeclaredField(fieldName);
         field.setAccessible(true);

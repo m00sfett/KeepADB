@@ -109,7 +109,8 @@ public class KeepADBAccessibilityContractTest {
         int[] mainControls = {
                 R.id.btn_open_settings, R.id.btn_dismiss_advice_banner, R.id.setup_refresh,
                 R.id.btn_open_notification_settings, R.id.btn_open_battery_settings,
-                R.id.toggle, R.id.keep_alive_toggle, R.id.webhook_setup_button
+                R.id.toggle, R.id.keep_alive_toggle, R.id.hide_notification_toggle,
+                R.id.webhook_setup_button
         };
         for (int id : mainControls) assertMinSize(main.findViewById(id));
 
@@ -154,6 +155,7 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(main.findViewById(R.id.btn_dismiss_advice_banner).hasOnClickListeners());
         assertTrue(main.findViewById(R.id.toggle).hasOnClickListeners());
         assertTrue(main.findViewById(R.id.keep_alive_toggle).hasOnClickListeners());
+        assertTrue(main.findViewById(R.id.hide_notification_toggle).hasOnClickListeners());
 
         ImageView mainIcon = (ImageView) ((ViewGroup) main.findViewById(R.id.header_bar)).getChildAt(0);
         assertNotNull("The main header must render the app icon", mainIcon.getDrawable());

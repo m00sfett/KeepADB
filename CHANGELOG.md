@@ -5,6 +5,14 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.4] - 2026-09-13
+
+### Fixed
+- Fixed notification freezing on placeholder "KeepADB: Endpoint searching..." when "Hide persistent notification" is active together with Keep-Alive. When Keep-Alive is active, Android enforces a foreground service notification; the notification now properly updates with the active endpoint once discovery finishes, rather than attempting a cancel that Android ignores. If Keep-Alive is inactive, the notification is cancelled and hidden as before (issue #443).
+
+### Added
+- Added "Hide persistent notification" toggle directly on MainActivity under the Keep-Alive section, making the connection between the background service and notification behavior immediately visible. Added dynamic subtext clarifying that Android enforces foreground service notifications during Keep-Alive and complete hiding is only possible via system channel settings across all 19 supported languages (issue #443).
+
 ## [1.6.3] - 2026-09-13
 
 ### Changed

@@ -93,6 +93,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_notification">Notificación</string>
     <string name="settings_hide_notification_toggle">Ocultar notificación persistente</string>
     <string name="settings_hide_notification_subtext">Oculta la notificación de estado en el panel. Keep-Alive y los widgets seguirán funcionando con normalidad.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Cuando Keep-Alive está activo, Android requiere una notificación para el servicio en primer plano. La ocultación completa solo es posible a través de los ajustes de notificación del sistema.</string>
     <string name="settings_section_display">Pantalla</string>
     <string name="settings_keep_display_on_toggle">Mantener la pantalla encendida mientras KeepADB está en primer plano</string>
     <string name="settings_keep_display_on_subtext">Mantiene la pantalla encendida solo mientras esta app está abierta. La pantalla se apaga normalmente en cuanto sales de la app.</string>

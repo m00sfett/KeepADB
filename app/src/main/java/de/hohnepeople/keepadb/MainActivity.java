@@ -18,6 +18,8 @@ public class MainActivity extends Activity {
             "notification_permission_requested";
     private Switch toggle;
     private Switch keepAliveToggle;
+    private Switch hideNotificationToggle;
+    private TextView hideNotificationSubtext;
     private TextView status;
     private TextView endpoint;
     private TextView webhookStatus;
@@ -45,6 +47,8 @@ public class MainActivity extends Activity {
                 getWindow(), findViewById(R.id.header_bar), findViewById(R.id.content_scroll));
         toggle = findViewById(R.id.toggle);
         keepAliveToggle = findViewById(R.id.keep_alive_toggle);
+        hideNotificationToggle = findViewById(R.id.hide_notification_toggle);
+        hideNotificationSubtext = findViewById(R.id.hide_notification_subtext);
         status = findViewById(R.id.status);
         endpoint = findViewById(R.id.endpoint);
         webhookStatus = findViewById(R.id.webhook_status);
@@ -109,6 +113,17 @@ public class MainActivity extends Activity {
             KeepADBService.sync(this);
             KeepADBWidget.refreshAll(this);
             KeepADBNotification.refresh(this);
+            refresh();
+        });
+
+        hideNotificationToggle.setOnClickListener(v -> {
+            boolean wantHidden = hideNotificationToggle.isChecked();
+            KeepADBDiagnostics.event(this, "user_action", "app", wantHidden ? "enable" : "disable", "hide_notification_toggle");
+            KeepADBPreferences.setNotificationHidden(this, wantHidden);
+            KeepADBNotification.refresh(this);
+            Toast.makeText(this,
+                    wantHidden ? R.string.settings_notification_hidden_toast : R.string.settings_notification_visible_toast,
+                    Toast.LENGTH_SHORT).show();
             refresh();
         });
     }
@@ -238,6 +253,12 @@ public class MainActivity extends Activity {
         }
         keepAliveToggle.setEnabled(configured);
         keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
+        hideNotificationToggle.setEnabled(configured);
+        hideNotificationToggle.setChecked(KeepADBPreferences.isNotificationHidden(this));
+        boolean keepAliveActive = KeepADBPreferences.isKeepAliveEnabled(this);
+        hideNotificationSubtext.setText(keepAliveActive
+                ? R.string.settings_hide_notification_subtext_keepalive
+                : R.string.settings_hide_notification_subtext);
         refreshWebhookStatus();
     }
 

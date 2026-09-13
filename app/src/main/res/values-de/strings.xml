@@ -110,6 +110,7 @@
     <string name="settings_section_notification">Benachrichtigung</string>
     <string name="settings_hide_notification_toggle">Dauerhafte Benachrichtigung ausblenden</string>
     <string name="settings_hide_notification_subtext">Blendet die Status-Benachrichtigung in der Leiste aus. Keep-Alive und Widgets funktionieren weiterhin normal.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Bei aktivem Keep-Alive erzwingt Android eine Benachrichtigung für den Hintergrunddienst. Vollständiges Ausblenden ist nur über die System-Benachrichtigungseinstellungen möglich.</string>
     <string name="settings_section_display">Bildschirm</string>
     <string name="settings_keep_display_on_toggle">Display eingeschaltet halten, solange KeepADB im Vordergrund ist</string>
     <string name="settings_keep_display_on_subtext">Hält den Bildschirm nur an, solange diese App geöffnet ist. Beim Verlassen der App schaltet sich der Bildschirm wieder wie gewohnt aus.</string>

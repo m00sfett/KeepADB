@@ -331,6 +331,33 @@
                         android:text="@string/keep_alive_subtext"
                         android:textColor="@color/night_muted"
                         android:textSize="13sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:background="@color/border_red" />
+
+                    <Switch
+                        android:id="@+id/hide_notification_toggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_hide_notification_toggle"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="17sp" />
+
+                    <TextView
+                        android:id="@+id/hide_notification_subtext"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/settings_hide_notification_subtext"
+                        android:textColor="@color/night_muted"
+                        android:textSize="13sp" />
                 </LinearLayout>
 
                 <LinearLayout
