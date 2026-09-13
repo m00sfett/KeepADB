@@ -244,6 +244,13 @@ final class KeepADBNetwork {
      * are evaluated in a fixed, deterministic order rather than {@code wifiCapabilities}'
      * unspecified {@link ConcurrentHashMap} iteration order, so repeated calls against the same
      * tracked state always agree instead of depending on incidental map/hash ordering.
+     *
+     * <p>#396: unlike {@link #activeWifiAddresses()}, this used to have no synchronous fallback
+     * at all, so a call made in the same startup-race window as #390 (callback registered but not
+     * yet fired) always returned {@code null} even on a connected network. It now falls back to
+     * the same {@link #synchronousWifiIpv4Address()} snapshot exactly while {@link
+     * #isWifiTrackingAuthoritative()} is {@code false}, matching {@link
+     * KeepADBService#isWifiConnected(Context)}'s already-fixed handling of the same window.
      */
     String getWifiIpv4Address() {
         for (Map.Entry<Network, NetworkCapabilities> entry : eligibleWifiEntriesInDeterministicOrder()) {
@@ -254,6 +261,12 @@ final class KeepADBNetwork {
                 if (address instanceof Inet4Address && !address.isLoopbackAddress() && !address.isLinkLocalAddress()) {
                     return address.getHostAddress();
                 }
+            }
+        }
+        if (!isWifiTrackingAuthoritative()) {
+            InetAddress synchronousIpv4 = synchronousWifiIpv4Address();
+            if (synchronousIpv4 != null) {
+                return synchronousIpv4.getHostAddress();
             }
         }
         return null;

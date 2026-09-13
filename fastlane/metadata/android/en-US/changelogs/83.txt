@@ -7,3 +7,6 @@ port — closing the same gap already fixed for the quick probe and the periodic
 
 Fixed a rare case where the app could wrongly reject a legitimate wireless-debugging endpoint
 when its link-local address was ambiguously shared by two network interfaces at once.
+
+Fixed a rare startup timing issue where the app could briefly report no Wi-Fi network even
+though the device was actually connected, right after the app started tracking the network.

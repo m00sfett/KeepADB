@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rejected. The scan is now restricted to interfaces that are up and not loopback, and an
   ambiguous match (more than one such interface claiming the identical address) is now treated
   as unresolvable instead of guessed (issue #410).
+- `KeepADBNetwork.getWifiIpv4Address()` had no synchronous fallback at all, so a call made in the
+  same process-startup window #390 identified (the Wi-Fi network callback is registered but its
+  first delivery is still pending) always returned no address even on a connected Wi-Fi network.
+  It now falls back to the same synchronous `WifiInfo` snapshot already used elsewhere, exactly
+  while the tracker's callback view is not yet authoritative (issue #396).
 
 ## [1.5.63] - 2026-09-13
 
