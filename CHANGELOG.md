@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 This is a minor release rather than a patch: the USB register-webhook contract with
 `phone-register-server` changes in a way that makes a pre-1.6.0 app unable to speak correctly
 with an already-updated server (see below), on top of a larger-than-usual batch of independent
-fixes accumulated across 1.5.64/1.5.65/1.5.66.
+fixes accumulated across 1.5.64/1.5.65.
 
 ### Fixed
 - USB-ADB webhook reports carried no register-contract envelope, so `phone-register-server`
