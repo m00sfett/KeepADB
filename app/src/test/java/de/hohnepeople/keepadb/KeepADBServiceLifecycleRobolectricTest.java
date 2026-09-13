@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -39,6 +40,9 @@ import org.robolectric.shadows.ShadowService;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class KeepADBServiceLifecycleRobolectricTest {
+
+    @Rule
+    public final KeepADBNetworkResetRule keepADBNetworkResetRule = new KeepADBNetworkResetRule();
 
     private final Context context = RuntimeEnvironment.getApplication();
 

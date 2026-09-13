@@ -9,6 +9,7 @@ import android.content.Context;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -33,6 +34,9 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class KeepADBWifiGatedDiscoveryBehaviorTest {
+
+    @Rule
+    public final KeepADBNetworkResetRule keepADBNetworkResetRule = new KeepADBNetworkResetRule();
 
     private final Context context = org.robolectric.RuntimeEnvironment.getApplication();
 

@@ -1,0 +1,3 @@
+Internal test-infrastructure fix: a shared safeguard now resets an internal test-only network
+tracker before and after every automated test, closing a gap that could occasionally make an
+unrelated automated test fail depending on test order. No user-visible behavior change.

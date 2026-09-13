@@ -35,6 +35,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -52,6 +53,9 @@ import java.util.List;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class KeepADBAccessibilityContractTest {
+
+    @Rule
+    public final KeepADBNetworkResetRule keepADBNetworkResetRule = new KeepADBNetworkResetRule();
     private Context context;
     private final List<ActivityController<?>> activities = new ArrayList<>();
 
