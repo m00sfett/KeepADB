@@ -61,6 +61,13 @@ final class KeepADBEndpoint {
     // #314: how many of the quick probe's open loopback ports are checked against the Wi-Fi
     // address before giving up for this cycle. See selectWifiVerifiedPort().
     static final int QUICK_PROBE_MAX_CANDIDATES = 8;
+    // #366: plain Socket.connect()/read() do not honor Thread.interrupt(), so a stop() call
+    // during a candidate's blocking probeAdbTlsPort() cannot abort it early -- it can only end
+    // once that single in-flight attempt's own timeout budget elapses (the generation check in
+    // the selectWifiVerifiedPort() predicate below already stops the loop from starting the
+    // *next* candidate, so this bounds the wait to one candidate, not all of them). Keeping this
+    // tight caps that unavoidable worst case at a still-generous margin for a loopback TLS sniff.
+    private static final int QUICK_PROBE_CANDIDATE_TIMEOUT_MS = 150;
     private static final long RECOVERY_PULSE_DELAY_MS = 5000;
     private static final long RECOVERY_PULSE_OFF_MS = 800;
     // Must stay comfortably above RECOVERY_PULSE_DELAY_MS + RECOVERY_PULSE_OFF_MS (5800ms):
@@ -331,7 +338,7 @@ final class KeepADBEndpoint {
             }
             final int candidatePort = selectWifiVerifiedPort(targetHost, openPorts,
                     port -> isCurrent(generation) && !endpointDelivered.get()
-                            && probeAdbTlsPort(targetHost, port, 300));
+                            && probeAdbTlsPort(targetHost, port, QUICK_PROBE_CANDIDATE_TIMEOUT_MS));
             if (candidatePort < 0) {
                 Log.w(TAG, "QuickProbe gen=" + generation + ": none of " + openPorts
                         + " answered on Wi-Fi host " + targetHost);

@@ -13,6 +13,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -218,6 +222,59 @@ public class KeepADBEndpointAddressBindingTest {
         }));
         assertEquals("the quick probe must stay a shortcut, not a second scan",
                 KeepADBEndpoint.QUICK_PROBE_MAX_CANDIDATES, probed.size());
+    }
+
+    /**
+     * #366: {@code Thread.interrupt()} cannot abort an in-flight blocking
+     * {@code Socket.connect()}, so a {@code stop()} call during a running quick-probe scan can
+     * only take effect between candidates -- via the generation/stop check each candidate's
+     * predicate already performs before attempting its own (here simulated) blocking connect,
+     * exactly like the real predicate in {@code startQuickProbe()} checks {@code isCurrent()}
+     * before calling {@code probeAdbTlsPort()}. This proves the scan thread actually stops after
+     * the current candidate, rather than only after all {@link KeepADBEndpoint#QUICK_PROBE_MAX_CANDIDATES}
+     * candidates have each run their full simulated connect timeout.
+     */
+    @Test
+    public void stopDuringQuickProbeEndsScanAfterCurrentCandidateNotAfterAll() throws Exception {
+        final long simulatedConnectMs = 200;
+        List<Integer> manyOpenPorts = new ArrayList<>();
+        for (int port = 40000; port < 40000 + KeepADBEndpoint.QUICK_PROBE_MAX_CANDIDATES; port++) {
+            manyOpenPorts.add(port);
+        }
+        AtomicBoolean stopped = new AtomicBoolean(false);
+        AtomicInteger candidatesStarted = new AtomicInteger(0);
+        CountDownLatch firstCandidateStarted = new CountDownLatch(1);
+        CountDownLatch scanFinished = new CountDownLatch(1);
+
+        Thread scanThread = new Thread(() -> {
+            KeepADBEndpoint.selectWifiVerifiedPort(OWN_WIFI_IP, manyOpenPorts, port -> {
+                // Mirrors the production predicate's generation check performed *before* the
+                // blocking connect attempt for each candidate.
+                if (stopped.get()) return false;
+                candidatesStarted.incrementAndGet();
+                firstCandidateStarted.countDown();
+                try {
+                    Thread.sleep(simulatedConnectMs); // simulated blocking connect+read timeout
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+                return false;
+            });
+            scanFinished.countDown();
+        }, "test-quick-probe-scan");
+        scanThread.start();
+
+        assertTrue("first candidate must have started",
+                firstCandidateStarted.await(1, TimeUnit.SECONDS));
+        // Simulate a stop() call arriving while the first candidate's connect is still in flight.
+        stopped.set(true);
+
+        long fullBudgetMs = KeepADBEndpoint.QUICK_PROBE_MAX_CANDIDATES * simulatedConnectMs;
+        assertTrue("stop() must end the scan thread well before the full multi-candidate "
+                        + "timeout budget of " + fullBudgetMs + "ms elapses",
+                scanFinished.await(fullBudgetMs / 2, TimeUnit.MILLISECONDS));
+        assertEquals("only the already in-flight candidate may run after stop()",
+                1, candidatesStarted.get());
     }
 
     private static final class FakeContext extends ContextWrapper {
