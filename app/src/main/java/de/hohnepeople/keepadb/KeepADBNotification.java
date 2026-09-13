@@ -50,6 +50,8 @@ final class KeepADBNotification {
     // blocking socket check in KeepADBEndpoint.isPortReachable(), which a raw unit/Robolectric
     // test cannot otherwise drive without hanging or flaking (see KeepADBNotificationRobolectricTest).
     private static ReachabilityProbe reachabilityProbe = KeepADBEndpoint::isPortReachable;
+    // Test-only seam (review repair on #351): see setWorkerStarterForTesting().
+    private static WorkerStarter workerStarter = Thread::start;
     // Test-only counter (#351): number of verification worker Threads actually started, so a test
     // can assert that coalesced triggers did not each spawn their own worker.
     private static int verificationWorkerStartCountForTesting;
@@ -69,6 +71,20 @@ final class KeepADBNotification {
     /** Test-only seam (#351) for the blocking reachability check performed by a verification worker. */
     interface ReachabilityProbe {
         boolean isReachable(String host, int port, int timeoutMs);
+    }
+
+    /**
+     * Test-only seam (review repair on #351) for actually starting a verification worker, so a
+     * test can simulate a platform that refuses another thread without having to exhaust the real
+     * thread limit.
+     */
+    interface WorkerStarter {
+        void start(Thread worker);
+    }
+
+    /** Substitutes the real {@link Thread#start()} of a verification worker for a test. */
+    static synchronized void setWorkerStarterForTesting(WorkerStarter starter) {
+        workerStarter = starter != null ? starter : Thread::start;
     }
 
     /** Substitutes the real socket-based reachability check with {@code probe} for a test. */
@@ -121,6 +137,7 @@ final class KeepADBNotification {
         verificationInFlight = false;
         verificationWorkerStartCountForTesting = 0;
         reachabilityProbe = KeepADBEndpoint::isPortReachable;
+        workerStarter = Thread::start;
     }
 
     static synchronized String getCurrentHost() {
@@ -283,7 +300,7 @@ final class KeepADBNotification {
             verificationInFlight = true;
             verificationWorkerStartCountForTesting++;
         }
-        new Thread(() -> {
+        Thread worker = new Thread(() -> {
             boolean reachable = reachabilityProbe.isReachable(host, port, 500);
             synchronized (KeepADBNotification.class) {
                 verificationInFlight = false;
@@ -336,7 +353,20 @@ final class KeepADBNotification {
                 }
             }
             postSurfaceRefresh(appContext);
-        }, "KeepADBEndpointVerify").start();
+        }, "KeepADBEndpointVerify");
+        try {
+            workerStarter.start(worker);
+        } catch (Throwable t) {
+            // Review repair on #351: verificationInFlight is cleared by the worker body, so a
+            // worker that never ran would leave it set forever and silently disable endpoint
+            // verification for the rest of this process -- a permanently switched-off alarm.
+            // #359 already treats exactly this failure (the platform refusing another thread) as
+            // realistic for its own coordinator thread, so it must not be ignored here.
+            synchronized (KeepADBNotification.class) {
+                verificationInFlight = false;
+            }
+            Log.w(TAG, "Could not start endpoint verification worker", t);
+        }
     }
 
     /**

@@ -110,15 +110,26 @@ public class KeepADBService extends Service {
      * {@code WifiInfo} snapshot that can be stale -- e.g. briefly still reporting a just-dropped
      * connection's address. Falling back to it unconditionally would let that staleness produce
      * a false "connected" when {@link KeepADBNetwork}'s live, callback-driven state has already
-     * and correctly answered "no". The fallback is therefore only trusted when {@link
-     * KeepADBNetwork#isWifiCallbackRegistered()} says this tracker's callback never actually
-     * registered -- the one case where its negative answer is not "disconnected" but "unknown".
+     * and correctly answered "no". The fallback is therefore only trusted while this tracker's
+     * negative answer is not "disconnected" but "unknown".
+     *
+     * <p>Review repair on top of #352/#390: that condition used to be {@link
+     * KeepADBNetwork#isWifiCallbackRegistered()} alone, which covered only one of the two ways
+     * the tracker can fail to know. Registration succeeds synchronously, but the framework
+     * delivers the first callback asynchronously, so between {@link KeepADBNetwork#get} and that
+     * first delivery the tracked maps are empty for reasons that have nothing to do with Wi-Fi
+     * being off -- and "registered" was already true. The first call in a process therefore
+     * deterministically answered "no Wi-Fi" even on a connected network, which since #348 gates
+     * automatic re-enable and USB handover, and also drives the tile/notification state. #390
+     * introduced exactly the right predicate for this ({@link
+     * KeepADBNetwork#isWifiTrackingAuthoritative()}, registered <em>and</em> observed) but applied
+     * it only to the endpoint-address path; this call site now uses it too.
      */
     static boolean isWifiConnected(Context context) {
         if (KeepADBNetwork.get(context).isWifiConnected()) {
             return true;
         }
-        if (KeepADBNetwork.get(context).isWifiCallbackRegistered()) {
+        if (KeepADBNetwork.get(context).isWifiTrackingAuthoritative()) {
             return false;
         }
         return KeepADBEndpoint.getWifiIpAddress(context) != null;

@@ -69,16 +69,51 @@ public class KeepADBNetworkRobustnessBehaviorTest {
      * AC1 (stale WifiInfo): once the callback is live and authoritatively reports "no eligible
      * Wi-Fi network", a stale WifiInfo snapshot that still reports a (just-dropped) address must
      * not override that authoritative negative answer.
+     *
+     * <p>Review repair on top of #352/#390: "authoritative" means registered <em>and</em> having
+     * actually fired (see {@link KeepADBNetwork#isWifiTrackingAuthoritative()}), so this test
+     * drives a real connect/lose cycle through the callback rather than merely forcing the
+     * registration flag -- the latter also matches the untouched startup race covered by
+     * {@link #wifiInfoFallbackStillCoversTheWindowBeforeTheFirstCallbackDelivery()}.
      */
     @Test
     public void staleWifiInfoDoesNotOverrideAnAuthoritativeCallbackRegisteredNegative() throws Exception {
-        KeepADBNetwork.get(context);
-        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
-        KeepADBNetwork.setWifiCallbackRegisteredOverrideForTesting(true);
+        KeepADBNetwork network = KeepADBNetwork.get(context);
+        ShadowConnectivityManager shadowConnectivityManager =
+                shadowOf(context.getSystemService(ConnectivityManager.class));
+        Network wifiNetwork = ShadowNetwork.newInstance(4101);
+
+        deliverToAllCallbacks(shadowConnectivityManager,
+                callback -> callback.onCapabilitiesChanged(wifiNetwork, eligibleWifiCapabilities()));
+        deliverToAllCallbacks(shadowConnectivityManager, callback -> callback.onLost(wifiNetwork));
+        assertFalse("Precondition: the tracker itself reports no eligible Wi-Fi network",
+                network.isWifiConnected());
         setSynchronousWifiConnectionInfo("192.168.1.42");
 
         assertFalse("A live, registered callback's negative answer must win over a stale "
                         + "synchronous WifiInfo snapshot",
+                KeepADBService.isWifiConnected(context));
+    }
+
+    /**
+     * Review repair on top of #352/#390: registration succeeds synchronously, the first callback
+     * delivery does not. Between {@link KeepADBNetwork#get} and that first delivery the tracked
+     * maps are empty for reasons that have nothing to do with Wi-Fi being off, so gating the
+     * synchronous fallback on "registered" alone made the first call in a process deterministically
+     * answer "no Wi-Fi" on a perfectly connected network -- which since #348 blocks automatic
+     * re-enable and USB handover, and drives the tile/notification state. #390 defined the correct
+     * predicate (registered <em>and</em> observed) but applied it only to the endpoint-address path.
+     */
+    @Test
+    public void wifiInfoFallbackStillCoversTheWindowBeforeTheFirstCallbackDelivery() throws Exception {
+        KeepADBNetwork network = KeepADBNetwork.get(context);
+        assertTrue("Precondition: registration itself succeeded", network.isWifiCallbackRegistered());
+        assertFalse("Precondition: no callback has been delivered yet",
+                network.isWifiTrackingAuthoritative());
+        setSynchronousWifiConnectionInfo("192.168.1.42");
+
+        assertTrue("Before the first callback delivery the tracker knows nothing, so the "
+                        + "synchronous WifiInfo snapshot must still be able to report the connection",
                 KeepADBService.isWifiConnected(context));
     }
 

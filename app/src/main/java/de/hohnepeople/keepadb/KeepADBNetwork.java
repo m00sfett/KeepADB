@@ -329,8 +329,14 @@ final class KeepADBNetwork {
      * fired yet leaves the tracked maps empty for reasons that have nothing to do with Wi-Fi
      * being off. Only when this is {@code true} does an empty candidate set mean "no Wi-Fi",
      * rather than "nothing known yet".
+     *
+     * <p>Package-visible since the review repair on top of #352/#390: {@link
+     * KeepADBService#isWifiConnected(Context)} needs the very same predicate to decide whether its
+     * own synchronous fallback may still widen a negative answer. It used to check only {@link
+     * #isWifiCallbackRegistered()} there, which treats the pre-first-delivery window as
+     * authoritative and wrongly reports "no Wi-Fi".
      */
-    private boolean isWifiTrackingAuthoritative() {
+    boolean isWifiTrackingAuthoritative() {
         return isWifiCallbackRegistered() && wifiCallbackObserved;
     }
 

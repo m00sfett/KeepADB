@@ -5,6 +5,19 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.62] - 2026-09-13
+
+### Fixed
+- Right after the app starts, the Wi-Fi connection check could report "no Wi-Fi" on a perfectly
+  connected network: the network tracker's callback registers immediately, but the system delivers
+  its first update a moment later, and that short window was already treated as a reliable "no".
+  Since the check gates automatic re-enabling, the USB handover and the tile/notification state,
+  the first check after a start could wrongly do nothing. The synchronous fallback is now used
+  until the callback has actually reported once (review repair on issues #352/#390).
+- A verification worker that could not be started at all (e.g. when the system refuses new
+  threads) left endpoint verification permanently switched off for the rest of the app's run,
+  because the "already running" marker was never cleared again (review repair on issue #351).
+
 ## [1.5.61] - 2026-09-13
 
 ### Fixed

@@ -1,0 +1,5 @@
+Right after the app starts, the Wi-Fi check could report "no Wi-Fi" on a perfectly connected
+network, so the first automatic re-enable, USB handover or tile update after a start could
+wrongly do nothing. It now waits for the system's first network update before trusting a
+negative answer. A verification worker that could not be started at all no longer leaves
+endpoint verification switched off for the rest of the app's run.
