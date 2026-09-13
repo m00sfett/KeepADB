@@ -41,7 +41,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_webhook">Синхронізація Webhook</string>
     <string name="settings_webhook_title">Синхронізація Webhook та кінцевої точки</string>
     <string name="settings_webhook_toggle">Увімкнути синхронізацію Webhook</string>
-    <string name="settings_webhook_subtext">Надсилає активну кінцеву точку (IP:порт) через HTTP POST при увімкненні та намагається надіслати DELETE при вимкненні (повторюється пізніше в разі невдачі або пропускається, поки USB усе ще використовує ту саму кінцеву точку).</string>
+    <string name="settings_webhook_subtext">Надсилає активну кінцеву точку (IP:порт) через HTTP POST при увімкненні та намагається надіслати DELETE при вимкненні (повторюється пізніше в разі невдачі).</string>
     <string name="settings_webhook_url_hint">http://host:port/register/device</string>
     <string name="settings_webhook_url_label">URL-адреса Webhook</string>
     <string name="settings_webhook_btn_save">Зберегти URL</string>
