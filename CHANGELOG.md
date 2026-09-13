@@ -5,6 +5,15 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.64] - 2026-09-13
+
+### Added
+- A test now covers the #368 FIFO backlog's migration path: legacy `StringSet` entries written by
+  an app version predating #368, with the ordered shadow key absent, seeded directly into
+  preferences. It proves reading them loses no entry and that a subsequent overflow still evicts
+  the correct (reconstructed) oldest entry instead of growing past the bound or corrupting the
+  backlog (issue #414).
+
 ## [1.5.63] - 2026-09-13
 
 ### Fixed

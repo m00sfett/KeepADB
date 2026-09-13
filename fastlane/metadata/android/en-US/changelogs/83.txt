@@ -1,0 +1,3 @@
+This release adds test coverage only; there is no user-visible change. It proves that the pending
+webhook cleanup backlog correctly migrates data saved by older app versions and still discards
+the right entry when it overflows afterwards.
