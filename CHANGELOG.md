@@ -5,6 +5,15 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.64] - 2026-09-13
+
+### Fixed
+- `KeepADBNetwork.getWifiIpv4Address()` had no synchronous fallback at all, so a call made in the
+  same process-startup window #390 identified (the Wi-Fi network callback is registered but its
+  first delivery is still pending) always returned no address even on a connected Wi-Fi network.
+  It now falls back to the same synchronous `WifiInfo` snapshot already used elsewhere, exactly
+  while the tracker's callback view is not yet authoritative (issue #396).
+
 ## [1.5.63] - 2026-09-13
 
 ### Fixed

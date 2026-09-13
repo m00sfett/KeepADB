@@ -1,0 +1,2 @@
+Fixed a rare startup timing issue where the app could briefly report no Wi-Fi network even
+though the device was actually connected, right after the app started tracking the network.
