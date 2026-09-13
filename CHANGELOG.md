@@ -5,6 +5,17 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.65] - 2026-09-13
+
+### Fixed
+- `KeepADBUsbHandover.isAutoHandoverStillPermitted()` re-checked only the trusted-network
+  allowlist and the active Wi-Fi transport before the debounced automatic USB handover write --
+  not the USB-WLAN handover mode itself. Switching the mode from AUTOMATIC to OFF while a
+  delayed enable was still pending in the `TOGGLE_COOLDOWN_MS` window let that enable go through
+  once on an otherwise still-trusted network. The guard now also re-reads the current mode at
+  write time, matching the re-check the other automatic enable paths already apply to their own
+  conditions (issue #383).
+
 ## [1.5.64] - 2026-09-13
 
 ### Fixed

@@ -1,0 +1,5 @@
+Fixed a rare edge case in the optional USB-to-WLAN wireless-debugging handover: if you switched
+its mode from Automatic to Off in the brief moment right after plugging in USB, the automatic
+enable could still go through once on a network you had marked as trusted. It now checks the
+current mode again right before switching wireless debugging on, so turning it off during that
+short window reliably cancels the pending enable.
