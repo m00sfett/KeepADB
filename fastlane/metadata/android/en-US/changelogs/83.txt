@@ -1,0 +1,28 @@
+Internal fix: clarified a code comment about the quick probe's connection timeout budget. No
+user-visible behavior change.
+
+No user-visible change: looked into tightening the check that verifies a wireless-debugging
+address found via network discovery (mDNS) so it would confirm the service actually looks like
+real adbd, not just that something answers on that port. On-device measurement showed the
+stricter check never succeeds against real adbd, so the mDNS check keeps its current, simpler
+verification for now while the underlying approach is reconsidered.
+
+Fixed a rare case where the app could wrongly reject a legitimate wireless-debugging endpoint
+when its link-local address was ambiguously shared by two network interfaces at once.
+
+Fixed a rare startup timing issue where the app could briefly report no Wi-Fi network even
+though the device was actually connected, right after the app started tracking the network.
+
+This release also adds test coverage only for one further case: it proves that the pending
+webhook cleanup backlog correctly migrates data saved by older app versions and still discards
+the right entry when it overflows afterwards.
+
+No user-visible change otherwise. A prior code review flagged that the automatic re-enable
+feature's network-trust check now runs alongside the actual wireless-debugging toggle write,
+both briefly holding the same internal lock, and asked whether that could measurably slow down
+a manual toggle. On-device measurement showed the added check takes a few dozen microseconds,
+far too small to notice, so nothing needed to change.
+
+Internal diagnostics improvement: the quick reconnect check now logs what it actually measured
+when probing a candidate port, making it easier to tell apart a real wireless-debugging service
+from an unrelated one during troubleshooting. No user-visible behavior change.

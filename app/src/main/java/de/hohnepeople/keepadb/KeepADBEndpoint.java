@@ -61,13 +61,36 @@ final class KeepADBEndpoint {
     // #314: how many of the quick probe's open loopback ports are checked against the Wi-Fi
     // address before giving up for this cycle. See selectWifiVerifiedPort().
     static final int QUICK_PROBE_MAX_CANDIDATES = 8;
+    // #412: three timeout budgets exist for this same class of reachability probe (a TLS-sniffed
+    // or plain-connect socket check against a candidate ADB endpoint), deliberately *not*
+    // unified into one value, because each guards a different call site with its own latency
+    // tolerance and trust context:
+    //  - QUICK_PROBE_CANDIDATE_STEP_TIMEOUT_MS (150ms, below): the opportunistic local port-range
+    //    probe. Runs on every discovery cycle against up to QUICK_PROBE_MAX_CANDIDATES loopback
+    //    ports, so it must stay tight -- see the #366 comment below for the interrupt-related
+    //    worst-case math this budget bounds.
+    //  - NSD_ADDRESS_VERIFY_TIMEOUT_MS (400ms, see isPortReachable() call in the mDNS resolve
+    //    path below -- was briefly probeAdbTlsPort(), reverted per #404/#424, see that call
+    //    site's own comment): runs once per resolved mDNS candidate, not in a tight loop, so it
+    //    can afford a somewhat larger margin for a real network round-trip.
+    //  - KeepADBNotification's cached-endpoint re-verification (500ms, hardcoded at that call
+    //    site since it belongs to that class's own heartbeat cadence): the least time-sensitive
+    //    of the three, since it only re-checks an already-cached, previously-working endpoint on
+    //    a periodic tick, not a fresh discovery attempt blocking endpoint delivery.
     // #366: plain Socket.connect()/read() do not honor Thread.interrupt(), so a stop() call
     // during a candidate's blocking probeAdbTlsPort() cannot abort it early -- it can only end
     // once that single in-flight attempt's own timeout budget elapses (the generation check in
     // the selectWifiVerifiedPort() predicate below already stops the loop from starting the
     // *next* candidate, so this bounds the wait to one candidate, not all of them). Keeping this
     // tight caps that unavoidable worst case at a still-generous margin for a loopback TLS sniff.
-    private static final int QUICK_PROBE_CANDIDATE_TIMEOUT_MS = 150;
+    // #411: this value is applied twice in probeAdbTlsPort() -- once as the connect() timeout,
+    // once as the setSoTimeout() read timeout -- so the actual worst-case budget per candidate
+    // is up to ~2x this value, not this value itself.
+    private static final int QUICK_PROBE_CANDIDATE_STEP_TIMEOUT_MS = 150;
+    // #412: same budget class as QUICK_PROBE_CANDIDATE_STEP_TIMEOUT_MS above, sized for a single
+    // resolved mDNS candidate rather than a loopback port-range scan; see the bundled comment
+    // above for why the three related budgets in this codebase are kept separate.
+    private static final int NSD_ADDRESS_VERIFY_TIMEOUT_MS = 400;
     private static final long RECOVERY_PULSE_DELAY_MS = 5000;
     private static final long RECOVERY_PULSE_OFF_MS = 800;
     // Must stay comfortably above RECOVERY_PULSE_DELAY_MS + RECOVERY_PULSE_OFF_MS (5800ms):
@@ -338,7 +361,7 @@ final class KeepADBEndpoint {
             }
             final int candidatePort = selectWifiVerifiedPort(targetHost, openPorts,
                     port -> isCurrent(generation) && !endpointDelivered.get()
-                            && probeAdbTlsPort(targetHost, port, QUICK_PROBE_CANDIDATE_TIMEOUT_MS));
+                            && probeAdbTlsPort(targetHost, port, QUICK_PROBE_CANDIDATE_STEP_TIMEOUT_MS));
             if (candidatePort < 0) {
                 Log.w(TAG, "QuickProbe gen=" + generation + ": none of " + openPorts
                         + " answered on Wi-Fi host " + targetHost);
@@ -428,7 +451,22 @@ final class KeepADBEndpoint {
                         }
                         final int port = resolved.getPort();
                         VERIFY_EXECUTOR.execute(() -> {
-                            boolean reachable = isPortReachable(addr, port, 400);
+                            // #412: originally switched this to the same TLS-sniffing probe as the
+                            // quick probe (#363) so a resolved mDNS candidate would get the same
+                            // "any TCP responder" hole closed instead of being trusted on a bare
+                            // connect() success. Reverted after #404 proved on a real device that
+                            // probeAdbTlsPort() never returns true against genuine adbd -- neither
+                            // the timeout nor the EOF branch matches its actual TLS handshake
+                            // behavior. Since this mDNS path is the fallback net for the (also
+                            // broken, see #404) quick probe, the TLS-sniff switch made the app
+                            // unable to find any WLAN ADB endpoint at all -- a real availability
+                            // regression. Falling back to a plain isPortReachable() connect is the
+                            // deliberate, documented alternative named in #412's own acceptance
+                            // criterion ("... or a plain connect for a documented reason
+                            // suffices"), until the broader probe-architecture question is settled
+                            // in #424. See the constant's own comment above for why this budget
+                            // stays separate from the other two.
+                            boolean reachable = isPortReachable(addr, port, NSD_ADDRESS_VERIFY_TIMEOUT_MS);
                             Listener targetListener = null;
                             synchronized (KeepADBEndpoint.this) {
                                 if (!isCurrent(generation) || currentResolveAttemptToken != attemptToken) {
@@ -709,6 +747,21 @@ final class KeepADBEndpoint {
      * proxy or another TLS service bound to the same port would still pass, and that residual gap
      * is left to R13 -- but it closes the specific "any TCP responder is accepted" hole #363 is
      * about, at negligible extra cost over the plain connect it replaces.
+     *
+     * <p>#404: real-device measurement against genuine adbd's {@code _adb-tls-connect} port (S20,
+     * Android 13, both with and without an already-authenticated host session) showed it never
+     * returns a TLS-shaped record to an unpaired client's ClientHello -- not with this method's
+     * minimal hand-built hello, not with a full modern OpenSSL-generated one. adbd either silently
+     * holds the connection open until our timeout elapses (the {@code SocketTimeoutException}
+     * branch below) or, for some hello shapes, closes it with a clean EOF and zero bytes (the
+     * {@code read <= 0} branch) -- in both cases indistinguishable at this call site from a
+     * foreign, unrelated service doing the same thing, so this method still correctly returns
+     * {@code false} for either. The upshot is that the TLS-sniff confirmation this method
+     * performs currently never positively matches real adbd, and the "quick probe" that calls it
+     * is a still-safe (no false positives introduced) but presently dead shortcut. See #404 for
+     * the full writeup; the log line below exists so a live capture (logcat) can show the actual
+     * measured outcome per attempt without needing a `Context` threaded through this static
+     * utility just to raise a diagnostics event.
      */
     private static boolean probeAdbTlsPort(InetAddress addr, int port, int timeoutMs) {
         try (Socket socket = new Socket()) {
@@ -718,8 +771,19 @@ final class KeepADBEndpoint {
             socket.getOutputStream().flush();
             byte[] response = new byte[64];
             int read = socket.getInputStream().read(response);
-            if (read <= 0) return false;
-            return looksLikeAdbTlsResponse(Arrays.copyOf(response, read), PROBE_CLIENT_HELLO);
+            if (read <= 0) {
+                Log.d(TAG, "probeAdbTlsPort " + addr + ":" + port
+                        + " -> eof, no TLS response (#404)");
+                return false;
+            }
+            boolean matched = looksLikeAdbTlsResponse(Arrays.copyOf(response, read), PROBE_CLIENT_HELLO);
+            Log.d(TAG, "probeAdbTlsPort " + addr + ":" + port + " -> " + read
+                    + " bytes, tlsShaped=" + matched + " (#404)");
+            return matched;
+        } catch (java.net.SocketTimeoutException timeout) {
+            Log.d(TAG, "probeAdbTlsPort " + addr + ":" + port
+                    + " -> timeout after " + timeoutMs + "ms, no response at all (#404)");
+            return false;
         } catch (Exception ignored) {
             return false;
         }

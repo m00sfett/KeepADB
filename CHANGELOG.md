@@ -5,6 +5,59 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.64] - 2026-09-13
+
+### Fixed
+- Clarified that the quick probe's per-candidate timeout constant is applied twice in
+  `probeAdbTlsPort()` (connect and TLS-sniff read), so the actual worst-case budget per
+  candidate is up to ~2x the configured value, not the value itself (issue #411).
+- Investigated whether the mDNS-resolved candidate address check should adopt the same TLS-sniff
+  verification issue #363 and #394 already use elsewhere, instead of only confirming that the
+  host:port accepted a TCP connection. Real-device measurement for issue #404 showed the TLS
+  sniff never gets a TLS-shaped response from genuine adbd, so switching the mDNS check to it
+  would have removed the only working endpoint-discovery path without closing any real gap; the
+  mDNS check therefore intentionally keeps its plain TCP-connect check for now (tracked as an
+  open architecture question in issue #424). The three related timeout budgets for this class of
+  reachability probe (quick probe, mDNS candidate verification, cached-endpoint re-verification)
+  are documented together at their declaration and kept intentionally separate, since each guards
+  a different call site with its own latency tolerance (issue #412).
+- The byte-match fallback in `KeepADBNetwork.resolveScopeInterface()` (added for issue #403)
+  handed back the first interface whose address list contained the searched-for link-local
+  address, with no regard for whether that interface has anything to do with the tracked Wi-Fi
+  network. A MAC-derived `fe80` link-local address can legitimately be bound to two interfaces
+  at once, so "first wins" could stamp the wrong one and cause a legitimate candidate to be
+  rejected. The scan is now restricted to interfaces that are up and not loopback, and an
+  ambiguous match (more than one such interface claiming the identical address) is now treated
+  as unresolvable instead of guessed (issue #410).
+- `KeepADBNetwork.getWifiIpv4Address()` had no synchronous fallback at all, so a call made in the
+  same process-startup window #390 identified (the Wi-Fi network callback is registered but its
+  first delivery is still pending) always returned no address even on a connected Wi-Fi network.
+  It now falls back to the same synchronous `WifiInfo` snapshot already used elsewhere, exactly
+  while the tracker's callback view is not yet authoritative (issue #396).
+
+### Added
+- A test now covers the #368 FIFO backlog's migration path: legacy `StringSet` entries written by
+  an app version predating #368, with the ordered shadow key absent, seeded directly into
+  preferences. It proves reading them loses no entry and that a subsequent overflow still evicts
+  the correct (reconstructed) oldest entry instead of growing past the bound or corrupting the
+  backlog (issue #414).
+
+### Changed
+- No functional change: measured the #310 `EnableGuard` re-check (the `WifiManager`
+  connection-info lookup now run inside the same `synchronized (KeepADB.class)` block as the
+  `Settings.Global` write) on real hardware. Seven on-device samples of the guard call itself
+  came back at 32-42 microseconds, negligible next to the existing multi-hundred-millisecond
+  lock hold time of the recovery pulse it already shares the lock with. No caching or lock-scope
+  reduction applied; see issue #341 for the full measurement writeup.
+- Real-device measurement (Galaxy S20 FE, Android 13) of the quick probe's TLS sniff (#363)
+  against genuine adbd on the actual `_adb-tls-connect` port found it never returns a TLS-shaped
+  response to an unpaired client's ClientHello -- neither this app's own minimal hello nor a full
+  standards-compliant one built by OpenSSL. adbd either holds the connection open until the probe
+  times out or closes it with an empty reply, so the sniff currently never positively confirms a
+  real endpoint; it still safely returns "no match" either way, so no incorrect endpoint has ever
+  been accepted. The measured outcome (timeout / empty close / TLS-shaped match) is now logged per
+  attempt so this can be observed live instead of only inferred (issue #404).
+
 ## [1.5.63] - 2026-09-13
 
 ### Fixed
