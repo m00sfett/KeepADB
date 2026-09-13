@@ -1,0 +1,16 @@
+Fixed the optional USB reporting of the webhook feature. When the register on the other end
+speaks the current protocol version, it requires every USB report to identify itself with that
+version and to carry an event marker. The app did not send either, so the register rejected both
+the USB connect report and the USB disconnect report. In practice this meant a USB connection
+could be missing from the register, and a USB disconnect could leave a stale entry behind. USB
+reports now include that information, and a repeated unchanged report is recognized as a repeat
+instead of being sent and stored again.
+
+Only the optional webhook synchronization is affected. Switching wireless debugging on and off,
+the tile, the widget, and every other part of the app behave exactly as before.
+
+Removed a dead-weight local network probe used while searching for the wireless-debugging
+endpoint. Real-device measurements (issue #404) showed it never got a confirming reply from
+adbd, so it never sped anything up -- it only added up to about 1.2 seconds of worst-case delay
+to some connection attempts. mDNS discovery, the path that actually finds the endpoint, is
+unaffected and remains the sole discovery mechanism.

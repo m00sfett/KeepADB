@@ -60,8 +60,6 @@ public class KeepADBEndpointTest {
     @Test
     public void endpointConstantsArePlausible() {
         assertEquals("_adb-tls-connect._tcp.", KeepADBEndpoint.SERVICE_TYPE);
-        assertEquals(30000, KeepADBEndpoint.PROBE_START_PORT);
-        assertEquals(50000, KeepADBEndpoint.PROBE_END_PORT);
     }
 
     @Test

@@ -5,6 +5,37 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-09-13
+
+This is a minor release rather than a patch: the USB register-webhook contract with
+`phone-register-server` changes in a way that makes a pre-1.6.0 app unable to speak correctly
+with an already-updated server (see below), on top of a larger-than-usual batch of independent
+fixes accumulated across 1.5.64/1.5.65.
+
+### Fixed
+- USB-ADB webhook reports carried no register-contract envelope, so `phone-register-server`
+  rejected every endpoint-free USB registration and every USB deactivation with HTTP 426
+  (`Endpoint-free USB events require register contract version 2`). The USB half of the
+  hybrid register model was therefore inert against a contract-v2 register. `buildUsbPayload()`
+  now declares `contract_version: 2` and supplies the ordering/idempotency envelope
+  (`event_id`, `observed_at`) the register requires for the endpoint-free USB slot. The event id
+  is derived from the reported state instead of being random, so a repeated identical report
+  stays a duplicate the register can drop, while a real state change - including the transition
+  from active to inactive - produces a new event the register accepts. The "nothing changed, do
+  not resend" check now compares those state-derived event ids rather than whole payloads,
+  because the payload additionally carries a volatile `observed_at` (issue #416).
+
+### Removed
+- The local loopback port-range "quick probe" (#314/#363/#366) that used to run alongside mDNS
+  discovery as a best-effort shortcut. Three independent real-device measurements (#404) showed
+  its TLS-sniff confirmation (`probeAdbTlsPort()`) never gets a matching reply from genuine
+  adbd, so it never delivered an early confirmation -- only up to ~1.2s of worst-case added
+  latency per connection attempt (two connect()/read() timeouts of up to 150ms each, times up to
+  8 candidate ports). mDNS discovery is unaffected and is now the sole discovery path, as it
+  already was in practice after the #412 repairs. `probeAdbTlsPort()` itself stays: it is still
+  used by `KeepADBNotification`'s periodic re-verification of an already-cached endpoint (#394),
+  which is unaffected by this removal (issue #424).
+
 ## [1.5.65] - 2026-09-13
 
 ### Fixed
