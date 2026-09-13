@@ -93,6 +93,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_notification">Notification</string>
     <string name="settings_hide_notification_toggle">Masquer la notification persistante</string>
     <string name="settings_hide_notification_subtext">Masque la notification d’état dans le volet. Le Keep-Alive et les widgets continuent de fonctionner normalement.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Lorsque Keep-Alive est actif, Android exige une notification pour le service de premier plan. Un masquage complet est possible uniquement via les paramètres de notification du système.</string>
     <string name="settings_section_display">Écran</string>
     <string name="settings_keep_display_on_toggle">Garder l’écran allumé tant que KeepADB est au premier plan</string>
     <string name="settings_keep_display_on_subtext">Garde l’écran allumé uniquement tant que cette application est ouverte. L’écran s’éteint normalement dès que vous quittez l’application.</string>

@@ -47,6 +47,7 @@ public class SettingsActivity extends Activity {
     private View languageSelector;
 
     private Switch hideNotificationToggle;
+    private TextView hideNotificationSubtext;
     private Switch keepDisplayOnToggle;
     private Switch adviceBannerToggle;
     private Switch usbNotificationToggle;
@@ -126,6 +127,7 @@ public class SettingsActivity extends Activity {
         languageSelector.setOnClickListener(v -> showLanguageSelectionDialog());
 
         hideNotificationToggle = findViewById(R.id.settings_hide_notification_toggle);
+        hideNotificationSubtext = findViewById(R.id.settings_hide_notification_subtext);
         hideNotificationToggle.setOnClickListener(v -> {
             boolean wantHidden = hideNotificationToggle.isChecked();
             KeepADBPreferences.setNotificationHidden(this, wantHidden);
@@ -979,6 +981,12 @@ public class SettingsActivity extends Activity {
 
         boolean notificationHidden = KeepADBPreferences.isNotificationHidden(this);
         hideNotificationToggle.setChecked(notificationHidden);
+        boolean keepAliveActive = KeepADBPreferences.isKeepAliveEnabled(this);
+        if (hideNotificationSubtext != null) {
+            hideNotificationSubtext.setText(keepAliveActive
+                    ? R.string.settings_hide_notification_subtext_keepalive
+                    : R.string.settings_hide_notification_subtext);
+        }
 
         keepDisplayOnToggle.setChecked(KeepADBPreferences.isKeepDisplayOnEnabled(this));
 

@@ -110,6 +110,7 @@
     <string name="settings_section_notification">Notification</string>
     <string name="settings_hide_notification_toggle">Hide persistent notification</string>
     <string name="settings_hide_notification_subtext">Hides the status notification in the notification drawer. Keep-Alive and widgets will continue to work normally.</string>
+    <string name="settings_hide_notification_subtext_keepalive">When Keep-Alive is active, Android requires a notification for the foreground service. Complete hiding is only possible via system notification settings.</string>
     <string name="settings_section_display">Display</string>
     <string name="settings_keep_display_on_toggle">Keep display on while KeepADB is in the foreground</string>
     <string name="settings_keep_display_on_subtext">Keeps the screen on only while this app is open. The screen turns off normally as soon as you leave the app.</string>

@@ -1,0 +1,1 @@
+Fixed persistent notification freezing on 'Endpoint searching...' when 'Hide persistent notification' is used with Keep-Alive. Added notification hide toggle to the main screen under Keep-Alive with dynamic explanation across all 19 languages.
