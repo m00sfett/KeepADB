@@ -141,6 +141,40 @@ public class KeepADBVerificationWorkerCoalescingTest {
                 KeepADBNotification.isVerificationInFlightForTesting());
     }
 
+    /**
+     * Review repair on #351: the in-flight flag is raised before the worker exists and cleared
+     * only inside the worker body, so a worker that could never be started (the platform refusing
+     * another thread -- the very failure #359 guards its own coordinator thread against) used to
+     * leave the flag raised forever, silently disabling endpoint verification for the rest of the
+     * process. A refused start must release the flag and leave the next trigger able to try again.
+     */
+    @Test
+    public void aWorkerThatCannotBeStartedDoesNotWedgeVerificationShut() throws Exception {
+        setStatic("currentHost", "192.0.2.1");
+        setStatic("currentPort", 40000);
+        AtomicInteger probeInvocations = new AtomicInteger();
+        KeepADBNotification.setReachabilityProbeForTesting((host, port, timeoutMs) -> {
+            probeInvocations.incrementAndGet();
+            return true;
+        });
+        KeepADBNotification.setWorkerStarterForTesting(worker -> {
+            throw new OutOfMemoryError("simulated thread limit exhaustion");
+        });
+
+        KeepADBNotification.verifyEndpointHealth(context);
+
+        assertFalse("a worker that never ran must not leave the in-flight flag raised",
+                KeepADBNotification.isVerificationInFlightForTesting());
+        assertEquals("the refused worker never ran its reachability check", 0, probeInvocations.get());
+
+        // The next trigger must be able to start a worker again instead of being coalesced into
+        // a worker that does not exist.
+        KeepADBNotification.setWorkerStarterForTesting(null);
+        KeepADBNotification.verifyEndpointHealth(context);
+        awaitVerificationIdle();
+        assertEquals("verification must recover on the next trigger", 1, probeInvocations.get());
+    }
+
     private static void awaitVerificationIdle() throws InterruptedException {
         long deadline = System.currentTimeMillis() + 5000;
         while (KeepADBNotification.isVerificationInFlightForTesting()) {
