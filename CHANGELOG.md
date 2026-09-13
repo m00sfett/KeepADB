@@ -5,6 +5,13 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.65] - 2026-09-13
+
+### Changed
+- Removed unused order-key constant definitions `KEY_WEBHOOK_PENDING_CLEANUP_ORDER` and
+  `KEY_USB_WEBHOOK_PENDING_CLEANUP_ORDER` that were never read and risked silent drift if
+  `orderKeyFor()` was refactored (issue #413).
+
 ## [1.5.64] - 2026-09-13
 
 ### Fixed
