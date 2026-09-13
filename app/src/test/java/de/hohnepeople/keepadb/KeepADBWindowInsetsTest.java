@@ -1,21 +1,34 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import android.graphics.Insets;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowInsets;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.android.controller.ActivityController;
+import org.robolectric.annotation.Config;
 
 /**
- * Edge-to-edge inset handling (#324). The view layout itself needs a device, so the unit test
- * covers the pure padding rule plus the static contract that both activities are wired up.
+ * Edge-to-edge inset handling (#324). The pure padding rule is covered directly; the wiring
+ * between the activities and {@link KeepADBWindowInsets} is covered by actually starting each
+ * activity with Robolectric and dispatching a real {@link WindowInsets} event to the header and
+ * content views, instead of parsing the activities' source text for expected method calls (#382)
+ * — a source-text match survives a broken wiring just as easily as a working one, since it never
+ * exercises the listener that {@link KeepADBWindowInsets#apply} installs.
  */
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 34)
 public class KeepADBWindowInsetsTest {
+
+    private static final int SYSTEM_BARS_BOTTOM = 48;
+    private static final int SYSTEM_BARS_TOP = 24;
+    private static final int IME_BOTTOM = 720;
 
     @Test
     public void keyboardWinsOverNavigationBar() {
@@ -33,47 +46,57 @@ public class KeepADBWindowInsetsTest {
     }
 
     @Test
-    public void activitiesWireHeaderAndContentInsets() throws IOException {
-        String main = read("app/src/main/java/de/hohnepeople/keepadb/MainActivity.java");
-        String settings = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
-        String mainLayout = read("app/src/main/res/layout/activity_main.xml");
-        String settingsLayout = read("app/src/main/res/layout/activity_settings.xml");
+    public void mainActivityDispatchesRealInsetsToHeaderAndContent() {
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        MainActivity activity = controller.get();
 
-        assertTrue(main.contains("KeepADBWindowInsets.apply("));
-        assertTrue(main.contains("R.id.header_bar"));
-        assertTrue(main.contains("R.id.content_scroll"));
-        assertTrue(settings.contains("KeepADBWindowInsets.apply("));
-        assertTrue(settings.contains("R.id.header_bar"));
-        assertTrue(settings.contains("R.id.settings_scroll_view"));
-        assertTrue(mainLayout.contains("android:id=\"@+id/header_bar\""));
-        assertTrue(mainLayout.contains("android:id=\"@+id/content_scroll\""));
-        assertTrue(settingsLayout.contains("android:id=\"@+id/header_bar\""));
-        assertTrue(settingsLayout.contains("android:id=\"@+id/settings_scroll_view\""));
+        View header = activity.findViewById(R.id.header_bar);
+        View content = activity.findViewById(R.id.content_scroll);
+        assertContentBottomMarginFollowsDispatchedInsets(header, content);
     }
 
     @Test
-    public void insetHandlingCoversSystemBarsAndKeyboard() throws IOException {
-        String source =
-                read("app/src/main/java/de/hohnepeople/keepadb/KeepADBWindowInsets.java");
+    public void settingsActivityDispatchesRealInsetsToHeaderAndContent() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
 
-        assertTrue(source.contains("setDecorFitsSystemWindows(false)"));
-        assertTrue(source.contains("WindowInsets.Type.systemBars()"));
-        assertTrue(source.contains("WindowInsets.Type.ime()"));
-        assertTrue(source.contains("setOnApplyWindowInsetsListener"));
+        View header = activity.findViewById(R.id.header_bar);
+        View content = activity.findViewById(R.id.settings_scroll_view);
+        assertContentBottomMarginFollowsDispatchedInsets(header, content);
     }
 
-    private static String read(String relativePath) throws IOException {
-        return new String(Files.readAllBytes(projectPath(relativePath)), StandardCharsets.UTF_8);
-    }
+    /**
+     * Dispatches a genuine {@link WindowInsets} event (built with the real system bar/IME insets
+     * the production code reads) into the view tree via {@link View#dispatchApplyWindowInsets},
+     * which invokes whatever listener {@link KeepADBWindowInsets#apply} installed — exactly the
+     * path a real device takes, not a parsed source string.
+     */
+    private static void assertContentBottomMarginFollowsDispatchedInsets(View header, View content) {
+        int headerTopBefore = header.getPaddingTop();
+        ViewGroup.MarginLayoutParams contentParamsBefore =
+                (ViewGroup.MarginLayoutParams) content.getLayoutParams();
+        int contentBottomMarginBefore = contentParamsBefore.bottomMargin;
 
-    private static Path projectPath(String relativePath) {
-        Path directory = Paths.get("").toAbsolutePath();
-        while (directory != null && !Files.exists(directory.resolve("settings.gradle"))) {
-            directory = directory.getParent();
-        }
-        if (directory == null) {
-            throw new IllegalStateException("Could not locate project root");
-        }
-        return directory.resolve(relativePath);
+        WindowInsets insets = new WindowInsets.Builder()
+                .setInsets(WindowInsets.Type.systemBars(),
+                        Insets.of(0, SYSTEM_BARS_TOP, 0, SYSTEM_BARS_BOTTOM))
+                .setInsets(WindowInsets.Type.ime(), Insets.of(0, 0, 0, IME_BOTTOM))
+                .setInsets(WindowInsets.Type.displayCutout(), Insets.NONE)
+                .build();
+
+        header.dispatchApplyWindowInsets(insets);
+        content.dispatchApplyWindowInsets(insets);
+
+        assertEquals("Header should gain the status bar top inset as padding",
+                headerTopBefore + SYSTEM_BARS_TOP, header.getPaddingTop());
+
+        ViewGroup.MarginLayoutParams contentParamsAfter =
+                (ViewGroup.MarginLayoutParams) content.getLayoutParams();
+        int expectedBottomInset =
+                KeepADBWindowInsets.contentBottomInset(SYSTEM_BARS_BOTTOM, IME_BOTTOM);
+        assertEquals("Content bottom margin should grow by max(system bars, ime)",
+                contentBottomMarginBefore + expectedBottomInset, contentParamsAfter.bottomMargin);
     }
 }
