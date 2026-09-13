@@ -1,1 +1,4 @@
-Internal cleanup: removed unused constant definitions that were never read. No user-visible behavior change.
+Internal cleanup and test hardening: removed unused constant definitions that were never read,
+and added a test that locks in the exact internal step order the app already uses to keep its
+network-trust checks race-free, so a future code cleanup can't accidentally reorder those steps
+without a test failing. No user-visible behavior change.
