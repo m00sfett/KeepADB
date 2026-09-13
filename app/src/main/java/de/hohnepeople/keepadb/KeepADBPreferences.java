@@ -14,6 +14,8 @@ final class KeepADBPreferences {
     private static final String KEY_WEBHOOK_LAST_URL = "register_webhook_last_url";
     private static final String KEY_WEBHOOK_LAST_STATUS = "register_webhook_last_status";
     private static final String KEY_WEBHOOK_PENDING_CLEANUP = "register_webhook_pending_cleanup";
+    /** #368: ordered FIFO shadow of {@link #KEY_WEBHOOK_PENDING_CLEANUP}, see {@link #ORDER_SEPARATOR}. */
+    private static final String KEY_WEBHOOK_PENDING_CLEANUP_ORDER = "register_webhook_pending_cleanup_order";
     private static final String KEY_APP_LANGUAGE = "app_language";
     private static final String KEY_SERVICE_LAST_HEARTBEAT = "service_last_heartbeat";
     private static final String KEY_HIDE_NOTIFICATION = "hide_notification_enabled";
@@ -28,6 +30,8 @@ final class KeepADBPreferences {
     private static final String KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME = "usb_webhook_last_tailnet_hostname";
     private static final String KEY_USB_WEBHOOK_LAST_STATUS = "usb_webhook_last_status";
     private static final String KEY_USB_WEBHOOK_PENDING_CLEANUP = "usb_webhook_pending_cleanup";
+    /** #368: ordered FIFO shadow of {@link #KEY_USB_WEBHOOK_PENDING_CLEANUP}, see {@link #ORDER_SEPARATOR}. */
+    private static final String KEY_USB_WEBHOOK_PENDING_CLEANUP_ORDER = "usb_webhook_pending_cleanup_order";
     private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
     private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
     private static final String KEY_ADVICE_BANNER_VISIBLE = "advice_banner_visible";
@@ -272,13 +276,23 @@ final class KeepADBPreferences {
 
     /**
      * Upper bound for either pending-cleanup set. Each retry costs one HTTP round trip on the
-     * register executor, so the backlog is deliberately small; a full set drops the newest entry
-     * rather than growing without limit.
+     * register executor, so the backlog is deliberately small; a full set evicts its OLDEST entry
+     * (FIFO, see #368) rather than growing without limit or rejecting the newest one.
      */
     static final int MAX_PENDING_CLEANUPS = 4;
 
     /** Separator between URL and payload inside a pending USB cleanup entry. */
     private static final String PENDING_SEPARATOR = "\n";
+
+    /**
+     * Separator joining entries in the ordered FIFO shadow list (#368). {@code SharedPreferences}
+     * string sets have no defined iteration order, so the eviction order can't be derived from the
+     * legacy {@code StringSet} keys alone; this ASCII Group Separator control character is joined
+     * between entries in a plain {@code String} preference instead, preserving insertion order.
+     * Chosen because it cannot appear in a URL and predates the {@code "\n"} already used inside a
+     * USB entry ({@link #PENDING_SEPARATOR}).
+     */
+    private static final String ORDER_SEPARATOR = "\u001D";
 
     static java.util.Set<String> getPendingWebhookCleanupUrls(Context context) {
         return getPendingCleanups(context, KEY_WEBHOOK_PENDING_CLEANUP);
@@ -335,33 +349,79 @@ final class KeepADBPreferences {
         return index < 0 ? null : entry.substring(index + PENDING_SEPARATOR.length());
     }
 
-    /** Always a fresh, mutable copy: the platform hands out its live set instance here. */
-    private static java.util.Set<String> getPendingCleanups(Context context, String key) {
-        if (context == null) return new java.util.HashSet<>();
+    /** The ordered shadow key for a legacy pending-cleanup {@code StringSet} key. */
+    private static String orderKeyFor(String key) {
+        return key + "_order";
+    }
+
+    /**
+     * Returns the pending cleanups in FIFO order (oldest first, see #368).
+     *
+     * <p>Always a fresh, mutable copy. Preferred source is the ordered shadow key written by
+     * {@link #persistPendingCleanups}. When that key is missing (e.g. data written by an app
+     * version predating #368) but the legacy {@code StringSet} key holds entries, the order is
+     * reconstructed best-effort from the set's iteration order -- {@code SharedPreferences}
+     * string sets carry no defined ordering, so this is only a starting point, not a guarantee
+     * that it matches the original insertion order. It is immediately persisted in the new
+     * ordered format so that later evictions are FIFO-correct going forward.
+     */
+    private static java.util.LinkedHashSet<String> getPendingCleanups(Context context, String key) {
+        if (context == null) return new java.util.LinkedHashSet<>();
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        java.util.Set<String> stored = prefs.getStringSet(key, null);
-        return stored == null ? new java.util.HashSet<>() : new java.util.HashSet<>(stored);
+        String orderKey = orderKeyFor(key);
+        String joined = prefs.getString(orderKey, null);
+        if (joined != null) {
+            java.util.LinkedHashSet<String> ordered = new java.util.LinkedHashSet<>();
+            if (!joined.isEmpty()) {
+                for (String entry : joined.split(ORDER_SEPARATOR, -1)) {
+                    if (!entry.isEmpty()) ordered.add(entry);
+                }
+            }
+            return ordered;
+        }
+        java.util.Set<String> legacy = prefs.getStringSet(key, null);
+        java.util.LinkedHashSet<String> migrated = legacy == null
+                ? new java.util.LinkedHashSet<>() : new java.util.LinkedHashSet<>(legacy);
+        if (!migrated.isEmpty()) {
+            persistPendingCleanups(context, key, migrated);
+        }
+        return migrated;
+    }
+
+    /** Persists both the legacy {@code StringSet} key (compat) and the new ordered shadow key. */
+    private static void persistPendingCleanups(Context context, String key, java.util.LinkedHashSet<String> pending) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String orderKey = orderKeyFor(key);
+        if (pending.isEmpty()) {
+            prefs.edit().remove(key).remove(orderKey).apply();
+            return;
+        }
+        prefs.edit()
+                .putStringSet(key, pending)
+                .putString(orderKey, String.join(ORDER_SEPARATOR, pending))
+                .apply();
     }
 
     private static void addPendingCleanup(Context context, String key, String entry) {
         if (context == null) return;
-        java.util.Set<String> pending = getPendingCleanups(context, key);
-        if (pending.contains(entry) || pending.size() >= MAX_PENDING_CLEANUPS) return;
+        java.util.LinkedHashSet<String> pending = getPendingCleanups(context, key);
+        if (pending.contains(entry)) return;
+        if (pending.size() >= MAX_PENDING_CLEANUPS) {
+            // #368: evict the OLDEST entry (head of insertion order), not the newest, so the
+            // newest -- most likely to still be a live orphan registration -- is kept.
+            java.util.Iterator<String> oldest = pending.iterator();
+            oldest.next();
+            oldest.remove();
+        }
         pending.add(entry);
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        prefs.edit().putStringSet(key, pending).apply();
+        persistPendingCleanups(context, key, pending);
     }
 
     private static void removePendingCleanup(Context context, String key, String entry) {
         if (context == null || entry == null) return;
-        java.util.Set<String> pending = getPendingCleanups(context, key);
+        java.util.LinkedHashSet<String> pending = getPendingCleanups(context, key);
         if (!pending.remove(entry)) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if (pending.isEmpty()) {
-            prefs.edit().remove(key).apply();
-        } else {
-            prefs.edit().putStringSet(key, pending).apply();
-        }
+        persistPendingCleanups(context, key, pending);
     }
 
     static long getUsbWebhookLastReportedAt(Context context) {

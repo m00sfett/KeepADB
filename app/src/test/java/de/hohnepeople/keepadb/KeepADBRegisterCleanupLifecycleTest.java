@@ -547,6 +547,26 @@ public class KeepADBRegisterCleanupLifecycleTest {
     }
 
     @Test
+    public void pendingCleanupBacklogOverflowEvictsTheOldestEntryNotTheNewest() {
+        // #368: the oldest entry is the most likely to be a long-dead orphan, the newest is the
+        // most likely to still be a live registration -- so overflow must drop the oldest one.
+        for (int i = 0; i < KeepADBPreferences.MAX_PENDING_CLEANUPS + 3; i++) {
+            KeepADBPreferences.addPendingWebhookCleanupUrl(context, "http://host" + i + "/register");
+        }
+
+        Set<String> pending = KeepADBPreferences.getPendingWebhookCleanupUrls(context);
+        assertEquals(KeepADBPreferences.MAX_PENDING_CLEANUPS, pending.size());
+        for (int i = 0; i < 3; i++) {
+            assertFalse("oldest entry host" + i + " must have been evicted",
+                    pending.contains("http://host" + i + "/register"));
+        }
+        for (int i = 3; i < KeepADBPreferences.MAX_PENDING_CLEANUPS + 3; i++) {
+            assertTrue("newest entry host" + i + " must be kept",
+                    pending.contains("http://host" + i + "/register"));
+        }
+    }
+
+    @Test
     public void unreachablePendingCleanupIsBackedOffBetweenFlushes() {
         KeepADBPreferences.addPendingWebhookCleanupUrl(context, OLD_URL);
         transport.setDeleteSuccess(false);
