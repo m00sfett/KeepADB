@@ -1,0 +1,5 @@
+No user-visible change. A prior code review flagged that the automatic re-enable feature's
+network-trust check now runs alongside the actual wireless-debugging toggle write, both briefly
+holding the same internal lock, and asked whether that could measurably slow down a manual
+toggle. On-device measurement showed the added check takes a few dozen microseconds, far too
+small to notice, so nothing needed to change.
