@@ -5,6 +5,27 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2026-09-13
+
+### Changed
+- The periodic re-verification of an already-cached WLAN-ADB endpoint in
+  `KeepADBNotification` (#394) now uses the plain-connect
+  `KeepADBEndpoint.isPortReachable()` instead of the TLS-sniff `probeAdbTlsPort()` -
+  consistent with the #412 decision already applied to the mDNS discovery path. #404
+  showed the TLS-sniff never actually matches genuine adbd on real devices, so it could
+  never positively confirm a cached endpoint - only ever return "not reachable" and force
+  a fresh rediscovery even when adbd was still there and reachable. Falling back to
+  plain-connect restores the cache's actual purpose: a real, previously-working endpoint
+  that answers on a periodic heartbeat tick is now confirmed and kept, avoiding an
+  unnecessary mDNS rediscovery cycle. As with the mDNS path, this accepts any TCP
+  responder on the cached host:port, not only genuine adbd - the same documented
+  trade-off as #412/#424 (issue #435).
+
+### Removed
+- `KeepADBEndpoint.probeAdbTlsPort()`, `looksLikeAdbTlsResponse()`, and
+  `PROBE_CLIENT_HELLO` - dead code once the cached-endpoint re-verification above (their
+  last caller) stopped using them (issue #435).
+
 ## [1.6.0] - 2026-09-13
 
 This is a minor release rather than a patch: the USB register-webhook contract with

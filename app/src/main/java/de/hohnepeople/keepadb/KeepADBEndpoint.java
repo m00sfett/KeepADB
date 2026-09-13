@@ -6,12 +6,10 @@ import android.net.nsd.NsdServiceInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
-import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,9 +18,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Discovers the active secure wireless-debugging endpoint advertised by adbd.
  * mDNS (NsdManager) is the sole discovery path: the local loopback port-range "quick probe"
  * that used to run alongside it as a best-effort shortcut was removed in #424 after #404 showed
- * on real devices that its TLS-sniff confirmation ({@link #probeAdbTlsPort}) never actually
- * matches genuine adbd, so it never delivered an early confirmation -- only up to
- * ~1.2s of worst-case latency per connection attempt for nothing.
+ * on real devices that its TLS-sniff confirmation (formerly {@code probeAdbTlsPort}, removed in
+ * #435 once #394's cached-endpoint re-verification -- its last caller -- fell back to the plain
+ * {@link #isPortReachable}) never actually matches genuine adbd, so it never delivered an early
+ * confirmation -- only up to ~1.2s of worst-case latency per connection attempt for nothing.
  */
 final class KeepADBEndpoint {
     private static final String TAG = "KeepADBEndpoint";
@@ -35,22 +34,18 @@ final class KeepADBEndpoint {
                 return t;
             });
     // #412: two timeout budgets exist for this same class of reachability probe (a plain-connect
-    // or TLS-sniffed socket check against a candidate ADB endpoint), deliberately *not* unified
-    // into one value, because each guards a different call site with its own latency tolerance
-    // and trust context:
+    // socket check against a candidate ADB endpoint), deliberately *not* unified into one value,
+    // because each guards a different call site with its own latency tolerance and trust context:
     //  - NSD_ADDRESS_VERIFY_TIMEOUT_MS (400ms, see isPortReachable() call in the mDNS resolve
-    //    path below -- was briefly probeAdbTlsPort(), reverted per #404, see that call site's own
-    //    comment): runs once per resolved mDNS candidate, not in a tight loop, so it can afford a
-    //    somewhat larger margin for a real network round-trip.
+    //    path below): runs once per resolved mDNS candidate, not in a tight loop, so it can afford
+    //    a somewhat larger margin for a real network round-trip.
     //  - KeepADBNotification's cached-endpoint re-verification (500ms, hardcoded at that call
     //    site since it belongs to that class's own heartbeat cadence): the least time-sensitive
     //    of the two, since it only re-checks an already-cached, previously-working endpoint on a
-    //    periodic tick, not a fresh discovery attempt blocking endpoint delivery. This is the
-    //    last caller of probeAdbTlsPort() left after #424 removed the local-port-range "quick
-    //    probe" that used to also call it.
-    // #411: this value is applied twice in probeAdbTlsPort() -- once as the connect() timeout,
-    // once as the setSoTimeout() read timeout -- so the actual worst-case budget per candidate
-    // is up to ~2x this value, not this value itself.
+    //    periodic tick, not a fresh discovery attempt blocking endpoint delivery. Both call sites
+    //    use the plain-connect isPortReachable() as of #435 -- the TLS-sniff probeAdbTlsPort()
+    //    that used to back the cached-endpoint path was removed once it lost its last caller
+    //    (see the class doc above).
     private static final int NSD_ADDRESS_VERIFY_TIMEOUT_MS = 400;
     private static final long RECOVERY_PULSE_DELAY_MS = 5000;
     private static final long RECOVERY_PULSE_OFF_MS = 800;
@@ -468,143 +463,6 @@ final class KeepADBEndpoint {
         } catch (Exception ignored) {
             return false;
         }
-    }
-
-    /**
-     * #363: a bounded subset of the still-open R13 authenticity proof, originally scoped to the
-     * local port-range "quick probe"'s Wi-Fi-side verification. #424 removed that quick probe
-     * entirely (see the class doc above); this method's only remaining caller is
-     * {@code KeepADBNotification}'s periodic re-verification of an already-cached endpoint
-     * (#394), which needs the same "any TCP responder is accepted" hole closed for its own
-     * target.
-     *
-     * <p>#314 made the (now-removed) quick probe require its candidate to answer on our own
-     * Wi-Fi address, not just on loopback. That closed the "any local listener" gap, but left
-     * this residual: a foreign, unrelated service that happens to bind {@code 0.0.0.0} (all
-     * interfaces) instead of loopback-only answers on the Wi-Fi address too, since address
-     * binding alone says nothing about <em>which</em> service picked up the connection -- a
-     * plain {@code connect()} success (the old {@link #isPortReachable}) cannot tell them apart.
-     *
-     * <p>Rather than the full, deferred TLS handshake (which would need a pairing-bound
-     * certificate this app does not have -- that is R13), this sends a syntactically valid TLS
-     * ClientHello and checks that a TLS-shaped record comes back (see
-     * {@link #looksLikeAdbTlsResponse}). A service that was never written to speak TLS on that
-     * port essentially never produces one. This is not an identity proof -- a TLS-terminating
-     * proxy or another TLS service bound to the same port would still pass, and that residual gap
-     * is left to R13 -- but it closes the specific "any TCP responder is accepted" hole #363 is
-     * about, at negligible extra cost over the plain connect it replaces.
-     *
-     * <p>#404: real-device measurement against genuine adbd's {@code _adb-tls-connect} port (S20,
-     * Android 13, both with and without an already-authenticated host session) showed it never
-     * returns a TLS-shaped record to an unpaired client's ClientHello -- not with this method's
-     * minimal hand-built hello, not with a full modern OpenSSL-generated one. adbd either silently
-     * holds the connection open until our timeout elapses (the {@code SocketTimeoutException}
-     * branch below) or, for some hello shapes, closes it with a clean EOF and zero bytes (the
-     * {@code read <= 0} branch) -- in both cases indistinguishable at this call site from a
-     * foreign, unrelated service doing the same thing, so this method still correctly returns
-     * {@code false} for either. The upshot is that the TLS-sniff confirmation this method
-     * performs never positively matches real adbd; #424 removed the quick probe that this fact
-     * made a dead shortcut (up to ~1.2s of worst-case latency per connection attempt for zero
-     * early-confirmation benefit), but the method itself stays for #394's use above, where it is
-     * still a correct (if never-positive) authenticity check, not a latency cost on the discovery
-     * path. See #404 for the full writeup; the log line below exists so a live capture (logcat)
-     * can show the actual measured outcome per attempt without needing a `Context` threaded
-     * through this static utility just to raise a diagnostics event.
-     */
-    private static boolean probeAdbTlsPort(InetAddress addr, int port, int timeoutMs) {
-        try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(addr, port), timeoutMs);
-            socket.setSoTimeout(timeoutMs);
-            socket.getOutputStream().write(PROBE_CLIENT_HELLO);
-            socket.getOutputStream().flush();
-            byte[] response = new byte[64];
-            int read = socket.getInputStream().read(response);
-            if (read <= 0) {
-                Log.d(TAG, "probeAdbTlsPort " + addr + ":" + port
-                        + " -> eof, no TLS response (#404)");
-                return false;
-            }
-            boolean matched = looksLikeAdbTlsResponse(Arrays.copyOf(response, read), PROBE_CLIENT_HELLO);
-            Log.d(TAG, "probeAdbTlsPort " + addr + ":" + port + " -> " + read
-                    + " bytes, tlsShaped=" + matched + " (#404)");
-            return matched;
-        } catch (java.net.SocketTimeoutException timeout) {
-            Log.d(TAG, "probeAdbTlsPort " + addr + ":" + port
-                    + " -> timeout after " + timeoutMs + "ms, no response at all (#404)");
-            return false;
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    /** Package-visible so this TLS sniff can be exercised end-to-end (#363); also used by
-     *  {@code KeepADBNotification}'s cached-endpoint re-verification (#394). */
-    static boolean probeAdbTlsPort(String host, int port, int timeoutMs) {
-        try {
-            return probeAdbTlsPort(InetAddress.getByName(host), port, timeoutMs);
-        } catch (Exception ignored) {
-            return false;
-        }
-    }
-
-    /**
-     * Whether {@code response} looks like a TLS record rather than an arbitrary TCP reply: a
-     * valid TLS content type ({@code 0x14}-{@code 0x17}, i.e. change_cipher_spec/alert/
-     * handshake/application_data) followed by the TLS major version byte ({@code 0x03}, constant
-     * across TLS 1.0-1.3) -- and, guarding against a service that merely echoes back whatever it
-     * receives, not byte-identical to what we sent.
-     *
-     * <p>Package-visible and side-effect-free so it can be exercised directly against fabricated
-     * "foreign service" and "real adbd" byte sequences without opening a real socket (#363).
-     */
-    static boolean looksLikeAdbTlsResponse(byte[] response, byte[] sent) {
-        if (response == null || response.length < 2 || sent == null) return false;
-        int contentType = response[0] & 0xFF;
-        int versionMajor = response[1] & 0xFF;
-        if (contentType < 0x14 || contentType > 0x17 || versionMajor != 0x03) return false;
-        return !Arrays.equals(response, sent);
-    }
-
-    /**
-     * A minimal but syntactically valid TLS 1.2-framed ClientHello proposing a TLS 1.3 cipher
-     * suite, built once. Its only purpose is to prompt a genuine TLS server into replying with
-     * *something* TLS-shaped (a ServerHello, or even an Alert on an otherwise-malformed hello);
-     * it is never used to complete an actual handshake or exchange application data (#363).
-     */
-    static final byte[] PROBE_CLIENT_HELLO = buildProbeClientHello();
-
-    private static byte[] buildProbeClientHello() {
-        ByteArrayOutputStream body = new ByteArrayOutputStream();
-        body.write(0x03);
-        body.write(0x03); // client_version: TLS 1.2
-        body.write(new byte[32], 0, 32); // client_random: zeroed, identity is irrelevant here
-        body.write(0x00); // session_id length: 0
-        body.write(0x00);
-        body.write(0x02); // cipher_suites length: 2 bytes (one suite)
-        body.write(0x13);
-        body.write(0x01); // TLS_AES_128_GCM_SHA256 (TLS 1.3), widely recognized
-        body.write(0x01); // compression_methods length: 1
-        body.write(0x00); // null compression
-        body.write(0x00);
-        body.write(0x00); // extensions length: 0
-        byte[] bodyBytes = body.toByteArray();
-
-        ByteArrayOutputStream handshake = new ByteArrayOutputStream();
-        handshake.write(0x01); // HandshakeType.client_hello
-        handshake.write((bodyBytes.length >> 16) & 0xFF);
-        handshake.write((bodyBytes.length >> 8) & 0xFF);
-        handshake.write(bodyBytes.length & 0xFF);
-        handshake.write(bodyBytes, 0, bodyBytes.length);
-        byte[] handshakeBytes = handshake.toByteArray();
-
-        ByteArrayOutputStream record = new ByteArrayOutputStream();
-        record.write(0x16); // ContentType.handshake
-        record.write(0x03);
-        record.write(0x01); // record-layer version: TLS 1.0, kept for backward compat
-        record.write((handshakeBytes.length >> 8) & 0xFF);
-        record.write(handshakeBytes.length & 0xFF);
-        record.write(handshakeBytes, 0, handshakeBytes.length);
-        return record.toByteArray();
     }
 
     static String getWifiIpAddress(Context context) {

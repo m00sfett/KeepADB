@@ -1,0 +1,4 @@
+Improved the periodic health check for an already-found wireless-debugging endpoint. It now
+correctly recognizes a still-reachable endpoint again, instead of always assuming it needs
+rediscovering -- so the app relies less often on a fresh network search and stays connected
+faster after short network hiccups.
