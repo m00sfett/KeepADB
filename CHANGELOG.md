@@ -5,6 +5,13 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.64] - 2026-09-13
+
+### Fixed
+- Clarified that the quick probe's per-candidate timeout constant is applied twice in
+  `probeAdbTlsPort()` (connect and TLS-sniff read), so the actual worst-case budget per
+  candidate is up to ~2x the configured value, not the value itself (issue #411).
+
 ## [1.5.63] - 2026-09-13
 
 ### Fixed

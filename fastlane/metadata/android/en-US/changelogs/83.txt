@@ -1,0 +1,2 @@
+Internal fix: clarified a code comment about the quick probe's connection timeout budget. No
+user-visible behavior change.
