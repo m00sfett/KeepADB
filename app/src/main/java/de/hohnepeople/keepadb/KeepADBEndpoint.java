@@ -709,6 +709,21 @@ final class KeepADBEndpoint {
      * proxy or another TLS service bound to the same port would still pass, and that residual gap
      * is left to R13 -- but it closes the specific "any TCP responder is accepted" hole #363 is
      * about, at negligible extra cost over the plain connect it replaces.
+     *
+     * <p>#404: real-device measurement against genuine adbd's {@code _adb-tls-connect} port (S20,
+     * Android 13, both with and without an already-authenticated host session) showed it never
+     * returns a TLS-shaped record to an unpaired client's ClientHello -- not with this method's
+     * minimal hand-built hello, not with a full modern OpenSSL-generated one. adbd either silently
+     * holds the connection open until our timeout elapses (the {@code SocketTimeoutException}
+     * branch below) or, for some hello shapes, closes it with a clean EOF and zero bytes (the
+     * {@code read <= 0} branch) -- in both cases indistinguishable at this call site from a
+     * foreign, unrelated service doing the same thing, so this method still correctly returns
+     * {@code false} for either. The upshot is that the TLS-sniff confirmation this method
+     * performs currently never positively matches real adbd, and the "quick probe" that calls it
+     * is a still-safe (no false positives introduced) but presently dead shortcut. See #404 for
+     * the full writeup; the log line below exists so a live capture (logcat) can show the actual
+     * measured outcome per attempt without needing a `Context` threaded through this static
+     * utility just to raise a diagnostics event.
      */
     private static boolean probeAdbTlsPort(InetAddress addr, int port, int timeoutMs) {
         try (Socket socket = new Socket()) {
@@ -718,8 +733,19 @@ final class KeepADBEndpoint {
             socket.getOutputStream().flush();
             byte[] response = new byte[64];
             int read = socket.getInputStream().read(response);
-            if (read <= 0) return false;
-            return looksLikeAdbTlsResponse(Arrays.copyOf(response, read), PROBE_CLIENT_HELLO);
+            if (read <= 0) {
+                Log.d(TAG, "probeAdbTlsPort " + addr + ":" + port
+                        + " -> eof, no TLS response (#404)");
+                return false;
+            }
+            boolean matched = looksLikeAdbTlsResponse(Arrays.copyOf(response, read), PROBE_CLIENT_HELLO);
+            Log.d(TAG, "probeAdbTlsPort " + addr + ":" + port + " -> " + read
+                    + " bytes, tlsShaped=" + matched + " (#404)");
+            return matched;
+        } catch (java.net.SocketTimeoutException timeout) {
+            Log.d(TAG, "probeAdbTlsPort " + addr + ":" + port
+                    + " -> timeout after " + timeoutMs + "ms, no response at all (#404)");
+            return false;
         } catch (Exception ignored) {
             return false;
         }

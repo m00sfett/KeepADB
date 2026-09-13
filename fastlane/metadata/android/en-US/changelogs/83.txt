@@ -1,0 +1,3 @@
+Internal diagnostics improvement: the quick reconnect check now logs what it actually measured
+when probing a candidate port, making it easier to tell apart a real wireless-debugging service
+from an unrelated one during troubleshooting. No user-visible behavior change.
