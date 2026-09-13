@@ -15,7 +15,9 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -319,7 +321,19 @@ final class KeepADBNetwork {
      * remains open follow-up work (adbd authenticity, R13 on #314) and is out of scope here.
      */
     boolean isActiveWifiAddress(InetAddress address) {
-        return matchesActiveWifiAddress(address, activeWifiAddresses());
+        return matchesActiveWifiAddress(address, activeWifiAddresses(), this::reportScopeFallback);
+    }
+
+    /**
+     * Makes the scope-blind fallback described on {@link #matchesActiveWifiAddress} observable
+     * (#403): before this, a link-local match with an unresolved scope on either side passed
+     * completely silently, indistinguishable from a fully scope-verified match in any log or
+     * diagnostics export. This does not change the accept/reject outcome -- it only records that
+     * the weaker, scope-blind path was the reason a candidate was accepted.
+     */
+    private void reportScopeFallback(int candidateScope, int activeScope) {
+        KeepADBDiagnostics.event(appContext, "scope_fallback", "network", "unresolved",
+                "candidateScope=" + candidateScope + " activeScope=" + activeScope);
     }
 
     /**
@@ -370,26 +384,66 @@ final class KeepADBNetwork {
     }
 
     /**
-     * Stamps a link-local {@code address} with {@code interfaceName}'s real scope (interface
-     * index), so a later comparison in {@link #matchesActiveWifiAddress} has something concrete
-     * to check a scoped candidate against. Returns {@code address} unchanged for anything that
-     * is not a link-local {@link Inet6Address}, or when {@code interfaceName} is {@code null} or
-     * cannot be resolved to a live {@link NetworkInterface} -- both of which leave the scope
-     * check below unable to reject, exactly like an address that was never stamped.
+     * Stamps a link-local {@code address} with its real scope (interface index), so a later
+     * comparison in {@link #matchesActiveWifiAddress} has something concrete to check a scoped
+     * candidate against. Returns {@code address} unchanged for anything that is not a link-local
+     * {@link Inet6Address}, or when {@link #resolveScopeInterface} cannot resolve a live {@link
+     * NetworkInterface} at all -- both of which leave the scope check below unable to reject,
+     * exactly like an address that was never stamped.
      */
     private static InetAddress stampLinkLocalScope(InetAddress address, String interfaceName) {
-        if (!(address instanceof Inet6Address) || !address.isLinkLocalAddress() || interfaceName == null) {
+        if (!(address instanceof Inet6Address) || !address.isLinkLocalAddress()) {
             return address;
         }
         try {
-            NetworkInterface networkInterface = NetworkInterface.getByName(interfaceName);
+            NetworkInterface networkInterface = resolveScopeInterface(interfaceName, address);
             if (networkInterface == null) return address;
             return Inet6Address.getByAddress(null, address.getAddress(), networkInterface.getIndex());
         } catch (Exception ignored) {
-            // Best-effort (#364): an unresolvable interface name must not turn into a rejection,
-            // it must fall back to the pre-#364 scope-blind comparison for this address.
+            // Best-effort (#364): an unresolvable interface must not turn into a rejection, it
+            // must fall back to the pre-#364 scope-blind comparison for this address.
             return address;
         }
+    }
+
+    /**
+     * Resolves the {@link NetworkInterface} to stamp {@code address} with (#403). Tries the
+     * cheap, direct path first -- {@link NetworkInterface#getByName(String)} on {@code
+     * interfaceName} straight from {@link LinkProperties#getInterfaceName()} -- and only falls
+     * back to scanning every interface for one that already holds an address with the exact same
+     * bytes when that direct lookup is unavailable (name {@code null}) or comes back empty
+     * (interface momentarily not found by that name, or the lookup throws). This byte-match scan
+     * does not depend on the interface name having resolved correctly at all, so it closes the
+     * concrete gap named in #403 (name null, interface not (yet) enumerable under that name) while
+     * leaving the genuinely-unresolvable case -- {@code address} bound to no interface this
+     * process can currently enumerate -- to still fall back to the scope-blind comparison, as
+     * documented on {@link #matchesActiveWifiAddress}.
+     */
+    static NetworkInterface resolveScopeInterface(String interfaceName, InetAddress address) {
+        if (interfaceName != null) {
+            try {
+                NetworkInterface direct = NetworkInterface.getByName(interfaceName);
+                if (direct != null) return direct;
+            } catch (Exception ignored) {
+                // Fall through to the byte-match scan below.
+            }
+        }
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            if (interfaces == null) return null;
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface candidate = interfaces.nextElement();
+                Enumeration<InetAddress> candidateAddresses = candidate.getInetAddresses();
+                while (candidateAddresses.hasMoreElements()) {
+                    if (Arrays.equals(candidateAddresses.nextElement().getAddress(), address.getAddress())) {
+                        return candidate;
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            // Best-effort: an enumeration failure here must not turn into a rejection either.
+        }
+        return null;
     }
 
     /**
@@ -411,13 +465,28 @@ final class KeepADBNetwork {
      * either side's scope could not be resolved to a concrete interface (scope id {@code 0}):
      * {@code NsdManager} does not always hand back a resolved link-local address with a scope,
      * and the {@code LinkAddress}es of the tracked Wi-Fi network only carry one when {@link
-     * #stampLinkLocalScope} could resolve the network's interface name -- either gap must keep
-     * accepting our own advertised link-local endpoint, since adbd has been observed advertising
-     * IPv6-only and a scope-strict comparison would otherwise reject it. Proving that whatever
-     * listens behind a matched address really is adbd remains separate, open follow-up work
-     * (R13 on #314).
+     * #stampLinkLocalScope} (hardened in #403 via {@link #resolveScopeInterface}) could resolve
+     * the network's real interface -- either gap must keep accepting our own advertised
+     * link-local endpoint, since adbd has been observed advertising IPv6-only and a scope-strict
+     * comparison would otherwise reject it. Proving that whatever listens behind a matched
+     * address really is adbd remains separate, open follow-up work (R13 on #314).
+     *
+     * <p>#403: this scope-blind fallback is a <em>permanent, deliberate</em> acceptance for the
+     * candidate side, not a temporary gap -- {@code NsdManager} is not documented to always
+     * resolve a scope for a link-local address, so a candidate-side scope of {@code 0} is
+     * expected steady-state behaviour, not an error condition to eventually close. The own-side
+     * (tracked Wi-Fi network) half of the gap is the one this issue narrows, via {@link
+     * #resolveScopeInterface}'s byte-match fallback. Whenever either side still falls back to the
+     * scope-blind comparison, {@code scopeFallbackSink} (if given) is notified so the event is
+     * observable instead of silent; see {@link #isActiveWifiAddress} for the production wiring
+     * that turns this into a {@link KeepADBDiagnostics} event.
      */
     static boolean matchesActiveWifiAddress(InetAddress candidate, List<InetAddress> activeWifiAddresses) {
+        return matchesActiveWifiAddress(candidate, activeWifiAddresses, null);
+    }
+
+    static boolean matchesActiveWifiAddress(InetAddress candidate, List<InetAddress> activeWifiAddresses,
+            ScopeFallbackSink scopeFallbackSink) {
         if (candidate == null || activeWifiAddresses == null) return false;
         if (candidate.isLoopbackAddress() || candidate.isAnyLocalAddress()
                 || candidate.isMulticastAddress()) {
@@ -432,10 +501,22 @@ final class KeepADBNetwork {
                 if (candidateScope != 0 && activeScope != 0 && candidateScope != activeScope) {
                     continue; // Byte-identical, but bound to two different real interfaces (#364).
                 }
+                if ((candidateScope == 0 || activeScope == 0) && scopeFallbackSink != null) {
+                    scopeFallbackSink.onScopeFallback(candidateScope, activeScope);
+                }
             }
             return true;
         }
         return false;
+    }
+
+    /**
+     * Callback for {@link #matchesActiveWifiAddress(InetAddress, List, ScopeFallbackSink)}: fired
+     * whenever a link-local match was accepted via the scope-blind fallback described there
+     * (#403), i.e. at least one side's scope id could not be resolved to a concrete interface.
+     */
+    interface ScopeFallbackSink {
+        void onScopeFallback(int candidateScope, int activeScope);
     }
 
     /**
