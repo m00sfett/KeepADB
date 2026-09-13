@@ -122,6 +122,35 @@ public class KeepADBTrustedNetworkContractTest {
                         < unregisterCall);
     }
 
+    /**
+     * #375: {@link KeepADBTrustedNetwork#setVerifiedTrustObserverActive(boolean)} relies on the
+     * exact order of its three statements to stay race-free (#354's javadoc on the method spells
+     * out why) -- but no unit test can observe the underlying volatile interleaving directly.
+     * Pin the source order instead, so a later "cleanup" refactor that reorders the statements
+     * fails loudly rather than silently reintroducing the race.
+     */
+    @Test
+    public void setVerifiedTrustObserverActiveKeepsItsRaceFreeStatementOrder() throws IOException {
+        String trustedNetwork = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTrustedNetwork.java");
+        String method = methodBody(trustedNetwork,
+                "static void setVerifiedTrustObserverActive(boolean active) {");
+        int deactivate = method.indexOf("verifiedTrustObserverActive = false;");
+        int forget = method.indexOf("forgetVerifiedTrust();");
+        int reactivate = method.indexOf("verifiedTrustObserverActive = active;");
+        assertTrue("setVerifiedTrustObserverActive no longer deactivates first -- update this "
+                + "contract test to the new control flow", deactivate >= 0);
+        assertTrue("setVerifiedTrustObserverActive no longer forgets verified trust -- update "
+                + "this contract test to the new control flow", forget >= 0);
+        assertTrue("setVerifiedTrustObserverActive no longer applies the requested state -- "
+                + "update this contract test to the new control flow", reactivate >= 0);
+        assertTrue("Must deactivate the observer before forgetting verified trust, so a "
+                + "concurrent reader never observes \"active with a stale entry\"",
+                deactivate < forget);
+        assertTrue("Must forget verified trust before applying the requested state, so a "
+                + "concurrent reader can only ever observe a stricter state than the final one",
+                forget < reactivate);
+    }
+
     private static String methodBody(String source, String signature) {
         int methodStart = source.indexOf(signature);
         assertTrue("Missing method: " + signature, methodStart >= 0);

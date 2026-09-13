@@ -18,7 +18,7 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
 **KeepADB** solves this with a tiny, standalone companion tool:
 - **1-Tap Toggling**: Enable or disable Wireless Debugging instantly from your Quick Settings or Home Screen.
 - **Keep-Alive Watchdog**: Automatically restores Wireless Debugging when you reconnect to Wi-Fi, switch access points, or restart your phone.
-- **Live Endpoint Resolution**: Discovers the dynamic port and local IP address (typically within 1-2 seconds) using mDNS as the primary path plus an opportunistic loopback probe, displaying it right in the notification shade.
+- **Live Endpoint Resolution**: Discovers the dynamic port and local IP address (usually within a few seconds, though mDNS timing isn't guaranteed) using mDNS as the primary path plus an opportunistic loopback probe, displaying it right in the notification shade.
 - **Webhook Sync & Dev-Automation**: Automatically notifies your local workstation, CI runner, or home server via HTTP whenever Wireless Debugging turns ON or OFF.
 - **USB-ADB Host Profiles**: Shows an optional USB connection notification, associates it with an editable host profile, and can register that host alongside WLAN-ADB endpoints.
 - **USB → WLAN-ADB Handover**: Optionally offers a notification action or automatically enables WLAN-ADB when a new USB debugging connection appears. The feature is off by default and respects a deliberate manual OFF state.
@@ -34,7 +34,7 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
   - **Home Screen Widget**: 1x1 interactive widget showing live status.
   - **Main App**: Clean interface with status readout, keep-alive toggle, and current endpoint details.
 - 🔄 **Keep-Alive Foreground Service**: Keeps Wireless Debugging alive across reboots, network changes, and sleep states.
-- 🔍 **Endpoint Discovery**: mDNS (NSD) is the primary, continuously running discovery path, backed by a quick opportunistic loopback probe for the case where a listener is already up. Typically resolves the active `adbd` port within 1-2 seconds (even with active VPNs like Tailscale).
+- 🔍 **Endpoint Discovery**: mDNS (NSD) is the primary, continuously running discovery path, backed by a quick opportunistic loopback probe for the case where a listener is already up. Usually resolves the active `adbd` port within a few seconds (even with active VPNs like Tailscale), but this depends on network conditions and mDNS broadcast timing, not a guaranteed bound.
 - 🌐 **Automated Webhook Integration**: Configure a custom HTTP(S) endpoint (LAN, VPN/Tailscale, or local server) in Settings. KeepADB reports WLAN-ADB endpoints and optional USB host-profile state for local automation.
 - 📋 **Persistent Notification**: Displays the active connection string (`Port <port> @ <ip>`) for quick reference on your lock screen or notification panel.
 - 🔌 **USB-ADB Assistance**: Optional USB notification, editable host profiles, and manual or automatic USB-to-WLAN handover.
@@ -175,10 +175,13 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
 1. **Trusted Networks Only:** Keep persistent Keep-Alive enabled primarily on trusted home/office Wi-Fi networks or isolated VPNs (e.g. Tailscale / WireGuard).
 2. **Public Wi-Fi Precaution:** When connecting to public Wi-Fi hotspots, guest networks, or unmanaged shared Wi-Fi, turn Wireless Debugging **OFF** (via 1-tap Tile, Widget, or Main App) to prevent unauthorized devices on the local subnet from attempting pairing requests.
 3. **Pairing Prompts:** Android requires TLS pairing authentication. **Never confirm unexpected pairing dialogs or unfamiliar RSA key fingerprints** on your device screen.
-4. **Trusted-Network Allowlist (optional):** Under Settings → Trusted Networks, you can restrict
-   automatic Keep-Alive re-enable to Wi-Fi networks you've explicitly added, instead of any
-   connected Wi-Fi network (the default, unchanged behavior). Manual toggling always works
-   regardless of this setting — the allowlist only ever gates *automatic* re-enable. Networks
+4. **Trusted-Network Allowlist (default since 1.5.5):** Automatic Keep-Alive re-enable is
+   restricted by default to Wi-Fi networks you've explicitly added under Settings → Trusted
+   Networks — a freshly installed device is protected immediately, with no networks trusted
+   until you add one. The pre-1.5.5 behavior (any connected Wi-Fi network may trigger auto
+   re-enable) is still available as an opt-out ("all Wi-Fi networks" mode) for users who prefer
+   it. Manual toggling always works regardless of this setting — the allowlist only ever gates
+   *automatic* re-enable. Networks
    are matched by BSSID (the access point's own identifier — stable, and not affected by
    Android's per-device MAC-randomization privacy feature) rather than by SSID, since network
    names are user-chosen and can collide between unrelated networks; SSID is shown only as a

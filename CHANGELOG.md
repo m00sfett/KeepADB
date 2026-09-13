@@ -5,6 +5,53 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.65] - 2026-09-13
+
+### Fixed
+- `KeepADBUsbHandover.isAutoHandoverStillPermitted()` re-checked only the trusted-network
+  allowlist and the active Wi-Fi transport before the debounced automatic USB handover write --
+  not the USB-WLAN handover mode itself. Switching the mode from AUTOMATIC to OFF while a
+  delayed enable was still pending in the `TOGGLE_COOLDOWN_MS` window let that enable go through
+  once on an otherwise still-trusted network. The guard now also re-reads the current mode at
+  write time, matching the re-check the other automatic enable paths already apply to their own
+  conditions (issue #383).
+- `KeepADBNetwork.get(Context)`'s process-wide test singleton kept returning its first instance
+  to every later caller for the rest of the JVM's lifetime, silently ignoring the `Context`
+  argument. `KeepADBService.isWifiConnected()` and two `KeepADBEndpoint` methods call
+  `KeepADBNetwork.get(context)` internally, so any Robolectric test exercising those methods
+  instantiated the singleton incidentally, without the test author ever mentioning
+  `KeepADBNetwork`. A later, unrelated test in the same JVM could then receive an instance bound
+  to a foreign `Context`/`ConnectivityManager` shadow, causing intermittent, test-order-dependent
+  failures (observed in ~2 of 3 full `./bin/verify` runs; issue #401). Added a shared
+  `KeepADBNetworkResetRule` JUnit rule that all 20 Robolectric test classes now apply, resetting
+  `KeepADBNetwork`'s singleton both before and after every test regardless of whether that test
+  touches `KeepADBNetwork` directly, closing the gap structurally instead of relying on each test
+  author to remember. No production code behavior changed.
+- Corrected outdated security/behavior claims in `SECURITY.md`, `README.md`, and the webhook
+  help text (all languages): the trusted-network allowlist has defaulted to `MODE_ALLOWLIST`
+  since 1.5.5, so docs describing it as "opt-in"/"off by default" were stale — they now describe
+  the allowlist as on by default with the old "all Wi-Fi networks" behavior as an explicit
+  opt-out. The claim that automatic re-enable "never overrides an explicit manual OFF" is now
+  phrased as a property of the current intent-tracking implementation (tested as of issue #309)
+  rather than an unqualified absolute guarantee. The webhook help text no longer promises an
+  unconditional `DELETE` on every shutoff — it now says the app attempts one, retrying later on
+  failure, and skipping it while USB still uses the same endpoint. README's endpoint-discovery
+  timing ("within 1-2 seconds") is now phrased as a typical, non-guaranteed figure rather than a
+  fixed bound (issue #320).
+
+### Changed
+- Removed unused order-key constant definitions `KEY_WEBHOOK_PENDING_CLEANUP_ORDER` and
+  `KEY_USB_WEBHOOK_PENDING_CLEANUP_ORDER` that were never read and risked silent drift if
+  `orderKeyFor()` was refactored (issue #413).
+
+### Added
+- Added a source-based contract test pinning the statement order in
+  `KeepADBTrustedNetwork.setVerifiedTrustObserverActive()` (deactivate, forget verified trust,
+  then apply the requested state), following the same pattern already used elsewhere in
+  `KeepADBTrustedNetworkContractTest`. The ordering is what keeps the method race-free per #354's
+  own reasoning, but nothing previously pinned it, so a later reorder would have passed all unit
+  tests while silently reintroducing the race (issue #375).
+
 ## [1.5.64] - 2026-09-13
 
 ### Fixed

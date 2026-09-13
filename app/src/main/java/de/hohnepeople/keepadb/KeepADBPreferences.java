@@ -14,8 +14,6 @@ final class KeepADBPreferences {
     private static final String KEY_WEBHOOK_LAST_URL = "register_webhook_last_url";
     private static final String KEY_WEBHOOK_LAST_STATUS = "register_webhook_last_status";
     private static final String KEY_WEBHOOK_PENDING_CLEANUP = "register_webhook_pending_cleanup";
-    /** #368: ordered FIFO shadow of {@link #KEY_WEBHOOK_PENDING_CLEANUP}, see {@link #ORDER_SEPARATOR}. */
-    private static final String KEY_WEBHOOK_PENDING_CLEANUP_ORDER = "register_webhook_pending_cleanup_order";
     private static final String KEY_APP_LANGUAGE = "app_language";
     private static final String KEY_SERVICE_LAST_HEARTBEAT = "service_last_heartbeat";
     private static final String KEY_HIDE_NOTIFICATION = "hide_notification_enabled";
@@ -30,8 +28,6 @@ final class KeepADBPreferences {
     private static final String KEY_USB_WEBHOOK_LAST_TAILNET_HOSTNAME = "usb_webhook_last_tailnet_hostname";
     private static final String KEY_USB_WEBHOOK_LAST_STATUS = "usb_webhook_last_status";
     private static final String KEY_USB_WEBHOOK_PENDING_CLEANUP = "usb_webhook_pending_cleanup";
-    /** #368: ordered FIFO shadow of {@link #KEY_USB_WEBHOOK_PENDING_CLEANUP}, see {@link #ORDER_SEPARATOR}. */
-    private static final String KEY_USB_WEBHOOK_PENDING_CLEANUP_ORDER = "usb_webhook_pending_cleanup_order";
     private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
     private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
     private static final String KEY_ADVICE_BANNER_VISIBLE = "advice_banner_visible";

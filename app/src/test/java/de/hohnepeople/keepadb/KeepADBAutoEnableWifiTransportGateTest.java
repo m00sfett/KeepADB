@@ -7,6 +7,7 @@ import android.content.Context;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -26,6 +27,9 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class KeepADBAutoEnableWifiTransportGateTest {
+
+    @Rule
+    public final KeepADBNetworkResetRule keepADBNetworkResetRule = new KeepADBNetworkResetRule();
 
     private final Context context = RuntimeEnvironment.getApplication();
 
@@ -74,6 +78,8 @@ public class KeepADBAutoEnableWifiTransportGateTest {
 
     @Test
     public void usbHandoverGuardBlocksAllWifiModeWithoutAnActiveWifiTransport() {
+        KeepADBPreferences.setUsbWlanHandoverMode(context,
+                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
 
@@ -83,6 +89,8 @@ public class KeepADBAutoEnableWifiTransportGateTest {
 
     @Test
     public void usbHandoverGuardAllowsAllWifiModeWithAnActiveWifiTransport() {
+        KeepADBPreferences.setUsbWlanHandoverMode(context,
+                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
 

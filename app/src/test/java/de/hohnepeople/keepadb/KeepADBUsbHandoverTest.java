@@ -274,6 +274,66 @@ public class KeepADBUsbHandoverTest {
                 gateway.writes.isEmpty());
     }
 
+    /**
+     * #383: {@link KeepADBUsbHandover#isAutoHandoverStillPermitted} used to re-check only the
+     * network trust, not the handover mode itself. A user switching AUTOMATIC to OFF during the
+     * {@code TOGGLE_COOLDOWN_MS} debounce window must still cancel the pending write, exactly
+     * like a network change or a withdrawn Keep-Alive already do for the other automatic-enable
+     * guards. The default clock (0) is deliberately left far inside the cooldown window (500ms
+     * &lt; {@link KeepADB#TOGGLE_COOLDOWN_MS}) relative to the fresh {@code lastAppliedChangeMs}
+     * of 0 from {@link KeepADB#resetForTesting()}, so the automatic enable is genuinely scheduled
+     * rather than applied immediately -- reproducing the actual planning/write gap the guard
+     * exists for.
+     */
+    @Test
+    public void modeSwitchToOffDuringCooldownCancelsTheDelayedAutomaticEnable() {
+        FakeContext ctx = new FakeContext();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADBFakeScheduler localScheduler = new KeepADBFakeScheduler();
+        localScheduler.setClockMs(500); // well inside TOGGLE_COOLDOWN_MS of lastAppliedChangeMs=0
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(localScheduler);
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
+        KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+
+        KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
+        assertTrue("the automatic enable must be scheduled, not applied immediately, to actually "
+                        + "exercise the planning/write gap this guard protects",
+                localScheduler.hasAnyPending());
+        assertTrue("no write may reach the gateway before the cooldown elapses",
+                gateway.writes.isEmpty());
+
+        // The user turns USB handover off while the write is still pending.
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, OFF);
+
+        localScheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertTrue("switching AUTOMATIC to OFF during the cooldown must cancel the delayed "
+                        + "automatic enable even though the network is still trusted",
+                gateway.writes.isEmpty());
+    }
+
+    /** Counterpart to the test above: staying in AUTOMATIC mode must still apply the delayed write. */
+    @Test
+    public void modeStaysAutomaticDuringCooldownStillAppliesTheDelayedEnable() {
+        FakeContext ctx = new FakeContext();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADBFakeScheduler localScheduler = new KeepADBFakeScheduler();
+        localScheduler.setClockMs(500);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(localScheduler);
+        KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
+        KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+
+        KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
+        assertTrue(localScheduler.hasAnyPending());
+
+        localScheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals("staying in AUTOMATIC mode on a trusted network must still apply the enable",
+                java.util.Arrays.asList(true), gateway.writes);
+    }
+
     @Test
     public void handleManualActionExecutionWithAndWithoutPermission() {
         FakeContext permittedContext = new FakeContext(true);

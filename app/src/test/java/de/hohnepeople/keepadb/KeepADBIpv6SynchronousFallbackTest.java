@@ -18,8 +18,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -44,24 +43,11 @@ import org.robolectric.shadows.ShadowWifiInfo;
 @Config(sdk = 34)
 public class KeepADBIpv6SynchronousFallbackTest {
 
+    @Rule
+    public final KeepADBNetworkResetRule keepADBNetworkResetRule = new KeepADBNetworkResetRule();
+
     private static final String WIFI_IPV4 = "192.168.7.42";
     private static final String WIFI_IPV6 = "2001:db8::42";
-
-    // KeepADBNetwork.get(context) memoizes its singleton across calls and ignores the context
-    // on every call after the first. Some other test elsewhere in the suite may create it
-    // against a different Robolectric Application without ever resetting it (only KeepADBNetwork
-    // itself, not KeepADBService/KeepADBEndpoint callers, are obliged to via #352's contract), so
-    // resetting here too -- not only in tearDown() -- makes this test's outcome independent of
-    // execution order instead of depending on every other test's cleanup discipline.
-    @Before
-    public void setUp() {
-        KeepADBNetwork.resetForTesting();
-    }
-
-    @After
-    public void tearDown() {
-        KeepADBNetwork.resetForTesting();
-    }
 
     /**
      * AC1: a pure IPv6 network (no synchronous IPv4 snapshot) must still have its address
