@@ -1,4 +1,10 @@
-Internal cleanup and test hardening: removed unused constant definitions that were never read,
-and added a test that locks in the exact internal step order the app already uses to keep its
-network-trust checks race-free, so a future code cleanup can't accidentally reorder those steps
-without a test failing. No user-visible behavior change.
+Fixed a rare edge case in the optional USB-to-WLAN wireless-debugging handover: if you switched
+its mode from Automatic to Off in the brief moment right after plugging in USB, the automatic
+enable could still go through once on a network you had marked as trusted. It now checks the
+current mode again right before switching wireless debugging on, so turning it off during that
+short window reliably cancels the pending enable.
+
+Also includes internal cleanup and test hardening: removed unused constant definitions that were
+never read, and added a test that locks in the exact internal step order the app already uses to
+keep its network-trust checks race-free, so a future code cleanup can't accidentally reorder those
+steps without a test failing. No further user-visible behavior change.

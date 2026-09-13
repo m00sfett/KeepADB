@@ -83,9 +83,17 @@ final class KeepADBUsbHandover {
      * <p>#348: mirrors the active-Wi-Fi-transport gate applied at the initial check in {@link
      * #onRawUsbBroadcast} -- the debounced write this guards may happen after Wi-Fi has since
      * dropped, and {@code MODE_ALL_WIFI} trust alone would not catch that.
+     *
+     * <p>#383: also re-reads the handover mode itself. The mode was only checked once, at plan
+     * time in {@link #onRawUsbBroadcastInternal}; if the user switches AUTOMATIC to OFF during
+     * the {@code TOGGLE_COOLDOWN_MS} window, the still-trusted network was letting the delayed
+     * write through anyway. Mirrors the same guard the other automatic enable paths apply to
+     * their own conditions.
      */
     static boolean isAutoHandoverStillPermitted(Context appContext) {
-        return KeepADBService.isWifiConnected(appContext)
+        return KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC
+                        .equals(KeepADBPreferences.getUsbWlanHandoverMode(appContext))
+                && KeepADBService.isWifiConnected(appContext)
                 && KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext);
     }
 

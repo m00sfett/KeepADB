@@ -74,6 +74,8 @@ public class KeepADBAutoEnableWifiTransportGateTest {
 
     @Test
     public void usbHandoverGuardBlocksAllWifiModeWithoutAnActiveWifiTransport() {
+        KeepADBPreferences.setUsbWlanHandoverMode(context,
+                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
 
@@ -83,6 +85,8 @@ public class KeepADBAutoEnableWifiTransportGateTest {
 
     @Test
     public void usbHandoverGuardAllowsAllWifiModeWithAnActiveWifiTransport() {
+        KeepADBPreferences.setUsbWlanHandoverMode(context,
+                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
 
