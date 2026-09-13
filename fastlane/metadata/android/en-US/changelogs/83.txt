@@ -4,3 +4,6 @@ user-visible behavior change.
 The check that verifies a wireless-debugging address found via network discovery (mDNS) now
 confirms the service actually looks like the real adbd, not just that something answers on that
 port — closing the same gap already fixed for the quick probe and the periodic health check.
+
+Fixed a rare case where the app could wrongly reject a legitimate wireless-debugging endpoint
+when its link-local address was ambiguously shared by two network interfaces at once.

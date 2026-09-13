@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   budgets for this class of reachability probe (quick probe, mDNS candidate verification, cached-
   endpoint re-verification) are documented together at their declaration and kept intentionally
   separate, since each guards a different call site with its own latency tolerance (issue #412).
+- The byte-match fallback in `KeepADBNetwork.resolveScopeInterface()` (added for issue #403)
+  handed back the first interface whose address list contained the searched-for link-local
+  address, with no regard for whether that interface has anything to do with the tracked Wi-Fi
+  network. A MAC-derived `fe80` link-local address can legitimately be bound to two interfaces
+  at once, so "first wins" could stamp the wrong one and cause a legitimate candidate to be
+  rejected. The scan is now restricted to interfaces that are up and not loopback, and an
+  ambiguous match (more than one such interface claiming the identical address) is now treated
+  as unresolvable instead of guessed (issue #410).
 
 ## [1.5.63] - 2026-09-13
 
