@@ -308,6 +308,12 @@ final class KeepADBNetwork {
      * exactly that stale address pass as a live endpoint while the callback already says no
      * eligible Wi-Fi network exists -- defeating the fail-closed property above.
      *
+     * <p>#365: this synchronous snapshot used to be IPv4-only ({@link WifiInfo} has no IPv6
+     * accessor), so an IPv6-only Wi-Fi network was wrongly rejected during this same race window.
+     * {@link #synchronousWifiAddresses()} now also tries a synchronous IPv6 lookup via {@link
+     * ConnectivityManager} whenever no synchronous IPv4 address is available; see its javadoc for
+     * why that lookup is narrower than the IPv4 one.
+     *
      * <p>Note what this does <em>not</em> establish: that whatever listens on the port is really
      * adbd rather than some other service the device itself exposes on its Wi-Fi address. That
      * remains open follow-up work (adbd authenticity, R13 on #314) and is out of scope here.
@@ -352,10 +358,7 @@ final class KeepADBNetwork {
             }
         }
         if (!isWifiTrackingAuthoritative()) {
-            InetAddress synchronousAddress = synchronousWifiAddress();
-            if (synchronousAddress != null) {
-                addresses.add(synchronousAddress);
-            }
+            addresses.addAll(synchronousWifiAddresses());
         }
         return addresses;
     }
@@ -429,7 +432,38 @@ final class KeepADBNetwork {
         return false;
     }
 
-    private InetAddress synchronousWifiAddress() {
+    /**
+     * Synchronous best-effort Wi-Fi address candidates for the same startup/registration-failure
+     * race window as {@link #synchronousWifiIpv4Address()} (see that method's javadoc). #365:
+     * {@link WifiInfo} has never exposed an IPv6 address, so an IPv6-only Wi-Fi network used to
+     * fall through this fallback with an empty result during the race window, even though a
+     * synchronous IPv6 lookup is available through a different API ({@link
+     * #synchronousWifiIpv6Address()}). IPv4 is tried first and, exactly like the pre-#365
+     * behaviour, stays the sole candidate whenever it is available -- the IPv6 lookup only runs
+     * for an IPv4-less (IPv6-only) network, so a dual-stack network's candidate set is unchanged.
+     */
+    private List<InetAddress> synchronousWifiAddresses() {
+        List<InetAddress> addresses = new ArrayList<>();
+        InetAddress ipv4 = synchronousWifiIpv4Address();
+        if (ipv4 != null) {
+            addresses.add(ipv4);
+            return addresses;
+        }
+        InetAddress ipv6 = synchronousWifiIpv6Address();
+        if (ipv6 != null) {
+            addresses.add(ipv6);
+        }
+        return addresses;
+    }
+
+    /**
+     * Synchronous IPv4 Wi-Fi address via {@link WifiManager#getConnectionInfo()}, used only while
+     * {@link #isWifiTrackingAuthoritative()} is {@code false} (see {@link
+     * #activeWifiAddresses()}). {@code WifiInfo} exposes IPv4 only -- there has never been an
+     * IPv6 equivalent on this API -- which is why an IPv6-only network needs the separate lookup
+     * in {@link #synchronousWifiIpv6Address()} (#365).
+     */
+    private InetAddress synchronousWifiIpv4Address() {
         try {
             WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
             if (wifiManager == null) return null;
@@ -439,6 +473,45 @@ final class KeepADBNetwork {
             if (ip == 0) return null;
             byte[] bytes = {(byte) ip, (byte) (ip >> 8), (byte) (ip >> 16), (byte) (ip >> 24)};
             return InetAddress.getByAddress(bytes);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    /**
+     * Synchronous IPv6 Wi-Fi address candidate for the same race window as {@link
+     * #synchronousWifiIpv4Address()} (#365). Unlike the IPv4 lookup this cannot go through {@link
+     * WifiManager}: {@link WifiInfo} has no IPv6 accessor, and {@code WifiManager.getCurrentNetwork()}
+     * -- the one API that would hand back the current Wi-Fi {@link Network} synchronously -- was
+     * only added in API 31, above this app's {@code minSdk} 30. Instead this uses {@link
+     * ConnectivityManager#getActiveNetwork()} together with {@link
+     * ConnectivityManager#getNetworkCapabilities(Network)} and {@link
+     * ConnectivityManager#getLinkProperties(Network)}: all three are synchronous, non-deprecated
+     * calls available since API 23, so they work on every supported OS version. This is
+     * necessarily narrower than the IPv4 path: it only finds an address when the eligible Wi-Fi
+     * network also happens to be the device's current <em>default</em> route, so it stays silent
+     * (not wrongly negative -- the caller only widens the candidate set with what this finds) if
+     * Wi-Fi is connected but VPN/cellular is the active default. A non-link-local, non-loopback
+     * address is preferred, mirroring the IPv4 lookup's own loopback/link-local exclusion --
+     * link-local addresses are always present regardless of whether a real IPv6 route was
+     * assigned, so they are not a useful "this network has connectivity" signal here.
+     */
+    private InetAddress synchronousWifiIpv6Address() {
+        try {
+            if (connectivityManager == null) return null;
+            Network activeNetwork = connectivityManager.getActiveNetwork();
+            if (activeNetwork == null) return null;
+            NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
+            if (!isEligibleWifiTransport(capabilities)) return null;
+            LinkProperties linkProperties = connectivityManager.getLinkProperties(activeNetwork);
+            if (linkProperties == null) return null;
+            for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
+                InetAddress address = linkAddress.getAddress();
+                if (address instanceof Inet6Address && !address.isLoopbackAddress() && !address.isLinkLocalAddress()) {
+                    return address;
+                }
+            }
+            return null;
         } catch (Exception ignored) {
             return null;
         }
