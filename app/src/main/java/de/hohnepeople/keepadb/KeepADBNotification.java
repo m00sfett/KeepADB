@@ -47,9 +47,13 @@ final class KeepADBNotification {
     // class monitor and is always cleared by the worker itself once its socket check returns.
     private static boolean verificationInFlight;
     // Test-only seam (#351): lets a test substitute a slow/deterministic fake for the real
-    // blocking socket check in KeepADBEndpoint.isPortReachable(), which a raw unit/Robolectric
+    // blocking socket check in KeepADBEndpoint.probeAdbTlsPort(), which a raw unit/Robolectric
     // test cannot otherwise drive without hanging or flaking (see KeepADBNotificationRobolectricTest).
-    private static ReachabilityProbe reachabilityProbe = KeepADBEndpoint::isPortReachable;
+    // #394: this used to default to the plain-connect KeepADBEndpoint.isPortReachable(), which a
+    // foreign service that later took over the same host:port would still pass. Reusing the
+    // #363 TLS-sniff probe here closes that gap for periodic re-verification of an already
+    // cached/registered endpoint, matching the quick-probe registration path.
+    private static ReachabilityProbe reachabilityProbe = KeepADBEndpoint::probeAdbTlsPort;
     // Test-only seam (review repair on #351): see setWorkerStarterForTesting().
     private static WorkerStarter workerStarter = Thread::start;
     // Test-only counter (#351): number of verification worker Threads actually started, so a test
@@ -89,7 +93,7 @@ final class KeepADBNotification {
 
     /** Substitutes the real socket-based reachability check with {@code probe} for a test. */
     static synchronized void setReachabilityProbeForTesting(ReachabilityProbe probe) {
-        reachabilityProbe = probe != null ? probe : KeepADBEndpoint::isPortReachable;
+        reachabilityProbe = probe != null ? probe : KeepADBEndpoint::probeAdbTlsPort;
     }
 
     /** Number of verification worker Threads actually started since the last {@link #resetForTesting()}. */
@@ -136,7 +140,7 @@ final class KeepADBNotification {
         resetReachableConfirmed();
         verificationInFlight = false;
         verificationWorkerStartCountForTesting = 0;
-        reachabilityProbe = KeepADBEndpoint::isPortReachable;
+        reachabilityProbe = KeepADBEndpoint::probeAdbTlsPort;
         workerStarter = Thread::start;
     }
 
