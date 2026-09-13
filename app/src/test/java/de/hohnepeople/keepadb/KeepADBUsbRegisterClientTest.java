@@ -2,6 +2,8 @@ package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -120,9 +122,9 @@ public class KeepADBUsbRegisterClientTest {
 
         assertTrue(recordedRequests.get(0).startsWith("POST"));
         String body = recordedRequests.get(1);
-        assertEquals("{\"method\":\"usb-adb\",\"deviceId\":\"abc123\",\"profileId\":7,"
+        assertUsbPayload("{\"method\":\"usb-adb\",\"deviceId\":\"abc123\",\"profileId\":7,"
                 + "\"profileName\":\"Desk\",\"ipAddress\":\"192.168.1.20\",\"hostname\":\"desk-host\","
-                + "\"tailnetHostname\":\"desk.tailnet.ts.net\",\"active\":true}", body);
+                + "\"tailnetHostname\":\"desk.tailnet.ts.net\",\"active\":true", body);
 
         waitUntil(() -> url().equals(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting()), 2000);
     }
@@ -136,7 +138,9 @@ public class KeepADBUsbRegisterClientTest {
         String expectedPayload = KeepADBRegisterClient.buildUsbPayload(
                 "abc123", 7, "Desk", testIpAddress, "desk-host", "desk.tailnet.ts.net", true);
         waitUntil(() -> url().equals(KeepADBRegisterClient.getLastRegisteredUsbUrlForTesting())
-                && expectedPayload.equals(KeepADBRegisterClient.getLastRegisteredUsbPayloadForTesting()), 2000);
+                && KeepADBRegisterClient.usbEventId(expectedPayload) != null
+                && KeepADBRegisterClient.usbEventId(expectedPayload).equals(KeepADBRegisterClient.usbEventId(
+                        KeepADBRegisterClient.getLastRegisteredUsbPayloadForTesting())), 2000);
         int countAfterFirst = recordedRequests.size();
 
         // Same profile, same connected state -> must be a no-op after the first async update has
@@ -321,9 +325,9 @@ public class KeepADBUsbRegisterClientTest {
                 3, "Only Name", "", "", "");
         waitUntil(() -> recordedRequests.size() >= 2, 2000);
         String body = recordedRequests.get(1);
-        assertEquals("{\"method\":\"usb-adb\",\"deviceId\":\"abc123\",\"profileId\":3,"
+        assertUsbPayload("{\"method\":\"usb-adb\",\"deviceId\":\"abc123\",\"profileId\":3,"
                 + "\"profileName\":\"Only Name\",\"ipAddress\":\"\",\"hostname\":\"\","
-                + "\"tailnetHostname\":\"\",\"active\":true}", body);
+                + "\"tailnetHostname\":\"\",\"active\":true", body);
     }
 
     @Test
@@ -333,9 +337,9 @@ public class KeepADBUsbRegisterClientTest {
                 9, "Desk\nRoom", "192.168.1.20", "desk\thost", "desk.tailnet.ts.net");
         waitUntil(() -> recordedRequests.size() >= 2, 2000);
         String body = recordedRequests.get(1);
-        assertEquals("{\"method\":\"usb-adb\",\"deviceId\":\"abc123\",\"profileId\":9,"
+        assertUsbPayload("{\"method\":\"usb-adb\",\"deviceId\":\"abc123\",\"profileId\":9,"
                 + "\"profileName\":\"Desk\\nRoom\",\"ipAddress\":\"192.168.1.20\",\"hostname\":\"desk\\thost\","
-                + "\"tailnetHostname\":\"desk.tailnet.ts.net\",\"active\":true}", body);
+                + "\"tailnetHostname\":\"desk.tailnet.ts.net\",\"active\":true", body);
     }
 
     @Test
@@ -644,5 +648,52 @@ public class KeepADBUsbRegisterClientTest {
                 values.putAll(updates);
             }
         }
+    }
+
+    /**
+     * #416: the register refuses an endpoint-free or deactivating USB event from a client
+     * that does not declare contract v2, so both payload directions must carry the envelope.
+     */
+    @Test
+    public void testUsbPayloadCarriesRegisterContractEnvelopeInBothDirections() {
+        String active = KeepADBRegisterClient.buildUsbPayload(
+                "abc123", 7, "Desk", "192.168.1.20", "desk-host", "desk.tailnet.ts.net", true);
+        String inactive = KeepADBRegisterClient.buildUsbPayload(
+                "abc123", 7, "Desk", "192.168.1.20", "desk-host", "desk.tailnet.ts.net", false);
+        for (String payload : new String[] {active, inactive}) {
+            assertTrue(payload, payload.contains("\"contract_version\":2"));
+            assertNotNull(payload, KeepADBRegisterClient.usbEventId(payload));
+            assertTrue(payload, payload.contains("\"observed_at\":\""));
+        }
+        assertNotEquals("Activation and deactivation must be distinguishable events",
+                KeepADBRegisterClient.usbEventId(active), KeepADBRegisterClient.usbEventId(inactive));
+    }
+
+    /** An unchanged state must keep its event id so the register can drop the repeat. */
+    @Test
+    public void testUsbEventIdIsDerivedFromStateNotFromTime() {
+        String first = KeepADBRegisterClient.buildUsbPayload(
+                "abc123", 7, "Desk", "192.168.1.20", "desk-host", "desk.tailnet.ts.net", true);
+        String second = KeepADBRegisterClient.buildUsbPayload(
+                "abc123", 7, "Desk", "192.168.1.20", "desk-host", "desk.tailnet.ts.net", true);
+        String changed = KeepADBRegisterClient.buildUsbPayload(
+                "abc123", 9, "Living Room", "192.168.1.30", "lr-host", "lr.tailnet.ts.net", true);
+        assertEquals(KeepADBRegisterClient.usbEventId(first), KeepADBRegisterClient.usbEventId(second));
+        assertNotEquals(KeepADBRegisterClient.usbEventId(first), KeepADBRegisterClient.usbEventId(changed));
+    }
+
+    /**
+     * #416: a USB payload is the reported state plus the register-contract envelope
+     * (contract_version, state-derived event_id, observed_at). The state part must stay
+     * byte-exact; the envelope is checked structurally because observed_at is volatile.
+     */
+    private static void assertUsbPayload(String expectedState, String body) {
+        assertTrue("Unexpected USB state part: " + body, body.startsWith(expectedState + ","));
+        assertTrue("Missing contract version: " + body, body.contains("\"contract_version\":2"));
+        String eventId = KeepADBRegisterClient.usbEventId(body);
+        assertNotNull("Missing event_id: " + body, eventId);
+        assertTrue("Unexpected event_id shape: " + eventId, eventId.startsWith("keepadb-usb-"));
+        assertTrue("Missing observed_at: " + body, body.contains("\"observed_at\":\""));
+        assertTrue("Payload must stay a JSON object: " + body, body.endsWith("\"}"));
     }
 }

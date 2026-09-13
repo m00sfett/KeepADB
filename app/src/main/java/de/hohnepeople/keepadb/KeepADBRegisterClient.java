@@ -19,6 +19,8 @@ final class KeepADBRegisterClient {
     private static final String TAG = "KeepADBRegisterClient";
     private static final int TIMEOUT_MS = 2000;
     private static final String PREFS_NAME = "keepadb_prefs";
+    /** Register contract this client speaks; see phone-register-server REGISTER_CONTRACT_VERSION. */
+    static final int REGISTER_CONTRACT_VERSION = 2;
     private static final String KEY_PENDING_CLEANUP_RETRY_STATE =
             "register_webhook_pending_cleanup_retry_state";
     static final int MAX_PENDING_CLEANUP_ATTEMPTS = 3;
@@ -213,7 +215,8 @@ final class KeepADBRegisterClient {
             // broadcast can wake a fresh process before the WLAN service has initialized its
             // state; loading only USB here would then fail open and clear the shared alias record.
             ensureStateInitializedLocked(context);
-            if (targetUrl.equals(lastRegisteredUsbUrl) && payload.equals(lastRegisteredUsbPayload)) {
+            if (targetUrl.equals(lastRegisteredUsbUrl)
+                    && reportsSameUsbState(payload, lastRegisteredUsbPayload)) {
                 return;
             }
             opGen = ++currentUsbOpGeneration;
@@ -671,19 +674,75 @@ final class KeepADBRegisterClient {
 
     static String buildUsbPayload(String deviceId, Integer profileId, String profileName, String ipAddress,
             String hostname, String tailnetHostname, boolean active) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\"method\":\"usb-adb\"");
-        sb.append(",\"deviceId\":\"").append(jsonEscape(deviceId)).append("\"");
+        StringBuilder state = new StringBuilder();
+        state.append("{\"method\":\"usb-adb\"");
+        state.append(",\"deviceId\":\"").append(jsonEscape(deviceId)).append("\"");
         if (profileId != null) {
-            sb.append(",\"profileId\":").append(profileId);
+            state.append(",\"profileId\":").append(profileId);
         }
-        sb.append(",\"profileName\":\"").append(jsonEscape(profileName)).append("\"");
-        sb.append(",\"ipAddress\":\"").append(jsonEscape(ipAddress)).append("\"");
-        sb.append(",\"hostname\":\"").append(jsonEscape(hostname)).append("\"");
-        sb.append(",\"tailnetHostname\":\"").append(jsonEscape(tailnetHostname)).append("\"");
-        sb.append(",\"active\":").append(active);
+        state.append(",\"profileName\":\"").append(jsonEscape(profileName)).append("\"");
+        state.append(",\"ipAddress\":\"").append(jsonEscape(ipAddress)).append("\"");
+        state.append(",\"hostname\":\"").append(jsonEscape(hostname)).append("\"");
+        state.append(",\"tailnetHostname\":\"").append(jsonEscape(tailnetHostname)).append("\"");
+        state.append(",\"active\":").append(active);
+
+        // #416: USB slots carry no endpoint of their own - the host reports the usable
+        // serial. The register therefore accepts an endpoint-free or a deactivating USB
+        // event only from a client that declares register contract v2 and supplies the
+        // ordering/idempotency envelope. The event id is derived from the reported state,
+        // not random: a repeat of the same state stays a duplicate the register can drop,
+        // while a genuine state change produces a new id. Only observed_at is volatile,
+        // so payload equality is no longer a usable "same state" test - see usbEventId().
+        StringBuilder sb = new StringBuilder(state);
+        sb.append(",\"contract_version\":").append(REGISTER_CONTRACT_VERSION);
+        sb.append(",\"event_id\":\"").append(usbEventIdForState(state.toString())).append("\"");
+        sb.append(",\"observed_at\":\"").append(jsonEscape(isoTimestamp(pendingCleanupNow()))).append("\"");
         sb.append("}");
         return sb.toString();
+    }
+
+    /** Stable event id for one reported USB state; equal states yield equal ids. */
+    private static String usbEventIdForState(String state) {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(state.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder("keepadb-usb-");
+            for (int i = 0; i < 16; i++) {
+                hex.append(String.format(java.util.Locale.US, "%02x", hash[i]));
+            }
+            return hex.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            // SHA-256 is mandatory on every supported Android level; the fallback only
+            // keeps the client usable instead of dropping the report entirely.
+            return "keepadb-usb-" + Integer.toHexString(state.hashCode());
+        }
+    }
+
+    /**
+     * Extracts the state-derived event id of a USB payload. Two payloads describe the same
+     * reported state exactly when their event ids match, which keeps the "nothing changed,
+     * do not resend" check working now that the payload also carries a volatile timestamp.
+     */
+    static String usbEventId(String payload) {
+        if (payload == null) return null;
+        final String marker = "\"event_id\":\"";
+        int start = payload.indexOf(marker);
+        if (start < 0) return null;
+        start += marker.length();
+        int end = payload.indexOf('"', start);
+        return end < 0 ? null : payload.substring(start, end);
+    }
+
+    private static boolean reportsSameUsbState(String payload, String otherPayload) {
+        String id = usbEventId(payload);
+        String otherId = usbEventId(otherPayload);
+        return id != null && id.equals(otherId);
+    }
+
+    private static String isoTimestamp(long epochMillis) {
+        java.text.SimpleDateFormat format =
+                new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", java.util.Locale.US);
+        return format.format(new java.util.Date(epochMillis));
     }
 
     private static String jsonEscape(String value) {
