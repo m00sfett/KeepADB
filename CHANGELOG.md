@@ -39,6 +39,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the correct (reconstructed) oldest entry instead of growing past the bound or corrupting the
   backlog (issue #414).
 
+### Changed
+- No functional change: measured the #310 `EnableGuard` re-check (the `WifiManager`
+  connection-info lookup now run inside the same `synchronized (KeepADB.class)` block as the
+  `Settings.Global` write) on real hardware. Seven on-device samples of the guard call itself
+  came back at 32-42 microseconds, negligible next to the existing multi-hundred-millisecond
+  lock hold time of the recovery pulse it already shares the lock with. No caching or lock-scope
+  reduction applied; see issue #341 for the full measurement writeup.
+
 ## [1.5.63] - 2026-09-13
 
 ### Fixed

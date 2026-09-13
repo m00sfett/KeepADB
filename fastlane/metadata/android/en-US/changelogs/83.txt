@@ -14,3 +14,9 @@ though the device was actually connected, right after the app started tracking t
 This release also adds test coverage only for one further case: it proves that the pending
 webhook cleanup backlog correctly migrates data saved by older app versions and still discards
 the right entry when it overflows afterwards.
+
+No user-visible change otherwise. A prior code review flagged that the automatic re-enable
+feature's network-trust check now runs alongside the actual wireless-debugging toggle write,
+both briefly holding the same internal lock, and asked whether that could measurably slow down
+a manual toggle. On-device measurement showed the added check takes a few dozen microseconds,
+far too small to notice, so nothing needed to change.
