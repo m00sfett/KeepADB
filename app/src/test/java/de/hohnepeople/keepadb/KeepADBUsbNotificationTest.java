@@ -12,6 +12,7 @@ import android.content.Context;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -28,6 +29,9 @@ import org.robolectric.shadows.ShadowNotificationManager;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 32)
 public class KeepADBUsbNotificationTest {
+
+    @Rule
+    public final KeepADBNetworkResetRule keepADBNetworkResetRule = new KeepADBNetworkResetRule();
 
     private final Context context = RuntimeEnvironment.getApplication();
 

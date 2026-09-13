@@ -15,6 +15,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   once on an otherwise still-trusted network. The guard now also re-reads the current mode at
   write time, matching the re-check the other automatic enable paths already apply to their own
   conditions (issue #383).
+- `KeepADBNetwork.get(Context)`'s process-wide test singleton kept returning its first instance
+  to every later caller for the rest of the JVM's lifetime, silently ignoring the `Context`
+  argument. `KeepADBService.isWifiConnected()` and two `KeepADBEndpoint` methods call
+  `KeepADBNetwork.get(context)` internally, so any Robolectric test exercising those methods
+  instantiated the singleton incidentally, without the test author ever mentioning
+  `KeepADBNetwork`. A later, unrelated test in the same JVM could then receive an instance bound
+  to a foreign `Context`/`ConnectivityManager` shadow, causing intermittent, test-order-dependent
+  failures (observed in ~2 of 3 full `./bin/verify` runs; issue #401). Added a shared
+  `KeepADBNetworkResetRule` JUnit rule that all 20 Robolectric test classes now apply, resetting
+  `KeepADBNetwork`'s singleton both before and after every test regardless of whether that test
+  touches `KeepADBNetwork` directly, closing the gap structurally instead of relying on each test
+  author to remember. No production code behavior changed.
 
 ### Changed
 - Removed unused order-key constant definitions `KEY_WEBHOOK_PENDING_CLEANUP_ORDER` and

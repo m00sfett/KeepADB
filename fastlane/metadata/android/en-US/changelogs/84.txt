@@ -5,6 +5,8 @@ current mode again right before switching wireless debugging on, so turning it o
 short window reliably cancels the pending enable.
 
 Also includes internal cleanup and test hardening: removed unused constant definitions that were
-never read, and added a test that locks in the exact internal step order the app already uses to
-keep its network-trust checks race-free, so a future code cleanup can't accidentally reorder those
-steps without a test failing. No further user-visible behavior change.
+never read, added a test that locks in the exact internal step order the app already uses to keep
+its network-trust checks race-free, and fixed a shared test-only safeguard that now resets an
+internal test-only network tracker before and after every automated test, closing a gap that
+could occasionally make an unrelated automated test fail depending on test order. No user-visible
+behavior change beyond the USB handover fix above.

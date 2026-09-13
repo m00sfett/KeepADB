@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -49,6 +50,9 @@ import org.robolectric.shadows.ShadowWifiInfo;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class KeepADBStartupRaceWifiFallbackTest {
+
+    @Rule
+    public final KeepADBNetworkResetRule keepADBNetworkResetRule = new KeepADBNetworkResetRule();
 
     private static final String WIFI_IPV4 = "192.168.9.15";
 
