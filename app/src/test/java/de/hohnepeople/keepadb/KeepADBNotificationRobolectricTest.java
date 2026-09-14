@@ -67,6 +67,9 @@ public class KeepADBNotificationRobolectricTest {
         // KeepADBNotification keeps its cached endpoint in static fields (it's a process-wide
         // singleton in production). Reset them between tests so Robolectric's shared classloader
         // state doesn't leak between test methods.
+        // #453: also tears down any KeepADBEndpoint installed via setEndpointForTesting(), so a
+        // fake endpoint from one test never leaks into the next.
+        KeepADBNotification.resetForTesting();
         setStatic("currentHost", null);
         setStatic("currentPort", 0);
         setStatic("endpointListener", null);
@@ -274,17 +277,47 @@ public class KeepADBNotificationRobolectricTest {
      * #448 regression guard: When Keep-Alive is enabled and discovery finishes with onUnavailable()
      * while Wireless Debugging has already dropped (KeepADB.isEnabled() == false), the notification
      * must show "disabled, waiting" rather than "searching...".
+     *
+     * <p>#453: the previous version of this test set {@code gateway(false)} before calling {@link
+     * KeepADBNotification#refresh(Context)}, so {@code refreshInternal()}'s early {@code
+     * !isEnabled()} guard returned before discovery ever started -- the {@code onUnavailable()}
+     * branch inside {@code startDiscoveryDirectLocked()} this test claims to cover was never
+     * reached. This version starts Wireless Debugging enabled so a real discovery attempt begins
+     * (using the {@link KeepADBFakeNsdProbe}/{@link KeepADBFakeScheduler} seams {@link
+     * KeepADBEndpoint} already exposes for its own tests, #249, plus {@link
+     * KeepADBNotification#setEndpointForTesting}, #453), then flips the gateway to disabled while
+     * that discovery is still in flight and advances the fake scheduler past {@code
+     * OVERALL_TIMEOUT_MS} so the real {@code KeepADBEndpoint.Listener.onUnavailable()} callback
+     * fires -- exactly the mid-discovery drop the issue describes.
      */
     @Test
     public void notificationShowsDisabledWaitingWhenWirelessDebuggingDropsMidDiscovery()
             throws Exception {
-        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
         KeepADB.setGatewayForTesting(gateway);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
 
-        // Directly invoke discovery unavailable handler logic through KeepADBNotification
+        KeepADBFakeNsdProbe nsdProbe = new KeepADBFakeNsdProbe();
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        KeepADBEndpoint fakeEndpoint = new KeepADBEndpoint(context, nsdProbe, scheduler);
+        KeepADBNotification.setEndpointForTesting(fakeEndpoint);
+
+        // isEnabled() is still true here: refreshInternal() must actually start discovery, not
+        // take the early !isEnabled() exit the old test accidentally triggered.
         KeepADBNotification.refresh(context);
+        assertEquals("refresh() must have started a real mDNS discovery attempt",
+                1, nsdProbe.discoverServicesCallCount);
+
+        // Wireless Debugging drops mid-discovery: not an explicit user-off, so
+        // KeepADBPreferences.lastDesiredOn stays true (matches the issue's Keep-Alive-waiting
+        // scenario) while the gateway itself now reports disabled.
+        gateway.write(context, false);
+
+        // Drives KeepADBEndpoint's real OVERALL_TIMEOUT_MS watchdog without waiting real time,
+        // which calls the discovery Listener's onUnavailable() -- the branch this test covers.
+        scheduler.advanceBy(8_000);
 
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         ShadowNotificationManager shadowManager = shadowOf(manager);

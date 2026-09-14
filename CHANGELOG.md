@@ -5,6 +5,11 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.3] - 2026-09-14
+
+### Fixed
+- Fixed a test (`KeepADBNotificationRobolectricTest.notificationShowsDisabledWaitingWhenWirelessDebuggingDropsMidDiscovery`) that claimed to cover the mid-discovery drop from #448 but never actually exercised that code path; it now drives a real discovery attempt (via the existing `KeepADBFakeNsdProbe`/`KeepADBFakeScheduler` seams plus a new `KeepADBNotification.setEndpointForTesting()` test hook) and flips Wireless Debugging off while it is still in flight. No production behavior changed (issue #453).
+
 ## [1.7.2] - 2026-09-14
 
 ### Fixed
