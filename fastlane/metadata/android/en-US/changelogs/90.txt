@@ -1,0 +1,1 @@
+Fixed the endpoint notification freezing on 'Wifi-ADB ENABLED' when Wireless Debugging turns off on its own (roam, timeout, AP loss) while Keep-Alive keeps waiting for it to come back. It now correctly shows 'DISABLED, Keep-Alive waiting' instead, in all 19 languages.
