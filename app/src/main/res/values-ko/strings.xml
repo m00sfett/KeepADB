@@ -27,6 +27,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_text_active">포트 %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: 엔드포인트 검색 중…</string>
     <string name="notification_text_searching">로컬 네트워크에서 엔드포인트 확인 중</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive가 무선 디버깅이 다시 켜지기를 기다리는 중</string>
     <string name="notification_service_title">무선 디버깅 활성 상태 유지</string>
     <string name="notification_service_text">Wi-Fi 연결 및 무선 디버깅 상태 모니터링 중</string>
     <string name="notification_permission_missing_title">KeepADB: 권한 누락</string>

@@ -73,7 +73,10 @@ public class KeepADBTileDiscoveryContractTest {
         String body = methodBody(notification,
                 "private static synchronized void refreshInternal(Context context, Object discoveryOwner) {");
         int enabledGuard = body.indexOf("if (!KeepADB.isEnabled(appContext))");
-        int stop = body.indexOf("stop(appContext, manager);", enabledGuard);
+        // #445: this branch now routes through stopOrShowKeepAliveWaiting() instead of calling
+        // stop() unconditionally -- see the KeepADBNotificationRobolectricTest coverage for the
+        // behavioral split (real stop vs. Keep-Alive keeping the service running).
+        int stop = body.indexOf("stopOrShowKeepAliveWaiting(appContext, manager);", enabledGuard);
         int stopReturn = body.indexOf("return;", stop);
         int discovery = body.indexOf("startDiscoveryDirectLocked(appContext, manager, discoveryOwner);");
 
@@ -209,7 +212,7 @@ public class KeepADBTileDiscoveryContractTest {
         int lock = verifyBody.indexOf("synchronized (KeepADBNotification.class) {", worker);
         int lockEnd = findMatchingBrace(verifyBody, verifyBody.indexOf('{', lock));
         assertTrue(tokenGuard > lock && tokenGuard < lockEnd);
-        for (String mutation : new String[] { "stop(appContext, manager);",
+        for (String mutation : new String[] { "stopOrShowKeepAliveWaiting(appContext, manager);",
                 "activeDiscoveryOwner = null;", "shouldLogReachable()",
                 "resetReachableConfirmed();", "currentHost = null;", "currentPort = 0;",
                 "endpointListener.onUnavailable();", "cancelRetryLocked();",

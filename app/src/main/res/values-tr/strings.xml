@@ -27,6 +27,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_text_active">Bağlantı noktası %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: Uç nokta aranıyor…</string>
     <string name="notification_text_searching">Yerel ağda uç nokta çözümleniyor</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive, Kablosuz Hata Ayıklamanın yeniden açılmasını bekliyor</string>
     <string name="notification_service_title">Kablosuz Hata Ayıklamayı Aktif Tut</string>
     <string name="notification_service_text">Wi-Fi bağlantısı ve Kablosuz Hata Ayıklama durumu izleniyor</string>
     <string name="notification_permission_missing_title">KeepADB: İzin eksik</string>

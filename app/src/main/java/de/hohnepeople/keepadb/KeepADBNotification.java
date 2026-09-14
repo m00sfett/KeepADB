@@ -239,7 +239,7 @@ final class KeepADBNotification {
         ensureChannel(appContext, manager);
 
         if (!KeepADB.isEnabled(appContext)) {
-            stop(appContext, manager);
+            stopOrShowKeepAliveWaiting(appContext, manager);
             return;
         }
 
@@ -316,7 +316,7 @@ final class KeepADBNotification {
                     return; // superseded by a newer refresh/discovery in the meantime
                 }
                 if (!KeepADB.isEnabled(appContext)) {
-                    stop(appContext, manager);
+                    stopOrShowKeepAliveWaiting(appContext, manager);
                     return;
                 }
                 if (reachable) {
@@ -535,6 +535,58 @@ final class KeepADBNotification {
         }
     }
 
+    /**
+     * #445: routes between actually stopping (the service is really going away) and merely
+     * reflecting that Wireless Debugging turned off while Keep-Alive keeps the service running,
+     * waiting for it to come back. {@link KeepADBService#shouldRun} is the exact same predicate
+     * the service itself uses to decide whether to stay in the foreground, so this stays in sync
+     * with {@link KeepADBService#onStartCommand} by construction: whenever the service will still
+     * be foreground after this call, {@link #stop}'s {@code manager.cancel(NOTIFICATION_ID)}
+     * would be silently ignored by Android (a foreground service's notification cannot be
+     * cancelled that way), leaving the notification frozen on its last "ENABLED" content for as
+     * long as Keep-Alive keeps waiting.
+     */
+    private static void stopOrShowKeepAliveWaiting(Context appContext, NotificationManager manager) {
+        if (KeepADBService.shouldRun(appContext)) {
+            showDisabledKeepAliveWaiting(appContext, manager);
+        } else {
+            stop(appContext, manager);
+        }
+    }
+
+    /**
+     * #445: Wireless Debugging turned off (e.g. a roam/timeout/AP loss, not an explicit user-off)
+     * while Keep-Alive is still watching for it to come back -- the foreground service keeps
+     * running, so the notification must reflect the true "off, waiting" state instead of either
+     * freezing on the old active-endpoint content or disappearing via {@link #stop}'s cancel().
+     * Deliberately mirrors {@link #stop}'s cached-endpoint/discovery cleanup inline rather than
+     * sharing it via a helper -- several existing text-contract tests pin {@link #stop}'s exact
+     * body, and this state reset is small enough that duplicating it here is cheaper than
+     * refactoring those tests for an unrelated change.
+     */
+    private static synchronized void showDisabledKeepAliveWaiting(Context appContext, NotificationManager manager) {
+        KeepADBDiagnostics.event(appContext, "notification_updated", "notification", "waiting_state",
+                "wireless_debugging_off_keep_alive_waiting");
+        cancelRetryLocked();
+        retryAttempt = 0;
+        discoveryRequestGeneration++;
+        endpointVerificationToken++;
+        activeDiscoveryOwner = null;
+        if (endpoint != null) {
+            endpoint.stop();
+            endpoint = null;
+        }
+        currentHost = null;
+        currentPort = 0;
+        resetReachableConfirmed();
+        if (endpointListener != null) endpointListener.onUnavailable();
+        showPlaceholder(appContext, manager,
+                appContext.getString(R.string.notification_title_disabled),
+                appContext.getString(R.string.notification_text_disabled_keepalive_waiting));
+        KeepADBRegisterClient.markUnavailableAsync(appContext.getApplicationContext());
+        postSurfaceRefresh(appContext.getApplicationContext());
+    }
+
     private static synchronized void stop(Context context, NotificationManager manager) {
         KeepADBDiagnostics.event(context, "notification_removed", "notification", "success", "wireless_debugging_off");
         cancelRetryLocked();
@@ -587,7 +639,13 @@ final class KeepADBNotification {
             return;
         }
         if (KeepADBPreferences.isNotificationHidden(context)) {
-            if (KeepADBPreferences.isKeepAliveEnabled(context) && KeepADB.isEnabled(context)) {
+            // #445: gate on shouldRun(), not isEnabled() -- the foreground service (and thus
+            // Android's requirement for a notification) can still be running with Wireless
+            // Debugging off (Keep-Alive waiting for it to come back). The old isEnabled()-only
+            // check assumed the two always agreed, which is exactly what #445 disproves; a
+            // hidden-notification user hitting that state would otherwise get a no-op cancel()
+            // on the still-foreground notification instead of an update, leaving stale content.
+            if (KeepADBService.shouldRun(context)) {
                 Notification notification = buildNotification(context, host, port);
                 manager.notify(NOTIFICATION_ID, notification);
                 return;
@@ -604,7 +662,9 @@ final class KeepADBNotification {
             return;
         }
         if (KeepADBPreferences.isNotificationHidden(context)) {
-            if (KeepADBPreferences.isKeepAliveEnabled(context) && KeepADB.isEnabled(context)) {
+            // #445: see the matching comment in show() -- shouldRun() is the correct gate here
+            // too, for the same reason.
+            if (KeepADBService.shouldRun(context)) {
                 Notification notification = buildPlaceholderNotification(context, title, text);
                 manager.notify(NOTIFICATION_ID, notification);
                 return;
