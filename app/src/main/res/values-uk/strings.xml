@@ -27,6 +27,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_text_active">Порт %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: Пошук кінцевої точки…</string>
     <string name="notification_text_searching">Визначення кінцевої точки в локальній мережі</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive чекає на повторне увімкнення бездротового налагодження</string>
     <string name="notification_service_title">Підтримувати бездротове налагодження активним</string>
     <string name="notification_service_text">Моніторинг з’єднання Wi-Fi та стану бездротового налагодження</string>
     <string name="notification_permission_missing_title">KeepADB: Відсутній дозвіл</string>

@@ -37,6 +37,7 @@
     <string name="notification_text_active">Port %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: Searching for endpoint…</string>
     <string name="notification_text_searching">Resolving endpoint on local network</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive is waiting for wireless debugging to be turned back on</string>
     <string name="notification_service_title">Keep Wireless Debugging Active</string>
     <string name="notification_service_text">Monitoring Wi-Fi connection and Wireless Debugging status</string>
     <string name="notification_permission_missing_title">KeepADB: Permission missing</string>

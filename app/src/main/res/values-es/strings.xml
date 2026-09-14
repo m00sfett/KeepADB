@@ -27,6 +27,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_text_active">Puerto %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: Buscando punto final…</string>
     <string name="notification_text_searching">Resolviendo punto final en la red local</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive espera a que la depuración inalámbrica se reactive</string>
     <string name="notification_service_title">Mantener depuración inalámbrica activa</string>
     <string name="notification_service_text">Monitoreando conexión Wi-Fi y estado de depuración inalámbrica</string>
     <string name="notification_permission_missing_title">KeepADB: Falta permiso</string>

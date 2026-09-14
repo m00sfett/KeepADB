@@ -5,6 +5,16 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.5] - 2026-09-14
+
+### Fixed
+- Fixed the endpoint notification freezing on its last "Wifi-ADB ENABLED" content when Wireless
+  Debugging turns off on its own (roam, inactivity timeout, or AP loss) while Keep-Alive keeps the
+  foreground service running and waiting for it to come back. Android silently ignores a cancel on
+  an active foreground-service notification, so it now shows the true "Wifi-ADB DISABLED,
+  Keep-Alive waiting" state instead, in all 19 supported languages. The same stale-content gap
+  also affected the "Hide persistent notification" toggle and is fixed there too (issue #445).
+
 ## [1.6.4] - 2026-09-13
 
 ### Fixed

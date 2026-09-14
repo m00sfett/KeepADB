@@ -27,6 +27,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: Mencari endpoint…</string>
     <string name="notification_text_searching">Menyelesaikan endpoint di jaringan lokal</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive menunggu Debugging Nirkabel diaktifkan kembali</string>
     <string name="notification_service_title">Pertahankan Debugging Nirkabel Tetap Aktif</string>
     <string name="notification_service_text">Memantau koneksi Wi-Fi dan status Debugging Nirkabel</string>
     <string name="notification_permission_missing_title">KeepADB: Izin kurang</string>

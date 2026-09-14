@@ -208,6 +208,68 @@ public class KeepADBNotificationRobolectricTest {
                 shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID));
     }
 
+    /**
+     * #445 regression guard: Wireless Debugging turning off while Keep-Alive is still watching
+     * for it to come back (i.e. not an explicit user-off -- {@code lastDesiredOn} stays true)
+     * must update the still-foreground notification to the "disabled, waiting" content, not fall
+     * through to {@code stop()}'s {@code manager.cancel()}. Android silently ignores cancel() on
+     * a foreground service's own notification, so with the old {@code stop()}-only logic this
+     * test would still observe the stale "active endpoint" notification here instead of the
+     * updated placeholder -- see the class javadoc reasoning verified manually against a
+     * temporary revert of the fix (reported alongside this test, not committed).
+     */
+    @Test
+    public void notificationShowsDisabledWaitingWhenWirelessDebuggingDropsWhileKeepAliveKeepsRunning()
+            throws Exception {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        // Not an explicit user-off (e.g. a roam/timeout/AP loss instead) -- shouldRun() must stay
+        // true, matching KeepADBService keeping its foreground notification alive.
+        KeepADBPreferences.setLastDesiredOn(context, true);
+
+        setStatic("currentHost", "192.168.1.50");
+        setStatic("currentPort", 39123);
+
+        KeepADBNotification.refresh(context);
+
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        ShadowNotificationManager shadowManager = shadowOf(manager);
+        Notification notification = shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID);
+        assertNotNull("Notification must still be posted (service stays foreground) instead of "
+                + "being left on its previous content or silently cancelled", notification);
+        assertEquals(context.getString(R.string.notification_title_disabled),
+                notification.extras.getString(Notification.EXTRA_TITLE));
+        assertEquals(context.getString(R.string.notification_text_disabled_keepalive_waiting),
+                notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());
+        assertTrue("Cached endpoint must be cleared once Wireless Debugging is confirmed off",
+                !KeepADBNotification.hasCurrentEndpoint());
+    }
+
+    /**
+     * Contrast case for #445: when the service will really stop (here, Keep-Alive itself is
+     * off), the old {@code stop()} path -- including its {@code manager.cancel()} -- must still
+     * apply, since the foreground service is actually going away and cancel() is effective.
+     */
+    @Test
+    public void notificationIsCancelledWhenWirelessDebuggingDropsAndKeepAliveWontKeepRunning()
+            throws Exception {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(context, false);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+
+        setStatic("currentHost", "192.168.1.50");
+        setStatic("currentPort", 39123);
+
+        KeepADBNotification.refresh(context);
+
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        ShadowNotificationManager shadowManager = shadowOf(manager);
+        assertNull("Notification must be cancelled once the service actually stops (shouldRun() "
+                + "false)", shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID));
+    }
+
     private static void setStatic(String fieldName, Object value) throws Exception {
         Field field = KeepADBNotification.class.getDeclaredField(fieldName);
         field.setAccessible(true);

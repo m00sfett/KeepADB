@@ -37,6 +37,7 @@
     <string name="notification_text_active">Port %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: Endpoint wird gesucht …</string>
     <string name="notification_text_searching">Endpoint wird im lokalen Netzwerk aufgelöst</string>
+    <string name="notification_text_disabled_keepalive_waiting">Keep-Alive wartet, bis Drahtloses Debugging wieder aktiviert wird</string>
     <string name="notification_service_title">Drahtloses Debugging aktiv halten</string>
     <string name="notification_service_text">Überwacht WLAN-Verbindung und Status von „Drahtloses Debugging“</string>
     <string name="notification_permission_missing_title">KeepADB: Berechtigung fehlt</string>
