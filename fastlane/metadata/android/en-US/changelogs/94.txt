@@ -1,0 +1,1 @@
+Internal testing improvement only, no user-facing changes: fixed a test that claimed to cover the notification's mid-discovery "disabled, waiting" state but never actually exercised that code path.

@@ -98,6 +98,18 @@ final class KeepADBNotification {
         reachabilityProbe = probe != null ? probe : KeepADBEndpoint::isPortReachable;
     }
 
+    /**
+     * Test-only seam (#453): pre-installs {@code fakeEndpoint} so {@link
+     * #startDiscoveryDirectLocked} adopts it instead of lazily constructing a real {@link
+     * KeepADBEndpoint} bound to a real {@code NsdManager}. Combined with the {@link
+     * KeepADBFakeNsdProbe}/{@link KeepADBFakeScheduler} seams {@code KeepADBEndpoint} already
+     * exposes for its own tests (#249), this lets a test drive a real discovery attempt to a
+     * deterministic {@code onUnavailable()} without real mDNS or real elapsed time.
+     */
+    static synchronized void setEndpointForTesting(KeepADBEndpoint fakeEndpoint) {
+        endpoint = fakeEndpoint;
+    }
+
     /** Number of verification worker Threads actually started since the last {@link #resetForTesting()}. */
     static synchronized int getVerificationWorkerStartCountForTesting() {
         return verificationWorkerStartCountForTesting;
