@@ -131,7 +131,10 @@ public class SettingsActivity extends Activity {
         hideNotificationToggle = findViewById(R.id.settings_hide_notification_toggle);
         hideNotificationSubtext = findViewById(R.id.settings_hide_notification_subtext);
         hideNotificationToggle.setOnClickListener(v -> {
-            boolean wantHidden = hideNotificationToggle.isChecked();
+            // #456: the switch shows positive framing ("persistent notification" ON = visible),
+            // while the underlying preference and its accessor names stay hide-framed. Invert here.
+            boolean wantVisible = hideNotificationToggle.isChecked();
+            boolean wantHidden = !wantVisible;
             KeepADBPreferences.setNotificationHidden(this, wantHidden);
             KeepADBNotification.refresh(this);
             Toast.makeText(this,
@@ -1079,7 +1082,8 @@ public class SettingsActivity extends Activity {
         webhookToggle.setChecked(webhookEnabled);
 
         boolean notificationHidden = KeepADBPreferences.isNotificationHidden(this);
-        hideNotificationToggle.setChecked(notificationHidden);
+        // #456: positive framing — checked means the notification stays visible.
+        hideNotificationToggle.setChecked(!notificationHidden);
         boolean keepAliveActive = KeepADBPreferences.isKeepAliveEnabled(this);
         if (hideNotificationSubtext != null) {
             hideNotificationSubtext.setText(keepAliveActive

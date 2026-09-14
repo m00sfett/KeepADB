@@ -117,8 +117,11 @@ public class MainActivity extends Activity {
         });
 
         hideNotificationToggle.setOnClickListener(v -> {
-            boolean wantHidden = hideNotificationToggle.isChecked();
-            KeepADBDiagnostics.event(this, "user_action", "app", wantHidden ? "enable" : "disable", "hide_notification_toggle");
+            // #456: the switch shows positive framing ("persistent notification" ON = visible),
+            // while the underlying preference and its accessor names stay hide-framed. Invert here.
+            boolean wantVisible = hideNotificationToggle.isChecked();
+            boolean wantHidden = !wantVisible;
+            KeepADBDiagnostics.event(this, "user_action", "app", wantVisible ? "enable" : "disable", "hide_notification_toggle");
             KeepADBPreferences.setNotificationHidden(this, wantHidden);
             KeepADBNotification.refresh(this);
             Toast.makeText(this,
@@ -254,7 +257,8 @@ public class MainActivity extends Activity {
         keepAliveToggle.setEnabled(configured);
         keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
         hideNotificationToggle.setEnabled(configured);
-        hideNotificationToggle.setChecked(KeepADBPreferences.isNotificationHidden(this));
+        // #456: positive framing — checked means the notification stays visible.
+        hideNotificationToggle.setChecked(!KeepADBPreferences.isNotificationHidden(this));
         boolean keepAliveActive = KeepADBPreferences.isKeepAliveEnabled(this);
         hideNotificationSubtext.setText(keepAliveActive
                 ? R.string.settings_hide_notification_subtext_keepalive

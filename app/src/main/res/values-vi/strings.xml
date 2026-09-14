@@ -104,13 +104,13 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_system_default">Mặc định hệ thống</string>
     <string name="settings_language_dialog_title">Chọn ngôn ngữ</string>
     <string name="settings_section_notification">Thông báo</string>
-    <string name="settings_hide_notification_toggle">Ẩn thông báo liên tục</string>
-    <string name="settings_hide_notification_subtext">Ẩn thông báo trạng thái trên thanh thông báo. Keep-Alive và tiện ích con vẫn hoạt động bình thường.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Khi Keep-Alive đang hoạt động, Android yêu cầu thông báo cho dịch vụ nền trước. Chỉ có thể ẩn hoàn toàn thông qua cài đặt thông báo của hệ thống.</string>
+    <string name="settings_hide_notification_toggle">Thông báo liên tục</string>
+    <string name="settings_hide_notification_subtext">Giữ cho thông báo trạng thái hiển thị trên thanh thông báo. Tắt để ẩn nó; Keep-Alive và tiện ích con vẫn hoạt động bình thường.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Khi Keep-Alive đang hoạt động, Android yêu cầu thông báo cho dịch vụ nền trước, vì vậy không thể tắt tùy chọn này cho đến khi Keep-Alive bị vô hiệu hóa.</string>
     <string name="settings_section_display">Màn hình</string>
     <string name="settings_keep_display_on_toggle">Giữ màn hình sáng khi KeepADB đang ở nền trước</string>
     <string name="settings_keep_display_on_subtext">Chỉ giữ màn hình sáng khi ứng dụng này đang mở. Màn hình sẽ tắt bình thường ngay khi bạn rời khỏi ứng dụng.</string>
-    <string name="settings_notification_hidden_toast">Đã ẩn thông báo liên tục</string>
+    <string name="settings_notification_hidden_toast">Đã tắt thông báo liên tục</string>
     <string name="settings_notification_visible_toast">Đã bật thông báo liên tục</string>
     <string name="back">Quay lại</string>
     <string name="settings_section_usb_notification">Thông báo USB-ADB</string>

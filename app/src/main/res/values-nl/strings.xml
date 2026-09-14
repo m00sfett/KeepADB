@@ -104,13 +104,13 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_system_default">Systeemstandaard</string>
     <string name="settings_language_dialog_title">Taal selecteren</string>
     <string name="settings_section_notification">Melding</string>
-    <string name="settings_hide_notification_toggle">Permanente melding verbergen</string>
-    <string name="settings_hide_notification_subtext">Verbergt de statusmelding in het meldingenpaneel. Keep-Alive en widgets blijven normaal werken.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Wanneer Keep-Alive actief is, vereist Android een melding voor de voorgrondservice. Volledig verbergen is alleen mogelijk via de meldingsinstellingen van het systeem.</string>
+    <string name="settings_hide_notification_toggle">Permanente melding</string>
+    <string name="settings_hide_notification_subtext">Houdt de statusmelding zichtbaar in het meldingenpaneel. Zet uit om te verbergen; Keep-Alive en widgets blijven normaal werken.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Wanneer Keep-Alive actief is, vereist Android een melding voor de voorgrondservice, dus kan deze optie pas worden uitgeschakeld nadat Keep-Alive is uitgeschakeld.</string>
     <string name="settings_section_display">Scherm</string>
     <string name="settings_keep_display_on_toggle">Scherm aan houden zolang KeepADB op de voorgrond is</string>
     <string name="settings_keep_display_on_subtext">Houdt het scherm alleen aan zolang deze app geopend is. Het scherm gaat normaal weer uit zodra je de app verlaat.</string>
-    <string name="settings_notification_hidden_toast">Permanente melding verborgen</string>
+    <string name="settings_notification_hidden_toast">Permanente melding uitgeschakeld</string>
     <string name="settings_notification_visible_toast">Permanente melding ingeschakeld</string>
     <string name="back">Terug</string>
     <string name="settings_section_usb_notification">USB-ADB-melding</string>
