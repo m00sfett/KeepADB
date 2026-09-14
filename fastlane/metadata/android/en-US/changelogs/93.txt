@@ -1,0 +1,1 @@
+Fixed notification showing placeholder 'searching' text instead of 'disabled, waiting' when Wireless Debugging drops mid-discovery while Keep-Alive is active.
