@@ -5,6 +5,11 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.1] - 2026-09-14
+
+### Fixed
+- Fixed network trust prompt repeatedly re-firing when roaming or flapping between multiple untrusted Wi-Fi access points. The prompt suppression now maintains a bounded history of recently prompted networks across all untrusted access points rather than only remembering the single most recent one (issue #450).
+
 ## [1.7.0] - 2026-09-14
 
 ### Added

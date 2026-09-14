@@ -474,7 +474,7 @@ public class KeepADBService extends Service {
         }
     }
 
-    private synchronized void recheckAndEnable() {
+    synchronized void recheckAndEnable() {
         if (!foregroundReady) {
             Log.d(TAG, "Ignoring recheck before foreground promotion");
             return;
@@ -512,5 +512,9 @@ public class KeepADBService extends Service {
         }
         KeepADBNotification.refresh(this);
         KeepADBWidget.refreshAll(this);
+    }
+
+    ContentObserver getAdbContentObserverForTesting() {
+        return adbContentObserver;
     }
 }

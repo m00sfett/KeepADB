@@ -11,9 +11,12 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Asks the user -- once per access point, not once per heartbeat -- whether a newly seen,
- * untrusted Wi-Fi access point should become trusted (#446).
+ * untrusted Wi-Fi access point should become trusted (#446, #450).
  *
  * <p>Before this, automatic Keep-Alive re-enable on an unlisted network failed silently: the only
  * trace was an {@code outcome=blocked detail=untrusted_network} diagnostics event nobody sees
@@ -33,6 +36,10 @@ import android.os.Build;
  * the same access point. It is persisted rather than kept in a static so a service restart (boot,
  * process death) does not re-alert for an access point the user already answered.
  *
+ * <p>#450: A bounded history of recently prompted BSSIDs is retained (up to {@link
+ * #MAX_PROMPTED_BSSIDS}) so roaming/flapping between two untrusted access points does not cause
+ * repeated notification alerts on every switch.
+ *
  * <p>The suppression deliberately expires after {@link #PROMPT_REPEAT_INTERVAL_MS}: a permanent
  * "don't ask again" that no user action can clear would be a silently switched-off alarm, and the
  * block it hides is exactly the failure the issue is about. Declining therefore only suppresses
@@ -49,12 +56,26 @@ final class KeepADBNetworkTrustPrompt {
     private static final String PREFS_NAME = "keepadb_prefs";
     private static final String KEY_PROMPTED_BSSID = "network_prompt_bssid";
     private static final String KEY_PROMPTED_AT = "network_prompt_at";
+    static final String KEY_PROMPTED_HISTORY = "network_prompt_history";
+
+    /** Maximum number of recently prompted BSSIDs remembered to prevent flapping (#450). */
+    static final int MAX_PROMPTED_BSSIDS = 8;
 
     /** How long a raised prompt suppresses further prompts for the same access point. */
     static final long PROMPT_REPEAT_INTERVAL_MS = 6L * 60L * 60L * 1000L;
 
     private static final int REQUEST_CODE_TRUST = 10;
     private static final int REQUEST_CODE_DISMISS = 11;
+
+    private static final class PromptEntry {
+        final String bssid;
+        final long promptedAt;
+
+        PromptEntry(String bssid, long promptedAt) {
+            this.bssid = bssid;
+            this.promptedAt = promptedAt;
+        }
+    }
 
     private KeepADBNetworkTrustPrompt() {}
 
@@ -109,24 +130,88 @@ final class KeepADBNetworkTrustPrompt {
      */
     static boolean shouldPrompt(Context context, String bssid, long nowMillis) {
         if (bssid == null || bssid.trim().isEmpty()) return false;
+        String cleanBssid = bssid.trim();
         SharedPreferences preferences = prefs(context);
-        String prompted = preferences.getString(KEY_PROMPTED_BSSID, null);
-        if (prompted == null || !prompted.equalsIgnoreCase(bssid.trim())) return true;
-        long promptedAt = preferences.getLong(KEY_PROMPTED_AT, 0L);
-        long elapsed = nowMillis - promptedAt;
-        return elapsed < 0 || elapsed >= PROMPT_REPEAT_INTERVAL_MS;
+        List<PromptEntry> history = readPromptHistory(preferences);
+        for (PromptEntry entry : history) {
+            if (entry.bssid.equalsIgnoreCase(cleanBssid)) {
+                long elapsed = nowMillis - entry.promptedAt;
+                return elapsed < 0 || elapsed >= PROMPT_REPEAT_INTERVAL_MS;
+            }
+        }
+        return true;
     }
 
     private static void markPrompted(Context context, String bssid, long nowMillis) {
-        prefs(context).edit()
-                .putString(KEY_PROMPTED_BSSID, bssid.trim())
-                .putLong(KEY_PROMPTED_AT, nowMillis)
+        if (bssid == null || bssid.trim().isEmpty()) return;
+        String cleanBssid = bssid.trim();
+        SharedPreferences preferences = prefs(context);
+        List<PromptEntry> history = readPromptHistory(preferences);
+        history.removeIf(entry -> entry.bssid.equalsIgnoreCase(cleanBssid));
+        history.add(new PromptEntry(cleanBssid, nowMillis));
+        while (history.size() > MAX_PROMPTED_BSSIDS) {
+            history.remove(0);
+        }
+        writePromptHistory(preferences, history);
+    }
+
+    private static List<PromptEntry> readPromptHistory(SharedPreferences preferences) {
+        List<PromptEntry> result = new ArrayList<>();
+        String raw = preferences.getString(KEY_PROMPTED_HISTORY, null);
+        if (raw != null && !raw.trim().isEmpty()) {
+            for (String token : raw.split(",")) {
+                int pipeIndex = token.indexOf('|');
+                if (pipeIndex > 0 && pipeIndex < token.length() - 1) {
+                    String bssid = token.substring(0, pipeIndex).trim();
+                    try {
+                        long at = Long.parseLong(token.substring(pipeIndex + 1).trim());
+                        if (!bssid.isEmpty()) {
+                            result.add(new PromptEntry(bssid, at));
+                        }
+                    } catch (NumberFormatException ignored) {
+                        // ignore malformed timestamp
+                    }
+                }
+            }
+            if (!result.isEmpty()) return result;
+        }
+        // Backward-compatibility fallback to single-key pair
+        String legacyBssid = preferences.getString(KEY_PROMPTED_BSSID, null);
+        if (legacyBssid != null && !legacyBssid.trim().isEmpty()) {
+            long legacyAt = preferences.getLong(KEY_PROMPTED_AT, 0L);
+            result.add(new PromptEntry(legacyBssid.trim(), legacyAt));
+        }
+        return result;
+    }
+
+    private static void writePromptHistory(SharedPreferences preferences, List<PromptEntry> entries) {
+        SharedPreferences.Editor editor = preferences.edit();
+        if (entries == null || entries.isEmpty()) {
+            editor.remove(KEY_PROMPTED_HISTORY)
+                    .remove(KEY_PROMPTED_BSSID)
+                    .remove(KEY_PROMPTED_AT)
+                    .apply();
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (PromptEntry entry : entries) {
+            if (sb.length() > 0) sb.append(',');
+            sb.append(entry.bssid).append('|').append(entry.promptedAt);
+        }
+        PromptEntry last = entries.get(entries.size() - 1);
+        editor.putString(KEY_PROMPTED_HISTORY, sb.toString())
+                .putString(KEY_PROMPTED_BSSID, last.bssid)
+                .putLong(KEY_PROMPTED_AT, last.promptedAt)
                 .apply();
     }
 
-    /** Forgets the remembered prompt so the next block on any access point prompts again. */
+    /** Forgets the remembered prompt history so the next block on any access point prompts again. */
     static void clearPromptState(Context context) {
-        prefs(context).edit().remove(KEY_PROMPTED_BSSID).remove(KEY_PROMPTED_AT).apply();
+        prefs(context).edit()
+                .remove(KEY_PROMPTED_HISTORY)
+                .remove(KEY_PROMPTED_BSSID)
+                .remove(KEY_PROMPTED_AT)
+                .apply();
     }
 
     static void cancel(Context context) {

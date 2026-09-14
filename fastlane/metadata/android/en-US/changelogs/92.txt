@@ -1,0 +1,1 @@
+Fixed network trust prompt repeatedly re-firing when roaming or flapping between multiple untrusted Wi-Fi access points by tracking a bounded history of recently prompted networks.
