@@ -1,0 +1,1 @@
+Changed: the notification toggle now reads "Persistent notification" and is ON by default, matching the visible notification — switch it off to hide it. No behavior changed, just clearer wording.

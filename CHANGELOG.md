@@ -22,6 +22,11 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.7.4] - Unreleased
+
+### Changed
+- Inverted the "Hide persistent notification" toggle's framing to "Persistent notification" (positive framing: switch ON = notification visible, switch OFF = hidden) in both the main screen and Settings. The previous negative "hide" framing read as broken/useless in the most common case (Keep-Alive active), where Android forces the foreground-service notification regardless of the setting. Only the UI binding and labels changed; the underlying preference key, its accessor names, and the Keep-Alive notification override are unchanged (issue #456).
+
 ## [1.7.3] - Unreleased
 
 ### Fixed

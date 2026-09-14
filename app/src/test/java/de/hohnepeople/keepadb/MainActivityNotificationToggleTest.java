@@ -50,6 +50,8 @@ public class MainActivityNotificationToggleTest {
 
     @Test
     public void notificationToggleReflectsPreferenceAndSyncsOnClick() {
+        // #456: the switch uses positive framing ("persistent notification" ON = visible), which
+        // is the inverse of the underlying isNotificationHidden()/setNotificationHidden() state.
         Context context = RuntimeEnvironment.getApplication();
         KeepADBPreferences.setNotificationHidden(context, false);
 
@@ -59,16 +61,16 @@ public class MainActivityNotificationToggleTest {
 
         Switch toggle = activity.findViewById(R.id.hide_notification_toggle);
         assertNotNull(toggle);
-        assertFalse(toggle.isChecked());
+        assertTrue(toggle.isChecked());
 
         toggle.performClick();
-        assertTrue(toggle.isChecked());
+        assertFalse(toggle.isChecked());
         assertTrue(KeepADBPreferences.isNotificationHidden(context));
         assertEquals(context.getString(R.string.settings_notification_hidden_toast),
                 ShadowToast.getTextOfLatestToast());
 
         toggle.performClick();
-        assertFalse(toggle.isChecked());
+        assertTrue(toggle.isChecked());
         assertFalse(KeepADBPreferences.isNotificationHidden(context));
         assertEquals(context.getString(R.string.settings_notification_visible_toast),
                 ShadowToast.getTextOfLatestToast());

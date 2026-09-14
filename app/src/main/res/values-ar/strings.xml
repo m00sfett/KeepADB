@@ -104,13 +104,13 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_system_default">افتراضي النظام</string>
     <string name="settings_language_dialog_title">اختر اللغة</string>
     <string name="settings_section_notification">الإشعارات</string>
-    <string name="settings_hide_notification_toggle">إخفاء الإشعار الدائم</string>
-    <string name="settings_hide_notification_subtext">يخفي إشعار الحالة في شريط الإشعارات. ستستمر ميزة Keep-Alive والأدوات في العمل بشكل طبيعي.</string>
-    <string name="settings_hide_notification_subtext_keepalive">عند تفعيل ميزة Keep-Alive، يفرض نظام Android إشعارًا لخدمة المقدمة. لا يمكن الإخفاء الكامل إلا من خلال إعدادات إشعارات النظام.</string>
+    <string name="settings_hide_notification_toggle">الإشعار الدائم</string>
+    <string name="settings_hide_notification_subtext">يُبقي إشعار الحالة ظاهرًا في شريط الإشعارات. أوقف التبديل لإخفائه؛ ستستمر ميزة Keep-Alive والأدوات في العمل بشكل طبيعي.</string>
+    <string name="settings_hide_notification_subtext_keepalive">عند تفعيل ميزة Keep-Alive، يفرض نظام Android إشعارًا لخدمة المقدمة، لذا لا يمكن إيقاف هذا الخيار حتى يتم تعطيل Keep-Alive.</string>
     <string name="settings_section_display">الشاشة</string>
     <string name="settings_keep_display_on_toggle">إبقاء الشاشة قيد التشغيل أثناء تشغيل KeepADB في المقدمة</string>
     <string name="settings_keep_display_on_subtext">يبقي الشاشة قيد التشغيل فقط أثناء فتح هذا التطبيق. تنطفئ الشاشة بشكل طبيعي بمجرد مغادرة التطبيق.</string>
-    <string name="settings_notification_hidden_toast">تم إخفاء الإشعار الدائم</string>
+    <string name="settings_notification_hidden_toast">تم إيقاف الإشعار الدائم</string>
     <string name="settings_notification_visible_toast">تم تفعيل الإشعار الدائم</string>
     <string name="back">رجوع</string>
     <string name="settings_section_usb_notification">إشعار USB-ADB</string>
