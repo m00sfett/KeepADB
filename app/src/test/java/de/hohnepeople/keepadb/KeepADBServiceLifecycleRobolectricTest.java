@@ -8,11 +8,16 @@ import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.provider.Settings;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +35,9 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowConnectivityManager;
 import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowNetwork;
+import org.robolectric.shadows.ShadowNotificationManager;
 import org.robolectric.shadows.ShadowService;
+import org.robolectric.shadows.ShadowWifiInfo;
 
 /**
  * Robolectric unit tests for Issue #311:
@@ -478,5 +485,97 @@ public class KeepADBServiceLifecycleRobolectricTest {
     @Test
     public void shouldRunReturnsFalseForNullContext() {
         assertFalse(KeepADBService.shouldRun(null));
+    }
+
+    @Test
+    public void contentObserverOnUntrustedNetworkTriggersNetworkTrustPrompt() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+
+        String bssid = "11:22:33:44:55:66";
+        setWifiConnection("Untrusted-Cafe", bssid);
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            assertNull("No prompt before wifi connection", postedPrompt());
+
+            // Connect Wi-Fi
+            KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+
+            // Trigger content observer
+            controller.get().getAdbContentObserverForTesting()
+                    .onChange(false, Settings.Global.getUriFor(KeepADB.KEY));
+            ShadowLooper.idleMainLooper();
+
+            Notification prompt = postedPrompt();
+            assertNotNull("Content observer on untrusted network must raise trust prompt", prompt);
+            String text = prompt.extras.getString(Notification.EXTRA_TEXT);
+            assertNotNull(text);
+            assertTrue("Prompt text must contain SSID", text.contains("Untrusted-Cafe"));
+            assertTrue("Prompt text must contain BSSID", text.contains(bssid));
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    @Test
+    public void recheckAndEnableOnUntrustedNetworkTriggersNetworkTrustPrompt() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+
+        String bssid = "11:22:33:44:55:77";
+        setWifiConnection("Untrusted-Hotel", bssid);
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            assertNull("No prompt before wifi connection", postedPrompt());
+
+            // Connect Wi-Fi and advance clock past cooldown
+            KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(400));
+
+            controller.get().recheckAndEnable();
+            ShadowLooper.idleMainLooper();
+
+            Notification prompt = postedPrompt();
+            assertNotNull("recheckAndEnable on untrusted network must raise trust prompt", prompt);
+            String text = prompt.extras.getString(Notification.EXTRA_TEXT);
+            assertNotNull(text);
+            assertTrue("Prompt text must contain SSID", text.contains("Untrusted-Hotel"));
+            assertTrue("Prompt text must contain BSSID", text.contains(bssid));
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    private void setWifiConnection(String ssid, String bssid) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = ShadowWifiInfo.newInstance();
+        shadowOf(info).setSSID(ssid);
+        shadowOf(info).setBSSID(bssid);
+        shadowOf(wifiManager).setConnectionInfo(info);
+    }
+
+    private Notification postedPrompt() {
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        ShadowNotificationManager shadow = shadowOf(manager);
+        return shadow.getNotification(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
+    }
+
+    private void postedPromptClear() {
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        if (manager != null) manager.cancel(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
     }
 }

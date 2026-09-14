@@ -140,6 +140,80 @@ public class KeepADBNetworkTrustPromptTest {
     }
 
     /**
+     * Issue #450: flapping between two untrusted APs (e.g. mesh edge or weak signal) must not
+     * re-fire the prompt on every roam back and forth.
+     */
+    @Test
+    public void flappingBetweenTwoUntrustedAccessPointsDoesNotRefirePrompt() {
+        connectTo("Cafe-WLAN", BSSID);
+        assertTrue("First visit to Cafe-WLAN must prompt",
+                KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        connectTo("Hotel-WLAN", OTHER_BSSID);
+        assertTrue("First visit to Hotel-WLAN must prompt",
+                KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        // Roam back to Cafe-WLAN within the throttle interval
+        connectTo("Cafe-WLAN", BSSID);
+        assertFalse("Roam back to Cafe-WLAN must be throttled, not re-prompt",
+                KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        // Roam back to Hotel-WLAN within the throttle interval
+        connectTo("Hotel-WLAN", OTHER_BSSID);
+        assertFalse("Roam back to Hotel-WLAN must be throttled, not re-prompt",
+                KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        // A third, genuinely new untrusted AP must prompt
+        String thirdBssid = "aa:bb:cc:dd:ee:03";
+        connectTo("Airport-WLAN", thirdBssid);
+        assertTrue("A third unseen AP must still prompt",
+                KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+    }
+
+    @Test
+    public void promptHistoryEvictsOldestWhenCapacityExceeded() {
+        for (int i = 0; i < KeepADBNetworkTrustPrompt.MAX_PROMPTED_BSSIDS; i++) {
+            String bssid = String.format("aa:bb:cc:dd:ee:%02x", i);
+            connectTo("Test-WLAN-" + i, bssid);
+            assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        }
+
+        // All entered BSSIDs should currently be throttled
+        long checkNow = System.currentTimeMillis();
+        for (int i = 0; i < KeepADBNetworkTrustPrompt.MAX_PROMPTED_BSSIDS; i++) {
+            String bssid = String.format("aa:bb:cc:dd:ee:%02x", i);
+            assertFalse("BSSID " + bssid + " must be throttled",
+                    KeepADBNetworkTrustPrompt.shouldPrompt(context, bssid, checkNow));
+        }
+
+        // Adding one more should evict the oldest (index 0)
+        String newBssid = "aa:bb:cc:dd:ee:ff";
+        connectTo("New-WLAN", newBssid);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        long afterEvictNow = System.currentTimeMillis();
+        String oldestBssid = String.format("aa:bb:cc:dd:ee:%02x", 0);
+        assertTrue("Oldest BSSID must have been evicted and should prompt again",
+                KeepADBNetworkTrustPrompt.shouldPrompt(context, oldestBssid, afterEvictNow));
+        assertFalse("Newly added BSSID must be throttled",
+                KeepADBNetworkTrustPrompt.shouldPrompt(context, newBssid, afterEvictNow));
+    }
+
+    @Test
+    public void clearPromptStateClearsAllPromptedBssids() {
+        connectTo("Cafe-WLAN", BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        connectTo("Hotel-WLAN", OTHER_BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        KeepADBNetworkTrustPrompt.clearPromptState(context);
+
+        long now = System.currentTimeMillis();
+        assertTrue(KeepADBNetworkTrustPrompt.shouldPrompt(context, BSSID, now));
+        assertTrue(KeepADBNetworkTrustPrompt.shouldPrompt(context, OTHER_BSSID, now));
+    }
+
+    /**
      * The counter-question to "does the gate ever fire?": does the suppression ever stop? A
      * throttle that no user action clears would be a permanently switched-off alarm for exactly
      * the failure this issue is about, so it must expire on its own.
