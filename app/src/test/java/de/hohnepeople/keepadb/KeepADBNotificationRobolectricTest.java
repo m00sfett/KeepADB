@@ -270,6 +270,32 @@ public class KeepADBNotificationRobolectricTest {
                 + "false)", shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID));
     }
 
+    /**
+     * #448 regression guard: When Keep-Alive is enabled and discovery finishes with onUnavailable()
+     * while Wireless Debugging has already dropped (KeepADB.isEnabled() == false), the notification
+     * must show "disabled, waiting" rather than "searching...".
+     */
+    @Test
+    public void notificationShowsDisabledWaitingWhenWirelessDebuggingDropsMidDiscovery()
+            throws Exception {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+
+        // Directly invoke discovery unavailable handler logic through KeepADBNotification
+        KeepADBNotification.refresh(context);
+
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        ShadowNotificationManager shadowManager = shadowOf(manager);
+        Notification notification = shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID);
+        assertNotNull("Notification must still be posted when Keep-Alive is waiting", notification);
+        assertEquals(context.getString(R.string.notification_title_disabled),
+                notification.extras.getString(Notification.EXTRA_TITLE));
+        assertEquals(context.getString(R.string.notification_text_disabled_keepalive_waiting),
+                notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());
+    }
+
     private static void setStatic(String fieldName, Object value) throws Exception {
         Field field = KeepADBNotification.class.getDeclaredField(fieldName);
         field.setAccessible(true);

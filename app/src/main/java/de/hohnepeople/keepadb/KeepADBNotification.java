@@ -509,9 +509,15 @@ final class KeepADBNotification {
                     currentPort = 0;
                     scheduleRetryLocked(appContext, manager);
                     if (KeepADBPreferences.isKeepAliveEnabled(appContext)) {
-                        showPlaceholder(appContext, manager,
-                                appContext.getString(R.string.notification_title_searching),
-                                appContext.getString(R.string.notification_text_searching));
+                        if (KeepADB.isEnabled(appContext)) {
+                            showPlaceholder(appContext, manager,
+                                    appContext.getString(R.string.notification_title_searching),
+                                    appContext.getString(R.string.notification_text_searching));
+                        } else {
+                            showPlaceholder(appContext, manager,
+                                    appContext.getString(R.string.notification_title_disabled),
+                                    appContext.getString(R.string.notification_text_disabled_keepalive_waiting));
+                        }
                     } else {
                         manager.cancel(NOTIFICATION_ID);
                     }
