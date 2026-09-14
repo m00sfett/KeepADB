@@ -465,6 +465,69 @@ public class SettingsActivityTest {
     }
 
     @SuppressWarnings("unchecked")
+    /** #446: the recently-blocked list is the transparency half of the issue. */
+    @Test
+    public void blockedNetworkDialogListsBlockedAccessPointsAndCanAllowOne() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        KeepADBBlockedNetworkHistory.record(activity,
+                new KeepADBNetworkIdentity("Cafe-WLAN", "aa:bb:cc:dd:ee:01"), 1_000L);
+        KeepADBBlockedNetworkHistory.record(activity,
+                new KeepADBNetworkIdentity("Hotel-WLAN", "aa:bb:cc:dd:ee:02"), 2_000L);
+        controller.pause().resume();
+        ShadowLooper.idleMainLooper();
+
+        Button entryPoint = activity.findViewById(R.id.settings_trusted_network_blocked);
+        assertTrue("The entry point must show the count: " + entryPoint.getText(),
+                entryPoint.getText().toString().contains("2"));
+
+        entryPoint.performClick();
+        ShadowLooper.idleMainLooper();
+        AlertDialog dialog = activity.getActiveBlockedNetworksDialog();
+        assertNotNull("Blocked networks dialog should be showing", dialog);
+        List<TextView> texts = findViewsByType(dialog.findViewById(android.R.id.custom), TextView.class);
+        List<String> rendered = new ArrayList<>();
+        for (TextView view : texts) rendered.add(view.getText().toString());
+        assertTrue(rendered.toString(), rendered.contains("Cafe-WLAN"));
+        assertTrue(rendered.toString(), rendered.contains("Hotel-WLAN"));
+        // Newest first: the access point the user just failed on is at the top.
+        assertTrue(rendered.indexOf("Hotel-WLAN") < rendered.indexOf("Cafe-WLAN"));
+
+        // Nothing is trusted merely by looking at the list.
+        assertTrue(KeepADBTrustedNetwork.getEntries(activity).isEmpty());
+
+        List<Button> allowButtons =
+                findViewsByType(dialog.findViewById(android.R.id.custom), Button.class);
+        assertEquals(2, allowButtons.size());
+        allowButtons.get(0).performClick();
+        ShadowLooper.idleMainLooper();
+
+        List<KeepADBTrustedNetwork.Entry> trusted = KeepADBTrustedNetwork.getEntries(activity);
+        assertEquals(1, trusted.size());
+        assertEquals("aa:bb:cc:dd:ee:02", trusted.get(0).bssid);
+        assertEquals("Hotel-WLAN", trusted.get(0).label);
+        // The allowed one leaves the blocked log; the other stays for a later decision.
+        List<KeepADBBlockedNetworkHistory.Entry> remaining =
+                KeepADBBlockedNetworkHistory.getEntries(activity);
+        assertEquals(1, remaining.size());
+        assertEquals("aa:bb:cc:dd:ee:01", remaining.get(0).bssid);
+    }
+
+    @Test
+    public void blockedNetworkDialogExplainsItselfWhenNothingWasBlocked() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        activity.findViewById(R.id.settings_trusted_network_blocked).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertNull("An empty log must not open the row dialog",
+                activity.getActiveBlockedNetworksDialog());
+        assertTrue(KeepADBTrustedNetwork.getEntries(activity).isEmpty());
+    }
+
     private static <T extends View> T findViewByType(View root, Class<T> type) {
         if (root == null) return null;
         if (type.isInstance(root)) {

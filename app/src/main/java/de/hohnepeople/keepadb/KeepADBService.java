@@ -297,6 +297,9 @@ public class KeepADBService extends Service {
                                 Log.i(TAG, "Wireless Debugging dropped on an untrusted Wi-Fi network; not auto re-enabling");
                                 KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
                                         "blocked", "untrusted_network");
+                                // #446: the block used to be silent. Ask once per access point
+                                // instead; the prompt itself never trusts anything.
+                                KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(KeepADBService.this);
                             }
                         } else if (!KeepADB.isEnabled(KeepADBService.this)) {
                             if (KeepADB.consumeUserDisabled() || KeepADB.wasLastExplicitIntentOff(KeepADBService.this)) {
@@ -490,6 +493,9 @@ public class KeepADBService extends Service {
                     if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)) {
                         Log.i(TAG, "Wi-Fi connected but network is untrusted; not auto-enabling");
                         KeepADBDiagnostics.event(this, "keep_alive_check", "service", "blocked", "untrusted_network");
+                        // #446: same prompt as the content-observer path above. It is throttled
+                        // per access point, so the 60s heartbeat cannot turn it into spam.
+                        KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(this);
                         KeepADBNotification.refresh(this);
                         KeepADBWidget.refreshAll(this);
                         return;
