@@ -5,22 +5,43 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.7.3] - 2026-09-14
+## How to read this changelog
+
+`CHANGELOG.md` is the technical maintainer history: issue references and implementation details
+remain useful here when they explain behavior, risk, or traceability. User-facing release notes
+are kept separately in `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt`; those
+entries lead with the user benefit and omit implementation-only details. `Added`, `Changed`,
+`Deprecated`, `Removed`, `Fixed`, and `Security` are the primary categories. `Documentation`,
+`Testing`, and retrospective notes are intentional secondary categories when they explain the
+project history rather than a product change.
+
+## Release status
+
+`v1.4.5` is the latest public release. Sections from `1.4.6` through `1.7.3` record development
+snapshots; their dates describe implementation history, not publication proof. A version is
+released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
+retrospective issue-version records and were never published as separate releases.
+
+## [1.7.3] - Unreleased
 
 ### Fixed
 - Fixed a test (`KeepADBNotificationRobolectricTest.notificationShowsDisabledWaitingWhenWirelessDebuggingDropsMidDiscovery`) that claimed to cover the mid-discovery drop from #448 but never actually exercised that code path; it now drives a real discovery attempt (via the existing `KeepADBFakeNsdProbe`/`KeepADBFakeScheduler` seams plus a new `KeepADBNotification.setEndpointForTesting()` test hook) and flips Wireless Debugging off while it is still in flight. No production behavior changed (issue #453).
 
-## [1.7.2] - 2026-09-14
+## [1.7.2] - Unreleased
 
 ### Fixed
 - Fixed notification showing placeholder "searching" text instead of "disabled, waiting" when Wireless Debugging turns off mid-discovery while Keep-Alive is active (issue #448).
 
-## [1.7.1] - 2026-09-14
+## [1.7.1] - Unreleased
 
 ### Fixed
 - Fixed network trust prompt repeatedly re-firing when roaming or flapping between multiple untrusted Wi-Fi access points. The prompt suppression now maintains a bounded history of recently prompted networks across all untrusted access points rather than only remembering the single most recent one (issue #450).
 
-## [1.7.0] - 2026-09-14
+## [1.7.0] - Unreleased
+
+### Highlights
+- Keep-Alive now explains why an untrusted Wi-Fi access point blocked automatic re-enabling and
+  offers a one-tap way to trust it; recently blocked networks remain reviewable in Settings.
 
 ### Added
 - Added a prompt notification when Keep-Alive is blocked from automatically re-enabling Wireless
@@ -153,7 +174,7 @@ fixes accumulated across 1.5.64/1.5.65.
   timing ("within 1-2 seconds") is now phrased as a typical, non-guaranteed figure rather than a
   fixed bound (issue #320).
 
-### Changed
+### Removed
 - Removed unused order-key constant definitions `KEY_WEBHOOK_PENDING_CLEANUP_ORDER` and
   `KEY_USB_WEBHOOK_PENDING_CLEANUP_ORDER` that were never read and risked silent drift if
   `orderKeyFor()` was refactored (issue #413).
@@ -439,6 +460,9 @@ fixes accumulated across 1.5.64/1.5.65.
   claiming that the requested state was applied (issue #333).
 - Rapid manual OFF/ON toggles now receive only a short technical teardown gap, preserving the
   immediate manual behavior without restoring the former 1500 ms debounce (issue #335).
+
+> `1.5.37` / version code `56` is retained as a documented gap: no matching release tag or
+> Fastlane changelog is present in this repository. No release entry is inferred.
 
 ## [1.5.36] - 2026-09-09
 
@@ -832,8 +856,8 @@ individually, since they landed together.
   requiring the user to open the app.
 
 ### Documentation
-- Release- und Signierungshinweise trennen den veröffentlichten Stand `v1.4.3` vom aktuellen,
-  noch unveröffentlichten Entwicklungsstand `1.4.4`; historische Nachweise bleiben unverändert.
+- Historical release note: release and signing documentation distinguished the published `v1.4.3`
+  from the then-current `1.4.4` development snapshot; `v1.4.4` was subsequently published.
 
 ## [1.4.3] - 2026-08-30
 
@@ -846,12 +870,12 @@ individually, since they landed together.
 - The report dialog now keeps the editable draft in a compact, scrollable preview with visible actions and readable section breaks.
 - Opening GitHub remains an explicit user action; no issue or diagnostic data is uploaded automatically by the app.
 
-## [1.4.2] - Unreleased
+## [1.4.2] - Retrospective (not published)
 
 ### Added
 - Resource contract coverage for locale key parity, format arguments, and visible UI literals.
 
-## [1.4.1] - Unreleased
+## [1.4.1] - Retrospective (not published)
 
 ### Added
 - Distinct app, widget, and Quick Settings states for off, missing permission, disconnected, and connected conditions.
@@ -867,7 +891,9 @@ individually, since they landed together.
 - Settings sections now follow the product order from language and security through version information.
 
 ### Versioning note
-- Each implemented issue increments the next patch or minor version. The intermediate bumps below are recorded retrospectively; they were not published as separate tags or releases.
+- These entries preserve historical issue-version decisions. The intermediate bumps below were not
+  published as separate tags or releases and must not be retroactively renumbered to normalize the
+  old classification, because later version codes and metadata refer to this history.
 
 ## Retrospective issue version history
 
