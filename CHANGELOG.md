@@ -5,6 +5,19 @@ All notable changes to **KeepADB** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-09-14
+
+### Added
+- Added a prompt notification when Keep-Alive is blocked from automatically re-enabling Wireless
+  Debugging because the current Wi-Fi network or access point isn't on the trusted allowlist yet.
+  The notification names the network and offers "Allow" (adds the access point to the allowlist
+  and re-enables Wireless Debugging immediately, if still on that network) and "Block" (dismisses
+  the prompt; nothing is trusted or blocklisted). The prompt is throttled per access point for 6
+  hours to avoid repeat alerts on every heartbeat, in all 19 supported languages (issue #446).
+- Added a "Recently blocked networks" view under Trusted Networks in Settings, listing access
+  points that recently blocked automatic re-enable, newest first, with a per-entry "Allow" action
+  to trust them retroactively (issue #446).
+
 ## [1.6.5] - 2026-09-14
 
 ### Fixed

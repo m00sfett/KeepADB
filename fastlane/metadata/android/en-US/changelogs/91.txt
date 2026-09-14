@@ -1,0 +1,1 @@
+Added a prompt notification asking whether to trust a new/untrusted Wi-Fi access point when it blocks automatic Wireless Debugging re-enable, with a one-tap "Allow" action. Added a "Recently blocked networks" list under Trusted Networks in Settings to trust access points retroactively.
