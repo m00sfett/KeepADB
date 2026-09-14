@@ -279,6 +279,12 @@ public class KeepADBResourceContractTest {
         result.put("settings_trusted_network_delete_accessibility", new Object[] {stringWitness});
         result.put("settings_trusted_network_mesh_message", new Object[] {integerWitness, stringWitness});
         result.put("settings_trusted_network_mesh_added_toast", new Object[] {integerWitness});
+        result.put("network_prompt_text", new Object[] {stringWitness, stringWitness});
+        result.put("settings_trusted_network_blocked_button", new Object[] {integerWitness});
+        result.put("settings_trusted_network_blocked_detail",
+                new Object[] {stringWitness, stringWitness});
+        result.put("settings_trusted_network_blocked_allow_accessibility",
+                new Object[] {stringWitness});
         result.put("webhook_status_hint", new Object[] {
                 stringWitness, stringWitness, stringWitness});
         result.put("settings_language_accessibility", new Object[] {stringWitness});

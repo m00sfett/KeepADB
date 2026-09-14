@@ -70,10 +70,16 @@ final class KeepADB {
     static final String SOURCE_WIDGET = "widget";
     static final String SOURCE_NOTIFICATION = "notification";
     static final String SOURCE_USB_HANDOVER_MANUAL = "usb_handover_manual";
+    /**
+     * #446: the user tapped "allow" on the untrusted-network prompt. Manual, like every other
+     * notification action button: it is a direct user decision, so it must write immediately
+     * instead of being debounced like the automatic Keep-Alive paths it unblocks.
+     */
+    static final String SOURCE_NETWORK_TRUST_PROMPT = "network_trust_prompt";
 
     private static final Set<String> MANUAL_SOURCES = Collections.unmodifiableSet(new HashSet<>(
             Arrays.asList(SOURCE_APP, SOURCE_TILE, SOURCE_WIDGET, SOURCE_NOTIFICATION,
-                    SOURCE_USB_HANDOVER_MANUAL)));
+                    SOURCE_USB_HANDOVER_MANUAL, SOURCE_NETWORK_TRUST_PROMPT)));
 
     /** True for the sources that represent a direct user action rather than an automatic one. */
     static boolean isManualSource(String source) {

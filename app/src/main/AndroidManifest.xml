@@ -97,6 +97,8 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="de.hohnepeople.keepadb.ACTION_DISABLE" />
+                <action android:name="de.hohnepeople.keepadb.ACTION_TRUST_NETWORK" />
+                <action android:name="de.hohnepeople.keepadb.ACTION_DISMISS_NETWORK_PROMPT" />
             </intent-filter>
         </receiver>
     </application>
