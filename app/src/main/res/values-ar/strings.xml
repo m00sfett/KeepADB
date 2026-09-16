@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s (%2$s) — هل تريد اعتبار هذه الشبكة موثوقة؟</string>
     <string name="network_prompt_allow">نعم، اسمح</string>
     <string name="network_prompt_block">لا، احظر</string>
+    <string name="network_prompt_identity_unavailable_title">تعذّر التعرف على شبكة الواي فاي الحالية</string>
+    <string name="network_prompt_identity_unavailable_text">تم إيقاف إعادة التفعيل التلقائي لـ Keep-Alive مؤقتًا لأنه لا يمكن قراءة هوية الشبكة. اضغط لإصلاح إذن الموقع أو خدمة الموقع.</string>
     <string name="settings_trusted_network_blocked_button">محظورة مؤخرًا (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">الشبكات المحظورة مؤخرًا</string>
     <string name="settings_trusted_network_blocked_empty_message">لم يتم حظر أي شبكة مؤخرًا.</string>
@@ -152,6 +154,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="battery_optimization_title">قد يحد تحسين البطارية من Keep-Alive</string>
     <string name="battery_optimization_body">KeepADB غير مستثنى من تحسين البطارية. قد يقيّد Android أو الشركة المصنّعة Keep-Alive أو يوقفه في الخلفية.</string>
     <string name="battery_optimization_button">فتح إعدادات البطارية</string>
+    <string name="location_permission_panel_title">إذن الموقع مطلوب للشبكات الموثوقة</string>
+    <string name="location_permission_panel_body">وضع الشبكات الموثوقة نشط، لكن Android يخفي اسم شبكة Wi-Fi الحالية ومعرّفها دون إذن الوصول إلى الموقع. بدونه، لا يمكن لـ Keep-Alive التأكد أبدًا من أنك متصل بشبكة موثوقة ولن يُعاد تفعيله تلقائيًا.</string>
+    <string name="location_permission_panel_grant_button">منح إذن الموقع</string>
+    <string name="location_permission_panel_fallback_body">ما زلت لا تريد منح إذن الموقع؟ يمكنك التبديل إلى وضع الثقة بجميع شبكات Wi-Fi بدلاً من ذلك — عندها سيُعاد تفعيل Keep-Alive تلقائيًا عند أي اتصال Wi-Fi دون الحاجة إلى التعرف عليه.</string>
+    <string name="location_permission_panel_fallback_button">الثقة بجميع شبكات Wi-Fi بدلاً من ذلك</string>
+    <string name="location_permission_panel_fallback_toast">تم التبديل إلى وضع «الثقة بجميع شبكات Wi-Fi».</string>
     <string name="settings_section_usb_handover">تسليم USB إلى WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">عرض WLAN-ADB اختياريًا أو تفعيله تلقائيًا من اتصال USB-ADB نشط. يكون متوقفًا افتراضيًا؛ ولا يتم تجاوز الإيقاف اليدوي مطلقًا.</string>
     <string name="settings_usb_handover_label">وضع التسليم</string>

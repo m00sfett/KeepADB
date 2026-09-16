@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s（%2$s）— このネットワークを信頼済みとして扱いますか？</string>
     <string name="network_prompt_allow">はい、許可</string>
     <string name="network_prompt_block">いいえ、ブロック</string>
+    <string name="network_prompt_identity_unavailable_title">現在のWi-Fiネットワークを識別できません</string>
+    <string name="network_prompt_identity_unavailable_text">ネットワークの識別情報を読み取れないため、Keep-Aliveの自動再有効化は一時停止中です。タップして位置情報の権限またはロケーションサービスを修正してください。</string>
     <string name="settings_trusted_network_blocked_button">最近ブロックした接続（%1$d）</string>
     <string name="settings_trusted_network_blocked_title">最近ブロックしたネットワーク</string>
     <string name="settings_trusted_network_blocked_empty_message">最近ブロックしたネットワークはありません。</string>
@@ -152,6 +154,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="battery_optimization_title">バッテリー最適化によりKeep-Aliveが制限される場合があります</string>
     <string name="battery_optimization_body">KeepADBはバッテリー最適化の対象外ではありません。Androidまたは端末メーカーがバックグラウンドのKeep-Aliveを制限・停止する場合があります。</string>
     <string name="battery_optimization_button">バッテリー設定を開く</string>
+    <string name="location_permission_panel_title">信頼できるネットワークには位置情報の権限が必要です</string>
+    <string name="location_permission_panel_body">信頼できるネットワークモードが有効ですが、位置情報へのアクセスがないとAndroidは現在のWi-Fiネットワークの名前とIDを隠してしまいます。これがないと、Keep-AliveはWi-Fiが信頼できるネットワークかどうかを確認できず、自動的に再有効化されません。</string>
+    <string name="location_permission_panel_grant_button">位置情報の権限を許可</string>
+    <string name="location_permission_panel_fallback_body">それでも位置情報へのアクセスを許可したくない場合は、代わりに「すべてのWi-Fiネットワークを信頼する」モードに切り替えられます。この場合、識別せずに接続中のWi-Fiで自動的に再有効化されます。</string>
+    <string name="location_permission_panel_fallback_button">代わりにすべてのWi-Fiネットワークを信頼する</string>
+    <string name="location_permission_panel_fallback_toast">「すべてのWi-Fiネットワークを信頼する」モードに切り替えました。</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB の引き継ぎ</string>
     <string name="settings_usb_handover_subtext">アクティブな USB-ADB 接続から、WLAN-ADB の有効化を任意で提案または自動実行します。デフォルトはオフで、手動でオフにした設定が上書きされることはありません。</string>
     <string name="settings_usb_handover_label">ハンドオーバーモード</string>

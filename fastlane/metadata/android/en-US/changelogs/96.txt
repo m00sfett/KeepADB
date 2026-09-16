@@ -1,1 +1,2 @@
 Fixed: the main screen no longer says "waiting for the network" when Wi-Fi is actually connected but blocked by your trusted-network list or an unreadable network — it now tells you which of the two it is.
+Added: the main screen now tells you when location permission is missing for trusted Wi-Fi networks and lets you grant it right there — or switch to trusting all Wi-Fi networks instead if you'd rather not.

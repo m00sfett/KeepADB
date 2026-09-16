@@ -47,6 +47,12 @@
     <string name="battery_optimization_title">Akkuoptimierung kann Keep-Alive einschränken</string>
     <string name="battery_optimization_body">KeepADB ist nicht von der Akkuoptimierung ausgenommen. Android oder der Gerätehersteller kann Keep-Alive im Hintergrund einschränken oder beenden.</string>
     <string name="battery_optimization_button">Akku-Einstellungen öffnen</string>
+    <string name="location_permission_panel_title">Standortberechtigung für vertrauenswürdige Netzwerke nötig</string>
+    <string name="location_permission_panel_body">Der Modus „Vertrauenswürdige Netzwerke“ ist aktiv, aber Android versteckt Name und ID des aktuellen WLANs ohne Standortzugriff. Ohne diese Berechtigung kann Keep-Alive nie bestätigen, dass du in einem vertrauenswürdigen WLAN bist, und schaltet nie automatisch wieder ein.</string>
+    <string name="location_permission_panel_grant_button">Standortberechtigung erteilen</string>
+    <string name="location_permission_panel_fallback_body">Standortzugriff trotzdem nicht gewünscht? Wechsle stattdessen in den Modus „Alle WLANs vertrauen“ — Keep-Alive schaltet dann bei jedem verbundenen WLAN automatisch wieder ein, ohne es identifizieren zu müssen.</string>
+    <string name="location_permission_panel_fallback_button">Stattdessen allen WLANs vertrauen</string>
+    <string name="location_permission_panel_fallback_toast">Auf Modus „Alle WLANs vertrauen“ umgestellt.</string>
     <string name="notification_permission_missing_text">WRITE_SECURE_SETTINGS am PC per adb shell pm grant vergeben</string>
     <string name="action_settings">Einstellungen</string>
     <string name="title_settings">Einstellungen</string>
@@ -92,6 +98,8 @@
     <string name="network_prompt_text">%1$s (%2$s) — soll dieses Netzwerk als vertrauenswürdig eingestuft werden?</string>
     <string name="network_prompt_allow">Ja, zulassen</string>
     <string name="network_prompt_block">Nein, blockieren</string>
+    <string name="network_prompt_identity_unavailable_title">Aktuelles WLAN kann nicht identifiziert werden</string>
+    <string name="network_prompt_identity_unavailable_text">Automatisches Wiedereinschalten von Keep-Alive ist pausiert, weil die Identität des Netzwerks nicht gelesen werden kann. Tippen, um die Standortberechtigung oder den Standortdienst zu beheben.</string>
     <string name="settings_trusted_network_blocked_button">Kürzlich blockiert (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Kürzlich blockierte Netzwerke</string>
     <string name="settings_trusted_network_blocked_empty_message">Zuletzt wurde kein Netzwerk blockiert.</string>

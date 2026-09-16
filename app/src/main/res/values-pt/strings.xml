@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s (%2$s) — quer tratar esta rede como fiável?</string>
     <string name="network_prompt_allow">Sim, permitir</string>
     <string name="network_prompt_block">Não, bloquear</string>
+    <string name="network_prompt_identity_unavailable_title">Não é possível identificar a rede Wi-Fi atual</string>
+    <string name="network_prompt_identity_unavailable_text">A reativação automática do Keep-Alive está pausada porque a identidade da rede não pode ser lida. Toque para corrigir a permissão de localização ou o serviço de localização.</string>
     <string name="settings_trusted_network_blocked_button">Bloqueadas há pouco (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Redes bloqueadas recentemente</string>
     <string name="settings_trusted_network_blocked_empty_message">Não foi bloqueada nenhuma rede recentemente.</string>
@@ -152,6 +154,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="battery_optimization_title">A otimização da bateria pode limitar o Keep-Alive</string>
     <string name="battery_optimization_body">O KeepADB não está isento da otimização da bateria. O Android ou o fabricante pode limitar ou parar o Keep-Alive em segundo plano.</string>
     <string name="battery_optimization_button">Abrir definições da bateria</string>
+    <string name="location_permission_panel_title">Permissão de localização necessária para redes confiáveis</string>
+    <string name="location_permission_panel_body">O modo de redes confiáveis está ativo, mas sem acesso à localização o Android oculta o nome e o ID da rede Wi-Fi atual. Sem isso, o Keep-Alive nunca pode confirmar que você está em uma rede confiável e não será reativado automaticamente.</string>
+    <string name="location_permission_panel_grant_button">Conceder permissão de localização</string>
+    <string name="location_permission_panel_fallback_body">Ainda não quer conceder acesso à localização? Em vez disso, mude para o modo de confiar em todas as redes Wi-Fi — o Keep-Alive será reativado em qualquer Wi-Fi conectado, sem precisar identificá-lo.</string>
+    <string name="location_permission_panel_fallback_button">Confiar em todas as redes Wi-Fi</string>
+    <string name="location_permission_panel_fallback_toast">Alterado para o modo \"confiar em todas as redes Wi-Fi\".</string>
     <string name="settings_section_usb_handover">Transferência USB → WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Oferece opcionalmente ou ativa automaticamente a WLAN-ADB a partir de uma conexão USB-ADB ativa. Desativado por padrão; uma desativação manual nunca é substituída.</string>
     <string name="settings_usb_handover_label">Modo de transferência</string>

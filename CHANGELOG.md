@@ -22,10 +22,16 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
-## [1.7.5] - Unreleased
+## [1.8.0] - Unreleased
 
 ### Fixed
-- MainActivity's status card no longer shows the generic "Keep-Alive is waiting for the network" text while Wi-Fi is actually connected but Keep-Alive's automatic re-enable is blocked by the trusted-network allowlist or an unreadable network identity (missing Location permission) — it now shows two distinct messages for those cases instead of looking like KeepADB failed to notice a live connection. Added `KeepADB.getKeepAliveWaitingDetail(Context)`, which reuses the existing `KeepADBService.isWifiConnected` and `KeepADBTrustedNetwork.getBlockReason` checks the automatic re-enable path already gates on, so the status text can never disagree with why Keep-Alive itself didn't re-enable (issue #458).
+- MainActivity's status card no longer shows the generic "Keep-Alive is waiting for the network" text while Wi-Fi is actually connected but Keep-Alive's automatic re-enable is blocked by the trusted-network allowlist or an unreadable network identity (missing Location permission) — it now shows two distinct messages for those cases instead of looking like KeepADB failed to notice a live connection. Added `MainActivity.resolveKeepAliveWaitingDetail(Context)` and the `MainActivity.KeepAliveWaitingDetail` enum, which reuse the existing `KeepADBService.isWifiConnected` and `KeepADBTrustedNetwork.getBlockReason` checks the automatic re-enable path already gates on, so the status text can never disagree with why Keep-Alive itself didn't re-enable (issue #458).
+
+### Added
+- MainActivity now surfaces a dedicated onboarding panel when the trusted-network allowlist (#260 default) is active but `ACCESS_FINE_LOCATION` is missing -- previously the permission was only ever requested from `SettingsActivity`'s manual toggle, so a fresh install/first run could get stuck in `identity_unavailable` forever with no way to notice or fix it from the main screen. The panel explains the requirement, lets the user grant the permission directly (system dialog via the existing `requestPermissions`/`onRequestPermissionsResult` pattern already used elsewhere in this activity and in `SettingsActivity`), and -- once a request has been made and the permission is still missing (denied, including "don't ask again") -- offers a one-tap fallback to switch to "trust all Wi-Fi networks" instead of leaving Keep-Alive stuck (issue #459).
+
+### Changed
+- Minor version bump (1.7.4 → 1.8.0, versionCode 97): new user-facing surfaces, not only bugfixes to existing behavior, so a Minor bump over Patch is warranted. `versionCode` skips 96 because four independently developed changes (#458, #459, #460, #461) are released together as one integrated build.
 
 ## [1.7.4] - Unreleased
 
