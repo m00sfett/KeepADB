@@ -38,6 +38,17 @@ final class KeepADBBssidHistory {
 
     private KeepADBBssidHistory() {}
 
+    /** One observed (SSID, BSSID) pairing, for display purposes only (#461). */
+    static final class Observation {
+        final String ssid;
+        final String bssid;
+
+        Observation(String ssid, String bssid) {
+            this.ssid = ssid;
+            this.bssid = bssid;
+        }
+    }
+
     /**
      * Records that {@code bssid} was observed broadcasting {@code ssid}. A no-op if either is
      * null/blank -- by design, no entry is ever stored without a known SSID -- or if the BSSID
@@ -82,6 +93,35 @@ final class KeepADBBssidHistory {
         for (String candidate : getKnownBssids(context, ssid)) {
             if (!containsIgnoreCase(excludeBssids, candidate)) {
                 result.add(candidate);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * All recorded observations across every known SSID, for the "recently connected access
+     * points" display on the main screen (#461) -- a read-only view that never mutates the
+     * stored history. Ordered most-recently-observed first: SSID groups in the reverse of
+     * {@link #idsOf}'s oldest-first order, and within a group, BSSIDs in the reverse of {@link
+     * #readBssids}'s oldest-first order (both lists are appended-to on every new observation, so
+     * reversing each yields newest-first without changing how the history itself is stored).
+     */
+    static List<Observation> getRecentObservations(Context context) {
+        SharedPreferences preferences = prefs(context);
+        List<String> ids = idsOf(preferences);
+        List<Observation> result = new ArrayList<>();
+        for (int i = ids.size() - 1; i >= 0; i--) {
+            int id;
+            try {
+                id = Integer.parseInt(ids.get(i));
+            } catch (NumberFormatException ignored) {
+                continue;
+            }
+            String ssid = preferences.getString(PREFIX + id + "_ssid", null);
+            if (ssid == null) continue;
+            List<String> bssids = readBssids(preferences, id);
+            for (int j = bssids.size() - 1; j >= 0; j--) {
+                result.add(new Observation(ssid, bssids.get(j)));
             }
         }
         return result;

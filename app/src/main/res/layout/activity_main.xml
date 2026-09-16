@@ -268,6 +268,81 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/location_permission_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_panel"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:accessibilityHeading="true"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/location_permission_panel_title"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/location_permission_panel_body"
+                        android:textColor="@color/night_text"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/btn_grant_location_permission"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_btn_primary"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:paddingStart="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="8dp"
+                        android:text="@string/location_permission_panel_grant_button"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/location_permission_fallback_body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/location_permission_panel_fallback_body"
+                        android:textColor="@color/night_muted"
+                        android:textSize="13sp"
+                        android:visibility="gone" />
+
+                    <Button
+                        android:id="@+id/btn_trust_all_networks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_btn_primary"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:paddingStart="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="8dp"
+                        android:text="@string/location_permission_panel_fallback_button"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
@@ -388,6 +463,52 @@
                         android:textColor="@color/night_muted"
                         android:textSize="13sp"
                         tools:text="URL: http://example.com\nLast reported endpoint: 192.168.178.24:45149\nLast reported: never" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/wifi_aps_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_panel"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:accessibilityHeading="true"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/wifi_aps_title"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/wifi_aps_current_row"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_card_clickable"
+                        android:orientation="vertical"
+                        android:padding="12dp" />
+
+                    <LinearLayout
+                        android:id="@+id/wifi_aps_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical" />
+
+                    <TextView
+                        android:id="@+id/wifi_aps_empty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/wifi_aps_empty"
+                        android:textColor="@color/night_muted"
+                        android:textSize="13sp"
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <Button

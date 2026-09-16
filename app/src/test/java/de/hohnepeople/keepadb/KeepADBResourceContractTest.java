@@ -285,6 +285,9 @@ public class KeepADBResourceContractTest {
                 new Object[] {stringWitness, stringWitness});
         result.put("settings_trusted_network_blocked_allow_accessibility",
                 new Object[] {stringWitness});
+        result.put("wifi_aps_mesh_label", new Object[] {integerWitness, integerWitness});
+        result.put("wifi_aps_trust_accessibility", new Object[] {stringWitness});
+        result.put("wifi_aps_untrust_accessibility", new Object[] {stringWitness});
         result.put("webhook_status_hint", new Object[] {
                 stringWitness, stringWitness, stringWitness});
         result.put("settings_language_accessibility", new Object[] {stringWitness});

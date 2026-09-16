@@ -375,6 +375,7 @@ public class KeepADBService extends Service {
                     KeepADBDiagnostics.event(KeepADBService.this, "wifi_change", "network_callback",
                             "available", "network generation=" + generation);
                     recheckAndEnable();
+                    checkNetworkTrustWhileActive();
                 }
 
                 @Override
@@ -440,6 +441,7 @@ public class KeepADBService extends Service {
                     KeepADBDiagnostics.event(KeepADBService.this, "wifi_change", "network_callback",
                             "capabilities_changed", "reverify_triggered");
                     KeepADBNotification.verifyEndpointHealth(KeepADBService.this);
+                    checkNetworkTrustWhileActive();
                 }
             };
             cm.registerNetworkCallback(request, networkCallback, new Handler(Looper.getMainLooper()));
@@ -472,6 +474,25 @@ public class KeepADBService extends Service {
         } catch (RuntimeException e) {
             Log.w(TAG, "Failed to unregister network callback", e);
         }
+    }
+
+    /**
+     * #460: {@link #recheckAndEnable()} and the content observer above only ever ask the trust
+     * question while Wireless Debugging is currently off and Keep-Alive is deciding whether to
+     * turn it back on. That left a gap: roaming onto a new, untrusted access point (or one whose
+     * identity has become unreadable) while it was already on raised nothing, and the user found
+     * out only after the connection eventually dropped and the silent auto re-enable block hit.
+     * This fires from the network callback regardless of that decision, reusing the exact same
+     * throttled prompt in {@link KeepADBNetworkTrustPrompt} -- so it never re-alerts for an
+     * access point (or identity-unavailable state) already answered or recently shown, and never
+     * disables anything on its own; it is purely a notification.
+     */
+    private void checkNetworkTrustWhileActive() {
+        if (!foregroundReady) return;
+        if (!KeepADB.isEnabled(this)) return;
+        if (!isWifiConnected(this)) return;
+        if (KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)) return;
+        KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(this);
     }
 
     synchronized void recheckAndEnable() {
