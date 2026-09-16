@@ -246,6 +246,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Abrir HohnePeople.de en el navegador</string>
     <string name="status_off_keep_alive_waiting">Depuración inalámbrica DESACTIVADA: Keep-Alive espera a la red</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Depuración inalámbrica DESACTIVADA – Keep-Alive en pausa: esta red Wi-Fi no es de confianza</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Depuración inalámbrica DESACTIVADA – Keep-Alive en pausa: identidad de red desconocida, revisa el permiso de ubicación</string>
     <string name="status_pending">Cambiando…</string>
     <string name="state_pending">Cambiando…</string>
     <string name="tile_state_keep_alive_waiting">Desactivado: Keep-Alive esperando</string>

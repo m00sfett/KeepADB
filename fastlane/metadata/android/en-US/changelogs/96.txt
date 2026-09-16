@@ -1,0 +1,1 @@
+Fixed: the main screen no longer says "waiting for the network" when Wi-Fi is actually connected but blocked by your trusted-network list or an unreadable network — it now tells you which of the two it is.

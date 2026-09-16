@@ -22,6 +22,11 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.7.5] - Unreleased
+
+### Fixed
+- MainActivity's status card no longer shows the generic "Keep-Alive is waiting for the network" text while Wi-Fi is actually connected but Keep-Alive's automatic re-enable is blocked by the trusted-network allowlist or an unreadable network identity (missing Location permission) — it now shows two distinct messages for those cases instead of looking like KeepADB failed to notice a live connection. Added `KeepADB.getKeepAliveWaitingDetail(Context)`, which reuses the existing `KeepADBService.isWifiConnected` and `KeepADBTrustedNetwork.getBlockReason` checks the automatic re-enable path already gates on, so the status text can never disagree with why Keep-Alive itself didn't re-enable (issue #458).
+
 ## [1.7.4] - Unreleased
 
 ### Changed

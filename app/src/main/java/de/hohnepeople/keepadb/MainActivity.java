@@ -248,7 +248,17 @@ public class MainActivity extends Activity {
         } else if (appState == KeepADB.State.OFF) {
             status.setText(getString(R.string.status_off));
         } else if (appState == KeepADB.State.OFF_KEEP_ALIVE_WAITING) {
-            status.setText(getString(R.string.status_off_keep_alive_waiting));
+            // #458: distinguish real "no Wi-Fi yet" waiting from Keep-Alive being blocked by an
+            // untrusted network or an unreadable network identity, so the status card never looks
+            // like KeepADB simply failed to notice a live Wi-Fi connection.
+            KeepAliveWaitingDetail detail = resolveKeepAliveWaitingDetail(this);
+            if (detail == KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK) {
+                status.setText(getString(R.string.status_off_keep_alive_blocked_untrusted));
+            } else if (detail == KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE) {
+                status.setText(getString(R.string.status_off_keep_alive_blocked_identity_unavailable));
+            } else {
+                status.setText(getString(R.string.status_off_keep_alive_waiting));
+            }
         } else if (appState == KeepADB.State.ENABLED_DISCONNECTED) {
             status.setText(getString(R.string.status_enabled_disconnected));
         } else {
@@ -264,6 +274,45 @@ public class MainActivity extends Activity {
                 ? R.string.settings_hide_notification_subtext_keepalive
                 : R.string.settings_hide_notification_subtext);
         refreshWebhookStatus();
+    }
+
+    /**
+     * #458: why {@link KeepADB.State#OFF_KEEP_ALIVE_WAITING} currently applies, for the status
+     * card only. Deliberately not on {@link KeepADB} itself: {@code
+     * KeepADBTrustedNetworkContractTest#keepAdbFacadeNeverReferencesTheAllowlist} pins the toggle
+     * facade as never referencing {@link KeepADBTrustedNetwork} (issue #245) -- the trust check
+     * belongs at the call site that wants to explain a decision, not inside the facade.
+     */
+    enum KeepAliveWaitingDetail {
+        /** No Wi-Fi transport connected at all -- the literal "waiting for the network" case. */
+        WIFI_DISCONNECTED,
+        /** Wi-Fi is connected, but the network isn't on the trusted allowlist (#245). */
+        BLOCKED_UNTRUSTED_NETWORK,
+        /** Wi-Fi is connected, but its identity can't be read (missing Location permission). */
+        BLOCKED_IDENTITY_UNAVAILABLE
+    }
+
+    /**
+     * Only meaningful while {@link KeepADB#getState} returned
+     * {@link KeepADB.State#OFF_KEEP_ALIVE_WAITING}. Reuses the same connectivity/trust checks the
+     * automatic re-enable call sites already gate on ({@link KeepADBService#isWifiConnected} and
+     * {@link KeepADBTrustedNetwork#getBlockReason}), so this can never disagree with why
+     * Keep-Alive itself didn't re-enable.
+     */
+    static KeepAliveWaitingDetail resolveKeepAliveWaitingDetail(android.content.Context context) {
+        if (!KeepADBService.isWifiConnected(context)) {
+            return KeepAliveWaitingDetail.WIFI_DISCONNECTED;
+        }
+        KeepADBTrustedNetwork.BlockReason reason = KeepADBTrustedNetwork.getBlockReason(context);
+        if (reason == KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE) {
+            return KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE;
+        }
+        if (reason == KeepADBTrustedNetwork.BlockReason.UNTRUSTED_NETWORK) {
+            return KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK;
+        }
+        // Trusted (or all-Wi-Fi mode) but still waiting -- e.g. the debounce window hasn't fired
+        // yet. Nothing wrong to explain; render the generic waiting text.
+        return KeepAliveWaitingDetail.WIFI_DISCONNECTED;
     }
 
     private boolean shouldRequestNotificationPermission() {
