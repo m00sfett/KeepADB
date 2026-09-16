@@ -215,6 +215,99 @@ public class KeepADBServiceLifecycleRobolectricTest {
         }
     }
 
+    /**
+     * #460: roaming onto a new, untrusted access point while Wireless Debugging is already ON
+     * used to raise nothing -- both existing block sites in this class only ever ask while it is
+     * currently off and Keep-Alive is deciding whether to turn it back on. The network callback
+     * must now surface the same throttled prompt regardless of that decision.
+     */
+    @Test
+    public void networkCallbackPromptsForAnUntrustedAccessPointEvenWhileAlreadyActive() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        connectTo("Cafe-WLAN", "aa:bb:cc:dd:ee:01");
+
+        ConnectivityManager connectivityManager = context.getSystemService(ConnectivityManager.class);
+        ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+
+            assertTrue("Wireless Debugging must already be on for this scenario",
+                    KeepADB.isEnabled(context));
+
+            Network newNetwork = ShadowNetwork.newInstance(2001);
+            for (ConnectivityManager.NetworkCallback callback
+                    : shadowConnectivityManager.getNetworkCallbacks()) {
+                callback.onAvailable(newNetwork);
+            }
+            ShadowLooper.idleMainLooper();
+
+            NotificationManager manager = context.getSystemService(NotificationManager.class);
+            Notification notification =
+                    shadowOf(manager).getNotification(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
+            assertNotNull("An untrusted access point must prompt even while already active",
+                    notification);
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    /**
+     * The throttle in {@link KeepADBNetworkTrustPrompt} must apply here exactly as it does for
+     * the existing block sites: repeated network events for the same untrusted access point must
+     * not re-alert on every roam callback.
+     */
+    @Test
+    public void networkCallbackDoesNotReprompForTheSameAccessPointOnRepeatedEvents() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        connectTo("Cafe-WLAN", "aa:bb:cc:dd:ee:01");
+
+        ConnectivityManager connectivityManager = context.getSystemService(ConnectivityManager.class);
+        ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+
+            Network newNetwork = ShadowNetwork.newInstance(2001);
+            for (ConnectivityManager.NetworkCallback callback
+                    : shadowConnectivityManager.getNetworkCallbacks()) {
+                callback.onAvailable(newNetwork);
+            }
+            ShadowLooper.idleMainLooper();
+            NotificationManager manager = context.getSystemService(NotificationManager.class);
+            manager.cancel(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
+
+            for (ConnectivityManager.NetworkCallback callback
+                    : shadowConnectivityManager.getNetworkCallbacks()) {
+                callback.onAvailable(newNetwork);
+            }
+            ShadowLooper.idleMainLooper();
+
+            assertNull("The same access point must not re-prompt within the throttle interval",
+                    shadowOf(manager).getNotification(KeepADBNetworkTrustPrompt.NOTIFICATION_ID));
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    private void connectTo(String ssid, String bssid) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = ShadowWifiInfo.newInstance();
+        shadowOf(info).setSSID(ssid);
+        shadowOf(info).setBSSID(bssid);
+        shadowOf(wifiManager).setConnectionInfo(info);
+    }
+
     @Test
     public void networkCallbackOnLostInvalidatesWlanRegistrationAndSurfacesCleanupFailure()
             throws InterruptedException {
