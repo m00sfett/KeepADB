@@ -16,6 +16,11 @@ public class MainActivity extends Activity {
     private static final int NOTIFICATION_PERMISSION_REQUEST = 10;
     private static final String NOTIFICATION_PERMISSION_REQUESTED =
             "notification_permission_requested";
+    // #459: separate request code from SettingsActivity's own
+    // TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST (20) -- both activities request the same
+    // permission independently, from their own onRequestPermissionsResult.
+    private static final int LOCATION_PERMISSION_REQUEST = 30;
+    private static final String LOCATION_PERMISSION_REQUESTED = "location_permission_requested";
     private Switch toggle;
     private Switch keepAliveToggle;
     private Switch hideNotificationToggle;
@@ -28,6 +33,9 @@ public class MainActivity extends Activity {
     private View setupPanel;
     private View notificationPermissionPanel;
     private View batteryOptimizationPanel;
+    private View locationPermissionPanel;
+    private View locationPermissionFallbackBody;
+    private View trustAllNetworksButton;
     private View adviceBanner;
     private boolean notificationPermissionRequestPending;
     private long endpointListenerGeneration;
@@ -62,6 +70,9 @@ public class MainActivity extends Activity {
         setupPanel = findViewById(R.id.setup_panel);
         notificationPermissionPanel = findViewById(R.id.notification_permission_panel);
         batteryOptimizationPanel = findViewById(R.id.battery_optimization_panel);
+        locationPermissionPanel = findViewById(R.id.location_permission_panel);
+        locationPermissionFallbackBody = findViewById(R.id.location_permission_fallback_body);
+        trustAllNetworksButton = findViewById(R.id.btn_trust_all_networks);
         adviceBanner = findViewById(R.id.advice_banner);
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
@@ -70,6 +81,23 @@ public class MainActivity extends Activity {
                 openNotificationSettings());
         findViewById(R.id.btn_open_battery_settings).setOnClickListener(v ->
                 KeepADBBatteryOptimization.openSettings(this));
+        findViewById(R.id.btn_grant_location_permission).setOnClickListener(v -> {
+            getPreferences(MODE_PRIVATE).edit()
+                    .putBoolean(LOCATION_PERMISSION_REQUESTED, true).apply();
+            // Requested together per Android's guidance for FINE: the system then offers the
+            // user a precise/approximate choice in one dialog. Only a FINE grant is actually
+            // usable for network identification (see onRequestPermissionsResult), matching
+            // SettingsActivity's existing trusted-network permission flow.
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST);
+        });
+        trustAllNetworksButton.setOnClickListener(v -> {
+            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+            Toast.makeText(this, R.string.location_permission_panel_fallback_toast,
+                    Toast.LENGTH_SHORT).show();
+            refreshUiAndComponents();
+        });
         findViewById(R.id.btn_dismiss_advice_banner).setOnClickListener(v -> {
             KeepADBPreferences.setAdviceBannerVisible(this, false);
             updateAdviceBannerVisibility();
@@ -219,6 +247,11 @@ public class MainActivity extends Activity {
             notificationPermissionRequestPending = false;
             refresh();
             KeepADBNotification.refresh(this);
+        } else if (requestCode == LOCATION_PERMISSION_REQUEST) {
+            // #459: refresh() re-derives the panel and its fallback section straight from
+            // checkSelfPermission() and the LOCATION_PERMISSION_REQUESTED flag set on request --
+            // no need to branch on grantResults here (matches SettingsActivity's own pattern).
+            refresh();
         }
     }
 
@@ -238,6 +271,7 @@ public class MainActivity extends Activity {
         notificationPermissionPanel.setVisibility(notificationsDenied ? View.VISIBLE : View.GONE);
         batteryOptimizationPanel.setVisibility(KeepADBBatteryOptimization.isExempt(this)
                 ? View.GONE : View.VISIBLE);
+        updateLocationPermissionPanel();
         toggle.setEnabled(configured);
         toggle.setChecked(on);
         if (!configured) {
@@ -264,6 +298,29 @@ public class MainActivity extends Activity {
                 ? R.string.settings_hide_notification_subtext_keepalive
                 : R.string.settings_hide_notification_subtext);
         refreshWebhookStatus();
+    }
+
+    /**
+     * #459: the allowlist (#260 default) needs {@code ACCESS_FINE_LOCATION} to read the current
+     * Wi-Fi network's identity at all -- without it, {@code identity_unavailable} blocks
+     * automatic Keep-Alive re-enable forever, and until now the permission was only ever asked
+     * for from {@link SettingsActivity}'s manual toggle, never on first run. Shown independent of
+     * {@code configured}/WRITE_SECURE_SETTINGS, matching {@link #notificationPermissionPanel} and
+     * {@link #batteryOptimizationPanel}'s own onboarding panels.
+     */
+    private void updateLocationPermissionPanel() {
+        boolean locationGranted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+        boolean showPanel = KeepADBTrustedNetwork.isAllowlistMode(this) && !locationGranted;
+        locationPermissionPanel.setVisibility(showPanel ? View.VISIBLE : View.GONE);
+        if (!showPanel) return;
+        // Acceptance criterion 3: once the user has been through the system dialog at least once
+        // and is still without the permission (denied, including "don't ask again"), offer the
+        // clean fallback of switching to "trust all Wi-Fi networks" instead of leaving them stuck.
+        boolean previouslyRequested = getPreferences(MODE_PRIVATE)
+                .getBoolean(LOCATION_PERMISSION_REQUESTED, false);
+        locationPermissionFallbackBody.setVisibility(previouslyRequested ? View.VISIBLE : View.GONE);
+        trustAllNetworksButton.setVisibility(previouslyRequested ? View.VISIBLE : View.GONE);
     }
 
     private boolean shouldRequestNotificationPermission() {

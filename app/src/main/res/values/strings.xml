@@ -48,6 +48,12 @@
     <string name="battery_optimization_title">Battery optimization may limit Keep-Alive</string>
     <string name="battery_optimization_body">KeepADB is not exempt from battery optimization. Android or the device manufacturer may restrict or stop Keep-Alive in the background.</string>
     <string name="battery_optimization_button">Open battery settings</string>
+    <string name="location_permission_panel_title">Location permission needed for trusted networks</string>
+    <string name="location_permission_panel_body">Trusted-network mode is active, but Android hides the current Wi-Fi network\'s name and ID without Location access. Without it, Keep-Alive can never confirm you\'re on a trusted network and won\'t re-enable automatically.</string>
+    <string name="location_permission_panel_grant_button">Grant location permission</string>
+    <string name="location_permission_panel_fallback_body">Still don\'t want to grant Location access? Switch to trusting all Wi-Fi networks instead — Keep-Alive will then re-enable on any connected Wi-Fi, without needing to identify it.</string>
+    <string name="location_permission_panel_fallback_button">Trust all Wi-Fi networks instead</string>
+    <string name="location_permission_panel_fallback_toast">Switched to \"trust all Wi-Fi networks\" mode.</string>
     <string name="action_settings">Settings</string>
     <string name="title_settings">Settings</string>
     <string name="settings_section_general">General</string>
@@ -92,6 +98,8 @@
     <string name="network_prompt_text">%1$s (%2$s) — should this network be treated as trusted?</string>
     <string name="network_prompt_allow">Yes, allow</string>
     <string name="network_prompt_block">No, block</string>
+    <string name="network_prompt_identity_unavailable_title">Can\'t identify the current Wi-Fi network</string>
+    <string name="network_prompt_identity_unavailable_text">Keep-Alive auto re-enable is paused because the network\'s identity can\'t be read. Tap to fix the location permission or location service.</string>
     <string name="settings_trusted_network_blocked_button">Recently blocked (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Recently blocked networks</string>
     <string name="settings_trusted_network_blocked_empty_message">No network has been blocked recently.</string>

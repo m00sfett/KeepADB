@@ -1,0 +1,1 @@
+Added: the main screen now tells you when location permission is missing for trusted Wi-Fi networks and lets you grant it right there — or switch to trusting all Wi-Fi networks instead if you'd rather not.

@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s (%2$s) — क्या इस नेटवर्क को भरोसेमंद माना जाए?</string>
     <string name="network_prompt_allow">हाँ, अनुमति दें</string>
     <string name="network_prompt_block">नहीं, रोकें</string>
+    <string name="network_prompt_identity_unavailable_title">वर्तमान वाई-फाई नेटवर्क की पहचान नहीं हो पा रही</string>
+    <string name="network_prompt_identity_unavailable_text">Keep-Alive की स्वचालित पुनः-सक्षमता रोकी गई है क्योंकि नेटवर्क की पहचान नहीं पढ़ी जा सकती। स्थान अनुमति या स्थान सेवा ठीक करने के लिए टैप करें।</string>
     <string name="settings_trusted_network_blocked_button">हाल में रोके गए (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">हाल में रोके गए नेटवर्क</string>
     <string name="settings_trusted_network_blocked_empty_message">हाल में कोई नेटवर्क नहीं रोका गया।</string>
@@ -152,6 +154,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="battery_optimization_title">बैटरी ऑप्टिमाइज़ेशन Keep-Alive को सीमित कर सकता है</string>
     <string name="battery_optimization_body">KeepADB को बैटरी ऑप्टिमाइज़ेशन से छूट नहीं मिली है। Android या निर्माता बैकग्राउंड में Keep-Alive को सीमित या बंद कर सकता है।</string>
     <string name="battery_optimization_button">बैटरी सेटिंग खोलें</string>
+    <string name="location_permission_panel_title">विश्वसनीय नेटवर्क के लिए स्थान अनुमति आवश्यक है</string>
+    <string name="location_permission_panel_body">विश्वसनीय-नेटवर्क मोड सक्रिय है, लेकिन स्थान एक्सेस के बिना Android वर्तमान Wi-Fi नेटवर्क का नाम और ID छिपा देता है। इसके बिना, Keep-Alive कभी पुष्टि नहीं कर सकता कि आप किसी विश्वसनीय नेटवर्क पर हैं और स्वचालित रूप से फिर से चालू नहीं होगा।</string>
+    <string name="location_permission_panel_grant_button">स्थान अनुमति दें</string>
+    <string name="location_permission_panel_fallback_body">फिर भी स्थान एक्सेस नहीं देना चाहते? इसके बजाय \"सभी Wi-Fi नेटवर्क पर भरोसा करें\" मोड पर स्विच करें — फिर Keep-Alive किसी भी कनेक्टेड Wi-Fi पर, उसे पहचानने की आवश्यकता के बिना, स्वचालित रूप से फिर से चालू हो जाएगा।</string>
+    <string name="location_permission_panel_fallback_button">इसके बजाय सभी Wi-Fi नेटवर्क पर भरोसा करें</string>
+    <string name="location_permission_panel_fallback_toast">\"सभी Wi-Fi नेटवर्क पर भरोसा करें\" मोड पर स्विच किया गया।</string>
     <string name="settings_section_usb_handover">USB से WLAN-ADB हैंडओवर</string>
     <string name="settings_usb_handover_subtext">सक्रिय USB-ADB कनेक्शन से वैकल्पिक रूप से WLAN-ADB ऑफ़र करें या अपने-आप सक्षम करें। डिफ़ॉल्ट रूप से बंद; मैन्युअल रूप से किया गया बंद कभी ओवरराइड नहीं होता।</string>
     <string name="settings_usb_handover_label">हैंडओवर मोड</string>

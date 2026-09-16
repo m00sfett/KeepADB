@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s (%2$s) — jadikan jaringan ini tepercaya?</string>
     <string name="network_prompt_allow">Ya, izinkan</string>
     <string name="network_prompt_block">Tidak, blokir</string>
+    <string name="network_prompt_identity_unavailable_title">Tidak dapat mengidentifikasi jaringan Wi-Fi saat ini</string>
+    <string name="network_prompt_identity_unavailable_text">Pengaktifan ulang otomatis Keep-Alive dijeda karena identitas jaringan tidak dapat dibaca. Ketuk untuk memperbaiki izin lokasi atau layanan lokasi.</string>
     <string name="settings_trusted_network_blocked_button">Baru diblokir (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Jaringan yang baru diblokir</string>
     <string name="settings_trusted_network_blocked_empty_message">Belum ada jaringan yang diblokir belakangan ini.</string>
@@ -152,6 +154,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="battery_optimization_title">Pengoptimalan baterai dapat membatasi Keep-Alive</string>
     <string name="battery_optimization_body">KeepADB tidak dikecualikan dari pengoptimalan baterai. Android atau produsen perangkat dapat membatasi atau menghentikan Keep-Alive di latar belakang.</string>
     <string name="battery_optimization_button">Buka setelan baterai</string>
+    <string name="location_permission_panel_title">Izin lokasi diperlukan untuk jaringan tepercaya</string>
+    <string name="location_permission_panel_body">Mode jaringan tepercaya aktif, tetapi Android menyembunyikan nama dan ID jaringan Wi-Fi saat ini tanpa akses lokasi. Tanpa itu, Keep-Alive tidak pernah bisa memastikan Anda berada di jaringan tepercaya dan tidak akan aktif kembali secara otomatis.</string>
+    <string name="location_permission_panel_grant_button">Berikan izin lokasi</string>
+    <string name="location_permission_panel_fallback_body">Masih tidak ingin memberikan akses lokasi? Beralihlah ke mode mempercayai semua jaringan Wi-Fi — Keep-Alive akan aktif kembali pada Wi-Fi apa pun yang terhubung, tanpa perlu mengenalinya.</string>
+    <string name="location_permission_panel_fallback_button">Percayai semua jaringan Wi-Fi sebagai gantinya</string>
+    <string name="location_permission_panel_fallback_toast">Beralih ke mode \"percayai semua jaringan Wi-Fi\".</string>
     <string name="settings_section_usb_handover">Pengalihan USB ke WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Tawarkan atau aktifkan WLAN-ADB secara otomatis dari koneksi USB-ADB yang aktif. Nonaktif secara default; penonaktifan manual tidak pernah ditimpa.</string>
     <string name="settings_usb_handover_label">Mode pengalihan</string>

@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s（%2$s）— 要將這個網路視為信任嗎？</string>
     <string name="network_prompt_allow">是，允許</string>
     <string name="network_prompt_block">否，封鎖</string>
+    <string name="network_prompt_identity_unavailable_title">無法識別目前的 Wi-Fi 網路</string>
+    <string name="network_prompt_identity_unavailable_text">由於無法讀取網路身分，Keep-Alive 自動重新啟用已暫停。點一下以修正定位權限或定位服務。</string>
     <string name="settings_trusted_network_blocked_button">近期遭封鎖（%1$d）</string>
     <string name="settings_trusted_network_blocked_title">近期遭封鎖的網路</string>
     <string name="settings_trusted_network_blocked_empty_message">近期沒有網路遭到封鎖。</string>
@@ -152,6 +154,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="battery_optimization_title">電池最佳化可能限制 Keep-Alive</string>
     <string name="battery_optimization_body">KeepADB 未排除在電池最佳化之外。Android 或裝置製造商可能會限制或停止背景中的 Keep-Alive。</string>
     <string name="battery_optimization_button">開啟電池設定</string>
+    <string name="location_permission_panel_title">受信任網路需要位置權限</string>
+    <string name="location_permission_panel_body">受信任網路模式已啟用,但若沒有位置存取權限,Android 會隱藏目前 Wi-Fi 網路的名稱與 ID。沒有此權限,Keep-Alive 永遠無法確認您是否位於受信任的網路,也不會自動重新啟用。</string>
+    <string name="location_permission_panel_grant_button">授予位置權限</string>
+    <string name="location_permission_panel_fallback_body">仍然不想授予位置存取權限?可改為切換到信任所有 Wi-Fi 網路模式 — 這樣 Keep-Alive 會在任何已連線的 Wi-Fi 上自動重新啟用,無需識別該網路。</string>
+    <string name="location_permission_panel_fallback_button">改為信任所有 Wi-Fi 網路</string>
+    <string name="location_permission_panel_fallback_toast">已切換至「信任所有 Wi-Fi 網路」模式。</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB 交接</string>
     <string name="settings_usb_handover_subtext">可從啟用中的 USB-ADB 連線提供或自動啟用 WLAN-ADB。預設為關閉；手動關閉後不會被覆寫。</string>
     <string name="settings_usb_handover_label">交接模式</string>

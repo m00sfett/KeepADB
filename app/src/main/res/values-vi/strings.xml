@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s (%2$s) — có coi mạng này là đáng tin cậy không?</string>
     <string name="network_prompt_allow">Có, cho phép</string>
     <string name="network_prompt_block">Không, chặn</string>
+    <string name="network_prompt_identity_unavailable_title">Không thể nhận dạng mạng Wi-Fi hiện tại</string>
+    <string name="network_prompt_identity_unavailable_text">Tự động bật lại Keep-Alive đã tạm dừng vì không thể đọc danh tính của mạng. Nhấn để khắc phục quyền vị trí hoặc dịch vụ vị trí.</string>
     <string name="settings_trusted_network_blocked_button">Vừa bị chặn (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Mạng vừa bị chặn</string>
     <string name="settings_trusted_network_blocked_empty_message">Gần đây chưa có mạng nào bị chặn.</string>
@@ -152,6 +154,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="battery_optimization_title">Tối ưu hóa pin có thể giới hạn Keep-Alive</string>
     <string name="battery_optimization_body">KeepADB chưa được miễn tối ưu hóa pin. Android hoặc nhà sản xuất có thể giới hạn hay dừng Keep-Alive trong nền.</string>
     <string name="battery_optimization_button">Mở cài đặt pin</string>
+    <string name="location_permission_panel_title">Cần quyền vị trí cho mạng đáng tin cậy</string>
+    <string name="location_permission_panel_body">Chế độ mạng đáng tin cậy đang bật, nhưng nếu không có quyền truy cập vị trí, Android sẽ ẩn tên và ID của mạng Wi-Fi hiện tại. Nếu không có quyền này, Keep-Alive không bao giờ xác nhận được bạn đang ở mạng đáng tin cậy và sẽ không tự động bật lại.</string>
+    <string name="location_permission_panel_grant_button">Cấp quyền vị trí</string>
+    <string name="location_permission_panel_fallback_body">Vẫn không muốn cấp quyền truy cập vị trí? Hãy chuyển sang chế độ tin cậy mọi mạng Wi-Fi — khi đó Keep-Alive sẽ tự động bật lại trên bất kỳ Wi-Fi nào đang kết nối mà không cần nhận diện.</string>
+    <string name="location_permission_panel_fallback_button">Tin cậy mọi mạng Wi-Fi thay thế</string>
+    <string name="location_permission_panel_fallback_toast">Đã chuyển sang chế độ \"tin cậy mọi mạng Wi-Fi\".</string>
     <string name="settings_section_usb_handover">Chuyển giao USB → WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Tùy chọn đề xuất hoặc tự động bật WLAN-ADB từ kết nối USB-ADB đang hoạt động. Mặc định tắt; thao tác TẮT thủ công không bao giờ bị ghi đè.</string>
     <string name="settings_usb_handover_label">Chế độ chuyển giao</string>
