@@ -234,13 +234,76 @@ public class KeepADBNetworkTrustPromptTest {
         assertFalse(KeepADBNetworkTrustPrompt.shouldPrompt(context, "  ", now));
     }
 
+    /**
+     * #460: an unreadable identity used to be swallowed silently. It must now surface its own
+     * notification (not the allow/block prompt -- there is no BSSID to act on) while still never
+     * entering the blocked-access-point history, which only makes sense for a real, matchable
+     * network.
+     */
     @Test
-    public void anUnreadableIdentityNeitherPromptsNorGetsRecorded() {
+    public void anUnreadableIdentityRaisesItsOwnNotificationInsteadOfBeingSwallowed() {
         connectTo("Cafe-WLAN", KeepADBNetworkIdentity.REDACTED_BSSID);
 
-        assertFalse(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
-        assertNull(postedPrompt());
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        Notification notification = postedPrompt();
+        assertNotNull("The unreadable identity must raise its own notification", notification);
+        assertEquals(0, notification.actions == null ? 0 : notification.actions.length);
         assertTrue(KeepADBBlockedNetworkHistory.getEntries(context).isEmpty());
+    }
+
+    /**
+     * Same throttle mechanism as the BSSID-keyed prompt (#460): repeated blocks on an unreadable
+     * identity must not re-alert on every heartbeat.
+     */
+    @Test
+    public void aSecondBlockOnAnUnreadableIdentityDoesNotNotifyAgain() {
+        connectTo("Cafe-WLAN", KeepADBNetworkIdentity.REDACTED_BSSID);
+
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        assertFalse(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        assertFalse(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+    }
+
+    /**
+     * #460: the click path differs by likely cause -- missing/denied ACCESS_FINE_LOCATION sends
+     * the user to this app's system permission page rather than just to Settings, where they
+     * would otherwise have to figure out the fix on their own.
+     */
+    @Test
+    public void theIdentityUnavailableNotificationLinksToTheAppPermissionPageWhenPermissionIsMissing() {
+        connectTo("Cafe-WLAN", KeepADBNetworkIdentity.REDACTED_BSSID);
+        shadowOf((Application) context).denyPermissions(
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
+
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        Notification notification = postedPrompt();
+        Intent target = shadowOf(notification.contentIntent).getSavedIntent();
+        assertEquals(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                target.getAction());
+        assertEquals("package:" + context.getPackageName(), target.getData().toString());
+    }
+
+    /**
+     * When the permission IS granted, an unreadable identity means location services are off
+     * (the other documented cause), so the click path must go to the system location toggle
+     * instead of repeating the same app-permission screen that would show nothing to fix.
+     */
+    @Test
+    public void theIdentityUnavailableNotificationLinksToLocationSettingsWhenPermissionIsGrantedButLocationIsOff() {
+        connectTo("Cafe-WLAN", KeepADBNetworkIdentity.REDACTED_BSSID);
+        shadowOf((Application) context).grantPermissions(
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
+        android.location.LocationManager locationManager =
+                (android.location.LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        shadowOf(locationManager).setLocationEnabled(false);
+
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        Notification notification = postedPrompt();
+        Intent target = shadowOf(notification.contentIntent).getSavedIntent();
+        assertEquals(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS, target.getAction());
     }
 
     @Test

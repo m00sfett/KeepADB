@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s (%2$s): ¿quieres marcar esta red como de confianza?</string>
     <string name="network_prompt_allow">Sí, permitir</string>
     <string name="network_prompt_block">No, bloquear</string>
+    <string name="network_prompt_identity_unavailable_title">No se puede identificar la red Wi-Fi actual</string>
+    <string name="network_prompt_identity_unavailable_text">La reactivación automática de Keep-Alive está pausada porque no se puede leer la identidad de la red. Toca para solucionar el permiso de ubicación o el servicio de ubicación.</string>
     <string name="settings_trusted_network_blocked_button">Bloqueadas hace poco (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Redes bloqueadas recientemente</string>
     <string name="settings_trusted_network_blocked_empty_message">No se ha bloqueado ninguna red últimamente.</string>

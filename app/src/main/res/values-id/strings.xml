@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s (%2$s) — jadikan jaringan ini tepercaya?</string>
     <string name="network_prompt_allow">Ya, izinkan</string>
     <string name="network_prompt_block">Tidak, blokir</string>
+    <string name="network_prompt_identity_unavailable_title">Tidak dapat mengidentifikasi jaringan Wi-Fi saat ini</string>
+    <string name="network_prompt_identity_unavailable_text">Pengaktifan ulang otomatis Keep-Alive dijeda karena identitas jaringan tidak dapat dibaca. Ketuk untuk memperbaiki izin lokasi atau layanan lokasi.</string>
     <string name="settings_trusted_network_blocked_button">Baru diblokir (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Jaringan yang baru diblokir</string>
     <string name="settings_trusted_network_blocked_empty_message">Belum ada jaringan yang diblokir belakangan ini.</string>

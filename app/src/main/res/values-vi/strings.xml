@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s (%2$s) — có coi mạng này là đáng tin cậy không?</string>
     <string name="network_prompt_allow">Có, cho phép</string>
     <string name="network_prompt_block">Không, chặn</string>
+    <string name="network_prompt_identity_unavailable_title">Không thể nhận dạng mạng Wi-Fi hiện tại</string>
+    <string name="network_prompt_identity_unavailable_text">Tự động bật lại Keep-Alive đã tạm dừng vì không thể đọc danh tính của mạng. Nhấn để khắc phục quyền vị trí hoặc dịch vụ vị trí.</string>
     <string name="settings_trusted_network_blocked_button">Vừa bị chặn (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Mạng vừa bị chặn</string>
     <string name="settings_trusted_network_blocked_empty_message">Gần đây chưa có mạng nào bị chặn.</string>

@@ -9,7 +9,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +48,18 @@ import java.util.List;
  * block it hides is exactly the failure the issue is about. Declining therefore only suppresses
  * the next prompts, it never creates a persistent blocklist entry -- there is no such concept, and
  * none is needed: an access point that is not on the allowlist is already blocked.
+ *
+ * <h2>#460: already active, and an unreadable identity</h2>
+ * Two gaps remained after #446/#450. First, {@link KeepADBService} only ever called {@link
+ * #onBlockedByUntrustedNetwork} from its "Wireless Debugging is currently off, should it be
+ * turned back on" paths -- roaming onto a new, untrusted access point while it was already on
+ * raised nothing. {@link KeepADBService}'s network callback now also calls this method while
+ * active (see {@code checkNetworkTrustWhileActive()}), reusing the exact same throttled,
+ * BSSID-keyed prompt. Second, an unreadable identity ({@link KeepADBNetworkIdentity#isKnown()}
+ * false -- typically a missing or revoked location permission, or location services turned off)
+ * used to return here silently, leaving the user with no idea why Keep-Alive was blocked. It now
+ * raises its own notification instead, throttled the same way under a fixed sentinel key rather
+ * than a BSSID, and its content intent points directly at the likely fix.
  */
 final class KeepADBNetworkTrustPrompt {
     static final String CHANNEL_ID = "keepadb_network_prompt";
@@ -66,6 +81,14 @@ final class KeepADBNetworkTrustPrompt {
 
     private static final int REQUEST_CODE_TRUST = 10;
     private static final int REQUEST_CODE_DISMISS = 11;
+
+    /**
+     * Throttle key for the identity-unavailable notification (#460). It shares {@link
+     * #shouldPrompt}/{@link #markPrompted}'s BSSID-keyed history rather than a real BSSID --
+     * there is no access point to remember here, only "we already told the user about this".
+     * Not a valid BSSID string, so it can never collide with a real one.
+     */
+    private static final String IDENTITY_UNAVAILABLE_KEY = "identity_unavailable";
 
     private static final class PromptEntry {
         final String bssid;
@@ -90,13 +113,16 @@ final class KeepADBNetworkTrustPrompt {
         if (context == null) return false;
         Context appContext = context.getApplicationContext();
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(appContext);
-        // An unreadable identity is not actionable: there is no BSSID the user could allow, so a
-        // prompt would offer a choice that cannot be carried out. Settings already explains this
-        // state via settings_trusted_network_status_identity_unavailable.
+        // An unreadable identity is not actionable as a trust choice: there is no BSSID the user
+        // could allow, so the allow/block prompt below would offer a choice that cannot be
+        // carried out. #460: that used to be the end of it -- the block stayed silent, and
+        // Settings only explained it if the user happened to go looking. Raise the distinct
+        // identity-unavailable notification instead, which names the problem and links straight
+        // to the fix.
         if (!identity.isKnown()) {
             KeepADBDiagnostics.event(appContext, "network_trust_prompt", "trusted_network",
                     "skipped", "identity_unavailable");
-            return false;
+            return onIdentityUnavailable(appContext);
         }
         long now = System.currentTimeMillis();
         KeepADBBlockedNetworkHistory.record(appContext, identity, now);
@@ -112,6 +138,29 @@ final class KeepADBNetworkTrustPrompt {
             markPrompted(appContext, identity.bssid, now);
             KeepADBDiagnostics.event(appContext, "network_trust_prompt", "trusted_network",
                     "shown", "bssid=" + identity.bssid);
+        }
+        return shown;
+    }
+
+    /**
+     * #460: the non-silent counterpart of the {@code !identity.isKnown()} branch above. Reuses
+     * {@link #shouldPrompt}/{@link #markPrompted} under {@link #IDENTITY_UNAVAILABLE_KEY} so the
+     * same throttle interval and history mechanism applies -- no separate throttling logic.
+     *
+     * @return true if a notification was actually posted by this call.
+     */
+    private static boolean onIdentityUnavailable(Context context) {
+        long now = System.currentTimeMillis();
+        if (!shouldPrompt(context, IDENTITY_UNAVAILABLE_KEY, now)) {
+            KeepADBDiagnostics.event(context, "network_trust_prompt", "identity_unavailable",
+                    "throttled", "already_notified");
+            return false;
+        }
+        boolean shown = showIdentityUnavailable(context);
+        if (shown) {
+            markPrompted(context, IDENTITY_UNAVAILABLE_KEY, now);
+            KeepADBDiagnostics.event(context, "network_trust_prompt", "identity_unavailable",
+                    "shown", "reason=identity_unavailable");
         }
         return shown;
     }
@@ -250,6 +299,66 @@ final class KeepADBNetworkTrustPrompt {
                 .build();
         manager.notify(NOTIFICATION_ID, notification);
         return true;
+    }
+
+    /**
+     * #460: no BSSID means no allow/block choice -- this only tells the user what is wrong and
+     * gets them to the fix in one tap, via {@link #identityUnavailableFixIntent}.
+     */
+    private static boolean showIdentityUnavailable(Context context) {
+        Context localized = KeepADBLocaleHelper.wrapContext(context);
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        if (manager == null || !hasNotificationPermission(context)) {
+            KeepADBDiagnostics.event(context, "network_trust_prompt", "identity_unavailable",
+                    "skipped", "permission_missing");
+            return false;
+        }
+        ensureChannel(localized, manager);
+        String text = localized.getString(R.string.network_prompt_identity_unavailable_text);
+        Notification notification = new Notification.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_keepadb)
+                .setContentTitle(localized.getString(R.string.network_prompt_identity_unavailable_title))
+                .setContentText(text)
+                .setStyle(new Notification.BigTextStyle().bigText(text))
+                .setContentIntent(PendingIntent.getActivity(context, 0,
+                        identityUnavailableFixIntent(context),
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
+                .setCategory(Notification.CATEGORY_STATUS)
+                .setAutoCancel(true)
+                .setOnlyAlertOnce(true)
+                .build();
+        manager.notify(NOTIFICATION_ID, notification);
+        return true;
+    }
+
+    /**
+     * #460: sends the user straight at the likely cause instead of just Settings. A missing (or
+     * revoked) {@code ACCESS_FINE_LOCATION} grant opens this app's system permission page; a
+     * granted permission with location services turned off opens the system location toggle.
+     * Falls back to {@link SettingsActivity} -- which explains the state either way via {@code
+     * settings_trusted_network_status_identity_unavailable} -- if neither system screen exists on
+     * this OEM build, or if the cause could not be determined.
+     */
+    private static Intent identityUnavailableFixIntent(Context context) {
+        if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            return new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.parse("package:" + context.getPackageName()))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        boolean locationEnabled = true;
+        try {
+            LocationManager locationManager = context.getSystemService(LocationManager.class);
+            locationEnabled = locationManager == null || locationManager.isLocationEnabled();
+        } catch (RuntimeException ignored) {
+            // Unknown -- don't send the user chasing a toggle that might already be fine.
+        }
+        if (!locationEnabled) {
+            return new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        return new Intent(context, SettingsActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
     private static Notification.Action action(Context context, String title, String action,

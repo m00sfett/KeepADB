@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s (%2$s) — هل تريد اعتبار هذه الشبكة موثوقة؟</string>
     <string name="network_prompt_allow">نعم، اسمح</string>
     <string name="network_prompt_block">لا، احظر</string>
+    <string name="network_prompt_identity_unavailable_title">تعذّر التعرف على شبكة الواي فاي الحالية</string>
+    <string name="network_prompt_identity_unavailable_text">تم إيقاف إعادة التفعيل التلقائي لـ Keep-Alive مؤقتًا لأنه لا يمكن قراءة هوية الشبكة. اضغط لإصلاح إذن الموقع أو خدمة الموقع.</string>
     <string name="settings_trusted_network_blocked_button">محظورة مؤخرًا (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">الشبكات المحظورة مؤخرًا</string>
     <string name="settings_trusted_network_blocked_empty_message">لم يتم حظر أي شبكة مؤخرًا.</string>

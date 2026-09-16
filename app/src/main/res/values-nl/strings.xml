@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s (%2$s) — wil je dit netwerk als vertrouwd instellen?</string>
     <string name="network_prompt_allow">Ja, toestaan</string>
     <string name="network_prompt_block">Nee, blokkeren</string>
+    <string name="network_prompt_identity_unavailable_title">Huidig wifi-netwerk kan niet worden geïdentificeerd</string>
+    <string name="network_prompt_identity_unavailable_text">Automatisch opnieuw inschakelen van Keep-Alive is gepauzeerd omdat de identiteit van het netwerk niet kan worden gelezen. Tik om de locatietoestemming of locatieservice te herstellen.</string>
     <string name="settings_trusted_network_blocked_button">Onlangs geblokkeerd (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Onlangs geblokkeerde netwerken</string>
     <string name="settings_trusted_network_blocked_empty_message">Er is onlangs geen netwerk geblokkeerd.</string>

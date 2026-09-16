@@ -22,6 +22,15 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.0] - Unreleased
+
+### Added
+- The untrusted-network prompt (#446, #450) now also fires while Wireless Debugging is already active: roaming onto a new, untrusted access point used to raise nothing until the connection eventually dropped and the silent auto re-enable block kicked in. `KeepADBService`'s network callback now checks trust on every Wi-Fi network-available/roam event regardless of the current on/off state, reusing the exact same throttled, BSSID-keyed prompt (issue #460).
+- When the current network's identity can't be read at all (`KeepADBNetworkIdentity#isKnown()` false -- typically a missing/revoked `ACCESS_FINE_LOCATION` grant or disabled location service), the block is no longer swallowed silently (`outcome=skipped detail=identity_unavailable`). It now raises its own notification naming the problem, throttled the same way as the trust prompt under a fixed sentinel key, with a content intent that opens the app's permission page or the system location toggle directly depending on the likely cause (issue #460).
+
+### Changed
+- Minor version bump (1.7.4 → 1.8.0): a genuinely new user-facing notification path, not a bugfix to existing behavior, so a Minor bump over Patch is warranted (explicitly approved for this package).
+
 ## [1.7.4] - Unreleased
 
 ### Changed

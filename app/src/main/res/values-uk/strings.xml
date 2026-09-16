@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s (%2$s) — вважати цю мережу довіреною?</string>
     <string name="network_prompt_allow">Так, дозволити</string>
     <string name="network_prompt_block">Ні, заблокувати</string>
+    <string name="network_prompt_identity_unavailable_title">Не вдається визначити поточну мережу Wi-Fi</string>
+    <string name="network_prompt_identity_unavailable_text">Автоматичне повторне ввімкнення Keep-Alive призупинено, оскільки не вдається прочитати ідентифікатор мережі. Торкніться, щоб виправити дозвіл геолокації або службу геолокації.</string>
     <string name="settings_trusted_network_blocked_button">Нещодавно заблоковано (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Нещодавно заблоковані мережі</string>
     <string name="settings_trusted_network_blocked_empty_message">Останнім часом жодну мережу не було заблоковано.</string>

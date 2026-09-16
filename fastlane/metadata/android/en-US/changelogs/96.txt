@@ -1,0 +1,1 @@
+Added: you're now notified when KeepADB sees a new, untrusted Wi-Fi network even while Wireless Debugging is already running (not just when it's about to turn back on), and when the current network can't be identified at all (e.g. missing location permission), you get a clear notification with a direct link to fix it instead of no notification at all.

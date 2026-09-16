@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s（%2$s）— このネットワークを信頼済みとして扱いますか？</string>
     <string name="network_prompt_allow">はい、許可</string>
     <string name="network_prompt_block">いいえ、ブロック</string>
+    <string name="network_prompt_identity_unavailable_title">現在のWi-Fiネットワークを識別できません</string>
+    <string name="network_prompt_identity_unavailable_text">ネットワークの識別情報を読み取れないため、Keep-Aliveの自動再有効化は一時停止中です。タップして位置情報の権限またはロケーションサービスを修正してください。</string>
     <string name="settings_trusted_network_blocked_button">最近ブロックした接続（%1$d）</string>
     <string name="settings_trusted_network_blocked_title">最近ブロックしたネットワーク</string>
     <string name="settings_trusted_network_blocked_empty_message">最近ブロックしたネットワークはありません。</string>

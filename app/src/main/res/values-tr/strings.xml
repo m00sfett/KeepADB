@@ -79,6 +79,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="network_prompt_text">%1$s (%2$s) — bu ağ güvenilir sayılsın mı?</string>
     <string name="network_prompt_allow">Evet, izin ver</string>
     <string name="network_prompt_block">Hayır, engelle</string>
+    <string name="network_prompt_identity_unavailable_title">Mevcut Wi-Fi ağı tanımlanamıyor</string>
+    <string name="network_prompt_identity_unavailable_text">Ağın kimliği okunamadığı için Keep-Alive otomatik yeniden etkinleştirme duraklatıldı. Konum izni veya konum hizmetini düzeltmek için dokunun.</string>
     <string name="settings_trusted_network_blocked_button">Yakında engellenenler (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Yakın zamanda engellenen ağlar</string>
     <string name="settings_trusted_network_blocked_empty_message">Son zamanlarda hiçbir ağ engellenmedi.</string>
