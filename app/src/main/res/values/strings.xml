@@ -245,6 +245,8 @@
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Open HohnePeople.de in your browser</string>
     <string name="status_off_keep_alive_waiting">Wireless Debugging is OFF – Keep-Alive is waiting for the network</string>
+    <string name="status_off_keep_alive_blocked_untrusted">Wireless Debugging is OFF – Keep-Alive is paused: this Wi-Fi network isn\'t trusted</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wireless Debugging is OFF – Keep-Alive is paused: network identity unavailable, check Location permission</string>
     <string name="status_pending">Switching…</string>
     <string name="state_pending">Switching…</string>
     <string name="tile_state_keep_alive_waiting">Off – Keep-Alive waiting</string>

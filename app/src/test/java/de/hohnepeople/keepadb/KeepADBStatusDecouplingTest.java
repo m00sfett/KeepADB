@@ -7,6 +7,8 @@ import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
 import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -57,6 +59,7 @@ public class KeepADBStatusDecouplingTest {
                 .getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADB.resetForTesting();
+        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
     }
 
     private void withAdbSetting(boolean enabled) {
@@ -153,6 +156,54 @@ public class KeepADBStatusDecouplingTest {
                 widget.contains("boolean want = (state == KeepADB.State.OFF);"));
         assertFalse("MainActivity must not derive the desired value from the view state",
                 main.contains("boolean want = toggle.isChecked();"));
+    }
+
+    /**
+     * #458: the status card must not claim "waiting for the network" while Wi-Fi is actually
+     * connected but blocked by the trusted-network allowlist -- that used to be indistinguishable
+     * from genuinely having no Wi-Fi at all.
+     */
+    @Test
+    public void statusCardDistinguishesUntrustedNetworkFromNoWifi() {
+        Context context = RuntimeEnvironment.getApplication();
+        withAdbSetting(false);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADB.recordExplicitIntent(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        shadowOf(wifiManager).setConnectionInfo(
+                new WifiInfo.Builder().setBssid("aa:bb:cc:dd:ee:ff").build());
+
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        TextView statusView = controller.get().findViewById(R.id.status);
+        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_untrusted),
+                statusView.getText().toString());
+        controller.pause().close();
+    }
+
+    /**
+     * #458: same distinction for the "can't even read the network" case (missing Location
+     * permission) -- must not be conflated with either "no Wi-Fi" or "untrusted".
+     */
+    @Test
+    public void statusCardDistinguishesIdentityUnavailableFromNoWifi() {
+        Context context = RuntimeEnvironment.getApplication();
+        withAdbSetting(false);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADB.recordExplicitIntent(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        // No BSSID configured on the shadow WifiManager -- identity stays unknown, same as a
+        // real device with Location permission missing/denied.
+
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        TextView statusView = controller.get().findViewById(R.id.status);
+        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_identity_unavailable),
+                statusView.getText().toString());
+        controller.pause().close();
     }
 
     /** The debounce window must be observable instead of silently showing the old value. */

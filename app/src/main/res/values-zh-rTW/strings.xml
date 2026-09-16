@@ -246,6 +246,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">在瀏覽器中開啟 HohnePeople.de</string>
     <string name="status_off_keep_alive_waiting">無線偵錯已關閉 – Keep-Alive 正在等待網路</string>
+    <string name="status_off_keep_alive_blocked_untrusted">無線偵錯已關閉 – Keep-Alive 已暫停:此 Wi-Fi 網路不受信任</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">無線偵錯已關閉 – Keep-Alive 已暫停:無法判斷網路身分,請檢查位置權限</string>
     <string name="status_pending">正在切換…</string>
     <string name="state_pending">正在切換…</string>
     <string name="tile_state_keep_alive_waiting">關閉 – Keep-Alive 等待中</string>
