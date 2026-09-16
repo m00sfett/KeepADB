@@ -138,6 +138,33 @@ public class KeepADBBssidHistoryTest {
         assertTrue(KeepADBBssidHistory.getKnownBssids(context, ssid(1)).isEmpty());
     }
 
+    @Test
+    public void recentObservationsAreOrderedMostRecentlyObservedFirst() {
+        FakeContext context = new FakeContext();
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01");
+        KeepADBBssidHistory.recordObservation(context, "OfficeMesh", "bb:bb:bb:bb:bb:01");
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:02");
+
+        List<KeepADBBssidHistory.Observation> observations =
+                KeepADBBssidHistory.getRecentObservations(context);
+
+        // HomeMesh was touched most recently (its second BSSID was the last call), so its BSSIDs
+        // come first, newest-within-group first; OfficeMesh's single BSSID comes last.
+        assertEquals(3, observations.size());
+        assertEquals("aa:aa:aa:aa:aa:02", observations.get(0).bssid);
+        assertEquals("HomeMesh", observations.get(0).ssid);
+        assertEquals("aa:aa:aa:aa:aa:01", observations.get(1).bssid);
+        assertEquals("HomeMesh", observations.get(1).ssid);
+        assertEquals("bb:bb:bb:bb:bb:01", observations.get(2).bssid);
+        assertEquals("OfficeMesh", observations.get(2).ssid);
+    }
+
+    @Test
+    public void recentObservationsIsEmptyWithoutAnyRecordedHistory() {
+        FakeContext context = new FakeContext();
+        assertTrue(KeepADBBssidHistory.getRecentObservations(context).isEmpty());
+    }
+
     private static String ssid(int index) {
         return "Ssid" + index;
     }
