@@ -1,0 +1,1 @@
+Added: a "Wi-Fi & Access Points" card on the main screen shows the access point you're currently connected to (name, unique ID, trust status) plus recently seen ones. If your mesh network's repeaters share one Wi-Fi name, each access point is now labeled separately, and you can trust or untrust any of them with one tap.

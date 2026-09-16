@@ -22,6 +22,11 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.0] - Unreleased
+
+### Added
+- Added a "Wi-Fi & Access Points" card to the main screen showing the currently connected access point (SSID, BSSID, trust status) highlighted on top, and recently observed access points from the existing `KeepADBBssidHistory` mesh observation log listed below. Access points sharing an SSID (e.g. FRITZ!Mesh repeaters) are labeled "AP x of y" so their distinct BSSIDs are visible instead of looking like duplicates. Each entry has a quick trust/untrust action wired directly to `KeepADBTrustedNetwork`, the same allowlist entry point Settings already uses -- no new source of truth was introduced, and `KeepADB` itself still never references the allowlist (#245 contract unaffected). Presentation logic (ordering, mesh grouping, trust matching, the fixed display cap) is factored into a new `KeepADBAccessPointOverview` class, unit-tested without Robolectric. `KeepADBBssidHistory` gained a read-only `getRecentObservations()` accessor for this; its stored data format is unchanged (issue #461).
+
 ## [1.7.4] - Unreleased
 
 ### Changed

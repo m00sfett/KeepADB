@@ -7,10 +7,15 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 public class MainActivity extends Activity {
     private static final int NOTIFICATION_PERMISSION_REQUEST = 10;
@@ -29,6 +34,9 @@ public class MainActivity extends Activity {
     private View notificationPermissionPanel;
     private View batteryOptimizationPanel;
     private View adviceBanner;
+    private LinearLayout wifiApsCurrentRow;
+    private LinearLayout wifiApsList;
+    private TextView wifiApsEmpty;
     private boolean notificationPermissionRequestPending;
     private long endpointListenerGeneration;
     private boolean endpointSurfaceActive;
@@ -63,6 +71,9 @@ public class MainActivity extends Activity {
         notificationPermissionPanel = findViewById(R.id.notification_permission_panel);
         batteryOptimizationPanel = findViewById(R.id.battery_optimization_panel);
         adviceBanner = findViewById(R.id.advice_banner);
+        wifiApsCurrentRow = findViewById(R.id.wifi_aps_current_row);
+        wifiApsList = findViewById(R.id.wifi_aps_list);
+        wifiApsEmpty = findViewById(R.id.wifi_aps_empty);
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
@@ -188,6 +199,11 @@ public class MainActivity extends Activity {
         // #226: re-read the preference on every resume, since it may have changed in
         // SettingsActivity while this activity was paused.
         updateAdviceBannerVisibility();
+        // #461: record the current access point into the observation history once per resume,
+        // not on every refresh() -- refresh() also runs on every endpoint-discovery tick while
+        // this screen is visible, and recordObservation()'s own SSID-recency bookkeeping writes
+        // to SharedPreferences on every call, not only when a genuinely new BSSID shows up.
+        recordCurrentAccessPointObservation();
         refresh();
         KeepADBNotification.refresh(this);
         KeepADBUsbReceiver.refresh(this);
@@ -264,6 +280,141 @@ public class MainActivity extends Activity {
                 ? R.string.settings_hide_notification_subtext_keepalive
                 : R.string.settings_hide_notification_subtext);
         refreshWebhookStatus();
+        renderAccessPointOverview();
+    }
+
+    /** Records the currently connected access point into {@link KeepADBBssidHistory}, mirroring
+     * the piggyback {@code SettingsActivity#refresh()} already does on its own identity read. */
+    private void recordCurrentAccessPointObservation() {
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(this);
+        if (identity.isKnown()) {
+            KeepADBBssidHistory.recordObservation(this, identity.displaySsid(), identity.bssid);
+        }
+    }
+
+    /**
+     * Renders the "Wi-Fi &amp; Access Points" card (#461): the currently connected access point
+     * (SSID, BSSID, trust status) highlighted on top, and recently observed ones -- reusing
+     * {@link KeepADBBssidHistory}'s existing mesh observation log -- listed below, with a
+     * same-SSID/different-BSSID mesh label and a quick trust toggle on every row.
+     */
+    private void renderAccessPointOverview() {
+        List<KeepADBAccessPointOverview.ApItem> items = KeepADBAccessPointOverview.buildItems(this);
+
+        wifiApsCurrentRow.removeAllViews();
+        wifiApsList.removeAllViews();
+
+        KeepADBAccessPointOverview.ApItem currentItem = null;
+        for (KeepADBAccessPointOverview.ApItem item : items) {
+            if (item.current) {
+                currentItem = item;
+                break;
+            }
+        }
+        if (currentItem != null) {
+            wifiApsCurrentRow.addView(buildAccessPointRow(currentItem, true));
+        } else {
+            TextView unknown = new TextView(this);
+            unknown.setText(R.string.wifi_aps_current_unknown);
+            unknown.setTextColor(getColor(R.color.night_muted));
+            unknown.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+            wifiApsCurrentRow.addView(unknown);
+        }
+
+        boolean hasRecent = false;
+        for (KeepADBAccessPointOverview.ApItem item : items) {
+            if (item.current) continue;
+            wifiApsList.addView(buildAccessPointRow(item, false));
+            hasRecent = true;
+        }
+        wifiApsEmpty.setVisibility(hasRecent ? View.GONE : View.VISIBLE);
+    }
+
+    /** One row of the Wi-Fi & Access Points card: SSID/BSSID label, trust and mesh-membership
+     * status, and a quick action button to toggle the trust allowlist entry for that BSSID. */
+    private View buildAccessPointRow(KeepADBAccessPointOverview.ApItem item, boolean highlightCurrent) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        if (!highlightCurrent) {
+            int topMargin = (int) (12 * getResources().getDisplayMetrics().density);
+            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            rowParams.topMargin = topMargin;
+            row.setLayoutParams(rowParams);
+        }
+
+        LinearLayout labelColumn = new LinearLayout(this);
+        labelColumn.setOrientation(LinearLayout.VERTICAL);
+        labelColumn.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+
+        TextView label = new TextView(this);
+        String ssidLabel = (item.ssid == null || item.ssid.isEmpty())
+                ? getString(R.string.wifi_aps_ssid_unknown) : item.ssid;
+        label.setText(highlightCurrent
+                ? getString(R.string.wifi_aps_current_badge) + " · " + ssidLabel
+                : ssidLabel);
+        label.setTextColor(getColor(R.color.night_text));
+        label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+
+        TextView bssidText = new TextView(this);
+        bssidText.setText(item.bssid);
+        bssidText.setTextColor(getColor(R.color.night_muted));
+        bssidText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+
+        TextView statusText = new TextView(this);
+        String statusLabel = getString(item.trusted
+                ? R.string.wifi_aps_trusted_status : R.string.wifi_aps_untrusted_status);
+        statusText.setText(item.isMeshMember()
+                ? statusLabel + " · " + getString(R.string.wifi_aps_mesh_label, item.meshPosition, item.meshCount)
+                : statusLabel);
+        statusText.setTextColor(item.trusted ? getColor(R.color.text_yellow) : getColor(R.color.border_red));
+        statusText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+
+        labelColumn.addView(label);
+        labelColumn.addView(bssidText);
+        labelColumn.addView(statusText);
+
+        Button trustButton = new Button(this);
+        trustButton.setBackgroundResource(R.drawable.bg_btn_secondary);
+        trustButton.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+        trustButton.setTextColor(getColor(R.color.text_yellow));
+        trustButton.setText(item.trusted ? R.string.wifi_aps_untrust_button : R.string.wifi_aps_trust_button);
+        trustButton.setContentDescription(getString(
+                item.trusted ? R.string.wifi_aps_untrust_accessibility : R.string.wifi_aps_trust_accessibility,
+                ssidLabel));
+        trustButton.setOnClickListener(v -> toggleAccessPointTrust(item, ssidLabel));
+
+        row.addView(labelColumn);
+        row.addView(trustButton);
+        return row;
+    }
+
+    /** Adds or removes {@code item}'s BSSID from the trust allowlist -- the same {@link
+     * KeepADBTrustedNetwork} entry point Settings uses, so there is exactly one way an access
+     * point can become trusted. */
+    private void toggleAccessPointTrust(KeepADBAccessPointOverview.ApItem item, String label) {
+        if (item.trusted) {
+            KeepADBTrustedNetwork.Entry match = null;
+            for (KeepADBTrustedNetwork.Entry entry : KeepADBTrustedNetwork.getEntries(this)) {
+                if (entry.bssid.equalsIgnoreCase(item.bssid)) {
+                    match = entry;
+                    break;
+                }
+            }
+            if (match != null && KeepADBTrustedNetwork.remove(this, match.id)) {
+                Toast.makeText(this, getString(R.string.settings_trusted_network_removed_toast, match.label),
+                        Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            KeepADBTrustedNetwork.Entry added = KeepADBTrustedNetwork.addBssid(this, item.bssid, label);
+            if (added != null) {
+                Toast.makeText(this, getString(R.string.settings_trusted_network_added_toast, added.label),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+        refresh();
     }
 
     private boolean shouldRequestNotificationPermission() {
