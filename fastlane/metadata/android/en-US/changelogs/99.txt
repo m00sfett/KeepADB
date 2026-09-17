@@ -1,0 +1,2 @@
+• Fixed: trusting one access point no longer clears the pending "trust this network?" prompt for a different, still-untrusted network.
+• Changed: shortened onboarding and status texts in all 18 non-English languages, matching the more compact main screen introduced in the previous update.

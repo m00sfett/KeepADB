@@ -22,6 +22,15 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.2] - Unreleased
+
+### Fixed
+- `KeepADBNetworkTrustPrompt.clearPromptState()` cleared the entire BSSID prompt history instead of only the just-trusted access point's entry. Trusting a historical AP A from `MainActivity`'s Wi-Fi & Access Points card (or from `SettingsActivity`'s blocked-networks "Allow" dialog) while a different untrusted AP B had a pending trust-prompt notification silently cancelled B's notification and cleared its prompt state too, so B would never be re-prompted even though it had never actually been trusted. Introduced a BSSID-scoped `clearPromptState(Context, String)` and switched both call sites (`KeepADBReceiver.trustBssidAndAttemptConnect()` and `SettingsActivity`'s Allow button) to it; the untargeted `clearPromptState(Context)` has no remaining production caller. `SettingsActivity`'s Allow button still uses its existing manual (non-immediate) connect flow -- consolidating it onto `trustBssidAndAttemptConnect()` remains out of scope here and is tracked as issue #475 (issue #474).
+
+### Changed
+- The 18 non-English `values-*/strings.xml` locales were re-condensed to match the density #469 already applied to the eight shortened English onboarding/status strings (`setup_body`, `notification_permission_panel_body`, `battery_optimization_body`, `location_permission_panel_body`, `location_permission_panel_fallback_body`, `settings_hide_notification_subtext`, `settings_hide_notification_subtext_keepalive`, `advice_banner_text`). Each locale got an independent, language-native condensation rather than a literal translation of the new English text, and no safety- or action-relevant fact (VPN/Tailscale hint, unexpected-pairing warning, no-auto-reenable-without-location-permission, Keep-Alive's forced-notification behavior) was dropped in the process (issue #473).
+- Patch version bump (1.8.1 -> 1.8.2, versionCode 99): both changes are bugfix/refinement work on existing surfaces, so a Patch bump applies. #473 and #474 were developed independently and are released together as one integrated build.
+
 ## [1.8.1] - Unreleased
 
 ### Changed
