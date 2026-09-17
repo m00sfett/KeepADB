@@ -22,12 +22,14 @@ import java.util.Map;
  * enforced by {@code KeepADBTrustedNetworkContractTest#keepAdbFacadeNeverReferencesTheAllowlist}).
  * This class -- like {@code SettingsActivity} already does -- reads {@link KeepADBTrustedNetwork}
  * directly instead, so the contract is unaffected.
+ *
+ * <p>#468: {@link #buildItems} returns the complete, unlimited list -- it never truncates.
+ * History alone can already hold up to {@code KeepADBBssidHistory.MAX_SSIDS *
+ * KeepADBBssidHistory.MAX_BSSIDS_PER_SSID} entries, so keeping the on-screen card a fixed,
+ * phone-friendly size by default -- while still letting the full list be expanded into view --
+ * is {@code MainActivity}'s presentation concern, not this pure data-preparation step's.
  */
 final class KeepADBAccessPointOverview {
-
-    /** At most this many access points are shown on the main screen (current one included), so
-     * the card stays a fixed, phone-friendly size regardless of how large the history grows. */
-    static final int MAX_ITEMS = 6;
 
     /** One access point to show: either the one currently connected to, or a recently observed
      * one from {@link KeepADBBssidHistory}. */
@@ -98,8 +100,8 @@ final class KeepADBAccessPointOverview {
             }
         }
 
-        // Group by SSID (across the whole set, not just the eventually-displayed subset) so mesh
-        // labels stay correct even when the current AP's sibling only appears near the cap.
+        // Group by SSID across the whole set so mesh labels are correct regardless of where in
+        // the (now unlimited) list a same-SSID sibling ends up.
         Map<String, List<String>> bssidsBySsid = new LinkedHashMap<>();
         for (Map.Entry<String, String> entry : ssidByBssid.entrySet()) {
             String ssid = entry.getValue();
@@ -118,7 +120,6 @@ final class KeepADBAccessPointOverview {
 
         List<ApItem> items = new ArrayList<>();
         for (Map.Entry<String, String> entry : ssidByBssid.entrySet()) {
-            if (items.size() >= MAX_ITEMS) break;
             String bssid = entry.getKey();
             String ssid = entry.getValue();
             boolean trusted = trustedBssids.contains(bssid);

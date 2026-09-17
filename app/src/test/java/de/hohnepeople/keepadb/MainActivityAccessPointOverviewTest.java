@@ -102,6 +102,82 @@ public class MainActivityAccessPointOverviewTest {
         assertEquals(0, list.getChildCount());
         TextView empty = activity.findViewById(R.id.wifi_aps_empty);
         assertEquals(View.VISIBLE, empty.getVisibility());
+        // #468 acceptance criterion 3: an empty list needs no extra interaction to understand.
+        assertEquals(View.GONE, activity.findViewById(R.id.wifi_aps_toggle).getVisibility());
+    }
+
+    @Test
+    public void shortListShowsAllItemsWithoutAShowMoreToggle() {
+        // Three others is well under the WIFI_APS_COLLAPSED_OTHERS threshold (5).
+        for (int i = 0; i < 3; i++) {
+            KeepADBBssidHistory.recordObservation(context, "Neighbor" + i, otherBssid(i));
+        }
+        connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
+
+        MainActivity activity = launch();
+
+        LinearLayout list = activity.findViewById(R.id.wifi_aps_list);
+        assertEquals(3, list.getChildCount());
+        // #468 acceptance criterion 3: a short list is already fully visible, no toggle needed.
+        assertEquals(View.GONE, activity.findViewById(R.id.wifi_aps_toggle).getVisibility());
+    }
+
+    @Test
+    public void longListIsCollapsedByDefaultAndShowsAShowMoreToggleWithTheHiddenCount() {
+        for (int i = 0; i < 7; i++) {
+            KeepADBBssidHistory.recordObservation(context, "Neighbor" + i, otherBssid(i));
+        }
+        connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
+
+        MainActivity activity = launch();
+
+        LinearLayout list = activity.findViewById(R.id.wifi_aps_list);
+        // #468 acceptance criterion 1: compact by default -- only the first 5 of 7 are shown.
+        assertEquals(5, list.getChildCount());
+        TextView toggle = activity.findViewById(R.id.wifi_aps_toggle);
+        assertEquals(View.VISIBLE, toggle.getVisibility());
+        assertEquals(context.getString(R.string.wifi_aps_show_more_button, 2), toggle.getText().toString());
+    }
+
+    @Test
+    public void tappingShowMoreRevealsTheFullListAndTappingAgainCollapsesIt() {
+        for (int i = 0; i < 7; i++) {
+            KeepADBBssidHistory.recordObservation(context, "Neighbor" + i, otherBssid(i));
+        }
+        connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
+        MainActivity activity = launch();
+        LinearLayout list = activity.findViewById(R.id.wifi_aps_list);
+        TextView toggle = activity.findViewById(R.id.wifi_aps_toggle);
+
+        toggle.performClick();
+
+        // #468 acceptance criterion 1: fully expandable to see everything.
+        assertEquals(7, list.getChildCount());
+        assertEquals(context.getString(R.string.wifi_aps_show_less_button), toggle.getText().toString());
+
+        toggle.performClick();
+
+        assertEquals(5, list.getChildCount());
+        assertEquals(context.getString(R.string.wifi_aps_show_more_button, 2), toggle.getText().toString());
+    }
+
+    @Test
+    public void currentConnectionStaysVisibleAndUnchangedWhileExpandingAndCollapsingTheOthers() {
+        for (int i = 0; i < 7; i++) {
+            KeepADBBssidHistory.recordObservation(context, "Neighbor" + i, otherBssid(i));
+        }
+        connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
+        MainActivity activity = launch();
+        View currentRow = activity.findViewById(R.id.wifi_aps_current_row);
+        List<String> beforeExpand = allText(currentRow);
+
+        activity.findViewById(R.id.wifi_aps_toggle).performClick();
+        // #468 acceptance criterion 2: the current connection's own row -- and its trust status
+        // -- never moves and is never hidden by the collapsible "others" list toggling.
+        assertEquals(beforeExpand, allText(currentRow));
+
+        activity.findViewById(R.id.wifi_aps_toggle).performClick();
+        assertEquals(beforeExpand, allText(currentRow));
     }
 
     @Test
@@ -196,5 +272,11 @@ public class MainActivityAccessPointOverviewTest {
 
     private static String joined(List<String> texts) {
         return String.join(" | ", texts);
+    }
+
+    /** Distinct BSSIDs for synthetic "other" access points, disjoint from the "aa:aa:..."
+     * range {@link #connectTo} uses for the current connection in these tests. */
+    private static String otherBssid(int index) {
+        return String.format(java.util.Locale.US, "bb:bb:bb:bb:bb:%02x", index);
     }
 }

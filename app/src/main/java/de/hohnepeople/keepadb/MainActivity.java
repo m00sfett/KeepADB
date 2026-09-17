@@ -15,6 +15,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends Activity {
@@ -45,6 +46,11 @@ public class MainActivity extends Activity {
     private LinearLayout wifiApsCurrentRow;
     private LinearLayout wifiApsList;
     private TextView wifiApsEmpty;
+    private TextView wifiApsToggle;
+    // #468: whether the "recently observed" access points below the current connection are
+    // shown in full. Deliberately in-memory only (not persisted) -- it is a display convenience
+    // for the current screen visit, not a user setting; a fresh visit starts collapsed again.
+    private boolean wifiApsExpanded;
     private boolean notificationPermissionRequestPending;
     private long endpointListenerGeneration;
     private boolean endpointSurfaceActive;
@@ -85,6 +91,11 @@ public class MainActivity extends Activity {
         wifiApsCurrentRow = findViewById(R.id.wifi_aps_current_row);
         wifiApsList = findViewById(R.id.wifi_aps_list);
         wifiApsEmpty = findViewById(R.id.wifi_aps_empty);
+        wifiApsToggle = findViewById(R.id.wifi_aps_toggle);
+        wifiApsToggle.setOnClickListener(v -> {
+            wifiApsExpanded = !wifiApsExpanded;
+            renderAccessPointOverview();
+        });
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
@@ -336,11 +347,21 @@ public class MainActivity extends Activity {
         }
     }
 
+    /** #468: how many recently observed access points are shown below the current connection
+     * before the list is collapsed behind a "show more" toggle. The current connection itself is
+     * always visible regardless of this limit (acceptance criterion 2 -- connection state stays
+     * comprehensible across expand/collapse) since it is rendered in its own row, never as part
+     * of the collapsible list. */
+    private static final int WIFI_APS_COLLAPSED_OTHERS = 5;
+
     /**
-     * Renders the "Wi-Fi &amp; Access Points" card (#461): the currently connected access point
-     * (SSID, BSSID, trust status) highlighted on top, and recently observed ones -- reusing
-     * {@link KeepADBBssidHistory}'s existing mesh observation log -- listed below, with a
-     * same-SSID/different-BSSID mesh label and a quick trust toggle on every row.
+     * Renders the "Wi-Fi &amp; Access Points" card (#461, made collapsible for #468): the
+     * currently connected access point (SSID, BSSID, trust status) highlighted on top, and
+     * recently observed ones -- reusing {@link KeepADBBssidHistory}'s existing mesh observation
+     * log -- listed below, with a same-SSID/different-BSSID mesh label and a quick trust toggle
+     * on every row. By default only the first {@link #WIFI_APS_COLLAPSED_OTHERS} of those are
+     * shown; a "show more"/"show less" toggle appears only when there is actually more to reveal,
+     * so short lists and the empty state need no extra interaction (acceptance criterion 3).
      */
     private void renderAccessPointOverview() {
         List<KeepADBAccessPointOverview.ApItem> items = KeepADBAccessPointOverview.buildItems(this);
@@ -349,10 +370,12 @@ public class MainActivity extends Activity {
         wifiApsList.removeAllViews();
 
         KeepADBAccessPointOverview.ApItem currentItem = null;
+        List<KeepADBAccessPointOverview.ApItem> others = new ArrayList<>();
         for (KeepADBAccessPointOverview.ApItem item : items) {
             if (item.current) {
                 currentItem = item;
-                break;
+            } else {
+                others.add(item);
             }
         }
         if (currentItem != null) {
@@ -365,13 +388,25 @@ public class MainActivity extends Activity {
             wifiApsCurrentRow.addView(unknown);
         }
 
-        boolean hasRecent = false;
-        for (KeepADBAccessPointOverview.ApItem item : items) {
-            if (item.current) continue;
-            wifiApsList.addView(buildAccessPointRow(item, false));
-            hasRecent = true;
+        boolean collapsible = others.size() > WIFI_APS_COLLAPSED_OTHERS;
+        boolean expanded = wifiApsExpanded && collapsible;
+        int visibleCount = expanded ? others.size() : Math.min(others.size(), WIFI_APS_COLLAPSED_OTHERS);
+        for (int i = 0; i < visibleCount; i++) {
+            wifiApsList.addView(buildAccessPointRow(others.get(i), false));
         }
-        wifiApsEmpty.setVisibility(hasRecent ? View.GONE : View.VISIBLE);
+        wifiApsEmpty.setVisibility(others.isEmpty() ? View.VISIBLE : View.GONE);
+
+        if (collapsible) {
+            wifiApsToggle.setVisibility(View.VISIBLE);
+            wifiApsToggle.setText(expanded
+                    ? getString(R.string.wifi_aps_show_less_button)
+                    : getString(R.string.wifi_aps_show_more_button, others.size() - WIFI_APS_COLLAPSED_OTHERS));
+        } else {
+            // Nothing to hide -- no toggle, and a stale expanded flag from a previously longer
+            // list must not resurface once the list shrinks back below the collapse threshold.
+            wifiApsToggle.setVisibility(View.GONE);
+            wifiApsExpanded = false;
+        }
     }
 
     /** One row of the Wi-Fi & Access Points card: SSID/BSSID label, trust and mesh-membership

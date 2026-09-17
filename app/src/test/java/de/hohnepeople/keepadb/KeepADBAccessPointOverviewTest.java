@@ -148,30 +148,38 @@ public class KeepADBAccessPointOverviewTest {
     }
 
     @Test
-    public void resultIsCappedAtMaxItems() {
+    public void resultIsNeverTruncatedRegardlessOfHistorySize() {
+        // #468: the full list must be available so MainActivity can offer it via "show all" --
+        // any truncation would happen here, permanently, before the user ever gets a chance to
+        // expand into it.
+        int total = 20;
         List<KeepADBBssidHistory.Observation> history = new ArrayList<>();
-        for (int i = 0; i < KeepADBAccessPointOverview.MAX_ITEMS + 10; i++) {
+        for (int i = 0; i < total; i++) {
             history.add(new KeepADBBssidHistory.Observation("Ssid" + i, bssid(i)));
         }
 
         List<KeepADBAccessPointOverview.ApItem> items = KeepADBAccessPointOverview.buildItems(
                 unknownIdentity(), history, Collections.emptyList());
 
-        assertEquals(KeepADBAccessPointOverview.MAX_ITEMS, items.size());
+        assertEquals(total, items.size());
     }
 
     @Test
-    public void currentConnectionAlwaysSurvivesTheCapEvenWithLotsOfHistory() {
+    public void currentConnectionIsFirstEvenWithLotsOfHistory() {
         KeepADBNetworkIdentity current = new KeepADBNetworkIdentity("\"HomeMesh\"", "aa:aa:aa:aa:aa:01");
+        int historySize = 20;
+        // Offset past index 1 so none of these BSSIDs collide with the current connection's
+        // "aa:aa:aa:aa:aa:01" (bssid(1)) -- a collision would be de-duplicated away and this
+        // test is about the uncapped *count*, not the de-duplication already covered above.
         List<KeepADBBssidHistory.Observation> history = new ArrayList<>();
-        for (int i = 0; i < KeepADBAccessPointOverview.MAX_ITEMS + 10; i++) {
+        for (int i = 100; i < 100 + historySize; i++) {
             history.add(new KeepADBBssidHistory.Observation("Ssid" + i, bssid(i)));
         }
 
         List<KeepADBAccessPointOverview.ApItem> items = KeepADBAccessPointOverview.buildItems(
                 current, history, Collections.emptyList());
 
-        assertEquals(KeepADBAccessPointOverview.MAX_ITEMS, items.size());
+        assertEquals(historySize + 1, items.size());
         assertTrue(items.get(0).current);
     }
 

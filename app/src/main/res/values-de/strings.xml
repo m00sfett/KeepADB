@@ -118,6 +118,8 @@
     <string name="wifi_aps_untrust_button">Entfernen</string>
     <string name="wifi_aps_trust_accessibility">\"%1$s\" zur vertrauenswürdigen Liste hinzufügen</string>
     <string name="wifi_aps_untrust_accessibility">\"%1$s\" aus der vertrauenswürdigen Liste entfernen</string>
+    <string name="wifi_aps_show_more_button">%1$d weitere anzeigen</string>
+    <string name="wifi_aps_show_less_button">Weniger anzeigen</string>
     <string name="settings_webhook_saved_toast">Webhook-URL gespeichert</string>
     <string name="settings_webhook_cleared_toast">Webhook-Konfiguration gelöscht</string>
     <string name="settings_webhook_enabled_toast">Webhook-Synchronisierung aktiviert</string>

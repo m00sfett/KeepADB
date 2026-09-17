@@ -99,6 +99,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="wifi_aps_untrust_button">भरोसा हटाएं</string>
     <string name="wifi_aps_trust_accessibility">\"%1$s\" को विश्वसनीय नेटवर्क में जोड़ें</string>
     <string name="wifi_aps_untrust_accessibility">\"%1$s\" को विश्वसनीय नेटवर्क से हटाएं</string>
+    <string name="wifi_aps_show_more_button">%1$d और दिखाएं</string>
+    <string name="wifi_aps_show_less_button">कम दिखाएं</string>
     <string name="settings_webhook_saved_toast">वेबहुक URL सहेजा गया</string>
     <string name="settings_webhook_cleared_toast">वेबहुक कॉन्फ़िगरेशन साफ़ किया गया</string>
     <string name="settings_webhook_enabled_toast">वेबहुक सिंक सक्षम किया गया</string>
