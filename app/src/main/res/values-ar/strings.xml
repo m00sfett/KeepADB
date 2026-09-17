@@ -36,6 +36,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_permission_settings_button">فتح إعدادات الإشعارات</string>
     <string name="notification_permission_missing_text">امنح WRITE_SECURE_SETTINGS من الكمبيوتر عبر adb shell pm grant</string>
     <string name="action_settings">الإعدادات</string>
+    <string name="privacy_toggle_enable_accessibility">تفعيل وضع الخصوصية (إخفاء عناوين الشبكة)</string>
+    <string name="privacy_toggle_disable_accessibility">إيقاف وضع الخصوصية (إظهار عناوين الشبكة)</string>
     <string name="title_settings">الإعدادات</string>
     <string name="settings_section_general">عام</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>

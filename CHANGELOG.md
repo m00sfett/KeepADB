@@ -22,6 +22,15 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.5] - Unreleased
+
+### Added
+- Main screen header: a new privacy-mode toggle (eye / crossed-out eye icon) sits directly next to the settings button, with a 48dp touch target and a content description naming the action the next tap performs ("Enable privacy mode (hide network addresses)" / "Disable privacy mode (show network addresses)"). Persisted in `KeepADBPreferences` (`isPrivacyModeEnabled`/`setPrivacyModeEnabled`) as a display-only preference -- it never touches `adb_wifi_enabled`, any other persisted original value, or the real ADB transport. The actual masking of displayed network addresses (endpoint host, BSSIDs) reading this flag is left to a follow-up issue (#483) (issue #482).
+
+### Changed
+- The settings button's icon changed from the three-dot overflow glyph (`ic_overflow_menu`) to a gear icon (new `ic_settings_gear` vector drawable), so it reads unambiguously as "settings" rather than "more options" (issue #482).
+- Patch version bump (1.8.4 -> 1.8.5, versionCode 102): #482 adds a new, purely additive display toggle and swaps one icon -- no breaking change, so a Patch bump applies.
+
 ## [1.8.4] - Unreleased
 
 ### Changed

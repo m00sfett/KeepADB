@@ -36,6 +36,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_permission_settings_button">通知設定を開く</string>
     <string name="notification_permission_missing_text">PCから adb shell pm grant で WRITE_SECURE_SETTINGS を付与してください</string>
     <string name="action_settings">設定</string>
+    <string name="privacy_toggle_enable_accessibility">プライバシーモードを有効にする（ネットワークアドレスを非表示）</string>
+    <string name="privacy_toggle_disable_accessibility">プライバシーモードを無効にする（ネットワークアドレスを表示）</string>
     <string name="title_settings">設定</string>
     <string name="settings_section_general">一般</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>

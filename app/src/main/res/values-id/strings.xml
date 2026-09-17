@@ -36,6 +36,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_permission_settings_button">Buka setelan notifikasi</string>
     <string name="notification_permission_missing_text">Berikan WRITE_SECURE_SETTINGS dari PC melalui adb shell pm grant</string>
     <string name="action_settings">Pengaturan</string>
+    <string name="privacy_toggle_enable_accessibility">Aktifkan mode privasi (sembunyikan alamat jaringan)</string>
+    <string name="privacy_toggle_disable_accessibility">Nonaktifkan mode privasi (tampilkan alamat jaringan)</string>
     <string name="title_settings">Pengaturan</string>
     <string name="settings_section_general">Umum</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
