@@ -22,6 +22,12 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.4] - Unreleased
+
+### Changed
+- Settings: the first entry (language) and the last entry (version/app info) are now permanently visible and no longer collapsible -- no expand/collapse arrow, no click-to-toggle header -- and are rendered directly on the screen background instead of inside the framed panel card the other, still individually collapsible, settings cards use. The language entry is now marked with a locale-independent globe icon (new `ic_globe` vector drawable), including when "system default" is selected, so the setting stays clearly identifiable without relying on per-language flags in the main view (issue #478).
+- Patch version bump (1.8.3 -> 1.8.4, versionCode 101): purely a Settings UI adjustment on an existing surface, no new capability or behavior change beyond layout/visibility, so a Patch bump applies.
+
 ## [1.8.3] - Unreleased
 
 ### Fixed
