@@ -369,6 +369,25 @@ public class KeepADBNetworkTrustPromptTest {
         }
     }
 
+    /**
+     * #470: the main screen's per-access-point trust button calls {@link
+     * KeepADBReceiver#trustBssidAndAttemptConnect} directly, not {@link
+     * KeepADBReceiver#handleTrustNetworkAction} -- so this pins that entry point separately:
+     * trusting a network from anywhere in the app must make an already-showing prompt disappear,
+     * not only a tap on the notification's own "allow" action.
+     */
+    @Test
+    public void trustingANetworkAnywhereInTheAppDismissesAnAlreadyPostedPrompt() {
+        connectTo("Cafe-WLAN", BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        assertNotNull(postedPrompt());
+
+        KeepADBReceiver.trustBssidAndAttemptConnect(context, BSSID, "Cafe-WLAN");
+
+        assertNull("Trusting a network anywhere in the app must dismiss the prompt", postedPrompt());
+        assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
+    }
+
     @Test
     public void decliningTrustsNothingAndOnlyRemovesThePrompt() {
         connectTo("Cafe-WLAN", BSSID);

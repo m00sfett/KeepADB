@@ -456,6 +456,14 @@ public class MainActivity extends Activity {
             if (added != null) {
                 Toast.makeText(this, getString(R.string.settings_trusted_network_added_toast, added.label),
                         Toast.LENGTH_SHORT).show();
+                // #470: trusting an access point from here must immediately attempt the
+                // connection it was blocking -- the same way the notification's "allow" action
+                // already does -- instead of requiring the user to dig through a pushdown
+                // notification first. Also cancels/clears that notification if one is showing.
+                boolean enabled = KeepADBReceiver.trustBssidAndAttemptConnect(this, item.bssid, added.label);
+                if (!enabled && !hasSecureSettingsPermission()) {
+                    showToggleErrorToast();
+                }
             }
         }
         refresh();
