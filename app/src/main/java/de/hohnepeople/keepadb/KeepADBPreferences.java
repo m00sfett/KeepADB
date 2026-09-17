@@ -515,8 +515,10 @@ final class KeepADBPreferences {
         prefs.edit().putBoolean(KEY_ADVICE_BANNER_VISIBLE, visible).apply();
     }
 
-    /** #482/#483: whether currently-displayed network addresses (e.g. the WLAN-ADB endpoint,
-     * access point BSSIDs) should be masked in the UI. Off by default -- existing behavior is
+    /** #482/#483: whether currently-displayed network addresses should be masked in the UI. #483
+     * applies this to exactly three places: the main screen's endpoint line, the webhook address
+     * and the last reported endpoint. Access point rows, the notification and the Quick Settings
+     * tile are deliberately not covered. Off by default -- existing behavior is
      * unchanged until the user opts in from the main screen's header toggle. This flag only ever
      * controls rendering; it never touches {@code adb_wifi_enabled} or any other persisted
      * original value. */
