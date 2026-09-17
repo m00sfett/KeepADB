@@ -263,6 +263,25 @@ final class KeepADBNetworkTrustPrompt {
                 .apply();
     }
 
+    /**
+     * #474: forgets the remembered prompt marker for exactly one access point, leaving any other
+     * BSSID's history entry untouched. Trusting access point A must not silently erase the
+     * anti-spam marker for a *different*, still-untrusted access point B that happens to have a
+     * pending or recently-shown prompt at the same time -- the previous behavior ({@link
+     * #clearPromptState(Context)}) wiped the whole history on every trust action, so B would fail
+     * to be re-prompted after roaming back onto it even though it was never trusted.
+     */
+    static void clearPromptState(Context context, String bssid) {
+        if (bssid == null || bssid.trim().isEmpty()) return;
+        String cleanBssid = bssid.trim();
+        SharedPreferences preferences = prefs(context);
+        List<PromptEntry> history = readPromptHistory(preferences);
+        boolean removed = history.removeIf(entry -> entry.bssid.equalsIgnoreCase(cleanBssid));
+        if (removed) {
+            writePromptHistory(preferences, history);
+        }
+    }
+
     static void cancel(Context context) {
         NotificationManager manager = context.getApplicationContext()
                 .getSystemService(NotificationManager.class);

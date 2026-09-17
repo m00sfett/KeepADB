@@ -3,7 +3,7 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Wstępna konfiguracja</string>
-    <string name="setup_body">KeepADB wymaga jednorazowego uprawnienia systemowego. Podłącz to urządzenie do komputera przez USB z włączonym debugowaniem USB, wykonaj poniższe polecenie i wróć do KeepADB.</string>
+    <string name="setup_body">Podłącz to urządzenie do komputera przez USB z włączonym debugowaniem USB i wykonaj poniższe polecenie.</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Sprawdź uprawnienia</string>
     <string name="status_on">Debugowanie bezprzewodowe: WŁĄCZONE</string>
@@ -32,7 +32,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_text">Monitorowanie połączenia Wi-Fi i stanu debugowania bezprzewodowego</string>
     <string name="notification_permission_missing_title">KeepADB: Brak uprawnień</string>
     <string name="notification_permission_panel_title">Powiadomienia są wyłączone</string>
-    <string name="notification_permission_panel_body">Keep-Alive może nadal działać, ale KeepADB nie może wyświetlać powiadomienia o stanie. Zezwól na powiadomienia w ustawieniach systemu.</string>
+    <string name="notification_permission_panel_body">KeepADB nie może wyświetlić powiadomienia o stanie bez tego uprawnienia. Keep-Alive nadal działa.</string>
     <string name="notification_permission_settings_button">Otwórz ustawienia powiadomień</string>
     <string name="notification_permission_missing_text">Nadaj WRITE_SECURE_SETTINGS z komputera przez adb shell pm grant</string>
     <string name="action_settings">Ustawienia</string>
@@ -121,8 +121,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Wybierz język</string>
     <string name="settings_section_notification">Powiadomienie</string>
     <string name="settings_hide_notification_toggle">Stałe powiadomienie</string>
-    <string name="settings_hide_notification_subtext">Utrzymuje powiadomienie o stanie widoczne w panelu powiadomień. Wyłącz, aby je ukryć; Keep-Alive i widżety będą nadal działać normalnie.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Gdy funkcja Keep-Alive jest aktywna, system Android wymaga powiadomienia dla usługi na pierwszym planie, dlatego tej opcji nie można wyłączyć, dopóki Keep-Alive nie zostanie wyłączone.</string>
+    <string name="settings_hide_notification_subtext">Pokazuje powiadomienie o stanie w panelu. Wyłączenie go nie wpływa na Keep-Alive ani widżety.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Wymagane, gdy Keep-Alive jest aktywne — Android wymaga go dla usługi na pierwszym planie.</string>
     <string name="settings_section_display">Ekran</string>
     <string name="settings_keep_display_on_toggle">Utrzymuj ekran włączony, gdy KeepADB działa na pierwszym planie</string>
     <string name="settings_keep_display_on_subtext">Utrzymuje ekran włączony tylko wtedy, gdy ta aplikacja jest otwarta. Ekran gaśnie normalnie zaraz po opuszczeniu aplikacji.</string>
@@ -166,12 +166,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_export">Eksportuj diagnostykę</string>
     <string name="settings_diagnostics_export_subject">Diagnostyka KeepADB</string>
     <string name="battery_optimization_title">Optymalizacja baterii może ograniczyć Keep-Alive</string>
-    <string name="battery_optimization_body">KeepADB nie jest wyłączony z optymalizacji baterii. Android lub producent może ograniczyć albo zatrzymać Keep-Alive w tle.</string>
+    <string name="battery_optimization_body">Android może ograniczyć lub zatrzymać Keep-Alive w tle, jeśli KeepADB nie jest wyłączony z optymalizacji baterii.</string>
     <string name="battery_optimization_button">Otwórz ustawienia baterii</string>
     <string name="location_permission_panel_title">Wymagane uprawnienie lokalizacji dla zaufanych sieci</string>
-    <string name="location_permission_panel_body">Tryb zaufanych sieci jest aktywny, ale bez dostępu do lokalizacji Android ukrywa nazwę i identyfikator bieżącej sieci Wi-Fi. Bez tego Keep-Alive nigdy nie może potwierdzić, że jesteś w zaufanej sieci, i nie włączy się ponownie automatycznie.</string>
+    <string name="location_permission_panel_body">Tryb zaufanych sieci wymaga dostępu do lokalizacji, aby rozpoznać Twoją sieć Wi-Fi. Bez tego Keep-Alive nie może potwierdzić zaufanej sieci i nie włączy się automatycznie ponownie.</string>
     <string name="location_permission_panel_grant_button">Przyznaj uprawnienie lokalizacji</string>
-    <string name="location_permission_panel_fallback_body">Nadal nie chcesz przyznać dostępu do lokalizacji? Przełącz się zamiast tego na tryb ufania wszystkim sieciom Wi-Fi — Keep-Alive włączy się wtedy automatycznie w dowolnej połączonej sieci Wi-Fi, bez konieczności jej identyfikacji.</string>
+    <string name="location_permission_panel_fallback_body">Wolisz nie przyznawać dostępu do lokalizacji? Zaufaj zamiast tego wszystkim sieciom Wi-Fi — Keep-Alive włączy się wtedy automatycznie przy dowolnym połączeniu.</string>
     <string name="location_permission_panel_fallback_button">Zamiast tego ufaj wszystkim sieciom Wi-Fi</string>
     <string name="location_permission_panel_fallback_toast">Przełączono na tryb „ufaj wszystkim sieciom Wi-Fi”.</string>
     <string name="settings_section_usb_handover">Przekazanie USB → WLAN-ADB</string>
@@ -260,7 +260,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_notes">Dodaj inne przydatne informacje.</string>
     <string name="issue_report_diagnostics_section">Opcjonalne zredagowane dane diagnostyczne KeepADB (sprawdź przed wysłaniem)</string>
     <string name="advice_banner_title">Bezpieczeństwo i sieć</string>
-    <string name="advice_banner_text">Debugowanie bezprzewodowe otwiera port ADB w Twojej sieci. Korzystaj z niego w zaufanych sieciach Wi-Fi lub przez VPN, np. Tailscale, i wyłączaj je w publicznych hotspotach. Nigdy nie udostępniaj publicznie adresu punktu końcowego ani nie akceptuj nieoczekiwanych próśb o sparowanie lub autoryzację.</string>
+    <string name="advice_banner_text">Debugowanie bezprzewodowe otwiera port ADB w Twojej sieci. Korzystaj z zaufanej sieci Wi-Fi lub VPN (np. Tailscale) i wyłączaj je w publicznych hotspotach. Nigdy nie udostępniaj publicznie swojego punktu końcowego ani nie akceptuj nieoczekiwanych próśb o parowanie.</string>
     <string name="action_dismiss">Zamknij</string>
     <string name="settings_advice_banner_toggle">Pokaż wskazówki dotyczące bezpieczeństwa i sieci</string>
     <string name="settings_advice_banner_subtext">Wyświetla baner ostrzeżenia o bezpieczeństwie u góry głównego ekranu.</string>

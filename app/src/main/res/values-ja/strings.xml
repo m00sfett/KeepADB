@@ -3,7 +3,7 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">初期設定</string>
-    <string name="setup_body">KeepADB には1回限りのシステム権限が必要です。USBデバッグを有効にして本機をPCにUSB接続し、以下のコマンドを実行してから KeepADB に戻ってください。</string>
+    <string name="setup_body">USBデバッグを有効にして本機をUSBでPCに接続し、以下のコマンドを実行してください。</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">権限を確認</string>
     <string name="status_on">ワイヤレスデバッグは ON です</string>
@@ -32,7 +32,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_text">Wi-Fi接続とワイヤレスデバッグの状態を監視中</string>
     <string name="notification_permission_missing_title">KeepADB: 権限がありません</string>
     <string name="notification_permission_panel_title">通知が無効です</string>
-    <string name="notification_permission_panel_body">Keep-Alive は引き続き動作できますが、KeepADB はステータス通知を表示できません。システム設定で通知を許可してください。</string>
+    <string name="notification_permission_panel_body">この権限がないとKeepADBはステータス通知を表示できません。Keep-Aliveは引き続き動作します。</string>
     <string name="notification_permission_settings_button">通知設定を開く</string>
     <string name="notification_permission_missing_text">PCから adb shell pm grant で WRITE_SECURE_SETTINGS を付与してください</string>
     <string name="action_settings">設定</string>
@@ -121,8 +121,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">言語を選択</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">常駐通知</string>
-    <string name="settings_hide_notification_subtext">通知シェード内のステータス通知を表示したままにします。非表示にするにはオフにしてください。Keep-Aliveやウィジェットは通常通り機能します。</string>
-    <string name="settings_hide_notification_subtext_keepalive">Keep-Aliveが有効な場合、Androidはフォアグラウンドサービス用の通知を必須とするため、Keep-Aliveを無効にするまでこの設定をオフにできません。</string>
+    <string name="settings_hide_notification_subtext">ステータス通知をシェードに表示します。オフにしてもKeep-Aliveやウィジェットには影響しません。</string>
+    <string name="settings_hide_notification_subtext_keepalive">Keep-Alive有効時は必須です — Androidがフォアグラウンドサービスのために必要とします。</string>
     <string name="settings_section_display">ディスプレイ</string>
     <string name="settings_keep_display_on_toggle">KeepADBが前面表示されている間、画面をオンのままにする</string>
     <string name="settings_keep_display_on_subtext">このアプリを開いている間だけ画面をオンのままにします。アプリを離れると画面は通常どおり消灯します。</string>
@@ -166,12 +166,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_export">診断をエクスポート</string>
     <string name="settings_diagnostics_export_subject">KeepADB診断</string>
     <string name="battery_optimization_title">バッテリー最適化によりKeep-Aliveが制限される場合があります</string>
-    <string name="battery_optimization_body">KeepADBはバッテリー最適化の対象外ではありません。Androidまたは端末メーカーがバックグラウンドのKeep-Aliveを制限・停止する場合があります。</string>
+    <string name="battery_optimization_body">KeepADBがバッテリー最適化の対象外でない場合、AndroidはバックグラウンドのKeep-Aliveを制限・停止することがあります。</string>
     <string name="battery_optimization_button">バッテリー設定を開く</string>
     <string name="location_permission_panel_title">信頼できるネットワークには位置情報の権限が必要です</string>
-    <string name="location_permission_panel_body">信頼できるネットワークモードが有効ですが、位置情報へのアクセスがないとAndroidは現在のWi-Fiネットワークの名前とIDを隠してしまいます。これがないと、Keep-AliveはWi-Fiが信頼できるネットワークかどうかを確認できず、自動的に再有効化されません。</string>
+    <string name="location_permission_panel_body">信頼できるネットワークモードはWi-Fiネットワークを識別するために位置情報アクセスが必要です。これがないと、Keep-Aliveは信頼できるネットワークを確認できず、自動的に再有効化されません。</string>
     <string name="location_permission_panel_grant_button">位置情報の権限を許可</string>
-    <string name="location_permission_panel_fallback_body">それでも位置情報へのアクセスを許可したくない場合は、代わりに「すべてのWi-Fiネットワークを信頼する」モードに切り替えられます。この場合、識別せずに接続中のWi-Fiで自動的に再有効化されます。</string>
+    <string name="location_permission_panel_fallback_body">位置情報へのアクセスを許可したくない場合は、代わりにすべてのWi-Fiネットワークを信頼するモードに切り替えられます。この場合、どの接続でも自動的に再有効化されます。</string>
     <string name="location_permission_panel_fallback_button">代わりにすべてのWi-Fiネットワークを信頼する</string>
     <string name="location_permission_panel_fallback_toast">「すべてのWi-Fiネットワークを信頼する」モードに切り替えました。</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB の引き継ぎ</string>
@@ -260,7 +260,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_notes">その他の役立つ情報を追加してください。</string>
     <string name="issue_report_diagnostics_section">任意の編集済み KeepADB 診断データ（送信前に確認してください）</string>
     <string name="advice_banner_title">セキュリティとネットワーク</string>
-    <string name="advice_banner_text">ワイヤレスデバッグはネットワーク上に ADB ポートを開きます。信頼できる Wi-Fi または Tailscale などの VPN でのみ使用し、公共のホットスポットではオフにしてください。エンドポイントのアドレスを公開したり、身に覚えのないペアリングや認可の要求を許可したりしないでください。</string>
+    <string name="advice_banner_text">ワイヤレスデバッグはネットワーク上にADBポートを開きます。信頼できるWi-Fiまたは VPN（Tailscaleなど）を使用し、公共のホットスポットではオフにしてください。エンドポイントを公開せず、身に覚えのないペアリング要求は許可しないでください。</string>
     <string name="action_dismiss">閉じる</string>
     <string name="settings_advice_banner_toggle">セキュリティとネットワークのアドバイスを表示</string>
     <string name="settings_advice_banner_subtext">メイン画面の上部にセキュリティ警告バナーを表示します。</string>

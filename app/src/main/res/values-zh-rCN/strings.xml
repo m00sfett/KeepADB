@@ -3,7 +3,7 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">首次设置</string>
-    <string name="setup_body">KeepADB 需要一次性系统权限。请通过 USB 将此设备连接到电脑并启用 USB 调试，运行以下命令，然后返回 KeepADB。</string>
+    <string name="setup_body">请启用 USB 调试并通过 USB 将此设备连接到电脑，然后运行以下命令。</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">检查权限</string>
     <string name="status_on">无线调试已开启</string>
@@ -32,7 +32,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_text">正在监控 Wi-Fi 连接和无线调试状态</string>
     <string name="notification_permission_missing_title">KeepADB：缺少权限</string>
     <string name="notification_permission_panel_title">通知已关闭</string>
-    <string name="notification_permission_panel_body">Keep-Alive 仍可运行，但 KeepADB 无法显示状态通知。请在系统设置中允许通知。</string>
+    <string name="notification_permission_panel_body">没有此权限，KeepADB 无法显示状态通知。Keep-Alive 仍可正常运行。</string>
     <string name="notification_permission_settings_button">打开通知设置</string>
     <string name="notification_permission_missing_text">请在电脑上通过 adb shell pm grant 授予 WRITE_SECURE_SETTINGS 权限</string>
     <string name="action_settings">设置</string>
@@ -121,8 +121,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">选择语言</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">常驻通知</string>
-    <string name="settings_hide_notification_subtext">让状态通知在通知栏中保持可见。关闭以隐藏它；Keep-Alive 和桌面小组件仍将正常工作。</string>
-    <string name="settings_hide_notification_subtext_keepalive">当 Keep-Alive 处于活动状态时，Android 要求前台服务必须显示通知，因此在禁用 Keep-Alive 之前无法关闭此选项。</string>
+    <string name="settings_hide_notification_subtext">在通知栏中显示状态通知。关闭它不会影响 Keep-Alive 或桌面小组件。</string>
+    <string name="settings_hide_notification_subtext_keepalive">Keep-Alive 处于活动状态时为必需项——Android 要求前台服务显示通知。</string>
     <string name="settings_section_display">显示屏</string>
     <string name="settings_keep_display_on_toggle">KeepADB 位于前台时保持屏幕常亮</string>
     <string name="settings_keep_display_on_subtext">仅在此应用打开期间保持屏幕常亮。离开应用后屏幕会照常熄灭。</string>
@@ -166,12 +166,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_export">导出诊断信息</string>
     <string name="settings_diagnostics_export_subject">KeepADB 诊断</string>
     <string name="battery_optimization_title">电池优化可能限制 Keep-Alive</string>
-    <string name="battery_optimization_body">KeepADB 未被排除在电池优化之外。Android 或设备制造商可能会限制或停止后台 Keep-Alive。</string>
+    <string name="battery_optimization_body">若 KeepADB 未被排除在电池优化之外，Android 可能会限制或停止后台的 Keep-Alive。</string>
     <string name="battery_optimization_button">打开电池设置</string>
     <string name="location_permission_panel_title">受信任网络需要位置权限</string>
-    <string name="location_permission_panel_body">受信任网络模式已启用,但如果没有位置访问权限,Android 会隐藏当前 Wi-Fi 网络的名称和 ID。没有此权限,Keep-Alive 将永远无法确认您是否在受信任的网络中,也不会自动重新启用。</string>
+    <string name="location_permission_panel_body">受信任网络模式需要位置权限来识别你的 Wi-Fi 网络。没有此权限，Keep-Alive 无法确认受信任网络，也不会自动重新启用。</string>
     <string name="location_permission_panel_grant_button">授予位置权限</string>
-    <string name="location_permission_panel_fallback_body">仍然不想授予位置访问权限?改为切换到信任所有 Wi-Fi 网络模式 — 这样 Keep-Alive 就会在任何已连接的 Wi-Fi 上自动重新启用,无需识别该网络。</string>
+    <string name="location_permission_panel_fallback_body">不想授予位置权限？改为信任所有 Wi-Fi 网络——这样 Keep-Alive 会在任意连接下自动重新启用。</string>
     <string name="location_permission_panel_fallback_button">改为信任所有 Wi-Fi 网络</string>
     <string name="location_permission_panel_fallback_toast">已切换到\"信任所有 Wi-Fi 网络\"模式。</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB 接管</string>
@@ -260,7 +260,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_notes">添加其他有用的信息。</string>
     <string name="issue_report_diagnostics_section">可选的已脱敏 KeepADB 诊断数据（发送前请检查）</string>
     <string name="advice_banner_title">安全与网络</string>
-    <string name="advice_banner_text">无线调试会在你的网络上开放一个 ADB 端口。请仅在受信任的 Wi-Fi 或 Tailscale 等 VPN 中使用，并在连接公共热点时关闭。切勿公开分享你的端点地址，也切勿接受意外的配对或授权请求。</string>
+    <string name="advice_banner_text">无线调试会在你的网络上开放一个 ADB 端口。请使用受信任的 Wi-Fi 或 VPN（如 Tailscale），并在公共热点关闭它。切勿公开分享你的端点，也不要接受意外的配对请求。</string>
     <string name="action_dismiss">关闭</string>
     <string name="settings_advice_banner_toggle">显示安全与网络提示</string>
     <string name="settings_advice_banner_subtext">在主屏幕顶部显示安全警告横幅。</string>
