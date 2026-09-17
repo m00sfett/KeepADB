@@ -212,6 +212,60 @@ public class KeepADBPreferencesTest {
                         KeepADBPreferences.getWebhookLastReportedUrl(context)));
     }
 
+    /** #483: with the privacy toggle off, every display value stays exactly as before. */
+    @Test
+    public void testPrivacyModeOffLeavesDisplayValuesUntouched() {
+        FakeContext context = new FakeContext();
+        assertFalse(KeepADBPreferences.isPrivacyModeEnabled(context));
+        assertEquals("192.168.1.100",
+                KeepADBPreferences.maskHostForDisplay(context, "192.168.1.100"));
+        assertEquals("[fe80::1%wlan0]:50829",
+                KeepADBPreferences.maskEndpointForDisplay(context, "[fe80::1%wlan0]:50829"));
+        assertEquals("http://100.111.***.**:50829/register/s20",
+                KeepADBPreferences.maskWebhookUrlForDisplay(
+                        context, "http://100.111.111.21:50829/register/s20"));
+    }
+
+    /** #483: with the privacy toggle on, addresses are masked and ports stay readable. */
+    @Test
+    public void testPrivacyModeOnMasksAddressesButKeepsPortsAndHostnames() {
+        FakeContext context = new FakeContext();
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        assertTrue(KeepADBPreferences.isPrivacyModeEnabled(context));
+        assertEquals("192.*.*.*", KeepADBPreferences.maskHostForDisplay(context, "192.168.1.100"));
+        assertEquals("192.*.*.*:5555",
+                KeepADBPreferences.maskEndpointForDisplay(context, "192.168.1.100:5555"));
+        assertEquals("[fe80:***]:50829",
+                KeepADBPreferences.maskEndpointForDisplay(context, "[fe80::1%wlan0]:50829"));
+        assertEquals("http://100.*.*.*:50829/register/s20",
+                KeepADBPreferences.maskWebhookUrlForDisplay(
+                        context, "http://100.111.111.21:50829/register/s20"));
+        assertEquals("https://register.example:50829/register/s20",
+                KeepADBPreferences.maskWebhookUrlForDisplay(
+                        context, "https://register.example:50829/register/s20"));
+    }
+
+    /** #483: masking is display-only — the stored originals must survive a toggle round trip. */
+    @Test
+    public void testPrivacyModeDoesNotAlterStoredValues() {
+        FakeContext context = new FakeContext();
+        String url = "http://100.111.111.21:50829/register/s20";
+        KeepADBPreferences.setRegisterWebhookUrl(context, url);
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.100:5555");
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.maskWebhookUrlForDisplay(
+                context, KeepADBPreferences.getRegisterWebhookUrl(context));
+        KeepADBPreferences.maskEndpointForDisplay(
+                context, KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        assertEquals(url, KeepADBPreferences.getRegisterWebhookUrl(context));
+        assertEquals("192.168.1.100:5555",
+                KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        assertEquals(url, KeepADBPreferences.getRegisterWebhookUrl(context));
+        assertEquals("192.168.1.100:5555",
+                KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+    }
+
     private static final class FakeContext extends android.content.ContextWrapper {
         private final android.content.SharedPreferences preferences = new MemoryPreferences();
 
