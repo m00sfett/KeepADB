@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +30,10 @@ public class MainActivity extends Activity {
     // permission independently, from their own onRequestPermissionsResult.
     private static final int LOCATION_PERMISSION_REQUEST = 30;
     private static final String LOCATION_PERMISSION_REQUESTED = "location_permission_requested";
+    // #484: this activity's own request code for the trust-restriction toggle's location
+    // permission flow, moved here from SettingsActivity (which used its own code 20) -- kept
+    // distinct from LOCATION_PERMISSION_REQUEST above, which is a different onboarding flow.
+    private static final int TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST = 31;
     private ImageButton privacyModeToggle;
     private Switch toggle;
     private Switch keepAliveToggle;
@@ -50,6 +56,13 @@ public class MainActivity extends Activity {
     private TextView wifiApsEmpty;
     private TextView wifiApsToggle;
     private Switch wifiApsTrustedOnlyToggle;
+    // #484: the "restrict Keep-Alive to trusted networks" mode toggle and its status text,
+    // moved here from SettingsActivity.
+    private Switch trustedNetworkToggle;
+    private TextView trustedNetworkStatus;
+    // #485: whitelist management and block history, moved here from SettingsActivity.
+    private AlertDialog activeManageNetworksDialog;
+    private AlertDialog activeBlockedNetworksDialog;
     // #468: whether the "recently observed" access points below the current connection are
     // shown in full. Deliberately in-memory only (not persisted) -- it is a display convenience
     // for the current screen visit, not a user setting; a fresh visit starts collapsed again.
@@ -122,6 +135,13 @@ public class MainActivity extends Activity {
             wifiApsTrustedOnly = isChecked;
             renderAccessPointOverview();
         });
+        trustedNetworkToggle = findViewById(R.id.wifi_aps_trust_restriction_toggle);
+        trustedNetworkStatus = findViewById(R.id.wifi_aps_trust_restriction_status);
+        trustedNetworkToggle.setOnClickListener(v -> onTrustedNetworkToggleClicked());
+        findViewById(R.id.wifi_aps_manage_whitelist_button).setOnClickListener(v ->
+                showTrustedNetworkManageDialog());
+        findViewById(R.id.wifi_aps_recently_blocked_button).setOnClickListener(v ->
+                showBlockedNetworkDialog());
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
@@ -305,7 +325,38 @@ public class MainActivity extends Activity {
             // checkSelfPermission() and the LOCATION_PERMISSION_REQUESTED flag set on request --
             // no need to branch on grantResults here (matches SettingsActivity's own pattern).
             refresh();
+        } else if (requestCode == TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST) {
+            // grantResults can be shorter than permissions (even empty) if the request was
+            // interrupted (e.g. the app was backgrounded while the system dialog was up), so
+            // re-query the actual permission state instead of indexing into it.
+            boolean granted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED;
+            if (granted) {
+                KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+            } else {
+                Toast.makeText(this, R.string.settings_trusted_network_permission_denied_toast,
+                        Toast.LENGTH_LONG).show();
+            }
+            refresh();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        // #485: mirrors SettingsActivity's own dialog-leak prevention for the dialogs moved here.
+        if (activeManageNetworksDialog != null) {
+            if (activeManageNetworksDialog.isShowing()) {
+                activeManageNetworksDialog.dismiss();
+            }
+            activeManageNetworksDialog = null;
+        }
+        if (activeBlockedNetworksDialog != null) {
+            if (activeBlockedNetworksDialog.isShowing()) {
+                activeBlockedNetworksDialog.dismiss();
+            }
+            activeBlockedNetworksDialog = null;
+        }
+        super.onDestroy();
     }
 
     private void refresh() {
@@ -362,7 +413,216 @@ public class MainActivity extends Activity {
                 : R.string.settings_hide_notification_subtext);
         refreshWebhookStatus();
         renderAccessPointOverview();
+        renderTrustedNetworkSection();
         updatePrivacyModeToggle();
+    }
+
+    /** #484: renders the trust-restriction toggle and its status text, moved here from
+     * SettingsActivity's own refresh(). */
+    private void renderTrustedNetworkSection() {
+        trustedNetworkToggle.setChecked(KeepADBTrustedNetwork.isAllowlistMode(this));
+        KeepADBTrustedNetwork.BlockReason blockReason = KeepADBTrustedNetwork.getBlockReason(this);
+        if (blockReason == KeepADBTrustedNetwork.BlockReason.UNTRUSTED_NETWORK) {
+            trustedNetworkStatus.setText(R.string.settings_trusted_network_status_untrusted);
+            trustedNetworkStatus.setVisibility(View.VISIBLE);
+        } else if (blockReason == KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE) {
+            trustedNetworkStatus.setText(R.string.settings_trusted_network_status_identity_unavailable);
+            trustedNetworkStatus.setVisibility(View.VISIBLE);
+        } else {
+            trustedNetworkStatus.setVisibility(View.GONE);
+        }
+        // #485: the count is on the button itself so the blocked log is visible without opening
+        // it -- "0" is the normal, reassuring state, not a reason to hide the entry point.
+        Button blockedButton = findViewById(R.id.wifi_aps_recently_blocked_button);
+        blockedButton.setText(getString(R.string.settings_trusted_network_blocked_button,
+                KeepADBBlockedNetworkHistory.getEntries(this).size()));
+    }
+
+    /** #484: moved here from SettingsActivity -- the mode switch controlling whether automatic
+     * Keep-Alive re-enable is restricted to trusted networks. */
+    private void onTrustedNetworkToggleClicked() {
+        boolean wantAllowlist = trustedNetworkToggle.isChecked();
+        if (!wantAllowlist) {
+            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+            refresh();
+            return;
+        }
+        // Revert the switch until permission is confirmed; refresh() below re-derives the
+        // actual checked state from the persisted mode either way.
+        trustedNetworkToggle.setChecked(false);
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+            refresh();
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_trusted_network_permission_title)
+                .setMessage(R.string.settings_trusted_network_permission_message)
+                .setPositiveButton(R.string.settings_trusted_network_permission_grant, (dialog, which) ->
+                        // Requested together per Android's guidance for FINE: the system then
+                        // offers the user a precise/approximate choice in one dialog. Only a
+                        // FINE grant is actually usable here (see onRequestPermissionsResult).
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION},
+                                TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    /** #485: moved here from SettingsActivity, unchanged. */
+    private void showTrustedNetworkManageDialog() {
+        List<KeepADBTrustedNetwork.Entry> entries = KeepADBTrustedNetwork.getEntries(this);
+        if (entries.isEmpty()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.settings_trusted_network_manage_title)
+                    .setMessage(R.string.settings_trusted_network_empty_message)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+            return;
+        }
+        LinearLayout rows = new LinearLayout(this);
+        rows.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (20 * getResources().getDisplayMetrics().density);
+        rows.setPadding(padding, 0, padding, 0);
+        final AlertDialog[] dialogHolder = new AlertDialog[1];
+        for (KeepADBTrustedNetwork.Entry entry : entries) {
+            LinearLayout row = new LinearLayout(this);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout labelColumn = new LinearLayout(this);
+            labelColumn.setOrientation(LinearLayout.VERTICAL);
+            labelColumn.setLayoutParams(new LinearLayout.LayoutParams(0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            TextView label = new TextView(this);
+            label.setText(entry.label);
+            label.setTextColor(getColor(R.color.night_text));
+            TextView bssid = new TextView(this);
+            bssid.setText(entry.bssid);
+            bssid.setTextColor(getColor(R.color.night_muted));
+            bssid.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+            labelColumn.addView(label);
+            labelColumn.addView(bssid);
+            Button delete = new Button(this);
+            delete.setText(R.string.settings_trusted_network_delete_button);
+            delete.setContentDescription(getString(
+                    R.string.settings_trusted_network_delete_accessibility, entry.label));
+            delete.setOnClickListener(v -> {
+                KeepADBTrustedNetwork.remove(this, entry.id);
+                dialogHolder[0].dismiss();
+                refresh();
+            });
+            row.addView(labelColumn);
+            row.addView(delete);
+            rows.addView(row);
+        }
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(rows);
+        dialogHolder[0] = new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_trusted_network_manage_title)
+                .setView(scroll)
+                .setPositiveButton(android.R.string.ok, null)
+                .create();
+        activeManageNetworksDialog = dialogHolder[0];
+        dialogHolder[0].setOnDismissListener(d -> {
+            if (activeManageNetworksDialog == d) {
+                activeManageNetworksDialog = null;
+            }
+        });
+        dialogHolder[0].show();
+    }
+
+    /**
+     * #446 (transparency half), moved here from SettingsActivity for #485: lists the access
+     * points on which automatic Keep-Alive re-enable was recently blocked, newest first, and lets
+     * the user allow one after the fact. The allow button goes through {@link
+     * KeepADBTrustedNetwork#addBssid} -- the same entry point as the manual add, the mesh
+     * convenience and the notification's allow action -- so there is exactly one way an access
+     * point can become trusted, and nothing in the blocked log itself ever grants trust.
+     */
+    private void showBlockedNetworkDialog() {
+        List<KeepADBBlockedNetworkHistory.Entry> entries =
+                KeepADBBlockedNetworkHistory.getEntries(this);
+        if (entries.isEmpty()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.settings_trusted_network_blocked_title)
+                    .setMessage(R.string.settings_trusted_network_blocked_empty_message)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+            return;
+        }
+        LinearLayout rows = new LinearLayout(this);
+        rows.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (20 * getResources().getDisplayMetrics().density);
+        rows.setPadding(padding, 0, padding, 0);
+        final AlertDialog[] dialogHolder = new AlertDialog[1];
+        // Newest first: the access point the user just failed to connect on is the one they came
+        // here for, and getEntries() returns the log oldest-first.
+        for (int i = entries.size() - 1; i >= 0; i--) {
+            KeepADBBlockedNetworkHistory.Entry entry = entries.get(i);
+            LinearLayout row = new LinearLayout(this);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout labelColumn = new LinearLayout(this);
+            labelColumn.setOrientation(LinearLayout.VERTICAL);
+            labelColumn.setLayoutParams(new LinearLayout.LayoutParams(0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            TextView label = new TextView(this);
+            label.setText(entry.label());
+            label.setTextColor(getColor(R.color.night_text));
+            TextView detail = new TextView(this);
+            detail.setText(getString(R.string.settings_trusted_network_blocked_detail,
+                    entry.bssid,
+                    android.text.format.DateUtils.getRelativeTimeSpanString(entry.lastSeenAt,
+                            System.currentTimeMillis(),
+                            android.text.format.DateUtils.MINUTE_IN_MILLIS).toString()));
+            detail.setTextColor(getColor(R.color.night_muted));
+            detail.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+            labelColumn.addView(label);
+            labelColumn.addView(detail);
+            Button allow = new Button(this);
+            allow.setText(R.string.settings_trusted_network_blocked_allow_button);
+            allow.setContentDescription(getString(
+                    R.string.settings_trusted_network_blocked_allow_accessibility, entry.label()));
+            allow.setOnClickListener(v -> {
+                // #475: goes through the same trust-and-connect entry point this activity's
+                // per-access-point trust button uses (#470) -- it already covers the allowlist
+                // entry, dropping this BSSID from the blocked-network log, clearing only its
+                // anti-spam marker (#474: this dialog can list several still-blocked access
+                // points at once, so a global clear would wipe the history for the other rows
+                // too) and cancelling the prompt notification, and on top of that immediately
+                // attempts the connection that being untrusted was blocking, instead of leaving
+                // the user to wait for Keep-Alive's next pass.
+                KeepADBReceiver.trustBssidAndAttemptConnect(this, entry.bssid, entry.label());
+                Toast.makeText(this,
+                        getString(R.string.settings_trusted_network_added_toast, entry.label()),
+                        Toast.LENGTH_SHORT).show();
+                dialogHolder[0].dismiss();
+                refresh();
+            });
+            row.addView(labelColumn);
+            row.addView(allow);
+            rows.addView(row);
+        }
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(rows);
+        dialogHolder[0] = new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_trusted_network_blocked_title)
+                .setView(scroll)
+                .setPositiveButton(android.R.string.ok, null)
+                .create();
+        activeBlockedNetworksDialog = dialogHolder[0];
+        dialogHolder[0].setOnDismissListener(d -> {
+            if (activeBlockedNetworksDialog == d) {
+                activeBlockedNetworksDialog = null;
+            }
+        });
+        dialogHolder[0].show();
+    }
+
+    AlertDialog getActiveManageNetworksDialog() {
+        return activeManageNetworksDialog;
+    }
+
+    AlertDialog getActiveBlockedNetworksDialog() {
+        return activeBlockedNetworksDialog;
     }
 
     /** #482: reflects {@link KeepADBPreferences#isPrivacyModeEnabled} as an eye / crossed-out-eye

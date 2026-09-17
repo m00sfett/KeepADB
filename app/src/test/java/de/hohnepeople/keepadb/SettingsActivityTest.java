@@ -75,20 +75,8 @@ public class SettingsActivityTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        // 1. Trusted networks manage dialog
-        KeepADBTrustedNetwork.addBssid(activity, "11:22:33:44:55:66", "Test-WiFi");
-        ShadowLooper.idleMainLooper();
-        activity.findViewById(R.id.settings_trusted_network_manage).performClick();
-        ShadowLooper.idleMainLooper();
-        AlertDialog trustedDialog = activity.getActiveManageNetworksDialog();
-        assertNotNull("Trusted networks dialog should be showing", trustedDialog);
-        assertTrue(trustedDialog.isShowing());
-        ScrollView trustedScroll = findViewByType(trustedDialog.findViewById(android.R.id.custom), ScrollView.class);
-        assertNotNull("Trusted networks dialog rows must be wrapped in a ScrollView", trustedScroll);
-        trustedDialog.dismiss();
-        ShadowLooper.idleMainLooper();
-
-        // 2. Profile switch dialog
+        // 1. Profile switch dialog (the trusted-network manage dialog's own ScrollView wrapping
+        // is covered by MainActivityTrustedNetworkTest -- that dialog moved there for #485).
         KeepADBUsbProfile.add(activity, "Test-Profile", "10.0.0.1", "host", "tail");
         ShadowLooper.idleMainLooper();
         activity.findViewById(R.id.settings_usb_profile_action).performClick();
@@ -117,23 +105,8 @@ public class SettingsActivityTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        // Trusted network delete button
-        KeepADBTrustedNetwork.addBssid(activity, "aa:bb:cc:dd:ee:ff", "MyOfficeNetwork");
-        ShadowLooper.idleMainLooper();
-        activity.findViewById(R.id.settings_trusted_network_manage).performClick();
-        ShadowLooper.idleMainLooper();
-        AlertDialog trustedDialog = activity.getActiveManageNetworksDialog();
-        assertNotNull("Trusted networks dialog should be showing", trustedDialog);
-        View customPanel = trustedDialog.findViewById(android.R.id.custom);
-        ScrollView trustedScroll = findViewByType(customPanel, ScrollView.class);
-        assertNotNull("Custom panel must contain ScrollView", trustedScroll);
-        List<Button> trustedButtons = findViewsByType(trustedScroll, Button.class);
-        assertFalse("Delete button should be present in trusted networks list", trustedButtons.isEmpty());
-        assertEquals("Trusted network delete button must set contextual content description with network label",
-                activity.getString(R.string.settings_trusted_network_delete_accessibility, "MyOfficeNetwork"),
-                trustedButtons.get(0).getContentDescription());
-        trustedDialog.dismiss();
-        ShadowLooper.idleMainLooper();
+        // Trusted network delete button's contextual content description is covered by
+        // MainActivityTrustedNetworkTest -- the manage dialog moved there for #485.
 
         // Profile edit & delete buttons
         KeepADBUsbProfile.add(activity, "ProductionHost", "10.0.0.5", "prod.local", "prod.tail");
@@ -471,108 +444,8 @@ public class SettingsActivityTest {
         assertEquals(View.GONE, warning.getVisibility());
     }
 
-    @SuppressWarnings("unchecked")
-    /** #446: the recently-blocked list is the transparency half of the issue. */
-    @Test
-    public void blockedNetworkDialogListsBlockedAccessPointsAndCanAllowOne() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        KeepADBBlockedNetworkHistory.record(activity,
-                new KeepADBNetworkIdentity("Cafe-WLAN", "aa:bb:cc:dd:ee:01"), 1_000L);
-        KeepADBBlockedNetworkHistory.record(activity,
-                new KeepADBNetworkIdentity("Hotel-WLAN", "aa:bb:cc:dd:ee:02"), 2_000L);
-        controller.pause().resume();
-        ShadowLooper.idleMainLooper();
-
-        Button entryPoint = activity.findViewById(R.id.settings_trusted_network_blocked);
-        assertTrue("The entry point must show the count: " + entryPoint.getText(),
-                entryPoint.getText().toString().contains("2"));
-
-        entryPoint.performClick();
-        ShadowLooper.idleMainLooper();
-        AlertDialog dialog = activity.getActiveBlockedNetworksDialog();
-        assertNotNull("Blocked networks dialog should be showing", dialog);
-        List<TextView> texts = findViewsByType(dialog.findViewById(android.R.id.custom), TextView.class);
-        List<String> rendered = new ArrayList<>();
-        for (TextView view : texts) rendered.add(view.getText().toString());
-        assertTrue(rendered.toString(), rendered.contains("Cafe-WLAN"));
-        assertTrue(rendered.toString(), rendered.contains("Hotel-WLAN"));
-        // Newest first: the access point the user just failed on is at the top.
-        assertTrue(rendered.indexOf("Hotel-WLAN") < rendered.indexOf("Cafe-WLAN"));
-
-        // Nothing is trusted merely by looking at the list.
-        assertTrue(KeepADBTrustedNetwork.getEntries(activity).isEmpty());
-
-        List<Button> allowButtons =
-                findViewsByType(dialog.findViewById(android.R.id.custom), Button.class);
-        assertEquals(2, allowButtons.size());
-        allowButtons.get(0).performClick();
-        ShadowLooper.idleMainLooper();
-
-        List<KeepADBTrustedNetwork.Entry> trusted = KeepADBTrustedNetwork.getEntries(activity);
-        assertEquals(1, trusted.size());
-        assertEquals("aa:bb:cc:dd:ee:02", trusted.get(0).bssid);
-        assertEquals("Hotel-WLAN", trusted.get(0).label);
-        // The allowed one leaves the blocked log; the other stays for a later decision.
-        List<KeepADBBlockedNetworkHistory.Entry> remaining =
-                KeepADBBlockedNetworkHistory.getEntries(activity);
-        assertEquals(1, remaining.size());
-        assertEquals("aa:bb:cc:dd:ee:01", remaining.get(0).bssid);
-    }
-
-    @Test
-    public void blockedNetworkDialogExplainsItselfWhenNothingWasBlocked() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-
-        activity.findViewById(R.id.settings_trusted_network_blocked).performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertNull("An empty log must not open the row dialog",
-                activity.getActiveBlockedNetworksDialog());
-        assertTrue(KeepADBTrustedNetwork.getEntries(activity).isEmpty());
-    }
-
-    /**
-     * #475: the "Allow" button in the blocked-access-points dialog must go through the same
-     * trust-and-connect entry point MainActivity's per-access-point trust button uses (#470),
-     * not just a bare {@code addBssid} that leaves the user waiting for Keep-Alive's next pass.
-     * Also verifies the #474 fix keeps applying: allowing clears only this BSSID's own pending
-     * prompt marker.
-     */
-    @Test
-    public void blockedNetworkDialogAllowButtonImmediatelyAttemptsTheConnectionItWasBlocking() {
-        String bssid = "aa:bb:cc:dd:ee:01";
-        grantAutoEnableForTesting(bssid, "Cafe-WLAN");
-
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        // Raises this BSSID's own pending-prompt marker, exactly like the real block path does.
-        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(activity));
-        controller.pause().resume();
-        ShadowLooper.idleMainLooper();
-
-        Button entryPoint = activity.findViewById(R.id.settings_trusted_network_blocked);
-        entryPoint.performClick();
-        ShadowLooper.idleMainLooper();
-        AlertDialog dialog = activity.getActiveBlockedNetworksDialog();
-        assertNotNull("Blocked networks dialog should be showing", dialog);
-        List<Button> allowButtons =
-                findViewsByType(dialog.findViewById(android.R.id.custom), Button.class);
-        assertEquals(1, allowButtons.size());
-
-        allowButtons.get(0).performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertTrue("Wireless Debugging must be turned on immediately after allowing the "
-                        + "blocked access point from the recently-blocked list",
-                KeepADB.isEnabled(activity));
-        assertTrue("Allowing the access point must clear its own pending prompt marker",
-                KeepADBNetworkTrustPrompt.shouldPrompt(activity, bssid, System.currentTimeMillis()));
-    }
+    // #485: the recently-blocked dialog's listing/allow/empty-state tests moved to
+    // MainActivityTrustedNetworkTest -- that entry point now lives on the home screen.
 
     /**
      * #475: the manual "add current network" button must immediately attempt the connection it

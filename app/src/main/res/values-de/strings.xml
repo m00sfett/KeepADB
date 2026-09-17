@@ -123,6 +123,8 @@
     <string name="wifi_aps_untrust_accessibility">\"%1$s\" aus der vertrauenswürdigen Liste entfernen</string>
     <string name="wifi_aps_show_more_button">%1$d weitere anzeigen</string>
     <string name="wifi_aps_show_less_button">Weniger anzeigen</string>
+    <string name="home_security_actions_title">Sicherheitsverwaltung</string>
+    <string name="home_security_actions_body">Verwalte, welche Zugangspunkte vertrauenswürdig sind, und prüfe kürzlich blockierte -- nur eine aktuelle Liste macht die automatische Keep-Alive-Wiedereinschaltung sicher.</string>
     <string name="settings_webhook_saved_toast">Webhook-URL gespeichert</string>
     <string name="settings_webhook_cleared_toast">Webhook-Konfiguration gelöscht</string>
     <string name="settings_webhook_enabled_toast">Webhook-Synchronisierung aktiviert</string>

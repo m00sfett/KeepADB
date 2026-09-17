@@ -104,6 +104,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="wifi_aps_untrust_accessibility">Usuń \"%1$s\" z zaufanych sieci</string>
     <string name="wifi_aps_show_more_button">Pokaż %1$d więcej</string>
     <string name="wifi_aps_show_less_button">Pokaż mniej</string>
+    <string name="home_security_actions_title">Zarządzanie zabezpieczeniami</string>
+    <string name="home_security_actions_body">Zarządzaj zaufanymi punktami dostępu i przeglądaj ostatnio zablokowane -- dokładność tej listy decyduje o bezpieczeństwie automatycznego ponownego włączania Keep-Alive.</string>
     <string name="settings_webhook_saved_toast">Zapisano adres URL Webhooka</string>
     <string name="settings_webhook_cleared_toast">Wyczyszczono konfigurację Webhooka</string>
     <string name="settings_webhook_enabled_toast">Włączono synchronizację Webhook</string>

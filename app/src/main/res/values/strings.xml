@@ -123,6 +123,8 @@
     <string name="wifi_aps_untrust_accessibility">Remove \"%1$s\" from trusted networks</string>
     <string name="wifi_aps_show_more_button">Show %1$d more</string>
     <string name="wifi_aps_show_less_button">Show less</string>
+    <string name="home_security_actions_title">Security management</string>
+    <string name="home_security_actions_body">Manage which access points are trusted and review recently blocked ones -- keeping this list accurate is what keeps automatic Keep-Alive re-enable safe.</string>
     <string name="settings_webhook_saved_toast">Webhook URL saved</string>
     <string name="settings_webhook_cleared_toast">Webhook configuration cleared</string>
     <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>

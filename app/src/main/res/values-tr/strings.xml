@@ -104,6 +104,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="wifi_aps_untrust_accessibility">\"%1$s\" öğesini güvenilir ağlardan kaldır</string>
     <string name="wifi_aps_show_more_button">%1$d tane daha göster</string>
     <string name="wifi_aps_show_less_button">Daha az göster</string>
+    <string name="home_security_actions_title">Güvenlik yönetimi</string>
+    <string name="home_security_actions_body">Hangi erişim noktalarının güvenilir olduğunu yönetin ve yakın zamanda engellenenleri gözden geçirin -- bu listeyi doğru tutmak, otomatik Keep-Alive yeniden etkinleştirmeyi güvenli kılar.</string>
     <string name="settings_webhook_saved_toast">Webhook URL’si kaydedildi</string>
     <string name="settings_webhook_cleared_toast">Webhook yapılandırması temizlendi</string>
     <string name="settings_webhook_enabled_toast">Webhook senkronizasyonu etkinleştirildi</string>

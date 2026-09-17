@@ -494,6 +494,56 @@
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
+                    <!-- #484: trust-restriction section moved here from Settings, same
+                         typography as the "Wi-Fi & access points" title above. -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:accessibilityHeading="true"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_section_trusted_network"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/settings_trusted_network_subtext"
+                        android:textColor="@color/night_muted"
+                        android:textSize="13sp" />
+
+                    <Switch
+                        android:id="@+id/wifi_aps_trust_restriction_toggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_trusted_network_toggle"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/wifi_aps_trust_restriction_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:accessibilityLiveRegion="polite"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="13sp"
+                        android:visibility="gone" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@color/border_red" />
+
                     <Switch
                         android:id="@+id/wifi_aps_trusted_only_toggle"
                         android:layout_width="match_parent"
@@ -549,6 +599,59 @@
                         android:textColor="@color/night_muted"
                         android:textSize="13sp"
                         android:visibility="gone" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="12dp"
+                        android:background="@color/border_red" />
+
+                    <!-- #485: whitelist management and block history moved here from Settings,
+                         same typography as the sections above (last section of this card). -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:accessibilityHeading="true"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/home_security_actions_title"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/home_security_actions_body"
+                        android:textColor="@color/night_muted"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/wifi_aps_manage_whitelist_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_btn_secondary"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:text="@string/settings_trusted_network_manage_button"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/wifi_aps_recently_blocked_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_btn_secondary"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <Button

@@ -22,6 +22,28 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.7] - Unreleased
+
+### Changed
+- Home screen security card (#484/#485): the "Wi-Fi & access points" card now also holds a
+  "Trusted Networks" section (the trust-restriction toggle, its explanation and status text --
+  moved here from Settings) and a closing "Security management" section ("Manage whitelist" and
+  "Recently blocked", also moved from Settings, with a short explanation of why keeping this list
+  accurate matters). The existing trusted-only filter and access point list stay exactly where and
+  how they worked before. Settings no longer duplicates any of these three entry points; only
+  "Add current network" (unaffected functionally) stays there. No trust/mesh semantics, stored
+  data or blocking logic changed -- this is a pure UI relocation and addition (issues #484, #485).
+- Patch version bump (1.8.6 -> 1.8.7, versionCode 104): purely additive UI relocation, no stored
+  data, transport or blocking-logic changes, so a Patch bump applies.
+
+### Testing
+- `MainActivityTrustedNetworkTest` (new): covers the "manage whitelist" dialog's ScrollView
+  wrapping and contextual accessibility, the "recently blocked" dialog's listing/allow/empty-state
+  behavior (moved from `SettingsActivityTest`, adapted to `MainActivity`), and the trust-
+  restriction toggle's permission-rationale flow. `SettingsActivityTest` and
+  `KeepADBAccessibilityContractTest` were updated to drop the now-removed Settings ids and assert
+  the same behavior no longer duplicated in Settings (issues #484, #485).
+
 ## [1.8.6] - Unreleased
 
 ### Added

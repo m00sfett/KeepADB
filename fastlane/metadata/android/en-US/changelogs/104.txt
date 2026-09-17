@@ -1,0 +1,5 @@
+Trusted Networks (the toggle that restricts automatic Keep-Alive re-enable) and Security
+management (Manage whitelist, Recently blocked) have moved from Settings onto the home screen's
+Wi-Fi & access points card, right where you already manage trusted access points -- no more
+digging through Settings, and no duplicate controls left behind. Nothing about how trust or
+blocking works has changed.
