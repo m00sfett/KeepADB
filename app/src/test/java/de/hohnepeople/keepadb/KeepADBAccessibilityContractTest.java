@@ -119,7 +119,7 @@ public class KeepADBAccessibilityContractTest {
         for (int id : mainControls) assertMinSize(main.findViewById(id));
 
         int[] settingsControls = {
-                R.id.btn_back, R.id.settings_language_header, R.id.settings_language_selector,
+                R.id.btn_back, R.id.settings_language_selector,
                 R.id.settings_webhook_header, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_url, R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_notification_header, R.id.settings_usb_notification_toggle,
@@ -134,22 +134,23 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_advice_banner_header, R.id.settings_advice_banner_toggle,
                 R.id.settings_diagnostics_header,
                 R.id.settings_diagnostics_export, R.id.settings_issue_report,
-                R.id.settings_version_header, R.id.settings_website_link
+                R.id.settings_website_link
         };
         for (int id : settingsControls) assertMinSize(settings.findViewById(id));
         assertMinSize(widget.findViewById(R.id.widget_label));
     }
 
-    /** #471: clicks every settings card's header so its body (and everything inside) becomes
-     * part of the measured/shown layout -- cards start collapsed, and a GONE view's children
-     * never receive a measured size or count as isShown(). */
+    /** #471: clicks every collapsible settings card's header so its body (and everything inside)
+     * becomes part of the measured/shown layout -- cards start collapsed, and a GONE view's
+     * children never receive a measured size or count as isShown(). #478: the language and
+     * version headers are excluded -- they are permanently visible and no longer clickable. */
     private void expandAllSettingsCards(View settings) {
         int[] headers = {
-                R.id.settings_language_header, R.id.settings_webhook_header,
+                R.id.settings_webhook_header,
                 R.id.settings_usb_notification_header, R.id.settings_usb_handover_header,
                 R.id.settings_trusted_network_header, R.id.settings_notification_header,
                 R.id.settings_display_header, R.id.settings_advice_banner_header,
-                R.id.settings_diagnostics_header, R.id.settings_version_header
+                R.id.settings_diagnostics_header
         };
         for (int id : headers) settings.findViewById(id).performClick();
     }
@@ -473,8 +474,8 @@ public class KeepADBAccessibilityContractTest {
     @Test
     public void websiteLinkKeepsItsMeasuredTargetAndRuntimeAccessibilityProperties() {
         View settings = runtimeView(R.layout.activity_settings);
-        // #471: the version card (which holds the website link) starts collapsed.
-        settings.findViewById(R.id.settings_version_header).performClick();
+        // #478: the version card (which holds the website link) is permanently visible now, so
+        // there is no header to expand first.
         measureAndLayout(settings, 360, 2400);
         TextView link = (TextView) settings.findViewById(R.id.settings_website_link);
         int minimum = dp(48);
