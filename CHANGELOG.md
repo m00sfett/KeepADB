@@ -22,6 +22,19 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.6] - Unreleased
+
+### Added
+- New `KeepADBAddressMask`: the single display-only rule for the #482 privacy mode. An IPv4 literal keeps its first octet and masks the remaining three (`192.168.1.100` -> `192.*.*.*`), an IPv6 literal keeps its first group and collapses the rest, zone id included (`fe80::1%wlan0` -> `fe80:***`), a registered name (DNS host) is never masked, and the port always stays visible -- per the user decision of 2026-09-18 recorded in issue #483 (issue #483).
+
+### Changed
+- The privacy toggle now drives three surfaces through one rule: the endpoint line on the main screen, the webhook address in the main screen's webhook status panel, and the last reported endpoint in that same panel. Toggling re-renders all three immediately instead of waiting for the next discovery tick (`MainActivity.renderEndpoint()` now renders from a cached, unmasked `lastEndpointHost`). There was no separate webhook-only masking switch to retire; the settings screen's webhook input field is deliberately left unmasked because it is the editing field for the stored value (issue #483).
+- `KeepADBUrlRedaction` gained `forDisplay(url, privacyMode)`. Privacy mode narrows only the IPv4 host from two visible octets to one; the #350/#378 redaction of userinfo, query, fragment and IPv6 literals is unchanged and still applied first, so this masking is additive rather than a replacement. IPv6 literals inside a webhook URL stay fully masked (`[***]`) in both modes -- privacy mode must never reveal more than the default redaction does (issue #483).
+- Patch version bump (1.8.5 -> 1.8.6, versionCode 103): #483 changes rendered text only. No stored value, transport URL or webhook behavior changes, so a Patch bump applies.
+
+### Testing
+- `KeepADBAddressMaskTest` (16 cases) covers IPv4 masking, IPv6 masking including zone ids and the leading-`::` case, port visibility for bracketed and unbracketed endpoints, hostname pass-through, and both toggle states on the webhook URL including the legacy IPv4 notation path. `KeepADBPreferencesTest` gained three cases asserting that privacy off leaves every display value byte-identical, that privacy on masks addresses while keeping ports and hostnames, and that a toggle round trip leaves the stored webhook URL and last reported endpoint untouched (issue #483).
+
 ## [1.8.5] - Unreleased
 
 ### Added
