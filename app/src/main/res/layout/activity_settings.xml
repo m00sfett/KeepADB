@@ -78,7 +78,7 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- Language Section -->
+        <!-- Language Section (#471: collapsed by default, in-memory expand state only) -->
         <LinearLayout
             android:id="@+id/settings_language_panel"
             android:layout_width="match_parent"
@@ -87,56 +87,88 @@
             android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_language"
-                android:textColor="@color/title_yellow"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_language_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
-
             <LinearLayout
-                android:id="@+id/settings_language_selector"
+                android:id="@+id/settings_language_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_card_clickable"
+                android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:contentDescription="@string/settings_language_label"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:minHeight="48dp"
-                android:orientation="horizontal"
-                android:padding="12dp">
+                android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/settings_language_selected_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_language_system_default"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="16sp"
+                    android:text="@string/settings_section_language"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/settings_language_arrow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
                     android:fontFamily="sans-serif-condensed"
-                    android:text="▼"
+                    android:text="+"
                     android:textColor="@color/title_yellow"
-                    android:textSize="14sp" />
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_language_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_language_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:id="@+id/settings_language_selector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_card_clickable"
+                    android:clickable="true"
+                    android:contentDescription="@string/settings_language_label"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:id="@+id/settings_language_selected_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_language_system_default"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="▼"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="14sp" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
@@ -149,121 +181,153 @@
             android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_webhook_title"
-                android:textColor="@color/title_yellow"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <Switch
-                android:id="@+id/settings_webhook_toggle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_webhook_toggle"
-                android:textColor="@color/text_yellow"
-                android:textSize="17sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="12dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_webhook_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_webhook_url_label"
-                android:textColor="@color/night_text"
-                android:textSize="15sp" />
-
-            <EditText
-                android:id="@+id/settings_webhook_url"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_input"
-                android:fontFamily="monospace"
-                android:hint="@string/settings_webhook_url_hint"
-                android:inputType="textUri"
-                android:minHeight="48dp"
-                android:padding="12dp"
-                android:textColor="@color/night_text"
-                android:textColorHint="@color/night_muted"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/settings_webhook_error"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:accessibilityLiveRegion="polite"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/link_red"
-                android:textSize="13sp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/settings_webhook_cleartext_warning"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:accessibilityLiveRegion="polite"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_webhook_cleartext_warning"
-                android:textColor="@color/text_yellow"
-                android:textSize="13sp"
-                android:visibility="gone" />
-
             <LinearLayout
+                android:id="@+id/settings_webhook_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="end"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
                 android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/settings_webhook_clear"
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_btn_secondary"
+                    android:layout_weight="1"
                     android:fontFamily="sans-serif-condensed"
-                    android:minHeight="48dp"
-                    android:paddingStart="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="16dp"
-                    android:paddingBottom="8dp"
-                    android:text="@string/settings_webhook_btn_clear"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="15sp"
+                    android:text="@string/settings_webhook_title"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <Button
-                    android:id="@+id/settings_webhook_save"
+                <TextView
+                    android:id="@+id/settings_webhook_arrow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_btn_primary"
+                    android:importantForAccessibility="no"
                     android:fontFamily="sans-serif-condensed"
-                    android:minHeight="48dp"
-                    android:paddingStart="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="16dp"
-                    android:paddingBottom="8dp"
-                    android:text="@string/settings_webhook_btn_save"
+                    android:text="+"
                     android:textColor="@color/title_yellow"
-                    android:textSize="15sp"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_webhook_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <Switch
+                    android:id="@+id/settings_webhook_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_webhook_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_webhook_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_webhook_url_label"
+                    android:textColor="@color/night_text"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:id="@+id/settings_webhook_url"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input"
+                    android:fontFamily="monospace"
+                    android:hint="@string/settings_webhook_url_hint"
+                    android:inputType="textUri"
+                    android:minHeight="48dp"
+                    android:padding="12dp"
+                    android:textColor="@color/night_text"
+                    android:textColorHint="@color/night_muted"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/settings_webhook_error"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/link_red"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/settings_webhook_cleartext_warning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_webhook_cleartext_warning"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="end"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/settings_webhook_clear"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_btn_secondary"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:paddingStart="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="8dp"
+                        android:text="@string/settings_webhook_btn_clear"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/settings_webhook_save"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_btn_primary"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:paddingStart="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="8dp"
+                        android:text="@string/settings_webhook_btn_save"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
@@ -276,92 +340,124 @@
             android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_trusted_network"
-                android:textColor="@color/title_yellow"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_trusted_network_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
-
-            <Switch
-                android:id="@+id/settings_trusted_network_toggle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:minHeight="48dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_trusted_network_toggle"
-                android:textColor="@color/text_yellow"
-                android:textSize="17sp" />
-
-            <TextView
-                android:id="@+id/settings_trusted_network_status"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:accessibilityLiveRegion="polite"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/text_yellow"
-                android:textSize="13sp"
-                android:visibility="gone" />
-
             <LinearLayout
+                android:id="@+id/settings_trusted_network_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
                 android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/settings_trusted_network_add"
+                <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:background="@drawable/bg_btn_primary"
                     android:fontFamily="sans-serif-condensed"
-                    android:minHeight="48dp"
-                    android:text="@string/settings_trusted_network_add_button"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="14sp"
+                    android:text="@string/settings_section_trusted_network"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <Button
-                    android:id="@+id/settings_trusted_network_manage"
-                    android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/settings_trusted_network_arrow"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_trusted_network_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_trusted_network_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <Switch
+                    android:id="@+id/settings_trusted_network_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_trusted_network_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/settings_trusted_network_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/settings_trusted_network_add"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_btn_primary"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:text="@string/settings_trusted_network_add_button"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/settings_trusted_network_manage"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_btn_secondary"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:text="@string/settings_trusted_network_manage_button"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Recently detected/blocked access points (#446) -->
+                <Button
+                    android:id="@+id/settings_trusted_network_blocked"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/bg_btn_secondary"
                     android:fontFamily="sans-serif-condensed"
                     android:minHeight="48dp"
-                    android:text="@string/settings_trusted_network_manage_button"
                     android:textColor="@color/text_yellow"
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
-
-            <!-- Recently detected/blocked access points (#446) -->
-            <Button
-                android:id="@+id/settings_trusted_network_blocked"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_btn_secondary"
-                android:fontFamily="sans-serif-condensed"
-                android:minHeight="48dp"
-                android:textColor="@color/text_yellow"
-                android:textSize="14sp"
-                android:textStyle="bold" />
         </LinearLayout>
 
         <!-- Notification Section (#470: directly below trusted networks) -->
@@ -373,35 +469,67 @@
             android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
+                android:id="@+id/settings_notification_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_notification"
-                android:textColor="@color/title_yellow"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <Switch
-                android:id="@+id/settings_hide_notification_toggle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
                 android:minHeight="48dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_hide_notification_toggle"
-                android:textColor="@color/text_yellow"
-                android:textSize="17sp" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/settings_hide_notification_subtext"
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_section_notification"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_notification_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_notification_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_hide_notification_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <Switch
+                    android:id="@+id/settings_hide_notification_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_hide_notification_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/settings_hide_notification_subtext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_hide_notification_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- USB-ADB Notification Section -->
@@ -413,78 +541,110 @@
             android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
+                android:id="@+id/settings_usb_notification_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_usb_notification"
-                android:textColor="@color/title_yellow"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <Switch
-                android:id="@+id/settings_usb_notification_toggle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
                 android:minHeight="48dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_usb_notification_toggle"
-                android:textColor="@color/text_yellow"
-                android:textSize="17sp" />
+                android:orientation="horizontal">
 
-            <TextView
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_section_usb_notification"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_usb_notification_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_usb_notification_body"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_usb_notification_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
-
-            <Switch
-                android:id="@+id/settings_usb_profile_notification_toggle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:minHeight="48dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_usb_profile_notification_toggle"
-                android:textColor="@color/text_yellow"
-                android:textSize="17sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_usb_profile_notification_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
-
-            <TextView
-                android:id="@+id/settings_usb_profile_summary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/night_text"
-                android:textSize="14sp" />
-
-            <Button
-                android:id="@+id/settings_usb_profile_action"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/bg_btn_secondary"
-                android:fontFamily="sans-serif-condensed"
-                android:minHeight="48dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="@string/usb_profile_create_button"
-                android:textColor="@color/text_yellow"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <Switch
+                    android:id="@+id/settings_usb_notification_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_usb_notification_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_usb_notification_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <Switch
+                    android:id="@+id/settings_usb_profile_notification_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_usb_profile_notification_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_usb_profile_notification_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/settings_usb_profile_summary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/night_text"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/settings_usb_profile_action"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_btn_secondary"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="@string/usb_profile_create_button"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- USB -> WLAN-ADB Handover Section (#168) -->
@@ -496,56 +656,88 @@
             android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_usb_handover"
-                android:textColor="@color/title_yellow"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_usb_handover_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
-
             <LinearLayout
-                android:id="@+id/settings_usb_handover_selector"
+                android:id="@+id/settings_usb_handover_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_card_clickable"
+                android:background="?android:attr/selectableItemBackground"
                 android:clickable="true"
-                android:contentDescription="@string/settings_usb_handover_label"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:minHeight="48dp"
-                android:orientation="horizontal"
-                android:padding="12dp">
+                android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/settings_usb_handover_selected_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_usb_handover_mode_off"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="16sp"
+                    android:text="@string/settings_section_usb_handover"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/settings_usb_handover_arrow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
                     android:fontFamily="sans-serif-condensed"
-                    android:text="▼"
+                    android:text="+"
                     android:textColor="@color/title_yellow"
-                    android:textSize="14sp" />
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_usb_handover_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_usb_handover_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:id="@+id/settings_usb_handover_selector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_card_clickable"
+                    android:clickable="true"
+                    android:contentDescription="@string/settings_usb_handover_label"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:id="@+id/settings_usb_handover_selected_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_usb_handover_mode_off"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="▼"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="14sp" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
@@ -558,37 +750,71 @@
             android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
+                android:id="@+id/settings_display_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_display"
-                android:textColor="@color/title_yellow"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <Switch
-                android:id="@+id/settings_keep_display_on_toggle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
                 android:minHeight="48dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_keep_display_on_toggle"
-                android:textColor="@color/text_yellow"
-                android:textSize="17sp" />
+                android:orientation="horizontal">
 
-            <TextView
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_section_display"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_display_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_display_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_keep_display_on_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <Switch
+                    android:id="@+id/settings_keep_display_on_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_keep_display_on_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_keep_display_on_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+            </LinearLayout>
         </LinearLayout>
 
+        <!-- Advice-Banner Visibility Section -->
         <LinearLayout
+            android:id="@+id/settings_advice_banner_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -597,24 +823,66 @@
             android:paddingStart="16dp"
             android:paddingEnd="16dp">
 
-            <Switch
-                android:id="@+id/settings_advice_banner_toggle"
+            <LinearLayout
+                android:id="@+id/settings_advice_banner_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
                 android:minHeight="48dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_advice_banner_toggle"
-                android:textColor="@color/text_yellow"
-                android:textSize="17sp" />
+                android:orientation="horizontal">
 
-            <TextView
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_advice_banner_toggle"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_advice_banner_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_advice_banner_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_advice_banner_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <Switch
+                    android:id="@+id/settings_advice_banner_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_advice_banner_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_advice_banner_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Diagnostics Section -->
@@ -626,54 +894,86 @@
             android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
+                android:id="@+id/settings_diagnostics_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_diagnostics_title"
-                android:textColor="@color/title_yellow"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal">
 
-            <TextView
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_diagnostics_title"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_diagnostics_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_diagnostics_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_diagnostics_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
-
-            <Button
-                android:id="@+id/settings_diagnostics_export"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/bg_btn_secondary"
-                android:fontFamily="sans-serif-condensed"
-                android:minHeight="48dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="@string/settings_diagnostics_export"
-                android:textColor="@color/text_yellow"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:orientation="vertical"
+                android:visibility="gone">
 
-            <Button
-                android:id="@+id/settings_issue_report"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_btn_primary"
-                android:contentDescription="@string/settings_issue_report_accessibility"
-                android:fontFamily="sans-serif-condensed"
-                android:minHeight="48dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="@string/settings_issue_report_button"
-                android:textColor="@color/title_yellow"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_diagnostics_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/settings_diagnostics_export"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_btn_secondary"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="@string/settings_diagnostics_export"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/settings_issue_report"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_btn_primary"
+                    android:contentDescription="@string/settings_issue_report_accessibility"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="@string/settings_issue_report_button"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Version Section -->
@@ -685,59 +985,91 @@
             android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
+                android:id="@+id/settings_version_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_version"
-                android:textColor="@color/title_yellow"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/settings_version_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/night_muted"
-                android:textSize="12sp" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_section_version"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/settings_version_code"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/night_muted"
-                android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/settings_version_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/settings_license_line"
+            <LinearLayout
+                android:id="@+id/settings_version_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_license_line"
-                android:textColor="@color/night_muted"
-                android:textSize="12sp" />
+                android:orientation="vertical"
+                android:visibility="gone">
 
-            <TextView
-                android:id="@+id/settings_website_link"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:minWidth="48dp"
-                android:minHeight="48dp"
-                android:gravity="center_vertical"
-                android:paddingStart="4dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="4dp"
-                android:paddingBottom="8dp"
-                android:contentDescription="@string/settings_website_link_accessibility"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_website_link"
-                android:textColor="@color/text_yellow"
-                android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/settings_version_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/night_muted"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/settings_version_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/night_muted"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/settings_license_line"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_license_line"
+                    android:textColor="@color/night_muted"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/settings_website_link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:minWidth="48dp"
+                    android:minHeight="48dp"
+                    android:gravity="center_vertical"
+                    android:paddingStart="4dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="4dp"
+                    android:paddingBottom="8dp"
+                    android:contentDescription="@string/settings_website_link_accessibility"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_website_link"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="12sp" />
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>
