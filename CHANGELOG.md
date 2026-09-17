@@ -22,6 +22,11 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.3] - Unreleased
+
+### Fixed
+- `SettingsActivity`'s blocked-networks "Allow" dialog, the manual "add current network" button and the mesh-BSSID convenience prompt all trusted an access point through a bare `KeepADBTrustedNetwork.addBssid()`/`clearPromptState()` pair, so none of them attempted the connection the untrusted network had been blocking -- the user still had to wait for Keep-Alive's next pass or open the pushdown notification. All three now go through `KeepADBReceiver.trustBssidAndAttemptConnect()`, the same entry point `MainActivity`'s per-access-point trust button already uses (#470), so trusting a network from any of these three places in Settings immediately attempts the connection and cancels/clears any showing trust-prompt notification for that BSSID (issue #475).
+
 ## [1.8.2] - Unreleased
 
 ### Fixed
