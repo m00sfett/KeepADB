@@ -3,7 +3,7 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Eerste installatie</string>
-    <string name="setup_body">KeepADB heeft eenmalig systeemtoestemming nodig. Verbind dit apparaat via USB met je computer met USB-foutopsporing ingeschakeld, voer het onderstaande commando uit en keer terug naar KeepADB.</string>
+    <string name="setup_body">Verbind dit apparaat via USB met een computer met USB-foutopsporing ingeschakeld en voer het onderstaande commando uit.</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Toestemming controleren</string>
     <string name="status_on">Draadloze foutopsporing is AAN</string>
@@ -32,7 +32,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_text">Wi-Fi-verbinding en status van draadloze foutopsporing controleren</string>
     <string name="notification_permission_missing_title">KeepADB: Toestemming ontbreekt</string>
     <string name="notification_permission_panel_title">Meldingen zijn uitgeschakeld</string>
-    <string name="notification_permission_panel_body">Keep-Alive kan blijven werken, maar KeepADB kan de statusmelding niet tonen. Sta meldingen toe in de systeeminstellingen.</string>
+    <string name="notification_permission_panel_body">KeepADB kan zijn statusmelding niet tonen zonder deze toestemming. Keep-Alive blijft werken.</string>
     <string name="notification_permission_settings_button">Meldingsinstellingen openen</string>
     <string name="notification_permission_missing_text">Verleen WRITE_SECURE_SETTINGS vanaf de pc via adb shell pm grant</string>
     <string name="action_settings">Instellingen</string>
@@ -121,8 +121,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Taal selecteren</string>
     <string name="settings_section_notification">Melding</string>
     <string name="settings_hide_notification_toggle">Permanente melding</string>
-    <string name="settings_hide_notification_subtext">Houdt de statusmelding zichtbaar in het meldingenpaneel. Zet uit om te verbergen; Keep-Alive en widgets blijven normaal werken.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Wanneer Keep-Alive actief is, vereist Android een melding voor de voorgrondservice, dus kan deze optie pas worden uitgeschakeld nadat Keep-Alive is uitgeschakeld.</string>
+    <string name="settings_hide_notification_subtext">Toont de statusmelding in het paneel. Uitschakelen heeft geen invloed op Keep-Alive of widgets.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Vereist zolang Keep-Alive actief is — Android heeft deze nodig voor de voorgrondservice.</string>
     <string name="settings_section_display">Scherm</string>
     <string name="settings_keep_display_on_toggle">Scherm aan houden zolang KeepADB op de voorgrond is</string>
     <string name="settings_keep_display_on_subtext">Houdt het scherm alleen aan zolang deze app geopend is. Het scherm gaat normaal weer uit zodra je de app verlaat.</string>
@@ -166,12 +166,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_export">Diagnostiek exporteren</string>
     <string name="settings_diagnostics_export_subject">KeepADB-diagnostiek</string>
     <string name="battery_optimization_title">Batterijoptimalisatie kan Keep-Alive beperken</string>
-    <string name="battery_optimization_body">KeepADB is niet vrijgesteld van batterijoptimalisatie. Android of de fabrikant kan Keep-Alive op de achtergrond beperken of stoppen.</string>
+    <string name="battery_optimization_body">Android kan Keep-Alive op de achtergrond beperken of stoppen, tenzij KeepADB is vrijgesteld van batterijoptimalisatie.</string>
     <string name="battery_optimization_button">Batterij-instellingen openen</string>
     <string name="location_permission_panel_title">Locatietoestemming vereist voor vertrouwde netwerken</string>
-    <string name="location_permission_panel_body">De modus vertrouwde netwerken is actief, maar zonder locatietoegang verbergt Android de naam en ID van het huidige Wi-Fi-netwerk. Zonder deze toestemming kan Keep-Alive nooit bevestigen dat u op een vertrouwd netwerk zit en wordt het niet automatisch opnieuw ingeschakeld.</string>
+    <string name="location_permission_panel_body">De modus vertrouwde netwerken heeft locatietoegang nodig om je Wi-Fi-netwerk te herkennen. Zonder deze kan Keep-Alive geen vertrouwd netwerk bevestigen en niet automatisch opnieuw inschakelen.</string>
     <string name="location_permission_panel_grant_button">Locatietoestemming verlenen</string>
-    <string name="location_permission_panel_fallback_body">Wilt u nog steeds geen locatietoegang verlenen? Schakel dan over naar de modus alle Wi-Fi-netwerken vertrouwen — Keep-Alive wordt dan automatisch opnieuw ingeschakeld op elk verbonden Wi-Fi-netwerk, zonder dat het herkend hoeft te worden.</string>
+    <string name="location_permission_panel_fallback_body">Liever geen locatietoegang verlenen? Vertrouw dan alle Wi-Fi-netwerken — Keep-Alive wordt dan bij elke verbinding automatisch opnieuw ingeschakeld.</string>
     <string name="location_permission_panel_fallback_button">In plaats daarvan alle Wi-Fi-netwerken vertrouwen</string>
     <string name="location_permission_panel_fallback_toast">Overgeschakeld naar modus \"alle Wi-Fi-netwerken vertrouwen\".</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB-overdracht</string>
@@ -260,7 +260,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_notes">Voeg andere nuttige informatie toe.</string>
     <string name="issue_report_diagnostics_section">Optionele geredigeerde KeepADB-diagnostische gegevens (controleer vóór verzending)</string>
     <string name="advice_banner_title">Beveiliging &amp; netwerk</string>
-    <string name="advice_banner_text">Draadloos debuggen opent een ADB-poort op je netwerk. Gebruik het op vertrouwde wifi of via een vpn zoals Tailscale en schakel het uit op openbare hotspots. Deel je endpoint-adres nooit openbaar en accepteer nooit een onverwacht koppelings- of autorisatieverzoek.</string>
+    <string name="advice_banner_text">Draadloos debuggen opent een ADB-poort op je netwerk. Gebruik vertrouwde wifi of een vpn (bijv. Tailscale) en schakel het uit op openbare hotspots. Deel je endpoint nooit openbaar en accepteer geen onverwachte koppelingsverzoeken.</string>
     <string name="action_dismiss">Sluiten</string>
     <string name="settings_advice_banner_toggle">Beveiligings- en netwerkadvies tonen</string>
     <string name="settings_advice_banner_subtext">Toont een beveiligingswaarschuwing bovenaan het hoofdscherm.</string>

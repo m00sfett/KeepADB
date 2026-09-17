@@ -3,7 +3,7 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Configuración inicial</string>
-    <string name="setup_body">KeepADB necesita un permiso del sistema por única vez. Conecta este dispositivo a tu ordenador por USB con la depuración USB activada, ejecuta el comando siguiente y vuelve a KeepADB.</string>
+    <string name="setup_body">Conecta este dispositivo a un ordenador por USB con la depuración USB activada y ejecuta el comando siguiente.</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Comprobar permiso</string>
     <string name="status_on">Depuración inalámbrica ACTIVADA</string>
@@ -32,7 +32,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_text">Monitoreando conexión Wi-Fi y estado de depuración inalámbrica</string>
     <string name="notification_permission_missing_title">KeepADB: Falta permiso</string>
     <string name="notification_permission_panel_title">Las notificaciones están desactivadas</string>
-    <string name="notification_permission_panel_body">Keep-Alive puede seguir funcionando, pero KeepADB no puede mostrar su notificación de estado. Permite las notificaciones en los ajustes del sistema.</string>
+    <string name="notification_permission_panel_body">KeepADB no puede mostrar su notificación de estado sin este permiso. Keep-Alive sigue funcionando.</string>
     <string name="notification_permission_settings_button">Abrir ajustes de notificaciones</string>
     <string name="notification_permission_missing_text">Concede WRITE_SECURE_SETTINGS desde el PC mediante adb shell pm grant</string>
     <string name="action_settings">Ajustes</string>
@@ -121,8 +121,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Seleccionar idioma</string>
     <string name="settings_section_notification">Notificación</string>
     <string name="settings_hide_notification_toggle">Notificación persistente</string>
-    <string name="settings_hide_notification_subtext">Mantiene visible la notificación de estado en el panel. Desactívala para ocultarla; Keep-Alive y los widgets seguirán funcionando con normalidad.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Cuando Keep-Alive está activo, Android requiere una notificación para el servicio en primer plano, por lo que esta opción no se puede desactivar hasta desactivar Keep-Alive.</string>
+    <string name="settings_hide_notification_subtext">Muestra la notificación de estado en el panel. Desactivarla no afecta a Keep-Alive ni a los widgets.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Necesaria mientras Keep-Alive está activo — Android la requiere para el servicio en primer plano.</string>
     <string name="settings_section_display">Pantalla</string>
     <string name="settings_keep_display_on_toggle">Mantener la pantalla encendida mientras KeepADB está en primer plano</string>
     <string name="settings_keep_display_on_subtext">Mantiene la pantalla encendida solo mientras esta app está abierta. La pantalla se apaga normalmente en cuanto sales de la app.</string>
@@ -166,12 +166,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_export">Exportar diagnóstico</string>
     <string name="settings_diagnostics_export_subject">Diagnóstico de KeepADB</string>
     <string name="battery_optimization_title">La optimización de batería puede limitar Keep-Alive</string>
-    <string name="battery_optimization_body">KeepADB no está exento de la optimización de batería. Android o el fabricante pueden limitar o detener Keep-Alive en segundo plano.</string>
+    <string name="battery_optimization_body">Android puede limitar o detener Keep-Alive en segundo plano a menos que KeepADB esté exento de la optimización de batería.</string>
     <string name="battery_optimization_button">Abrir ajustes de batería</string>
     <string name="location_permission_panel_title">Se requiere permiso de ubicación para redes de confianza</string>
-    <string name="location_permission_panel_body">El modo de redes de confianza está activo, pero Android oculta el nombre e ID de la red Wi-Fi actual sin acceso a la ubicación. Sin él, Keep-Alive nunca podrá confirmar que estás en una red de confianza y no se reactivará automáticamente.</string>
+    <string name="location_permission_panel_body">El modo de redes de confianza necesita acceso a la ubicación para identificar tu red Wi-Fi. Sin él, Keep-Alive no puede confirmar una red de confianza y no se reactivará automáticamente.</string>
     <string name="location_permission_panel_grant_button">Conceder permiso de ubicación</string>
-    <string name="location_permission_panel_fallback_body">¿Aun así no quieres conceder acceso a la ubicación? Cambia al modo de confiar en todas las redes Wi-Fi — así Keep-Alive se reactivará en cualquier Wi-Fi conectada, sin necesidad de identificarla.</string>
+    <string name="location_permission_panel_fallback_body">¿Prefieres no conceder acceso a la ubicación? Confía en todas las redes Wi-Fi — Keep-Alive se reactivará entonces en cualquier conexión.</string>
     <string name="location_permission_panel_fallback_button">Confiar en todas las redes Wi-Fi</string>
     <string name="location_permission_panel_fallback_toast">Se cambió al modo \"confiar en todas las redes Wi-Fi\".</string>
     <string name="settings_section_usb_handover">Transferencia de USB a WLAN-ADB</string>
@@ -260,7 +260,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_notes">Añade cualquier otra información útil.</string>
     <string name="issue_report_diagnostics_section">Datos de diagnóstico opcionales redactados de KeepADB (revísalos antes de enviarlos)</string>
     <string name="advice_banner_title">Seguridad y red</string>
-    <string name="advice_banner_text">La depuración inalámbrica abre un puerto ADB en tu red. Úsala solo en redes Wi-Fi de confianza o mediante una VPN como Tailscale, y desactívala en puntos de acceso públicos. Nunca compartas públicamente la dirección de tu endpoint ni aceptes solicitudes de vinculación o autorización inesperadas.</string>
+    <string name="advice_banner_text">La depuración inalámbrica abre un puerto ADB en tu red. Usa una red Wi-Fi de confianza o una VPN (p. ej. Tailscale) y desactívala en puntos de acceso públicos. Nunca compartas tu endpoint públicamente ni aceptes solicitudes de vinculación inesperadas.</string>
     <string name="action_dismiss">Cerrar</string>
     <string name="settings_advice_banner_toggle">Mostrar aviso de seguridad y red</string>
     <string name="settings_advice_banner_subtext">Muestra un aviso de seguridad en la parte superior de la pantalla principal.</string>
