@@ -3,7 +3,7 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Thiết lập ban đầu</string>
-    <string name="setup_body">KeepADB cần quyền hệ thống một lần. Kết nối thiết bị này với máy tính qua USB và bật gỡ lỗi USB, chạy lệnh bên dưới, sau đó quay lại KeepADB.</string>
+    <string name="setup_body">Kết nối thiết bị này với máy tính qua USB khi đã bật gỡ lỗi USB, sau đó chạy lệnh bên dưới.</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Kiểm tra quyền</string>
     <string name="status_on">Gỡ lỗi không dây đang BẬT</string>
@@ -32,7 +32,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_text">Đang theo dõi kết nối Wi-Fi và trạng thái gỡ lỗi không dây</string>
     <string name="notification_permission_missing_title">KeepADB: Thiếu quyền</string>
     <string name="notification_permission_panel_title">Thông báo đang bị tắt</string>
-    <string name="notification_permission_panel_body">Keep-Alive vẫn có thể hoạt động, nhưng KeepADB không thể hiển thị thông báo trạng thái. Hãy cho phép thông báo trong phần cài đặt hệ thống.</string>
+    <string name="notification_permission_panel_body">KeepADB không thể hiển thị thông báo trạng thái nếu không có quyền này. Keep-Alive vẫn hoạt động.</string>
     <string name="notification_permission_settings_button">Mở cài đặt thông báo</string>
     <string name="notification_permission_missing_text">Cấp quyền WRITE_SECURE_SETTINGS từ PC qua adb shell pm grant</string>
     <string name="action_settings">Cài đặt</string>
@@ -121,8 +121,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Chọn ngôn ngữ</string>
     <string name="settings_section_notification">Thông báo</string>
     <string name="settings_hide_notification_toggle">Thông báo liên tục</string>
-    <string name="settings_hide_notification_subtext">Giữ cho thông báo trạng thái hiển thị trên thanh thông báo. Tắt để ẩn nó; Keep-Alive và tiện ích con vẫn hoạt động bình thường.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Khi Keep-Alive đang hoạt động, Android yêu cầu thông báo cho dịch vụ nền trước, vì vậy không thể tắt tùy chọn này cho đến khi Keep-Alive bị vô hiệu hóa.</string>
+    <string name="settings_hide_notification_subtext">Hiển thị thông báo trạng thái trên thanh thông báo. Tắt tùy chọn này không ảnh hưởng đến Keep-Alive hay tiện ích.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Bắt buộc khi Keep-Alive đang hoạt động — Android yêu cầu điều này cho dịch vụ nền trước.</string>
     <string name="settings_section_display">Màn hình</string>
     <string name="settings_keep_display_on_toggle">Giữ màn hình sáng khi KeepADB đang ở nền trước</string>
     <string name="settings_keep_display_on_subtext">Chỉ giữ màn hình sáng khi ứng dụng này đang mở. Màn hình sẽ tắt bình thường ngay khi bạn rời khỏi ứng dụng.</string>
@@ -166,12 +166,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_export">Xuất dữ liệu chẩn đoán</string>
     <string name="settings_diagnostics_export_subject">Chẩn đoán KeepADB</string>
     <string name="battery_optimization_title">Tối ưu hóa pin có thể giới hạn Keep-Alive</string>
-    <string name="battery_optimization_body">KeepADB chưa được miễn tối ưu hóa pin. Android hoặc nhà sản xuất có thể giới hạn hay dừng Keep-Alive trong nền.</string>
+    <string name="battery_optimization_body">Android có thể giới hạn hoặc dừng Keep-Alive trong nền nếu KeepADB không được miễn trừ tối ưu hóa pin.</string>
     <string name="battery_optimization_button">Mở cài đặt pin</string>
     <string name="location_permission_panel_title">Cần quyền vị trí cho mạng đáng tin cậy</string>
-    <string name="location_permission_panel_body">Chế độ mạng đáng tin cậy đang bật, nhưng nếu không có quyền truy cập vị trí, Android sẽ ẩn tên và ID của mạng Wi-Fi hiện tại. Nếu không có quyền này, Keep-Alive không bao giờ xác nhận được bạn đang ở mạng đáng tin cậy và sẽ không tự động bật lại.</string>
+    <string name="location_permission_panel_body">Chế độ mạng đáng tin cậy cần quyền truy cập vị trí để nhận diện mạng Wi-Fi của bạn. Nếu không có, Keep-Alive không thể xác nhận mạng đáng tin cậy và sẽ không tự động bật lại.</string>
     <string name="location_permission_panel_grant_button">Cấp quyền vị trí</string>
-    <string name="location_permission_panel_fallback_body">Vẫn không muốn cấp quyền truy cập vị trí? Hãy chuyển sang chế độ tin cậy mọi mạng Wi-Fi — khi đó Keep-Alive sẽ tự động bật lại trên bất kỳ Wi-Fi nào đang kết nối mà không cần nhận diện.</string>
+    <string name="location_permission_panel_fallback_body">Không muốn cấp quyền truy cập vị trí? Hãy tin cậy mọi mạng Wi-Fi — Keep-Alive sẽ tự động bật lại ở bất kỳ kết nối nào.</string>
     <string name="location_permission_panel_fallback_button">Tin cậy mọi mạng Wi-Fi thay thế</string>
     <string name="location_permission_panel_fallback_toast">Đã chuyển sang chế độ \"tin cậy mọi mạng Wi-Fi\".</string>
     <string name="settings_section_usb_handover">Chuyển giao USB → WLAN-ADB</string>
@@ -260,7 +260,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_notes">Thêm bất kỳ thông tin hữu ích nào khác.</string>
     <string name="issue_report_diagnostics_section">Dữ liệu chẩn đoán KeepADB tùy chọn đã loại bỏ thông tin nhạy cảm (xem lại trước khi gửi)</string>
     <string name="advice_banner_title">Bảo mật và mạng</string>
-    <string name="advice_banner_text">Gỡ lỗi không dây mở một cổng ADB trên mạng của bạn. Chỉ dùng trên Wi-Fi đáng tin cậy hoặc qua VPN như Tailscale, và tắt khi dùng điểm phát sóng công cộng. Đừng bao giờ chia sẻ công khai địa chỉ endpoint và đừng bao giờ chấp nhận yêu cầu ghép nối hay ủy quyền bất ngờ.</string>
+    <string name="advice_banner_text">Gỡ lỗi không dây mở một cổng ADB trên mạng của bạn. Hãy dùng Wi-Fi đáng tin cậy hoặc VPN (ví dụ: Tailscale) và tắt khi ở điểm phát sóng công cộng. Đừng chia sẻ endpoint công khai hay chấp nhận yêu cầu ghép nối bất ngờ.</string>
     <string name="action_dismiss">Đóng</string>
     <string name="settings_advice_banner_toggle">Hiển thị lời khuyên bảo mật &amp; mạng</string>
     <string name="settings_advice_banner_subtext">Hiển thị biểu ngữ cảnh báo bảo mật ở đầu màn hình chính.</string>

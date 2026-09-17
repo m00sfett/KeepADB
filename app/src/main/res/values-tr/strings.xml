@@ -3,7 +3,7 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">İlk kurulum</string>
-    <string name="setup_body">KeepADB tek seferlik bir sistem iznine ihtiyaç duyar. Bu cihazı USB hata ayıklama etkin olarak bilgisayarınıza bağlayın, aşağıdaki komutu çalıştırın ve KeepADB’ye geri dönün.</string>
+    <string name="setup_body">Bu cihazı USB hata ayıklama etkinken bir bilgisayara USB ile bağlayın ve aşağıdaki komutu çalıştırın.</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">İzni kontrol et</string>
     <string name="status_on">Kablosuz Hata Ayıklama AÇIK</string>
@@ -32,7 +32,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_text">Wi-Fi bağlantısı ve Kablosuz Hata Ayıklama durumu izleniyor</string>
     <string name="notification_permission_missing_title">KeepADB: İzin eksik</string>
     <string name="notification_permission_panel_title">Bildirimler devre dışı</string>
-    <string name="notification_permission_panel_body">Keep-Alive çalışmaya devam edebilir, ancak KeepADB durum bildirimini gösteremez. Sistem ayarlarından bildirimlere izin verin.</string>
+    <string name="notification_permission_panel_body">KeepADB bu izin olmadan durum bildirimini gösteremez. Keep-Alive çalışmaya devam eder.</string>
     <string name="notification_permission_settings_button">Bildirim ayarlarını aç</string>
     <string name="notification_permission_missing_text">adb shell pm grant aracılığıyla PC’den WRITE_SECURE_SETTINGS izni verin</string>
     <string name="action_settings">Ayarlar</string>
@@ -121,8 +121,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Dil Seçin</string>
     <string name="settings_section_notification">Bildirim</string>
     <string name="settings_hide_notification_toggle">Kalıcı bildirim</string>
-    <string name="settings_hide_notification_subtext">Durum bildirimini bildirim panelinde görünür tutar. Gizlemek için kapatın; Keep-Alive ve widget’lar normal şekilde çalışmaya devam eder.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Keep-Alive etkin olduğunda Android, ön plan hizmeti için bir bildirim zorunlu kılar, bu nedenle Keep-Alive devre dışı bırakılana kadar bu seçenek kapatılamaz.</string>
+    <string name="settings_hide_notification_subtext">Durum bildirimini panelde gösterir. Kapatmak Keep-Alive\'ı veya widget\'ları etkilemez.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Keep-Alive etkinken gereklidir — Android bunu ön plan hizmeti için zorunlu kılar.</string>
     <string name="settings_section_display">Ekran</string>
     <string name="settings_keep_display_on_toggle">KeepADB ön planda olduğu sürece ekranı açık tut</string>
     <string name="settings_keep_display_on_subtext">Ekranı yalnızca bu uygulama açıkken açık tutar. Uygulamadan çıkıldığında ekran normal şekilde kapanır.</string>
@@ -166,12 +166,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_export">Tanılamayı dışa aktar</string>
     <string name="settings_diagnostics_export_subject">KeepADB tanılaması</string>
     <string name="battery_optimization_title">Pil optimizasyonu Keep-Alive özelliğini sınırlayabilir</string>
-    <string name="battery_optimization_body">KeepADB pil optimizasyonu kapsamı dışına alınmadı. Android veya üretici, arka planda Keep-Alive özelliğini sınırlayabilir ya da durdurabilir.</string>
+    <string name="battery_optimization_body">KeepADB pil optimizasyonundan muaf değilse Android, Keep-Alive\'ı arka planda sınırlayabilir veya durdurabilir.</string>
     <string name="battery_optimization_button">Pil ayarlarını aç</string>
     <string name="location_permission_panel_title">Güvenilir ağlar için konum izni gerekli</string>
-    <string name="location_permission_panel_body">Güvenilir ağ modu etkin, ancak konum erişimi olmadan Android mevcut Wi-Fi ağının adını ve kimliğini gizler. Bu izin olmadan Keep-Alive güvenilir bir ağda olduğunuzu asla doğrulayamaz ve otomatik olarak yeniden etkinleşmez.</string>
+    <string name="location_permission_panel_body">Güvenilir ağ modu, Wi-Fi ağınızı tanımak için konum erişimine ihtiyaç duyar. Bu olmadan Keep-Alive güvenilir bir ağı doğrulayamaz ve otomatik olarak yeniden etkinleşmez.</string>
     <string name="location_permission_panel_grant_button">Konum iznini ver</string>
-    <string name="location_permission_panel_fallback_body">Yine de konum erişimi vermek istemiyor musunuz? Bunun yerine tüm Wi-Fi ağlarına güvenme moduna geçin — Keep-Alive, tanımlamaya gerek kalmadan bağlı olan herhangi bir Wi-Fi ağında otomatik olarak yeniden etkinleşir.</string>
+    <string name="location_permission_panel_fallback_body">Konum erişimi vermek istemiyor musunuz? Bunun yerine tüm Wi-Fi ağlarına güvenin — Keep-Alive böylece her bağlantıda otomatik olarak yeniden etkinleşir.</string>
     <string name="location_permission_panel_fallback_button">Bunun yerine tüm Wi-Fi ağlarına güven</string>
     <string name="location_permission_panel_fallback_toast">\"Tüm Wi-Fi ağlarına güven\" moduna geçildi.</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB aktarımı</string>
@@ -260,7 +260,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_notes">Yararlı başka bilgileri ekleyin.</string>
     <string name="issue_report_diagnostics_section">İsteğe bağlı redakte edilmiş KeepADB tanılama verileri (göndermeden önce inceleyin)</string>
     <string name="advice_banner_title">Güvenlik ve ağ</string>
-    <string name="advice_banner_text">Kablosuz hata ayıklama, ağınızda bir ADB bağlantı noktası açar. Yalnızca güvendiğiniz Wi-Fi ağlarında veya Tailscale gibi bir VPN üzerinden kullanın, halka açık ağlarda kapatın. Uç nokta adresinizi asla herkese açık paylaşmayın ve beklenmedik eşleştirme veya yetkilendirme isteklerini asla onaylamayın.</string>
+    <string name="advice_banner_text">Kablosuz hata ayıklama, ağınızda bir ADB bağlantı noktası açar. Güvenilir Wi-Fi veya bir VPN (ör. Tailscale) kullanın ve halka açık ağlarda kapatın. Uç noktanızı herkese açık paylaşmayın ve beklenmedik eşleştirme isteklerini kabul etmeyin.</string>
     <string name="action_dismiss">Kapat</string>
     <string name="settings_advice_banner_toggle">Güvenlik ve Ağ Önerisini Göster</string>
     <string name="settings_advice_banner_subtext">Ana ekranın üst kısmında bir güvenlik uyarısı gösterir.</string>

@@ -3,7 +3,7 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Початкове налаштування</string>
-    <string name="setup_body">KeepADB потребує одноразового системного дозволу. Підключіть цей пристрій до комп’ютера через USB з увімкненим налагодженням через USB, виконайте команду нижче та поверніться до KeepADB.</string>
+    <string name="setup_body">Підключіть цей пристрій до комп\'ютера через USB з увімкненим налагодженням USB і виконайте команду нижче.</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Перевірити дозвіл</string>
     <string name="status_on">Бездротове налагодження УВІМКНЕНО</string>
@@ -32,7 +32,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_text">Моніторинг з’єднання Wi-Fi та стану бездротового налагодження</string>
     <string name="notification_permission_missing_title">KeepADB: Відсутній дозвіл</string>
     <string name="notification_permission_panel_title">Сповіщення вимкнено</string>
-    <string name="notification_permission_panel_body">Keep-Alive може продовжувати працювати, але KeepADB не може показувати сповіщення про стан. Дозвольте сповіщення в системних налаштуваннях.</string>
+    <string name="notification_permission_panel_body">KeepADB не може показати сповіщення про стан без цього дозволу. Keep-Alive продовжує працювати.</string>
     <string name="notification_permission_settings_button">Відкрити налаштування сповіщень</string>
     <string name="notification_permission_missing_text">Надайте WRITE_SECURE_SETTINGS з ПК через adb shell pm grant</string>
     <string name="action_settings">Налаштування</string>
@@ -121,8 +121,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Виберіть мову</string>
     <string name="settings_section_notification">Сповіщення</string>
     <string name="settings_hide_notification_toggle">Постійне сповіщення</string>
-    <string name="settings_hide_notification_subtext">Залишає сповіщення про стан видимим на панелі сповіщень. Вимкніть, щоб приховати його; Keep-Alive і віджети працюватимуть як зазвичай.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Коли Keep-Alive активний, Android вимагає сповіщення для служби переднього плану, тому цю опцію не можна вимкнути, доки Keep-Alive активний.</string>
+    <string name="settings_hide_notification_subtext">Показує сповіщення про стан на панелі. Вимкнення не впливає на Keep-Alive чи віджети.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Потрібне, поки Keep-Alive активний — Android вимагає його для служби переднього плану.</string>
     <string name="settings_section_display">Екран</string>
     <string name="settings_keep_display_on_toggle">Тримати екран увімкненим, поки KeepADB на передньому плані</string>
     <string name="settings_keep_display_on_subtext">Тримає екран увімкненим лише поки цей додаток відкритий. Екран вимикається як зазвичай, щойно ви виходите з додатка.</string>
@@ -166,12 +166,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_export">Експортувати діагностику</string>
     <string name="settings_diagnostics_export_subject">Діагностика KeepADB</string>
     <string name="battery_optimization_title">Оптимізація батареї може обмежити Keep-Alive</string>
-    <string name="battery_optimization_body">KeepADB не виключено з оптимізації батареї. Android або виробник пристрою може обмежити чи зупинити Keep-Alive у фоні.</string>
+    <string name="battery_optimization_body">Android може обмежити або зупинити Keep-Alive у фоні, якщо KeepADB не виключено з оптимізації батареї.</string>
     <string name="battery_optimization_button">Відкрити налаштування батареї</string>
     <string name="location_permission_panel_title">Для довірених мереж потрібен дозвіл на геолокацію</string>
-    <string name="location_permission_panel_body">Режим довірених мереж активний, але без доступу до геолокації Android приховує назву та ідентифікатор поточної мережі Wi-Fi. Без цього Keep-Alive ніколи не зможе підтвердити, що ви в довіреній мережі, і не увімкнеться автоматично знову.</string>
+    <string name="location_permission_panel_body">Режиму довірених мереж потрібен доступ до геолокації, щоб розпізнати вашу мережу Wi-Fi. Без нього Keep-Alive не може підтвердити довірену мережу і не увімкнеться автоматично.</string>
     <string name="location_permission_panel_grant_button">Надати дозвіл на геолокацію</string>
-    <string name="location_permission_panel_fallback_body">Все одно не хочете надавати доступ до геолокації? Перемкніться натомість на режим довіри до всіх мереж Wi-Fi — тоді Keep-Alive автоматично вмикатиметься знову в будь-якій підключеній мережі Wi-Fi без потреби її розпізнавати.</string>
+    <string name="location_permission_panel_fallback_body">Не хочете надавати доступ до геолокації? Довіряйте натомість усім мережам Wi-Fi — тоді Keep-Alive вмикатиметься при будь-якому підключенні.</string>
     <string name="location_permission_panel_fallback_button">Натомість довіряти всім мережам Wi-Fi</string>
     <string name="location_permission_panel_fallback_toast">Перемкнено на режим «довіряти всім мережам Wi-Fi».</string>
     <string name="settings_section_usb_handover">Передавання USB → WLAN-ADB</string>
@@ -260,7 +260,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_notes">Додайте будь-яку іншу корисну інформацію.</string>
     <string name="issue_report_diagnostics_section">Додаткові відредаговані діагностичні дані KeepADB (перевірте перед надсиланням)</string>
     <string name="advice_banner_title">Безпека та мережа</string>
-    <string name="advice_banner_text">Бездротове налагодження відкриває порт ADB у вашій мережі. Використовуйте його в надійних мережах Wi-Fi або через VPN, наприклад Tailscale, і вимикайте в публічних точках доступу. Ніколи не публікуйте адресу своєї кінцевої точки та не приймайте несподівані запити на створення пари чи авторизацію.</string>
+    <string name="advice_banner_text">Бездротове налагодження відкриває порт ADB у вашій мережі. Використовуйте довірену мережу Wi-Fi або VPN (наприклад, Tailscale) і вимикайте її в публічних точках доступу. Ніколи не публікуйте свою кінцеву точку та не приймайте неочікувані запити на створення пари.</string>
     <string name="action_dismiss">Закрити</string>
     <string name="settings_advice_banner_toggle">Показувати поради з безпеки та мережі</string>
     <string name="settings_advice_banner_subtext">Показує банер попередження про безпеку вгорі головного екрана.</string>

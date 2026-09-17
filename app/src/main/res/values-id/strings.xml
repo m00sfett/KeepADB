@@ -3,7 +3,7 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Penyiapan awal</string>
-    <string name="setup_body">KeepADB memerlukan izin sistem satu kali. Hubungkan perangkat ini ke komputer via USB dengan debugging USB diaktifkan, jalankan perintah di bawah ini, lalu kembali ke KeepADB.</string>
+    <string name="setup_body">Hubungkan perangkat ini ke komputer via USB dengan debugging USB diaktifkan, lalu jalankan perintah di bawah ini.</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Periksa izin</string>
     <string name="status_on">Debugging Nirkabel AKTIF</string>
@@ -32,7 +32,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_text">Memantau koneksi Wi-Fi dan status Debugging Nirkabel</string>
     <string name="notification_permission_missing_title">KeepADB: Izin kurang</string>
     <string name="notification_permission_panel_title">Notifikasi dinonaktifkan</string>
-    <string name="notification_permission_panel_body">Keep-Alive tetap dapat berjalan, tetapi KeepADB tidak dapat menampilkan notifikasi statusnya. Izinkan notifikasi di setelan sistem.</string>
+    <string name="notification_permission_panel_body">KeepADB tidak dapat menampilkan notifikasi statusnya tanpa izin ini. Keep-Alive tetap berjalan.</string>
     <string name="notification_permission_settings_button">Buka setelan notifikasi</string>
     <string name="notification_permission_missing_text">Berikan WRITE_SECURE_SETTINGS dari PC melalui adb shell pm grant</string>
     <string name="action_settings">Pengaturan</string>
@@ -121,8 +121,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Pilih Bahasa</string>
     <string name="settings_section_notification">Notifikasi</string>
     <string name="settings_hide_notification_toggle">Notifikasi persisten</string>
-    <string name="settings_hide_notification_subtext">Menjaga notifikasi status tetap terlihat di panel notifikasi. Matikan untuk menyembunyikannya; Keep-Alive dan widget akan tetap berfungsi normal.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Saat Keep-Alive aktif, Android memerlukan notifikasi untuk layanan latar depan, sehingga opsi ini tidak dapat dimatikan sampai Keep-Alive dinonaktifkan.</string>
+    <string name="settings_hide_notification_subtext">Menampilkan notifikasi status di panel. Mematikannya tidak memengaruhi Keep-Alive atau widget.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Diperlukan selama Keep-Alive aktif — Android memerlukannya untuk layanan latar depan.</string>
     <string name="settings_section_display">Layar</string>
     <string name="settings_keep_display_on_toggle">Jaga layar tetap menyala selama KeepADB berada di latar depan</string>
     <string name="settings_keep_display_on_subtext">Menjaga layar tetap menyala hanya selama aplikasi ini terbuka. Layar akan mati seperti biasa segera setelah Anda meninggalkan aplikasi.</string>
@@ -166,12 +166,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_export">Ekspor diagnostik</string>
     <string name="settings_diagnostics_export_subject">Diagnostik KeepADB</string>
     <string name="battery_optimization_title">Pengoptimalan baterai dapat membatasi Keep-Alive</string>
-    <string name="battery_optimization_body">KeepADB tidak dikecualikan dari pengoptimalan baterai. Android atau produsen perangkat dapat membatasi atau menghentikan Keep-Alive di latar belakang.</string>
+    <string name="battery_optimization_body">Android dapat membatasi atau menghentikan Keep-Alive di latar belakang kecuali KeepADB dikecualikan dari pengoptimalan baterai.</string>
     <string name="battery_optimization_button">Buka setelan baterai</string>
     <string name="location_permission_panel_title">Izin lokasi diperlukan untuk jaringan tepercaya</string>
-    <string name="location_permission_panel_body">Mode jaringan tepercaya aktif, tetapi Android menyembunyikan nama dan ID jaringan Wi-Fi saat ini tanpa akses lokasi. Tanpa itu, Keep-Alive tidak pernah bisa memastikan Anda berada di jaringan tepercaya dan tidak akan aktif kembali secara otomatis.</string>
+    <string name="location_permission_panel_body">Mode jaringan tepercaya memerlukan akses lokasi untuk mengenali jaringan Wi-Fi Anda. Tanpa itu, Keep-Alive tidak dapat memastikan jaringan tepercaya dan tidak akan aktif kembali secara otomatis.</string>
     <string name="location_permission_panel_grant_button">Berikan izin lokasi</string>
-    <string name="location_permission_panel_fallback_body">Masih tidak ingin memberikan akses lokasi? Beralihlah ke mode mempercayai semua jaringan Wi-Fi — Keep-Alive akan aktif kembali pada Wi-Fi apa pun yang terhubung, tanpa perlu mengenalinya.</string>
+    <string name="location_permission_panel_fallback_body">Lebih memilih tidak memberikan akses lokasi? Percayai semua jaringan Wi-Fi — Keep-Alive akan aktif kembali pada koneksi apa pun.</string>
     <string name="location_permission_panel_fallback_button">Percayai semua jaringan Wi-Fi sebagai gantinya</string>
     <string name="location_permission_panel_fallback_toast">Beralih ke mode \"percayai semua jaringan Wi-Fi\".</string>
     <string name="settings_section_usb_handover">Pengalihan USB ke WLAN-ADB</string>
@@ -260,7 +260,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_notes">Tambahkan informasi berguna lainnya.</string>
     <string name="issue_report_diagnostics_section">Data diagnostik KeepADB opsional yang telah disamarkan (tinjau sebelum mengirim)</string>
     <string name="advice_banner_title">Keamanan &amp; jaringan</string>
-    <string name="advice_banner_text">Debugging nirkabel membuka port ADB di jaringan Anda. Gunakan hanya di Wi-Fi tepercaya atau melalui VPN seperti Tailscale, dan matikan di hotspot publik. Jangan pernah membagikan alamat endpoint Anda secara publik dan jangan pernah menyetujui permintaan penyandingan atau otorisasi yang tidak terduga.</string>
+    <string name="advice_banner_text">Debugging nirkabel membuka port ADB di jaringan Anda. Gunakan Wi-Fi tepercaya atau VPN (mis. Tailscale), dan matikan di hotspot publik. Jangan pernah membagikan endpoint Anda secara publik atau menyetujui permintaan penyandingan yang tidak terduga.</string>
     <string name="action_dismiss">Tutup</string>
     <string name="settings_advice_banner_toggle">Tampilkan Saran Keamanan &amp; Jaringan</string>
     <string name="settings_advice_banner_subtext">Menampilkan spanduk peringatan keamanan di bagian atas layar utama.</string>

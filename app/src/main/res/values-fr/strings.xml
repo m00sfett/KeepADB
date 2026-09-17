@@ -3,7 +3,7 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Configuration initiale</string>
-    <string name="setup_body">KeepADB nécessite une autorisation système unique. Connectez cet appareil à votre ordinateur en USB avec le débogage USB activé, exécutez la commande ci-dessous, puis revenez à KeepADB.</string>
+    <string name="setup_body">Connectez cet appareil à un ordinateur en USB avec le débogage USB activé, puis exécutez la commande ci-dessous.</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Vérifier l’autorisation</string>
     <string name="status_on">Débogage sans fil ACTIVÉ</string>
@@ -32,7 +32,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_text">Surveillance de la connexion Wi-Fi et de l’état du débogage sans fil</string>
     <string name="notification_permission_missing_title">KeepADB : Autorisation manquante</string>
     <string name="notification_permission_panel_title">Les notifications sont désactivées</string>
-    <string name="notification_permission_panel_body">Keep-Alive peut continuer à fonctionner, mais KeepADB ne peut pas afficher sa notification d’état. Autorisez les notifications dans les paramètres système.</string>
+    <string name="notification_permission_panel_body">KeepADB ne peut pas afficher sa notification d’état sans cette autorisation. Le Keep-Alive continue de fonctionner.</string>
     <string name="notification_permission_settings_button">Ouvrir les paramètres des notifications</string>
     <string name="notification_permission_missing_text">Accordez WRITE_SECURE_SETTINGS depuis un PC via adb shell pm grant</string>
     <string name="action_settings">Paramètres</string>
@@ -121,8 +121,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">Sélectionner la langue</string>
     <string name="settings_section_notification">Notification</string>
     <string name="settings_hide_notification_toggle">Notification persistante</string>
-    <string name="settings_hide_notification_subtext">Garde la notification d’état visible dans le volet. Désactivez pour la masquer ; le Keep-Alive et les widgets continuent de fonctionner normalement.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Lorsque Keep-Alive est actif, Android exige une notification pour le service de premier plan, cette option ne peut donc pas être désactivée tant que Keep-Alive est actif.</string>
+    <string name="settings_hide_notification_subtext">Affiche la notification d’état dans le volet. La désactiver n’affecte ni le Keep-Alive ni les widgets.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Requise tant que Keep-Alive est actif — Android l’exige pour le service de premier plan.</string>
     <string name="settings_section_display">Écran</string>
     <string name="settings_keep_display_on_toggle">Garder l’écran allumé tant que KeepADB est au premier plan</string>
     <string name="settings_keep_display_on_subtext">Garde l’écran allumé uniquement tant que cette application est ouverte. L’écran s’éteint normalement dès que vous quittez l’application.</string>
@@ -166,12 +166,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_export">Exporter le diagnostic</string>
     <string name="settings_diagnostics_export_subject">Diagnostic KeepADB</string>
     <string name="battery_optimization_title">L’optimisation de la batterie peut limiter Keep-Alive</string>
-    <string name="battery_optimization_body">KeepADB n’est pas exempté de l’optimisation de la batterie. Android ou le fabricant peut limiter ou arrêter Keep-Alive en arrière-plan.</string>
+    <string name="battery_optimization_body">Android peut limiter ou arrêter Keep-Alive en arrière-plan si KeepADB n’est pas exempté de l’optimisation de la batterie.</string>
     <string name="battery_optimization_button">Ouvrir les réglages de batterie</string>
     <string name="location_permission_panel_title">Autorisation de localisation requise pour les réseaux de confiance</string>
-    <string name="location_permission_panel_body">Le mode réseaux de confiance est actif, mais Android masque le nom et l\'identifiant du réseau Wi-Fi actuel sans accès à la localisation. Sans cela, Keep-Alive ne peut jamais confirmer que vous êtes sur un réseau de confiance et ne se réactivera pas automatiquement.</string>
+    <string name="location_permission_panel_body">Le mode réseaux de confiance a besoin de la localisation pour identifier votre réseau Wi-Fi. Sans elle, Keep-Alive ne peut pas confirmer un réseau de confiance et ne se réactivera pas automatiquement.</string>
     <string name="location_permission_panel_grant_button">Autoriser la localisation</string>
-    <string name="location_permission_panel_fallback_body">Vous ne voulez toujours pas autoriser la localisation ? Passez plutôt au mode « faire confiance à tous les réseaux Wi-Fi » — Keep-Alive se réactivera alors sur n\'importe quel Wi-Fi connecté, sans avoir besoin de l\'identifier.</string>
+    <string name="location_permission_panel_fallback_body">Vous préférez ne pas autoriser la localisation ? Faites confiance à tous les réseaux Wi-Fi — Keep-Alive se réactivera alors sur n’importe quelle connexion.</string>
     <string name="location_permission_panel_fallback_button">Faire confiance à tous les réseaux Wi-Fi</string>
     <string name="location_permission_panel_fallback_toast">Passage au mode « faire confiance à tous les réseaux Wi-Fi ».</string>
     <string name="settings_section_usb_handover">Transfert USB vers WLAN-ADB</string>
@@ -260,7 +260,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_notes">Ajoutez toute autre information utile.</string>
     <string name="issue_report_diagnostics_section">Données de diagnostic KeepADB facultatives et expurgées (à vérifier avant l’envoi)</string>
     <string name="advice_banner_title">Sécurité et réseau</string>
-    <string name="advice_banner_text">Le débogage sans fil ouvre un port ADB sur votre réseau. Utilisez-le sur un Wi-Fi de confiance ou via un VPN comme Tailscale, et désactivez-le sur les points d’accès publics. Ne partagez jamais publiquement l’adresse de votre point de terminaison et n’acceptez jamais une demande de couplage ou d’autorisation inattendue.</string>
+    <string name="advice_banner_text">Le débogage sans fil ouvre un port ADB sur votre réseau. Utilisez un Wi-Fi de confiance ou un VPN (p. ex. Tailscale), et désactivez-le sur les points d’accès publics. Ne partagez jamais votre point de terminaison publiquement et n’acceptez pas de demande de couplage inattendue.</string>
     <string name="action_dismiss">Fermer</string>
     <string name="settings_advice_banner_toggle">Afficher les conseils de sécurité et réseau</string>
     <string name="settings_advice_banner_subtext">Affiche une bannière d’avertissement de sécurité en haut de l’écran principal.</string>

@@ -3,7 +3,7 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">الإعداد لأول مرة</string>
-    <string name="setup_body">يحتاج KeepADB إلى إذن نظام لمرة واحدة. قم بتوصيل هذا الجهاز بالكمبيوتر عبر USB مع تفعيل تصحيح أخطاء USB، وشغّل الأمر أدناه، ثم عد إلى KeepADB.</string>
+    <string name="setup_body">صِل هذا الجهاز بكمبيوتر عبر USB مع تفعيل تصحيح أخطاء USB، ثم شغّل الأمر أدناه.</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">فحص الإذن</string>
     <string name="status_on">تصحيح الأخطاء اللاسلكي مُفَعَّل</string>
@@ -32,7 +32,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_text">مراقبة اتصال Wi-Fi وحالة تصحيح الأخطاء اللاسلكي</string>
     <string name="notification_permission_missing_title">KeepADB: الإذن مفقود</string>
     <string name="notification_permission_panel_title">الإشعارات معطلة</string>
-    <string name="notification_permission_panel_body">يمكن أن يستمر Keep-Alive في العمل، لكن لا يستطيع KeepADB عرض إشعار الحالة. اسمح بالإشعارات من إعدادات النظام.</string>
+    <string name="notification_permission_panel_body">لا يستطيع KeepADB عرض إشعار الحالة دون هذا الإذن. تستمر ميزة Keep-Alive في العمل.</string>
     <string name="notification_permission_settings_button">فتح إعدادات الإشعارات</string>
     <string name="notification_permission_missing_text">امنح WRITE_SECURE_SETTINGS من الكمبيوتر عبر adb shell pm grant</string>
     <string name="action_settings">الإعدادات</string>
@@ -121,8 +121,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_dialog_title">اختر اللغة</string>
     <string name="settings_section_notification">الإشعارات</string>
     <string name="settings_hide_notification_toggle">الإشعار الدائم</string>
-    <string name="settings_hide_notification_subtext">يُبقي إشعار الحالة ظاهرًا في شريط الإشعارات. أوقف التبديل لإخفائه؛ ستستمر ميزة Keep-Alive والأدوات في العمل بشكل طبيعي.</string>
-    <string name="settings_hide_notification_subtext_keepalive">عند تفعيل ميزة Keep-Alive، يفرض نظام Android إشعارًا لخدمة المقدمة، لذا لا يمكن إيقاف هذا الخيار حتى يتم تعطيل Keep-Alive.</string>
+    <string name="settings_hide_notification_subtext">يعرض إشعار الحالة في الشريط. إيقافه لا يؤثر على Keep-Alive أو الأدوات.</string>
+    <string name="settings_hide_notification_subtext_keepalive">ضروري أثناء تفعيل Keep-Alive — يتطلبه Android لخدمة المقدمة.</string>
     <string name="settings_section_display">الشاشة</string>
     <string name="settings_keep_display_on_toggle">إبقاء الشاشة قيد التشغيل أثناء تشغيل KeepADB في المقدمة</string>
     <string name="settings_keep_display_on_subtext">يبقي الشاشة قيد التشغيل فقط أثناء فتح هذا التطبيق. تنطفئ الشاشة بشكل طبيعي بمجرد مغادرة التطبيق.</string>
@@ -166,12 +166,12 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_diagnostics_export">تصدير بيانات التشخيص</string>
     <string name="settings_diagnostics_export_subject">بيانات تشخيص KeepADB</string>
     <string name="battery_optimization_title">قد يحد تحسين البطارية من Keep-Alive</string>
-    <string name="battery_optimization_body">KeepADB غير مستثنى من تحسين البطارية. قد يقيّد Android أو الشركة المصنّعة Keep-Alive أو يوقفه في الخلفية.</string>
+    <string name="battery_optimization_body">قد يقيّد Android أو الشركة المصنّعة تشغيل Keep-Alive في الخلفية أو يوقفه ما لم يكن KeepADB مستثنى من تحسين البطارية.</string>
     <string name="battery_optimization_button">فتح إعدادات البطارية</string>
     <string name="location_permission_panel_title">إذن الموقع مطلوب للشبكات الموثوقة</string>
-    <string name="location_permission_panel_body">وضع الشبكات الموثوقة نشط، لكن Android يخفي اسم شبكة Wi-Fi الحالية ومعرّفها دون إذن الوصول إلى الموقع. بدونه، لا يمكن لـ Keep-Alive التأكد أبدًا من أنك متصل بشبكة موثوقة ولن يُعاد تفعيله تلقائيًا.</string>
+    <string name="location_permission_panel_body">يحتاج وضع الشبكات الموثوقة إلى إذن الموقع للتعرّف على شبكة Wi-Fi الخاصة بك. بدونه، لا يمكن لـ Keep-Alive تأكيد شبكة موثوقة ولن يُعاد تفعيله تلقائيًا.</string>
     <string name="location_permission_panel_grant_button">منح إذن الموقع</string>
-    <string name="location_permission_panel_fallback_body">ما زلت لا تريد منح إذن الموقع؟ يمكنك التبديل إلى وضع الثقة بجميع شبكات Wi-Fi بدلاً من ذلك — عندها سيُعاد تفعيل Keep-Alive تلقائيًا عند أي اتصال Wi-Fi دون الحاجة إلى التعرف عليه.</string>
+    <string name="location_permission_panel_fallback_body">تفضّل عدم منح إذن الموقع؟ ثِق بجميع شبكات Wi-Fi بدلاً من ذلك — سيُعاد تفعيل Keep-Alive عندها عند أي اتصال.</string>
     <string name="location_permission_panel_fallback_button">الثقة بجميع شبكات Wi-Fi بدلاً من ذلك</string>
     <string name="location_permission_panel_fallback_toast">تم التبديل إلى وضع «الثقة بجميع شبكات Wi-Fi».</string>
     <string name="settings_section_usb_handover">تسليم USB إلى WLAN-ADB</string>
@@ -260,7 +260,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_placeholder_notes">أضف أي معلومات أخرى مفيدة هنا.</string>
     <string name="issue_report_diagnostics_section">بيانات تشخيصية اختيارية منقّحة لـ KeepADB (راجعها قبل الإرسال)</string>
     <string name="advice_banner_title">الأمان والشبكة</string>
-    <string name="advice_banner_text">يفتح تصحيح الأخطاء اللاسلكي منفذ ADB على شبكتك. استخدمه على شبكات Wi-Fi الموثوقة أو عبر شبكة VPN مثل Tailscale، وأوقفه في نقاط الاتصال العامة. لا تشارك عنوان نقطة النهاية علنًا مطلقًا، ولا تقبل أبدًا طلبات اقتران أو تفويض غير متوقعة.</string>
+    <string name="advice_banner_text">يفتح تصحيح الأخطاء اللاسلكي منفذ ADB على شبكتك. استخدم شبكة Wi-Fi موثوقة أو VPN مثل Tailscale، وأوقفه في نقاط الاتصال العامة. لا تشارك عنوان نقطة النهاية علنًا أبدًا ولا تقبل طلبات اقتران غير متوقعة.</string>
     <string name="action_dismiss">إغلاق</string>
     <string name="settings_advice_banner_toggle">إظهار نصائح الأمان والشبكة</string>
     <string name="settings_advice_banner_subtext">عرض شريط تحذير أمني أعلى الشاشة الرئيسية.</string>
