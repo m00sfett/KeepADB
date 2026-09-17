@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -526,6 +527,133 @@ public class SettingsActivityTest {
         assertNull("An empty log must not open the row dialog",
                 activity.getActiveBlockedNetworksDialog());
         assertTrue(KeepADBTrustedNetwork.getEntries(activity).isEmpty());
+    }
+
+    // #471: settings cards start collapsed and expand/collapse independently, without any
+    // persisted state.
+    private static final int[][] COLLAPSIBLE_CARDS = {
+            {R.id.settings_language_header, R.id.settings_language_body},
+            {R.id.settings_webhook_header, R.id.settings_webhook_body},
+            {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body},
+            {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body},
+            {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body},
+            {R.id.settings_notification_header, R.id.settings_notification_body},
+            {R.id.settings_display_header, R.id.settings_display_body},
+            {R.id.settings_advice_banner_header, R.id.settings_advice_banner_body},
+            {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body},
+            {R.id.settings_version_header, R.id.settings_version_body},
+    };
+
+    @Test
+    public void allSettingsCardsAreCollapsedByDefault() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        for (int[] card : COLLAPSIBLE_CARDS) {
+            assertEquals("Card body must start collapsed: " + card[1],
+                    View.GONE, activity.findViewById(card[1]).getVisibility());
+        }
+    }
+
+    @Test
+    public void clickingACardHeaderTogglesOnlyThatCardsBodyAndArrow() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        View webhookHeader = activity.findViewById(R.id.settings_webhook_header);
+        View webhookBody = activity.findViewById(R.id.settings_webhook_body);
+        TextView webhookArrow = activity.findViewById(R.id.settings_webhook_arrow);
+        View languageBody = activity.findViewById(R.id.settings_language_body);
+
+        webhookHeader.performClick();
+        assertEquals(View.VISIBLE, webhookBody.getVisibility());
+        assertEquals("−", webhookArrow.getText().toString());
+        // The untouched card must stay exactly as it was -- collapse is per card, not global.
+        assertEquals(View.GONE, languageBody.getVisibility());
+
+        webhookHeader.performClick();
+        assertEquals(View.GONE, webhookBody.getVisibility());
+        assertEquals("+", webhookArrow.getText().toString());
+    }
+
+    @Test
+    public void everyCardExpandsAndCollapsesIndependentlyOfTheOthers() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        // Expand every other card and confirm the untouched ones are unaffected in both
+        // directions -- this is the actual independence guarantee behind acceptance criterion 2,
+        // not just "clicking one card doesn't crash the others".
+        for (int i = 0; i < COLLAPSIBLE_CARDS.length; i += 2) {
+            activity.findViewById(COLLAPSIBLE_CARDS[i][0]).performClick();
+        }
+        for (int i = 0; i < COLLAPSIBLE_CARDS.length; i++) {
+            int expected = (i % 2 == 0) ? View.VISIBLE : View.GONE;
+            assertEquals("Card " + i + " expand state must be independent of the others",
+                    expected, activity.findViewById(COLLAPSIBLE_CARDS[i][1]).getVisibility());
+        }
+    }
+
+    @Test
+    public void expandedCardStateIsNotPersistedAcrossReopeningTheSettingsPage() {
+        ActivityController<SettingsActivity> firstOpen =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity firstActivity = firstOpen.get();
+        firstActivity.findViewById(R.id.settings_webhook_header).performClick();
+        assertEquals(View.VISIBLE,
+                firstActivity.findViewById(R.id.settings_webhook_body).getVisibility());
+        firstOpen.pause().stop().destroy();
+
+        // A fresh SettingsActivity instance -- standing in for the user closing and reopening
+        // the settings page -- must start collapsed again: no SharedPreferences and no
+        // onSaveInstanceState/onCreate(savedInstanceState) restoration ever carries the expand
+        // state over (#471 acceptance criterion 3).
+        ActivityController<SettingsActivity> secondOpen =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity secondActivity = secondOpen.get();
+        assertEquals(View.GONE,
+                secondActivity.findViewById(R.id.settings_webhook_body).getVisibility());
+        secondOpen.pause().stop().destroy();
+    }
+
+    @Test
+    public void expandingTheWebhookCardKeepsItsControlsFullyFunctional() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        activity.findViewById(R.id.settings_webhook_header).performClick();
+        assertTrue("Expanded card contents must actually be shown, not merely VISIBLE while a "
+                        + "collapsed ancestor still clips them",
+                activity.findViewById(R.id.settings_webhook_toggle).isShown());
+
+        EditText input = activity.findViewById(R.id.settings_webhook_url);
+        Switch toggle = activity.findViewById(R.id.settings_webhook_toggle);
+        input.setText("https://100.111.111.21:50829/register/s20");
+        toggle.performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertEquals("https://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.getRegisterWebhookUrl(activity));
+    }
+
+    @Test
+    public void focusWebhookExtraExpandsTheWebhookCardBeforeFocusingTheUrlField() {
+        Intent intent = new Intent(RuntimeEnvironment.getApplication(), SettingsActivity.class)
+                .putExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class, intent).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+
+        // A GONE view cannot take focus, so this also guards against a silent requestFocus()
+        // no-op if the webhook card were ever left collapsed on this deep-link path.
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.settings_webhook_body).getVisibility());
+        assertTrue(activity.findViewById(R.id.settings_webhook_url).isFocused());
     }
 
     private static <T extends View> T findViewByType(View root, Class<T> type) {

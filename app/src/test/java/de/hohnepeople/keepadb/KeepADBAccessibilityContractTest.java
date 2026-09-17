@@ -102,6 +102,10 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(main.findViewById(R.id.setup_refresh).isShown());
         assertTrue(main.findViewById(R.id.btn_open_notification_settings).isShown());
         assertTrue(main.findViewById(R.id.webhook_setup_button).isShown());
+        // #471: every settings card starts collapsed; expand them all so the controls inside are
+        // actually part of the measured layout (a GONE body's children never get a measured
+        // size).
+        expandAllSettingsCards(settings);
         measureAndLayout(main, 360, 2400);
         measureAndLayout(settings, 360, 2400);
         measureAndLayout(widget, 360, 160);
@@ -115,18 +119,39 @@ public class KeepADBAccessibilityContractTest {
         for (int id : mainControls) assertMinSize(main.findViewById(id));
 
         int[] settingsControls = {
-                R.id.btn_back, R.id.settings_language_selector, R.id.settings_webhook_toggle,
+                R.id.btn_back, R.id.settings_language_header, R.id.settings_language_selector,
+                R.id.settings_webhook_header, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_url, R.id.settings_webhook_clear, R.id.settings_webhook_save,
-                R.id.settings_usb_notification_toggle, R.id.settings_usb_profile_notification_toggle,
-                R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
-                R.id.settings_trusted_network_toggle, R.id.settings_trusted_network_add,
-                R.id.settings_trusted_network_manage, R.id.settings_hide_notification_toggle,
-                R.id.settings_keep_display_on_toggle, R.id.settings_advice_banner_toggle,
+                R.id.settings_usb_notification_header, R.id.settings_usb_notification_toggle,
+                R.id.settings_usb_profile_notification_toggle,
+                R.id.settings_usb_profile_action, R.id.settings_usb_handover_header,
+                R.id.settings_usb_handover_selector,
+                R.id.settings_trusted_network_header, R.id.settings_trusted_network_toggle,
+                R.id.settings_trusted_network_add,
+                R.id.settings_trusted_network_manage, R.id.settings_notification_header,
+                R.id.settings_hide_notification_toggle,
+                R.id.settings_display_header, R.id.settings_keep_display_on_toggle,
+                R.id.settings_advice_banner_header, R.id.settings_advice_banner_toggle,
+                R.id.settings_diagnostics_header,
                 R.id.settings_diagnostics_export, R.id.settings_issue_report,
-                R.id.settings_website_link
+                R.id.settings_version_header, R.id.settings_website_link
         };
         for (int id : settingsControls) assertMinSize(settings.findViewById(id));
         assertMinSize(widget.findViewById(R.id.widget_label));
+    }
+
+    /** #471: clicks every settings card's header so its body (and everything inside) becomes
+     * part of the measured/shown layout -- cards start collapsed, and a GONE view's children
+     * never receive a measured size or count as isShown(). */
+    private void expandAllSettingsCards(View settings) {
+        int[] headers = {
+                R.id.settings_language_header, R.id.settings_webhook_header,
+                R.id.settings_usb_notification_header, R.id.settings_usb_handover_header,
+                R.id.settings_trusted_network_header, R.id.settings_notification_header,
+                R.id.settings_display_header, R.id.settings_advice_banner_header,
+                R.id.settings_diagnostics_header, R.id.settings_version_header
+        };
+        for (int id : headers) settings.findViewById(id).performClick();
     }
 
     @Test
@@ -446,6 +471,8 @@ public class KeepADBAccessibilityContractTest {
     @Test
     public void websiteLinkKeepsItsMeasuredTargetAndRuntimeAccessibilityProperties() {
         View settings = runtimeView(R.layout.activity_settings);
+        // #471: the version card (which holds the website link) starts collapsed.
+        settings.findViewById(R.id.settings_version_header).performClick();
         measureAndLayout(settings, 360, 2400);
         TextView link = (TextView) settings.findViewById(R.id.settings_website_link);
         int minimum = dp(48);
