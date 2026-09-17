@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.app.Application;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -223,6 +224,32 @@ public class MainActivityAccessPointOverviewTest {
         trustButton.performClick();
 
         assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
+    }
+
+    /**
+     * #470: adding a trusted network from here must immediately attempt the connection it was
+     * blocking, without the user first having to open the pushdown notification.
+     */
+    @Test
+    public void trustButtonImmediatelyAttemptsTheConnectionItWasBlocking() {
+        connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
+        shadowOf((Application) context).grantPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        // MODE_ALL_WIFI makes isAutoEnableStillPermitted's trust check pass under Robolectric,
+        // whose WifiManager identity the allowlist branch cannot be driven through -- matching
+        // the same setup KeepADBNetworkTrustPromptTest uses for the notification's own action.
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        MainActivity activity = launch();
+
+        Button trustButton = findButton(activity.findViewById(R.id.wifi_aps_current_row));
+        trustButton.performClick();
+
+        assertTrue("Wireless Debugging must be turned on immediately after trusting the "
+                        + "blocking access point from the main screen",
+                KeepADB.isEnabled(context));
     }
 
     // --- helpers ----------------------------------------------------------------------------

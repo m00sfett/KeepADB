@@ -55,13 +55,6 @@ public final class KeepADBReceiver extends BroadcastReceiver {
      * the manual "add current network" button and the mesh convenience use, so there is exactly
      * one way a network can become trusted.
      *
-     * <p>The subsequent enable is gated by {@link KeepADBService#isAutoEnableStillPermitted},
-     * not performed unconditionally: a notification can be tapped arbitrarily late, and by then
-     * the device may have roamed to a <em>different</em> untrusted access point or dropped Wi-Fi
-     * entirely. Turning Wireless Debugging on there would extend the user's consent for this
-     * access point to one they never saw. If the guard says no, the allowlist entry still stands
-     * and the normal Keep-Alive path enables as soon as the device is back on it.
-     *
      * @return true if Wireless Debugging was actually turned on by this call.
      */
     static boolean handleTrustNetworkAction(Context context, String bssid, String label) {
@@ -78,8 +71,34 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         }
         KeepADBDiagnostics.event(context, "user_action", "network_trust_prompt", "allowed",
                 "bssid=" + cleanBssid);
-        KeepADBTrustedNetwork.addBssid(context, cleanBssid, label);
-        KeepADBBlockedNetworkHistory.remove(context, cleanBssid);
+        return trustBssidAndAttemptConnect(context, cleanBssid, label);
+    }
+
+    /**
+     * #470: trusts {@code bssid} and immediately attempts the connection that being untrusted
+     * was blocking -- shared by {@link #handleTrustNetworkAction} (the notification's "allow"
+     * action) and {@link MainActivity}'s per-access-point trust button, so trusting a network
+     * from the main screen never requires opening the notification first.
+     *
+     * <p>Also cancels/clears the notification prompt either way: once a network is trusted from
+     * anywhere in the app, the question the prompt was asking no longer applies and it must not
+     * remain visible.
+     *
+     * <p>The subsequent enable is gated by {@link KeepADBService#isAutoEnableStillPermitted},
+     * not performed unconditionally: this can run arbitrarily late relative to when the access
+     * point was actually seen (a tapped notification, a non-current row in the main screen's
+     * access-point list), and by then the device may have roamed to a <em>different</em>
+     * untrusted access point or dropped Wi-Fi entirely. Turning Wireless Debugging on there would
+     * extend the user's consent for this access point to one they never saw. If the guard says
+     * no, the allowlist entry still stands and the normal Keep-Alive path enables as soon as the
+     * device is back on it.
+     *
+     * @return true if Wireless Debugging was actually turned on by this call.
+     */
+    static boolean trustBssidAndAttemptConnect(Context context, String bssid, String label) {
+        KeepADBTrustedNetwork.addBssid(context, bssid, label);
+        KeepADBBlockedNetworkHistory.remove(context, bssid);
+        KeepADBNetworkTrustPrompt.cancel(context);
         KeepADBNetworkTrustPrompt.clearPromptState(context);
 
         boolean enabled = false;

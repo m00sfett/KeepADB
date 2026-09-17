@@ -280,13 +280,15 @@ public class KeepADBAccessibilityContractTest {
         View settings = runtimeView(R.layout.activity_settings);
         ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
                 settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
+        // #470: trusted networks now sits right after language/webhook and before the USB-ADB
+        // block, with the permanent notification section directly beneath it.
         int[] panels = {
                 R.id.settings_language_panel,
                 R.id.settings_webhook_panel,
-                R.id.settings_usb_notification_panel,
-                R.id.settings_usb_handover_panel,
                 R.id.settings_trusted_network_panel,
                 R.id.settings_notification_panel,
+                R.id.settings_usb_notification_panel,
+                R.id.settings_usb_handover_panel,
                 R.id.settings_display_panel,
                 R.id.settings_diagnostics_panel,
                 R.id.settings_version_panel
