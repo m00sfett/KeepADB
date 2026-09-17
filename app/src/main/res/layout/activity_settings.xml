@@ -78,25 +78,29 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- Language Section (#471: collapsed by default, in-memory expand state only) -->
+        <!-- Language Section (#478: pinned, permanently visible, no panel frame/arrow) -->
         <LinearLayout
             android:id="@+id/settings_language_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
+            android:background="@color/ground"
             android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/settings_language_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
                 android:gravity="center_vertical"
                 android:minHeight="48dp"
                 android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="8dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_globe" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -107,17 +111,6 @@
                     android:textColor="@color/title_yellow"
                     android:textSize="18sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/settings_language_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="+"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
             </LinearLayout>
 
             <LinearLayout
@@ -125,8 +118,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -976,22 +968,19 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Version Section -->
+        <!-- Version Section (#478: pinned, permanently visible, no panel frame/arrow) -->
         <LinearLayout
             android:id="@+id/settings_version_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
+            android:background="@color/ground"
             android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/settings_version_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
                 android:gravity="center_vertical"
                 android:minHeight="48dp"
                 android:orientation="horizontal">
@@ -1005,17 +994,6 @@
                     android:textColor="@color/title_yellow"
                     android:textSize="18sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/settings_version_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="+"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
             </LinearLayout>
 
             <LinearLayout
@@ -1023,8 +1001,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/settings_version_name"

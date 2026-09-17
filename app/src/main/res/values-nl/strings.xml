@@ -88,6 +88,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_blocked_allow_button">Toestaan</string>
     <string name="settings_trusted_network_blocked_allow_accessibility">Geblokkeerd netwerk \"%1$s\" toestaan</string>
     <string name="wifi_aps_title">Wifi en access points</string>
+    <string name="wifi_aps_trusted_only_toggle">Alleen vertrouwde access points weergeven</string>
     <string name="wifi_aps_current_badge">Huidig</string>
     <string name="wifi_aps_trusted_status">Vertrouwd</string>
     <string name="wifi_aps_untrusted_status">Niet vertrouwd</string>

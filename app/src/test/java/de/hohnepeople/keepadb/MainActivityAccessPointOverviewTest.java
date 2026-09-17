@@ -2,6 +2,7 @@ package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -56,15 +58,16 @@ public class MainActivityAccessPointOverviewTest {
     }
 
     @Test
-    public void currentAccessPointIsShownWithSsidBssidAndTrustStatus() {
+    public void currentAccessPointIsShownWithSsidAndBssid() {
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
 
         MainActivity activity = launch();
 
+        // #479: the row focuses on SSID/BSSID only -- no redundant trust/mesh status text.
         List<String> currentTexts = allText(activity.findViewById(R.id.wifi_aps_current_row));
         assertTrue(joined(currentTexts), currentTexts.stream().anyMatch(t -> t.contains("HomeMesh")));
         assertTrue(joined(currentTexts), currentTexts.stream().anyMatch(t -> t.contains("AA:AA:AA:AA:AA:01")));
-        assertTrue(joined(currentTexts), currentTexts.stream()
+        assertFalse(joined(currentTexts), currentTexts.stream()
                 .anyMatch(t -> t.contains(context.getString(R.string.wifi_aps_untrusted_status))));
     }
 
@@ -182,7 +185,9 @@ public class MainActivityAccessPointOverviewTest {
     }
 
     @Test
-    public void twoAccessPointsSharingAnSsidShowTheMeshLabel() {
+    public void twoAccessPointsSharingAnSsidDoNotShowTheMeshLabel() {
+        // #479: the mesh-count label ("AP X of Y") is redundant status text and was removed from
+        // the individual AP rows, even though KeepADBAccessPointOverview still computes it.
         KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:02");
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
 
@@ -193,7 +198,7 @@ public class MainActivityAccessPointOverviewTest {
         String meshLabelOther = context.getString(R.string.wifi_aps_mesh_label, 2, 2);
         boolean currentShowsMesh = currentTexts.stream()
                 .anyMatch(t -> t.contains(meshLabel) || t.contains(meshLabelOther));
-        assertTrue(joined(currentTexts), currentShowsMesh);
+        assertFalse(joined(currentTexts), currentShowsMesh);
     }
 
     @Test
@@ -250,6 +255,52 @@ public class MainActivityAccessPointOverviewTest {
         assertTrue("Wireless Debugging must be turned on immediately after trusting the "
                         + "blocking access point from the main screen",
                 KeepADB.isEnabled(context));
+    }
+
+    /** #480: "Trust" (add) and "Untrust" (remove) must use visually distinct styles instead of a
+     * single shared button background. Asserted here via the text color each style applies,
+     * since comparing background Drawables directly is brittle under Robolectric. */
+    @Test
+    public void trustAndUntrustButtonsUseDistinctColorStyles() {
+        connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
+        MainActivity activity = launch();
+
+        Button trustButton = findButton(activity.findViewById(R.id.wifi_aps_current_row));
+        int trustColor = trustButton.getCurrentTextColor();
+        assertEquals(context.getColor(R.color.title_yellow), trustColor);
+
+        trustButton.performClick();
+
+        Button untrustButton = findButton(activity.findViewById(R.id.wifi_aps_current_row));
+        int untrustColor = untrustButton.getCurrentTextColor();
+        assertEquals(context.getColor(R.color.text_yellow), untrustColor);
+        assertNotEquals(trustColor, untrustColor);
+    }
+
+    /** #479 acceptance criterion 3: enabling the "trusted only" filter hides untrusted access
+     * points from both the current-connection row and the "others" list; trusted ones remain. */
+    @Test
+    public void trustedOnlyFilterHidesUntrustedAccessPointsFromCurrentAndOthersList() {
+        KeepADBBssidHistory.recordObservation(context, "OfficeMesh", "bb:bb:bb:bb:bb:01");
+        connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
+        MainActivity activity = launch();
+        Switch trustedOnlyToggle = activity.findViewById(R.id.wifi_aps_trusted_only_toggle);
+
+        trustedOnlyToggle.setChecked(true);
+
+        List<String> currentTexts = allText(activity.findViewById(R.id.wifi_aps_current_row));
+        assertFalse(joined(currentTexts), currentTexts.stream().anyMatch(t -> t.contains("HomeMesh")));
+        LinearLayout list = activity.findViewById(R.id.wifi_aps_list);
+        assertEquals(0, list.getChildCount());
+
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:01", "HomeMesh");
+        // The trust state changed outside the toggle's own listener -- flip it off and back on
+        // to force a re-render against the now-updated trust state.
+        trustedOnlyToggle.setChecked(false);
+        trustedOnlyToggle.setChecked(true);
+
+        currentTexts = allText(activity.findViewById(R.id.wifi_aps_current_row));
+        assertTrue(joined(currentTexts), currentTexts.stream().anyMatch(t -> t.contains("HomeMesh")));
     }
 
     // --- helpers ----------------------------------------------------------------------------

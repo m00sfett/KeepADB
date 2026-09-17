@@ -107,6 +107,7 @@
     <string name="settings_trusted_network_blocked_allow_button">Zulassen</string>
     <string name="settings_trusted_network_blocked_allow_accessibility">Blockiertes Netzwerk \"%1$s\" zulassen</string>
     <string name="wifi_aps_title">WLAN &amp; Access Points</string>
+    <string name="wifi_aps_trusted_only_toggle">Nur vertrauenswürdige Access Points anzeigen</string>
     <string name="wifi_aps_current_badge">Aktuell</string>
     <string name="wifi_aps_trusted_status">Vertrauenswürdig</string>
     <string name="wifi_aps_untrusted_status">Nicht vertraut</string>
