@@ -1,0 +1,4 @@
+• Changed: the "Wi-Fi & Access Points" list is no longer capped at 6 entries — it shows 5 and reveals the rest with "show more".
+• Changed: tighter spacing and shorter texts on the main screen, so more status fits without scrolling.
+• Changed: trusting an access point from the main screen now connects right away, no notification tap needed.
+• Changed: Settings cards start collapsed and open one at a time; trusted networks moved up, below Webhook.

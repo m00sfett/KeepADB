@@ -3,7 +3,7 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">First-time setup</string>
-    <string name="setup_body">KeepADB needs a one-time system permission. Connect this device to your computer by USB with USB debugging enabled, run the command below, then return to KeepADB.</string>
+    <string name="setup_body">Connect this device to a computer via USB with USB debugging enabled, then run the command below.</string>
     <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Check permission</string>
     <string name="status_on">Wireless Debugging is ON (Connected)</string>
@@ -43,15 +43,15 @@
     <string name="notification_permission_missing_title">KeepADB: Permission missing</string>
     <string name="notification_permission_missing_text">Grant WRITE_SECURE_SETTINGS from PC via adb shell pm grant</string>
     <string name="notification_permission_panel_title">Notifications are disabled</string>
-    <string name="notification_permission_panel_body">Keep-Alive can still run, but KeepADB cannot show its status notification. Allow notifications in system settings.</string>
+    <string name="notification_permission_panel_body">KeepADB can’t show its status notification without this permission. Keep-Alive still works.</string>
     <string name="notification_permission_settings_button">Open notification settings</string>
     <string name="battery_optimization_title">Battery optimization may limit Keep-Alive</string>
-    <string name="battery_optimization_body">KeepADB is not exempt from battery optimization. Android or the device manufacturer may restrict or stop Keep-Alive in the background.</string>
+    <string name="battery_optimization_body">Android may restrict or stop Keep-Alive in the background unless KeepADB is exempt from battery optimization.</string>
     <string name="battery_optimization_button">Open battery settings</string>
     <string name="location_permission_panel_title">Location permission needed for trusted networks</string>
-    <string name="location_permission_panel_body">Trusted-network mode is active, but Android hides the current Wi-Fi network\'s name and ID without Location access. Without it, Keep-Alive can never confirm you\'re on a trusted network and won\'t re-enable automatically.</string>
+    <string name="location_permission_panel_body">Trusted-network mode needs Location access to identify your Wi-Fi network. Without it, Keep-Alive can’t confirm a trusted network and won’t re-enable automatically.</string>
     <string name="location_permission_panel_grant_button">Grant location permission</string>
-    <string name="location_permission_panel_fallback_body">Still don\'t want to grant Location access? Switch to trusting all Wi-Fi networks instead — Keep-Alive will then re-enable on any connected Wi-Fi, without needing to identify it.</string>
+    <string name="location_permission_panel_fallback_body">Prefer not to grant Location access? Trust all Wi-Fi networks instead — Keep-Alive will then re-enable on any connection.</string>
     <string name="location_permission_panel_fallback_button">Trust all Wi-Fi networks instead</string>
     <string name="location_permission_panel_fallback_toast">Switched to \"trust all Wi-Fi networks\" mode.</string>
     <string name="action_settings">Settings</string>
@@ -118,6 +118,8 @@
     <string name="wifi_aps_untrust_button">Untrust</string>
     <string name="wifi_aps_trust_accessibility">Add \"%1$s\" to trusted networks</string>
     <string name="wifi_aps_untrust_accessibility">Remove \"%1$s\" from trusted networks</string>
+    <string name="wifi_aps_show_more_button">Show %1$d more</string>
+    <string name="wifi_aps_show_less_button">Show less</string>
     <string name="settings_webhook_saved_toast">Webhook URL saved</string>
     <string name="settings_webhook_cleared_toast">Webhook configuration cleared</string>
     <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>
@@ -142,8 +144,8 @@
     <string name="settings_diagnostics_export_subject">KeepADB diagnostics</string>
     <string name="settings_section_notification">Notification</string>
     <string name="settings_hide_notification_toggle">Persistent notification</string>
-    <string name="settings_hide_notification_subtext">Keeps the status notification visible in the notification drawer. Turn off to hide it; Keep-Alive and widgets will continue to work normally.</string>
-    <string name="settings_hide_notification_subtext_keepalive">When Keep-Alive is active, Android requires a notification for the foreground service, so this cannot be turned off until Keep-Alive is disabled.</string>
+    <string name="settings_hide_notification_subtext">Shows the status notification in the drawer. Turning it off won’t affect Keep-Alive or widgets.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Required while Keep-Alive is active — Android needs it for the foreground service.</string>
     <string name="settings_section_display">Display</string>
     <string name="settings_keep_display_on_toggle">Keep display on while KeepADB is in the foreground</string>
     <string name="settings_keep_display_on_subtext">Keeps the screen on only while this app is open. The screen turns off normally as soon as you leave the app.</string>
@@ -257,7 +259,7 @@
     <string name="issue_report_placeholder_notes">Add any other useful information here.</string>
     <string name="issue_report_diagnostics_section">Optional redacted KeepADB diagnostics (review before submitting)</string>
     <string name="advice_banner_title">Security &amp; network advice</string>
-    <string name="advice_banner_text">Wireless Debugging opens an ADB port on your network. Keep it on trusted private Wi-Fi or a VPN such as Tailscale, and turn it off on public hotspots. Never share your endpoint address publicly, and never accept an unexpected pairing or authorization prompt.</string>
+    <string name="advice_banner_text">Wireless Debugging opens an ADB port on your network. Use trusted private Wi-Fi or a VPN (e.g. Tailscale), and turn it off on public hotspots. Never share your endpoint publicly or accept an unexpected pairing prompt.</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>

@@ -22,6 +22,15 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.1] - Unreleased
+
+### Changed
+- The main screen's "Wi-Fi & Access Points" card no longer hard-caps the list at 6 entries (`KeepADBAccessPointOverview.MAX_ITEMS`). `buildItems` now returns the complete observation list; `MainActivity` shows at most 5 "other" access points by default and reveals the rest behind a "show N more"/"show less" toggle that only appears when there is actually something to hide, so short lists and the empty state stay interaction-free. The current connection keeps its own row above the collapsible list, so its connection/trust state never moves or disappears while expanding or collapsing (issue #468).
+- Densified the main screen: `bg_panel` padding 20dp -> 16dp, inter-panel and internal margins 16dp/12dp -> 12dp/8-10dp across the advice banner, status, webhook and Wi-Fi & Access Points panels. The onboarding/status panel descriptions (setup, battery optimization, notification/location permission, advice banner, persistent-notification subtext) were trimmed to what the respective action needs. Status, error and action strings are unchanged (issue #469).
+- Trusting an access point from `MainActivity`'s Wi-Fi & Access Points card now reuses `KeepADBReceiver.trustBssidAndAttemptConnect()` -- the same path the trust notification's "allow" action already takes -- so it immediately attempts the connection the untrusted network was blocking and cancels any showing prompt, instead of requiring the user to open the pushdown notification first. The Settings screen was reordered accordingly: the trusted-network allowlist panel now sits right after Language/Webhook and before the USB-ADB block, with the permanent-notification panel directly beneath it (issue #470).
+- Every Settings card now starts collapsed behind a clickable +/- header and expands independently of the others. The expand state lives only in the live View tree (no `SharedPreferences`, no `onSaveInstanceState`), so reopening Settings always starts collapsed. The permission-warning banner stays excluded -- it is a conditional safety notice, not an option card (issue #471).
+- Patch version bump (1.8.0 -> 1.8.1, versionCode 98): all four changes refine existing surfaces rather than introducing new ones, so a Patch bump applies. `versionCode` skips nothing; #468, #469, #470 and #471 were developed independently and are released together as one integrated build.
+
 ## [1.8.0] - Unreleased
 
 ### Fixed

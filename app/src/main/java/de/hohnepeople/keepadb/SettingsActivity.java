@@ -94,6 +94,36 @@ public class SettingsActivity extends Activity {
 
     static final String WEBSITE_URL = "https://hohnepeople.de";
 
+    // #471: settings cards start collapsed and are toggled independently of each other. The
+    // symbols are plain literals (matching the existing static "▼" selector arrows elsewhere in
+    // this layout) rather than string resources -- they carry no natural-language content, so
+    // there is nothing for check-i18n/lint to translate.
+    private static final String CARD_COLLAPSED_SYMBOL = "+";
+    private static final String CARD_EXPANDED_SYMBOL = "−";
+
+    // #471: header/body/arrow id triples for every collapsible settings card. Each body starts
+    // visibility="gone" in activity_settings.xml (collapsed by default); the expand state lives
+    // only in the live View tree (View#setVisibility), never in SharedPreferences or
+    // onSaveInstanceState, so a freshly created SettingsActivity instance -- i.e. every time the
+    // settings page is opened -- is always collapsed again, per the #471 acceptance criteria.
+    // The permission-warning panel is deliberately excluded: it is a conditional safety notice,
+    // not a configurable option card, and stays fully visible whenever it is shown at all.
+    private static final int[][] COLLAPSIBLE_CARDS = {
+            {R.id.settings_language_header, R.id.settings_language_body, R.id.settings_language_arrow},
+            {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
+            {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body,
+                    R.id.settings_usb_notification_arrow},
+            {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body, R.id.settings_usb_handover_arrow},
+            {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body,
+                    R.id.settings_trusted_network_arrow},
+            {R.id.settings_notification_header, R.id.settings_notification_body, R.id.settings_notification_arrow},
+            {R.id.settings_display_header, R.id.settings_display_body, R.id.settings_display_arrow},
+            {R.id.settings_advice_banner_header, R.id.settings_advice_banner_body,
+                    R.id.settings_advice_banner_arrow},
+            {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body, R.id.settings_diagnostics_arrow},
+            {R.id.settings_version_header, R.id.settings_version_body, R.id.settings_version_arrow},
+    };
+
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(KeepADBLocaleHelper.wrapContext(newBase));
@@ -123,6 +153,11 @@ public class SettingsActivity extends Activity {
         scrollView = findViewById(R.id.settings_scroll_view);
         webhookPanel = findViewById(R.id.settings_webhook_panel);
         permissionPanel = findViewById(R.id.settings_permission_panel);
+
+        // #471: wire every card's header to toggle its own body, independently of the others.
+        for (int[] card : COLLAPSIBLE_CARDS) {
+            bindCollapsibleCard(card[0], card[1], card[2]);
+        }
 
         languageSelectedText = findViewById(R.id.settings_language_selected_text);
         languageSelector = findViewById(R.id.settings_language_selector);
@@ -432,8 +467,29 @@ public class SettingsActivity extends Activity {
     }
 
     private void focusWebhookPanel() {
+        // #471: the webhook card is collapsed by default like every other card; a caller asking
+        // to focus its URL field (e.g. MainActivity's webhook setup shortcut) needs the body
+        // actually expanded first, or requestFocus() below would silently no-op on a GONE view.
+        setCardExpanded(findViewById(R.id.settings_webhook_body), findViewById(R.id.settings_webhook_arrow), true);
         scrollView.post(() -> scrollView.smoothScrollTo(0, webhookPanel.getTop()));
         webhookUrlInput.requestFocus();
+    }
+
+    /**
+     * #471: wires one settings card's header to independently toggle its body's visibility
+     * (and flip the +/− arrow to match) on click. See {@link #COLLAPSIBLE_CARDS} for why this
+     * expand state is deliberately never persisted.
+     */
+    private void bindCollapsibleCard(int headerId, int bodyId, int arrowId) {
+        View header = findViewById(headerId);
+        View body = findViewById(bodyId);
+        TextView arrow = findViewById(arrowId);
+        header.setOnClickListener(v -> setCardExpanded(body, arrow, body.getVisibility() != View.VISIBLE));
+    }
+
+    private void setCardExpanded(View body, TextView arrow, boolean expanded) {
+        body.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        arrow.setText(expanded ? CARD_EXPANDED_SYMBOL : CARD_COLLAPSED_SYMBOL);
     }
 
     private void showLanguageSelectionDialog() {

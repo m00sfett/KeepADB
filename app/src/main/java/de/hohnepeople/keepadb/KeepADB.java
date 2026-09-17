@@ -71,9 +71,11 @@ final class KeepADB {
     static final String SOURCE_NOTIFICATION = "notification";
     static final String SOURCE_USB_HANDOVER_MANUAL = "usb_handover_manual";
     /**
-     * #446: the user tapped "allow" on the untrusted-network prompt. Manual, like every other
-     * notification action button: it is a direct user decision, so it must write immediately
-     * instead of being debounced like the automatic Keep-Alive paths it unblocks.
+     * #446: the user tapped "allow" on the untrusted-network prompt; #470: the user tapped the
+     * main screen's per-access-point trust button, which triggers the exact same immediate
+     * connection attempt via {@link KeepADBReceiver#trustBssidAndAttemptConnect}. Manual, like
+     * every other direct trust decision: it must write immediately instead of being debounced
+     * like the automatic Keep-Alive paths it unblocks.
      */
     static final String SOURCE_NETWORK_TRUST_PROMPT = "network_trust_prompt";
 
