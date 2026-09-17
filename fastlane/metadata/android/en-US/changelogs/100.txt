@@ -1,0 +1,1 @@
+• Fixed: trusting a blocked, manually added or mesh access point in Settings now immediately tries to reconnect, instead of waiting for the next automatic check.

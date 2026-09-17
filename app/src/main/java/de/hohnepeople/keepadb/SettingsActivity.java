@@ -623,6 +623,13 @@ public class SettingsActivity extends Activity {
         }
         Toast.makeText(this, getString(R.string.settings_trusted_network_added_toast, entry.label),
                 Toast.LENGTH_SHORT).show();
+        // #475: matches MainActivity's per-access-point trust button (#470) -- trusting the
+        // current network here must immediately attempt the connection it was blocking too,
+        // instead of only the notification's "allow" action doing so. addBssid() above already
+        // made the dedup-checked entry (needed for its label in the toast); the call below
+        // repeats it idempotently and additionally clears/cancels any pending prompt and tries
+        // to enable Wireless Debugging right away.
+        KeepADBReceiver.trustBssidAndAttemptConnect(this, entry.bssid, entry.label);
         offerAdditionalMeshBssids();
         refresh();
     }
@@ -651,8 +658,13 @@ public class SettingsActivity extends Activity {
                 .setTitle(R.string.settings_trusted_network_mesh_title)
                 .setMessage(getString(R.string.settings_trusted_network_mesh_message, additional.size(), ssid))
                 .setPositiveButton(R.string.settings_trusted_network_mesh_add_button, (dialog, which) -> {
+                    // #475: same trust-and-connect entry point as the other trust actions
+                    // (#470/#474) -- the device is only ever on one of these BSSIDs at a time, so
+                    // at most one call here actually finds Wireless Debugging still off on the
+                    // currently-connected access point and turns it on; the rest are no-ops
+                    // beyond trusting the BSSID, same as a plain addBssid would have been.
                     for (String bssid : additional) {
-                        KeepADBTrustedNetwork.addBssid(this, bssid, ssid);
+                        KeepADBReceiver.trustBssidAndAttemptConnect(this, bssid, ssid);
                     }
                     Toast.makeText(this,
                             getString(R.string.settings_trusted_network_mesh_added_toast, additional.size()),
@@ -775,14 +787,14 @@ public class SettingsActivity extends Activity {
             allow.setContentDescription(getString(
                     R.string.settings_trusted_network_blocked_allow_accessibility, entry.label()));
             allow.setOnClickListener(v -> {
-                KeepADBTrustedNetwork.addBssid(this, entry.bssid, entry.label());
-                KeepADBBlockedNetworkHistory.remove(this, entry.bssid);
-                // The prompt for this access point is answered now; drop only its anti-spam
-                // marker (#474) -- this dialog can list several still-blocked access points at
-                // once, so a global clear here would wipe the history for the other rows too and
-                // suppress their own re-prompt after roaming back onto them.
-                KeepADBNetworkTrustPrompt.clearPromptState(this, entry.bssid);
-                KeepADBNetworkTrustPrompt.cancel(this);
+                // #475: goes through the same trust-and-connect entry point MainActivity uses
+                // (#470) -- it already covers the allowlist entry, dropping this BSSID from the
+                // blocked-network log, clearing only its anti-spam marker (#474: this dialog can
+                // list several still-blocked access points at once, so a global clear would wipe
+                // the history for the other rows too) and cancelling the prompt notification, and
+                // on top of that immediately attempts the connection that being untrusted was
+                // blocking, instead of leaving the user to wait for Keep-Alive's next pass.
+                KeepADBReceiver.trustBssidAndAttemptConnect(this, entry.bssid, entry.label());
                 Toast.makeText(this,
                         getString(R.string.settings_trusted_network_added_toast, entry.label()),
                         Toast.LENGTH_SHORT).show();

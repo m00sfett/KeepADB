@@ -7,8 +7,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import static org.robolectric.Shadows.shadowOf;
+
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +35,9 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowWifiInfo;
 
 /**
  * Unit and behavioral tests for {@link SettingsActivity}, covering dialog scrollability,
@@ -529,6 +535,107 @@ public class SettingsActivityTest {
         assertTrue(KeepADBTrustedNetwork.getEntries(activity).isEmpty());
     }
 
+    /**
+     * #475: the "Allow" button in the blocked-access-points dialog must go through the same
+     * trust-and-connect entry point MainActivity's per-access-point trust button uses (#470),
+     * not just a bare {@code addBssid} that leaves the user waiting for Keep-Alive's next pass.
+     * Also verifies the #474 fix keeps applying: allowing clears only this BSSID's own pending
+     * prompt marker.
+     */
+    @Test
+    public void blockedNetworkDialogAllowButtonImmediatelyAttemptsTheConnectionItWasBlocking() {
+        String bssid = "aa:bb:cc:dd:ee:01";
+        grantAutoEnableForTesting(bssid, "Cafe-WLAN");
+
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        // Raises this BSSID's own pending-prompt marker, exactly like the real block path does.
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(activity));
+        controller.pause().resume();
+        ShadowLooper.idleMainLooper();
+
+        Button entryPoint = activity.findViewById(R.id.settings_trusted_network_blocked);
+        entryPoint.performClick();
+        ShadowLooper.idleMainLooper();
+        AlertDialog dialog = activity.getActiveBlockedNetworksDialog();
+        assertNotNull("Blocked networks dialog should be showing", dialog);
+        List<Button> allowButtons =
+                findViewsByType(dialog.findViewById(android.R.id.custom), Button.class);
+        assertEquals(1, allowButtons.size());
+
+        allowButtons.get(0).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertTrue("Wireless Debugging must be turned on immediately after allowing the "
+                        + "blocked access point from the recently-blocked list",
+                KeepADB.isEnabled(activity));
+        assertTrue("Allowing the access point must clear its own pending prompt marker",
+                KeepADBNetworkTrustPrompt.shouldPrompt(activity, bssid, System.currentTimeMillis()));
+    }
+
+    /**
+     * #475: the manual "add current network" button must immediately attempt the connection it
+     * was blocking too, matching MainActivity's per-access-point trust button (#470) instead of
+     * only the notification's own "allow" action doing so.
+     */
+    @Test
+    public void addCurrentNetworkButtonImmediatelyAttemptsTheConnectionItWasBlocking() {
+        String bssid = "aa:bb:cc:dd:ee:02";
+        grantAutoEnableForTesting(bssid, "HomeMesh");
+
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        Button addButton = activity.findViewById(R.id.settings_trusted_network_add);
+        addButton.performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertTrue("Wireless Debugging must be turned on immediately after manually adding the "
+                        + "current, blocking access point",
+                KeepADB.isEnabled(activity));
+    }
+
+    /**
+     * #475: accepting the mesh-BSSID convenience prompt must also immediately attempt the
+     * connection for each newly trusted access point, the same way the other two trust entry
+     * points above do -- proven here by the mesh BSSID's own pending prompt marker (raised while
+     * the device was briefly connected to it) getting cleared, which a bare {@code addBssid} call
+     * would not do.
+     */
+    @Test
+    public void meshBssidConvenienceImmediatelyAttemptsTheConnectionAndClearsItsPromptState() {
+        String currentBssid = "aa:bb:cc:dd:ee:03";
+        String meshBssid = "aa:bb:cc:dd:ee:04";
+        String ssid = "MeshHome";
+        grantAutoEnableForTesting(currentBssid, ssid);
+
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        // The device was briefly connected to the mesh AP earlier and got its own pending
+        // prompt for it, before roaming to the network under test.
+        connectTo(ssid, meshBssid);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(activity));
+        KeepADBBssidHistory.recordObservation(activity, ssid, meshBssid);
+        connectTo(ssid, currentBssid);
+
+        Button addButton = activity.findViewById(R.id.settings_trusted_network_add);
+        addButton.performClick();
+        ShadowLooper.idleMainLooper();
+        AlertDialog meshDialog = ShadowAlertDialog.getLatestAlertDialog();
+        assertNotNull("The mesh convenience dialog should be showing", meshDialog);
+
+        meshDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(2, KeepADBTrustedNetwork.getEntries(activity).size());
+        assertTrue("Wireless Debugging must be turned on", KeepADB.isEnabled(activity));
+        assertTrue("Accepting the mesh BSSID must clear its own pending prompt marker",
+                KeepADBNetworkTrustPrompt.shouldPrompt(activity, meshBssid, System.currentTimeMillis()));
+    }
+
     // #471: settings cards start collapsed and expand/collapse independently, without any
     // persisted state.
     private static final int[][] COLLAPSIBLE_CARDS = {
@@ -669,6 +776,35 @@ public class SettingsActivityTest {
             }
         }
         return null;
+    }
+
+    /**
+     * Shared setup for the three #475 immediate-connect tests, mirroring {@code
+     * MainActivityAccessPointOverviewTest#trustButtonImmediatelyAttemptsTheConnectionItWasBlocking}
+     * (#470): grants {@code WRITE_SECURE_SETTINGS}, switches to {@code MODE_ALL_WIFI} (Robolectric
+     * cannot drive the allowlist branch's BSSID-based trust check), enables Keep-Alive, forces
+     * the Wi-Fi-connectivity check to report connected, installs a gateway that starts
+     * switched off, and connects to {@code (ssid, bssid)}.
+     */
+    private void grantAutoEnableForTesting(String bssid, String ssid) {
+        android.content.Context context = RuntimeEnvironment.getApplication();
+        shadowOf((android.app.Application) context).grantPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS,
+                android.Manifest.permission.POST_NOTIFICATIONS);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        connectTo(ssid, bssid);
+    }
+
+    private void connectTo(String ssid, String bssid) {
+        android.content.Context context = RuntimeEnvironment.getApplication();
+        WifiManager wifiManager = (WifiManager) context.getSystemService(android.content.Context.WIFI_SERVICE);
+        WifiInfo info = ShadowWifiInfo.newInstance();
+        shadowOf(info).setSSID(ssid);
+        shadowOf(info).setBSSID(bssid);
+        shadowOf(wifiManager).setConnectionInfo(info);
     }
 
     @SuppressWarnings("unchecked")
