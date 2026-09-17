@@ -1,0 +1,2 @@
+• Added: the privacy toggle now actually hides addresses. With it on, the endpoint on the main screen, the webhook address and the last reported endpoint show only the first part of an IP address (for example 192.*.*.* or fe80:***) while the port stays readable.
+• Unchanged: server names stay fully visible, and switching the toggle only changes what is shown -- your saved webhook address, the reported endpoint and the real connection are untouched.

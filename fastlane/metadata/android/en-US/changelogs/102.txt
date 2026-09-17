@@ -1,0 +1,2 @@
+• Added: a privacy toggle (eye icon) next to the settings button on the main screen, so you can quickly hide network addresses shown in the app. Display only for now -- it doesn't change your saved settings or the real connection.
+• Changed: the settings button now uses a gear icon instead of the three-dot symbol.

@@ -36,6 +36,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_permission_settings_button">Apri impostazioni notifiche</string>
     <string name="notification_permission_missing_text">Concedi WRITE_SECURE_SETTINGS da PC tramite adb shell pm grant</string>
     <string name="action_settings">Impostazioni</string>
+    <string name="privacy_toggle_enable_accessibility">Attiva modalità privacy (nascondi indirizzi di rete)</string>
+    <string name="privacy_toggle_disable_accessibility">Disattiva modalità privacy (mostra indirizzi di rete)</string>
     <string name="title_settings">Impostazioni</string>
     <string name="settings_section_general">Generale</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>

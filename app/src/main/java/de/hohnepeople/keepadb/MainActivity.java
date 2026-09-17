@@ -10,6 +10,7 @@ import android.provider.Settings;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -27,6 +28,7 @@ public class MainActivity extends Activity {
     // permission independently, from their own onRequestPermissionsResult.
     private static final int LOCATION_PERMISSION_REQUEST = 30;
     private static final String LOCATION_PERMISSION_REQUESTED = "location_permission_requested";
+    private ImageButton privacyModeToggle;
     private Switch toggle;
     private Switch keepAliveToggle;
     private Switch hideNotificationToggle;
@@ -59,6 +61,9 @@ public class MainActivity extends Activity {
     private boolean notificationPermissionRequestPending;
     private long endpointListenerGeneration;
     private boolean endpointSurfaceActive;
+    // #483: last discovered endpoint, unmasked. Display text is derived from it on every render.
+    private String lastEndpointHost;
+    private int lastEndpointPort;
 
     @Override
     protected void attachBaseContext(android.content.Context newBase) {
@@ -72,6 +77,17 @@ public class MainActivity extends Activity {
         // #324: keep header and content clear of the system bars under forced edge-to-edge.
         KeepADBWindowInsets.apply(
                 getWindow(), findViewById(R.id.header_bar), findViewById(R.id.content_scroll));
+        privacyModeToggle = findViewById(R.id.btn_toggle_privacy_mode);
+        privacyModeToggle.setOnClickListener(v -> {
+            boolean want = !KeepADBPreferences.isPrivacyModeEnabled(this);
+            KeepADBDiagnostics.event(this, "user_action", "app", want ? "enable" : "disable",
+                    "privacy_mode_toggle");
+            KeepADBPreferences.setPrivacyModeEnabled(this, want);
+            updatePrivacyModeToggle();
+            // #483: re-render the masked surfaces at once, without waiting for a discovery tick.
+            renderEndpoint();
+            refreshWebhookStatus();
+        });
         toggle = findViewById(R.id.toggle);
         keepAliveToggle = findViewById(R.id.keep_alive_toggle);
         hideNotificationToggle = findViewById(R.id.hide_notification_toggle);
@@ -346,6 +362,21 @@ public class MainActivity extends Activity {
                 : R.string.settings_hide_notification_subtext);
         refreshWebhookStatus();
         renderAccessPointOverview();
+        updatePrivacyModeToggle();
+    }
+
+    /** #482: reflects {@link KeepADBPreferences#isPrivacyModeEnabled} as an eye / crossed-out-eye
+     * icon with a content description naming the action the next tap performs (matching the
+     * existing trust/untrust content description pattern), so both toggle states stay
+     * distinguishable for sighted and screen-reader users alike. Display-only -- toggling this
+     * never touches the real ADB transport or any persisted original value; the actual masking
+     * of displayed network addresses is #483's job, reading the same preference. */
+    private void updatePrivacyModeToggle() {
+        boolean enabled = KeepADBPreferences.isPrivacyModeEnabled(this);
+        privacyModeToggle.setImageResource(enabled ? R.drawable.ic_privacy_eye_off : R.drawable.ic_privacy_eye);
+        privacyModeToggle.setContentDescription(getString(enabled
+                ? R.string.privacy_toggle_disable_accessibility
+                : R.string.privacy_toggle_enable_accessibility));
     }
 
     /** Records the currently connected access point into {@link KeepADBBssidHistory}, mirroring
@@ -621,7 +652,9 @@ public class MainActivity extends Activity {
                     getResources().getConfiguration().getLocales().get(0));
             lastReported = dateTimeFormat.format(date);
         }
-        String lastEndpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(this);
+        // #483: display only -- the stored endpoint stays as reported.
+        String lastEndpoint = KeepADBPreferences.maskEndpointForDisplay(
+                this, KeepADBPreferences.getWebhookLastReportedEndpoint(this));
         if (lastEndpoint == null || lastEndpoint.trim().isEmpty()) {
             // Distinguish "never reported anything yet" from "was reported, then successfully
             // deregistered" -- both leave no current endpoint, but reusing the same "none yet"
@@ -631,14 +664,16 @@ public class MainActivity extends Activity {
                     : getString(R.string.webhook_status_no_endpoint);
         }
         webhookStatus.setText(getString(R.string.webhook_status_hint,
-                KeepADBPreferences.maskWebhookUrl(url), lastEndpoint, lastReported));
+                KeepADBPreferences.maskWebhookUrlForDisplay(this, url), lastEndpoint, lastReported));
         webhookStatusPanel.setVisibility(View.VISIBLE);
     }
 
     private void postEndpointAvailable(long listenerGeneration, String host, int port) {
         runOnUiThread(() -> {
             if (!isEndpointSurfaceActive(listenerGeneration)) return;
-            endpoint.setText(getString(R.string.endpoint_format, host, port));
+            lastEndpointHost = host;
+            lastEndpointPort = port;
+            renderEndpoint();
             refresh();
         });
     }
@@ -646,10 +681,26 @@ public class MainActivity extends Activity {
     private void postEndpointUnavailable(long listenerGeneration) {
         runOnUiThread(() -> {
             if (!isEndpointSurfaceActive(listenerGeneration)) return;
-            endpoint.setText(KeepADB.isEnabled(MainActivity.this)
-                    ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable));
+            lastEndpointHost = null;
+            renderEndpoint();
             refresh();
         });
+    }
+
+    /**
+     * #483: renders the last discovered endpoint through the privacy mask. Kept separate from the
+     * discovery callbacks so toggling privacy re-renders immediately instead of waiting for the
+     * next discovery tick. Display only -- {@code lastEndpointHost} holds the real host.
+     */
+    private void renderEndpoint() {
+        if (lastEndpointHost == null) {
+            endpoint.setText(KeepADB.isEnabled(MainActivity.this)
+                    ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable));
+            return;
+        }
+        endpoint.setText(getString(R.string.endpoint_format,
+                KeepADBPreferences.maskHostForDisplay(MainActivity.this, lastEndpointHost),
+                lastEndpointPort));
     }
 
     private boolean isEndpointSurfaceActive(long listenerGeneration) {

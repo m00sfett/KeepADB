@@ -55,6 +55,8 @@
     <string name="location_permission_panel_fallback_toast">Auf Modus „Alle WLANs vertrauen“ umgestellt.</string>
     <string name="notification_permission_missing_text">WRITE_SECURE_SETTINGS am PC per adb shell pm grant vergeben</string>
     <string name="action_settings">Einstellungen</string>
+    <string name="privacy_toggle_enable_accessibility">Privatsphäre-Modus aktivieren (Netzwerkadressen ausblenden)</string>
+    <string name="privacy_toggle_disable_accessibility">Privatsphäre-Modus deaktivieren (Netzwerkadressen anzeigen)</string>
     <string name="title_settings">Einstellungen</string>
     <string name="settings_section_general">Allgemein</string>
     <string name="settings_section_keep_alive">Dauerhaft aktiv halten</string>

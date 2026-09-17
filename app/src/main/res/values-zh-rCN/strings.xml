@@ -36,6 +36,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_permission_settings_button">打开通知设置</string>
     <string name="notification_permission_missing_text">请在电脑上通过 adb shell pm grant 授予 WRITE_SECURE_SETTINGS 权限</string>
     <string name="action_settings">设置</string>
+    <string name="privacy_toggle_enable_accessibility">启用隐私模式（隐藏网络地址）</string>
+    <string name="privacy_toggle_disable_accessibility">关闭隐私模式（显示网络地址）</string>
     <string name="title_settings">设置</string>
     <string name="settings_section_general">通用</string>
     <string name="settings_section_keep_alive">保持常驻 (Keep-Alive)</string>

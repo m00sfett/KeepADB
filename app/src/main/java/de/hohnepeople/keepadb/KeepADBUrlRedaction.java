@@ -58,17 +58,32 @@ final class KeepADBUrlRedaction {
 
     private KeepADBUrlRedaction() {}
 
+    /** How many leading IPv4 octets stay readable in the default (#350) redaction. */
+    private static final int DEFAULT_VISIBLE_OCTETS = 2;
+
+    /** How many leading IPv4 octets stay readable while the #483 privacy mode is on. */
+    private static final int PRIVACY_VISIBLE_OCTETS = 1;
+
     /** UI text: scheme, redacted host, port, path, and a marker if a query was present. */
     static String forDisplay(String rawUrl) {
-        return redact(rawUrl, true);
+        return forDisplay(rawUrl, false);
+    }
+
+    /**
+     * #483: same UI text, but with the stricter host rule of the privacy mode — an IPv4 literal
+     * keeps only its first octet. Hostnames stay readable by explicit user decision, and IPv6
+     * literals stay fully masked: privacy mode may never reveal more than the default redaction.
+     */
+    static String forDisplay(String rawUrl, boolean privacyMode) {
+        return redact(rawUrl, true, privacyMode ? PRIVACY_VISIBLE_OCTETS : DEFAULT_VISIBLE_OCTETS);
     }
 
     /** Log/diagnostics text: scheme, redacted host and port only — no path, no query marker. */
     static String forLog(String rawUrl) {
-        return redact(rawUrl, false);
+        return redact(rawUrl, false, DEFAULT_VISIBLE_OCTETS);
     }
 
-    private static String redact(String rawUrl, boolean keepPathAndQueryMarker) {
+    private static String redact(String rawUrl, boolean keepPathAndQueryMarker, int visibleOctets) {
         if (rawUrl == null) return "";
         String trimmed = rawUrl.trim();
         if (trimmed.isEmpty()) return "";
@@ -124,7 +139,7 @@ final class KeepADBUrlRedaction {
             } else if (host.isEmpty()) {
                 return UNPARSEABLE;
             } else {
-                hostPart = maskIpv4Host(host);
+                hostPart = maskIpv4Host(host, visibleOctets);
             }
         }
 
@@ -153,22 +168,29 @@ final class KeepADBUrlRedaction {
         return true;
     }
 
-    /** Keeps the first two octets of an IPv4 literal and masks the rest digit by digit. */
-    private static String maskIpv4Host(String host) {
+    /**
+     * Keeps the leading {@code visibleOctets} octets of an IPv4 literal and masks the rest.
+     *
+     * <p>Legacy one- to four-part notation is canonicalised first, so a value such as
+     * {@code 0xC0A80001} cannot slip through unmasked in either mode.
+     */
+    private static String maskIpv4Host(String host, int visibleOctets) {
         String[] parts = host.split("\\.", -1);
-        if (parts.length == 4 && areDecimalOctets(parts)) {
-            return maskIpv4Parts(parts);
+        if (!(parts.length == 4 && areDecimalOctets(parts))) {
+            Long address = parseIpv4Address(host);
+            if (address == null) return host;
+            parts = new String[] {
+                String.valueOf((address >>> 24) & 0xff),
+                String.valueOf((address >>> 16) & 0xff),
+                String.valueOf((address >>> 8) & 0xff),
+                String.valueOf(address & 0xff)
+            };
         }
-
-        Long address = parseIpv4Address(host);
-        if (address == null) return host;
-        String[] canonicalParts = {
-            String.valueOf((address >>> 24) & 0xff),
-            String.valueOf((address >>> 16) & 0xff),
-            String.valueOf((address >>> 8) & 0xff),
-            String.valueOf(address & 0xff)
-        };
-        return maskIpv4Parts(canonicalParts);
+        // #483 privacy mode uses the shared one-star-per-octet rule; the default #350 redaction
+        // keeps its digit-count-preserving mask so existing display text stays byte-identical.
+        return visibleOctets < DEFAULT_VISIBLE_OCTETS
+                ? KeepADBAddressMask.maskIpv4Octets(parts, visibleOctets)
+                : maskIpv4Parts(parts);
     }
 
     private static boolean areDecimalOctets(String[] parts) {
