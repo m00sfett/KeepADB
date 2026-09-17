@@ -66,9 +66,9 @@
                 android:gravity="top"
                 android:orientation="horizontal"
                 android:paddingStart="16dp"
-                android:paddingTop="12dp"
+                android:paddingTop="10dp"
                 android:paddingEnd="4dp"
-                android:paddingBottom="12dp"
+                android:paddingBottom="10dp"
                 android:visibility="visible">
 
                 <ImageView
@@ -122,7 +122,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="24dp">
+                android:padding="16dp">
 
                 <LinearLayout
                     android:id="@+id/setup_panel"
@@ -181,7 +181,7 @@
                     android:id="@+id/battery_optimization_panel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="12dp"
                     android:background="@drawable/bg_panel"
                     android:orientation="vertical">
 
@@ -226,7 +226,7 @@
                     android:id="@+id/notification_permission_panel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="12dp"
                     android:background="@drawable/bg_panel"
                     android:orientation="vertical"
                     android:visibility="gone">
@@ -271,7 +271,7 @@
                     android:id="@+id/location_permission_panel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="12dp"
                     android:background="@drawable/bg_panel"
                     android:orientation="vertical"
                     android:visibility="gone">
@@ -345,7 +345,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="12dp"
                     android:background="@drawable/bg_panel"
                     android:orientation="vertical">
 
@@ -353,7 +353,7 @@
                         android:id="@+id/status"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="6dp"
                         android:accessibilityLiveRegion="polite"
                         android:fontFamily="sans-serif"
                         android:text="@string/status_off"
@@ -364,7 +364,7 @@
                         android:id="@+id/endpoint"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginBottom="12dp"
                         android:fontFamily="monospace"
                         android:text="@string/endpoint_unavailable"
                         android:textColor="@color/night_muted"
@@ -383,8 +383,8 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="12dp"
                         android:background="@color/border_red" />
 
                     <Switch
@@ -410,8 +410,8 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="16dp"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="12dp"
                         android:background="@color/border_red" />
 
                     <Switch
@@ -439,7 +439,7 @@
                     android:id="@+id/webhook_status_panel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="12dp"
                     android:background="@drawable/bg_panel"
                     android:orientation="vertical"
                     android:visibility="gone">
@@ -447,7 +447,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
+                        android:layout_marginBottom="6dp"
                         android:fontFamily="sans-serif-condensed"
                         android:text="@string/webhook_status_title"
                         android:textColor="@color/title_yellow"
@@ -469,14 +469,14 @@
                     android:id="@+id/wifi_aps_panel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="12dp"
                     android:background="@drawable/bg_panel"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
+                        android:layout_marginBottom="10dp"
                         android:accessibilityHeading="true"
                         android:fontFamily="sans-serif-condensed"
                         android:text="@string/wifi_aps_title"
@@ -496,7 +496,7 @@
                         android:id="@+id/wifi_aps_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="8dp"
                         android:orientation="vertical" />
 
                     <TextView
@@ -515,7 +515,7 @@
                     android:id="@+id/webhook_setup_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="12dp"
                     android:background="@drawable/bg_btn_primary"
                     android:fontFamily="sans-serif-condensed"
                     android:minHeight="48dp"
