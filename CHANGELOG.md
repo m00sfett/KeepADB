@@ -26,7 +26,12 @@ retrospective issue-version records and were never published as separate release
 
 ### Changed
 - Settings: the first entry (language) and the last entry (version/app info) are now permanently visible and no longer collapsible -- no expand/collapse arrow, no click-to-toggle header -- and are rendered directly on the screen background instead of inside the framed panel card the other, still individually collapsible, settings cards use. The language entry is now marked with a locale-independent globe icon (new `ic_globe` vector drawable), including when "system default" is selected, so the setting stays clearly identifiable without relying on per-language flags in the main view (issue #478).
-- Patch version bump (1.8.3 -> 1.8.4, versionCode 101): purely a Settings UI adjustment on an existing surface, no new capability or behavior change beyond layout/visibility, so a Patch bump applies.
+- `MainActivity`'s Wi-Fi & Access Points card AP rows now focus on SSID and BSSID only; the redundant "Trusted"/"Not trusted" status label and the mesh-count label ("AP X of Y") were removed from each row (`KeepADBAccessPointOverview` still computes the mesh position/count; only the row's display of it was dropped) (issue #479).
+- The per-row trust action button now uses the app's primary/affirmative style (`bg_btn_primary`, `title_yellow` text) for "Trust" and keeps the existing red-bordered secondary/warn style (`bg_btn_secondary`, `text_yellow` text) for "Untrust", instead of both actions sharing one button background -- the same primary-vs-secondary distinction the app already draws elsewhere (e.g. Settings' Save/Clear pair). Touch target (48dp min height) and content descriptions are unchanged (issue #480).
+- Patch version bump (1.8.3 -> 1.8.4, versionCode 101): #478, #479 and #480 are all UI-focus/layout/styling refinements on existing surfaces, no new capability or behavior change beyond layout/visibility, so a Patch bump applies. All three are integrated and released together as one build.
+
+### Added
+- A "Show trusted access points only" filter switch above the Wi-Fi & Access Points list. When enabled, both the current connection row and the "others" list are filtered down to `trusted == true` entries; disabled (the default) keeps the previous unfiltered behavior. In-memory only, like the existing "show more/less" expansion state -- not a persisted setting (issue #479, acceptance criterion 3, per the user decision recorded in the issue's comment).
 
 ## [1.8.3] - Unreleased
 

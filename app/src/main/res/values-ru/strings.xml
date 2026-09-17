@@ -88,6 +88,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_blocked_allow_button">Разрешить</string>
     <string name="settings_trusted_network_blocked_allow_accessibility">Разрешить заблокированную сеть \"%1$s\"</string>
     <string name="wifi_aps_title">Wi-Fi и точки доступа</string>
+    <string name="wifi_aps_trusted_only_toggle">Показывать только доверенные точки доступа</string>
     <string name="wifi_aps_current_badge">Текущая</string>
     <string name="wifi_aps_trusted_status">Доверенная</string>
     <string name="wifi_aps_untrusted_status">Не доверенная</string>

@@ -47,10 +47,15 @@ public class MainActivity extends Activity {
     private LinearLayout wifiApsList;
     private TextView wifiApsEmpty;
     private TextView wifiApsToggle;
+    private Switch wifiApsTrustedOnlyToggle;
     // #468: whether the "recently observed" access points below the current connection are
     // shown in full. Deliberately in-memory only (not persisted) -- it is a display convenience
     // for the current screen visit, not a user setting; a fresh visit starts collapsed again.
     private boolean wifiApsExpanded;
+    // #479: whether the access point list is filtered down to trusted-only entries. Same
+    // in-memory-only rationale as wifiApsExpanded above -- a display convenience for this visit,
+    // not a persisted user setting.
+    private boolean wifiApsTrustedOnly;
     private boolean notificationPermissionRequestPending;
     private long endpointListenerGeneration;
     private boolean endpointSurfaceActive;
@@ -94,6 +99,11 @@ public class MainActivity extends Activity {
         wifiApsToggle = findViewById(R.id.wifi_aps_toggle);
         wifiApsToggle.setOnClickListener(v -> {
             wifiApsExpanded = !wifiApsExpanded;
+            renderAccessPointOverview();
+        });
+        wifiApsTrustedOnlyToggle = findViewById(R.id.wifi_aps_trusted_only_toggle);
+        wifiApsTrustedOnlyToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            wifiApsTrustedOnly = isChecked;
             renderAccessPointOverview();
         });
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
@@ -355,13 +365,15 @@ public class MainActivity extends Activity {
     private static final int WIFI_APS_COLLAPSED_OTHERS = 5;
 
     /**
-     * Renders the "Wi-Fi &amp; Access Points" card (#461, made collapsible for #468): the
-     * currently connected access point (SSID, BSSID, trust status) highlighted on top, and
-     * recently observed ones -- reusing {@link KeepADBBssidHistory}'s existing mesh observation
-     * log -- listed below, with a same-SSID/different-BSSID mesh label and a quick trust toggle
-     * on every row. By default only the first {@link #WIFI_APS_COLLAPSED_OTHERS} of those are
+     * Renders the "Wi-Fi &amp; Access Points" card (#461, made collapsible for #468, focused on
+     * SSID/BSSID with a trusted-only filter for #479): the currently connected access point
+     * (SSID, BSSID) highlighted on top, and recently observed ones -- reusing {@link
+     * KeepADBBssidHistory}'s existing mesh observation log -- listed below, each with a quick
+     * trust toggle. By default only the first {@link #WIFI_APS_COLLAPSED_OTHERS} of those are
      * shown; a "show more"/"show less" toggle appears only when there is actually more to reveal,
-     * so short lists and the empty state need no extra interaction (acceptance criterion 3).
+     * so short lists and the empty state need no extra interaction (acceptance criterion 3). When
+     * {@link #wifiApsTrustedOnly} is enabled, both the current connection and the "others" list
+     * are filtered down to {@code trusted} items only.
      */
     private void renderAccessPointOverview() {
         List<KeepADBAccessPointOverview.ApItem> items = KeepADBAccessPointOverview.buildItems(this);
@@ -378,9 +390,22 @@ public class MainActivity extends Activity {
                 others.add(item);
             }
         }
+
+        // #479: the "trusted only" filter hides untrusted items from both the current-connection
+        // row and the "others" list. A hidden current connection is deliberately left blank
+        // (no view added) rather than reusing wifi_aps_current_unknown, which would misleadingly
+        // claim the network can't be identified when it actually was, just filtered out.
+        boolean currentHiddenByFilter = wifiApsTrustedOnly && currentItem != null && !currentItem.trusted;
+        if (currentHiddenByFilter) {
+            currentItem = null;
+        }
+        if (wifiApsTrustedOnly) {
+            others.removeIf(item -> !item.trusted);
+        }
+
         if (currentItem != null) {
             wifiApsCurrentRow.addView(buildAccessPointRow(currentItem, true));
-        } else {
+        } else if (!currentHiddenByFilter) {
             TextView unknown = new TextView(this);
             unknown.setText(R.string.wifi_aps_current_unknown);
             unknown.setTextColor(getColor(R.color.night_muted));
@@ -409,8 +434,10 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** One row of the Wi-Fi & Access Points card: SSID/BSSID label, trust and mesh-membership
-     * status, and a quick action button to toggle the trust allowlist entry for that BSSID. */
+    /** One row of the Wi-Fi & Access Points card: SSID/BSSID label (#479 -- primary visual focus,
+     * no redundant trust/mesh status text) and a quick action button to toggle the trust
+     * allowlist entry for that BSSID (#480 -- primary style for "trust", warn style for
+     * "untrust"). */
     private View buildAccessPointRow(KeepADBAccessPointOverview.ApItem item, boolean highlightCurrent) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
@@ -442,23 +469,18 @@ public class MainActivity extends Activity {
         bssidText.setTextColor(getColor(R.color.night_muted));
         bssidText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
 
-        TextView statusText = new TextView(this);
-        String statusLabel = getString(item.trusted
-                ? R.string.wifi_aps_trusted_status : R.string.wifi_aps_untrusted_status);
-        statusText.setText(item.isMeshMember()
-                ? statusLabel + " · " + getString(R.string.wifi_aps_mesh_label, item.meshPosition, item.meshCount)
-                : statusLabel);
-        statusText.setTextColor(item.trusted ? getColor(R.color.text_yellow) : getColor(R.color.border_red));
-        statusText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
-
         labelColumn.addView(label);
         labelColumn.addView(bssidText);
-        labelColumn.addView(statusText);
 
+        // #480: trust (add) uses the app's existing primary/affirmative button style, untrust
+        // (remove) keeps the red-bordered secondary/warn style already used elsewhere (e.g.
+        // Settings' "Clear" action) -- the same primary-vs-secondary distinction the app already
+        // draws for its other action pairs, so state and action stay distinguishable at a glance.
         Button trustButton = new Button(this);
-        trustButton.setBackgroundResource(R.drawable.bg_btn_secondary);
+        trustButton.setBackgroundResource(
+                item.trusted ? R.drawable.bg_btn_secondary : R.drawable.bg_btn_primary);
         trustButton.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
-        trustButton.setTextColor(getColor(R.color.text_yellow));
+        trustButton.setTextColor(getColor(item.trusted ? R.color.text_yellow : R.color.title_yellow));
         trustButton.setText(item.trusted ? R.string.wifi_aps_untrust_button : R.string.wifi_aps_trust_button);
         trustButton.setContentDescription(getString(
                 item.trusted ? R.string.wifi_aps_untrust_accessibility : R.string.wifi_aps_trust_accessibility,

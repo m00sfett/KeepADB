@@ -88,6 +88,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_blocked_allow_button">Consenti</string>
     <string name="settings_trusted_network_blocked_allow_accessibility">Consenti la rete bloccata \"%1$s\"</string>
     <string name="wifi_aps_title">Wi-Fi e punti di accesso</string>
+    <string name="wifi_aps_trusted_only_toggle">Mostra solo i punti di accesso attendibili</string>
     <string name="wifi_aps_current_badge">Attuale</string>
     <string name="wifi_aps_trusted_status">Attendibile</string>
     <string name="wifi_aps_untrusted_status">Non attendibile</string>
