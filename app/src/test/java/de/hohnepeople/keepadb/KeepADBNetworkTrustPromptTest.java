@@ -214,6 +214,53 @@ public class KeepADBNetworkTrustPromptTest {
     }
 
     /**
+     * #474: the BSSID-targeted counterpart must forget only the access point named, leaving any
+     * other access point's throttle marker intact.
+     */
+    @Test
+    public void clearPromptStateForOneBssidLeavesTheOthersThrottleMarkerIntact() {
+        connectTo("Cafe-WLAN", BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        connectTo("Hotel-WLAN", OTHER_BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        KeepADBNetworkTrustPrompt.clearPromptState(context, BSSID);
+
+        long now = System.currentTimeMillis();
+        assertTrue("The trusted access point's marker must be gone",
+                KeepADBNetworkTrustPrompt.shouldPrompt(context, BSSID, now));
+        assertFalse("A different, still-untrusted access point's marker must survive",
+                KeepADBNetworkTrustPrompt.shouldPrompt(context, OTHER_BSSID, now));
+    }
+
+    /**
+     * #474: the regression this issue is about, end to end through the real entry point. Trusting
+     * access point A from the main screen (or the notification) must not silently make the
+     * currently-connected, still-untrusted access point B's own pending prompt notification
+     * un-repeatable -- B was never trusted and must still get its own re-prompt after B's
+     * suppression window would otherwise have already lapsed (simulated here by moving the clock
+     * forward less than that window, which used to be irrelevant because the old global clear
+     * wiped B's marker outright, making {@code shouldPrompt} return true regardless of elapsed
+     * time).
+     */
+    @Test
+    public void trustingOneAccessPointDoesNotClearAnotherAccessPointsPendingPromptState() {
+        // B is the currently-connected, untrusted access point with a pending prompt.
+        connectTo("Hotel-WLAN", OTHER_BSSID);
+        assertTrue("B must be prompted once",
+                KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        // The user instead trusts a different, historical access point A from the main screen.
+        KeepADBReceiver.trustBssidAndAttemptConnect(context, BSSID, "Cafe-WLAN");
+
+        // B's own throttle marker must still be exactly what it was: within the suppression
+        // window, still throttled -- not wiped by A's trust action.
+        long shortlyAfter = System.currentTimeMillis();
+        assertFalse("B's pending prompt state must survive trusting a different access point",
+                KeepADBNetworkTrustPrompt.shouldPrompt(context, OTHER_BSSID, shortlyAfter));
+    }
+
+    /**
      * The counter-question to "does the gate ever fire?": does the suppression ever stop? A
      * throttle that no user action clears would be a permanently switched-off alarm for exactly
      * the failure this issue is about, so it must expire on its own.
