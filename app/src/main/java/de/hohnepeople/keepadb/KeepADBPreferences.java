@@ -21,6 +21,11 @@ final class KeepADBPreferences {
     private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
     private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
     private static final String KEY_ADVICE_BANNER_VISIBLE = "advice_banner_visible";
+    // #482: display-only privacy toggle. Persists whether network addresses currently shown in
+    // the UI should be masked -- purely a rendering preference, never the toggle facade's own
+    // WRITE_SECURE_SETTINGS state and never the real ADB transport. The actual masking logic
+    // (#483) reads this via isPrivacyModeEnabled().
+    private static final String KEY_PRIVACY_MODE_ENABLED = "privacy_mode_enabled";
 
     // #168: optional USB-ADB -> WLAN-ADB handover offered from the USB notification.
     static final String USB_WLAN_HANDOVER_MODE_OFF = "off";
@@ -484,5 +489,20 @@ final class KeepADBPreferences {
     static void setAdviceBannerVisible(Context context, boolean visible) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_ADVICE_BANNER_VISIBLE, visible).apply();
+    }
+
+    /** #482/#483: whether currently-displayed network addresses (e.g. the WLAN-ADB endpoint,
+     * access point BSSIDs) should be masked in the UI. Off by default -- existing behavior is
+     * unchanged until the user opts in from the main screen's header toggle. This flag only ever
+     * controls rendering; it never touches {@code adb_wifi_enabled} or any other persisted
+     * original value. */
+    static boolean isPrivacyModeEnabled(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_PRIVACY_MODE_ENABLED, false);
+    }
+
+    static void setPrivacyModeEnabled(Context context, boolean enabled) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_PRIVACY_MODE_ENABLED, enabled).apply();
     }
 }

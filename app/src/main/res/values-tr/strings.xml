@@ -36,6 +36,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_permission_settings_button">Bildirim ayarlarını aç</string>
     <string name="notification_permission_missing_text">adb shell pm grant aracılığıyla PC’den WRITE_SECURE_SETTINGS izni verin</string>
     <string name="action_settings">Ayarlar</string>
+    <string name="privacy_toggle_enable_accessibility">Gizlilik modunu etkinleştir (ağ adreslerini gizle)</string>
+    <string name="privacy_toggle_disable_accessibility">Gizlilik modunu devre dışı bırak (ağ adreslerini göster)</string>
     <string name="title_settings">Ayarlar</string>
     <string name="settings_section_general">Genel</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>

@@ -36,6 +36,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_permission_settings_button">Meldingsinstellingen openen</string>
     <string name="notification_permission_missing_text">Verleen WRITE_SECURE_SETTINGS vanaf de pc via adb shell pm grant</string>
     <string name="action_settings">Instellingen</string>
+    <string name="privacy_toggle_enable_accessibility">Privacymodus inschakelen (netwerkadressen verbergen)</string>
+    <string name="privacy_toggle_disable_accessibility">Privacymodus uitschakelen (netwerkadressen tonen)</string>
     <string name="title_settings">Instellingen</string>
     <string name="settings_section_general">Algemeen</string>
     <string name="settings_section_keep_alive">Keep-Alive</string>
