@@ -77,8 +77,10 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     /**
      * #470: trusts {@code bssid} and immediately attempts the connection that being untrusted
      * was blocking -- shared by {@link #handleTrustNetworkAction} (the notification's "allow"
-     * action) and {@link MainActivity}'s per-access-point trust button, so trusting a network
-     * from the main screen never requires opening the notification first.
+     * action), {@link MainActivity}'s per-access-point trust button and, since #475, {@link
+     * SettingsActivity}'s blocked-networks "Allow" dialog, manual "add current network" button
+     * and mesh-BSSID convenience prompt, so trusting a network from anywhere in the app never
+     * requires opening the notification first.
      *
      * <p>Also cancels/clears the notification prompt either way: once a network is trusted from
      * anywhere in the app, the question the prompt was asking no longer applies and it must not
