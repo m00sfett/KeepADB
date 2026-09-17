@@ -637,9 +637,9 @@ public class SettingsActivityTest {
     }
 
     // #471: settings cards start collapsed and expand/collapse independently, without any
-    // persisted state.
+    // persisted state. #478: the language and version cards are no longer part of this group --
+    // they are permanently visible and never collapse -- so they were removed from this list.
     private static final int[][] COLLAPSIBLE_CARDS = {
-            {R.id.settings_language_header, R.id.settings_language_body},
             {R.id.settings_webhook_header, R.id.settings_webhook_body},
             {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body},
             {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body},
@@ -648,7 +648,6 @@ public class SettingsActivityTest {
             {R.id.settings_display_header, R.id.settings_display_body},
             {R.id.settings_advice_banner_header, R.id.settings_advice_banner_body},
             {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body},
-            {R.id.settings_version_header, R.id.settings_version_body},
     };
 
     @Test
@@ -672,13 +671,13 @@ public class SettingsActivityTest {
         View webhookHeader = activity.findViewById(R.id.settings_webhook_header);
         View webhookBody = activity.findViewById(R.id.settings_webhook_body);
         TextView webhookArrow = activity.findViewById(R.id.settings_webhook_arrow);
-        View languageBody = activity.findViewById(R.id.settings_language_body);
+        View diagnosticsBody = activity.findViewById(R.id.settings_diagnostics_body);
 
         webhookHeader.performClick();
         assertEquals(View.VISIBLE, webhookBody.getVisibility());
         assertEquals("−", webhookArrow.getText().toString());
         // The untouched card must stay exactly as it was -- collapse is per card, not global.
-        assertEquals(View.GONE, languageBody.getVisibility());
+        assertEquals(View.GONE, diagnosticsBody.getVisibility());
 
         webhookHeader.performClick();
         assertEquals(View.GONE, webhookBody.getVisibility());
@@ -724,6 +723,37 @@ public class SettingsActivityTest {
         assertEquals(View.GONE,
                 secondActivity.findViewById(R.id.settings_webhook_body).getVisibility());
         secondOpen.pause().stop().destroy();
+    }
+
+    /**
+     * #478: the first (language) and last (version) settings entries are pinned -- always
+     * visible and never collapsible -- unlike every other card in {@link #COLLAPSIBLE_CARDS}.
+     */
+    @Test
+    public void languageAndVersionCardsArePermanentlyVisibleAndDoNotCollapse() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        View languageBody = activity.findViewById(R.id.settings_language_body);
+        View versionBody = activity.findViewById(R.id.settings_version_body);
+        View languageHeader = activity.findViewById(R.id.settings_language_header);
+        View versionHeader = activity.findViewById(R.id.settings_version_header);
+
+        assertEquals(View.VISIBLE, languageBody.getVisibility());
+        assertEquals(View.VISIBLE, versionBody.getVisibility());
+        assertFalse("Language header must not be clickable -- it no longer collapses",
+                languageHeader.hasOnClickListeners());
+        assertFalse("Version header must not be clickable -- it no longer collapses",
+                versionHeader.hasOnClickListeners());
+
+        // Clicking the (non-interactive) header rows must not toggle anything.
+        languageHeader.performClick();
+        versionHeader.performClick();
+        assertEquals(View.VISIBLE, languageBody.getVisibility());
+        assertEquals(View.VISIBLE, versionBody.getVisibility());
+
+        controller.pause().stop().destroy();
     }
 
     @Test

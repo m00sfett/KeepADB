@@ -1,0 +1,1 @@
+• Changed: the language and version entries in Settings are now always visible and stay pinned in place, shown directly on the background; the language entry also gets a globe icon so it's recognizable at a glance regardless of the selected language.

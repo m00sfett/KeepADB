@@ -108,8 +108,10 @@ public class SettingsActivity extends Activity {
     // settings page is opened -- is always collapsed again, per the #471 acceptance criteria.
     // The permission-warning panel is deliberately excluded: it is a conditional safety notice,
     // not a configurable option card, and stays fully visible whenever it is shown at all.
+    // #478: the language card (first) and the version card (last) are excluded here too -- they
+    // are now permanently visible, non-collapsible entries pinned directly on the background,
+    // with neither an arrow nor a click listener on their header.
     private static final int[][] COLLAPSIBLE_CARDS = {
-            {R.id.settings_language_header, R.id.settings_language_body, R.id.settings_language_arrow},
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
             {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body,
                     R.id.settings_usb_notification_arrow},
@@ -121,7 +123,6 @@ public class SettingsActivity extends Activity {
             {R.id.settings_advice_banner_header, R.id.settings_advice_banner_body,
                     R.id.settings_advice_banner_arrow},
             {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body, R.id.settings_diagnostics_arrow},
-            {R.id.settings_version_header, R.id.settings_version_body, R.id.settings_version_arrow},
     };
 
     @Override
