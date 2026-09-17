@@ -251,7 +251,11 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
     private static void assertQueuedCallbackIsGuarded(String callbackBody) {
         int post = callbackBody.indexOf("runOnUiThread");
         int guard = callbackBody.indexOf("if (!isEndpointSurfaceActive(listenerGeneration)) return;");
-        int endpoint = callbackBody.indexOf("endpoint.setText");
+        // #483: the endpoint text is rendered through renderEndpoint() so the privacy toggle can
+        // re-render it without waiting for a discovery tick. The ordering contract is unchanged:
+        // guard first, then the endpoint render, then refresh().
+        int endpoint = callbackBody.indexOf("renderEndpoint();");
+        if (endpoint < 0) endpoint = callbackBody.indexOf("endpoint.setText");
         int refresh = callbackBody.indexOf("refresh();");
         assertTrue(post >= 0);
         assertTrue(guard > post);

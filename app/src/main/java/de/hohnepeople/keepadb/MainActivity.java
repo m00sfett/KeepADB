@@ -61,6 +61,9 @@ public class MainActivity extends Activity {
     private boolean notificationPermissionRequestPending;
     private long endpointListenerGeneration;
     private boolean endpointSurfaceActive;
+    // #483: last discovered endpoint, unmasked. Display text is derived from it on every render.
+    private String lastEndpointHost;
+    private int lastEndpointPort;
 
     @Override
     protected void attachBaseContext(android.content.Context newBase) {
@@ -81,6 +84,9 @@ public class MainActivity extends Activity {
                     "privacy_mode_toggle");
             KeepADBPreferences.setPrivacyModeEnabled(this, want);
             updatePrivacyModeToggle();
+            // #483: re-render the masked surfaces at once, without waiting for a discovery tick.
+            renderEndpoint();
+            refreshWebhookStatus();
         });
         toggle = findViewById(R.id.toggle);
         keepAliveToggle = findViewById(R.id.keep_alive_toggle);
@@ -646,7 +652,9 @@ public class MainActivity extends Activity {
                     getResources().getConfiguration().getLocales().get(0));
             lastReported = dateTimeFormat.format(date);
         }
-        String lastEndpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(this);
+        // #483: display only -- the stored endpoint stays as reported.
+        String lastEndpoint = KeepADBPreferences.maskEndpointForDisplay(
+                this, KeepADBPreferences.getWebhookLastReportedEndpoint(this));
         if (lastEndpoint == null || lastEndpoint.trim().isEmpty()) {
             // Distinguish "never reported anything yet" from "was reported, then successfully
             // deregistered" -- both leave no current endpoint, but reusing the same "none yet"
@@ -656,14 +664,16 @@ public class MainActivity extends Activity {
                     : getString(R.string.webhook_status_no_endpoint);
         }
         webhookStatus.setText(getString(R.string.webhook_status_hint,
-                KeepADBPreferences.maskWebhookUrl(url), lastEndpoint, lastReported));
+                KeepADBPreferences.maskWebhookUrlForDisplay(this, url), lastEndpoint, lastReported));
         webhookStatusPanel.setVisibility(View.VISIBLE);
     }
 
     private void postEndpointAvailable(long listenerGeneration, String host, int port) {
         runOnUiThread(() -> {
             if (!isEndpointSurfaceActive(listenerGeneration)) return;
-            endpoint.setText(getString(R.string.endpoint_format, host, port));
+            lastEndpointHost = host;
+            lastEndpointPort = port;
+            renderEndpoint();
             refresh();
         });
     }
@@ -671,10 +681,26 @@ public class MainActivity extends Activity {
     private void postEndpointUnavailable(long listenerGeneration) {
         runOnUiThread(() -> {
             if (!isEndpointSurfaceActive(listenerGeneration)) return;
-            endpoint.setText(KeepADB.isEnabled(MainActivity.this)
-                    ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable));
+            lastEndpointHost = null;
+            renderEndpoint();
             refresh();
         });
+    }
+
+    /**
+     * #483: renders the last discovered endpoint through the privacy mask. Kept separate from the
+     * discovery callbacks so toggling privacy re-renders immediately instead of waiting for the
+     * next discovery tick. Display only -- {@code lastEndpointHost} holds the real host.
+     */
+    private void renderEndpoint() {
+        if (lastEndpointHost == null) {
+            endpoint.setText(KeepADB.isEnabled(MainActivity.this)
+                    ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable));
+            return;
+        }
+        endpoint.setText(getString(R.string.endpoint_format,
+                KeepADBPreferences.maskHostForDisplay(MainActivity.this, lastEndpointHost),
+                lastEndpointPort));
     }
 
     private boolean isEndpointSurfaceActive(long listenerGeneration) {
