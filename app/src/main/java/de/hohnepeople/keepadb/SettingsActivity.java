@@ -777,9 +777,11 @@ public class SettingsActivity extends Activity {
             allow.setOnClickListener(v -> {
                 KeepADBTrustedNetwork.addBssid(this, entry.bssid, entry.label());
                 KeepADBBlockedNetworkHistory.remove(this, entry.bssid);
-                // The prompt for this access point is answered now; drop the anti-spam marker so
-                // a later block on a different access point is not accidentally suppressed.
-                KeepADBNetworkTrustPrompt.clearPromptState(this);
+                // The prompt for this access point is answered now; drop only its anti-spam
+                // marker (#474) -- this dialog can list several still-blocked access points at
+                // once, so a global clear here would wipe the history for the other rows too and
+                // suppress their own re-prompt after roaming back onto them.
+                KeepADBNetworkTrustPrompt.clearPromptState(this, entry.bssid);
                 KeepADBNetworkTrustPrompt.cancel(this);
                 Toast.makeText(this,
                         getString(R.string.settings_trusted_network_added_toast, entry.label()),

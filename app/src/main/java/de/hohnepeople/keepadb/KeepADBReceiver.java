@@ -99,7 +99,11 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         KeepADBTrustedNetwork.addBssid(context, bssid, label);
         KeepADBBlockedNetworkHistory.remove(context, bssid);
         KeepADBNetworkTrustPrompt.cancel(context);
-        KeepADBNetworkTrustPrompt.clearPromptState(context);
+        // #474: only forget the marker for the access point just trusted -- a global clear would
+        // also silently drop the anti-spam history for a different, still-untrusted access point
+        // that has its own pending prompt (e.g. trusting a historical AP from MainActivity while
+        // the currently-connected, untrusted AP still awaits its own decision).
+        KeepADBNetworkTrustPrompt.clearPromptState(context, bssid);
 
         boolean enabled = false;
         if (KeepADBService.isAutoEnableStillPermitted(context)) {
