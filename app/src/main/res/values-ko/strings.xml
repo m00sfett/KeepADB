@@ -104,6 +104,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="wifi_aps_untrust_accessibility">\"%1$s\"을(를) 신뢰할 수 있는 네트워크에서 제거</string>
     <string name="wifi_aps_show_more_button">%1$d개 더 보기</string>
     <string name="wifi_aps_show_less_button">간단히 보기</string>
+    <string name="home_security_actions_title">보안 관리</string>
+    <string name="home_security_actions_body">신뢰할 액세스 포인트를 관리하고 최근 차단된 항목을 확인하세요 -- 이 목록을 정확하게 유지하는 것이 Keep-Alive 자동 재활성화를 안전하게 만듭니다.</string>
     <string name="settings_webhook_saved_toast">웹훅 URL이 저장되었습니다</string>
     <string name="settings_webhook_cleared_toast">웹훅 설정이 지워졌습니다</string>
     <string name="settings_webhook_enabled_toast">웹훅 동기화가 활성화되었습니다</string>

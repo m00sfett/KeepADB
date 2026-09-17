@@ -104,6 +104,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="wifi_aps_untrust_accessibility">Rimuovi \"%1$s\" dalle reti attendibili</string>
     <string name="wifi_aps_show_more_button">Mostra altri %1$d</string>
     <string name="wifi_aps_show_less_button">Mostra meno</string>
+    <string name="home_security_actions_title">Gestione sicurezza</string>
+    <string name="home_security_actions_body">Gestisci quali access point sono attendibili e controlla quelli bloccati di recente -- mantenere questo elenco accurato è ciò che rende sicura la riattivazione automatica di Keep-Alive.</string>
     <string name="settings_webhook_saved_toast">URL del Webhook salvato</string>
     <string name="settings_webhook_cleared_toast">Configurazione Webhook cancellata</string>
     <string name="settings_webhook_enabled_toast">Sincronizzazione Webhook abilitata</string>

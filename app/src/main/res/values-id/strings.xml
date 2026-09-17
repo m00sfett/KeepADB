@@ -104,6 +104,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="wifi_aps_untrust_accessibility">Hapus \"%1$s\" dari jaringan tepercaya</string>
     <string name="wifi_aps_show_more_button">Tampilkan %1$d lagi</string>
     <string name="wifi_aps_show_less_button">Tampilkan lebih sedikit</string>
+    <string name="home_security_actions_title">Manajemen keamanan</string>
+    <string name="home_security_actions_body">Kelola titik akses mana yang dipercaya dan tinjau yang baru-baru ini diblokir -- menjaga daftar ini tetap akurat adalah yang membuat pengaktifan ulang otomatis Keep-Alive tetap aman.</string>
     <string name="settings_webhook_saved_toast">URL Webhook disimpan</string>
     <string name="settings_webhook_cleared_toast">Konfigurasi Webhook dihapus</string>
     <string name="settings_webhook_enabled_toast">Sinkronisasi Webhook diaktifkan</string>
