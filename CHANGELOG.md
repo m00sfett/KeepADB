@@ -22,6 +22,16 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.4] - Unreleased
+
+### Changed
+- `MainActivity`'s Wi-Fi & Access Points card AP rows now focus on SSID and BSSID only; the redundant "Trusted"/"Not trusted" status label and the mesh-count label ("AP X of Y") were removed from each row (`KeepADBAccessPointOverview` still computes the mesh position/count; only the row's display of it was dropped) (issue #479).
+- The per-row trust action button now uses the app's primary/affirmative style (`bg_btn_primary`, `title_yellow` text) for "Trust" and keeps the existing red-bordered secondary/warn style (`bg_btn_secondary`, `text_yellow` text) for "Untrust", instead of both actions sharing one button background -- the same primary-vs-secondary distinction the app already draws elsewhere (e.g. Settings' Save/Clear pair). Touch target (48dp min height) and content descriptions are unchanged (issue #480).
+
+### Added
+- A "Show trusted access points only" filter switch above the Wi-Fi & Access Points list. When enabled, both the current connection row and the "others" list are filtered down to `trusted == true` entries; disabled (the default) keeps the previous unfiltered behavior. In-memory only, like the existing "show more/less" expansion state -- not a persisted setting (issue #479, acceptance criterion 3, per the user decision recorded in the issue's comment).
+- Patch version bump (1.8.3 -> 1.8.4, versionCode 101): both changes are UI-focus/styling refinements on an existing surface, so a Patch bump applies. #479 and #480 touch the same method and are released together as one integrated build.
+
 ## [1.8.3] - Unreleased
 
 ### Fixed

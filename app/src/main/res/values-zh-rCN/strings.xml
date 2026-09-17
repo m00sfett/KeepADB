@@ -88,6 +88,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_blocked_allow_button">允许</string>
     <string name="settings_trusted_network_blocked_allow_accessibility">允许被拦截的网络“%1$s”</string>
     <string name="wifi_aps_title">Wi-Fi 与接入点</string>
+    <string name="wifi_aps_trusted_only_toggle">仅显示受信任的接入点</string>
     <string name="wifi_aps_current_badge">当前</string>
     <string name="wifi_aps_trusted_status">受信任</string>
     <string name="wifi_aps_untrusted_status">不受信任</string>

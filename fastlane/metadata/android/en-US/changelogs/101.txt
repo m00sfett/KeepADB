@@ -1,0 +1,2 @@
+• Changed: the Wi-Fi & access points list is now cleaner, focused on network name and address, with clearer "Trust"/"Untrust" buttons.
+• Added: a new switch to show only trusted access points in that list.

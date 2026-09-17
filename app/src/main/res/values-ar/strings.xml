@@ -88,6 +88,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_blocked_allow_button">اسمح</string>
     <string name="settings_trusted_network_blocked_allow_accessibility">السماح بالشبكة المحظورة \"%1$s\"</string>
     <string name="wifi_aps_title">Wi-Fi ونقاط الوصول</string>
+    <string name="wifi_aps_trusted_only_toggle">عرض نقاط الوصول الموثوقة فقط</string>
     <string name="wifi_aps_current_badge">الحالية</string>
     <string name="wifi_aps_trusted_status">موثوقة</string>
     <string name="wifi_aps_untrusted_status">غير موثوقة</string>

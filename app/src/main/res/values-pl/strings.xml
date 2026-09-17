@@ -88,6 +88,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_trusted_network_blocked_allow_button">Zezwól</string>
     <string name="settings_trusted_network_blocked_allow_accessibility">Zezwól na zablokowaną sieć \"%1$s\"</string>
     <string name="wifi_aps_title">Wi-Fi i punkty dostępu</string>
+    <string name="wifi_aps_trusted_only_toggle">Pokaż tylko zaufane punkty dostępu</string>
     <string name="wifi_aps_current_badge">Bieżący</string>
     <string name="wifi_aps_trusted_status">Zaufany</string>
     <string name="wifi_aps_untrusted_status">Niezaufany</string>

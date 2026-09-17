@@ -484,6 +484,17 @@
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
+                    <Switch
+                        android:id="@+id/wifi_aps_trusted_only_toggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:text="@string/wifi_aps_trusted_only_toggle"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="14sp" />
+
                     <LinearLayout
                         android:id="@+id/wifi_aps_current_row"
                         android:layout_width="match_parent"
