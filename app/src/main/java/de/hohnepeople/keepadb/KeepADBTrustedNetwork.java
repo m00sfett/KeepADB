@@ -9,13 +9,24 @@ import java.util.List;
 /**
  * Persisted trusted-network allowlist policy for automatic Keep-Alive re-enable (#245).
  *
- * <p>{@link #MODE_ALLOWLIST} is the default (#260): a freshly installed device is protected
- * immediately, and only Wi-Fi networks the user explicitly adds are trusted for automatic
- * re-enable. {@link #MODE_ALL_WIFI} remains available as an opt-out for users who prefer the
- * original, pre-#245 behavior (any connected Wi-Fi network may trigger auto re-enable). This
- * default applies uniformly -- including to upgrading installations that never set a mode --
- * by deliberate decision (#260); there is no migration path that special-cases existing users.
- * Once in allowlist mode, an unlisted or unrecognizable network is never trusted (fail closed)
+ * <p>#492 reversed #260's default: {@link #MODE_ALL_WIFI} is now the default for a new or
+ * never-initialized installation, and {@link #MODE_ALLOWLIST} is an explicit opt-in. The reason is
+ * measured, not aesthetic -- see the Android identity limits documented in {@code
+ * docs/trusted-networks-measurement.md}: outside a visible activity the platform masks SSID and
+ * BSSID together, so an allowlist-mode installation cannot confirm a trusted network in the
+ * background at all and Keep-Alive's automatic re-enable simply stops working there. Shipping that
+ * as the silent default made the app's headline convenience feature fail for reasons the user never
+ * chose. The restriction is still offered, now as a deliberate comfort-versus-security trade-off
+ * the user opts into with the warning in front of them.
+ *
+ * <p>Existing installations are not widened by that flip. {@link #ensureModeInitialized} persists
+ * {@link #MODE_ALLOWLIST} for any installation that never wrote a mode but does hold allowlist
+ * entries: under the pre-#492 build such an installation was running in allowlist mode (that was
+ * the default), and a user who had explicitly left allowlist mode already has {@link
+ * #MODE_ALL_WIFI} written, so the "has entries" proxy is exact for upgrades and vacuous for fresh
+ * installs.
+ *
+ * <p>Once in allowlist mode, an unlisted or unrecognizable network is never trusted (fail closed)
  * -- this policy only ever gates *automatic* re-enable call sites; manual toggling is never
  * affected, by design of where callers apply {@link #isCurrentNetworkTrusted(Context)}, not by
  * anything in this class.
@@ -26,6 +37,11 @@ final class KeepADBTrustedNetwork {
     private static final String KEY_NEXT_ID = "trusted_network_next_id";
     private static final String KEY_IDS = "trusted_network_ids";
     private static final String PREFIX = "trusted_network_";
+    private static final String KEY_MODE_INITIALIZED = "trusted_network_mode_initialized";
+    private static final String KEY_SSID_MATCHING = "trusted_network_ssid_matching";
+    private static final String KEY_SSID_NEXT_ID = "trusted_ssid_next_id";
+    private static final String KEY_SSID_IDS = "trusted_ssid_ids";
+    private static final String SSID_PREFIX = "trusted_ssid_";
 
     static final String MODE_ALL_WIFI = "all_wifi";
     static final String MODE_ALLOWLIST = "allowlist";
@@ -106,15 +122,167 @@ final class KeepADBTrustedNetwork {
         }
     }
 
+    /** One entry of the optional SSID allowlist (#492). */
+    static final class SsidEntry {
+        final int id;
+        final String ssid;
+
+        SsidEntry(int id, String ssid) {
+            this.id = id;
+            this.ssid = ssid;
+        }
+    }
+
     private KeepADBTrustedNetwork() {}
 
     static String getMode(Context context) {
-        String mode = prefs(context).getString(KEY_MODE, MODE_ALLOWLIST);
-        return MODE_ALL_WIFI.equals(mode) ? MODE_ALL_WIFI : MODE_ALLOWLIST;
+        ensureModeInitialized(context);
+        String mode = prefs(context).getString(KEY_MODE, MODE_ALL_WIFI);
+        return MODE_ALLOWLIST.equals(mode) ? MODE_ALLOWLIST : MODE_ALL_WIFI;
+    }
+
+    /**
+     * One-time, idempotent migration of the #492 default flip (see class javadoc). Runs before
+     * every mode read, writes at most once per installation, and is deliberately a *persisted*
+     * decision rather than a computed fallback: the "does this installation hold allowlist
+     * entries" proxy is only valid at the moment of the upgrade. Once the user starts removing
+     * entries -- or adds one while in {@link #MODE_ALL_WIFI}, which the per-access-point trust
+     * buttons and the notification allow action permit in either mode -- recomputing it would
+     * flip the policy underneath them.
+     *
+     * <p>Idempotence is keyed on {@link #KEY_MODE_INITIALIZED} rather than on {@link #KEY_MODE}'s
+     * presence, so a later explicit switch to {@link #MODE_ALL_WIFI} can never be re-migrated
+     * back into {@link #MODE_ALLOWLIST} by a subsequent entry being added.
+     */
+    private static void ensureModeInitialized(Context context) {
+        SharedPreferences preferences = prefs(context);
+        if (preferences.getBoolean(KEY_MODE_INITIALIZED, false)) return;
+        if (preferences.contains(KEY_MODE)) {
+            // An explicit user decision already exists; record it as initialized and keep it.
+            preferences.edit().putBoolean(KEY_MODE_INITIALIZED, true).apply();
+            return;
+        }
+        // No mode was ever written. Under the pre-#492 build this installation therefore ran in
+        // MODE_ALLOWLIST. Preserve that for anyone who acted on it (has entries) and only apply
+        // the new opt-in default to installations that never did.
+        boolean hadImplicitAllowlist = !getEntries(context).isEmpty();
+        preferences.edit()
+                .putString(KEY_MODE, hadImplicitAllowlist ? MODE_ALLOWLIST : MODE_ALL_WIFI)
+                .putBoolean(KEY_MODE_INITIALIZED, true)
+                .apply();
+    }
+
+    /**
+     * Whether the SSID allowlist below may additionally authorize a network (#492). A separate
+     * opt-in, default off, on top of {@link #MODE_ALLOWLIST} -- it only ever *widens* what
+     * allowlist mode accepts and is meaningless without it.
+     */
+    static boolean isSsidMatchingEnabled(Context context) {
+        return prefs(context).getBoolean(KEY_SSID_MATCHING, false);
+    }
+
+    static void setSsidMatchingEnabled(Context context, boolean enabled) {
+        prefs(context).edit().putBoolean(KEY_SSID_MATCHING, enabled).apply();
+        // Same reasoning as setMode(): the policy that produced the cached verified trust just
+        // changed, so nothing verified under the old one may carry over.
+        forgetVerifiedTrust();
+    }
+
+    static List<SsidEntry> getSsidEntries(Context context) {
+        String ids = prefs(context).getString(KEY_SSID_IDS, "");
+        List<SsidEntry> entries = new ArrayList<>();
+        for (String value : ids.split(",")) {
+            if (value.isEmpty()) continue;
+            try {
+                int id = Integer.parseInt(value);
+                String ssid = prefs(context).getString(SSID_PREFIX + id + "_ssid", null);
+                if (ssid != null) entries.add(new SsidEntry(id, ssid));
+            } catch (NumberFormatException ignored) {
+                // Ignore a malformed local entry and keep the remaining ones usable.
+            }
+        }
+        return entries;
+    }
+
+    /**
+     * Adds an SSID to the SSID allowlist. Returns null if {@code ssid} is null/blank; an
+     * already-listed SSID is returned unchanged, matching {@link #addBssid}'s dedup behavior.
+     * Matching is exact and case-sensitive, so dedup is too: SSIDs are byte strings and two
+     * names differing only in case are two different networks.
+     */
+    static SsidEntry addSsid(Context context, String ssid) {
+        String cleanSsid = clean(ssid);
+        if (cleanSsid.isEmpty()) return null;
+        for (SsidEntry entry : getSsidEntries(context)) {
+            if (entry.ssid.equals(cleanSsid)) return entry;
+        }
+        SharedPreferences preferences = prefs(context);
+        int id = preferences.getInt(KEY_SSID_NEXT_ID, 1);
+        String ids = preferences.getString(KEY_SSID_IDS, "");
+        preferences.edit()
+                .putString(SSID_PREFIX + id + "_ssid", cleanSsid)
+                .putString(KEY_SSID_IDS, ids.isEmpty() ? String.valueOf(id) : ids + "," + id)
+                .putInt(KEY_SSID_NEXT_ID, id + 1)
+                .apply();
+        return new SsidEntry(id, cleanSsid);
+    }
+
+    /**
+     * Adds the currently connected network's SSID. Returns null when the identity is not fully
+     * readable -- an {@link KeepADBNetworkIdentity#isKnown()} check is deliberately required on
+     * top of a non-null SSID even though only the SSID is stored: per the measurement in {@code
+     * docs/trusted-networks-measurement.md} the platform masks SSID and BSSID together, so a
+     * readable SSID paired with a masked BSSID is not a state this device produces, and treating
+     * it as addable would only open a path to storing a placeholder.
+     */
+    static SsidEntry addCurrentSsid(Context context) {
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
+        if (!identity.isKnown()) return null;
+        return addSsid(context, identity.displaySsid());
+    }
+
+    /** The current network's own SSID allowlist entry, or null if unreadable or unlisted. */
+    static SsidEntry findSsidEntryForCurrentNetwork(Context context) {
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
+        if (!identity.isKnown()) return null;
+        String ssid = identity.displaySsid();
+        if (ssid == null || ssid.isEmpty()) return null;
+        for (SsidEntry entry : getSsidEntries(context)) {
+            if (entry.ssid.equals(ssid)) return entry;
+        }
+        return null;
+    }
+
+    static boolean removeSsid(Context context, int id) {
+        SharedPreferences preferences = prefs(context);
+        List<SsidEntry> entries = getSsidEntries(context);
+        boolean removed = entries.removeIf(entry -> entry.id == id);
+        if (!removed) return false;
+        SharedPreferences.Editor editor = preferences.edit().remove(SSID_PREFIX + id + "_ssid");
+        if (entries.isEmpty()) {
+            editor.remove(KEY_SSID_IDS);
+        } else {
+            StringBuilder ids = new StringBuilder();
+            for (SsidEntry entry : entries) {
+                if (ids.length() > 0) ids.append(',');
+                ids.append(entry.id);
+            }
+            editor.putString(KEY_SSID_IDS, ids.toString());
+        }
+        editor.apply();
+        // Same fail-closed reasoning as remove(): a revoked SSID must not keep matching through
+        // the connection-scoped cache.
+        forgetVerifiedTrust();
+        return true;
     }
 
     static void setMode(Context context, String mode) {
-        prefs(context).edit().putString(KEY_MODE, mode).apply();
+        // #492: an explicit choice is by definition an initialized one -- recording that here as
+        // well as in ensureModeInitialized() means the migration can never run after it.
+        prefs(context).edit()
+                .putString(KEY_MODE, mode)
+                .putBoolean(KEY_MODE_INITIALIZED, true)
+                .apply();
         // #353: a mode switch is the same security-relevant event as remove() below -- whatever
         // was verified trusted under the old policy must not silently carry over under the new
         // one (e.g. ALLOWLIST -> ALL_WIFI -> ALLOWLIST could otherwise let a masked-BSSID
@@ -272,7 +440,8 @@ final class KeepADBTrustedNetwork {
      * WifiManager lookup just to re-derive the same identity. */
     private static boolean isTrusted(Context context, KeepADBNetworkIdentity identity) {
         if (identity.isKnown()) {
-            boolean trusted = matchesAllowlist(context, identity.bssid);
+            boolean trusted = matchesAllowlist(context, identity.bssid)
+                    || matchesSsidAllowlist(context, identity);
             if (trusted) {
                 rememberVerifiedTrust(identity);
             } else {
@@ -303,6 +472,34 @@ final class KeepADBTrustedNetwork {
     private static boolean matchesAllowlist(Context context, String bssid) {
         for (Entry entry : getEntries(context)) {
             if (entry.bssid.equalsIgnoreCase(bssid)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * The optional SSID match (#492), reached only from the {@code identity.isKnown()} branch of
+     * {@link #isTrusted} -- i.e. only when the platform handed us a real, unmasked BSSID for this
+     * very reading. That precondition is what keeps this from becoming the SSID-only fallback
+     * {@link #lastVerifiedTrustedSsid}'s javadoc rejects: it never rescues a masked reading, so it
+     * cannot be satisfied by a rogue access point whose BSSID was never visible.
+     *
+     * <p>What it does accept is a *readable* access point whose BSSID is not listed but whose SSID
+     * is. That is a genuinely weaker security model and the whole point of the separate opt-in: an
+     * SSID is a user-chosen string, so any access point that broadcasts the listed name -- a
+     * further mesh node, a different radio band of the same router, or an impersonator -- is
+     * trusted without its own BSSID ever having been approved. The UI states this at the switch.
+     *
+     * <p>Matching is exact: equal after the quote-stripping {@link
+     * KeepADBNetworkIdentity#displaySsid()} does, with no case folding, trimming, prefix or
+     * substring rule, and never against a null/placeholder SSID. A silent normalization here would
+     * widen the allowance beyond the name the user actually approved.
+     */
+    private static boolean matchesSsidAllowlist(Context context, KeepADBNetworkIdentity identity) {
+        if (!isSsidMatchingEnabled(context)) return false;
+        String ssid = identity.displaySsid();
+        if (ssid == null || ssid.isEmpty()) return false;
+        for (SsidEntry entry : getSsidEntries(context)) {
+            if (entry.ssid.equals(ssid)) return true;
         }
         return false;
     }

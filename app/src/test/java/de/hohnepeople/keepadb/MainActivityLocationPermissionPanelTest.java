@@ -45,6 +45,10 @@ public class MainActivityLocationPermissionPanelTest {
         shadowOf((Application) context).denyPermissions(
                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION);
+        // #492: allowlist mode is no longer the default -- it is an opt-in taken in Settings. The
+        // panel this class covers only applies to an installation that took it, so every test
+        // here states that precondition explicitly instead of relying on a default.
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
     }
 
     @After
@@ -56,8 +60,7 @@ public class MainActivityLocationPermissionPanelTest {
     }
 
     @Test
-    public void panelIsVisibleByDefaultBecauseAllowlistIsTheDefaultModeAndPermissionIsMissing() {
-        // #260: allowlist mode is the default, even without ever touching Settings.
+    public void panelIsVisibleWhenAllowlistModeIsOnAndPermissionIsMissing() {
         assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
 
         ActivityController<MainActivity> controller =
