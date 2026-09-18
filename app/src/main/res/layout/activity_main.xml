@@ -245,6 +245,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:accessibilityHeading="true"
                         android:fontFamily="sans-serif-condensed"
                         android:text="@string/notification_permission_panel_title"
                         android:textColor="@color/title_yellow"
@@ -272,7 +273,7 @@
                         android:paddingTop="8dp"
                         android:paddingEnd="16dp"
                         android:paddingBottom="8dp"
-                        android:text="@string/notification_permission_settings_button"
+                        android:text="@string/notification_permission_request_button"
                         android:textColor="@color/title_yellow"
                         android:textSize="15sp"
                         android:textStyle="bold" />
