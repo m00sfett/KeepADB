@@ -355,6 +355,10 @@ public class KeepADBNetworkTrustPromptTest {
 
     @Test
     public void raisingAndThrottlingThePromptNeverTrustsAnything() {
+        // #492: allowlist mode is now an opt-in, so the "is this network trusted" assertion below
+        // needs it stated -- otherwise MODE_ALL_WIFI trusts unconditionally and the assertion
+        // would pass for the wrong reason.
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         connectTo("Cafe-WLAN", BSSID);
         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context);
         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context);

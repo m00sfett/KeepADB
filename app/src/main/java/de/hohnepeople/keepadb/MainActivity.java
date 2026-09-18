@@ -58,10 +58,12 @@ public class MainActivity extends Activity {
     private Switch wifiApsTrustedOnlyToggle;
     // #484: the "restrict Keep-Alive to trusted networks" mode toggle and its status text,
     // moved here from SettingsActivity.
-    private Switch trustedNetworkToggle;
     private TextView trustedNetworkStatus;
+    private LinearLayout wifiSsidsSection;
+    private LinearLayout wifiSsidsCurrentRow;
+    private LinearLayout wifiSsidsList;
+    private TextView wifiSsidsEmpty;
     // #485: whitelist management and block history, moved here from SettingsActivity.
-    private AlertDialog activeManageNetworksDialog;
     private AlertDialog activeBlockedNetworksDialog;
     // #468: whether the "recently observed" access points below the current connection are
     // shown in full. Deliberately in-memory only (not persisted) -- it is a display convenience
@@ -137,11 +139,11 @@ public class MainActivity extends Activity {
             wifiApsTrustedOnly = isChecked;
             renderAccessPointOverview();
         });
-        trustedNetworkToggle = findViewById(R.id.wifi_aps_trust_restriction_toggle);
         trustedNetworkStatus = findViewById(R.id.wifi_aps_trust_restriction_status);
-        trustedNetworkToggle.setOnClickListener(v -> onTrustedNetworkToggleClicked());
-        findViewById(R.id.wifi_aps_manage_whitelist_button).setOnClickListener(v ->
-                showTrustedNetworkManageDialog());
+        wifiSsidsSection = findViewById(R.id.wifi_ssids_section);
+        wifiSsidsCurrentRow = findViewById(R.id.wifi_ssids_current_row);
+        wifiSsidsList = findViewById(R.id.wifi_ssids_list);
+        wifiSsidsEmpty = findViewById(R.id.wifi_ssids_empty);
         findViewById(R.id.wifi_aps_recently_blocked_button).setOnClickListener(v ->
                 showBlockedNetworkDialog());
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
@@ -346,12 +348,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         // #485: mirrors SettingsActivity's own dialog-leak prevention for the dialogs moved here.
-        if (activeManageNetworksDialog != null) {
-            if (activeManageNetworksDialog.isShowing()) {
-                activeManageNetworksDialog.dismiss();
-            }
-            activeManageNetworksDialog = null;
-        }
         if (activeBlockedNetworksDialog != null) {
             if (activeBlockedNetworksDialog.isShowing()) {
                 activeBlockedNetworksDialog.dismiss();
@@ -416,13 +412,14 @@ public class MainActivity extends Activity {
         refreshWebhookStatus();
         renderAccessPointOverview();
         renderTrustedNetworkSection();
+        renderTrustedSsidSection();
         updatePrivacyModeToggle();
     }
 
-    /** #484: renders the trust-restriction toggle and its status text, moved here from
-     * SettingsActivity's own refresh(). */
+    /** #484: renders the trust-restriction status text, moved here from SettingsActivity's own
+     * refresh(). #492: the switch itself moved back to SettingsActivity -- only the consequence of
+     * the policy is reported here, next to the list it acts on. */
     private void renderTrustedNetworkSection() {
-        trustedNetworkToggle.setChecked(KeepADBTrustedNetwork.isAllowlistMode(this));
         KeepADBTrustedNetwork.BlockReason blockReason = KeepADBTrustedNetwork.getBlockReason(this);
         if (blockReason == KeepADBTrustedNetwork.BlockReason.UNTRUSTED_NETWORK) {
             trustedNetworkStatus.setText(R.string.settings_trusted_network_status_untrusted);
@@ -440,96 +437,121 @@ public class MainActivity extends Activity {
                 KeepADBBlockedNetworkHistory.getEntries(this).size()));
     }
 
-    /** #484: moved here from SettingsActivity -- the mode switch controlling whether automatic
-     * Keep-Alive re-enable is restricted to trusted networks. */
-    private void onTrustedNetworkToggleClicked() {
-        boolean wantAllowlist = trustedNetworkToggle.isChecked();
-        if (!wantAllowlist) {
-            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-            refresh();
-            return;
+    /**
+     * #492: renders the optional SSID allowlist in the same visual logic as the BSSID rows above
+     * -- current value on top, one row per listed entry below, each with the same add/remove
+     * action pair. The whole section is hidden unless its opt-in (SettingsActivity) is on, so the
+     * weaker matching model is never present on screen for a user who did not choose it.
+     *
+     * <p>There is deliberately no add action for anything but the currently connected, fully
+     * readable network: no free-text field and no "add from history". A name typed by hand or
+     * picked from a stale observation is a name whose access point the user is not standing in
+     * front of, and every such entry widens the allowance by more than the one network they meant.
+     */
+    private void renderTrustedSsidSection() {
+        boolean enabled = KeepADBTrustedNetwork.isSsidMatchingEnabled(this);
+        wifiSsidsSection.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        if (!enabled) return;
+
+        wifiSsidsCurrentRow.removeAllViews();
+        wifiSsidsList.removeAllViews();
+
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(this);
+        String currentSsid = identity.isKnown() ? identity.displaySsid() : null;
+        if (currentSsid == null || currentSsid.isEmpty()) {
+            // Fail-closed presentation to match the fail-closed policy: an unreadable identity
+            // offers no add action at all, rather than an action that would store a placeholder.
+            TextView unknown = new TextView(this);
+            unknown.setText(R.string.wifi_ssids_current_unknown);
+            unknown.setTextColor(getColor(R.color.night_muted));
+            unknown.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+            wifiSsidsCurrentRow.addView(unknown);
+        } else {
+            wifiSsidsCurrentRow.addView(buildCurrentSsidRow(currentSsid));
         }
-        // Revert the switch until permission is confirmed; refresh() below re-derives the
-        // actual checked state from the persisted mode either way.
-        trustedNetworkToggle.setChecked(false);
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-            refresh();
-            return;
+
+        List<KeepADBTrustedNetwork.SsidEntry> entries = KeepADBTrustedNetwork.getSsidEntries(this);
+        for (KeepADBTrustedNetwork.SsidEntry entry : entries) {
+            wifiSsidsList.addView(buildTrustedSsidRow(entry));
         }
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.settings_trusted_network_permission_title)
-                .setMessage(R.string.settings_trusted_network_permission_message)
-                .setPositiveButton(R.string.settings_trusted_network_permission_grant, (dialog, which) ->
-                        // Requested together per Android's guidance for FINE: the system then
-                        // offers the user a precise/approximate choice in one dialog. Only a
-                        // FINE grant is actually usable here (see onRequestPermissionsResult).
-                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                                        Manifest.permission.ACCESS_COARSE_LOCATION},
-                                TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST))
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        wifiSsidsEmpty.setVisibility(entries.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
-    /** #485: moved here from SettingsActivity, unchanged. */
-    private void showTrustedNetworkManageDialog() {
-        List<KeepADBTrustedNetwork.Entry> entries = KeepADBTrustedNetwork.getEntries(this);
-        if (entries.isEmpty()) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.settings_trusted_network_manage_title)
-                    .setMessage(R.string.settings_trusted_network_empty_message)
-                    .setPositiveButton(android.R.string.ok, null)
-                    .show();
-            return;
-        }
-        LinearLayout rows = new LinearLayout(this);
-        rows.setOrientation(LinearLayout.VERTICAL);
-        int padding = (int) (20 * getResources().getDisplayMetrics().density);
-        rows.setPadding(padding, 0, padding, 0);
-        final AlertDialog[] dialogHolder = new AlertDialog[1];
-        for (KeepADBTrustedNetwork.Entry entry : entries) {
-            LinearLayout row = new LinearLayout(this);
-            row.setGravity(Gravity.CENTER_VERTICAL);
-            LinearLayout labelColumn = new LinearLayout(this);
-            labelColumn.setOrientation(LinearLayout.VERTICAL);
-            labelColumn.setLayoutParams(new LinearLayout.LayoutParams(0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-            TextView label = new TextView(this);
-            label.setText(entry.label);
-            label.setTextColor(getColor(R.color.night_text));
-            TextView bssid = new TextView(this);
-            bssid.setText(entry.bssid);
-            bssid.setTextColor(getColor(R.color.night_muted));
-            bssid.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
-            labelColumn.addView(label);
-            labelColumn.addView(bssid);
-            Button delete = new Button(this);
-            delete.setText(R.string.settings_trusted_network_delete_button);
-            delete.setContentDescription(getString(
-                    R.string.settings_trusted_network_delete_accessibility, entry.label));
-            delete.setOnClickListener(v -> {
-                KeepADBTrustedNetwork.remove(this, entry.id);
-                dialogHolder[0].dismiss();
-                refresh();
+    /** The "currently connected SSID" row: label plus an add action, or nothing to add when the
+     * name is already listed (the listed row below carries the remove action). */
+    private View buildCurrentSsidRow(String currentSsid) {
+        boolean listed = KeepADBTrustedNetwork.findSsidEntryForCurrentNetwork(this) != null;
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView label = new TextView(this);
+        label.setText(getString(R.string.wifi_aps_current_badge) + " · " + currentSsid);
+        label.setTextColor(getColor(R.color.night_text));
+        label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+        label.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        row.addView(label);
+
+        if (!listed) {
+            Button add = new Button(this);
+            add.setBackgroundResource(R.drawable.bg_btn_primary);
+            add.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+            add.setTextColor(getColor(R.color.title_yellow));
+            add.setText(R.string.wifi_ssids_add_button);
+            add.setContentDescription(getString(R.string.wifi_ssids_add_accessibility, currentSsid));
+            add.setOnClickListener(v -> {
+                KeepADBTrustedNetwork.SsidEntry added = KeepADBTrustedNetwork.addCurrentSsid(this);
+                if (added == null) {
+                    Toast.makeText(this, R.string.settings_trusted_network_add_failed_toast,
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, getString(R.string.wifi_ssids_added_toast, added.ssid),
+                            Toast.LENGTH_SHORT).show();
+                }
+                refreshUiAndComponents();
             });
-            row.addView(labelColumn);
-            row.addView(delete);
-            rows.addView(row);
+            row.addView(add);
         }
-        ScrollView scroll = new ScrollView(this);
-        scroll.addView(rows);
-        dialogHolder[0] = new AlertDialog.Builder(this)
-                .setTitle(R.string.settings_trusted_network_manage_title)
-                .setView(scroll)
-                .setPositiveButton(android.R.string.ok, null)
-                .create();
-        activeManageNetworksDialog = dialogHolder[0];
-        dialogHolder[0].setOnDismissListener(d -> {
-            if (activeManageNetworksDialog == d) {
-                activeManageNetworksDialog = null;
+        return row;
+    }
+
+    /** One listed-SSID row, with the remove action in the same warn style the untrust action of a
+     * BSSID row uses. */
+    private View buildTrustedSsidRow(KeepADBTrustedNetwork.SsidEntry entry) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        int topMargin = (int) (12 * getResources().getDisplayMetrics().density);
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        rowParams.topMargin = topMargin;
+        row.setLayoutParams(rowParams);
+
+        TextView label = new TextView(this);
+        label.setText(entry.ssid);
+        label.setTextColor(getColor(R.color.night_text));
+        label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+        label.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+
+        Button remove = new Button(this);
+        remove.setBackgroundResource(R.drawable.bg_btn_secondary);
+        remove.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+        remove.setTextColor(getColor(R.color.text_yellow));
+        remove.setText(R.string.wifi_ssids_remove_button);
+        remove.setContentDescription(getString(R.string.wifi_ssids_remove_accessibility, entry.ssid));
+        remove.setOnClickListener(v -> {
+            if (KeepADBTrustedNetwork.removeSsid(this, entry.id)) {
+                Toast.makeText(this, getString(R.string.wifi_ssids_removed_toast, entry.ssid),
+                        Toast.LENGTH_SHORT).show();
             }
+            refreshUiAndComponents();
         });
-        dialogHolder[0].show();
+
+        row.addView(label);
+        row.addView(remove);
+        return row;
     }
 
     /**
@@ -617,10 +639,6 @@ public class MainActivity extends Activity {
             }
         });
         dialogHolder[0].show();
-    }
-
-    AlertDialog getActiveManageNetworksDialog() {
-        return activeManageNetworksDialog;
     }
 
     AlertDialog getActiveBlockedNetworksDialog() {
@@ -814,9 +832,63 @@ public class MainActivity extends Activity {
                 if (!enabled && !hasSecureSettingsPermission()) {
                     showToggleErrorToast();
                 }
+                // #492: the mesh convenience moved here from SettingsActivity's removed
+                // add-current-network button, which was the duplicate management surface this
+                // card replaced. Offering it only for the access point the device is actually on
+                // keeps it tied to a verified identity, as it was before.
+                if (item.current) {
+                    offerAdditionalMeshBssids();
+                }
             }
         }
         refresh();
+    }
+
+    /**
+     * After trusting the currently connected access point, offers to also add any other BSSIDs the
+     * observation history (#266) has seen broadcasting the same SSID -- covers Wi-Fi mesh setups
+     * (several access points, one SSID, different BSSIDs) without ever trusting *by* SSID:
+     * declining still keeps only the just-added BSSID trusted, and accepting adds each additional
+     * BSSID through the same {@link KeepADBTrustedNetwork} entry point as a normal manual add.
+     *
+     * <p>#492: moved here verbatim from SettingsActivity, whose add-current-network button was
+     * removed as duplicate management of this card's own rows. This is deliberately still the
+     * BSSID-by-BSSID offer and not a shortcut into the new SSID allowlist -- adding each real
+     * access point keeps every entry BSSID-verified, which is exactly the property the separate
+     * SSID opt-in gives up.
+     */
+    private void offerAdditionalMeshBssids() {
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(this);
+        if (!identity.isKnown()) return;
+        String ssid = identity.displaySsid();
+        if (ssid == null || ssid.isEmpty()) return;
+
+        List<String> alreadyListed = new ArrayList<>();
+        for (KeepADBTrustedNetwork.Entry listed : KeepADBTrustedNetwork.getEntries(this)) {
+            alreadyListed.add(listed.bssid);
+        }
+        List<String> additional = KeepADBBssidHistory.getAdditionalBssids(this, ssid, alreadyListed);
+        if (additional.isEmpty()) return;
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_trusted_network_mesh_title)
+                .setMessage(getString(R.string.settings_trusted_network_mesh_message, additional.size(), ssid))
+                .setPositiveButton(R.string.settings_trusted_network_mesh_add_button, (dialog, which) -> {
+                    // #475: same trust-and-connect entry point as the other trust actions
+                    // (#470/#474) -- the device is only ever on one of these BSSIDs at a time, so
+                    // at most one call here actually finds Wireless Debugging still off on the
+                    // currently-connected access point and turns it on; the rest are no-ops
+                    // beyond trusting the BSSID, same as a plain addBssid would have been.
+                    for (String bssid : additional) {
+                        KeepADBReceiver.trustBssidAndAttemptConnect(this, bssid, ssid);
+                    }
+                    Toast.makeText(this,
+                            getString(R.string.settings_trusted_network_mesh_added_toast, additional.size()),
+                            Toast.LENGTH_SHORT).show();
+                    refresh();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     /**

@@ -452,63 +452,6 @@ public class SettingsActivityTest {
      * was blocking too, matching MainActivity's per-access-point trust button (#470) instead of
      * only the notification's own "allow" action doing so.
      */
-    @Test
-    public void addCurrentNetworkButtonImmediatelyAttemptsTheConnectionItWasBlocking() {
-        String bssid = "aa:bb:cc:dd:ee:02";
-        grantAutoEnableForTesting(bssid, "HomeMesh");
-
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-
-        Button addButton = activity.findViewById(R.id.settings_trusted_network_add);
-        addButton.performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertTrue("Wireless Debugging must be turned on immediately after manually adding the "
-                        + "current, blocking access point",
-                KeepADB.isEnabled(activity));
-    }
-
-    /**
-     * #475: accepting the mesh-BSSID convenience prompt must also immediately attempt the
-     * connection for each newly trusted access point, the same way the other two trust entry
-     * points above do -- proven here by the mesh BSSID's own pending prompt marker (raised while
-     * the device was briefly connected to it) getting cleared, which a bare {@code addBssid} call
-     * would not do.
-     */
-    @Test
-    public void meshBssidConvenienceImmediatelyAttemptsTheConnectionAndClearsItsPromptState() {
-        String currentBssid = "aa:bb:cc:dd:ee:03";
-        String meshBssid = "aa:bb:cc:dd:ee:04";
-        String ssid = "MeshHome";
-        grantAutoEnableForTesting(currentBssid, ssid);
-
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        // The device was briefly connected to the mesh AP earlier and got its own pending
-        // prompt for it, before roaming to the network under test.
-        connectTo(ssid, meshBssid);
-        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(activity));
-        KeepADBBssidHistory.recordObservation(activity, ssid, meshBssid);
-        connectTo(ssid, currentBssid);
-
-        Button addButton = activity.findViewById(R.id.settings_trusted_network_add);
-        addButton.performClick();
-        ShadowLooper.idleMainLooper();
-        AlertDialog meshDialog = ShadowAlertDialog.getLatestAlertDialog();
-        assertNotNull("The mesh convenience dialog should be showing", meshDialog);
-
-        meshDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertEquals(2, KeepADBTrustedNetwork.getEntries(activity).size());
-        assertTrue("Wireless Debugging must be turned on", KeepADB.isEnabled(activity));
-        assertTrue("Accepting the mesh BSSID must clear its own pending prompt marker",
-                KeepADBNetworkTrustPrompt.shouldPrompt(activity, meshBssid, System.currentTimeMillis()));
-    }
-
     // #471: settings cards start collapsed and expand/collapse independently, without any
     // persisted state. #478: the language and version cards are no longer part of this group --
     // they are permanently visible and never collapse -- so they were removed from this list.
@@ -711,6 +654,48 @@ public class SettingsActivityTest {
     }
 
     @SuppressWarnings("unchecked")
+    /**
+     * #492: the two policy switches are the only surface the security decision is taken on, so the
+     * wiring itself needs pinning, not just the persisted semantics in {@link
+     * KeepADBTrustedNetworkTest}. Asserts all three properties the issue names for them: both start
+     * off on a fresh install, the global switch actually persists the mode, and the SSID switch is
+     * inoperable until the restriction it widens is on (and becomes operable in the same refresh,
+     * not only after re-entering Settings).
+     */
+    @Test
+    public void bothPolicySwitchesStartOffAndTheSsidOneIsGatedOnTheRestriction() {
+        shadowOf(RuntimeEnvironment.getApplication())
+                .grantPermissions(android.Manifest.permission.ACCESS_FINE_LOCATION);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        Switch restriction = activity.findViewById(R.id.settings_trusted_network_toggle);
+        Switch ssid = activity.findViewById(R.id.settings_trusted_ssid_toggle);
+
+        assertFalse("The restriction is opt-in and off on a fresh install", restriction.isChecked());
+        assertFalse("The SSID alternative is a second, separate opt-in", ssid.isChecked());
+        assertFalse("A switch that widens nothing must not be operable", ssid.isEnabled());
+        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(activity));
+
+        // A CompoundButton toggles itself inside performClick() before the listener runs, so the
+        // click alone is the user gesture -- no setChecked() priming.
+        restriction.performClick();
+        assertTrue("The switch must persist the mode, not just render it",
+                KeepADBTrustedNetwork.isAllowlistMode(activity));
+        assertTrue(restriction.isChecked());
+        assertTrue("The SSID switch must become operable in the same refresh", ssid.isEnabled());
+        assertFalse("Enabling the restriction must not enable the SSID alternative with it",
+                KeepADBTrustedNetwork.isSsidMatchingEnabled(activity));
+
+        ssid.performClick();
+        assertTrue(KeepADBTrustedNetwork.isSsidMatchingEnabled(activity));
+
+        restriction.performClick();
+        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(activity));
+        assertFalse("Opting back out must disarm the widening switch again", ssid.isEnabled());
+    }
+
     private static <T extends View> List<T> findViewsByType(View root, Class<T> type) {
         List<T> result = new ArrayList<>();
         findViewsByTypeInternal(root, type, result);

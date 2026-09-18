@@ -72,11 +72,16 @@
     <string name="settings_webhook_error_missing_url">Please enter a valid HTTP/HTTPS URL before enabling sync.</string>
     <string name="settings_webhook_cleartext_warning">This URL uses unencrypted HTTP — data is sent in plain text. Only use this on a trusted LAN or VPN.</string>
     <string name="settings_section_trusted_network">Trusted Networks</string>
-    <string name="settings_trusted_network_subtext">By default, automatic Keep-Alive re-enable is restricted to Wi-Fi networks you\'ve explicitly marked as trusted. Manual toggling always works regardless of this setting.</string>
+    <string name="settings_trusted_network_subtext">Optionally restrict automatic Keep-Alive re-enable to Wi-Fi networks you\'ve marked as trusted. Off by default. Manual toggling always works regardless of this setting.</string>
+    <!-- Pure punctuation marker for the red warning badge; the spoken label is the separate
+         *_warning_accessibility string next to it. -->
+    <string name="settings_warning_marker">!</string>
+    <string name="settings_trusted_network_warning_accessibility">Warning</string>
+    <string name="settings_trusted_network_tradeoff_warning">Security versus convenience: turning this on largely disables \"Keep Wireless Debugging alive\". Android only lets an app read the current network\'s identity while KeepADB is open on screen — in the background the name and ID are hidden, and a hidden identity is never treated as trusted. Automatic re-enable then mostly stops working until you open the app.</string>
     <string name="settings_trusted_network_toggle">Restrict Keep-Alive to trusted networks</string>
-    <string name="settings_trusted_network_add_button">Add current network</string>
-    <string name="settings_trusted_network_remove_button">Remove current network</string>
-    <string name="settings_trusted_network_manage_button">Manage whitelist</string>
+    <string name="settings_trusted_ssid_warning">Weaker check: a network name (SSID) is freely chosen and is no proof of an access point. Any access point broadcasting an allowed name is trusted, including one imitating yours. Mainly useful if you run several access points under one name.</string>
+    <string name="settings_trusted_ssid_warning_accessibility">Warning</string>
+    <string name="settings_trusted_ssid_toggle">Also allow by network name (SSID)</string>
     <string name="settings_trusted_network_status_untrusted">Keep-Alive auto re-enable is paused: this Wi-Fi network isn\'t in your trusted list.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Keep-Alive auto re-enable is paused: the current network\'s identity can\'t be determined.</string>
     <string name="settings_trusted_network_permission_title">Location permission needed</string>
@@ -86,10 +91,6 @@
     <string name="settings_trusted_network_add_failed_toast">Couldn\'t determine the current network. Check that Wi-Fi is connected and Location permission is granted.</string>
     <string name="settings_trusted_network_added_toast">Added \"%1$s\" to trusted networks</string>
     <string name="settings_trusted_network_removed_toast">Removed \"%1$s\" from trusted networks</string>
-    <string name="settings_trusted_network_manage_title">Trusted networks</string>
-    <string name="settings_trusted_network_empty_message">No trusted networks added yet.</string>
-    <string name="settings_trusted_network_delete_button">Remove</string>
-    <string name="settings_trusted_network_delete_accessibility">Remove trusted network \"%1$s\"</string>
     <string name="settings_trusted_network_mesh_title">Add other access points?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB has also seen %1$d other access points broadcasting \"%2$s\". Add them to your trusted list too?</string>
     <string name="settings_trusted_network_mesh_add_button">Add all</string>
@@ -123,8 +124,18 @@
     <string name="wifi_aps_untrust_accessibility">Remove \"%1$s\" from trusted networks</string>
     <string name="wifi_aps_show_more_button">Show %1$d more</string>
     <string name="wifi_aps_show_less_button">Show less</string>
+    <string name="wifi_ssids_title">Trusted network names (SSIDs)</string>
+    <string name="wifi_ssids_warning">A network name is not proof of an access point: every access point broadcasting a listed name is trusted, including one imitating it. Only useful if you run several access points under one name.</string>
+    <string name="wifi_ssids_current_unknown">Current network name can\'t be read, so it can\'t be added (check Location permission).</string>
+    <string name="wifi_ssids_empty">No network names allowed yet.</string>
+    <string name="wifi_ssids_add_button">Allow</string>
+    <string name="wifi_ssids_remove_button">Remove</string>
+    <string name="wifi_ssids_add_accessibility">Allow network name \"%1$s\"</string>
+    <string name="wifi_ssids_remove_accessibility">Remove network name \"%1$s\"</string>
+    <string name="wifi_ssids_added_toast">Allowed network name \"%1$s\"</string>
+    <string name="wifi_ssids_removed_toast">Removed network name \"%1$s\"</string>
     <string name="home_security_actions_title">Security management</string>
-    <string name="home_security_actions_body">Manage which access points are trusted and review recently blocked ones -- keeping this list accurate is what keeps automatic Keep-Alive re-enable safe.</string>
+    <string name="home_security_actions_body">Review the access points on which automatic Keep-Alive re-enable was recently blocked, and allow one after the fact if it was yours.</string>
     <string name="settings_webhook_saved_toast">Webhook URL saved</string>
     <string name="settings_webhook_cleared_toast">Webhook configuration cleared</string>
     <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>

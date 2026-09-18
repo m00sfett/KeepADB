@@ -17,19 +17,35 @@ public class KeepADBTrustedNetworkTest {
         KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
     }
 
+    /**
+     * #492: only the exact string {@code allowlist} turns the restriction on. Anything else --
+     * including a corrupted or differently-cased value -- is not an opt-in and therefore leaves
+     * the app unrestricted. This deliberately reverses the pre-#492 reading, where an
+     * unrecognized value fell back to allowlist mode: with the restriction now being an explicit
+     * user decision taken against a warning, a value nobody chose must not stand in for it.
+     *
+     * <p>Note what this does *not* weaken: it changes which networks may trigger an *automatic*
+     * re-enable, not how a restricted installation evaluates one. An installation that really is
+     * in allowlist mode still fails closed on every unlisted or unreadable identity, which the
+     * tests below pin.
+     */
     @Test
-    public void unknownModesDefaultToAllowlistAndFailClosed() {
-        for (String mode : new String[] { null, "", "unknown", "ALL_WIFI" }) {
+    public void onlyTheExactAllowlistValueEnablesTheRestriction() {
+        for (String mode : new String[] { null, "", "unknown", "ALLOWLIST", "all_wifi" }) {
             FakeContext context = new FakeContext();
             context.getSharedPreferences("keepadb_prefs", 0).edit()
                     .putString("trusted_network_mode", mode).apply();
-            assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST,
-                    KeepADBTrustedNetwork.getMode(context));
-            assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
-            assertFalse(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
-            assertEquals(KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE,
-                    KeepADBTrustedNetwork.getBlockReason(context));
+            assertEquals("Must not read '" + mode + "' as an opt-in",
+                    KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
+            assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
         }
+        FakeContext context = new FakeContext();
+        context.getSharedPreferences("keepadb_prefs", 0).edit()
+                .putString("trusted_network_mode", KeepADBTrustedNetwork.MODE_ALLOWLIST).apply();
+        assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
+        assertFalse(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
+        assertEquals(KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE,
+                KeepADBTrustedNetwork.getBlockReason(context));
     }
 
     @Test
@@ -110,18 +126,189 @@ public class KeepADBTrustedNetworkTest {
     }
 
     @Test
-    public void defaultModeIsAllowlistAndFailsClosedWithNoKnownIdentity() {
+    public void freshInstallDefaultsToAllWifiSoTheRestrictionIsOptIn() {
         FakeContext context = new FakeContext();
-        // #260: a freshly installed device (no stored mode) defaults to allowlist mode, so it's
-        // protected immediately -- there is no fail-open default anymore, and no migration path
-        // that special-cases pre-existing installations either.
-        assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
-        assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
+        // #492 reversed #260's default: a fresh install (no stored mode, no entries) is not
+        // restricted, because allowlist mode cannot confirm a network in the background at all
+        // (see docs/trusted-networks-measurement.md) and silently shipping it broke Keep-Alive.
+        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
+        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
+        assertFalse("The SSID alternative is a second, separate opt-in",
+                KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
+    }
+
+    @Test
+    public void allowlistModeFailsClosedWithNoKnownIdentity() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         // Without a real WifiInfo, KeepADBNetworkIdentity.current() can't know the network --
         // allowlist mode must fail closed rather than trusting it.
         assertFalse(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
         assertEquals(KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE,
                 KeepADBTrustedNetwork.getBlockReason(context));
+    }
+
+    /**
+     * #492: the default flip must not widen an existing installation. One that never wrote a mode
+     * but does hold allowlist entries was running restricted under the old default, so the
+     * migration writes that mode down explicitly instead of letting it fall through to the new,
+     * broader default.
+     */
+    @Test
+    public void upgradeWithExistingEntriesKeepsAllowlistModeAndPersistsIt() {
+        FakeContext context = new FakeContext();
+        // Simulates the pre-#492 on-disk state: entries, but no mode key and no initialized flag.
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+        assertFalse(context.getSharedPreferences("keepadb_prefs", 0)
+                .contains("trusted_network_mode"));
+
+        assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
+        assertEquals("The migrated decision must be persisted, not recomputed on every read",
+                KeepADBTrustedNetwork.MODE_ALLOWLIST,
+                context.getSharedPreferences("keepadb_prefs", 0)
+                        .getString("trusted_network_mode", null));
+
+        // And it must stay put once the user empties the list again -- recomputing the proxy would
+        // silently flip them to the broader default here.
+        KeepADBTrustedNetwork.remove(context,
+                KeepADBTrustedNetwork.getEntries(context).get(0).id);
+        assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
+    }
+
+    /**
+     * #492, the other direction: an explicit opt-out must never be re-migrated into allowlist mode
+     * by an entry that gets added afterwards (adding one is possible in either mode, via the
+     * per-access-point trust button or the notification's allow action).
+     */
+    @Test
+    public void explicitAllWifiChoiceIsNeverMigratedBackToAllowlist() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
+    }
+
+    /** #492: an unset mode with no entries is the fresh-install case even after the flag was
+     * written once -- the migration is idempotent and must not keep rewriting. */
+    @Test
+    public void modeMigrationIsIdempotent() {
+        FakeContext context = new FakeContext();
+        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
+        // Adding an entry afterwards must not retroactively turn this install into an upgrade.
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
+        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
+    }
+
+    /**
+     * #492: the SSID allowlist matches exactly -- equal after quote stripping, with no case
+     * folding, trimming, prefix or substring rule -- and only while its own opt-in is on.
+     */
+    @Test
+    public void ssidMatchingIsExactAndGatedBehindItsOwnOptIn() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addSsid(context, "MeshHome");
+        KeepADBNetworkIdentity onListedSsid =
+                new KeepADBNetworkIdentity("\"MeshHome\"", "aa:bb:cc:dd:ee:01");
+
+        assertFalse("The list must not act while its opt-in is off",
+                KeepADBTrustedNetwork.isTrustedForTesting(context, onListedSsid));
+
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, onListedSsid));
+
+        for (String near : new String[] { "meshhome", "MESHHOME", " MeshHome", "MeshHome ",
+                "MeshHome2", "Mesh", "" }) {
+            assertFalse("Must not match near-miss SSID: '" + near + "'",
+                    KeepADBTrustedNetwork.isTrustedForTesting(context,
+                            new KeepADBNetworkIdentity(near, "aa:bb:cc:dd:ee:02")));
+        }
+    }
+
+    /**
+     * #492: the point of the SSID list is that one entry covers several access points sharing that
+     * name -- measured as real on the test network, where one SSID is broadcast by two BSSIDs.
+     * That widening is the trade-off, and it is what this asserts.
+     */
+    @Test
+    public void oneSsidEntryCoversEveryAccessPointSharingThatName() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
+        KeepADBTrustedNetwork.addSsid(context, "MeshHome");
+
+        for (String bssid : new String[] { "2c:91:ab:0f:13:05", "2c:91:ab:0f:13:04",
+                "ff:ee:dd:cc:bb:aa" }) {
+            assertTrue("Any access point broadcasting the listed name is trusted: " + bssid,
+                    KeepADBTrustedNetwork.isTrustedForTesting(context,
+                            new KeepADBNetworkIdentity("MeshHome", bssid)));
+        }
+    }
+
+    /**
+     * #492: the SSID list must never rescue an unreadable reading. This is the property that keeps
+     * it from becoming the SSID-only fallback the class javadoc rejects -- a masked BSSID means a
+     * masked SSID too (measured), and even a hypothetical readable-SSID/masked-BSSID reading must
+     * not be matched against the list.
+     */
+    @Test
+    public void ssidMatchingNeverAppliesToAMaskedOrUnknownIdentity() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
+        KeepADBTrustedNetwork.addSsid(context, "MeshHome");
+        // No prior verification, and no live invalidator either: strictly fail-closed.
+        KeepADBTrustedNetwork.setVerifiedTrustObserverActive(true);
+
+        for (String bssid : new String[] { KeepADBNetworkIdentity.REDACTED_BSSID,
+                KeepADBNetworkIdentity.UNSET_BSSID, null, "" }) {
+            assertFalse("A listed SSID must not rescue BSSID: " + bssid,
+                    KeepADBTrustedNetwork.isTrustedForTesting(context,
+                            new KeepADBNetworkIdentity("MeshHome", bssid)));
+        }
+        // The placeholder SSID must not match a listed entry either, even with a readable BSSID.
+        KeepADBTrustedNetwork.addSsid(context, android.net.wifi.WifiManager.UNKNOWN_SSID);
+        assertFalse(KeepADBTrustedNetwork.isTrustedForTesting(context,
+                new KeepADBNetworkIdentity(android.net.wifi.WifiManager.UNKNOWN_SSID,
+                        "aa:bb:cc:dd:ee:03")));
+    }
+
+    /** #492: turning the SSID opt-in off revokes what it allowed, and removing an entry does too
+     * -- both must also drop the connection-scoped verified-trust cache. */
+    @Test
+    public void disablingOrEmptyingTheSsidListRevokesWhatItAllowed() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
+        KeepADBTrustedNetwork.SsidEntry entry = KeepADBTrustedNetwork.addSsid(context, "MeshHome");
+        KeepADBNetworkIdentity identity = new KeepADBNetworkIdentity("MeshHome", "aa:bb:cc:dd:ee:04");
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, identity));
+
+        assertTrue(KeepADBTrustedNetwork.removeSsid(context, entry.id));
+        assertFalse(KeepADBTrustedNetwork.isTrustedForTesting(context, identity));
+        assertTrue(KeepADBTrustedNetwork.getSsidEntries(context).isEmpty());
+
+        KeepADBTrustedNetwork.addSsid(context, "MeshHome");
+        assertTrue(KeepADBTrustedNetwork.isTrustedForTesting(context, identity));
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, false);
+        assertFalse(KeepADBTrustedNetwork.isTrustedForTesting(context, identity));
+    }
+
+    /** #492: SSID entries round-trip and dedup exactly (case-sensitively), like BSSID entries. */
+    @Test
+    public void ssidEntriesRoundTripAndDedupExactly() {
+        FakeContext context = new FakeContext();
+        KeepADBTrustedNetwork.SsidEntry first = KeepADBTrustedNetwork.addSsid(context, "MeshHome");
+        assertEquals(first.id, KeepADBTrustedNetwork.addSsid(context, "MeshHome").id);
+        assertEquals(1, KeepADBTrustedNetwork.getSsidEntries(context).size());
+        // Two names differing only in case are two different networks.
+        KeepADBTrustedNetwork.addSsid(context, "meshhome");
+        assertEquals(2, KeepADBTrustedNetwork.getSsidEntries(context).size());
+        assertNull(KeepADBTrustedNetwork.addSsid(context, "  "));
+        assertNull(KeepADBTrustedNetwork.addSsid(context, null));
+        assertFalse(KeepADBTrustedNetwork.removeSsid(context, 9999));
+        assertEquals(2, KeepADBTrustedNetwork.getSsidEntries(context).size());
     }
 
     @Test

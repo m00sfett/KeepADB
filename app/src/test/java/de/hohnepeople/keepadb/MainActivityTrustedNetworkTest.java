@@ -65,32 +65,41 @@ public class MainActivityTrustedNetworkTest {
         KeepADB.resetForTesting();
     }
 
+    /**
+     * #492: the separate "manage whitelist" dialog was removed as a second management surface. It
+     * is only a deduplication -- rather than a loss of reach -- because the card itself now lists
+     * an allowlisted access point that no other source supplies, i.e. one that was never observed
+     * (no history entry) and is not the current connection. That row carries the remove action, so
+     * an entry can still be revoked without the dialog. This test is the replacement for the
+     * removed dialog test and would fail if #492's allowlist-sourced rows were dropped again.
+     */
     @Test
-    public void manageWhitelistDialogIsWrappedInScrollViewAndDeleteButtonHasContextualAccessibility() {
+    public void accessPointCardListsAllowlistedAccessPointsThatWereNeverObserved() {
         ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity activity = controller.get();
 
         KeepADBTrustedNetwork.addBssid(activity, "aa:bb:cc:dd:ee:ff", "MyOfficeNetwork");
-        ShadowLooper.idleMainLooper();
-        activity.findViewById(R.id.wifi_aps_manage_whitelist_button).performClick();
+        controller.pause().resume();
         ShadowLooper.idleMainLooper();
 
-        AlertDialog dialog = activity.getActiveManageNetworksDialog();
-        assertNotNull("Trusted networks dialog should be showing", dialog);
-        assertTrue(dialog.isShowing());
-        View customPanel = dialog.findViewById(android.R.id.custom);
-        ScrollView scroll = findViewByType(customPanel, ScrollView.class);
-        assertNotNull("Trusted networks dialog rows must be wrapped in a ScrollView", scroll);
+        List<TextView> texts = findViewsByType(activity.findViewById(R.id.wifi_aps_list), TextView.class);
+        List<String> rendered = new ArrayList<>();
+        for (TextView view : texts) rendered.add(view.getText().toString());
+        assertTrue("The card must list an allowlisted-but-never-observed access point: " + rendered,
+                rendered.contains("MyOfficeNetwork"));
+        assertTrue("...and show its BSSID: " + rendered,
+                rendered.contains("AA:BB:CC:DD:EE:FF"));
 
-        List<Button> buttons = findViewsByType(scroll, Button.class);
-        assertTrue("Delete button should be present in trusted networks list", !buttons.isEmpty());
-        assertEquals("Trusted network delete button must set contextual content description with network label",
-                activity.getString(R.string.settings_trusted_network_delete_accessibility, "MyOfficeNetwork"),
+        // The row's own action revokes it, so no second management surface is needed.
+        List<Button> buttons = findViewsByType(activity.findViewById(R.id.wifi_aps_list), Button.class);
+        assertEquals(1, buttons.size());
+        assertEquals(activity.getString(R.string.wifi_aps_untrust_accessibility, "MyOfficeNetwork"),
                 buttons.get(0).getContentDescription());
-
-        dialog.dismiss();
+        buttons.get(0).performClick();
         ShadowLooper.idleMainLooper();
+        assertTrue("The row action must remove the allowlist entry",
+                KeepADBTrustedNetwork.getEntries(activity).isEmpty());
     }
 
     /** #446: the recently-blocked list is the transparency half of the issue. */
@@ -196,28 +205,148 @@ public class MainActivityTrustedNetworkTest {
     }
 
     /**
-     * #484: clicking the toggle on while ACCESS_FINE_LOCATION isn't granted must revert the
-     * switch and offer the permission dialog instead of silently switching modes -- mirrors the
-     * equivalent behavior this test replaces from {@code SettingsActivityTest}.
+     * #492: the global trust-restriction switch is no longer on the home screen at all -- it moved
+     * back into SettingsActivity's collapsible card, where its warning is read before it is taken.
+     * Only its resulting status text may still appear here.
      */
     @Test
-    public void trustRestrictionToggleRequestsLocationPermissionBeforeEnablingAllowlistMode() {
-        shadowOf((android.app.Application) RuntimeEnvironment.getApplication())
-                .denyPermissions(android.Manifest.permission.ACCESS_FINE_LOCATION);
+    public void homeScreenNoLongerHostsTheGlobalTrustRestrictionSwitch() {
         ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity activity = controller.get();
 
-        // #260: allowlist mode is the default, so the toggle already starts checked. Force it
-        // unchecked first so performClick() -- which flips CompoundButton's checked state before
-        // invoking the listener -- actually simulates the user turning it *on*.
-        android.widget.Switch toggle = activity.findViewById(R.id.wifi_aps_trust_restriction_toggle);
-        toggle.setChecked(false);
-        toggle.performClick();
+        List<android.widget.Switch> switches = findViewsByType(
+                activity.findViewById(R.id.wifi_aps_panel), android.widget.Switch.class);
+        for (android.widget.Switch found : switches) {
+            assertTrue("The Wi-Fi card must not carry the trust-restriction switch: "
+                            + found.getText(),
+                    found.getId() == R.id.wifi_aps_trusted_only_toggle);
+        }
+        assertNotNull("The status text stays, so a blocked decision is still explained here",
+                activity.findViewById(R.id.wifi_aps_trust_restriction_status));
+    }
+
+    /**
+     * #492: the mesh-BSSID convenience moved here from SettingsActivity's removed
+     * add-current-network button. Accepting it must still trust each additional BSSID through the
+     * trust-and-connect entry point -- proven by the mesh BSSID's own pending prompt marker
+     * (raised while the device was briefly connected to it) getting cleared, which a bare {@code
+     * addBssid} call would not do. Moved test, unchanged behavior.
+     */
+    @Test
+    public void meshBssidConvenienceImmediatelyAttemptsTheConnectionAndClearsItsPromptState() {
+        String currentBssid = "aa:bb:cc:dd:ee:03";
+        String meshBssid = "aa:bb:cc:dd:ee:04";
+        String ssid = "MeshHome";
+        grantAutoEnableForTesting(currentBssid, ssid);
+
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        MainActivity activity = controller.get();
+        // The device was briefly connected to the mesh AP earlier and got its own pending prompt
+        // for it, before roaming to the network under test.
+        connectTo(ssid, meshBssid);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(activity));
+        KeepADBBssidHistory.recordObservation(activity, ssid, meshBssid);
+        connectTo(ssid, currentBssid);
+        controller.pause().resume();
         ShadowLooper.idleMainLooper();
 
-        AlertDialog dialog = org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();
-        assertNotNull("Permission rationale dialog should be showing", dialog);
+        // The current access point's own trust button is the surviving trust entry point.
+        List<Button> currentButtons =
+                findViewsByType(activity.findViewById(R.id.wifi_aps_current_row), Button.class);
+        assertEquals(1, currentButtons.size());
+        currentButtons.get(0).performClick();
+        ShadowLooper.idleMainLooper();
+        AlertDialog meshDialog = org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog();
+        assertNotNull("The mesh convenience dialog should be showing", meshDialog);
+
+        meshDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(2, KeepADBTrustedNetwork.getEntries(activity).size());
+        assertTrue("Wireless Debugging must be turned on immediately after trusting the current, "
+                        + "blocking access point", KeepADB.isEnabled(activity));
+        assertTrue("Accepting the mesh BSSID must clear its own pending prompt marker",
+                KeepADBNetworkTrustPrompt.shouldPrompt(activity, meshBssid, System.currentTimeMillis()));
+    }
+
+    /**
+     * #492: the SSID section is gated behind its own opt-in, so a user who never chose the weaker
+     * matching model never sees it -- and the section is not merely hidden but has no add action
+     * to reach either.
+     */
+    @Test
+    public void ssidSectionIsHiddenUntilItsOptInIsEnabled() {
+        connectTo("MeshHome", "aa:bb:cc:dd:ee:05");
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        MainActivity activity = controller.get();
+
+        assertEquals("The SSID section must be gone while its opt-in is off",
+                View.GONE, activity.findViewById(R.id.wifi_ssids_section).getVisibility());
+
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(activity, true);
+        controller.pause().resume();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.wifi_ssids_section).getVisibility());
+    }
+
+    /** #492: the current SSID can be allowed and removed again from the card, and nothing else can
+     * be added -- the only add action is for the currently connected, readable network. */
+    @Test
+    public void currentSsidCanBeAllowedAndRemovedFromTheCard() {
+        connectTo("MeshHome", "aa:bb:cc:dd:ee:06");
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        MainActivity activity = controller.get();
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(activity, true);
+        controller.pause().resume();
+        ShadowLooper.idleMainLooper();
+
+        List<Button> addButtons =
+                findViewsByType(activity.findViewById(R.id.wifi_ssids_current_row), Button.class);
+        assertEquals(1, addButtons.size());
+        assertEquals(activity.getString(R.string.wifi_ssids_add_accessibility, "MeshHome"),
+                addButtons.get(0).getContentDescription());
+        addButtons.get(0).performClick();
+        ShadowLooper.idleMainLooper();
+
+        List<KeepADBTrustedNetwork.SsidEntry> listed = KeepADBTrustedNetwork.getSsidEntries(activity);
+        assertEquals(1, listed.size());
+        assertEquals("MeshHome", listed.get(0).ssid);
+        // Already listed: the current row no longer offers a duplicate add.
+        assertTrue(findViewsByType(activity.findViewById(R.id.wifi_ssids_current_row), Button.class)
+                .isEmpty());
+
+        List<Button> removeButtons =
+                findViewsByType(activity.findViewById(R.id.wifi_ssids_list), Button.class);
+        assertEquals(1, removeButtons.size());
+        assertEquals(activity.getString(R.string.wifi_ssids_remove_accessibility, "MeshHome"),
+                removeButtons.get(0).getContentDescription());
+        removeButtons.get(0).performClick();
+        ShadowLooper.idleMainLooper();
+        assertTrue(KeepADBTrustedNetwork.getSsidEntries(activity).isEmpty());
+    }
+
+    /** #492: an unreadable identity offers no add action at all, so a placeholder can never be
+     * stored as an allowed network name. */
+    @Test
+    public void unreadableIdentityOffersNoSsidAddAction() {
+        connectTo(WifiManager.UNKNOWN_SSID, KeepADBNetworkIdentity.REDACTED_BSSID);
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        MainActivity activity = controller.get();
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(activity, true);
+        controller.pause().resume();
+        ShadowLooper.idleMainLooper();
+
+        assertTrue("A masked identity must not offer an add action",
+                findViewsByType(activity.findViewById(R.id.wifi_ssids_current_row), Button.class)
+                        .isEmpty());
+        assertNull(KeepADBTrustedNetwork.addCurrentSsid(activity));
+        assertTrue(KeepADBTrustedNetwork.getSsidEntries(activity).isEmpty());
     }
 
     /**

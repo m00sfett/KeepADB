@@ -223,6 +223,9 @@ public class KeepADBServiceLifecycleRobolectricTest {
      */
     @Test
     public void networkCallbackPromptsForAnUntrustedAccessPointEvenWhileAlreadyActive() {
+        // #492: the restriction is an opt-in now, and "untrusted access point" only exists while
+        // it is on -- so this scenario states it instead of relying on the former default.
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBPreferences.setLastDesiredOn(context, true);
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));

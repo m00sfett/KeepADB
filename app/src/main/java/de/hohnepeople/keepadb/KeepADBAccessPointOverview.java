@@ -13,7 +13,8 @@ import java.util.Map;
  * (#461). Combines three existing, independent data sources -- the live connection identity
  * ({@link KeepADBNetworkIdentity}), the observation history ({@link KeepADBBssidHistory}) and
  * the trust allowlist ({@link KeepADBTrustedNetwork}) -- into a single ordered list of display
- * items. It is purely presentational: nothing here is consulted by any automatic re-enable call
+ * items. Each of the three can contribute a row, and the allowlist additionally decides each
+ * row's {@code trusted} flag (#492). It is purely presentational: nothing here is consulted by any automatic re-enable call
  * site, matching the "observation only" contract the two source classes already document, and it
  * never writes to any of them (adding/removing trust from the resulting UI still goes through
  * {@link KeepADBTrustedNetwork} directly, the one and only entry point for that).
@@ -97,6 +98,24 @@ final class KeepADBAccessPointOverview {
             for (KeepADBBssidHistory.Observation observation : history) {
                 if (observation == null || observation.bssid == null || observation.bssid.isEmpty()) continue;
                 ssidByBssid.putIfAbsent(normalize(observation.bssid), observation.ssid);
+            }
+        }
+        // #492: allowlist entries are rows too, not just a "trusted" flag on rows that some other
+        // source happened to supply. Before this, an approved access point that had aged out of
+        // the observation history (or was approved elsewhere, e.g. via the notification action)
+        // was invisible on this card -- which is precisely what the separate "manage whitelist"
+        // dialog existed to show. Listing them here is what makes removing that second management
+        // surface a deduplication rather than a loss of reach. Added last so a live or recently
+        // observed reading keeps its position and its better SSID label.
+        if (trustedEntries != null) {
+            for (KeepADBTrustedNetwork.Entry entry : trustedEntries) {
+                if (entry == null || entry.bssid == null || entry.bssid.isEmpty()) continue;
+                // The stored label is the SSID when one was readable at add time, and a copy of
+                // the BSSID otherwise; the latter is not an SSID and must not be shown as one.
+                String label = entry.label;
+                boolean labelIsBssid = label == null
+                        || normalize(label).equals(normalize(entry.bssid));
+                ssidByBssid.putIfAbsent(normalize(entry.bssid), labelIsBssid ? null : label);
             }
         }
 

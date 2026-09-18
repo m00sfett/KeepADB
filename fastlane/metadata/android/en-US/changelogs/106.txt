@@ -1,0 +1,10 @@
+The option to restrict Keep-Alive to trusted networks moved back into Settings, where it now sits
+in its own collapsible card with a clear warning: Android only lets an app read the current
+network's identity while KeepADB is open on screen, so switching it on largely stops automatic
+re-enable from working in the background. It is therefore off by default for new installations,
+while an existing trusted-network setup keeps working as before.
+
+You can now optionally allow networks by name (SSID) as well. This is a separate, off-by-default
+option with its own warning, since a network name is no proof of a specific access point. Allowed
+names are managed right on the Wi-Fi card, next to the access point list, and the old separate
+whitelist screen is gone.

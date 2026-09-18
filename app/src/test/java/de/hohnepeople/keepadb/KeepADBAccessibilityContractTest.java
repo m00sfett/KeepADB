@@ -114,8 +114,7 @@ public class KeepADBAccessibilityContractTest {
                 R.id.btn_open_settings, R.id.btn_dismiss_advice_banner, R.id.setup_refresh,
                 R.id.btn_open_notification_settings, R.id.btn_open_battery_settings,
                 R.id.toggle, R.id.keep_alive_toggle, R.id.hide_notification_toggle,
-                R.id.webhook_setup_button, R.id.wifi_aps_trust_restriction_toggle,
-                R.id.wifi_aps_manage_whitelist_button, R.id.wifi_aps_recently_blocked_button
+                R.id.webhook_setup_button, R.id.wifi_aps_recently_blocked_button
         };
         for (int id : mainControls) assertMinSize(main.findViewById(id));
 
@@ -127,7 +126,8 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_header,
                 R.id.settings_usb_handover_selector,
-                R.id.settings_trusted_network_header, R.id.settings_trusted_network_add,
+                R.id.settings_trusted_network_header, R.id.settings_trusted_network_toggle,
+                R.id.settings_trusted_ssid_toggle,
                 R.id.settings_notification_header,
                 R.id.settings_hide_notification_toggle,
                 R.id.settings_display_header, R.id.settings_keep_display_on_toggle,
@@ -203,7 +203,8 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_notification_toggle, R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
-                R.id.settings_trusted_network_add, R.id.settings_hide_notification_toggle,
+                R.id.settings_trusted_network_toggle, R.id.settings_trusted_ssid_toggle,
+                R.id.settings_hide_notification_toggle,
                 R.id.settings_keep_display_on_toggle, R.id.settings_advice_banner_toggle,
                 R.id.settings_diagnostics_export, R.id.settings_issue_report,
                 R.id.settings_website_link
