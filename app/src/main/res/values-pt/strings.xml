@@ -189,6 +189,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">Prefere não conceder acesso à localização? Confie em todas as redes Wi-Fi — o Keep-Alive será reativado em qualquer conexão.</string>
     <string name="location_permission_panel_fallback_button">Confiar em todas as redes Wi-Fi</string>
     <string name="location_permission_panel_fallback_toast">Alterado para o modo \"confiar em todas as redes Wi-Fi\".</string>
+    <string name="location_permission_panel_title_discovery">Acesso à localização necessário para Wi-Fi e pontos de acesso</string>
+    <string name="location_permission_panel_body_discovery">O acesso à localização é necessário para identificar a rede Wi-Fi atual e os pontos de acesso.</string>
+    <string name="location_permission_settings_button">Abrir definições</string>
     <string name="settings_section_usb_handover">Transferência USB → WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Oferece opcionalmente ou ativa automaticamente a WLAN-ADB a partir de uma conexão USB-ADB ativa. Desativado por padrão; uma desativação manual nunca é substituída.</string>
     <string name="settings_usb_handover_label">Modo de transferência</string>

@@ -189,6 +189,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">Không muốn cấp quyền truy cập vị trí? Hãy tin cậy mọi mạng Wi-Fi — Keep-Alive sẽ tự động bật lại ở bất kỳ kết nối nào.</string>
     <string name="location_permission_panel_fallback_button">Tin cậy mọi mạng Wi-Fi thay thế</string>
     <string name="location_permission_panel_fallback_toast">Đã chuyển sang chế độ \"tin cậy mọi mạng Wi-Fi\".</string>
+    <string name="location_permission_panel_title_discovery">Cần quyền truy cập vị trí cho Wi-Fi và điểm truy cập</string>
+    <string name="location_permission_panel_body_discovery">Cần quyền truy cập vị trí để nhận diện mạng Wi-Fi hiện tại và các điểm truy cập.</string>
+    <string name="location_permission_settings_button">Mở cài đặt</string>
     <string name="settings_section_usb_handover">Chuyển giao USB → WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Tùy chọn đề xuất hoặc tự động bật WLAN-ADB từ kết nối USB-ADB đang hoạt động. Mặc định tắt; thao tác TẮT thủ công không bao giờ bị ghi đè.</string>
     <string name="settings_usb_handover_label">Chế độ chuyển giao</string>

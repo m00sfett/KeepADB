@@ -189,6 +189,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">स्थान एक्सेस देना नहीं चाहते? इसके बजाय सभी Wi-Fi नेटवर्क पर भरोसा करें — Keep-Alive तब किसी भी कनेक्शन पर स्वचालित रूप से फिर से चालू हो जाएगा।</string>
     <string name="location_permission_panel_fallback_button">इसके बजाय सभी Wi-Fi नेटवर्क पर भरोसा करें</string>
     <string name="location_permission_panel_fallback_toast">\"सभी Wi-Fi नेटवर्क पर भरोसा करें\" मोड पर स्विच किया गया।</string>
+    <string name="location_permission_panel_title_discovery">Wi-Fi और एक्सेस पॉइंट के लिए स्थान एक्सेस आवश्यक है</string>
+    <string name="location_permission_panel_body_discovery">वर्तमान Wi-Fi नेटवर्क और एक्सेस पॉइंट की पहचान के लिए स्थान एक्सेस की आवश्यकता है।</string>
+    <string name="location_permission_settings_button">सेटिंग खोलें</string>
     <string name="settings_section_usb_handover">USB से WLAN-ADB हैंडओवर</string>
     <string name="settings_usb_handover_subtext">सक्रिय USB-ADB कनेक्शन से वैकल्पिक रूप से WLAN-ADB ऑफ़र करें या अपने-आप सक्षम करें। डिफ़ॉल्ट रूप से बंद; मैन्युअल रूप से किया गया बंद कभी ओवरराइड नहीं होता।</string>
     <string name="settings_usb_handover_label">हैंडओवर मोड</string>

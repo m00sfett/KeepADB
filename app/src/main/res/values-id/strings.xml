@@ -189,6 +189,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">Lebih memilih tidak memberikan akses lokasi? Percayai semua jaringan Wi-Fi — Keep-Alive akan aktif kembali pada koneksi apa pun.</string>
     <string name="location_permission_panel_fallback_button">Percayai semua jaringan Wi-Fi sebagai gantinya</string>
     <string name="location_permission_panel_fallback_toast">Beralih ke mode \"percayai semua jaringan Wi-Fi\".</string>
+    <string name="location_permission_panel_title_discovery">Akses lokasi diperlukan untuk Wi-Fi &amp; titik akses</string>
+    <string name="location_permission_panel_body_discovery">Akses lokasi diperlukan untuk mengenali jaringan Wi-Fi saat ini dan titik akses.</string>
+    <string name="location_permission_settings_button">Buka setelan</string>
     <string name="settings_section_usb_handover">Pengalihan USB ke WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Tawarkan atau aktifkan WLAN-ADB secara otomatis dari koneksi USB-ADB yang aktif. Nonaktif secara default; penonaktifan manual tidak pernah ditimpa.</string>
     <string name="settings_usb_handover_label">Mode pengalihan</string>
