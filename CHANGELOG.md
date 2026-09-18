@@ -22,6 +22,65 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.9] - Unreleased
+
+### Changed
+- Trusted networks reordered as a deliberate security decision (#492). The global "restrict
+  Keep-Alive to trusted networks" switch moved back from the home screen into SettingsActivity's
+  own collapsible card (collapsed on open, expand state not persisted, as for every other card),
+  together with a red warning marker and an explanation that stays readable while the switch is
+  off. Its status text remains on the home card, next to the list the policy acts on.
+- The restriction is now opt-in and off by default for new or never-initialized installations,
+  reversing #260's default. Reason: measurement on the registered S20 (Android 13) showed the
+  platform masks SSID and BSSID *together* outside a visible activity -- a running
+  `connectedDevice` foreground service does not lift that -- so a restricted installation cannot
+  confirm a trusted network in the background at all and automatic re-enable largely stops
+  working. The full matrix is in `docs/trusted-networks-measurement.md`.
+- Existing installations are not silently widened: an installation that never wrote a mode but
+  does hold allowlist entries was running restricted under the old default, so the migration
+  persists allowlist mode for it. The decision is written once and never recomputed, so a later
+  opt-out cannot be re-migrated by an entry added afterwards. Only the exact stored value
+  `allowlist` now enables the restriction; an unrecognized value is not treated as an opt-in.
+- Only the manual Wireless Debugging toggle is untouched by all of this, as before -- the policy
+  applies to the automatic Keep-Alive re-enable only.
+
+### Added
+- Optional SSID allowlist as a second, separate opt-in, off by default (#492), with its own red
+  warning about the weaker model at the switch. Matching is exact (no case folding, trimming or
+  substring rule) and only ever evaluated for a reading whose BSSID the platform actually
+  disclosed, so it never rescues a masked or unknown identity -- unreadable identities stay
+  fail-closed. Its real and only benefit is that one entry covers several access points sharing
+  that name, which on the test network is measurably the case; that wider allowance is the
+  trade-off the warning names.
+- SSID management on the home screen's Wi-Fi card, in the same visual logic as the BSSID rows:
+  the current network name on top with an "Allow" action, allowed names listed below with
+  "Remove". Only the currently connected, fully readable network can be added -- there is no free
+  text field and no "add from history", so no entry can widen the allowance beyond the network
+  the user is actually on.
+
+### Removed
+- The separate "Manage whitelist" entry point (#492), as a redundant second management surface.
+  The Wi-Fi card now lists allowlisted access points as rows in their own right -- including one
+  that was never observed and is not the current connection, which was the only thing the dialog
+  could show that the card could not -- so removing it deduplicates rather than loses reach.
+- Settings' "Add current network" / "Remove current network" button, which maintained the same
+  BSSID allowlist as the home card's per-access-point rows. The mesh convenience prompt that hung
+  off it moved to the card's trust action, still BSSID-by-BSSID and still only for the access
+  point the device is actually connected to.
+- "Recently blocked" was reviewed against the same redundancy test and deliberately kept: it
+  reports denials rather than allowances and lets an access point be allowed after the fact
+  without being connected to it, which no other surface does.
+
+### Documentation
+- `docs/trusted-networks-measurement.md`: the reproducible foreground/background identity matrix
+  for SSID, BSSID, permission state, location services and service state on the S20, including the
+  two explicit measurement gaps (no real AP/mesh switch could be forced remotely; single platform).
+
+### Testing
+- Unit/semantic coverage for the opt-in defaults, the upgrade migration in both directions and its
+  idempotence, exact SSID matching including near-miss names, same-name access points, masked and
+  unknown identities, BSSID and SSID management from the card, and the unchanged manual toggle.
+
 ## [1.8.8] - Unreleased
 
 ### Changed
