@@ -21,6 +21,10 @@ final class KeepADBPreferences {
     private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
     private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
     private static final String KEY_ADVICE_BANNER_VISIBLE = "advice_banner_visible";
+    // #502: independent dismiss state for the battery-optimization advice panel on the main
+    // screen, following the same visible/dismissed pattern as KEY_ADVICE_BANNER_VISIBLE above.
+    private static final String KEY_BATTERY_OPTIMIZATION_PANEL_VISIBLE =
+            "battery_optimization_panel_visible";
     // #482: display-only privacy toggle. Persists whether network addresses currently shown in
     // the UI should be masked -- purely a rendering preference, never the toggle facade's own
     // WRITE_SECURE_SETTINGS state and never the real ADB transport. The actual masking logic
@@ -513,6 +517,19 @@ final class KeepADBPreferences {
     static void setAdviceBannerVisible(Context context, boolean visible) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_ADVICE_BANNER_VISIBLE, visible).apply();
+    }
+
+    /** #502: battery-optimization panel visibility (dismiss state). Default ON (true); a user
+     * dismissal is combined with the live isExempt() check in MainActivity -- this preference
+     * alone never forces the panel to show once the system exemption is already granted. */
+    static boolean isBatteryOptimizationPanelVisible(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_BATTERY_OPTIMIZATION_PANEL_VISIBLE, true);
+    }
+
+    static void setBatteryOptimizationPanelVisible(Context context, boolean visible) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_BATTERY_OPTIMIZATION_PANEL_VISIBLE, visible).apply();
     }
 
     /** #482/#483/#488: whether currently-displayed network addresses should be masked in the UI.

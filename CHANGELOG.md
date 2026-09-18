@@ -37,6 +37,18 @@ retrospective issue-version records and were never published as separate release
   `MainActivityNotificationPermissionPanelTest` pins the no-auto-prompt behavior, the button's
   dual action, and the panel's grant/deny visibility transitions (#501).
 
+### Added
+- Battery-optimization advice panel on the main screen can now be dismissed via a close ("X")
+  button, mirroring the existing security/network advice banner's own dismiss pattern
+  (`btn_dismiss_advice_banner` / `ic_close`, 48x48dp touch target, reusing the existing
+  `action_dismiss` content description). The dismiss state persists in `KeepADBPreferences`
+  (`battery_optimization_panel_visible`, default on) and survives app restarts. `SettingsActivity`
+  gained a new "Show Battery Optimization Advice" toggle card, using the same
+  collapsible-card/switch pattern as the advice-banner toggle, to restore the panel's visibility.
+  The panel's visibility in `MainActivity.refresh()` now combines this dismiss preference with the
+  existing live `KeepADBBatteryOptimization.isExempt()` check -- a granted system exemption always
+  wins and keeps the panel hidden regardless of dismiss state (#502).
+
 ## [1.8.12] - Unreleased
 
 ### Fixed

@@ -176,6 +176,10 @@ public class MainActivity extends Activity {
             KeepADBPreferences.setAdviceBannerVisible(this, false);
             updateAdviceBannerVisibility();
         });
+        findViewById(R.id.btn_dismiss_battery_optimization_panel).setOnClickListener(v -> {
+            KeepADBPreferences.setBatteryOptimizationPanelVisible(this, false);
+            refresh();
+        });
 
         updateAdviceBannerVisibility();
 
@@ -373,8 +377,14 @@ public class MainActivity extends Activity {
         if (notificationPermissionMissing) {
             updateNotificationPermissionPanel();
         }
-        batteryOptimizationPanel.setVisibility(KeepADBBatteryOptimization.isExempt(this)
-                ? View.GONE : View.VISIBLE);
+        // #502: shown only while the system exemption is still missing AND the user has not
+        // dismissed the panel. A granted exemption always wins, regardless of dismiss state --
+        // matches the acceptance criterion that the panel stays hidden once battery optimization
+        // is actually disabled for the app.
+        boolean batteryOptimizationPanelVisible = !KeepADBBatteryOptimization.isExempt(this)
+                && KeepADBPreferences.isBatteryOptimizationPanelVisible(this);
+        batteryOptimizationPanel.setVisibility(
+                batteryOptimizationPanelVisible ? View.VISIBLE : View.GONE);
         updateLocationPermissionPanel();
         toggle.setEnabled(configured);
         toggle.setChecked(on);

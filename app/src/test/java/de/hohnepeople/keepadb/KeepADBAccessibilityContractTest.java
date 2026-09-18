@@ -29,6 +29,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -113,6 +114,7 @@ public class KeepADBAccessibilityContractTest {
         int[] mainControls = {
                 R.id.btn_open_settings, R.id.btn_dismiss_advice_banner, R.id.setup_refresh,
                 R.id.btn_open_notification_settings, R.id.btn_open_battery_settings,
+                R.id.btn_dismiss_battery_optimization_panel,
                 R.id.toggle, R.id.keep_alive_toggle, R.id.hide_notification_toggle,
                 R.id.webhook_setup_button, R.id.wifi_aps_recently_blocked_button
         };
@@ -132,6 +134,8 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_hide_notification_toggle,
                 R.id.settings_display_header, R.id.settings_keep_display_on_toggle,
                 R.id.settings_advice_banner_header, R.id.settings_advice_banner_toggle,
+                R.id.settings_battery_optimization_panel_header,
+                R.id.settings_battery_optimization_panel_toggle,
                 R.id.settings_diagnostics_header,
                 R.id.settings_diagnostics_export, R.id.settings_issue_report,
                 R.id.settings_website_link
@@ -150,6 +154,7 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_usb_notification_header, R.id.settings_usb_handover_header,
                 R.id.settings_trusted_network_header, R.id.settings_notification_header,
                 R.id.settings_display_header, R.id.settings_advice_banner_header,
+                R.id.settings_battery_optimization_panel_header,
                 R.id.settings_diagnostics_header
         };
         for (int id : headers) settings.findViewById(id).performClick();
@@ -179,6 +184,8 @@ public class KeepADBAccessibilityContractTest {
         assertNotNull(main.findViewById(R.id.toggle));
         assertTrue(main.findViewById(R.id.btn_open_settings).hasOnClickListeners());
         assertTrue(main.findViewById(R.id.btn_dismiss_advice_banner).hasOnClickListeners());
+        assertTrue(main.findViewById(R.id.btn_dismiss_battery_optimization_panel)
+                .hasOnClickListeners());
         assertTrue(main.findViewById(R.id.toggle).hasOnClickListeners());
         assertTrue(main.findViewById(R.id.keep_alive_toggle).hasOnClickListeners());
         assertTrue(main.findViewById(R.id.hide_notification_toggle).hasOnClickListeners());
@@ -206,6 +213,7 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_trusted_network_toggle, R.id.settings_trusted_ssid_toggle,
                 R.id.settings_hide_notification_toggle,
                 R.id.settings_keep_display_on_toggle, R.id.settings_advice_banner_toggle,
+                R.id.settings_battery_optimization_panel_toggle,
                 R.id.settings_diagnostics_export, R.id.settings_issue_report,
                 R.id.settings_website_link
         };
@@ -299,6 +307,52 @@ public class KeepADBAccessibilityContractTest {
         assertFalse(containsText(settings, context.getString(R.string.advice_banner_title)));
         assertFalse(containsText(settings, context.getString(R.string.advice_banner_text)));
         controller.pause().stop().destroy();
+    }
+
+    /** #502: the battery-optimization panel can be dismissed independently of the advice banner,
+     * the dismiss state survives an activity restart (persisted, not view-tree state), and
+     * SettingsActivity can restore visibility again. */
+    @Test
+    public void batteryOptimizationPanelIsDismissibleAndRestorableFromSettings() {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        MainActivity main = controller.get();
+        View panel = main.findViewById(R.id.battery_optimization_panel);
+        assertEquals(View.VISIBLE, panel.getVisibility());
+        assertTrue(main.findViewById(R.id.btn_dismiss_battery_optimization_panel)
+                .hasOnClickListeners());
+        assertEquals(main.getString(R.string.action_dismiss),
+                main.findViewById(R.id.btn_dismiss_battery_optimization_panel)
+                        .getContentDescription());
+
+        main.findViewById(R.id.btn_dismiss_battery_optimization_panel).performClick();
+        assertEquals(View.GONE, panel.getVisibility());
+        assertFalse(KeepADBPreferences.isBatteryOptimizationPanelVisible(main));
+        controller.pause().stop().destroy();
+
+        // Persisted across a fresh activity instance -- unlike wifiApsExpanded-style in-memory
+        // display state, this must survive an app restart.
+        ActivityController<MainActivity> restarted =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        assertEquals("Dismiss state must survive an app restart", View.GONE,
+                restarted.get().findViewById(R.id.battery_optimization_panel).getVisibility());
+        restarted.pause().stop().destroy();
+
+        ActivityController<SettingsActivity> settingsController =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity settings = settingsController.get();
+        Switch restoreToggle = settings.findViewById(R.id.settings_battery_optimization_panel_toggle);
+        assertFalse(restoreToggle.isChecked());
+        assertTrue(restoreToggle.performClick());
+        assertTrue(KeepADBPreferences.isBatteryOptimizationPanelVisible(settings));
+        settingsController.pause().stop().destroy();
+
+        ActivityController<MainActivity> restoredMain =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        assertEquals("Panel must reappear once re-enabled in settings", View.VISIBLE,
+                restoredMain.get().findViewById(R.id.battery_optimization_panel).getVisibility());
+        restoredMain.pause().stop().destroy();
     }
 
     @Test
