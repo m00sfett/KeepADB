@@ -31,8 +31,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">保持无线调试处于活动状态</string>
     <string name="notification_service_text">正在监控 Wi-Fi 连接和无线调试状态</string>
     <string name="notification_permission_missing_title">KeepADB：缺少权限</string>
-    <string name="notification_permission_panel_title">通知已关闭</string>
-    <string name="notification_permission_panel_body">没有此权限，KeepADB 无法显示状态通知。Keep-Alive 仍可正常运行。</string>
+    <string name="notification_permission_panel_title">随时了解 KeepADB 状态</string>
+    <string name="notification_permission_panel_body">允许通知后，KeepADB 可以显示后台服务和 Keep-Alive 是否正常运行，并在连接断开时立即通知你。无论是否允许，无线调试本身都会继续工作。</string>
+    <string name="notification_permission_request_button">启用通知</string>
     <string name="notification_permission_settings_button">打开通知设置</string>
     <string name="notification_permission_missing_text">请在电脑上通过 adb shell pm grant 授予 WRITE_SECURE_SETTINGS 权限</string>
     <string name="action_settings">设置</string>
@@ -278,6 +279,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="action_dismiss">关闭</string>
     <string name="settings_advice_banner_toggle">显示安全与网络提示</string>
     <string name="settings_advice_banner_subtext">在主屏幕顶部显示安全警告横幅。</string>
+    <string name="settings_battery_optimization_panel_toggle">显示电池优化提示</string>
+    <string name="settings_battery_optimization_panel_subtext">当 KeepADB 未被排除在电池优化之外时，在主屏幕上显示提醒。</string>
     <string name="settings_license_line">根据 GNU Affero 通用公共许可证 v3（AGPLv3）授权</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">在浏览器中打开 HohnePeople.de</string>

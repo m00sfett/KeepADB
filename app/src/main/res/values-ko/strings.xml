@@ -31,8 +31,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">무선 디버깅 활성 상태 유지</string>
     <string name="notification_service_text">Wi-Fi 연결 및 무선 디버깅 상태 모니터링 중</string>
     <string name="notification_permission_missing_title">KeepADB: 권한 누락</string>
-    <string name="notification_permission_panel_title">알림이 꺼져 있습니다</string>
-    <string name="notification_permission_panel_body">이 권한이 없으면 KeepADB가 상태 알림을 표시할 수 없습니다. Keep-Alive는 계속 작동합니다.</string>
+    <string name="notification_permission_panel_title">KeepADB 상태를 계속 확인하세요</string>
+    <string name="notification_permission_panel_body">알림을 허용하면 KeepADB가 백그라운드 서비스와 Keep-Alive의 작동 여부를 표시하고, 연결이 끊기면 즉시 알려줍니다. 무선 디버깅 자체는 어느 쪽이든 계속 작동합니다.</string>
+    <string name="notification_permission_request_button">알림 사용</string>
     <string name="notification_permission_settings_button">알림 설정 열기</string>
     <string name="notification_permission_missing_text">PC에서 adb shell pm grant로 WRITE_SECURE_SETTINGS 권한을 부여하세요</string>
     <string name="action_settings">설정</string>
@@ -278,6 +279,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="action_dismiss">닫기</string>
     <string name="settings_advice_banner_toggle">보안 및 네트워크 안내 표시</string>
     <string name="settings_advice_banner_subtext">메인 화면 상단에 보안 경고 배너를 표시합니다.</string>
+    <string name="settings_battery_optimization_panel_toggle">배터리 최적화 안내 표시</string>
+    <string name="settings_battery_optimization_panel_subtext">KeepADB가 배터리 최적화에서 제외되지 않은 경우 메인 화면에 알림을 표시합니다.</string>
     <string name="settings_license_line">GNU Affero General Public License v3(AGPLv3)에 따라 라이선스가 부여됨</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">브라우저에서 HohnePeople.de 열기</string>

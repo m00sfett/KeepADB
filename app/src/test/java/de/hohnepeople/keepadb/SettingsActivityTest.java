@@ -463,6 +463,8 @@ public class SettingsActivityTest {
             {R.id.settings_notification_header, R.id.settings_notification_body},
             {R.id.settings_display_header, R.id.settings_display_body},
             {R.id.settings_advice_banner_header, R.id.settings_advice_banner_body},
+            {R.id.settings_battery_optimization_panel_header,
+                    R.id.settings_battery_optimization_panel_body},
             {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body},
     };
 

@@ -41,8 +41,9 @@
     <string name="notification_service_title">Drahtloses Debugging aktiv halten</string>
     <string name="notification_service_text">Überwacht WLAN-Verbindung und Status von „Drahtloses Debugging“</string>
     <string name="notification_permission_missing_title">KeepADB: Berechtigung fehlt</string>
-    <string name="notification_permission_panel_title">Benachrichtigungen sind deaktiviert</string>
-    <string name="notification_permission_panel_body">KeepADB kann ohne diese Berechtigung seine Statusbenachrichtigung nicht anzeigen. Keep-Alive funktioniert weiterhin.</string>
+    <string name="notification_permission_panel_title">Bleib über KeepADB informiert</string>
+    <string name="notification_permission_panel_body">Erlaube Benachrichtigungen, damit KeepADB anzeigen kann, ob Hintergrunddienst und Keep-Alive laufen, und dich sofort informiert, wenn die Verbindung abbricht. Drahtloses Debugging funktioniert in jedem Fall weiter.</string>
+    <string name="notification_permission_request_button">Benachrichtigungen aktivieren</string>
     <string name="notification_permission_settings_button">Benachrichtigungseinstellungen öffnen</string>
     <string name="battery_optimization_title">Akkuoptimierung kann Keep-Alive einschränken</string>
     <string name="battery_optimization_body">Android kann Keep-Alive im Hintergrund einschränken oder beenden, wenn KeepADB nicht von der Akkuoptimierung ausgenommen ist.</string>
@@ -277,6 +278,8 @@
     <string name="action_dismiss">Schließen</string>
     <string name="settings_advice_banner_toggle">Sicherheits- &amp; Netzwerkhinweis anzeigen</string>
     <string name="settings_advice_banner_subtext">Zeigt oben auf dem Hauptbildschirm einen Sicherheitshinweis an.</string>
+    <string name="settings_battery_optimization_panel_toggle">Hinweis zur Akkuoptimierung anzeigen</string>
+    <string name="settings_battery_optimization_panel_subtext">Zeigt einen Hinweis auf dem Hauptbildschirm an, wenn KeepADB nicht von der Akkuoptimierung ausgenommen ist.</string>
     <string name="settings_license_line">Lizenziert unter der GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">HohnePeople.de im Browser öffnen</string>

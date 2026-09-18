@@ -31,8 +31,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">Підтримувати бездротове налагодження активним</string>
     <string name="notification_service_text">Моніторинг з’єднання Wi-Fi та стану бездротового налагодження</string>
     <string name="notification_permission_missing_title">KeepADB: Відсутній дозвіл</string>
-    <string name="notification_permission_panel_title">Сповіщення вимкнено</string>
-    <string name="notification_permission_panel_body">KeepADB не може показати сповіщення про стан без цього дозволу. Keep-Alive продовжує працювати.</string>
+    <string name="notification_permission_panel_title">Будьте в курсі стану KeepADB</string>
+    <string name="notification_permission_panel_body">Дозвольте сповіщення, щоб KeepADB міг показувати, чи працюють фонова служба та Keep-Alive, і одразу повідомляти про втрату з’єднання. Бездротове налагодження в будь-якому разі продовжить працювати.</string>
+    <string name="notification_permission_request_button">Увімкнути сповіщення</string>
     <string name="notification_permission_settings_button">Відкрити налаштування сповіщень</string>
     <string name="notification_permission_missing_text">Надайте WRITE_SECURE_SETTINGS з ПК через adb shell pm grant</string>
     <string name="action_settings">Налаштування</string>
@@ -278,6 +279,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="action_dismiss">Закрити</string>
     <string name="settings_advice_banner_toggle">Показувати поради з безпеки та мережі</string>
     <string name="settings_advice_banner_subtext">Показує банер попередження про безпеку вгорі головного екрана.</string>
+    <string name="settings_battery_optimization_panel_toggle">Показувати пораду з оптимізації акумулятора</string>
+    <string name="settings_battery_optimization_panel_subtext">Показує нагадування на головному екрані, якщо KeepADB не виключено з оптимізації акумулятора.</string>
     <string name="settings_license_line">Розповсюджується за ліцензією GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Відкрити HohnePeople.de у браузері</string>

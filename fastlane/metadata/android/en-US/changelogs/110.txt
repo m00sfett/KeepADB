@@ -1,0 +1,7 @@
+Changed: on first launch, KeepADB no longer pops the notification permission dialog out of the
+blue. The home screen now explains why notifications help (background service, Keep-Alive and
+connection status at a glance) and only asks -- or sends you to notification settings after a
+denial -- when you tap the button.
+
+Added: the battery-optimization advice on the home screen can now be dismissed with a close
+button if you don't want to disable battery optimization. Re-enable it anytime from Settings.

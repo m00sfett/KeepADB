@@ -31,8 +31,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">إبقاء تصحيح الأخطاء اللاسلكي نشطًا</string>
     <string name="notification_service_text">مراقبة اتصال Wi-Fi وحالة تصحيح الأخطاء اللاسلكي</string>
     <string name="notification_permission_missing_title">KeepADB: الإذن مفقود</string>
-    <string name="notification_permission_panel_title">الإشعارات معطلة</string>
-    <string name="notification_permission_panel_body">لا يستطيع KeepADB عرض إشعار الحالة دون هذا الإذن. تستمر ميزة Keep-Alive في العمل.</string>
+    <string name="notification_permission_panel_title">ابقَ على اطلاع بحالة KeepADB</string>
+    <string name="notification_permission_panel_body">اسمح بالإشعارات حتى يتمكن KeepADB من عرض ما إذا كانت الخدمة في الخلفية وKeep-Alive تعملان، وإخبارك فورًا إذا انقطع الاتصال. يستمر التصحيح اللاسلكي في العمل في كلتا الحالتين.</string>
+    <string name="notification_permission_request_button">تفعيل الإشعارات</string>
     <string name="notification_permission_settings_button">فتح إعدادات الإشعارات</string>
     <string name="notification_permission_missing_text">امنح WRITE_SECURE_SETTINGS من الكمبيوتر عبر adb shell pm grant</string>
     <string name="action_settings">الإعدادات</string>
@@ -278,6 +279,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="action_dismiss">إغلاق</string>
     <string name="settings_advice_banner_toggle">إظهار نصائح الأمان والشبكة</string>
     <string name="settings_advice_banner_subtext">عرض شريط تحذير أمني أعلى الشاشة الرئيسية.</string>
+    <string name="settings_battery_optimization_panel_toggle">إظهار نصائح تحسين البطارية</string>
+    <string name="settings_battery_optimization_panel_subtext">عرض تذكير على الشاشة الرئيسية عند عدم استثناء KeepADB من تحسين البطارية.</string>
     <string name="settings_license_line">مرخّص بموجب رخصة جنو أفيرو العمومية العامة الإصدار 3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">افتح HohnePeople.de في المتصفح</string>

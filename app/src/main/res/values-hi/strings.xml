@@ -31,8 +31,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">वायरलेस डीबगिंग सक्रिय रखें</string>
     <string name="notification_service_text">Wi-Fi कनेक्शन और वायरलेस डीबगिंग स्थिति की निगरानी की जा रही है</string>
     <string name="notification_permission_missing_title">KeepADB: अनुमति गायब है</string>
-    <string name="notification_permission_panel_title">सूचनाएँ बंद हैं</string>
-    <string name="notification_permission_panel_body">इस अनुमति के बिना KeepADB अपनी स्थिति सूचना नहीं दिखा सकता। Keep-Alive फिर भी काम करता रहता है।</string>
+    <string name="notification_permission_panel_title">KeepADB की जानकारी पाते रहें</string>
+    <string name="notification_permission_panel_body">सूचनाओं की अनुमति दें ताकि KeepADB दिखा सके कि बैकग्राउंड सेवा और Keep-Alive चल रहे हैं या नहीं, और कनेक्शन टूटने पर आपको तुरंत बता सके। वायरलेस डिबगिंग वैसे भी काम करता रहेगा।</string>
+    <string name="notification_permission_request_button">सूचनाएँ सक्षम करें</string>
     <string name="notification_permission_settings_button">सूचना सेटिंग खोलें</string>
     <string name="notification_permission_missing_text">PC से adb shell pm grant द्वारा WRITE_SECURE_SETTINGS प्रदान करें</string>
     <string name="action_settings">सेटिंग्स</string>
@@ -278,6 +279,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="action_dismiss">बंद करें</string>
     <string name="settings_advice_banner_toggle">सुरक्षा और नेटवर्क सलाह दिखाएं</string>
     <string name="settings_advice_banner_subtext">मुख्य स्क्रीन के शीर्ष पर एक सुरक्षा चेतावनी बैनर दिखाता है।</string>
+    <string name="settings_battery_optimization_panel_toggle">बैटरी अनुकूलन सलाह दिखाएं</string>
+    <string name="settings_battery_optimization_panel_subtext">जब KeepADB को बैटरी अनुकूलन से छूट नहीं मिली हो, तो मुख्य स्क्रीन पर एक अनुस्मारक दिखाता है।</string>
     <string name="settings_license_line">GNU एफेरो जनरल पब्लिक लाइसेंस v3 (AGPLv3) के तहत लाइसेंस प्राप्त</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">ब्राउज़र में HohnePeople.de खोलें</string>

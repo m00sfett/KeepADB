@@ -42,8 +42,9 @@
     <string name="notification_service_text">Monitoring Wi-Fi connection and Wireless Debugging status</string>
     <string name="notification_permission_missing_title">KeepADB: Permission missing</string>
     <string name="notification_permission_missing_text">Grant WRITE_SECURE_SETTINGS from PC via adb shell pm grant</string>
-    <string name="notification_permission_panel_title">Notifications are disabled</string>
-    <string name="notification_permission_panel_body">KeepADB can’t show its status notification without this permission. Keep-Alive still works.</string>
+    <string name="notification_permission_panel_title">Stay informed about KeepADB</string>
+    <string name="notification_permission_panel_body">Allow notifications so KeepADB can show whether its background service and Keep-Alive are running and let you know right away if the connection drops. Wireless Debugging itself keeps working either way.</string>
+    <string name="notification_permission_request_button">Enable notifications</string>
     <string name="notification_permission_settings_button">Open notification settings</string>
     <string name="battery_optimization_title">Battery optimization may limit Keep-Alive</string>
     <string name="battery_optimization_body">Android may restrict or stop Keep-Alive in the background unless KeepADB is exempt from battery optimization.</string>
@@ -279,6 +280,8 @@
     <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
+    <string name="settings_battery_optimization_panel_toggle">Show Battery Optimization Advice</string>
+    <string name="settings_battery_optimization_panel_subtext">Display a reminder on the main screen when KeepADB is not exempt from battery optimization.</string>
     <string name="settings_license_line">Licensed under the GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Open HohnePeople.de in your browser</string>

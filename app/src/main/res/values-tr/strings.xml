@@ -31,8 +31,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">Kablosuz Hata Ayıklamayı Aktif Tut</string>
     <string name="notification_service_text">Wi-Fi bağlantısı ve Kablosuz Hata Ayıklama durumu izleniyor</string>
     <string name="notification_permission_missing_title">KeepADB: İzin eksik</string>
-    <string name="notification_permission_panel_title">Bildirimler devre dışı</string>
-    <string name="notification_permission_panel_body">KeepADB bu izin olmadan durum bildirimini gösteremez. Keep-Alive çalışmaya devam eder.</string>
+    <string name="notification_permission_panel_title">KeepADB hakkında bilgi sahibi olun</string>
+    <string name="notification_permission_panel_body">Bildirimlere izin verin, böylece KeepADB arka plan hizmetinin ve Keep-Alive\'ın çalışıp çalışmadığını gösterebilir ve bağlantı koparsa sizi hemen bilgilendirebilir. Kablosuz Hata Ayıklama her durumda çalışmaya devam eder.</string>
+    <string name="notification_permission_request_button">Bildirimleri etkinleştir</string>
     <string name="notification_permission_settings_button">Bildirim ayarlarını aç</string>
     <string name="notification_permission_missing_text">adb shell pm grant aracılığıyla PC’den WRITE_SECURE_SETTINGS izni verin</string>
     <string name="action_settings">Ayarlar</string>
@@ -278,6 +279,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="action_dismiss">Kapat</string>
     <string name="settings_advice_banner_toggle">Güvenlik ve Ağ Önerisini Göster</string>
     <string name="settings_advice_banner_subtext">Ana ekranın üst kısmında bir güvenlik uyarısı gösterir.</string>
+    <string name="settings_battery_optimization_panel_toggle">Pil Optimizasyonu Önerisini Göster</string>
+    <string name="settings_battery_optimization_panel_subtext">KeepADB pil optimizasyonundan muaf değilken ana ekranda bir hatırlatma gösterir.</string>
     <string name="settings_license_line">GNU Affero General Public License v3 (AGPLv3) ile lisanslanmıştır</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">HohnePeople.de\'yi tarayıcıda aç</string>

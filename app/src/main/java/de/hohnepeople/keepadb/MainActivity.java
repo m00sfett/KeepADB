@@ -46,6 +46,7 @@ public class MainActivity extends Activity {
     private View webhookSetupButton;
     private View setupPanel;
     private View notificationPermissionPanel;
+    private Button notificationPermissionActionButton;
     private View batteryOptimizationPanel;
     private View locationPermissionPanel;
     private View locationPermissionFallbackBody;
@@ -73,7 +74,6 @@ public class MainActivity extends Activity {
     // in-memory-only rationale as wifiApsExpanded above -- a display convenience for this visit,
     // not a persisted user setting.
     private boolean wifiApsTrustedOnly;
-    private boolean notificationPermissionRequestPending;
     private long endpointListenerGeneration;
     private boolean endpointSurfaceActive;
     // #483: last discovered endpoint, unmasked. Display text is derived from it on every render.
@@ -123,6 +123,8 @@ public class MainActivity extends Activity {
         ((TextView) findViewById(R.id.setup_command)).setText(
                 getString(R.string.setup_command, getPackageName()));
         notificationPermissionPanel = findViewById(R.id.notification_permission_panel);
+        notificationPermissionActionButton = findViewById(R.id.btn_open_notification_settings);
+        notificationPermissionActionButton.setOnClickListener(v -> onNotificationPermissionActionClick());
         batteryOptimizationPanel = findViewById(R.id.battery_optimization_panel);
         locationPermissionPanel = findViewById(R.id.location_permission_panel);
         locationPermissionFallbackBody = findViewById(R.id.location_permission_fallback_body);
@@ -151,8 +153,6 @@ public class MainActivity extends Activity {
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
-        findViewById(R.id.btn_open_notification_settings).setOnClickListener(v ->
-                openNotificationSettings());
         findViewById(R.id.btn_open_battery_settings).setOnClickListener(v ->
                 KeepADBBatteryOptimization.openSettings(this));
         findViewById(R.id.btn_grant_location_permission).setOnClickListener(v -> {
@@ -176,16 +176,16 @@ public class MainActivity extends Activity {
             KeepADBPreferences.setAdviceBannerVisible(this, false);
             updateAdviceBannerVisibility();
         });
+        findViewById(R.id.btn_dismiss_battery_optimization_panel).setOnClickListener(v -> {
+            KeepADBPreferences.setBatteryOptimizationPanelVisible(this, false);
+            refresh();
+        });
 
         updateAdviceBannerVisibility();
 
-        if (shouldRequestNotificationPermission()) {
-            getPreferences(MODE_PRIVATE).edit()
-                    .putBoolean(NOTIFICATION_PERMISSION_REQUESTED, true).apply();
-            notificationPermissionRequestPending = true;
-            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                    NOTIFICATION_PERMISSION_REQUEST);
-        }
+        // #501: no more cold-start system prompt here -- notificationPermissionPanel explains the
+        // benefit in place and only triggers the request (or the settings fallback) on a deliberate
+        // tap, via onNotificationPermissionActionClick().
 
         // OnClick fires only for user interaction, unlike OnCheckedChanged during refresh().
         toggle.setOnClickListener(v -> {
@@ -323,7 +323,6 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == NOTIFICATION_PERMISSION_REQUEST) {
-            notificationPermissionRequestPending = false;
             refresh();
             KeepADBNotification.refresh(this);
         } else if (requestCode == LOCATION_PERMISSION_REQUEST) {
@@ -367,14 +366,25 @@ public class MainActivity extends Activity {
         // from appState, so no future state value can make the switch claim "on" while the system
         // setting is 0. "Keep-Alive is waiting" is a separate dimension and lives in the subtext.
         boolean on = configured && KeepADB.isEnabled(this);
-        boolean notificationsDenied = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                && !notificationPermissionRequestPending
+        // #501: shown any time POST_NOTIFICATIONS isn't granted yet -- before the first request as
+        // much as after a denial -- so the in-context explanation always precedes the system
+        // prompt instead of only following a prior refusal.
+        boolean notificationPermissionMissing = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED;
         setupPanel.setVisibility(configured ? View.GONE : View.VISIBLE);
-        notificationPermissionPanel.setVisibility(notificationsDenied ? View.VISIBLE : View.GONE);
-        batteryOptimizationPanel.setVisibility(KeepADBBatteryOptimization.isExempt(this)
-                ? View.GONE : View.VISIBLE);
+        notificationPermissionPanel.setVisibility(notificationPermissionMissing ? View.VISIBLE : View.GONE);
+        if (notificationPermissionMissing) {
+            updateNotificationPermissionPanel();
+        }
+        // #502: shown only while the system exemption is still missing AND the user has not
+        // dismissed the panel. A granted exemption always wins, regardless of dismiss state --
+        // matches the acceptance criterion that the panel stays hidden once battery optimization
+        // is actually disabled for the app.
+        boolean batteryOptimizationPanelVisible = !KeepADBBatteryOptimization.isExempt(this)
+                && KeepADBPreferences.isBatteryOptimizationPanelVisible(this);
+        batteryOptimizationPanel.setVisibility(
+                batteryOptimizationPanelVisible ? View.VISIBLE : View.GONE);
         updateLocationPermissionPanel();
         toggle.setEnabled(configured);
         toggle.setChecked(on);
@@ -973,14 +983,39 @@ public class MainActivity extends Activity {
         trustAllNetworksButton.setVisibility(previouslyRequested ? View.VISIBLE : View.GONE);
     }
 
-    private boolean shouldRequestNotificationPermission() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
-                || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
-                == PackageManager.PERMISSION_GRANTED) {
-            return false;
-        }
-        return !getPreferences(MODE_PRIVATE).getBoolean(NOTIFICATION_PERMISSION_REQUESTED, false)
+    /**
+     * #501: the panel's button is context-sensitive. Before the first request (or while the system
+     * would still show its own rationale flow), it triggers {@code requestPermissions} directly --
+     * this panel already is the rationale. Once the system has permanently denied further prompts
+     * ({@code shouldShowRequestPermissionRationale} false after a prior request), it instead opens
+     * the app's notification settings, the only remaining way to grant the permission.
+     */
+    private void onNotificationPermissionActionClick() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return;
+        boolean previouslyRequested = getPreferences(MODE_PRIVATE)
+                .getBoolean(NOTIFICATION_PERMISSION_REQUESTED, false);
+        boolean permanentlyDenied = previouslyRequested
                 && !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS);
+        if (permanentlyDenied) {
+            openNotificationSettings();
+            return;
+        }
+        getPreferences(MODE_PRIVATE).edit()
+                .putBoolean(NOTIFICATION_PERMISSION_REQUESTED, true).apply();
+        requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                NOTIFICATION_PERMISSION_REQUEST);
+    }
+
+    /** Renders the panel button's label to match {@link #onNotificationPermissionActionClick}'s
+     * decision, so the visible action always matches what a tap will actually do. */
+    private void updateNotificationPermissionPanel() {
+        boolean previouslyRequested = getPreferences(MODE_PRIVATE)
+                .getBoolean(NOTIFICATION_PERMISSION_REQUESTED, false);
+        boolean permanentlyDenied = previouslyRequested
+                && !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS);
+        notificationPermissionActionButton.setText(permanentlyDenied
+                ? R.string.notification_permission_settings_button
+                : R.string.notification_permission_request_button);
     }
 
     private void refreshWebhookStatus() {

@@ -31,8 +31,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">Utrzymuj debugowanie bezprzewodowe aktywne</string>
     <string name="notification_service_text">Monitorowanie połączenia Wi-Fi i stanu debugowania bezprzewodowego</string>
     <string name="notification_permission_missing_title">KeepADB: Brak uprawnień</string>
-    <string name="notification_permission_panel_title">Powiadomienia są wyłączone</string>
-    <string name="notification_permission_panel_body">KeepADB nie może wyświetlić powiadomienia o stanie bez tego uprawnienia. Keep-Alive nadal działa.</string>
+    <string name="notification_permission_panel_title">Bądź na bieżąco z KeepADB</string>
+    <string name="notification_permission_panel_body">Zezwól na powiadomienia, aby KeepADB mógł pokazywać, czy usługa w tle i Keep-Alive działają, oraz od razu informować Cię o utracie połączenia. Debugowanie bezprzewodowe i tak będzie działać dalej.</string>
+    <string name="notification_permission_request_button">Włącz powiadomienia</string>
     <string name="notification_permission_settings_button">Otwórz ustawienia powiadomień</string>
     <string name="notification_permission_missing_text">Nadaj WRITE_SECURE_SETTINGS z komputera przez adb shell pm grant</string>
     <string name="action_settings">Ustawienia</string>
@@ -278,6 +279,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="action_dismiss">Zamknij</string>
     <string name="settings_advice_banner_toggle">Pokaż wskazówki dotyczące bezpieczeństwa i sieci</string>
     <string name="settings_advice_banner_subtext">Wyświetla baner ostrzeżenia o bezpieczeństwie u góry głównego ekranu.</string>
+    <string name="settings_battery_optimization_panel_toggle">Pokaż wskazówki dotyczące optymalizacji baterii</string>
+    <string name="settings_battery_optimization_panel_subtext">Wyświetla przypomnienie na głównym ekranie, gdy KeepADB nie jest wyłączone z optymalizacji baterii.</string>
     <string name="settings_license_line">Na licencji GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Otwórz HohnePeople.de w przeglądarce</string>

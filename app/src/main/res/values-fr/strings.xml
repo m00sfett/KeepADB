@@ -31,8 +31,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">Maintenir le débogage sans fil actif</string>
     <string name="notification_service_text">Surveillance de la connexion Wi-Fi et de l’état du débogage sans fil</string>
     <string name="notification_permission_missing_title">KeepADB : Autorisation manquante</string>
-    <string name="notification_permission_panel_title">Les notifications sont désactivées</string>
-    <string name="notification_permission_panel_body">KeepADB ne peut pas afficher sa notification d’état sans cette autorisation. Le Keep-Alive continue de fonctionner.</string>
+    <string name="notification_permission_panel_title">Restez informé sur KeepADB</string>
+    <string name="notification_permission_panel_body">Autorisez les notifications pour que KeepADB puisse indiquer si le service en arrière-plan et le Keep-Alive fonctionnent, et vous prévenir immédiatement en cas de perte de connexion. Le débogage sans fil continue de fonctionner dans tous les cas.</string>
+    <string name="notification_permission_request_button">Activer les notifications</string>
     <string name="notification_permission_settings_button">Ouvrir les paramètres des notifications</string>
     <string name="notification_permission_missing_text">Accordez WRITE_SECURE_SETTINGS depuis un PC via adb shell pm grant</string>
     <string name="action_settings">Paramètres</string>
@@ -278,6 +279,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="action_dismiss">Fermer</string>
     <string name="settings_advice_banner_toggle">Afficher les conseils de sécurité et réseau</string>
     <string name="settings_advice_banner_subtext">Affiche une bannière d’avertissement de sécurité en haut de l’écran principal.</string>
+    <string name="settings_battery_optimization_panel_toggle">Afficher le conseil d’optimisation de la batterie</string>
+    <string name="settings_battery_optimization_panel_subtext">Affiche un rappel sur l’écran principal lorsque KeepADB n’est pas exempté de l’optimisation de la batterie.</string>
     <string name="settings_license_line">Sous licence GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Ouvrir HohnePeople.de dans le navigateur</string>

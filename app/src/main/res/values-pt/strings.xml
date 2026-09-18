@@ -31,8 +31,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">Manter depuração sem fio ativa</string>
     <string name="notification_service_text">Monitorando conexão Wi-Fi e status da depuração sem fio</string>
     <string name="notification_permission_missing_title">KeepADB: Permissão ausente</string>
-    <string name="notification_permission_panel_title">As notificações estão desativadas</string>
-    <string name="notification_permission_panel_body">O KeepADB não pode mostrar a notificação de estado sem esta permissão. O Keep-Alive continua a funcionar.</string>
+    <string name="notification_permission_panel_title">Mantenha-se informado sobre o KeepADB</string>
+    <string name="notification_permission_panel_body">Permita as notificações para que o KeepADB possa mostrar se o serviço em segundo plano e o Keep-Alive estão a funcionar, e avisá-lo de imediato se a ligação cair. A depuração sem fios continua a funcionar de qualquer forma.</string>
+    <string name="notification_permission_request_button">Ativar notificações</string>
     <string name="notification_permission_settings_button">Abrir definições de notificações</string>
     <string name="notification_permission_missing_text">Conceda WRITE_SECURE_SETTINGS no PC via adb shell pm grant</string>
     <string name="action_settings">Configurações</string>
@@ -278,6 +279,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="action_dismiss">Fechar</string>
     <string name="settings_advice_banner_toggle">Mostrar aviso de segurança e rede</string>
     <string name="settings_advice_banner_subtext">Exibe um banner de aviso de segurança na parte superior da tela principal.</string>
+    <string name="settings_battery_optimization_panel_toggle">Mostrar aviso de otimização de bateria</string>
+    <string name="settings_battery_optimization_panel_subtext">Exibe um lembrete na tela principal quando o KeepADB não está isento da otimização de bateria.</string>
     <string name="settings_license_line">Licenciado sob a GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Abrir HohnePeople.de no navegador</string>
