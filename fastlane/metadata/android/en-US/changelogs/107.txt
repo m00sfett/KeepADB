@@ -1,0 +1,2 @@
+The Wireless Debugging switch on the home screen now sits above the status line, so it is the
+first thing you interact with. No behavior change.
