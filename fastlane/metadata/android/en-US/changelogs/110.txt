@@ -1,0 +1,2 @@
+Added: the battery-optimization advice on the home screen can now be dismissed with a close
+button if you don't want to disable battery optimization. Re-enable it anytime from Settings.

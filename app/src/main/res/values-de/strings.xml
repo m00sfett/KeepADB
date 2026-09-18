@@ -277,6 +277,8 @@
     <string name="action_dismiss">Schließen</string>
     <string name="settings_advice_banner_toggle">Sicherheits- &amp; Netzwerkhinweis anzeigen</string>
     <string name="settings_advice_banner_subtext">Zeigt oben auf dem Hauptbildschirm einen Sicherheitshinweis an.</string>
+    <string name="settings_battery_optimization_panel_toggle">Hinweis zur Akkuoptimierung anzeigen</string>
+    <string name="settings_battery_optimization_panel_subtext">Zeigt einen Hinweis auf dem Hauptbildschirm an, wenn KeepADB nicht von der Akkuoptimierung ausgenommen ist.</string>
     <string name="settings_license_line">Lizenziert unter der GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">HohnePeople.de im Browser öffnen</string>
