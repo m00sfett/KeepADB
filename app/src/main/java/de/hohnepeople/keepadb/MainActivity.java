@@ -100,6 +100,8 @@ public class MainActivity extends Activity {
             // #483: re-render the masked surfaces at once, without waiting for a discovery tick.
             renderEndpoint();
             refreshWebhookStatus();
+            KeepADBNotification.refresh(this);
+            KeepADBTileService.requestRefresh(this);
         });
         toggle = findViewById(R.id.toggle);
         keepAliveToggle = findViewById(R.id.keep_alive_toggle);

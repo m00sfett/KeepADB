@@ -1,3 +1,3 @@
-Privacy mode now masks network addresses in the persistent notification and Quick Settings tile.
-New installations start with privacy mode enabled, while you can still reveal the full address
-with the privacy toggle.
+Privacy mode now masks network addresses in the persistent notification and Quick Settings tile,
+and changing the mode refreshes those surfaces immediately. New installations start with privacy
+mode enabled, while you can still reveal the full address with the privacy toggle.

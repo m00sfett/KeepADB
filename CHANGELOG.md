@@ -29,6 +29,8 @@ retrospective issue-version records and were never published as separate release
   well as the existing in-app surfaces. The home-screen widget remains unchanged because it only
   displays the port. New installations default to privacy mode enabled; the toggle still reveals
   the full address when explicitly disabled (issue #488).
+- Changing privacy mode now refreshes an already-visible notification and Quick Settings tile
+  immediately.
 - Patch version bump (1.8.7 -> 1.8.8, versionCode 105): this extends the existing display-only
   privacy behavior without changing stored endpoints, transport, or Wireless Debugging state.
 
