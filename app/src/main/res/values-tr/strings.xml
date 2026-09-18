@@ -176,10 +176,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_edit_action_accessibility">&quot;%1$s&quot; ana bilgisayar profilini düzenle</string>
     <string name="usb_profile_delete_action_accessibility">&quot;%1$s&quot; ana bilgisayar profilini sil</string>
     <string name="usb_profile_edit_title">Ana bilgisayar profilini düzenle</string>
-    <string name="settings_diagnostics_title">Tanılama</string>
+    <string name="settings_diagnostics_title">Tanılama ve Bakım</string>
     <string name="settings_diagnostics_subtext">Düzenlenmiş son 128 olayı bu cihazda tutar. Dışa aktarma, Android paylaşım sayfasını açar.</string>
     <string name="settings_diagnostics_export">Tanılamayı dışa aktar</string>
     <string name="settings_diagnostics_export_subject">KeepADB tanılaması</string>
+    <string name="settings_reset_app">Uygulamayı tamamen sıfırla</string>
+    <string name="settings_reset_app_dialog_title">Uygulama tamamen sıfırlansın mı?</string>
+    <string name="settings_reset_app_dialog_message">Kaydedilen tüm ağlar, ayarlar ve izinler silinecektir. Ardından uygulama kapanacaktır.</string>
+    <string name="settings_reset_app_confirm">Sıfırla</string>
     <string name="battery_optimization_title">Pil optimizasyonu Keep-Alive özelliğini sınırlayabilir</string>
     <string name="battery_optimization_body">KeepADB pil optimizasyonundan muaf değilse Android, Keep-Alive\'ı arka planda sınırlayabilir veya durdurabilir.</string>
     <string name="battery_optimization_button">Pil ayarlarını aç</string>
@@ -189,6 +193,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">Konum erişimi vermek istemiyor musunuz? Bunun yerine tüm Wi-Fi ağlarına güvenin — Keep-Alive böylece her bağlantıda otomatik olarak yeniden etkinleşir.</string>
     <string name="location_permission_panel_fallback_button">Bunun yerine tüm Wi-Fi ağlarına güven</string>
     <string name="location_permission_panel_fallback_toast">\"Tüm Wi-Fi ağlarına güven\" moduna geçildi.</string>
+    <string name="location_permission_panel_title_discovery">Wi-Fi ve erişim noktaları için konum erişimi gerekli</string>
+    <string name="location_permission_panel_body_discovery">Mevcut Wi-Fi ağını ve erişim noktalarını tanımlamak için konum erişimi gereklidir.</string>
+    <string name="location_permission_settings_button">Ayarları aç</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB aktarımı</string>
     <string name="settings_usb_handover_subtext">Etkin bir USB-ADB bağlantısından WLAN-ADB’yi isteğe bağlı olarak sunar veya otomatik etkinleştirir. Varsayılan olarak kapalıdır; manuel KAPALI ayarı asla geçersiz kılınmaz.</string>
     <string name="settings_usb_handover_label">Aktarım modu</string>

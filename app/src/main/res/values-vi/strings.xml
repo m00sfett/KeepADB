@@ -176,10 +176,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_edit_action_accessibility">Chỉnh sửa hồ sơ máy chủ &quot;%1$s&quot;</string>
     <string name="usb_profile_delete_action_accessibility">Xóa hồ sơ máy chủ &quot;%1$s&quot;</string>
     <string name="usb_profile_edit_title">Chỉnh sửa hồ sơ máy chủ</string>
-    <string name="settings_diagnostics_title">Chẩn đoán</string>
+    <string name="settings_diagnostics_title">Chẩn đoán &amp; Bảo trì</string>
     <string name="settings_diagnostics_subtext">Lưu 128 sự kiện đã biên tập gần nhất trên thiết bị này. Thao tác xuất sẽ mở bảng chia sẻ Android.</string>
     <string name="settings_diagnostics_export">Xuất dữ liệu chẩn đoán</string>
     <string name="settings_diagnostics_export_subject">Chẩn đoán KeepADB</string>
+    <string name="settings_reset_app">Đặt lại hoàn toàn ứng dụng</string>
+    <string name="settings_reset_app_dialog_title">Đặt lại hoàn toàn ứng dụng?</string>
+    <string name="settings_reset_app_dialog_message">Tất cả mạng, cài đặt và quyền đã lưu sẽ bị xóa. Ứng dụng sau đó sẽ đóng.</string>
+    <string name="settings_reset_app_confirm">Đặt lại</string>
     <string name="battery_optimization_title">Tối ưu hóa pin có thể giới hạn Keep-Alive</string>
     <string name="battery_optimization_body">Android có thể giới hạn hoặc dừng Keep-Alive trong nền nếu KeepADB không được miễn trừ tối ưu hóa pin.</string>
     <string name="battery_optimization_button">Mở cài đặt pin</string>
@@ -189,6 +193,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">Không muốn cấp quyền truy cập vị trí? Hãy tin cậy mọi mạng Wi-Fi — Keep-Alive sẽ tự động bật lại ở bất kỳ kết nối nào.</string>
     <string name="location_permission_panel_fallback_button">Tin cậy mọi mạng Wi-Fi thay thế</string>
     <string name="location_permission_panel_fallback_toast">Đã chuyển sang chế độ \"tin cậy mọi mạng Wi-Fi\".</string>
+    <string name="location_permission_panel_title_discovery">Cần quyền truy cập vị trí cho Wi-Fi và điểm truy cập</string>
+    <string name="location_permission_panel_body_discovery">Cần quyền truy cập vị trí để nhận diện mạng Wi-Fi hiện tại và các điểm truy cập.</string>
+    <string name="location_permission_settings_button">Mở cài đặt</string>
     <string name="settings_section_usb_handover">Chuyển giao USB → WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Tùy chọn đề xuất hoặc tự động bật WLAN-ADB từ kết nối USB-ADB đang hoạt động. Mặc định tắt; thao tác TẮT thủ công không bao giờ bị ghi đè.</string>
     <string name="settings_usb_handover_label">Chế độ chuyển giao</string>

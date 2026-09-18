@@ -176,10 +176,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_edit_action_accessibility">编辑主机配置“%1$s”</string>
     <string name="usb_profile_delete_action_accessibility">删除主机配置“%1$s”</string>
     <string name="usb_profile_edit_title">编辑主机配置</string>
-    <string name="settings_diagnostics_title">诊断</string>
+    <string name="settings_diagnostics_title">诊断与维护</string>
     <string name="settings_diagnostics_subtext">在此设备上保留最近 128 条已脱敏事件。导出会打开 Android 分享面板。</string>
     <string name="settings_diagnostics_export">导出诊断信息</string>
     <string name="settings_diagnostics_export_subject">KeepADB 诊断</string>
+    <string name="settings_reset_app">完全重置应用</string>
+    <string name="settings_reset_app_dialog_title">完全重置应用？</string>
+    <string name="settings_reset_app_dialog_message">所有保存的网络、设置和权限都将被删除。随后应用将关闭。</string>
+    <string name="settings_reset_app_confirm">重置</string>
     <string name="battery_optimization_title">电池优化可能限制 Keep-Alive</string>
     <string name="battery_optimization_body">若 KeepADB 未被排除在电池优化之外，Android 可能会限制或停止后台的 Keep-Alive。</string>
     <string name="battery_optimization_button">打开电池设置</string>
@@ -189,6 +193,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">不想授予位置权限？改为信任所有 Wi-Fi 网络——这样 Keep-Alive 会在任意连接下自动重新启用。</string>
     <string name="location_permission_panel_fallback_button">改为信任所有 Wi-Fi 网络</string>
     <string name="location_permission_panel_fallback_toast">已切换到\"信任所有 Wi-Fi 网络\"模式。</string>
+    <string name="location_permission_panel_title_discovery">Wi-Fi 与接入点需要位置权限</string>
+    <string name="location_permission_panel_body_discovery">需要位置权限来识别当前的 Wi-Fi 网络和接入点。</string>
+    <string name="location_permission_settings_button">打开设置</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB 接管</string>
     <string name="settings_usb_handover_subtext">可从活动的 USB-ADB 连接中提供或自动启用 WLAN-ADB。默认关闭；手动关闭后不会被覆盖。</string>
     <string name="settings_usb_handover_label">接管模式</string>

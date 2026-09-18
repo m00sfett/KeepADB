@@ -611,6 +611,70 @@ public class SettingsActivityTest {
         assertTrue(activity.findViewById(R.id.settings_webhook_url).isFocused());
     }
 
+    @Test
+    public void resetAppButtonShowsConfirmationDialogWithCorrectContentAndWiring() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        Button resetButton = activity.findViewById(R.id.settings_reset_app);
+        assertNotNull("Reset button must be present in settings", resetButton);
+        assertEquals(activity.getString(R.string.settings_reset_app), resetButton.getText().toString());
+
+        resetButton.performClick();
+        ShadowLooper.idleMainLooper();
+
+        AlertDialog dialog = activity.getActiveResetAppDialog();
+        assertNotNull("Reset confirmation dialog must be showing", dialog);
+        assertTrue(dialog.isShowing());
+
+        ShadowAlertDialog shadowDialog = shadowOf(dialog);
+        assertEquals(activity.getString(R.string.settings_reset_app_dialog_title), shadowDialog.getTitle());
+        assertEquals(activity.getString(R.string.settings_reset_app_dialog_message), shadowDialog.getMessage());
+        assertEquals(activity.getString(R.string.settings_reset_app_confirm),
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).getText().toString());
+
+        // Cancel button dismisses without performing reset
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();
+        ShadowLooper.idleMainLooper();
+        assertNull("Dialog should be dismissed after cancel", activity.getActiveResetAppDialog());
+    }
+
+    @Test
+    public void resetAppDialogPositiveClickExecutesResetAndDismisses() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        activity.findViewById(R.id.settings_reset_app).performClick();
+        ShadowLooper.idleMainLooper();
+
+        AlertDialog dialog = activity.getActiveResetAppDialog();
+        assertNotNull(dialog);
+        assertTrue(dialog.isShowing());
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        ShadowLooper.idleMainLooper();
+        assertFalse(dialog.isShowing());
+    }
+
+    @Test
+    public void resetAppDialogIsDismissedWhenActivityIsDestroyed() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        activity.findViewById(R.id.settings_reset_app).performClick();
+        ShadowLooper.idleMainLooper();
+
+        AlertDialog dialog = activity.getActiveResetAppDialog();
+        assertNotNull(dialog);
+        assertTrue(dialog.isShowing());
+
+        controller.destroy();
+        assertNull(activity.getActiveResetAppDialog());
+    }
+
     private static <T extends View> T findViewByType(View root, Class<T> type) {
         if (root == null) return null;
         if (type.isInstance(root)) {

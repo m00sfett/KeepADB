@@ -54,6 +54,9 @@
     <string name="location_permission_panel_fallback_body">Standortzugriff lieber nicht gewähren? Vertraue stattdessen allen WLANs — Keep-Alive schaltet dann bei jeder Verbindung automatisch wieder ein.</string>
     <string name="location_permission_panel_fallback_button">Stattdessen allen WLANs vertrauen</string>
     <string name="location_permission_panel_fallback_toast">Auf Modus „Alle WLANs vertrauen“ umgestellt.</string>
+    <string name="location_permission_panel_title_discovery">Standortberechtigung für WLAN &amp; Access Points erforderlich</string>
+    <string name="location_permission_panel_body_discovery">Standortzugriff wird benötigt, um das aktuelle WLAN und Access Points zu erkennen.</string>
+    <string name="location_permission_settings_button">Einstellungen öffnen</string>
     <string name="notification_permission_missing_text">WRITE_SECURE_SETTINGS am PC per adb shell pm grant vergeben</string>
     <string name="action_settings">Einstellungen</string>
     <string name="privacy_toggle_enable_accessibility">Privatsphäre-Modus aktivieren (Netzwerkadressen ausblenden)</string>
@@ -153,10 +156,14 @@
     <string name="settings_language_subtext">Wähle die Anzeigesprache für KeepADB</string>
     <string name="settings_language_system_default">Systemstandard</string>
     <string name="settings_language_dialog_title">Sprache auswählen</string>
-    <string name="settings_diagnostics_title">Diagnose</string>
+    <string name="settings_diagnostics_title">Diagnose &amp; Wartung</string>
     <string name="settings_diagnostics_subtext">Speichert die letzten 128 bereinigten Ereignisse auf diesem Gerät. Der Export öffnet den Android-Teilen-Dialog.</string>
     <string name="settings_diagnostics_export">Diagnose exportieren</string>
     <string name="settings_diagnostics_export_subject">KeepADB-Diagnose</string>
+    <string name="settings_reset_app">App vollständig zurücksetzen</string>
+    <string name="settings_reset_app_dialog_title">App vollständig zurücksetzen?</string>
+    <string name="settings_reset_app_dialog_message">Alle gespeicherten Netzwerke, Einstellungen und Berechtigungen werden gelöscht. Die App schließt sich anschließend.</string>
+    <string name="settings_reset_app_confirm">Zurücksetzen</string>
     <string name="settings_section_notification">Benachrichtigung</string>
     <string name="settings_hide_notification_toggle">Dauerhafte Benachrichtigung</string>
     <string name="settings_hide_notification_subtext">Zeigt die Status-Benachrichtigung in der Leiste. Das Ausschalten hat keinen Einfluss auf Keep-Alive oder Widgets.</string>
