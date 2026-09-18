@@ -284,6 +284,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="status_off_keep_alive_waiting">वायरलेस डीबगिंग बंद है – Keep-Alive नेटवर्क की प्रतीक्षा कर रहा है</string>
     <string name="status_off_keep_alive_blocked_untrusted">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क विश्वसनीय नहीं है</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: नेटवर्क की पहचान नहीं हो पा रही, स्थान अनुमति जाँचें</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: Android के वायरलेस डीबगिंग नेटवर्क संवाद की पुष्टि करें, फिर पुनः प्रयास के लिए स्विच पर टैप करें</string>
     <string name="status_pending">बदला जा रहा है…</string>
     <string name="state_pending">बदला जा रहा है…</string>
     <string name="tile_state_keep_alive_waiting">बंद – Keep-Alive प्रतीक्षा में</string>

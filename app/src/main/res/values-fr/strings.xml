@@ -284,6 +284,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="status_off_keep_alive_waiting">Débogage sans fil DÉSACTIVÉ – Keep-Alive attend le réseau</string>
     <string name="status_off_keep_alive_blocked_untrusted">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : ce réseau Wi-Fi n\'est pas approuvé</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : identité du réseau indéterminable, vérifiez l\'autorisation de localisation</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : confirmez la boîte de dialogue réseau du débogage sans fil d\'Android, puis appuyez sur l\'interrupteur pour réessayer</string>
     <string name="status_pending">Changement en cours…</string>
     <string name="state_pending">Changement en cours…</string>
     <string name="tile_state_keep_alive_waiting">Désactivé – Keep-Alive en attente</string>

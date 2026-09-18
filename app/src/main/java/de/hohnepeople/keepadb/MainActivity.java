@@ -394,6 +394,12 @@ public class MainActivity extends Activity {
                 status.setText(getString(R.string.status_off_keep_alive_blocked_untrusted));
             } else if (detail == KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE) {
                 status.setText(getString(R.string.status_off_keep_alive_blocked_identity_unavailable));
+            } else if (detail == KeepAliveWaitingDetail.BLOCKED_RECOVERY_BACKOFF) {
+                // #496: an automatic enable's write was accepted but its readback never flipped
+                // on -- most commonly Android's own Wireless Debugging "always allow on this
+                // network" dialog was never confirmed. Automatic retries are paused; the switch
+                // itself is still the sanctioned manual retry (see KeepADB#setEnabled).
+                status.setText(getString(R.string.status_off_keep_alive_blocked_recovery_backoff));
             } else {
                 status.setText(getString(R.string.status_off_keep_alive_waiting));
             }
@@ -906,7 +912,14 @@ public class MainActivity extends Activity {
         /** Wi-Fi is connected, but the network isn't on the trusted allowlist (#245). */
         BLOCKED_UNTRUSTED_NETWORK,
         /** Wi-Fi is connected, but its identity can't be read (missing Location permission). */
-        BLOCKED_IDENTITY_UNAVAILABLE
+        BLOCKED_IDENTITY_UNAVAILABLE,
+        /**
+         * #496: Wi-Fi is connected and trusted, but the last automatic enable's write was
+         * accepted while its readback stayed off -- most commonly because Android's own
+         * "always allow Wireless Debugging on this network" pairing dialog was never confirmed.
+         * Automatic retries are paused; see {@link KeepADBRecoveryBackoff}.
+         */
+        BLOCKED_RECOVERY_BACKOFF
     }
 
     /**
@@ -926,6 +939,11 @@ public class MainActivity extends Activity {
         }
         if (reason == KeepADBTrustedNetwork.BlockReason.UNTRUSTED_NETWORK) {
             return KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK;
+        }
+        // #496: trusted network, but the automatic re-enable backoff is currently blocking
+        // further attempts after an accepted-write-ineffective-readback cycle.
+        if (KeepADB.isAutomaticEnableBackoffBlocked()) {
+            return KeepAliveWaitingDetail.BLOCKED_RECOVERY_BACKOFF;
         }
         // Trusted (or all-Wi-Fi mode) but still waiting -- e.g. the debounce window hasn't fired
         // yet. Nothing wrong to explain; render the generic waiting text.

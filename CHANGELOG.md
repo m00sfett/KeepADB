@@ -22,6 +22,42 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.12] - Unreleased
+
+### Fixed
+- Automatic Keep-Alive recovery: an enable write that `Settings.Global` accepted but whose
+  readback stayed off (e.g. Android's own "always allow Wireless Debugging on this network"
+  pairing dialog was never confirmed) no longer retries in an unbounded ~1.5s loop. A new
+  framework-free `KeepADBRecoveryBackoff` allows exactly one controlled automatic attempt per
+  "unchanged state" cycle, then pauses further automatic writes until an explicit trigger
+  reopens the cycle (an observed successful readback, a Wi-Fi network change, a manual user
+  action, or an app/service restart) or a 15-minute fallback interval elapses. `KeepADBService`'s
+  `recheckAndEnable()` heartbeat and `ContentObserver` re-enable path both consult the new
+  `KeepADB.isAutomaticEnableBackoffBlocked()` gate before writing; `KeepADB.applyNow()` records
+  the mismatch/success outcome centrally so both call sites share one decision. The main screen's
+  `OFF_KEEP_ALIVE_WAITING` status card gained a fourth `KeepAliveWaitingDetail` outcome
+  (`BLOCKED_RECOVERY_BACKOFF`) so the paused state is explained rather than silent; the existing
+  manual toggle/tile/widget override still writes immediately and reopens a blocked cycle, so no
+  new UI control was needed. Reproduced on real hardware (Redmi Note 8T, Android 13, F-Droid
+  review) as ~160 re-enable attempts/minute; the fastlane description now documents the Android
+  pairing-dialog prerequisite for unattended recovery (#496).
+- Repair within the same unreleased version: the backoff above was proven ineffective on the
+  physical S20 (Android 13, fresh never-approved network) -- 186 `recovery_attempt` events in 72
+  seconds, in the old ~1.5s cadence, without a single `state_mismatch` or
+  `recovery_backoff_active` (#500). Cause: success was decided by the readback taken immediately
+  after the write, and Android reports `adb_wifi_enabled` as 1 on that read even when the pairing
+  dialog was never confirmed, reverting it to 0 only moments later. Every attempt therefore booked
+  a success and reset the cycle; the `ContentObserver`'s own unconditional reset on any observed
+  "on" reset it a second time, so the following revert always looked like a fresh, unblocked
+  cycle. Success is now decided by survival, not by one read: an accepted automatic enable counts
+  as an attempt and blocks immediately, and only a value that is still on after
+  `KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS` (3s) releases the block -- logged as a
+  `stage=confirmation` success/`state_mismatch` event. The `ContentObserver` now calls
+  `KeepADB.noteObservedEnabled()`, which ignores an observed "on" while one of our own attempts is
+  still awaiting its verdict and keeps reopening the cycle for a genuinely external enable. New
+  `KeepADBRevertingSettingsGateway` test fake reproduces exactly this accepted-then-reverted
+  sequence, which `KeepADBStuckOffSettingsGateway` structurally could not (#500).
+
 ## [1.8.11] - Unreleased
 
 ### Fixed

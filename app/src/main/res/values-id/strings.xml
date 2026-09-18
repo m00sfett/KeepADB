@@ -284,6 +284,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="status_off_keep_alive_waiting">Debugging Nirkabel NONAKTIF – Keep-Alive menunggu jaringan</string>
     <string name="status_off_keep_alive_blocked_untrusted">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini tidak tepercaya</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: identitas jaringan tidak dapat ditentukan, periksa izin Lokasi</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: konfirmasi dialog jaringan Debugging Nirkabel Android, lalu ketuk sakelar untuk mencoba lagi</string>
     <string name="status_pending">Mengalihkan…</string>
     <string name="state_pending">Mengalihkan…</string>
     <string name="tile_state_keep_alive_waiting">Nonaktif – Keep-Alive menunggu</string>

@@ -284,6 +284,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="status_off_keep_alive_waiting">تصحيح الأخطاء اللاسلكي مُعَطَّل — ينتظر Keep-Alive الشبكة</string>
     <string name="status_off_keep_alive_blocked_untrusted">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: هذه الشبكة غير موثوقة</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: تعذر تحديد هوية الشبكة، تحقق من إذن الموقع</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: قم بتأكيد مربع حوار شبكة تصحيح الأخطاء اللاسلكي في Android، ثم اضغط على المفتاح لإعادة المحاولة</string>
     <string name="status_pending">جارٍ التبديل…</string>
     <string name="state_pending">جارٍ التبديل…</string>
     <string name="tile_state_keep_alive_waiting">متوقف — ينتظر Keep-Alive</string>

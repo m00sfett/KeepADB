@@ -284,6 +284,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="status_off_keep_alive_waiting">Draadloze foutopsporing is UIT – Keep-Alive wacht op het netwerk</string>
     <string name="status_off_keep_alive_blocked_untrusted">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: dit Wi-Fi-netwerk is niet vertrouwd</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: netwerkidentiteit onbekend, controleer de locatietoestemming</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: bevestig Android\'s netwerkdialoog voor draadloze foutopsporing en tik daarna op de schakelaar om het opnieuw te proberen</string>
     <string name="status_pending">Bezig met omschakelen…</string>
     <string name="state_pending">Bezig met omschakelen…</string>
     <string name="tile_state_keep_alive_waiting">Uit – Keep-Alive wacht</string>
