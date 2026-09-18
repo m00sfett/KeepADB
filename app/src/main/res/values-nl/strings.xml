@@ -176,10 +176,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_edit_action_accessibility">Hostprofiel &quot;%1$s&quot; bewerken</string>
     <string name="usb_profile_delete_action_accessibility">Hostprofiel &quot;%1$s&quot; verwijderen</string>
     <string name="usb_profile_edit_title">Hostprofiel bewerken</string>
-    <string name="settings_diagnostics_title">Diagnostiek</string>
+    <string name="settings_diagnostics_title">Diagnostiek &amp; onderhoud</string>
     <string name="settings_diagnostics_subtext">Bewaart de laatste 128 geredigeerde gebeurtenissen op dit apparaat. Exporteren opent het Android-deelvenster.</string>
     <string name="settings_diagnostics_export">Diagnostiek exporteren</string>
     <string name="settings_diagnostics_export_subject">KeepADB-diagnostiek</string>
+    <string name="settings_reset_app">App volledig resetten</string>
+    <string name="settings_reset_app_dialog_title">App volledig resetten?</string>
+    <string name="settings_reset_app_dialog_message">Alle opgeslagen netwerken, instellingen en machtigingen worden verwijderd. De app wordt daarna afgesloten.</string>
+    <string name="settings_reset_app_confirm">Resetten</string>
     <string name="battery_optimization_title">Batterijoptimalisatie kan Keep-Alive beperken</string>
     <string name="battery_optimization_body">Android kan Keep-Alive op de achtergrond beperken of stoppen, tenzij KeepADB is vrijgesteld van batterijoptimalisatie.</string>
     <string name="battery_optimization_button">Batterij-instellingen openen</string>

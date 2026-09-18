@@ -153,10 +153,14 @@
     <string name="settings_language_subtext">Wähle die Anzeigesprache für KeepADB</string>
     <string name="settings_language_system_default">Systemstandard</string>
     <string name="settings_language_dialog_title">Sprache auswählen</string>
-    <string name="settings_diagnostics_title">Diagnose</string>
+    <string name="settings_diagnostics_title">Diagnose &amp; Wartung</string>
     <string name="settings_diagnostics_subtext">Speichert die letzten 128 bereinigten Ereignisse auf diesem Gerät. Der Export öffnet den Android-Teilen-Dialog.</string>
     <string name="settings_diagnostics_export">Diagnose exportieren</string>
     <string name="settings_diagnostics_export_subject">KeepADB-Diagnose</string>
+    <string name="settings_reset_app">App vollständig zurücksetzen</string>
+    <string name="settings_reset_app_dialog_title">App vollständig zurücksetzen?</string>
+    <string name="settings_reset_app_dialog_message">Alle gespeicherten Netzwerke, Einstellungen und Berechtigungen werden gelöscht. Die App schließt sich anschließend.</string>
+    <string name="settings_reset_app_confirm">Zurücksetzen</string>
     <string name="settings_section_notification">Benachrichtigung</string>
     <string name="settings_hide_notification_toggle">Dauerhafte Benachrichtigung</string>
     <string name="settings_hide_notification_subtext">Zeigt die Status-Benachrichtigung in der Leiste. Das Ausschalten hat keinen Einfluss auf Keep-Alive oder Widgets.</string>

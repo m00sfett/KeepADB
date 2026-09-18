@@ -155,10 +155,14 @@
     <string name="settings_language_subtext">Choose the interface language for KeepADB</string>
     <string name="settings_language_system_default">System default</string>
     <string name="settings_language_dialog_title">Select Language</string>
-    <string name="settings_diagnostics_title">Diagnostics</string>
+    <string name="settings_diagnostics_title">Diagnostics &amp; Maintenance</string>
     <string name="settings_diagnostics_subtext">Keeps the latest 128 redacted events on this device. Export opens the Android share sheet.</string>
     <string name="settings_diagnostics_export">Export diagnostics</string>
     <string name="settings_diagnostics_export_subject">KeepADB diagnostics</string>
+    <string name="settings_reset_app">Reset App Completely</string>
+    <string name="settings_reset_app_dialog_title">Reset App Completely?</string>
+    <string name="settings_reset_app_dialog_message">All saved networks, settings, and permissions will be deleted. The app will then close.</string>
+    <string name="settings_reset_app_confirm">Reset</string>
     <string name="settings_section_notification">Notification</string>
     <string name="settings_hide_notification_toggle">Persistent notification</string>
     <string name="settings_hide_notification_subtext">Shows the status notification in the drawer. Turning it off won’t affect Keep-Alive or widgets.</string>

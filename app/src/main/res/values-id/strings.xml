@@ -176,10 +176,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_edit_action_accessibility">Ubah profil host &quot;%1$s&quot;</string>
     <string name="usb_profile_delete_action_accessibility">Hapus profil host &quot;%1$s&quot;</string>
     <string name="usb_profile_edit_title">Ubah profil host</string>
-    <string name="settings_diagnostics_title">Diagnostik</string>
+    <string name="settings_diagnostics_title">Diagnostik &amp; Pemeliharaan</string>
     <string name="settings_diagnostics_subtext">Menyimpan 128 peristiwa tersunting terbaru di perangkat ini. Ekspor membuka lembar berbagi Android.</string>
     <string name="settings_diagnostics_export">Ekspor diagnostik</string>
     <string name="settings_diagnostics_export_subject">Diagnostik KeepADB</string>
+    <string name="settings_reset_app">Setel ulang aplikasi sepenuhnya</string>
+    <string name="settings_reset_app_dialog_title">Setel ulang aplikasi sepenuhnya?</string>
+    <string name="settings_reset_app_dialog_message">Semua jaringan tersimpan, setelan, dan izin akan dihapus. Aplikasi kemudian akan ditutup.</string>
+    <string name="settings_reset_app_confirm">Setel ulang</string>
     <string name="battery_optimization_title">Pengoptimalan baterai dapat membatasi Keep-Alive</string>
     <string name="battery_optimization_body">Android dapat membatasi atau menghentikan Keep-Alive di latar belakang kecuali KeepADB dikecualikan dari pengoptimalan baterai.</string>
     <string name="battery_optimization_button">Buka setelan baterai</string>
