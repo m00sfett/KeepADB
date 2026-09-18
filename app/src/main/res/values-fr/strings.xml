@@ -4,7 +4,7 @@
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Configuration initiale</string>
     <string name="setup_body">Connectez cet appareil à un ordinateur en USB avec le débogage USB activé, puis exécutez la commande ci-dessous.</string>
-    <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Vérifier l’autorisation</string>
     <string name="status_on">Débogage sans fil ACTIVÉ</string>
     <string name="status_off">Débogage sans fil DÉSACTIVÉ</string>
