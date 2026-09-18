@@ -11,9 +11,11 @@ import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -24,6 +26,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -92,6 +95,27 @@ public class SettingsActivity extends Activity {
     private AlertDialog activeSwitchProfileDialog;
     private AlertDialog activeDeleteConfirmDialog;
 
+    // #507: Wi-Fi & Access Points settings views and state
+    static final int WIFI_APS_LOCATION_PERMISSION_REQUEST = 3002;
+    private static final String LOCATION_PERMISSION_REQUESTED = "location_permission_requested";
+    private static final int WIFI_APS_COLLAPSED_OTHERS = 5;
+
+    private Switch wifiApsFeatureToggle;
+    private View wifiApsContent;
+    private Switch wifiApsTrustedOnlyToggle;
+    private LinearLayout wifiApsCurrentRow;
+    private LinearLayout wifiApsList;
+    private TextView wifiApsToggle;
+    private TextView wifiApsEmpty;
+    private LinearLayout wifiSsidsSection;
+    private LinearLayout wifiSsidsCurrentRow;
+    private LinearLayout wifiSsidsList;
+    private TextView wifiSsidsEmpty;
+    private Button wifiApsRecentlyBlockedButton;
+    private AlertDialog activeBlockedNetworksDialog;
+    private boolean wifiApsExpanded;
+    private boolean wifiApsTrustedOnly;
+
     static final String WEBSITE_URL = "https://hohnepeople.de";
 
     // #471: settings cards start collapsed and are toggled independently of each other. The
@@ -118,6 +142,7 @@ public class SettingsActivity extends Activity {
             {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body,
                     R.id.settings_usb_notification_arrow},
             {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body, R.id.settings_usb_handover_arrow},
+            {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body, R.id.settings_wifi_aps_arrow},
             {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body,
                     R.id.settings_trusted_network_arrow},
             {R.id.settings_notification_header, R.id.settings_notification_body, R.id.settings_notification_arrow},
@@ -218,6 +243,36 @@ public class SettingsActivity extends Activity {
         usbHandoverSelectedText = findViewById(R.id.settings_usb_handover_selected_text);
         usbHandoverSelector = findViewById(R.id.settings_usb_handover_selector);
         usbHandoverSelector.setOnClickListener(v -> showUsbHandoverModeDialog());
+
+        wifiApsFeatureToggle = findViewById(R.id.settings_wifi_aps_feature_toggle);
+        wifiApsContent = findViewById(R.id.settings_wifi_aps_content);
+        wifiApsTrustedOnlyToggle = findViewById(R.id.wifi_aps_trusted_only_toggle);
+        wifiApsCurrentRow = findViewById(R.id.wifi_aps_current_row);
+        wifiApsList = findViewById(R.id.wifi_aps_list);
+        wifiApsEmpty = findViewById(R.id.wifi_aps_empty);
+        wifiApsToggle = findViewById(R.id.wifi_aps_toggle);
+        wifiSsidsSection = findViewById(R.id.wifi_ssids_section);
+        wifiSsidsCurrentRow = findViewById(R.id.wifi_ssids_current_row);
+        wifiSsidsList = findViewById(R.id.wifi_ssids_list);
+        wifiSsidsEmpty = findViewById(R.id.wifi_ssids_empty);
+        wifiApsRecentlyBlockedButton = findViewById(R.id.wifi_aps_recently_blocked_button);
+
+        wifiApsFeatureToggle.setOnClickListener(v -> {
+            boolean want = wifiApsFeatureToggle.isChecked();
+            KeepADBPreferences.setWifiApsFeatureEnabled(this, want);
+            refresh();
+        });
+        wifiApsToggle.setOnClickListener(v -> {
+            wifiApsExpanded = !wifiApsExpanded;
+            renderAccessPointOverview();
+        });
+        wifiApsTrustedOnlyToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            wifiApsTrustedOnly = isChecked;
+            renderAccessPointOverview();
+        });
+        if (wifiApsRecentlyBlockedButton != null) {
+            wifiApsRecentlyBlockedButton.setOnClickListener(v -> showBlockedNetworkDialog());
+        }
 
 
         trustedNetworkToggle = findViewById(R.id.settings_trusted_network_toggle);
@@ -463,6 +518,13 @@ public class SettingsActivity extends Activity {
             activeDeleteConfirmDialog = null;
         }
 
+        if (activeBlockedNetworksDialog != null) {
+            if (activeBlockedNetworksDialog.isShowing()) {
+                activeBlockedNetworksDialog.dismiss();
+            }
+            activeBlockedNetworksDialog = null;
+        }
+
         super.onDestroy();
     }
 
@@ -604,19 +666,22 @@ public class SettingsActivity extends Activity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode != TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST) return;
-        // grantResults can be shorter than permissions (even empty) if the request was interrupted
-        // (e.g. the app was backgrounded while the system dialog was up), so re-query the actual
-        // permission state instead of indexing into it.
-        boolean granted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED;
-        if (granted) {
-            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        } else {
-            Toast.makeText(this, R.string.settings_trusted_network_permission_denied_toast,
-                    Toast.LENGTH_LONG).show();
+        if (requestCode == TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST) {
+            // grantResults can be shorter than permissions (even empty) if the request was interrupted
+            // (e.g. the app was backgrounded while the system dialog was up), so re-query the actual
+            // permission state instead of indexing into it.
+            boolean granted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED;
+            if (granted) {
+                KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+            } else {
+                Toast.makeText(this, R.string.settings_trusted_network_permission_denied_toast,
+                        Toast.LENGTH_LONG).show();
+            }
+            refresh();
+        } else if (requestCode == WIFI_APS_LOCATION_PERMISSION_REQUEST) {
+            refresh();
         }
-        refresh();
     }
 
     private void showProfileDialog(String action) {
@@ -1043,6 +1108,425 @@ public class SettingsActivity extends Activity {
         boolean showCleartextWarning = urlToCheck != null
                 && urlToCheck.toLowerCase(Locale.ROOT).startsWith("http://");
         webhookCleartextWarning.setVisibility(showCleartextWarning ? View.VISIBLE : View.GONE);
+
+        // #507: Wi-Fi & Access Points opt-in rendering
+        boolean wifiApsEnabled = KeepADBPreferences.isWifiApsFeatureEnabled(this);
+        wifiApsFeatureToggle.setChecked(wifiApsEnabled);
+        wifiApsContent.setVisibility(wifiApsEnabled ? View.VISIBLE : View.GONE);
+        if (wifiApsEnabled) {
+            renderAccessPointOverview();
+            renderTrustedSsidSection();
+            renderBlockedNetworkButton();
+        }
+    }
+
+    private void renderBlockedNetworkButton() {
+        if (wifiApsRecentlyBlockedButton != null) {
+            wifiApsRecentlyBlockedButton.setText(getString(R.string.settings_trusted_network_blocked_button,
+                    KeepADBBlockedNetworkHistory.getEntries(this).size()));
+        }
+    }
+
+    private void renderAccessPointOverview() {
+        List<KeepADBAccessPointOverview.ApItem> items = KeepADBAccessPointOverview.buildItems(this);
+
+        wifiApsCurrentRow.removeAllViews();
+        wifiApsList.removeAllViews();
+
+        KeepADBAccessPointOverview.ApItem currentItem = null;
+        List<KeepADBAccessPointOverview.ApItem> others = new ArrayList<>();
+        for (KeepADBAccessPointOverview.ApItem item : items) {
+            if (item.current) {
+                currentItem = item;
+            } else {
+                others.add(item);
+            }
+        }
+
+        boolean currentHiddenByFilter = wifiApsTrustedOnly && currentItem != null && !currentItem.trusted;
+        if (currentHiddenByFilter) {
+            currentItem = null;
+        }
+        if (wifiApsTrustedOnly) {
+            others.removeIf(item -> !item.trusted);
+        }
+
+        if (currentItem != null) {
+            wifiApsCurrentRow.addView(buildAccessPointRow(currentItem, true));
+        } else if (!currentHiddenByFilter) {
+            TextView unknown = new TextView(this);
+            unknown.setText(R.string.wifi_aps_current_unknown);
+            unknown.setTextColor(getColor(R.color.night_muted));
+            unknown.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+            wifiApsCurrentRow.addView(unknown);
+
+            boolean locationGranted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED;
+            if (!locationGranted) {
+                Button grantButton = new Button(this);
+                grantButton.setId(R.id.btn_wifi_aps_grant_location_permission);
+                grantButton.setBackgroundResource(R.drawable.bg_btn_primary);
+                grantButton.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+                grantButton.setPadding(
+                        (int) (16 * getResources().getDisplayMetrics().density),
+                        (int) (8 * getResources().getDisplayMetrics().density),
+                        (int) (16 * getResources().getDisplayMetrics().density),
+                        (int) (8 * getResources().getDisplayMetrics().density));
+                grantButton.setTextColor(getColor(R.color.title_yellow));
+                grantButton.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+                grantButton.setTypeface(android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.BOLD));
+                boolean permanentlyDenied = isLocationPermissionPermanentlyDenied();
+                grantButton.setText(permanentlyDenied
+                        ? R.string.location_permission_settings_button
+                        : R.string.location_permission_panel_grant_button);
+                grantButton.setOnClickListener(v -> onLocationPermissionActionClick());
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                lp.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
+                grantButton.setLayoutParams(lp);
+                wifiApsCurrentRow.addView(grantButton);
+            }
+        }
+
+        boolean collapsible = others.size() > WIFI_APS_COLLAPSED_OTHERS;
+        boolean expanded = wifiApsExpanded && collapsible;
+        int visibleCount = expanded ? others.size() : Math.min(others.size(), WIFI_APS_COLLAPSED_OTHERS);
+        for (int i = 0; i < visibleCount; i++) {
+            wifiApsList.addView(buildAccessPointRow(others.get(i), false));
+        }
+        wifiApsEmpty.setVisibility(others.isEmpty() ? View.VISIBLE : View.GONE);
+
+        if (collapsible) {
+            wifiApsToggle.setVisibility(View.VISIBLE);
+            wifiApsToggle.setText(expanded
+                    ? getString(R.string.wifi_aps_show_less_button)
+                    : getString(R.string.wifi_aps_show_more_button, others.size() - WIFI_APS_COLLAPSED_OTHERS));
+        } else {
+            wifiApsToggle.setVisibility(View.GONE);
+            wifiApsExpanded = false;
+        }
+    }
+
+    private View buildAccessPointRow(KeepADBAccessPointOverview.ApItem item, boolean highlightCurrent) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        if (!highlightCurrent) {
+            int topMargin = (int) (12 * getResources().getDisplayMetrics().density);
+            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            rowParams.topMargin = topMargin;
+            row.setLayoutParams(rowParams);
+        }
+
+        LinearLayout labelColumn = new LinearLayout(this);
+        labelColumn.setOrientation(LinearLayout.VERTICAL);
+        labelColumn.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+
+        TextView label = new TextView(this);
+        String ssidLabel = (item.ssid == null || item.ssid.isEmpty())
+                ? getString(R.string.wifi_aps_ssid_unknown) : item.ssid;
+        label.setText(highlightCurrent
+                ? getString(R.string.wifi_aps_current_badge) + " · " + ssidLabel
+                : ssidLabel);
+        label.setTextColor(getColor(R.color.night_text));
+        label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+
+        TextView bssidText = new TextView(this);
+        bssidText.setText(item.bssid);
+        bssidText.setTextColor(getColor(R.color.night_muted));
+        bssidText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+
+        labelColumn.addView(label);
+        labelColumn.addView(bssidText);
+
+        Button trustButton = new Button(this);
+        trustButton.setBackgroundResource(
+                item.trusted ? R.drawable.bg_btn_secondary : R.drawable.bg_btn_primary);
+        trustButton.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+        trustButton.setTextColor(getColor(item.trusted ? R.color.text_yellow : R.color.title_yellow));
+        trustButton.setText(item.trusted ? R.string.wifi_aps_untrust_button : R.string.wifi_aps_trust_button);
+        trustButton.setContentDescription(getString(
+                item.trusted ? R.string.wifi_aps_untrust_accessibility : R.string.wifi_aps_trust_accessibility,
+                ssidLabel));
+        trustButton.setOnClickListener(v -> toggleAccessPointTrust(item, ssidLabel));
+
+        row.addView(labelColumn);
+        row.addView(trustButton);
+        return row;
+    }
+
+    private void toggleAccessPointTrust(KeepADBAccessPointOverview.ApItem item, String label) {
+        if (item.trusted) {
+            KeepADBTrustedNetwork.Entry match = null;
+            for (KeepADBTrustedNetwork.Entry entry : KeepADBTrustedNetwork.getEntries(this)) {
+                if (entry.bssid.equalsIgnoreCase(item.bssid)) {
+                    match = entry;
+                    break;
+                }
+            }
+            if (match != null && KeepADBTrustedNetwork.remove(this, match.id)) {
+                Toast.makeText(this, getString(R.string.settings_trusted_network_removed_toast, match.label),
+                        Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            KeepADBTrustedNetwork.Entry added = KeepADBTrustedNetwork.addBssid(this, item.bssid, label);
+            if (added != null) {
+                Toast.makeText(this, getString(R.string.settings_trusted_network_added_toast, added.label),
+                        Toast.LENGTH_SHORT).show();
+                boolean enabled = KeepADBReceiver.trustBssidAndAttemptConnect(this, item.bssid, added.label);
+                if (!enabled && !hasSecureSettingsPermission()) {
+                    showToggleErrorToast();
+                }
+                if (item.current) {
+                    offerAdditionalMeshBssids();
+                }
+            }
+        }
+        refresh();
+    }
+
+    private void offerAdditionalMeshBssids() {
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(this);
+        if (!identity.isKnown()) return;
+        String ssid = identity.displaySsid();
+        if (ssid == null || ssid.isEmpty()) return;
+
+        List<String> alreadyListed = new ArrayList<>();
+        for (KeepADBTrustedNetwork.Entry listed : KeepADBTrustedNetwork.getEntries(this)) {
+            alreadyListed.add(listed.bssid);
+        }
+        List<String> additional = KeepADBBssidHistory.getAdditionalBssids(this, ssid, alreadyListed);
+        if (additional.isEmpty()) return;
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_trusted_network_mesh_title)
+                .setMessage(getString(R.string.settings_trusted_network_mesh_message, additional.size(), ssid))
+                .setPositiveButton(R.string.settings_trusted_network_mesh_add_button, (dialog, which) -> {
+                    for (String bssid : additional) {
+                        KeepADBReceiver.trustBssidAndAttemptConnect(this, bssid, ssid);
+                    }
+                    Toast.makeText(this,
+                            getString(R.string.settings_trusted_network_mesh_added_toast, additional.size()),
+                            Toast.LENGTH_SHORT).show();
+                    refresh();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private boolean isLocationPermissionPermanentlyDenied() {
+        boolean previouslyRequested = getPreferences(MODE_PRIVATE)
+                .getBoolean(LOCATION_PERMISSION_REQUESTED, false);
+        return previouslyRequested
+                && !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION);
+    }
+
+    private void onLocationPermissionActionClick() {
+        if (isLocationPermissionPermanentlyDenied()) {
+            openAppSettings();
+            return;
+        }
+        getPreferences(MODE_PRIVATE).edit()
+                .putBoolean(LOCATION_PERMISSION_REQUESTED, true).apply();
+        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION},
+                WIFI_APS_LOCATION_PERMISSION_REQUEST);
+    }
+
+    private void openAppSettings() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.fromParts("package", getPackageName(), null));
+        startActivity(intent);
+    }
+
+    private void renderTrustedSsidSection() {
+        boolean enabled = KeepADBTrustedNetwork.isSsidMatchingEnabled(this);
+        wifiSsidsSection.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        if (!enabled) return;
+
+        wifiSsidsCurrentRow.removeAllViews();
+        wifiSsidsList.removeAllViews();
+
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(this);
+        String currentSsid = identity.isKnown() ? identity.displaySsid() : null;
+        if (currentSsid == null || currentSsid.isEmpty()) {
+            TextView unknown = new TextView(this);
+            unknown.setText(R.string.wifi_ssids_current_unknown);
+            unknown.setTextColor(getColor(R.color.night_muted));
+            unknown.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+            wifiSsidsCurrentRow.addView(unknown);
+        } else {
+            wifiSsidsCurrentRow.addView(buildCurrentSsidRow(currentSsid));
+        }
+
+        List<KeepADBTrustedNetwork.SsidEntry> entries = KeepADBTrustedNetwork.getSsidEntries(this);
+        for (KeepADBTrustedNetwork.SsidEntry entry : entries) {
+            wifiSsidsList.addView(buildTrustedSsidRow(entry));
+        }
+        wifiSsidsEmpty.setVisibility(entries.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private View buildCurrentSsidRow(String currentSsid) {
+        boolean listed = KeepADBTrustedNetwork.findSsidEntryForCurrentNetwork(this) != null;
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+
+        TextView label = new TextView(this);
+        label.setText(getString(R.string.wifi_aps_current_badge) + " · " + currentSsid);
+        label.setTextColor(getColor(R.color.night_text));
+        label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+        label.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        row.addView(label);
+
+        if (!listed) {
+            Button add = new Button(this);
+            add.setBackgroundResource(R.drawable.bg_btn_primary);
+            add.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+            add.setTextColor(getColor(R.color.title_yellow));
+            add.setText(R.string.wifi_ssids_add_button);
+            add.setContentDescription(getString(R.string.wifi_ssids_add_accessibility, currentSsid));
+            add.setOnClickListener(v -> {
+                KeepADBTrustedNetwork.SsidEntry added = KeepADBTrustedNetwork.addCurrentSsid(this);
+                if (added == null) {
+                    Toast.makeText(this, R.string.settings_trusted_network_add_failed_toast,
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, getString(R.string.wifi_ssids_added_toast, added.ssid),
+                            Toast.LENGTH_SHORT).show();
+                }
+                refresh();
+            });
+            row.addView(add);
+        }
+        return row;
+    }
+
+    private View buildTrustedSsidRow(KeepADBTrustedNetwork.SsidEntry entry) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        int topMargin = (int) (12 * getResources().getDisplayMetrics().density);
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        rowParams.topMargin = topMargin;
+        row.setLayoutParams(rowParams);
+
+        TextView label = new TextView(this);
+        label.setText(entry.ssid);
+        label.setTextColor(getColor(R.color.night_text));
+        label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+        label.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        row.addView(label);
+
+        Button remove = new Button(this);
+        remove.setBackgroundResource(R.drawable.bg_btn_secondary);
+        remove.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+        remove.setTextColor(getColor(R.color.text_yellow));
+        remove.setText(R.string.wifi_ssids_remove_button);
+        remove.setContentDescription(getString(R.string.wifi_ssids_remove_accessibility, entry.ssid));
+        remove.setOnClickListener(v -> {
+            if (KeepADBTrustedNetwork.removeSsid(this, entry.id)) {
+                Toast.makeText(this, getString(R.string.wifi_ssids_removed_toast, entry.ssid),
+                        Toast.LENGTH_SHORT).show();
+            }
+            refresh();
+        });
+        row.addView(remove);
+        return row;
+    }
+
+    private void showBlockedNetworkDialog() {
+        List<KeepADBBlockedNetworkHistory.Entry> entries =
+                KeepADBBlockedNetworkHistory.getEntries(this);
+        if (entries.isEmpty()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.settings_trusted_network_blocked_title)
+                    .setMessage(R.string.settings_trusted_network_blocked_empty_message)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+            return;
+        }
+        LinearLayout rows = new LinearLayout(this);
+        rows.setOrientation(LinearLayout.VERTICAL);
+        int padding = (int) (20 * getResources().getDisplayMetrics().density);
+        rows.setPadding(padding, 0, padding, 0);
+        final AlertDialog[] dialogHolder = new AlertDialog[1];
+        // Newest first: the access point the user just failed to connect on is the one they came
+        // here for, and getEntries() returns the log oldest-first.
+        for (int i = entries.size() - 1; i >= 0; i--) {
+            KeepADBBlockedNetworkHistory.Entry entry = entries.get(i);
+            LinearLayout row = new LinearLayout(this);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            LinearLayout labelColumn = new LinearLayout(this);
+            labelColumn.setOrientation(LinearLayout.VERTICAL);
+            labelColumn.setLayoutParams(new LinearLayout.LayoutParams(0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+            TextView label = new TextView(this);
+            label.setText(entry.label());
+            label.setTextColor(getColor(R.color.night_text));
+            TextView detail = new TextView(this);
+            detail.setText(getString(R.string.settings_trusted_network_blocked_detail,
+                    entry.bssid,
+                    android.text.format.DateUtils.getRelativeTimeSpanString(entry.lastSeenAt,
+                            System.currentTimeMillis(),
+                            android.text.format.DateUtils.MINUTE_IN_MILLIS).toString()));
+            detail.setTextColor(getColor(R.color.night_muted));
+            detail.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+            labelColumn.addView(label);
+            labelColumn.addView(detail);
+            Button allow = new Button(this);
+            allow.setText(R.string.settings_trusted_network_blocked_allow_button);
+            allow.setContentDescription(getString(
+                    R.string.settings_trusted_network_blocked_allow_accessibility, entry.label()));
+            allow.setOnClickListener(v -> {
+                KeepADBReceiver.trustBssidAndAttemptConnect(this, entry.bssid, entry.label());
+                Toast.makeText(this,
+                        getString(R.string.settings_trusted_network_added_toast, entry.label()),
+                        Toast.LENGTH_SHORT).show();
+                dialogHolder[0].dismiss();
+                refresh();
+            });
+            row.addView(labelColumn);
+            row.addView(allow);
+            rows.addView(row);
+        }
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(rows);
+        dialogHolder[0] = new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_trusted_network_blocked_title)
+                .setView(scroll)
+                .setPositiveButton(android.R.string.ok, null)
+                .create();
+        activeBlockedNetworksDialog = dialogHolder[0];
+        dialogHolder[0].setOnDismissListener(d -> {
+            if (activeBlockedNetworksDialog == d) {
+                activeBlockedNetworksDialog = null;
+            }
+        });
+        dialogHolder[0].show();
+    }
+
+    AlertDialog getActiveBlockedNetworksDialog() {
+        return activeBlockedNetworksDialog;
+    }
+
+    private boolean hasSecureSettingsPermission() {
+        return checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void showToggleErrorToast() {
+        if (!hasSecureSettingsPermission()) {
+            Toast.makeText(this, getString(R.string.permission_error_toast, getPackageName()),
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+        Toast.makeText(this, getString(R.string.toggle_failed_toast), Toast.LENGTH_LONG).show();
     }
 
     private void bindVersionInfo() {

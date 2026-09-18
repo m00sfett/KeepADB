@@ -22,6 +22,18 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.15] - Unreleased
+
+### Changed
+- Wi-Fi & Access Points moved to Settings: moved the access point overview card and its
+  associated network controls (current connection row, trusted/all filter, SSID allowlist,
+  mesh grouping, recently blocked networks dialog, and location permission prompt) from the
+  home screen (`MainActivity`) into `SettingsActivity` (`settings_wifi_aps_panel`) between USB
+  handover and trusted network settings (#507).
+- Opt-in & Beta indicator: Wi-Fi access point discovery is now an experimental opt-in feature
+  (`settings_wifi_aps_feature_toggle`, disabled by default). Gated content is only rendered
+  and active when opted in, reducing home screen clutter and background scanning.
+
 ## [1.8.14] - Unreleased
 
 ### Added

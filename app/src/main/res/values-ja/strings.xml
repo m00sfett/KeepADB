@@ -301,4 +301,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_keep_alive_waiting">ワイヤレスデバッグ: OFF（待機中）</string>
     <string name="widget_text_pending">ワイヤレスデバッグ: 切り替え中…</string>
     <string name="toggle_failed_toast">ワイヤレスデバッグを切り替えられませんでした。もう一度お試しください。</string>
+    <string name="settings_section_wifi_aps">Wi-Fi とアクセスポイント（ベータ）</string>
+    <string name="settings_wifi_aps_feature_toggle">Wi-Fi とアクセスポイントの検出を有効化</string>
+    <string name="settings_wifi_aps_beta_description">アクセスポイントの検出は、近くの Wi-Fi アクセスポイントをスキャンする試験的なベータ機能です。位置情報の権限が必要で、バッテリー消費が増加する可能性があります。</string>
 </resources>

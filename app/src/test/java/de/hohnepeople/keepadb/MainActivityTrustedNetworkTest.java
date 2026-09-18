@@ -33,11 +33,9 @@ import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowWifiInfo;
 
 /**
- * #484/#485: the trust-restriction toggle, the "manage whitelist" dialog and the "recently
- * blocked" dialog moved here from {@code SettingsActivity} onto the home screen's security card.
- * These tests are the moved/adapted counterparts of the ones that used to live in
- * {@code SettingsActivityTest} for those same entry points -- only the hosting activity and view
- * ids changed, not the covered behavior.
+ * Tests for the Wi-Fi &amp; Access Points card and its security management dialogs (#484/#485,
+ * moved to {@link SettingsActivity} under opt-in for #507): the allowlisted-but-unobserved list,
+ * the recently blocked dialog, the mesh-BSSID convenience, and the SSID allowlist.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -65,19 +63,26 @@ public class MainActivityTrustedNetworkTest {
         KeepADB.resetForTesting();
     }
 
+    private ActivityController<SettingsActivity> launchSettingsWithWifiAps() {
+        KeepADBPreferences.setWifiApsFeatureEnabled(RuntimeEnvironment.getApplication(), true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        controller.get().findViewById(R.id.settings_wifi_aps_header).performClick();
+        ShadowLooper.idleMainLooper();
+        return controller;
+    }
+
     /**
      * #492: the separate "manage whitelist" dialog was removed as a second management surface. It
      * is only a deduplication -- rather than a loss of reach -- because the card itself now lists
      * an allowlisted access point that no other source supplies, i.e. one that was never observed
      * (no history entry) and is not the current connection. That row carries the remove action, so
-     * an entry can still be revoked without the dialog. This test is the replacement for the
-     * removed dialog test and would fail if #492's allowlist-sourced rows were dropped again.
+     * an entry can still be revoked without the dialog.
      */
     @Test
     public void accessPointCardListsAllowlistedAccessPointsThatWereNeverObserved() {
-        ActivityController<MainActivity> controller =
-                Robolectric.buildActivity(MainActivity.class).setup();
-        MainActivity activity = controller.get();
+        ActivityController<SettingsActivity> controller = launchSettingsWithWifiAps();
+        SettingsActivity activity = controller.get();
 
         KeepADBTrustedNetwork.addBssid(activity, "aa:bb:cc:dd:ee:ff", "MyOfficeNetwork");
         controller.pause().resume();
@@ -105,9 +110,8 @@ public class MainActivityTrustedNetworkTest {
     /** #446: the recently-blocked list is the transparency half of the issue. */
     @Test
     public void blockedNetworkDialogListsBlockedAccessPointsAndCanAllowOne() {
-        ActivityController<MainActivity> controller =
-                Robolectric.buildActivity(MainActivity.class).setup();
-        MainActivity activity = controller.get();
+        ActivityController<SettingsActivity> controller = launchSettingsWithWifiAps();
+        SettingsActivity activity = controller.get();
         KeepADBBlockedNetworkHistory.record(activity,
                 new KeepADBNetworkIdentity("Cafe-WLAN", "aa:bb:cc:dd:ee:01"), 1_000L);
         KeepADBBlockedNetworkHistory.record(activity,
@@ -153,9 +157,8 @@ public class MainActivityTrustedNetworkTest {
 
     @Test
     public void blockedNetworkDialogExplainsItselfWhenNothingWasBlocked() {
-        ActivityController<MainActivity> controller =
-                Robolectric.buildActivity(MainActivity.class).setup();
-        MainActivity activity = controller.get();
+        ActivityController<SettingsActivity> controller = launchSettingsWithWifiAps();
+        SettingsActivity activity = controller.get();
 
         activity.findViewById(R.id.wifi_aps_recently_blocked_button).performClick();
         ShadowLooper.idleMainLooper();
@@ -177,9 +180,8 @@ public class MainActivityTrustedNetworkTest {
         String bssid = "aa:bb:cc:dd:ee:01";
         grantAutoEnableForTesting(bssid, "Cafe-WLAN");
 
-        ActivityController<MainActivity> controller =
-                Robolectric.buildActivity(MainActivity.class).setup();
-        MainActivity activity = controller.get();
+        ActivityController<SettingsActivity> controller = launchSettingsWithWifiAps();
+        SettingsActivity activity = controller.get();
         // Raises this BSSID's own pending-prompt marker, exactly like the real block path does.
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(activity));
         controller.pause().resume();
@@ -205,25 +207,18 @@ public class MainActivityTrustedNetworkTest {
     }
 
     /**
-     * #492: the global trust-restriction switch is no longer on the home screen at all -- it moved
-     * back into SettingsActivity's collapsible card, where its warning is read before it is taken.
-     * Only its resulting status text may still appear here.
+     * #507: the home screen no longer hosts the Wi-Fi & Access Points panel or any of its controls.
      */
     @Test
-    public void homeScreenNoLongerHostsTheGlobalTrustRestrictionSwitch() {
+    public void homeScreenNoLongerHostsTheWifiApsCard() {
         ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity activity = controller.get();
 
-        List<android.widget.Switch> switches = findViewsByType(
-                activity.findViewById(R.id.wifi_aps_panel), android.widget.Switch.class);
-        for (android.widget.Switch found : switches) {
-            assertTrue("The Wi-Fi card must not carry the trust-restriction switch: "
-                            + found.getText(),
-                    found.getId() == R.id.wifi_aps_trusted_only_toggle);
-        }
-        assertNotNull("The status text stays, so a blocked decision is still explained here",
-                activity.findViewById(R.id.wifi_aps_trust_restriction_status));
+        assertNull(activity.findViewById(R.id.settings_wifi_aps_panel));
+        assertNull(activity.findViewById(R.id.wifi_aps_recently_blocked_button));
+        assertNull(activity.findViewById(R.id.wifi_aps_list));
+        assertNull(activity.findViewById(R.id.wifi_ssids_section));
     }
 
     /**
@@ -240,9 +235,8 @@ public class MainActivityTrustedNetworkTest {
         String ssid = "MeshHome";
         grantAutoEnableForTesting(currentBssid, ssid);
 
-        ActivityController<MainActivity> controller =
-                Robolectric.buildActivity(MainActivity.class).setup();
-        MainActivity activity = controller.get();
+        ActivityController<SettingsActivity> controller = launchSettingsWithWifiAps();
+        SettingsActivity activity = controller.get();
         // The device was briefly connected to the mesh AP earlier and got its own pending prompt
         // for it, before roaming to the network under test.
         connectTo(ssid, meshBssid);
@@ -279,9 +273,8 @@ public class MainActivityTrustedNetworkTest {
     @Test
     public void ssidSectionIsHiddenUntilItsOptInIsEnabled() {
         connectTo("MeshHome", "aa:bb:cc:dd:ee:05");
-        ActivityController<MainActivity> controller =
-                Robolectric.buildActivity(MainActivity.class).setup();
-        MainActivity activity = controller.get();
+        ActivityController<SettingsActivity> controller = launchSettingsWithWifiAps();
+        SettingsActivity activity = controller.get();
 
         assertEquals("The SSID section must be gone while its opt-in is off",
                 View.GONE, activity.findViewById(R.id.wifi_ssids_section).getVisibility());
@@ -298,9 +291,8 @@ public class MainActivityTrustedNetworkTest {
     @Test
     public void currentSsidCanBeAllowedAndRemovedFromTheCard() {
         connectTo("MeshHome", "aa:bb:cc:dd:ee:06");
-        ActivityController<MainActivity> controller =
-                Robolectric.buildActivity(MainActivity.class).setup();
-        MainActivity activity = controller.get();
+        ActivityController<SettingsActivity> controller = launchSettingsWithWifiAps();
+        SettingsActivity activity = controller.get();
         KeepADBTrustedNetwork.setSsidMatchingEnabled(activity, true);
         controller.pause().resume();
         ShadowLooper.idleMainLooper();
@@ -335,9 +327,8 @@ public class MainActivityTrustedNetworkTest {
     @Test
     public void unreadableIdentityOffersNoSsidAddAction() {
         connectTo(WifiManager.UNKNOWN_SSID, KeepADBNetworkIdentity.REDACTED_BSSID);
-        ActivityController<MainActivity> controller =
-                Robolectric.buildActivity(MainActivity.class).setup();
-        MainActivity activity = controller.get();
+        ActivityController<SettingsActivity> controller = launchSettingsWithWifiAps();
+        SettingsActivity activity = controller.get();
         KeepADBTrustedNetwork.setSsidMatchingEnabled(activity, true);
         controller.pause().resume();
         ShadowLooper.idleMainLooper();

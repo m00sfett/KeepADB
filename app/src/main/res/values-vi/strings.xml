@@ -301,4 +301,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_keep_alive_waiting">Gỡ lỗi không dây: TẮT (đang chờ)</string>
     <string name="widget_text_pending">Gỡ lỗi không dây: đang chuyển…</string>
     <string name="toggle_failed_toast">Không thể chuyển gỡ lỗi không dây. Vui lòng thử lại.</string>
+    <string name="settings_section_wifi_aps">Wi-Fi và điểm truy cập (Beta)</string>
+    <string name="settings_wifi_aps_feature_toggle">Bật phát hiện Wi-Fi và điểm truy cập</string>
+    <string name="settings_wifi_aps_beta_description">Phát hiện điểm truy cập là tính năng thử nghiệm quét các điểm truy cập Wi-Fi lân cận. Tính năng này yêu cầu quyền vị trí và có thể tiêu tốn thêm pin.</string>
 </resources>

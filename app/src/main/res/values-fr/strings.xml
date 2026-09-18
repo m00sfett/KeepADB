@@ -301,4 +301,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_keep_alive_waiting">Débogage sans fil : NON (en attente)</string>
     <string name="widget_text_pending">Débogage sans fil : changement en cours…</string>
     <string name="toggle_failed_toast">Impossible de changer le débogage sans fil. Veuillez réessayer.</string>
+    <string name="settings_section_wifi_aps">Wi-Fi et points d’accès (Bêta)</string>
+    <string name="settings_wifi_aps_feature_toggle">Activer la détection Wi-Fi et des points d’accès</string>
+    <string name="settings_wifi_aps_beta_description">La détection des points d’accès est une fonctionnalité bêta expérimentale qui analyse les points d’accès Wi-Fi à proximité. Elle nécessite l’autorisation de localisation et peut consommer plus de batterie.</string>
 </resources>

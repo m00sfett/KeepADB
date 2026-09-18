@@ -216,6 +216,9 @@
     <string name="settings_usb_handover_mode_off">Off</string>
     <string name="settings_usb_handover_mode_manual">Manual (show action in USB notification)</string>
     <string name="settings_usb_handover_mode_automatic">Automatic (enable on new USB connection)</string>
+    <string name="settings_section_wifi_aps">Wi-Fi &amp; access points (Beta)</string>
+    <string name="settings_wifi_aps_feature_toggle">Enable Wi-Fi &amp; access point discovery</string>
+    <string name="settings_wifi_aps_beta_description">Access point discovery is an experimental beta feature that scans nearby Wi-Fi access points. It requires Location permission and may consume additional battery.</string>
     <string name="usb_notification_enable_wlan_handover">Enable WLAN-ADB</string>
     <string name="usb_notification_handover_error">Could not enable WLAN-ADB. Check permission.</string>
     <string name="notification_action_disable">Turn off WLAN-ADB</string>

@@ -301,4 +301,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_keep_alive_waiting">Depuración inalámbrica: NO (esperando)</string>
     <string name="widget_text_pending">Depuración inalámbrica: cambiando…</string>
     <string name="toggle_failed_toast">No se pudo cambiar la depuración inalámbrica. Inténtalo de nuevo.</string>
+    <string name="settings_section_wifi_aps">Wi-Fi y puntos de acceso (Beta)</string>
+    <string name="settings_wifi_aps_feature_toggle">Activar detección de Wi-Fi y puntos de acceso</string>
+    <string name="settings_wifi_aps_beta_description">La detección de puntos de acceso es una función beta experimental que analiza puntos de acceso Wi-Fi cercanos. Requiere permiso de ubicación y puede consumir más batería.</string>
 </resources>

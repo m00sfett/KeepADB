@@ -301,4 +301,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_keep_alive_waiting">无线调试：关（等待中）</string>
     <string name="widget_text_pending">无线调试：正在切换…</string>
     <string name="toggle_failed_toast">无法切换无线调试，请重试。</string>
+    <string name="settings_section_wifi_aps">Wi-Fi 与接入点（测试版）</string>
+    <string name="settings_wifi_aps_feature_toggle">启用 Wi-Fi 与接入点检测</string>
+    <string name="settings_wifi_aps_beta_description">接入点检测是一项实验性测试功能，用于扫描附近的 Wi-Fi 接入点。该功能需要位置权限，并可能消耗更多电量。</string>
 </resources>

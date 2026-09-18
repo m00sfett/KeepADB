@@ -273,6 +273,24 @@ public class KeepADBPreferencesTest {
                 KeepADBPreferences.getWebhookLastReportedEndpoint(context));
     }
 
+    @Test
+    public void testWifiApsFeatureEnabledDefaultAndRoundTrip() {
+        FakeContext context = new FakeContext();
+        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
+
+        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
+        assertTrue(KeepADBPreferences.isWifiApsFeatureEnabled(context));
+
+        KeepADBPreferences.setWifiApsFeatureEnabled(context, false);
+        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
+    }
+
+    @Test
+    public void testWifiApsFeatureEnabledNullContextSafety() {
+        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(null));
+        KeepADBPreferences.setWifiApsFeatureEnabled(null, true);
+    }
+
     private static final class FakeContext extends android.content.ContextWrapper {
         private final android.content.SharedPreferences preferences = new MemoryPreferences();
 

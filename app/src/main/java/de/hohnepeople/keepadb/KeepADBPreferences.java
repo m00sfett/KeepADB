@@ -30,6 +30,8 @@ final class KeepADBPreferences {
     // WRITE_SECURE_SETTINGS state and never the real ADB transport. The actual masking logic
     // (#483) reads this via isPrivacyModeEnabled().
     private static final String KEY_PRIVACY_MODE_ENABLED = "privacy_mode_enabled";
+    // #507: opt-in toggle for Wi-Fi & access point discovery in Settings. Defaults to false.
+    static final String KEY_WIFI_APS_FEATURE_ENABLED = "wifi_aps_feature_enabled";
 
     // #168: optional USB-ADB -> WLAN-ADB handover offered from the USB notification.
     static final String USB_WLAN_HANDOVER_MODE_OFF = "off";
@@ -545,5 +547,18 @@ final class KeepADBPreferences {
     static void setPrivacyModeEnabled(Context context, boolean enabled) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_PRIVACY_MODE_ENABLED, enabled).apply();
+    }
+
+    /** #507: opt-in for Wi-Fi & access point discovery in Settings. Default false. */
+    static boolean isWifiApsFeatureEnabled(Context context) {
+        if (context == null) return false;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_WIFI_APS_FEATURE_ENABLED, false);
+    }
+
+    static void setWifiApsFeatureEnabled(Context context, boolean enabled) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_WIFI_APS_FEATURE_ENABLED, enabled).apply();
     }
 }

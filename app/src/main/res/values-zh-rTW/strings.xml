@@ -301,4 +301,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_keep_alive_waiting">無線偵錯：關（等待中）</string>
     <string name="widget_text_pending">無線偵錯：正在切換…</string>
     <string name="toggle_failed_toast">無法切換無線偵錯，請重試。</string>
+    <string name="settings_section_wifi_aps">Wi-Fi 與存取點（測試版）</string>
+    <string name="settings_wifi_aps_feature_toggle">啟用 Wi-Fi 與存取點偵測</string>
+    <string name="settings_wifi_aps_beta_description">存取點偵測是一項實驗性測試功能，用於掃描附近的 Wi-Fi 存取點。此功能需要位置權限，並可能消耗更多電力。</string>
 </resources>

@@ -1,0 +1,2 @@
+Changed: moved "Wi-Fi & Access Points" from the home screen into Settings as an
+opt-in experimental Beta feature to reduce visual clutter and background scanning.
