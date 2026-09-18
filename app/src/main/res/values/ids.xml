@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="btn_wifi_aps_grant_location_permission" type="id" />
+</resources>

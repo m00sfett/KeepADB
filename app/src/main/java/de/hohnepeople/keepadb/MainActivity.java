@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -49,6 +50,9 @@ public class MainActivity extends Activity {
     private Button notificationPermissionActionButton;
     private View batteryOptimizationPanel;
     private View locationPermissionPanel;
+    private TextView locationPermissionTitle;
+    private TextView locationPermissionBody;
+    private Button locationPermissionActionButton;
     private View locationPermissionFallbackBody;
     private View trustAllNetworksButton;
     private View adviceBanner;
@@ -127,6 +131,10 @@ public class MainActivity extends Activity {
         notificationPermissionActionButton.setOnClickListener(v -> onNotificationPermissionActionClick());
         batteryOptimizationPanel = findViewById(R.id.battery_optimization_panel);
         locationPermissionPanel = findViewById(R.id.location_permission_panel);
+        locationPermissionTitle = findViewById(R.id.location_permission_title);
+        locationPermissionBody = findViewById(R.id.location_permission_body);
+        locationPermissionActionButton = findViewById(R.id.btn_grant_location_permission);
+        locationPermissionActionButton.setOnClickListener(v -> onLocationPermissionActionClick());
         locationPermissionFallbackBody = findViewById(R.id.location_permission_fallback_body);
         trustAllNetworksButton = findViewById(R.id.btn_trust_all_networks);
         adviceBanner = findViewById(R.id.advice_banner);
@@ -155,17 +163,6 @@ public class MainActivity extends Activity {
                 startActivity(new Intent(this, SettingsActivity.class)));
         findViewById(R.id.btn_open_battery_settings).setOnClickListener(v ->
                 KeepADBBatteryOptimization.openSettings(this));
-        findViewById(R.id.btn_grant_location_permission).setOnClickListener(v -> {
-            getPreferences(MODE_PRIVATE).edit()
-                    .putBoolean(LOCATION_PERMISSION_REQUESTED, true).apply();
-            // Requested together per Android's guidance for FINE: the system then offers the
-            // user a precise/approximate choice in one dialog. Only a FINE grant is actually
-            // usable for network identification (see onRequestPermissionsResult), matching
-            // SettingsActivity's existing trusted-network permission flow.
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST);
-        });
         trustAllNetworksButton.setOnClickListener(v -> {
             KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALL_WIFI);
             Toast.makeText(this, R.string.location_permission_panel_fallback_toast,
@@ -326,9 +323,10 @@ public class MainActivity extends Activity {
             refresh();
             KeepADBNotification.refresh(this);
         } else if (requestCode == LOCATION_PERMISSION_REQUEST) {
-            // #459: refresh() re-derives the panel and its fallback section straight from
-            // checkSelfPermission() and the LOCATION_PERMISSION_REQUESTED flag set on request --
-            // no need to branch on grantResults here (matches SettingsActivity's own pattern).
+            // #459 / #504: refresh() re-derives the panel, the AP card action button and their
+            // fallback section straight from checkSelfPermission() and the
+            // LOCATION_PERMISSION_REQUESTED flag set on request.
+            recordCurrentAccessPointObservation();
             refresh();
         } else if (requestCode == TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST) {
             // grantResults can be shorter than permissions (even empty) if the request was
@@ -740,6 +738,33 @@ public class MainActivity extends Activity {
             unknown.setTextColor(getColor(R.color.night_muted));
             unknown.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
             wifiApsCurrentRow.addView(unknown);
+
+            boolean locationGranted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED;
+            if (!locationGranted) {
+                Button grantButton = new Button(this);
+                grantButton.setId(R.id.btn_wifi_aps_grant_location_permission);
+                grantButton.setBackgroundResource(R.drawable.bg_btn_primary);
+                grantButton.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+                grantButton.setPadding(
+                        (int) (16 * getResources().getDisplayMetrics().density),
+                        (int) (8 * getResources().getDisplayMetrics().density),
+                        (int) (16 * getResources().getDisplayMetrics().density),
+                        (int) (8 * getResources().getDisplayMetrics().density));
+                grantButton.setTextColor(getColor(R.color.title_yellow));
+                grantButton.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+                grantButton.setTypeface(android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.BOLD));
+                boolean permanentlyDenied = isLocationPermissionPermanentlyDenied();
+                grantButton.setText(permanentlyDenied
+                        ? R.string.location_permission_settings_button
+                        : R.string.location_permission_panel_grant_button);
+                grantButton.setOnClickListener(v -> onLocationPermissionActionClick());
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                lp.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
+                grantButton.setLayoutParams(lp);
+                wifiApsCurrentRow.addView(grantButton);
+            }
         }
 
         boolean collapsible = others.size() > WIFI_APS_COLLAPSED_OTHERS;
@@ -961,26 +986,71 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * #459: the allowlist (#260 default) needs {@code ACCESS_FINE_LOCATION} to read the current
-     * Wi-Fi network's identity at all -- without it, {@code identity_unavailable} blocks
-     * automatic Keep-Alive re-enable forever, and until now the permission was only ever asked
-     * for from {@link SettingsActivity}'s manual toggle, never on first run. Shown independent of
-     * {@code configured}/WRITE_SECURE_SETTINGS, matching {@link #notificationPermissionPanel} and
-     * {@link #batteryOptimizationPanel}'s own onboarding panels.
+     * #459 / #504: {@code ACCESS_FINE_LOCATION} is required to read the Wi-Fi network's identity
+     * (SSID and BSSID) and access points. In trusted-network mode (#260), an unreadable identity
+     * blocks automatic Keep-Alive re-enable; in all-Wi-Fi mode (#492 default), it prevents the
+     * "Wi-Fi & Access Points" card from identifying the active connection and nearby mesh APs.
+     * Shown on first run independent of {@code configured}/WRITE_SECURE_SETTINGS, matching
+     * {@link #notificationPermissionPanel} and {@link #batteryOptimizationPanel}.
      */
     private void updateLocationPermissionPanel() {
         boolean locationGranted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED;
-        boolean showPanel = KeepADBTrustedNetwork.isAllowlistMode(this) && !locationGranted;
+        boolean showPanel = !locationGranted;
         locationPermissionPanel.setVisibility(showPanel ? View.VISIBLE : View.GONE);
         if (!showPanel) return;
+
+        boolean allowlistMode = KeepADBTrustedNetwork.isAllowlistMode(this);
+        locationPermissionTitle.setText(allowlistMode
+                ? R.string.location_permission_panel_title
+                : R.string.location_permission_panel_title_discovery);
+        locationPermissionBody.setText(allowlistMode
+                ? R.string.location_permission_panel_body
+                : R.string.location_permission_panel_body_discovery);
+
+        boolean permanentlyDenied = isLocationPermissionPermanentlyDenied();
+        locationPermissionActionButton.setText(permanentlyDenied
+                ? R.string.location_permission_settings_button
+                : R.string.location_permission_panel_grant_button);
+
         // Acceptance criterion 3: once the user has been through the system dialog at least once
         // and is still without the permission (denied, including "don't ask again"), offer the
         // clean fallback of switching to "trust all Wi-Fi networks" instead of leaving them stuck.
+        // Only applicable when in allowlist mode -- all-Wi-Fi mode is already on that fallback.
         boolean previouslyRequested = getPreferences(MODE_PRIVATE)
                 .getBoolean(LOCATION_PERMISSION_REQUESTED, false);
-        locationPermissionFallbackBody.setVisibility(previouslyRequested ? View.VISIBLE : View.GONE);
-        trustAllNetworksButton.setVisibility(previouslyRequested ? View.VISIBLE : View.GONE);
+        boolean showFallback = previouslyRequested && allowlistMode;
+        locationPermissionFallbackBody.setVisibility(showFallback ? View.VISIBLE : View.GONE);
+        trustAllNetworksButton.setVisibility(showFallback ? View.VISIBLE : View.GONE);
+    }
+
+    private boolean isLocationPermissionPermanentlyDenied() {
+        boolean previouslyRequested = getPreferences(MODE_PRIVATE)
+                .getBoolean(LOCATION_PERMISSION_REQUESTED, false);
+        return previouslyRequested
+                && !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION);
+    }
+
+    /**
+     * #504: context-sensitive location permission action (analogous to #501 for notifications).
+     * Before the first request (or while the system would still show its own rationale flow), it
+     * triggers {@code requestPermissions} directly. Once permanently denied, it opens the app's
+     * system settings details page so the user can grant Location access manually.
+     */
+    private void onLocationPermissionActionClick() {
+        if (isLocationPermissionPermanentlyDenied()) {
+            openAppSettings();
+            return;
+        }
+        getPreferences(MODE_PRIVATE).edit()
+                .putBoolean(LOCATION_PERMISSION_REQUESTED, true).apply();
+        // Requested together per Android's guidance for FINE: the system then offers the
+        // user a precise/approximate choice in one dialog. Only a FINE grant is actually
+        // usable for network identification (see onRequestPermissionsResult), matching
+        // SettingsActivity's existing trusted-network permission flow.
+        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION},
+                LOCATION_PERMISSION_REQUEST);
     }
 
     /**
@@ -1129,6 +1199,12 @@ public class MainActivity extends Activity {
     private void openNotificationSettings() {
         Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
         intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
+        startActivity(intent);
+    }
+
+    private void openAppSettings() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.fromParts("package", getPackageName(), null));
         startActivity(intent);
     }
 

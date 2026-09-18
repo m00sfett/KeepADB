@@ -189,6 +189,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">Не хотите предоставлять доступ к геолокации? Доверяйте всем сетям Wi-Fi — тогда Keep-Alive будет включаться при любом подключении.</string>
     <string name="location_permission_panel_fallback_button">Доверять всем сетям Wi-Fi</string>
     <string name="location_permission_panel_fallback_toast">Переключено на режим «доверять всем сетям Wi-Fi».</string>
+    <string name="location_permission_panel_title_discovery">Доступ к геолокации требуется для Wi-Fi и точек доступа</string>
+    <string name="location_permission_panel_body_discovery">Доступ к геолокации необходим для распознавания текущей сети Wi-Fi и точек доступа.</string>
+    <string name="location_permission_settings_button">Открыть настройки</string>
     <string name="settings_section_usb_handover">Передача USB → WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">Разрешить или автоматически включать WLAN-ADB из активного USB-ADB-подключения. По умолчанию отключено; ручное отключение никогда не отменяется.</string>
     <string name="settings_usb_handover_label">Режим передачи</string>

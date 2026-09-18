@@ -189,6 +189,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">不想授予位置权限？改为信任所有 Wi-Fi 网络——这样 Keep-Alive 会在任意连接下自动重新启用。</string>
     <string name="location_permission_panel_fallback_button">改为信任所有 Wi-Fi 网络</string>
     <string name="location_permission_panel_fallback_toast">已切换到\"信任所有 Wi-Fi 网络\"模式。</string>
+    <string name="location_permission_panel_title_discovery">Wi-Fi 与接入点需要位置权限</string>
+    <string name="location_permission_panel_body_discovery">需要位置权限来识别当前的 Wi-Fi 网络和接入点。</string>
+    <string name="location_permission_settings_button">打开设置</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB 接管</string>
     <string name="settings_usb_handover_subtext">可从活动的 USB-ADB 连接中提供或自动启用 WLAN-ADB。默认关闭；手动关闭后不会被覆盖。</string>
     <string name="settings_usb_handover_label">接管模式</string>

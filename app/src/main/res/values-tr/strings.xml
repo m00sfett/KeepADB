@@ -189,6 +189,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">Konum erişimi vermek istemiyor musunuz? Bunun yerine tüm Wi-Fi ağlarına güvenin — Keep-Alive böylece her bağlantıda otomatik olarak yeniden etkinleşir.</string>
     <string name="location_permission_panel_fallback_button">Bunun yerine tüm Wi-Fi ağlarına güven</string>
     <string name="location_permission_panel_fallback_toast">\"Tüm Wi-Fi ağlarına güven\" moduna geçildi.</string>
+    <string name="location_permission_panel_title_discovery">Wi-Fi ve erişim noktaları için konum erişimi gerekli</string>
+    <string name="location_permission_panel_body_discovery">Mevcut Wi-Fi ağını ve erişim noktalarını tanımlamak için konum erişimi gereklidir.</string>
+    <string name="location_permission_settings_button">Ayarları aç</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB aktarımı</string>
     <string name="settings_usb_handover_subtext">Etkin bir USB-ADB bağlantısından WLAN-ADB’yi isteğe bağlı olarak sunar veya otomatik etkinleştirir. Varsayılan olarak kapalıdır; manuel KAPALI ayarı asla geçersiz kılınmaz.</string>
     <string name="settings_usb_handover_label">Aktarım modu</string>

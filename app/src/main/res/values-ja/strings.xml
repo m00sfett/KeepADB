@@ -189,6 +189,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">位置情報へのアクセスを許可したくない場合は、代わりにすべてのWi-Fiネットワークを信頼するモードに切り替えられます。この場合、どの接続でも自動的に再有効化されます。</string>
     <string name="location_permission_panel_fallback_button">代わりにすべてのWi-Fiネットワークを信頼する</string>
     <string name="location_permission_panel_fallback_toast">「すべてのWi-Fiネットワークを信頼する」モードに切り替えました。</string>
+    <string name="location_permission_panel_title_discovery">Wi-Fiとアクセスポイントには位置情報へのアクセスが必要です</string>
+    <string name="location_permission_panel_body_discovery">現在のWi-Fiネットワークとアクセスポイントを識別するには位置情報へのアクセスが必要です。</string>
+    <string name="location_permission_settings_button">設定を開く</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB の引き継ぎ</string>
     <string name="settings_usb_handover_subtext">アクティブな USB-ADB 接続から、WLAN-ADB の有効化を任意で提案または自動実行します。デフォルトはオフで、手動でオフにした設定が上書きされることはありません。</string>
     <string name="settings_usb_handover_label">ハンドオーバーモード</string>

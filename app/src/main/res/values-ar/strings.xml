@@ -189,6 +189,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">تفضّل عدم منح إذن الموقع؟ ثِق بجميع شبكات Wi-Fi بدلاً من ذلك — سيُعاد تفعيل Keep-Alive عندها عند أي اتصال.</string>
     <string name="location_permission_panel_fallback_button">الثقة بجميع شبكات Wi-Fi بدلاً من ذلك</string>
     <string name="location_permission_panel_fallback_toast">تم التبديل إلى وضع «الثقة بجميع شبكات Wi-Fi».</string>
+    <string name="location_permission_panel_title_discovery">إذن الموقع مطلوب لـ Wi-Fi ونقاط الوصول</string>
+    <string name="location_permission_panel_body_discovery">يلزم الوصول إلى الموقع للتعرّف على شبكة Wi-Fi الحالية ونقاط الوصول.</string>
+    <string name="location_permission_settings_button">فتح الإعدادات</string>
     <string name="settings_section_usb_handover">تسليم USB إلى WLAN-ADB</string>
     <string name="settings_usb_handover_subtext">عرض WLAN-ADB اختياريًا أو تفعيله تلقائيًا من اتصال USB-ADB نشط. يكون متوقفًا افتراضيًا؛ ولا يتم تجاوز الإيقاف اليدوي مطلقًا.</string>
     <string name="settings_usb_handover_label">وضع التسليم</string>

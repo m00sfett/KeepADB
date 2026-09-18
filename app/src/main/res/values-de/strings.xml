@@ -54,6 +54,9 @@
     <string name="location_permission_panel_fallback_body">Standortzugriff lieber nicht gewähren? Vertraue stattdessen allen WLANs — Keep-Alive schaltet dann bei jeder Verbindung automatisch wieder ein.</string>
     <string name="location_permission_panel_fallback_button">Stattdessen allen WLANs vertrauen</string>
     <string name="location_permission_panel_fallback_toast">Auf Modus „Alle WLANs vertrauen“ umgestellt.</string>
+    <string name="location_permission_panel_title_discovery">Standortberechtigung für WLAN &amp; Access Points erforderlich</string>
+    <string name="location_permission_panel_body_discovery">Standortzugriff wird benötigt, um das aktuelle WLAN und Access Points zu erkennen.</string>
+    <string name="location_permission_settings_button">Einstellungen öffnen</string>
     <string name="notification_permission_missing_text">WRITE_SECURE_SETTINGS am PC per adb shell pm grant vergeben</string>
     <string name="action_settings">Einstellungen</string>
     <string name="privacy_toggle_enable_accessibility">Privatsphäre-Modus aktivieren (Netzwerkadressen ausblenden)</string>

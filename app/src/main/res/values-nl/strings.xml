@@ -189,6 +189,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="location_permission_panel_fallback_body">Liever geen locatietoegang verlenen? Vertrouw dan alle Wi-Fi-netwerken — Keep-Alive wordt dan bij elke verbinding automatisch opnieuw ingeschakeld.</string>
     <string name="location_permission_panel_fallback_button">In plaats daarvan alle Wi-Fi-netwerken vertrouwen</string>
     <string name="location_permission_panel_fallback_toast">Overgeschakeld naar modus \"alle Wi-Fi-netwerken vertrouwen\".</string>
+    <string name="location_permission_panel_title_discovery">Locatietoegang vereist voor wifi en access points</string>
+    <string name="location_permission_panel_body_discovery">Locatietoegang is vereist om het huidige wifi-netwerk en de access points te herkennen.</string>
+    <string name="location_permission_settings_button">Instellingen openen</string>
     <string name="settings_section_usb_handover">USB → WLAN-ADB-overdracht</string>
     <string name="settings_usb_handover_subtext">Biedt optioneel aan om WLAN-ADB vanaf een actieve USB-ADB-verbinding in te schakelen, of schakelt dit automatisch in. Standaard uit; handmatig uitschakelen wordt nooit overschreven.</string>
     <string name="settings_usb_handover_label">Overdrachtsmodus</string>
