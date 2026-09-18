@@ -31,8 +31,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">Mantener depuración inalámbrica activa</string>
     <string name="notification_service_text">Monitoreando conexión Wi-Fi y estado de depuración inalámbrica</string>
     <string name="notification_permission_missing_title">KeepADB: Falta permiso</string>
-    <string name="notification_permission_panel_title">Las notificaciones están desactivadas</string>
-    <string name="notification_permission_panel_body">KeepADB no puede mostrar su notificación de estado sin este permiso. Keep-Alive sigue funcionando.</string>
+    <string name="notification_permission_panel_title">Mantente informado sobre KeepADB</string>
+    <string name="notification_permission_panel_body">Permite las notificaciones para que KeepADB pueda mostrar si el servicio en segundo plano y Keep-Alive están funcionando, y avisarte enseguida si se pierde la conexión. La depuración inalámbrica sigue funcionando de todos modos.</string>
+    <string name="notification_permission_request_button">Activar notificaciones</string>
     <string name="notification_permission_settings_button">Abrir ajustes de notificaciones</string>
     <string name="notification_permission_missing_text">Concede WRITE_SECURE_SETTINGS desde el PC mediante adb shell pm grant</string>
     <string name="action_settings">Ajustes</string>

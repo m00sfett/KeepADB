@@ -31,8 +31,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">ワイヤレスデバッグをアクティブに維持</string>
     <string name="notification_service_text">Wi-Fi接続とワイヤレスデバッグの状態を監視中</string>
     <string name="notification_permission_missing_title">KeepADB: 権限がありません</string>
-    <string name="notification_permission_panel_title">通知が無効です</string>
-    <string name="notification_permission_panel_body">この権限がないとKeepADBはステータス通知を表示できません。Keep-Aliveは引き続き動作します。</string>
+    <string name="notification_permission_panel_title">KeepADBの状態を把握する</string>
+    <string name="notification_permission_panel_body">通知を許可すると、KeepADBはバックグラウンドサービスとKeep-Aliveが動作しているかを表示し、接続が切れた際にすぐに知らせます。ワイヤレスデバッグ自体はどちらの場合も動作し続けます。</string>
+    <string name="notification_permission_request_button">通知を有効にする</string>
     <string name="notification_permission_settings_button">通知設定を開く</string>
     <string name="notification_permission_missing_text">PCから adb shell pm grant で WRITE_SECURE_SETTINGS を付与してください</string>
     <string name="action_settings">設定</string>

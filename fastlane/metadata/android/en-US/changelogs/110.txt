@@ -1,0 +1,4 @@
+Changed: on first launch, KeepADB no longer pops the notification permission dialog out of the
+blue. The home screen now explains why notifications help (background service, Keep-Alive and
+connection status at a glance) and only asks -- or sends you to notification settings after a
+denial -- when you tap the button.

@@ -22,6 +22,21 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.13] - Unreleased
+
+### Changed
+- Notification permission onboarding: `MainActivity.onCreate()` no longer fires the
+  `POST_NOTIFICATIONS` system prompt automatically on cold start. `notification_permission_panel`
+  is now shown on the main screen whenever the permission isn't granted yet on Android 13+ (before
+  the first request as much as after a denial), with a body text explaining that the permission
+  lets KeepADB show whether its background service and Keep-Alive are running and notify
+  immediately on a dropped connection -- Wireless Debugging itself keeps working regardless. The
+  panel's single button is context-sensitive: before the first request (or while the system would
+  still show its own rationale), it triggers `requestPermissions` directly; once the system has
+  permanently denied further prompts, it instead opens the app's notification settings. New
+  `MainActivityNotificationPermissionPanelTest` pins the no-auto-prompt behavior, the button's
+  dual action, and the panel's grant/deny visibility transitions (#501).
+
 ## [1.8.12] - Unreleased
 
 ### Fixed
