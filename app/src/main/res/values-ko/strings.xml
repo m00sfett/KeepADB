@@ -301,4 +301,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_keep_alive_waiting">무선 디버깅: 꺼짐(대기 중)</string>
     <string name="widget_text_pending">무선 디버깅: 전환 중…</string>
     <string name="toggle_failed_toast">무선 디버깅을 전환하지 못했습니다. 다시 시도해 주세요.</string>
+    <string name="settings_section_wifi_aps">Wi-Fi 및 액세스 포인트 (베타)</string>
+    <string name="settings_wifi_aps_feature_toggle">Wi-Fi 및 액세스 포인트 검색 활성화</string>
+    <string name="settings_wifi_aps_beta_description">액세스 포인트 검색은 주변 Wi-Fi 액세스 포인트를 스캔하는 실험적 베타 기능입니다. 위치 권한이 필요하며 배터리를 더 소모할 수 있습니다。</string>
 </resources>

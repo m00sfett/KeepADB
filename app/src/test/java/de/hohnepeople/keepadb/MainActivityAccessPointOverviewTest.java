@@ -3,6 +3,7 @@ package de.hohnepeople.keepadb;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -30,12 +31,14 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowWifiInfo;
 
 /**
- * On-device rendering tests for the "Wi-Fi &amp; Access Points" card on {@link MainActivity}
- * (#461): the current access point's highlight, the recently-observed list below it, the
- * mesh-group label for BSSIDs sharing an SSID, and the per-row trust quick action.
+ * On-device rendering tests for the "Wi-Fi &amp; Access Points" card (#461, moved to
+ * {@link SettingsActivity} under opt-in for #507): the current access point's highlight,
+ * the recently-observed list below it, the mesh-group label for BSSIDs sharing an SSID,
+ * and the per-row trust quick action.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -58,10 +61,18 @@ public class MainActivityAccessPointOverviewTest {
     }
 
     @Test
+    public void homeScreenHasNoAccessPointCard() {
+        ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup();
+        MainActivity activity = controller.get();
+        assertNull(activity.findViewById(R.id.wifi_aps_current_row));
+        assertNull(activity.findViewById(R.id.wifi_aps_list));
+    }
+
+    @Test
     public void currentAccessPointIsShownWithSsidAndBssid() {
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
 
-        MainActivity activity = launch();
+        SettingsActivity activity = launch();
 
         // #479: the row focuses on SSID/BSSID only -- no redundant trust/mesh status text.
         List<String> currentTexts = allText(activity.findViewById(R.id.wifi_aps_current_row));
@@ -74,7 +85,7 @@ public class MainActivityAccessPointOverviewTest {
     @Test
     public void unknownCurrentIdentityShowsTheUnavailableMessage() {
         // Default Robolectric WifiInfo has an unassociated/redacted BSSID -- isKnown() is false.
-        MainActivity activity = launch();
+        SettingsActivity activity = launch();
 
         List<String> currentTexts = allText(activity.findViewById(R.id.wifi_aps_current_row));
         assertTrue(joined(currentTexts), currentTexts.stream()
@@ -86,7 +97,7 @@ public class MainActivityAccessPointOverviewTest {
         KeepADBBssidHistory.recordObservation(context, "OfficeMesh", "bb:bb:bb:bb:bb:01");
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
 
-        MainActivity activity = launch();
+        SettingsActivity activity = launch();
 
         LinearLayout list = activity.findViewById(R.id.wifi_aps_list);
         assertEquals(1, list.getChildCount());
@@ -100,7 +111,7 @@ public class MainActivityAccessPointOverviewTest {
     public void emptyStateIsShownWhenNoOtherAccessPointIsKnown() {
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
 
-        MainActivity activity = launch();
+        SettingsActivity activity = launch();
 
         LinearLayout list = activity.findViewById(R.id.wifi_aps_list);
         assertEquals(0, list.getChildCount());
@@ -118,25 +129,23 @@ public class MainActivityAccessPointOverviewTest {
         }
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
 
-        MainActivity activity = launch();
+        SettingsActivity activity = launch();
 
         LinearLayout list = activity.findViewById(R.id.wifi_aps_list);
         assertEquals(3, list.getChildCount());
-        // #468 acceptance criterion 3: a short list is already fully visible, no toggle needed.
         assertEquals(View.GONE, activity.findViewById(R.id.wifi_aps_toggle).getVisibility());
     }
 
     @Test
-    public void longListIsCollapsedByDefaultAndShowsAShowMoreToggleWithTheHiddenCount() {
+    public void longListCollapsesBehindShowMoreToggle() {
         for (int i = 0; i < 7; i++) {
             KeepADBBssidHistory.recordObservation(context, "Neighbor" + i, otherBssid(i));
         }
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
 
-        MainActivity activity = launch();
+        SettingsActivity activity = launch();
 
         LinearLayout list = activity.findViewById(R.id.wifi_aps_list);
-        // #468 acceptance criterion 1: compact by default -- only the first 5 of 7 are shown.
         assertEquals(5, list.getChildCount());
         TextView toggle = activity.findViewById(R.id.wifi_aps_toggle);
         assertEquals(View.VISIBLE, toggle.getVisibility());
@@ -144,55 +153,57 @@ public class MainActivityAccessPointOverviewTest {
     }
 
     @Test
-    public void tappingShowMoreRevealsTheFullListAndTappingAgainCollapsesIt() {
+    public void clickingShowMoreExpandsTheListAndFlipsToFoldBack() {
         for (int i = 0; i < 7; i++) {
             KeepADBBssidHistory.recordObservation(context, "Neighbor" + i, otherBssid(i));
         }
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
-        MainActivity activity = launch();
+
+        SettingsActivity activity = launch();
+
         LinearLayout list = activity.findViewById(R.id.wifi_aps_list);
         TextView toggle = activity.findViewById(R.id.wifi_aps_toggle);
 
+        // Click to expand
         toggle.performClick();
-
-        // #468 acceptance criterion 1: fully expandable to see everything.
         assertEquals(7, list.getChildCount());
         assertEquals(context.getString(R.string.wifi_aps_show_less_button), toggle.getText().toString());
 
+        // Click to collapse again
         toggle.performClick();
-
         assertEquals(5, list.getChildCount());
         assertEquals(context.getString(R.string.wifi_aps_show_more_button, 2), toggle.getText().toString());
     }
 
     @Test
-    public void currentConnectionStaysVisibleAndUnchangedWhileExpandingAndCollapsingTheOthers() {
+    public void currentConnectionStaysVisibleRegardlessOfExpandState() {
         for (int i = 0; i < 7; i++) {
             KeepADBBssidHistory.recordObservation(context, "Neighbor" + i, otherBssid(i));
         }
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
-        MainActivity activity = launch();
+
+        SettingsActivity activity = launch();
+
         View currentRow = activity.findViewById(R.id.wifi_aps_current_row);
-        List<String> beforeExpand = allText(currentRow);
+        assertTrue(allText(currentRow).stream().anyMatch(t -> t.contains("HomeMesh")));
 
         activity.findViewById(R.id.wifi_aps_toggle).performClick();
-        // #468 acceptance criterion 2: the current connection's own row -- and its trust status
-        // -- never moves and is never hidden by the collapsible "others" list toggling.
-        assertEquals(beforeExpand, allText(currentRow));
+        assertTrue("Current connection row must remain visible while expanded",
+                allText(currentRow).stream().anyMatch(t -> t.contains("HomeMesh")));
 
         activity.findViewById(R.id.wifi_aps_toggle).performClick();
-        assertEquals(beforeExpand, allText(currentRow));
+        assertTrue("Current connection row must remain visible while collapsed",
+                allText(currentRow).stream().anyMatch(t -> t.contains("HomeMesh")));
     }
 
     @Test
-    public void twoAccessPointsSharingAnSsidDoNotShowTheMeshLabel() {
-        // #479: the mesh-count label ("AP X of Y") is redundant status text and was removed from
-        // the individual AP rows, even though KeepADBAccessPointOverview still computes it.
+    public void meshBssidsDoNotShowRedundantMeshGroupLabel() {
         KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:02");
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
 
-        MainActivity activity = launch();
+        SettingsActivity activity = launch();
 
+        // #479: the mesh label was dropped in favor of clean SSID/BSSID display.
         List<String> currentTexts = allText(activity.findViewById(R.id.wifi_aps_current_row));
         String meshLabel = context.getString(R.string.wifi_aps_mesh_label, 1, 2);
         String meshLabelOther = context.getString(R.string.wifi_aps_mesh_label, 2, 2);
@@ -204,7 +215,7 @@ public class MainActivityAccessPointOverviewTest {
     @Test
     public void trustButtonAddsTheAccessPointToTheAllowlistAndFlipsToUntrust() {
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
-        MainActivity activity = launch();
+        SettingsActivity activity = launch();
 
         Button trustButton = findButton(activity.findViewById(R.id.wifi_aps_current_row));
         assertEquals(context.getString(R.string.wifi_aps_trust_button), trustButton.getText().toString());
@@ -221,7 +232,7 @@ public class MainActivityAccessPointOverviewTest {
     public void untrustButtonRemovesTheAccessPointFromTheAllowlist() {
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
         KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:01", "HomeMesh");
-        MainActivity activity = launch();
+        SettingsActivity activity = launch();
 
         Button trustButton = findButton(activity.findViewById(R.id.wifi_aps_current_row));
         assertEquals(context.getString(R.string.wifi_aps_untrust_button), trustButton.getText().toString());
@@ -247,7 +258,7 @@ public class MainActivityAccessPointOverviewTest {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
-        MainActivity activity = launch();
+        SettingsActivity activity = launch();
 
         Button trustButton = findButton(activity.findViewById(R.id.wifi_aps_current_row));
         trustButton.performClick();
@@ -263,7 +274,7 @@ public class MainActivityAccessPointOverviewTest {
     @Test
     public void trustAndUntrustButtonsUseDistinctColorStyles() {
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
-        MainActivity activity = launch();
+        SettingsActivity activity = launch();
 
         Button trustButton = findButton(activity.findViewById(R.id.wifi_aps_current_row));
         int trustColor = trustButton.getCurrentTextColor();
@@ -283,7 +294,7 @@ public class MainActivityAccessPointOverviewTest {
     public void trustedOnlyFilterHidesUntrustedAccessPointsFromCurrentAndOthersList() {
         KeepADBBssidHistory.recordObservation(context, "OfficeMesh", "bb:bb:bb:bb:bb:01");
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
-        MainActivity activity = launch();
+        SettingsActivity activity = launch();
         Switch trustedOnlyToggle = activity.findViewById(R.id.wifi_aps_trusted_only_toggle);
 
         trustedOnlyToggle.setChecked(true);
@@ -305,9 +316,13 @@ public class MainActivityAccessPointOverviewTest {
 
     // --- helpers ----------------------------------------------------------------------------
 
-    private MainActivity launch() {
-        ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup();
-        return controller.get();
+    private SettingsActivity launch() {
+        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
+        ActivityController<SettingsActivity> controller = Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
+        ShadowLooper.idleMainLooper();
+        return activity;
     }
 
     private void connectTo(String ssid, String bssid) {

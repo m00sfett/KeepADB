@@ -301,4 +301,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_keep_alive_waiting">تصحيح لاسلكي: إيقاف (في الانتظار)</string>
     <string name="widget_text_pending">تصحيح لاسلكي: جارٍ التبديل…</string>
     <string name="toggle_failed_toast">تعذّر تبديل تصحيح الأخطاء اللاسلكي. يرجى المحاولة مرة أخرى.</string>
+    <string name="settings_section_wifi_aps">Wi-Fi ونقاط الوصول (تجريبي)</string>
+    <string name="settings_wifi_aps_feature_toggle">تفعيل اكتشاف Wi-Fi ونقاط الوصول</string>
+    <string name="settings_wifi_aps_beta_description">اكتشاف نقاط الوصول ميزة تجريبية تفحص نقاط وصول Wi-Fi القريبة. تتطلب إذن الموقع وقد تستهلك المزيد من طاقة البطارية.</string>
 </resources>

@@ -459,6 +459,7 @@ public class SettingsActivityTest {
             {R.id.settings_webhook_header, R.id.settings_webhook_body},
             {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body},
             {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body},
+            {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body},
             {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body},
             {R.id.settings_notification_header, R.id.settings_notification_body},
             {R.id.settings_display_header, R.id.settings_display_body},
@@ -760,6 +761,66 @@ public class SettingsActivityTest {
         restriction.performClick();
         assertFalse(KeepADBTrustedNetwork.isAllowlistMode(activity));
         assertFalse("Opting back out must disarm the widening switch again", ssid.isEnabled());
+    }
+
+    @Test
+    public void wifiApsPanelStartsCollapsedAndDisabledByDefault() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        View body = activity.findViewById(R.id.settings_wifi_aps_body);
+        assertNotNull(body);
+        assertEquals("WiFi APs body starts collapsed", View.GONE, body.getVisibility());
+
+        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
+        assertEquals("Expanding header makes body visible", View.VISIBLE, body.getVisibility());
+
+        Switch toggle = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
+        assertNotNull(toggle);
+        assertFalse("Opt-in toggle is off by default", toggle.isChecked());
+        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(activity));
+
+        View content = activity.findViewById(R.id.settings_wifi_aps_content);
+        assertNotNull(content);
+        assertEquals("Content container is GONE when opt-in is disabled", View.GONE, content.getVisibility());
+
+        TextView betaBadge = activity.findViewById(R.id.settings_wifi_aps_beta_badge);
+        assertNotNull(betaBadge);
+        assertEquals(View.VISIBLE, betaBadge.getVisibility());
+        assertEquals("BETA", betaBadge.getText().toString());
+
+        TextView betaDesc = activity.findViewById(R.id.settings_wifi_aps_beta_description);
+        assertNotNull(betaDesc);
+        assertEquals(View.VISIBLE, betaDesc.getVisibility());
+        assertEquals(activity.getString(R.string.settings_wifi_aps_beta_description), betaDesc.getText().toString());
+    }
+
+    @Test
+    public void togglingWifiApsFeatureEnablesAndShowsContent() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
+        Switch toggle = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
+        View content = activity.findViewById(R.id.settings_wifi_aps_content);
+
+        // Turn on
+        toggle.performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertTrue(KeepADBPreferences.isWifiApsFeatureEnabled(activity));
+        assertTrue(toggle.isChecked());
+        assertEquals(View.VISIBLE, content.getVisibility());
+
+        // Turn off
+        toggle.performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(activity));
+        assertFalse(toggle.isChecked());
+        assertEquals(View.GONE, content.getVisibility());
     }
 
     private static <T extends View> List<T> findViewsByType(View root, Class<T> type) {

@@ -301,4 +301,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_keep_alive_waiting">Depuração sem fio: NÃO (aguardando)</string>
     <string name="widget_text_pending">Depuração sem fio: alternando…</string>
     <string name="toggle_failed_toast">Não foi possível alternar a depuração sem fio. Tente novamente.</string>
+    <string name="settings_section_wifi_aps">Wi-Fi e pontos de acesso (Beta)</string>
+    <string name="settings_wifi_aps_feature_toggle">Ativar detecção de Wi-Fi e pontos de acesso</string>
+    <string name="settings_wifi_aps_beta_description">A detecção de pontos de acesso é um recurso beta experimental que procura pontos de acesso Wi-Fi próximos. Requer permissão de localização e pode consumir mais bateria.</string>
 </resources>

@@ -301,4 +301,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_keep_alive_waiting">Бездротове налагодження: ВИМК (очікування)</string>
     <string name="widget_text_pending">Бездротове налагодження: перемикання…</string>
     <string name="toggle_failed_toast">Не вдалося перемкнути бездротове налагодження. Спробуйте ще раз.</string>
+    <string name="settings_section_wifi_aps">Wi-Fi і точки доступу (бета)</string>
+    <string name="settings_wifi_aps_feature_toggle">Увімкнути виявлення Wi-Fi і точок доступу</string>
+    <string name="settings_wifi_aps_beta_description">Виявлення точок доступу — це експериментальна бета-функція, яка сканує найближчі точки доступу Wi-Fi. Потребує дозволу на місцезнаходження та може витрачати більше заряду акумулятора.</string>
 </resources>

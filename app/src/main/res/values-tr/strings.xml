@@ -301,4 +301,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="widget_text_keep_alive_waiting">Kablosuz Hata Ayıklama: KAPALI (bekliyor)</string>
     <string name="widget_text_pending">Kablosuz Hata Ayıklama: değiştiriliyor…</string>
     <string name="toggle_failed_toast">Kablosuz Hata Ayıklama değiştirilemedi. Lütfen tekrar deneyin.</string>
+    <string name="settings_section_wifi_aps">Wi-Fi ve erişim noktaları (Beta)</string>
+    <string name="settings_wifi_aps_feature_toggle">Wi-Fi ve erişim noktası algılamayı etkinleştir</string>
+    <string name="settings_wifi_aps_beta_description">Erişim noktası algılama, yakındaki Wi-Fi erişim noktalarını tarayan deneysel bir beta özelliğidir. Konum izni gerektirir ve daha fazla pil tüketebilir.</string>
 </resources>
