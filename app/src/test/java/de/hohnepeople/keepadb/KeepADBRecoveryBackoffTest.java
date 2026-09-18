@@ -33,8 +33,8 @@ public class KeepADBRecoveryBackoffTest {
     }
 
     @Test
-    public void theFirstMismatchBlocksImmediatelyForTheFallbackInterval() {
-        backoff.recordMismatch(100_000);
+    public void theFirstAttemptBlocksImmediatelyForTheFallbackInterval() {
+        backoff.recordAttempt(100_000);
 
         assertEquals(1, backoff.attemptsInCycleForTesting());
         assertTrue("a single mismatch must already block further attempts",
@@ -45,18 +45,18 @@ public class KeepADBRecoveryBackoffTest {
 
     @Test
     public void theBlockExpiresExactlyAtTheFallbackIntervalBoundary() {
-        backoff.recordMismatch(100_000);
+        backoff.recordAttempt(100_000);
 
         assertFalse("the fallback interval must open a fresh attempt once it has fully elapsed",
                 backoff.isBlocked(100_000 + KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS));
     }
 
     @Test
-    public void recordSuccessEndsTheCycle() {
-        backoff.recordMismatch(100_000);
+    public void confirmSuccessEndsTheCycle() {
+        backoff.recordAttempt(100_000);
         assertTrue(backoff.isBlocked(100_000));
 
-        backoff.recordSuccess();
+        backoff.confirmSuccess();
 
         assertFalse("a successful readback must end the cycle immediately",
                 backoff.isBlocked(100_000));
@@ -65,7 +65,7 @@ public class KeepADBRecoveryBackoffTest {
 
     @Test
     public void resetReopensTheCycleAheadOfTheFallbackTimer() {
-        backoff.recordMismatch(100_000);
+        backoff.recordAttempt(100_000);
         assertTrue(backoff.isBlocked(100_001));
 
         // An explicit trigger (network change, manual action, restart, observed success)
@@ -78,11 +78,11 @@ public class KeepADBRecoveryBackoffTest {
     }
 
     @Test
-    public void aFreshCycleAfterResetCanBlockAgainOnItsOwnMismatch() {
-        backoff.recordMismatch(100_000);
+    public void aFreshCycleAfterResetCanBlockAgainOnItsOwnAttempt() {
+        backoff.recordAttempt(100_000);
         backoff.reset();
 
-        backoff.recordMismatch(200_000);
+        backoff.recordAttempt(200_000);
 
         assertTrue("the reopened cycle must be able to block again on its own mismatch",
                 backoff.isBlocked(200_000));
@@ -90,18 +90,81 @@ public class KeepADBRecoveryBackoffTest {
     }
 
     @Test
-    public void aSecondMismatchWhileAlreadyBlockedExtendsTheBlockFromNow() {
-        backoff.recordMismatch(100_000);
+    public void aSecondAttemptWhileAlreadyBlockedExtendsTheBlockFromNow() {
+        backoff.recordAttempt(100_000);
         assertEquals(100_000 + KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS,
                 backoff.blockedUntilElapsedMsForTesting());
 
         // The fallback timer fired (an automatic retry was attempted again) and mismatched once
         // more: the block must be re-anchored to the new attempt, not left at the stale value.
         long retryAt = 100_000 + KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS;
-        backoff.recordMismatch(retryAt);
+        backoff.recordAttempt(retryAt);
 
         assertEquals(retryAt + KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS,
                 backoff.blockedUntilElapsedMsForTesting());
+    }
+
+    /**
+     * #500's core regression: a momentary "on" observed while our own attempt is still awaiting
+     * its verdict is exactly what an accepted-but-reverted write produces, and must not reopen
+     * the cycle. Before the fix this reset ran on every such transition, which is why the device
+     * test never saw a single blocked attempt.
+     */
+    @Test
+    public void anObservedEnabledWhileAwaitingConfirmationDoesNotReopenTheCycle() {
+        backoff.recordAttempt(100_000);
+        assertTrue(backoff.isAwaitingConfirmation());
+
+        backoff.noteObservedEnabled();
+
+        assertTrue("the transient 'on' of our own reverted write must not clear the block",
+                backoff.isBlocked(100_001));
+        assertEquals(1, backoff.attemptsInCycleForTesting());
+    }
+
+    @Test
+    public void anObservedEnabledOutsideAnAttemptReopensTheCycle() {
+        backoff.recordAttempt(100_000);
+        backoff.recordUnconfirmed();
+
+        // Later: the user confirms Android's pairing dialog, so the value goes on by itself.
+        backoff.noteObservedEnabled();
+
+        assertFalse(backoff.isBlocked(100_001));
+        assertEquals(0, backoff.attemptsInCycleForTesting());
+    }
+
+    @Test
+    public void anUnconfirmedAttemptStaysBlockedUntilTheFallbackInterval() {
+        backoff.recordAttempt(100_000);
+
+        backoff.recordUnconfirmed();
+
+        assertFalse("the verdict is in; nothing is awaiting confirmation any more",
+                backoff.isAwaitingConfirmation());
+        assertTrue("a reverted attempt must keep the block", backoff.isBlocked(100_001));
+        assertFalse(backoff.isBlocked(
+                100_000 + KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS));
+    }
+
+    @Test
+    public void resetClearsAPendingConfirmationToo() {
+        backoff.recordAttempt(100_000);
+
+        backoff.reset();
+
+        assertFalse(backoff.isAwaitingConfirmation());
+        assertFalse(backoff.isBlocked(100_001));
+    }
+
+    @Test
+    public void confirmationWindowIsShorterThanTheDebounceLoopButLongerThanOneReadback() {
+        assertTrue("the confirmation window must outlast the OS revert that follows an accepted "
+                        + "write, i.e. at least a full debounce cycle",
+                KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS > KeepADBToggleState.TOGGLE_COOLDOWN_MS);
+        assertTrue("and must stay far below the fallback interval it is nested in",
+                KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS
+                        < KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS);
     }
 
     @Test

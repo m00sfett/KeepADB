@@ -39,8 +39,21 @@ final class KeepADBRecoveryBackoff {
      */
     static final long FALLBACK_RETRY_INTERVAL_MS = 15 * 60 * 1000L; // 15 minutes
 
+    /**
+     * How long an accepted automatic enable must survive before it counts as a real success
+     * (#500). The synchronous readback taken immediately after {@code Settings.Global.putInt}
+     * cannot tell the two cases apart: on a network whose pairing dialog was never confirmed the
+     * system accepts the value, serves it back as 1 on the very next read, and only then reverts
+     * it to 0 asynchronously. Treating that first read as success reset the whole backoff before
+     * the revert ever arrived, which is why the device test on #500 saw 186 attempts in 72
+     * seconds and not a single {@code state_mismatch}. Chosen well above the OS revert latency
+     * (observed as part of the same ~1.5s cycle) and well below anything a user would notice.
+     */
+    static final long SUCCESS_CONFIRMATION_MS = 3000L;
+
     private int attemptsInCycle;
     private long blockedUntilElapsedMs;
+    private boolean awaitingConfirmation;
 
     /** True while an automatic enable attempt is currently suppressed. */
     synchronized boolean isBlocked(long nowElapsedMs) {
@@ -48,21 +61,54 @@ final class KeepADBRecoveryBackoff {
     }
 
     /**
-     * Records that an automatic enable attempt was just made (the write was accepted) but the
-     * readback stayed off. Blocks further automatic attempts once {@link #MAX_ATTEMPTS_PER_CYCLE}
-     * is reached, until {@link #FALLBACK_RETRY_INTERVAL_MS} has elapsed or an explicit trigger
-     * calls {@link #reset()} first.
+     * Records that an automatic enable attempt was just made and its write was accepted. The
+     * attempt counts -- and blocks further automatic attempts once {@link #MAX_ATTEMPTS_PER_CYCLE}
+     * is reached -- <em>regardless</em> of what the immediate readback said, because that readback
+     * is not evidence either way (see {@link #SUCCESS_CONFIRMATION_MS}). The cycle stays blocked
+     * until {@link #confirmSuccess()} proves the value actually stuck, an explicit trigger calls
+     * {@link #reset()}, or {@link #FALLBACK_RETRY_INTERVAL_MS} has elapsed.
      */
-    synchronized void recordMismatch(long nowElapsedMs) {
+    synchronized void recordAttempt(long nowElapsedMs) {
         attemptsInCycle++;
+        awaitingConfirmation = true;
         if (attemptsInCycle >= MAX_ATTEMPTS_PER_CYCLE) {
             blockedUntilElapsedMs = nowElapsedMs + FALLBACK_RETRY_INTERVAL_MS;
         }
     }
 
-    /** Records that an automatic enable attempt actually took effect: the cycle is over. */
-    synchronized void recordSuccess() {
+    /** True between {@link #recordAttempt} and its delayed stability verdict. */
+    synchronized boolean isAwaitingConfirmation() {
+        return awaitingConfirmation;
+    }
+
+    /**
+     * The attempt recorded by {@link #recordAttempt} was still in effect after
+     * {@link #SUCCESS_CONFIRMATION_MS}: it really took hold, so the cycle is over.
+     */
+    synchronized void confirmSuccess() {
         reset();
+    }
+
+    /**
+     * The attempt recorded by {@link #recordAttempt} did not survive the confirmation window --
+     * the system reverted it. The block stays in place; only the "awaiting" marker is cleared so
+     * later observations are no longer attributed to that attempt.
+     */
+    synchronized void recordUnconfirmed() {
+        awaitingConfirmation = false;
+    }
+
+    /**
+     * An "on" readback was observed from outside our own in-flight attempt (typically the
+     * ContentObserver: the user confirmed Android's pairing dialog, or enabled the switch
+     * elsewhere). Reopens the cycle -- but never while an attempt of ours is still awaiting its
+     * verdict, because the transient "on" our own accepted-then-reverted write produces would
+     * otherwise reset the very backoff it is supposed to engage (#500).
+     */
+    synchronized void noteObservedEnabled() {
+        if (!awaitingConfirmation) {
+            reset();
+        }
     }
 
     /**
@@ -73,6 +119,7 @@ final class KeepADBRecoveryBackoff {
     synchronized void reset() {
         attemptsInCycle = 0;
         blockedUntilElapsedMs = 0;
+        awaitingConfirmation = false;
     }
 
     synchronized int attemptsInCycleForTesting() {

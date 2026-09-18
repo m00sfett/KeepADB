@@ -66,9 +66,84 @@ public class KeepADBRecoveryBackoffSchedulingTest {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
 
         assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        // #500: success is no longer decided by the readback taken right after the write -- that
+        // one reads "on" in the broken case too. It is decided by the value still being on when
+        // the confirmation window expires, which for a genuinely successful write it is.
+        scheduler.advanceBy(KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS);
 
-        assertFalse("a readback that actually flips on must never engage the backoff",
+        assertFalse("a write that actually takes hold must never engage the backoff",
                 KeepADB.isAutomaticEnableBackoffBlocked());
+    }
+
+    /**
+     * The exact #500 race, reproduced: the write is accepted, the immediate readback says "on",
+     * and only afterwards does the system revert the value. Before the fix this booked a success
+     * and reset the backoff, so every following trigger started a fresh unbounded attempt.
+     */
+    @Test
+    public void anAcceptedWriteTheSystemRevertsAfterTheReadbackStillBlocksFurtherAttempts() {
+        KeepADBRevertingSettingsGateway gateway =
+                new KeepADBRevertingSettingsGateway(scheduler::clockMs, 200);
+        KeepADB.setGatewayForTesting(gateway);
+
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue("the readback right after the write must still report 'on' -- that is the "
+                        + "whole point of this fake", KeepADB.isEnabled(ctx));
+
+        assertTrue("an automatic attempt must block further attempts until it is confirmed, not "
+                        + "on the strength of its own immediate readback",
+                KeepADB.isAutomaticEnableBackoffBlocked());
+
+        // The system reverts, then the confirmation window expires: the verdict is "did not take
+        // hold", so the block stays.
+        scheduler.advanceBy(KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS);
+        assertFalse(KeepADB.isEnabled(ctx));
+        assertTrue("the reverted write must leave the backoff blocked",
+                KeepADB.isAutomaticEnableBackoffBlocked());
+
+        // What the call sites do (KeepADBService's ContentObserver / keep-alive check): they only
+        // attempt while the backoff is open. Exactly one write must have happened in total.
+        for (int i = 0; i < 20; i++) {
+            if (!KeepADB.isAutomaticEnableBackoffBlocked()) {
+                KeepADB.setEnabled(ctx, true, AUTO);
+            }
+            scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        }
+        assertEquals("no second automatic attempt may follow before a trigger or the fallback "
+                        + "interval reopens the cycle", 1, gateway.writes.size());
+    }
+
+    /**
+     * Counterpart to the test above: an observed "on" that is <em>not</em> our own in-flight
+     * attempt (the user confirmed Android's pairing dialog) still reopens the cycle immediately.
+     */
+    @Test
+    public void anExternallyObservedEnableAfterTheVerdictReopensTheCycle() {
+        KeepADB.setGatewayForTesting(new KeepADBRevertingSettingsGateway(scheduler::clockMs, 200));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        scheduler.advanceBy(KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS);
+        assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
+
+        KeepADB.noteObservedEnabled();
+
+        assertFalse("an 'on' observed outside our own attempt is a real trigger",
+                KeepADB.isAutomaticEnableBackoffBlocked());
+    }
+
+    /** The same signal <em>during</em> our own attempt's confirmation window must not reopen it. */
+    @Test
+    public void anObservedEnableDuringOurOwnAttemptDoesNotReopenTheCycle() {
+        KeepADB.setGatewayForTesting(new KeepADBRevertingSettingsGateway(scheduler::clockMs, 200));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+
+        // This is precisely what the ContentObserver sees when our accepted write momentarily
+        // flips the value on before the system reverts it.
+        KeepADB.noteObservedEnabled();
+
+        assertTrue("our own transient 'on' must not clear the block it just engaged",
+                KeepADB.isAutomaticEnableBackoffBlocked());
+        scheduler.advanceBy(KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS);
+        assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
     }
 
     @Test

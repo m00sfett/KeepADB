@@ -282,12 +282,18 @@ public class KeepADBService extends Service {
                     KeepADBDiagnostics.event(KeepADBService.this, "state_observed", "content_observer",
                             "changed", "adbWifi=" + KeepADB.isEnabled(KeepADBService.this));
                     if (KeepADB.isEnabled(KeepADBService.this)) {
-                        // #496: the readback now reflects "on" -- whether from our own write or
-                        // the user confirming Android's pairing dialog independently -- so the
-                        // automatic-enable backoff reopens immediately instead of waiting out its
-                        // fallback timer. Unconditional and ahead of the foreground gate, like
-                        // the network-generation bookkeeping in the NetworkCallback below.
-                        KeepADB.resetAutomaticEnableBackoff();
+                        // #496: the readback now reflects "on" -- e.g. the user confirmed
+                        // Android's pairing dialog independently -- so the automatic-enable
+                        // backoff reopens instead of waiting out its fallback timer. Ahead of the
+                        // foreground gate, like the network-generation bookkeeping in the
+                        // NetworkCallback below.
+                        //
+                        // #500: no longer unconditional. Our own accepted-but-reverted write also
+                        // surfaces here as a momentary "on", and resetting on it cleared the very
+                        // backoff that write had just engaged -- so the following revert looked
+                        // like a fresh unblocked cycle and the 1.5s retry loop continued. While an
+                        // attempt of ours is awaiting its verdict, only that verdict decides.
+                        KeepADB.noteObservedEnabled();
                     }
                     if (!foregroundReady) {
                         Log.d(TAG, "Ignoring state change before foreground promotion");

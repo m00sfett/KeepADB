@@ -777,6 +777,73 @@ public class KeepADBServiceLifecycleRobolectricTest {
     }
 
     /**
+     * #500's device-observed regression, reproduced end to end against the real ContentObserver
+     * call site: the write is accepted, the readback right after it reports "on", and only then
+     * does the system revert the value -- which re-fires this very observer. Before the fix that
+     * sequence booked a success, reset the backoff, and so every revert started another attempt;
+     * the device test counted 186 of them in 72 seconds with no {@code state_mismatch} at all.
+     */
+    @Test
+    public void contentObserverStopsRetryingWhenTheSystemRevertsAnAcceptedWriteAfterTheReadback() {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBRevertingSettingsGateway gateway = new KeepADBRevertingSettingsGateway(
+                android.os.SystemClock::elapsedRealtime, 200);
+        KeepADB.setGatewayForTesting(gateway);
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+
+            controller.get().getAdbContentObserverForTesting()
+                    .onChange(false, Settings.Global.getUriFor(KeepADB.KEY));
+            android.os.SystemClock.sleep(1600);
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));
+
+            assertEquals(1, gateway.writes.size());
+            assertTrue("the attempt must block further attempts while it is unconfirmed -- its "
+                            + "own immediate readback said 'on' and proves nothing",
+                    KeepADB.isAutomaticEnableBackoffBlocked());
+
+            // Let the system's revert land, then replay the two observer callbacks it produces in
+            // the real world: the momentary "on" of our own write and the revert back to "off".
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(400));
+            controller.get().getAdbContentObserverForTesting()
+                    .onChange(false, Settings.Global.getUriFor(KeepADB.KEY));
+            ShadowLooper.idleMainLooper();
+            assertEquals("the revert must not start a fresh unbounded cycle",
+                    1, gateway.writes.size());
+
+            // Past the confirmation window the verdict is final: the write did not take hold.
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(
+                    KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS));
+            assertTrue("an unconfirmed attempt must stay blocked",
+                    KeepADB.isAutomaticEnableBackoffBlocked());
+
+            controller.get().getAdbContentObserverForTesting()
+                    .onChange(false, Settings.Global.getUriFor(KeepADB.KEY));
+            android.os.SystemClock.sleep(1600);
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));
+            assertEquals("exactly one automatic attempt per cycle, as #496 specifies",
+                    1, gateway.writes.size());
+
+            String export = KeepADBDiagnostics.export(context);
+            assertTrue("the block must be diagnosable on the device, not silent -- its absence "
+                            + "from the #500 logcat is what exposed the bug",
+                    export.contains("reason=recovery_backoff_active"));
+            assertTrue("the failed confirmation must be visible as a state mismatch",
+                    export.contains("stage=confirmation"));
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    /**
      * Acceptance criterion: "Nach dem Abbruch bleibt Keep-Alive ... Ein klar definierter neuer
      * Auslöser gibt den Zustand wieder frei" -- an app/service restart is one of the named
      * triggers. Deliberately blocks the backoff *outside* the service under test (a direct
@@ -854,7 +921,11 @@ public class KeepADBServiceLifecycleRobolectricTest {
             assertTrue("automatic recovery must actually complete once the block is lifted",
                     workingGateway.writes.contains(true));
             assertTrue(KeepADB.isEnabled(context));
-            assertFalse("a successful readback must not leave the backoff blocked",
+            // #500: the value has to survive the confirmation window -- which, unlike the reverted
+            // case, it does here, so the block is released without any further trigger.
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(
+                    KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS));
+            assertFalse("a write that actually takes hold must not leave the backoff blocked",
                     KeepADB.isAutomaticEnableBackoffBlocked());
         } finally {
             controller.destroy();

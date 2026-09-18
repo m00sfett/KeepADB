@@ -62,6 +62,10 @@ final class KeepADB {
     }
 
     private static Runnable pendingToggleRunnable;
+    // #500: the delayed "did the accepted write actually stick?" check for the automatic enable
+    // path. Deliberately separate from pendingToggleRunnable, which drives the debounce window and
+    // the surfaces' "switching…" indicator; this one changes no state a surface renders.
+    private static Runnable pendingBackoffConfirmationRunnable;
 
     // #310: source strings whose caller is a direct, explicit user action. Everything else is
     // treated as automatic, so an unrecognized/new source keeps today's conservative behavior
@@ -399,16 +403,14 @@ final class KeepADB {
                     actual == on ? "success" : "state_mismatch",
                     "intentId=" + token + " desired=" + on + " actual=" + actual
                             + " writeAccepted=" + writeAccepted);
-            // #496: an accepted write with an ineffective readback is exactly the failure mode
-            // the backoff bounds -- but only for the automatic enable path it was built for.
-            // Manual sources already reset the backoff unconditionally above, and a disable (or
-            // a disable's own mismatch) is not part of the re-enable loop this guards against.
+            // #496/#500: an accepted write whose value does not actually stick is exactly the
+            // failure mode the backoff bounds -- but only for the automatic enable path it was
+            // built for. Manual sources already reset the backoff unconditionally above, and a
+            // disable is not part of the re-enable loop this guards against. Note that `actual`
+            // above is deliberately *not* what decides success here: see
+            // KeepADBRecoveryBackoff#SUCCESS_CONFIRMATION_MS.
             if (on && !isManualSource(source)) {
-                if (actual) {
-                    recoveryBackoff.recordSuccess();
-                } else {
-                    recoveryBackoff.recordMismatch(scheduler.elapsedRealtimeMs());
-                }
+                recordAutomaticAttemptAndScheduleConfirmation(appContext, source, token);
             }
             surfaces.refreshAll(appContext);
             return true;
@@ -419,6 +421,68 @@ final class KeepADB {
             surfaces.refreshAll(appContext); // #318: never leave the surfaces stuck in pending.
             return false;
         }
+    }
+
+    /**
+     * Books an accepted automatic enable as one attempt and schedules its delayed verdict (#500).
+     * Called while {@code KeepADB.class} is held, immediately after the write.
+     *
+     * <p>Why delayed: the readback taken right after the write is worthless as evidence. Android
+     * accepts {@code adb_wifi_enabled=1} and serves it back as 1 even on a network whose Wireless
+     * Debugging pairing dialog was never confirmed, and only reverts it to 0 a moment later. The
+     * previous version booked that first read as a success and reset the backoff before the revert
+     * arrived -- so the ContentObserver saw the revert as a brand new, unblocked cycle and started
+     * the next attempt, 186 times in 72 seconds on the device test for #500. The attempt is
+     * therefore booked unconditionally (blocking further automatic attempts straight away) and
+     * only a value that is still on after {@link KeepADBRecoveryBackoff#SUCCESS_CONFIRMATION_MS}
+     * releases the block.
+     */
+    private static void recordAutomaticAttemptAndScheduleConfirmation(Context appContext,
+            String source, long token) {
+        recoveryBackoff.recordAttempt(scheduler.elapsedRealtimeMs());
+        if (pendingBackoffConfirmationRunnable != null) {
+            scheduler.removeCallbacks(pendingBackoffConfirmationRunnable);
+        }
+        Runnable confirmation = new Runnable() {
+            @Override
+            public void run() {
+                confirmAutomaticAttempt(appContext, source, token, this);
+            }
+        };
+        pendingBackoffConfirmationRunnable = confirmation;
+        scheduler.postDelayed(confirmation, KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS);
+    }
+
+    private static synchronized void confirmAutomaticAttempt(Context appContext, String source,
+            long token, Runnable self) {
+        if (pendingBackoffConfirmationRunnable != self) {
+            return; // Superseded by a newer attempt's confirmation.
+        }
+        pendingBackoffConfirmationRunnable = null;
+        if (!recoveryBackoff.isAwaitingConfirmation()) {
+            return; // Already resolved by an explicit trigger (manual action, network change, ...).
+        }
+        boolean stillOn = isEnabled(appContext);
+        if (stillOn) {
+            recoveryBackoff.confirmSuccess();
+        } else {
+            recoveryBackoff.recordUnconfirmed();
+        }
+        KeepADBDiagnostics.event(appContext, diagnosticEventName(source), source,
+                stillOn ? "success" : "state_mismatch",
+                "intentId=" + token + " stage=confirmation actual=" + stillOn
+                        + " afterMs=" + KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS);
+    }
+
+    /**
+     * An "on" readback observed outside our own in-flight attempt -- the ContentObserver's signal
+     * that the user confirmed Android's pairing dialog or switched Wireless Debugging on
+     * elsewhere. Unlike {@link #resetAutomaticEnableBackoff()} this deliberately does nothing
+     * while one of our own automatic attempts is still awaiting its verdict: the transient "on"
+     * that an accepted-then-reverted write produces is not evidence of success (#500).
+     */
+    static synchronized void noteObservedEnabled() {
+        recoveryBackoff.noteObservedEnabled();
     }
 
     private static String diagnosticEventName(String source) {
@@ -568,6 +632,10 @@ final class KeepADB {
         if (pendingToggleRunnable != null) {
             scheduler.removeCallbacks(pendingToggleRunnable);
             pendingToggleRunnable = null;
+        }
+        if (pendingBackoffConfirmationRunnable != null) {
+            scheduler.removeCallbacks(pendingBackoffConfirmationRunnable);
+            pendingBackoffConfirmationRunnable = null;
         }
         state.reset();
         recoveryBackoff.reset();
