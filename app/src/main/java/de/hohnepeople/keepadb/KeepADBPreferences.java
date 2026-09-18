@@ -515,16 +515,14 @@ final class KeepADBPreferences {
         prefs.edit().putBoolean(KEY_ADVICE_BANNER_VISIBLE, visible).apply();
     }
 
-    /** #482/#483: whether currently-displayed network addresses should be masked in the UI. #483
-     * applies this to exactly three places: the main screen's endpoint line, the webhook address
-     * and the last reported endpoint. Access point rows, the notification and the Quick Settings
-     * tile are deliberately not covered. Off by default -- existing behavior is
-     * unchanged until the user opts in from the main screen's header toggle. This flag only ever
-     * controls rendering; it never touches {@code adb_wifi_enabled} or any other persisted
-     * original value. */
+    /** #482/#483/#488: whether currently-displayed network addresses should be masked in the UI.
+     * This applies to every endpoint surface covered by the privacy mode; the home-screen widget
+     * only shows the port and therefore needs no masking. The default is on so a newly installed
+     * app starts in the privacy-preserving state. This flag only ever controls rendering; it
+     * never touches {@code adb_wifi_enabled} or any other persisted original value. */
     static boolean isPrivacyModeEnabled(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getBoolean(KEY_PRIVACY_MODE_ENABLED, false);
+        return prefs.getBoolean(KEY_PRIVACY_MODE_ENABLED, true);
     }
 
     static void setPrivacyModeEnabled(Context context, boolean enabled) {

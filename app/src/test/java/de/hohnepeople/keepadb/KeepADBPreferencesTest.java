@@ -216,6 +216,7 @@ public class KeepADBPreferencesTest {
     @Test
     public void testPrivacyModeOffLeavesDisplayValuesUntouched() {
         FakeContext context = new FakeContext();
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
         assertFalse(KeepADBPreferences.isPrivacyModeEnabled(context));
         assertEquals("192.168.1.100",
                 KeepADBPreferences.maskHostForDisplay(context, "192.168.1.100"));
@@ -224,6 +225,12 @@ public class KeepADBPreferencesTest {
         assertEquals("http://100.111.***.**:50829/register/s20",
                 KeepADBPreferences.maskWebhookUrlForDisplay(
                         context, "http://100.111.111.21:50829/register/s20"));
+    }
+
+    /** #488: a new installation starts with privacy masking enabled. */
+    @Test
+    public void testPrivacyModeDefaultsToEnabled() {
+        assertTrue(KeepADBPreferences.isPrivacyModeEnabled(new FakeContext()));
     }
 
     /** #483: with the privacy toggle on, addresses are masked and ports stay readable. */

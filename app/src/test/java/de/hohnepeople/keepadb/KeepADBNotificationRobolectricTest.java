@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -170,6 +171,7 @@ public class KeepADBNotificationRobolectricTest {
         KeepADB.setGatewayForTesting(gateway);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBPreferences.setNotificationHidden(context, true);
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
 
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
@@ -186,6 +188,28 @@ public class KeepADBNotificationRobolectricTest {
         String content = notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString();
         assertTrue(content.contains("39123"));
         assertTrue(content.contains("192.168.1.50"));
+    }
+
+    @Test
+    public void notificationMasksEndpointWhenPrivacyModeIsEnabled() throws Exception {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+
+        setStatic("currentHost", "192.168.1.50");
+        setStatic("currentPort", 39123);
+
+        KeepADBNotification.refresh(context);
+
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        Notification notification = shadowOf(manager)
+                .getNotification(KeepADBNotification.NOTIFICATION_ID);
+        assertNotNull(notification);
+        String content = notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString();
+        assertTrue(content.contains("39123"));
+        assertTrue(content.contains("192.*.*.*"));
+        assertFalse(content.contains("192.168.1.50"));
     }
 
     @Test
