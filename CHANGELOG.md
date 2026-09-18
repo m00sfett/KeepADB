@@ -31,6 +31,11 @@ retrospective issue-version records and were never published as separate release
   closed. On confirmation, revokes runtime permissions on kill (`POST_NOTIFICATIONS`,
   `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`) on Android 13+ and clears all application user
   data via `ActivityManager.clearApplicationUserData()` (#505).
+- Location permission request for Wi-Fi discovery: decoupled `location_permission_panel` from
+  `isAllowlistMode` so missing `ACCESS_FINE_LOCATION` permissions are highlighted and requestable
+  on the home screen even in `MODE_ALL_WIFI`. Added in-context grant button directly on the
+  "Wi-Fi & Access Points" card when current network identity is unreadable, with automatic fallback
+  to app settings if permanently denied (#504).
 
 ### Changed
 - Settings section title updated from "Diagnostics" to "Diagnostics & Maintenance" across all

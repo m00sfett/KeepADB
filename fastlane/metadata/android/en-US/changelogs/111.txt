@@ -1,3 +1,4 @@
 Added: in Settings under "Diagnostics & Maintenance", a new "Reset App Completely"
-button allows resetting all saved networks, settings, and runtime permissions with
-confirmation, closing the app cleanly.
+button allows resetting all saved networks, settings, and runtime permissions.
+Improved: Wi-Fi & Access Points card and home screen now let you grant location permission
+directly in-context to reveal your network identity.
