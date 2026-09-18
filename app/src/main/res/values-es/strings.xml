@@ -4,7 +4,7 @@
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Configuración inicial</string>
     <string name="setup_body">Conecta este dispositivo a un ordenador por USB con la depuración USB activada y ejecuta el comando siguiente.</string>
-    <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Comprobar permiso</string>
     <string name="status_on">Depuración inalámbrica ACTIVADA</string>
     <string name="status_off">Depuración inalámbrica DESACTIVADA</string>

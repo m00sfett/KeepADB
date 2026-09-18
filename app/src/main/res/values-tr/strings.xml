@@ -4,7 +4,7 @@
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">İlk kurulum</string>
     <string name="setup_body">Bu cihazı USB hata ayıklama etkinken bir bilgisayara USB ile bağlayın ve aşağıdaki komutu çalıştırın.</string>
-    <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">İzni kontrol et</string>
     <string name="status_on">Kablosuz Hata Ayıklama AÇIK</string>
     <string name="status_off">Kablosuz Hata Ayıklama KAPALI</string>

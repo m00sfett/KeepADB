@@ -120,6 +120,8 @@ public class MainActivity extends Activity {
             startActivity(intent);
         });
         setupPanel = findViewById(R.id.setup_panel);
+        ((TextView) findViewById(R.id.setup_command)).setText(
+                getString(R.string.setup_command, getPackageName()));
         notificationPermissionPanel = findViewById(R.id.notification_permission_panel);
         batteryOptimizationPanel = findViewById(R.id.battery_optimization_panel);
         locationPermissionPanel = findViewById(R.id.location_permission_panel);

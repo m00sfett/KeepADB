@@ -4,7 +4,7 @@
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">초기 설정</string>
     <string name="setup_body">USB 디버깅을 활성화한 상태로 이 기기를 컴퓨터에 USB로 연결한 후 아래 명령어를 실행하세요.</string>
-    <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">권한 확인</string>
     <string name="status_on">무선 디버깅 켜짐</string>
     <string name="status_off">무선 디버깅 꺼짐</string>

@@ -4,7 +4,7 @@
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">首次设置</string>
     <string name="setup_body">请启用 USB 调试并通过 USB 将此设备连接到电脑，然后运行以下命令。</string>
-    <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">检查权限</string>
     <string name="status_on">无线调试已开启</string>
     <string name="status_off">无线调试已关闭</string>

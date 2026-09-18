@@ -4,7 +4,7 @@
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">First-time setup</string>
     <string name="setup_body">Connect this device to a computer via USB with USB debugging enabled, then run the command below.</string>
-    <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Check permission</string>
     <string name="status_on">Wireless Debugging is ON (Connected)</string>
     <string name="status_off">Wireless Debugging is OFF</string>

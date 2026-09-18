@@ -22,6 +22,14 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.11] - Unreleased
+
+### Fixed
+- First-setup card: the displayed `pm grant` command now uses the actually running
+  application ID (`de.hohnepeople.keepadb.debug` in debug builds,
+  `de.hohnepeople.keepadb` in release builds) instead of a hardcoded release package
+  name, so a fresh debug installation no longer needs a manual command correction (#497).
+
 ## [1.8.10] - Unreleased
 
 ### Changed

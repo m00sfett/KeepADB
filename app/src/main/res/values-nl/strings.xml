@@ -4,7 +4,7 @@
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Eerste installatie</string>
     <string name="setup_body">Verbind dit apparaat via USB met een computer met USB-foutopsporing ingeschakeld en voer het onderstaande commando uit.</string>
-    <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">Toestemming controleren</string>
     <string name="status_on">Draadloze foutopsporing is AAN</string>
     <string name="status_off">Draadloze foutopsporing is UIT</string>

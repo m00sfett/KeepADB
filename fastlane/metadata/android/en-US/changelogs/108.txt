@@ -1,0 +1,2 @@
+Fixed: the setup command shown on a fresh debug installation now uses the correct debug
+package name instead of the release package name.

@@ -4,7 +4,7 @@
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">प्रारंभिक सेटअप</string>
     <string name="setup_body">इस डिवाइस को USB डीबगिंग सक्षम करके कंप्यूटर से USB द्वारा कनेक्ट करें, फिर नीचे दिया गया कमांड चलाएं।</string>
-    <string name="setup_command">adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_refresh">अनुमति जांचें</string>
     <string name="status_on">वायरलेस डीबगिंग चालू है</string>
     <string name="status_off">वायरलेस डीबगिंग बंद है</string>
