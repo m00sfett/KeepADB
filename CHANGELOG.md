@@ -22,6 +22,18 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.8] - Unreleased
+
+### Changed
+- Privacy mode now masks the endpoint in the persistent notification and Quick Settings tile as
+  well as the existing in-app surfaces. The home-screen widget remains unchanged because it only
+  displays the port. New installations default to privacy mode enabled; the toggle still reveals
+  the full address when explicitly disabled (issue #488).
+- Changing privacy mode now refreshes an already-visible notification and Quick Settings tile
+  immediately.
+- Patch version bump (1.8.7 -> 1.8.8, versionCode 105): this extends the existing display-only
+  privacy behavior without changing stored endpoints, transport, or Wireless Debugging state.
+
 ## [1.8.7] - Unreleased
 
 ### Changed

@@ -695,7 +695,10 @@ final class KeepADBNotification {
     }
 
     private static Notification buildNotification(Context context, String host, int port) {
-        String displayHost = (host != null && host.contains(":") && !host.startsWith("[")) ? "[" + host + "]" : host;
+        String displayHost = KeepADBPreferences.maskHostForDisplay(context, host);
+        if (displayHost != null && displayHost.contains(":") && !displayHost.startsWith("[")) {
+            displayHost = "[" + displayHost + "]";
+        }
         String title = context.getString(R.string.notification_title_active);
         String content = context.getString(R.string.notification_text_active, port, displayHost);
         SpannableString styled = new SpannableString(content);

@@ -124,7 +124,12 @@ public class KeepADBTileService extends TileService {
                 String host = KeepADBNotification.getCurrentHost();
                 int port = KeepADBNotification.getCurrentPort();
                 if (host != null && port > 0) {
-                    tile.setSubtitle(getString(R.string.tile_state_connected_format, host, port));
+                    String displayHost = KeepADBPreferences.maskHostForDisplay(this, host);
+                    if (displayHost.contains(":") && !displayHost.startsWith("[")) {
+                        displayHost = "[" + displayHost + "]";
+                    }
+                    tile.setSubtitle(getString(R.string.tile_state_connected_format,
+                            displayHost, port));
                 } else {
                     tile.setSubtitle(getString(R.string.tile_state_connected));
                 }

@@ -148,6 +148,7 @@ public class KeepADBMultiStateContractTest {
     public void everySurfaceRendersAnEnabledConnectedStateAtRuntime() throws Exception {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
         int endpointPort = openEndpointServer();
         seedEndpoint("127.0.0.1", endpointPort);
 
@@ -169,6 +170,23 @@ public class KeepADBMultiStateContractTest {
         assertEquals(Tile.STATE_ACTIVE, tileService.getQsTile().getState());
         assertEquals(context.getString(R.string.tile_state_connected_format,
                         "127.0.0.1", endpointPort), tileService.getQsTile().getSubtitle());
+        stopTileService(tileService);
+    }
+
+    @Test
+    public void connectedTileMasksEndpointWhenPrivacyModeIsEnabled() throws Exception {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        int endpointPort = openEndpointServer();
+        seedEndpoint("127.0.0.1", endpointPort);
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+
+        KeepADBTileService tileService = Robolectric.buildService(KeepADBTileService.class)
+                .create().get();
+        tileService.onStartListening();
+
+        assertEquals(context.getString(R.string.tile_state_connected_format,
+                        "127.*.*.*", endpointPort), tileService.getQsTile().getSubtitle());
         stopTileService(tileService);
     }
 
