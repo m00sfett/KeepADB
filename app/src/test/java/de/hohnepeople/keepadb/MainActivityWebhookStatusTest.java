@@ -50,6 +50,7 @@ public class MainActivityWebhookStatusTest {
     @Test
     public void webhookStatusUsesMaskedUrlForIpv4() {
         Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
         KeepADBPreferences.setRegisterWebhookEnabled(context, true);
 
@@ -70,6 +71,7 @@ public class MainActivityWebhookStatusTest {
     @Test
     public void webhookStatusNeverExposesCredentialsEvenIfStored() {
         Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit()
                 .putString("register_webhook_url", "http://user:secret123@100.111.111.21:50829/register/s20#section")
