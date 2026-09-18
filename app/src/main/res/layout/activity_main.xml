@@ -359,6 +359,17 @@
                     android:background="@drawable/bg_panel"
                     android:orientation="vertical">
 
+                    <Switch
+                        android:id="@+id/toggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:minHeight="48dp"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/toggle_label"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="18sp" />
+
                     <TextView
                         android:id="@+id/status"
                         android:layout_width="match_parent"
@@ -379,16 +390,6 @@
                         android:text="@string/endpoint_unavailable"
                         android:textColor="@color/night_muted"
                         android:textSize="15sp" />
-
-                    <Switch
-                        android:id="@+id/toggle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="48dp"
-                        android:fontFamily="sans-serif-condensed"
-                        android:text="@string/toggle_label"
-                        android:textColor="@color/text_yellow"
-                        android:textSize="18sp" />
 
                     <View
                         android:layout_width="match_parent"
