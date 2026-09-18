@@ -22,6 +22,14 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.10] - Unreleased
+
+### Changed
+- Home screen first card: the Wireless Debugging on/off switch now sits above the status line
+  (on/off/connected/waiting) instead of below it, so it is the topmost interactive element (#493).
+  Pure layout reorder -- toggle semantics, persistence, permissions, accessibility text and the
+  endpoint/connection info below the status line are unchanged.
+
 ## [1.8.9] - Unreleased
 
 ### Changed
