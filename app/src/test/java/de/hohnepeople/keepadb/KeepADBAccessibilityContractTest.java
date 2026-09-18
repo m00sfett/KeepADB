@@ -138,6 +138,7 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_battery_optimization_panel_toggle,
                 R.id.settings_diagnostics_header,
                 R.id.settings_diagnostics_export, R.id.settings_issue_report,
+                R.id.settings_reset_app,
                 R.id.settings_website_link
         };
         for (int id : settingsControls) assertMinSize(settings.findViewById(id));
@@ -215,6 +216,7 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_keep_display_on_toggle, R.id.settings_advice_banner_toggle,
                 R.id.settings_battery_optimization_panel_toggle,
                 R.id.settings_diagnostics_export, R.id.settings_issue_report,
+                R.id.settings_reset_app,
                 R.id.settings_website_link
         };
         for (int id : settingsControls) {

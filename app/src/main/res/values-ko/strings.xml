@@ -176,10 +176,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_edit_action_accessibility">호스트 프로필 &quot;%1$s&quot; 편집</string>
     <string name="usb_profile_delete_action_accessibility">호스트 프로필 &quot;%1$s&quot; 삭제</string>
     <string name="usb_profile_edit_title">호스트 프로필 편집</string>
-    <string name="settings_diagnostics_title">진단</string>
+    <string name="settings_diagnostics_title">진단 및 유지 관리</string>
     <string name="settings_diagnostics_subtext">수정된 최신 이벤트 128개를 이 기기에 보관합니다. 내보내기를 누르면 Android 공유 화면이 열립니다.</string>
     <string name="settings_diagnostics_export">진단 내보내기</string>
     <string name="settings_diagnostics_export_subject">KeepADB 진단</string>
+    <string name="settings_reset_app">앱 완전히 초기화</string>
+    <string name="settings_reset_app_dialog_title">앱을 완전히 초기화할까요?</string>
+    <string name="settings_reset_app_dialog_message">저장된 모든 네트워크, 설정 및 권한이 삭제됩니다. 그런 다음 앱이 종료됩니다.</string>
+    <string name="settings_reset_app_confirm">초기화</string>
     <string name="battery_optimization_title">배터리 최적화로 Keep-Alive가 제한될 수 있습니다</string>
     <string name="battery_optimization_body">KeepADB가 배터리 최적화에서 제외되지 않으면 Android가 백그라운드의 Keep-Alive를 제한하거나 중지할 수 있습니다.</string>
     <string name="battery_optimization_button">배터리 설정 열기</string>

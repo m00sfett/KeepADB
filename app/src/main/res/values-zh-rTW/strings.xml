@@ -176,10 +176,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_edit_action_accessibility">編輯主機設定檔「%1$s」</string>
     <string name="usb_profile_delete_action_accessibility">刪除主機設定檔「%1$s」</string>
     <string name="usb_profile_edit_title">編輯主機設定檔</string>
-    <string name="settings_diagnostics_title">診斷</string>
+    <string name="settings_diagnostics_title">診斷與維護</string>
     <string name="settings_diagnostics_subtext">在此裝置上保留最近 128 筆已遮蔽事件。匯出會開啟 Android 分享面板。</string>
     <string name="settings_diagnostics_export">匯出診斷資訊</string>
     <string name="settings_diagnostics_export_subject">KeepADB 診斷</string>
+    <string name="settings_reset_app">完全重設應用程式</string>
+    <string name="settings_reset_app_dialog_title">完全重設應用程式？</string>
+    <string name="settings_reset_app_dialog_message">所有儲存的網路、設定和權限都將被刪除。隨後應用程式將關閉。</string>
+    <string name="settings_reset_app_confirm">重設</string>
     <string name="battery_optimization_title">電池最佳化可能限制 Keep-Alive</string>
     <string name="battery_optimization_body">若 KeepADB 未排除在電池最佳化之外，Android 可能會限制或停止背景中的 Keep-Alive。</string>
     <string name="battery_optimization_button">開啟電池設定</string>

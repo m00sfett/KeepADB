@@ -176,10 +176,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_edit_action_accessibility">होस्ट प्रोफ़ाइल &quot;%1$s&quot; बदलें</string>
     <string name="usb_profile_delete_action_accessibility">होस्ट प्रोफ़ाइल &quot;%1$s&quot; हटाएँ</string>
     <string name="usb_profile_edit_title">होस्ट प्रोफ़ाइल बदलें</string>
-    <string name="settings_diagnostics_title">निदान</string>
+    <string name="settings_diagnostics_title">निदान और रखरखाव</string>
     <string name="settings_diagnostics_subtext">इस डिवाइस पर नवीनतम 128 संशोधित इवेंट रखता है। निर्यात Android शेयर शीट खोलता है।</string>
     <string name="settings_diagnostics_export">निदान निर्यात करें</string>
     <string name="settings_diagnostics_export_subject">KeepADB निदान</string>
+    <string name="settings_reset_app">ऐप को पूरी तरह से रीसेट करें</string>
+    <string name="settings_reset_app_dialog_title">क्या ऐप को पूरी तरह से रीसेट करें?</string>
+    <string name="settings_reset_app_dialog_message">सभी सहेजे गए नेटवर्क, सेटिंग्स और अनुमतियां हटा दी जाएंगी। इसके बाद ऐप बंद हो जाएगा।</string>
+    <string name="settings_reset_app_confirm">रीसेट करें</string>
     <string name="battery_optimization_title">बैटरी ऑप्टिमाइज़ेशन Keep-Alive को सीमित कर सकता है</string>
     <string name="battery_optimization_body">यदि KeepADB को बैटरी ऑप्टिमाइज़ेशन से छूट नहीं है, तो Android बैकग्राउंड में Keep-Alive को सीमित या बंद कर सकता है।</string>
     <string name="battery_optimization_button">बैटरी सेटिंग खोलें</string>

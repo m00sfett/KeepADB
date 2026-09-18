@@ -176,10 +176,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_edit_action_accessibility">Редагувати профіль хоста «%1$s»</string>
     <string name="usb_profile_delete_action_accessibility">Видалити профіль хоста «%1$s»</string>
     <string name="usb_profile_edit_title">Редагувати профіль хоста</string>
-    <string name="settings_diagnostics_title">Діагностика</string>
+    <string name="settings_diagnostics_title">Діагностика та обслуговування</string>
     <string name="settings_diagnostics_subtext">Зберігає на цьому пристрої 128 останніх відредагованих подій. Експорт відкриває меню поширення Android.</string>
     <string name="settings_diagnostics_export">Експортувати діагностику</string>
     <string name="settings_diagnostics_export_subject">Діагностика KeepADB</string>
+    <string name="settings_reset_app">Повне скидання додатка</string>
+    <string name="settings_reset_app_dialog_title">Повністю скинути додаток?</string>
+    <string name="settings_reset_app_dialog_message">Усі збережені мережі, налаштування та дозволи буде видалено. Після цього додаток закриється.</string>
+    <string name="settings_reset_app_confirm">Скинути</string>
     <string name="battery_optimization_title">Оптимізація батареї може обмежити Keep-Alive</string>
     <string name="battery_optimization_body">Android може обмежити або зупинити Keep-Alive у фоні, якщо KeepADB не виключено з оптимізації батареї.</string>
     <string name="battery_optimization_button">Відкрити налаштування батареї</string>

@@ -2,12 +2,14 @@ package de.hohnepeople.keepadb;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -77,6 +79,8 @@ public class SettingsActivity extends Activity {
     private AlertDialog activeIssueReportDialog;
     private EditText activeIssueReportPreview;
     private CheckBox activeIssueReportDiagnostics;
+
+    private AlertDialog activeResetAppDialog;
 
     private AlertDialog activeProfileEditDialog;
     private Integer activeProfileEditId;
@@ -229,6 +233,7 @@ public class SettingsActivity extends Activity {
 
         findViewById(R.id.settings_diagnostics_export).setOnClickListener(v -> shareDiagnostics());
         findViewById(R.id.settings_issue_report).setOnClickListener(v -> showIssueReportDialog());
+        findViewById(R.id.settings_reset_app).setOnClickListener(v -> showResetAppDialog());
 
         webhookToggle = findViewById(R.id.settings_webhook_toggle);
         webhookUrlInput = findViewById(R.id.settings_webhook_url);
@@ -424,6 +429,13 @@ public class SettingsActivity extends Activity {
         }
         activeIssueReportPreview = null;
         activeIssueReportDiagnostics = null;
+
+        if (activeResetAppDialog != null) {
+            if (activeResetAppDialog.isShowing()) {
+                activeResetAppDialog.dismiss();
+            }
+            activeResetAppDialog = null;
+        }
 
         if (activeProfileEditDialog != null) {
             if (activeProfileEditDialog.isShowing()) {
@@ -901,6 +913,41 @@ public class SettingsActivity extends Activity {
             });
         });
         dialog.show();
+    }
+
+    private void showResetAppDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.settings_reset_app_dialog_title)
+                .setMessage(R.string.settings_reset_app_dialog_message)
+                .setPositiveButton(R.string.settings_reset_app_confirm, (d, which) -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        try {
+                            revokeSelfPermissionOnKill(Manifest.permission.POST_NOTIFICATIONS);
+                            revokeSelfPermissionOnKill(Manifest.permission.ACCESS_FINE_LOCATION);
+                            revokeSelfPermissionOnKill(Manifest.permission.ACCESS_COARSE_LOCATION);
+                        } catch (Exception ignored) {
+                            // Defensive: PermissionController may be unavailable in test environments
+                            // or headless runtimes; proceed with clearing application data.
+                        }
+                    }
+                    ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+                    if (am != null) {
+                        am.clearApplicationUserData();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
+        activeResetAppDialog = dialog;
+        dialog.setOnDismissListener(d -> {
+            if (activeResetAppDialog == d) {
+                activeResetAppDialog = null;
+            }
+        });
+        dialog.show();
+    }
+
+    AlertDialog getActiveResetAppDialog() {
+        return activeResetAppDialog;
     }
 
     AlertDialog getActiveIssueReportDialog() {

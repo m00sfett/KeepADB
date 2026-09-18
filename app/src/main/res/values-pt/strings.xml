@@ -176,10 +176,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_edit_action_accessibility">Editar perfil de host &quot;%1$s&quot;</string>
     <string name="usb_profile_delete_action_accessibility">Excluir perfil de host &quot;%1$s&quot;</string>
     <string name="usb_profile_edit_title">Editar perfil de host</string>
-    <string name="settings_diagnostics_title">Diagnóstico</string>
+    <string name="settings_diagnostics_title">Diagnóstico e manutenção</string>
     <string name="settings_diagnostics_subtext">Mantém os últimos 128 eventos editados neste dispositivo. A exportação abre a folha de partilha do Android.</string>
     <string name="settings_diagnostics_export">Exportar diagnóstico</string>
     <string name="settings_diagnostics_export_subject">Diagnóstico do KeepADB</string>
+    <string name="settings_reset_app">Redefinir o app completamente</string>
+    <string name="settings_reset_app_dialog_title">Redefinir o app completamente?</string>
+    <string name="settings_reset_app_dialog_message">Todas as redes salvas, configurações e permissões serão excluídas. O aplicativo será fechado em seguida.</string>
+    <string name="settings_reset_app_confirm">Redefinir</string>
     <string name="battery_optimization_title">A otimização da bateria pode limitar o Keep-Alive</string>
     <string name="battery_optimization_body">O Android pode limitar ou parar o Keep-Alive em segundo plano, a menos que o KeepADB esteja isento da otimização de bateria.</string>
     <string name="battery_optimization_button">Abrir definições da bateria</string>

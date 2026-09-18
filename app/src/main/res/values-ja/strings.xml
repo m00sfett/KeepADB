@@ -176,10 +176,14 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="usb_profile_edit_action_accessibility">ホストプロファイル「%1$s」を編集</string>
     <string name="usb_profile_delete_action_accessibility">ホストプロファイル「%1$s」を削除</string>
     <string name="usb_profile_edit_title">ホストプロファイルを編集</string>
-    <string name="settings_diagnostics_title">診断</string>
+    <string name="settings_diagnostics_title">診断とメンテナンス</string>
     <string name="settings_diagnostics_subtext">編集済みの最新128件のイベントをこの端末に保持します。エクスポートするとAndroidの共有画面が開きます。</string>
     <string name="settings_diagnostics_export">診断をエクスポート</string>
     <string name="settings_diagnostics_export_subject">KeepADB診断</string>
+    <string name="settings_reset_app">アプリを完全にリセット</string>
+    <string name="settings_reset_app_dialog_title">アプリを完全にリセットしますか？</string>
+    <string name="settings_reset_app_dialog_message">保存されたすべてのネットワーク、設定、権限が削除されます。その後、アプリは終了します。</string>
+    <string name="settings_reset_app_confirm">リセット</string>
     <string name="battery_optimization_title">バッテリー最適化によりKeep-Aliveが制限される場合があります</string>
     <string name="battery_optimization_body">KeepADBがバッテリー最適化の対象外でない場合、AndroidはバックグラウンドのKeep-Aliveを制限・停止することがあります。</string>
     <string name="battery_optimization_button">バッテリー設定を開く</string>

@@ -1,0 +1,3 @@
+Added: in Settings under "Diagnostics & Maintenance", a new "Reset App Completely"
+button allows resetting all saved networks, settings, and runtime permissions with
+confirmation, closing the app cleanly.
