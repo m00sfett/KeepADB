@@ -146,6 +146,23 @@ public class KeepADBAccessibilityContractTest {
         assertMinSize(widget.findViewById(R.id.widget_label));
     }
 
+    /** #507: verifies touch targets inside the Wi-Fi & Access Points opt-in content. */
+    @Test
+    public void settingsWifiApsContentInteractiveViewsKeep48DpTouchTargets() {
+        View settings = runtimeView(R.layout.activity_settings);
+        expandAllSettingsCards(settings);
+        settings.findViewById(R.id.settings_wifi_aps_content).setVisibility(View.VISIBLE);
+        measureAndLayout(settings, 360, 2400);
+
+        int[] wifiApsControls = {
+                R.id.wifi_aps_trusted_only_toggle,
+                R.id.wifi_aps_recently_blocked_button
+        };
+        for (int id : wifiApsControls) {
+            assertMinSize(settings.findViewById(id));
+        }
+    }
+
     /** #471: clicks every collapsible settings card's header so its body (and everything inside)
      * becomes part of the measured/shown layout -- cards start collapsed, and a GONE view's
      * children never receive a measured size or count as isShown(). #478: the language and
@@ -213,6 +230,7 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_notification_toggle, R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
+                R.id.settings_wifi_aps_feature_toggle,
                 R.id.settings_trusted_network_toggle, R.id.settings_trusted_ssid_toggle,
                 R.id.settings_hide_notification_toggle,
                 R.id.settings_keep_display_on_toggle, R.id.settings_advice_banner_toggle,
