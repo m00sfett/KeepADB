@@ -22,3 +22,5 @@ KeepADB does not require root. Android protects Wireless Debugging with the WRIT
 adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTINGS
 
 Wireless Debugging exposes an authenticated development service on the connected network. Use the keep-alive feature only on networks you trust and reject unexpected pairing requests.
+
+Unattended automatic recovery also depends on Android's own Wireless Debugging network prompt: the first time a trusted network re-enables Wireless Debugging, Android may show its own "always allow on this network" dialog. Confirming it once per network is required for KeepADB to restore Wireless Debugging automatically and without further prompts; until it is confirmed, KeepADB makes one automatic attempt per reconnect and then waits instead of retrying continuously.

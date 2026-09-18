@@ -100,9 +100,15 @@ public class KeepADBService extends Service {
      * KeepADBEndpoint#maybeSendRecoveryPulse} already established for the recovery pulse (#296).
      */
     static boolean isAutoEnableStillPermitted(Context context) {
+        // #496: re-checked here too, atomically with the write itself (this guard runs inside
+        // KeepADB's lock, immediately before the actual Settings.Global call) -- not just at the
+        // call sites that decide whether to schedule an attempt in the first place. Closes the
+        // narrow race where two automatic triggers both pass the call-site pre-check before
+        // either's write lands and the first one's mismatch engages the backoff.
         return KeepADBPreferences.isKeepAliveEnabled(context)
                 && isWifiConnected(context)
-                && KeepADBTrustedNetwork.isCurrentNetworkTrusted(context);
+                && KeepADBTrustedNetwork.isCurrentNetworkTrusted(context)
+                && !KeepADB.isAutomaticEnableBackoffBlocked();
     }
 
     /**
@@ -138,6 +144,10 @@ public class KeepADBService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        // #496: a fresh service instance is one of the explicit triggers that reopens the
+        // automatic re-enable backoff, so a restart (whether user-initiated or after the system
+        // killed the process) always gets a clean, un-blocked first attempt.
+        KeepADB.resetAutomaticEnableBackoff();
         KeepADBUsbReceiver.refresh(this);
         long lastHeartbeat = KeepADBPreferences.getServiceLastHeartbeat(this);
         if (lastHeartbeat > 0) {
@@ -271,6 +281,14 @@ public class KeepADBService extends Service {
                     Log.d(TAG, "ContentObserver: adb_wifi_enabled changed");
                     KeepADBDiagnostics.event(KeepADBService.this, "state_observed", "content_observer",
                             "changed", "adbWifi=" + KeepADB.isEnabled(KeepADBService.this));
+                    if (KeepADB.isEnabled(KeepADBService.this)) {
+                        // #496: the readback now reflects "on" -- whether from our own write or
+                        // the user confirming Android's pairing dialog independently -- so the
+                        // automatic-enable backoff reopens immediately instead of waiting out its
+                        // fallback timer. Unconditional and ahead of the foreground gate, like
+                        // the network-generation bookkeeping in the NetworkCallback below.
+                        KeepADB.resetAutomaticEnableBackoff();
+                    }
                     if (!foregroundReady) {
                         Log.d(TAG, "Ignoring state change before foreground promotion");
                         return;
@@ -285,7 +303,24 @@ public class KeepADBService extends Service {
                                 KeepADBNotification.refresh(KeepADBService.this);
                                 KeepADBWidget.refreshAll(KeepADBService.this);
                                 return;
-                            } else if (KeepADBTrustedNetwork.isCurrentNetworkTrusted(KeepADBService.this)) {
+                            } else if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(KeepADBService.this)) {
+                                Log.i(TAG, "Wireless Debugging dropped on an untrusted Wi-Fi network; not auto re-enabling");
+                                KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
+                                        "blocked", "untrusted_network");
+                                // #446: the block used to be silent. Ask once per access point
+                                // instead; the prompt itself never trusts anything.
+                                KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(KeepADBService.this);
+                            } else if (KeepADB.isAutomaticEnableBackoffBlocked()) {
+                                // #496: the previous automatic attempt's write was accepted but
+                                // its readback never flipped on -- wait for one of the recognized
+                                // reset triggers instead of retrying on every ContentObserver
+                                // callback, which is exactly the fast loop this bounds (a write
+                                // the OS accepts and then reverts re-fires this very callback).
+                                Log.i(TAG, "Automatic re-enable paused after a readback mismatch"
+                                        + " (#496); waiting for a reset trigger");
+                                KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
+                                        "blocked", "reason=recovery_backoff_active");
+                            } else {
                                 Log.i(TAG, "Wireless Debugging dropped while Wi-Fi connected; re-enabling...");
                                 if (!KeepADB.setEnabled(KeepADBService.this, true, "content_observer",
                                         KeepADBService::isAutoEnableStillPermitted)) {
@@ -293,13 +328,6 @@ public class KeepADBService extends Service {
                                     KeepADBNotification.showPermissionMissing(KeepADBService.this);
                                     return;
                                 }
-                            } else {
-                                Log.i(TAG, "Wireless Debugging dropped on an untrusted Wi-Fi network; not auto re-enabling");
-                                KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
-                                        "blocked", "untrusted_network");
-                                // #446: the block used to be silent. Ask once per access point
-                                // instead; the prompt itself never trusts anything.
-                                KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(KeepADBService.this);
                             }
                         } else if (!KeepADB.isEnabled(KeepADBService.this)) {
                             if (KeepADB.consumeUserDisabled() || KeepADB.wasLastExplicitIntentOff(KeepADBService.this)) {
@@ -517,6 +545,19 @@ public class KeepADBService extends Service {
                         // #446: same prompt as the content-observer path above. It is throttled
                         // per access point, so the 60s heartbeat cannot turn it into spam.
                         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(this);
+                        KeepADBNotification.refresh(this);
+                        KeepADBWidget.refreshAll(this);
+                        return;
+                    }
+                    if (KeepADB.isAutomaticEnableBackoffBlocked()) {
+                        // #496: the previous automatic attempt's write was accepted but its
+                        // readback never flipped on (e.g. Android's own Wireless Debugging
+                        // pairing dialog was never confirmed) -- wait for one of the recognized
+                        // triggers instead of retrying every heartbeat.
+                        Log.i(TAG, "Automatic re-enable paused after a readback mismatch (#496); "
+                                + "waiting for a reset trigger");
+                        KeepADBDiagnostics.event(this, "keep_alive_check", "service", "blocked",
+                                "reason=recovery_backoff_active");
                         KeepADBNotification.refresh(this);
                         KeepADBWidget.refreshAll(this);
                         return;

@@ -284,6 +284,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="status_off_keep_alive_waiting">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive czeka na sieć</string>
     <string name="status_off_keep_alive_blocked_untrusted">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: ta sieć Wi-Fi nie jest zaufana</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: nie można ustalić tożsamości sieci, sprawdź uprawnienie lokalizacji</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: potwierdź okno dialogowe sieci debugowania bezprzewodowego Androida, a następnie dotknij przełącznika, aby spróbować ponownie</string>
     <string name="status_pending">Przełączanie…</string>
     <string name="state_pending">Przełączanie…</string>
     <string name="tile_state_keep_alive_waiting">Wyłączone – Keep-Alive czeka</string>

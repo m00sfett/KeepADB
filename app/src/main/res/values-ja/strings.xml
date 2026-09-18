@@ -284,6 +284,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="status_off_keep_alive_waiting">ワイヤレスデバッグは OFF です – Keep-Alive がネットワークを待機中</string>
     <string name="status_off_keep_alive_blocked_untrusted">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークは信頼されていません</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:ネットワークを識別できません。位置情報の権限を確認してください</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:Android のワイヤレスデバッグ ネットワークダイアログを確認し、スイッチをタップして再試行してください</string>
     <string name="status_pending">切り替え中…</string>
     <string name="state_pending">切り替え中…</string>
     <string name="tile_state_keep_alive_waiting">オフ – Keep-Alive 待機中</string>

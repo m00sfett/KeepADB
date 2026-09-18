@@ -1,8 +1,10 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.app.Application;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -38,6 +40,7 @@ public class KeepADBKeepAliveWaitingDetailTest {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        KeepADB.resetForTesting();
     }
 
     @After
@@ -45,6 +48,7 @@ public class KeepADBKeepAliveWaitingDetailTest {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
+        KeepADB.resetForTesting();
     }
 
     @Test
@@ -89,6 +93,33 @@ public class KeepADBKeepAliveWaitingDetailTest {
         // already be re-enabling), but the resolver must still degrade to the generic waiting
         // text rather than mislabel this transient window as a block.
         assertEquals(MainActivity.KeepAliveWaitingDetail.WIFI_DISCONNECTED,
+                MainActivity.resolveKeepAliveWaitingDetail(context));
+    }
+
+    /**
+     * #496: a trusted, connected network whose last automatic enable was accepted but never
+     * actually flipped Wireless Debugging on must render as the new, explained
+     * {@code BLOCKED_RECOVERY_BACKOFF} detail rather than silently falling back to the generic
+     * waiting text this resolver used before the readback-mismatch backoff existed.
+     */
+    @Test
+    public void connectedToATrustedNetworkWithAStaleReadbackIsReportedAsRecoveryBackoff() {
+        shadowOf((Application) context).grantPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        setConnectedBssid("aa:bb:cc:dd:ee:ff");
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
+        KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
+
+        assertTrue("precondition: the accepted-but-ineffective write must engage the backoff",
+                KeepADB.setEnabled(context, true, "keep_alive_check"));
+        // The automatic enable is debounced (#310); let the scheduled write actually land.
+        android.os.SystemClock.sleep(1600);
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));
+        assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
+
+        assertEquals(MainActivity.KeepAliveWaitingDetail.BLOCKED_RECOVERY_BACKOFF,
                 MainActivity.resolveKeepAliveWaitingDetail(context));
     }
 

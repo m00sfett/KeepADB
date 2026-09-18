@@ -1,0 +1,4 @@
+Fixed: automatic Keep-Alive recovery no longer retries every 1.5 seconds when Android's own
+Wireless Debugging network prompt hasn't been confirmed yet. It now makes one controlled attempt
+and then waits, explained on the home screen, until the prompt is confirmed, the network changes,
+or you retry manually.

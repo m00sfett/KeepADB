@@ -284,6 +284,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="status_off_keep_alive_waiting">Depuração sem fio DESATIVADA – Keep-Alive aguarda a rede</string>
     <string name="status_off_keep_alive_blocked_untrusted">Depuração sem fio DESATIVADA – Keep-Alive em pausa: esta rede Wi-Fi não é confiável</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Depuração sem fio DESATIVADA – Keep-Alive em pausa: identidade da rede indisponível, verifique a permissão de localização</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Depuração sem fio DESATIVADA – Keep-Alive em pausa: confirme a caixa de diálogo de rede da depuração sem fio do Android e depois toque no interruptor para tentar novamente</string>
     <string name="status_pending">Alternando…</string>
     <string name="state_pending">Alternando…</string>
     <string name="tile_state_keep_alive_waiting">Desativado – Keep-Alive aguardando</string>

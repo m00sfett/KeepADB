@@ -284,6 +284,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="status_off_keep_alive_waiting">무선 디버깅 꺼짐 – Keep-Alive가 네트워크를 기다리는 중</string>
     <string name="status_off_keep_alive_blocked_untrusted">무선 디버깅 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi 네트워크는 신뢰할 수 없습니다</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">무선 디버깅 꺼짐 – Keep-Alive 일시 중지됨: 네트워크 ID를 확인할 수 없습니다. 위치 권한을 확인하세요</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">무선 디버깅 꺼짐 – Keep-Alive 일시 중지됨: Android의 무선 디버깅 네트워크 대화상자를 확인한 후 스위치를 탭하여 다시 시도하세요</string>
     <string name="status_pending">전환 중…</string>
     <string name="state_pending">전환 중…</string>
     <string name="tile_state_keep_alive_waiting">꺼짐 – Keep-Alive 대기 중</string>

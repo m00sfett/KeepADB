@@ -284,6 +284,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="status_off_keep_alive_waiting">Kablosuz Hata Ayıklama KAPALI – Keep-Alive ağı bekliyor</string>
     <string name="status_off_keep_alive_blocked_untrusted">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı güvenilir değil</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: ağ kimliği belirlenemiyor, Konum iznini kontrol edin</string>
+    <string name="status_off_keep_alive_blocked_recovery_backoff">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: Android\'ın kablosuz hata ayıklama ağ iletişim kutusunu onaylayın, ardından yeniden denemek için anahtara dokunun</string>
     <string name="status_pending">Değiştiriliyor…</string>
     <string name="state_pending">Değiştiriliyor…</string>
     <string name="tile_state_keep_alive_waiting">Kapalı – Keep-Alive bekliyor</string>

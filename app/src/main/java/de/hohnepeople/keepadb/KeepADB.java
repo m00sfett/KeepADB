@@ -44,6 +44,10 @@ final class KeepADB {
     private static volatile KeepADBScheduler scheduler = new KeepADBAndroidScheduler();
     private static volatile KeepADBSurfaceRefresher surfaces = new KeepADBAndroidSurfaceRefresher();
     private static final KeepADBToggleState state = new KeepADBToggleState();
+    // #496: bounds automatic re-enable attempts after a write that was accepted but whose
+    // readback never reflected it (the untrusted/unconfirmed Wireless Debugging pairing dialog
+    // case). See KeepADBRecoveryBackoff's own javadoc for the full policy.
+    private static final KeepADBRecoveryBackoff recoveryBackoff = new KeepADBRecoveryBackoff();
 
     static void setGatewayForTesting(KeepADBSettingsGateway testGateway) {
         gateway = testGateway;
@@ -106,11 +110,34 @@ final class KeepADB {
      * was planned for the previous one. Returns the new generation for diagnostics.
      */
     static synchronized long noteNetworkChanged() {
+        // #496: a network change is one of the explicit triggers that reopens the automatic
+        // re-enable backoff -- the "unchanged state" cycle it bounds is, by definition, over.
+        recoveryBackoff.reset();
         return state.noteNetworkChanged();
     }
 
     static long currentNetworkGeneration() {
         return state.currentNetworkGeneration();
+    }
+
+    /**
+     * True while an automatic Keep-Alive enable attempt is currently suppressed by the #496
+     * readback-mismatch backoff. Consulted by {@link KeepADBService}'s automatic call sites
+     * before scheduling a write -- mirroring how the trusted-network policy already stays at the
+     * call site (#245) rather than inside this facade.
+     */
+    static boolean isAutomaticEnableBackoffBlocked() {
+        return recoveryBackoff.isBlocked(scheduler.elapsedRealtimeMs());
+    }
+
+    /**
+     * Reopens the #496 automatic-enable backoff ahead of its fallback timer. Called for every
+     * explicit trigger that is not already covered elsewhere: an externally observed successful
+     * readback and a fresh app/service instance. (A network change goes through {@link
+     * #noteNetworkChanged()}; a manual user action resets it inline in {@link #setEnabled}.)
+     */
+    static synchronized void resetAutomaticEnableBackoff() {
+        recoveryBackoff.reset();
     }
 
     private KeepADB() {}
@@ -274,6 +301,14 @@ final class KeepADB {
         final long networkGeneration;
         final boolean previousLastDesiredOn;
         synchronized (KeepADB.class) {
+            if (isManualSource(source)) {
+                // #496: a direct user action is the sanctioned way to re-open a blocked
+                // automatic path ("manuelle Nutzeraktionen ... können einen blockierten
+                // automatischen Pfad bewusst erneut anstoßen"). Reset unconditionally, for both
+                // directions -- an explicit off is just as much evidence the user is in control
+                // as an explicit on.
+                recoveryBackoff.reset();
+            }
             previousLastDesiredOn = !wasLastExplicitIntentOff(appContext);
             KeepADBToggleState.ToggleDecision decision = state.requestToggle(
                     on, scheduler.elapsedRealtimeMs(), !isManualSource(source));
@@ -364,6 +399,17 @@ final class KeepADB {
                     actual == on ? "success" : "state_mismatch",
                     "intentId=" + token + " desired=" + on + " actual=" + actual
                             + " writeAccepted=" + writeAccepted);
+            // #496: an accepted write with an ineffective readback is exactly the failure mode
+            // the backoff bounds -- but only for the automatic enable path it was built for.
+            // Manual sources already reset the backoff unconditionally above, and a disable (or
+            // a disable's own mismatch) is not part of the re-enable loop this guards against.
+            if (on && !isManualSource(source)) {
+                if (actual) {
+                    recoveryBackoff.recordSuccess();
+                } else {
+                    recoveryBackoff.recordMismatch(scheduler.elapsedRealtimeMs());
+                }
+            }
             surfaces.refreshAll(appContext);
             return true;
         } catch (SecurityException e) {
@@ -524,6 +570,7 @@ final class KeepADB {
             pendingToggleRunnable = null;
         }
         state.reset();
+        recoveryBackoff.reset();
         gateway = new KeepADBAndroidSettingsGateway();
         scheduler = new KeepADBAndroidScheduler();
         surfaces = new KeepADBAndroidSurfaceRefresher();

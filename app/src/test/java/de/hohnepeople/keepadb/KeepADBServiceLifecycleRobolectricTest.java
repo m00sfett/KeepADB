@@ -674,4 +674,190 @@ public class KeepADBServiceLifecycleRobolectricTest {
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         if (manager != null) manager.cancel(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
     }
+
+    // -----------------------------------------------------------------------------------------
+    // #496: the #496 recovery backoff's call-site gating, as wired into KeepADBService's two
+    // automatic re-enable paths (recheckAndEnable's 60s heartbeat and the ContentObserver), plus
+    // its reset triggers (app/service restart, an externally observed successful readback, a
+    // Wi-Fi network change). The pure state machine is covered without any of this Android
+    // wiring in KeepADBRecoveryBackoffTest; the KeepADB.setEnabled()/applyNow() bookkeeping that
+    // feeds it is covered in KeepADBRecoveryBackoffSchedulingTest.
+    // -----------------------------------------------------------------------------------------
+
+    /**
+     * Acceptance criterion: "Ein automatischer Enable-Versuch mit akzeptiertem Write, aber
+     * wiederholt adb_wifi_enabled == 0 im Readback, hat einen expliziten begrenzten
+     * Retry-/Backoff-/Abbruchpfad; keine unbegrenzten Versuche im 1,5s-Abstand." The 60s
+     * heartbeat is the call site this pins.
+     */
+    @Test
+    public void recheckAndEnableStopsRetryingAfterAnAcceptedWriteWithAStaleReadback() {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBStuckOffSettingsGateway gateway = new KeepADBStuckOffSettingsGateway();
+        KeepADB.setGatewayForTesting(gateway);
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            // onStartCommand's own initial recheckAndEnable() lands inside its own 300ms
+            // internal throttle in this test environment (Robolectric's elapsed clock starts
+            // near zero) and is skipped -- trigger the first real recheck explicitly, exactly
+            // like the heartbeat's first real 60s tick would, then let the debounced write (#310)
+            // actually land before asserting on it.
+            android.os.SystemClock.sleep(1600);
+            controller.get().recheckAndEnable();
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));
+
+            assertEquals("the initial recheck must make exactly one automatic attempt",
+                    1, gateway.writes.size());
+            assertTrue("the mismatched write must engage the #496 backoff",
+                    KeepADB.isAutomaticEnableBackoffBlocked());
+
+            // Advance past recheckAndEnable's own 300ms internal throttle and try again -- as
+            // the 60s heartbeat would on its next tick.
+            android.os.SystemClock.sleep(350);
+            controller.get().recheckAndEnable();
+            ShadowLooper.idleMainLooper();
+
+            assertEquals("a blocked backoff must prevent a second write, not merely delay it",
+                    1, gateway.writes.size());
+            String export = KeepADBDiagnostics.export(context);
+            assertTrue("the block must be diagnosable, not silent",
+                    export.contains("reason=recovery_backoff_active"));
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    /** Same acceptance criterion as above, pinned against the ContentObserver call site. */
+    @Test
+    public void contentObserverStopsRetryingAfterAnAcceptedWriteWithAStaleReadback() {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBStuckOffSettingsGateway gateway = new KeepADBStuckOffSettingsGateway();
+        KeepADB.setGatewayForTesting(gateway);
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+
+            // First externally-observed drop triggers the automatic re-enable attempt. (Not
+            // relying on onStartCommand's own initial recheckAndEnable() here -- it lands inside
+            // its own 300ms internal throttle in this test environment and is a no-op.)
+            controller.get().getAdbContentObserverForTesting()
+                    .onChange(false, Settings.Global.getUriFor(KeepADB.KEY));
+            android.os.SystemClock.sleep(1600);
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));
+
+            assertEquals(1, gateway.writes.size());
+            assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
+
+            // The exact real-world trigger from #496: the OS reverts the accepted write, which
+            // re-fires this very ContentObserver.
+            controller.get().getAdbContentObserverForTesting()
+                    .onChange(false, Settings.Global.getUriFor(KeepADB.KEY));
+            ShadowLooper.idleMainLooper();
+
+            assertEquals("the ContentObserver must not retry into a blocked backoff either",
+                    1, gateway.writes.size());
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    /**
+     * Acceptance criterion: "Nach dem Abbruch bleibt Keep-Alive ... Ein klar definierter neuer
+     * Auslöser gibt den Zustand wieder frei" -- an app/service restart is one of the named
+     * triggers. Deliberately blocks the backoff *outside* the service under test (a direct
+     * KeepADB.setEnabled() call, like a keep-alive attempt that already happened in a previous
+     * process) so this pins {@code onCreate()}'s own reset rather than accidentally passing via
+     * {@code resetForTesting()} in {@link #setUp()}.
+     */
+    @Test
+    public void aFreshServiceInstanceReopensABlockedBackoff() {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
+        assertTrue(KeepADB.setEnabled(context, true, "keep_alive_check"));
+        // The automatic enable is debounced (#310); let the scheduled write actually land.
+        android.os.SystemClock.sleep(1600);
+        shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));
+        assertTrue("precondition: the backoff must be blocked before the restart",
+                KeepADB.isAutomaticEnableBackoffBlocked());
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+
+            assertFalse("a fresh service instance (KeepADBService#onCreate) must reopen a "
+                            + "blocked automatic-enable backoff",
+                    KeepADB.isAutomaticEnableBackoffBlocked());
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    /**
+     * Acceptance criterion: "erfolgreicher Gegenpfad (Freigabe erteilt -&gt; normale
+     * Wiederherstellung)". Exercises two of the named reset triggers together -- an externally
+     * observed readback and a Wi-Fi network change -- and proves recovery actually completes
+     * afterward rather than merely reporting "not blocked".
+     */
+    @Test
+    public void grantingThePermissionReopensTheBackoffAndRecoveryResumesNormally() {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBStuckOffSettingsGateway stuckGateway = new KeepADBStuckOffSettingsGateway();
+        KeepADB.setGatewayForTesting(stuckGateway);
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            // onStartCommand's own initial recheckAndEnable() lands inside its own 300ms
+            // internal throttle in this test environment and is a no-op; trigger the first real
+            // recheck explicitly instead.
+            android.os.SystemClock.sleep(1600);
+            controller.get().recheckAndEnable();
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));
+
+            assertEquals(1, stuckGateway.writes.size());
+            assertTrue("precondition: the backoff must be blocked before recovery",
+                    KeepADB.isAutomaticEnableBackoffBlocked());
+
+            // The user confirmed Android's pairing dialog and reconnected: a network change is
+            // one of the named triggers, and the next write actually succeeds now.
+            KeepADB.noteNetworkChanged();
+            assertFalse("a network change must reopen the backoff immediately",
+                    KeepADB.isAutomaticEnableBackoffBlocked());
+
+            KeepADBFakeSettingsGateway workingGateway = new KeepADBFakeSettingsGateway(false);
+            KeepADB.setGatewayForTesting(workingGateway);
+            android.os.SystemClock.sleep(1600);
+            controller.get().recheckAndEnable();
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));
+
+            assertTrue("automatic recovery must actually complete once the block is lifted",
+                    workingGateway.writes.contains(true));
+            assertTrue(KeepADB.isEnabled(context));
+            assertFalse("a successful readback must not leave the backoff blocked",
+                    KeepADB.isAutomaticEnableBackoffBlocked());
+        } finally {
+            controller.destroy();
+        }
+    }
 }
