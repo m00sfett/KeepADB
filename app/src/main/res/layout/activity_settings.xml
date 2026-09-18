@@ -373,20 +373,114 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-                <!-- #484/#485: the trust-restriction toggle and its status text, plus the
-                     "manage whitelist"/"recently blocked" entry points, moved to the home screen's
-                     security card. Only the current-network add/remove shortcut stays here. -->
-                <Button
-                    android:id="@+id/settings_trusted_network_add"
+                <!-- #492: the two security policy switches live here (not on the home screen):
+                     they are a comfort-versus-security decision that must be read before it is
+                     taken, not a one-tap list operation. The per-access-point and per-SSID list
+                     management stays on the home screen's Wi-Fi card, so no data is maintained
+                     twice. Each switch carries a red warning marker and its own explanation, both
+                     visible while the switch is still off. -->
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_btn_primary"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_trusted_network_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="24dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:contentDescription="@string/settings_trusted_network_warning_accessibility"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_warning_marker"
+                        android:textColor="@color/border_red"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/settings_trusted_network_tradeoff_warning"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <Switch
+                    android:id="@+id/settings_trusted_network_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:fontFamily="sans-serif-condensed"
                     android:minHeight="48dp"
-                    android:text="@string/settings_trusted_network_add_button"
+                    android:text="@string/settings_trusted_network_toggle"
                     android:textColor="@color/text_yellow"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/settings_trusted_network_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@color/border_red" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="24dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:contentDescription="@string/settings_trusted_ssid_warning_accessibility"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_warning_marker"
+                        android:textColor="@color/border_red"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/settings_trusted_ssid_warning"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <Switch
+                    android:id="@+id/settings_trusted_ssid_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:text="@string/settings_trusted_ssid_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 

@@ -452,63 +452,6 @@ public class SettingsActivityTest {
      * was blocking too, matching MainActivity's per-access-point trust button (#470) instead of
      * only the notification's own "allow" action doing so.
      */
-    @Test
-    public void addCurrentNetworkButtonImmediatelyAttemptsTheConnectionItWasBlocking() {
-        String bssid = "aa:bb:cc:dd:ee:02";
-        grantAutoEnableForTesting(bssid, "HomeMesh");
-
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-
-        Button addButton = activity.findViewById(R.id.settings_trusted_network_add);
-        addButton.performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertTrue("Wireless Debugging must be turned on immediately after manually adding the "
-                        + "current, blocking access point",
-                KeepADB.isEnabled(activity));
-    }
-
-    /**
-     * #475: accepting the mesh-BSSID convenience prompt must also immediately attempt the
-     * connection for each newly trusted access point, the same way the other two trust entry
-     * points above do -- proven here by the mesh BSSID's own pending prompt marker (raised while
-     * the device was briefly connected to it) getting cleared, which a bare {@code addBssid} call
-     * would not do.
-     */
-    @Test
-    public void meshBssidConvenienceImmediatelyAttemptsTheConnectionAndClearsItsPromptState() {
-        String currentBssid = "aa:bb:cc:dd:ee:03";
-        String meshBssid = "aa:bb:cc:dd:ee:04";
-        String ssid = "MeshHome";
-        grantAutoEnableForTesting(currentBssid, ssid);
-
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        // The device was briefly connected to the mesh AP earlier and got its own pending
-        // prompt for it, before roaming to the network under test.
-        connectTo(ssid, meshBssid);
-        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(activity));
-        KeepADBBssidHistory.recordObservation(activity, ssid, meshBssid);
-        connectTo(ssid, currentBssid);
-
-        Button addButton = activity.findViewById(R.id.settings_trusted_network_add);
-        addButton.performClick();
-        ShadowLooper.idleMainLooper();
-        AlertDialog meshDialog = ShadowAlertDialog.getLatestAlertDialog();
-        assertNotNull("The mesh convenience dialog should be showing", meshDialog);
-
-        meshDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertEquals(2, KeepADBTrustedNetwork.getEntries(activity).size());
-        assertTrue("Wireless Debugging must be turned on", KeepADB.isEnabled(activity));
-        assertTrue("Accepting the mesh BSSID must clear its own pending prompt marker",
-                KeepADBNetworkTrustPrompt.shouldPrompt(activity, meshBssid, System.currentTimeMillis()));
-    }
-
     // #471: settings cards start collapsed and expand/collapse independently, without any
     // persisted state. #478: the language and version cards are no longer part of this group --
     // they are permanently visible and never collapse -- so they were removed from this list.

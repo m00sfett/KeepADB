@@ -275,8 +275,11 @@ public class KeepADBResourceContractTest {
         result.put("permission_error_toast", new Object[] {stringWitness});
         result.put("notification_text_active", new Object[] {integerWitness, stringWitness});
         result.put("settings_trusted_network_added_toast", new Object[] {stringWitness});
+        result.put("wifi_ssids_add_accessibility", new Object[] {stringWitness});
+        result.put("wifi_ssids_remove_accessibility", new Object[] {stringWitness});
+        result.put("wifi_ssids_added_toast", new Object[] {stringWitness});
+        result.put("wifi_ssids_removed_toast", new Object[] {stringWitness});
         result.put("settings_trusted_network_removed_toast", new Object[] {stringWitness});
-        result.put("settings_trusted_network_delete_accessibility", new Object[] {stringWitness});
         result.put("settings_trusted_network_mesh_message", new Object[] {integerWitness, stringWitness});
         result.put("settings_trusted_network_mesh_added_toast", new Object[] {integerWitness});
         result.put("network_prompt_text", new Object[] {stringWitness, stringWitness});

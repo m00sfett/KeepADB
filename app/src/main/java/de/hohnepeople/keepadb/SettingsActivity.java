@@ -58,7 +58,9 @@ public class SettingsActivity extends Activity {
     private TextView usbHandoverSelectedText;
     private View usbHandoverSelector;
 
-    private Button trustedNetworkAdd;
+    private Switch trustedNetworkToggle;
+    private Switch trustedSsidToggle;
+    private TextView trustedNetworkStatus;
 
     private Switch webhookToggle;
     private EditText webhookUrlInput;
@@ -91,6 +93,8 @@ public class SettingsActivity extends Activity {
     // symbols are plain literals (matching the existing static "▼" selector arrows elsewhere in
     // this layout) rather than string resources -- they carry no natural-language content, so
     // there is nothing for check-i18n/lint to translate.
+    /** #492: request code for the Location grant the trusted-network opt-in needs. */
+    private static final int TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST = 3001;
     private static final String CARD_COLLAPSED_SYMBOL = "+";
     private static final String CARD_EXPANDED_SYMBOL = "−";
 
@@ -202,8 +206,17 @@ public class SettingsActivity extends Activity {
         usbHandoverSelector = findViewById(R.id.settings_usb_handover_selector);
         usbHandoverSelector.setOnClickListener(v -> showUsbHandoverModeDialog());
 
-        trustedNetworkAdd = findViewById(R.id.settings_trusted_network_add);
-        trustedNetworkAdd.setOnClickListener(v -> onAddOrRemoveCurrentNetworkClicked());
+
+        trustedNetworkToggle = findViewById(R.id.settings_trusted_network_toggle);
+        trustedNetworkStatus = findViewById(R.id.settings_trusted_network_status);
+        trustedSsidToggle = findViewById(R.id.settings_trusted_ssid_toggle);
+        // OnClick, not OnCheckedChange: refresh() re-renders both switches from the persisted
+        // state, and a checked-change listener would fire on that programmatic write too.
+        trustedNetworkToggle.setOnClickListener(v -> onTrustedNetworkToggleClicked());
+        trustedSsidToggle.setOnClickListener(v -> {
+            KeepADBTrustedNetwork.setSsidMatchingEnabled(this, trustedSsidToggle.isChecked());
+            refresh();
+        });
 
         findViewById(R.id.settings_diagnostics_export).setOnClickListener(v -> shareDiagnostics());
         findViewById(R.id.settings_issue_report).setOnClickListener(v -> showIssueReportDialog());
@@ -528,75 +541,61 @@ public class SettingsActivity extends Activity {
                 .show();
     }
 
-    private void onAddOrRemoveCurrentNetworkClicked() {
-        if (KeepADBTrustedNetwork.findEntryForCurrentNetwork(this) != null) {
-            KeepADBTrustedNetwork.Entry removed = KeepADBTrustedNetwork.removeCurrentNetwork(this);
-            if (removed == null) {
-                Toast.makeText(this, R.string.settings_trusted_network_add_failed_toast, Toast.LENGTH_LONG).show();
-                return;
-            }
-            Toast.makeText(this, getString(R.string.settings_trusted_network_removed_toast, removed.label),
-                    Toast.LENGTH_SHORT).show();
+    /**
+     * #492: the global opt-in. Moved back here from MainActivity's home card because turning it on
+     * is a security decision taken against the warning next to it, and because the measured
+     * Android limits (see {@code docs/trusted-networks-measurement.md}) mean switching it on
+     * materially reduces how reliably Keep-Alive works in the background.
+     *
+     * <p>Turning it *on* requires ACCESS_FINE_LOCATION, because without it the platform hands the
+     * app a masked identity and allowlist mode would fail closed on every check. Turning it off
+     * never asks for anything.
+     */
+    private void onTrustedNetworkToggleClicked() {
+        boolean wantAllowlist = trustedNetworkToggle.isChecked();
+        if (!wantAllowlist) {
+            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALL_WIFI);
             refresh();
             return;
         }
-        KeepADBTrustedNetwork.Entry entry = KeepADBTrustedNetwork.addCurrentNetwork(this, null);
-        if (entry == null) {
-            Toast.makeText(this, R.string.settings_trusted_network_add_failed_toast, Toast.LENGTH_LONG).show();
+        // Revert the switch until permission is confirmed; refresh() below re-derives the actual
+        // checked state from the persisted mode either way.
+        trustedNetworkToggle.setChecked(false);
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+            refresh();
             return;
         }
-        Toast.makeText(this, getString(R.string.settings_trusted_network_added_toast, entry.label),
-                Toast.LENGTH_SHORT).show();
-        // #475: matches MainActivity's per-access-point trust button (#470) -- trusting the
-        // current network here must immediately attempt the connection it was blocking too,
-        // instead of only the notification's "allow" action doing so. addBssid() above already
-        // made the dedup-checked entry (needed for its label in the toast); the call below
-        // repeats it idempotently and additionally clears/cancels any pending prompt and tries
-        // to enable Wireless Debugging right away.
-        KeepADBReceiver.trustBssidAndAttemptConnect(this, entry.bssid, entry.label);
-        offerAdditionalMeshBssids();
-        refresh();
-    }
-
-    /**
-     * After adding the current network, offers to also add any other BSSIDs the observation
-     * history (#266) has seen broadcasting the same SSID -- covers Wi-Fi mesh setups (several
-     * access points, one SSID, different BSSIDs) without ever trusting by SSID: declining still
-     * keeps only the just-added BSSID trusted, and accepting adds each additional BSSID through
-     * the same {@link KeepADBTrustedNetwork} entry point as a normal manual add.
-     */
-    private void offerAdditionalMeshBssids() {
-        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(this);
-        if (!identity.isKnown()) return;
-        String ssid = identity.displaySsid();
-        if (ssid == null || ssid.isEmpty()) return;
-
-        List<String> alreadyListed = new java.util.ArrayList<>();
-        for (KeepADBTrustedNetwork.Entry listed : KeepADBTrustedNetwork.getEntries(this)) {
-            alreadyListed.add(listed.bssid);
-        }
-        List<String> additional = KeepADBBssidHistory.getAdditionalBssids(this, ssid, alreadyListed);
-        if (additional.isEmpty()) return;
-
         new AlertDialog.Builder(this)
-                .setTitle(R.string.settings_trusted_network_mesh_title)
-                .setMessage(getString(R.string.settings_trusted_network_mesh_message, additional.size(), ssid))
-                .setPositiveButton(R.string.settings_trusted_network_mesh_add_button, (dialog, which) -> {
-                    // #475: same trust-and-connect entry point as the other trust actions
-                    // (#470/#474) -- the device is only ever on one of these BSSIDs at a time, so
-                    // at most one call here actually finds Wireless Debugging still off on the
-                    // currently-connected access point and turns it on; the rest are no-ops
-                    // beyond trusting the BSSID, same as a plain addBssid would have been.
-                    for (String bssid : additional) {
-                        KeepADBReceiver.trustBssidAndAttemptConnect(this, bssid, ssid);
-                    }
-                    Toast.makeText(this,
-                            getString(R.string.settings_trusted_network_mesh_added_toast, additional.size()),
-                            Toast.LENGTH_SHORT).show();
-                    refresh();
-                })
+                .setTitle(R.string.settings_trusted_network_permission_title)
+                .setMessage(R.string.settings_trusted_network_permission_message)
+                .setPositiveButton(R.string.settings_trusted_network_permission_grant, (dialog, which) ->
+                        // Requested together per Android's guidance for FINE: the system then
+                        // offers the user a precise/approximate choice in one dialog. Only a FINE
+                        // grant is actually usable here (see onRequestPermissionsResult).
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION},
+                                TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST))
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST) return;
+        // grantResults can be shorter than permissions (even empty) if the request was interrupted
+        // (e.g. the app was backgrounded while the system dialog was up), so re-query the actual
+        // permission state instead of indexing into it.
+        boolean granted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+        if (granted) {
+            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        } else {
+            Toast.makeText(this, R.string.settings_trusted_network_permission_denied_toast,
+                    Toast.LENGTH_LONG).show();
+        }
+        refresh();
     }
 
     private void showProfileDialog(String action) {
@@ -961,9 +960,23 @@ public class SettingsActivity extends Activity {
             KeepADBBssidHistory.recordObservation(this, currentIdentity.displaySsid(), currentIdentity.bssid);
         }
 
-        trustedNetworkAdd.setText(KeepADBTrustedNetwork.findEntryForCurrentNetwork(this) != null
-                ? R.string.settings_trusted_network_remove_button
-                : R.string.settings_trusted_network_add_button);
+        // #492: the two policy switches, rendered from the persisted state on every refresh so a
+        // permission-denied or cancelled opt-in can never leave the switch claiming to be on.
+        trustedNetworkToggle.setChecked(KeepADBTrustedNetwork.isAllowlistMode(this));
+        // The SSID alternative only widens what allowlist mode accepts, so offering it while
+        // allowlist mode is off would present a switch that changes nothing.
+        trustedSsidToggle.setEnabled(KeepADBTrustedNetwork.isAllowlistMode(this));
+        trustedSsidToggle.setChecked(KeepADBTrustedNetwork.isSsidMatchingEnabled(this));
+        KeepADBTrustedNetwork.BlockReason blockReason = KeepADBTrustedNetwork.getBlockReason(this);
+        if (blockReason == KeepADBTrustedNetwork.BlockReason.UNTRUSTED_NETWORK) {
+            trustedNetworkStatus.setText(R.string.settings_trusted_network_status_untrusted);
+            trustedNetworkStatus.setVisibility(View.VISIBLE);
+        } else if (blockReason == KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE) {
+            trustedNetworkStatus.setText(R.string.settings_trusted_network_status_identity_unavailable);
+            trustedNetworkStatus.setVisibility(View.VISIBLE);
+        } else {
+            trustedNetworkStatus.setVisibility(View.GONE);
+        }
 
         String urlToCheck = (webhookUrlInput != null && webhookUrlInput.getText() != null)
                 ? webhookUrlInput.getText().toString().trim()
