@@ -1,0 +1,2 @@
+Changed: Debug builds now show “(DBG) KeepADB” as their launcher and tile label, making them
+visibly distinct during first-install testing. The production app label is unchanged.

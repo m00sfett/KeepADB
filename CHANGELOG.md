@@ -22,6 +22,12 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.25] - Unreleased
+
+### Changed
+- Debug builds now show `(DBG) KeepADB` as their launcher and tile label, making a debug
+  installation visibly distinct during first-install testing (#526).
+
 ## [1.8.24] - Unreleased
 
 Note: this and the following sections down to `1.8.21` (#518-#521) were developed on a branch
