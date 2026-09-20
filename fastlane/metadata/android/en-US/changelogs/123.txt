@@ -1,3 +1,6 @@
 The Android 13+ notification-permission notice can now be dismissed if you prefer not to allow
 notifications. Your choice stays saved across app restarts, while Wireless Debugging continues
 to work as before.
+Opening the USB-ADB settings card now shows notification and USB -> WLAN-ADB
+handover controls directly, without two extra expand steps. Existing settings and behavior
+stay unchanged.

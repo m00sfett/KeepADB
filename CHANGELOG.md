@@ -32,6 +32,10 @@ retrospective issue-version records and were never published as separate release
 - Patch version bump (1.8.25 -> 1.8.26, versionCode 123): this refines the existing #501
   permission panel with a local visibility preference and does not add or change any Android
   permission or notification capability.
+- USB-ADB settings now need only one expand step: opening the main USB-ADB card shows the
+  notification controls and USB -> WLAN-ADB handover mode directly, without nested collapsible
+  headers. Existing controls, preferences, defaults, notifications, and transport behavior are
+  unchanged (#529).
 
 ## [1.8.25] - Unreleased
 
