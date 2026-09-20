@@ -230,7 +230,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">Phiên bản ứng dụng: %1$s</string>
     <string name="settings_version_code_value">Mã phiên bản: %1$d</string>
     <string name="settings_version_unavailable">Không có thông tin phiên bản</string>
-    <string name="settings_version_debug_badge">⚠ BẢN GỠ LỖI — không dùng cho môi trường sản xuất</string>
+    <string name="settings_version_debug_badge" translatable="false">⚠ DEBUG BUILD</string>
     <string name="settings_issue_report_button">Báo cáo lỗi hoặc bản dịch</string>
     <string name="settings_issue_report_accessibility">Mở phản hồi về sự cố hoặc bản dịch</string>
     <string name="settings_issue_report_dialog_title">Xem lại báo cáo</string>

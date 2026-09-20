@@ -230,7 +230,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">Версія додатка: %1$s</string>
     <string name="settings_version_code_value">Код версії: %1$d</string>
     <string name="settings_version_unavailable">Інформація про версію недоступна</string>
-    <string name="settings_version_debug_badge">⚠ ЗБІРКА ДЛЯ НАЛАГОДЖЕННЯ — не для промислового використання</string>
+    <string name="settings_version_debug_badge" translatable="false">⚠ DEBUG BUILD</string>
     <string name="settings_issue_report_button">Повідомити про проблему або переклад</string>
     <string name="settings_issue_report_accessibility">Відкрити відгук про проблему або переклад</string>
     <string name="settings_issue_report_dialog_title">Переглянути звіт</string>

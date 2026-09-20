@@ -230,7 +230,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">إصدار التطبيق: %1$s</string>
     <string name="settings_version_code_value">رمز الإصدار: %1$d</string>
     <string name="settings_version_unavailable">معلومات الإصدار غير متاحة</string>
-    <string name="settings_version_debug_badge">⚠ نسخة تصحيح — غير مخصصة للاستخدام الإنتاجي</string>
+    <string name="settings_version_debug_badge" translatable="false">⚠ DEBUG BUILD</string>
     <string name="settings_issue_report_button">الإبلاغ عن مشكلة أو ترجمة</string>
     <string name="settings_issue_report_accessibility">فتح ملاحظات حول مشكلة أو ترجمة</string>
     <string name="settings_issue_report_dialog_title">مراجعة تقرير المشكلة</string>

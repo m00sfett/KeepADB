@@ -19,11 +19,14 @@ public class KeepADBVersionContractTest {
         String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
         String strings = read("app/src/main/res/values/strings.xml");
         String germanStrings = read("app/src/main/res/values-de/strings.xml");
+        String debugBadge = "<string name=\"settings_version_debug_badge\" translatable=\"false\">⚠ DEBUG BUILD</string>";
 
         assertTrue(layout.contains("android:id=\"@+id/settings_version_panel\""));
         assertTrue(layout.contains("android:id=\"@+id/settings_version_name\""));
         assertTrue(layout.contains("android:id=\"@+id/settings_version_code\""));
         assertTrue(layout.contains("android:text=\"@string/settings_section_version\""));
+        assertTrue(layout.contains("android:text=\"@string/settings_version_debug_badge\""));
+        assertTrue(layout.contains("android:contentDescription=\"@string/settings_version_debug_badge\""));
         int versionPanelIndex = layout.indexOf("android:id=\"@+id/settings_version_panel\"");
         // #518: the language section moved out of the content column into the compact toolbar
         // button in the header, so it now sits before the version panel by construction.
@@ -39,6 +42,8 @@ public class KeepADBVersionContractTest {
         assertTrue(strings.contains("%1$s"));
         assertTrue(strings.contains("name=\"settings_version_code_value\""));
         assertTrue(strings.contains("%1$d"));
+        assertTrue(strings.contains(debugBadge));
+        assertTrue(germanStrings.contains(debugBadge));
         assertTrue(germanStrings.contains("name=\"settings_version_value\""));
         assertTrue(germanStrings.contains("name=\"settings_version_code_value\""));
 
@@ -55,6 +60,7 @@ public class KeepADBVersionContractTest {
                             assertTrue(localeStrings.contains("name=\"settings_version_unavailable\""));
                             assertTrue(localeStrings.contains("%1$s"));
                             assertTrue(localeStrings.contains("%1$d"));
+                            assertTrue(localeStrings.contains(debugBadge));
                         } catch (IOException exception) {
                             throw new RuntimeException(exception);
                         }

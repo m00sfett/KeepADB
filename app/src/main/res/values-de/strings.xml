@@ -229,7 +229,7 @@
     <string name="settings_version_value">App-Version: %1$s</string>
     <string name="settings_version_code_value">Versionscode: %1$d</string>
     <string name="settings_version_unavailable">Versionsinformationen nicht verfügbar</string>
-    <string name="settings_version_debug_badge">⚠ DEBUG-BUILD — nicht für den produktiven Einsatz</string>
+    <string name="settings_version_debug_badge" translatable="false">⚠ DEBUG BUILD</string>
     <string name="settings_issue_report_button">Fehler oder Übersetzung melden</string>
     <string name="settings_issue_report_accessibility">Feedback zu einem Problem oder einer Übersetzung öffnen</string>
     <string name="settings_issue_report_dialog_title">Issue-Bericht prüfen</string>

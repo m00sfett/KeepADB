@@ -1293,6 +1293,7 @@
                     android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif"
                     android:text="@string/settings_version_debug_badge"
+                    android:contentDescription="@string/settings_version_debug_badge"
                     android:textColor="@color/primary_red"
                     android:textStyle="bold"
                     android:textSize="12sp"

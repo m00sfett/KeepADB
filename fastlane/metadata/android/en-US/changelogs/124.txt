@@ -1,0 +1,2 @@
+Debug builds now show the short “⚠ DEBUG BUILD” badge in Settings → Version. Release builds stay
+free of this developer-only label.
