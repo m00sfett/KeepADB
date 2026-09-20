@@ -1480,6 +1480,18 @@
                     android:textSize="12sp" />
 
                 <TextView
+                    android:id="@+id/settings_version_debug_badge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_version_debug_badge"
+                    android:textColor="@color/primary_red"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
+                <TextView
                     android:id="@+id/settings_license_line"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

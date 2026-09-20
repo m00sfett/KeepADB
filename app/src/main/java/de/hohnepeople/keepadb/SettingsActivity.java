@@ -77,6 +77,7 @@ public class SettingsActivity extends Activity {
     private boolean webhookDraftInitialized;
     private TextView versionNameText;
     private TextView versionCodeText;
+    private TextView versionDebugBadge;
     private TextView websiteLinkText;
 
     private AlertDialog activeIssueReportDialog;
@@ -178,6 +179,7 @@ public class SettingsActivity extends Activity {
 
         versionNameText = findViewById(R.id.settings_version_name);
         versionCodeText = findViewById(R.id.settings_version_code);
+        versionDebugBadge = findViewById(R.id.settings_version_debug_badge);
         bindVersionInfo();
 
         websiteLinkText = findViewById(R.id.settings_website_link);
@@ -1544,5 +1546,15 @@ public class SettingsActivity extends Activity {
             versionNameText.setText(R.string.settings_version_unavailable);
             versionCodeText.setText(R.string.settings_version_unavailable);
         }
+        versionDebugBadge.setVisibility(isDebugBuild() ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * The debug build type appends the {@code .debug} applicationIdSuffix (see app/build.gradle),
+     * so the running package name is a reliable, dependency-free debug signal without needing
+     * BuildConfig.DEBUG (which would require enabling the buildConfig build feature).
+     */
+    private boolean isDebugBuild() {
+        return getPackageName().endsWith(".debug");
     }
 }

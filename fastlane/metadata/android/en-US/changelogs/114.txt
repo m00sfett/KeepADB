@@ -1,0 +1,3 @@
+Added: the Settings version section now shows a warning badge when you're running a debug
+build, so you can tell at a glance whether it's safe for everyday use. Release builds are
+unaffected.

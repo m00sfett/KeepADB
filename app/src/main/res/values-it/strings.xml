@@ -223,6 +223,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">Versione dell’app: %1$s</string>
     <string name="settings_version_code_value">Codice versione: %1$d</string>
     <string name="settings_version_unavailable">Informazioni sulla versione non disponibili</string>
+    <string name="settings_version_debug_badge">⚠ VERSIONE DI DEBUG — non adatta alla produzione</string>
     <string name="settings_issue_report_button">Segnala un problema o una traduzione</string>
     <string name="settings_issue_report_accessibility">Invia un feedback su un problema o una traduzione</string>
     <string name="settings_issue_report_dialog_title">Rivedi la segnalazione</string>

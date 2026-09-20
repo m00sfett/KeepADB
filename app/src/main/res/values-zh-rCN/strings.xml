@@ -223,6 +223,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">应用版本：%1$s</string>
     <string name="settings_version_code_value">版本代码：%1$d</string>
     <string name="settings_version_unavailable">版本信息不可用</string>
+    <string name="settings_version_debug_badge">⚠ 调试版本 — 请勿用于生产环境</string>
     <string name="settings_issue_report_button">报告问题或翻译错误</string>
     <string name="settings_issue_report_accessibility">打开关于问题或翻译的反馈</string>
     <string name="settings_issue_report_dialog_title">查看问题报告</string>

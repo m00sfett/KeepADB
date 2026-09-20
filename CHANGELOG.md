@@ -22,6 +22,14 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.17] - Unreleased
+
+### Added
+- Debug build indicator: the Version section in Settings now shows a visible warning badge
+  when running a debug build (detected via the `.debug` applicationId suffix), so it is no
+  longer necessary to inspect the package name via adb to tell debug and release builds apart
+  on-device. Release builds are unaffected (#512).
+
 ## [1.8.16] - Unreleased
 
 Two independent fixes land together in this release candidate: a privacy-default bugfix (#509)
