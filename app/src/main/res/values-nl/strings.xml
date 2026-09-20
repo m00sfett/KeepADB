@@ -230,7 +230,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">App-versie: %1$s</string>
     <string name="settings_version_code_value">Versiecode: %1$d</string>
     <string name="settings_version_unavailable">Versiegegevens niet beschikbaar</string>
-    <string name="settings_version_debug_badge">⚠ DEBUG-BUILD — niet voor productiegebruik</string>
+    <string name="settings_version_debug_badge" translatable="false">⚠ DEBUG BUILD</string>
     <string name="settings_issue_report_button">Probleem of vertaling melden</string>
     <string name="settings_issue_report_accessibility">Feedback over een probleem of vertaling openen</string>
     <string name="settings_issue_report_dialog_title">Issue-rapport controleren</string>

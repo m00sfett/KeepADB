@@ -1043,24 +1043,23 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void debugBuildBadgeIsShownWhenRunningPackageEndsInDebugSuffix() {
+    public void debugBuildBadgeIsPresentOnlyInDebugVariant() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        // The debug build type (applicationIdSuffix '.debug', app/build.gradle) is the only
-        // variant this unit test harness runs under (testBuildType defaults to debug), so the
-        // running package name here is always the debug one -- verifying the release path
-        // would need a release-variant test harness, which this project does not maintain.
-        assertTrue("Unit tests run under the debug applicationId suffix",
-                activity.getPackageName().endsWith(".debug"));
-
         TextView debugBadge = activity.findViewById(R.id.settings_version_debug_badge);
         assertNotNull("Debug build badge view must exist", debugBadge);
-        assertEquals("Debug build badge must be visible for a debug-suffixed package",
-                View.VISIBLE, debugBadge.getVisibility());
-        assertEquals(activity.getString(R.string.settings_version_debug_badge),
-                debugBadge.getText().toString());
+        boolean debugBuild = activity.getPackageName().endsWith(".debug");
+        assertEquals("Debug badge visibility must follow the applicationId suffix",
+                debugBuild ? View.VISIBLE : View.GONE, debugBadge.getVisibility());
+        if (debugBuild) {
+            assertEquals("⚠ DEBUG BUILD", debugBadge.getText().toString());
+            assertEquals("Debug badge must remain understandable to screen readers",
+                    "⚠ DEBUG BUILD", debugBadge.getContentDescription().toString());
+            assertTrue("Debug badge must remain an accessibility node",
+                    debugBadge.isImportantForAccessibility());
+        }
     }
 
     private static <T extends View> List<T> findViewsByType(View root, Class<T> type) {

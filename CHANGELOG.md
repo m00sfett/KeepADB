@@ -22,6 +22,15 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.27] - Unreleased
+
+### Changed
+- Debug builds now show exactly `⚠ DEBUG BUILD` in Settings → Version. The badge remains
+  intentionally English and nonlocalized, appears only in debug builds, and is absent from
+  release builds (#530).
+- Patch version bump (1.8.26 -> 1.8.27, versionCode 124): this shortens the existing debug-build
+  warning without changing launcher/package/version text or release behavior.
+
 ## [1.8.26] - Unreleased
 
 ### Changed

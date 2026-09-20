@@ -230,7 +230,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_version_value">應用程式版本：%1$s</string>
     <string name="settings_version_code_value">版本代碼：%1$d</string>
     <string name="settings_version_unavailable">版本資訊無法使用</string>
-    <string name="settings_version_debug_badge">⚠ 偵錯版本 — 不可用於正式環境</string>
+    <string name="settings_version_debug_badge" translatable="false">⚠ DEBUG BUILD</string>
     <string name="settings_issue_report_button">回報問題或翻譯錯誤</string>
     <string name="settings_issue_report_accessibility">開啟關於問題或翻譯的意見回饋</string>
     <string name="settings_issue_report_dialog_title">檢視問題報告</string>
