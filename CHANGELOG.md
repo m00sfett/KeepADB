@@ -22,6 +22,14 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.26] - Unreleased
+
+### Changed
+- USB-ADB settings now need only one expand step: opening the main USB-ADB card shows the
+  notification controls and USB -> WLAN-ADB handover mode directly, without nested collapsible
+  headers. Existing controls, preferences, defaults, notifications, and transport behavior are
+  unchanged (#529).
+
 ## [1.8.25] - Unreleased
 
 ### Changed

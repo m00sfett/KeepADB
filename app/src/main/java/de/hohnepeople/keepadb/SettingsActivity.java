@@ -143,21 +143,18 @@ public class SettingsActivity extends Activity {
     // "Network (Beta)" heading is now itself a real collapsible card
     // (settings_network_beta_header/body/arrow below), containing two independently collapsible
     // sub-cards -- Trusted Networks and Wi-Fi & access points -- each still with its own
-    // header/body/arrow entry in this same table. #520: the same treatment now applies to
-    // "USB-ADB" (settings_usb_adb_header/body/arrow below), containing the two previously
-    // top-level USB-ADB Notification and USB -> WLAN-ADB Handover sub-cards. #521: "Sonstiges"
+    // header/body/arrow entry in this same table. #520 introduced the same nested treatment for
+    // "USB-ADB", but #529 removes the two inner expand levels again: only
+    // settings_usb_adb_header/body/arrow remains collapsible, while notification and handover
+    // are direct sections inside its body. #521: "Sonstiges"
     // (formerly #510's plain, permanently visible group heading) is now itself a real
-    // collapsible card too (settings_misc_header/body/arrow below) -- but unlike #519/#520, its
-    // four contained sections (Notification/Display/Advice-Banner/Battery-Optimization) are
-    // NOT independently collapsible sub-cards; they are shown directly, one below another,
-    // separated by divider lines, once the outer card is expanded. Their switches therefore no
-    // longer have header/body/arrow entries of their own in this table.
+    // collapsible card too (settings_misc_header/body/arrow below). Like #529's USB-ADB card,
+    // its contained sections are shown directly, one below another, once the outer card is
+    // expanded; unlike #519's Network (Beta) card, they are not independently collapsible.
+    // Their switches therefore no longer have header/body/arrow entries of their own here.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
             {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body, R.id.settings_usb_adb_arrow},
-            {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body,
-                    R.id.settings_usb_notification_arrow},
-            {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body, R.id.settings_usb_handover_arrow},
             {R.id.settings_network_beta_header, R.id.settings_network_beta_body,
                     R.id.settings_network_beta_arrow},
             {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body,

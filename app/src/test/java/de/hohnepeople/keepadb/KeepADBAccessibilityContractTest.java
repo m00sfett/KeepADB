@@ -125,10 +125,9 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_webhook_header, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_url, R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_adb_header,
-                R.id.settings_usb_notification_header, R.id.settings_usb_notification_toggle,
+                R.id.settings_usb_notification_toggle,
                 R.id.settings_usb_profile_notification_toggle,
-                R.id.settings_usb_profile_action, R.id.settings_usb_handover_header,
-                R.id.settings_usb_handover_selector,
+                R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
                 R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_feature_toggle,
                 R.id.settings_trusted_network_header, R.id.settings_trusted_network_toggle,
                 R.id.settings_trusted_ssid_toggle,
@@ -170,18 +169,16 @@ public class KeepADBAccessibilityContractTest {
     private void expandAllSettingsCards(View settings) {
         int[] headers = {
                 R.id.settings_webhook_header,
-                // #520: the outer "USB-ADB" card must be expanded first -- its sub-cards'
-                // headers are only clickable/measurable once its body is VISIBLE.
+                // #529: expanding the sole USB-ADB header makes both direct sections visible.
                 R.id.settings_usb_adb_header,
-                R.id.settings_usb_notification_header, R.id.settings_usb_handover_header,
                 // #519: the outer "Network (Beta)" card must be expanded first -- its
                 // sub-cards' headers are only clickable/measurable once its body is VISIBLE.
                 R.id.settings_network_beta_header,
                 R.id.settings_wifi_aps_header,
                 R.id.settings_trusted_network_header,
                 // #521: the outer "Sonstiges" card must be expanded to make its four directly
-                // nested sections' controls measurable/reachable -- unlike #519/#520, they are
-                // not independently collapsible sub-cards with headers of their own.
+                // nested sections' controls measurable/reachable; like #529's USB sections,
+                // they are not independently collapsible sub-cards with headers of their own.
                 R.id.settings_misc_header,
                 R.id.settings_diagnostics_header
         };
@@ -304,6 +301,14 @@ public class KeepADBAccessibilityContractTest {
                 context.getString(R.string.settings_usb_profile_notification_toggle));
         assertHasText(settings.findViewById(R.id.settings_usb_notification_panel),
                 context.getString(R.string.usb_profile_create_button));
+        TextView usbNotificationTitle = settings.findViewById(R.id.settings_usb_notification_title);
+        TextView usbHandoverTitle = settings.findViewById(R.id.settings_usb_handover_title);
+        assertTrue(usbNotificationTitle.isAccessibilityHeading());
+        assertTrue(usbHandoverTitle.isAccessibilityHeading());
+        assertFalse(usbNotificationTitle.isClickable());
+        assertFalse(usbHandoverTitle.isClickable());
+        assertFalse(usbNotificationTitle.isFocusable());
+        assertFalse(usbHandoverTitle.isFocusable());
 
         assertPoliteLiveRegion(main.findViewById(R.id.status));
         assertPoliteLiveRegion(main.findViewById(R.id.webhook_status));
@@ -389,14 +394,14 @@ public class KeepADBAccessibilityContractTest {
         View settings = runtimeView(R.layout.activity_settings);
         ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
                 settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
-        // #510/#519/#520/#521: the core, everyday ADB settings start with the webhook card, then
-        // the "USB-ADB" card -- itself collapsible since #520, with USB-ADB notification and
-        // USB -> WLAN-ADB handover nested as independently collapsible sub-cards inside its body.
+        // #510/#519/#520/#521/#529: the core, everyday ADB settings start with the webhook card,
+        // then the "USB-ADB" card, with notification and USB -> WLAN-ADB handover shown as direct
+        // sections after the sole outer expand step.
         // Below that sits the "Network (Beta)" card -- itself collapsible since #519, with
         // Trusted Networks and Wi-Fi & access points nested as independently collapsible
         // sub-cards inside its body -- then the "Sonstiges" card, itself collapsible since #521,
-        // with the four notice/display-preference sections shown directly inside its body
-        // (not as independently collapsible sub-cards, unlike #519/#520).
+        // with the four notice/display-preference sections shown directly inside its body,
+        // matching #529's one-level USB-ADB structure.
         // #518: the language panel no longer exists in this content column at all -- it moved to
         // the compact toolbar button in the header -- so it is no longer part of this table.
         int[] panels = {
@@ -416,9 +421,8 @@ public class KeepADBAccessibilityContractTest {
             previous = current;
         }
 
-        // #520: USB-ADB notification and USB -> WLAN-ADB handover are no longer direct children
-        // of the settings content column -- they are nested sub-cards inside the "USB-ADB"
-        // card's body, so their relative order is checked within that body instead.
+        // #520/#529: both USB sections live directly in the outer card body, so their relative
+        // order is checked there instead of in the settings content column.
         ViewGroup usbAdbBody = content.findViewById(R.id.settings_usb_adb_body);
         assertNotNull(usbAdbBody);
         View usbNotificationPanel = usbAdbBody.findViewById(R.id.settings_usb_notification_panel);
