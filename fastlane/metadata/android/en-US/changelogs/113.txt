@@ -1,0 +1,2 @@
+Fixed: a fresh install now shows network addresses fully by default instead of starting
+with privacy masking enabled. Privacy mode remains available as an opt-in toggle.
