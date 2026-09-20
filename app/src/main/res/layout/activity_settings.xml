@@ -457,26 +457,28 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- #510: shared "Network (Beta)" group heading. Trusted Networks and Wi-Fi & access
-             points both build on the same network-trust logic and are both experimental beta
-             features, so they are introduced together here, directly below the core ADB
-             settings, well away from the everyday Keep-Alive/ADB switches above. The heading is
-             a plain, permanently visible label (like the Language/Version sections); it is not
-             itself collapsible. Each feature below keeps its own independent collapsible card,
-             its own beta badge, and its own opt-in switch (#492, #507); nothing about the
-             underlying preferences or detection logic changes here. -->
+        <!-- #519: "Network (Beta)" is now itself a collapsible outer card (previously #510's
+             plain, permanently visible group heading). Collapsed, only the title is visible;
+             expanding it reveals the former group subtext plus the two independently
+             collapsible sub-cards below (Trusted Networks, Wi-Fi and access points). Both
+             sub-cards keep their own header/body/arrow ids, beta badge, and opt-in switch
+             (#492, #507) untouched; only the surrounding container changed, nothing about the
+             underlying preferences or detection logic. -->
         <LinearLayout
-            android:id="@+id/settings_network_beta_group_panel"
+            android:id="@+id/settings_network_beta_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:background="@color/ground"
+            android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/settings_network_beta_group_header"
+                android:id="@+id/settings_network_beta_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:gravity="center_vertical"
                 android:minHeight="48dp"
                 android:orientation="horizontal">
@@ -490,19 +492,38 @@
                     android:textColor="@color/title_yellow"
                     android:textSize="18sp"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_network_beta_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/settings_network_beta_group_subtext"
+            <LinearLayout
+                android:id="@+id/settings_network_beta_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_network_beta_group_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
-        </LinearLayout>
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
 
-        <!-- Trusted-Network Allowlist Section (#245, #510: beta badge added) -->
+                <TextView
+                    android:id="@+id/settings_network_beta_group_subtext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_network_beta_group_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+        <!-- Trusted-Network Allowlist Section (#245, #510: beta badge added; #519: nested as a
+             sub-card of the outer Network (Beta) card) -->
         <LinearLayout
             android:id="@+id/settings_trusted_network_panel"
             android:layout_width="match_parent"
@@ -920,6 +941,9 @@
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
             </LinearLayout>
         </LinearLayout>
 

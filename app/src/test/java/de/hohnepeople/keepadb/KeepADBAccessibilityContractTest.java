@@ -171,6 +171,9 @@ public class KeepADBAccessibilityContractTest {
         int[] headers = {
                 R.id.settings_webhook_header,
                 R.id.settings_usb_notification_header, R.id.settings_usb_handover_header,
+                // #519: the outer "Network (Beta)" card must be expanded first -- its
+                // sub-cards' headers are only clickable/measurable once its body is VISIBLE.
+                R.id.settings_network_beta_header,
                 R.id.settings_wifi_aps_header,
                 R.id.settings_trusted_network_header, R.id.settings_notification_header,
                 R.id.settings_display_header, R.id.settings_advice_banner_header,
@@ -381,19 +384,18 @@ public class KeepADBAccessibilityContractTest {
         View settings = runtimeView(R.layout.activity_settings);
         ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
                 settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
-        // #510: the core, everyday ADB settings (webhook, USB-ADB notification, USB handover)
-        // come first. Below them sits the shared "Network (Beta)" group heading with Trusted
-        // Networks and Wi-Fi & access points grouped underneath it, then the shared "Other"
-        // group heading with the four notice/display-preference cards grouped underneath it.
+        // #510/#519: the core, everyday ADB settings (webhook, USB-ADB notification, USB
+        // handover) come first. Below them sits the "Network (Beta)" card -- itself collapsible
+        // since #519, with Trusted Networks and Wi-Fi & access points nested as independently
+        // collapsible sub-cards inside its body -- then the shared "Other" group heading with
+        // the four notice/display-preference cards grouped underneath it.
         // #518: the language panel no longer exists in this content column at all -- it moved to
         // the compact toolbar button in the header -- so it is no longer part of this table.
         int[] panels = {
                 R.id.settings_webhook_panel,
                 R.id.settings_usb_notification_panel,
                 R.id.settings_usb_handover_panel,
-                R.id.settings_network_beta_group_panel,
-                R.id.settings_trusted_network_panel,
-                R.id.settings_wifi_aps_panel,
+                R.id.settings_network_beta_panel,
                 R.id.settings_misc_group_panel,
                 R.id.settings_notification_panel,
                 R.id.settings_display_panel,
@@ -410,6 +412,19 @@ public class KeepADBAccessibilityContractTest {
             assertTrue("Settings panel is out of product order: " + panelId, current > previous);
             previous = current;
         }
+
+        // #519: Trusted Networks and Wi-Fi & access points are no longer direct children of the
+        // settings content column -- they are nested sub-cards inside the "Network (Beta)"
+        // card's body, so their relative order is checked within that body instead.
+        ViewGroup networkBetaBody = content.findViewById(R.id.settings_network_beta_body);
+        assertNotNull(networkBetaBody);
+        View trustedNetworkPanel = networkBetaBody.findViewById(R.id.settings_trusted_network_panel);
+        View wifiApsPanel = networkBetaBody.findViewById(R.id.settings_wifi_aps_panel);
+        assertNotNull(trustedNetworkPanel);
+        assertNotNull(wifiApsPanel);
+        assertTrue("Trusted Networks must come before Wi-Fi & access points inside Network (Beta)",
+                networkBetaBody.indexOfChild(trustedNetworkPanel)
+                        < networkBetaBody.indexOfChild(wifiApsPanel));
     }
 
     @Test

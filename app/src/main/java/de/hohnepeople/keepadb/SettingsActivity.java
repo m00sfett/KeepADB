@@ -138,16 +138,20 @@ public class SettingsActivity extends Activity {
     // non-collapsible entry pinned directly on the background, with neither an arrow nor a click
     // listener on its header. #518: the former language card was removed from the content
     // entirely and replaced by the compact toolbar button, so it no longer appears in this table.
-    // #510: order below now matches the on-screen order -- Trusted Networks and Wi-Fi & access
-    // points sit together under the shared "Network (Beta)" heading, and Notification/Display/
-    // Advice-Banner/Battery-Optimization sit together under the shared "Other" heading. Both
-    // group headings are plain, permanently visible labels (like Version) and are not
-    // part of this table -- they have no header/body/arrow of their own.
+    // #510: order below now matches the on-screen order -- Notification/Display/Advice-Banner/
+    // Battery-Optimization sit together under the shared "Other" heading, which is a plain,
+    // permanently visible label (like Version) and is not part of this table -- it has no
+    // header/body/arrow of its own. #519: the former "Network (Beta)" heading is now itself a
+    // real collapsible card (settings_network_beta_header/body/arrow below), containing two
+    // independently collapsible sub-cards -- Trusted Networks and Wi-Fi & access points -- each
+    // still with its own header/body/arrow entry in this same table.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
             {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body,
                     R.id.settings_usb_notification_arrow},
             {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body, R.id.settings_usb_handover_arrow},
+            {R.id.settings_network_beta_header, R.id.settings_network_beta_body,
+                    R.id.settings_network_beta_arrow},
             {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body,
                     R.id.settings_trusted_network_arrow},
             {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body, R.id.settings_wifi_aps_arrow},

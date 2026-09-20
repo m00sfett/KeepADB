@@ -819,10 +819,11 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #510: Trusted Networks and Wi-Fi &amp; access points are grouped under a shared
-     * "Network (Beta)" heading that sits between them and explains the relationship and beta
-     * status, while both features stay independently collapsible and both carry their own
-     * "BETA" badge -- previously only the Wi-Fi &amp; access points card had one.
+     * #510/#519: Trusted Networks and Wi-Fi &amp; access points are nested as independently
+     * collapsible sub-cards inside the "Network (Beta)" card, which is itself collapsible and,
+     * once expanded, shows the shared description explaining the relationship and beta status.
+     * Both sub-cards stay independently collapsible and both carry their own "BETA" badge --
+     * previously only the Wi-Fi &amp; access points card had one.
      */
     @Test
     public void networkBetaGroupHeadingIntroducesBothBetaFeaturesConsistently() {
@@ -830,9 +831,16 @@ public class SettingsActivityTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        View groupHeading = activity.findViewById(R.id.settings_network_beta_group_panel);
-        assertNotNull(groupHeading);
-        assertEquals(View.VISIBLE, groupHeading.getVisibility());
+        View outerPanel = activity.findViewById(R.id.settings_network_beta_panel);
+        assertNotNull(outerPanel);
+        assertEquals(View.VISIBLE, outerPanel.getVisibility());
+
+        // #519: the outer card itself starts collapsed, like every other collapsible card, and
+        // must be expanded before its description and sub-cards become reachable.
+        View outerBody = activity.findViewById(R.id.settings_network_beta_body);
+        assertEquals(View.GONE, outerBody.getVisibility());
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
+        assertEquals(View.VISIBLE, outerBody.getVisibility());
 
         TextView groupSubtext = activity.findViewById(R.id.settings_network_beta_group_subtext);
         assertNotNull(groupSubtext);

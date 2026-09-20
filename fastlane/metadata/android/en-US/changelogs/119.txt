@@ -1,0 +1,3 @@
+Changed: Network (Beta) is now a collapsible card with two independent sub-cards inside --
+Trusted Networks and Wi-Fi & access points -- instead of two cards under a plain heading.
+Same features, same defaults, just tidier when collapsed.
