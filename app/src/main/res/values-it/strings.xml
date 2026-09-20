@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Configurazione iniziale</string>
-    <string name="setup_body">Collega questo dispositivo a un computer tramite USB con il debug USB abilitato, poi esegui il comando sottostante.</string>
+    <string name="setup_body">Collega questo dispositivo a un computer tramite USB con il debug USB abilitato. Esegui prima "adb devices" sul computer per elencare i dispositivi e gli emulatori collegati, poi usa il numero di serie esatto mostrato lì.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">Se è elencato un solo dispositivo:</string>
+    <string name="setup_multi_device_label">Più dispositivi elencati: specifica esplicitamente quello di destinazione</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">Sostituisci &lt;device-serial&gt; con il numero di serie esatto mostrato da "adb devices" per questo dispositivo.</string>
+    <string name="setup_state_offline_title">Il dispositivo risulta "offline"?</string>
+    <string name="setup_state_offline_body">La connessione è caduta. Ricollega il cavo USB oppure riattiva il debug wireless sul telefono, poi esegui di nuovo "adb devices" finché lo stato non diventa "device".</string>
+    <string name="setup_state_unauthorized_title">Il dispositivo risulta "unauthorized"?</string>
+    <string name="setup_state_unauthorized_body">Conferma la richiesta di autorizzazione al debug sullo schermo di questo telefono, poi esegui di nuovo "adb devices" finché lo stato non diventa "device".</string>
     <string name="setup_refresh">Verifica autorizzazione</string>
     <string name="status_on">Debug wireless ATTIVO</string>
     <string name="status_off">Debug wireless DISATTIVO</string>

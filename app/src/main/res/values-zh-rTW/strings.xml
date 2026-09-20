@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">首次設定</string>
-    <string name="setup_body">請啟用 USB 偵錯並透過 USB 將此裝置連接到電腦，然後執行以下指令。</string>
+    <string name="setup_body">請啟用 USB 偵錯並透過 USB 將此裝置連接到電腦。先在電腦上執行 "adb devices" 列出已連接的裝置與模擬器，然後使用其中顯示的正確序號。</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">僅列出一台裝置時：</string>
+    <string name="setup_multi_device_label">列出多台裝置時：明確指定目標裝置</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">將 &lt;device-serial&gt; 替換為 "adb devices" 為此裝置顯示的正確序號。</string>
+    <string name="setup_state_offline_title">裝置顯示為「offline」？</string>
+    <string name="setup_state_offline_body">連線已中斷。請重新插拔 USB 線，或在手機上重新開啟無線偵錯，然後重複執行 "adb devices"，直到狀態變為「device」。</string>
+    <string name="setup_state_unauthorized_title">裝置顯示為「unauthorized」？</string>
+    <string name="setup_state_unauthorized_body">請在此手機螢幕上確認偵錯授權提示，然後重複執行 "adb devices"，直到狀態變為「device」。</string>
     <string name="setup_refresh">檢查權限</string>
     <string name="status_on">無線偵錯已開啟</string>
     <string name="status_off">無線偵錯已關閉</string>

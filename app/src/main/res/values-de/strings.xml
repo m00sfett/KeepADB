@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Ersteinrichtung</string>
-    <string name="setup_body">Verbinde dieses Gerät bei aktiviertem USB-Debugging per USB mit einem Computer und führe den folgenden Befehl aus.</string>
+    <string name="setup_body">Verbinde dieses Gerät bei aktiviertem USB-Debugging per USB mit einem Computer. Führe zuerst "adb devices" auf dem Computer aus, um verbundene Geräte und Emulatoren aufzulisten, und verwende dann die dort angezeigte exakte Seriennummer.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">Nur ein Gerät gelistet:</string>
+    <string name="setup_multi_device_label">Mehrere Geräte gelistet: Ziel explizit angeben</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">Ersetze &lt;device-serial&gt; durch die exakte Seriennummer, die "adb devices" für dieses Gerät angezeigt hat.</string>
+    <string name="setup_state_offline_title">Gerät zeigt "offline"?</string>
+    <string name="setup_state_offline_body">Die Verbindung ist abgebrochen. Verbinde das USB-Kabel neu oder aktiviere das Drahtlose Debugging auf dem Handy erneut, dann führe "adb devices" wieder aus, bis der Status auf "device" wechselt.</string>
+    <string name="setup_state_unauthorized_title">Gerät zeigt "unauthorized"?</string>
+    <string name="setup_state_unauthorized_body">Bestätige die Debugging-Freigabeabfrage auf dem Bildschirm dieses Handys, dann führe "adb devices" wieder aus, bis der Status auf "device" wechselt.</string>
     <string name="setup_refresh">Berechtigung prüfen</string>
     <string name="status_on">Drahtloses Debugging ist AN (Verbunden)</string>
     <string name="status_off">Drahtloses Debugging ist AUS</string>

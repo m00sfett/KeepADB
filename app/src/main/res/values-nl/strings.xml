@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Eerste installatie</string>
-    <string name="setup_body">Verbind dit apparaat via USB met een computer met USB-foutopsporing ingeschakeld en voer het onderstaande commando uit.</string>
+    <string name="setup_body">Verbind dit apparaat via USB met een computer met USB-foutopsporing ingeschakeld. Voer eerst "adb devices" uit op de computer om verbonden apparaten en emulators te tonen, en gebruik daarna het exacte serienummer dat daar wordt weergegeven.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">Slechts één apparaat vermeld:</string>
+    <string name="setup_multi_device_label">Meerdere apparaten vermeld: geef het doel expliciet op</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">Vervang &lt;device-serial&gt; door het exacte serienummer dat "adb devices" voor dit apparaat toonde.</string>
+    <string name="setup_state_offline_title">Apparaat toont "offline"?</string>
+    <string name="setup_state_offline_body">De verbinding is verbroken. Sluit de USB-kabel opnieuw aan of schakel draadloos debuggen op de telefoon opnieuw in, en voer daarna "adb devices" opnieuw uit totdat de status "device" wordt.</string>
+    <string name="setup_state_unauthorized_title">Apparaat toont "unauthorized"?</string>
+    <string name="setup_state_unauthorized_body">Bevestig de foutopsporingsautorisatiemelding op het scherm van deze telefoon en voer daarna "adb devices" opnieuw uit totdat de status "device" wordt.</string>
     <string name="setup_refresh">Toestemming controleren</string>
     <string name="status_on">Draadloze foutopsporing is AAN</string>
     <string name="status_off">Draadloze foutopsporing is UIT</string>

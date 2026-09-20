@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">初期設定</string>
-    <string name="setup_body">USBデバッグを有効にして本機をUSBでPCに接続し、以下のコマンドを実行してください。</string>
+    <string name="setup_body">USBデバッグを有効にして本機をUSBでPCに接続してください。まずPC上で"adb devices"を実行して接続中のデバイスやエミュレーターを一覧表示し、そこに表示される正確なシリアル番号を使用してください。</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">デバイスが1台のみの場合:</string>
+    <string name="setup_multi_device_label">複数のデバイスがある場合: 対象を明示的に指定</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">&lt;device-serial&gt;を、この端末に対して"adb devices"が表示した正確なシリアル番号に置き換えてください。</string>
+    <string name="setup_state_offline_title">デバイスが"offline"と表示される場合は？</string>
+    <string name="setup_state_offline_body">接続が切断されています。USBケーブルを接続し直すか、スマートフォンでワイヤレスデバッグを再度有効にしてから、状態が"device"になるまで"adb devices"を再実行してください。</string>
+    <string name="setup_state_unauthorized_title">デバイスが"unauthorized"と表示される場合は？</string>
+    <string name="setup_state_unauthorized_body">このスマートフォンの画面に表示されるデバッグ許可のダイアログを確認してから、状態が"device"になるまで"adb devices"を再実行してください。</string>
     <string name="setup_refresh">権限を確認</string>
     <string name="status_on">ワイヤレスデバッグは ON です</string>
     <string name="status_off">ワイヤレスデバッグは OFF です</string>

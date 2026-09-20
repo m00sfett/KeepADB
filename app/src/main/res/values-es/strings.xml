@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Configuración inicial</string>
-    <string name="setup_body">Conecta este dispositivo a un ordenador por USB con la depuración USB activada y ejecuta el comando siguiente.</string>
+    <string name="setup_body">Conecta este dispositivo a un ordenador por USB con la depuración USB activada. Ejecuta primero "adb devices" en el ordenador para listar los dispositivos y emuladores conectados, y usa después el número de serie exacto que aparece ahí.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">Solo aparece un dispositivo:</string>
+    <string name="setup_multi_device_label">Varios dispositivos listados: indica el destino explícitamente</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">Sustituye &lt;device-serial&gt; por el número de serie exacto que "adb devices" mostró para este dispositivo.</string>
+    <string name="setup_state_offline_title">¿El dispositivo aparece como "offline"?</string>
+    <string name="setup_state_offline_body">Se perdió la conexión. Vuelve a conectar el cable USB o reactiva la depuración inalámbrica en el teléfono, luego ejecuta de nuevo "adb devices" hasta que el estado cambie a "device".</string>
+    <string name="setup_state_unauthorized_title">¿El dispositivo aparece como "unauthorized"?</string>
+    <string name="setup_state_unauthorized_body">Confirma el aviso de autorización de depuración en la pantalla de este teléfono y ejecuta de nuevo "adb devices" hasta que el estado cambie a "device".</string>
     <string name="setup_refresh">Comprobar permiso</string>
     <string name="status_on">Depuración inalámbrica ACTIVADA</string>
     <string name="status_off">Depuración inalámbrica DESACTIVADA</string>

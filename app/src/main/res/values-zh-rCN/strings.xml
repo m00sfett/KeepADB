@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">首次设置</string>
-    <string name="setup_body">请启用 USB 调试并通过 USB 将此设备连接到电脑，然后运行以下命令。</string>
+    <string name="setup_body">请启用 USB 调试并通过 USB 将此设备连接到电脑。先在电脑上运行 "adb devices" 列出已连接的设备和模拟器，然后使用其中显示的准确序列号。</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">仅列出一台设备时：</string>
+    <string name="setup_multi_device_label">列出多台设备时：明确指定目标设备</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">将 &lt;device-serial&gt; 替换为 "adb devices" 为此设备显示的准确序列号。</string>
+    <string name="setup_state_offline_title">设备显示为“offline”？</string>
+    <string name="setup_state_offline_body">连接已断开。请重新插拔 USB 线，或在手机上重新开启无线调试，然后重复运行 "adb devices"，直到状态变为“device”。</string>
+    <string name="setup_state_unauthorized_title">设备显示为“unauthorized”？</string>
+    <string name="setup_state_unauthorized_body">请在此手机屏幕上确认调试授权提示，然后重复运行 "adb devices"，直到状态变为“device”。</string>
     <string name="setup_refresh">检查权限</string>
     <string name="status_on">无线调试已开启</string>
     <string name="status_off">无线调试已关闭</string>

@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Configuration initiale</string>
-    <string name="setup_body">Connectez cet appareil à un ordinateur en USB avec le débogage USB activé, puis exécutez la commande ci-dessous.</string>
+    <string name="setup_body">Connectez cet appareil à un ordinateur en USB avec le débogage USB activé. Exécutez d\'abord "adb devices" sur l\'ordinateur pour lister les appareils et émulateurs connectés, puis utilisez le numéro de série exact qui y est affiché.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">Un seul appareil listé :</string>
+    <string name="setup_multi_device_label">Plusieurs appareils listés : ciblez-en un explicitement</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">Remplacez &lt;device-serial&gt; par le numéro de série exact affiché par "adb devices" pour cet appareil.</string>
+    <string name="setup_state_offline_title">L\'appareil apparaît comme "offline" ?</string>
+    <string name="setup_state_offline_body">La connexion a été interrompue. Rebranchez le câble USB ou réactivez le débogage sans fil sur le téléphone, puis relancez "adb devices" jusqu\'à ce que l\'état passe à "device".</string>
+    <string name="setup_state_unauthorized_title">L\'appareil apparaît comme "unauthorized" ?</string>
+    <string name="setup_state_unauthorized_body">Confirmez l\'invite d\'autorisation de débogage sur l\'écran de ce téléphone, puis relancez "adb devices" jusqu\'à ce que l\'état passe à "device".</string>
     <string name="setup_refresh">Vérifier l’autorisation</string>
     <string name="status_on">Débogage sans fil ACTIVÉ</string>
     <string name="status_off">Débogage sans fil DÉSACTIVÉ</string>

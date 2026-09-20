@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Penyiapan awal</string>
-    <string name="setup_body">Hubungkan perangkat ini ke komputer via USB dengan debugging USB diaktifkan, lalu jalankan perintah di bawah ini.</string>
+    <string name="setup_body">Hubungkan perangkat ini ke komputer via USB dengan debugging USB diaktifkan. Jalankan dulu "adb devices" di komputer untuk melihat daftar perangkat dan emulator yang terhubung, lalu gunakan nomor seri persis yang ditampilkan di sana.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">Hanya satu perangkat yang tercantum:</string>
+    <string name="setup_multi_device_label">Beberapa perangkat tercantum: pilih target secara eksplisit</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">Ganti &lt;device-serial&gt; dengan nomor seri persis yang ditampilkan "adb devices" untuk perangkat ini.</string>
+    <string name="setup_state_offline_title">Perangkat menampilkan status "offline"?</string>
+    <string name="setup_state_offline_body">Koneksi terputus. Sambungkan kembali kabel USB atau aktifkan ulang debugging nirkabel di ponsel, lalu jalankan kembali "adb devices" hingga statusnya berubah menjadi "device".</string>
+    <string name="setup_state_unauthorized_title">Perangkat menampilkan status "unauthorized"?</string>
+    <string name="setup_state_unauthorized_body">Konfirmasi permintaan otorisasi debugging di layar ponsel ini, lalu jalankan kembali "adb devices" hingga statusnya berubah menjadi "device".</string>
     <string name="setup_refresh">Periksa izin</string>
     <string name="status_on">Debugging Nirkabel AKTIF</string>
     <string name="status_off">Debugging Nirkabel NONAKTIF</string>

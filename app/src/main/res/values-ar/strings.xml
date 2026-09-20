@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">الإعداد لأول مرة</string>
-    <string name="setup_body">صِل هذا الجهاز بكمبيوتر عبر USB مع تفعيل تصحيح أخطاء USB، ثم شغّل الأمر أدناه.</string>
+    <string name="setup_body">صِل هذا الجهاز بكمبيوتر عبر USB مع تفعيل تصحيح أخطاء USB. شغّل أولاً "adb devices" على الكمبيوتر لسرد الأجهزة والمحاكيات المتصلة، ثم استخدم الرقم التسلسلي الدقيق الظاهر هناك.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">إذا ظهر جهاز واحد فقط:</string>
+    <string name="setup_multi_device_label">عدة أجهزة مدرجة: حدّد الهدف صراحةً</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">استبدل &lt;device-serial&gt; بالرقم التسلسلي الدقيق الذي أظهره "adb devices" لهذا الجهاز.</string>
+    <string name="setup_state_offline_title">الجهاز يظهر بحالة "offline"؟</string>
+    <string name="setup_state_offline_body">انقطع الاتصال. أعد توصيل كابل USB أو أعد تفعيل التصحيح اللاسلكي على الهاتف، ثم شغّل "adb devices" مجددًا حتى تتغير الحالة إلى "device".</string>
+    <string name="setup_state_unauthorized_title">الجهاز يظهر بحالة "unauthorized"؟</string>
+    <string name="setup_state_unauthorized_body">أكّد نافذة السماح بالتصحيح التي تظهر على شاشة الهاتف، ثم شغّل "adb devices" مجددًا حتى تتغير الحالة إلى "device".</string>
     <string name="setup_refresh">فحص الإذن</string>
     <string name="status_on">تصحيح الأخطاء اللاسلكي مُفَعَّل</string>
     <string name="status_off">تصحيح الأخطاء اللاسلكي مُعَطَّل</string>

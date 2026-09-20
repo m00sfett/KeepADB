@@ -69,6 +69,7 @@ ALLOWLIST = {
     "app_name": ALL_LANGUAGES,                   # brand name "KeepADB"
     "title_keepadb": ALL_LANGUAGES,              # brand name "KeepADB"
     "setup_command": ALL_LANGUAGES,              # literal shell command (adb shell pm grant ...)
+    "setup_command_multi": ALL_LANGUAGES,        # literal shell command (adb -s <serial> shell pm grant ...)
     "tile_label": ALL_LANGUAGES,                 # @string reference, not prose
     "tile_state_connected_format": ALL_LANGUAGES,  # pure format string "%1$s:%2$d"
     "endpoint_format": ALL_LANGUAGES,            # pure format string "Endpoint: %1$s:%2$d"

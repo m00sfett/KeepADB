@@ -22,6 +22,16 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.18] - Unreleased
+
+### Documentation
+- First-time setup card: explains that with multiple connected ADB devices/emulators, the
+  serial number must first be read from `adb devices` and passed explicitly via
+  `adb -s <device-serial> shell pm grant ...`; the single-device case (plain `adb shell ...`)
+  is kept as a shorter alternative. Also explains the `offline` and `unauthorized` device
+  states directly on the card, with their respective next step. Text localized in all 19
+  supported languages (#515).
+
 ## [1.8.17] - Unreleased
 
 ### Added

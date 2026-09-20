@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Thiết lập ban đầu</string>
-    <string name="setup_body">Kết nối thiết bị này với máy tính qua USB khi đã bật gỡ lỗi USB, sau đó chạy lệnh bên dưới.</string>
+    <string name="setup_body">Kết nối thiết bị này với máy tính qua USB khi đã bật gỡ lỗi USB. Trước tiên chạy "adb devices" trên máy tính để liệt kê các thiết bị và trình giả lập đang kết nối, sau đó dùng đúng số sê-ri hiển thị ở đó.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">Chỉ có một thiết bị được liệt kê:</string>
+    <string name="setup_multi_device_label">Nhiều thiết bị được liệt kê: chỉ định rõ mục tiêu</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">Thay &lt;device-serial&gt; bằng đúng số sê-ri mà "adb devices" đã hiển thị cho thiết bị này.</string>
+    <string name="setup_state_offline_title">Thiết bị hiển thị trạng thái "offline"?</string>
+    <string name="setup_state_offline_body">Kết nối đã bị mất. Cắm lại cáp USB hoặc bật lại gỡ lỗi không dây trên điện thoại, sau đó chạy lại "adb devices" cho đến khi trạng thái chuyển thành "device".</string>
+    <string name="setup_state_unauthorized_title">Thiết bị hiển thị trạng thái "unauthorized"?</string>
+    <string name="setup_state_unauthorized_body">Xác nhận lời nhắc cho phép gỡ lỗi trên màn hình điện thoại này, sau đó chạy lại "adb devices" cho đến khi trạng thái chuyển thành "device".</string>
     <string name="setup_refresh">Kiểm tra quyền</string>
     <string name="status_on">Gỡ lỗi không dây đang BẬT</string>
     <string name="status_off">Gỡ lỗi không dây đang TẮT</string>

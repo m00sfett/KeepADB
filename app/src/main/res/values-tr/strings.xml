@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">İlk kurulum</string>
-    <string name="setup_body">Bu cihazı USB hata ayıklama etkinken bir bilgisayara USB ile bağlayın ve aşağıdaki komutu çalıştırın.</string>
+    <string name="setup_body">Bu cihazı USB hata ayıklama etkinken bir bilgisayara USB ile bağlayın. Önce bilgisayarda "adb devices" komutunu çalıştırarak bağlı cihazları ve emülatörleri listeleyin, ardından orada gösterilen tam seri numarasını kullanın.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">Yalnızca bir cihaz listeleniyorsa:</string>
+    <string name="setup_multi_device_label">Birden fazla cihaz listeleniyorsa: hedefi açıkça belirtin</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">&lt;device-serial&gt; ifadesini bu cihaz için "adb devices" tarafından gösterilen tam seri numarasıyla değiştirin.</string>
+    <string name="setup_state_offline_title">Cihaz "offline" mi görünüyor?</string>
+    <string name="setup_state_offline_body">Bağlantı koptu. USB kablosunu yeniden takın veya telefonda kablosuz hata ayıklamayı yeniden etkinleştirin, ardından durum "device" olana kadar "adb devices" komutunu tekrar çalıştırın.</string>
+    <string name="setup_state_unauthorized_title">Cihaz "unauthorized" mi görünüyor?</string>
+    <string name="setup_state_unauthorized_body">Bu telefonun ekranında görünen hata ayıklama izni istemini onaylayın, ardından durum "device" olana kadar "adb devices" komutunu tekrar çalıştırın.</string>
     <string name="setup_refresh">İzni kontrol et</string>
     <string name="status_on">Kablosuz Hata Ayıklama AÇIK</string>
     <string name="status_off">Kablosuz Hata Ayıklama KAPALI</string>

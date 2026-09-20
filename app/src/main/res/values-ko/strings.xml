@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">초기 설정</string>
-    <string name="setup_body">USB 디버깅을 활성화한 상태로 이 기기를 컴퓨터에 USB로 연결한 후 아래 명령어를 실행하세요.</string>
+    <string name="setup_body">USB 디버깅을 활성화한 상태로 이 기기를 컴퓨터에 USB로 연결하세요. 먼저 컴퓨터에서 "adb devices"를 실행해 연결된 기기와 에뮬레이터 목록을 확인한 다음, 거기 표시된 정확한 시리얼 번호를 사용하세요.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">기기가 하나만 표시되는 경우:</string>
+    <string name="setup_multi_device_label">여러 기기가 표시되는 경우: 대상을 명시적으로 지정하세요</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">&lt;device-serial&gt;을 이 기기에 대해 "adb devices"가 표시한 정확한 시리얼 번호로 바꾸세요.</string>
+    <string name="setup_state_offline_title">기기가 "offline"으로 표시되나요?</string>
+    <string name="setup_state_offline_body">연결이 끊겼습니다. USB 케이블을 다시 연결하거나 휴대폰에서 무선 디버깅을 다시 켠 다음, 상태가 "device"로 바뀔 때까지 "adb devices"를 다시 실행하세요.</string>
+    <string name="setup_state_unauthorized_title">기기가 "unauthorized"로 표시되나요?</string>
+    <string name="setup_state_unauthorized_body">이 휴대폰 화면에 표시되는 디버깅 허용 알림을 확인한 다음, 상태가 "device"로 바뀔 때까지 "adb devices"를 다시 실행하세요.</string>
     <string name="setup_refresh">권한 확인</string>
     <string name="status_on">무선 디버깅 켜짐</string>
     <string name="status_off">무선 디버깅 꺼짐</string>

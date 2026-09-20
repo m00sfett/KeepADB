@@ -81,6 +81,8 @@ public class MainActivity extends Activity {
         setupPanel = findViewById(R.id.setup_panel);
         ((TextView) findViewById(R.id.setup_command)).setText(
                 getString(R.string.setup_command, getPackageName()));
+        ((TextView) findViewById(R.id.setup_command_multi)).setText(
+                getString(R.string.setup_command_multi, getPackageName()));
         notificationPermissionPanel = findViewById(R.id.notification_permission_panel);
         notificationPermissionActionButton = findViewById(R.id.btn_open_notification_settings);
         notificationPermissionActionButton.setOnClickListener(v -> onNotificationPermissionActionClick());

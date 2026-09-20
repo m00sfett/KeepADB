@@ -3,8 +3,16 @@
     <string name="app_name">KeepADB</string>
     <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Configuração inicial</string>
-    <string name="setup_body">Conecte este dispositivo a um computador via USB com a depuração USB ativada e execute o comando abaixo.</string>
+    <string name="setup_body">Conecte este dispositivo a um computador via USB com a depuração USB ativada. Execute primeiro "adb devices" no computador para listar dispositivos e emuladores conectados, depois use o número de série exato mostrado ali.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_single_device_label">Apenas um dispositivo listado:</string>
+    <string name="setup_multi_device_label">Vários dispositivos listados: indique o destino explicitamente</string>
+    <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="setup_multi_device_hint">Substitua &lt;device-serial&gt; pelo número de série exato que "adb devices" mostrou para este dispositivo.</string>
+    <string name="setup_state_offline_title">O dispositivo aparece como "offline"?</string>
+    <string name="setup_state_offline_body">A conexão caiu. Reconecte o cabo USB ou reative a depuração sem fio no telefone e execute "adb devices" novamente até o estado mudar para "device".</string>
+    <string name="setup_state_unauthorized_title">O dispositivo aparece como "unauthorized"?</string>
+    <string name="setup_state_unauthorized_body">Confirme o aviso de autorização de depuração na tela deste telefone e execute "adb devices" novamente até o estado mudar para "device".</string>
     <string name="setup_refresh">Verificar permissão</string>
     <string name="status_on">Depuração sem fio ATIVADA</string>
     <string name="status_off">Depuração sem fio DESATIVADA</string>
