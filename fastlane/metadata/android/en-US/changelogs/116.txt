@@ -1,0 +1,4 @@
+Shorter, clearer text on the notification permission card: it now explains in plain terms
+what notifications are for (seeing whether the background service and Keep-Alive are running,
+and getting notified right away if the connection drops) and makes clear Wireless Debugging
+keeps working without this permission.

@@ -1,0 +1,2 @@
+The security & network notice on the main screen is now a card that matches the other
+setup cards, with a clear "Dismiss notice" button instead of a small "X".

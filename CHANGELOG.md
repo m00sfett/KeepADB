@@ -22,6 +22,37 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.20] - Unreleased
+
+### Changed
+- Security & network advice: now rendered as a card in the same style as the other
+  first-time-setup cards (rounded panel, warning icon, title, body), instead of a full-bleed
+  banner. The standalone "X" close icon is replaced by an explicit red "Dismiss notice" button
+  with yellow text, matching the other primary card buttons. Notice text, gold accent
+  (background/border), warning icon, and the existing dismiss persistence are unchanged --
+  only the container and the dismiss control changed. Localized in all 19 supported languages
+  (#517).
+
+## [1.8.19] - Unreleased
+
+### Changed
+- Notification permission card: shorter, more natural copy. Title is now just
+  "Notifications" instead of repeating the app name; the body explains the benefit (seeing
+  whether the background service and Keep-Alive are running), the connection-drop alert, and
+  that Wireless Debugging keeps working without the permission. Button labels rephrased
+  ("Allow notifications" / "Open notification settings"). Permission and fallback logic
+  unchanged, text only. Localized in all supported languages (#516).
+
+## [1.8.18] - Unreleased
+
+### Documentation
+- First-time setup card: explains that with multiple connected ADB devices/emulators, the
+  serial number must first be read from `adb devices` and passed explicitly via
+  `adb -s <device-serial> shell pm grant ...`; the single-device case (plain `adb shell ...`)
+  is kept as a shorter alternative. Also explains the `offline` and `unauthorized` device
+  states directly on the card, with their respective next step. Text localized in all 19
+  supported languages (#515).
+
 ## [1.8.17] - Unreleased
 
 ### Added

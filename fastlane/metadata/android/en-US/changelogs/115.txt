@@ -1,0 +1,3 @@
+Documentation: the first-time setup card now explains what to do when several ADB devices or
+emulators are connected at once, including how to read the correct serial number and target it
+explicitly. It also explains the "offline" and "unauthorized" device states and what to do next.
