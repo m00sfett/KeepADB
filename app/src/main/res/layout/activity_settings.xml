@@ -248,11 +248,9 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- #520: "USB-ADB" outer collapsible card, wrapping the two previously independent
-             top-level USB-ADB Notification and USB -> WLAN-ADB Handover panels (same pattern as
-             #519's Network (Beta) card). Collapsed, only the title is visible; expanding it
-             reveals the two sub-cards below, each still independently collapsible with its own
-             header/body/arrow ids and unchanged notification/handover logic. -->
+        <!-- #520/#529: "USB-ADB" is the only collapsible level for these settings. Collapsed,
+             only the outer title is visible; expanding it reveals the notification and USB ->
+             WLAN-ADB handover sections directly, with no nested header/body/arrow controls. -->
         <LinearLayout
             android:id="@+id/settings_usb_adb_panel"
             android:layout_width="match_parent"
@@ -302,59 +300,29 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-        <!-- USB-ADB Notification Section (#520: nested as a sub-card of the outer USB-ADB card) -->
+        <!-- USB-ADB Notification Section (#529: directly visible inside the outer body) -->
         <LinearLayout
             android:id="@+id/settings_usb_notification_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/settings_usb_notification_header"
+            <TextView
+                android:id="@+id/settings_usb_notification_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_section_usb_notification"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/settings_usb_notification_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="+"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/settings_usb_notification_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:accessibilityHeading="true"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_section_usb_notification"
+                android:textColor="@color/title_yellow"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
                 <Switch
                     android:id="@+id/settings_usb_notification_toggle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:minHeight="48dp"
                     android:fontFamily="sans-serif-condensed"
                     android:text="@string/settings_usb_notification_toggle"
@@ -413,63 +381,37 @@
                     android:textColor="@color/text_yellow"
                     android:textSize="15sp"
                     android:textStyle="bold" />
-            </LinearLayout>
         </LinearLayout>
 
-        <!-- USB -> WLAN-ADB Handover Section (#168; #520: nested as a sub-card of the outer
-             USB-ADB card) -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@color/border_red" />
+
+        <!-- USB -> WLAN-ADB Handover Section (#168/#529: directly visible inside the outer body) -->
         <LinearLayout
             android:id="@+id/settings_usb_handover_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/settings_usb_handover_header"
+            <TextView
+                android:id="@+id/settings_usb_handover_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_section_usb_handover"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/settings_usb_handover_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="+"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/settings_usb_handover_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:accessibilityHeading="true"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_section_usb_handover"
+                android:textColor="@color/title_yellow"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:fontFamily="sans-serif"
                     android:text="@string/settings_usb_handover_subtext"
                     android:textColor="@color/night_muted"
@@ -508,7 +450,6 @@
                         android:textColor="@color/title_yellow"
                         android:textSize="14sp" />
                 </LinearLayout>
-            </LinearLayout>
         </LinearLayout>
 
             </LinearLayout>
@@ -1009,10 +950,9 @@
              "USB-ADB" (#520) cards. Collapsed, only the title is visible; expanding it reveals
              the four notice/display-preference sections (persistent notification, keep-display-
              on, security/network advice banner, battery-optimization advice) directly, one below
-             another, separated by 1dp horizontal divider lines; unlike #519/#520, none of them
-             is its own independently collapsible sub-card here. Each section keeps its own
-             preference key, switch, subtext and defaults untouched; only the surrounding
-             structure changed. -->
+             another, separated by 1dp horizontal divider lines; like #529's USB-ADB sections,
+             none is independently collapsible here. Each section keeps its own preference key,
+             switch, subtext and defaults untouched; only the surrounding structure changed. -->
         <LinearLayout
             android:id="@+id/settings_misc_panel"
             android:layout_width="match_parent"

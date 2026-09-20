@@ -86,6 +86,10 @@ public class MainActivity extends Activity {
         notificationPermissionPanel = findViewById(R.id.notification_permission_panel);
         notificationPermissionActionButton = findViewById(R.id.btn_open_notification_settings);
         notificationPermissionActionButton.setOnClickListener(v -> onNotificationPermissionActionClick());
+        findViewById(R.id.btn_dismiss_notification_permission_panel).setOnClickListener(v -> {
+            KeepADBPreferences.setNotificationPermissionPanelVisible(this, false);
+            refresh();
+        });
         batteryOptimizationPanel = findViewById(R.id.battery_optimization_panel);
         adviceBanner = findViewById(R.id.advice_banner);
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
@@ -258,9 +262,12 @@ public class MainActivity extends Activity {
         boolean notificationPermissionMissing = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED;
+        boolean notificationPermissionPanelVisible = notificationPermissionMissing
+                && KeepADBPreferences.isNotificationPermissionPanelVisible(this);
         setupPanel.setVisibility(configured ? View.GONE : View.VISIBLE);
-        notificationPermissionPanel.setVisibility(notificationPermissionMissing ? View.VISIBLE : View.GONE);
-        if (notificationPermissionMissing) {
+        notificationPermissionPanel.setVisibility(
+                notificationPermissionPanelVisible ? View.VISIBLE : View.GONE);
+        if (notificationPermissionPanelVisible) {
             updateNotificationPermissionPanel();
         }
         // #502: shown only while the system exemption is still missing AND the user has not

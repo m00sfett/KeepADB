@@ -457,8 +457,7 @@ public class SettingsActivityTest {
     // they are permanently visible and never collapse -- so they were removed from this list.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body},
-            {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body},
-            {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body},
+            {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body},
             {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body},
             {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body},
             {R.id.settings_misc_header, R.id.settings_misc_body},
@@ -815,6 +814,111 @@ public class SettingsActivityTest {
     }
 
     /**
+     * #529: USB-ADB notification and handover are direct sections inside one collapsible card.
+     * Opening the outer card must reveal every existing control without another expand target.
+     */
+    @Test
+    public void usbAdbCardShowsBothDirectSectionsAfterOneExpandStep() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        View outerBody = activity.findViewById(R.id.settings_usb_adb_body);
+        TextView outerArrow = activity.findViewById(R.id.settings_usb_adb_arrow);
+        View notificationSection = activity.findViewById(R.id.settings_usb_notification_panel);
+        View handoverSection = activity.findViewById(R.id.settings_usb_handover_panel);
+        TextView notificationTitle =
+                activity.findViewById(R.id.settings_usb_notification_title);
+        TextView handoverTitle = activity.findViewById(R.id.settings_usb_handover_title);
+        int[] directControls = {
+                R.id.settings_usb_notification_toggle,
+                R.id.settings_usb_profile_notification_toggle,
+                R.id.settings_usb_profile_action,
+                R.id.settings_usb_handover_selector,
+        };
+
+        assertEquals(View.GONE, outerBody.getVisibility());
+        assertEquals("+", outerArrow.getText().toString());
+        assertFalse(notificationSection.hasOnClickListeners());
+        assertFalse(handoverSection.hasOnClickListeners());
+        assertFalse(notificationTitle.isClickable());
+        assertFalse(notificationTitle.isFocusable());
+        assertFalse(handoverTitle.isClickable());
+        assertFalse(handoverTitle.isFocusable());
+        assertTrue(notificationTitle.isAccessibilityHeading());
+        assertTrue(handoverTitle.isAccessibilityHeading());
+        for (int id : directControls) {
+            assertFalse("USB-ADB control must stay hidden while the outer card is closed: " + id,
+                    activity.findViewById(id).isShown());
+        }
+
+        activity.findViewById(R.id.settings_usb_adb_header).performClick();
+
+        assertEquals(View.VISIBLE, outerBody.getVisibility());
+        assertEquals("−", outerArrow.getText().toString());
+        for (int id : directControls) {
+            View control = activity.findViewById(id);
+            assertTrue("USB-ADB control must be shown after one outer expand step: " + id,
+                    control.isShown());
+            assertTrue("USB-ADB control must keep its click listener: " + id,
+                    control.hasOnClickListeners());
+        }
+
+        activity.findViewById(R.id.settings_usb_adb_header).performClick();
+        assertEquals(View.GONE, outerBody.getVisibility());
+        assertEquals("+", outerArrow.getText().toString());
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void usbAdbSettingsPersistAcrossActivityRecreation() {
+        ActivityController<SettingsActivity> firstOpen =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity firstActivity = firstOpen.get();
+        firstActivity.findViewById(R.id.settings_usb_adb_header).performClick();
+
+        Switch notificationToggle =
+                firstActivity.findViewById(R.id.settings_usb_notification_toggle);
+        Switch profileNotificationToggle =
+                firstActivity.findViewById(R.id.settings_usb_profile_notification_toggle);
+        assertFalse(notificationToggle.isChecked());
+        assertTrue(profileNotificationToggle.isChecked());
+        notificationToggle.performClick();
+        profileNotificationToggle.performClick();
+
+        firstActivity.findViewById(R.id.settings_usb_handover_selector).performClick();
+        ShadowLooper.idleMainLooper();
+        AlertDialog handoverDialog = ShadowAlertDialog.getLatestAlertDialog();
+        assertNotNull(handoverDialog);
+        shadowOf(handoverDialog).clickOnItem(2);
+        ShadowLooper.idleMainLooper();
+
+        assertTrue(KeepADBUsbProfile.isNotificationEnabled(firstActivity));
+        assertFalse(KeepADBUsbProfile.isProfileNotificationEnabled(firstActivity));
+        assertEquals(KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC,
+                KeepADBPreferences.getUsbWlanHandoverMode(firstActivity));
+        firstOpen.pause().stop().destroy();
+
+        ActivityController<SettingsActivity> secondOpen =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity secondActivity = secondOpen.get();
+        secondActivity.findViewById(R.id.settings_usb_adb_header).performClick();
+
+        assertTrue(((Switch) secondActivity.findViewById(
+                R.id.settings_usb_notification_toggle)).isChecked());
+        assertFalse(((Switch) secondActivity.findViewById(
+                R.id.settings_usb_profile_notification_toggle)).isChecked());
+        assertEquals(secondActivity.getString(R.string.settings_usb_handover_mode_automatic),
+                ((TextView) secondActivity.findViewById(
+                        R.id.settings_usb_handover_selected_text)).getText().toString());
+        assertEquals(secondActivity.getString(R.string.settings_usb_handover_accessibility,
+                        secondActivity.getString(R.string.settings_usb_handover_mode_automatic)),
+                secondActivity.findViewById(
+                        R.id.settings_usb_handover_selector).getContentDescription());
+        secondOpen.pause().stop().destroy();
+    }
+
+    /**
      * #510/#519: Trusted Networks and Wi-Fi &amp; access points are nested as independently
      * collapsible sub-cards inside the "Network (Beta)" card, which is itself collapsible and,
      * once expanded, shows the shared description explaining the relationship and beta status.
@@ -875,9 +979,9 @@ public class SettingsActivityTest {
     /**
      * #510/#521: the four notice/display-preference switches (persistent notification, keep
      * display on, security/network advice banner, battery-optimization advice) are bundled
-     * directly inside the single collapsible "Sonstiges" card -- unlike #519/#520, none of them
-     * is its own independently collapsible sub-card; they all become visible together as soon as
-     * the outer card is expanded.
+     * directly inside the single collapsible "Sonstiges" card. Like #529's USB sections, none
+     * is independently collapsible; they all become visible together as soon as the outer card
+     * is expanded.
      */
     @Test
     public void miscCardBundlesTheFourNoticeSwitchesDirectlyWithoutSubCards() {
