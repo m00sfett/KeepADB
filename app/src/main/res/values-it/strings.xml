@@ -151,6 +151,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_notification_hidden_toast">Notifica permanente disattivata</string>
     <string name="settings_notification_visible_toast">Notifica permanente attivata</string>
     <string name="back">Indietro</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">Notifica USB-ADB</string>
     <string name="settings_usb_notification_toggle">Mostra notifica USB-ADB</string>
     <string name="settings_usb_notification_subtext">Mostra una notifica separata mentre il debug USB è attivo. L’host viene selezionato manualmente.</string>

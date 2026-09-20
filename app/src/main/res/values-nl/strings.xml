@@ -151,6 +151,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_notification_hidden_toast">Permanente melding uitgeschakeld</string>
     <string name="settings_notification_visible_toast">Permanente melding ingeschakeld</string>
     <string name="back">Terug</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">USB-ADB-melding</string>
     <string name="settings_usb_notification_toggle">USB-ADB-melding tonen</string>
     <string name="settings_usb_notification_subtext">Toont een aparte melding zolang USB-foutopsporing actief is. De host wordt handmatig geselecteerd.</string>

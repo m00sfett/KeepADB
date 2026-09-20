@@ -183,6 +183,7 @@
     <string name="settings_notification_hidden_toast">Persistent notification turned off</string>
     <string name="settings_notification_visible_toast">Persistent notification turned on</string>
     <string name="back">Back</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">USB-ADB notification</string>
     <string name="settings_usb_notification_toggle">Show USB-ADB notification</string>
     <string name="settings_usb_notification_subtext">Show a separate notification while USB debugging is active. The host is selected manually.</string>

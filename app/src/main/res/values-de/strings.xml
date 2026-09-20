@@ -181,6 +181,7 @@
     <string name="settings_notification_hidden_toast">Dauerhafte Benachrichtigung ausgeschaltet</string>
     <string name="settings_notification_visible_toast">Dauerhafte Benachrichtigung eingeschaltet</string>
     <string name="back">Zurück</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">USB-ADB-Benachrichtigung</string>
     <string name="settings_usb_notification_toggle">USB-ADB-Benachrichtigung anzeigen</string>
     <string name="settings_usb_notification_subtext">Zeigt bei aktivem USB-Debugging eine separate Benachrichtigung. Der Host wird manuell ausgewählt.</string>

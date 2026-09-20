@@ -144,9 +144,12 @@ public class SettingsActivity extends Activity {
     // header/body/arrow of its own. #519: the former "Network (Beta)" heading is now itself a
     // real collapsible card (settings_network_beta_header/body/arrow below), containing two
     // independently collapsible sub-cards -- Trusted Networks and Wi-Fi & access points -- each
-    // still with its own header/body/arrow entry in this same table.
+    // still with its own header/body/arrow entry in this same table. #520: the same treatment
+    // now applies to "USB-ADB" (settings_usb_adb_header/body/arrow below), containing the two
+    // previously top-level USB-ADB Notification and USB -> WLAN-ADB Handover sub-cards.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
+            {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body, R.id.settings_usb_adb_arrow},
             {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body,
                     R.id.settings_usb_notification_arrow},
             {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body, R.id.settings_usb_handover_arrow},

@@ -151,6 +151,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_notification_hidden_toast">Постоянное уведомление отключено</string>
     <string name="settings_notification_visible_toast">Постоянное уведомление включено</string>
     <string name="back">Назад</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">Уведомление USB-ADB</string>
     <string name="settings_usb_notification_toggle">Показывать уведомление USB-ADB</string>
     <string name="settings_usb_notification_subtext">Показывать отдельное уведомление при активной отладке по USB. Хост выбирается вручную.</string>

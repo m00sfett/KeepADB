@@ -151,6 +151,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_notification_hidden_toast">고정 알림이 꺼졌습니다</string>
     <string name="settings_notification_visible_toast">고정 알림이 켜졌습니다</string>
     <string name="back">뒤로</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">USB-ADB 알림</string>
     <string name="settings_usb_notification_toggle">USB-ADB 알림 표시</string>
     <string name="settings_usb_notification_subtext">USB 디버깅이 활성화된 동안 별도의 알림을 표시합니다. 호스트는 수동으로 선택합니다.</string>

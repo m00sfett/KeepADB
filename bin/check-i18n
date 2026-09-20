@@ -77,6 +77,7 @@ ALLOWLIST = {
     "settings_webhook_url_hint": ALL_LANGUAGES,  # technical URL example, not prose
     "settings_website_link": ALL_LANGUAGES,      # domain name, not prose
     "issue_report_placeholder_steps": ALL_LANGUAGES,  # deliberately empty string
+    "settings_section_usb_adb": ALL_LANGUAGES,   # protocol term "USB-ADB", not prose (#520)
 
     # -- Loanwords and technical terms, cleared per language (#236) --
     # "Webhook": kept verbatim inside otherwise translated surroundings

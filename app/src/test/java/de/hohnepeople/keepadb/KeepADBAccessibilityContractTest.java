@@ -124,6 +124,7 @@ public class KeepADBAccessibilityContractTest {
                 R.id.btn_back, R.id.settings_language_toolbar_button,
                 R.id.settings_webhook_header, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_url, R.id.settings_webhook_clear, R.id.settings_webhook_save,
+                R.id.settings_usb_adb_header,
                 R.id.settings_usb_notification_header, R.id.settings_usb_notification_toggle,
                 R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_header,
@@ -170,6 +171,9 @@ public class KeepADBAccessibilityContractTest {
     private void expandAllSettingsCards(View settings) {
         int[] headers = {
                 R.id.settings_webhook_header,
+                // #520: the outer "USB-ADB" card must be expanded first -- its sub-cards'
+                // headers are only clickable/measurable once its body is VISIBLE.
+                R.id.settings_usb_adb_header,
                 R.id.settings_usb_notification_header, R.id.settings_usb_handover_header,
                 // #519: the outer "Network (Beta)" card must be expanded first -- its
                 // sub-cards' headers are only clickable/measurable once its body is VISIBLE.
@@ -384,17 +388,18 @@ public class KeepADBAccessibilityContractTest {
         View settings = runtimeView(R.layout.activity_settings);
         ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
                 settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
-        // #510/#519: the core, everyday ADB settings (webhook, USB-ADB notification, USB
-        // handover) come first. Below them sits the "Network (Beta)" card -- itself collapsible
-        // since #519, with Trusted Networks and Wi-Fi & access points nested as independently
-        // collapsible sub-cards inside its body -- then the shared "Other" group heading with
-        // the four notice/display-preference cards grouped underneath it.
+        // #510/#519/#520: the core, everyday ADB settings start with the webhook card, then the
+        // "USB-ADB" card -- itself collapsible since #520, with USB-ADB notification and USB ->
+        // WLAN-ADB handover nested as independently collapsible sub-cards inside its body.
+        // Below that sits the "Network (Beta)" card -- itself collapsible since #519, with
+        // Trusted Networks and Wi-Fi & access points nested as independently collapsible
+        // sub-cards inside its body -- then the shared "Other" group heading with the four
+        // notice/display-preference cards grouped underneath it.
         // #518: the language panel no longer exists in this content column at all -- it moved to
         // the compact toolbar button in the header -- so it is no longer part of this table.
         int[] panels = {
                 R.id.settings_webhook_panel,
-                R.id.settings_usb_notification_panel,
-                R.id.settings_usb_handover_panel,
+                R.id.settings_usb_adb_panel,
                 R.id.settings_network_beta_panel,
                 R.id.settings_misc_group_panel,
                 R.id.settings_notification_panel,
@@ -412,6 +417,19 @@ public class KeepADBAccessibilityContractTest {
             assertTrue("Settings panel is out of product order: " + panelId, current > previous);
             previous = current;
         }
+
+        // #520: USB-ADB notification and USB -> WLAN-ADB handover are no longer direct children
+        // of the settings content column -- they are nested sub-cards inside the "USB-ADB"
+        // card's body, so their relative order is checked within that body instead.
+        ViewGroup usbAdbBody = content.findViewById(R.id.settings_usb_adb_body);
+        assertNotNull(usbAdbBody);
+        View usbNotificationPanel = usbAdbBody.findViewById(R.id.settings_usb_notification_panel);
+        View usbHandoverPanel = usbAdbBody.findViewById(R.id.settings_usb_handover_panel);
+        assertNotNull(usbNotificationPanel);
+        assertNotNull(usbHandoverPanel);
+        assertTrue("USB-ADB notification must come before USB -> WLAN-ADB handover inside USB-ADB",
+                usbAdbBody.indexOfChild(usbNotificationPanel)
+                        < usbAdbBody.indexOfChild(usbHandoverPanel));
 
         // #519: Trusted Networks and Wi-Fi & access points are no longer direct children of the
         // settings content column -- they are nested sub-cards inside the "Network (Beta)"

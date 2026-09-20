@@ -22,12 +22,22 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
-## [1.8.22] - Unreleased
+## [1.8.23] - Unreleased
 
 Note: this and the following sections down to `1.8.21` (#518-#521) were developed on a branch
 that originally started counting from `1.8.18`/115, in parallel with the `1.8.18`-`1.8.20`/
 115-117 sequence below (#515-#517), which merged to `master` first. Renumbered on integration
 so the version sequence stays linear and non-colliding; no functional content changed.
+
+### Changed
+- USB-ADB restructured into a collapsible outer card with two independently collapsible
+  sub-cards: the previously separate, top-level "USB-ADB notification" and "USB → WLAN-ADB
+  Handover" cards now nest inside a single "USB-ADB" card, collapsed by default, matching the
+  same collapse pattern introduced for Network (Beta) (#519). Both sub-cards keep their own
+  independent expand state and unchanged notification/handover logic. Purely a UI/structure
+  refactor -- no change to defaults, preferences, or behavior (#520).
+
+## [1.8.22] - Unreleased
 
 ### Changed
 - Network (Beta) restructured into a collapsible outer card with two independently collapsible

@@ -151,6 +151,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_notification_hidden_toast">स्थायी सूचना बंद की गई</string>
     <string name="settings_notification_visible_toast">स्थायी सूचना चालू की गई</string>
     <string name="back">वापस</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">USB-ADB सूचना</string>
     <string name="settings_usb_notification_toggle">USB-ADB सूचना दिखाएँ</string>
     <string name="settings_usb_notification_subtext">USB डीबगिंग सक्रिय होने पर अलग सूचना दिखाएँ। होस्ट को मैन्युअल रूप से चुना जाता है।</string>

@@ -151,6 +151,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_notification_hidden_toast">Kalıcı bildirim kapatıldı</string>
     <string name="settings_notification_visible_toast">Kalıcı bildirim açıldı</string>
     <string name="back">Geri</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">USB-ADB bildirimi</string>
     <string name="settings_usb_notification_toggle">USB-ADB bildirimini göster</string>
     <string name="settings_usb_notification_subtext">USB hata ayıklama etkinken ayrı bir bildirim gösterir. Ana bilgisayar manuel olarak seçilir.</string>
