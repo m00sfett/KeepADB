@@ -25,8 +25,10 @@ public class KeepADBVersionContractTest {
         assertTrue(layout.contains("android:id=\"@+id/settings_version_code\""));
         assertTrue(layout.contains("android:text=\"@string/settings_section_version\""));
         int versionPanelIndex = layout.indexOf("android:id=\"@+id/settings_version_panel\"");
-        int languagePanelIndex = layout.indexOf("settings_language_panel");
-        assertTrue(languagePanelIndex >= 0 && languagePanelIndex < versionPanelIndex);
+        // #518: the language section moved out of the content column into the compact toolbar
+        // button in the header, so it now sits before the version panel by construction.
+        int languageToolbarButtonIndex = layout.indexOf("settings_language_toolbar_button");
+        assertTrue(languageToolbarButtonIndex >= 0 && languageToolbarButtonIndex < versionPanelIndex);
         assertTrue(layout.indexOf("</LinearLayout>\n\n    </LinearLayout>", versionPanelIndex) > versionPanelIndex);
         assertTrue(activity.contains("getPackageManager().getPackageInfo(getPackageName(), 0)"));
         assertTrue(activity.contains("bindVersionInfo();"));

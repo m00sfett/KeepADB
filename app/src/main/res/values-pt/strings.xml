@@ -136,10 +136,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_deregistered">desregistrado</string>
     <string name="webhook_status_failed">falhou</string>
     <string name="settings_permission_warning">Permissão do sistema WRITE_SECURE_SETTINGS ausente. O KeepADB não pode alternar a depuração sem fio até que a permissão seja concedida.</string>
-    <string name="settings_section_language">Idioma</string>
     <string name="settings_language_label">Idioma do aplicativo</string>
     <string name="settings_language_accessibility">Idioma do aplicativo: %1$s</string>
-    <string name="settings_language_subtext">Escolha o idioma da interface para o KeepADB</string>
     <string name="settings_language_system_default">Padrão do sistema</string>
     <string name="settings_language_dialog_title">Selecionar idioma</string>
     <string name="settings_section_misc">Outros</string>
@@ -153,6 +151,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_notification_hidden_toast">Notificação persistente desativada</string>
     <string name="settings_notification_visible_toast">Notificação persistente ativada</string>
     <string name="back">Voltar</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">Notificação USB-ADB</string>
     <string name="settings_usb_notification_toggle">Mostrar notificação USB-ADB</string>
     <string name="settings_usb_notification_subtext">Mostrar uma notificação separada enquanto a depuração USB estiver ativa. O host é selecionado manualmente.</string>

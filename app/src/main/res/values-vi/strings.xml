@@ -136,10 +136,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_deregistered">đã hủy đăng ký</string>
     <string name="webhook_status_failed">thất bại</string>
     <string name="settings_permission_warning">Thiếu quyền hệ thống WRITE_SECURE_SETTINGS. KeepADB không thể chuyển đổi Gỡ lỗi không dây cho đến khi được cấp quyền.</string>
-    <string name="settings_section_language">Ngôn ngữ</string>
     <string name="settings_language_label">Ngôn ngữ ứng dụng</string>
     <string name="settings_language_accessibility">Ngôn ngữ ứng dụng: %1$s</string>
-    <string name="settings_language_subtext">Chọn ngôn ngữ giao diện cho KeepADB</string>
     <string name="settings_language_system_default">Mặc định hệ thống</string>
     <string name="settings_language_dialog_title">Chọn ngôn ngữ</string>
     <string name="settings_section_misc">Khác</string>
@@ -153,6 +151,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_notification_hidden_toast">Đã tắt thông báo liên tục</string>
     <string name="settings_notification_visible_toast">Đã bật thông báo liên tục</string>
     <string name="back">Quay lại</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">Thông báo USB-ADB</string>
     <string name="settings_usb_notification_toggle">Hiện thông báo USB-ADB</string>
     <string name="settings_usb_notification_subtext">Hiện thông báo riêng khi gỡ lỗi USB đang hoạt động. Máy chủ được chọn thủ công.</string>

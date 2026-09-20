@@ -1,0 +1,3 @@
+Changed: USB-ADB is now a collapsible card with two independent sub-cards inside --
+USB-ADB notification and USB → WLAN-ADB Handover -- instead of two separate top-level
+cards. Same features, same defaults, just tidier when collapsed.

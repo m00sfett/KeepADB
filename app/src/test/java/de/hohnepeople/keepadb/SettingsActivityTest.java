@@ -301,7 +301,7 @@ public class SettingsActivityTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        View languageSelector = activity.findViewById(R.id.settings_language_selector);
+        View languageSelector = activity.findViewById(R.id.settings_language_toolbar_button);
         assertNotNull(languageSelector);
         String currentLanguageTag = KeepADBLocaleHelper.getSelectedLanguageTag(activity);
         String languageDisplayName = KeepADBLocaleHelper.getLanguageDisplayName(activity, currentLanguageTag);
@@ -331,7 +331,7 @@ public class SettingsActivityTest {
                 .putExtra("adb", true);
         RuntimeEnvironment.getApplication().sendStickyBroadcast(stickyUsbState);
 
-        activity.findViewById(R.id.settings_language_selector).performClick();
+        activity.findViewById(R.id.settings_language_toolbar_button).performClick();
         ShadowLooper.idleMainLooper();
 
         AlertDialog dialog = (AlertDialog) org.robolectric.shadows.ShadowDialog.getLatestDialog();
@@ -461,11 +461,7 @@ public class SettingsActivityTest {
             {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body},
             {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body},
             {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body},
-            {R.id.settings_notification_header, R.id.settings_notification_body},
-            {R.id.settings_display_header, R.id.settings_display_body},
-            {R.id.settings_advice_banner_header, R.id.settings_advice_banner_body},
-            {R.id.settings_battery_optimization_panel_header,
-                    R.id.settings_battery_optimization_panel_body},
+            {R.id.settings_misc_header, R.id.settings_misc_body},
             {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body},
     };
 
@@ -545,31 +541,26 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #478: the first (language) and last (version) settings entries are pinned -- always
-     * visible and never collapsible -- unlike every other card in {@link #COLLAPSIBLE_CARDS}.
+     * #478: the last (version) settings entry is pinned -- always visible and never collapsible
+     * -- unlike every other card in {@link #COLLAPSIBLE_CARDS}. #518: the former language entry
+     * was removed from this content column entirely (it is now the toolbar button in the
+     * header), so it is no longer part of this contract.
      */
     @Test
-    public void languageAndVersionCardsArePermanentlyVisibleAndDoNotCollapse() {
+    public void versionCardIsPermanentlyVisibleAndDoesNotCollapse() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        View languageBody = activity.findViewById(R.id.settings_language_body);
         View versionBody = activity.findViewById(R.id.settings_version_body);
-        View languageHeader = activity.findViewById(R.id.settings_language_header);
         View versionHeader = activity.findViewById(R.id.settings_version_header);
 
-        assertEquals(View.VISIBLE, languageBody.getVisibility());
         assertEquals(View.VISIBLE, versionBody.getVisibility());
-        assertFalse("Language header must not be clickable -- it no longer collapses",
-                languageHeader.hasOnClickListeners());
         assertFalse("Version header must not be clickable -- it no longer collapses",
                 versionHeader.hasOnClickListeners());
 
-        // Clicking the (non-interactive) header rows must not toggle anything.
-        languageHeader.performClick();
+        // Clicking the (non-interactive) header row must not toggle anything.
         versionHeader.performClick();
-        assertEquals(View.VISIBLE, languageBody.getVisibility());
         assertEquals(View.VISIBLE, versionBody.getVisibility());
 
         controller.pause().stop().destroy();
@@ -824,10 +815,11 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #510: Trusted Networks and Wi-Fi &amp; access points are grouped under a shared
-     * "Network (Beta)" heading that sits between them and explains the relationship and beta
-     * status, while both features stay independently collapsible and both carry their own
-     * "BETA" badge -- previously only the Wi-Fi &amp; access points card had one.
+     * #510/#519: Trusted Networks and Wi-Fi &amp; access points are nested as independently
+     * collapsible sub-cards inside the "Network (Beta)" card, which is itself collapsible and,
+     * once expanded, shows the shared description explaining the relationship and beta status.
+     * Both sub-cards stay independently collapsible and both carry their own "BETA" badge --
+     * previously only the Wi-Fi &amp; access points card had one.
      */
     @Test
     public void networkBetaGroupHeadingIntroducesBothBetaFeaturesConsistently() {
@@ -835,9 +827,16 @@ public class SettingsActivityTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        View groupHeading = activity.findViewById(R.id.settings_network_beta_group_panel);
-        assertNotNull(groupHeading);
-        assertEquals(View.VISIBLE, groupHeading.getVisibility());
+        View outerPanel = activity.findViewById(R.id.settings_network_beta_panel);
+        assertNotNull(outerPanel);
+        assertEquals(View.VISIBLE, outerPanel.getVisibility());
+
+        // #519: the outer card itself starts collapsed, like every other collapsible card, and
+        // must be expanded before its description and sub-cards become reachable.
+        View outerBody = activity.findViewById(R.id.settings_network_beta_body);
+        assertEquals(View.GONE, outerBody.getVisibility());
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
+        assertEquals(View.VISIBLE, outerBody.getVisibility());
 
         TextView groupSubtext = activity.findViewById(R.id.settings_network_beta_group_subtext);
         assertNotNull(groupSubtext);
@@ -874,44 +873,43 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #510: the four notice/display-preference cards (persistent notification, keep display on,
-     * security/network advice banner, battery-optimization advice) are bundled under a shared
-     * "Other" heading, but each keeps its own independent collapsible card and preference key.
+     * #510/#521: the four notice/display-preference switches (persistent notification, keep
+     * display on, security/network advice banner, battery-optimization advice) are bundled
+     * directly inside the single collapsible "Sonstiges" card -- unlike #519/#520, none of them
+     * is its own independently collapsible sub-card; they all become visible together as soon as
+     * the outer card is expanded.
      */
     @Test
-    public void miscGroupHeadingBundlesTheFourNoticeCardsWhileKeepingThemIndependentlyCollapsible() {
+    public void miscCardBundlesTheFourNoticeSwitchesDirectlyWithoutSubCards() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        View groupHeading = activity.findViewById(R.id.settings_misc_group_panel);
-        assertNotNull(groupHeading);
-        assertEquals(View.VISIBLE, groupHeading.getVisibility());
+        View outerPanel = activity.findViewById(R.id.settings_misc_panel);
+        assertNotNull(outerPanel);
+        assertEquals(View.VISIBLE, outerPanel.getVisibility());
 
-        int[] miscBodies = {
-                R.id.settings_notification_body,
-                R.id.settings_display_body,
-                R.id.settings_advice_banner_body,
-                R.id.settings_battery_optimization_panel_body,
+        View outerBody = activity.findViewById(R.id.settings_misc_body);
+        assertEquals(View.GONE, outerBody.getVisibility());
+
+        int[] miscSwitches = {
+                R.id.settings_hide_notification_toggle,
+                R.id.settings_keep_display_on_toggle,
+                R.id.settings_advice_banner_toggle,
+                R.id.settings_battery_optimization_panel_toggle,
         };
-        for (int id : miscBodies) {
-            assertEquals("Body must start collapsed: " + id,
-                    View.GONE, activity.findViewById(id).getVisibility());
+        for (int id : miscSwitches) {
+            assertNotNull("Switch must exist before expansion: " + id, activity.findViewById(id));
         }
 
-        int[] miscHeaders = {
-                R.id.settings_notification_header,
-                R.id.settings_display_header,
-                R.id.settings_advice_banner_header,
-                R.id.settings_battery_optimization_panel_header,
-        };
-        for (int i = 0; i < miscHeaders.length; i++) {
-            activity.findViewById(miscHeaders[i]).performClick();
-            for (int j = 0; j < miscBodies.length; j++) {
-                int expected = (j <= i) ? View.VISIBLE : View.GONE;
-                assertEquals("Card " + j + " expand state must be independent after expanding card " + i,
-                        expected, activity.findViewById(miscBodies[j]).getVisibility());
-            }
+        activity.findViewById(R.id.settings_misc_header).performClick();
+        assertEquals(View.VISIBLE, outerBody.getVisibility());
+
+        // All four switches must become visible together, with no further click needed -- there
+        // is exactly one expand step, not one per section (acceptance criterion 2).
+        for (int id : miscSwitches) {
+            assertTrue("Switch must be shown once the outer card is expanded: " + id,
+                    activity.findViewById(id).isShown());
         }
     }
 

@@ -136,10 +136,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_deregistered">реєстрацію скасовано</string>
     <string name="webhook_status_failed">помилка</string>
     <string name="settings_permission_warning">Відсутній системний дозвіл WRITE_SECURE_SETTINGS. KeepADB не може перемикати бездротове налагодження до надання дозволу.</string>
-    <string name="settings_section_language">Мова</string>
     <string name="settings_language_label">Мова програми</string>
     <string name="settings_language_accessibility">Мова програми: %1$s</string>
-    <string name="settings_language_subtext">Виберіть мову інтерфейсу для KeepADB</string>
     <string name="settings_language_system_default">Системна за замовчуванням</string>
     <string name="settings_language_dialog_title">Виберіть мову</string>
     <string name="settings_section_misc">Інше</string>
@@ -153,6 +151,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_notification_hidden_toast">Постійне сповіщення вимкнено</string>
     <string name="settings_notification_visible_toast">Постійне сповіщення увімкнено</string>
     <string name="back">Назад</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">Сповіщення USB-ADB</string>
     <string name="settings_usb_notification_toggle">Показувати сповіщення USB-ADB</string>
     <string name="settings_usb_notification_subtext">Показувати окреме сповіщення, коли налагодження через USB активне. Хост вибирається вручну.</string>

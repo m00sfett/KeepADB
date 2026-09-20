@@ -22,6 +22,57 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.24] - Unreleased
+
+Note: this and the following sections down to `1.8.21` (#518-#521) were developed on a branch
+that originally started counting from `1.8.18`/115, in parallel with the `1.8.18`-`1.8.20`/
+115-117 sequence below (#515-#517), which merged to `master` first. Renumbered on integration
+so the version sequence stays linear and non-colliding; no functional content changed.
+
+### Changed
+- "Sonstiges" restructured into a single collapsible card: the former plain, permanently visible
+  "Sonstiges" group heading (#510) is now itself an expand/collapse card like every other
+  settings section. Unlike Network (Beta) (#519) and USB-ADB (#520), its four contained sections
+  -- persistent notification, keep display on, security/network advice banner, and battery-
+  optimization advice -- are not independently collapsible sub-cards; they appear directly, one
+  below another, separated by horizontal divider lines, as soon as the outer card is expanded.
+  Purely a UI/structure refactor -- no change to defaults, preferences, or the underlying
+  notification/display/advice logic (#521).
+
+## [1.8.23] - Unreleased
+
+### Changed
+- USB-ADB restructured into a collapsible outer card with two independently collapsible
+  sub-cards: the previously separate, top-level "USB-ADB notification" and "USB → WLAN-ADB
+  Handover" cards now nest inside a single "USB-ADB" card, collapsed by default, matching the
+  same collapse pattern introduced for Network (Beta) (#519). Both sub-cards keep their own
+  independent expand state and unchanged notification/handover logic. Purely a UI/structure
+  refactor -- no change to defaults, preferences, or behavior (#520).
+
+## [1.8.22] - Unreleased
+
+### Changed
+- Network (Beta) restructured into a collapsible outer card with two independently collapsible
+  sub-cards: the former plain, permanently visible "Network (Beta)" group heading (#510) is now
+  itself an expand/collapse card like every other settings section, and only shows its
+  description once opened. Trusted Networks and Wi-Fi & access points move from being direct
+  siblings under that heading to nested sub-cards inside its body, each keeping its own
+  independent expand state, beta badge, and opt-in switch. Purely a UI/structure refactor --
+  no change to defaults, preferences, or the underlying trusted-network/Wi-Fi detection logic
+  (#519).
+
+## [1.8.21] - Unreleased
+
+### Changed
+- Language selector moved to the Settings toolbar: replaced the large Language section in the
+  Settings content column with a compact translate icon button in the top-right of the header.
+  Tapping it opens the same language selection dialog as before (all supported languages, each
+  shown in its own endonym, "System default" first); the underlying selection/storage logic in
+  `KeepADBLocaleHelper`/`KeepADBPreferences` is unchanged. The icon is a newly drawn "A" +
+  stylized CJK-character glyph (a self-authored AOSP vector drawable, `ic_translate.xml`),
+  replacing the old `ic_globe` icon, which rendered as a near-blank ellipse at small size and
+  was being reused unchanged from the previous large-card layout (#518).
+
 ## [1.8.20] - Unreleased
 
 ### Changed

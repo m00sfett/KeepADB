@@ -121,9 +121,10 @@ public class KeepADBAccessibilityContractTest {
         for (int id : mainControls) assertMinSize(main.findViewById(id));
 
         int[] settingsControls = {
-                R.id.btn_back, R.id.settings_language_selector,
+                R.id.btn_back, R.id.settings_language_toolbar_button,
                 R.id.settings_webhook_header, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_url, R.id.settings_webhook_clear, R.id.settings_webhook_save,
+                R.id.settings_usb_adb_header,
                 R.id.settings_usb_notification_header, R.id.settings_usb_notification_toggle,
                 R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_header,
@@ -131,11 +132,10 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_feature_toggle,
                 R.id.settings_trusted_network_header, R.id.settings_trusted_network_toggle,
                 R.id.settings_trusted_ssid_toggle,
-                R.id.settings_notification_header,
+                R.id.settings_misc_header,
                 R.id.settings_hide_notification_toggle,
-                R.id.settings_display_header, R.id.settings_keep_display_on_toggle,
-                R.id.settings_advice_banner_header, R.id.settings_advice_banner_toggle,
-                R.id.settings_battery_optimization_panel_header,
+                R.id.settings_keep_display_on_toggle,
+                R.id.settings_advice_banner_toggle,
                 R.id.settings_battery_optimization_panel_toggle,
                 R.id.settings_diagnostics_header,
                 R.id.settings_diagnostics_export, R.id.settings_issue_report,
@@ -170,11 +170,19 @@ public class KeepADBAccessibilityContractTest {
     private void expandAllSettingsCards(View settings) {
         int[] headers = {
                 R.id.settings_webhook_header,
+                // #520: the outer "USB-ADB" card must be expanded first -- its sub-cards'
+                // headers are only clickable/measurable once its body is VISIBLE.
+                R.id.settings_usb_adb_header,
                 R.id.settings_usb_notification_header, R.id.settings_usb_handover_header,
+                // #519: the outer "Network (Beta)" card must be expanded first -- its
+                // sub-cards' headers are only clickable/measurable once its body is VISIBLE.
+                R.id.settings_network_beta_header,
                 R.id.settings_wifi_aps_header,
-                R.id.settings_trusted_network_header, R.id.settings_notification_header,
-                R.id.settings_display_header, R.id.settings_advice_banner_header,
-                R.id.settings_battery_optimization_panel_header,
+                R.id.settings_trusted_network_header,
+                // #521: the outer "Sonstiges" card must be expanded to make its four directly
+                // nested sections' controls measurable/reachable -- unlike #519/#520, they are
+                // not independently collapsible sub-cards with headers of their own.
+                R.id.settings_misc_header,
                 R.id.settings_diagnostics_header
         };
         for (int id : headers) settings.findViewById(id).performClick();
@@ -226,7 +234,7 @@ public class KeepADBAccessibilityContractTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity settings = settingsController.get();
         int[] settingsControls = {
-                R.id.btn_back, R.id.settings_language_selector, R.id.settings_webhook_toggle,
+                R.id.btn_back, R.id.settings_language_toolbar_button, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_notification_toggle, R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
@@ -252,7 +260,7 @@ public class KeepADBAccessibilityContractTest {
         String languageTag = KeepADBLocaleHelper.getSelectedLanguageTag(settings);
         String languageName = KeepADBLocaleHelper.getLanguageDisplayName(settings, languageTag);
         assertEquals(settings.getString(R.string.settings_language_accessibility, languageName),
-                settings.findViewById(R.id.settings_language_selector).getContentDescription());
+                settings.findViewById(R.id.settings_language_toolbar_button).getContentDescription());
         assertEquals(settings.getString(R.string.settings_usb_handover_accessibility,
                         settings.getString(R.string.settings_usb_handover_mode_off)),
                 settings.findViewById(R.id.settings_usb_handover_selector).getContentDescription());
@@ -286,9 +294,9 @@ public class KeepADBAccessibilityContractTest {
                 context.getString(R.string.battery_optimization_title));
         assertHasText(main.findViewById(R.id.battery_optimization_panel),
                 context.getString(R.string.battery_optimization_body));
-        assertHasText(settings.findViewById(R.id.settings_notification_panel),
+        assertHasText(settings.findViewById(R.id.settings_misc_panel),
                 context.getString(R.string.settings_section_notification));
-        assertHasText(settings.findViewById(R.id.settings_notification_panel),
+        assertHasText(settings.findViewById(R.id.settings_misc_panel),
                 context.getString(R.string.settings_hide_notification_toggle));
         assertHasText(settings.findViewById(R.id.settings_usb_notification_panel),
                 context.getString(R.string.settings_section_usb_notification));
@@ -381,23 +389,21 @@ public class KeepADBAccessibilityContractTest {
         View settings = runtimeView(R.layout.activity_settings);
         ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
                 settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
-        // #510: the core, everyday ADB settings (webhook, USB-ADB notification, USB handover)
-        // come first. Below them sits the shared "Network (Beta)" group heading with Trusted
-        // Networks and Wi-Fi & access points grouped underneath it, then the shared "Other"
-        // group heading with the four notice/display-preference cards grouped underneath it.
+        // #510/#519/#520/#521: the core, everyday ADB settings start with the webhook card, then
+        // the "USB-ADB" card -- itself collapsible since #520, with USB-ADB notification and
+        // USB -> WLAN-ADB handover nested as independently collapsible sub-cards inside its body.
+        // Below that sits the "Network (Beta)" card -- itself collapsible since #519, with
+        // Trusted Networks and Wi-Fi & access points nested as independently collapsible
+        // sub-cards inside its body -- then the "Sonstiges" card, itself collapsible since #521,
+        // with the four notice/display-preference sections shown directly inside its body
+        // (not as independently collapsible sub-cards, unlike #519/#520).
+        // #518: the language panel no longer exists in this content column at all -- it moved to
+        // the compact toolbar button in the header -- so it is no longer part of this table.
         int[] panels = {
-                R.id.settings_language_panel,
                 R.id.settings_webhook_panel,
-                R.id.settings_usb_notification_panel,
-                R.id.settings_usb_handover_panel,
-                R.id.settings_network_beta_group_panel,
-                R.id.settings_trusted_network_panel,
-                R.id.settings_wifi_aps_panel,
-                R.id.settings_misc_group_panel,
-                R.id.settings_notification_panel,
-                R.id.settings_display_panel,
-                R.id.settings_advice_banner_panel,
-                R.id.settings_battery_optimization_panel_panel,
+                R.id.settings_usb_adb_panel,
+                R.id.settings_network_beta_panel,
+                R.id.settings_misc_panel,
                 R.id.settings_diagnostics_panel,
                 R.id.settings_version_panel
         };
@@ -409,6 +415,56 @@ public class KeepADBAccessibilityContractTest {
             assertTrue("Settings panel is out of product order: " + panelId, current > previous);
             previous = current;
         }
+
+        // #520: USB-ADB notification and USB -> WLAN-ADB handover are no longer direct children
+        // of the settings content column -- they are nested sub-cards inside the "USB-ADB"
+        // card's body, so their relative order is checked within that body instead.
+        ViewGroup usbAdbBody = content.findViewById(R.id.settings_usb_adb_body);
+        assertNotNull(usbAdbBody);
+        View usbNotificationPanel = usbAdbBody.findViewById(R.id.settings_usb_notification_panel);
+        View usbHandoverPanel = usbAdbBody.findViewById(R.id.settings_usb_handover_panel);
+        assertNotNull(usbNotificationPanel);
+        assertNotNull(usbHandoverPanel);
+        assertTrue("USB-ADB notification must come before USB -> WLAN-ADB handover inside USB-ADB",
+                usbAdbBody.indexOfChild(usbNotificationPanel)
+                        < usbAdbBody.indexOfChild(usbHandoverPanel));
+
+        // #519: Trusted Networks and Wi-Fi & access points are no longer direct children of the
+        // settings content column -- they are nested sub-cards inside the "Network (Beta)"
+        // card's body, so their relative order is checked within that body instead.
+        ViewGroup networkBetaBody = content.findViewById(R.id.settings_network_beta_body);
+        assertNotNull(networkBetaBody);
+        View trustedNetworkPanel = networkBetaBody.findViewById(R.id.settings_trusted_network_panel);
+        View wifiApsPanel = networkBetaBody.findViewById(R.id.settings_wifi_aps_panel);
+        assertNotNull(trustedNetworkPanel);
+        assertNotNull(wifiApsPanel);
+        assertTrue("Trusted Networks must come before Wi-Fi & access points inside Network (Beta)",
+                networkBetaBody.indexOfChild(trustedNetworkPanel)
+                        < networkBetaBody.indexOfChild(wifiApsPanel));
+
+        // #521: persistent notification, keep-display-on, advice-banner and battery-optimization
+        // are no longer direct children of the settings content column either -- they sit
+        // directly inside the "Sonstiges" card's body (not as sub-cards with their own panel ids
+        // like USB-ADB/Network (Beta) above), so their relative order is checked by switch id
+        // within that body instead.
+        ViewGroup miscBody = content.findViewById(R.id.settings_misc_body);
+        assertNotNull(miscBody);
+        View hideNotificationToggle = miscBody.findViewById(R.id.settings_hide_notification_toggle);
+        View keepDisplayOnToggle = miscBody.findViewById(R.id.settings_keep_display_on_toggle);
+        View adviceBannerToggle = miscBody.findViewById(R.id.settings_advice_banner_toggle);
+        View batteryOptimizationPanelToggle =
+                miscBody.findViewById(R.id.settings_battery_optimization_panel_toggle);
+        assertNotNull(hideNotificationToggle);
+        assertNotNull(keepDisplayOnToggle);
+        assertNotNull(adviceBannerToggle);
+        assertNotNull(batteryOptimizationPanelToggle);
+        assertTrue("Persistent notification must come before keep-display-on inside Sonstiges",
+                miscBody.indexOfChild(hideNotificationToggle) < miscBody.indexOfChild(keepDisplayOnToggle));
+        assertTrue("Keep-display-on must come before the advice banner inside Sonstiges",
+                miscBody.indexOfChild(keepDisplayOnToggle) < miscBody.indexOfChild(adviceBannerToggle));
+        assertTrue("Advice banner must come before battery-optimization advice inside Sonstiges",
+                miscBody.indexOfChild(adviceBannerToggle)
+                        < miscBody.indexOfChild(batteryOptimizationPanelToggle));
     }
 
     @Test

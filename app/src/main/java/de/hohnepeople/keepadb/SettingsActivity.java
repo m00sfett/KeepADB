@@ -48,8 +48,7 @@ public class SettingsActivity extends Activity {
     private ScrollView scrollView;
     private View webhookPanel;
     private View permissionPanel;
-    private TextView languageSelectedText;
-    private View languageSelector;
+    private View languageToolbarButton;
 
     private Switch hideNotificationToggle;
     private TextView hideNotificationSubtext;
@@ -135,29 +134,36 @@ public class SettingsActivity extends Activity {
     // settings page is opened -- is always collapsed again, per the #471 acceptance criteria.
     // The permission-warning panel is deliberately excluded: it is a conditional safety notice,
     // not a configurable option card, and stays fully visible whenever it is shown at all.
-    // #478: the language card (first) and the version card (last) are excluded here too -- they
-    // are now permanently visible, non-collapsible entries pinned directly on the background,
-    // with neither an arrow nor a click listener on their header.
-    // #510: order below now matches the on-screen order -- Trusted Networks and Wi-Fi & access
-    // points sit together under the shared "Network (Beta)" heading, and Notification/Display/
-    // Advice-Banner/Battery-Optimization sit together under the shared "Other" heading. Both
-    // group headings are plain, permanently visible labels (like Language/Version) and are not
-    // part of this table -- they have no header/body/arrow of their own.
+    // #478: the version card (last) is excluded here too -- it is a permanently visible,
+    // non-collapsible entry pinned directly on the background, with neither an arrow nor a click
+    // listener on its header. #518: the former language card was removed from the content
+    // entirely and replaced by the compact toolbar button, so it no longer appears in this table.
+    // #510: order below now matches the on-screen order -- Notification/Display/Advice-Banner/
+    // Battery-Optimization sit together under the "Sonstiges" heading. #519: the former
+    // "Network (Beta)" heading is now itself a real collapsible card
+    // (settings_network_beta_header/body/arrow below), containing two independently collapsible
+    // sub-cards -- Trusted Networks and Wi-Fi & access points -- each still with its own
+    // header/body/arrow entry in this same table. #520: the same treatment now applies to
+    // "USB-ADB" (settings_usb_adb_header/body/arrow below), containing the two previously
+    // top-level USB-ADB Notification and USB -> WLAN-ADB Handover sub-cards. #521: "Sonstiges"
+    // (formerly #510's plain, permanently visible group heading) is now itself a real
+    // collapsible card too (settings_misc_header/body/arrow below) -- but unlike #519/#520, its
+    // four contained sections (Notification/Display/Advice-Banner/Battery-Optimization) are
+    // NOT independently collapsible sub-cards; they are shown directly, one below another,
+    // separated by divider lines, once the outer card is expanded. Their switches therefore no
+    // longer have header/body/arrow entries of their own in this table.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
+            {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body, R.id.settings_usb_adb_arrow},
             {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body,
                     R.id.settings_usb_notification_arrow},
             {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body, R.id.settings_usb_handover_arrow},
+            {R.id.settings_network_beta_header, R.id.settings_network_beta_body,
+                    R.id.settings_network_beta_arrow},
             {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body,
                     R.id.settings_trusted_network_arrow},
             {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body, R.id.settings_wifi_aps_arrow},
-            {R.id.settings_notification_header, R.id.settings_notification_body, R.id.settings_notification_arrow},
-            {R.id.settings_display_header, R.id.settings_display_body, R.id.settings_display_arrow},
-            {R.id.settings_advice_banner_header, R.id.settings_advice_banner_body,
-                    R.id.settings_advice_banner_arrow},
-            {R.id.settings_battery_optimization_panel_header,
-                    R.id.settings_battery_optimization_panel_body,
-                    R.id.settings_battery_optimization_panel_arrow},
+            {R.id.settings_misc_header, R.id.settings_misc_body, R.id.settings_misc_arrow},
             {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body, R.id.settings_diagnostics_arrow},
     };
 
@@ -197,9 +203,8 @@ public class SettingsActivity extends Activity {
             bindCollapsibleCard(card[0], card[1], card[2]);
         }
 
-        languageSelectedText = findViewById(R.id.settings_language_selected_text);
-        languageSelector = findViewById(R.id.settings_language_selector);
-        languageSelector.setOnClickListener(v -> showLanguageSelectionDialog());
+        languageToolbarButton = findViewById(R.id.settings_language_toolbar_button);
+        languageToolbarButton.setOnClickListener(v -> showLanguageSelectionDialog());
 
         hideNotificationToggle = findViewById(R.id.settings_hide_notification_toggle);
         hideNotificationSubtext = findViewById(R.id.settings_hide_notification_subtext);
@@ -1041,8 +1046,7 @@ public class SettingsActivity extends Activity {
 
         String currentLanguageTag = KeepADBLocaleHelper.getSelectedLanguageTag(this);
         String displayName = KeepADBLocaleHelper.getLanguageDisplayName(this, currentLanguageTag);
-        languageSelectedText.setText(displayName);
-        languageSelector.setContentDescription(
+        languageToolbarButton.setContentDescription(
                 getString(R.string.settings_language_accessibility, displayName));
 
         boolean webhookEnabled = KeepADBPreferences.isRegisterWebhookEnabled(this);

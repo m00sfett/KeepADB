@@ -34,6 +34,17 @@
             android:textColor="@color/title_yellow"
             android:textSize="24sp"
             android:textStyle="bold" />
+
+        <!-- #518: compact language/translation entry point, replacing the former large
+             in-content language section. Opens the same language selection dialog. -->
+        <ImageButton
+            android:id="@+id/settings_language_toolbar_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_btn_header"
+            android:contentDescription="@string/settings_language_label"
+            android:padding="10dp"
+            android:src="@drawable/ic_translate" />
     </LinearLayout>
 
     <ScrollView
@@ -76,92 +87,6 @@
                 android:text="@string/settings_permission_warning"
                 android:textColor="@color/night_text"
                 android:textSize="13sp" />
-        </LinearLayout>
-
-        <!-- Language Section (#478: pinned, permanently visible, no panel frame/arrow) -->
-        <LinearLayout
-            android:id="@+id/settings_language_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@color/ground"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/settings_language_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="8dp"
-                    android:importantForAccessibility="no"
-                    android:src="@drawable/ic_globe" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_section_language"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/settings_language_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif"
-                    android:text="@string/settings_language_subtext"
-                    android:textColor="@color/night_muted"
-                    android:textSize="13sp" />
-
-                <LinearLayout
-                    android:id="@+id/settings_language_selector"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_card_clickable"
-                    android:clickable="true"
-                    android:contentDescription="@string/settings_language_label"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:minHeight="48dp"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:id="@+id/settings_language_selected_text"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="sans-serif-condensed"
-                        android:text="@string/settings_language_system_default"
-                        android:textColor="@color/text_yellow"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-condensed"
-                        android:text="▼"
-                        android:textColor="@color/title_yellow"
-                        android:textSize="14sp" />
-                </LinearLayout>
-            </LinearLayout>
         </LinearLayout>
 
         <!-- Webhook Section -->
@@ -323,12 +248,65 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- USB-ADB Notification Section -->
+        <!-- #520: "USB-ADB" outer collapsible card, wrapping the two previously independent
+             top-level USB-ADB Notification and USB -> WLAN-ADB Handover panels (same pattern as
+             #519's Network (Beta) card). Collapsed, only the title is visible; expanding it
+             reveals the two sub-cards below, each still independently collapsible with its own
+             header/body/arrow ids and unchanged notification/handover logic. -->
+        <LinearLayout
+            android:id="@+id/settings_usb_adb_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/settings_usb_adb_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_section_usb_adb"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_usb_adb_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_usb_adb_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+        <!-- USB-ADB Notification Section (#520: nested as a sub-card of the outer USB-ADB card) -->
         <LinearLayout
             android:id="@+id/settings_usb_notification_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
@@ -438,7 +416,8 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- USB -> WLAN-ADB Handover Section (#168) -->
+        <!-- USB -> WLAN-ADB Handover Section (#168; #520: nested as a sub-card of the outer
+             USB-ADB card) -->
         <LinearLayout
             android:id="@+id/settings_usb_handover_panel"
             android:layout_width="match_parent"
@@ -532,26 +511,31 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- #510: shared "Network (Beta)" group heading. Trusted Networks and Wi-Fi & access
-             points both build on the same network-trust logic and are both experimental beta
-             features, so they are introduced together here, directly below the core ADB
-             settings, well away from the everyday Keep-Alive/ADB switches above. The heading is
-             a plain, permanently visible label (like the Language/Version sections); it is not
-             itself collapsible. Each feature below keeps its own independent collapsible card,
-             its own beta badge, and its own opt-in switch (#492, #507); nothing about the
-             underlying preferences or detection logic changes here. -->
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- #519: "Network (Beta)" is now itself a collapsible outer card (previously #510's
+             plain, permanently visible group heading). Collapsed, only the title is visible;
+             expanding it reveals the former group subtext plus the two independently
+             collapsible sub-cards below (Trusted Networks, Wi-Fi and access points). Both
+             sub-cards keep their own header/body/arrow ids, beta badge, and opt-in switch
+             (#492, #507) untouched; only the surrounding container changed, nothing about the
+             underlying preferences or detection logic. -->
         <LinearLayout
-            android:id="@+id/settings_network_beta_group_panel"
+            android:id="@+id/settings_network_beta_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:background="@color/ground"
+            android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/settings_network_beta_group_header"
+                android:id="@+id/settings_network_beta_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
                 android:gravity="center_vertical"
                 android:minHeight="48dp"
                 android:orientation="horizontal">
@@ -565,19 +549,38 @@
                     android:textColor="@color/title_yellow"
                     android:textSize="18sp"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_network_beta_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/settings_network_beta_group_subtext"
+            <LinearLayout
+                android:id="@+id/settings_network_beta_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:text="@string/settings_network_beta_group_subtext"
-                android:textColor="@color/night_muted"
-                android:textSize="13sp" />
-        </LinearLayout>
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
 
-        <!-- Trusted-Network Allowlist Section (#245, #510: beta badge added) -->
+                <TextView
+                    android:id="@+id/settings_network_beta_group_subtext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_network_beta_group_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+        <!-- Trusted-Network Allowlist Section (#245, #510: beta badge added; #519: nested as a
+             sub-card of the outer Network (Beta) card) -->
         <LinearLayout
             android:id="@+id/settings_trusted_network_panel"
             android:layout_width="match_parent"
@@ -998,52 +1001,28 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- #510: shared "Other" group heading bundling the four notice/display-preference
-             cards (persistent notification, keep-display-on, security/network advice banner,
-             battery-optimization advice) that were previously scattered as unrelated standalone
-             cards. Plain, permanently visible label, same pattern as the Network (Beta) heading
-             above; not itself collapsible. Each card below keeps its own independent
-             collapsible body and its own preference key; nothing about defaults or behavior
-             changes here. -->
-        <LinearLayout
-            android:id="@+id/settings_misc_group_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:background="@color/ground"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/settings_misc_group_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_section_misc"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Notification Section (#470/#510: now grouped under "Other") -->
+        <!-- #521: "Sonstiges" is now itself a collapsible outer card (previously #510's plain,
+             permanently visible group heading), same pattern as the "Network (Beta)" (#519) and
+             "USB-ADB" (#520) cards. Collapsed, only the title is visible; expanding it reveals
+             the four notice/display-preference sections (persistent notification, keep-display-
+             on, security/network advice banner, battery-optimization advice) directly, one below
+             another, separated by 1dp horizontal divider lines; unlike #519/#520, none of them
+             is its own independently collapsible sub-card here. Each section keeps its own
+             preference key, switch, subtext and defaults untouched; only the surrounding
+             structure changed. -->
         <LinearLayout
-            android:id="@+id/settings_notification_panel"
+            android:id="@+id/settings_misc_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/settings_notification_header"
+                android:id="@+id/settings_misc_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?android:attr/selectableItemBackground"
@@ -1058,13 +1037,13 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_section_notification"
+                    android:text="@string/settings_section_misc"
                     android:textColor="@color/title_yellow"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/settings_notification_arrow"
+                    android:id="@+id/settings_misc_arrow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:importantForAccessibility="no"
@@ -1076,17 +1055,29 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/settings_notification_body"
+                android:id="@+id/settings_misc_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:orientation="vertical"
                 android:visibility="gone">
 
+                <!-- Notification Section (#470/#510: grouped under "Sonstiges"; #521: directly
+                     visible inside the outer body, no longer its own collapsible sub-card) -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_section_notification"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
                 <Switch
                     android:id="@+id/settings_hide_notification_toggle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:minHeight="48dp"
                     android:fontFamily="sans-serif-condensed"
                     android:text="@string/settings_hide_notification_toggle"
@@ -1102,63 +1093,29 @@
                     android:text="@string/settings_hide_notification_subtext"
                     android:textColor="@color/night_muted"
                     android:textSize="13sp" />
-            </LinearLayout>
-        </LinearLayout>
 
-        <!-- Display Section (#510: now grouped under "Other") -->
-        <LinearLayout
-            android:id="@+id/settings_display_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/border_red" />
 
-            <LinearLayout
-                android:id="@+id/settings_display_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal">
-
+                <!-- Display Section (#510: grouped under "Sonstiges"; #521: directly visible) -->
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:fontFamily="sans-serif-condensed"
                     android:text="@string/settings_section_display"
                     android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/settings_display_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="+"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/settings_display_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                android:visibility="gone">
 
                 <Switch
                     android:id="@+id/settings_keep_display_on_toggle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:minHeight="48dp"
                     android:fontFamily="sans-serif-condensed"
                     android:text="@string/settings_keep_display_on_toggle"
@@ -1173,61 +1130,16 @@
                     android:text="@string/settings_keep_display_on_subtext"
                     android:textColor="@color/night_muted"
                     android:textSize="13sp" />
-            </LinearLayout>
-        </LinearLayout>
 
-        <!-- Advice-Banner Visibility Section (#510: now grouped under "Other") -->
-        <LinearLayout
-            android:id="@+id/settings_advice_banner_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/border_red" />
 
-            <LinearLayout
-                android:id="@+id/settings_advice_banner_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_advice_banner_toggle"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/settings_advice_banner_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="+"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/settings_advice_banner_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                android:visibility="gone">
-
+                <!-- Advice-Banner Visibility Section (#510: grouped under "Sonstiges"; #521:
+                     directly visible) -->
                 <Switch
                     android:id="@+id/settings_advice_banner_toggle"
                     android:layout_width="match_parent"
@@ -1246,61 +1158,16 @@
                     android:text="@string/settings_advice_banner_subtext"
                     android:textColor="@color/night_muted"
                     android:textSize="13sp" />
-            </LinearLayout>
-        </LinearLayout>
 
-        <!-- Battery Optimization Panel Visibility Section (#510: now grouped under "Other") -->
-        <LinearLayout
-            android:id="@+id/settings_battery_optimization_panel_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/border_red" />
 
-            <LinearLayout
-                android:id="@+id/settings_battery_optimization_panel_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_battery_optimization_panel_toggle"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/settings_battery_optimization_panel_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="+"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/settings_battery_optimization_panel_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                android:visibility="gone">
-
+                <!-- Battery Optimization Panel Visibility Section (#510: grouped under
+                     "Sonstiges"; #521: directly visible) -->
                 <Switch
                     android:id="@+id/settings_battery_optimization_panel_toggle"
                     android:layout_width="match_parent"

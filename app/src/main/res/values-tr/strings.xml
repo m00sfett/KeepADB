@@ -136,10 +136,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_deregistered">kaydı silindi</string>
     <string name="webhook_status_failed">başarısız</string>
     <string name="settings_permission_warning">Sistem izni WRITE_SECURE_SETTINGS eksik. KeepADB izin verilene kadar Kablosuz Hata Ayıklamayı değiştiremez.</string>
-    <string name="settings_section_language">Dil</string>
     <string name="settings_language_label">Uygulama Dili</string>
     <string name="settings_language_accessibility">Uygulama Dili: %1$s</string>
-    <string name="settings_language_subtext">KeepADB için arayüz dilini seçin</string>
     <string name="settings_language_system_default">Sistem varsayılanı</string>
     <string name="settings_language_dialog_title">Dil Seçin</string>
     <string name="settings_section_misc">Diğer</string>
@@ -153,6 +151,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_notification_hidden_toast">Kalıcı bildirim kapatıldı</string>
     <string name="settings_notification_visible_toast">Kalıcı bildirim açıldı</string>
     <string name="back">Geri</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">USB-ADB bildirimi</string>
     <string name="settings_usb_notification_toggle">USB-ADB bildirimini göster</string>
     <string name="settings_usb_notification_subtext">USB hata ayıklama etkinken ayrı bir bildirim gösterir. Ana bilgisayar manuel olarak seçilir.</string>

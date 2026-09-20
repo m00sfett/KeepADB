@@ -136,10 +136,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_deregistered">désenregistré</string>
     <string name="webhook_status_failed">échec</string>
     <string name="settings_permission_warning">Autorisation système WRITE_SECURE_SETTINGS manquante. KeepADB ne peut pas basculer le débogage sans fil tant que l’autorisation n’est pas accordée.</string>
-    <string name="settings_section_language">Langue</string>
     <string name="settings_language_label">Langue de l’application</string>
     <string name="settings_language_accessibility">Langue de l’application : %1$s</string>
-    <string name="settings_language_subtext">Choisissez la langue de l’interface pour KeepADB</string>
     <string name="settings_language_system_default">Langue du système</string>
     <string name="settings_language_dialog_title">Sélectionner la langue</string>
     <string name="settings_section_misc">Autre</string>
@@ -153,6 +151,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_notification_hidden_toast">Notification persistante désactivée</string>
     <string name="settings_notification_visible_toast">Notification persistante activée</string>
     <string name="back">Retour</string>
+    <string name="settings_section_usb_adb">USB-ADB</string>
     <string name="settings_section_usb_notification">Notification USB-ADB</string>
     <string name="settings_usb_notification_toggle">Afficher la notification USB-ADB</string>
     <string name="settings_usb_notification_subtext">Afficher une notification distincte lorsque le débogage USB est actif. L’hôte est sélectionné manuellement.</string>
