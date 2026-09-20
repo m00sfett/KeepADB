@@ -291,6 +291,18 @@ public class KeepADBPreferencesTest {
         KeepADBPreferences.setWifiApsFeatureEnabled(null, true);
     }
 
+    @Test
+    public void testNotificationPermissionPanelVisibilityDefaultAndRoundTrip() {
+        FakeContext context = new FakeContext();
+        assertTrue(KeepADBPreferences.isNotificationPermissionPanelVisible(context));
+
+        KeepADBPreferences.setNotificationPermissionPanelVisible(context, false);
+        assertFalse(KeepADBPreferences.isNotificationPermissionPanelVisible(context));
+
+        KeepADBPreferences.setNotificationPermissionPanelVisible(context, true);
+        assertTrue(KeepADBPreferences.isNotificationPermissionPanelVisible(context));
+    }
+
     private static final class FakeContext extends android.content.ContextWrapper {
         private final android.content.SharedPreferences preferences = new MemoryPreferences();
 

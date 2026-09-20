@@ -22,6 +22,17 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.26] - Unreleased
+
+### Changed
+- The Android 13+ notification-permission panel can now be dismissed without requesting the
+  permission or opening system settings. The choice is stored locally and survives app restarts;
+  permission requests, permanent-denial handling, and notification behavior stay unchanged
+  (#528).
+- Patch version bump (1.8.25 -> 1.8.26, versionCode 123): this refines the existing #501
+  permission panel with a local visibility preference and does not add or change any Android
+  permission or notification capability.
+
 ## [1.8.25] - Unreleased
 
 ### Changed
