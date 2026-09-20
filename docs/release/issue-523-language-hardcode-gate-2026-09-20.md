@@ -52,8 +52,9 @@ Der relevante XML-Scan war:
 
     rg -n 'android:(text|hint|contentDescription|summary|title|label|textOn|textOff)="[^@"]' app/src/main/res --glob '*.xml'
 
-Vor der Reparatur wurden acht reine Interaktionsglyphen sowie zwei natürliche sichtbare
-BETA-Literale gefunden. Die beiden BETA-Vorkommen in
+Vor der Reparatur wurden sieben Settings-Karten-Expander mit `+` und ein `▼`-Selektor als reine
+Interaktionsglyphen sowie zwei natürliche sichtbare BETA-Literale gefunden. Die beiden
+BETA-Vorkommen in
 app/src/main/res/layout/activity_settings.xml (Trusted Network und Wi-Fi/AP) wurden durch
 @string/settings_beta_badge ersetzt. Die Ressource ist in allen 19 Ressourcenbündeln vorhanden
 und explizit translatable="false", weil das Produkt-Badge in diesem Release-Zyklus bewusst
@@ -61,8 +62,8 @@ exakt BETA lautet.
 
 Nach der Reparatur meldet der XML-Scan nur noch:
 
-- + an den acht Settings-Karten-Expandern,
-- ▼ am USB-Handover-Selektor.
+- sieben `+`-Expander an den Settings-Karten,
+- ein `▼`-Glyph am USB-Handover-Selektor.
 
 Die korrespondierenden Java-Literale +/− in
 SettingsActivity.CARD_COLLAPSED_SYMBOL/CARD_EXPANDED_SYMBOL sind Interaktionsglyphen. Der
