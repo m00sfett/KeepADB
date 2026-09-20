@@ -134,6 +134,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Choisissez la langue de l’interface pour KeepADB</string>
     <string name="settings_language_system_default">Langue du système</string>
     <string name="settings_language_dialog_title">Sélectionner la langue</string>
+    <string name="settings_section_misc">Autre</string>
     <string name="settings_section_notification">Notification</string>
     <string name="settings_hide_notification_toggle">Notification persistante</string>
     <string name="settings_hide_notification_subtext">Affiche la notification d’état dans le volet. La désactiver n’affecte ni le Keep-Alive ni les widgets.</string>
@@ -304,4 +305,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_wifi_aps">Wi-Fi et points d’accès (Bêta)</string>
     <string name="settings_wifi_aps_feature_toggle">Activer la détection Wi-Fi et des points d’accès</string>
     <string name="settings_wifi_aps_beta_description">La détection des points d’accès est une fonctionnalité bêta expérimentale qui analyse les points d’accès Wi-Fi à proximité. Elle nécessite l’autorisation de localisation et peut consommer plus de batterie.</string>
+    <string name="settings_section_network_beta">Réseau (Bêta)</string>
+    <string name="settings_network_beta_group_subtext">Réseaux de confiance et Wi-Fi et points d’accès reposent sur la même logique de confiance réseau et sont toutes deux des fonctionnalités expérimentales bêta. Développez l’une ou l’autre ci-dessous pour l’activer et la configurer séparément.</string>
 </resources>

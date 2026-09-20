@@ -134,6 +134,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">KeepADB의 인터페이스 언어를 선택하세요</string>
     <string name="settings_language_system_default">시스템 기본값</string>
     <string name="settings_language_dialog_title">언어 선택</string>
+    <string name="settings_section_misc">기타</string>
     <string name="settings_section_notification">알림</string>
     <string name="settings_hide_notification_toggle">고정 알림</string>
     <string name="settings_hide_notification_subtext">상태 알림을 알림 창에 표시합니다. 끄더라도 Keep-Alive나 위젯에는 영향이 없습니다.</string>
@@ -304,4 +305,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_wifi_aps">Wi-Fi 및 액세스 포인트 (베타)</string>
     <string name="settings_wifi_aps_feature_toggle">Wi-Fi 및 액세스 포인트 검색 활성화</string>
     <string name="settings_wifi_aps_beta_description">액세스 포인트 검색은 주변 Wi-Fi 액세스 포인트를 스캔하는 실험적 베타 기능입니다. 위치 권한이 필요하며 배터리를 더 소모할 수 있습니다。</string>
+    <string name="settings_section_network_beta">네트워크 (베타)</string>
+    <string name="settings_network_beta_group_subtext">신뢰할 수 있는 네트워크와 Wi-Fi 및 액세스 포인트는 동일한 네트워크 신뢰 로직을 기반으로 하며 둘 다 실험적인 베타 기능입니다. 아래에서 하나를 펼쳐 개별적으로 활성화하고 구성하세요.</string>
 </resources>

@@ -164,6 +164,7 @@
     <string name="settings_reset_app_dialog_title">App vollständig zurücksetzen?</string>
     <string name="settings_reset_app_dialog_message">Alle gespeicherten Netzwerke, Einstellungen und Berechtigungen werden gelöscht. Die App schließt sich anschließend.</string>
     <string name="settings_reset_app_confirm">Zurücksetzen</string>
+    <string name="settings_section_misc">Sonstiges</string>
     <string name="settings_section_notification">Benachrichtigung</string>
     <string name="settings_hide_notification_toggle">Dauerhafte Benachrichtigung</string>
     <string name="settings_hide_notification_subtext">Zeigt die Status-Benachrichtigung in der Leiste. Das Ausschalten hat keinen Einfluss auf Keep-Alive oder Widgets.</string>
@@ -303,4 +304,6 @@
     <string name="settings_section_wifi_aps">WLAN &amp; Access Points (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">WLAN- &amp; Access-Point-Erkennung aktivieren</string>
     <string name="settings_wifi_aps_beta_description">Die Access-Point-Erkennung ist eine experimentelle Beta-Funktion zur Erfassung von WLAN-Access-Points in der Umgebung. Sie erfordert die Standortberechtigung und kann mehr Akku verbrauchen.</string>
+    <string name="settings_section_network_beta">Netzwerk (Beta)</string>
+    <string name="settings_network_beta_group_subtext">Vertrauenswürdige Netzwerke und WLAN &amp; Access Points bauen auf derselben Netzwerk-Vertrauenslogik auf und sind beide experimentelle Beta-Funktionen. Klappe eine der beiden unten auf, um sie einzuschalten und einzeln zu konfigurieren.</string>
 </resources>

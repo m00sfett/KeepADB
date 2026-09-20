@@ -22,6 +22,17 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.16] - Unreleased
+
+### Changed
+- Settings regrouping: bundled the four notice/display-preference cards (persistent
+  notification, keep display on, security/network advice banner, battery-optimization advice)
+  under a shared "Other" heading, and grouped "Trusted Networks" and "Wi-Fi & access points"
+  under a shared "Network (Beta)" heading that explains their common trust logic and beta
+  status. Both beta features now carry a consistent "BETA" badge (previously only Wi-Fi &
+  access points had one), stay independently collapsible, and keep their existing default-off
+  preference values -- only the visual layout changed (#510).
+
 ## [1.8.15] - Unreleased
 
 ### Changed

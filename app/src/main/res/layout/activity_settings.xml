@@ -323,239 +323,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Trusted-Network Allowlist Section (#245) -->
-        <LinearLayout
-            android:id="@+id/settings_trusted_network_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/settings_trusted_network_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_section_trusted_network"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/settings_trusted_network_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="+"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/settings_trusted_network_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <!-- #492: the two security policy switches live here (not on the home screen):
-                     they are a comfort-versus-security decision that must be read before it is
-                     taken, not a one-tap list operation. The per-access-point and per-SSID list
-                     management stays on the home screen's Wi-Fi card, so no data is maintained
-                     twice. Each switch carries a red warning marker and its own explanation, both
-                     visible while the switch is still off. -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:fontFamily="sans-serif"
-                    android:text="@string/settings_trusted_network_subtext"
-                    android:textColor="@color/night_muted"
-                    android:textSize="13sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="24dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="top"
-                        android:contentDescription="@string/settings_trusted_network_warning_accessibility"
-                        android:fontFamily="sans-serif-condensed"
-                        android:text="@string/settings_warning_marker"
-                        android:textColor="@color/border_red"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="sans-serif"
-                        android:text="@string/settings_trusted_network_tradeoff_warning"
-                        android:textColor="@color/text_yellow"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <Switch
-                    android:id="@+id/settings_trusted_network_toggle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:minHeight="48dp"
-                    android:text="@string/settings_trusted_network_toggle"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/settings_trusted_network_status"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:accessibilityLiveRegion="polite"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="13sp"
-                    android:visibility="gone" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="@color/border_red" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="24dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="top"
-                        android:contentDescription="@string/settings_trusted_ssid_warning_accessibility"
-                        android:fontFamily="sans-serif-condensed"
-                        android:text="@string/settings_warning_marker"
-                        android:textColor="@color/border_red"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="sans-serif"
-                        android:text="@string/settings_trusted_ssid_warning"
-                        android:textColor="@color/text_yellow"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <Switch
-                    android:id="@+id/settings_trusted_ssid_toggle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:minHeight="48dp"
-                    android:text="@string/settings_trusted_ssid_toggle"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="14sp" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Notification Section (#470: directly below trusted networks) -->
-        <LinearLayout
-            android:id="@+id/settings_notification_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/settings_notification_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_section_notification"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/settings_notification_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="+"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/settings_notification_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <Switch
-                    android:id="@+id/settings_hide_notification_toggle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_hide_notification_toggle"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="17sp" />
-
-                <TextView
-                    android:id="@+id/settings_hide_notification_subtext"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif"
-                    android:text="@string/settings_hide_notification_subtext"
-                    android:textColor="@color/night_muted"
-                    android:textSize="13sp" />
-            </LinearLayout>
-        </LinearLayout>
-
         <!-- USB-ADB Notification Section -->
         <LinearLayout
             android:id="@+id/settings_usb_notification_panel"
@@ -765,7 +532,225 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Wi-Fi & Access Points Section (#507) -->
+        <!-- #510: shared "Network (Beta)" group heading. Trusted Networks and Wi-Fi & access
+             points both build on the same network-trust logic and are both experimental beta
+             features, so they are introduced together here, directly below the core ADB
+             settings, well away from the everyday Keep-Alive/ADB switches above. The heading is
+             a plain, permanently visible label (like the Language/Version sections); it is not
+             itself collapsible. Each feature below keeps its own independent collapsible card,
+             its own beta badge, and its own opt-in switch (#492, #507); nothing about the
+             underlying preferences or detection logic changes here. -->
+        <LinearLayout
+            android:id="@+id/settings_network_beta_group_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@color/ground"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/settings_network_beta_group_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_section_network_beta"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/settings_network_beta_group_subtext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:text="@string/settings_network_beta_group_subtext"
+                android:textColor="@color/night_muted"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Trusted-Network Allowlist Section (#245, #510: beta badge added) -->
+        <LinearLayout
+            android:id="@+id/settings_trusted_network_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/settings_trusted_network_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_section_trusted_network"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_trusted_network_beta_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="BETA"
+                    android:textColor="@color/primary_red"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_trusted_network_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_trusted_network_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <!-- #492: the two security policy switches live here (not on the home screen):
+                     they are a comfort-versus-security decision that must be read before it is
+                     taken, not a one-tap list operation. The per-access-point and per-SSID list
+                     management stays on the home screen's Wi-Fi card, so no data is maintained
+                     twice. Each switch carries a red warning marker and its own explanation, both
+                     visible while the switch is still off. -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_trusted_network_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="24dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:contentDescription="@string/settings_trusted_network_warning_accessibility"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_warning_marker"
+                        android:textColor="@color/border_red"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/settings_trusted_network_tradeoff_warning"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <Switch
+                    android:id="@+id/settings_trusted_network_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:text="@string/settings_trusted_network_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/settings_trusted_network_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@color/border_red" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="24dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:contentDescription="@string/settings_trusted_ssid_warning_accessibility"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_warning_marker"
+                        android:textColor="@color/border_red"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/settings_trusted_ssid_warning"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <Switch
+                    android:id="@+id/settings_trusted_ssid_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:text="@string/settings_trusted_ssid_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Wi-Fi & Access Points Section (#507, grouped with Trusted Networks under the
+             Network (Beta) heading by #510) -->
         <LinearLayout
             android:id="@+id/settings_wifi_aps_panel"
             android:layout_width="match_parent"
@@ -1013,7 +998,114 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Display Section -->
+        <!-- #510: shared "Other" group heading bundling the four notice/display-preference
+             cards (persistent notification, keep-display-on, security/network advice banner,
+             battery-optimization advice) that were previously scattered as unrelated standalone
+             cards. Plain, permanently visible label, same pattern as the Network (Beta) heading
+             above; not itself collapsible. Each card below keeps its own independent
+             collapsible body and its own preference key; nothing about defaults or behavior
+             changes here. -->
+        <LinearLayout
+            android:id="@+id/settings_misc_group_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@color/ground"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/settings_misc_group_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_section_misc"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Notification Section (#470/#510: now grouped under "Other") -->
+        <LinearLayout
+            android:id="@+id/settings_notification_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/settings_notification_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_section_notification"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_notification_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_notification_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <Switch
+                    android:id="@+id/settings_hide_notification_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_hide_notification_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/settings_hide_notification_subtext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_hide_notification_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Display Section (#510: now grouped under "Other") -->
         <LinearLayout
             android:id="@+id/settings_display_panel"
             android:layout_width="match_parent"
@@ -1084,7 +1176,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Advice-Banner Visibility Section -->
+        <!-- Advice-Banner Visibility Section (#510: now grouped under "Other") -->
         <LinearLayout
             android:id="@+id/settings_advice_banner_panel"
             android:layout_width="match_parent"
@@ -1157,7 +1249,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Battery Optimization Panel Visibility Section -->
+        <!-- Battery Optimization Panel Visibility Section (#510: now grouped under "Other") -->
         <LinearLayout
             android:id="@+id/settings_battery_optimization_panel_panel"
             android:layout_width="match_parent"

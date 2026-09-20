@@ -134,6 +134,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">選擇 KeepADB 的介面語言</string>
     <string name="settings_language_system_default">系統預設</string>
     <string name="settings_language_dialog_title">選擇語言</string>
+    <string name="settings_section_misc">其他</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">常駐通知</string>
     <string name="settings_hide_notification_subtext">在通知欄中顯示狀態通知。關閉它不會影響 Keep-Alive 或桌面小工具。</string>
@@ -304,4 +305,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_wifi_aps">Wi-Fi 與存取點（測試版）</string>
     <string name="settings_wifi_aps_feature_toggle">啟用 Wi-Fi 與存取點偵測</string>
     <string name="settings_wifi_aps_beta_description">存取點偵測是一項實驗性測試功能，用於掃描附近的 Wi-Fi 存取點。此功能需要位置權限，並可能消耗更多電力。</string>
+    <string name="settings_section_network_beta">網路（測試版）</string>
+    <string name="settings_network_beta_group_subtext">受信任網路與 Wi-Fi 及存取點皆基於相同的網路信任邏輯，兩者皆為實驗性測試版功能。展開下方任一項即可個別啟用並設定。</string>
 </resources>

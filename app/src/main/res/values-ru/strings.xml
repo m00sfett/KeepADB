@@ -134,6 +134,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Выберите язык интерфейса для KeepADB</string>
     <string name="settings_language_system_default">По умолчанию в системе</string>
     <string name="settings_language_dialog_title">Выберите язык</string>
+    <string name="settings_section_misc">Прочее</string>
     <string name="settings_section_notification">Уведомление</string>
     <string name="settings_hide_notification_toggle">Постоянное уведомление</string>
     <string name="settings_hide_notification_subtext">Показывает уведомление о статусе на панели. Отключение не влияет на Keep-Alive или виджеты.</string>
@@ -304,4 +305,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_wifi_aps">Wi-Fi и точки доступа (бета)</string>
     <string name="settings_wifi_aps_feature_toggle">Включить обнаружение Wi-Fi и точек доступа</string>
     <string name="settings_wifi_aps_beta_description">Обнаружение точек доступа — экспериментальная бета-функция, сканирующая близлежащие точки доступа Wi-Fi. Требует разрешения на доступ к местоположению и может расходовать заряд батареи.</string>
+    <string name="settings_section_network_beta">Сеть (бета)</string>
+    <string name="settings_network_beta_group_subtext">Доверенные сети и Wi-Fi и точки доступа используют одну и ту же логику доверия к сети и являются экспериментальными бета-функциями. Разверните любую из них ниже, чтобы включить и настроить отдельно.</string>
 </resources>

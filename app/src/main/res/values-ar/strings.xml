@@ -134,6 +134,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">اختر لغة واجهة KeepADB</string>
     <string name="settings_language_system_default">افتراضي النظام</string>
     <string name="settings_language_dialog_title">اختر اللغة</string>
+    <string name="settings_section_misc">أخرى</string>
     <string name="settings_section_notification">الإشعارات</string>
     <string name="settings_hide_notification_toggle">الإشعار الدائم</string>
     <string name="settings_hide_notification_subtext">يعرض إشعار الحالة في الشريط. إيقافه لا يؤثر على Keep-Alive أو الأدوات.</string>
@@ -304,4 +305,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_wifi_aps">Wi-Fi ونقاط الوصول (تجريبي)</string>
     <string name="settings_wifi_aps_feature_toggle">تفعيل اكتشاف Wi-Fi ونقاط الوصول</string>
     <string name="settings_wifi_aps_beta_description">اكتشاف نقاط الوصول ميزة تجريبية تفحص نقاط وصول Wi-Fi القريبة. تتطلب إذن الموقع وقد تستهلك المزيد من طاقة البطارية.</string>
+    <string name="settings_section_network_beta">الشبكة (تجريبي)</string>
+    <string name="settings_network_beta_group_subtext">تعتمد الشبكات الموثوقة وWi-Fi ونقاط الوصول على نفس منطق الثقة بالشبكة، وكلاهما ميزتان تجريبيتان. وسّع إحداهما أدناه لتفعيلها وضبطها بشكل منفصل.</string>
 </resources>
