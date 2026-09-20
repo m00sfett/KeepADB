@@ -22,6 +22,29 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.16] - Unreleased
+
+Two independent fixes land together in this release candidate: a privacy-default bugfix (#509)
+and a settings-screen regrouping refactor (#510). Both were reviewed and merged as a single
+integration batch since neither depends on the other.
+
+### Fixed
+- Privacy mode default: a fresh install now shows network addresses fully (open-eye icon)
+  instead of starting in privacy mode. `KeepADBPreferences.isPrivacyModeEnabled()` fell back
+  to `true` when no preference entry existed yet, masking addresses on every clean install.
+  Privacy mode is now off by default and remains an opt-in toggle; existing masking behavior
+  at all display surfaces (home screen endpoint, webhook display, last reported endpoint,
+  notification, quick settings tile) is unchanged once the user enables it (#509).
+
+### Changed
+- Settings regrouping: bundled the four notice/display-preference cards (persistent
+  notification, keep display on, security/network advice banner, battery-optimization advice)
+  under a shared "Other" heading, and grouped "Trusted Networks" and "Wi-Fi & access points"
+  under a shared "Network (Beta)" heading that explains their common trust logic and beta
+  status. Both beta features now carry a consistent "BETA" badge (previously only Wi-Fi &
+  access points had one), stay independently collapsible, and keep their existing default-off
+  preference values -- only the visual layout changed (#510).
+
 ## [1.8.15] - Unreleased
 
 ### Changed

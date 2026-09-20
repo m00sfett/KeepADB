@@ -459,8 +459,8 @@ public class SettingsActivityTest {
             {R.id.settings_webhook_header, R.id.settings_webhook_body},
             {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body},
             {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body},
-            {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body},
             {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body},
+            {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body},
             {R.id.settings_notification_header, R.id.settings_notification_body},
             {R.id.settings_display_header, R.id.settings_display_body},
             {R.id.settings_advice_banner_header, R.id.settings_advice_banner_body},
@@ -821,6 +821,123 @@ public class SettingsActivityTest {
         assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(activity));
         assertFalse(toggle.isChecked());
         assertEquals(View.GONE, content.getVisibility());
+    }
+
+    /**
+     * #510: Trusted Networks and Wi-Fi &amp; access points are grouped under a shared
+     * "Network (Beta)" heading that sits between them and explains the relationship and beta
+     * status, while both features stay independently collapsible and both carry their own
+     * "BETA" badge -- previously only the Wi-Fi &amp; access points card had one.
+     */
+    @Test
+    public void networkBetaGroupHeadingIntroducesBothBetaFeaturesConsistently() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        View groupHeading = activity.findViewById(R.id.settings_network_beta_group_panel);
+        assertNotNull(groupHeading);
+        assertEquals(View.VISIBLE, groupHeading.getVisibility());
+
+        TextView groupSubtext = activity.findViewById(R.id.settings_network_beta_group_subtext);
+        assertNotNull(groupSubtext);
+        assertEquals(activity.getString(R.string.settings_network_beta_group_subtext),
+                groupSubtext.getText().toString());
+
+        TextView trustedNetworkBadge = activity.findViewById(R.id.settings_trusted_network_beta_badge);
+        assertNotNull(trustedNetworkBadge);
+        assertEquals(View.VISIBLE, trustedNetworkBadge.getVisibility());
+        assertEquals("BETA", trustedNetworkBadge.getText().toString());
+
+        TextView wifiApsBadge = activity.findViewById(R.id.settings_wifi_aps_beta_badge);
+        assertNotNull(wifiApsBadge);
+        assertEquals(View.VISIBLE, wifiApsBadge.getVisibility());
+        assertEquals("BETA", wifiApsBadge.getText().toString());
+
+        // Both features must remain separately expandable -- expanding one must not affect the
+        // other's collapsed state (this is the same independence guarantee as #471, just applied
+        // across the new shared group heading).
+        View trustedNetworkBody = activity.findViewById(R.id.settings_trusted_network_body);
+        View wifiApsBody = activity.findViewById(R.id.settings_wifi_aps_body);
+        assertEquals(View.GONE, trustedNetworkBody.getVisibility());
+        assertEquals(View.GONE, wifiApsBody.getVisibility());
+
+        activity.findViewById(R.id.settings_trusted_network_header).performClick();
+        assertEquals(View.VISIBLE, trustedNetworkBody.getVisibility());
+        assertEquals("Expanding trusted networks must not expand Wi-Fi & access points",
+                View.GONE, wifiApsBody.getVisibility());
+
+        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
+        assertEquals(View.VISIBLE, wifiApsBody.getVisibility());
+        assertEquals("Wi-Fi & access points must stay expanded independently of trusted networks",
+                View.VISIBLE, trustedNetworkBody.getVisibility());
+    }
+
+    /**
+     * #510: the four notice/display-preference cards (persistent notification, keep display on,
+     * security/network advice banner, battery-optimization advice) are bundled under a shared
+     * "Other" heading, but each keeps its own independent collapsible card and preference key.
+     */
+    @Test
+    public void miscGroupHeadingBundlesTheFourNoticeCardsWhileKeepingThemIndependentlyCollapsible() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        View groupHeading = activity.findViewById(R.id.settings_misc_group_panel);
+        assertNotNull(groupHeading);
+        assertEquals(View.VISIBLE, groupHeading.getVisibility());
+
+        int[] miscBodies = {
+                R.id.settings_notification_body,
+                R.id.settings_display_body,
+                R.id.settings_advice_banner_body,
+                R.id.settings_battery_optimization_panel_body,
+        };
+        for (int id : miscBodies) {
+            assertEquals("Body must start collapsed: " + id,
+                    View.GONE, activity.findViewById(id).getVisibility());
+        }
+
+        int[] miscHeaders = {
+                R.id.settings_notification_header,
+                R.id.settings_display_header,
+                R.id.settings_advice_banner_header,
+                R.id.settings_battery_optimization_panel_header,
+        };
+        for (int i = 0; i < miscHeaders.length; i++) {
+            activity.findViewById(miscHeaders[i]).performClick();
+            for (int j = 0; j < miscBodies.length; j++) {
+                int expected = (j <= i) ? View.VISIBLE : View.GONE;
+                assertEquals("Card " + j + " expand state must be independent after expanding card " + i,
+                        expected, activity.findViewById(miscBodies[j]).getVisibility());
+            }
+        }
+    }
+
+    /**
+     * #510 acceptance criterion 7: a fresh install must leave both network beta features
+     * (Trusted Networks and Wi-Fi &amp; access points) disabled -- the visual regrouping must
+     * not change either feature's default preference value.
+     */
+    @Test
+    public void bothNetworkBetaFeaturesAreDisabledOnFreshInstall() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        assertFalse("Trusted-network allowlist mode must default to off",
+                KeepADBTrustedNetwork.isAllowlistMode(activity));
+        assertFalse("Wi-Fi & access points feature must default to off",
+                KeepADBPreferences.isWifiApsFeatureEnabled(activity));
+
+        Switch trustedNetworkToggle = activity.findViewById(R.id.settings_trusted_network_toggle);
+        activity.findViewById(R.id.settings_trusted_network_header).performClick();
+        assertFalse(trustedNetworkToggle.isChecked());
+
+        Switch wifiApsToggle = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
+        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
+        assertFalse(wifiApsToggle.isChecked());
     }
 
     private static <T extends View> List<T> findViewsByType(View root, Class<T> type) {

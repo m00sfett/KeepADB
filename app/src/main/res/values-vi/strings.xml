@@ -134,6 +134,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Chọn ngôn ngữ giao diện cho KeepADB</string>
     <string name="settings_language_system_default">Mặc định hệ thống</string>
     <string name="settings_language_dialog_title">Chọn ngôn ngữ</string>
+    <string name="settings_section_misc">Khác</string>
     <string name="settings_section_notification">Thông báo</string>
     <string name="settings_hide_notification_toggle">Thông báo liên tục</string>
     <string name="settings_hide_notification_subtext">Hiển thị thông báo trạng thái trên thanh thông báo. Tắt tùy chọn này không ảnh hưởng đến Keep-Alive hay tiện ích.</string>
@@ -304,4 +305,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_wifi_aps">Wi-Fi và điểm truy cập (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Bật phát hiện Wi-Fi và điểm truy cập</string>
     <string name="settings_wifi_aps_beta_description">Phát hiện điểm truy cập là tính năng thử nghiệm quét các điểm truy cập Wi-Fi lân cận. Tính năng này yêu cầu quyền vị trí và có thể tiêu tốn thêm pin.</string>
+    <string name="settings_section_network_beta">Mạng (Beta)</string>
+    <string name="settings_network_beta_group_subtext">Mạng đáng tin cậy và Wi-Fi và điểm truy cập đều dựa trên cùng một logic tin cậy mạng và đều là các tính năng beta thử nghiệm. Hãy mở rộng một trong hai mục bên dưới để bật và định cấu hình riêng.</string>
 </resources>
