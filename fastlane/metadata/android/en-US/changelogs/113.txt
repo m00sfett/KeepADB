@@ -1,2 +1,7 @@
 Fixed: a fresh install now shows network addresses fully by default instead of starting
 with privacy masking enabled. Privacy mode remains available as an opt-in toggle.
+
+Changed: Settings screen regrouped for clarity. Notification, display, and
+advice-banner options now sit under a shared "Other" heading, and "Trusted
+Networks" / "Wi-Fi & access points" now sit under a shared "Network (Beta)"
+heading with a consistent Beta badge on both. No behavior or defaults changed.

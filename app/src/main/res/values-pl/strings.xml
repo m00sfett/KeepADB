@@ -134,6 +134,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Wybierz język interfejsu KeepADB</string>
     <string name="settings_language_system_default">Domyślny systemowy</string>
     <string name="settings_language_dialog_title">Wybierz język</string>
+    <string name="settings_section_misc">Inne</string>
     <string name="settings_section_notification">Powiadomienie</string>
     <string name="settings_hide_notification_toggle">Stałe powiadomienie</string>
     <string name="settings_hide_notification_subtext">Pokazuje powiadomienie o stanie w panelu. Wyłączenie go nie wpływa na Keep-Alive ani widżety.</string>
@@ -304,4 +305,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_wifi_aps">Wi-Fi i punkty dostępu (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Włącz wykrywanie Wi-Fi i punktów dostępu</string>
     <string name="settings_wifi_aps_beta_description">Wykrywanie punktów dostępu to eksperymentalna funkcja beta, która skanuje pobliskie punkty dostępu Wi-Fi. Wymaga uprawnienia do lokalizacji i może zużywać więcej baterii.</string>
+    <string name="settings_section_network_beta">Sieć (Beta)</string>
+    <string name="settings_network_beta_group_subtext">Zaufane sieci oraz Wi-Fi i punkty dostępu opierają się na tej samej logice zaufania sieciowego i są eksperymentalnymi funkcjami beta. Rozwiń dowolną z nich poniżej, aby ją włączyć i skonfigurować osobno.</string>
 </resources>

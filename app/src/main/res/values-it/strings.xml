@@ -134,6 +134,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Scegli la lingua dell’interfaccia per KeepADB</string>
     <string name="settings_language_system_default">Predefinita di sistema</string>
     <string name="settings_language_dialog_title">Seleziona lingua</string>
+    <string name="settings_section_misc">Altro</string>
     <string name="settings_section_notification">Notifica</string>
     <string name="settings_hide_notification_toggle">Notifica permanente</string>
     <string name="settings_hide_notification_subtext">Mostra la notifica di stato nel pannello. Disattivarla non influisce su Keep-Alive né sui widget.</string>
@@ -304,4 +305,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_wifi_aps">Wi-Fi e punti di accesso (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Attiva rilevamento Wi-Fi e punti di accesso</string>
     <string name="settings_wifi_aps_beta_description">Il rilevamento dei punti di accesso è una funzione beta sperimentale che scansiona i punti di accesso Wi-Fi nelle vicinanze. Richiede l\'autorizzazione di posizione e può consumare più batteria.</string>
+    <string name="settings_section_network_beta">Rete (Beta)</string>
+    <string name="settings_network_beta_group_subtext">Reti attendibili e Wi-Fi e punti di accesso si basano sulla stessa logica di attendibilità di rete e sono entrambe funzionalità sperimentali beta. Espandi una delle due qui sotto per attivarla e configurarla separatamente.</string>
 </resources>

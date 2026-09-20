@@ -134,6 +134,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">Escolha o idioma da interface para o KeepADB</string>
     <string name="settings_language_system_default">Padrão do sistema</string>
     <string name="settings_language_dialog_title">Selecionar idioma</string>
+    <string name="settings_section_misc">Outros</string>
     <string name="settings_section_notification">Notificação</string>
     <string name="settings_hide_notification_toggle">Notificação persistente</string>
     <string name="settings_hide_notification_subtext">Mostra a notificação de estado no painel. Desativá-la não afeta o Keep-Alive nem os widgets.</string>
@@ -304,4 +305,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_wifi_aps">Wi-Fi e pontos de acesso (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Ativar detecção de Wi-Fi e pontos de acesso</string>
     <string name="settings_wifi_aps_beta_description">A detecção de pontos de acesso é um recurso beta experimental que procura pontos de acesso Wi-Fi próximos. Requer permissão de localização e pode consumir mais bateria.</string>
+    <string name="settings_section_network_beta">Rede (Beta)</string>
+    <string name="settings_network_beta_group_subtext">Redes confiáveis e Wi-Fi e pontos de acesso baseiam-se na mesma lógica de confiança de rede e são ambas funcionalidades experimentais beta. Expanda uma delas abaixo para ativá-la e configurá-la separadamente.</string>
 </resources>

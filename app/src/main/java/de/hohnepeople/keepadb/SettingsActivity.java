@@ -137,14 +137,19 @@ public class SettingsActivity extends Activity {
     // #478: the language card (first) and the version card (last) are excluded here too -- they
     // are now permanently visible, non-collapsible entries pinned directly on the background,
     // with neither an arrow nor a click listener on their header.
+    // #510: order below now matches the on-screen order -- Trusted Networks and Wi-Fi & access
+    // points sit together under the shared "Network (Beta)" heading, and Notification/Display/
+    // Advice-Banner/Battery-Optimization sit together under the shared "Other" heading. Both
+    // group headings are plain, permanently visible labels (like Language/Version) and are not
+    // part of this table -- they have no header/body/arrow of their own.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
             {R.id.settings_usb_notification_header, R.id.settings_usb_notification_body,
                     R.id.settings_usb_notification_arrow},
             {R.id.settings_usb_handover_header, R.id.settings_usb_handover_body, R.id.settings_usb_handover_arrow},
-            {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body, R.id.settings_wifi_aps_arrow},
             {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body,
                     R.id.settings_trusted_network_arrow},
+            {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body, R.id.settings_wifi_aps_arrow},
             {R.id.settings_notification_header, R.id.settings_notification_body, R.id.settings_notification_arrow},
             {R.id.settings_display_header, R.id.settings_display_body, R.id.settings_display_arrow},
             {R.id.settings_advice_banner_header, R.id.settings_advice_banner_body,

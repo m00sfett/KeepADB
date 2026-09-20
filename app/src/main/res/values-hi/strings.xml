@@ -134,6 +134,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_language_subtext">KeepADB के लिए इंटरफ़ेस भाषा चुनें</string>
     <string name="settings_language_system_default">सिस्टम डिफ़ॉल्ट</string>
     <string name="settings_language_dialog_title">भाषा चुनें</string>
+    <string name="settings_section_misc">अन्य</string>
     <string name="settings_section_notification">सूचना</string>
     <string name="settings_hide_notification_toggle">स्थायी सूचना</string>
     <string name="settings_hide_notification_subtext">स्टेटस सूचना को पैनल में दिखाता है। इसे बंद करने से Keep-Alive या विजेट पर असर नहीं पड़ता।</string>
@@ -304,4 +305,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_section_wifi_aps">Wi-Fi और एक्सेस पॉइंट (बीटा)</string>
     <string name="settings_wifi_aps_feature_toggle">Wi-Fi और एक्सेस पॉइंट पहचान सक्षम करें</string>
     <string name="settings_wifi_aps_beta_description">एक्सेस पॉइंट पहचान एक प्रयोगात्मक बीटा सुविधा है जो आस-पास के Wi-Fi एक्सेस पॉइंट स्कैन करती है। इसके लिए स्थान अनुमति आवश्यक है और यह अधिक बैटरी उपयोग कर सकती है।</string>
+    <string name="settings_section_network_beta">नेटवर्क (बीटा)</string>
+    <string name="settings_network_beta_group_subtext">विश्वसनीय नेटवर्क और Wi-Fi और एक्सेस पॉइंट दोनों एक ही नेटवर्क-विश्वास लॉजिक पर आधारित हैं और दोनों प्रायोगिक बीटा सुविधाएं हैं। इसे चालू करने और अलग से कॉन्फ़िगर करने के लिए नीचे दोनों में से किसी एक को खोलें।</string>
 </resources>
