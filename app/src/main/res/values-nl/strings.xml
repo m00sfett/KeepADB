@@ -26,8 +26,7 @@
     <string name="widget_text_off">Draadloze foutopsporing: UIT</string>
     <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: Toestemming ontbreekt (pm grant vereist)</string>
-    <string name="permission_error_toast">Toestemming ontbreekt. Voer eenmalig uit op PC:
-adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="permission_error_toast">Toestemming ontbreekt. Voer eenmalig uit op PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Eindpunt voor draadloze foutopsporing</string>
     <string name="notification_channel_desc">Huidig IP-adres en poort van draadloze foutopsporing</string>
     <string name="notification_title_active">KeepADB: Wifi-ADB INGESCHAKELD</string>
@@ -315,5 +314,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_wifi_aps_feature_toggle">Detectie van wifi en access points inschakelen</string>
     <string name="settings_wifi_aps_beta_description">Detectie van access points is een experimentele bètafunctie die nabijgelegen wifi-access points scant. Dit vereist locatietoestemming en kan extra batterij verbruiken.</string>
     <string name="settings_section_network_beta">Netwerk (bèta)</string>
+    <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Vertrouwde netwerken en wifi en access points zijn gebaseerd op dezelfde netwerkvertrouwenslogica en zijn beide experimentele bètafuncties. Klap hieronder een van beide open om deze in te schakelen en apart te configureren.</string>
 </resources>

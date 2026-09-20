@@ -26,8 +26,7 @@
     <string name="widget_text_off">Debug wireless: DISATTIVO</string>
     <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: Autorizzazione mancante (richiesto pm grant)</string>
-    <string name="permission_error_toast">Autorizzazione mancante. Esegui una volta dal PC:
-adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="permission_error_toast">Autorizzazione mancante. Esegui una volta dal PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Endpoint di debug wireless</string>
     <string name="notification_channel_desc">Indirizzo IP e porta correnti del debug wireless</string>
     <string name="notification_title_active">KeepADB: Wifi-ADB ATTIVATO</string>
@@ -315,5 +314,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_wifi_aps_feature_toggle">Attiva rilevamento Wi-Fi e punti di accesso</string>
     <string name="settings_wifi_aps_beta_description">Il rilevamento dei punti di accesso è una funzione beta sperimentale che scansiona i punti di accesso Wi-Fi nelle vicinanze. Richiede l\'autorizzazione di posizione e può consumare più batteria.</string>
     <string name="settings_section_network_beta">Rete (Beta)</string>
+    <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Reti attendibili e Wi-Fi e punti di accesso si basano sulla stessa logica di attendibilità di rete e sono entrambe funzionalità sperimentali beta. Espandi una delle due qui sotto per attivarla e configurarla separatamente.</string>
 </resources>

@@ -1,0 +1,3 @@
+Fixed the permission guidance so the ADB grant instruction is shown only once and keeps its
+line break in every supported language.
+Beta badges now use a shared nonlocalized label resource across all supported languages.

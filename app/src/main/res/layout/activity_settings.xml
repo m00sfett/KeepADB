@@ -557,7 +557,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:fontFamily="sans-serif-condensed"
-                    android:text="BETA"
+                    android:text="@string/settings_beta_badge"
                     android:textColor="@color/primary_red"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -731,7 +731,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:fontFamily="sans-serif-condensed"
-                    android:text="BETA"
+                    android:text="@string/settings_beta_badge"
                     android:textColor="@color/primary_red"
                     android:textSize="12sp"
                     android:textStyle="bold" />

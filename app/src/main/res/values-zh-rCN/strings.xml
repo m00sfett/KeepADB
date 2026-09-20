@@ -26,8 +26,7 @@
     <string name="widget_text_off">无线调试：关</string>
     <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB：缺少权限（需要 pm grant）</string>
-    <string name="permission_error_toast">缺少权限。请在电脑上运行一次：
-adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="permission_error_toast">缺少权限。请在电脑上运行一次：\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">无线调试端点</string>
     <string name="notification_channel_desc">无线调试的当前 IP 地址和端口</string>
     <string name="notification_title_active">KeepADB：Wifi-ADB 已启用</string>
@@ -315,5 +314,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_wifi_aps_feature_toggle">启用 Wi-Fi 与接入点检测</string>
     <string name="settings_wifi_aps_beta_description">接入点检测是一项实验性测试功能，用于扫描附近的 Wi-Fi 接入点。该功能需要位置权限，并可能消耗更多电量。</string>
     <string name="settings_section_network_beta">网络（测试版）</string>
+    <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">受信任网络与 Wi-Fi 和接入点基于相同的网络信任逻辑，两者均为实验性测试版功能。展开下方任一项即可单独启用并配置。</string>
 </resources>

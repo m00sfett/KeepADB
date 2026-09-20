@@ -26,8 +26,7 @@
     <string name="widget_text_off">Depuração sem fio: NÃO</string>
     <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: Permissão ausente (pm grant necessário)</string>
-    <string name="permission_error_toast">Permissão ausente. Execute uma vez no PC:
-adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="permission_error_toast">Permissão ausente. Execute uma vez no PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Endpoint de depuração sem fio</string>
     <string name="notification_channel_desc">Endereço IP e porta atuais da depuração sem fio</string>
     <string name="notification_title_active">KeepADB: Wifi-ADB ATIVADO</string>
@@ -315,5 +314,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_wifi_aps_feature_toggle">Ativar detecção de Wi-Fi e pontos de acesso</string>
     <string name="settings_wifi_aps_beta_description">A detecção de pontos de acesso é um recurso beta experimental que procura pontos de acesso Wi-Fi próximos. Requer permissão de localização e pode consumir mais bateria.</string>
     <string name="settings_section_network_beta">Rede (Beta)</string>
+    <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Redes confiáveis e Wi-Fi e pontos de acesso baseiam-se na mesma lógica de confiança de rede e são ambas funcionalidades experimentais beta. Expanda uma delas abaixo para ativá-la e configurá-la separadamente.</string>
 </resources>

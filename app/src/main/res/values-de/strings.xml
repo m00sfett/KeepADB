@@ -314,5 +314,6 @@
     <string name="settings_wifi_aps_feature_toggle">WLAN- &amp; Access-Point-Erkennung aktivieren</string>
     <string name="settings_wifi_aps_beta_description">Die Access-Point-Erkennung ist eine experimentelle Beta-Funktion zur Erfassung von WLAN-Access-Points in der Umgebung. Sie erfordert die Standortberechtigung und kann mehr Akku verbrauchen.</string>
     <string name="settings_section_network_beta">Netzwerk (Beta)</string>
+    <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Vertrauenswürdige Netzwerke und WLAN &amp; Access Points bauen auf derselben Netzwerk-Vertrauenslogik auf und sind beide experimentelle Beta-Funktionen. Klappe eine der beiden unten auf, um sie einzuschalten und einzeln zu konfigurieren.</string>
 </resources>
