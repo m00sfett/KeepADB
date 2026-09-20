@@ -139,14 +139,19 @@ public class SettingsActivity extends Activity {
     // listener on its header. #518: the former language card was removed from the content
     // entirely and replaced by the compact toolbar button, so it no longer appears in this table.
     // #510: order below now matches the on-screen order -- Notification/Display/Advice-Banner/
-    // Battery-Optimization sit together under the shared "Other" heading, which is a plain,
-    // permanently visible label (like Version) and is not part of this table -- it has no
-    // header/body/arrow of its own. #519: the former "Network (Beta)" heading is now itself a
-    // real collapsible card (settings_network_beta_header/body/arrow below), containing two
-    // independently collapsible sub-cards -- Trusted Networks and Wi-Fi & access points -- each
-    // still with its own header/body/arrow entry in this same table. #520: the same treatment
-    // now applies to "USB-ADB" (settings_usb_adb_header/body/arrow below), containing the two
-    // previously top-level USB-ADB Notification and USB -> WLAN-ADB Handover sub-cards.
+    // Battery-Optimization sit together under the "Sonstiges" heading. #519: the former
+    // "Network (Beta)" heading is now itself a real collapsible card
+    // (settings_network_beta_header/body/arrow below), containing two independently collapsible
+    // sub-cards -- Trusted Networks and Wi-Fi & access points -- each still with its own
+    // header/body/arrow entry in this same table. #520: the same treatment now applies to
+    // "USB-ADB" (settings_usb_adb_header/body/arrow below), containing the two previously
+    // top-level USB-ADB Notification and USB -> WLAN-ADB Handover sub-cards. #521: "Sonstiges"
+    // (formerly #510's plain, permanently visible group heading) is now itself a real
+    // collapsible card too (settings_misc_header/body/arrow below) -- but unlike #519/#520, its
+    // four contained sections (Notification/Display/Advice-Banner/Battery-Optimization) are
+    // NOT independently collapsible sub-cards; they are shown directly, one below another,
+    // separated by divider lines, once the outer card is expanded. Their switches therefore no
+    // longer have header/body/arrow entries of their own in this table.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
             {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body, R.id.settings_usb_adb_arrow},
@@ -158,13 +163,7 @@ public class SettingsActivity extends Activity {
             {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body,
                     R.id.settings_trusted_network_arrow},
             {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body, R.id.settings_wifi_aps_arrow},
-            {R.id.settings_notification_header, R.id.settings_notification_body, R.id.settings_notification_arrow},
-            {R.id.settings_display_header, R.id.settings_display_body, R.id.settings_display_arrow},
-            {R.id.settings_advice_banner_header, R.id.settings_advice_banner_body,
-                    R.id.settings_advice_banner_arrow},
-            {R.id.settings_battery_optimization_panel_header,
-                    R.id.settings_battery_optimization_panel_body,
-                    R.id.settings_battery_optimization_panel_arrow},
+            {R.id.settings_misc_header, R.id.settings_misc_body, R.id.settings_misc_arrow},
             {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body, R.id.settings_diagnostics_arrow},
     };
 

@@ -1,0 +1,4 @@
+Changed: "Sonstiges" (Other) is now a single collapsible card. Its four settings --
+persistent notification, keep display on, security/network advice, battery-optimization
+advice -- show directly inside it, separated by divider lines, once opened. Same features,
+same defaults, just tidier when collapsed.
