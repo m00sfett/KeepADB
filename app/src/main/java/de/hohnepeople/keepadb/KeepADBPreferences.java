@@ -541,7 +541,7 @@ final class KeepADBPreferences {
      * never touches {@code adb_wifi_enabled} or any other persisted original value. */
     static boolean isPrivacyModeEnabled(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getBoolean(KEY_PRIVACY_MODE_ENABLED, true);
+        return prefs.getBoolean(KEY_PRIVACY_MODE_ENABLED, false);
     }
 
     static void setPrivacyModeEnabled(Context context, boolean enabled) {

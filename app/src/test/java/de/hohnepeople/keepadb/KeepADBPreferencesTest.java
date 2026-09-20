@@ -227,10 +227,10 @@ public class KeepADBPreferencesTest {
                         context, "http://100.111.111.21:50829/register/s20"));
     }
 
-    /** #488: a new installation starts with privacy masking enabled. */
+    /** #509: a new installation starts with privacy masking disabled (addresses fully visible). */
     @Test
-    public void testPrivacyModeDefaultsToEnabled() {
-        assertTrue(KeepADBPreferences.isPrivacyModeEnabled(new FakeContext()));
+    public void testPrivacyModeDefaultsToDisabled() {
+        assertFalse(KeepADBPreferences.isPrivacyModeEnabled(new FakeContext()));
     }
 
     /** #483: with the privacy toggle on, addresses are masked and ports stay readable. */
