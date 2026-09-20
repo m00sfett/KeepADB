@@ -39,9 +39,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">Mantieni attivo debug wireless</string>
     <string name="notification_service_text">Monitoraggio connessione Wi-Fi e stato del debug wireless</string>
     <string name="notification_permission_missing_title">KeepADB: Autorizzazione mancante</string>
-    <string name="notification_permission_panel_title">Resta informato su KeepADB</string>
-    <string name="notification_permission_panel_body">Consenti le notifiche per permettere a KeepADB di mostrare se il servizio in background e Keep-Alive sono attivi, e avvisarti subito se la connessione cade. Il debug wireless continua comunque a funzionare.</string>
-    <string name="notification_permission_request_button">Attiva notifiche</string>
+    <string name="notification_permission_panel_title">Notifiche</string>
+    <string name="notification_permission_panel_body">Con le notifiche attive puoi vedere se il servizio in background di KeepADB e Keep-Alive sono in esecuzione. Se la connessione cade, KeepADB te lo segnala subito. Il debug wireless funziona bene anche senza questa autorizzazione.</string>
+    <string name="notification_permission_request_button">Consenti notifiche</string>
     <string name="notification_permission_settings_button">Apri impostazioni notifiche</string>
     <string name="notification_permission_missing_text">Concedi WRITE_SECURE_SETTINGS da PC tramite adb shell pm grant</string>
     <string name="action_settings">Impostazioni</string>

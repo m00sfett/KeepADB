@@ -39,9 +39,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">Pertahankan Debugging Nirkabel Tetap Aktif</string>
     <string name="notification_service_text">Memantau koneksi Wi-Fi dan status Debugging Nirkabel</string>
     <string name="notification_permission_missing_title">KeepADB: Izin kurang</string>
-    <string name="notification_permission_panel_title">Tetap dapatkan info tentang KeepADB</string>
-    <string name="notification_permission_panel_body">Izinkan notifikasi agar KeepADB dapat menampilkan status layanan latar belakang dan Keep-Alive, serta segera memberi tahu Anda jika koneksi terputus. Wireless Debugging tetap berfungsi baik dengan atau tanpa izin ini.</string>
-    <string name="notification_permission_request_button">Aktifkan notifikasi</string>
+    <string name="notification_permission_panel_title">Notifikasi</string>
+    <string name="notification_permission_panel_body">Dengan notifikasi diaktifkan, Anda dapat melihat apakah layanan latar belakang KeepADB dan Keep-Alive sedang berjalan. Jika koneksi terputus, KeepADB akan segera memberi tahu Anda. Wireless Debugging tetap berfungsi baik tanpa izin ini.</string>
+    <string name="notification_permission_request_button">Izinkan notifikasi</string>
     <string name="notification_permission_settings_button">Buka setelan notifikasi</string>
     <string name="notification_permission_missing_text">Berikan WRITE_SECURE_SETTINGS dari PC melalui adb shell pm grant</string>
     <string name="action_settings">Pengaturan</string>

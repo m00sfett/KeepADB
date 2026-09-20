@@ -39,9 +39,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">إبقاء تصحيح الأخطاء اللاسلكي نشطًا</string>
     <string name="notification_service_text">مراقبة اتصال Wi-Fi وحالة تصحيح الأخطاء اللاسلكي</string>
     <string name="notification_permission_missing_title">KeepADB: الإذن مفقود</string>
-    <string name="notification_permission_panel_title">ابقَ على اطلاع بحالة KeepADB</string>
-    <string name="notification_permission_panel_body">اسمح بالإشعارات حتى يتمكن KeepADB من عرض ما إذا كانت الخدمة في الخلفية وKeep-Alive تعملان، وإخبارك فورًا إذا انقطع الاتصال. يستمر التصحيح اللاسلكي في العمل في كلتا الحالتين.</string>
-    <string name="notification_permission_request_button">تفعيل الإشعارات</string>
+    <string name="notification_permission_panel_title">الإشعارات</string>
+    <string name="notification_permission_panel_body">بتفعيل الإشعارات يمكنك معرفة ما إذا كانت خدمة KeepADB في الخلفية وKeep-Alive تعملان. وإذا انقطع الاتصال، يُعلمك KeepADB فورًا. يعمل التصحيح اللاسلكي بشكل جيد أيضًا بدون هذا الإذن.</string>
+    <string name="notification_permission_request_button">السماح بالإشعارات</string>
     <string name="notification_permission_settings_button">فتح إعدادات الإشعارات</string>
     <string name="notification_permission_missing_text">امنح WRITE_SECURE_SETTINGS من الكمبيوتر عبر adb shell pm grant</string>
     <string name="action_settings">الإعدادات</string>

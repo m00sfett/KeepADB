@@ -39,9 +39,9 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">Duy trì gỡ lỗi không dây hoạt động</string>
     <string name="notification_service_text">Đang theo dõi kết nối Wi-Fi và trạng thái gỡ lỗi không dây</string>
     <string name="notification_permission_missing_title">KeepADB: Thiếu quyền</string>
-    <string name="notification_permission_panel_title">Luôn cập nhật thông tin về KeepADB</string>
-    <string name="notification_permission_panel_body">Cho phép thông báo để KeepADB có thể hiển thị dịch vụ nền và Keep-Alive có đang chạy hay không, đồng thời báo cho bạn ngay khi mất kết nối. Gỡ lỗi không dây vẫn hoạt động bình thường trong mọi trường hợp.</string>
-    <string name="notification_permission_request_button">Bật thông báo</string>
+    <string name="notification_permission_panel_title">Thông báo</string>
+    <string name="notification_permission_panel_body">Khi bật thông báo, bạn có thể xem dịch vụ nền của KeepADB và Keep-Alive có đang chạy hay không. Nếu mất kết nối, KeepADB sẽ báo cho bạn ngay lập tức. Gỡ lỗi không dây vẫn hoạt động tốt mà không cần quyền này.</string>
+    <string name="notification_permission_request_button">Cho phép thông báo</string>
     <string name="notification_permission_settings_button">Mở cài đặt thông báo</string>
     <string name="notification_permission_missing_text">Cấp quyền WRITE_SECURE_SETTINGS từ PC qua adb shell pm grant</string>
     <string name="action_settings">Cài đặt</string>

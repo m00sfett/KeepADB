@@ -22,6 +22,16 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.19] - Unreleased
+
+### Changed
+- Notification permission card: shorter, more natural copy. Title is now just
+  "Notifications" instead of repeating the app name; the body explains the benefit (seeing
+  whether the background service and Keep-Alive are running), the connection-drop alert, and
+  that Wireless Debugging keeps working without the permission. Button labels rephrased
+  ("Allow notifications" / "Open notification settings"). Permission and fallback logic
+  unchanged, text only. Localized in all supported languages (#516).
+
 ## [1.8.18] - Unreleased
 
 ### Documentation

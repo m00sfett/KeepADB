@@ -39,10 +39,10 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_service_title">保持無線偵錯啟用</string>
     <string name="notification_service_text">正在監控 Wi-Fi 連線與無線偵錯狀態</string>
     <string name="notification_permission_missing_title">KeepADB：缺少權限</string>
-    <string name="notification_permission_panel_title">隨時掌握 KeepADB 狀態</string>
-    <string name="notification_permission_panel_body">允許通知後，KeepADB 可以顯示背景服務與 Keep-Alive 是否正常運作，並在連線中斷時立即通知你。無論是否允許，無線偵錯本身都會繼續運作。</string>
-    <string name="notification_permission_request_button">啟用通知</string>
-    <string name="notification_permission_settings_button">開啟通知設定</string>
+    <string name="notification_permission_panel_title">通知</string>
+    <string name="notification_permission_panel_body">開啟通知後，你可以查看 KeepADB 的背景服務與 Keep-Alive 是否正在運作。如果連線中斷，KeepADB 會立即通知你。即使沒有此權限，無線偵錯也能正常運作。</string>
+    <string name="notification_permission_request_button">允許通知</string>
+    <string name="notification_permission_settings_button">打開通知設定</string>
     <string name="notification_permission_missing_text">請在電腦上透過 adb shell pm grant 授予 WRITE_SECURE_SETTINGS 權限</string>
     <string name="action_settings">設定</string>
     <string name="privacy_toggle_enable_accessibility">啟用隱私模式（隱藏網路位址）</string>
