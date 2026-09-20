@@ -136,10 +136,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_deregistered">wyrejestrowany</string>
     <string name="webhook_status_failed">niepowodzenie</string>
     <string name="settings_permission_warning">Brak uprawnienia systemowego WRITE_SECURE_SETTINGS. KeepADB nie może sterować debugowaniem bezprzewodowym przed nadaniem uprawnień.</string>
-    <string name="settings_section_language">Język</string>
     <string name="settings_language_label">Język aplikacji</string>
     <string name="settings_language_accessibility">Język aplikacji: %1$s</string>
-    <string name="settings_language_subtext">Wybierz język interfejsu KeepADB</string>
     <string name="settings_language_system_default">Domyślny systemowy</string>
     <string name="settings_language_dialog_title">Wybierz język</string>
     <string name="settings_section_misc">Inne</string>

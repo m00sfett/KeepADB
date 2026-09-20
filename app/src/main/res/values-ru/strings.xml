@@ -136,10 +136,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_deregistered">регистрация отменена</string>
     <string name="webhook_status_failed">ошибка</string>
     <string name="settings_permission_warning">Отсутствует системное разрешение WRITE_SECURE_SETTINGS. KeepADB не может переключать беспроводную отладку до предоставления разрешения.</string>
-    <string name="settings_section_language">Язык</string>
     <string name="settings_language_label">Язык приложения</string>
     <string name="settings_language_accessibility">Язык приложения: %1$s</string>
-    <string name="settings_language_subtext">Выберите язык интерфейса для KeepADB</string>
     <string name="settings_language_system_default">По умолчанию в системе</string>
     <string name="settings_language_dialog_title">Выберите язык</string>
     <string name="settings_section_misc">Прочее</string>

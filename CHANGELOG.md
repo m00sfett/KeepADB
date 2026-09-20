@@ -22,6 +22,23 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.21] - Unreleased
+
+Note: this and the following three sections (#518-#521) were developed on a branch that
+originally started counting from `1.8.18`/115, in parallel with the `1.8.18`-`1.8.20`/115-117
+sequence above (#515-#517), which merged to `master` first. Renumbered on integration so the
+version sequence stays linear and non-colliding; no functional content changed.
+
+### Changed
+- Language selector moved to the Settings toolbar: replaced the large Language section in the
+  Settings content column with a compact translate icon button in the top-right of the header.
+  Tapping it opens the same language selection dialog as before (all supported languages, each
+  shown in its own endonym, "System default" first); the underlying selection/storage logic in
+  `KeepADBLocaleHelper`/`KeepADBPreferences` is unchanged. The icon is a newly drawn "A" +
+  stylized CJK-character glyph (a self-authored AOSP vector drawable, `ic_translate.xml`),
+  replacing the old `ic_globe` icon, which rendered as a near-blank ellipse at small size and
+  was being reused unchanged from the previous large-card layout (#518).
+
 ## [1.8.20] - Unreleased
 
 ### Changed

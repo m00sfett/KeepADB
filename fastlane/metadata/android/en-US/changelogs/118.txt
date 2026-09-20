@@ -1,0 +1,3 @@
+Changed: the language switcher moved from a large section in Settings to a compact icon
+button in the top-right corner, always one tap away. Same language list, same selection
+logic -- just less scrolling.

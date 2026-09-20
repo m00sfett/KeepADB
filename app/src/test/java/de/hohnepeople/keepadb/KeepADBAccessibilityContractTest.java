@@ -121,7 +121,7 @@ public class KeepADBAccessibilityContractTest {
         for (int id : mainControls) assertMinSize(main.findViewById(id));
 
         int[] settingsControls = {
-                R.id.btn_back, R.id.settings_language_selector,
+                R.id.btn_back, R.id.settings_language_toolbar_button,
                 R.id.settings_webhook_header, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_url, R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_notification_header, R.id.settings_usb_notification_toggle,
@@ -226,7 +226,7 @@ public class KeepADBAccessibilityContractTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity settings = settingsController.get();
         int[] settingsControls = {
-                R.id.btn_back, R.id.settings_language_selector, R.id.settings_webhook_toggle,
+                R.id.btn_back, R.id.settings_language_toolbar_button, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_notification_toggle, R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
@@ -252,7 +252,7 @@ public class KeepADBAccessibilityContractTest {
         String languageTag = KeepADBLocaleHelper.getSelectedLanguageTag(settings);
         String languageName = KeepADBLocaleHelper.getLanguageDisplayName(settings, languageTag);
         assertEquals(settings.getString(R.string.settings_language_accessibility, languageName),
-                settings.findViewById(R.id.settings_language_selector).getContentDescription());
+                settings.findViewById(R.id.settings_language_toolbar_button).getContentDescription());
         assertEquals(settings.getString(R.string.settings_usb_handover_accessibility,
                         settings.getString(R.string.settings_usb_handover_mode_off)),
                 settings.findViewById(R.id.settings_usb_handover_selector).getContentDescription());
@@ -385,8 +385,9 @@ public class KeepADBAccessibilityContractTest {
         // come first. Below them sits the shared "Network (Beta)" group heading with Trusted
         // Networks and Wi-Fi & access points grouped underneath it, then the shared "Other"
         // group heading with the four notice/display-preference cards grouped underneath it.
+        // #518: the language panel no longer exists in this content column at all -- it moved to
+        // the compact toolbar button in the header -- so it is no longer part of this table.
         int[] panels = {
-                R.id.settings_language_panel,
                 R.id.settings_webhook_panel,
                 R.id.settings_usb_notification_panel,
                 R.id.settings_usb_handover_panel,

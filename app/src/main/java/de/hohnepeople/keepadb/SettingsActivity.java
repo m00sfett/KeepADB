@@ -48,8 +48,7 @@ public class SettingsActivity extends Activity {
     private ScrollView scrollView;
     private View webhookPanel;
     private View permissionPanel;
-    private TextView languageSelectedText;
-    private View languageSelector;
+    private View languageToolbarButton;
 
     private Switch hideNotificationToggle;
     private TextView hideNotificationSubtext;
@@ -135,13 +134,14 @@ public class SettingsActivity extends Activity {
     // settings page is opened -- is always collapsed again, per the #471 acceptance criteria.
     // The permission-warning panel is deliberately excluded: it is a conditional safety notice,
     // not a configurable option card, and stays fully visible whenever it is shown at all.
-    // #478: the language card (first) and the version card (last) are excluded here too -- they
-    // are now permanently visible, non-collapsible entries pinned directly on the background,
-    // with neither an arrow nor a click listener on their header.
+    // #478: the version card (last) is excluded here too -- it is a permanently visible,
+    // non-collapsible entry pinned directly on the background, with neither an arrow nor a click
+    // listener on its header. #518: the former language card was removed from the content
+    // entirely and replaced by the compact toolbar button, so it no longer appears in this table.
     // #510: order below now matches the on-screen order -- Trusted Networks and Wi-Fi & access
     // points sit together under the shared "Network (Beta)" heading, and Notification/Display/
     // Advice-Banner/Battery-Optimization sit together under the shared "Other" heading. Both
-    // group headings are plain, permanently visible labels (like Language/Version) and are not
+    // group headings are plain, permanently visible labels (like Version) and are not
     // part of this table -- they have no header/body/arrow of their own.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
@@ -197,9 +197,8 @@ public class SettingsActivity extends Activity {
             bindCollapsibleCard(card[0], card[1], card[2]);
         }
 
-        languageSelectedText = findViewById(R.id.settings_language_selected_text);
-        languageSelector = findViewById(R.id.settings_language_selector);
-        languageSelector.setOnClickListener(v -> showLanguageSelectionDialog());
+        languageToolbarButton = findViewById(R.id.settings_language_toolbar_button);
+        languageToolbarButton.setOnClickListener(v -> showLanguageSelectionDialog());
 
         hideNotificationToggle = findViewById(R.id.settings_hide_notification_toggle);
         hideNotificationSubtext = findViewById(R.id.settings_hide_notification_subtext);
@@ -1041,8 +1040,7 @@ public class SettingsActivity extends Activity {
 
         String currentLanguageTag = KeepADBLocaleHelper.getSelectedLanguageTag(this);
         String displayName = KeepADBLocaleHelper.getLanguageDisplayName(this, currentLanguageTag);
-        languageSelectedText.setText(displayName);
-        languageSelector.setContentDescription(
+        languageToolbarButton.setContentDescription(
                 getString(R.string.settings_language_accessibility, displayName));
 
         boolean webhookEnabled = KeepADBPreferences.isRegisterWebhookEnabled(this);

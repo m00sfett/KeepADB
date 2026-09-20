@@ -301,7 +301,7 @@ public class SettingsActivityTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        View languageSelector = activity.findViewById(R.id.settings_language_selector);
+        View languageSelector = activity.findViewById(R.id.settings_language_toolbar_button);
         assertNotNull(languageSelector);
         String currentLanguageTag = KeepADBLocaleHelper.getSelectedLanguageTag(activity);
         String languageDisplayName = KeepADBLocaleHelper.getLanguageDisplayName(activity, currentLanguageTag);
@@ -331,7 +331,7 @@ public class SettingsActivityTest {
                 .putExtra("adb", true);
         RuntimeEnvironment.getApplication().sendStickyBroadcast(stickyUsbState);
 
-        activity.findViewById(R.id.settings_language_selector).performClick();
+        activity.findViewById(R.id.settings_language_toolbar_button).performClick();
         ShadowLooper.idleMainLooper();
 
         AlertDialog dialog = (AlertDialog) org.robolectric.shadows.ShadowDialog.getLatestDialog();
@@ -545,31 +545,26 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #478: the first (language) and last (version) settings entries are pinned -- always
-     * visible and never collapsible -- unlike every other card in {@link #COLLAPSIBLE_CARDS}.
+     * #478: the last (version) settings entry is pinned -- always visible and never collapsible
+     * -- unlike every other card in {@link #COLLAPSIBLE_CARDS}. #518: the former language entry
+     * was removed from this content column entirely (it is now the toolbar button in the
+     * header), so it is no longer part of this contract.
      */
     @Test
-    public void languageAndVersionCardsArePermanentlyVisibleAndDoNotCollapse() {
+    public void versionCardIsPermanentlyVisibleAndDoesNotCollapse() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        View languageBody = activity.findViewById(R.id.settings_language_body);
         View versionBody = activity.findViewById(R.id.settings_version_body);
-        View languageHeader = activity.findViewById(R.id.settings_language_header);
         View versionHeader = activity.findViewById(R.id.settings_version_header);
 
-        assertEquals(View.VISIBLE, languageBody.getVisibility());
         assertEquals(View.VISIBLE, versionBody.getVisibility());
-        assertFalse("Language header must not be clickable -- it no longer collapses",
-                languageHeader.hasOnClickListeners());
         assertFalse("Version header must not be clickable -- it no longer collapses",
                 versionHeader.hasOnClickListeners());
 
-        // Clicking the (non-interactive) header rows must not toggle anything.
-        languageHeader.performClick();
+        // Clicking the (non-interactive) header row must not toggle anything.
         versionHeader.performClick();
-        assertEquals(View.VISIBLE, languageBody.getVisibility());
         assertEquals(View.VISIBLE, versionBody.getVisibility());
 
         controller.pause().stop().destroy();

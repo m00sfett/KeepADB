@@ -136,10 +136,8 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="webhook_status_deregistered">등록 해제됨</string>
     <string name="webhook_status_failed">실패</string>
     <string name="settings_permission_warning">시스템 권한 WRITE_SECURE_SETTINGS가 없습니다. 권한이 부여될 때까지 KeepADB는 무선 디버깅을 전환할 수 없습니다.</string>
-    <string name="settings_section_language">언어</string>
     <string name="settings_language_label">앱 언어</string>
     <string name="settings_language_accessibility">앱 언어: %1$s</string>
-    <string name="settings_language_subtext">KeepADB의 인터페이스 언어를 선택하세요</string>
     <string name="settings_language_system_default">시스템 기본값</string>
     <string name="settings_language_dialog_title">언어 선택</string>
     <string name="settings_section_misc">기타</string>
