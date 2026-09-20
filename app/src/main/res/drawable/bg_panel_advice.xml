@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Security/network advice card: same rounded-card shape as bg_panel, but keeps the
+     dark amber surface and gold hairline accent (issue #228) so the card still reads
+     as a distinct warning among the other setup cards (issue #517). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/advice_surface" />
+    <stroke android:width="1dp" android:color="@color/advice_border" />
+    <corners android:radius="@dimen/radius_panel" />
+    <padding android:left="16dp" android:top="16dp" android:right="16dp" android:bottom="16dp" />
+</shape>

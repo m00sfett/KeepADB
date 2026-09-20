@@ -293,6 +293,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">Dữ liệu chẩn đoán KeepADB tùy chọn đã loại bỏ thông tin nhạy cảm (xem lại trước khi gửi)</string>
     <string name="advice_banner_title">Bảo mật và mạng</string>
     <string name="advice_banner_text">Gỡ lỗi không dây mở một cổng ADB trên mạng của bạn. Hãy dùng Wi-Fi đáng tin cậy hoặc VPN (ví dụ: Tailscale) và tắt khi ở điểm phát sóng công cộng. Đừng chia sẻ endpoint công khai hay chấp nhận yêu cầu ghép nối bất ngờ.</string>
+    <string name="security_notice_dismiss">Đóng thông báo</string>
     <string name="action_dismiss">Đóng</string>
     <string name="settings_advice_banner_toggle">Hiển thị lời khuyên bảo mật &amp; mạng</string>
     <string name="settings_advice_banner_subtext">Hiển thị biểu ngữ cảnh báo bảo mật ở đầu màn hình chính.</string>

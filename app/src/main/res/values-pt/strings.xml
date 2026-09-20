@@ -293,6 +293,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">Dados de diagnóstico KeepADB opcionais e redigidos (verifique antes do envio)</string>
     <string name="advice_banner_title">Segurança e rede</string>
     <string name="advice_banner_text">A depuração sem fio abre uma porta ADB na sua rede. Use uma rede Wi-Fi confiável ou uma VPN (ex.: Tailscale) e desative-a em pontos de acesso públicos. Nunca compartilhe seu endpoint publicamente nem aceite solicitações de emparelhamento inesperadas.</string>
+    <string name="security_notice_dismiss">Fechar aviso</string>
     <string name="action_dismiss">Fechar</string>
     <string name="settings_advice_banner_toggle">Mostrar aviso de segurança e rede</string>
     <string name="settings_advice_banner_subtext">Exibe um banner de aviso de segurança na parte superior da tela principal.</string>

@@ -293,6 +293,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">Dati diagnostici KeepADB opzionali e oscurati (controllali prima dell’invio)</string>
     <string name="advice_banner_title">Sicurezza e rete</string>
     <string name="advice_banner_text">Il debug wireless apre una porta ADB sulla tua rete. Usa una rete Wi-Fi affidabile o una VPN (es. Tailscale) e disattivalo sugli hotspot pubblici. Non condividere mai il tuo endpoint pubblicamente né accettare richieste di associazione impreviste.</string>
+    <string name="security_notice_dismiss">Chiudi avviso</string>
     <string name="action_dismiss">Chiudi</string>
     <string name="settings_advice_banner_toggle">Mostra consigli su sicurezza e rete</string>
     <string name="settings_advice_banner_subtext">Mostra un banner di avviso di sicurezza nella parte superiore della schermata principale.</string>

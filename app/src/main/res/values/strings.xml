@@ -299,6 +299,7 @@
     <string name="issue_report_diagnostics_section">Optional redacted KeepADB diagnostics (review before submitting)</string>
     <string name="advice_banner_title">Security &amp; network advice</string>
     <string name="advice_banner_text">Wireless Debugging opens an ADB port on your network. Use trusted private Wi-Fi or a VPN (e.g. Tailscale), and turn it off on public hotspots. Never share your endpoint publicly or accept an unexpected pairing prompt.</string>
+    <string name="security_notice_dismiss">Dismiss notice</string>
     <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>

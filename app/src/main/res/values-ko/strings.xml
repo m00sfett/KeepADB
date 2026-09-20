@@ -293,6 +293,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">선택적 KeepADB 진단 데이터(민감한 정보 삭제됨, 전송 전에 검토)</string>
     <string name="advice_banner_title">보안 및 네트워크</string>
     <string name="advice_banner_text">무선 디버깅은 네트워크에 ADB 포트를 엽니다. 신뢰할 수 있는 Wi-Fi나 VPN(예: Tailscale)을 사용하고 공용 핫스팟에서는 꺼두세요. 엔드포인트를 공개적으로 공유하지 말고 예상치 못한 페어링 요청은 수락하지 마세요.</string>
+    <string name="security_notice_dismiss">알림 닫기</string>
     <string name="action_dismiss">닫기</string>
     <string name="settings_advice_banner_toggle">보안 및 네트워크 안내 표시</string>
     <string name="settings_advice_banner_subtext">메인 화면 상단에 보안 경고 배너를 표시합니다.</string>

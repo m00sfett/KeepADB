@@ -22,6 +22,17 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.20] - Unreleased
+
+### Changed
+- Security & network advice: now rendered as a card in the same style as the other
+  first-time-setup cards (rounded panel, warning icon, title, body), instead of a full-bleed
+  banner. The standalone "X" close icon is replaced by an explicit red "Dismiss notice" button
+  with yellow text, matching the other primary card buttons. Notice text, gold accent
+  (background/border), warning icon, and the existing dismiss persistence are unchanged --
+  only the container and the dismiss control changed. Localized in all 19 supported languages
+  (#517).
+
 ## [1.8.19] - Unreleased
 
 ### Changed

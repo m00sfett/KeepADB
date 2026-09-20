@@ -293,6 +293,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">Дополнительные отредактированные диагностические данные KeepADB (проверьте перед отправкой)</string>
     <string name="advice_banner_title">Безопасность и сеть</string>
     <string name="advice_banner_text">Беспроводная отладка открывает порт ADB в вашей сети. Используйте доверенную сеть Wi-Fi или VPN (например, Tailscale) и отключайте её в публичных точках доступа. Никогда не публикуйте свою конечную точку и не подтверждайте неожиданные запросы сопряжения.</string>
+    <string name="security_notice_dismiss">Закрыть уведомление</string>
     <string name="action_dismiss">Закрыть</string>
     <string name="settings_advice_banner_toggle">Показывать рекомендации по безопасности и сети</string>
     <string name="settings_advice_banner_subtext">Показывает баннер предупреждения о безопасности вверху главного экрана.</string>

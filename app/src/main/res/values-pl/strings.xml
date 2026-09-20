@@ -293,6 +293,7 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="issue_report_diagnostics_section">Opcjonalne zredagowane dane diagnostyczne KeepADB (sprawdź przed wysłaniem)</string>
     <string name="advice_banner_title">Bezpieczeństwo i sieć</string>
     <string name="advice_banner_text">Debugowanie bezprzewodowe otwiera port ADB w Twojej sieci. Korzystaj z zaufanej sieci Wi-Fi lub VPN (np. Tailscale) i wyłączaj je w publicznych hotspotach. Nigdy nie udostępniaj publicznie swojego punktu końcowego ani nie akceptuj nieoczekiwanych próśb o parowanie.</string>
+    <string name="security_notice_dismiss">Zamknij powiadomienie</string>
     <string name="action_dismiss">Zamknij</string>
     <string name="settings_advice_banner_toggle">Pokaż wskazówki dotyczące bezpieczeństwa i sieci</string>
     <string name="settings_advice_banner_subtext">Wyświetla baner ostrzeżenia o bezpieczeństwie u góry głównego ekranu.</string>
