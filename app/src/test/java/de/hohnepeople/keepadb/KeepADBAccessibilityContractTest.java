@@ -113,7 +113,9 @@ public class KeepADBAccessibilityContractTest {
 
         int[] mainControls = {
                 R.id.btn_open_settings, R.id.btn_dismiss_advice_banner, R.id.setup_refresh,
-                R.id.btn_open_notification_settings, R.id.btn_open_battery_settings,
+                R.id.btn_open_notification_settings,
+                R.id.btn_dismiss_notification_permission_panel,
+                R.id.btn_open_battery_settings,
                 R.id.btn_dismiss_battery_optimization_panel,
                 R.id.toggle, R.id.keep_alive_toggle, R.id.hide_notification_toggle,
                 R.id.webhook_setup_button
@@ -212,6 +214,11 @@ public class KeepADBAccessibilityContractTest {
         assertNotNull(main.findViewById(R.id.toggle));
         assertTrue(main.findViewById(R.id.btn_open_settings).hasOnClickListeners());
         assertTrue(main.findViewById(R.id.btn_dismiss_advice_banner).hasOnClickListeners());
+        assertTrue(main.findViewById(R.id.btn_dismiss_notification_permission_panel)
+                .hasOnClickListeners());
+        assertEquals(main.getString(R.string.action_dismiss),
+                main.findViewById(R.id.btn_dismiss_notification_permission_panel)
+                        .getContentDescription());
         assertTrue(main.findViewById(R.id.btn_dismiss_battery_optimization_panel)
                 .hasOnClickListeners());
         assertTrue(main.findViewById(R.id.toggle).hasOnClickListeners());

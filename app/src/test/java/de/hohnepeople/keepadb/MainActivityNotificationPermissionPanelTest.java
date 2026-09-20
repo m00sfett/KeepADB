@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
@@ -83,6 +84,44 @@ public class MainActivityNotificationPermissionPanelTest {
 
         assertEquals(View.GONE,
                 activity.findViewById(R.id.notification_permission_panel).getVisibility());
+    }
+
+    @Test
+    @Config(sdk = 32)
+    public void panelStaysHiddenBeforeAndroid13() {
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+
+        assertEquals(View.GONE, controller.get()
+                .findViewById(R.id.notification_permission_panel).getVisibility());
+    }
+
+    @Test
+    public void dismissHidesPanelWithoutRequestingPermissionAndSurvivesRestart() {
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        MainActivity activity = controller.get();
+
+        assertTrue(activity.findViewById(R.id.btn_dismiss_notification_permission_panel)
+                .performClick());
+
+        assertEquals(View.GONE,
+                activity.findViewById(R.id.notification_permission_panel).getVisibility());
+        assertFalse(KeepADBPreferences.isNotificationPermissionPanelVisible(activity));
+        assertEquals(PackageManager.PERMISSION_DENIED,
+                activity.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS));
+        assertNull("Dismiss must not request POST_NOTIFICATIONS",
+                shadowOf(activity).getLastRequestedPermission());
+        assertNull("Dismiss must not open notification settings",
+                shadowOf(activity).getNextStartedActivity());
+        controller.pause().stop().destroy();
+
+        ActivityController<MainActivity> restarted =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        assertEquals("Dismiss state must survive an app restart", View.GONE,
+                restarted.get().findViewById(R.id.notification_permission_panel).getVisibility());
+        assertEquals(PackageManager.PERMISSION_DENIED, restarted.get()
+                .checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS));
     }
 
     @Test

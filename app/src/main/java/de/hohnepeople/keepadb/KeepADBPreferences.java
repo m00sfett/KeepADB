@@ -21,6 +21,11 @@ final class KeepADBPreferences {
     private static final String KEY_LAST_DESIRED_ON = "last_desired_on";
     private static final String KEY_KEEP_DISPLAY_ON = "keep_display_on_enabled";
     private static final String KEY_ADVICE_BANNER_VISIBLE = "advice_banner_visible";
+    // #528: independent dismiss state for the Android 13+ notification-permission panel.
+    // This preference controls only the explanatory panel; it never grants the permission or
+    // changes notification behavior.
+    private static final String KEY_NOTIFICATION_PERMISSION_PANEL_VISIBLE =
+            "notification_permission_panel_visible";
     // #502: independent dismiss state for the battery-optimization advice panel on the main
     // screen, following the same visible/dismissed pattern as KEY_ADVICE_BANNER_VISIBLE above.
     private static final String KEY_BATTERY_OPTIMIZATION_PANEL_VISIBLE =
@@ -519,6 +524,17 @@ final class KeepADBPreferences {
     static void setAdviceBannerVisible(Context context, boolean visible) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_ADVICE_BANNER_VISIBLE, visible).apply();
+    }
+
+    /** #528: notification-permission panel visibility (dismiss state). Default ON (true). */
+    static boolean isNotificationPermissionPanelVisible(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_NOTIFICATION_PERMISSION_PANEL_VISIBLE, true);
+    }
+
+    static void setNotificationPermissionPanelVisible(Context context, boolean visible) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_NOTIFICATION_PERMISSION_PANEL_VISIBLE, visible).apply();
     }
 
     /** #502: battery-optimization panel visibility (dismiss state). Default ON (true); a user
