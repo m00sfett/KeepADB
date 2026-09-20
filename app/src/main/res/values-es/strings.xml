@@ -26,8 +26,7 @@
     <string name="widget_text_off">Depuración inalámbrica: NO</string>
     <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: Falta permiso (requiere pm grant)</string>
-    <string name="permission_error_toast">Falta permiso. Ejecuta una vez desde el PC:
-adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="permission_error_toast">Falta permiso. Ejecuta una vez desde el PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Punto final de depuración inalámbrica</string>
     <string name="notification_channel_desc">Dirección IP y puerto actuales de la depuración inalámbrica</string>
     <string name="notification_title_active">KeepADB: Wifi-ADB ACTIVADO</string>
@@ -315,5 +314,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_wifi_aps_feature_toggle">Activar detección de Wi-Fi y puntos de acceso</string>
     <string name="settings_wifi_aps_beta_description">La detección de puntos de acceso es una función beta experimental que analiza puntos de acceso Wi-Fi cercanos. Requiere permiso de ubicación y puede consumir más batería.</string>
     <string name="settings_section_network_beta">Red (Beta)</string>
+    <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Redes de confianza y Wi-Fi y puntos de acceso se basan en la misma lógica de confianza de red y son ambas funciones beta experimentales. Despliega cualquiera de ellas a continuación para activarla y configurarla por separado.</string>
 </resources>

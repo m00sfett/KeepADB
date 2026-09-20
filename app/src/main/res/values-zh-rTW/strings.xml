@@ -26,8 +26,7 @@
     <string name="widget_text_off">無線偵錯：關</string>
     <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB：缺少權限（需要 pm grant）</string>
-    <string name="permission_error_toast">缺少權限。請在電腦上執行一次：
-adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="permission_error_toast">缺少權限。請在電腦上執行一次：\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">無線偵錯端點</string>
     <string name="notification_channel_desc">無線偵錯目前的 IP 位址與連接埠</string>
     <string name="notification_title_active">KeepADB：Wifi-ADB 已啟用</string>
@@ -315,5 +314,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_wifi_aps_feature_toggle">啟用 Wi-Fi 與存取點偵測</string>
     <string name="settings_wifi_aps_beta_description">存取點偵測是一項實驗性測試功能，用於掃描附近的 Wi-Fi 存取點。此功能需要位置權限，並可能消耗更多電力。</string>
     <string name="settings_section_network_beta">網路（測試版）</string>
+    <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">受信任網路與 Wi-Fi 及存取點皆基於相同的網路信任邏輯，兩者皆為實驗性測試版功能。展開下方任一項即可個別啟用並設定。</string>
 </resources>

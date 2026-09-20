@@ -84,6 +84,34 @@ public class KeepADBResourceContractTest {
         }
     }
 
+    @Test
+    public void repairedTurkishPermissionGuidanceContainsOneInstruction() throws Exception {
+        assertEquals("İzin eksik. PC’den bir kez çalıştırın:\n"
+                        + "adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS",
+                compiledValue("permission_error_toast", "tr"));
+    }
+
+    @Test
+    public void permissionGuidancePreservesCompiledLineBreaksInEveryLocale() throws Exception {
+        String defaultValue = compiledValue("permission_error_toast", "");
+        assertEquals("The default permission guidance must contain one line break", 1,
+                countLineBreaks(defaultValue));
+        for (String languageTag : SUPPORTED_LOCALES.keySet()) {
+            assertEquals(languageTag + " changed the compiled permission guidance line breaks",
+                    countLineBreaks(defaultValue),
+                    countLineBreaks(compiledValue("permission_error_toast",
+                            SUPPORTED_LOCALES.get(languageTag))));
+        }
+    }
+
+    private int countLineBreaks(String value) {
+        int count = 0;
+        for (int i = 0; i < value.length(); i++) {
+            if (value.charAt(i) == '\n') count++;
+        }
+        return count;
+    }
+
     /**
      * Checks the linked binary resource table rather than comparing rendered text with English.
      * This is the provenance contract: every generated string key has an actual entry in every

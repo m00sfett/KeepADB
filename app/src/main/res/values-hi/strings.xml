@@ -26,8 +26,7 @@
     <string name="widget_text_off">वायरलेस डीबगिंग: बंद</string>
     <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: अनुमति गायब है (pm grant आवश्यक है)</string>
-    <string name="permission_error_toast">अनुमति गायब है। PC से एक बार चलाएं:
-adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="permission_error_toast">अनुमति गायब है। PC से एक बार चलाएं:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">वायरलेस डीबगिंग एंडपॉइंट</string>
     <string name="notification_channel_desc">वायरलेस डीबगिंग का वर्तमान IP पता और पोर्ट</string>
     <string name="notification_title_active">KeepADB: Wifi-ADB सक्षम</string>
@@ -315,5 +314,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_wifi_aps_feature_toggle">Wi-Fi और एक्सेस पॉइंट पहचान सक्षम करें</string>
     <string name="settings_wifi_aps_beta_description">एक्सेस पॉइंट पहचान एक प्रयोगात्मक बीटा सुविधा है जो आस-पास के Wi-Fi एक्सेस पॉइंट स्कैन करती है। इसके लिए स्थान अनुमति आवश्यक है और यह अधिक बैटरी उपयोग कर सकती है।</string>
     <string name="settings_section_network_beta">नेटवर्क (बीटा)</string>
+    <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">विश्वसनीय नेटवर्क और Wi-Fi और एक्सेस पॉइंट दोनों एक ही नेटवर्क-विश्वास लॉजिक पर आधारित हैं और दोनों प्रायोगिक बीटा सुविधाएं हैं। इसे चालू करने और अलग से कॉन्फ़िगर करने के लिए नीचे दोनों में से किसी एक को खोलें।</string>
 </resources>

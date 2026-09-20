@@ -26,8 +26,7 @@
     <string name="widget_text_off">Debugowanie bezprzewodowe: WYŁ.</string>
     <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: Brak uprawnień (wymagane pm grant)</string>
-    <string name="permission_error_toast">Brak uprawnień. Uruchom raz z komputera:
-adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="permission_error_toast">Brak uprawnień. Uruchom raz z komputera:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Punkt końcowy debugowania bezprzewodowego</string>
     <string name="notification_channel_desc">Bieżący adres IP i port debugowania bezprzewodowego</string>
     <string name="notification_title_active">KeepADB: Wifi-ADB WŁĄCZONE</string>
@@ -315,5 +314,6 @@ adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="settings_wifi_aps_feature_toggle">Włącz wykrywanie Wi-Fi i punktów dostępu</string>
     <string name="settings_wifi_aps_beta_description">Wykrywanie punktów dostępu to eksperymentalna funkcja beta, która skanuje pobliskie punkty dostępu Wi-Fi. Wymaga uprawnienia do lokalizacji i może zużywać więcej baterii.</string>
     <string name="settings_section_network_beta">Sieć (Beta)</string>
+    <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Zaufane sieci oraz Wi-Fi i punkty dostępu opierają się na tej samej logice zaufania sieciowego i są eksperymentalnymi funkcjami beta. Rozwiń dowolną z nich poniżej, aby ją włączyć i skonfigurować osobno.</string>
 </resources>
