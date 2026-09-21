@@ -45,6 +45,23 @@ public final class KeepADBUsbReceiver extends BroadcastReceiver {
         }
     }
 
+    /**
+     * #538: synchronous verified-USB-ADB-connected check for the transport overview, driven by
+     * the same sticky-broadcast query as {@link #refresh(Context)} -- "verified" here means the
+     * system itself reports connected+configured+adb, not merely that a cable is plugged in (see
+     * {@link #isUsbAdbConnected(Intent)}).
+     */
+    static boolean isCurrentlyUsbAdbConnected(Context context) {
+        if (context == null) return false;
+        try {
+            IntentFilter filter = new IntentFilter(ACTION_USB_STATE);
+            Intent state = context.registerReceiver(null, filter);
+            return isUsbAdbConnected(state);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private static void refresh(Context context, boolean connected) {
         KeepADBUsbNotification.refresh(context, connected);
     }

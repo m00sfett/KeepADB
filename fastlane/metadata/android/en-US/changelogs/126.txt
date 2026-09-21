@@ -7,3 +7,9 @@ minutes.
 
 Added an optional, purely local Tailscale status line to the main screen. It only shows when
 Tailscale is installed and never affects Wireless Debugging or Keep-Alive.
+
+The connection screen now shows every currently verified ADB connection separately -- WLAN,
+Tailscale/VPN and USB -- with the one you'd actually connect through clearly marked, instead of
+only ever showing the WLAN address. An active VPN alone is never shown as a working ADB
+connection unless it's actually confirmed reachable. USB now shows up as its own active
+connection too, even without a network address.

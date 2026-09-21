@@ -22,6 +22,13 @@
     <string name="tailscale_status_active">Tailscale：已启用</string>
     <string name="tailscale_status_inactive">Tailscale：未启用</string>
     <string name="tailscale_status_unknown">Tailscale：未知</string>
+
+    <string name="transport_tailscale_label">Tailscale/VPN</string>
+    <string name="transport_usb_label">USB</string>
+    <string name="transport_row_format">%1$s：%2$s · 上次检查 %3$s</string>
+    <string name="transport_usb_active_value">USB-ADB 已启用</string>
+    <string name="transport_vpn_active_not_verified_row">Tailscale/VPN：已激活，ADB 在此不可达</string>
+    <string name="transport_primary_accessibility_format">%1$s，主要传输方式</string>
     <string name="toggle_label">无线调试</string>
     <string name="keep_alive_toggle">保持持久启用</string>
     <string name="keep_alive_subtext">断开连接、网络变更或重启时自动重新连接</string>

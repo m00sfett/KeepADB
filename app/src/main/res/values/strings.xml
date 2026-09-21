@@ -26,6 +26,13 @@
     <string name="tailscale_status_active">Tailscale: active</string>
     <string name="tailscale_status_inactive">Tailscale: not active</string>
     <string name="tailscale_status_unknown">Tailscale: unknown</string>
+
+    <string name="transport_tailscale_label">Tailscale/VPN</string>
+    <string name="transport_usb_label">USB</string>
+    <string name="transport_row_format">%1$s: %2$s · last checked %3$s</string>
+    <string name="transport_usb_active_value">USB-ADB active</string>
+    <string name="transport_vpn_active_not_verified_row">Tailscale/VPN: active, ADB not reachable there</string>
+    <string name="transport_primary_accessibility_format">%1$s, primary transport</string>
     <string name="toggle_label">Wireless Debugging</string>
     <string name="keep_alive_toggle">Keep persistently active</string>
     <string name="keep_alive_subtext">Auto-reconnect on connection drop, network change, or reboot</string>

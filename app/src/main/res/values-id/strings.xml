@@ -22,6 +22,13 @@
     <string name="tailscale_status_active">Tailscale: aktif</string>
     <string name="tailscale_status_inactive">Tailscale: tidak aktif</string>
     <string name="tailscale_status_unknown">Tailscale: tidak diketahui</string>
+
+    <string name="transport_tailscale_label">Tailscale/VPN</string>
+    <string name="transport_usb_label">USB</string>
+    <string name="transport_row_format">%1$s: %2$s · terakhir diperiksa %3$s</string>
+    <string name="transport_usb_active_value">USB-ADB aktif</string>
+    <string name="transport_vpn_active_not_verified_row">Tailscale/VPN: aktif, ADB tidak dapat dijangkau di sana</string>
+    <string name="transport_primary_accessibility_format">%1$s, transport utama</string>
     <string name="toggle_label">Debugging Nirkabel</string>
     <string name="keep_alive_toggle">Pertahankan selalu aktif</string>
     <string name="keep_alive_subtext">Hubungkan ulang otomatis saat terputus, ganti jaringan, atau reboot</string>

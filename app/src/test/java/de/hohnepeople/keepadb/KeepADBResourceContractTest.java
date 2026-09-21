@@ -336,6 +336,8 @@ public class KeepADBResourceContractTest {
                 stringWitness, stringWitness, stringWitness, stringWitness, stringWitness,
                 stringWitness, stringWitness, stringWitness, stringWitness, stringWitness,
                 stringWitness, stringWitness, stringWitness});
+        result.put("transport_row_format", new Object[] {stringWitness, stringWitness, stringWitness});
+        result.put("transport_primary_accessibility_format", new Object[] {stringWitness});
         return result;
     }
 
