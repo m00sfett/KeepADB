@@ -19,6 +19,9 @@
     <string name="endpoint_format">एंडपॉइंट: %1$s:%2$d</string>
     <string name="endpoint_searching">एंडपॉइंट खोजा जा रहा है…</string>
     <string name="endpoint_unavailable">एंडपॉइंट अनुपलब्ध है</string>
+    <string name="tailscale_status_active">Tailscale: सक्रिय</string>
+    <string name="tailscale_status_inactive">Tailscale: निष्क्रिय</string>
+    <string name="tailscale_status_unknown">Tailscale: अज्ञात</string>
     <string name="toggle_label">वायरलेस डीबगिंग</string>
     <string name="keep_alive_toggle">लगातार सक्रिय रखें</string>
     <string name="keep_alive_subtext">कनेक्शन टूटने, नेटवर्क बदलने या रीबूट होने पर स्वतः पुनः कनेक्ट करें</string>

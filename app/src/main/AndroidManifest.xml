@@ -22,6 +22,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
 
+    <!-- #537: package visibility (API 30+) for the read-only, optional Tailscale status check.
+         Detects only whether the Tailscale app is installed, never starts/binds/queries it. -->
+    <queries>
+        <package android:name="com.tailscale.ipn" />
+    </queries>
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"

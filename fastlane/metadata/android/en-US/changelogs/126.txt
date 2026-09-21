@@ -1,0 +1,2 @@
+Added an optional, purely local Tailscale status line to the main screen. It only shows when
+Tailscale is installed and never affects Wireless Debugging or Keep-Alive.

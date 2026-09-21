@@ -440,6 +440,20 @@
                         android:textColor="@color/night_muted"
                         android:textSize="15sp" />
 
+                    <!-- #537: optional, local-only Tailscale status. Gone entirely when
+                         Tailscale isn't installed; never an empty/error card. -->
+                    <TextView
+                        android:id="@+id/tailscale_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/tailscale_status_unknown"
+                        android:textColor="@color/night_muted"
+                        android:textSize="13sp"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
