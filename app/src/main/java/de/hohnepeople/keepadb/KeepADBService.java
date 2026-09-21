@@ -246,9 +246,18 @@ public class KeepADBService extends Service {
 
     private void heartbeatNow() {
         KeepADBPreferences.setServiceLastHeartbeatNow(this);
-        if (foregroundReady && KeepADB.isEnabled(this)) {
+        if (!foregroundReady) return;
+        if (KeepADB.isEnabled(this)) {
             KeepADBNotification.verifyEndpointHealth(this);
+            return;
         }
+        // #536: the heartbeat is the long-lived timer that re-triggers a due automatic recheck
+        // once the #496 backoff window elapses -- a stored blockedUntil alone never re-fires
+        // anything on its own, it only ever gets asked about by whichever event happens to fire
+        // next. recheckAndEnable() re-derives every gate itself (Wi-Fi state, trust, the backoff)
+        // so this is always safe to call on every tick, whether the backoff is still blocking,
+        // already open, or Keep-Alive isn't even armed.
+        recheckAndEnable();
     }
 
     private static final long HEARTBEAT_INTERVAL_MS = 60_000;
@@ -556,18 +565,25 @@ public class KeepADBService extends Service {
                         return;
                     }
                     if (KeepADB.isAutomaticEnableBackoffBlocked()) {
-                        // #496: the previous automatic attempt's write was accepted but its
+                        // #496/#536: the previous automatic attempt's write was accepted but its
                         // readback never flipped on (e.g. Android's own Wireless Debugging
-                        // pairing dialog was never confirmed) -- wait for one of the recognized
-                        // triggers instead of retrying every heartbeat.
+                        // pairing dialog was never confirmed). Deferred, not abandoned: this same
+                        // heartbeat tick is what will fire the actual retry once the #536 two-stage
+                        // window (~2 minutes, then capped at 5) elapses -- no separate re-trigger
+                        // needed, and no write happens in the meantime.
                         Log.i(TAG, "Automatic re-enable paused after a readback mismatch (#496); "
-                                + "waiting for a reset trigger");
+                                + "retry deferred until the backoff window elapses");
                         KeepADBDiagnostics.event(this, "keep_alive_check", "service", "blocked",
                                 "reason=recovery_backoff_active");
                         KeepADBNotification.refresh(this);
                         KeepADBWidget.refreshAll(this);
                         return;
                     }
+                    // #536: distinct from the "blocked" outcome above -- the backoff window (if
+                    // any) has elapsed and a fresh automatic attempt is due right now, whether
+                    // this is the very first one or a scheduled retry.
+                    KeepADBDiagnostics.event(this, "keep_alive_check", "service", "due",
+                            "reason=recheck_due");
                     Log.i(TAG, "Auto-enabling Wireless Debugging (Wi-Fi connected)");
                     if (!KeepADB.setEnabled(this, true, "keep_alive_check",
                             KeepADBService::isAutoEnableStillPermitted)) {
@@ -576,6 +592,12 @@ public class KeepADBService extends Service {
                         return;
                     }
                 }
+            } else {
+                // #536: the third diagnosable waiting state -- no Wi-Fi transport at all, so
+                // there is nothing yet to retry against. Distinct from "blocked" (network present,
+                // backoff active) and from "due" (network present, attempting now).
+                KeepADBDiagnostics.event(this, "keep_alive_check", "service", "waiting",
+                        "reason=waiting_for_network");
             }
         }
         KeepADBNotification.refresh(this);

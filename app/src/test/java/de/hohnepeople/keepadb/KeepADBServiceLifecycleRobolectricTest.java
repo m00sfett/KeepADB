@@ -656,6 +656,39 @@ public class KeepADBServiceLifecycleRobolectricTest {
         }
     }
 
+    /**
+     * #536 acceptance criterion: diagnostics must distinguish "warte auf Netzwerk" from "Retry
+     * zurückgestellt" -- no Wi-Fi transport at all is not the same waiting reason as a Wi-Fi
+     * connection whose automatic re-enable is deferred by the #496 backoff.
+     */
+    @Test
+    public void recheckAndEnableWithoutWifiIsDiagnosedAsWaitingForNetwork() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            android.os.SystemClock.sleep(400);
+
+            controller.get().recheckAndEnable();
+            ShadowLooper.idleMainLooper();
+
+            String export = KeepADBDiagnostics.export(context);
+            assertTrue("no Wi-Fi transport at all must be diagnosable as waiting for the network, "
+                            + "distinct from a deferred backoff retry",
+                    export.contains("reason=waiting_for_network"));
+            assertFalse("must not be reported as a backoff block -- there was nothing to attempt",
+                    export.contains("reason=recovery_backoff_active"));
+        } finally {
+            controller.destroy();
+        }
+    }
+
     private void setWifiConnection(String ssid, String bssid) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = ShadowWifiInfo.newInstance();
@@ -730,6 +763,72 @@ public class KeepADBServiceLifecycleRobolectricTest {
             String export = KeepADBDiagnostics.export(context);
             assertTrue("the block must be diagnosable, not silent",
                     export.contains("reason=recovery_backoff_active"));
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    /**
+     * #536 acceptance criterion: "Das Ablaufen des Backoffs löst ohne manuelles Öffnen der App
+     * einen tatsächlichen Recheck aus." Unlike the test above, this one never calls {@code
+     * recheckAndEnable()} itself -- it only starts the service and advances time, so the only
+     * thing that can possibly make the second write happen is the production heartbeat ticker
+     * ({@link KeepADBService#startHeartbeatTicker()}) actually re-invoking the recheck once the
+     * #536 two-stage backoff window (~2 minutes for the first retry) elapses. A stored {@code
+     * blockedUntil} that nobody ever asks about again would leave this stuck at one write forever.
+     */
+    @Test
+    public void theHeartbeatTickerAloneRetriesOnceTheFirstRetryDelayElapses() {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBStuckOffSettingsGateway gateway = new KeepADBStuckOffSettingsGateway();
+        KeepADB.setGatewayForTesting(gateway);
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+
+            // Advance past the first 60s heartbeat tick with margin. Nothing in this test calls
+            // recheckAndEnable() directly -- only the heartbeat ticker can have made this write.
+            // Deliberately idleFor() alone (no SystemClock.sleep()): mixing the two here would
+            // jump SystemClock.elapsedRealtime() ahead of the Looper's own scheduling clock, so a
+            // "due" heartbeat task would run late, at the jumped time, and reschedule its
+            // follow-up relative to that instead of its real 60s cadence -- idleFor() alone
+            // advances both clocks together and keeps the heartbeat's real timing intact.
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(90_000));
+
+            assertEquals("the first heartbeat tick must make the initial automatic attempt",
+                    1, gateway.writes.size());
+            assertTrue("the mismatched write must engage the #496/#536 backoff",
+                    KeepADB.isAutomaticEnableBackoffBlocked());
+
+            // Advance past the 2nd heartbeat tick (120s): still well short of the ~2 minute first
+            // retry delay (measured from the first write at 60s), so it must not write either.
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(60_000));
+
+            assertEquals("no heartbeat tick has landed after the retry became due yet",
+                    1, gateway.writes.size());
+
+            // Advance well past the 3rd heartbeat tick (180s = 60s first write + 120s first retry
+            // delay) -- that is the first tick due once the window has elapsed, and it must fire
+            // the retry on its own.
+            shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(35_000));
+
+            assertEquals("the heartbeat ticker alone must retry once the backoff window elapses, "
+                            + "with no manual recheck call from the test",
+                    2, gateway.writes.size());
+            assertTrue("the second mismatch must re-engage the backoff (now at the capped "
+                            + "5-minute interval)", KeepADB.isAutomaticEnableBackoffBlocked());
+
+            String export = KeepADBDiagnostics.export(context);
+            assertTrue("the three #536 waiting phases must be individually diagnosable",
+                    export.contains("reason=recovery_backoff_active"));
+            assertTrue(export.contains("reason=recheck_due"));
         } finally {
             controller.destroy();
         }
