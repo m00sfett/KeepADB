@@ -159,6 +159,47 @@ public class KeepADBRegisterPayloadTest {
     }
 
     @Test
+    public void snapshotAdapterMapsEveryTransportKindAndKeepsOrder() {
+        KeepADBTransportOverview.Snapshot snapshot = new KeepADBTransportOverview.Snapshot(
+                Arrays.asList(
+                        new KeepADBTransportEndpoint(KeepADBTransportEndpoint.Type.WLAN_LAN,
+                                "192.168.1.50", 41234, 1_700_000_000_000L, true),
+                        new KeepADBTransportEndpoint(KeepADBTransportEndpoint.Type.TAILSCALE_VPN,
+                                "100.111.111.30", 41234, 1_700_000_001_000L, false),
+                        new KeepADBTransportEndpoint(KeepADBTransportEndpoint.Type.USB,
+                                null, 0, 1_700_000_002_000L, false)),
+                false);
+
+        List<KeepADBRegisterPayload.VerifiedTransport> verified =
+                KeepADBRegisterPayload.fromSnapshot(snapshot);
+
+        assertEquals(3, verified.size());
+        assertEquals(KeepADBRegisterPayload.Type.WLAN_LAN, verified.get(0).type);
+        assertEquals("192.168.1.50", verified.get(0).host);
+        assertEquals(41234, verified.get(0).port);
+        assertEquals(1_700_000_000_000L, verified.get(0).verifiedAtMs);
+        assertEquals(KeepADBRegisterPayload.Type.TAILSCALE_VPN, verified.get(1).type);
+        assertEquals(KeepADBRegisterPayload.Type.USB, verified.get(2).type);
+
+        // The adapted snapshot must produce exactly the three independent slots the contract
+        // promises, not a single merged event.
+        List<KeepADBRegisterPayload.Event> events = KeepADBRegisterPayload.buildEvents(verified);
+        assertEquals(3, events.size());
+        assertEquals("wlan-adb", events.get(0).method);
+        assertEquals("tailscale-adb", events.get(1).method);
+        assertEquals("usb-adb", events.get(2).method);
+    }
+
+    @Test
+    public void snapshotAdapterIgnoresActiveButUnverifiedVpnAndNullSnapshot() {
+        KeepADBTransportOverview.Snapshot vpnActiveOnly = new KeepADBTransportOverview.Snapshot(
+                Collections.emptyList(), true);
+
+        assertTrue(KeepADBRegisterPayload.fromSnapshot(vpnActiveOnly).isEmpty());
+        assertTrue(KeepADBRegisterPayload.fromSnapshot(null).isEmpty());
+    }
+
+    @Test
     public void eventIdIsBoundedAndFreeOfRawEndpointData() {
         String id = KeepADBRegisterPayload.eventIdFor("wlan-adb", "192.168.1.50:41234", true);
 

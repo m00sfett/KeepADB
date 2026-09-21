@@ -112,6 +112,45 @@ final class KeepADBRegisterPayload {
     }
 
     /**
+     * Adapts a #538 transport snapshot into this class' input. The snapshot is the app's single
+     * source of verified transports, so this is the only place that has to know both shapes; the
+     * order (and with it the snapshot's primary-first priority) is preserved.
+     *
+     * <p>{@link KeepADBTransportOverview.Snapshot#vpnActiveNotAdbVerified} is deliberately not
+     * mapped: an active but unverified VPN interface is a display state, never a reported
+     * endpoint.
+     */
+    static List<VerifiedTransport> fromSnapshot(KeepADBTransportOverview.Snapshot snapshot) {
+        List<VerifiedTransport> verified = new ArrayList<>();
+        if (snapshot == null || snapshot.transports == null) {
+            return Collections.unmodifiableList(verified);
+        }
+        for (KeepADBTransportEndpoint entry : snapshot.transports) {
+            if (entry == null) continue;
+            Type type = typeFor(entry.type);
+            if (type == null) continue;
+            verified.add(new VerifiedTransport(type, entry.host, entry.port, entry.verifiedAtMs));
+        }
+        return Collections.unmodifiableList(verified);
+    }
+
+    private static Type typeFor(KeepADBTransportEndpoint.Type type) {
+        if (type == null) return null;
+        switch (type) {
+            case WLAN_LAN:
+                return Type.WLAN_LAN;
+            case TAILSCALE_VPN:
+                return Type.TAILSCALE_VPN;
+            case USB:
+                return Type.USB;
+            default:
+                // A transport kind this wire contract has no slot for is dropped rather than
+                // reported under a guessed method.
+                return null;
+        }
+    }
+
+    /**
      * Builds one event per verified transport, in the order given. Entries with an unusable
      * description (unknown type, or a network transport without a usable host/port) are skipped
      * rather than published as reachable.
