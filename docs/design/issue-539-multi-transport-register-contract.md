@@ -161,6 +161,13 @@ Bis dahin baut die App alle Ereignisse vollständig, sendet aber nur die Methode
 statt gegen die laufende Registrierung absehbare 400er zu erzeugen. Nach dem Server-Deployment
 ist genau diese Konstante zu erweitern.
 
+Der produktive Aufrufer steht bereits: `KeepADBRegisterClient.performUpdateTransaction` meldet
+nach dem WLAN-POST über `reportAdditionalVerifiedTransports` jeden weiteren aktuell verifizierten
+Transport, aus demselben Auslöser, an dieselbe vom Nutzer eingetragene Webhook-URL und unter
+demselben `register_webhook_enabled`-Opt-in. Solange nur `wlan-adb` unterstützt ist, entsteht
+dadurch kein zusätzlicher Request; das Erweitern der Konstante ist der einzige nötige Schalter.
+`KeepADBRegisterMultiTransportWiringTest` belegt beide Seiten davon.
+
 ## 8. Migration und Rollback
 
 **Migration, App-Seite (dieses Paket).** Der WLAN-POST wird von der Vor-v2-Form auf die v2-Form
