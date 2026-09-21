@@ -1,0 +1,5 @@
+Reachability reports to your own register webhook are now versioned and repeat-safe: sending the
+same state twice no longer creates a duplicate entry, and a delayed older report can no longer
+overwrite a newer address.
+Groundwork for reporting several verified connections (Wi-Fi, Tailscale, USB) side by side
+without one replacing another.
