@@ -19,6 +19,15 @@
     <string name="endpoint_format">Конечная точка: %1$s:%2$d</string>
     <string name="endpoint_searching">Поиск конечной точки…</string>
     <string name="endpoint_unavailable">Конечная точка недоступна</string>
+    <string name="tailscale_status_active">Tailscale: активен</string>
+    <string name="tailscale_status_inactive">Tailscale: неактивен</string>
+    <string name="tailscale_status_unknown">Tailscale: неизвестно</string>
+
+    <string name="transport_tailscale_label">ADB через Tailscale/VPN</string>
+    <string name="transport_usb_label">USB</string>
+    <string name="transport_row_format">%1$s: %2$s · последняя проверка %3$s</string>
+    <string name="transport_usb_active_value">USB-ADB активен</string>
+    <string name="transport_primary_accessibility_format">%1$s, основной транспорт</string>
     <string name="toggle_label">Беспроводная отладка</string>
     <string name="keep_alive_toggle">Поддерживать постоянно активным</string>
     <string name="keep_alive_subtext">Автоматическое переподключение при разрыве, смене сети или перезагрузке</string>

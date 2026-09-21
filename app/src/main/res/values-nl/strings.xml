@@ -19,6 +19,15 @@
     <string name="endpoint_format">Eindpunt: %1$s:%2$d</string>
     <string name="endpoint_searching">Zoeken naar eindpunt…</string>
     <string name="endpoint_unavailable">Eindpunt niet beschikbaar</string>
+    <string name="tailscale_status_active">Tailscale: actief</string>
+    <string name="tailscale_status_inactive">Tailscale: niet actief</string>
+    <string name="tailscale_status_unknown">Tailscale: onbekend</string>
+
+    <string name="transport_tailscale_label">ADB via Tailscale/VPN</string>
+    <string name="transport_usb_label">USB</string>
+    <string name="transport_row_format">%1$s: %2$s · laatst gecontroleerd %3$s</string>
+    <string name="transport_usb_active_value">USB-ADB actief</string>
+    <string name="transport_primary_accessibility_format">%1$s, primair transport</string>
     <string name="toggle_label">Draadloze foutopsporing</string>
     <string name="keep_alive_toggle">Permanent actief houden</string>
     <string name="keep_alive_subtext">Automatisch opnieuw verbinden bij verbroken verbinding, netwerkwijziging of herstart</string>

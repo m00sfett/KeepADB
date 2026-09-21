@@ -35,6 +35,9 @@ public class KeepADBRegisterCleanupLifecycleTest {
 
     @After
     public void tearDown() {
+        // Let this test's own register transaction finish before the next test installs its fake
+        // transport; otherwise a trailing request lands in the next test's recorded requests.
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
         KeepADBRegisterClient.resetHttpTransport();
         KeepADBRegisterClient.resetForTesting();
     }

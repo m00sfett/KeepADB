@@ -19,6 +19,15 @@
     <string name="endpoint_format">エンドポイント: %1$s:%2$d</string>
     <string name="endpoint_searching">エンドポイントを検索中…</string>
     <string name="endpoint_unavailable">エンドポイントは利用できません</string>
+    <string name="tailscale_status_active">Tailscale: アクティブ</string>
+    <string name="tailscale_status_inactive">Tailscale: 非アクティブ</string>
+    <string name="tailscale_status_unknown">Tailscale: 不明</string>
+
+    <string name="transport_tailscale_label">Tailscale/VPN 経由の ADB</string>
+    <string name="transport_usb_label">USB</string>
+    <string name="transport_row_format">%1$s: %2$s · 最終確認 %3$s</string>
+    <string name="transport_usb_active_value">USB-ADB 有効</string>
+    <string name="transport_primary_accessibility_format">%1$s、主要トランスポート</string>
     <string name="toggle_label">ワイヤレスデバッグ</string>
     <string name="keep_alive_toggle">常にアクティブに保つ</string>
     <string name="keep_alive_subtext">切断、ネットワーク変更、または再起動時に自動再接続</string>

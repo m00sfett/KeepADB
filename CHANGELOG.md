@@ -22,6 +22,112 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.32] - Unreleased
+
+This section is the combined integration of issue packages #536, #537, #538 and #539, which
+were implemented on four independent branches. Each branch proposed the same bump (1.8.28 ->
+1.8.29, versionCode 126); on merge they are collapsed into a single release that carries one
+patch step per merged package (versionCode 125 + 4 = 129, 1.8.28 + 4 = 1.8.32). The codes 126,
+127 and 128 are therefore intentionally never published.
+
+### Added
+- Optional, purely local Tailscale status in the network/endpoint view on MainActivity (#537).
+  Detected from two platform-level, permission-free reads: whether the Tailscale app
+  (`com.tailscale.ipn`) is installed (`PackageManager`, gated by a new `<queries>` manifest
+  entry for API 30+ package visibility) and whether a `tailscale0` interface is up with an
+  address in Tailscale's CGNAT range (100.64.0.0/10, plain JDK `NetworkInterface`). Four states:
+  hidden when not installed, active, inactive (installed-but-unconfigured and
+  configured-but-disconnected are deliberately not distinguished -- Android has no reliable,
+  permission-free way to tell those apart), and unknown when a platform read itself fails.
+  Display-only: never consulted by `KeepADB`, Keep-Alive, or endpoint/transport discovery, and an
+  active Tailscale interface is never treated as an ADB endpoint by itself.
+- Connection view now shows every currently *verified* ADB transport separately -- WLAN/LAN,
+  Tailscale/VPN and USB -- instead of only the WLAN endpoint, with one clearly marked primary
+  transport and privacy-mode masking applied consistently across all of them (#538).
+- Tailscale/VPN detection (`KeepADBVpnTransport`) is deliberately independent and narrow: it
+  identifies a VPN network by its Tailscale-range address (100.64.0.0/10, Tailscale's documented
+  CGNAT allocation) and only then verifies real ADB reachability on it via the already-known
+  WLAN/LAN port, reusing the existing socket-connect probe. An active VPN interface alone --
+  wrong address range, or ADB simply not reachable there -- is never presented as an ADB
+  endpoint, and produces no transport row at all: whether Tailscale is up is stated by the #537
+  status card alone, so the app never shows two independently derived answers to that question.
+  The verified row is labelled "ADB via Tailscale/VPN" to keep it distinguishable from that
+  status (review repair during integration).
+- USB-ADB is now shown as its own active transport (no fabricated network endpoint) whenever the
+  system reports a genuine connected+configured+adb USB link, reusing the existing
+  `KeepADBUsbReceiver` sticky-broadcast check.
+- A transport that stops being verified (network change, VPN drop, cable pull) simply disappears
+  from the next render -- the aggregation (`KeepADBTransportOverview`) holds no state of its own
+  and is recomputed fresh on every refresh.
+- `KeepADBRegisterPayload` builds one independent event per verified transport (WLAN/LAN,
+  Tailscale/VPN, USB), so parallel transports occupy separate register slots and cannot clear one
+  another. Only transports that were actually verified are reported; methods the deployed
+  register does not accept yet are held back instead of being sent (#539).
+- The live report path uses that multi-transport reporting: an endpoint change now reports every
+  other currently verified transport as its own event as well, from the same trigger, to the same
+  user-entered webhook URL and under the same `register_webhook_enabled` opt-in. Because the
+  deployed `phone-register-server` still accepts only `wlan-adb`, the Tailscale and USB events are
+  currently built and held back rather than sent, so this adds no requests until the server side
+  (#543) lands; widening `SERVER_SUPPORTED_METHODS` is the single switch. WLAN/LAN itself keeps
+  being reported from the transaction's own authoritative endpoint, and the additional transports
+  stay outside that transaction's success accounting (review repair during integration).
+
+### Changed
+- The register webhook now speaks the versioned contract v2: every report carries
+  `contract_version`, `observed_at` and a state-derived `event_id`, while `method` and `endpoint`
+  keep their previous place so the register's legacy projection and all existing
+  `GET /register/<alias>` consumers are unaffected (#539). Repeating an unchanged state is now
+  idempotent, and a late-arriving older report can no longer overwrite a newer endpoint.
+
+### Fixed
+- Keep-Alive's automatic re-enable now reliably retries after a readback-mismatch backoff
+  (#496/#500) instead of possibly sitting idle until some unrelated event happens to touch it:
+  the 60s foreground-service heartbeat is now the real timer that re-triggers the check once the
+  backoff window elapses, so a due retry always happens on its own, not just when the app is
+  reopened or the network changes. The backoff itself now follows the two-stage cadence the repo
+  owner specified: the first unconfirmed automatic attempt retries after roughly 2 minutes, and
+  every attempt after that is capped at 5 minutes apart (previously a flat, purely reactive 15
+  minutes). Diagnostics also now distinguish "waiting for network" from "retry deferred" (backoff
+  active) from "recheck due" (the retry firing), so the three states are separately traceable
+  (#536).
+
+### Testing
+- Added deterministic backoff-cadence unit tests (2-minute first retry, capped 5-minute
+  interval) and a Robolectric test that drives the real heartbeat ticker with no manual recheck
+  call, proving the retry fires on its own once the window elapses (#536).
+- `KeepADBTransportOverviewTest` covers the four required transport scenarios (WLAN only; WLAN +
+  Tailscale both verified; VPN active but ADB unreachable there; USB only) plus a generic
+  non-Tailscale VPN, an unconfigured USB cable, the empty snapshot, and the synchronous-vs.
+  background-thread dispatch behavior of `currentAsync`. `KeepADBVpnTransportTest` and
+  `KeepADBTransportEndpointTest` add focused unit coverage for the CGNAT-range check and the
+  value type itself (#538).
+- `MainActivityTransportOverviewTest` pins that a merely active (Tailscale-range or generic) VPN
+  renders no transport row, and that a verified one does, driving the activity's real render path
+  (#537/#538).
+- `KeepADBRegisterMultiTransportWiringTest` exercises the real `updateEndpointAsync` trigger: only
+  the WLAN event reaches the current server, nothing is sent with the webhook opt-in off, and with
+  the server-supported set widened the same trigger also emits the USB event -- the counter-test
+  that fails if the production call into `postTransports` is removed (#539).
+- Closed a pre-existing test-isolation race in the register cleanup lifecycle tests: a trailing
+  background request of one test could be recorded against the next test's fake transport,
+  because the transport is a static field. The tests now drain the register executor between
+  cases instead of relying on timing (#539).
+- Integration fix while merging #538 and #539: `KeepADBRegisterPayload.fromSnapshot` adapts a
+  #538 `KeepADBTransportOverview.Snapshot` into the #539 payload input -- the single mapping the
+  #539 package had deferred until #538 landed. Covered by tests for the full three-transport
+  mapping (order and all three wire methods preserved) and for the two cases that must yield no
+  events at all: an active-but-unverified VPN, and a missing snapshot.
+
+### Documentation
+- Added the multi-transport register contract in
+  `docs/design/issue-539-multi-transport-register-contract.md`, including schema, versioning,
+  stale/TTL behaviour, the primary/compatibility projection, the remaining server-side gap and
+  the migration/rollback path. It documents how this design differs from the discarded #416
+  approach (#539).
+- Patch version bump (1.8.28 -> 1.8.32, versionCode 129): four merged patch-level packages, all
+  either display-only or additive on the wire, with an unchanged legacy register projection and a
+  revert-only rollback.
+
 ## [1.8.28] - Unreleased
 
 ### Fixed

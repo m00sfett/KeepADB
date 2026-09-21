@@ -33,22 +33,58 @@ public class KeepADBRecoveryBackoffTest {
     }
 
     @Test
-    public void theFirstAttemptBlocksImmediatelyForTheFallbackInterval() {
+    public void theFirstAttemptBlocksImmediatelyForTheFirstRetryDelay() {
         backoff.recordAttempt(100_000);
 
         assertEquals(1, backoff.attemptsInCycleForTesting());
         assertTrue("a single mismatch must already block further attempts",
                 backoff.isBlocked(100_000));
         assertTrue(backoff.isBlocked(
-                100_000 + KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS - 1));
+                100_000 + KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS - 1));
     }
 
     @Test
-    public void theBlockExpiresExactlyAtTheFallbackIntervalBoundary() {
+    public void theBlockExpiresExactlyAtTheFirstRetryDelayBoundary() {
         backoff.recordAttempt(100_000);
 
-        assertFalse("the fallback interval must open a fresh attempt once it has fully elapsed",
-                backoff.isBlocked(100_000 + KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS));
+        assertFalse("the first retry delay must open a fresh attempt once it has fully elapsed",
+                backoff.isBlocked(100_000 + KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS));
+    }
+
+    /**
+     * #536 acceptance criterion: "den nächsten Versuch nach ungefähr 2 Minuten einplanen; weitere
+     * Versuche höchstens im Abstand von 5 Minuten." The first retry after an unconfirmed attempt
+     * is the short (~2 minute) delay; every attempt after that re-anchors at the longer, capped
+     * 5-minute interval instead.
+     */
+    @Test
+    public void aSecondAttemptBlocksForTheCappedRetryIntervalNotTheFirstDelay() {
+        backoff.recordAttempt(100_000);
+        long secondAttemptAt = 100_000 + KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS;
+
+        backoff.recordAttempt(secondAttemptAt);
+
+        assertEquals(secondAttemptAt + KeepADBRecoveryBackoff.RETRY_INTERVAL_MS,
+                backoff.blockedUntilElapsedMsForTesting());
+        assertTrue(backoff.isBlocked(
+                secondAttemptAt + KeepADBRecoveryBackoff.RETRY_INTERVAL_MS - 1));
+        assertFalse(backoff.isBlocked(
+                secondAttemptAt + KeepADBRecoveryBackoff.RETRY_INTERVAL_MS));
+    }
+
+    /** The cadence caps at {@link KeepADBRecoveryBackoff#RETRY_INTERVAL_MS}; it never grows past it. */
+    @Test
+    public void aThirdConsecutiveAttemptStaysAtTheSameCappedRetryInterval() {
+        backoff.recordAttempt(100_000);
+        long secondAttemptAt = 100_000 + KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS;
+        backoff.recordAttempt(secondAttemptAt);
+        long thirdAttemptAt = secondAttemptAt + KeepADBRecoveryBackoff.RETRY_INTERVAL_MS;
+
+        backoff.recordAttempt(thirdAttemptAt);
+
+        assertEquals("the interval must not keep growing past the 5-minute cap",
+                thirdAttemptAt + KeepADBRecoveryBackoff.RETRY_INTERVAL_MS,
+                backoff.blockedUntilElapsedMsForTesting());
     }
 
     @Test
@@ -86,22 +122,7 @@ public class KeepADBRecoveryBackoffTest {
 
         assertTrue("the reopened cycle must be able to block again on its own mismatch",
                 backoff.isBlocked(200_000));
-        assertFalse(backoff.isBlocked(200_000 + KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS));
-    }
-
-    @Test
-    public void aSecondAttemptWhileAlreadyBlockedExtendsTheBlockFromNow() {
-        backoff.recordAttempt(100_000);
-        assertEquals(100_000 + KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS,
-                backoff.blockedUntilElapsedMsForTesting());
-
-        // The fallback timer fired (an automatic retry was attempted again) and mismatched once
-        // more: the block must be re-anchored to the new attempt, not left at the stale value.
-        long retryAt = 100_000 + KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS;
-        backoff.recordAttempt(retryAt);
-
-        assertEquals(retryAt + KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS,
-                backoff.blockedUntilElapsedMsForTesting());
+        assertFalse(backoff.isBlocked(200_000 + KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS));
     }
 
     /**
@@ -135,7 +156,7 @@ public class KeepADBRecoveryBackoffTest {
     }
 
     @Test
-    public void anUnconfirmedAttemptStaysBlockedUntilTheFallbackInterval() {
+    public void anUnconfirmedAttemptStaysBlockedUntilTheFirstRetryDelay() {
         backoff.recordAttempt(100_000);
 
         backoff.recordUnconfirmed();
@@ -144,7 +165,7 @@ public class KeepADBRecoveryBackoffTest {
                 backoff.isAwaitingConfirmation());
         assertTrue("a reverted attempt must keep the block", backoff.isBlocked(100_001));
         assertFalse(backoff.isBlocked(
-                100_000 + KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS));
+                100_000 + KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS));
     }
 
     @Test
@@ -162,23 +183,31 @@ public class KeepADBRecoveryBackoffTest {
         assertTrue("the confirmation window must outlast the OS revert that follows an accepted "
                         + "write, i.e. at least a full debounce cycle",
                 KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS > KeepADBToggleState.TOGGLE_COOLDOWN_MS);
-        assertTrue("and must stay far below the fallback interval it is nested in",
+        assertTrue("and must stay far below even the shorter of the two retry delays it is "
+                        + "nested in",
                 KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS
-                        < KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS);
+                        < KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS);
     }
 
     @Test
     public void maxAttemptsPerCycleIsExactlyOnePerTheIssue496Decision() {
         assertEquals("the repo owner's explicit decision on #496 is exactly one controlled "
-                        + "automatic attempt per cycle before backing off",
+                        + "automatic attempt per retry window before backing off again",
                 1, KeepADBRecoveryBackoff.MAX_ATTEMPTS_PER_CYCLE);
     }
 
+    /**
+     * #536 acceptance criterion: "den nächsten Versuch nach ungefähr 2 Minuten einplanen; weitere
+     * Versuche höchstens im Abstand von 5 Minuten."
+     */
     @Test
-    public void fallbackIntervalIsFarLongerThanTheToggleCooldownItReplaces() {
-        assertTrue("the fallback interval must never be mistaken for the 1500ms debounce loop "
-                        + "it replaces",
-                KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS
-                        > KeepADBToggleState.TOGGLE_COOLDOWN_MS * 100);
+    public void retryDelaysMatchTheIssue536AcceptanceCriterionAndAreFarLongerThanTheToggleCooldown() {
+        assertEquals(2 * 60 * 1000L, KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS);
+        assertEquals(5 * 60 * 1000L, KeepADBRecoveryBackoff.RETRY_INTERVAL_MS);
+        assertTrue("the capped interval must be longer than the first retry's delay",
+                KeepADBRecoveryBackoff.RETRY_INTERVAL_MS > KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS);
+        assertTrue("even the shorter first retry delay must never be mistaken for the 1500ms "
+                        + "debounce loop it replaces",
+                KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS > KeepADBToggleState.TOGGLE_COOLDOWN_MS * 50);
     }
 }
