@@ -343,6 +343,13 @@ final class KeepADBRegisterClient {
         // POST to new target URL
         final String cleanupToRemember = unfinishedCleanupUrl;
         if (postEndpoint(targetUrl, targetEndpoint)) {
+            // #539: the same trigger now also reports every OTHER currently verified transport,
+            // each into its own register slot. Deliberately after the WLAN POST and outside this
+            // transaction's success accounting: the transaction is about `targetEndpoint`, whose
+            // value must keep driving lastRegisteredEndpoint and the stored report snapshot
+            // exactly as before. The additional transports are best-effort extra slots, never a
+            // reason to mark the WLAN report failed.
+            reportAdditionalVerifiedTransports(context, targetUrl);
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
                     // #317: write-ahead. The retry entry is persisted BEFORE the in-memory and
@@ -647,6 +654,35 @@ final class KeepADBRegisterClient {
             }
         }
         return allSent;
+    }
+
+    /**
+     * #539: the production entry into {@link #postTransports}. Called from
+     * {@link #performUpdateTransaction} -- so it inherits that path's opt-in exactly: it is only
+     * ever reached after {@link #updateEndpointAsync} confirmed
+     * {@link KeepADBPreferences#isRegisterWebhookEnabled} and a non-empty webhook URL, and it
+     * posts to that same user-entered URL. No new destination, no new trigger, no traffic for a
+     * user who has not enabled the webhook.
+     *
+     * <p>The WLAN/LAN transport is filtered out here because the surrounding transaction already
+     * reported it from its own authoritative {@code targetEndpoint}; re-deriving it from the
+     * snapshot could publish a different (possibly newer or staler) value under the same slot and
+     * desynchronise it from the stored report snapshot.
+     *
+     * <p>Runs on the register executor, which is where the blocking work belongs:
+     * {@link KeepADBTransportOverview#current} may perform a socket connect while verifying a
+     * Tailscale route.
+     */
+    private static void reportAdditionalVerifiedTransports(Context context, String targetUrl) {
+        if (context == null || targetUrl == null || targetUrl.trim().isEmpty()) return;
+        java.util.List<KeepADBRegisterPayload.VerifiedTransport> additional = new java.util.ArrayList<>();
+        for (KeepADBRegisterPayload.VerifiedTransport transport
+                : KeepADBRegisterPayload.fromSnapshot(KeepADBTransportOverview.current(context))) {
+            if (transport.type == KeepADBRegisterPayload.Type.WLAN_LAN) continue;
+            additional.add(transport);
+        }
+        if (additional.isEmpty()) return;
+        postTransports(targetUrl, additional);
     }
 
     private static boolean sendJsonPost(String targetUrl, String payload, String logLabel) {

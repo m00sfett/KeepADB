@@ -78,6 +78,24 @@ final class KeepADBRegisterPayload {
     static final Set<String> SERVER_SUPPORTED_METHODS =
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList(Type.WLAN_LAN.method)));
 
+    /**
+     * Test-only override of {@link #SERVER_SUPPORTED_METHODS}. Exists so a test can simulate the
+     * future, widened server without editing the constant: "events are held back today" and
+     * "the very same production path sends them once the server accepts them" are two different
+     * claims, and only the second one proves the reporting path is actually wired up.
+     */
+    private static volatile Set<String> serverSupportedMethodsForTesting;
+
+    static void setServerSupportedMethodsForTesting(Set<String> methods) {
+        serverSupportedMethodsForTesting =
+                (methods == null) ? null : Collections.unmodifiableSet(new HashSet<>(methods));
+    }
+
+    private static boolean serverSupports(String method) {
+        Set<String> override = serverSupportedMethodsForTesting;
+        return (override != null ? override : SERVER_SUPPORTED_METHODS).contains(method);
+    }
+
     /** One verified transport, as handed in by the caller. Mirrors the #538 snapshot entry. */
     static final class VerifiedTransport {
         final Type type;
@@ -195,7 +213,7 @@ final class KeepADBRegisterPayload {
                 + ",\"observed_at\":" + quote(isoUtc(observedAtMs))
                 + ",\"event_id\":" + quote(eventId)
                 + "}";
-        return new Event(method, eventId, json, SERVER_SUPPORTED_METHODS.contains(method));
+        return new Event(method, eventId, json, serverSupports(method));
     }
 
     private static Event activeEvent(Type type, String endpoint, long verifiedAtMs) {
@@ -212,8 +230,7 @@ final class KeepADBRegisterPayload {
                 .append(",\"observed_at\":").append(quote(isoUtc(verifiedAtMs)))
                 .append(",\"event_id\":").append(quote(eventId))
                 .append('}');
-        return new Event(method, eventId, json.toString(),
-                SERVER_SUPPORTED_METHODS.contains(method));
+        return new Event(method, eventId, json.toString(), serverSupports(method));
     }
 
     /**
