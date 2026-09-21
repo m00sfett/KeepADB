@@ -49,7 +49,10 @@ patch step per merged package (versionCode 125 + 4 = 129, 1.8.28 + 4 = 1.8.32). 
   CGNAT allocation) and only then verifies real ADB reachability on it via the already-known
   WLAN/LAN port, reusing the existing socket-connect probe. An active VPN interface alone --
   wrong address range, or ADB simply not reachable there -- is never presented as an ADB
-  endpoint, only as a separate, non-endpoint status line.
+  endpoint, and produces no transport row at all: whether Tailscale is up is stated by the #537
+  status card alone, so the app never shows two independently derived answers to that question.
+  The verified row is labelled "ADB via Tailscale/VPN" to keep it distinguishable from that
+  status (review repair during integration).
 - USB-ADB is now shown as its own active transport (no fabricated network endpoint) whenever the
   system reports a genuine connected+configured+adb USB link, reusing the existing
   `KeepADBUsbReceiver` sticky-broadcast check.
@@ -60,6 +63,14 @@ patch step per merged package (versionCode 125 + 4 = 129, 1.8.28 + 4 = 1.8.32). 
   Tailscale/VPN, USB), so parallel transports occupy separate register slots and cannot clear one
   another. Only transports that were actually verified are reported; methods the deployed
   register does not accept yet are held back instead of being sent (#539).
+- The live report path uses that multi-transport reporting: an endpoint change now reports every
+  other currently verified transport as its own event as well, from the same trigger, to the same
+  user-entered webhook URL and under the same `register_webhook_enabled` opt-in. Because the
+  deployed `phone-register-server` still accepts only `wlan-adb`, the Tailscale and USB events are
+  currently built and held back rather than sent, so this adds no requests until the server side
+  (#543) lands; widening `SERVER_SUPPORTED_METHODS` is the single switch. WLAN/LAN itself keeps
+  being reported from the transaction's own authoritative endpoint, and the additional transports
+  stay outside that transaction's success accounting (review repair during integration).
 
 ### Changed
 - The register webhook now speaks the versioned contract v2: every report carries
@@ -90,6 +101,13 @@ patch step per merged package (versionCode 125 + 4 = 129, 1.8.28 + 4 = 1.8.32). 
   background-thread dispatch behavior of `currentAsync`. `KeepADBVpnTransportTest` and
   `KeepADBTransportEndpointTest` add focused unit coverage for the CGNAT-range check and the
   value type itself (#538).
+- `MainActivityTransportOverviewTest` pins that a merely active (Tailscale-range or generic) VPN
+  renders no transport row, and that a verified one does, driving the activity's real render path
+  (#537/#538).
+- `KeepADBRegisterMultiTransportWiringTest` exercises the real `updateEndpointAsync` trigger: only
+  the WLAN event reaches the current server, nothing is sent with the webhook opt-in off, and with
+  the server-supported set widened the same trigger also emits the USB event -- the counter-test
+  that fails if the production call into `postTransports` is removed (#539).
 - Closed a pre-existing test-isolation race in the register cleanup lifecycle tests: a trailing
   background request of one test could be recorded against the next test's fake transport,
   because the transport is a static field. The tests now drain the register executor between
