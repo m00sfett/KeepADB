@@ -182,14 +182,43 @@ public class KeepADBRecoveryBackoffSchedulingTest {
     }
 
     @Test
-    public void theBlockClearsOnceTheFallbackIntervalHasElapsed() {
+    public void theBlockClearsOnceTheFirstRetryDelayHasElapsed() {
         KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
         assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
         assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
 
-        scheduler.advanceBy(KeepADBRecoveryBackoff.FALLBACK_RETRY_INTERVAL_MS);
+        scheduler.advanceBy(KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS);
 
-        assertFalse("the fallback interval must reopen the cycle without any other trigger",
+        assertFalse("the first retry delay must reopen the cycle without any other trigger",
+                KeepADB.isAutomaticEnableBackoffBlocked());
+    }
+
+    /**
+     * #536: once the first retry delay reopens the cycle, a second unconfirmed automatic attempt
+     * must re-anchor the block at the longer, capped {@link KeepADBRecoveryBackoff#RETRY_INTERVAL_MS}
+     * -- not the short first-retry delay again -- so a stubborn dialog costs at most one attempt
+     * every 5 minutes instead of every 2.
+     */
+    @Test
+    public void aSecondConsecutiveMismatchBlocksForTheLongerCappedInterval() {
+        KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
+
+        scheduler.advanceBy(KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS);
+        assertFalse(KeepADB.isAutomaticEnableBackoffBlocked());
+
+        assertTrue("the retry itself must still be reported as accepted",
+                KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
+
+        scheduler.advanceBy(KeepADBRecoveryBackoff.RETRY_INTERVAL_MS - 1);
+        assertTrue("the second mismatch must stay blocked for the full capped interval, not the "
+                        + "shorter first-retry delay",
+                KeepADB.isAutomaticEnableBackoffBlocked());
+
+        scheduler.advanceBy(1);
+        assertFalse("the capped interval must still reopen the cycle on its own",
                 KeepADB.isAutomaticEnableBackoffBlocked());
     }
 

@@ -22,6 +22,25 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.29] - Unreleased
+
+### Fixed
+- Keep-Alive's automatic re-enable now reliably retries after a readback-mismatch backoff
+  (#496/#500) instead of possibly sitting idle until some unrelated event happens to touch it:
+  the 60s foreground-service heartbeat is now the real timer that re-triggers the check once the
+  backoff window elapses, so a due retry always happens on its own, not just when the app is
+  reopened or the network changes. The backoff itself now follows the two-stage cadence the repo
+  owner specified: the first unconfirmed automatic attempt retries after roughly 2 minutes, and
+  every attempt after that is capped at 5 minutes apart (previously a flat, purely reactive 15
+  minutes). Diagnostics also now distinguish "waiting for network" from "retry deferred" (backoff
+  active) from "recheck due" (the retry firing), so the three states are separately traceable
+  (#536).
+
+### Testing
+- Added deterministic backoff-cadence unit tests (2-minute first retry, capped 5-minute
+  interval) and a Robolectric test that drives the real heartbeat ticker with no manual recheck
+  call, proving the retry fires on its own once the window elapses (#536).
+
 ## [1.8.28] - Unreleased
 
 ### Fixed

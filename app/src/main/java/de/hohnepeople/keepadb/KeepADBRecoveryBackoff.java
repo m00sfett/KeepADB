@@ -11,33 +11,49 @@ package de.hohnepeople.keepadb;
  * very {@code ContentObserver} that schedules the next automatic attempt.
  *
  * <p>Policy, per the repo owner's explicit decision on #496: exactly one controlled automatic
- * enable attempt per "unchanged state" cycle, so the OS pairing dialog is triggered but never
- * spammed. A cycle ends -- and one fresh attempt is allowed again -- the moment any of the
- * recognized triggers fires: an observed successful readback (the permission was granted), a
- * Wi-Fi network change, a manual user action, an app/service restart, or, lacking any of those, a
- * fallback timer long enough that it can never be mistaken for the 1500ms loop it replaces. The
- * call sites in {@link KeepADBService} own *when* to consult this class (mirroring how the
- * trusted-network policy stays at the call site per #245); this class only tracks the resulting
- * attempt/cycle bookkeeping and never touches {@code Settings.Global}, a {@code Context}, or any
- * other Android type.
+ * enable attempt per retry window, so the OS pairing dialog is triggered but never spammed. A
+ * window ends -- and one fresh attempt is allowed again -- the moment any of the recognized
+ * triggers fires: an observed successful readback (the permission was granted), a Wi-Fi network
+ * change, a manual user action, an app/service restart, or, lacking any of those, the fallback
+ * retry timer below. #536 replaced that timer's single flat interval with the two-stage cadence
+ * the repo owner specified: the first unconfirmed attempt reopens after {@link
+ * #FIRST_RETRY_DELAY_MS} (roughly 2 minutes), and every attempt after that is capped at {@link
+ * #RETRY_INTERVAL_MS} (5 minutes) apart -- it never grows further, so a stubborn dialog does not
+ * make recovery wait longer and longer for it. Critically, #536 also closed the gap the flat
+ * interval alone always had: a stored {@code blockedUntilElapsedMs} is a fact this class can
+ * report on demand, but nothing about it makes anyone ask again once it is in the past -- {@link
+ * KeepADBService}'s heartbeat ticker is what actually re-invokes {@code recheckAndEnable()} once
+ * the window elapses, turning the timestamp into a real retry instead of a value that only ever
+ * gets consulted by the next unrelated event. The call sites in {@link KeepADBService} own *when*
+ * to consult this class (mirroring how the trusted-network policy stays at the call site per
+ * #245); this class only tracks the resulting attempt/window bookkeeping and never touches
+ * {@code Settings.Global}, a {@code Context}, or any other Android type.
  *
  * <p>Framework-free and self-synchronized for the same reason {@link KeepADBToggleState} is:
  * every transition is exercisable with plain JUnit, with no Android side effects at all.
  */
 final class KeepADBRecoveryBackoff {
 
-    /** One controlled attempt per cycle -- the repo owner's explicit decision on #496. */
+    /** One controlled attempt per retry window -- the repo owner's explicit decision on #496. */
     static final int MAX_ATTEMPTS_PER_CYCLE = 1;
 
     /**
-     * Fallback retry spacing once a cycle is exhausted and no other trigger (network change,
-     * manual action, restart, observed success) has reopened it yet. Deliberately long enough
-     * that it can never be mistaken for the 1500ms {@code TOGGLE_COOLDOWN_MS} loop this class
-     * replaces, while still short enough that a user who confirmed the pairing dialog without
-     * KeepADB noticing doesn't wait indefinitely for automatic recovery to resume. Not specified
-     * by the issue -- a pragmatic choice, easy to retune later without touching the policy above.
+     * Spacing before the very first retry after an unconfirmed automatic attempt (#536's
+     * "ungefähr 2 Minuten" acceptance criterion). Deliberately long enough that it can never be
+     * mistaken for the 1500ms {@code TOGGLE_COOLDOWN_MS} loop this class replaces, while still
+     * short enough that a user who confirmed the pairing dialog without KeepADB noticing doesn't
+     * wait long for automatic recovery to resume on its own.
      */
-    static final long FALLBACK_RETRY_INTERVAL_MS = 15 * 60 * 1000L; // 15 minutes
+    static final long FIRST_RETRY_DELAY_MS = 2 * 60 * 1000L; // ~2 minutes
+
+    /**
+     * Spacing for every retry after the first one, and the cap the cadence never exceeds (#536's
+     * "höchstens im Abstand von 5 Minuten" acceptance criterion). A cycle that keeps mismatching
+     * therefore retries at 2, 7, 12, 17, ... minutes after the first attempt -- bounded, never
+     * growing further, so a stubborn dialog costs at most one controlled attempt every 5 minutes
+     * instead of escalating.
+     */
+    static final long RETRY_INTERVAL_MS = 5 * 60 * 1000L; // 5 minutes
 
     /**
      * How long an accepted automatic enable must survive before it counts as a real success
@@ -64,15 +80,17 @@ final class KeepADBRecoveryBackoff {
      * Records that an automatic enable attempt was just made and its write was accepted. The
      * attempt counts -- and blocks further automatic attempts once {@link #MAX_ATTEMPTS_PER_CYCLE}
      * is reached -- <em>regardless</em> of what the immediate readback said, because that readback
-     * is not evidence either way (see {@link #SUCCESS_CONFIRMATION_MS}). The cycle stays blocked
+     * is not evidence either way (see {@link #SUCCESS_CONFIRMATION_MS}). The window stays blocked
      * until {@link #confirmSuccess()} proves the value actually stuck, an explicit trigger calls
-     * {@link #reset()}, or {@link #FALLBACK_RETRY_INTERVAL_MS} has elapsed.
+     * {@link #reset()}, or its retry delay elapses -- {@link #FIRST_RETRY_DELAY_MS} for the first
+     * attempt in the cycle, {@link #RETRY_INTERVAL_MS} (the cap) for every attempt after that.
      */
     synchronized void recordAttempt(long nowElapsedMs) {
         attemptsInCycle++;
         awaitingConfirmation = true;
         if (attemptsInCycle >= MAX_ATTEMPTS_PER_CYCLE) {
-            blockedUntilElapsedMs = nowElapsedMs + FALLBACK_RETRY_INTERVAL_MS;
+            long delay = attemptsInCycle <= 1 ? FIRST_RETRY_DELAY_MS : RETRY_INTERVAL_MS;
+            blockedUntilElapsedMs = nowElapsedMs + delay;
         }
     }
 

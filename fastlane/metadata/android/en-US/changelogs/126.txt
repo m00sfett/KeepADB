@@ -1,0 +1,6 @@
+Keep-Alive's automatic re-enable now reliably retries after a readback-mismatch pause: the
+foreground service's heartbeat re-checks on its own once the pause has elapsed, instead of only
+reacting to reopening the app or a network change.
+
+Retries now follow a clearer cadence: first retry after about 2 minutes, then at most every 5
+minutes.
