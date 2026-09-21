@@ -22,6 +22,33 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.29] - Unreleased
+
+### Added
+- Connection view now shows every currently *verified* ADB transport separately -- WLAN/LAN,
+  Tailscale/VPN and USB -- instead of only the WLAN endpoint, with one clearly marked primary
+  transport and privacy-mode masking applied consistently across all of them (#538).
+- Tailscale/VPN detection (`KeepADBVpnTransport`) is deliberately independent and narrow: it
+  identifies a VPN network by its Tailscale-range address (100.64.0.0/10, Tailscale's documented
+  CGNAT allocation) and only then verifies real ADB reachability on it via the already-known
+  WLAN/LAN port, reusing the existing socket-connect probe. An active VPN interface alone --
+  wrong address range, or ADB simply not reachable there -- is never presented as an ADB
+  endpoint, only as a separate, non-endpoint status line.
+- USB-ADB is now shown as its own active transport (no fabricated network endpoint) whenever the
+  system reports a genuine connected+configured+adb USB link, reusing the existing
+  `KeepADBUsbReceiver` sticky-broadcast check.
+- A transport that stops being verified (network change, VPN drop, cable pull) simply disappears
+  from the next render -- the aggregation (`KeepADBTransportOverview`) holds no state of its own
+  and is recomputed fresh on every refresh.
+
+### Testing
+- `KeepADBTransportOverviewTest` covers the four required transport scenarios (WLAN only; WLAN +
+  Tailscale both verified; VPN active but ADB unreachable there; USB only) plus a generic
+  non-Tailscale VPN, an unconfigured USB cable, the empty snapshot, and the synchronous-vs.
+  background-thread dispatch behavior of `currentAsync`. `KeepADBVpnTransportTest` and
+  `KeepADBTransportEndpointTest` add focused unit coverage for the CGNAT-range check and the
+  value type itself (#538).
+
 ## [1.8.28] - Unreleased
 
 ### Fixed

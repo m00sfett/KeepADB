@@ -440,6 +440,28 @@
                         android:textColor="@color/night_muted"
                         android:textSize="15sp" />
 
+                    <!-- #538: additional verified transports (Tailscale/VPN, USB) beyond the
+                         WLAN/LAN endpoint above; populated dynamically, one row per transport,
+                         by MainActivity#renderTransportOverview(). Hidden while none apply, so
+                         the common WLAN-only case looks exactly as before. -->
+                    <LinearLayout
+                        android:id="@+id/transport_overview_panel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="monospace"
+                            android:textColor="@color/night_muted"
+                            android:textSize="13sp"
+                            tools:text="Tailscale/VPN: 100.64.*.*:5555 · last checked …" />
+                    </LinearLayout>
+
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"

@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Switch;
@@ -25,6 +26,10 @@ public class MainActivity extends Activity {
     private TextView hideNotificationSubtext;
     private TextView status;
     private TextView endpoint;
+    // #538: container for additional verified transports (Tailscale/VPN, USB) beyond the WLAN/LAN
+    // endpoint already shown by `endpoint` above; populated dynamically by renderTransportOverview().
+    private ViewGroup transportOverviewPanel;
+    private long transportOverviewGeneration;
     private TextView webhookStatus;
     private View webhookStatusPanel;
     private View webhookSetupButton;
@@ -70,6 +75,7 @@ public class MainActivity extends Activity {
         hideNotificationSubtext = findViewById(R.id.hide_notification_subtext);
         status = findViewById(R.id.status);
         endpoint = findViewById(R.id.endpoint);
+        transportOverviewPanel = findViewById(R.id.transport_overview_panel);
         webhookStatus = findViewById(R.id.webhook_status);
         webhookStatusPanel = findViewById(R.id.webhook_status_panel);
         webhookSetupButton = findViewById(R.id.webhook_setup_button);
@@ -227,6 +233,10 @@ public class MainActivity extends Activity {
         getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         endpointSurfaceActive = false;
         endpointListenerGeneration++;
+        // #538: invalidates any in-flight renderTransportOverview() async result so a snapshot
+        // computed for a now-paused screen never applies after the fact (mirrors the
+        // endpointListenerGeneration guard above).
+        transportOverviewGeneration++;
         KeepADBNotification.clearEndpointListener();
         KeepADBRegisterClient.clearRegisterStateListener();
         if (adbContentObserver != null) {
@@ -321,6 +331,7 @@ public class MainActivity extends Activity {
                 : R.string.settings_hide_notification_subtext);
         refreshWebhookStatus();
         updatePrivacyModeToggle();
+        renderTransportOverview();
     }
 
     /** #482: reflects {@link KeepADBPreferences#isPrivacyModeEnabled} as an eye / crossed-out-eye
@@ -506,6 +517,104 @@ public class MainActivity extends Activity {
                 && listenerGeneration == endpointListenerGeneration
                 && !isFinishing()
                 && !isDestroyed();
+    }
+
+    /**
+     * #538: kicks off a background {@link KeepADBTransportOverview} snapshot and applies it once
+     * it lands, matching the generation-token pattern {@link #postEndpointAvailable} already uses
+     * so a snapshot started for an older refresh (or a since-paused screen) never overwrites a
+     * newer one. Off the main thread because {@link KeepADBVpnTransport#verifyAdbReachable} can
+     * perform a blocking socket connect.
+     */
+    private void renderTransportOverview() {
+        final long token = ++transportOverviewGeneration;
+        KeepADBTransportOverview.currentAsync(this, snapshot -> runOnUiThread(() -> {
+            if (!isTransportOverviewSurfaceActive(token)) return;
+            applyTransportOverview(snapshot);
+        }));
+    }
+
+    /** Analogous to {@link #isEndpointSurfaceActive(long)}, but against {@link
+     * #transportOverviewGeneration} -- the two counters are bumped independently (a privacy-mode
+     * toggle re-renders the endpoint surface without touching the transport overview, and vice
+     * versa is not currently possible, but keeping them separate avoids coupling the two). */
+    private boolean isTransportOverviewSurfaceActive(long token) {
+        return endpointSurfaceActive
+                && token == transportOverviewGeneration
+                && !isFinishing()
+                && !isDestroyed();
+    }
+
+    /**
+     * Renders {@code snapshot} into {@link #transportOverviewPanel}: one row per verified
+     * transport beyond WLAN/LAN (which the pre-existing {@link #endpoint} text above already
+     * covers), plus an optional "VPN active, not verified" status row. The panel stays hidden
+     * (matching its pre-#538 absence) whenever there is nothing beyond the WLAN/LAN case to show,
+     * so the common single-WLAN scenario renders exactly as before.
+     */
+    private void applyTransportOverview(KeepADBTransportOverview.Snapshot snapshot) {
+        transportOverviewPanel.removeAllViews();
+        boolean wlanPrimary = false;
+        for (KeepADBTransportEndpoint transport : snapshot.transports) {
+            if (transport.type == KeepADBTransportEndpoint.Type.WLAN_LAN) {
+                wlanPrimary = transport.primary;
+                continue;
+            }
+            transportOverviewPanel.addView(buildTransportRow(transport));
+        }
+        if (snapshot.vpnActiveNotAdbVerified) {
+            transportOverviewPanel.addView(buildStatusRow(
+                    getString(R.string.transport_vpn_active_not_verified_row)));
+        }
+        transportOverviewPanel.setVisibility(
+                transportOverviewPanel.getChildCount() > 0 ? View.VISIBLE : View.GONE);
+        updateEndpointPrimaryAccessibility(wlanPrimary);
+    }
+
+    /** One dynamically added transport row: "<label>: <value> · last checked <time>", masked
+     * through the same privacy toggle as the WLAN/LAN endpoint text, with an extra "primary
+     * transport" content description on the transport currently holding {@link
+     * KeepADBTransportEndpoint#primary}. */
+    private TextView buildTransportRow(KeepADBTransportEndpoint transport) {
+        String label = getString(transport.type == KeepADBTransportEndpoint.Type.TAILSCALE_VPN
+                ? R.string.transport_tailscale_label : R.string.transport_usb_label);
+        String value = transport.hasNetworkEndpoint()
+                ? KeepADBPreferences.maskEndpointForDisplay(this,
+                        KeepADBEndpoint.formatEndpoint(transport.host, transport.port))
+                : getString(R.string.transport_usb_active_value);
+        java.text.DateFormat dateTimeFormat = java.text.DateFormat.getDateTimeInstance(
+                java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM,
+                getResources().getConfiguration().getLocales().get(0));
+        String lastChecked = dateTimeFormat.format(new java.util.Date(transport.verifiedAtMs));
+        String text = getString(R.string.transport_row_format, label, value, lastChecked);
+        TextView row = buildStatusRow(text);
+        if (transport.primary) {
+            row.setContentDescription(getString(R.string.transport_primary_accessibility_format, text));
+        }
+        return row;
+    }
+
+    private TextView buildStatusRow(String text) {
+        TextView row = new TextView(this);
+        row.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        row.setTypeface(android.graphics.Typeface.MONOSPACE);
+        row.setTextColor(getColor(R.color.night_muted));
+        row.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
+        row.setText(text);
+        return row;
+    }
+
+    /** #538: marks the pre-existing WLAN/LAN {@link #endpoint} text as the primary transport for
+     * screen readers without changing its visible text (pinned by existing endpoint-format
+     * tests) -- additive on top of whatever {@link #renderEndpoint()} already set. */
+    private void updateEndpointPrimaryAccessibility(boolean wlanPrimary) {
+        if (wlanPrimary) {
+            endpoint.setContentDescription(
+                    getString(R.string.transport_primary_accessibility_format, endpoint.getText()));
+        } else {
+            endpoint.setContentDescription(null);
+        }
     }
 
     private boolean hasSecureSettingsPermission() {

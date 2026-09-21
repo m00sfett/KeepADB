@@ -21,6 +21,12 @@
     <string name="endpoint_format">Endpoint: %1$s:%2$d</string>
     <string name="endpoint_searching">Endpoint wird gesucht …</string>
     <string name="endpoint_unavailable">Endpoint nicht verfügbar</string>
+    <string name="transport_tailscale_label">Tailscale/VPN</string>
+    <string name="transport_usb_label">USB</string>
+    <string name="transport_row_format">%1$s: %2$s · zuletzt geprüft %3$s</string>
+    <string name="transport_usb_active_value">USB-ADB aktiv</string>
+    <string name="transport_vpn_active_not_verified_row">Tailscale/VPN: aktiv, ADB dort nicht erreichbar</string>
+    <string name="transport_primary_accessibility_format">%1$s, primärer Transport</string>
     <string name="toggle_label">Drahtloses Debugging</string>
     <string name="keep_alive_toggle">Dauerhaft aktiv halten</string>
     <string name="keep_alive_subtext">Automatischer Reconnect bei Verbindungsabbruch, AP-Wechsel oder Neustart</string>

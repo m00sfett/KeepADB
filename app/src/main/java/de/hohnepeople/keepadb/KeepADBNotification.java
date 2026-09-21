@@ -31,6 +31,12 @@ final class KeepADBNotification {
     private static KeepADBEndpoint endpoint;
     private static String currentHost;
     private static int currentPort;
+    // #538: epoch-millis of the last confirmed reachability of currentHost/currentPort -- set at
+    // every site that establishes or reconfirms the cached endpoint, reset at every site that
+    // clears it, so it always describes exactly the endpoint currently cached, never a stale one.
+    // Consumed by KeepADBTransportOverview for its "last checked" display; nothing in this class
+    // itself reads it.
+    private static long currentEndpointVerifiedAtMs;
     private static EndpointListener endpointListener;
     private static Runnable pendingRetryRunnable;
     private static int retryAttempt;
@@ -150,6 +156,7 @@ final class KeepADBNotification {
         }
         currentHost = null;
         currentPort = 0;
+        currentEndpointVerifiedAtMs = 0;
         endpointListener = null;
         resetReachableConfirmed();
         verificationInFlight = false;
@@ -164,6 +171,12 @@ final class KeepADBNotification {
 
     static synchronized int getCurrentPort() {
         return currentPort;
+    }
+
+    /** #538: epoch-millis of the last confirmed reachability of the currently cached endpoint,
+     * or 0 when there is none (see {@link #hasCurrentEndpoint()}). */
+    static synchronized long getCurrentEndpointVerifiedAtMs() {
+        return currentEndpointVerifiedAtMs;
     }
 
     static synchronized boolean hasCurrentEndpoint() {
@@ -220,6 +233,7 @@ final class KeepADBNotification {
         }
         currentHost = null;
         currentPort = 0;
+        currentEndpointVerifiedAtMs = 0;
         resetReachableConfirmed();
         if (endpointListener != null) {
             endpointListener.onUnavailable();
@@ -332,6 +346,7 @@ final class KeepADBNotification {
                     return;
                 }
                 if (reachable) {
+                    currentEndpointVerifiedAtMs = System.currentTimeMillis();
                     activeDiscoveryOwner = null;
                     if (shouldLogReachable()) {
                         KeepADBDiagnostics.event(appContext, "endpoint_verified", "nsd_or_probe",
@@ -346,6 +361,7 @@ final class KeepADBNotification {
                 resetReachableConfirmed();
                 currentHost = null;
                 currentPort = 0;
+                currentEndpointVerifiedAtMs = 0;
                 if (endpointListener != null) {
                     endpointListener.onUnavailable();
                 }
@@ -495,6 +511,7 @@ final class KeepADBNotification {
                     endpointVerificationToken++;
                     currentHost = host;
                     currentPort = port;
+                    currentEndpointVerifiedAtMs = System.currentTimeMillis();
                     resetReachableConfirmed();
                     activeDiscoveryOwner = null;
                     retryAttempt = 0;
@@ -519,6 +536,7 @@ final class KeepADBNotification {
                     endpointVerificationToken++;
                     currentHost = null;
                     currentPort = 0;
+                    currentEndpointVerifiedAtMs = 0;
                     scheduleRetryLocked(appContext, manager);
                     if (KeepADBPreferences.isKeepAliveEnabled(appContext)) {
                         if (KeepADB.isEnabled(appContext)) {
@@ -596,6 +614,7 @@ final class KeepADBNotification {
         }
         currentHost = null;
         currentPort = 0;
+        currentEndpointVerifiedAtMs = 0;
         resetReachableConfirmed();
         if (endpointListener != null) endpointListener.onUnavailable();
         showPlaceholder(appContext, manager,
@@ -618,6 +637,7 @@ final class KeepADBNotification {
         }
         currentHost = null;
         currentPort = 0;
+        currentEndpointVerifiedAtMs = 0;
         resetReachableConfirmed();
         if (endpointListener != null) endpointListener.onUnavailable();
         manager.cancel(NOTIFICATION_ID);

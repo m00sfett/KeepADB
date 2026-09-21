@@ -19,6 +19,12 @@
     <string name="endpoint_format">Punto finale: %1$s:%2$d</string>
     <string name="endpoint_searching">Ricerca dell’endpoint…</string>
     <string name="endpoint_unavailable">Endpoint non disponibile</string>
+    <string name="transport_tailscale_label">Tailscale/VPN</string>
+    <string name="transport_usb_label">USB</string>
+    <string name="transport_row_format">%1$s: %2$s · ultima verifica %3$s</string>
+    <string name="transport_usb_active_value">USB-ADB attivo</string>
+    <string name="transport_vpn_active_not_verified_row">Tailscale/VPN: attivo, ADB non raggiungibile lì</string>
+    <string name="transport_primary_accessibility_format">%1$s, trasporto principale</string>
     <string name="toggle_label">Debug wireless</string>
     <string name="keep_alive_toggle">Mantieni sempre attivo</string>
     <string name="keep_alive_subtext">Riconnessione automatica in caso di disconnessione, cambio rete o riavvio</string>
