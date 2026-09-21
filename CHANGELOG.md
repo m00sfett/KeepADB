@@ -41,6 +41,18 @@ retrospective issue-version records and were never published as separate release
   interval) and a Robolectric test that drives the real heartbeat ticker with no manual recheck
   call, proving the retry fires on its own once the window elapses (#536).
 
+### Added
+- Optional, purely local Tailscale status in the network/endpoint view on MainActivity (#537).
+  Detected from two platform-level, permission-free reads: whether the Tailscale app
+  (`com.tailscale.ipn`) is installed (`PackageManager`, gated by a new `<queries>` manifest
+  entry for API 30+ package visibility) and whether a `tailscale0` interface is up with an
+  address in Tailscale's CGNAT range (100.64.0.0/10, plain JDK `NetworkInterface`). Four states:
+  hidden when not installed, active, inactive (installed-but-unconfigured and
+  configured-but-disconnected are deliberately not distinguished -- Android has no reliable,
+  permission-free way to tell those apart), and unknown when a platform read itself fails.
+  Display-only: never consulted by `KeepADB`, Keep-Alive, or endpoint/transport discovery, and an
+  active Tailscale interface is never treated as an ADB endpoint by itself.
+
 ## [1.8.28] - Unreleased
 
 ### Fixed

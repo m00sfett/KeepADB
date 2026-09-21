@@ -19,6 +19,9 @@
     <string name="endpoint_format">Endpoint: %1$s:%2$d</string>
     <string name="endpoint_searching">Mencari endpoint…</string>
     <string name="endpoint_unavailable">Endpoint tidak tersedia</string>
+    <string name="tailscale_status_active">Tailscale: aktif</string>
+    <string name="tailscale_status_inactive">Tailscale: tidak aktif</string>
+    <string name="tailscale_status_unknown">Tailscale: tidak diketahui</string>
     <string name="toggle_label">Debugging Nirkabel</string>
     <string name="keep_alive_toggle">Pertahankan selalu aktif</string>
     <string name="keep_alive_subtext">Hubungkan ulang otomatis saat terputus, ganti jaringan, atau reboot</string>

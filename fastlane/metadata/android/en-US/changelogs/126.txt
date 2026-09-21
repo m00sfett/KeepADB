@@ -4,3 +4,6 @@ reacting to reopening the app or a network change.
 
 Retries now follow a clearer cadence: first retry after about 2 minutes, then at most every 5
 minutes.
+
+Added an optional, purely local Tailscale status line to the main screen. It only shows when
+Tailscale is installed and never affects Wireless Debugging or Keep-Alive.

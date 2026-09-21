@@ -25,6 +25,7 @@ public class MainActivity extends Activity {
     private TextView hideNotificationSubtext;
     private TextView status;
     private TextView endpoint;
+    private TextView tailscaleStatus;
     private TextView webhookStatus;
     private View webhookStatusPanel;
     private View webhookSetupButton;
@@ -70,6 +71,7 @@ public class MainActivity extends Activity {
         hideNotificationSubtext = findViewById(R.id.hide_notification_subtext);
         status = findViewById(R.id.status);
         endpoint = findViewById(R.id.endpoint);
+        tailscaleStatus = findViewById(R.id.tailscale_status);
         webhookStatus = findViewById(R.id.webhook_status);
         webhookStatusPanel = findViewById(R.id.webhook_status_panel);
         webhookSetupButton = findViewById(R.id.webhook_setup_button);
@@ -320,7 +322,33 @@ public class MainActivity extends Activity {
                 ? R.string.settings_hide_notification_subtext_keepalive
                 : R.string.settings_hide_notification_subtext);
         refreshWebhookStatus();
+        renderTailscaleStatus();
         updatePrivacyModeToggle();
+    }
+
+    /**
+     * #537: optional, purely local Tailscale status in the existing network/endpoint view.
+     * Display-only -- reading it never touches {@link KeepADB}'s toggle state, Keep-Alive, or the
+     * endpoint/transport discovery above, and an active Tailscale interface is never treated as
+     * an ADB endpoint. Hidden entirely rather than shown as neutral/empty when Tailscale isn't
+     * installed, per the acceptance criterion that a device without Tailscale stays quiet.
+     */
+    private void renderTailscaleStatus() {
+        KeepADBTailscaleStatus.Status tailscale = KeepADBTailscaleStatus.detect(this);
+        if (tailscale == KeepADBTailscaleStatus.Status.NOT_INSTALLED) {
+            tailscaleStatus.setVisibility(View.GONE);
+            return;
+        }
+        int textRes;
+        if (tailscale == KeepADBTailscaleStatus.Status.ACTIVE) {
+            textRes = R.string.tailscale_status_active;
+        } else if (tailscale == KeepADBTailscaleStatus.Status.INACTIVE) {
+            textRes = R.string.tailscale_status_inactive;
+        } else {
+            textRes = R.string.tailscale_status_unknown;
+        }
+        tailscaleStatus.setText(textRes);
+        tailscaleStatus.setVisibility(View.VISIBLE);
     }
 
     /** #482: reflects {@link KeepADBPreferences#isPrivacyModeEnabled} as an eye / crossed-out-eye
