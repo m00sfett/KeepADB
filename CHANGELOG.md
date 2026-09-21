@@ -78,6 +78,34 @@ retrospective issue-version records and were never published as separate release
   `KeepADBTransportEndpointTest` add focused unit coverage for the CGNAT-range check and the
   value type itself (#538).
 
+### Changed
+- The register webhook now speaks the versioned contract v2: every report carries
+  `contract_version`, `observed_at` and a state-derived `event_id`, while `method` and `endpoint`
+  keep their previous place so the register's legacy projection and all existing
+  `GET /register/<alias>` consumers are unaffected (#539). Repeating an unchanged state is now
+  idempotent, and a late-arriving older report can no longer overwrite a newer endpoint.
+
+### Added
+- `KeepADBRegisterPayload` builds one independent event per verified transport (WLAN/LAN,
+  Tailscale/VPN, USB), so parallel transports occupy separate register slots and cannot clear one
+  another. Only transports that were actually verified are reported; methods the deployed
+  register does not accept yet are held back instead of being sent (#539).
+
+### Testing
+- Closed a pre-existing test-isolation race in the register cleanup lifecycle tests: a trailing
+  background request of one test could be recorded against the next test's fake transport,
+  because the transport is a static field. The tests now drain the register executor between
+  cases instead of relying on timing (#539).
+
+### Documentation
+- Added the multi-transport register contract in
+  `docs/design/issue-539-multi-transport-register-contract.md`, including schema, versioning,
+  stale/TTL behaviour, the primary/compatibility projection, the remaining server-side gap and
+  the migration/rollback path. It documents how this design differs from the discarded #416
+  approach (#539).
+- Patch version bump (1.8.28 -> 1.8.29, versionCode 126): additive wire fields with an unchanged
+  legacy projection and a revert-only rollback.
+
 ## [1.8.28] - Unreleased
 
 ### Fixed

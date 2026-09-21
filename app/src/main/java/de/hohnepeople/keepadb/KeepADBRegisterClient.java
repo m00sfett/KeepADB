@@ -477,6 +477,26 @@ final class KeepADBRegisterClient {
 
     // ---- Test-only accessors: keep WLAN state verifiable. ----
 
+    /**
+     * Blocks until the register executor has drained. Register work is dispatched to a single
+     * background thread, so a test that only waits for its own observable outcome can end while a
+     * trailing request of that same transaction is still in flight; because the transport is a
+     * static field, that request would then be recorded against the *next* test's fake and make
+     * its request count non-deterministic. Submitting a barrier onto the same single-threaded
+     * executor is exact rather than timing-based: it can only run once every task queued before it
+     * has finished. Deliberately not {@code synchronized} -- the queued tasks take the class
+     * monitor themselves, so holding it here would deadlock.
+     */
+    static void awaitIdleForTesting(long timeoutMs) {
+        java.util.concurrent.CountDownLatch drained = new java.util.concurrent.CountDownLatch(1);
+        EXECUTOR.execute(drained::countDown);
+        try {
+            drained.await(timeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
     static void flushPendingCleanupsForTesting(Context context) {
         flushPendingCleanups(context);
     }
@@ -591,9 +611,42 @@ final class KeepADBRegisterClient {
         httpTransport = DEFAULT_TRANSPORT;
     }
 
+    /**
+     * #539: reports the WLAN transport as a contract-v2 event. The payload keeps {@code method}
+     * and {@code endpoint} exactly where the pre-v2 contract had them, so the register's legacy
+     * projection and every existing {@code GET /register/<alias>} consumer keep the same view;
+     * {@code contract_version}, {@code observed_at} and {@code event_id} are additive.
+     */
     static boolean postEndpoint(String targetUrl, String endpoint) {
-        String payload = String.format(java.util.Locale.US, "{\"method\":\"wlan-adb\",\"endpoint\":\"%s\"}", endpoint);
-        return sendJsonPost(targetUrl, payload, endpoint);
+        KeepADBRegisterPayload.Event event =
+                KeepADBRegisterPayload.wlanEvent(endpoint, System.currentTimeMillis());
+        return sendJsonPost(targetUrl, event.json, endpoint);
+    }
+
+    /**
+     * #539: reports every currently verified transport as its own contract-v2 event, so the
+     * register keeps one independent slot per transport and a WLAN report can never clear the
+     * Tailscale or USB slot. Events whose method the deployed register does not accept yet are
+     * held back instead of being sent into a guaranteed HTTP 400; see
+     * {@link KeepADBRegisterPayload#SERVER_SUPPORTED_METHODS}.
+     *
+     * @return {@code true} when every event that was actually sent succeeded. An empty transport
+     *     list is a no-op returning {@code true}: "nothing verified right now" must not be turned
+     *     into a clearing request here -- deactivation is an explicit, per-method event.
+     */
+    static boolean postTransports(String targetUrl,
+            java.util.List<KeepADBRegisterPayload.VerifiedTransport> verified) {
+        boolean allSent = true;
+        for (KeepADBRegisterPayload.Event event : KeepADBRegisterPayload.buildEvents(verified)) {
+            if (!event.serverSupported) {
+                Log.i(TAG, "Holding back register event for unsupported method " + event.method);
+                continue;
+            }
+            if (!sendJsonPost(targetUrl, event.json, event.method)) {
+                allSent = false;
+            }
+        }
+        return allSent;
     }
 
     private static boolean sendJsonPost(String targetUrl, String payload, String logLabel) {

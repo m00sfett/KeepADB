@@ -505,8 +505,14 @@ public class KeepADBRegisterClientTest {
             }
             assertNotNull(updateRequest);
             assertEquals(targetUrl, updateRequest.url);
-            assertEquals("{\"method\":\"wlan-adb\",\"endpoint\":\"192.168.1.50:41234\"}",
-                    updateRequest.payload);
+            // #539: contract-v2 event. method/endpoint keep their pre-v2 place so the register's
+            // legacy projection is unchanged; the remaining fields are additive.
+            assertTrue(updateRequest.payload.contains("\"contract_version\":2"));
+            assertTrue(updateRequest.payload.contains("\"method\":\"wlan-adb\""));
+            assertTrue(updateRequest.payload.contains("\"endpoint\":\"192.168.1.50:41234\""));
+            assertTrue(updateRequest.payload.contains("\"event_id\":\""
+                    + KeepADBRegisterPayload.eventIdFor("wlan-adb", "192.168.1.50:41234", true)
+                    + "\""));
             assertNotNull(disconnectRequest);
             assertEquals(targetUrl, disconnectRequest.url);
             assertNull(disconnectRequest.payload);
