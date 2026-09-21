@@ -23,11 +23,10 @@
     <string name="tailscale_status_inactive">Tailscale: неактивний</string>
     <string name="tailscale_status_unknown">Tailscale: невідомо</string>
 
-    <string name="transport_tailscale_label">Tailscale/VPN</string>
+    <string name="transport_tailscale_label">ADB через Tailscale/VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · остання перевірка %3$s</string>
     <string name="transport_usb_active_value">USB-ADB активний</string>
-    <string name="transport_vpn_active_not_verified_row">Tailscale/VPN: активний, ADB там недоступний</string>
     <string name="transport_primary_accessibility_format">%1$s, основний транспорт</string>
     <string name="toggle_label">Бездротове налагодження</string>
     <string name="keep_alive_toggle">Підтримувати постійно активним</string>

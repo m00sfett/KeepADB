@@ -31,7 +31,12 @@ final class KeepADBTransportOverview {
      * currently verified; {@link #vpnActiveNotAdbVerified} can be {@code true} independently of
      * that (an active VPN interface that isn't confirmed as an ADB transport is deliberately not
      * an entry in {@link #transports} -- see the #538 acceptance criterion that an active VPN
-     * interface must never be presented as an ADB endpoint on its own). */
+     * interface must never be presented as an ADB endpoint on its own).
+     *
+     * <p>{@link #vpnActiveNotAdbVerified} is model state only: it records why a present VPN did
+     * not become a transport and keeps that distinction testable, but no surface renders it.
+     * The user-facing "Tailscale is up" statement belongs to #537's status card alone, so that
+     * the app never shows two independently derived answers to the same question. */
     static final class Snapshot {
         final List<KeepADBTransportEndpoint> transports;
         final boolean vpnActiveNotAdbVerified;

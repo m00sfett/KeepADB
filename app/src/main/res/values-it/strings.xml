@@ -23,11 +23,10 @@
     <string name="tailscale_status_inactive">Tailscale: non attivo</string>
     <string name="tailscale_status_unknown">Tailscale: sconosciuto</string>
 
-    <string name="transport_tailscale_label">Tailscale/VPN</string>
+    <string name="transport_tailscale_label">ADB tramite Tailscale/VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · ultima verifica %3$s</string>
     <string name="transport_usb_active_value">USB-ADB attivo</string>
-    <string name="transport_vpn_active_not_verified_row">Tailscale/VPN: attivo, ADB non raggiungibile lì</string>
     <string name="transport_primary_accessibility_format">%1$s, trasporto principale</string>
     <string name="toggle_label">Debug wireless</string>
     <string name="keep_alive_toggle">Mantieni sempre attivo</string>

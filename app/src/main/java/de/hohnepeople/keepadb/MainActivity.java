@@ -578,9 +578,16 @@ public class MainActivity extends Activity {
     /**
      * Renders {@code snapshot} into {@link #transportOverviewPanel}: one row per verified
      * transport beyond WLAN/LAN (which the pre-existing {@link #endpoint} text above already
-     * covers), plus an optional "VPN active, not verified" status row. The panel stays hidden
-     * (matching its pre-#538 absence) whenever there is nothing beyond the WLAN/LAN case to show,
-     * so the common single-WLAN scenario renders exactly as before.
+     * covers). The panel stays hidden (matching its pre-#538 absence) whenever there is nothing
+     * beyond the WLAN/LAN case to show, so the common single-WLAN scenario renders exactly as
+     * before.
+     *
+     * <p>A merely active Tailscale/VPN interface deliberately produces no row here. Saying
+     * "Tailscale is up" is #537's job, and that status card is the app's single answer to it;
+     * a second line built from this class' own, differently derived detection (CGNAT range plus
+     * ADB socket probe) could contradict it. This panel therefore only ever speaks about
+     * transports whose ADB reachability {@link KeepADBTransportOverview} actually verified --
+     * which is exactly what it adds over #537's status.
      */
     private void applyTransportOverview(KeepADBTransportOverview.Snapshot snapshot) {
         transportOverviewPanel.removeAllViews();
@@ -591,10 +598,6 @@ public class MainActivity extends Activity {
                 continue;
             }
             transportOverviewPanel.addView(buildTransportRow(transport));
-        }
-        if (snapshot.vpnActiveNotAdbVerified) {
-            transportOverviewPanel.addView(buildStatusRow(
-                    getString(R.string.transport_vpn_active_not_verified_row)));
         }
         transportOverviewPanel.setVisibility(
                 transportOverviewPanel.getChildCount() > 0 ? View.VISIBLE : View.GONE);

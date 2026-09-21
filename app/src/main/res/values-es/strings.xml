@@ -23,11 +23,10 @@
     <string name="tailscale_status_inactive">Tailscale: inactivo</string>
     <string name="tailscale_status_unknown">Tailscale: desconocido</string>
 
-    <string name="transport_tailscale_label">Tailscale/VPN</string>
+    <string name="transport_tailscale_label">ADB por Tailscale/VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · última verificación %3$s</string>
     <string name="transport_usb_active_value">USB-ADB activo</string>
-    <string name="transport_vpn_active_not_verified_row">Tailscale/VPN: activo, ADB no accesible ahí</string>
     <string name="transport_primary_accessibility_format">%1$s, transporte principal</string>
     <string name="toggle_label">Depuración inalámbrica</string>
     <string name="keep_alive_toggle">Mantener siempre activo</string>
