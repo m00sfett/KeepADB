@@ -22,6 +22,16 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.33] - Unreleased
+
+### Fixed
+- Diagnostics ring buffer (`MAX_EVENTS = 128`) no longer gets crowded out by the 60s
+  heartbeat's per-tick `keep_alive_check` events on release builds; only an actual outcome
+  change (waiting for network / retry deferred / recheck due / recovery result) is now stored,
+  restoring the export's historical coverage well beyond roughly an hour (#545). Debug builds
+  keep every tick unchanged, matching the existing debug/release diagnostics distinction; the
+  Keep-Alive/recovery logic itself is unaffected, only diagnostic volume changed.
+
 ## [1.8.32] - Unreleased
 
 This section is the combined integration of issue packages #536, #537, #538 and #539, which
