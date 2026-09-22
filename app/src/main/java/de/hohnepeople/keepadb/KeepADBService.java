@@ -549,14 +549,14 @@ public class KeepADBService extends Service {
             return;
         }
         lastRecheckTime = now;
-        KeepADBDiagnostics.event(this, "keep_alive_check", "service", "started",
+        KeepADBDiagnostics.heartbeatEvent(this, "keep_alive_check", "service", "started",
                 "wifiConnected=" + isWifiConnected(this) + " adbWifi=" + KeepADB.isEnabled(this));
         if (KeepADBPreferences.isKeepAliveEnabled(this) && !KeepADB.wasLastExplicitIntentOff(this)) {
             if (isWifiConnected(this)) {
                 if (!KeepADB.isEnabled(this)) {
                     if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)) {
                         Log.i(TAG, "Wi-Fi connected but network is untrusted; not auto-enabling");
-                        KeepADBDiagnostics.event(this, "keep_alive_check", "service", "blocked", "untrusted_network");
+                        KeepADBDiagnostics.heartbeatEvent(this, "keep_alive_check", "service", "blocked", "untrusted_network");
                         // #446: same prompt as the content-observer path above. It is throttled
                         // per access point, so the 60s heartbeat cannot turn it into spam.
                         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(this);
@@ -573,7 +573,7 @@ public class KeepADBService extends Service {
                         // needed, and no write happens in the meantime.
                         Log.i(TAG, "Automatic re-enable paused after a readback mismatch (#496); "
                                 + "retry deferred until the backoff window elapses");
-                        KeepADBDiagnostics.event(this, "keep_alive_check", "service", "blocked",
+                        KeepADBDiagnostics.heartbeatEvent(this, "keep_alive_check", "service", "blocked",
                                 "reason=recovery_backoff_active");
                         KeepADBNotification.refresh(this);
                         KeepADBWidget.refreshAll(this);
@@ -582,7 +582,7 @@ public class KeepADBService extends Service {
                     // #536: distinct from the "blocked" outcome above -- the backoff window (if
                     // any) has elapsed and a fresh automatic attempt is due right now, whether
                     // this is the very first one or a scheduled retry.
-                    KeepADBDiagnostics.event(this, "keep_alive_check", "service", "due",
+                    KeepADBDiagnostics.heartbeatEvent(this, "keep_alive_check", "service", "due",
                             "reason=recheck_due");
                     Log.i(TAG, "Auto-enabling Wireless Debugging (Wi-Fi connected)");
                     if (!KeepADB.setEnabled(this, true, "keep_alive_check",
@@ -596,7 +596,7 @@ public class KeepADBService extends Service {
                 // #536: the third diagnosable waiting state -- no Wi-Fi transport at all, so
                 // there is nothing yet to retry against. Distinct from "blocked" (network present,
                 // backoff active) and from "due" (network present, attempting now).
-                KeepADBDiagnostics.event(this, "keep_alive_check", "service", "waiting",
+                KeepADBDiagnostics.heartbeatEvent(this, "keep_alive_check", "service", "waiting",
                         "reason=waiting_for_network");
             }
         }
