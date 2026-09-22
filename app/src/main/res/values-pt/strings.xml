@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB ativo</string>
     <string name="transport_primary_accessibility_format">%1$s, transporte principal</string>
     <string name="toggle_label">Depuração sem fio</string>
+    <string name="toggle_subtext">Ativa ou desativa a depuração sem fio para ADB via Wi-Fi.</string>
     <string name="keep_alive_toggle">Manter sempre ativo</string>
     <string name="keep_alive_subtext">Reconexão automática em caso de queda, troca de rede ou reinicialização</string>
     <string name="widget_text_on">Depuração sem fio: SIM</string>

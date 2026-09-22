@@ -1,0 +1,2 @@
+Added: a short explanation now sits under the "Wireless Debugging" switch, telling you what it
+does. No change to the switch itself, Keep-Alive, or endpoint discovery.

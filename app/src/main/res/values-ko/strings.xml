@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB 활성화됨</string>
     <string name="transport_primary_accessibility_format">%1$s, 기본 전송</string>
     <string name="toggle_label">무선 디버깅</string>
+    <string name="toggle_subtext">Wi-Fi를 통한 ADB를 위해 무선 디버깅을 켜거나 끕니다.</string>
     <string name="keep_alive_toggle">지속적으로 활성 상태 유지</string>
     <string name="keep_alive_subtext">연결 끊김, 네트워크 변경 또는 재부팅 시 자동 재연결</string>
     <string name="widget_text_on">무선 디버깅: 켜짐</string>

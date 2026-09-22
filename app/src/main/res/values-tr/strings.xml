@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB etkin</string>
     <string name="transport_primary_accessibility_format">%1$s, birincil aktarım</string>
     <string name="toggle_label">Kablosuz Hata Ayıklama</string>
+    <string name="toggle_subtext">Wi-Fi üzerinden ADB için Kablosuz Hata Ayıklamayı açar veya kapatır.</string>
     <string name="keep_alive_toggle">Sürekli aktif tut</string>
     <string name="keep_alive_subtext">Bağlantı kesintisi, ağ değişikliği veya yeniden başlatmada otomatik yeniden bağlanma</string>
     <string name="widget_text_on">Kablosuz Hata Ayıklama: AÇIK</string>

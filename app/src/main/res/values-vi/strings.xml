@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB đang hoạt động</string>
     <string name="transport_primary_accessibility_format">%1$s, đường truyền chính</string>
     <string name="toggle_label">Gỡ lỗi không dây</string>
+    <string name="toggle_subtext">Bật hoặc tắt Gỡ lỗi không dây để dùng ADB qua Wi-Fi.</string>
     <string name="keep_alive_toggle">Luôn duy trì hoạt động</string>
     <string name="keep_alive_subtext">Tự động kết nối lại khi mất kết nối, đổi mạng hoặc khởi động lại</string>
     <string name="widget_text_on">Gỡ lỗi không dây: BẬT</string>

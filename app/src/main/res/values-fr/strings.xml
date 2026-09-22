@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB actif</string>
     <string name="transport_primary_accessibility_format">%1$s, transport principal</string>
     <string name="toggle_label">Débogage sans fil</string>
+    <string name="toggle_subtext">Active ou désactive le débogage sans fil pour ADB via Wi-Fi.</string>
     <string name="keep_alive_toggle">Maintenir actif en permanence</string>
     <string name="keep_alive_subtext">Reconnexion automatique en cas de coupure, changement de réseau ou redémarrage</string>
     <string name="widget_text_on">Débogage sans fil : OUI</string>

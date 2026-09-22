@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB aktif</string>
     <string name="transport_primary_accessibility_format">%1$s, transport utama</string>
     <string name="toggle_label">Debugging Nirkabel</string>
+    <string name="toggle_subtext">Mengaktifkan atau menonaktifkan Debugging Nirkabel untuk ADB melalui Wi-Fi.</string>
     <string name="keep_alive_toggle">Pertahankan selalu aktif</string>
     <string name="keep_alive_subtext">Hubungkan ulang otomatis saat terputus, ganti jaringan, atau reboot</string>
     <string name="widget_text_on">Debugging Nirkabel: AKTIF</string>

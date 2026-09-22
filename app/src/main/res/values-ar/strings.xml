@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB نشط</string>
     <string name="transport_primary_accessibility_format">%1$s، الناقل الأساسي</string>
     <string name="toggle_label">تصحيح الأخطاء اللاسلكي</string>
+    <string name="toggle_subtext">يشغّل أو يوقف تصحيح الأخطاء اللاسلكي لاستخدام ADB عبر Wi-Fi.</string>
     <string name="keep_alive_toggle">إبقاء مفعلًا باستمرار</string>
     <string name="keep_alive_subtext">إعادة الاتصال تلقائيًا عند انقطاع الاتصال أو تغيير الشبكة أو إعادة التشغيل</string>
     <string name="widget_text_on">تصحيح لاسلكي: تشغيل</string>

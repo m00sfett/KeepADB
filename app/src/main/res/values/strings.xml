@@ -33,6 +33,7 @@
     <string name="transport_usb_active_value">USB-ADB active</string>
     <string name="transport_primary_accessibility_format">%1$s, primary transport</string>
     <string name="toggle_label">Wireless Debugging</string>
+    <string name="toggle_subtext">Turns Wireless Debugging on or off for ADB over Wi-Fi.</string>
     <string name="keep_alive_toggle">Keep persistently active</string>
     <string name="keep_alive_subtext">Auto-reconnect on connection drop, network change, or reboot</string>
     <string name="widget_text_on">Wireless Debugging: ON</string>

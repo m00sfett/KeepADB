@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB 已啟用</string>
     <string name="transport_primary_accessibility_format">%1$s，主要傳輸</string>
     <string name="toggle_label">無線偵錯</string>
+    <string name="toggle_subtext">開啟或關閉無線偵錯，以便透過 Wi-Fi 使用 ADB。</string>
     <string name="keep_alive_toggle">保持永久啟用</string>
     <string name="keep_alive_subtext">斷線、網路變更或重開機時自動重新連線</string>
     <string name="widget_text_on">無線偵錯：開</string>
