@@ -1,0 +1,2 @@
+Diagnostics export now covers a longer history: repeated, unchanged background checks no
+longer crowd out older entries in release builds. Debug builds are unaffected.
