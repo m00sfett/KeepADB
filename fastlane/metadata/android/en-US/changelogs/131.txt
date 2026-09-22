@@ -1,0 +1,3 @@
+The optional Tailscale status is now a debug-only diagnostic and no longer appears on
+release builds, since its detection can still be inconsistent. Other functionality is
+unaffected.
