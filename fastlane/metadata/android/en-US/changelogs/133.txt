@@ -1,0 +1,4 @@
+Fixed: the webhook could get stuck reporting a freshly found, still-correct WLAN endpoint
+as failed until Wireless Debugging was toggled off and on. The shared register server no
+longer confuses clock differences between the app and the setup tooling with a genuinely
+outdated report.
