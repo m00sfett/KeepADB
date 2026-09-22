@@ -345,8 +345,17 @@ public class MainActivity extends Activity {
      * endpoint/transport discovery above, and an active Tailscale interface is never treated as
      * an ADB endpoint. Hidden entirely rather than shown as neutral/empty when Tailscale isn't
      * installed, per the acceptance criterion that a device without Tailscale stays quiet.
+     *
+     * <p>#548: Tailscale remains a debug-only diagnostic while its status/transport detection can
+     * still disagree with itself (a Tailscale status of "not active" next to a verified
+     * Tailscale/VPN transport row). A release build never shows this card at all, regardless of
+     * detection state.
      */
     private void renderTailscaleStatus() {
+        if (!KeepADBBuildFlags.isDebugBuild(this)) {
+            tailscaleStatus.setVisibility(View.GONE);
+            return;
+        }
         KeepADBTailscaleStatus.Status tailscale = KeepADBTailscaleStatus.detect(this);
         if (tailscale == KeepADBTailscaleStatus.Status.NOT_INSTALLED) {
             tailscaleStatus.setVisibility(View.GONE);
@@ -588,13 +597,21 @@ public class MainActivity extends Activity {
      * ADB socket probe) could contradict it. This panel therefore only ever speaks about
      * transports whose ADB reachability {@link KeepADBTransportOverview} actually verified --
      * which is exactly what it adds over #537's status.
+     *
+     * <p>#548: a Tailscale/VPN row is additionally suppressed on a release build, same as the
+     * #537 status card above -- Tailscale stays a debug-only diagnostic until its detection
+     * semantics are corrected in a separate follow-up.
      */
     private void applyTransportOverview(KeepADBTransportOverview.Snapshot snapshot) {
         transportOverviewPanel.removeAllViews();
         boolean wlanPrimary = false;
+        boolean debugBuild = KeepADBBuildFlags.isDebugBuild(this);
         for (KeepADBTransportEndpoint transport : snapshot.transports) {
             if (transport.type == KeepADBTransportEndpoint.Type.WLAN_LAN) {
                 wlanPrimary = transport.primary;
+                continue;
+            }
+            if (transport.type == KeepADBTransportEndpoint.Type.TAILSCALE_VPN && !debugBuild) {
                 continue;
             }
             transportOverviewPanel.addView(buildTransportRow(transport));
