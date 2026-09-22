@@ -64,18 +64,36 @@ final class KeepADBUrlRedaction {
     /** How many leading IPv4 octets stay readable while the #483 privacy mode is on. */
     private static final int PRIVACY_VISIBLE_OCTETS = 1;
 
-    /** UI text: scheme, redacted host, port, path, and a marker if a query was present. */
+    /**
+     * #550: sentinel meaning "do not mask the host at all" — used only by {@link
+     * #forDisplay(String, boolean)} for the privacy-mode-off webhook display. Userinfo, query and
+     * fragment handling are unaffected by this sentinel; those stay redacted regardless, since they
+     * are secret material (#350/#378), not the local-network host hint the privacy toggle governs.
+     */
+    private static final int NO_HOST_MASK = Integer.MAX_VALUE;
+
+    /**
+     * UI text: scheme, host masked to {@link #DEFAULT_VISIBLE_OCTETS}, port, path, and a marker if
+     * a query was present. Kept byte-identical to its pre-#550 behaviour; existing callers (the
+     * legacy {@code maskWebhookUrl} helper and its tests) rely on this exact masking regardless of
+     * the privacy toggle. The webhook display itself no longer goes through this overload — see
+     * {@link #forDisplay(String, boolean)}.
+     */
     static String forDisplay(String rawUrl) {
-        return forDisplay(rawUrl, false);
+        return redact(rawUrl, true, DEFAULT_VISIBLE_OCTETS);
     }
 
     /**
-     * #483: same UI text, but with the stricter host rule of the privacy mode — an IPv4 literal
-     * keeps only its first octet. Hostnames stay readable by explicit user decision, and IPv6
-     * literals stay fully masked: privacy mode may never reveal more than the default redaction.
+     * #550: the webhook URL's actual display entry point. While the privacy mode is on, the host
+     * keeps the stricter #483 rule — an IPv4 literal keeps only its first octet, IPv6 literals stay
+     * fully masked, hostnames stay readable. While the privacy mode is off, the host is shown
+     * exactly as stored — no octet masking, no IPv6 masking — because the open-eye toggle means the
+     * user explicitly chose to see the full endpoint. Userinfo, query and fragment are stripped or
+     * masked either way: they are secret material (#350/#378), not the local-network host hint this
+     * toggle governs.
      */
     static String forDisplay(String rawUrl, boolean privacyMode) {
-        return redact(rawUrl, true, privacyMode ? PRIVACY_VISIBLE_OCTETS : DEFAULT_VISIBLE_OCTETS);
+        return redact(rawUrl, true, privacyMode ? PRIVACY_VISIBLE_OCTETS : NO_HOST_MASK);
     }
 
     /** Log/diagnostics text: scheme, redacted host and port only — no path, no query marker. */
@@ -119,7 +137,7 @@ final class KeepADBUrlRedaction {
         if (authority.startsWith("[")) {
             int close = authority.indexOf(']');
             if (close < 0) return UNPARSEABLE;
-            hostPart = IPV6_MASK;
+            hostPart = visibleOctets == NO_HOST_MASK ? authority.substring(0, close + 1) : IPV6_MASK;
             portPart = bracketedPort(authority.substring(close + 1));
             if (portPart == null) return UNPARSEABLE;
         } else {
@@ -133,8 +151,9 @@ final class KeepADBUrlRedaction {
             }
             if (host.indexOf(':') >= 0) {
                 // A colon still left in an unbracketed host means a bare IPv6 literal such as
-                // "http://::1:8080/". Host and port cannot be told apart there, so both go.
-                hostPart = IPV6_MASK;
+                // "http://::1:8080/". Host and port cannot be told apart there, so both go — unless
+                // masking is off entirely, in which case the original authority is shown untouched.
+                hostPart = visibleOctets == NO_HOST_MASK ? authority : IPV6_MASK;
                 portPart = "";
             } else if (host.isEmpty()) {
                 return UNPARSEABLE;
@@ -175,6 +194,7 @@ final class KeepADBUrlRedaction {
      * {@code 0xC0A80001} cannot slip through unmasked in either mode.
      */
     private static String maskIpv4Host(String host, int visibleOctets) {
+        if (visibleOctets == NO_HOST_MASK) return host;
         String[] parts = host.split("\\.", -1);
         if (!(parts.length == 4 && areDecimalOctets(parts))) {
             Long address = parseIpv4Address(host);

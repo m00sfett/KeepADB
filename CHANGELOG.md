@@ -22,6 +22,17 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.35] - Unreleased
+
+### Fixed
+- Webhook URL display now shows the full, unredacted host whenever the privacy mode is off (open
+  eye), instead of still applying the #350 default two-octet IPv4 mask. Turning privacy mode on
+  (crossed-out eye) keeps the existing #483 stricter redaction (one visible IPv4 octet, IPv6 fully
+  masked, hostnames readable) unchanged. Userinfo stripping, query masking and fragment removal
+  are unaffected in both states -- only the host-octet rule depended on the toggle. The toggle's
+  `OnClickListener` in `MainActivity` already re-rendered the webhook status line synchronously on
+  every flip, so no separate refresh wiring was needed (#550).
+
 ## [1.8.34] - Unreleased
 
 ### Changed

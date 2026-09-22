@@ -47,8 +47,13 @@ public class MainActivityWebhookStatusTest {
         KeepADB.resetForTesting();
     }
 
+    /**
+     * #550: privacy mode off is an explicit "show me everything" choice for the webhook display,
+     * so the host is no longer masked at all -- unlike the pre-#550 behaviour, which still applied
+     * the #350 default two-octet IPv4 mask here.
+     */
     @Test
-    public void webhookStatusUsesMaskedUrlForIpv4() {
+    public void webhookStatusShowsFullUrlWhenPrivacyModeIsOff() {
         Context context = RuntimeEnvironment.getApplication();
         KeepADBPreferences.setPrivacyModeEnabled(context, false);
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
@@ -62,12 +67,37 @@ public class MainActivityWebhookStatusTest {
         assertNotNull(webhookStatus);
         String text = webhookStatus.getText().toString();
 
-        assertTrue("Expected masked URL in status text: " + text,
-                text.contains("http://100.111.***.**:50829/register/s20"));
-        assertFalse("Raw IP should not be exposed in status text: " + text,
+        assertTrue("Expected the full URL in status text with privacy mode off: " + text,
+                text.contains("http://100.111.111.21:50829/register/s20"));
+    }
+
+    /** #483: privacy mode on keeps masking the host down to its first IPv4 octet, unchanged. */
+    @Test
+    public void webhookStatusMasksUrlWhenPrivacyModeIsOn() {
+        Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        MainActivity activity = controller.get();
+
+        TextView webhookStatus = activity.findViewById(R.id.webhook_status);
+        assertNotNull(webhookStatus);
+        String text = webhookStatus.getText().toString();
+
+        assertTrue("Expected masked URL in status text with privacy mode on: " + text,
+                text.contains("http://100.*.*.*:50829/register/s20"));
+        assertFalse("Raw IP should not be exposed while privacy mode is on: " + text,
                 text.contains("100.111.111.21"));
     }
 
+    /**
+     * Credentials and the fragment are secret material unrelated to the privacy toggle (#350/#378)
+     * and must stay hidden in both toggle states -- even with privacy mode off, where the host
+     * itself is now shown in full (#550).
+     */
     @Test
     public void webhookStatusNeverExposesCredentialsEvenIfStored() {
         Context context = RuntimeEnvironment.getApplication();
@@ -89,7 +119,7 @@ public class MainActivityWebhookStatusTest {
         assertFalse("Username must not be exposed: " + text, text.contains("user"));
         assertFalse("Password must not be exposed: " + text, text.contains("secret123"));
         assertFalse("Fragment must not be exposed: " + text, text.contains("#section"));
-        assertTrue("Expected masked URL in status text: " + text,
-                text.contains("http://100.111.***.**:50829/register/s20"));
+        assertTrue("Expected the full host in status text with privacy mode off: " + text,
+                text.contains("http://100.111.111.21:50829/register/s20"));
     }
 }
