@@ -86,9 +86,27 @@ public class KeepADBAddressMaskTest {
     // --- Both toggle states on the webhook URL ------------------------------
 
     @Test
-    public void privacyOffKeepsTheExistingRedactionUnchanged() {
-        assertEquals("http://100.111.***.**:50829/register/s20",
+    public void privacyOffShowsTheFullWebhookHostUnredacted() {
+        // #550: the open-eye (privacy off) state is an explicit "show me everything" request for
+        // the webhook display, so the host is no longer partially masked here -- unlike the
+        // one-argument forDisplay(String), which keeps the old #350 default masking for its own
+        // (non-webhook) callers.
+        assertEquals("http://100.111.111.21:50829/register/s20",
                 KeepADBUrlRedaction.forDisplay("http://100.111.111.21:50829/register/s20", false));
+    }
+
+    @Test
+    public void privacyOffShowsTheFullWebhookIpv6HostUnredacted() {
+        assertEquals("http://[fe80::1%wlan0]:50829/register/s20",
+                KeepADBUrlRedaction.forDisplay("http://[fe80::1%wlan0]:50829/register/s20", false));
+    }
+
+    @Test
+    public void oneArgumentForDisplayKeepsTheOldDefaultMaskingRegardlessOfPrivacyToggle() {
+        // The single-argument overload backs the legacy maskWebhookUrl() helper and is not on the
+        // webhook display path (see KeepADBPreferences#maskWebhookUrlForDisplay). #550 only changes
+        // forDisplay(String, boolean) for privacyMode == false; this overload's byte-identical
+        // #350 behaviour must survive unchanged.
         assertEquals("http://100.111.***.**:50829/register/s20",
                 KeepADBUrlRedaction.forDisplay("http://100.111.111.21:50829/register/s20"));
     }
@@ -112,9 +130,9 @@ public class KeepADBAddressMaskTest {
     }
 
     @Test
-    public void privacyOnNeverRevealsMoreThanPrivacyOffForIpv6() {
-        // The #350 redaction already collapses every IPv6 literal in a URL; privacy mode must not
-        // loosen that, so the first-group rule applies to the endpoint surfaces only.
+    public void privacyOnStillCollapsesIpv6Fully() {
+        // Privacy mode's host rule is IPv4-only (first octet); an IPv6 literal collapses fully
+        // either way, exactly as the pre-#550 default redaction did.
         assertEquals("http://[***]:50829/register/s20",
                 KeepADBUrlRedaction.forDisplay("http://[fe80::1%wlan0]:50829/register/s20", true));
     }
@@ -124,4 +142,24 @@ public class KeepADBAddressMaskTest {
         assertEquals("http://192.*.*.*:8080/x",
                 KeepADBUrlRedaction.forDisplay("http://0xC0A80001:8080/x", true));
     }
+
+    @Test
+    public void privacyOffShowsLegacyIpv4NotationRawWithNoCanonicalisation() {
+        // No redaction also means no canonicalisation pass -- privacy off is a "show the stored
+        // value" mode, not a "show the stored value, normalised" mode.
+        assertEquals("http://0xC0A80001:8080/x",
+                KeepADBUrlRedaction.forDisplay("http://0xC0A80001:8080/x", false));
+    }
+
+    // --- #550: MainActivity toggle wiring ------------------------------------
+    //
+    // MainActivity's privacy-mode-toggle OnClickListener already calls refreshWebhookStatus()
+    // synchronously right after flipping the preference (see MainActivity#onCreate, the
+    // btn_toggle_privacy_mode click listener), and refreshWebhookStatus() is the sole call site of
+    // KeepADBPreferences#maskWebhookUrlForDisplay -- the method this class's forDisplay(String,
+    // boolean) tests stand in for. So the toggle-to-redisplay wiring was already correct before this
+    // issue; only the redaction rule itself (this file's tests above) was wrong for privacyMode ==
+    // false. Actually exercising that OnClickListener needs a live MainActivity (Robolectric or an
+    // instrumented device run), which this module's plain JUnit + Android stub setup does not
+    // provide -- verified instead by reading MainActivity.java rather than by an automated test.
 }

@@ -222,7 +222,9 @@ public class KeepADBPreferencesTest {
                 KeepADBPreferences.maskHostForDisplay(context, "192.168.1.100"));
         assertEquals("[fe80::1%wlan0]:50829",
                 KeepADBPreferences.maskEndpointForDisplay(context, "[fe80::1%wlan0]:50829"));
-        assertEquals("http://100.111.***.**:50829/register/s20",
+        // #550: privacy mode off is now a "show it all" state for the webhook display too --
+        // it no longer keeps the #350 default two-octet host mask.
+        assertEquals("http://100.111.111.21:50829/register/s20",
                 KeepADBPreferences.maskWebhookUrlForDisplay(
                         context, "http://100.111.111.21:50829/register/s20"));
     }

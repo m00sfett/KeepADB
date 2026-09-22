@@ -1,0 +1,2 @@
+Fixed: the webhook URL on the main screen now shows in full when privacy mode is off (open
+eye). Turning privacy mode on still hides most of the address as before.
