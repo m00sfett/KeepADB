@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB 已启用</string>
     <string name="transport_primary_accessibility_format">%1$s，主要传输方式</string>
     <string name="toggle_label">无线调试</string>
+    <string name="toggle_subtext">开启或关闭无线调试，以便通过 Wi-Fi 使用 ADB。</string>
     <string name="keep_alive_toggle">保持持久启用</string>
     <string name="keep_alive_subtext">断开连接、网络变更或重启时自动重新连接</string>
     <string name="widget_text_on">无线调试：开</string>

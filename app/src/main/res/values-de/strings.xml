@@ -31,6 +31,7 @@
     <string name="transport_usb_active_value">USB-ADB aktiv</string>
     <string name="transport_primary_accessibility_format">%1$s, primärer Transport</string>
     <string name="toggle_label">Drahtloses Debugging</string>
+    <string name="toggle_subtext">Schaltet Drahtloses Debugging für ADB über WLAN ein oder aus.</string>
     <string name="keep_alive_toggle">Dauerhaft aktiv halten</string>
     <string name="keep_alive_subtext">Automatischer Reconnect bei Verbindungsabbruch, AP-Wechsel oder Neustart</string>
     <string name="widget_text_on">Drahtloses Debugging: AN</string>

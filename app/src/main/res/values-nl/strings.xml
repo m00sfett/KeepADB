@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB actief</string>
     <string name="transport_primary_accessibility_format">%1$s, primair transport</string>
     <string name="toggle_label">Draadloze foutopsporing</string>
+    <string name="toggle_subtext">Schakelt draadloze foutopsporing in of uit voor ADB via wifi.</string>
     <string name="keep_alive_toggle">Permanent actief houden</string>
     <string name="keep_alive_subtext">Automatisch opnieuw verbinden bij verbroken verbinding, netwerkwijziging of herstart</string>
     <string name="widget_text_on">Draadloze foutopsporing: AAN</string>

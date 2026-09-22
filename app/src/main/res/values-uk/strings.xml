@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB активний</string>
     <string name="transport_primary_accessibility_format">%1$s, основний транспорт</string>
     <string name="toggle_label">Бездротове налагодження</string>
+    <string name="toggle_subtext">Вмикає або вимикає бездротове налагодження для ADB через Wi-Fi.</string>
     <string name="keep_alive_toggle">Підтримувати постійно активним</string>
     <string name="keep_alive_subtext">Автоперепідключення при обриві зв’язку, зміні мережі або перезавантаженні</string>
     <string name="widget_text_on">Бездротове налагодження: УВІМК</string>

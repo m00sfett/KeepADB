@@ -22,6 +22,26 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.37] - Unreleased
+
+### Added
+- A short explanatory line ("Turns Wireless Debugging on or off for ADB over Wi-Fi.") now sits
+  directly under the main "Wireless Debugging" switch on the home screen, above the dynamic
+  status/endpoint lines, so first-time users see what the switch does without opening Android's
+  own settings. New string resource `toggle_subtext`, translated in all 19 language variants and
+  verified with `bin/check-i18n`. A new Robolectric test
+  (`MainActivityToggleSubtextTest`) pins the string binding, visibility, and its position between
+  the toggle and the status `TextView`. No change to `adb_wifi_enabled`, Keep-Alive,
+  endpoint-discovery, or webhook behavior (#553).
+
+### Documentation
+- Reviewed the last 15 tracked issues (#522, #523, #526, #528, #529, #530, #536, #537, #538,
+  #539, #543, #545, #548, #550, #552) for visible/accessibility text drift as required by #553.
+  No missing translations or contradictory short descriptions found across the main toggle,
+  status, widget, quick-settings tile, notification, and setup surfaces beyond what #553 itself
+  addresses; the #530 debug-only Tailscale badge remains an intentional, non-localized technical
+  exception. Details in the #553 pull request description / issue comment.
+
 ## [1.8.36] - Unreleased
 
 ### Fixed

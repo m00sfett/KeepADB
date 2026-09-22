@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB activo</string>
     <string name="transport_primary_accessibility_format">%1$s, transporte principal</string>
     <string name="toggle_label">Depuración inalámbrica</string>
+    <string name="toggle_subtext">Activa o desactiva la depuración inalámbrica para ADB por Wi-Fi.</string>
     <string name="keep_alive_toggle">Mantener siempre activo</string>
     <string name="keep_alive_subtext">Reconexión automática en desconexión, cambio de red o reinicio</string>
     <string name="widget_text_on">Depuración inalámbrica: SÍ</string>

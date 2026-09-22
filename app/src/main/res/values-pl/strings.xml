@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB aktywne</string>
     <string name="transport_primary_accessibility_format">%1$s, transport podstawowy</string>
     <string name="toggle_label">Debugowanie bezprzewodowe</string>
+    <string name="toggle_subtext">Włącza lub wyłącza debugowanie bezprzewodowe dla ADB przez Wi-Fi.</string>
     <string name="keep_alive_toggle">Utrzymuj stale aktywne</string>
     <string name="keep_alive_subtext">Automatyczne wznawianie połączenia po rozłączeniu, zmianie sieci lub restarcie</string>
     <string name="widget_text_on">Debugowanie bezprzewodowe: WŁ.</string>

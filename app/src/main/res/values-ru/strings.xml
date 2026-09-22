@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB активен</string>
     <string name="transport_primary_accessibility_format">%1$s, основной транспорт</string>
     <string name="toggle_label">Беспроводная отладка</string>
+    <string name="toggle_subtext">Включает или отключает беспроводную отладку для ADB по Wi-Fi.</string>
     <string name="keep_alive_toggle">Поддерживать постоянно активным</string>
     <string name="keep_alive_subtext">Автоматическое переподключение при разрыве, смене сети или перезагрузке</string>
     <string name="widget_text_on">Беспроводная отладка: ВКЛ</string>

@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB attivo</string>
     <string name="transport_primary_accessibility_format">%1$s, trasporto principale</string>
     <string name="toggle_label">Debug wireless</string>
+    <string name="toggle_subtext">Attiva o disattiva il debug wireless per ADB via Wi-Fi.</string>
     <string name="keep_alive_toggle">Mantieni sempre attivo</string>
     <string name="keep_alive_subtext">Riconnessione automatica in caso di disconnessione, cambio rete o riavvio</string>
     <string name="widget_text_on">Debug wireless: ATTIVO</string>

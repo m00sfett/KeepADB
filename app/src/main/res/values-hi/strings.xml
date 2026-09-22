@@ -29,6 +29,7 @@
     <string name="transport_usb_active_value">USB-ADB सक्रिय</string>
     <string name="transport_primary_accessibility_format">%1$s, प्राथमिक ट्रांसपोर्ट</string>
     <string name="toggle_label">वायरलेस डीबगिंग</string>
+    <string name="toggle_subtext">Wi-Fi पर ADB के लिए वायरलेस डीबगिंग को चालू या बंद करता है।</string>
     <string name="keep_alive_toggle">लगातार सक्रिय रखें</string>
     <string name="keep_alive_subtext">कनेक्शन टूटने, नेटवर्क बदलने या रीबूट होने पर स्वतः पुनः कनेक्ट करें</string>
     <string name="widget_text_on">वायरलेस डीबगिंग: चालू</string>
