@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /** Structured, bounded diagnostics for reconstructing KeepADB lifecycle events. */
@@ -33,7 +35,7 @@ final class KeepADBDiagnostics {
 
     private KeepADBDiagnostics() {}
 
-    private static volatile String lastHeartbeatSignature = null;
+    private static final Map<String, String> lastHeartbeatSignatureBySlot = new ConcurrentHashMap<>();
 
     static void event(Context context, String name, String source, String outcome, String detail) {
         String line = formatEvent(System.currentTimeMillis(), SystemClock.elapsedRealtime(),
@@ -60,11 +62,19 @@ final class KeepADBDiagnostics {
      * signature -- including any transition between the "waiting for network" / "retry
      * deferred" / "recheck due" outcomes this guards -- is always stored, so state changes stay
      * fully reconstructable.
+     *
+     * <p>{@code slot} keys the "last signature seen" independently per call site. One heartbeat
+     * tick of {@code recheckAndEnable()} fires two calls with the same event name but different
+     * outcomes -- a "started" preamble, then exactly one of the mutually exclusive result
+     * outcomes. Comparing both against a single shared last-signature would make it alternate
+     * between two different values on every tick and never coalesce anything; each call site
+     * therefore gets its own slot so a repeated tick is compared against its own previous call,
+     * not against the other call's outcome.
      */
-    static void heartbeatEvent(Context context, String name, String source, String outcome,
-            String detail) {
+    static void heartbeatEvent(Context context, String slot, String name, String source,
+            String outcome, String detail) {
         boolean debugBuild = context != null && context.getPackageName().endsWith(".debug");
-        heartbeatEvent(context, name, source, outcome, detail, debugBuild);
+        heartbeatEvent(context, slot, name, source, outcome, detail, debugBuild);
     }
 
     /**
@@ -73,11 +83,10 @@ final class KeepADBDiagnostics {
      * happens to run under (unit tests here always execute against the debug variant's
      * applicationId, so {@code getPackageName()} alone cannot exercise the release path).
      */
-    static void heartbeatEvent(Context context, String name, String source, String outcome,
-            String detail, boolean storeEveryTick) {
+    static void heartbeatEvent(Context context, String slot, String name, String source,
+            String outcome, String detail, boolean storeEveryTick) {
         String signature = name + '\u0001' + outcome + '\u0001' + detail;
-        boolean stateChanged = !signature.equals(lastHeartbeatSignature);
-        lastHeartbeatSignature = signature;
+        boolean stateChanged = !signature.equals(lastHeartbeatSignatureBySlot.put(slot, signature));
         if (storeEveryTick || stateChanged) {
             event(context, name, source, outcome, detail);
         } else {
