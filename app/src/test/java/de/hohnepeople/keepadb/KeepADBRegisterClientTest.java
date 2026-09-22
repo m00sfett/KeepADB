@@ -353,6 +353,59 @@ public class KeepADBRegisterClientTest {
         assertEquals(1, transport.getRequestCount());
     }
 
+    /**
+     * #552: the actual register-side stale rejection is fixed in {@code phone_register_common.py}
+     * (a same-state confirmation is no longer judged solely by cross-clock {@code observed_at}
+     * ordering). That fix only helps if the app keeps sending a fresh, ever-advancing
+     * {@code observed_at} on every retry of an unchanged endpoint -- if a failed attempt cached
+     * and replayed its original timestamp, a genuinely later confirmation could never overtake a
+     * host-recorded event with a later clock reading. This locks in the app's half of that
+     * contract: a retry of the very same, still-failing endpoint is not a no-op and does not reuse
+     * the previous attempt's {@code observed_at}.
+     */
+    @Test
+    public void testFailedRetryOfSameEndpointSendsFreshObservedAtEachTime() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setPostSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.178.24", 41649);
+        waitUntil(() -> transport.getRequestCount() >= 1, 3000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        Thread.sleep(5);
+
+        // A failed POST never marks the endpoint as registered, so a second call for the exact
+        // same, still-unchanged host:port is not short-circuited by the "already registered"
+        // in-memory guard and re-sends its own event.
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.178.24", 41649);
+        waitUntil(() -> transport.getRequestCount() >= 2, 3000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals(2, transport.getRequestCount());
+        String firstObservedAt = extractObservedAt(transport.recordedRequests.get(0).payload);
+        String secondObservedAt = extractObservedAt(transport.recordedRequests.get(1).payload);
+        assertNotNull(firstObservedAt);
+        assertNotNull(secondObservedAt);
+        assertTrue("retry must not resend the first attempt's observed_at ("
+                        + firstObservedAt + " vs " + secondObservedAt + ")",
+                java.time.Instant.parse(secondObservedAt).isAfter(java.time.Instant.parse(firstObservedAt)));
+        // Both attempts still describe the exact same endpoint -- only the timestamp advances.
+        assertTrue(transport.recordedRequests.get(0).payload.contains("192.168.178.24:41649"));
+        assertTrue(transport.recordedRequests.get(1).payload.contains("192.168.178.24:41649"));
+    }
+
+    private static String extractObservedAt(String json) {
+        if (json == null) return null;
+        java.util.regex.Matcher matcher =
+                java.util.regex.Pattern.compile("\"observed_at\":\"([^\"]+)\"").matcher(json);
+        return matcher.find() ? matcher.group(1) : null;
+    }
+
     @Test
     public void testMarkUnavailableAsyncFailureUpdatesStatusAndNotifiesListener() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();

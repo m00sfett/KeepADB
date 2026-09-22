@@ -22,6 +22,28 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.36] - Unreleased
+
+### Fixed
+- The register webhook could get stuck reporting a freshly discovered, still-correct WLAN-ADB
+  endpoint as failed (HTTP 409 "stale") after a fresh install, until Wireless Debugging was
+  toggled off and on again. Root cause: the shared `phone-register-server`'s `event_status()`
+  ordered every incoming event purely by its `observed_at` timestamp, but that value comes from
+  two independent clocks depending on the source -- the phone's own clock for a KeepADB webhook
+  event, and the host machine's clock for a `phone-register record` call (e.g. from
+  `android-target`'s resolver, which records the very same WLAN-ADB endpoint while resolving the
+  install target). Whenever those two clocks disagreed even slightly, the app's own confirmation
+  of the endpoint the host had *just* recorded could look older and get permanently rejected as
+  stale, blocking every retry of that same, unchanged endpoint. Fixed server-side (outside this
+  repository, in the shared `~/agent/bin/phone_register_common.py` tool -- see
+  `~/agent/protocols/2026-09-22/065100-keepadb-552-register-stale-fix.yaml`): an incoming event
+  that reports exactly the `active`/`endpoint` state already on record is now accepted as an
+  idempotent confirmation regardless of clock ordering; a genuinely outdated report of a
+  since-replaced endpoint, or a real endpoint change, are unaffected. No app code change was
+  needed -- `KeepADBRegisterClient` already computes a fresh `observed_at` on every retry; a new
+  Robolectric test (`testFailedRetryOfSameEndpointSendsFreshObservedAtEachTime`) locks in that
+  precondition (#552).
+
 ## [1.8.35] - Unreleased
 
 ### Fixed
