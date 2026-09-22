@@ -1,0 +1,1 @@
+Made the Wireless Debugging notification title use the same wording as the main toggle and widget (no more "Wifi-ADB" abbreviation).

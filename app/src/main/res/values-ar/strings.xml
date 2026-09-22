@@ -39,8 +39,8 @@
     <string name="permission_error_toast">الإذن مفقود. شغّل مرة واحدة من الكمبيوتر:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">نقطة نهاية تصحيح الأخطاء اللاسلكي</string>
     <string name="notification_channel_desc">عنوان IP والمنفذ الحالي لتصحيح الأخطاء اللاسلكي</string>
-    <string name="notification_title_active">KeepADB: Wifi-ADB مُمَكَّن</string>
-    <string name="notification_title_disabled">KeepADB: Wifi-ADB مُعَطَّل</string>
+    <string name="notification_title_active">KeepADB: تصحيح الأخطاء اللاسلكي مُمَكَّن</string>
+    <string name="notification_title_disabled">KeepADB: تصحيح الأخطاء اللاسلكي مُعَطَّل</string>
     <string name="notification_text_active">منفذ %1$d @ %2$s</string>
     <string name="notification_title_searching">KeepADB: جارٍ البحث عن نقطة النهاية…</string>
     <string name="notification_text_searching">جارٍ حل نقطة النهاية على الشبكة المحلية</string>

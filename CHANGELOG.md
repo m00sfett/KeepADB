@@ -22,6 +22,17 @@ snapshots; their dates describe implementation history, not publication proof. A
 released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
 retrospective issue-version records and were never published as separate releases.
 
+## [1.8.38] - Unreleased
+
+### Changed
+- The Wireless Debugging notification title (`notification_title_active` /
+  `notification_title_disabled`) previously used the abbreviated "Wifi-ADB" term, diverging from
+  the "Wireless Debugging" / "Drahtloses Debugging" terminology used by the main toggle and the
+  home screen widget. Both notification title strings now use the same localized long-form
+  wording as `toggle_label` in all 19 language variants (e.g. "KeepADB: Wireless Debugging
+  ENABLED" instead of "KeepADB: Wifi-ADB ENABLED"), keeping the compact notification format.
+  Pure string-resource change, no logic change; verified with `bin/check-i18n` (#556).
+
 ## [1.8.37] - Unreleased
 
 ### Added
