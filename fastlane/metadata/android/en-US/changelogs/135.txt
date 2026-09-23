@@ -1,1 +1,4 @@
-Made the Wireless Debugging notification title use the same wording as the main toggle and widget (no more "Wifi-ADB" abbreviation).
+• Keep-Alive backs off when Android does not confirm Wireless Debugging, preventing rapid retries.
+• Trusted-network filtering is optional on fresh installs; enabling it needs location access and may limit background recovery.
+• Network (Beta) adds Wi-Fi access-point tools; Privacy mode can hide addresses; connection and webhook status is clearer.
+• Better endpoint discovery, reconnects, accessibility, setup guidance, and redacted diagnostics.
