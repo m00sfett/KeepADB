@@ -33,6 +33,13 @@ retrospective issue-version records and were never published as separate release
   ENABLED" instead of "KeepADB: Wifi-ADB ENABLED"), keeping the compact notification format.
   Pure string-resource change, no logic change; verified with `bin/check-i18n` (#556).
 
+### Documentation
+- Refreshed the README, security policy, and Fastlane metadata for the 1.8.38 candidate: mDNS-only
+  endpoint discovery, the optional trusted-network restriction and its fresh-install default,
+  current WLAN-only webhook sending, Android approval/backoff behavior, and current setup and
+  privacy controls. Added user-facing release notes for version code 135; older technical entries
+  remain implementation history.
+
 ## [1.8.37] - Unreleased
 
 ### Added
