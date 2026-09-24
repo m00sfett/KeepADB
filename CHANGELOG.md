@@ -40,6 +40,10 @@ retrospective issue-version records and were never published as separate release
   privacy controls. Added user-facing release notes for version code 135; older technical entries
   remain implementation history.
 
+### Testing
+- Set the GitHub release workflow to Temurin JDK 21, matching the JDK major version observed in
+  the existing F-Droid build job. The v1.8.38 F-Droid build still needs its own pipeline result.
+
 ## [1.8.37] - Unreleased
 
 ### Added
