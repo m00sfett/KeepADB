@@ -17,12 +17,13 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.4.5` is the latest public release. Sections from `1.4.6` through `1.7.3` record development
-snapshots; their dates describe implementation history, not publication proof. A version is
-released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2` are
-retrospective issue-version records and were never published as separate releases.
+`v1.4.5` is the latest public release before the `1.8.38` candidate below. Sections from `1.4.6`
+through `1.7.3` record development snapshots; their dates describe implementation history, not
+publication proof. A version is released only when a corresponding tag or public release exists.
+`1.4.1` and `1.4.2` are retrospective issue-version records and were never published as separate
+releases.
 
-## [1.8.38] - Unreleased
+## [1.8.38] - 2026-09-24
 
 ### Changed
 - The Wireless Debugging notification title (`notification_title_active` /
