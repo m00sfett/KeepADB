@@ -1,0 +1,1 @@
+• Clarified Android’s per-network “Always allow on this network” approval and how it relates to KeepADB’s optional trusted-network restriction.
