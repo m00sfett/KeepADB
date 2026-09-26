@@ -144,7 +144,13 @@ public class MainActivity extends Activity {
             boolean wantKeepAlive = keepAliveToggle.isChecked();
             KeepADBDiagnostics.event(this, "user_action", "app", wantKeepAlive ? "enable" : "disable", "keep_alive_toggle");
             KeepADBPreferences.setKeepAliveEnabled(this, wantKeepAlive);
-            if (wantKeepAlive && KeepADBService.isWifiConnected(this) && !KeepADB.isEnabled(this)) {
+            // #582: an unreadable current state must not be treated as "off, so enable it" -- that
+            // is exactly the automatic write this branch exists to gate. Only a positively known
+            // "off" triggers it; an unknown read simply skips this immediate enable, same as the
+            // other Keep-Alive/service paths that make automatic writes.
+            Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(this, "app");
+            if (wantKeepAlive && KeepADBService.isWifiConnected(this)
+                    && adbEnabledOrNull != null && !adbEnabledOrNull) {
                 // #577: "Keep-Alive ON" means "keep it alive wherever that's permitted", not
                 // "switch it on right here regardless of trust" -- so this immediate enable now
                 // shares the exact same automatic-enable guard the service itself re-checks
@@ -282,7 +288,11 @@ public class MainActivity extends Activity {
         // and nothing else. It is deliberately read straight from the gateway rather than derived
         // from appState, so no future state value can make the switch claim "on" while the system
         // setting is 0. "Keep-Alive is waiting" is a separate dimension and lives in the subtext.
-        boolean on = configured && KeepADB.isEnabled(this);
+        // #582: an unreadable value is displayed as "off" -- never a false "on" -- same as
+        // PERMISSION_MISSING above (getState() already applies that fallback for appState itself;
+        // this second, independent read needs its own).
+        Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(this, "app");
+        boolean on = configured && adbEnabledOrNull != null && adbEnabledOrNull;
         // #501: shown any time POST_NOTIFICATIONS isn't granted yet -- before the first request as
         // much as after a denial -- so the in-context explanation always precedes the system
         // prompt instead of only following a prior refusal.
@@ -564,7 +574,11 @@ public class MainActivity extends Activity {
      */
     private void renderEndpoint() {
         if (lastEndpointHost == null) {
-            endpoint.setText(KeepADB.isEnabled(MainActivity.this)
+            // #582: an unreadable value reads as "unavailable", not "searching" -- displaying
+            // "searching" would imply wireless debugging is confirmed on, which an unknown read
+            // does not establish.
+            Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(MainActivity.this, "app");
+            endpoint.setText(adbEnabledOrNull != null && adbEnabledOrNull
                     ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable));
             return;
         }

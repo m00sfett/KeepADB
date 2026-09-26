@@ -38,7 +38,13 @@ final class KeepADBUsbHandover {
     static void onRawUsbBroadcast(Context context, boolean connected) {
         Context appContext = context.getApplicationContext();
         String mode = KeepADBPreferences.getUsbWlanHandoverMode(appContext);
-        boolean alreadyEnabled = KeepADB.isEnabled(appContext);
+        // #582: an unreadable current state must not be treated as "off, so enable it" -- that is
+        // exactly the automatic write this guard exists to gate. Treat unknown as "already
+        // enabled" instead, the conservative direction: onRawUsbBroadcastInternal() below only
+        // triggers the automatic enable when alreadyEnabled is false, so an unknown read simply
+        // skips this handover attempt instead of writing on an unconfirmed value.
+        Boolean alreadyEnabledOrNull = KeepADB.isEnabledOrNull(appContext, "usb_handover");
+        boolean alreadyEnabled = alreadyEnabledOrNull == null || alreadyEnabledOrNull;
         // Deliberately KeepADB.wasLastExplicitIntentOff(), not isUserDisabled(): isUserDisabled()
         // is a one-shot token meant for KeepADBService's content observer alone. It gets consumed
         // (and reset) there for an unrelated Keep-Alive decision, which would silently "unblock"

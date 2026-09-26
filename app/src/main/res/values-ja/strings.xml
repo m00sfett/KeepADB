@@ -108,6 +108,7 @@
     <string name="network_prompt_text">%1$s（%2$s）— このネットワークを信頼済みとして扱いますか？</string>
     <string name="network_prompt_allow">はい、許可</string>
     <string name="network_prompt_block">いいえ、ブロック</string>
+    <string name="network_prompt_public_text">ネットワークが Keep-Alive のために信頼済みになろうとしています — 判断するには KeepADB を開いてください。</string>
     <string name="network_prompt_identity_unavailable_title">現在のWi-Fiネットワークを識別できません</string>
     <string name="network_prompt_identity_unavailable_text">ネットワークの識別情報を読み取れないため、Keep-Aliveの自動再有効化は一時停止中です。タップして位置情報の権限またはロケーションサービスを修正してください。</string>
     <string name="settings_trusted_network_blocked_button">最近ブロックした接続（%1$d）</string>

@@ -264,7 +264,10 @@ final class KeepADBNotification {
         if (manager == null) return;
         ensureChannel(appContext, manager);
 
-        if (!KeepADB.isEnabled(appContext)) {
+        // #582: an unreadable value is treated like a confirmed "off" -- never a false "on" -- so
+        // the notification never keeps showing (or claims) an active endpoint it cannot confirm.
+        Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(appContext, "notification");
+        if (adbEnabledOrNull == null || !adbEnabledOrNull) {
             stopOrShowKeepAliveWaiting(appContext, manager);
             return;
         }
@@ -341,7 +344,9 @@ final class KeepADBNotification {
                 if (!host.equals(currentHost) || port != currentPort) {
                     return; // superseded by a newer refresh/discovery in the meantime
                 }
-                if (!KeepADB.isEnabled(appContext)) {
+                // #582: see the matching comment in refreshInternal() above -- same fallback.
+                Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(appContext, "notification");
+                if (adbEnabledOrNull == null || !adbEnabledOrNull) {
                     stopOrShowKeepAliveWaiting(appContext, manager);
                     return;
                 }
@@ -438,7 +443,12 @@ final class KeepADBNotification {
     }
 
     private static void scheduleRetryLocked(Context appContext, NotificationManager manager) {
-        if (!KeepADB.isEnabled(appContext)) {
+        // #582: an unreadable value abandons the retry circuit exactly like a confirmed "off"
+        // would -- a discovery retry is pointless without a confirmed "on", and this also bounds a
+        // persistent read restriction to the existing MAX_RETRY_ATTEMPTS budget instead of an
+        // unbounded planning loop.
+        Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(appContext, "notification");
+        if (adbEnabledOrNull == null || !adbEnabledOrNull) {
             retryAttempt = 0;
             activeDiscoveryOwner = null;
             return;
@@ -466,7 +476,9 @@ final class KeepADBNotification {
         pendingRetryRunnable = () -> {
             synchronized (KeepADBNotification.class) {
                 pendingRetryRunnable = null;
-                if (!KeepADB.isEnabled(appContext)) {
+                // #582: see the matching comment above -- same fallback.
+                Boolean stillEnabledOrNull = KeepADB.isEnabledOrNull(appContext, "notification");
+                if (stillEnabledOrNull == null || !stillEnabledOrNull) {
                     retryAttempt = 0;
                     activeDiscoveryOwner = null;
                     return;
@@ -538,8 +550,11 @@ final class KeepADBNotification {
                     currentPort = 0;
                     currentEndpointVerifiedAtMs = 0;
                     scheduleRetryLocked(appContext, manager);
+                    // #582: an unreadable value picks the "disabled" wording, not "searching" --
+                    // "searching" would imply a confirmed "on" the read did not establish.
+                    Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(appContext, "notification");
                     if (KeepADBPreferences.isKeepAliveEnabled(appContext)) {
-                        if (KeepADB.isEnabled(appContext)) {
+                        if (adbEnabledOrNull != null && adbEnabledOrNull) {
                             showPlaceholder(appContext, manager,
                                     appContext.getString(R.string.notification_title_searching),
                                     appContext.getString(R.string.notification_text_searching));
@@ -760,7 +775,10 @@ final class KeepADBNotification {
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setShowWhen(false);
-        if (KeepADB.isEnabled(context)
+        // #582: an unreadable value omits the disable action, same as a confirmed "off" would --
+        // never offer to disable a state that isn't positively known to be "on".
+        Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(context, "notification");
+        if (adbEnabledOrNull != null && adbEnabledOrNull
                 && !context.getString(R.string.notification_permission_missing_title).equals(title)) {
             builder.addAction(disableAction(context));
         }

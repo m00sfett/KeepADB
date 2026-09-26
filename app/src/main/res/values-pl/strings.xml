@@ -108,6 +108,7 @@
     <string name="network_prompt_text">%1$s (%2$s) — czy uznać tę sieć za zaufaną?</string>
     <string name="network_prompt_allow">Tak, zezwól</string>
     <string name="network_prompt_block">Nie, zablokuj</string>
+    <string name="network_prompt_public_text">Sieć chce zostać zaufana na potrzeby Keep-Alive — otwórz KeepADB, aby zdecydować.</string>
     <string name="network_prompt_identity_unavailable_title">Nie można zidentyfikować bieżącej sieci Wi-Fi</string>
     <string name="network_prompt_identity_unavailable_text">Automatyczne ponowne włączanie Keep-Alive jest wstrzymane, ponieważ nie można odczytać tożsamości sieci. Dotknij, aby naprawić uprawnienie lokalizacji lub usługę lokalizacji.</string>
     <string name="settings_trusted_network_blocked_button">Ostatnio zablokowane (%1$d)</string>

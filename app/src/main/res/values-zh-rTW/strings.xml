@@ -108,6 +108,7 @@
     <string name="network_prompt_text">%1$s（%2$s）— 要將這個網路視為信任嗎？</string>
     <string name="network_prompt_allow">是，允許</string>
     <string name="network_prompt_block">否，封鎖</string>
+    <string name="network_prompt_public_text">有網路要求成為 Keep-Alive 的信任網路 — 開啟 KeepADB 以決定。</string>
     <string name="network_prompt_identity_unavailable_title">無法識別目前的 Wi-Fi 網路</string>
     <string name="network_prompt_identity_unavailable_text">由於無法讀取網路身分，Keep-Alive 自動重新啟用已暫停。點一下以修正定位權限或定位服務。</string>
     <string name="settings_trusted_network_blocked_button">近期遭封鎖（%1$d）</string>

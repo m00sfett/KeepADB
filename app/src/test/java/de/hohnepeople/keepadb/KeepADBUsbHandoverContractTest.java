@@ -54,7 +54,9 @@ public class KeepADBUsbHandoverContractTest {
         // consumeUserDisabled() -> later genuine USB reconnect wrongly re-enabled WLAN-ADB).
         assertTrue(body.contains("KeepADB.wasLastExplicitIntentOff(appContext)"));
         assertFalse(body.contains("KeepADB.isUserDisabled()"));
-        assertTrue(body.contains("KeepADB.isEnabled(appContext)"));
+        // #582: reads through the safe isEnabledOrNull() wrapper now, not the bare isEnabled(),
+        // so a permanent OEM read restriction cannot crash this broadcast receiver.
+        assertTrue(body.contains("KeepADB.isEnabledOrNull(appContext, \"usb_handover\")"));
         assertTrue(handover.contains("USB_WLAN_HANDOVER_MODE_AUTOMATIC.equals(mode)"));
     }
 
@@ -94,7 +96,8 @@ public class KeepADBUsbHandoverContractTest {
 
         assertTrue(refreshBody.contains("connected"));
         assertTrue(refreshBody.contains("USB_WLAN_HANDOVER_MODE_MANUAL.equals("));
-        assertTrue(refreshBody.contains("!KeepADB.isEnabled(appContext)"));
+        // #582: reads through the safe isEnabledOrNull() wrapper now, not the bare isEnabled().
+        assertTrue(refreshBody.contains("KeepADB.isEnabledOrNull(appContext, \"usb_notification\")"));
         // Dispatched via KeepADBUsbReceiver's broadcast action, not called directly from here.
         assertFalse(notification.contains("KeepADBUsbHandover.handleManualAction"));
     }

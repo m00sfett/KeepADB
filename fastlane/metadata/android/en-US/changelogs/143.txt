@@ -1,0 +1,2 @@
+• Fixed a possible crash and other edge cases when a device restricts reading the Wireless Debugging state, affecting the service, tile, notification, USB handover, and main screen.
+• Security: the network trust prompt's "Allow" action now requires device authentication, and never trusts a network while the device is locked.

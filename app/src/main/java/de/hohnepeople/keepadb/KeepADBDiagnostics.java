@@ -196,10 +196,15 @@ final class KeepADBDiagnostics {
     }
 
     private static void recordSnapshot(Context context, KeepADBDiagnosticJournal journal) {
+        // #582: a failed read must not throw here either, even though the RuntimeException catch
+        // in snapshot() already keeps it from crashing the heartbeat -- adb_wifi_enabled is now
+        // only ever read through isEnabledOrNull. Unconfirmed is reported as "off" in this
+        // debug-only snapshot, same as every other display surface's fallback.
+        Boolean adbWifiOrNull = KeepADB.isEnabledOrNull(context, "diagnostics_snapshot");
         String state = snapshotState(describeActiveNetwork(context),
                 KeepADBService.isWifiConnected(context),
                 KeepADBTailscaleStatus.detect(context),
-                KeepADB.isEnabled(context),
+                adbWifiOrNull != null && adbWifiOrNull,
                 KeepADBPreferences.isKeepAliveEnabled(context),
                 KeepADBNotification.getCurrentHost(), KeepADBNotification.getCurrentPort(),
                 KeepADBNotification.getCurrentEndpointVerifiedAtMs(), System.currentTimeMillis());
