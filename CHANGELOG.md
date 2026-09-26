@@ -17,11 +17,38 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.46` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.47` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.47] - Unreleased
+
+This candidate bundles two independently developed lock-screen authentication gates integrated
+together: #586 (Quick Settings tile) and #588 (USB handover notification).
+
+### Security
+- The Quick Settings tile no longer switches Wireless Debugging **on** from the lock screen
+  without authentication. Tiles stay reachable while the device is locked, and Android leaves the
+  lock check to the tile itself; an already paired host could connect once Wireless Debugging was
+  on. When `KeyguardManager#isDeviceLocked()` reports a secured device as locked -- the same
+  criterion as the trust-action gate from #578 -- an enable tap now goes through
+  `TileService#unlockAndRun`, so Android asks for the credential first. After a successful unlock
+  the tile re-reads the current state and only enables if Wireless Debugging is still off, so a
+  stale tap never turns into a disable or a second toggle. Switching Wireless Debugging **off**
+  from the tile stays immediate on the lock screen (explicit user decision): it only reduces
+  exposure. Devices without a secure lock and unlocked devices behave as before (#586).
+- The USB notification's "Enable WLAN-ADB" action (USB-to-WLAN handover, MANUAL mode) no longer
+  switches Wireless Debugging **on** from the lock screen without authentication; an already
+  paired host could connect afterwards. The action now asks the platform to reauthenticate before
+  it fires (API 31+), and `KeepADBUsbReceiver` refuses it while
+  `KeyguardManager#isDeviceLocked()` reports a secured device as locked, on
+  every supported Android version including API 30 -- the same criterion as the trust-action gate
+  from #578. A refused tap is logged as a diagnostics event, is not reported as a permission
+  error, and re-posts the notification so the action can be tapped again after unlocking. The
+  AUTOMATIC handover (no tap, trusted network only) is unchanged. The receiver was already
+  non-exported, so other apps could not send this action (#588).
 
 ## [1.8.46] - Unreleased
 

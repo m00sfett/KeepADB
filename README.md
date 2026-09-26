@@ -69,7 +69,7 @@ adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTIN
 > KeepADB also displays this exact command in the app until the permission has been granted.
 
 ### 3. Usage
-- **Quick Settings Tile**: Swipe down your notification shade twice, tap the Edit (pencil) icon, and drag the **KeepADB** tile into your active tiles. Tap to toggle on/off.
+- **Quick Settings Tile**: Swipe down your notification shade twice, tap the Edit (pencil) icon, and drag the **KeepADB** tile into your active tiles. Tap to toggle on/off. On a locked device, switching on asks you to unlock first.
 - **Home Widget**: Long-press on your home screen, choose Widgets, and add the **KeepADB** widget.
 - **Persistent Keep-Alive**: Open the KeepADB app and enable **Keep persistently active**. KeepADB monitors network state and attempts recovery. Android may ask you to approve Wireless Debugging for a network. If Android does not confirm the change, KeepADB backs off instead of retrying rapidly; approve only a system prompt you expect.
 - **Settings**: Tap **Settings** in the top header to configure language, notifications, local USB host profiles, USB-to-WLAN handover, Network (Beta), privacy mode, diagnostics, battery guidance, or the optional webhook endpoint.
@@ -183,7 +183,10 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
    entries are preserved when upgrading. The main switch, tile, and widget remain manual overrides
    not gated by this setting. Turning the Keep-Alive toggle on does respect it: on an untrusted
    network it falls through to the trust prompt instead of enabling immediately (#577). Trusting a
-   network from that prompt notification requires an unlocked device (#578).
+   network from that prompt notification requires an unlocked device (#578). Switching Wireless
+   Debugging on from the Quick Settings tile also requires an unlocked device; switching it off
+   from the lock screen works without unlocking (#586). Switching Wireless Debugging on from the
+   USB notification's "Enable WLAN-ADB" handover action also requires an unlocked device (#588).
 5. **Android network approval:** Android may show a system prompt the first time Wireless
    Debugging is enabled on a Wi-Fi network. Confirm only a prompt you expect. If Android does not
    confirm the automatic change, KeepADB backs off instead of retrying rapidly.
