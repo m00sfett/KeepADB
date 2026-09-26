@@ -25,6 +25,10 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.8.43] - Unreleased
 
+This candidate bundles four independently developed fixes/changes integrated together on branch
+`integration/e1-575-572-580-577`: #575 (CI dispatch-only), #572 (recovery pulse self-abort),
+#580 (`isEnabledOrNull` `SecurityException` fallback), and #577 (Keep-Alive trust gate).
+
 ### Changed
 - The `CI` GitHub Actions workflow (`.github/workflows/ci.yml`) no longer starts automatically on
   pushes to `master` or on pull requests; it runs only when started manually via
@@ -33,6 +37,14 @@ are retrospective issue-version records and were never published as separate rel
   already required. The release workflow deliberately keeps JDK 21 to match the F-Droid build
   toolchain; this is now documented in `release.yml` instead of being aligned to JDK 17. No change
   to the app itself.
+- The Keep-Alive toggle's immediate "turn Wireless Debugging on now" side effect now respects the
+  same trusted-network guard the automatic Keep-Alive recheck already uses
+  (`KeepADBService#isAutoEnableStillPermitted`), instead of writing `adb_wifi_enabled` immediately
+  and unconditionally. On an untrusted Wi-Fi network (allowlist mode active, access point not
+  listed), switching Keep-Alive on now falls through to the existing trust prompt instead of
+  enabling right away -- "Keep-Alive ON" means "keep it alive wherever that's permitted", not
+  "switch it on here regardless of trust". The main switch, the quick settings tile, and the home
+  screen widget remain manual overrides and are unaffected by this gate (#245, #577).
 
 ### Fixed
 - A recovery pulse (AUS -> pause -> AN, triggered when mDNS finds no adbd listener while enabled)
