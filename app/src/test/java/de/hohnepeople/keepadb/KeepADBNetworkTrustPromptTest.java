@@ -559,6 +559,11 @@ public class KeepADBNetworkTrustPromptTest {
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
         lockDevice();
+        // Model a lock screen that dismissed the notification on the action tap: only the
+        // receiver's own re-post can bring the prompt back, so this pins reshow() itself rather
+        // than the original notification merely never having been removed.
+        KeepADBNetworkTrustPrompt.cancel(context);
+        assertNull(postedPrompt());
 
         assertFalse(KeepADBReceiver.handleTrustNetworkAction(context, BSSID, "Cafe-WLAN"));
         Notification stillLocked = postedPrompt();
