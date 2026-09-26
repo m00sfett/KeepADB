@@ -166,12 +166,16 @@ public class KeepADBTileService extends TileService {
      *
      * <p>#318 moved the third former sub-case (WLAN-ADB off, Keep-Alive waiting) out of
      * {@code ENABLED_DISCONNECTED} into {@code OFF_KEEP_ALIVE_WAITING}, which has its own subtitle.
-     * The {@code !KeepADB.isEnabled(this)} check below is kept as a defensive fallback: state and
-     * this helper read {@code adb_wifi_enabled} at two different moments, so the setting can flip
-     * in between, and "searching" is the better reading of that race than "disconnected".
+     * The check below (via {@link KeepADB#isEnabledOrNull}, #582) is kept as a defensive fallback:
+     * state and this helper read {@code adb_wifi_enabled} at two different moments, so the setting
+     * can flip in between, and "searching" is the better reading of that race than "disconnected".
      */
     private boolean isSearchingForEndpoint() {
-        if (!KeepADB.isEnabled(this)) {
+        // #582: an unreadable value is treated the same as the "off" branch already was --
+        // "searching" is still the better reading of that race (see the javadoc above) than
+        // asserting a subtitle that implies a confirmed state we don't actually have.
+        Boolean enabledOrNull = KeepADB.isEnabledOrNull(this, "tile");
+        if (enabledOrNull == null || !enabledOrNull) {
             return true;
         }
         return KeepADBService.isWifiConnected(this);

@@ -146,9 +146,35 @@ final class KeepADB {
 
     private KeepADB() {}
 
+    /**
+     * The one raw, unguarded read of {@code adb_wifi_enabled} (#582). Every production call site
+     * outside this class -- and every other production read inside it, except the readback sites
+     * documented at {@link #isEnabledOrNull(Context, String)} -- must go through that wrapper
+     * instead, so a platform read restriction (see its javadoc) cannot reach unguarded code.
+     * Package-private, not {@code private}: several existing tests deliberately assert against
+     * this raw read with a working (non-throwing) fake gateway, e.g. to confirm the real
+     * post-write state, and rewriting all of them for a visibility change is out of scope for
+     * #582. Production main sources are instead kept honest by a static contract test
+     * (KeepADBIsEnabledSingleReadApiContractTest), which greps {@code app/src/main} for a direct
+     * call to this method or to {@code gateway.isEnabled(} outside this file and fails the build
+     * if one reappears; {@code app/src/test} is deliberately out of that test's scope.
+     */
     static boolean isEnabled(Context ctx) {
         return gateway.isEnabled(ctx);
     }
+
+    // #582: at most one "read_failed" diagnostics event per this window, regardless of which of
+    // the now much more numerous isEnabledOrNull() call sites hits the restriction -- a
+    // persistent OEM read restriction would otherwise be re-logged on every heartbeat tick,
+    // content-observer callback and UI refresh (potentially several times a minute), flooding the
+    // bounded diagnostics ring buffer/journal with identical entries and pushing out rarer, more
+    // useful ones. Logcat (Log.e below) stays unthrottled -- it is not the scarce resource here,
+    // mirroring the existing heartbeatEvent()/state_snapshot precedent for the same concern. One
+    // shared, time-based gate (rather than one per source) is deliberately simple: the failure
+    // mode is the same OEM restriction regardless of caller, so distinguishing sources in the
+    // bounded store buys little and a per-source map would need its own testing reset hook.
+    private static final long READ_FAILED_DIAGNOSTIC_THROTTLE_MS = 60_000;
+    private static volatile long lastReadFailedDiagnosticAtMs = Long.MIN_VALUE / 2;
 
     /**
      * Safe wrapper around {@link #isEnabled(Context)} for read paths that must not crash when
@@ -159,17 +185,28 @@ final class KeepADB {
      * anyway -- possibly even while the write permission is granted. Returns {@code null} on
      * failure instead of a boolean so each caller keeps its own semantically correct fallback
      * ({@link State#PERMISSION_MISSING} in {@link #getState}, plain "not enabled" everywhere
-     * else) rather than this shared helper guessing one for all of them. Every failure is
-     * recorded once via {@link KeepADBDiagnostics}, tagged with the caller-supplied {@code
-     * source}.
+     * else) rather than this shared helper guessing one for all of them.
+     *
+     * <p>#582: this is now the <em>only</em> sanctioned way to read {@code adb_wifi_enabled}
+     * anywhere in the app -- every call site that used to read {@link #isEnabled} directly
+     * (display surfaces, the foreground service, USB handover, the recovery pulse, and the
+     * post-write readbacks in {@link #applyNow} and {@link #confirmAutomaticAttempt} that #580
+     * deliberately left unguarded) now goes through here instead, each with its own
+     * context-appropriate null fallback documented at the call site. A failure is recorded via
+     * {@link KeepADBDiagnostics}, tagged with the caller-supplied {@code source}, subject to the
+     * throttle above.
      */
     static Boolean isEnabledOrNull(Context appContext, String source) {
         try {
             return isEnabled(appContext);
         } catch (SecurityException e) {
             Log.e(TAG, "SecurityException reading adb_wifi_enabled", e);
-            KeepADBDiagnostics.event(appContext, "read_failed", source, "failed",
-                    "reason=security_exception");
+            long now = scheduler.elapsedRealtimeMs();
+            if (now - lastReadFailedDiagnosticAtMs >= READ_FAILED_DIAGNOSTIC_THROTTLE_MS) {
+                lastReadFailedDiagnosticAtMs = now;
+                KeepADBDiagnostics.event(appContext, "read_failed", source, "failed",
+                        "reason=security_exception");
+            }
             return null;
         }
     }
@@ -433,11 +470,20 @@ final class KeepADB {
             }
             state.recordApplied(on, scheduler.elapsedRealtimeMs());
             KeepADBPreferences.setLastDesiredOn(appContext, on);
-            boolean actual = isEnabled(appContext);
+            // #582: this readback used to be the bare isEnabled(), which threw straight into the
+            // catch below and made a write that actually succeeded get reported as a permission
+            // failure (misleading message, and the automatic-attempt bookkeeping two lines below
+            // never ran, so the #496 backoff never engaged and the same failing readback repeated
+            // every heartbeat). An unconfirmed readback here is "not confirmed", not "off" or
+            // "failed" -- the write itself is already committed by this point.
+            Boolean actualOrNull = isEnabledOrNull(appContext, source);
+            boolean actualConfirmed = actualOrNull != null;
+            boolean actual = actualConfirmed && actualOrNull;
             KeepADBDiagnostics.event(appContext, eventName, source,
-                    actual == on ? "success" : "state_mismatch",
+                    actualConfirmed && actual == on ? "success" : "state_mismatch",
                     "intentId=" + token + " desired=" + on + " actual=" + actual
-                            + " writeAccepted=" + writeAccepted);
+                            + " writeAccepted=" + writeAccepted
+                            + (actualConfirmed ? "" : " actualUnknown=true"));
             // #496/#500: an accepted write whose value does not actually stick is exactly the
             // failure mode the backoff bounds -- but only for the automatic enable path it was
             // built for. Manual sources already reset the backoff unconditionally above, and a
@@ -497,8 +543,16 @@ final class KeepADB {
         if (!recoveryBackoff.isAwaitingConfirmation()) {
             return; // Already resolved by an explicit trigger (manual action, network change, ...).
         }
-        boolean stillOn = isEnabled(appContext);
-        if (stillOn) {
+        // #582: this ran as the bare isEnabled() before, uncaught -- and this callback fires from
+        // a scheduler.postDelayed() runnable, i.e. on the main looper in production, so an OEM
+        // read restriction here used to crash the app outright. An unconfirmed readback is
+        // treated exactly like "still off": recordUnconfirmed() only clears the "awaiting" marker
+        // and leaves the existing #496/#536 backoff window in place, so a persistent restriction
+        // settles into that window's steady cadence (2 then capped at 5 minutes) instead of
+        // retrying faster, and confirmSuccess() is only ever called on a positively known "on".
+        Boolean stillOnOrNull = isEnabledOrNull(appContext, source);
+        boolean stillOn = stillOnOrNull != null && stillOnOrNull;
+        if (stillOnOrNull != null && stillOn) {
             recoveryBackoff.confirmSuccess();
         } else {
             recoveryBackoff.recordUnconfirmed();
@@ -506,7 +560,8 @@ final class KeepADB {
         KeepADBDiagnostics.event(appContext, diagnosticEventName(source), source,
                 stillOn ? "success" : "state_mismatch",
                 "intentId=" + token + " stage=confirmation actual=" + stillOn
-                        + " afterMs=" + KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS);
+                        + " afterMs=" + KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS
+                        + (stillOnOrNull == null ? " actualUnknown=true" : ""));
     }
 
     /**
@@ -535,7 +590,14 @@ final class KeepADB {
 
     static void performRecoveryPulse(Context ctx, EnableGuard guard) {
         Context appContext = ctx.getApplicationContext();
-        boolean observed = isEnabled(appContext);
+        // #582: these two reads (unlike the mid-pulse disable/enable readbacks further down,
+        // which already sit inside the write's own SecurityException catch) used to be the bare
+        // isEnabled(), uncaught, on what can be a background thread (KeepADBEndpoint's Handler
+        // callback) -- an OEM read restriction here crashed that thread outright. An unknown
+        // value is treated exactly like an observed "off": a pulse must never be started on a
+        // value it cannot confirm is currently "on".
+        Boolean observedOrNull = isEnabledOrNull(appContext, "endpoint");
+        boolean observed = observedOrNull != null && observedOrNull;
         if (!hasPermission(appContext)) {
             KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "failed",
                     "stage=request observed=" + observed + " reason=permission_missing");
@@ -544,7 +606,9 @@ final class KeepADB {
 
         final long pulseToken;
         synchronized (KeepADB.class) {
-            if (state.isUserDisabled() || wasLastExplicitIntentOff(appContext) || !isEnabled(appContext)) {
+            Boolean currentlyEnabledOrNull = isEnabledOrNull(appContext, "endpoint");
+            boolean currentlyEnabled = currentlyEnabledOrNull != null && currentlyEnabledOrNull;
+            if (state.isUserDisabled() || wasLastExplicitIntentOff(appContext) || !currentlyEnabled) {
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "skipped",
                         "stage=request observed=" + observed + " reason=user_disabled_or_state_off");
                 return;
@@ -574,6 +638,12 @@ final class KeepADB {
                 try {
                     disableRejected = !gateway.write(appContext, false);
                     state.recordAppliedTime(scheduler.elapsedRealtimeMs());
+                    // #582: deliberately left as the bare isEnabled() -- unlike the two reads
+                    // fixed above, this one already sits inside the write's own SecurityException
+                    // catch right below, so a read restriction here cannot crash; it lands on
+                    // disableSecurityException, which already shows the permission-missing hint
+                    // (STATE-03/#572), matching this issue's "readback unknown" fallback without
+                    // touching the write path (out of scope for #582).
                     disableActual = isEnabled(appContext);
                 } catch (SecurityException e) {
                     disableRejected = true;
@@ -626,6 +696,7 @@ final class KeepADB {
                 try {
                     enableRejected = !gateway.write(appContext, true);
                     state.recordAppliedTime(scheduler.elapsedRealtimeMs());
+                    // #582: see the matching comment on the disable stage's readback above.
                     enableActual = isEnabled(appContext);
                 } catch (SecurityException e) {
                     enableRejected = true;
@@ -692,6 +763,10 @@ final class KeepADB {
         gateway = new KeepADBAndroidSettingsGateway();
         scheduler = new KeepADBAndroidScheduler();
         surfaces = new KeepADBAndroidSurfaceRefresher();
+        // #582: otherwise a read_failed event asserted by one test could be silently swallowed by
+        // the throttle above because an earlier test (sharing this JVM) logged one within the same
+        // window.
+        lastReadFailedDiagnosticAtMs = Long.MIN_VALUE / 2;
     }
 
     static synchronized void resetForTesting(Context ctx) {

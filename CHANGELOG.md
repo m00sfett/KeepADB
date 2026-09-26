@@ -17,11 +17,26 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.45` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.46` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.46] - Unreleased
+
+### Fixed
+- An OEM read restriction on `adb_wifi_enabled` (`SecurityException`, see #580) could still crash
+  or misbehave at several call sites #580 deliberately left unguarded: the foreground service's
+  `shouldRun`/`sync`/`recheckAndEnable` and its ContentObserver callback, the recovery pulse, USB
+  handover, the quick settings tile, the endpoint notification, `MainActivity`, and the debug-only
+  diagnostics snapshot -- most seriously, the cleanup path in a failed toggle write
+  (`KeepADB.applyNow`'s `SecurityException` catch) could itself crash by calling
+  `KeepADBService.sync()`, which read the same restricted setting unguarded. `KeepADB.isEnabledOrNull`
+  (introduced in #580) is now the single sanctioned way to read this setting anywhere in the app;
+  every call site has its own documented, context-appropriate fallback for an unconfirmed value --
+  a display surface treats it as "off", an automatic path never turns it into a write, and a
+  post-write readback treats it as "not confirmed" rather than a failure (#582).
 
 ## [1.8.45] - Unreleased
 

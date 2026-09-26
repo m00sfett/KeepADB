@@ -51,7 +51,9 @@ public class KeepADBTileDiscoveryContractTest {
         assertTrue(refreshStart >= 0);
         assertTrue(refreshEnd > refreshStart);
         String body = notification.substring(refreshStart, refreshEnd);
-        int enabledGuard = body.indexOf("if (!KeepADB.isEnabled(appContext))");
+        // #582: the guard now reads through KeepADB.isEnabledOrNull() instead of the bare
+        // isEnabled(), so a permanent OEM read restriction cannot crash this method.
+        int enabledGuard = body.indexOf("if (adbEnabledOrNull == null || !adbEnabledOrNull)");
         int cacheBranch = body.indexOf("if (currentHost != null && currentPort > 0)");
         int discovery = body.indexOf("startDiscoveryDirectLocked(appContext, manager, discoveryOwner);");
         int keepAlivePlaceholder = body.indexOf("if (KeepADBPreferences.isKeepAliveEnabled(appContext))");
@@ -72,7 +74,8 @@ public class KeepADBTileDiscoveryContractTest {
         String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
         String body = methodBody(notification,
                 "private static synchronized void refreshInternal(Context context, Object discoveryOwner) {");
-        int enabledGuard = body.indexOf("if (!KeepADB.isEnabled(appContext))");
+        // #582: see the matching comment above.
+        int enabledGuard = body.indexOf("if (adbEnabledOrNull == null || !adbEnabledOrNull)");
         // #445: this branch now routes through stopOrShowKeepAliveWaiting() instead of calling
         // stop() unconditionally -- see the KeepADBNotificationRobolectricTest coverage for the
         // behavioral split (real stop vs. Keep-Alive keeping the service running).
@@ -230,7 +233,8 @@ public class KeepADBTileDiscoveryContractTest {
         String wifiBranch = methodBody(verifyBody,
                 "if (KeepADBService.isWifiConnected(appContext)) {");
         assertTrue(wifiBranch.contains("startDiscoveryDirectLocked(appContext, manager, discoveryOwner);"));
-        assertTrue(verifyBody.indexOf("if (!KeepADB.isEnabled(appContext))") <
+        // #582: see the matching comment above.
+        assertTrue(verifyBody.indexOf("if (adbEnabledOrNull == null || !adbEnabledOrNull)") <
                 verifyBody.indexOf("if (reachable)"));
 
         for (String signature : new String[] {
