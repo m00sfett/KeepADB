@@ -47,6 +47,21 @@ are retrospective issue-version records and were never published as separate rel
   after the AUS write has already landed now also refreshes the surfaces (service/notification/
   widget), and a `SecurityException` during the pulse now shows the same permission-missing
   notification the other automatic re-enable paths already show (#572).
+- `KeepADB.getState()`, the `observed` read at the top of `KeepADB.setEnabled()`, and
+  `KeepADBEndpoint.maybeSendRecoveryPulse()` no longer crash when the settings gateway's read
+  throws `SecurityException` -- an OEM read restriction on `adb_wifi_enabled` that
+  `KeepADBAndroidSettingsGateway`'s own javadoc already anticipated, independent of whether
+  `WRITE_SECURE_SETTINGS` is granted. All three now go through a new shared helper,
+  `KeepADB.isEnabledOrNull(Context, String)`, which returns `null` on a failed read instead of
+  propagating; `getState()` maps that to `PERMISSION_MISSING`, the other two treat it as "not
+  enabled". Each fallback records one `read_failed` diagnostics event via the existing
+  `KeepADBDiagnostics.event` API. `maybeSendRecoveryPulse()` runs as a delayed Handler callback on
+  the main looper, so an uncaught exception there would have crashed the app outright (#580).
+  `KeepADB.applyNow()`'s own post-write readback and `performRecoveryPulse()`'s three reads were
+  explicitly out of scope for this fix; a wider, pre-existing exposure at several other unguarded
+  `KeepADB.isEnabled()` call sites (`KeepADBService`, `KeepADBDiagnostics`, `KeepADBUsbHandover`,
+  `MainActivity`, `KeepADBNotification`, `KeepADBUsbNotification`, `KeepADBTileService`) was found
+  while writing this fix's regression tests and is tracked separately as #582.
 
 ## [1.8.42] - Unreleased
 
