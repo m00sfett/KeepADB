@@ -16,8 +16,9 @@ pretending the port isn't open. Concretely, KeepADB tries to:
 - keep cleartext (unencrypted) HTTP scoped to the one feature that needs it — the optional,
   user-configured webhook — and warn in-app when a webhook URL is `http://` instead of `https://`;
 - avoid persisting anything sensitive where Android backup or device transfer could pick it up
-  (backup and device transfer are disabled entirely — see the README's "Privacy & Security"
-  section);
+  (backup and device transfer are disabled entirely, via `allowBackup="false"` for API < 31 and
+  `dataExtractionRules` excluding every domain for API 31+, independent of OEM `allowBackup`
+  handling — see the README's "Privacy & Security" section);
 - request the fewest permissions possible, and document why each one is needed (see the README
   and the comments next to each `<uses-permission>` in `AndroidManifest.xml`).
 
