@@ -145,8 +145,19 @@ public class MainActivity extends Activity {
             KeepADBDiagnostics.event(this, "user_action", "app", wantKeepAlive ? "enable" : "disable", "keep_alive_toggle");
             KeepADBPreferences.setKeepAliveEnabled(this, wantKeepAlive);
             if (wantKeepAlive && KeepADBService.isWifiConnected(this) && !KeepADB.isEnabled(this)) {
-                if (!KeepADB.setEnabled(this, true, "app")) {
-                    showToggleErrorToast();
+                // #577: "Keep-Alive ON" means "keep it alive wherever that's permitted", not
+                // "switch it on right here regardless of trust" -- so this immediate enable now
+                // shares the exact same automatic-enable guard the service itself re-checks
+                // (KeepADBService#isAutoEnableStillPermitted) instead of a second, parallel trust
+                // check. On an untrusted network this falls through to the same trust-prompt path
+                // the automatic recheck already uses, rather than writing immediately. The main
+                // switch, tile and widget are untouched and keep writing without this gate (#245).
+                if (KeepADBService.isAutoEnableStillPermitted(this)) {
+                    if (!KeepADB.setEnabled(this, true, "app")) {
+                        showToggleErrorToast();
+                    }
+                } else if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)) {
+                    KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(this);
                 }
             }
             KeepADBService.sync(this);

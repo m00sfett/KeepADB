@@ -17,11 +17,63 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.42` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.43` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.43] - Unreleased
+
+This candidate bundles four independently developed fixes/changes integrated together on branch
+`integration/e1-575-572-580-577`: #575 (CI dispatch-only), #572 (recovery pulse self-abort),
+#580 (`isEnabledOrNull` `SecurityException` fallback), and #577 (Keep-Alive trust gate).
+
+### Changed
+- The `CI` GitHub Actions workflow (`.github/workflows/ci.yml`) no longer starts automatically on
+  pushes to `master` or on pull requests; it runs only when started manually via
+  `workflow_dispatch` (#575, closing the remaining #327 trigger point). Pull requests and
+  development commits are accepted through the local `bin/verify` gate, as the project policy
+  already required. The release workflow deliberately keeps JDK 21 to match the F-Droid build
+  toolchain; this is now documented in `release.yml` instead of being aligned to JDK 17. No change
+  to the app itself.
+- The Keep-Alive toggle's immediate "turn Wireless Debugging on now" side effect now respects the
+  same trusted-network guard the automatic Keep-Alive recheck already uses
+  (`KeepADBService#isAutoEnableStillPermitted`), instead of writing `adb_wifi_enabled` immediately
+  and unconditionally. On an untrusted Wi-Fi network (allowlist mode active, access point not
+  listed), switching Keep-Alive on now falls through to the existing trust prompt instead of
+  enabling right away -- "Keep-Alive ON" means "keep it alive wherever that's permitted", not
+  "switch it on here regardless of trust". The main switch, the quick settings tile, and the home
+  screen widget remain manual overrides and are unaffected by this gate (#245, #577).
+
+### Fixed
+- A recovery pulse (AUS -> pause -> AN, triggered when mDNS finds no adbd listener while enabled)
+  could abort its own re-enable and leave Wireless Debugging stuck off: with Keep-Alive disabled
+  and the app foregrounded, the pulse's own AUS write was observed by the ContentObserver, which
+  tore the `KeepADBEndpoint` discovery session down (`KeepADBNotification.refresh()` ->
+  `stop()` -> `endpoint.stop()`), invalidating the very discovery generation the pulse's EIN-stage
+  guard checked -- confirmed on a real s20 (`stage=enable reason=preconditions_changed`, Wireless
+  Debugging left off). The EIN-stage guard no longer depends on the endpoint's own discovery
+  generation; a real network change, lost Wi-Fi, an untrusted network, or a manual toggle during
+  the pause still cancel the pulse exactly as before (#347, #309 unaffected). Every pulse abort
+  after the AUS write has already landed now also refreshes the surfaces (service/notification/
+  widget), and a `SecurityException` during the pulse now shows the same permission-missing
+  notification the other automatic re-enable paths already show (#572).
+- `KeepADB.getState()`, the `observed` read at the top of `KeepADB.setEnabled()`, and
+  `KeepADBEndpoint.maybeSendRecoveryPulse()` no longer crash when the settings gateway's read
+  throws `SecurityException` -- an OEM read restriction on `adb_wifi_enabled` that
+  `KeepADBAndroidSettingsGateway`'s own javadoc already anticipated, independent of whether
+  `WRITE_SECURE_SETTINGS` is granted. All three now go through a new shared helper,
+  `KeepADB.isEnabledOrNull(Context, String)`, which returns `null` on a failed read instead of
+  propagating; `getState()` maps that to `PERMISSION_MISSING`, the other two treat it as "not
+  enabled". Each fallback records one `read_failed` diagnostics event via the existing
+  `KeepADBDiagnostics.event` API. `maybeSendRecoveryPulse()` runs as a delayed Handler callback on
+  the main looper, so an uncaught exception there would have crashed the app outright (#580).
+  `KeepADB.applyNow()`'s own post-write readback and `performRecoveryPulse()`'s three reads were
+  explicitly out of scope for this fix; a wider, pre-existing exposure at several other unguarded
+  `KeepADB.isEnabled()` call sites (`KeepADBService`, `KeepADBDiagnostics`, `KeepADBUsbHandover`,
+  `MainActivity`, `KeepADBNotification`, `KeepADBUsbNotification`, `KeepADBTileService`) was found
+  while writing this fix's regression tests and is tracked separately as #582.
 
 ## [1.8.42] - Unreleased
 

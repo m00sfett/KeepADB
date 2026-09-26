@@ -1,0 +1,3 @@
+• Fixed: the automatic recovery attempt could leave Wireless Debugging stuck off instead of turning it back on; the app's display now always reflects the real outcome.
+• Fixed a crash risk on devices that block reading the Wireless Debugging switch even with write permission granted; KeepADB now falls back safely.
+• Keep-Alive now shows the same "trust this network?" prompt as automatic reconnect on an untrusted Wi-Fi, instead of switching Wireless Debugging on immediately.
