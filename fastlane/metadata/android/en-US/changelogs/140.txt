@@ -1,0 +1,1 @@
+• Fixed a rare case where the automatic recovery attempt (used when Wireless Debugging drops but no listener is found) could leave it stuck off instead of turning it back on, and made sure the app's display always reflects the real result when that recovery attempt is cancelled.

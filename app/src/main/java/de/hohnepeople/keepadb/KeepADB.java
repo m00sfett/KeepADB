@@ -548,6 +548,10 @@ final class KeepADB {
             if (disableSecurityException) {
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "failed",
                         "intentId=" + pulseToken + " stage=disable reason=security_exception");
+                // STATE-03 (#572): a lost WRITE_SECURE_SETTINGS grant must surface the same
+                // permission hint the other automatic paths show (KeepADBService.recheckAndEnable,
+                // the content-observer re-enable) instead of a diagnostics-only silent failure.
+                KeepADBNotification.showPermissionMissing(appContext);
                 return;
             }
             KeepADBDiagnostics.event(appContext, "recovery_state", "endpoint",
@@ -563,6 +567,10 @@ final class KeepADB {
             } catch (InterruptedException interrupted) {
                 Thread.currentThread().interrupt();
                 logPulseCancelled(appContext, pulseToken, "sleep", "interrupted");
+                // STATE-01 (#572): the disable stage already wrote AUS above; without this the
+                // surfaces would keep showing the pre-pulse ON state indefinitely, exactly the
+                // #318 rationale applyNow() already follows for its own guard-abort paths.
+                surfaces.refreshAll(appContext);
                 return;
             }
 
@@ -572,10 +580,12 @@ final class KeepADB {
             synchronized (KeepADB.class) {
                 if (pulseSuperseded(appContext, pulseToken)) {
                     logPulseCancelled(appContext, pulseToken, "enable", "newer_user_intent");
+                    surfaces.refreshAll(appContext); // STATE-01 (#572): see the sleep-interrupt case above.
                     return;
                 }
                 if (!guardStillApplies(guard, appContext)) {
                     logPulseCancelled(appContext, pulseToken, "enable", "preconditions_changed");
+                    surfaces.refreshAll(appContext); // STATE-01 (#572): see the sleep-interrupt case above.
                     return;
                 }
                 try {
@@ -590,6 +600,11 @@ final class KeepADB {
             if (enableSecurityException) {
                 KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint", "failed",
                         "intentId=" + pulseToken + " stage=enable reason=security_exception");
+                // STATE-01/STATE-03 (#572): AUS is already written at this point, so the surfaces
+                // must drop the stale ON state, and a lost grant must show the same permission
+                // hint the other automatic paths show.
+                KeepADBNotification.showPermissionMissing(appContext);
+                surfaces.refreshAll(appContext);
                 return;
             }
             KeepADBDiagnostics.event(appContext, "recovery_attempt", "endpoint",

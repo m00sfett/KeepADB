@@ -17,11 +17,27 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.42` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.43` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.43] - Unreleased
+
+### Fixed
+- A recovery pulse (AUS -> pause -> AN, triggered when mDNS finds no adbd listener while enabled)
+  could abort its own re-enable and leave Wireless Debugging stuck off: with Keep-Alive disabled
+  and the app foregrounded, the pulse's own AUS write was observed by the ContentObserver, which
+  tore the `KeepADBEndpoint` discovery session down (`KeepADBNotification.refresh()` ->
+  `stop()` -> `endpoint.stop()`), invalidating the very discovery generation the pulse's EIN-stage
+  guard checked -- confirmed on a real s20 (`stage=enable reason=preconditions_changed`, Wireless
+  Debugging left off). The EIN-stage guard no longer depends on the endpoint's own discovery
+  generation; a real network change, lost Wi-Fi, an untrusted network, or a manual toggle during
+  the pause still cancel the pulse exactly as before (#347, #309 unaffected). Every pulse abort
+  after the AUS write has already landed now also refreshes the surfaces (service/notification/
+  widget), and a `SecurityException` during the pulse now shows the same permission-missing
+  notification the other automatic re-enable paths already show (#572).
 
 ## [1.8.42] - Unreleased
 

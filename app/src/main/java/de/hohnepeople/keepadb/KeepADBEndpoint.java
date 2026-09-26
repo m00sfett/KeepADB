@@ -270,10 +270,21 @@ final class KeepADBEndpoint {
         }
         Log.w(TAG, "gen=" + generation + " found no adbd listener after " + RECOVERY_PULSE_DELAY_MS
                 + "ms while enabled; pulsing adb_wifi_enabled to recover");
+        // #572: deliberately NOT re-checking isCurrent(generation) here (only at pulse *start*,
+        // above). The pulse's own AUS write is observed by MainActivity's/KeepADBService's
+        // ContentObserver, which -- with Keep-Alive off -- runs KeepADBNotification.refresh() ->
+        // stopOrShowKeepAliveWaiting() -> stop() on this very endpoint instance, bumping
+        // discoveryGeneration before the pulse reaches its EIN stage. Guarding the EIN write on
+        // discoveryGeneration would make the pulse abort itself every time, leaving Wireless
+        // Debugging stuck off (device-confirmed on s20, see the issue's logcat). None of the other
+        // conditions below depend on this endpoint's own discovery lifecycle, only on facts the
+        // pulse's own write cannot change, so they still catch every case #347/#309 care about: a
+        // real network switch (currentNetworkGeneration), losing Wi-Fi entirely (isWifiConnected),
+        // an untrusted network (isCurrentNetworkTrusted), and a manual toggle in the meantime
+        // (wasLastExplicitIntentOff, plus KeepADB's own pulseSuperseded/isCurrentIntent check).
         long keepAdbNetworkGeneration = KeepADB.currentNetworkGeneration();
         KeepADB.performRecoveryPulse(appContext,
-                context -> isCurrent(generation)
-                        && KeepADB.currentNetworkGeneration() == keepAdbNetworkGeneration
+                context -> KeepADB.currentNetworkGeneration() == keepAdbNetworkGeneration
                         && KeepADBService.isWifiConnected(context)
                         && KeepADBTrustedNetwork.isCurrentNetworkTrusted(context)
                         && !KeepADB.wasLastExplicitIntentOff(context));
