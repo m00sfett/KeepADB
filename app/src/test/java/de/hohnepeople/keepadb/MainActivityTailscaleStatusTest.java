@@ -48,7 +48,7 @@ public class MainActivityTailscaleStatusTest {
                 .commit();
         KeepADB.resetForTesting();
         KeepADBTailscaleStatus.setPackageInstalledCheckForTesting(null);
-        KeepADBTailscaleStatus.setInterfaceActiveCheckForTesting(null);
+        KeepADBTailscaleStatus.setInterfacesProviderForTesting(null);
     }
 
     @Test
@@ -63,7 +63,10 @@ public class MainActivityTailscaleStatusTest {
     @Test
     public void visibleAndActiveWhenInstalledAndInterfaceUp() {
         KeepADBTailscaleStatus.setPackageInstalledCheckForTesting((context, packageName) -> true);
-        KeepADBTailscaleStatus.setInterfaceActiveCheckForTesting(name -> true);
+        // Realistic Android shape (#581): Tailscale's VpnService tunnel is named tun0, not
+        // tailscale0, and carries a CGNAT address.
+        KeepADBTailscaleStatus.setInterfacesProviderForTesting(() -> java.util.Collections.singletonList(
+                new KeepADBTailscaleStatus.InterfaceSnapshot("tun0", true, new byte[]{100, 101, 2, 3})));
 
         TextView tailscaleStatus = launchAndGetTailscaleStatusView();
 
@@ -75,7 +78,7 @@ public class MainActivityTailscaleStatusTest {
     @Test
     public void visibleAndInactiveWhenInstalledButInterfaceNotActive() {
         KeepADBTailscaleStatus.setPackageInstalledCheckForTesting((context, packageName) -> true);
-        KeepADBTailscaleStatus.setInterfaceActiveCheckForTesting(name -> false);
+        KeepADBTailscaleStatus.setInterfacesProviderForTesting(java.util.Collections::emptyList);
 
         TextView tailscaleStatus = launchAndGetTailscaleStatusView();
 
@@ -87,7 +90,7 @@ public class MainActivityTailscaleStatusTest {
     @Test
     public void visibleAndUnknownWhenDetectionUnreliable() {
         KeepADBTailscaleStatus.setPackageInstalledCheckForTesting((context, packageName) -> true);
-        KeepADBTailscaleStatus.setInterfaceActiveCheckForTesting(name -> null);
+        KeepADBTailscaleStatus.setInterfacesProviderForTesting(() -> null);
 
         TextView tailscaleStatus = launchAndGetTailscaleStatusView();
 

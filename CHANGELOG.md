@@ -17,11 +17,68 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.44` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.45` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.45] - Unreleased
+
+This candidate bundles three independently developed fixes integrated together on branch
+`integration/e3-576-581-579`: #576 (register bookkeeping), #581 (Tailscale `tun0` detection),
+and #579 (webhook draft recreation test coverage).
+
+### Fixed
+- `KeepADBRegisterClient` bookkeeping around a URL migration's old-URL DELETE could leave
+  `lastRegisteredUrl` pointing at a resource that had already been confirmed deleted: a migration
+  whose old-URL DELETE succeeded but was then superseded by a second, overtaking migration never
+  recorded that success (the write only happened on the non-superseded success path), so the next
+  transaction saw the already-deleted URL as "still registered" and re-issued the exact same
+  DELETE against it. A confirmed deletion is now booked immediately and unconditionally (guarded
+  by re-checking the currently registered URL right before writing, so a different, already-newer
+  registration is never cleared by a stale confirmation) (#576, NET-01).
+- The in-memory `markUnavailableAsync` retry gate added for #562 read the wall clock
+  (`System.currentTimeMillis()`); a backward wall-clock jump (NTP correction, manual time change)
+  could stall it far longer than the real elapsed time justified. It now uses
+  `SystemClock.elapsedRealtime()`, matching the existing `KeepADBEndpoint` cooldown rationale
+  (#309). The persisted #317 pending-cleanup queue deliberately keeps the wall clock, since
+  `elapsedRealtime()` resets on every reboot and would make a stored 24h expiry or backoff
+  unreachable after one (#576, NET-02).
+- A single WLAN-ADB disconnect could fire two (observed 13-14ms apart on-device) or three
+  DELETEs to the register endpoint: the toggle path, the lifecycle observer, and `service_sync`
+  all react to the same disconnect and each called `markUnavailableAsync` independently. Repeated
+  calls now coalesce into the single DELETE already queued or running for the same registered
+  state; a later call is not swallowed once a newer registration or disconnect has actually
+  superseded the outstanding one, so a genuinely new disconnect after a fresh registration still
+  gets its own DELETE (#576, part C).
+- Tailscale status detection (#537) only ever matched an interface literally named
+  `tailscale0`, the Linux/desktop client's interface name. On Android, the Tailscale app runs as
+  a `VpnService` whose TUN device is named `tun0` (or `tun1`, ...), so the status always reported
+  "not active" there even while Tailscale was verifiably active and reachable -- contradicting the
+  independently derived Tailscale/VPN transport row that did find the tunnel. Detection now
+  requires a tunnel-named interface (`tun*` or `tailscale*`, so a carrier's own CGNAT deployment
+  on e.g. `rmnet_data0` can never match) that also carries a Tailscale-shaped address (its CGNAT
+  IPv4 range `100.64.0.0/10`, or its ULA IPv6 prefix `fd7a:115c:a1e0::/48`). `tailscale0` keeps
+  working unchanged. Still purely local, read-only display logic (#537/#548): KeepADB never
+  starts, binds, or configures Tailscale. (#581)
+
+### Testing
+- `KeepADBTailscaleStatusTest` previously drove `detect()` through a seam that replaced the whole
+  interface check (name filter included), so it never actually exercised the real name-and-address
+  decision logic that shipped the #581 bug. The decision logic is now a pure function,
+  `KeepADBTailscaleStatus.looksLikeTailscale`/`isTailscaleActive`, over a plain interface
+  description (name, up, addresses); the test seam now only supplies interface snapshots, and new
+  tests drive the decision function directly with a realistic `tun0` (with CGNAT and ULA
+  addresses), a foreign VPN on `tun0` without a Tailscale-shaped address, and a carrier CGNAT
+  interface (`rmnet_data0`) -- confirming neither is misreported as Tailscale. (#581)
+- Added a real activity-recreation test for the unsaved register-webhook URL draft in Settings
+  (`SettingsActivityTest.unsavedWebhookDraftSurvivesActivityRecreation`, #579 / review finding
+  UI-02): it types an unsaved URL, recreates the activity via `saveInstanceState` and
+  `setup(bundle)`, and fails if the draft is replaced by the saved preference. The second #579
+  point (SEC-05, case-sensitive cleartext warning) turned out to be a false positive: the warning
+  has normalized the scheme since #319 and `HTTP://` is already covered by an existing test; its
+  sensitivity was re-confirmed by mutation. No app behavior change.
 
 ## [1.8.44] - Unreleased
 

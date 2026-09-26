@@ -1,0 +1,2 @@
+• Fixed duplicate/redundant register-endpoint notifications sent when Wireless Debugging switches off or the register URL changes quickly in a row.
+• Fixed the Tailscale status showing "not active" on real Android devices even while Tailscale was active and reachable.

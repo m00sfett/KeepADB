@@ -259,6 +259,36 @@ public class SettingsActivityTest {
         assertFalse(afterDismissState.getBoolean(SettingsActivity.STATE_PROFILE_EDIT_SHOWING));
     }
 
+    /**
+     * #579 (UI-02): an unsaved webhook URL typed into the field must survive a real activity
+     * recreation (saveInstanceState -> new instance -> setup(bundle)) instead of being replaced by
+     * the saved preference value in onResume().
+     */
+    @Test
+    public void unsavedWebhookDraftSurvivesActivityRecreation() {
+        String savedUrl = "https://saved.example/register/device";
+        String unsavedDraft = "https://draft.example/register/other";
+        KeepADBPreferences.setRegisterWebhookUrl(RuntimeEnvironment.getApplication(), savedUrl);
+
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        EditText input = controller.get().findViewById(R.id.settings_webhook_url);
+        assertEquals(savedUrl, input.getText().toString());
+
+        input.setText(unsavedDraft);
+        Bundle savedState = new Bundle();
+        controller.saveInstanceState(savedState);
+        controller.pause().stop().destroy();
+
+        ActivityController<SettingsActivity> recreated =
+                Robolectric.buildActivity(SettingsActivity.class).setup(savedState);
+        EditText restoredInput = recreated.get().findViewById(R.id.settings_webhook_url);
+        assertEquals("Unsaved webhook draft must survive recreation",
+                unsavedDraft, restoredInput.getText().toString());
+        assertEquals("Recreation must not persist the draft",
+                savedUrl, KeepADBPreferences.getRegisterWebhookUrl(RuntimeEnvironment.getApplication()));
+    }
+
     @Test
     public void dialogsDismissOnDestroyToPreventWindowAndContextLeaks() {
         // Test Issue Report Dialog dismissal on destroy
