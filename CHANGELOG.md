@@ -25,6 +25,10 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.8.46] - Unreleased
 
+This candidate bundles two independently developed fixes integrated together on branch
+`integration/e4-582-578`: #582 (single-read-API refactor for `isEnabled`) and #578 (trust-action
+authentication gate).
+
 ### Fixed
 - An OEM read restriction on `adb_wifi_enabled` (`SecurityException`, see #580) could still crash
   or misbehave at several call sites #580 deliberately left unguarded: the foreground service's
@@ -37,6 +41,20 @@ are retrospective issue-version records and were never published as separate rel
   every call site has its own documented, context-appropriate fallback for an unconfirmed value --
   a display surface treats it as "off", an automatic path never turns it into a write, and a
   post-write readback treats it as "not confirmed" rather than a failure (#582).
+
+### Security
+- The untrusted-network prompt's "Yes, allow" action now requires the platform to reauthenticate
+  the user before it fires (`Notification.Action.Builder#setAuthenticationRequired`, API 31+),
+  since tapping it can re-enable Wireless Debugging. As defense in depth on every API level --
+  this flag is enforced by the platform's own lock screen, not by this app, and does not exist
+  below API 31 -- `KeepADBReceiver` now also refuses to trust a network if `ACTION_TRUST_NETWORK`
+  still reaches it while `KeyguardManager#isDeviceLocked()` reports the device locked, and instead
+  re-posts the same prompt so the decision remains available once the user unlocks. The "No,
+  block" action is unchanged: declining never trusts anything, so gating it would only make an
+  unwanted prompt harder to dismiss while locked. The prompt notification also now carries a
+  `publicVersion` without the network's label or BSSID, so a device configured to show private
+  notification content on the lock screen no longer shows which access point is asking to be
+  trusted there (#578).
 
 ## [1.8.45] - Unreleased
 

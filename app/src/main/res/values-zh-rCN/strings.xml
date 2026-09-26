@@ -108,6 +108,7 @@
     <string name="network_prompt_text">%1$s（%2$s）— 要将此网络视为受信任吗？</string>
     <string name="network_prompt_allow">是，允许</string>
     <string name="network_prompt_block">否，拦截</string>
+    <string name="network_prompt_public_text">有网络请求成为 Keep-Alive 的受信任网络 — 打开 KeepADB 进行决定。</string>
     <string name="network_prompt_identity_unavailable_title">无法识别当前的 Wi-Fi 网络</string>
     <string name="network_prompt_identity_unavailable_text">由于无法读取网络身份，Keep-Alive 自动重新启用已暂停。点按以修复定位权限或定位服务。</string>
     <string name="settings_trusted_network_blocked_button">近期被拦截（%1$d）</string>

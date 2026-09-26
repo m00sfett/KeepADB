@@ -108,6 +108,7 @@
     <string name="network_prompt_text">%1$s (%2$s) — क्या इस नेटवर्क को भरोसेमंद माना जाए?</string>
     <string name="network_prompt_allow">हाँ, अनुमति दें</string>
     <string name="network_prompt_block">नहीं, रोकें</string>
+    <string name="network_prompt_public_text">कोई नेटवर्क Keep-Alive के लिए भरोसेमंद बनना चाहता है — फ़ैसला लेने के लिए KeepADB खोलें।</string>
     <string name="network_prompt_identity_unavailable_title">वर्तमान वाई-फाई नेटवर्क की पहचान नहीं हो पा रही</string>
     <string name="network_prompt_identity_unavailable_text">Keep-Alive की स्वचालित पुनः-सक्षमता रोकी गई है क्योंकि नेटवर्क की पहचान नहीं पढ़ी जा सकती। स्थान अनुमति या स्थान सेवा ठीक करने के लिए टैप करें।</string>
     <string name="settings_trusted_network_blocked_button">हाल में रोके गए (%1$d)</string>
