@@ -13,6 +13,10 @@ pretending the port isn't open. Concretely, KeepADB tries to:
   restriction is off and any connected Wi-Fi network may be used; enabling it requires Android
   location access to identify networks and can limit background recovery when Android masks that
   identity. Existing choices and saved networks are preserved when upgrading;
+- require an unlocked device to trust a network from the untrusted-network prompt notification:
+  the "Yes, allow" action asks the platform to reauthenticate before it fires (API 31+), and
+  `KeepADBReceiver` refuses the action and re-offers the same prompt if it is somehow reached
+  while the device reports itself locked, on every Android version this app supports (#578);
 - keep cleartext (unencrypted) HTTP scoped to the one feature that needs it — the optional,
   user-configured webhook — and warn in-app when a webhook URL is `http://` instead of `https://`;
 - avoid persisting anything sensitive where Android backup or device transfer could pick it up

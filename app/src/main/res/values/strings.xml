@@ -125,6 +125,7 @@
     <string name="network_prompt_text">%1$s (%2$s) — should this network be treated as trusted?</string>
     <string name="network_prompt_allow">Yes, allow</string>
     <string name="network_prompt_block">No, block</string>
+    <string name="network_prompt_public_text">A network wants to be trusted for Keep-Alive — open KeepADB to decide.</string>
     <string name="network_prompt_identity_unavailable_title">Can\'t identify the current Wi-Fi network</string>
     <string name="network_prompt_identity_unavailable_text">Keep-Alive auto re-enable is paused because the network\'s identity can\'t be read. Tap to fix the location permission or location service.</string>
     <string name="settings_trusted_network_blocked_button">Recently blocked (%1$d)</string>

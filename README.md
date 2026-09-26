@@ -182,7 +182,8 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
    automatic recovery when the app cannot verify the network. Existing mode choices and trusted
    entries are preserved when upgrading. The main switch, tile, and widget remain manual overrides
    not gated by this setting. Turning the Keep-Alive toggle on does respect it: on an untrusted
-   network it falls through to the trust prompt instead of enabling immediately (#577).
+   network it falls through to the trust prompt instead of enabling immediately (#577). Trusting a
+   network from that prompt notification requires an unlocked device (#578).
 5. **Android network approval:** Android may show a system prompt the first time Wireless
    Debugging is enabled on a Wi-Fi network. Confirm only a prompt you expect. If Android does not
    confirm the automatic change, KeepADB backs off instead of retrying rapidly.

@@ -300,6 +300,16 @@ final class KeepADBNetworkTrustPrompt {
         String text = localized.getString(R.string.network_prompt_text, label, bssid);
         Intent contentIntent = new Intent(context, SettingsActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        // #578: the lock screen shows this notification (default VISIBILITY_PRIVATE, redacted by
+        // the platform unless the user opted into showing private content there -- which the
+        // device tested against had). publicVersion carries neither the label nor the BSSID, so a
+        // glance at a locked screen never leaks which access point is asking to be trusted.
+        Notification publicVersion = new Notification.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_keepadb)
+                .setContentTitle(localized.getString(R.string.network_prompt_title))
+                .setContentText(localized.getString(R.string.network_prompt_public_text))
+                .setCategory(Notification.CATEGORY_STATUS)
+                .build();
         Notification notification = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(localized.getString(R.string.network_prompt_title))
@@ -310,14 +320,31 @@ final class KeepADBNetworkTrustPrompt {
                 .setCategory(Notification.CATEGORY_STATUS)
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
+                .setPublicVersion(publicVersion)
                 .addAction(action(context, localized.getString(R.string.network_prompt_allow),
-                        KeepADBReceiver.ACTION_TRUST_NETWORK, REQUEST_CODE_TRUST, bssid, label))
+                        KeepADBReceiver.ACTION_TRUST_NETWORK, REQUEST_CODE_TRUST, bssid, label,
+                        true))
                 .addAction(action(context, localized.getString(R.string.network_prompt_block),
                         KeepADBReceiver.ACTION_DISMISS_NETWORK_PROMPT, REQUEST_CODE_DISMISS,
-                        bssid, label))
+                        bssid, label, false))
                 .build();
         manager.notify(NOTIFICATION_ID, notification);
         return true;
+    }
+
+    /**
+     * #578: re-posts the exact same allow/block prompt after {@link
+     * KeepADBReceiver#handleTrustNetworkAction} rejects a trust action taken while the device was
+     * locked. Deliberately calls {@link #show} directly rather than going through {@link
+     * #onBlockedByUntrustedNetwork} -- this is not a new access-point sighting, it is the same
+     * still-open question the user tried and failed to answer, so it must not touch {@link
+     * #shouldPrompt}/{@link #markPrompted}'s throttle history or wait out {@link
+     * #PROMPT_REPEAT_INTERVAL_MS} again.
+     *
+     * @return true if a notification was actually posted by this call.
+     */
+    static boolean reshow(Context context, String bssid, String label) {
+        return show(context, bssid, label);
     }
 
     /**
@@ -381,7 +408,7 @@ final class KeepADBNetworkTrustPrompt {
     }
 
     private static Notification.Action action(Context context, String title, String action,
-            int requestCode, String bssid, String label) {
+            int requestCode, String bssid, String label, boolean requiresAuthentication) {
         // The receiver is not exported and the PendingIntent is IMMUTABLE, so the BSSID these
         // extras carry cannot be substituted by another app on its way back to us.
         Intent intent = new Intent(context, KeepADBReceiver.class)
@@ -390,7 +417,19 @@ final class KeepADBNetworkTrustPrompt {
                 .putExtra(EXTRA_LABEL, label);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        return new Notification.Action.Builder(null, title, pendingIntent).build();
+        Notification.Action.Builder builder =
+                new Notification.Action.Builder(null, title, pendingIntent);
+        if (requiresAuthentication && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // #578: trusting a network can re-enable Wireless Debugging, so the platform should
+            // reauthenticate the user before firing this PendingIntent if the notification is
+            // reached from a locked screen (setAuthenticationRequired, API 31). This flag is
+            // enforced by SystemUI, not by this app, and does not exist below API 31 (minSdk 30)
+            // -- KeepADBReceiver#handleTrustNetworkAction re-checks KeyguardManager itself as
+            // defense in depth on every version, including this one, since neither this app nor
+            // its tests can observe whether the platform actually gated a given OEM's lock screen.
+            builder.setAuthenticationRequired(true);
+        }
+        return builder.build();
     }
 
     /**

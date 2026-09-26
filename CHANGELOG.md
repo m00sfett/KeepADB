@@ -17,11 +17,27 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.45` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.46` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.46] - Unreleased
+
+### Security
+- The untrusted-network prompt's "Yes, allow" action now requires the platform to reauthenticate
+  the user before it fires (`Notification.Action.Builder#setAuthenticationRequired`, API 31+),
+  since tapping it can re-enable Wireless Debugging. As defense in depth on every API level --
+  this flag is enforced by the platform's own lock screen, not by this app, and does not exist
+  below API 31 -- `KeepADBReceiver` now also refuses to trust a network if `ACTION_TRUST_NETWORK`
+  still reaches it while `KeyguardManager#isDeviceLocked()` reports the device locked, and instead
+  re-posts the same prompt so the decision remains available once the user unlocks. The "No,
+  block" action is unchanged: declining never trusts anything, so gating it would only make an
+  unwanted prompt harder to dismiss while locked. The prompt notification also now carries a
+  `publicVersion` without the network's label or BSSID, so a device configured to show private
+  notification content on the lock screen no longer shows which access point is asking to be
+  trusted there (#578).
 
 ## [1.8.45] - Unreleased
 

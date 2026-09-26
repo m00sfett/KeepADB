@@ -108,6 +108,7 @@
     <string name="network_prompt_text">%1$s (%2$s) — faut-il considérer ce réseau comme fiable ?</string>
     <string name="network_prompt_allow">Oui, autoriser</string>
     <string name="network_prompt_block">Non, bloquer</string>
+    <string name="network_prompt_public_text">Un réseau souhaite devenir fiable pour Keep-Alive — ouvrez KeepADB pour décider.</string>
     <string name="network_prompt_identity_unavailable_title">Impossible d\'identifier le réseau Wi-Fi actuel</string>
     <string name="network_prompt_identity_unavailable_text">La réactivation automatique de Keep-Alive est en pause car l\'identité du réseau est illisible. Appuyez pour corriger l\'autorisation de localisation ou le service de localisation.</string>
     <string name="settings_trusted_network_blocked_button">Bloqués récemment (%1$d)</string>

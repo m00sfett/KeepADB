@@ -131,6 +131,7 @@
     <string name="network_prompt_text">%1$s (%2$s) — soll dieses Netzwerk als vertrauenswürdig eingestuft werden?</string>
     <string name="network_prompt_allow">Ja, zulassen</string>
     <string name="network_prompt_block">Nein, blockieren</string>
+    <string name="network_prompt_public_text">Ein Netzwerk möchte für Keep-Alive vertrauenswürdig werden — zum Entscheiden KeepADB öffnen.</string>
     <string name="network_prompt_identity_unavailable_title">Aktuelles WLAN kann nicht identifiziert werden</string>
     <string name="network_prompt_identity_unavailable_text">Automatisches Wiedereinschalten von Keep-Alive ist pausiert, weil die Identität des Netzwerks nicht gelesen werden kann. Tippen, um die Standortberechtigung oder den Standortdienst zu beheben.</string>
     <string name="settings_trusted_network_blocked_button">Kürzlich blockiert (%1$d)</string>

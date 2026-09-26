@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowKeyguardManager;
 import org.robolectric.shadows.ShadowNotificationManager;
 import org.robolectric.shadows.ShadowWifiInfo;
 
@@ -474,6 +476,121 @@ public class KeepADBNetworkTrustPromptTest {
         assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
     }
 
+    // --- #578: locked-screen authentication -------------------------------------------------
+
+    /**
+     * #578: trusting a network can re-enable Wireless Debugging, so the allow action must ask the
+     * platform to reauthenticate the user before its PendingIntent fires when the notification is
+     * reached from a locked screen. The block action stays ungated -- declining is the safe
+     * direction (nothing is trusted either way) and gating it would only make it harder to get rid
+     * of an unwanted prompt while locked.
+     */
+    @Test
+    public void theAllowActionRequiresAuthenticationButTheBlockActionDoesNot() {
+        connectTo("Cafe-WLAN", BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        Notification notification = postedPrompt();
+        assertTrue("Allow must require authentication (API 31+)",
+                notification.actions[0].isAuthenticationRequired());
+        assertFalse("Block must stay ungated -- declining never trusts anything",
+                notification.actions[1].isAuthenticationRequired());
+    }
+
+    /**
+     * #578: the lock screen must not leak which access point is asking to be trusted. The default
+     * visibility is already VISIBILITY_PRIVATE (unchanged here), but a publicVersion is required so
+     * a device configured to show private notification content on the lock screen (as the s20
+     * tested against #578 was) does not also show the label and BSSID there.
+     */
+    @Test
+    public void thePublicVersionNamesNeitherTheLabelNorTheBssid() {
+        connectTo("Cafe-WLAN", BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        Notification notification = postedPrompt();
+        assertNotNull("A publicVersion must be set for the lock screen", notification.publicVersion);
+        String publicText = notification.publicVersion.extras.getString(Notification.EXTRA_TEXT);
+        assertFalse("publicVersion must not name the SSID: " + publicText,
+                publicText != null && publicText.contains("Cafe-WLAN"));
+        assertFalse("publicVersion must not name the BSSID: " + publicText,
+                publicText != null && publicText.contains(BSSID));
+    }
+
+    /**
+     * #578: defense in depth for the receiver, independent of API level and of whatever a given
+     * OEM lock screen does with setAuthenticationRequired. If ACTION_TRUST_NETWORK still reaches
+     * the receiver while KeyguardManager reports the device as locked, nothing may be trusted and
+     * Wireless Debugging must not be turned on.
+     */
+    @Test
+    public void handleTrustNetworkActionRefusesToTrustWhileTheDeviceIsLocked() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        lockDevice();
+
+        assertFalse(KeepADBReceiver.handleTrustNetworkAction(context, BSSID, "Cafe-WLAN"));
+
+        assertTrue("A locked device must never allowlist the access point",
+                KeepADBTrustedNetwork.getEntries(context).isEmpty());
+        assertFalse(KeepADB.isEnabled(context));
+        String export = KeepADBDiagnostics.export(context);
+        assertTrue("A diagnostics event must record the block",
+                export.contains("event=user_action source=network_trust_prompt outcome=blocked "
+                        + "detail=device_locked"));
+    }
+
+    /**
+     * #578: "does the state heal itself once unlocked?" -- there is no unlock listener; instead
+     * the receiver re-posts the exact same prompt so the question stays open and answerable. This
+     * pins that the notification (with both actions and the original BSSID) is showing again right
+     * after the rejected attempt, not merely that nothing was trusted.
+     */
+    @Test
+    public void aRejectedLockedAttemptLeavesThePromptAvailableToAnswerAfterUnlocking() {
+        // MODE_ALL_WIFI + the wifi override make isAutoEnableStillPermitted's trust check pass
+        // under Robolectric for the post-unlock retry below; see
+        // allowingAddsTheAccessPointToTheAllowlistAndEnablesWirelessDebugging for the same setup.
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        connectTo("Cafe-WLAN", BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        lockDevice();
+
+        assertFalse(KeepADBReceiver.handleTrustNetworkAction(context, BSSID, "Cafe-WLAN"));
+        Notification stillLocked = postedPrompt();
+        assertNotNull("The prompt must remain/be re-offered while still locked", stillLocked);
+        assertEquals(2, stillLocked.actions.length);
+        assertEquals(BSSID,
+                actionIntent(stillLocked, 0).getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
+
+        unlockDevice();
+        assertTrue("Once unlocked, the same tap must succeed",
+                KeepADBReceiver.handleTrustNetworkAction(context, BSSID, "Cafe-WLAN"));
+        assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
+    }
+
+    /**
+     * Counter-test to the two above: an unlocked device must trust exactly as before -- the gate
+     * must not become a "never trusts" regression.
+     */
+    @Test
+    public void handleTrustNetworkActionStillTrustsNormallyWhenUnlocked() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        unlockDevice();
+
+        assertTrue(KeepADBReceiver.handleTrustNetworkAction(context, BSSID, "Cafe-WLAN"));
+
+        assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
+        assertTrue(KeepADB.isEnabled(context));
+    }
+
     // --- helpers ----------------------------------------------------------------------------
 
     private static KeepADBNetworkIdentity identity(String ssid, String bssid) {
@@ -496,6 +613,20 @@ public class KeepADBNetworkTrustPromptTest {
 
     private Intent actionIntent(Notification notification, int index) {
         return shadowOf(notification.actions[index].actionIntent).getSavedIntent();
+    }
+
+    private void lockDevice() {
+        KeyguardManager keyguardManager = context.getSystemService(KeyguardManager.class);
+        ShadowKeyguardManager shadow = shadowOf(keyguardManager);
+        shadow.setIsDeviceLocked(true);
+        shadow.setKeyguardLocked(true);
+    }
+
+    private void unlockDevice() {
+        KeyguardManager keyguardManager = context.getSystemService(KeyguardManager.class);
+        ShadowKeyguardManager shadow = shadowOf(keyguardManager);
+        shadow.setIsDeviceLocked(false);
+        shadow.setKeyguardLocked(false);
     }
 
     private android.content.SharedPreferences prefs() {

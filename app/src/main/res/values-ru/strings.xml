@@ -108,6 +108,7 @@
     <string name="network_prompt_text">%1$s (%2$s) — считать эту сеть доверенной?</string>
     <string name="network_prompt_allow">Да, разрешить</string>
     <string name="network_prompt_block">Нет, заблокировать</string>
+    <string name="network_prompt_public_text">Сеть хочет стать доверенной для Keep-Alive — откройте KeepADB, чтобы решить.</string>
     <string name="network_prompt_identity_unavailable_title">Не удаётся определить текущую сеть Wi-Fi</string>
     <string name="network_prompt_identity_unavailable_text">Автоматическое повторное включение Keep-Alive приостановлено, так как не удаётся прочитать идентификатор сети. Нажмите, чтобы исправить разрешение геолокации или службу геолокации.</string>
     <string name="settings_trusted_network_blocked_button">Недавно заблокировано (%1$d)</string>

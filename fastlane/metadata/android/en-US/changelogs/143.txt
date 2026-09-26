@@ -1,0 +1,1 @@
+• Security: the network trust prompt's "Allow" action now requires device authentication, and never trusts a network while the device is locked.

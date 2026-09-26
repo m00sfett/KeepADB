@@ -1,5 +1,6 @@
 package de.hohnepeople.keepadb;
 
+import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -59,6 +60,28 @@ public final class KeepADBReceiver extends BroadcastReceiver {
      */
     static boolean handleTrustNetworkAction(Context context, String bssid, String label) {
         String cleanBssid = bssid == null ? "" : bssid.trim();
+        // #578: defense in depth against this action reaching the receiver while the device is
+        // locked. Notification.Action#setAuthenticationRequired (API 31+) already asks the
+        // platform to reauthenticate before the PendingIntent fires, but that flag is enforced by
+        // SystemUI -- not by this app -- does not exist below API 31 (minSdk 30), and there is no
+        // way for this receiver to tell whether a given OEM lock screen actually honored it.
+        // isDeviceLocked() is used rather than isKeyguardLocked(): the risk here is specifically
+        // that credentials were required and never supplied, which is exactly what
+        // isDeviceLocked() reports. isKeyguardLocked() stays true for a device with no secure lock
+        // configured at all (swipe-only) until the lock screen is swiped away, which would gate a
+        // device with no authentication to bypass in the first place -- a false positive against
+        // a user who deliberately chose not to secure their device.
+        KeyguardManager keyguardManager = context.getSystemService(KeyguardManager.class);
+        if (keyguardManager != null && keyguardManager.isDeviceLocked()) {
+            KeepADBDiagnostics.event(context, "user_action", "network_trust_prompt", "blocked",
+                    "device_locked");
+            // Keep the question open rather than silently dropping the tap: re-post the exact
+            // same prompt so the user can decide once they unlock, instead of the notification
+            // just disappearing with nothing trusted and no way to retry short of roaming off
+            // and back onto the access point.
+            KeepADBNetworkTrustPrompt.reshow(context, cleanBssid, label);
+            return false;
+        }
         KeepADBNetworkTrustPrompt.cancel(context);
         // Fail closed on anything that isn't a real, matchable access point identifier: storing a
         // placeholder BSSID would make every later unidentifiable network compare equal to it.
