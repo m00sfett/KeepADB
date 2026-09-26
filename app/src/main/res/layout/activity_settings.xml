@@ -270,6 +270,16 @@
                 android:minHeight="48dp"
                 android:orientation="horizontal">
 
+                <!-- #514: decorative card icon, kept out of the accessibility tree since
+                     the adjacent title text already names the section (same pattern as
+                     ic_warning/ic_keepadb elsewhere in the app). -->
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_usb" />
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -480,6 +490,15 @@
                 android:gravity="center_vertical"
                 android:minHeight="48dp"
                 android:orientation="horizontal">
+
+                <!-- #514: decorative card icon, kept out of the accessibility tree since
+                     the adjacent title text already names the section. -->
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_wifi" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -971,6 +990,15 @@
                 android:gravity="center_vertical"
                 android:minHeight="48dp"
                 android:orientation="horizontal">
+
+                <!-- #514: decorative card icon, kept out of the accessibility tree since
+                     the adjacent title text already names the section. -->
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_more_horiz" />
 
                 <TextView
                     android:layout_width="0dp"

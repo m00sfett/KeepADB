@@ -350,6 +350,18 @@
                         android:gravity="top"
                         android:orientation="horizontal">
 
+                        <!-- #514: decorative card icon; the visible title text already
+                             conveys the meaning, so it stays out of the accessibility tree
+                             like the header bar's ic_keepadb and the advice banner's
+                             ic_warning above. -->
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginEnd="8dp"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_notifications" />
+
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"

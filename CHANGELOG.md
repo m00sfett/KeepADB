@@ -17,11 +17,26 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.41` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.42` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.42] - Unreleased
+
+### Added
+- Four cards now carry a small leading icon next to their title, matching the existing
+  security/network advice banner's warning icon: the home screen's Notifications
+  permission card (bell) and the Settings screen's "USB-ADB" (USB plug), "Network
+  (Beta)" (Wi-Fi arcs), and "Other" (three-dot) cards. Purely visual/structural: no
+  string, permission, or default changed. Every new icon is a plain, self-drawn vector
+  (no external icon library), decorative and marked
+  `importantForAccessibility="no"` since the adjacent title text already names the
+  section — the same pattern the app already used for `ic_warning` on the advice banner
+  and `ic_keepadb` in the header bar, so no new `contentDescription` string (and no
+  i18n follow-up) was needed. The advice banner's existing warning icon and yellow
+  accent (border/text/background) are unchanged (#514).
 
 ## [1.8.41] - Unreleased
 

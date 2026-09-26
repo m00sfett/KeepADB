@@ -1,0 +1,1 @@
+• A few cards (Notifications, USB-ADB, Network (Beta), Other) now show a small icon next to their title for faster recognition; no text, permission, or behavior changed.
