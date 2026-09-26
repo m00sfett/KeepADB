@@ -17,11 +17,22 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.44` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.45` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.45] - Unreleased
+
+### Testing
+- Added a real activity-recreation test for the unsaved register-webhook URL draft in Settings
+  (`SettingsActivityTest.unsavedWebhookDraftSurvivesActivityRecreation`, #579 / review finding
+  UI-02): it types an unsaved URL, recreates the activity via `saveInstanceState` and
+  `setup(bundle)`, and fails if the draft is replaced by the saved preference. The second #579
+  point (SEC-05, case-sensitive cleartext warning) turned out to be a false positive: the warning
+  has normalized the scheme since #319 and `HTTP://` is already covered by an existing test; its
+  sensitivity was re-confirmed by mutation. No app behavior change.
 
 ## [1.8.44] - Unreleased
 
