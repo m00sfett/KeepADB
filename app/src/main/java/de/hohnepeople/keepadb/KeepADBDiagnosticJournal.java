@@ -18,6 +18,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * #566: debug-build-only, time-bounded diagnostics journal that keeps at least the last 48 hours
@@ -81,7 +86,16 @@ final class KeepADBDiagnosticJournal {
     private final List<Entry> entries = new ArrayList<>();
     private final Map<String, Entry> lastByKey = new HashMap<>();
     private long lastPersistMs;
-    private int persistCount;
+    private final AtomicInteger persistCount = new AtomicInteger();
+    // Single background thread so writes stay ordered and #568's disk I/O never blocks the
+    // main-thread heartbeat. Never shut down: the journal is a process-lifetime singleton (see
+    // #get(Context)) and the process death that ends it also ends this executor with it.
+    private final ExecutorService persistExecutor = Executors.newSingleThreadExecutor(runnable -> {
+        Thread thread = new Thread(runnable, "KeepADBJournalPersist");
+        thread.setDaemon(true);
+        return thread;
+    });
+    private volatile Future<?> pendingPersist;
 
     KeepADBDiagnosticJournal(File file, Clock clock) {
         this.file = file;
@@ -160,8 +174,21 @@ final class KeepADBDiagnosticJournal {
         return lines;
     }
 
-    synchronized int getPersistCountForTesting() {
-        return persistCount;
+    int getPersistCountForTesting() {
+        return persistCount.get();
+    }
+
+    /** Blocks until a background write triggered by an earlier record/recordSample call finishes. */
+    void awaitPendingPersistForTesting() {
+        Future<?> future = pendingPersist;
+        if (future == null) return;
+        try {
+            future.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     synchronized int size() {
@@ -186,17 +213,33 @@ final class KeepADBDiagnosticJournal {
         }
     }
 
+    // Called only from synchronized methods (record/recordSample), so the budget check and the
+    // entries snapshot below run under the object lock; only the actual disk write happens off
+    // the caller's thread (#568: this used to run the write inline on the caller, which is the
+    // main-thread heartbeat).
     private void maybePersist(long now) {
         if (lastPersistMs > 0 && now - lastPersistMs < PERSIST_INTERVAL_MS
                 && now >= lastPersistMs) {
             return;
         }
+        // Set eagerly, same as the previous inline write did on both success and IOException:
+        // a failed write still consumes the hour's budget instead of retrying every record.
+        lastPersistMs = now;
+        List<Entry> snapshot = new ArrayList<>(entries.size());
+        for (Entry entry : entries) {
+            snapshot.add(new Entry(entry.firstMs, entry.lastMs, entry.samples, entry.key,
+                    entry.signature, entry.text));
+        }
+        pendingPersist = persistExecutor.submit(() -> persistToDisk(snapshot));
+    }
+
+    private void persistToDisk(List<Entry> snapshot) {
         AtomicFile atomicFile = new AtomicFile(file);
         FileOutputStream out = null;
         try {
             out = atomicFile.startWrite();
             StringBuilder data = new StringBuilder();
-            for (Entry entry : entries) {
+            for (Entry entry : snapshot) {
                 data.append(entry.firstMs).append('\t').append(entry.lastMs).append('\t')
                         .append(entry.samples).append('\t')
                         .append(entry.key == null ? "" : entry.key).append('\t')
@@ -205,12 +248,9 @@ final class KeepADBDiagnosticJournal {
             }
             out.write(data.toString().getBytes(StandardCharsets.UTF_8));
             atomicFile.finishWrite(out);
-            lastPersistMs = now;
-            persistCount++;
+            persistCount.incrementAndGet();
         } catch (IOException e) {
             if (out != null) atomicFile.failWrite(out);
-            // Retry no earlier than the next interval rather than on every following record.
-            lastPersistMs = now;
             Log.w(TAG, "Could not persist diagnostics journal", e);
         }
     }

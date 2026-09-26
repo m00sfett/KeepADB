@@ -81,6 +81,9 @@ public class KeepADBDiagnosticJournalTest {
             journal.record("event " + minute);
             now[0] += MINUTE;
         }
+        // The actual disk write now happens on a background thread (#568); wait for the last
+        // one before asserting on persisted file state.
+        journal.awaitPendingPersistForTesting();
         // Writes at minute 0, 60 and 120 -- never more than once per hour.
         assertEquals(3, journal.getPersistCountForTesting());
         assertTrue(file.exists());
@@ -90,10 +93,12 @@ public class KeepADBDiagnosticJournalTest {
         file.setLastModified(now[0] - 10 * MINUTE);
         KeepADBDiagnosticJournal restarted = newJournal(file);
         restarted.record("after restart");
+        restarted.awaitPendingPersistForTesting();
         assertEquals(0, restarted.getPersistCountForTesting());
         assertTrue("persisted entries survive the restart", restarted.render().contains("event 0"));
         now[0] += HOUR;
         restarted.record("an hour later");
+        restarted.awaitPendingPersistForTesting();
         assertEquals(1, restarted.getPersistCountForTesting());
     }
 

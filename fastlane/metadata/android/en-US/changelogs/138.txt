@@ -1,0 +1,1 @@
+• Internal fix: avoid a rare frame drop when the debug diagnostics journal writes to disk.
