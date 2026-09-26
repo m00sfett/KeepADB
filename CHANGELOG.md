@@ -25,6 +25,9 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.8.44] - Unreleased
 
+This candidate bundles two independently developed fixes integrated together on branch
+`integration/e2-573-574`: #573 (data extraction rules) and #574 (BSSID/SSID redaction).
+
 ### Security
 - `android:allowBackup="false"` alone does not reliably disable Android 12+ device-to-device
   (D2D) transfer: per the Android 12 (API 31) behavior changes, some OEMs honor it for cloud
@@ -37,6 +40,15 @@ are retrospective issue-version records and were never published as separate rel
   `KeepADBBackupPolicyContractTest` now asserts both the manifest attribute and the exclusion
   rules exist instead of asserting their absence (#573, follow-up to #252). OEM D2D behavior
   itself was not device-verified as part of this change.
+- The diagnostics export (Settings > Diagnostics > Export diagnostics,
+  `KeepADBDiagnostics.export`/`exportForIssueReport`) shortened a Wi-Fi access point's BSSID to
+  its OUI (first three octets) plus a mask for the rest, and would mask an SSID in full the same
+  way -- both were previously exported unredacted whenever the trust-prompt or trust-network-action
+  diagnostics events fired. The feedback report draft's own redaction
+  (`KeepADBIssueReporter.redactDiagnostics`) now masks both fully on top of that, matching the
+  existing `host=`/`port=`/secret/URL rules (#574). Nothing about where diagnostic events are
+  written, or the ring buffer/journal's own retention or format, changed; the redaction is applied
+  only at the export/draft read path.
 
 ## [1.8.43] - Unreleased
 

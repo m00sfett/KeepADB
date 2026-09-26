@@ -95,6 +95,33 @@ public class KeepADBIssueReporterContractTest {
     }
 
     @Test
+    public void diagnosticsRedactionFullyMasksBssidAndSsidRegardlessOfHexLetterCase() {
+        // #574: invented, locally-administered BSSIDs (never a real access point's address).
+        // Mixed-case hex covers both letter cases the platform may report.
+        String safe = KeepADBIssueReporter.redactDiagnostics(
+                "detail=bssid=02:1A:2b:3C:44:55\n"
+                        + "detail=bssid=02:aa:BB:cc:DD:ee\n"
+                        + "detail=ssid=MyInventedNetwork");
+        assertFalse(safe.contains("1A:2b:3C:44:55"));
+        assertFalse(safe.contains("aa:BB:cc:DD:ee"));
+        assertFalse(safe.contains("MyInventedNetwork"));
+        assertEquals(3, safe.split("\\[REDACTED\\]", -1).length - 1);
+        assertTrue(safe.contains("bssid=[REDACTED]"));
+        assertTrue(safe.contains("ssid=[REDACTED]"));
+    }
+
+    @Test
+    public void diagnosticsRedactionMasksAnSsidWithEmbeddedSpacesCompletely() {
+        // A free-text SSID may contain spaces; the mask must not stop at the first one and leak
+        // the remainder into the shared draft.
+        String safe = KeepADBIssueReporter.redactDiagnostics(
+                "detail=ssid=My Invented Guest Network");
+        assertTrue(safe.contains("ssid=[REDACTED]"));
+        assertFalse(safe.contains("My Invented Guest Network"));
+        assertFalse(safe.contains("Invented"));
+    }
+
+    @Test
     public void diagnosticsTogglePreservesEditsOutsideTheOptionalSection() {
         String body = "## Logs\nuser log\n\n## Additional notes\nuser note";
         String title = "Optional diagnostics";
