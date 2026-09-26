@@ -185,7 +185,8 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
    network it falls through to the trust prompt instead of enabling immediately (#577). Trusting a
    network from that prompt notification requires an unlocked device (#578). Switching Wireless
    Debugging on from the Quick Settings tile also requires an unlocked device; switching it off
-   from the lock screen works without unlocking (#586).
+   from the lock screen works without unlocking (#586). Switching Wireless Debugging on from the
+   USB notification's "Enable WLAN-ADB" handover action also requires an unlocked device (#588).
 5. **Android network approval:** Android may show a system prompt the first time Wireless
    Debugging is enabled on a Wi-Fi network. Confirm only a prompt you expect. If Android does not
    confirm the automatic change, KeepADB backs off instead of retrying rapidly.

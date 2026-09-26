@@ -25,6 +25,9 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.8.47] - Unreleased
 
+This candidate bundles two independently developed lock-screen authentication gates integrated
+together: #586 (Quick Settings tile) and #588 (USB handover notification).
+
 ### Security
 - The Quick Settings tile no longer switches Wireless Debugging **on** from the lock screen
   without authentication. Tiles stay reachable while the device is locked, and Android leaves the
@@ -36,6 +39,16 @@ are retrospective issue-version records and were never published as separate rel
   stale tap never turns into a disable or a second toggle. Switching Wireless Debugging **off**
   from the tile stays immediate on the lock screen (explicit user decision): it only reduces
   exposure. Devices without a secure lock and unlocked devices behave as before (#586).
+- The USB notification's "Enable WLAN-ADB" action (USB-to-WLAN handover, MANUAL mode) no longer
+  switches Wireless Debugging **on** from the lock screen without authentication; an already
+  paired host could connect afterwards. The action now asks the platform to reauthenticate before
+  it fires (API 31+), and `KeepADBUsbReceiver` refuses it while
+  `KeyguardManager#isDeviceLocked()` reports a secured device as locked, on
+  every supported Android version including API 30 -- the same criterion as the trust-action gate
+  from #578. A refused tap is logged as a diagnostics event, is not reported as a permission
+  error, and re-posts the notification so the action can be tapped again after unlocking. The
+  AUTOMATIC handover (no tap, trusted network only) is unchanged. The receiver was already
+  non-exported, so other apps could not send this action (#588).
 
 ## [1.8.46] - Unreleased
 

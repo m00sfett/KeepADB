@@ -20,6 +20,8 @@ pretending the port isn't open. Concretely, KeepADB tries to:
 - require an unlocked device to switch Wireless Debugging on from the Quick Settings tile: on a
   locked, secured device the tile asks Android for the unlock first; switching it off from the
   lock screen stays possible without unlocking (#586);
+- require an unlocked device to switch Wireless Debugging on from the USB notification's "Enable
+  WLAN-ADB" handover action, with the same two layers as the trust action (#588);
 - keep cleartext (unencrypted) HTTP scoped to the one feature that needs it — the optional,
   user-configured webhook — and warn in-app when a webhook URL is `http://` instead of `https://`;
 - avoid persisting anything sensitive where Android backup or device transfer could pick it up
