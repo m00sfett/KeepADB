@@ -72,6 +72,13 @@ and #579 (webhook draft recreation test coverage).
   tests drive the decision function directly with a realistic `tun0` (with CGNAT and ULA
   addresses), a foreign VPN on `tun0` without a Tailscale-shaped address, and a carrier CGNAT
   interface (`rmnet_data0`) -- confirming neither is misreported as Tailscale. (#581)
+- Added a real activity-recreation test for the unsaved register-webhook URL draft in Settings
+  (`SettingsActivityTest.unsavedWebhookDraftSurvivesActivityRecreation`, #579 / review finding
+  UI-02): it types an unsaved URL, recreates the activity via `saveInstanceState` and
+  `setup(bundle)`, and fails if the draft is replaced by the saved preference. The second #579
+  point (SEC-05, case-sensitive cleartext warning) turned out to be a false positive: the warning
+  has normalized the scheme since #319 and `HTTP://` is already covered by an existing test; its
+  sensitivity was re-confirmed by mutation. No app behavior change.
 
 ## [1.8.44] - Unreleased
 
