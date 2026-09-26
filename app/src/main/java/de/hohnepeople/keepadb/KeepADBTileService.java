@@ -1,5 +1,6 @@
 package de.hohnepeople.keepadb;
 
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.os.Handler;
@@ -78,7 +79,61 @@ public class KeepADBTileService extends TileService {
         }
         // Everything below is the shared definition, identical to MainActivity and the widget.
         boolean want = KeepADB.desiredOnForClick(state);
+        // #586: Quick Settings tiles are reachable from the lock screen, and the platform leaves
+        // the lock check to the TileService itself. Enabling wireless debugging lets an already
+        // paired host connect, so an enable request on a locked device goes through
+        // unlockAndRun(): the system asks for the credential first and only runs the callback
+        // after a successful unlock. Disabling stays immediate even when locked (explicit user
+        // decision on #586) -- it only ever reduces exposure.
+        if (want && isDeviceLockedForEnable()) {
+            KeepADBDiagnostics.event(this, "user_action", "tile", "unlock_required",
+                    "device_locked");
+            requestUnlockAndRun(this::enableAfterUnlock);
+            return;
+        }
         KeepADBDiagnostics.event(this, "user_action", "tile", want ? "enable" : "disable", "tap");
+        applyToggle(want);
+    }
+
+    /**
+     * #586: same criterion as the trust action gate in
+     * {@code KeepADBReceiver#handleTrustNetworkAction} (#578): {@link KeyguardManager#isDeviceLocked()}
+     * is true only when a secure lock is configured and its credential has not been supplied yet,
+     * which is exactly the case this gate exists for. TileService#isLocked() (keyguard shown) is
+     * deliberately not used: it is also true for a swipe-only lock screen, and would additionally
+     * force an unlock prompt while a trust agent keeps the device unlocked -- neither has a
+     * credential to bypass.
+     */
+    boolean isDeviceLockedForEnable() {
+        KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
+        return keyguardManager != null && keyguardManager.isDeviceLocked();
+    }
+
+    /** Seam around {@link #unlockAndRun(Runnable)} so tests can hold the callback back. */
+    void requestUnlockAndRun(Runnable afterUnlock) {
+        unlockAndRun(afterUnlock);
+    }
+
+    /**
+     * #586: runs only after the system reported a successful unlock. The target state is derived
+     * again instead of reusing the {@code want} from the tap: Keep-Alive, another surface or a
+     * second tile tap may have switched wireless debugging on while the unlock prompt was
+     * showing, and this callback must never turn into a disable. It only ever enables, and only
+     * while the state still asks for an enable.
+     */
+    private void enableAfterUnlock() {
+        KeepADB.State state = KeepADB.getState(this);
+        if (!KeepADB.desiredOnForClick(state)) {
+            KeepADBDiagnostics.event(this, "user_action", "tile", "skipped",
+                    "after_unlock state=" + state);
+            updateTile();
+            return;
+        }
+        KeepADBDiagnostics.event(this, "user_action", "tile", "enable", "after_unlock");
+        applyToggle(true);
+    }
+
+    private void applyToggle(boolean want) {
         if (!KeepADB.setEnabled(this, want, "tile")) {
             showToggleErrorToast();
         }

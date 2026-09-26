@@ -17,6 +17,9 @@ pretending the port isn't open. Concretely, KeepADB tries to:
   the "Yes, allow" action asks the platform to reauthenticate before it fires (API 31+), and
   `KeepADBReceiver` refuses the action and re-offers the same prompt if it is somehow reached
   while the device reports itself locked, on every Android version this app supports (#578);
+- require an unlocked device to switch Wireless Debugging on from the Quick Settings tile: on a
+  locked, secured device the tile asks Android for the unlock first; switching it off from the
+  lock screen stays possible without unlocking (#586);
 - keep cleartext (unencrypted) HTTP scoped to the one feature that needs it — the optional,
   user-configured webhook — and warn in-app when a webhook URL is `http://` instead of `https://`;
 - avoid persisting anything sensitive where Android backup or device transfer could pick it up
