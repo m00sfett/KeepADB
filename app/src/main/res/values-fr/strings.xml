@@ -144,6 +144,7 @@
     <string name="webhook_status_no_endpoint">aucun pour l’instant</string>
     <string name="webhook_status_deregistered">désenregistré</string>
     <string name="webhook_status_failed">échec</string>
+    <string name="webhook_status_tailnet_hint">Il se peut que Tailscale soit déconnecté ou ne se soit pas relancé automatiquement après un redémarrage. Vérifiez le paramètre Android « VPN permanent » pour Tailscale.</string>
     <string name="settings_permission_warning">Autorisation système WRITE_SECURE_SETTINGS manquante. KeepADB ne peut pas basculer le débogage sans fil tant que l’autorisation n’est pas accordée.</string>
     <string name="settings_language_label">Langue de l’application</string>
     <string name="settings_language_accessibility">Langue de l’application : %1$s</string>

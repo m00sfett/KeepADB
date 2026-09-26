@@ -144,6 +144,7 @@
     <string name="webhook_status_no_endpoint">jeszcze brak</string>
     <string name="webhook_status_deregistered">wyrejestrowany</string>
     <string name="webhook_status_failed">niepowodzenie</string>
+    <string name="webhook_status_tailnet_hint">Tailscale może być rozłączony lub nie uruchomił się automatycznie po restarcie. Sprawdź ustawienie Androida „Zawsze włączone VPN” dla Tailscale.</string>
     <string name="settings_permission_warning">Brak uprawnienia systemowego WRITE_SECURE_SETTINGS. KeepADB nie może sterować debugowaniem bezprzewodowym przed nadaniem uprawnień.</string>
     <string name="settings_language_label">Język aplikacji</string>
     <string name="settings_language_accessibility">Język aplikacji: %1$s</string>

@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
     private ViewGroup transportOverviewPanel;
     private long transportOverviewGeneration;
     private TextView webhookStatus;
+    private TextView webhookTailnetHint;
     private View webhookStatusPanel;
     private View webhookSetupButton;
     private View setupPanel;
@@ -81,6 +82,7 @@ public class MainActivity extends Activity {
 
         transportOverviewPanel = findViewById(R.id.transport_overview_panel);
         webhookStatus = findViewById(R.id.webhook_status);
+        webhookTailnetHint = findViewById(R.id.webhook_tailnet_hint);
         webhookStatusPanel = findViewById(R.id.webhook_status_panel);
         webhookSetupButton = findViewById(R.id.webhook_setup_button);
         webhookSetupButton.setOnClickListener(v -> {
@@ -482,6 +484,7 @@ public class MainActivity extends Activity {
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
         if (!enabled || url == null || url.trim().isEmpty()) {
             webhookStatusPanel.setVisibility(View.GONE);
+            webhookTailnetHint.setVisibility(View.GONE);
             webhookSetupButton.setVisibility(View.VISIBLE);
             return;
         }
@@ -514,6 +517,14 @@ public class MainActivity extends Activity {
         webhookStatus.setText(getString(R.string.webhook_status_hint,
                 KeepADBPreferences.maskWebhookUrlForDisplay(this, url), lastEndpoint, lastReported));
         webhookStatusPanel.setVisibility(View.VISIBLE);
+
+        // #561: only a possible-cause hint, never a diagnosis -- only shown while the last report
+        // is still failing (cleared again the moment a later attempt reports success) and only for
+        // a configured URL that looks tailnet-bound per KeepADBTailnetHeuristic. KeepADB never
+        // inspects, starts or configures Tailscale/VPN state itself; see #537/#548.
+        boolean showTailnetHint = KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(reportStatus)
+                && KeepADBTailnetHeuristic.looksLikeTailnetTarget(url);
+        webhookTailnetHint.setVisibility(showTailnetHint ? View.VISIBLE : View.GONE);
     }
 
     private void postEndpointAvailable(long listenerGeneration, String host, int port) {

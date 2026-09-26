@@ -1,1 +1,3 @@
 • Register-webhook cleanup retries are now paced (5s up to 5min apart) instead of hammering the endpoint after a failed disconnect notice; only affects users with the optional register webhook enabled.
+• If the webhook keeps failing to a Tailscale-looking address, KeepADB now hints that Tailscale might be disconnected and points at Android's "Always-on VPN" setting. No other change; KeepADB still never touches Tailscale or VPN settings itself.
+• A few cards (Notifications, USB-ADB, Network (Beta), Other) now show a small icon next to their title for faster recognition; no text, permission, or behavior changed.

@@ -144,6 +144,7 @@
     <string name="webhook_status_no_endpoint">henüz yok</string>
     <string name="webhook_status_deregistered">kaydı silindi</string>
     <string name="webhook_status_failed">başarısız</string>
+    <string name="webhook_status_tailnet_hint">Tailscale bağlantısı kesilmiş ya da yeniden başlatmadan sonra otomatik başlatılmamış olabilir. Tailscale için Android\'in "Her Zaman Açık VPN" ayarını kontrol edin.</string>
     <string name="settings_permission_warning">Sistem izni WRITE_SECURE_SETTINGS eksik. KeepADB izin verilene kadar Kablosuz Hata Ayıklamayı değiştiremez.</string>
     <string name="settings_language_label">Uygulama Dili</string>
     <string name="settings_language_accessibility">Uygulama Dili: %1$s</string>

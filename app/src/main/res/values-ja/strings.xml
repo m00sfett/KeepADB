@@ -144,6 +144,7 @@
     <string name="webhook_status_no_endpoint">まだなし</string>
     <string name="webhook_status_deregistered">登録解除済み</string>
     <string name="webhook_status_failed">失敗</string>
+    <string name="webhook_status_tailnet_hint">Tailscale が切断されているか、再起動後に自動起動していない可能性があります。Tailscale の Android の「常時接続 VPN」設定を確認してください。</string>
     <string name="settings_permission_warning">システム権限 WRITE_SECURE_SETTINGS がありません。権限が付与されるまで KeepADB はワイヤレスデバッグを切り替えられません。</string>
     <string name="settings_language_label">アプリの言語</string>
     <string name="settings_language_accessibility">アプリの言語: %1$s</string>

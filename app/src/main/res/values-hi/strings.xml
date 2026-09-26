@@ -144,6 +144,7 @@
     <string name="webhook_status_no_endpoint">अभी तक कोई नहीं</string>
     <string name="webhook_status_deregistered">पंजीकरण रद्द</string>
     <string name="webhook_status_failed">विफल</string>
+    <string name="webhook_status_tailnet_hint">हो सकता है Tailscale डिस्कनेक्ट हो, या रीबूट के बाद अपने आप शुरू न हुआ हो। Tailscale के लिए Android की "हमेशा-चालू VPN" सेटिंग जाँचें।</string>
     <string name="settings_permission_warning">सिस्टम अनुमति WRITE_SECURE_SETTINGS गायब है। अनुमति दिए जाने तक KeepADB वायरलेस डीबगिंग को टॉगल नहीं कर सकता।</string>
     <string name="settings_language_label">ऐप की भाषा</string>
     <string name="settings_language_accessibility">ऐप की भाषा: %1$s</string>
