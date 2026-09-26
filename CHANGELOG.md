@@ -17,11 +17,22 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.42` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.43` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.43] - Unreleased
+
+### Changed
+- The `CI` GitHub Actions workflow (`.github/workflows/ci.yml`) no longer starts automatically on
+  pushes to `master` or on pull requests; it runs only when started manually via
+  `workflow_dispatch` (#575, closing the remaining #327 trigger point). Pull requests and
+  development commits are accepted through the local `bin/verify` gate, as the project policy
+  already required. The release workflow deliberately keeps JDK 21 to match the F-Droid build
+  toolchain; this is now documented in `release.yml` instead of being aligned to JDK 17. No change
+  to the app itself.
 
 ## [1.8.42] - Unreleased
 
