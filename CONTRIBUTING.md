@@ -23,7 +23,9 @@ Before opening a pull request, run the full local verification gate:
 
 This checks (in order): a clean git diff (no trailing whitespace/conflict markers), the i18n
 copy-paste check (`bin/check-i18n`), unit tests + lint + a debug build, and a release build.
-All of these must pass — CI runs the same checks automatically on every push and pull request.
+All of these must pass. This local gate is the acceptance check for pull requests: the GitHub
+`CI` workflow runs the same checks, but it no longer starts automatically on pushes or pull
+requests and is only started manually (`workflow_dispatch`) when a maintainer asks for it.
 
 To run an individual step instead of the full gate:
 

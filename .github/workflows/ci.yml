@@ -1,24 +1,10 @@
 name: CI
 
+# Manual-only (#575, follow-up to #327): project policy accepts PRs and development commits
+# through the local gate `bin/verify`, so neither `push` nor `pull_request` starts this workflow
+# automatically. Every run is started explicitly via `workflow_dispatch` and needs its own
+# approval, which keeps the shared GitHub Actions minute quota for deliberate checks only.
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'fastlane/**'
-      - 'LICENSE'
-      - '.gitignore'
-  pull_request:
-    branches:
-      - master
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'fastlane/**'
-      - 'LICENSE'
-      - '.gitignore'
   workflow_dispatch:
 
 concurrency:
