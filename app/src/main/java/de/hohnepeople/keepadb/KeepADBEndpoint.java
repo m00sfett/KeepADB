@@ -248,7 +248,15 @@ final class KeepADBEndpoint {
     void maybeSendRecoveryPulse(long generation) {
         synchronized (this) {
             if (!isCurrent(generation) || endpointDelivered.get()) return;
-            if (!KeepADB.isEnabled(appContext) || KeepADB.wasLastExplicitIntentOff(appContext)) return;
+            // #580: this runs as a delayed Handler callback on the main looper (see the
+            // postDelayed call above); an uncaught SecurityException from an OEM read
+            // restriction here would crash the app instead of just skipping the pulse. A failed
+            // read is treated exactly like "not enabled".
+            Boolean enabledOrNull = KeepADB.isEnabledOrNull(appContext, "endpoint");
+            if (enabledOrNull == null || !enabledOrNull
+                    || KeepADB.wasLastExplicitIntentOff(appContext)) {
+                return;
+            }
         }
         // #296: "trusted network" is a policy decision about an SSID/BSSID allowlist -- it says
         // nothing about whether the device is actually still on a Wi-Fi transport at all right

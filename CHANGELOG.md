@@ -17,11 +17,30 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.42` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.43` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.43] - Unreleased
+
+### Fixed
+- `KeepADB.getState()`, the `observed` read at the top of `KeepADB.setEnabled()`, and
+  `KeepADBEndpoint.maybeSendRecoveryPulse()` no longer crash when the settings gateway's read
+  throws `SecurityException` -- an OEM read restriction on `adb_wifi_enabled` that
+  `KeepADBAndroidSettingsGateway`'s own javadoc already anticipated, independent of whether
+  `WRITE_SECURE_SETTINGS` is granted. All three now go through a new shared helper,
+  `KeepADB.isEnabledOrNull(Context, String)`, which returns `null` on a failed read instead of
+  propagating; `getState()` maps that to `PERMISSION_MISSING`, the other two treat it as "not
+  enabled". Each fallback records one `read_failed` diagnostics event via the existing
+  `KeepADBDiagnostics.event` API. `maybeSendRecoveryPulse()` runs as a delayed Handler callback on
+  the main looper, so an uncaught exception there would have crashed the app outright (#580).
+  `KeepADB.applyNow()`'s own post-write readback and `performRecoveryPulse()`'s three reads were
+  explicitly out of scope for this fix; a wider, pre-existing exposure at several other unguarded
+  `KeepADB.isEnabled()` call sites (`KeepADBService`, `KeepADBDiagnostics`, `KeepADBUsbHandover`,
+  `MainActivity`, `KeepADBNotification`, `KeepADBUsbNotification`, `KeepADBTileService`) was found
+  while writing this fix's regression tests and is tracked separately as #582.
 
 ## [1.8.42] - Unreleased
 

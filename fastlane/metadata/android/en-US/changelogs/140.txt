@@ -1,0 +1,1 @@
+• Fixed a crash risk: on some devices the OEM can additionally restrict reading the Wireless Debugging switch even while KeepADB still holds the write permission. KeepADB now falls back safely instead of crashing when that happens.

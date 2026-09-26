@@ -150,6 +150,30 @@ final class KeepADB {
         return gateway.isEnabled(ctx);
     }
 
+    /**
+     * Safe wrapper around {@link #isEnabled(Context)} for read paths that must not crash when
+     * the platform throws instead of returning a value (#580). AOSP normally permits reading
+     * {@code adb_wifi_enabled} without {@code WRITE_SECURE_SETTINGS}, but {@link
+     * KeepADBAndroidSettingsGateway}'s own javadoc already flags that an OEM (or a future
+     * provider) may impose additional read restrictions and throw {@link SecurityException}
+     * anyway -- possibly even while the write permission is granted. Returns {@code null} on
+     * failure instead of a boolean so each caller keeps its own semantically correct fallback
+     * ({@link State#PERMISSION_MISSING} in {@link #getState}, plain "not enabled" everywhere
+     * else) rather than this shared helper guessing one for all of them. Every failure is
+     * recorded once via {@link KeepADBDiagnostics}, tagged with the caller-supplied {@code
+     * source}.
+     */
+    static Boolean isEnabledOrNull(Context appContext, String source) {
+        try {
+            return isEnabled(appContext);
+        } catch (SecurityException e) {
+            Log.e(TAG, "SecurityException reading adb_wifi_enabled", e);
+            KeepADBDiagnostics.event(appContext, "read_failed", source, "failed",
+                    "reason=security_exception");
+            return null;
+        }
+    }
+
     static boolean isUserDisabled() {
         return state.isUserDisabled();
     }
@@ -252,7 +276,14 @@ final class KeepADB {
         if (!hasPermission(appContext)) {
             return State.PERMISSION_MISSING;
         }
-        boolean enabled = isEnabled(appContext);
+        Boolean enabledOrNull = isEnabledOrNull(appContext, "get_state");
+        if (enabledOrNull == null) {
+            // #580: the permission grant alone does not guarantee a readable value on every
+            // OEM -- treat a failed read the same as a missing permission, since that is exactly
+            // what it prevents the surfaces from doing (see PERMISSION_MISSING's own javadoc).
+            return State.PERMISSION_MISSING;
+        }
+        boolean enabled = enabledOrNull;
         if (!enabled) {
             // #318: this used to return ENABLED_DISCONNECTED, which claimed wireless debugging was
             // on while the setting read 0. Keep-Alive waiting is a separate dimension, not an
@@ -292,7 +323,11 @@ final class KeepADB {
      */
     static boolean setEnabled(Context ctx, boolean on, String source, EnableGuard guard) {
         Context appContext = ctx.getApplicationContext();
-        boolean observed = isEnabled(appContext);
+        // #580: this observed value only ever feeds a diagnostics detail string below -- it does
+        // not decide anything -- so a failed read is treated as "not enabled" instead of crashing
+        // the caller.
+        Boolean observedOrNull = isEnabledOrNull(appContext, source);
+        boolean observed = observedOrNull != null && observedOrNull;
         String eventName = diagnosticEventName(source);
         if (!hasPermission(appContext)) {
             KeepADBDiagnostics.event(appContext, eventName, source, "failed",
