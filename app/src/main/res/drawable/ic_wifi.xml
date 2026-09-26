@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wi-Fi signal glyph (three arcs + dot) for the "Network (Beta)" settings card icon
+     (#514), drawn as plain vector paths in the style of the project's other icons. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@color/title_yellow"
+        android:pathData="M12,20C13.1,20 14,19.1 14,18C14,16.9 13.1,16 12,16C10.9,16 10,16.9 10,18C10,19.1 10.9,20 12,20ZM7.76,14.24L9.17,15.66C10.73,14.11 13.27,14.11 14.83,15.66L16.24,14.24C13.9,11.9 10.1,11.9 7.76,14.24ZM3.34,9.83L4.76,11.24C8.76,7.24 15.24,7.24 19.24,11.24L20.66,9.83C15.9,5.07 8.1,5.07 3.34,9.83Z" />
+</vector>

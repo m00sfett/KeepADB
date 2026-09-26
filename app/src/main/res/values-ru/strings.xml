@@ -144,6 +144,7 @@
     <string name="webhook_status_no_endpoint">пока нет</string>
     <string name="webhook_status_deregistered">регистрация отменена</string>
     <string name="webhook_status_failed">ошибка</string>
+    <string name="webhook_status_tailnet_hint">Возможно, Tailscale отключён или не запустился автоматически после перезагрузки. Проверьте настройку Android «Постоянно включённый VPN» для Tailscale.</string>
     <string name="settings_permission_warning">Отсутствует системное разрешение WRITE_SECURE_SETTINGS. KeepADB не может переключать беспроводную отладку до предоставления разрешения.</string>
     <string name="settings_language_label">Язык приложения</string>
     <string name="settings_language_accessibility">Язык приложения: %1$s</string>

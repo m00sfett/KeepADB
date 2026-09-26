@@ -144,6 +144,7 @@
     <string name="webhook_status_no_endpoint">nessuno ancora</string>
     <string name="webhook_status_deregistered">non più registrato</string>
     <string name="webhook_status_failed">non riuscito</string>
+    <string name="webhook_status_tailnet_hint">Tailscale potrebbe essere disconnesso o non essersi avviato automaticamente dopo un riavvio. Controlla l\'impostazione Android "VPN sempre attiva" per Tailscale.</string>
     <string name="settings_permission_warning">Autorizzazione di sistema WRITE_SECURE_SETTINGS mancante. KeepADB non può attivare il debug wireless finché l’autorizzazione non viene concessa.</string>
     <string name="settings_language_label">Lingua dell’app</string>
     <string name="settings_language_accessibility">Lingua dell’app: %1$s</string>
