@@ -21,6 +21,10 @@ import org.junit.Test;
  * ever-growing per-key backup exclusion list that a new preference could silently bypass,
  * backups and device-to-device transfer are disabled entirely, which removes the mechanism
  * that could leak such data instead of relying on someone remembering to update it.
+ *
+ * <p>#566 adds one more private file, the debug-build-only diagnostics journal in
+ * {@code filesDir}; it carries the same kind of endpoint/diagnostics data and is covered by the
+ * same app-wide backup exclusion rather than by a per-file rule.
  */
 public class KeepADBBackupPolicyContractTest {
     private static final Pattern SHARED_PREFS_NAME = Pattern.compile(
@@ -57,6 +61,13 @@ public class KeepADBBackupPolicyContractTest {
         assertEquals("keepadb_prefs", namedPrefsFile(prefs));
         assertEquals("keepadb_prefs", namedPrefsFile(usbProfile));
         assertEquals("keepadb_diagnostics", namedPrefsFile(diagnostics));
+    }
+
+    @Test
+    public void debugDiagnosticsJournalIsAppPrivateAndDocumented() throws IOException {
+        String journal = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBDiagnosticJournal.java");
+        assertTrue(journal.contains("getFilesDir()"));
+        assertEquals("keepadb_diagnostics_journal.log", KeepADBDiagnosticJournal.FILE_NAME);
     }
 
     private static String namedPrefsFile(String source) {

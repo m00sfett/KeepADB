@@ -17,11 +17,36 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.39` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.40` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.40] - Unreleased
+
+### Added
+- Debug builds only: the diagnostics export now covers at least the last 48 hours (50-hour
+  retention, bounded to 4000 entries / 200,000 characters so it still fits one share intent). A
+  new `KeepADBDiagnosticJournal` keeps all diagnostics events plus a per-minute
+  `state_snapshot` from the existing 60s service heartbeat: the default network's transport
+  (`wifi`, `cellular`, `vpn`, …, or `none`/`unknown`), KeepADB's own Wi-Fi eligibility, the
+  Tailscale status (`active`/`inactive`/`not_installed`/`unknown`), Wireless Debugging,
+  Keep-Alive, the endpoint shown in the notification and, separately, whether that endpoint is
+  currently `confirmed` reachable, `stale`, `unverified` or `none`. A changed snapshot names the
+  changed fields (e.g. `changed=tailscale`), so Tailscale and mobile/Wi-Fi transitions are
+  timestamped to the minute. Unchanged consecutive samples are counted into one entry
+  (`samples=N lastSampleAt=…`); a sampling gap always starts a new entry. The snapshot only
+  reads state and changes no Keep-Alive, recovery, endpoint or Tailscale setting (#566).
+
+### Changed
+- Debug builds only: diagnostics are persisted at most once per hour (atomic file in the app's
+  private files directory, budget measured against the file's last write so process restarts do
+  not reset it). Events recorded after the last write are lost if the process is killed — an
+  accepted trade-off decided on #566. Repeated identical heartbeat events are now counted into
+  one journal entry instead of one export line per tick; logcat still receives every tick. The
+  feedback-report draft keeps a compact excerpt of the newest 128 entries. Release builds are
+  unchanged: same `KeepADB diagnostics v1` ring buffer, no snapshots, no journal file (#566).
 
 ## [1.8.39] - Unreleased
 

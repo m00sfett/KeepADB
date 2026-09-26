@@ -24,7 +24,8 @@ final class KeepADBBuildFlags {
 
     static boolean isDebugBuild(Context context) {
         if (debugBuildOverrideForTesting != null) return debugBuildOverrideForTesting;
-        return context != null && context.getPackageName().endsWith(".debug");
+        String packageName = context != null ? context.getPackageName() : null;
+        return packageName != null && packageName.endsWith(".debug");
     }
 
     static void setOverrideForTesting(Boolean debugBuild) {

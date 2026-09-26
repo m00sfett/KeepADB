@@ -247,6 +247,8 @@ public class KeepADBService extends Service {
     private void heartbeatNow() {
         KeepADBPreferences.setServiceLastHeartbeatNow(this);
         if (!foregroundReady) return;
+        // #566: read-only, debug-build-only minute snapshot; a no-op in release builds.
+        KeepADBDiagnostics.snapshot(this);
         if (KeepADB.isEnabled(this)) {
             KeepADBNotification.verifyEndpointHealth(this);
             return;
