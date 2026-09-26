@@ -55,7 +55,7 @@ final class KeepADBIssueReporter {
 
     static String buildDiagnosticsSection(Context context) {
         return context.getString(R.string.issue_report_diagnostics_section) + "\n\n"
-                + redactDiagnostics(KeepADBDiagnostics.export(context));
+                + redactDiagnostics(KeepADBDiagnostics.exportForIssueReport(context));
     }
 
     static String redactDiagnostics(String diagnostics) {

@@ -1,9 +1,11 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -19,8 +21,12 @@ import org.robolectric.annotation.Config;
  * actual state change (e.g. "waiting for network" -> "recheck due"); a debug build keeps every
  * tick. Unit tests here always execute under the debug variant's applicationId (see
  * {@code SettingsActivity.isDebugBuild()}), so {@code getPackageName()} alone cannot exercise
- * the release path -- this test therefore drives the package-private {@code storeEveryTick}
- * overload directly instead of relying on the package-name derivation.
+ * the release path -- this test therefore drives the package-private {@code debugBuild}
+ * overload directly and forces the export's variant through {@link KeepADBBuildFlags}.
+ *
+ * <p>#566: a debug build no longer stores every tick as its own ring-buffer line; it counts
+ * every tick into the 48h {@link KeepADBDiagnosticJournal} instead, see
+ * {@link #debugBuildCountsEveryHeartbeatTickInTheJournal()}.
  *
  * <p>Review repair on top of the first version of this fix: coalescing must be keyed
  * independently per call site ({@code slot}), because a single shared "last signature" compared
@@ -35,8 +41,15 @@ public class KeepADBHeartbeatDiagnosticsThrottleTest {
 
     private final Context context = RuntimeEnvironment.getApplication();
 
+    @After
+    public void resetBuildFlagsAndJournal() {
+        KeepADBBuildFlags.setOverrideForTesting(null);
+        KeepADBDiagnosticJournal.resetForTesting();
+    }
+
     @Test
     public void releaseBuildCoalescesRepeatedIdenticalHeartbeatTicksButKeepsStateChanges() {
+        KeepADBBuildFlags.setOverrideForTesting(false);
         String marker = "marker-" + System.nanoTime();
         String slot = "single-slot-" + marker;
         KeepADBDiagnostics.heartbeatEvent(context, slot, "keep_alive_check", "service", "waiting",
@@ -58,6 +71,7 @@ public class KeepADBHeartbeatDiagnosticsThrottleTest {
 
     @Test
     public void twoCallsPerTickPatternStillCoalescesOnRelease() {
+        KeepADBBuildFlags.setOverrideForTesting(false);
         // Reproduces KeepADBService.recheckAndEnable(): every tick fires a "started" preamble
         // on one slot, then exactly one mutually exclusive result outcome on a second slot.
         String marker = "marker-" + System.nanoTime();
@@ -90,19 +104,30 @@ public class KeepADBHeartbeatDiagnosticsThrottleTest {
     }
 
     @Test
-    public void debugBuildStoresEveryHeartbeatTickEvenWhenUnchanged() {
+    public void debugBuildCountsEveryHeartbeatTickInTheJournal() {
+        KeepADBBuildFlags.setOverrideForTesting(true);
         String marker = "marker-" + System.nanoTime();
         String slot = "debug-slot-" + marker;
-        KeepADBDiagnostics.heartbeatEvent(context, slot, "keep_alive_check", "service", "waiting",
-                "reason=waiting_for_network " + marker, true);
-        int afterFirst = countStoredEvents();
-
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             KeepADBDiagnostics.heartbeatEvent(context, slot, "keep_alive_check", "service", "waiting",
                     "reason=waiting_for_network " + marker, true);
         }
-        assertEquals("a debug build must keep every unchanged heartbeat tick",
-                afterFirst + 3, countStoredEvents());
+        String export = KeepADBDiagnostics.export(context);
+        assertTrue(export.startsWith(KeepADBDiagnosticJournal.EXPORT_HEADER));
+        assertEquals("unchanged consecutive debug ticks form one journal entry",
+                1, countLinesContaining(export, marker));
+        assertTrue("every debug tick must still be counted", export.contains("samples=4"));
+
+        KeepADBDiagnostics.heartbeatEvent(context, slot, "keep_alive_check", "service", "due",
+                "reason=recheck_due " + marker, true);
+        assertEquals("a changed debug outcome must start a new entry",
+                2, countLinesContaining(KeepADBDiagnostics.export(context), marker));
+    }
+
+    private static int countLinesContaining(String export, String marker) {
+        int count = 0;
+        for (String line : export.split("\n")) if (line.contains(marker)) count++;
+        return count;
     }
 
     private int countStoredEvents() {

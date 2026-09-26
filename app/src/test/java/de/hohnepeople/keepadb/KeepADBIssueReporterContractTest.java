@@ -22,7 +22,7 @@ public class KeepADBIssueReporterContractTest {
         assertTrue(reporter.contains("https://hohnepeople.de/keepadb/feedback"));
         assertFalse(reporter.contains("github.com"));
         assertFalse(reporter.contains("issues/new"));
-        assertTrue(reporter.contains("KeepADBDiagnostics.export(context)"));
+        assertTrue(reporter.contains("KeepADBDiagnostics.exportForIssueReport(context)"));
         assertTrue(activity.contains("KeepADBIssueReporter.FEEDBACK_URL"));
         assertFalse(activity.contains("github.com"));
         assertFalse(activity.contains("issues/new"));

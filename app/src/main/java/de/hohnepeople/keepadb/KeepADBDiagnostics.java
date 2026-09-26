@@ -2,6 +2,9 @@ package de.hohnepeople.keepadb;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.os.Build;
 import android.os.Process;
 import android.os.SystemClock;
@@ -42,6 +45,17 @@ final class KeepADBDiagnostics {
                 Process.myPid(), name, source, outcome, detail);
         Log.i(TAG, line);
         if (context == null) return;
+        KeepADBDiagnosticJournal journal = debugJournal(context);
+        if (journal != null) {
+            // #566: debug builds keep a 48h journal persisted at most hourly instead of writing
+            // every event straight into the bounded release ring buffer below.
+            journal.record(line);
+            return;
+        }
+        storeInRingBuffer(context, line);
+    }
+
+    private static void storeInRingBuffer(Context context, String line) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         synchronized (KeepADBDiagnostics.class) {
             List<String> events = readEvents(prefs);
@@ -56,12 +70,15 @@ final class KeepADBDiagnostics {
      * outcome/detail signature actually changed since the previous heartbeat tick -- an
      * unchanged tick still reaches logcat (unbounded, not the scarce resource here) but is kept
      * out of the export so the export's historical coverage is not dominated by identical
-     * "still waiting"/"still blocked" repeats. A debug build keeps every tick, matching the
-     * existing debug-vs-release distinction in {@code SettingsActivity.isDebugBuild()}: the
-     * Keep-Alive/recovery logic itself never differs, only diagnostic verbosity does. A changed
-     * signature -- including any transition between the "waiting for network" / "retry
-     * deferred" / "recheck due" outcomes this guards -- is always stored, so state changes stay
-     * fully reconstructable.
+     * "still waiting"/"still blocked" repeats. A changed signature -- including any transition
+     * between the "waiting for network" / "retry deferred" / "recheck due" outcomes this guards
+     * -- is always stored, so state changes stay fully reconstructable.
+     *
+     * <p>#566: a debug build instead counts every tick in the 48h {@link KeepADBDiagnosticJournal},
+     * where unchanged consecutive ticks become one entry with a sample count, so the
+     * per-tick history stays complete without every tick costing its own export line. The
+     * Keep-Alive/recovery logic itself never differs between variants, only diagnostic
+     * verbosity does.
      *
      * <p>{@code slot} keys the "last signature seen" independently per call site. One heartbeat
      * tick of {@code recheckAndEnable()} fires two calls with the same event name but different
@@ -73,36 +90,191 @@ final class KeepADBDiagnostics {
      */
     static void heartbeatEvent(Context context, String slot, String name, String source,
             String outcome, String detail) {
-        boolean debugBuild = context != null && context.getPackageName().endsWith(".debug");
-        heartbeatEvent(context, slot, name, source, outcome, detail, debugBuild);
+        heartbeatEvent(context, slot, name, source, outcome, detail,
+                KeepADBBuildFlags.isDebugBuild(context));
     }
 
     /**
-     * Package-private overload with an explicit {@code storeEveryTick} flag so the coalescing
-     * decision itself is unit-testable without depending on which build variant a unit test
-     * happens to run under (unit tests here always execute against the debug variant's
-     * applicationId, so {@code getPackageName()} alone cannot exercise the release path).
+     * Package-private overload with an explicit {@code debugBuild} flag so both variants' paths
+     * are unit-testable regardless of which applicationId a unit test happens to run under.
      */
     static void heartbeatEvent(Context context, String slot, String name, String source,
-            String outcome, String detail, boolean storeEveryTick) {
+            String outcome, String detail, boolean debugBuild) {
         String signature = name + '\u0001' + outcome + '\u0001' + detail;
-        boolean stateChanged = !signature.equals(lastHeartbeatSignatureBySlot.put(slot, signature));
-        if (storeEveryTick || stateChanged) {
-            event(context, name, source, outcome, detail);
-        } else {
-            Log.i(TAG, formatEvent(System.currentTimeMillis(), SystemClock.elapsedRealtime(),
-                    Process.myPid(), name, source, outcome, detail));
+        String line = formatEvent(System.currentTimeMillis(), SystemClock.elapsedRealtime(),
+                Process.myPid(), name, source, outcome, detail);
+        Log.i(TAG, line);
+        if (context == null) return;
+        KeepADBDiagnosticJournal journal = debugBuild ? journalFor(context) : null;
+        if (journal != null) {
+            journal.recordSample("heartbeat:" + slot, signature, line);
+            return;
         }
+        boolean stateChanged = !signature.equals(lastHeartbeatSignatureBySlot.put(slot, signature));
+        if (stateChanged) storeInRingBuffer(context, line);
     }
 
     static String export(Context context) {
         if (context == null) return EXPORT_HEADER;
+        KeepADBDiagnosticJournal journal = debugJournal(context);
+        if (journal != null) return journal.render();
         List<String> events;
         synchronized (KeepADBDiagnostics.class) {
             events = readEvents(
                     context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE));
         }
         return renderExport(events);
+    }
+
+    /**
+     * #566: compact variant for the issue-report draft, which embeds the export into an editable
+     * text field and a share intent: a debug build contributes only its newest {@link #MAX_EVENTS}
+     * journal entries (the same size as the release ring buffer), a release build is unchanged.
+     */
+    static String exportForIssueReport(Context context) {
+        KeepADBDiagnosticJournal journal = debugJournal(context);
+        if (journal == null) return export(context);
+        return renderExport(journal.renderEntries(MAX_EVENTS));
+    }
+
+    /** #566: a verified endpoint counts as currently confirmed for this long after its last probe. */
+    static final long ENDPOINT_CONFIRMED_WINDOW_MS = 150_000;
+
+    /**
+     * #566: debug-build-only per-minute state snapshot, fed by the service's 60s heartbeat. It
+     * only reads state and never changes Keep-Alive, recovery, endpoint or Tailscale settings.
+     * Unchanged consecutive minutes are counted into one journal entry; any field change starts a
+     * new, timestamped entry naming the changed fields.
+     */
+    static void snapshot(Context context) {
+        KeepADBDiagnosticJournal journal = debugJournal(context);
+        if (journal == null) return;
+        try {
+            recordSnapshot(context, journal);
+        } catch (RuntimeException e) {
+            // A diagnostics read must never break the heartbeat that called it.
+            Log.w(TAG, "State snapshot failed", e);
+        }
+    }
+
+    private static void recordSnapshot(Context context, KeepADBDiagnosticJournal journal) {
+        String state = snapshotState(describeActiveNetwork(context),
+                KeepADBService.isWifiConnected(context),
+                KeepADBTailscaleStatus.detect(context),
+                KeepADB.isEnabled(context),
+                KeepADBPreferences.isKeepAliveEnabled(context),
+                KeepADBNotification.getCurrentHost(), KeepADBNotification.getCurrentPort(),
+                KeepADBNotification.getCurrentEndpointVerifiedAtMs(), System.currentTimeMillis());
+        String changed = changedFields(lastSnapshotState, state);
+        lastSnapshotState = state;
+        String line = formatEvent(System.currentTimeMillis(), SystemClock.elapsedRealtime(),
+                Process.myPid(), "state_snapshot", "heartbeat", "sampled",
+                state + " changed=" + changed);
+        Log.i(TAG, line);
+        journal.recordSample("state_snapshot", state, line);
+    }
+
+    private static volatile String lastSnapshotState;
+
+    static String snapshotState(String network, boolean wifiEligible,
+            KeepADBTailscaleStatus.Status tailscale, boolean adbWifi, boolean keepAlive,
+            String shownHost, int shownPort, long verifiedAtMs, long nowMs) {
+        boolean shown = shownHost != null && shownPort > 0;
+        String reachability;
+        if (!shown) {
+            reachability = "none";
+        } else if (verifiedAtMs <= 0) {
+            reachability = "unverified";
+        } else if (nowMs - verifiedAtMs <= ENDPOINT_CONFIRMED_WINDOW_MS && nowMs >= verifiedAtMs) {
+            reachability = "confirmed";
+        } else {
+            reachability = "stale";
+        }
+        return "net=" + network
+                + " wifiEligible=" + wifiEligible
+                + " tailscale=" + (tailscale == null ? "unknown" : tailscale.name().toLowerCase(Locale.ROOT))
+                + " adbWifi=" + (adbWifi ? "on" : "off")
+                + " keepAlive=" + (keepAlive ? "on" : "off")
+                + " shownEndpoint=" + (shown ? "host=" + shownHost + " port=" + shownPort : "none")
+                + " endpointReachability=" + reachability;
+    }
+
+    /** Names of the space-separated {@code key=value} fields that differ, or {@code initial}. */
+    static String changedFields(String previous, String current) {
+        if (previous == null) return "initial";
+        Map<String, String> before = parseFields(previous);
+        Map<String, String> after = parseFields(current);
+        StringBuilder result = new StringBuilder();
+        for (Map.Entry<String, String> field : after.entrySet()) {
+            if (!field.getValue().equals(before.get(field.getKey()))) {
+                if (result.length() > 0) result.append(',');
+                result.append(field.getKey());
+            }
+        }
+        return result.length() == 0 ? "none" : result.toString();
+    }
+
+    private static Map<String, String> parseFields(String state) {
+        Map<String, String> fields = new java.util.LinkedHashMap<>();
+        for (String token : state.split(" ")) {
+            int separator = token.indexOf('=');
+            if (separator > 0) fields.put(token.substring(0, separator), token.substring(separator + 1));
+        }
+        return fields;
+    }
+
+    /**
+     * The transports of Android's current default network ({@code wifi}, {@code cellular},
+     * {@code vpn}, ...), {@code none} without a default network, or {@code unknown} when the
+     * platform read itself fails -- never a guess.
+     */
+    static String describeActiveNetwork(Context context) {
+        try {
+            ConnectivityManager manager = context.getSystemService(ConnectivityManager.class);
+            if (manager == null) return "unknown";
+            Network network = manager.getActiveNetwork();
+            if (network == null) return "none";
+            NetworkCapabilities capabilities = manager.getNetworkCapabilities(network);
+            if (capabilities == null) return "unknown";
+            return describeTransports(capabilities);
+        } catch (RuntimeException e) {
+            return "unknown";
+        }
+    }
+
+    static String describeTransports(NetworkCapabilities capabilities) {
+        StringBuilder result = new StringBuilder();
+        int[] transports = {NetworkCapabilities.TRANSPORT_WIFI, NetworkCapabilities.TRANSPORT_CELLULAR,
+                NetworkCapabilities.TRANSPORT_ETHERNET, NetworkCapabilities.TRANSPORT_VPN,
+                NetworkCapabilities.TRANSPORT_BLUETOOTH, NetworkCapabilities.TRANSPORT_USB};
+        String[] names = {"wifi", "cellular", "ethernet", "vpn", "bluetooth", "usb"};
+        for (int i = 0; i < transports.length; i++) {
+            if (capabilities.hasTransport(transports[i])) {
+                if (result.length() > 0) result.append('+');
+                result.append(names[i]);
+            }
+        }
+        if (result.length() == 0) return "unknown";
+        if (!capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+            result.append("(unvalidated)");
+        }
+        return result.toString();
+    }
+
+    /** #566: the debug journal, or {@code null} in a release build or without app storage. */
+    private static KeepADBDiagnosticJournal debugJournal(Context context) {
+        return context != null && KeepADBBuildFlags.isDebugBuild(context) ? journalFor(context) : null;
+    }
+
+    private static KeepADBDiagnosticJournal journalFor(Context context) {
+        if (context == null) return null;
+        try {
+            return KeepADBDiagnosticJournal.get(context);
+        } catch (RuntimeException e) {
+            // Diagnostics must never break the calling Keep-Alive/recovery path.
+            Log.w(TAG, "Debug diagnostics journal unavailable", e);
+            return null;
+        }
     }
 
     static String renderExport(List<String> events) {
