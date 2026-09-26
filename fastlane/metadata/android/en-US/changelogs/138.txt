@@ -1,0 +1,1 @@
+• Internal fixes to the debug-only diagnostics journal (background write, export size budget); the regular app behaves exactly as before.
