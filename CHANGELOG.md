@@ -23,6 +23,16 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.8.41] - Unreleased
+
+### Fixed
+- Debug builds only: the diagnostics journal's hourly disk write (`AtomicFile`, at most once per
+  hour) ran synchronously on the caller, including the 60s main-thread service heartbeat, which
+  could block a UI frame while writing. The write now runs on a single background thread; the
+  hourly budget decision and the entries snapshot still happen synchronously under the journal's
+  lock, so persisted content and timing are unchanged. No user-visible behavior change; release
+  builds never create this journal (#568).
+
 ## [1.8.40] - Unreleased
 
 ### Added
