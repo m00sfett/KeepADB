@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.Log;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -37,6 +38,7 @@ final class KeepADBRegisterClient {
     };
     static final long MARK_UNAVAILABLE_MAX_BACKOFF_MS = 5L * 60L * 1000L;
     private static volatile Long pendingCleanupNowForTesting;
+    private static volatile Long markUnavailableNowForTesting;
     private static Handler mainHandler;
 
     private static synchronized Handler mainHandler() {
@@ -81,6 +83,31 @@ final class KeepADBRegisterClient {
     /** #562: consecutive markUnavailableAsync DELETE failures, and when the next retry may run. */
     private static volatile int markUnavailableRetryAttempts = 0;
     private static volatile long markUnavailableNextAttemptAt = 0L;
+    /**
+     * #576 part C: the opGen of the markUnavailableAsync-dispatched DELETE that is currently
+     * queued or running, or {@code 0} when none is. Repeated calls (toggle path, lifecycle
+     * observer, service_sync all reacting to the same disconnect within milliseconds) coalesce
+     * into the one already outstanding instead of each dispatching their own transaction --
+     * device log in the issue showed two successful DELETEs 13-14ms apart for a single manual
+     * toggle.
+     *
+     * <p>Deliberately an opGen, not a plain flag: coalescing must only apply while nothing newer
+     * has been dispatched since this DELETE was queued. A newer registration
+     * ({@link #updateEndpointAsync}) or a genuinely new disconnect bumps
+     * {@link #currentOpGeneration}, which breaks the equality check in
+     * {@link #markUnavailableAsync} even though this field has not changed yet -- so that later
+     * call is never swallowed just because an older, now-superseded DELETE for a different state
+     * happens to still be queued or running.
+     *
+     * <p>Cleared in a {@code finally} around the dispatched task itself (see
+     * {@link #markUnavailableAsync}), and only if it still points at that task's own opGen -- a
+     * newer markUnavailableAsync call may already have overwritten it with its own opGen by the
+     * time this task's finally runs, and that newer task's own finally is then responsible for
+     * clearing it. Not touched by {@link #performDeleteTransaction} directly -- that method is
+     * shared with {@link #unregisterAndDisableAsync}, which never sets this field and must not be
+     * affected by it.
+     */
+    private static volatile long markUnavailableInFlightOpGen = 0L;
     private KeepADBRegisterClient() {}
 
     static synchronized void ensureStateInitializedLocked(Context context) {
@@ -129,6 +156,16 @@ final class KeepADBRegisterClient {
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
             ensureStateInitializedLocked(appContext);
+            // #576 part C: a DELETE for this exact registered state is already queued or running
+            // -- coalesce instead of dispatching another one. Comparing against
+            // currentOpGeneration (not a plain flag) means a newer registration or disconnect
+            // dispatched in the meantime breaks the equality, so that call is never swallowed.
+            // See the field doc on markUnavailableInFlightOpGen for why the flag lives here
+            // rather than in performDeleteTransaction.
+            if (markUnavailableInFlightOpGen != 0L
+                    && markUnavailableInFlightOpGen == currentOpGeneration) {
+                return;
+            }
             boolean wasInFlight = wlanUpdateInFlight;
             boolean hadPrior = (lastRegisteredEndpoint != null || lastRegisteredUrl != null);
             if (!wasInFlight && !hadPrior) {
@@ -138,17 +175,33 @@ final class KeepADBRegisterClient {
             // first request for a given unavailability is always immediate, matching the
             // approved staffing ("sofortiger Erstversuch"). This keeps rapid-fire refreshes and
             // network callbacks from re-issuing the DELETE on every call.
-            long now = pendingCleanupNow();
+            // #576 part B: monotonic clock -- this gate is in-memory only (never persisted), so a
+            // wall-clock jump (NTP correction, manual change) must not stall it indefinitely. See
+            // markUnavailableNow() for why this is a different clock than pendingCleanupNow().
+            long now = markUnavailableNow();
             if (markUnavailableRetryAttempts > 0 && now < markUnavailableNextAttemptAt) {
                 return;
             }
             wlanUpdateInFlight = false;
             opGen = ++currentOpGeneration;
+            markUnavailableInFlightOpGen = opGen;
         }
 
         EXECUTOR.execute(() -> {
-            if (opGen != currentOpGeneration) return;
-            performDeleteTransaction(appContext, targetUrl, opGen);
+            try {
+                if (opGen != currentOpGeneration) return;
+                performDeleteTransaction(appContext, targetUrl, opGen);
+            } finally {
+                // #576 part C: only release the coalescing gate if it still points at this exact
+                // dispatch -- a newer markUnavailableAsync call may already have overwritten it
+                // with its own opGen (see the field doc), and that call's own finally is then
+                // responsible for clearing it instead.
+                synchronized (KeepADBRegisterClient.class) {
+                    if (markUnavailableInFlightOpGen == opGen) {
+                        markUnavailableInFlightOpGen = 0L;
+                    }
+                }
+            }
         });
     }
 
@@ -251,9 +304,34 @@ final class KeepADBRegisterClient {
         }
     }
 
+    /**
+     * #576 (NET-02 / part B): wall-clock time for the *persisted* pending-cleanup queue (#317).
+     * Deliberately kept on {@link System#currentTimeMillis()} rather than switched to a monotonic
+     * clock: {@code nextAttemptAt}/{@code expiresAt} are written to SharedPreferences and must
+     * survive an app or device restart, but {@link SystemClock#elapsedRealtime()} resets to
+     * (near) zero on every reboot. Switching this gate to elapsedRealtime would make a stored 24h
+     * expiry (or backoff) effectively unreachable after a reboot until uptime climbs back up to
+     * the old absolute value -- a far worse regression than the wall-clock-jump risk this gate
+     * already accepts. See {@link #markUnavailableNow()} for the in-memory-only #562 gate, which
+     * has no such persistence and does get the monotonic clock.
+     */
     private static long pendingCleanupNow() {
         Long testNow = pendingCleanupNowForTesting;
         return testNow != null ? testNow : System.currentTimeMillis();
+    }
+
+    /**
+     * #576 (NET-02 / part B): monotonic clock for the *in-memory-only* #562 retry gate
+     * ({@link #markUnavailableNextAttemptAt}). This state is never persisted -- it resets to zero
+     * whenever the process restarts anyway (see {@link #resetForTesting()} and the field's
+     * default) -- so {@link SystemClock#elapsedRealtime()} resetting on reboot is harmless here,
+     * while it protects the gate from a wall-clock jump (NTP correction, manual change) that could
+     * otherwise lock it for an arbitrary duration, exactly as #309 already argued for
+     * {@code KeepADBEndpoint}'s cooldown.
+     */
+    private static long markUnavailableNow() {
+        Long testNow = markUnavailableNowForTesting;
+        return testNow != null ? testNow : SystemClock.elapsedRealtime();
     }
 
     private static long pendingCleanupBackoffMs(int attempts) {
@@ -351,10 +429,27 @@ final class KeepADBRegisterClient {
         // If URL changed and an old URL was registered, DELETE from old URL first
         String unfinishedCleanupUrl = null;
         if (oldUrl != null && !oldUrl.equals(targetUrl) && oldEndpoint != null) {
-            // Keep the previous successful report until the replacement POST succeeds. If the
-            // new target fails, the UI must still show the last endpoint that was actually
-            // reported successfully rather than losing it during this transition.
-            if (!deleteEndpoint(oldUrl)) {
+            if (deleteEndpoint(oldUrl)) {
+                // #576 (NET-01): record that the old resource is now confirmed gone from the
+                // server unconditionally, even if this transaction turns out to be superseded by
+                // the opGen check below. The register EXECUTOR is single-threaded, so no other
+                // transaction can be running -- or have touched this field -- while this one is
+                // between its DELETE and here; a later transaction is still queued and cannot
+                // start until this method returns (same invariant awaitIdleForTesting relies on).
+                // Without this, a superseded migration leaves lastRegisteredUrl pointing at the
+                // already-deleted old resource, and the next transaction re-issues the exact same
+                // DELETE against it (device observation in #576 part C: duplicate successful
+                // DELETEs milliseconds apart for one event).
+                synchronized (KeepADBRegisterClient.class) {
+                    if (oldUrl.equals(lastRegisteredUrl)) {
+                        lastRegisteredUrl = null;
+                        lastRegisteredEndpoint = null;
+                    }
+                }
+            } else {
+                // Keep the previous successful report until the replacement POST succeeds. If the
+                // new target fails, the UI must still show the last endpoint that was actually
+                // reported successfully rather than losing it during this transition.
                 Log.w(TAG, "Failed to deregister from old URL " + sanitizeUrl(oldUrl)
                         + " during URL change; keeping the cleanup for a later retry");
                 unfinishedCleanupUrl = oldUrl;
@@ -433,12 +528,20 @@ final class KeepADBRegisterClient {
 
         boolean cleanupCompleted = deleteEndpoint(urlToDelete);
         if (cleanupCompleted) {
+            // #576 (NET-01 sibling): same reasoning as performUpdateTransaction -- record the
+            // confirmed deletion unconditionally so a transaction superseded between this DELETE
+            // and the opGen check below does not leave lastRegisteredUrl pointing at an
+            // already-deleted resource for the next transaction to redundantly delete again.
+            synchronized (KeepADBRegisterClient.class) {
+                if (urlToDelete.equals(lastRegisteredUrl)) {
+                    lastRegisteredUrl = null;
+                    lastRegisteredEndpoint = null;
+                }
+            }
             removePendingCleanupsForResource(context, urlToDelete);
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
                     wlanUpdateInFlight = false;
-                    lastRegisteredUrl = null;
-                    lastRegisteredEndpoint = null;
                     resetMarkUnavailableRetryLocked();
                     KeepADBPreferences.setWebhookReportSnapshot(context, null, null,
                             KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED, true);
@@ -467,7 +570,7 @@ final class KeepADBRegisterClient {
     /** #562: caller must hold the class monitor. */
     private static void recordMarkUnavailableRetryFailureLocked() {
         markUnavailableRetryAttempts++;
-        markUnavailableNextAttemptAt = saturatingAdd(pendingCleanupNow(),
+        markUnavailableNextAttemptAt = saturatingAdd(markUnavailableNow(),
                 markUnavailableBackoffMs(markUnavailableRetryAttempts));
     }
 
@@ -533,8 +636,10 @@ final class KeepADBRegisterClient {
         wlanUpdateInFlight = false;
         markUnavailableRetryAttempts = 0;
         markUnavailableNextAttemptAt = 0L;
+        markUnavailableInFlightOpGen = 0L;
         registerStateListener = null;
         pendingCleanupNowForTesting = null;
+        markUnavailableNowForTesting = null;
         resetHttpTransport();
         mainHandler = null;
     }
@@ -561,12 +666,28 @@ final class KeepADBRegisterClient {
         }
     }
 
+    /**
+     * #576: bumps {@link #currentOpGeneration} without dispatching any transaction, so a test can
+     * model "some other, already-confirmed operation superseded this one" at an exact point (e.g.
+     * from inside a fake transport callback while a delete/post is in flight) without that other
+     * operation's own executor task running and overwriting the state the test wants to observe --
+     * the single-threaded EXECUTOR would otherwise never let a second real transaction complete
+     * before the first one returns.
+     */
+    static synchronized void bumpOpGenerationForTesting() {
+        ++currentOpGeneration;
+    }
+
     static void flushPendingCleanupsForTesting(Context context) {
         flushPendingCleanups(context);
     }
 
     static void setPendingCleanupNowForTesting(long now) {
         pendingCleanupNowForTesting = now;
+    }
+
+    static void setMarkUnavailableNowForTesting(long now) {
+        markUnavailableNowForTesting = now;
     }
 
     static void setWlanStateForTesting(String url, String endpoint) {

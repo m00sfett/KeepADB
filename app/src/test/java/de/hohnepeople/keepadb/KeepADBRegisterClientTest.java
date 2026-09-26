@@ -441,8 +441,9 @@ public class KeepADBRegisterClientTest {
     /**
      * #562: the coordinated retry staffing agreed in the issue -- immediate first attempt, then
      * 5s/10s/15s/30s/1min/3min after each consecutive failure, settling into a 5min ceiling. Uses
-     * the injectable {@code pendingCleanupNowForTesting} clock (shared with the existing #317
-     * pending-cleanup backoff) instead of real sleeps, so the whole progression runs instantly.
+     * the injectable {@code markUnavailableNowForTesting} clock (#576 part B: this in-memory gate
+     * has its own monotonic seam, separate from the persisted #317 pending-cleanup backoff's
+     * wall-clock seam) instead of real sleeps, so the whole progression runs instantly.
      */
     @Test
     public void testMarkUnavailableAsyncRetryFollowsApprovedBackoffStaffing() throws Exception {
@@ -457,7 +458,9 @@ public class KeepADBRegisterClientTest {
         KeepADBRegisterClient.setHttpTransport(transport);
 
         long t0 = 1_000_000_000L;
-        KeepADBRegisterClient.setPendingCleanupNowForTesting(t0);
+        // #576 part B: this in-memory-only #562 gate now uses its own monotonic clock seam,
+        // separate from the persisted pending-cleanup queue's wall-clock seam.
+        KeepADBRegisterClient.setMarkUnavailableNowForTesting(t0);
 
         // First attempt for a newly-unavailable endpoint is immediate, regardless of backoff.
         KeepADBRegisterClient.markUnavailableAsync(context);
@@ -473,20 +476,20 @@ public class KeepADBRegisterClientTest {
         for (int i = 0; i < expectedBackoffsMs.length; i++) {
             // Repeated calls inside the current backoff window must not re-issue the DELETE --
             // this is exactly the request storm #562 reports (51 failures, mostly ~60s apart).
-            KeepADBRegisterClient.setPendingCleanupNowForTesting(now);
+            KeepADBRegisterClient.setMarkUnavailableNowForTesting(now);
             KeepADBRegisterClient.markUnavailableAsync(context);
             KeepADBRegisterClient.awaitIdleForTesting(3000);
             assertEquals("no retry before backoff #" + i + " elapses",
                     expectedRequestCount, transport.getRequestCount());
 
-            KeepADBRegisterClient.setPendingCleanupNowForTesting(now + expectedBackoffsMs[i] - 1);
+            KeepADBRegisterClient.setMarkUnavailableNowForTesting(now + expectedBackoffsMs[i] - 1);
             KeepADBRegisterClient.markUnavailableAsync(context);
             KeepADBRegisterClient.awaitIdleForTesting(3000);
             assertEquals("no retry 1ms before backoff #" + i + " elapses",
                     expectedRequestCount, transport.getRequestCount());
 
             now = now + expectedBackoffsMs[i];
-            KeepADBRegisterClient.setPendingCleanupNowForTesting(now);
+            KeepADBRegisterClient.setMarkUnavailableNowForTesting(now);
             KeepADBRegisterClient.markUnavailableAsync(context);
             KeepADBRegisterClient.awaitIdleForTesting(3000);
             expectedRequestCount++;
@@ -504,7 +507,7 @@ public class KeepADBRegisterClientTest {
         // One more failure beyond the table: settles into the flat 5min ceiling, not a further
         // escalation and not an unbounded/age-based cutoff.
         now = now + 300_000L;
-        KeepADBRegisterClient.setPendingCleanupNowForTesting(now);
+        KeepADBRegisterClient.setMarkUnavailableNowForTesting(now);
         KeepADBRegisterClient.markUnavailableAsync(context);
         KeepADBRegisterClient.awaitIdleForTesting(3000);
         expectedRequestCount++;
@@ -530,7 +533,7 @@ public class KeepADBRegisterClientTest {
         KeepADBRegisterClient.setHttpTransport(transport);
 
         long t0 = 2_000_000_000L;
-        KeepADBRegisterClient.setPendingCleanupNowForTesting(t0);
+        KeepADBRegisterClient.setMarkUnavailableNowForTesting(t0);
         KeepADBRegisterClient.markUnavailableAsync(context);
         KeepADBRegisterClient.awaitIdleForTesting(3000);
         assertEquals(1, transport.getRequestCount());
@@ -539,7 +542,7 @@ public class KeepADBRegisterClientTest {
         // The next attempt (once its backoff has elapsed) succeeds.
         transport.setDeleteSuccess(true);
         long t1 = t0 + 5_000L;
-        KeepADBRegisterClient.setPendingCleanupNowForTesting(t1);
+        KeepADBRegisterClient.setMarkUnavailableNowForTesting(t1);
         KeepADBRegisterClient.markUnavailableAsync(context);
         KeepADBRegisterClient.awaitIdleForTesting(3000);
         assertEquals(2, transport.getRequestCount());
@@ -575,7 +578,7 @@ public class KeepADBRegisterClientTest {
         KeepADBRegisterClient.setHttpTransport(transport);
 
         long t0 = 3_000_000_000L;
-        KeepADBRegisterClient.setPendingCleanupNowForTesting(t0);
+        KeepADBRegisterClient.setMarkUnavailableNowForTesting(t0);
         KeepADBRegisterClient.markUnavailableAsync(context);
         KeepADBRegisterClient.awaitIdleForTesting(3000);
         assertEquals(1, transport.getRequestCount());
@@ -766,6 +769,319 @@ public class KeepADBRegisterClientTest {
         String url = "http://127.0.0.1:" + testServerPort + "/register";
         boolean success = KeepADBRegisterClient.deleteEndpoint(url);
         assertFalse(success);
+    }
+
+    /**
+     * #576 (NET-01 / part A) main criterion: a migration whose old-URL DELETE succeeds but is
+     * then superseded by a second, overtaking migration (different webhook URL dispatched while
+     * the first DELETE is still in flight) must not leave the first migration's old URL looking
+     * "still registered" for the second migration to redundantly delete again -- the device log
+     * in the issue showed exactly this as two successful DELETEs 13-14ms apart for one event.
+     */
+    @Test
+    public void testOvertakingUpdatesWithDifferentUrlsRecordSingleDeleteOfOldUrl() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        String url1 = "http://register.example/register/dev1";
+        String url2 = "http://register.example/register/dev2";
+        String url3 = "http://register.example/register/dev3";
+
+        KeepADBPreferences.setRegisterWebhookUrl(context, url1);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        // Establish the initial confirmed registration at url1.
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        assertEquals(url1, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+
+        CountDownLatch deleteStarted = new CountDownLatch(1);
+        CountDownLatch canFinishDelete = new CountDownLatch(1);
+        transport.setRequestCallback(req -> {
+            if ("DELETE".equals(req.method) && url1.equals(req.url)) {
+                deleteStarted.countDown();
+                try {
+                    canFinishDelete.await(3, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+
+        // Migrate to url2: this dispatches the DELETE of url1 first, and blocks it in flight.
+        KeepADBPreferences.setRegisterWebhookUrl(context, url2);
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.11", 41001);
+        assertTrue(deleteStarted.await(3, TimeUnit.SECONDS));
+
+        // While that DELETE is still in flight, the webhook URL changes again and a second,
+        // overtaking migration is dispatched -- exactly the "two overtaking updateEndpointAsync
+        // calls with different webhook URLs" scenario from the issue.
+        KeepADBPreferences.setRegisterWebhookUrl(context, url3);
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.12", 41002);
+
+        canFinishDelete.countDown();
+
+        waitUntil(() -> url3.equals(KeepADBRegisterClient.getLastRegisteredUrlForTesting()), 3000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        long deleteCountForUrl1;
+        synchronized (transport.recordedRequests) {
+            deleteCountForUrl1 = transport.recordedRequests.stream()
+                    .filter(r -> "DELETE".equals(r.method) && url1.equals(r.url))
+                    .count();
+        }
+        assertEquals("a confirmed DELETE of the superseded old URL must be booked immediately, "
+                        + "so the next migration does not see it as still registered and "
+                        + "redundantly delete it again",
+                1, deleteCountForUrl1);
+        assertEquals("192.168.1.12:41002", KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+    }
+
+    /**
+     * Gegenprobe A: verifies the guard the NET-01 bookkeeping relies on
+     * ({@code oldUrl.equals(lastRegisteredUrl)} right before writing, not the value read at the
+     * start of the transaction) directly. Reaching this ordering through the public API alone is
+     * structurally impossible -- the single-threaded EXECUTOR never lets a second real
+     * transaction complete while this DELETE is still in flight, since any competing dispatch is
+     * simply queued behind it (see the "Gruen-Frage" writeup in the issue pass report for the
+     * full argument) -- so this drives the guard with the test-only opGen/state seams instead of
+     * a second real transaction.
+     */
+    @Test
+    public void testStaleDeleteConfirmationDoesNotOverwriteADifferentCurrentRegistration()
+            throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        String url1 = "http://register.example/register/dev1";
+        String url2 = "http://register.example/register/dev2";
+        String newerUrl = "http://register.example/register/newer";
+        String newerEndpoint = "192.168.9.9:9999";
+
+        KeepADBPreferences.setRegisterWebhookUrl(context, url1);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        assertEquals(url1, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+
+        transport.setRequestCallback(req -> {
+            if ("DELETE".equals(req.method) && url1.equals(req.url)) {
+                // Model "a different, already-confirmed registration took over while this DELETE
+                // was still in flight, and this migration is now superseded" directly: bump the
+                // opGen and install a different registered state without dispatching a second
+                // real transaction, since the single-threaded EXECUTOR structurally prevents one
+                // from ever completing before this DELETE returns.
+                KeepADBRegisterClient.bumpOpGenerationForTesting();
+                KeepADBRegisterClient.setWlanStateForTesting(newerUrl, newerEndpoint);
+            }
+        });
+
+        KeepADBPreferences.setRegisterWebhookUrl(context, url2);
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.11", 41001);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals("a confirmed deletion of a now-superseded URL must not clear a different, "
+                        + "already-registered resource",
+                newerUrl, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+        assertEquals(newerEndpoint, KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+    }
+
+    /**
+     * #576 (NET-02 / part B): the in-memory #562 retry gate must stay on the monotonic clock even
+     * when the wall clock jumps backward (NTP correction, manual change) -- otherwise the gate
+     * reads "no time has passed yet" and blocks the next attempt far longer than the real elapsed
+     * time justifies. Drives {@code pendingCleanupNowForTesting} (the wall-clock seam, shared with
+     * the persisted #317 queue) and {@code markUnavailableNowForTesting} (the monotonic seam)
+     * apart to prove the retry gate only reacts to the latter.
+     */
+    @Test
+    public void testMarkUnavailableRetryGateIgnoresBackwardWallClockJump() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        long t0 = 5_000_000_000L;
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(t0);
+        KeepADBRegisterClient.setMarkUnavailableNowForTesting(t0);
+
+        // First attempt: immediate, fails -- schedules the next attempt 5s later on the
+        // monotonic clock (backoff table's first entry).
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        assertEquals(1, transport.getRequestCount());
+        assertEquals(t0 + 5_000L, KeepADBRegisterClient.getMarkUnavailableNextAttemptAtForTesting());
+
+        // 5 real (monotonic) seconds actually pass...
+        KeepADBRegisterClient.setMarkUnavailableNowForTesting(t0 + 5_000L);
+        // ...but the wall clock jumps an hour into the past in the meantime (NTP correction). If
+        // the gate were still reading the wall clock, "now" would be far earlier than the
+        // scheduled nextAttemptAt and the retry would be blocked for another hour of app time.
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(t0 - 3_600_000L);
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals("the backward wall-clock jump must not extend the in-memory #562 gate",
+                2, transport.getRequestCount());
+    }
+
+    /**
+     * #576 part C main criterion: repeated markUnavailableAsync calls reacting to the same
+     * disconnect (toggle path, lifecycle observer, service_sync) within milliseconds of each
+     * other must coalesce into the single DELETE already queued or running, not each dispatch
+     * their own -- the device log in the issue showed two successful DELETEs 13-14ms apart for
+     * one manual toggle.
+     */
+    @Test
+    public void testRapidMarkUnavailableCallsCoalesceIntoOneRequest() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        String url = "http://register.example/register/dev1";
+        KeepADBPreferences.setRegisterWebhookUrl(context, url);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportedUrl(context, url);
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        KeepADBRegisterClient.setWlanStateForTesting(url, "192.168.1.50:41234");
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        CountDownLatch deleteStarted = new CountDownLatch(1);
+        CountDownLatch canFinishDelete = new CountDownLatch(1);
+        transport.setRequestCallback(req -> {
+            if ("DELETE".equals(req.method) && url.equals(req.url)) {
+                deleteStarted.countDown();
+                try {
+                    canFinishDelete.await(3, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        assertTrue(deleteStarted.await(3, TimeUnit.SECONDS));
+
+        // Two more calls arrive while the first DELETE is still in flight -- the exact request
+        // storm the #576 device observation describes.
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClient.markUnavailableAsync(context);
+
+        canFinishDelete.countDown();
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals(1, transport.getRequestCount());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+    }
+
+    /**
+     * Gegenprobe C: markUnavailableAsync must not be swallowed just because an older,
+     * already-superseded DELETE for a different state happens to still be in flight. Race: while
+     * the first disconnect's DELETE is still in flight, a new confirmed registration is
+     * dispatched, and immediately after it a second disconnect call arrives for that fresh
+     * registration -- all three ops queue up behind the first DELETE (single-threaded EXECUTOR).
+     * A coalescing flag that only tracks "is *a* markUnavailableAsync DELETE outstanding" (rather
+     * than "is it for the *current* registered state") would swallow that second disconnect,
+     * leaving the fresh registration recorded as live on the server even though the device
+     * actually disconnected again.
+     */
+    @Test
+    public void testMarkUnavailableAsyncForNewerRegistrationIsNotSwallowedByStaleInFlightDelete()
+            throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        String url = "http://register.example/register/dev1";
+        KeepADBPreferences.setRegisterWebhookUrl(context, url);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportedUrl(context, url);
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        KeepADBRegisterClient.setWlanStateForTesting(url, "192.168.1.50:41234");
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        CountDownLatch deleteStarted = new CountDownLatch(1);
+        CountDownLatch canFinishDelete = new CountDownLatch(1);
+        AtomicBoolean firstDeleteSeen = new AtomicBoolean(false);
+        transport.setRequestCallback(req -> {
+            if ("DELETE".equals(req.method) && firstDeleteSeen.compareAndSet(false, true)) {
+                deleteStarted.countDown();
+                try {
+                    canFinishDelete.await(3, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+
+        // First disconnect: dispatches the DELETE and blocks it in flight.
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        assertTrue(deleteStarted.await(3, TimeUnit.SECONDS));
+
+        // While that DELETE is still in flight, the device reconnects with a new endpoint (a
+        // genuinely new confirmed registration is queued behind the in-flight DELETE)...
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 55555);
+        // ...and immediately disconnects again. This second disconnect must still reach the
+        // server once the fresh registration is superseded -- not be swallowed just because the
+        // first, now-stale DELETE has not returned yet.
+        KeepADBRegisterClient.markUnavailableAsync(context);
+
+        canFinishDelete.countDown();
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals("the first stale DELETE plus a fresh one for the second disconnect",
+                2, transport.getRequestCount());
+        assertNull("the device disconnected again after the fresh registration -- nothing must "
+                        + "be left registered",
+                KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+    }
+
+    /**
+     * unregisterAndDisableAsync is the explicit "turn the feature off" path and must never be
+     * coalesced or delayed by the markUnavailableAsync-only in-flight tracking added for part C.
+     */
+    @Test
+    public void testUnregisterAndDisableAsyncIsNotAffectedByMarkUnavailableInFlightTracking()
+            throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        String url = "http://register.example/register/dev1";
+        KeepADBPreferences.setRegisterWebhookUrl(context, url);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportedUrl(context, url);
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        KeepADBRegisterClient.setWlanStateForTesting(url, "192.168.1.50:41234");
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        CountDownLatch deleteStarted = new CountDownLatch(1);
+        CountDownLatch canFinishDelete = new CountDownLatch(1);
+        transport.setRequestCallback(req -> {
+            if ("DELETE".equals(req.method) && deleteStarted.getCount() > 0) {
+                deleteStarted.countDown();
+                try {
+                    canFinishDelete.await(3, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        assertTrue(deleteStarted.await(3, TimeUnit.SECONDS));
+
+        // Called while a markUnavailableAsync DELETE is in flight for the same resource: this
+        // must still dispatch its own DELETE once it runs, not be coalesced away.
+        KeepADBRegisterClient.unregisterAndDisableAsync(context);
+
+        canFinishDelete.countDown();
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals(2, transport.getRequestCount());
+        assertNull(KeepADBRegisterClient.getLastRegisteredUrlForTesting());
     }
 
     private static void waitUntil(Callable<Boolean> condition, long timeoutMs) throws Exception {
