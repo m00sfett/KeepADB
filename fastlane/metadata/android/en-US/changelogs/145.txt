@@ -1,0 +1,1 @@
+• Privacy: the USB-ADB notification no longer shows your host profile name or IP on the lock screen; it stays visible only after you unlock.

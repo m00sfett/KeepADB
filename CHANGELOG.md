@@ -17,11 +17,26 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.47` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.48` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.48] - Unreleased
+
+### Security
+- The USB-ADB notification's `contentText` can name the selected host profile plus its IP/hostname
+  summary; on a lock screen configured to show private notification content (as the s20 tested
+  against #578/#586/#588 was), that was readable without unlocking. `KeepADBUsbNotification#build`
+  now sets a `publicVersion` -- title and text both reuse the already-neutral
+  `usb_notification_title` string, the same fallback the private notification itself already uses
+  when no profile applies, so no new translatable strings are needed -- on the single shared
+  `Notification.Builder` before either contentText branch runs, so every state (with or without a
+  profile notification, with or without the handover action, and the handover error text) carries
+  it. The publicVersion has no actions and no content intent: a locked screen must not be able to
+  trigger anything from it. The private notification is unchanged and still shows the profile
+  summary once unlocked (#589, follow-up to #578/#586/#588).
 
 ## [1.8.47] - Unreleased
 

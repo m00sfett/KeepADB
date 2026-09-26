@@ -85,7 +85,15 @@ final class KeepADBUsbNotification {
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(context.getString(R.string.usb_notification_title))
                 .setOngoing(true)
-                .setCategory(Notification.CATEGORY_STATUS);
+                .setCategory(Notification.CATEGORY_STATUS)
+                // #589: default visibility is VISIBILITY_PRIVATE, but a device configured to show
+                // private notification content on the lock screen (as the s20 tested against #578
+                // was) would otherwise still reveal contentText below, which can be a profile name
+                // plus host/IP summary (see the profileNotificationEnabled branch). publicVersion is
+                // set once here, before either branch adds its own contentText/actions, so every
+                // branch -- with or without a profile notification, with or without the handover
+                // action, and the error text -- carries it.
+                .setPublicVersion(publicVersion(context));
 
         if (profileNotificationEnabled) {
             List<KeepADBUsbProfile.Profile> profiles = KeepADBUsbProfile.getProfiles(context);
@@ -121,6 +129,24 @@ final class KeepADBUsbNotification {
             builder.addAction(handoverAction(context));
         }
         return builder.build();
+    }
+
+    /**
+     * #589: the lock-screen copy shown when the platform is configured to reveal private
+     * notification content there. It reuses {@code usb_notification_title} for both title and
+     * text -- the same already-neutral string {@link #build} itself falls back to as contentText
+     * whenever no profile data applies -- so no new translatable strings are needed. No actions and
+     * no content intent: a glance at a locked screen must not be able to trigger anything, harmless
+     * or not.
+     */
+    private static Notification publicVersion(Context context) {
+        String neutralText = context.getString(R.string.usb_notification_title);
+        return new Notification.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_keepadb)
+                .setContentTitle(neutralText)
+                .setContentText(neutralText)
+                .setCategory(Notification.CATEGORY_STATUS)
+                .build();
     }
 
     private static Notification.Action action(Context context, int title, String action) {
