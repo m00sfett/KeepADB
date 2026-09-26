@@ -70,7 +70,7 @@ public class MainActivityTransportOverviewTest {
         setNotificationStatic("currentEndpointVerifiedAtMs", 0L);
         KeepADBVpnTransport.setReachabilityProbeForTesting(null);
         KeepADBTailscaleStatus.setPackageInstalledCheckForTesting(null);
-        KeepADBTailscaleStatus.setInterfaceActiveCheckForTesting(null);
+        KeepADBTailscaleStatus.setInterfacesProviderForTesting(null);
         KeepADB.resetForTesting();
     }
 

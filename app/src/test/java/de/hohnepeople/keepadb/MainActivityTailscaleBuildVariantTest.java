@@ -57,7 +57,10 @@ public class MainActivityTailscaleBuildVariantTest {
     public void setUp() {
         clearPreferences();
         KeepADBTailscaleStatus.setPackageInstalledCheckForTesting((ctx, packageName) -> true);
-        KeepADBTailscaleStatus.setInterfaceActiveCheckForTesting(interfaceName -> true);
+        // Realistic Android shape (#581): a tun0 interface with a CGNAT address, not the
+        // Linux-style tailscale0 name.
+        KeepADBTailscaleStatus.setInterfacesProviderForTesting(() -> java.util.Collections.singletonList(
+                new KeepADBTailscaleStatus.InterfaceSnapshot("tun0", true, new byte[]{100, 101, 2, 3})));
     }
 
     @After
@@ -70,7 +73,7 @@ public class MainActivityTailscaleBuildVariantTest {
         setNotificationStatic("currentEndpointVerifiedAtMs", 0L);
         KeepADBVpnTransport.setReachabilityProbeForTesting(null);
         KeepADBTailscaleStatus.setPackageInstalledCheckForTesting(null);
-        KeepADBTailscaleStatus.setInterfaceActiveCheckForTesting(null);
+        KeepADBTailscaleStatus.setInterfacesProviderForTesting(null);
         KeepADB.resetForTesting();
     }
 
