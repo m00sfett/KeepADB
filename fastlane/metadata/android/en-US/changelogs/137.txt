@@ -1,0 +1,1 @@
+• Internal diagnostics for debug builds only; the regular app behaves exactly as before.
