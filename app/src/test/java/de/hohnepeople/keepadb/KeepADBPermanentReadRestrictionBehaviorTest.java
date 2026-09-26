@@ -11,11 +11,15 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Looper;
+import android.provider.Settings;
 import android.service.quicksettings.Tile;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
+
+import java.time.Duration;
 
 import org.junit.After;
 import org.junit.Before;
@@ -27,6 +31,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.android.controller.ServiceController;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
 
 /**
  * Behavioral coverage for #582: a permanent OEM read restriction on {@code adb_wifi_enabled}
@@ -140,6 +145,13 @@ public class KeepADBPermanentReadRestrictionBehaviorTest {
             int result = controller.get()
                     .onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
             assertEquals(Service.START_STICKY, result);
+            ShadowLooper.idleMainLooper();
+            // onStartCommand's own recheckAndEnable() lands inside its 300ms internal throttle
+            // under Robolectric and is a no-op (see KeepADBServiceLifecycleRobolectricTest), and
+            // an automatic enable is debounced by TOGGLE_COOLDOWN_MS. Only the first heartbeat
+            // tick (60s) actually reaches the decision this test pins, so advance past it and
+            // past the debounce -- otherwise the "no write" assertion below is vacuous.
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(90_000));
 
             assertTrue("recheckAndEnable() must not write on an unconfirmed read -- 'unknown' is"
                     + " not 'off'", gateway.writes.isEmpty());
@@ -150,6 +162,91 @@ public class KeepADBPermanentReadRestrictionBehaviorTest {
         } finally {
             controller.destroy();
         }
+    }
+
+    /**
+     * Same "unknown is not off" rule, pinned at the ContentObserver's automatic re-enable branch:
+     * only a positively known "off" may take it.
+     */
+    @Test
+    public void contentObserverDoesNotAutoReEnableOnPermanentReadFailure() {
+        KeepADBThrowingSettingsGateway gateway = new KeepADBThrowingSettingsGateway();
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+
+            // Must not throw.
+            controller.get().getAdbContentObserverForTesting()
+                    .onChange(false, Settings.Global.getUriFor(KeepADB.KEY));
+            // Past the TOGGLE_COOLDOWN_MS debounce, short of the first 60s heartbeat tick.
+            shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(5_000));
+
+            assertTrue("the ContentObserver must not re-enable on an unconfirmed read",
+                    gateway.writes.isEmpty());
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    // -- KeepADBUsbHandover (AUTOMATIC mode) ---------------------------------------------------
+
+    /**
+     * The automatic USB handover treats an unknown value as "already enabled", so a real connect
+     * edge in AUTOMATIC mode on a trusted network must not schedule (let alone perform) a write.
+     */
+    @Test
+    public void automaticUsbHandoverDoesNotEnableOnPermanentReadFailure() {
+        KeepADBThrowingSettingsGateway gateway = new KeepADBThrowingSettingsGateway();
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADBUsbHandover.resetForTesting();
+        KeepADBPreferences.setUsbWlanHandoverMode(context,
+                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        try {
+            // Must not throw.
+            KeepADBUsbHandover.onRawUsbBroadcast(context, true);
+            scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+
+            assertTrue("the automatic USB handover must not enable on an unconfirmed read",
+                    gateway.writes.isEmpty());
+        } finally {
+            KeepADBUsbHandover.resetForTesting();
+        }
+    }
+
+    // -- KeepADB.performRecoveryPulse() ---------------------------------------------------------
+
+    /**
+     * A recovery pulse (off, then on) must never start on a value it cannot confirm is "on".
+     */
+    @Test
+    public void recoveryPulseDoesNotStartOnPermanentReadFailure() {
+        KeepADBThrowingSettingsGateway gateway = new KeepADBThrowingSettingsGateway();
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+
+        // Must not throw.
+        KeepADB.performRecoveryPulse(context, null);
+        scheduler.advanceBy(60_000);
+
+        assertTrue("a recovery pulse must not write on an unconfirmed read",
+                gateway.writes.isEmpty());
     }
 
     // -- KeepADB.applyNow()'s SecurityException-catch cleanup (the #582 crash) --------------
