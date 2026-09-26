@@ -34,6 +34,20 @@ are retrospective issue-version records and were never published as separate rel
   toolchain; this is now documented in `release.yml` instead of being aligned to JDK 17. No change
   to the app itself.
 
+### Fixed
+- A recovery pulse (AUS -> pause -> AN, triggered when mDNS finds no adbd listener while enabled)
+  could abort its own re-enable and leave Wireless Debugging stuck off: with Keep-Alive disabled
+  and the app foregrounded, the pulse's own AUS write was observed by the ContentObserver, which
+  tore the `KeepADBEndpoint` discovery session down (`KeepADBNotification.refresh()` ->
+  `stop()` -> `endpoint.stop()`), invalidating the very discovery generation the pulse's EIN-stage
+  guard checked -- confirmed on a real s20 (`stage=enable reason=preconditions_changed`, Wireless
+  Debugging left off). The EIN-stage guard no longer depends on the endpoint's own discovery
+  generation; a real network change, lost Wi-Fi, an untrusted network, or a manual toggle during
+  the pause still cancel the pulse exactly as before (#347, #309 unaffected). Every pulse abort
+  after the AUS write has already landed now also refreshes the surfaces (service/notification/
+  widget), and a `SecurityException` during the pulse now shows the same permission-missing
+  notification the other automatic re-enable paths already show (#572).
+
 ## [1.8.42] - Unreleased
 
 ### Added
