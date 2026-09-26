@@ -1,5 +1,6 @@
 package de.hohnepeople.keepadb;
 
+import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,8 +20,7 @@ public final class KeepADBUsbReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         if (ACTION_HANDOVER_ENABLE.equals(action)) {
-            boolean success = KeepADBUsbHandover.handleManualAction(context);
-            KeepADBUsbNotification.reportManualActionResult(context, success);
+            handleHandoverEnableAction(context);
             return;
         }
         if (!ACTION_USB_STATE.equals(action)) return;
@@ -32,6 +32,35 @@ public final class KeepADBUsbReceiver extends BroadcastReceiver {
         // like a fresh connect and could re-fire automatic mode.
         KeepADBUsbHandover.onRawUsbBroadcast(context, connected);
         refresh(context, connected);
+    }
+
+    /**
+     * #588: the MANUAL "Enable WLAN-ADB" notification action. Switching Wireless Debugging on
+     * requires an unlocked device, like the trust action (#578) and the tile (#586).
+     *
+     * @return true if Wireless Debugging was actually turned on by this call.
+     */
+    static boolean handleHandoverEnableAction(Context context) {
+        // Defense in depth: KeepADBUsbNotification#handoverAction also sets
+        // setAuthenticationRequired (API 31+), but that is enforced by SystemUI, not by this app,
+        // does not exist below API 31 (minSdk 30), and this receiver cannot tell whether a given
+        // OEM lock screen honored it. isDeviceLocked() rather than isKeyguardLocked(), for the
+        // same reason as KeepADBReceiver#handleTrustNetworkAction: only a secured lock screen whose
+        // credential was never supplied counts; a swipe-only device has nothing to bypass.
+        KeyguardManager keyguardManager = context.getSystemService(KeyguardManager.class);
+        if (keyguardManager != null && keyguardManager.isDeviceLocked()) {
+            KeepADBDiagnostics.event(context, "user_action", KeepADB.SOURCE_USB_HANDOVER_MANUAL,
+                    "blocked", "device_locked");
+            // Not a failure: WLAN-ADB is untouched, so lastHandoverActionFailed (whose text points
+            // at the permission) is left as it was. Re-post the notification instead so the action
+            // stays available to tap again after unlocking -- there is no unlock listener. USB is
+            // still connected here for the same reason reportManualActionResult assumes it.
+            KeepADBUsbNotification.refresh(context, true);
+            return false;
+        }
+        boolean success = KeepADBUsbHandover.handleManualAction(context);
+        KeepADBUsbNotification.reportManualActionResult(context, success);
+        return success;
     }
 
     static void refresh(Context context) {

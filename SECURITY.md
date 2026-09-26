@@ -17,6 +17,8 @@ pretending the port isn't open. Concretely, KeepADB tries to:
   the "Yes, allow" action asks the platform to reauthenticate before it fires (API 31+), and
   `KeepADBReceiver` refuses the action and re-offers the same prompt if it is somehow reached
   while the device reports itself locked, on every Android version this app supports (#578);
+- require an unlocked device to switch Wireless Debugging on from the USB notification's "Enable
+  WLAN-ADB" handover action, with the same two layers as the trust action (#588);
 - keep cleartext (unencrypted) HTTP scoped to the one feature that needs it — the optional,
   user-configured webhook — and warn in-app when a webhook URL is `http://` instead of `https://`;
 - avoid persisting anything sensitive where Android backup or device transfer could pick it up

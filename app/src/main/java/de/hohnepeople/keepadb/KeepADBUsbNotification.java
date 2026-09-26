@@ -133,8 +133,16 @@ final class KeepADBUsbNotification {
                 .setAction(KeepADBUsbReceiver.ACTION_HANDOVER_ENABLE);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, HANDOVER_ACTION_REQUEST_CODE, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        return new Notification.Action.Builder(null,
-                context.getString(R.string.usb_notification_enable_wlan_handover), pendingIntent).build();
+        Notification.Action.Builder builder = new Notification.Action.Builder(null,
+                context.getString(R.string.usb_notification_enable_wlan_handover), pendingIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // #588: this action switches Wireless Debugging on, so the platform should
+            // reauthenticate the user before firing it from a locked screen (API 31+). Enforced by
+            // SystemUI, not by this app -- KeepADBUsbReceiver#handleHandoverEnableAction re-checks
+            // KeyguardManager itself on every version, including API 30 where this flag is absent.
+            builder.setAuthenticationRequired(true);
+        }
+        return builder.build();
     }
 
     private static PendingIntent profileIntent(Context context, String action) {
