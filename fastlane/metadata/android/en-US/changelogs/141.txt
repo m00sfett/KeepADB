@@ -1,0 +1,2 @@
+• Security: closed a gap where some phone manufacturers could still transfer KeepADB's saved settings (like your webhook URL) to a new device via device-to-device transfer, even though backup was already turned off.
+• The diagnostics export and feedback report draft no longer show a nearby Wi-Fi network's full BSSID/SSID; the export shortens the BSSID to its vendor prefix, the feedback draft masks it completely.

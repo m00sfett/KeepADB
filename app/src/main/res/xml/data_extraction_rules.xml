@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  #573: android:allowBackup="false" is not sufficient on its own. Per the Android 12 (API 31)
+  "Behavior changes" / D2D transfer docs, some OEMs honor allowBackup=false for cloud backup but
+  still perform device-to-device transfer of app data regardless of that flag. This file is the
+  authoritative, OEM-independent opt-out for both transfer types: every domain is explicitly
+  excluded in both <cloud-backup> and <device-transfer>, so nothing KeepADB persists (webhook
+  URL, trusted-BSSID and blocked-network history, diagnostics, the debug journal) can be carried
+  to another device or restored from a cloud backup. allowBackup="false" is kept in the manifest
+  for pre-API-31 devices, which never consult this file.
+
+  All nine domains from the schema are excluded (path="." = the whole domain) rather than relying
+  on the "absent section" default, which would leave that transfer type fully enabled:
+  root/file/database/sharedpref/external cover this app's normal private and external storage,
+  device_root/device_file/device_database/device_sharedpref cover their device-protected-storage
+  counterparts (relevant for the direct-boot-aware BootReceiver/KeepADBService components).
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="external" path="." />
+        <exclude domain="device_root" path="." />
+        <exclude domain="device_file" path="." />
+        <exclude domain="device_database" path="." />
+        <exclude domain="device_sharedpref" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="external" path="." />
+        <exclude domain="device_root" path="." />
+        <exclude domain="device_file" path="." />
+        <exclude domain="device_database" path="." />
+        <exclude domain="device_sharedpref" path="." />
+    </device-transfer>
+</data-extraction-rules>

@@ -17,11 +17,38 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.43` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.44` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.44] - Unreleased
+
+This candidate bundles two independently developed fixes integrated together on branch
+`integration/e2-573-574`: #573 (data extraction rules) and #574 (BSSID/SSID redaction).
+
+### Security
+- `android:allowBackup="false"` alone does not reliably disable Android 12+ device-to-device
+  (D2D) transfer: per the Android 12 (API 31) behavior changes, some OEMs honor it for cloud
+  backup but still transfer app data between devices regardless of that flag. Added
+  `android:dataExtractionRules` (`res/xml/data_extraction_rules.xml`), which explicitly excludes
+  every domain (`root`, `file`, `database`, `sharedpref`, `external`, and their `device_*`
+  device-protected-storage counterparts) from both `<cloud-backup>` and `<device-transfer>`,
+  closing the gap `allowBackup="false"` alone leaves open on OEMs that don't honor it for D2D.
+  `allowBackup="false"` is kept for API < 31, which never reads `dataExtractionRules`.
+  `KeepADBBackupPolicyContractTest` now asserts both the manifest attribute and the exclusion
+  rules exist instead of asserting their absence (#573, follow-up to #252). OEM D2D behavior
+  itself was not device-verified as part of this change.
+- The diagnostics export (Settings > Diagnostics > Export diagnostics,
+  `KeepADBDiagnostics.export`/`exportForIssueReport`) shortened a Wi-Fi access point's BSSID to
+  its OUI (first three octets) plus a mask for the rest, and would mask an SSID in full the same
+  way -- both were previously exported unredacted whenever the trust-prompt or trust-network-action
+  diagnostics events fired. The feedback report draft's own redaction
+  (`KeepADBIssueReporter.redactDiagnostics`) now masks both fully on top of that, matching the
+  existing `host=`/`port=`/secret/URL rules (#574). Nothing about where diagnostic events are
+  written, or the ring buffer/journal's own retention or format, changed; the redaction is applied
+  only at the export/draft read path.
 
 ## [1.8.43] - Unreleased
 

@@ -157,7 +157,11 @@ not an assumed default.
   unencrypted; prefer `https://` whenever your endpoint supports it, and only use `http://`
   on a network you trust (LAN/VPN).
 - **Backup & Device Transfer:** KeepADB does not support Android cloud backup or
-  device-to-device transfer of app data (`android:allowBackup="false"`). All persisted
+  device-to-device transfer of app data. `android:allowBackup="false"` covers pre-Android-12
+  (API < 31) devices; on API 31+, `android:dataExtractionRules` (`res/xml/data_extraction_rules.xml`)
+  additionally excludes every domain from both `<cloud-backup>` and `<device-transfer>`, because
+  some OEMs honor `allowBackup="false"` for cloud backup but still perform device-to-device
+  transfer regardless of that flag ([#573](https://github.com/m00sfett/KeepADB/issues/573)). All persisted
   configuration — including webhook URLs, endpoint data, USB profiles, and diagnostics — is
   lost on uninstall or device migration and must be reconfigured afterward. This is a
   deliberate choice: it removes any risk of sensitive configuration being restored onto a
