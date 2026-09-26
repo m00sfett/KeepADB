@@ -14,6 +14,19 @@ Pairing codes, tokens, passwords, authorization values, and URLs are redacted be
 the export buffer. Endpoint IP/port values may remain because they are the subject of the WLAN-ADB
 diagnosis. Logcat retention is controlled by Android; the local buffer is limited to 128 events.
 
+A Wi-Fi access point's BSSID is shortened before export: only its OUI (the first three octets,
+which identify the network adapter vendor, not one physical access point) stays, the remaining
+three are masked. An SSID would be masked in full the same way, though no current event actually
+records one. The feedback report draft (Settings > Report a problem) redacts both fully instead,
+on top of the same host/port/secret/URL rules, before the diagnostics text is inserted into the
+editable draft.
+
+A debug build additionally keeps a 48-hour diagnostics journal instead of the 128-event ring
+buffer, including a per-minute network/Keep-Alive/Tailscale/endpoint state snapshot fed by the
+service heartbeat; that snapshot's shown endpoint host/port go through the same "may remain, this
+is the WLAN-ADB diagnosis subject" rule above, and any BSSID/SSID it were to carry would go
+through the same shortening/masking as any other exported event.
+
 The event sequence is intended to be read as `user_action`/`toggle_attempt` -> `state_observed` ->
 `recovery_attempt`/`recovery_or_stop` -> `service_*`. `intentId` correlates scheduled and completed
 toggle or recovery writes. A service restart records the elapsed gap since the last persisted

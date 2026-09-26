@@ -1,0 +1,1 @@
+• The diagnostics export and feedback report draft no longer show a nearby Wi-Fi network's full BSSID/SSID; the export shortens the BSSID to its vendor prefix, the feedback draft masks it completely.

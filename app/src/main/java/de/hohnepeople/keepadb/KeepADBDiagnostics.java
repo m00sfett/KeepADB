@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Structured, bounded diagnostics for reconstructing KeepADB lifecycle events. */
@@ -33,6 +34,15 @@ final class KeepADBDiagnostics {
     private static final Pattern SECRET = Pattern.compile(
             "(?i)(pair(?:ing)?[-_ ]?code|token|password|secret)(\\s*[=:]\\s*)"
                     + "(?:\\\"[^\\\"]*\\\"|'[^']*'|\\S+)");
+    // #574: output-path-only, see maskNetworkIdentifiersForExport(). A well-formed BSSID (six
+    // colon-separated hex octets) keeps its OUI (group 1) and masks the rest; anything else after
+    // "bssid=" falls into group 2 and is masked in full. Both alternatives run to end-of-line
+    // (".", not "\\S+") rather than stopping at the first space, since a value with an embedded
+    // space -- most plausibly a future free-text SSID -- must not leak its remainder unmasked.
+    private static final Pattern EXPORT_BSSID = Pattern.compile(
+            "(?i)\\bbssid=(?:([0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}):"
+                    + "[0-9a-f]{2}:[0-9a-f]{2}:[0-9a-f]{2}\\b|(.*))");
+    private static final Pattern EXPORT_SSID = Pattern.compile("(?i)\\bssid=.*");
     private static final SimpleDateFormat TIME_FORMAT =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.ROOT);
 
@@ -117,13 +127,13 @@ final class KeepADBDiagnostics {
     static String export(Context context) {
         if (context == null) return EXPORT_HEADER;
         KeepADBDiagnosticJournal journal = debugJournal(context);
-        if (journal != null) return journal.render();
+        if (journal != null) return maskNetworkIdentifiersForExport(journal.render());
         List<String> events;
         synchronized (KeepADBDiagnostics.class) {
             events = readEvents(
                     context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE));
         }
-        return renderExport(events);
+        return maskNetworkIdentifiersForExport(renderExport(events));
     }
 
     /**
@@ -134,7 +144,35 @@ final class KeepADBDiagnostics {
     static String exportForIssueReport(Context context) {
         KeepADBDiagnosticJournal journal = debugJournal(context);
         if (journal == null) return export(context);
-        return renderExport(journal.renderEntries(MAX_EVENTS));
+        return maskNetworkIdentifiersForExport(renderExport(journal.renderEntries(MAX_EVENTS)));
+    }
+
+    /**
+     * #574: output-path-only redaction of the rendered export text -- never applied to what
+     * {@link #event}, {@link #heartbeatEvent} or {@link #snapshot} write, so the stored ring
+     * buffer and journal stay exactly as recorded. A well-formed BSSID keeps its OUI (first three
+     * octets, which identify the vendor rather than one physical access point) and masks the
+     * remaining three, analogous to {@link KeepADBAddressMask}'s address masking; a value that
+     * does not look like a six-octet MAC is masked in full rather than risking a partial,
+     * unrecognised leak. SSID is masked in full even though no current writer emits one, so a
+     * future one is covered without another export-path change. {@link
+     * KeepADBIssueReporter#redactDiagnostics} redacts both fully on top of this for the feedback
+     * report draft.
+     */
+    static String maskNetworkIdentifiersForExport(String text) {
+        if (text == null || text.isEmpty()) return text;
+        // Matcher#replaceAll(Function) and its StringBuilder-based appendReplacement/appendTail
+        // overloads need API 34; minSdk here is 30, so this uses the long-available StringBuffer
+        // overloads to do the per-match replacement (OUI kept vs. fully redacted) by hand.
+        Matcher matcher = EXPORT_BSSID.matcher(text);
+        StringBuffer maskedBssid = new StringBuffer();
+        while (matcher.find()) {
+            String oui = matcher.group(1);
+            String replacement = oui != null ? "bssid=" + oui + ":*:*:*" : "bssid=[REDACTED]";
+            matcher.appendReplacement(maskedBssid, Matcher.quoteReplacement(replacement));
+        }
+        matcher.appendTail(maskedBssid);
+        return EXPORT_SSID.matcher(maskedBssid).replaceAll("ssid=[REDACTED]");
     }
 
     /** #566: a verified endpoint counts as currently confirmed for this long after its last probe. */

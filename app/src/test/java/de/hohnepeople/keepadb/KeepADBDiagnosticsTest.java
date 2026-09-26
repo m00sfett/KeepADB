@@ -58,6 +58,44 @@ public class KeepADBDiagnosticsTest {
     }
 
     @Test
+    public void exportMaskingShortensBssidToOuiAndFullyMasksSsid() {
+        // #574: invented, locally-administered addresses (RFC-style "02:.." prefix) -- never a
+        // real access point's BSSID. Mixed-case hex covers both letter cases in one pass.
+        String masked = KeepADBDiagnostics.maskNetworkIdentifiersForExport(
+                "event=network_trust_prompt outcome=shown detail=bssid=02:1A:2b:3C:44:55\n"
+                        + "event=user_action outcome=allowed detail=bssid=02:aa:BB:cc:DD:ee\n"
+                        + "event=x outcome=y detail=ssid=MyInventedNetwork");
+
+        assertTrue("OUI must stay visible", masked.contains("bssid=02:1A:2b:*:*:*"));
+        assertTrue("OUI must stay visible regardless of hex letter case",
+                masked.contains("bssid=02:aa:BB:*:*:*"));
+        assertFalse("the masked remainder must not leak", masked.contains("3C:44:55"));
+        assertFalse("the masked remainder must not leak", masked.contains("cc:DD:ee"));
+        assertTrue("an SSID has no OUI-style rule and is masked outright",
+                masked.contains("ssid=[REDACTED]"));
+        assertFalse(masked.contains("MyInventedNetwork"));
+    }
+
+    @Test
+    public void exportMaskingFullyRedactsAValueThatIsNotASixOctetMac() {
+        String masked = KeepADBDiagnostics.maskNetworkIdentifiersForExport(
+                "event=x outcome=y detail=bssid=not-a-real-mac");
+        assertTrue(masked.contains("bssid=[REDACTED]"));
+        assertFalse(masked.contains("not-a-real-mac"));
+    }
+
+    @Test
+    public void exportMaskingRedactsAnSsidWithEmbeddedSpacesCompletely() {
+        // A free-text SSID may contain spaces; the mask must not stop at the first one and leak
+        // the remainder.
+        String masked = KeepADBDiagnostics.maskNetworkIdentifiersForExport(
+                "event=x outcome=y detail=ssid=My Invented Guest Network");
+        assertTrue(masked.contains("ssid=[REDACTED]"));
+        assertFalse(masked.contains("My Invented Guest Network"));
+        assertFalse(masked.contains("Invented"));
+    }
+
+    @Test
     public void requiredPathsAreInstrumentedAndExportIsUserReachable() throws IOException {
         String core = read("app/src/main/java/de/hohnepeople/keepadb/KeepADB.java");
         String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");

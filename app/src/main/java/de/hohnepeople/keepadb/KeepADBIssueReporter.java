@@ -11,6 +11,13 @@ final class KeepADBIssueReporter {
     static final String FEEDBACK_URL = "https://hohnepeople.de/keepadb/feedback";
     private static final Pattern NETWORK_HOST = Pattern.compile("(?i)\\bhost=[^\\s]+");
     private static final Pattern NETWORK_PORT = Pattern.compile("(?i)\\bport=\\d+");
+    // #574: the feedback report draft masks bssid=/ssid= fully, stricter than the OUI-preserving
+    // KeepADBDiagnostics.maskNetworkIdentifiersForExport() the raw export already applied. Runs
+    // to end-of-line (this method already processes one line at a time) rather than stopping at
+    // the first space, so a value with an embedded space -- most plausibly a future free-text
+    // SSID -- does not leak its remainder unmasked.
+    private static final Pattern NETWORK_BSSID = Pattern.compile("(?i)\\bbssid=.*");
+    private static final Pattern NETWORK_SSID = Pattern.compile("(?i)\\bssid=.*");
 
     private KeepADBIssueReporter() {}
 
@@ -71,6 +78,8 @@ final class KeepADBIssueReporter {
                 line = KeepADBDiagnostics.redact(line);
                 line = NETWORK_HOST.matcher(line).replaceAll("host=[REDACTED]");
                 line = NETWORK_PORT.matcher(line).replaceAll("port=[REDACTED]");
+                line = NETWORK_BSSID.matcher(line).replaceAll("bssid=[REDACTED]");
+                line = NETWORK_SSID.matcher(line).replaceAll("ssid=[REDACTED]");
             }
             result.append(line);
         }
