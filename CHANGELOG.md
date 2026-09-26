@@ -25,6 +25,10 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.8.45] - Unreleased
 
+This candidate bundles three independently developed fixes integrated together on branch
+`integration/e3-576-581-579`: #576 (register bookkeeping), #581 (Tailscale `tun0` detection),
+and #579 (webhook draft recreation test coverage).
+
 ### Fixed
 - `KeepADBRegisterClient` bookkeeping around a URL migration's old-URL DELETE could leave
   `lastRegisteredUrl` pointing at a resource that had already been confirmed deleted: a migration
@@ -48,6 +52,26 @@ are retrospective issue-version records and were never published as separate rel
   state; a later call is not swallowed once a newer registration or disconnect has actually
   superseded the outstanding one, so a genuinely new disconnect after a fresh registration still
   gets its own DELETE (#576, part C).
+- Tailscale status detection (#537) only ever matched an interface literally named
+  `tailscale0`, the Linux/desktop client's interface name. On Android, the Tailscale app runs as
+  a `VpnService` whose TUN device is named `tun0` (or `tun1`, ...), so the status always reported
+  "not active" there even while Tailscale was verifiably active and reachable -- contradicting the
+  independently derived Tailscale/VPN transport row that did find the tunnel. Detection now
+  requires a tunnel-named interface (`tun*` or `tailscale*`, so a carrier's own CGNAT deployment
+  on e.g. `rmnet_data0` can never match) that also carries a Tailscale-shaped address (its CGNAT
+  IPv4 range `100.64.0.0/10`, or its ULA IPv6 prefix `fd7a:115c:a1e0::/48`). `tailscale0` keeps
+  working unchanged. Still purely local, read-only display logic (#537/#548): KeepADB never
+  starts, binds, or configures Tailscale. (#581)
+
+### Testing
+- `KeepADBTailscaleStatusTest` previously drove `detect()` through a seam that replaced the whole
+  interface check (name filter included), so it never actually exercised the real name-and-address
+  decision logic that shipped the #581 bug. The decision logic is now a pure function,
+  `KeepADBTailscaleStatus.looksLikeTailscale`/`isTailscaleActive`, over a plain interface
+  description (name, up, addresses); the test seam now only supplies interface snapshots, and new
+  tests drive the decision function directly with a realistic `tun0` (with CGNAT and ULA
+  addresses), a foreign VPN on `tun0` without a Tailscale-shaped address, and a carrier CGNAT
+  interface (`rmnet_data0`) -- confirming neither is misreported as Tailscale. (#581)
 
 ## [1.8.44] - Unreleased
 
