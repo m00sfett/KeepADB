@@ -1,5 +1,6 @@
 package de.hohnepeople.keepadb;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -76,6 +77,26 @@ public class KeepADBIsEnabledSingleReadApiContractTest {
         assertTrue("Found unguarded adb_wifi_enabled read(s) outside KeepADB's sanctioned"
                         + " isEnabledOrNull() API (#582): " + offenders,
                 offenders.isEmpty());
+    }
+
+    /**
+     * KeepADB.java is skipped above, but it holds the most sensitive reads (getState, setEnabled,
+     * the readbacks), so pin its raw reads by count instead: the isEnabled() declaration, its
+     * gateway.isEnabled() body, the one call inside isEnabledOrNull(), and the two
+     * write-guarded recovery-pulse readbacks. Any new raw read in KeepADB.java turns this red.
+     */
+    @Test
+    public void keepADBItselfHoldsOnlyTheDocumentedRawReads() throws IOException {
+        Path keepAdb = projectPath("app/src/main/java/de/hohnepeople/keepadb/KeepADB.java");
+        String source = stripComments(
+                new String(Files.readAllBytes(keepAdb), StandardCharsets.UTF_8));
+        Matcher matcher = Pattern.compile("\\bisEnabled\\s*\\(").matcher(source);
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        assertEquals("KeepADB.java must not gain a raw isEnabled( read beyond the documented"
+                + " five occurrences -- use isEnabledOrNull(ctx, source) (#582)", 5, count);
     }
 
     private static boolean containsMatch(Pattern pattern, String source) {
