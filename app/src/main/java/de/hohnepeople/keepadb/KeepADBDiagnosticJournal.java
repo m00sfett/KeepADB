@@ -153,11 +153,16 @@ final class KeepADBDiagnosticJournal {
         List<String> lines = new ArrayList<>();
         for (int i = Math.max(0, entries.size() - limit); i < entries.size(); i++) {
             Entry entry = entries.get(i);
-            lines.add(entry.samples > 1
-                    ? entry.text + " samples=" + entry.samples + " lastSampleAt=" + format(entry.lastMs)
-                    : entry.text);
+            lines.add(renderedLine(entry));
         }
         return lines;
+    }
+
+    /** The exact text a single entry contributes to an export line (without the trailing '\n'). */
+    private static String renderedLine(Entry entry) {
+        return entry.samples > 1
+                ? entry.text + " samples=" + entry.samples + " lastSampleAt=" + format(entry.lastMs)
+                : entry.text;
     }
 
     synchronized int getPersistCountForTesting() {
@@ -175,11 +180,11 @@ final class KeepADBDiagnosticJournal {
 
     private void prune(long now) {
         int chars = 0;
-        for (Entry entry : entries) chars += entry.text.length() + 1;
+        for (Entry entry : entries) chars += renderedLine(entry).length() + 1;
         while (!entries.isEmpty() && (entries.size() > MAX_ENTRIES || chars > MAX_CHARS
                 || now - entries.get(0).lastMs > RETENTION_MS)) {
             Entry removed = entries.remove(0);
-            chars -= removed.text.length() + 1;
+            chars -= renderedLine(removed).length() + 1;
             if (removed.key != null && lastByKey.get(removed.key) == removed) {
                 lastByKey.remove(removed.key);
             }

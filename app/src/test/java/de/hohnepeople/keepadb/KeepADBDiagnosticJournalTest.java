@@ -9,6 +9,7 @@ import android.content.Context;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
@@ -106,6 +107,40 @@ public class KeepADBDiagnosticJournalTest {
         now[0] += 20 * MINUTE; // service/heartbeat was not running
         journal.recordSample("state_snapshot", "same", "snapshot same");
         assertEquals(2, journal.size());
+    }
+
+    @Test
+    public void coalescedSampleSuffixesAreIncludedInTheMaxCharsBudget() throws IOException {
+        // #569: recordSample() coalescing grows a " samples=N lastSampleAt=..." suffix onto an
+        // existing entry without ever calling prune(), so the raw entry.text alone understates
+        // the actual rendered export size. This fills the journal with many small, distinct
+        // entries whose raw text fits comfortably under MAX_CHARS, then coalesces each once to
+        // add the suffix -- proving the budget must be enforced against the rendered line, not
+        // just entry.text.
+        KeepADBDiagnosticJournal journal = newJournal(tempFile());
+        StringBuilder textBuilder = new StringBuilder();
+        for (int i = 0; i < 60; i++) textBuilder.append('a');
+        String text = textBuilder.toString();
+        int entryCount = 3000;
+        for (int i = 0; i < entryCount; i++) {
+            String key = "key" + i;
+            journal.recordSample(key, "sig", text);
+            now[0] += 1000;
+            journal.recordSample(key, "sig", text); // coalesces: samples=2, adds a suffix
+            now[0] += 1000;
+        }
+
+        assertTrue("raw text alone fits comfortably under MAX_CHARS, so only the suffix can "
+                        + "explain a violation",
+                (long) entryCount * (text.length() + 1) < KeepADBDiagnosticJournal.MAX_CHARS);
+
+        journal.render();
+        List<String> lines = journal.renderEntries(journal.size());
+        long renderedCharBudget = 0;
+        for (String line : lines) renderedCharBudget += line.length() + 1;
+
+        assertTrue("rendered export (including samples suffixes) must respect MAX_CHARS",
+                renderedCharBudget <= KeepADBDiagnosticJournal.MAX_CHARS);
     }
 
     @Test
