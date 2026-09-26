@@ -144,6 +144,7 @@
     <string name="webhook_status_no_endpoint">chưa có</string>
     <string name="webhook_status_deregistered">đã hủy đăng ký</string>
     <string name="webhook_status_failed">thất bại</string>
+    <string name="webhook_status_tailnet_hint">Tailscale có thể đã bị ngắt kết nối hoặc không tự khởi động sau khi khởi động lại. Hãy kiểm tra cài đặt "VPN luôn bật" của Android cho Tailscale.</string>
     <string name="settings_permission_warning">Thiếu quyền hệ thống WRITE_SECURE_SETTINGS. KeepADB không thể chuyển đổi Gỡ lỗi không dây cho đến khi được cấp quyền.</string>
     <string name="settings_language_label">Ngôn ngữ ứng dụng</string>
     <string name="settings_language_accessibility">Ngôn ngữ ứng dụng: %1$s</string>

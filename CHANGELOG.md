@@ -17,11 +17,24 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.41` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.42` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.42] - Unreleased
+
+### Added
+- When the register webhook keeps failing and the configured URL looks tailnet-bound (an IPv4
+  literal in the Tailscale CGNAT range `100.64.0.0/10`, or a `.ts.net` MagicDNS hostname), the
+  webhook status panel now shows an additional, clearly speculative hint: Tailscale might be
+  disconnected or not auto-started after a reboot, and points at Android's "Always-on VPN"
+  setting for Tailscale as the manual place to check. Any other target, or an unclassifiable
+  failure, keeps the existing generic "failed" status unchanged. No webhook URL, host, or other
+  sensitive value is added to the hint text or to logs. KeepADB still never inspects, starts,
+  stops, or configures Tailscale/VPN state itself -- the scope boundary from #537/#548 is
+  unchanged (#561).
 
 ## [1.8.41] - Unreleased
 

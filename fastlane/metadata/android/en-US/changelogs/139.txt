@@ -1,0 +1,1 @@
+• If the webhook keeps failing to a Tailscale-looking address, KeepADB now hints that Tailscale might be disconnected and points at Android's "Always-on VPN" setting. No other change; KeepADB still never touches Tailscale or VPN settings itself.

@@ -144,6 +144,7 @@
     <string name="webhook_status_no_endpoint">поки що немає</string>
     <string name="webhook_status_deregistered">реєстрацію скасовано</string>
     <string name="webhook_status_failed">помилка</string>
+    <string name="webhook_status_tailnet_hint">Можливо, Tailscale від\'єднано або він не запустився автоматично після перезавантаження. Перевірте налаштування Android «Постійно активний VPN» для Tailscale.</string>
     <string name="settings_permission_warning">Відсутній системний дозвіл WRITE_SECURE_SETTINGS. KeepADB не може перемикати бездротове налагодження до надання дозволу.</string>
     <string name="settings_language_label">Мова програми</string>
     <string name="settings_language_accessibility">Мова програми: %1$s</string>

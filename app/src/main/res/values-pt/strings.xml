@@ -144,6 +144,7 @@
     <string name="webhook_status_no_endpoint">ainda nenhum</string>
     <string name="webhook_status_deregistered">desregistrado</string>
     <string name="webhook_status_failed">falhou</string>
+    <string name="webhook_status_tailnet_hint">O Tailscale pode estar desconectado ou não ter sido iniciado automaticamente após uma reinicialização. Verifique a configuração do Android "VPN sempre ativa" para o Tailscale.</string>
     <string name="settings_permission_warning">Permissão do sistema WRITE_SECURE_SETTINGS ausente. O KeepADB não pode alternar a depuração sem fio até que a permissão seja concedida.</string>
     <string name="settings_language_label">Idioma do aplicativo</string>
     <string name="settings_language_accessibility">Idioma do aplicativo: %1$s</string>
