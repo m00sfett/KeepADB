@@ -249,6 +249,41 @@ public class KeepADBPermanentReadRestrictionBehaviorTest {
                 gateway.writes.isEmpty());
     }
 
+    // -- read_failed diagnostics throttle ----------------------------------------------------
+
+    /**
+     * A permanent restriction must not flood the bounded diagnostics store: at most one
+     * read_failed event per 60s window, across all call sites, and a new one once it elapses.
+     */
+    @Test
+    public void readFailedDiagnosticIsThrottledToOnePerMinute() {
+        KeepADB.setGatewayForTesting(new KeepADBThrowingSettingsGateway());
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(scheduler);
+
+        assertNull(KeepADB.isEnabledOrNull(context, "service_sync"));
+        assertNull(KeepADB.isEnabledOrNull(context, "notification"));
+        scheduler.advanceBy(59_999);
+        assertNull(KeepADB.isEnabledOrNull(context, "tile"));
+        assertEquals("one event per window, regardless of the source",
+                1, countReadFailedEvents());
+
+        scheduler.advanceBy(1);
+        assertNull(KeepADB.isEnabledOrNull(context, "tile"));
+        assertEquals("the next window must log again", 2, countReadFailedEvents());
+    }
+
+    private int countReadFailedEvents() {
+        String export = KeepADBDiagnostics.export(context);
+        int count = 0;
+        for (int i = export.indexOf("event=read_failed"); i >= 0;
+                i = export.indexOf("event=read_failed", i + 1)) {
+            count++;
+        }
+        return count;
+    }
+
     // -- KeepADB.applyNow()'s SecurityException-catch cleanup (the #582 crash) --------------
 
     /**
