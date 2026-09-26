@@ -1,0 +1,1 @@
+• The Keep-Alive toggle no longer switches Wireless Debugging on immediately when your current Wi-Fi network is not on your trusted list -- it now shows the same "trust this network?" prompt the automatic reconnect uses instead. The main switch, tile, and widget are unaffected.

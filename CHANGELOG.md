@@ -17,11 +17,23 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.42` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.43` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.43] - Unreleased
+
+### Changed
+- The Keep-Alive toggle's immediate "turn Wireless Debugging on now" side effect now respects the
+  same trusted-network guard the automatic Keep-Alive recheck already uses
+  (`KeepADBService#isAutoEnableStillPermitted`), instead of writing `adb_wifi_enabled` immediately
+  and unconditionally. On an untrusted Wi-Fi network (allowlist mode active, access point not
+  listed), switching Keep-Alive on now falls through to the existing trust prompt instead of
+  enabling right away -- "Keep-Alive ON" means "keep it alive wherever that's permitted", not
+  "switch it on here regardless of trust". The main switch, the quick settings tile, and the home
+  screen widget remain manual overrides and are unaffected by this gate (#245, #577).
 
 ## [1.8.42] - Unreleased
 
