@@ -42,16 +42,21 @@ public class KeepADBService extends Service {
 
     static boolean shouldRun(Context context) {
         if (context == null) return false;
+        // #582: an unreadable value must not count as "on" here -- it falls through to
+        // wasLastExplicitIntentOff(), which needs no Settings.Global read at all, instead of a
+        // guessed true/false deciding whether the foreground service keeps running.
+        Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(context, "service_should_run");
         return KeepADBPreferences.isKeepAliveEnabled(context)
-                && (KeepADB.isEnabled(context) || !KeepADB.wasLastExplicitIntentOff(context));
+                && (Boolean.TRUE.equals(adbEnabledOrNull) || !KeepADB.wasLastExplicitIntentOff(context));
     }
 
     static void sync(Context context) {
         boolean shouldRun = shouldRun(context);
+        Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(context, "service_sync");
         KeepADBDiagnostics.event(context, "service_sync", "state_change",
                 shouldRun ? "start_requested" : "stop_requested",
                 "keepAlive=" + KeepADBPreferences.isKeepAliveEnabled(context)
-                        + " adbWifi=" + KeepADB.isEnabled(context)
+                        + " adbWifi=" + adbEnabledOrNull
                         + " lastIntentOff=" + KeepADB.wasLastExplicitIntentOff(context));
         KeepADBUsbReceiver.refresh(context);
         if (shouldRun) {
@@ -249,7 +254,11 @@ public class KeepADBService extends Service {
         if (!foregroundReady) return;
         // #566: read-only, debug-build-only minute snapshot; a no-op in release builds.
         KeepADBDiagnostics.snapshot(this);
-        if (KeepADB.isEnabled(this)) {
+        // #582: an unreadable value is not treated as "on" -- it falls through to
+        // recheckAndEnable() below, which re-derives every gate itself (including its own safe
+        // read) instead of skipping straight to the "already on" health check on an unconfirmed
+        // value.
+        if (Boolean.TRUE.equals(KeepADB.isEnabledOrNull(this, "service_heartbeat"))) {
             KeepADBNotification.verifyEndpointHealth(this);
             return;
         }
@@ -290,9 +299,19 @@ public class KeepADBService extends Service {
                 public void onChange(boolean selfChange, Uri uri) {
                     super.onChange(selfChange, uri);
                     Log.d(TAG, "ContentObserver: adb_wifi_enabled changed");
+                    // #582: read once and reuse below instead of the four separate (and equally
+                    // unguarded) isEnabled() calls this callback used to make. An unreadable value
+                    // is treated as "unknown", not "off": noteObservedEnabled() below only fires on
+                    // a positively known "on" (an unconfirmed read is not evidence the pairing
+                    // dialog was confirmed), and every "adb_wifi_enabled is off" branch below only
+                    // fires on a positively known "off" -- an unknown value takes neither branch,
+                    // i.e. no automatic re-enable write and no stop, exactly the "no automatic
+                    // write on an unknown value" rule this issue is about. The next successful read
+                    // (next heartbeat tick, or the next change this observer fires on) revisits it.
+                    Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(KeepADBService.this, "content_observer");
                     KeepADBDiagnostics.event(KeepADBService.this, "state_observed", "content_observer",
-                            "changed", "adbWifi=" + KeepADB.isEnabled(KeepADBService.this));
-                    if (KeepADB.isEnabled(KeepADBService.this)) {
+                            "changed", "adbWifi=" + adbEnabledOrNull);
+                    if (Boolean.TRUE.equals(adbEnabledOrNull)) {
                         // #496: the readback now reflects "on" -- e.g. the user confirmed
                         // Android's pairing dialog independently -- so the automatic-enable
                         // backoff reopens instead of waiting out its fallback timer. Ahead of the
@@ -311,7 +330,7 @@ public class KeepADBService extends Service {
                         return;
                     }
                     if (KeepADBPreferences.isKeepAliveEnabled(KeepADBService.this)) {
-                        if (isWifiConnected(KeepADBService.this) && !KeepADB.isEnabled(KeepADBService.this)) {
+                        if (isWifiConnected(KeepADBService.this) && Boolean.FALSE.equals(adbEnabledOrNull)) {
                             if (KeepADB.consumeUserDisabled() || KeepADB.wasLastExplicitIntentOff(KeepADBService.this)) {
                                 Log.i(TAG, "Wireless Debugging manually disabled by user; stopping service");
                                 KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
@@ -346,7 +365,7 @@ public class KeepADBService extends Service {
                                     return;
                                 }
                             }
-                        } else if (!KeepADB.isEnabled(KeepADBService.this)) {
+                        } else if (Boolean.FALSE.equals(adbEnabledOrNull)) {
                             if (KeepADB.consumeUserDisabled() || KeepADB.wasLastExplicitIntentOff(KeepADBService.this)) {
                                 Log.i(TAG, "Wireless Debugging explicitly disabled by user; stopping service");
                                 KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
@@ -358,7 +377,7 @@ public class KeepADBService extends Service {
                                         "waiting_wifi", "keep_alive_active");
                             }
                         }
-                    } else if (!KeepADB.isEnabled(KeepADBService.this)) {
+                    } else if (Boolean.FALSE.equals(adbEnabledOrNull)) {
                         stop(KeepADBService.this);
                     }
                     KeepADBNotification.refresh(KeepADBService.this);
@@ -534,7 +553,9 @@ public class KeepADBService extends Service {
      */
     private void checkNetworkTrustWhileActive() {
         if (!foregroundReady) return;
-        if (!KeepADB.isEnabled(this)) return;
+        // #582: an unreadable value skips this check the same way a confirmed "off" already did --
+        // there is nothing to warn about on a state that is not positively known to be "on".
+        if (!Boolean.TRUE.equals(KeepADB.isEnabledOrNull(this, "network_callback"))) return;
         if (!isWifiConnected(this)) return;
         if (KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)) return;
         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(this);
@@ -551,11 +572,18 @@ public class KeepADBService extends Service {
             return;
         }
         lastRecheckTime = now;
+        // #582: read once and reuse below for the actual re-enable decision, instead of the two
+        // separate (and unguarded) isEnabled() calls this method used to make. An unreadable value
+        // must not be treated as "off, so enable it" -- the exact automatic write this method
+        // exists to gate -- so only a positively known "off" takes that branch; an unknown value
+        // takes neither the "already on" nor the "off, re-enable" path this tick, and the next
+        // heartbeat tick (60s later) re-derives it fresh.
+        Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(this, "keep_alive_check");
         KeepADBDiagnostics.heartbeatEvent(this, "recheck_started", "keep_alive_check", "service",
-                "started", "wifiConnected=" + isWifiConnected(this) + " adbWifi=" + KeepADB.isEnabled(this));
+                "started", "wifiConnected=" + isWifiConnected(this) + " adbWifi=" + adbEnabledOrNull);
         if (KeepADBPreferences.isKeepAliveEnabled(this) && !KeepADB.wasLastExplicitIntentOff(this)) {
             if (isWifiConnected(this)) {
-                if (!KeepADB.isEnabled(this)) {
+                if (Boolean.FALSE.equals(adbEnabledOrNull)) {
                     if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)) {
                         Log.i(TAG, "Wi-Fi connected but network is untrusted; not auto-enabling");
                         KeepADBDiagnostics.heartbeatEvent(this, "recheck_result", "keep_alive_check", "service", "blocked", "untrusted_network");

@@ -33,10 +33,14 @@ final class KeepADBUsbNotification {
     static void refresh(Context context, boolean connected) {
         Context appContext = KeepADBLocaleHelper.wrapContext(context.getApplicationContext());
 
+        // #582: an unreadable state is displayed like "not enabled" (consistent with every other
+        // display surface's fallback) -- the manual handover action stays offered rather than
+        // silently disappearing because the read happened to fail.
+        Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(appContext, "usb_notification");
         boolean handoverActionVisible = connected
                 && KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL.equals(
                         KeepADBPreferences.getUsbWlanHandoverMode(appContext))
-                && !KeepADB.isEnabled(appContext);
+                && (adbEnabledOrNull == null || !adbEnabledOrNull);
         if (!handoverActionVisible) {
             lastHandoverActionFailed = false;
         }
