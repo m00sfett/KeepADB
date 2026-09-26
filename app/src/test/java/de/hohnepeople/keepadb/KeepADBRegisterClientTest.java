@@ -438,6 +438,163 @@ public class KeepADBRegisterClientTest {
         assertEquals(1, transport.getRequestCount());
     }
 
+    /**
+     * #562: the coordinated retry staffing agreed in the issue -- immediate first attempt, then
+     * 5s/10s/15s/30s/1min/3min after each consecutive failure, settling into a 5min ceiling. Uses
+     * the injectable {@code pendingCleanupNowForTesting} clock (shared with the existing #317
+     * pending-cleanup backoff) instead of real sleeps, so the whole progression runs instantly.
+     */
+    @Test
+    public void testMarkUnavailableAsyncRetryFollowsApprovedBackoffStaffing() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        long t0 = 1_000_000_000L;
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(t0);
+
+        // First attempt for a newly-unavailable endpoint is immediate, regardless of backoff.
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        assertEquals(1, transport.getRequestCount());
+        assertEquals(1, KeepADBRegisterClient.getMarkUnavailableRetryAttemptsForTesting());
+        long[] expectedBackoffsMs = {5_000L, 10_000L, 15_000L, 30_000L, 60_000L, 180_000L};
+        long expectedNextAt = t0 + expectedBackoffsMs[0];
+        assertEquals(expectedNextAt, KeepADBRegisterClient.getMarkUnavailableNextAttemptAtForTesting());
+
+        long now = t0;
+        int expectedRequestCount = 1;
+        for (int i = 0; i < expectedBackoffsMs.length; i++) {
+            // Repeated calls inside the current backoff window must not re-issue the DELETE --
+            // this is exactly the request storm #562 reports (51 failures, mostly ~60s apart).
+            KeepADBRegisterClient.setPendingCleanupNowForTesting(now);
+            KeepADBRegisterClient.markUnavailableAsync(context);
+            KeepADBRegisterClient.awaitIdleForTesting(3000);
+            assertEquals("no retry before backoff #" + i + " elapses",
+                    expectedRequestCount, transport.getRequestCount());
+
+            KeepADBRegisterClient.setPendingCleanupNowForTesting(now + expectedBackoffsMs[i] - 1);
+            KeepADBRegisterClient.markUnavailableAsync(context);
+            KeepADBRegisterClient.awaitIdleForTesting(3000);
+            assertEquals("no retry 1ms before backoff #" + i + " elapses",
+                    expectedRequestCount, transport.getRequestCount());
+
+            now = now + expectedBackoffsMs[i];
+            KeepADBRegisterClient.setPendingCleanupNowForTesting(now);
+            KeepADBRegisterClient.markUnavailableAsync(context);
+            KeepADBRegisterClient.awaitIdleForTesting(3000);
+            expectedRequestCount++;
+            assertEquals("retry fires once its backoff elapses",
+                    expectedRequestCount, transport.getRequestCount());
+            assertEquals(i + 2, KeepADBRegisterClient.getMarkUnavailableRetryAttemptsForTesting());
+
+            long nextBackoffMs = (i + 1 < expectedBackoffsMs.length)
+                    ? expectedBackoffsMs[i + 1]
+                    : 300_000L; // 5min ceiling once the table is exhausted (#562).
+            assertEquals(now + nextBackoffMs,
+                    KeepADBRegisterClient.getMarkUnavailableNextAttemptAtForTesting());
+        }
+
+        // One more failure beyond the table: settles into the flat 5min ceiling, not a further
+        // escalation and not an unbounded/age-based cutoff.
+        now = now + 300_000L;
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(now);
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        expectedRequestCount++;
+        assertEquals(expectedRequestCount, transport.getRequestCount());
+        assertEquals(now + 300_000L, KeepADBRegisterClient.getMarkUnavailableNextAttemptAtForTesting());
+    }
+
+    /**
+     * #562: once the register actually confirms the DELETE, the retry counter must not linger --
+     * a later, independent unavailability must again get its immediate first attempt rather than
+     * inheriting a stale backoff from an unrelated earlier failure sequence.
+     */
+    @Test
+    public void testMarkUnavailableAsyncRetryResetsAfterSuccessfulCleanup() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        long t0 = 2_000_000_000L;
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(t0);
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        assertEquals(1, transport.getRequestCount());
+        assertEquals(1, KeepADBRegisterClient.getMarkUnavailableRetryAttemptsForTesting());
+
+        // The next attempt (once its backoff has elapsed) succeeds.
+        transport.setDeleteSuccess(true);
+        long t1 = t0 + 5_000L;
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(t1);
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        assertEquals(2, transport.getRequestCount());
+        assertEquals(0, KeepADBRegisterClient.getMarkUnavailableRetryAttemptsForTesting());
+        assertEquals(0L, KeepADBRegisterClient.getMarkUnavailableNextAttemptAtForTesting());
+
+        // A brand-new registration/unavailability cycle afterwards is not throttled by the
+        // resolved, unrelated earlier sequence.
+        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.60:9000");
+        KeepADBRegisterClient.setWlanStateForTesting("http://fake.url/register", "192.168.1.60:9000");
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        assertEquals(3, transport.getRequestCount());
+        assertEquals(1, KeepADBRegisterClient.getMarkUnavailableRetryAttemptsForTesting());
+    }
+
+    /**
+     * #562: a confirmed new registration must never be blocked or overridden by a stale
+     * "unavailable" retry that is still waiting out its own backoff for the previous resource.
+     */
+    @Test
+    public void testMarkUnavailableAsyncRetryDoesNotBlockNewRegistration() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        long t0 = 3_000_000_000L;
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(t0);
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        assertEquals(1, transport.getRequestCount());
+        assertTrue(KeepADBRegisterClient.getMarkUnavailableNextAttemptAtForTesting() > t0);
+
+        // The device reconnects while still inside the pending-DELETE backoff window: the new
+        // registration must go through unaffected by the still-open retry gate.
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.50", 55555);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals("192.168.1.50:55555", KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+        // The stale retry state for the old resource must be cleared by the confirmed
+        // registration, not left to fire a delayed DELETE against the now-live endpoint.
+        assertEquals(0, KeepADBRegisterClient.getMarkUnavailableRetryAttemptsForTesting());
+        assertEquals(0L, KeepADBRegisterClient.getMarkUnavailableNextAttemptAtForTesting());
+    }
+
     @Test
     public void testInFlightUpdateSupersededByNewerUpdate() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();

@@ -1,0 +1,1 @@
+• Register-webhook cleanup retries are now paced (5s up to 5min apart) instead of hammering the endpoint after a failed disconnect notice; only affects users with the optional register webhook enabled.
