@@ -23,6 +23,20 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.8.42] - Unreleased
+
+### Changed
+- `markUnavailableAsync()` (fired on every notification/service refresh and network callback once
+  Wireless Debugging or the last verified transport drops) used to issue an immediate register
+  DELETE on every single call, with no coordination between repeated calls. A P60 run logged 51
+  failed DELETEs, mostly ~60s apart. Repeat calls are now throttled with the staffing agreed in
+  #562: the first attempt is still immediate, then failures wait 5s, 10s, 15s, 30s, 1min, 3min,
+  settling into a flat 5min ceiling afterwards -- with no age-based cutoff. The last confirmed
+  register state is kept until a DELETE actually succeeds, and a confirmed new registration
+  (`performUpdateTransaction` succeeding) resets the backoff outright, so a live reconnect is never
+  blocked or undone by a stale retry. Only affects users who enabled the optional register webhook
+  (#562).
+
 ## [1.8.41] - Unreleased
 
 ### Fixed

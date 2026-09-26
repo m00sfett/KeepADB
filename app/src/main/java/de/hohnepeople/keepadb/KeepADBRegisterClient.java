@@ -24,6 +24,18 @@ final class KeepADBRegisterClient {
     static final long PENDING_CLEANUP_EXPIRY_MS = 24L * 60L * 60L * 1000L;
     static final long PENDING_CLEANUP_INITIAL_BACKOFF_MS = 30_000L;
     static final long PENDING_CLEANUP_MAX_BACKOFF_MS = 5L * 60L * 1000L;
+    /**
+     * #562: coordinated retry staffage for {@link #markUnavailableAsync}. Repeated notification-
+     * /service refreshes and network callbacks used to re-issue an immediate DELETE on every call
+     * (observed as 51 failed DELETEs, mostly ~60s apart, in a single P60 run). The first attempt is
+     * still immediate; each subsequent attempt after a failure waits at least the matching entry
+     * here, then settles into {@link #MARK_UNAVAILABLE_MAX_BACKOFF_MS} once the table is exhausted.
+     * User-approved staffing from issue #562: 5s, 10s, 15s, 30s, 1min, 3min, then <=5min forever.
+     */
+    static final long[] MARK_UNAVAILABLE_RETRY_BACKOFFS_MS = {
+            5_000L, 10_000L, 15_000L, 30_000L, 60_000L, 180_000L
+    };
+    static final long MARK_UNAVAILABLE_MAX_BACKOFF_MS = 5L * 60L * 1000L;
     private static volatile Long pendingCleanupNowForTesting;
     private static Handler mainHandler;
 
@@ -66,6 +78,9 @@ final class KeepADBRegisterClient {
     private static volatile boolean stateInitialized = false;
     private static volatile long currentOpGeneration = 0;
     private static volatile boolean wlanUpdateInFlight = false;
+    /** #562: consecutive markUnavailableAsync DELETE failures, and when the next retry may run. */
+    private static volatile int markUnavailableRetryAttempts = 0;
+    private static volatile long markUnavailableNextAttemptAt = 0L;
     private KeepADBRegisterClient() {}
 
     static synchronized void ensureStateInitializedLocked(Context context) {
@@ -116,11 +131,19 @@ final class KeepADBRegisterClient {
             ensureStateInitializedLocked(appContext);
             boolean wasInFlight = wlanUpdateInFlight;
             boolean hadPrior = (lastRegisteredEndpoint != null || lastRegisteredUrl != null);
-            wlanUpdateInFlight = false;
-            opGen = ++currentOpGeneration;
             if (!wasInFlight && !hadPrior) {
                 return;
             }
+            // #562: only gate repeat calls once a previous attempt actually failed -- the very
+            // first request for a given unavailability is always immediate, matching the
+            // approved staffing ("sofortiger Erstversuch"). This keeps rapid-fire refreshes and
+            // network callbacks from re-issuing the DELETE on every call.
+            long now = pendingCleanupNow();
+            if (markUnavailableRetryAttempts > 0 && now < markUnavailableNextAttemptAt) {
+                return;
+            }
+            wlanUpdateInFlight = false;
+            opGen = ++currentOpGeneration;
         }
 
         EXECUTOR.execute(() -> {
@@ -367,6 +390,9 @@ final class KeepADBRegisterClient {
                     // later would silently erase the live registration.
                     removePendingCleanupsForResource(context, targetUrl);
                     wlanUpdateInFlight = false;
+                    // #562: a confirmed live registration supersedes any pending "unavailable"
+                    // cleanup retry that was still waiting out its backoff for the old resource.
+                    resetMarkUnavailableRetryLocked();
                     lastRegisteredUrl = targetUrl;
                     lastRegisteredEndpoint = targetEndpoint;
                     // #317: one editor transaction; four separate apply() calls could be torn apart
@@ -398,6 +424,7 @@ final class KeepADBRegisterClient {
                 wlanUpdateInFlight = false;
                 lastRegisteredUrl = null;
                 lastRegisteredEndpoint = null;
+                resetMarkUnavailableRetryLocked();
                 KeepADBPreferences.setWebhookReportSnapshot(context, null, null, null, false);
                 notifyRegisterStateListener();
                 return;
@@ -412,6 +439,7 @@ final class KeepADBRegisterClient {
                     wlanUpdateInFlight = false;
                     lastRegisteredUrl = null;
                     lastRegisteredEndpoint = null;
+                    resetMarkUnavailableRetryLocked();
                     KeepADBPreferences.setWebhookReportSnapshot(context, null, null,
                             KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED, true);
                     notifyRegisterStateListener();
@@ -421,12 +449,39 @@ final class KeepADBRegisterClient {
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
                     wlanUpdateInFlight = false;
+                    recordMarkUnavailableRetryFailureLocked();
                     KeepADBPreferences.setWebhookLastReportStatus(
                             context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
                     notifyRegisterStateListener();
                 }
             }
         }
+    }
+
+    /** #562: caller must hold the class monitor. */
+    private static void resetMarkUnavailableRetryLocked() {
+        markUnavailableRetryAttempts = 0;
+        markUnavailableNextAttemptAt = 0L;
+    }
+
+    /** #562: caller must hold the class monitor. */
+    private static void recordMarkUnavailableRetryFailureLocked() {
+        markUnavailableRetryAttempts++;
+        markUnavailableNextAttemptAt = saturatingAdd(pendingCleanupNow(),
+                markUnavailableBackoffMs(markUnavailableRetryAttempts));
+    }
+
+    /**
+     * #562: user-approved staffing -- 5s, 10s, 15s, 30s, 1min, 3min after the first through sixth
+     * consecutive failure, then a flat 5min ceiling for every failure after that. No age-based
+     * cutoff: retries continue until the DELETE succeeds or a newer registration supersedes it.
+     */
+    private static long markUnavailableBackoffMs(int consecutiveFailures) {
+        if (consecutiveFailures <= 0) return 0L;
+        if (consecutiveFailures <= MARK_UNAVAILABLE_RETRY_BACKOFFS_MS.length) {
+            return MARK_UNAVAILABLE_RETRY_BACKOFFS_MS[consecutiveFailures - 1];
+        }
+        return MARK_UNAVAILABLE_MAX_BACKOFF_MS;
     }
 
     private static synchronized boolean hasLiveRegistrationAtUrl(String cleanupUrl) {
@@ -476,6 +531,8 @@ final class KeepADBRegisterClient {
         stateInitialized = false;
         currentOpGeneration = 0;
         wlanUpdateInFlight = false;
+        markUnavailableRetryAttempts = 0;
+        markUnavailableNextAttemptAt = 0L;
         registerStateListener = null;
         pendingCleanupNowForTesting = null;
         resetHttpTransport();
@@ -528,6 +585,14 @@ final class KeepADBRegisterClient {
 
     static boolean isWlanUpdateInFlightForTesting() {
         return wlanUpdateInFlight;
+    }
+
+    static int getMarkUnavailableRetryAttemptsForTesting() {
+        return markUnavailableRetryAttempts;
+    }
+
+    static long getMarkUnavailableNextAttemptAtForTesting() {
+        return markUnavailableNextAttemptAt;
     }
 
     /**
