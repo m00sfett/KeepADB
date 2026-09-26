@@ -1,0 +1,1 @@
+• Security: the Quick Settings tile now asks you to unlock your device before it switches Wireless Debugging on from the lock screen. Switching it off still works without unlocking.
