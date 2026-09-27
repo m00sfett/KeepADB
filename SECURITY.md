@@ -28,7 +28,7 @@ pretending the port isn't open. Concretely, KeepADB tries to:
   locked, secured device the tile asks Android for the unlock first; switching it off from the
   lock screen stays possible without unlocking (#586);
 - require an unlocked device to switch Wireless Debugging on from the USB notification's "Enable
-  WLAN-ADB" handover action, with the same two layers as the trust action (#588);
+  Wifi-ADB" handover action, with the same two layers as the trust action (#588);
 - keep connection details out of notifications by default: unless the user turns on Settings →
   Notification → "Show connection details in notifications" (off by default), the persistent
   main notification shows only the status (no port or IP address), the USB-ADB notification shows
