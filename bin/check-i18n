@@ -80,9 +80,11 @@ ALLOWLIST = {
     "settings_section_usb_adb": ALL_LANGUAGES,   # protocol term "USB-ADB", not prose (#520)
     "transport_tailscale_label": ALL_LANGUAGES,  # brand name "Tailscale/VPN", not prose (#538)
     "transport_usb_label": ALL_LANGUAGES,        # protocol term "USB", not prose (#538)
-    "usb_notification_enable_wlan_handover": ALL_LANGUAGES,  # protocol term "WLAN-ADB" only:
+    "usb_notification_enable_wlan_handover": ALL_LANGUAGES,  # product term "Wifi-ADB" only:
     # One UI gives each of the three USB notification actions an equal ~8-character slot,
-    # so the handover action is just the term itself in every language (#593)
+    # so the handover action is just the term itself in every language (#593). Renamed from
+    # "WLAN-ADB" to "Wifi-ADB" for the cross-language glossary in #599; still 8 characters,
+    # still identical across all locales.
 
     # -- Loanwords and technical terms, cleared per language (#236) --
     # "Webhook": kept verbatim inside otherwise translated surroundings
