@@ -17,11 +17,34 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.56` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.57` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.57] - Unreleased
+
+### Testing
+- #601 (follow-up from #596): replaced `KeepADBAsyncSurfaceRefreshContractTest`'s two remaining
+  static source-content contracts with real Robolectric behavior tests. New
+  `MainActivityEndpointListenerGenerationTest#activityDropsQueuedEndpointCallbacksAfterPauseAndRecreation`
+  drives a real `MainActivity` through `ActivityController` pause/resume/recreate and asserts that
+  a callback delivered through a superseded endpoint-listener generation never moves the rendered
+  `R.id.endpoint` text, while a current-generation callback does -- exercising the exact
+  `endpointListenerGeneration`/`endpointSurfaceActive` guard `isEndpointSurfaceActive()` enforces,
+  via reflective access to `KeepADBEndpointCoordinator`'s private `endpointListener` field rather
+  than a new production seam (same pattern `KeepADBEndpointCoordinatorTest`'s `setStatic` already
+  uses). New `KeepADBWidgetMainThreadRefreshTest#widgetStateRefreshRunsOnMainThreadWithoutStartingDiscovery`
+  drives `KeepADBWidget.refreshAllState(Context)` from a genuine background `Thread` against a
+  real `ShadowAppWidgetManager`-backed widget and asserts both that the rendered `RemoteViews`
+  text only changes once the (Robolectric-paused) main looper runs the posted update, and that no
+  discovery attempt is ever started (`KeepADBEndpointCoordinator#hasActiveDiscoveryAttemptForTesting()`).
+  Both new tests were mutation-tested in an isolated worktree against representative production
+  mutations (the generation guard forced to always-active and always-discard; the widget's
+  main-thread post skipped) to confirm each goes red for the right reason. The class's
+  remaining five static tests and their javadoc explanation are unchanged; the class went from
+  seven tests to five.
 
 ## [1.8.56] - Unreleased
 
