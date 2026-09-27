@@ -9,11 +9,16 @@ import android.net.wifi.WifiManager;
  *
  * <p>BSSID is the match key (identifies one physical access point; SSID is a user-chosen,
  * freely reused string, so two unrelated networks can share the same name). SSID is kept only
- * as a human-readable label. Reading either field requires ACCESS_FINE_LOCATION on Android; if
- * that permission is missing (or location is off), the platform returns the placeholder values
- * {@link WifiManager#UNKNOWN_SSID} and {@link #REDACTED_BSSID} instead of throwing, so {@link
- * #isKnown()} must be checked before treating the identity as a real, matchable value -- using
- * the placeholder as-is would make every unrecognized network compare equal (fail-open).
+ * as a human-readable label. Reading either field unmasked requires {@link
+ * android.Manifest.permission#ACCESS_FINE_LOCATION} on Android, and location services must be
+ * enabled. Outside an active UI window, Android also requires an active while-in-use location
+ * context, which {@link KeepADBService} provides via its {@code connectedDevice|location}
+ * foreground service type (#606, C2). If location permission is missing, location is off, or no
+ * while-in-use context exists, the platform returns placeholder values {@link
+ * WifiManager#UNKNOWN_SSID} and {@link #REDACTED_BSSID} ("02:00:00:00:00:00") instead of
+ * throwing. Therefore {@link #isKnown()} must be checked before treating the identity as a real,
+ * matchable value -- using placeholders as-is would make unrecognized or disconnected networks
+ * compare equal (fail-open).
  */
 final class KeepADBNetworkIdentity {
     static final String REDACTED_BSSID = "02:00:00:00:00:00";

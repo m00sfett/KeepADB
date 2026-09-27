@@ -91,11 +91,10 @@ public class KeepADBTrustedNetworkContractTest {
     }
 
     /**
-     * #354, secondary finding: {@code onLost}/{@code onAvailable} only fire while {@link
-     * KeepADBService} has its callback registered, yet {@code KeepADBEndpoint} and {@code
-     * KeepADBUsbHandover} read the trust policy on paths that do not require a running service.
-     * The masked-BSSID fallback is therefore gated on a live invalidator, and this pins that
-     * KeepADBService is what actually declares -- and withdraws -- that state.
+     * #354, #620: {@code onLost}/{@code onAvailable} only fire while {@link KeepADBService} has
+     * its callback registered. While C2 (#606) unmasks BSSID in production, the defensive
+     * fallback remains gated on a live invalidator, and this pins that KeepADBService is what
+     * actually declares -- and withdraws -- that state.
      */
     @Test
     public void theMaskedBssidFallbackIsTiedToTheLiveNetworkCallback() throws IOException {
