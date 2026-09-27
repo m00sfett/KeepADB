@@ -101,6 +101,13 @@ public class KeepADBWifiGatedDiscoveryBehaviorTest {
      * whose {@code onUnavailable()} fires after Wi-Fi already dropped mid-attempt would still queue
      * a pointless 2s retry. Asserted by the *absence* of a second discovery attempt after the
      * normal retry delay elapses, not by counting Wi-Fi-check occurrences in the source.
+     *
+     * <p>Wi-Fi is deliberately reconnected again before the delay elapses: the retry's own *second*
+     * check (inside the delayed runnable, covered separately by {@link
+     * #retryAbortsInsideTheDelayedRunnableWhenWifiDropsAfterBeingScheduled()}) would otherwise mask
+     * a defeated first check, since it would also block the resulting stray retry while Wi-Fi
+     * happens to still be down at fire time -- this reconnect makes the two checks independently
+     * observable, matching AGENTS.md's "which violation lets the test pass for the wrong reason".
      */
     @Test
     public void retryNeverSchedulesASecondAttemptWhenWifiIsAlreadyDisconnectedWhenDiscoveryFails() {
@@ -121,11 +128,15 @@ public class KeepADBWifiGatedDiscoveryBehaviorTest {
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
         scheduler.advanceBy(8_000);
 
+        // Wi-Fi reconnects again before the (would-be) retry delay elapses -- see javadoc above.
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+
         // Advance well past the 2s initial retry delay: if scheduleRetryLocked() had queued a
         // retry anyway, this is where it would fire and start a second discovery attempt.
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(5_000));
 
-        assertEquals("no retry may have been scheduled without an active Wi-Fi connection",
+        assertEquals("no retry may have been scheduled without an active Wi-Fi connection at the "
+                        + "time discovery failed",
                 1, nsdProbe.discoverServicesCallCount);
     }
 
