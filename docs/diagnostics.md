@@ -11,7 +11,7 @@ The buffer is overwritten oldest-first and excluded from cloud backup and device
 does not upload it automatically; data leaves the app only when the user chooses a share target.
 
 Pairing codes, tokens, passwords, authorization values, and URLs are redacted before Logcat and
-the export buffer. Endpoint IP/port values may remain because they are the subject of the WLAN-ADB
+the export buffer. Endpoint IP/port values may remain because they are the subject of the Wifi-ADB
 diagnosis. Logcat retention is controlled by Android; the local buffer is limited to 128 events.
 
 A Wi-Fi access point's BSSID is shortened before export: only its OUI (the first three octets,
@@ -24,7 +24,7 @@ editable draft.
 A debug build additionally keeps a 48-hour diagnostics journal instead of the 128-event ring
 buffer, including a per-minute network/Keep-Alive/Tailscale/endpoint state snapshot fed by the
 service heartbeat; that snapshot's shown endpoint host/port go through the same "may remain, this
-is the WLAN-ADB diagnosis subject" rule above, and any BSSID/SSID it were to carry would go
+is the Wifi-ADB diagnosis subject" rule above, and any BSSID/SSID it were to carry would go
 through the same shortening/masking as any other exported event.
 
 The event sequence is intended to be read as `user_action`/`toggle_attempt` -> `state_observed` ->

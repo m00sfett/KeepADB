@@ -1,7 +1,7 @@
 # Testweg „frisches WLAN" über den P60-Hotspot (#496)
 
-Für Fixes am WLAN-ADB-Verhalten braucht der Pflicht-Gerätetest auf dem S20 (`s20`) ein
-Netzwerk, für das die Android-Systemfreigabe „Immer in diesem Netzwerk zulassen" (WLAN-ADB-
+Für Fixes am Wifi-ADB-Verhalten braucht der Pflicht-Gerätetest auf dem S20 (`s20`) ein
+Netzwerk, für das die Android-Systemfreigabe „Immer in diesem Netzwerk zulassen" (Wifi-ADB-
 Pairing-Dialog) garantiert noch nie erteilt wurde — ein bereits freigegebenes Heimnetz kann
 den zu prüfenden Erststart-Pfad nicht reproduzieren. Dieses Dokument hält den dafür etablierten
 Testweg fest, mit den beiden Problemen, die er tatsächlich verursacht hat, damit sie nicht bei
@@ -32,7 +32,7 @@ ursprünglichen (fehlerhaften) Fix, der zweite gegen den reparierten Stand.
 ### 1. Rolfphones eigene KeepADB-Instanz reagiert auf den eigenen Netzwerkwechsel
 
 Nach dem Aktivieren des Test-Hotspots auf `rolfphone` war das Gerät im zweiten Testzyklus
-zeitweise über ADB/SSH nicht mehr erreichbar (weder WLAN-ADB noch USB), obwohl es laut
+zeitweise über ADB/SSH nicht mehr erreichbar (weder Wifi-ADB noch USB), obwohl es laut
 Tailscale-Ping online war. Plausibelste Ursache: Die auf `rolfphone` selbst installierte
 KeepADB-Instanz hat den eigenen Netzwerkwechsel (Wechsel in den Hotspot-Modus zählt aus
 Android-Sicht als Konnektivitätsänderung) als Trigger genommen und ihr eigenes Wireless

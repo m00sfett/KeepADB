@@ -3,13 +3,13 @@ package de.hohnepeople.keepadb;
 import android.content.Context;
 
 /**
- * Optional USB-ADB -&gt; WLAN-ADB handover (#168). Enabling WLAN-ADB via
+ * Optional USB-ADB -&gt; Wifi-ADB handover (#168). Enabling Wifi-ADB via
  * {@link KeepADB#setEnabled(Context, boolean, String)} already triggers endpoint discovery and
  * register reporting on its own (see {@link KeepADBEndpointCoordinator#refresh(Context)}); this class
  * only decides *when* that call should happen for the USB handover feature.
  *
  * <p>Two entry points, both eventually reaching {@link KeepADB#setEnabled}, never with
- * {@code false} -- this class never disables WLAN-ADB:
+ * {@code false} -- this class never disables Wifi-ADB:
  * <ul>
  *   <li>{@link #onRawUsbBroadcast(Context, boolean)} -- AUTOMATIC mode, called only from
  *       {@link KeepADBUsbReceiver#onReceive}'s real {@code USB_STATE} broadcasts. Gated by
@@ -17,7 +17,7 @@ import android.content.Context;
  *       paths, since it's an automatic action, not a direct user request. Source
  *       {@code "usb_handover"}, i.e. debounced and revalidated at write time (#310).</li>
  *   <li>{@link #handleManualAction(Context)} -- MANUAL mode, called from the USB notification's
- *       "Enable WLAN-ADB" action. A direct, explicit user action, so it is never gated by the
+ *       "Enable Wifi-ADB" action. A direct, explicit user action, so it is never gated by the
  *       trusted-network allowlist and, since #310, carries its own source
  *       {@link KeepADB#SOURCE_USB_HANDOVER_MANUAL} so KeepADB applies it without delay.</li>
  * </ul>
@@ -52,7 +52,7 @@ final class KeepADBUsbHandover {
         // consumed by anything, so it can't be starved by that other reader.
         boolean lastIntentOff = KeepADB.wasLastExplicitIntentOff(appContext);
         if (onRawUsbBroadcastInternal(connected, mode, alreadyEnabled, lastIntentOff)) {
-            // #245: AUTOMATIC mode auto-enables WLAN-ADB the same way KeepADBService's own
+            // #245: AUTOMATIC mode auto-enables Wifi-ADB the same way KeepADBService's own
             // auto re-enable paths do, so it must respect the same trusted-network allowlist --
             // otherwise plugging in a USB cable on an untrusted Wi-Fi network would silently
             // bypass the very setting meant to prevent exactly that. handleManualAction() below
@@ -62,7 +62,7 @@ final class KeepADBUsbHandover {
             // unconditionally without ever asking whether a Wi-Fi transport is actually
             // connected right now, so this must independently require one -- otherwise plugging
             // in USB while the phone has no Wi-Fi at all (but still remembers MODE_ALL_WIFI)
-            // would auto-enable WLAN-ADB with no listener for adbd to ever bind on.
+            // would auto-enable Wifi-ADB with no listener for adbd to ever bind on.
             if (!KeepADBService.isWifiConnected(appContext)) {
                 KeepADBDiagnostics.event(appContext, "usb_handover", "usb", "blocked", "no_wifi_transport");
                 return;
@@ -74,7 +74,7 @@ final class KeepADBUsbHandover {
             // #310: the check above happens now; the write may happen up to TOGGLE_COOLDOWN_MS
             // later. The same policy is handed along as a guard so it is re-evaluated at write
             // time -- otherwise plugging in the cable just before leaving a trusted network
-            // would still enable WLAN-ADB on the network the device switched to.
+            // would still enable Wifi-ADB on the network the device switched to.
             KeepADB.setEnabled(appContext, true, "usb_handover",
                     KeepADBUsbHandover::isAutoHandoverStillPermitted);
         }

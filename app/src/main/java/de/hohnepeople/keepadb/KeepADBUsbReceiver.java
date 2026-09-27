@@ -9,7 +9,7 @@ import android.content.IntentFilter;
 /** Receives Android's USB state broadcast and filters it to configured USB-ADB links. */
 public final class KeepADBUsbReceiver extends BroadcastReceiver {
     static final String ACTION_USB_STATE = "android.hardware.usb.action.USB_STATE";
-    // #168: internal-only action for the USB notification's MANUAL "Enable WLAN-ADB" button,
+    // #168: internal-only action for the USB notification's MANUAL "Enable Wifi-ADB" button,
     // dispatched via an explicit PendingIntent.getBroadcast (like KeepADBWidget's TOGGLE action).
     static final String ACTION_HANDOVER_ENABLE = "de.hohnepeople.keepadb.USB_HANDOVER_ENABLE";
     private static final String EXTRA_CONNECTED = "connected";
@@ -35,7 +35,7 @@ public final class KeepADBUsbReceiver extends BroadcastReceiver {
     }
 
     /**
-     * #588: the MANUAL "Enable WLAN-ADB" notification action. Switching Wireless Debugging on
+     * #588: the MANUAL "Enable Wifi-ADB" notification action. Switching Wireless Debugging on
      * requires an unlocked device, like the trust action (#578) and the tile (#586).
      *
      * @return true if Wireless Debugging was actually turned on by this call.
@@ -51,7 +51,7 @@ public final class KeepADBUsbReceiver extends BroadcastReceiver {
         if (keyguardManager != null && keyguardManager.isDeviceLocked()) {
             KeepADBDiagnostics.event(context, "user_action", KeepADB.SOURCE_USB_HANDOVER_MANUAL,
                     "blocked", "device_locked");
-            // Not a failure: WLAN-ADB is untouched, so lastHandoverActionFailed (whose text points
+            // Not a failure: Wifi-ADB is untouched, so lastHandoverActionFailed (whose text points
             // at the permission) is left as it was. Re-post the notification instead so the action
             // stays available to tap again after unlocking -- there is no unlock listener. USB is
             // still connected here for the same reason reportManualActionResult assumes it.

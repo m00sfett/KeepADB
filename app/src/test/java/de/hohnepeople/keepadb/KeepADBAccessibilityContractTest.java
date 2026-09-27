@@ -402,7 +402,7 @@ public class KeepADBAccessibilityContractTest {
         ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
                 settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
         // #510/#519/#520/#521/#529: the core, everyday ADB settings start with the webhook card,
-        // then the "USB-ADB" card, with notification and USB -> WLAN-ADB handover shown as direct
+        // then the "USB-ADB" card, with notification and USB -> Wifi-ADB handover shown as direct
         // sections after the sole outer expand step.
         // Below that sits the "Network (Beta)" card -- itself collapsible since #519, with
         // Trusted Networks and Wi-Fi & access points nested as independently collapsible
@@ -436,7 +436,7 @@ public class KeepADBAccessibilityContractTest {
         View usbHandoverPanel = usbAdbBody.findViewById(R.id.settings_usb_handover_panel);
         assertNotNull(usbNotificationPanel);
         assertNotNull(usbHandoverPanel);
-        assertTrue("USB-ADB notification must come before USB -> WLAN-ADB handover inside USB-ADB",
+        assertTrue("USB-ADB notification must come before USB -> Wifi-ADB handover inside USB-ADB",
                 usbAdbBody.indexOfChild(usbNotificationPanel)
                         < usbAdbBody.indexOfChild(usbHandoverPanel));
 

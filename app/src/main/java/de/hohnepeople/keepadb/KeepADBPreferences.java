@@ -43,7 +43,7 @@ final class KeepADBPreferences {
     // the lock screen is to not put them into the notification at all.
     static final String KEY_NOTIFICATION_DETAILS_ENABLED = "notification_details_enabled";
 
-    // #168: optional USB-ADB -> WLAN-ADB handover offered from the USB notification.
+    // #168: optional USB-ADB -> Wifi-ADB handover offered from the USB notification.
     static final String USB_WLAN_HANDOVER_MODE_OFF = "off";
     static final String USB_WLAN_HANDOVER_MODE_MANUAL = "manual";
     static final String USB_WLAN_HANDOVER_MODE_AUTOMATIC = "automatic";
@@ -83,7 +83,7 @@ final class KeepADBPreferences {
 
     // Deliberately does NOT call KeepADB.consumeUserDisabled() (unlike setKeepAliveEnabled()):
     // choosing MANUAL/AUTOMATIC here only configures future behavior, it is not itself an
-    // explicit "turn WLAN-ADB on now" action. Clearing the user-off flag here would let merely
+    // explicit "turn Wifi-ADB on now" action. Clearing the user-off flag here would let merely
     // enabling this setting silently undo an earlier explicit user disable before any new USB
     // connect edge even happens, which is exactly what issue #168's safety requirement forbids.
     static void setUsbWlanHandoverMode(Context context, String mode) {
@@ -223,7 +223,7 @@ final class KeepADBPreferences {
     }
 
     /**
-     * Returns the last WLAN-ADB webhook result. Missing status is derived from the legacy fields
+     * Returns the last Wifi-ADB webhook result. Missing status is derived from the legacy fields
      * so existing installations keep their previous success/deregistration meaning.
      */
     static String getWebhookLastReportStatus(Context context) {
@@ -257,7 +257,7 @@ final class KeepADBPreferences {
     }
 
     /**
-     * #317: writes the whole WLAN-ADB report snapshot through a single {@link SharedPreferences.Editor}.
+     * #317: writes the whole Wifi-ADB report snapshot through a single {@link SharedPreferences.Editor}.
      *
      * <p>Timestamp, URL, endpoint and status used to be written through four independent
      * {@code apply()} calls, so a crash or LMK kill between two of them could persist a URL
