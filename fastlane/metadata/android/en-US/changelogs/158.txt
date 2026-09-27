@@ -1,2 +1,3 @@
-• Guidance: Added network security onboarding banner on the main screen to easily set up trusted Wi-Fi networks (#619).
-• Internal: Refactored network trust documentation and safeguards for Android 12+ location services (#620).
+• Wi-Fi Protection: Reliable network recognition during background keep-alive without background location permissions, streamlined settings, and quick onboarding.
+• Privacy & Security: Connection details are hidden from the lock screen by default; device unlock required before turning Wifi-ADB on. Safer in-app network trust prompts.
+• Reliability: Improved register webhook pacing, unified "Wifi-ADB" naming, and stability fixes on restricted devices.
