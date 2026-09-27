@@ -333,7 +333,7 @@ final class KeepADB {
         if (!KeepADBService.isWifiConnected(appContext)) {
             return State.ENABLED_DISCONNECTED;
         }
-        if (KeepADBNotification.hasCurrentEndpoint()) {
+        if (KeepADBEndpointCoordinator.snapshot().hasEndpoint()) {
             return State.ENABLED_CONNECTED;
         }
         return State.ENABLED_DISCONNECTED;

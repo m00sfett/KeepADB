@@ -23,14 +23,14 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 /**
- * Regression coverage for issue #351: {@code KeepADBNotification.verifyCachedEndpointAsync()}
+ * Regression coverage for issue #351: {@code KeepADBEndpointCoordinator.verifyCachedEndpointAsync()}
  * used to start a brand-new raw {@link Thread} plus blocking socket check on every single trigger,
  * even while an earlier check for the very same cached endpoint was still in flight. The #315
  * verification token already made a superseded worker's *result* harmless, but did nothing to
  * bound how many concurrent socket checks could pile up from repeated heartbeat/roam triggers.
  *
- * <p>These tests drive {@link KeepADBNotification#verifyEndpointHealth(Context)} against the new
- * {@link KeepADBNotification.ReachabilityProbe} test seam (#351), which lets a fake reachability
+ * <p>These tests drive {@link KeepADBEndpointCoordinator#verifyEndpointHealth(Context)} against the new
+ * {@link KeepADBEndpointCoordinator.ReachabilityProbe} test seam (#351), which lets a fake reachability
  * check block on a {@link CountDownLatch} instead of opening a real, potentially hanging socket
  * (see the scope note in {@link KeepADBNotificationRobolectricTest#wifiNetworkCallbackIsRegisteredAgainstARealConnectivityManager()}
  * on why the real socket path stays out of scope for Robolectric).
@@ -56,7 +56,7 @@ public class KeepADBVerificationWorkerCoalescingTest {
 
     @After
     public void resetSharedState() throws Exception {
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting();
         setStatic("currentHost", null);
         setStatic("currentPort", 0);
@@ -70,7 +70,7 @@ public class KeepADBVerificationWorkerCoalescingTest {
         CountDownLatch releaseProbe = new CountDownLatch(1);
         CountDownLatch probeStarted = new CountDownLatch(1);
         AtomicInteger probeInvocations = new AtomicInteger();
-        KeepADBNotification.setReachabilityProbeForTesting((host, port, timeoutMs) -> {
+        KeepADBEndpointCoordinator.setReachabilityProbeForTesting((host, port, timeoutMs) -> {
             probeInvocations.incrementAndGet();
             probeStarted.countDown();
             try {
@@ -82,18 +82,18 @@ public class KeepADBVerificationWorkerCoalescingTest {
         });
 
         // First trigger (e.g. the 60s heartbeat) starts the worker; it blocks on releaseProbe.
-        KeepADBNotification.verifyEndpointHealth(context);
+        KeepADBEndpointCoordinator.verifyEndpointHealth(context);
         assertTrue("the first trigger's worker must have actually started its reachability check",
                 probeStarted.await(5, TimeUnit.SECONDS));
 
         // Further triggers arriving while that worker is still in flight (e.g. a roam callback
         // firing moments later) must be coalesced into it, not spawn their own worker.
         for (int i = 0; i < 5; i++) {
-            KeepADBNotification.verifyEndpointHealth(context);
+            KeepADBEndpointCoordinator.verifyEndpointHealth(context);
         }
 
         assertEquals("repeated triggers for the same in-flight check must not start additional "
-                        + "worker threads", 1, KeepADBNotification.getVerificationWorkerStartCountForTesting());
+                        + "worker threads", 1, KeepADBEndpointCoordinator.getVerificationWorkerStartCountForTesting());
         assertEquals("the coalesced probe must only ever have been invoked once", 1, probeInvocations.get());
 
         releaseProbe.countDown();
@@ -101,11 +101,11 @@ public class KeepADBVerificationWorkerCoalescingTest {
 
         // Once the in-flight worker has finished, a fresh trigger must start a new one again --
         // coalescing must not permanently wedge verification shut.
-        KeepADBNotification.setReachabilityProbeForTesting((host, port, timeoutMs) -> true);
-        KeepADBNotification.verifyEndpointHealth(context);
+        KeepADBEndpointCoordinator.setReachabilityProbeForTesting((host, port, timeoutMs) -> true);
+        KeepADBEndpointCoordinator.verifyEndpointHealth(context);
         awaitVerificationIdle();
         assertEquals("a normal, sequential verification after the in-flight worker completed must "
-                        + "start its own worker", 2, KeepADBNotification.getVerificationWorkerStartCountForTesting());
+                        + "start its own worker", 2, KeepADBEndpointCoordinator.getVerificationWorkerStartCountForTesting());
     }
 
     @Test
@@ -119,7 +119,7 @@ public class KeepADBVerificationWorkerCoalescingTest {
         // normally invalidate the cache and kick off rediscovery -- but by the time it wakes up,
         // a newer event (invalidateEndpoint(), simulating e.g. Wi-Fi loss) has already superseded
         // it. It must not be allowed to clobber that newer state.
-        KeepADBNotification.setReachabilityProbeForTesting((host, port, timeoutMs) -> {
+        KeepADBEndpointCoordinator.setReachabilityProbeForTesting((host, port, timeoutMs) -> {
             probeStarted.countDown();
             try {
                 releaseProbe.await(5, TimeUnit.SECONDS);
@@ -129,20 +129,20 @@ public class KeepADBVerificationWorkerCoalescingTest {
             return false;
         });
 
-        KeepADBNotification.verifyEndpointHealth(context);
+        KeepADBEndpointCoordinator.verifyEndpointHealth(context);
         assertTrue(probeStarted.await(5, TimeUnit.SECONDS));
 
         // A newer event supersedes the in-flight worker before it wakes up.
-        KeepADBNotification.invalidateEndpoint(context);
-        assertNull(KeepADBNotification.getCurrentHost());
+        KeepADBEndpointCoordinator.invalidateEndpoint(context);
+        assertNull(KeepADBEndpointCoordinator.snapshot().host);
 
         releaseProbe.countDown();
         awaitVerificationIdle();
 
         assertNull("a superseded worker must not resurrect a cached endpoint that a newer event "
-                + "already cleared", KeepADBNotification.getCurrentHost());
+                + "already cleared", KeepADBEndpointCoordinator.snapshot().host);
         assertFalse("a superseded worker must release its in-flight flag once it returns",
-                KeepADBNotification.isVerificationInFlightForTesting());
+                KeepADBEndpointCoordinator.isVerificationInFlightForTesting());
     }
 
     /**
@@ -157,31 +157,31 @@ public class KeepADBVerificationWorkerCoalescingTest {
         setStatic("currentHost", "192.0.2.1");
         setStatic("currentPort", 40000);
         AtomicInteger probeInvocations = new AtomicInteger();
-        KeepADBNotification.setReachabilityProbeForTesting((host, port, timeoutMs) -> {
+        KeepADBEndpointCoordinator.setReachabilityProbeForTesting((host, port, timeoutMs) -> {
             probeInvocations.incrementAndGet();
             return true;
         });
-        KeepADBNotification.setWorkerStarterForTesting(worker -> {
+        KeepADBEndpointCoordinator.setWorkerStarterForTesting(worker -> {
             throw new OutOfMemoryError("simulated thread limit exhaustion");
         });
 
-        KeepADBNotification.verifyEndpointHealth(context);
+        KeepADBEndpointCoordinator.verifyEndpointHealth(context);
 
         assertFalse("a worker that never ran must not leave the in-flight flag raised",
-                KeepADBNotification.isVerificationInFlightForTesting());
+                KeepADBEndpointCoordinator.isVerificationInFlightForTesting());
         assertEquals("the refused worker never ran its reachability check", 0, probeInvocations.get());
 
         // The next trigger must be able to start a worker again instead of being coalesced into
         // a worker that does not exist.
-        KeepADBNotification.setWorkerStarterForTesting(null);
-        KeepADBNotification.verifyEndpointHealth(context);
+        KeepADBEndpointCoordinator.setWorkerStarterForTesting(null);
+        KeepADBEndpointCoordinator.verifyEndpointHealth(context);
         awaitVerificationIdle();
         assertEquals("verification must recover on the next trigger", 1, probeInvocations.get());
     }
 
     private static void awaitVerificationIdle() throws InterruptedException {
         long deadline = System.currentTimeMillis() + 5000;
-        while (KeepADBNotification.isVerificationInFlightForTesting()) {
+        while (KeepADBEndpointCoordinator.isVerificationInFlightForTesting()) {
             if (System.currentTimeMillis() > deadline) {
                 fail("verification worker did not finish within the timeout");
             }
@@ -190,7 +190,7 @@ public class KeepADBVerificationWorkerCoalescingTest {
     }
 
     private static void setStatic(String fieldName, Object value) throws Exception {
-        Field field = KeepADBNotification.class.getDeclaredField(fieldName);
+        Field field = KeepADBEndpointCoordinator.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(null, value);
     }

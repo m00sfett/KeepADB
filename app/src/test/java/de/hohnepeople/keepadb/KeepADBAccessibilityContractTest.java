@@ -69,7 +69,7 @@ public class KeepADBAccessibilityContractTest {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADBNetwork.resetForTesting();
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting(context);
     }
 
@@ -80,7 +80,7 @@ public class KeepADBAccessibilityContractTest {
         }
         activities.clear();
         KeepADBNetwork.resetForTesting();
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADB.resetForTesting();

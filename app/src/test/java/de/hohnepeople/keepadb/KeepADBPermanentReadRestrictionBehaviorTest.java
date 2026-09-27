@@ -77,7 +77,7 @@ public class KeepADBPermanentReadRestrictionBehaviorTest {
         context.getSharedPreferences("keepadb_diagnostics", Context.MODE_PRIVATE).edit().clear().commit();
         context.getSharedPreferences("keepadb_trusted_networks", Context.MODE_PRIVATE).edit().clear().commit();
         KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         KeepADBNetwork.resetForTesting();
         KeepADB.resetForTesting();
     }
@@ -341,7 +341,7 @@ public class KeepADBPermanentReadRestrictionBehaviorTest {
 
     /**
      * The narrower race {@code isSearchingForEndpoint()} itself guards against: {@code
-     * onStartListening()} first calls {@link KeepADBNotification#refreshForTile} (one read) and
+     * onStartListening()} first calls {@link KeepADBEndpointCoordinator#refreshForTile} (one read) and
      * then {@link KeepADB#getState} (a second read, needed to reach {@code ENABLED_DISCONNECTED}
      * here) -- both must succeed for this scenario -- but the tile's own third, follow-up read
      * for the subtitle inside {@code isSearchingForEndpoint()} then fails. Before #582 this bare
@@ -381,7 +381,7 @@ public class KeepADBPermanentReadRestrictionBehaviorTest {
         KeepADBPreferences.setKeepAliveEnabled(context, false);
 
         // Must not throw.
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
 
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         assertNull("An unreadable value must not leave (or show) an active-looking notification",
@@ -438,7 +438,7 @@ public class KeepADBPermanentReadRestrictionBehaviorTest {
      * Succeeds on the first {@code successCount} {@link #isEnabled} calls, then throws on every
      * call after that -- the inverse of {@link KeepADBThrowingSettingsGateway}'s "throw once,
      * then succeed" mode, needed to model a state that reads successfully for a while (e.g. the
-     * two reads {@link KeepADBNotification#refreshForTile} and {@link KeepADB#getState} each make)
+     * two reads {@link KeepADBEndpointCoordinator#refreshForTile} and {@link KeepADB#getState} each make)
      * and then fails on an immediately following, independent read (#582).
      */
     private static final class KeepADBSucceedsNTimesThenThrowsGateway implements KeepADBSettingsGateway {

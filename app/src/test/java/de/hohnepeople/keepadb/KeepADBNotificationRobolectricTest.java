@@ -70,7 +70,7 @@ public class KeepADBNotificationRobolectricTest {
         // state doesn't leak between test methods.
         // #453: also tears down any KeepADBEndpoint installed via setEndpointForTesting(), so a
         // fake endpoint from one test never leaks into the next.
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         setStatic("currentHost", null);
         setStatic("currentPort", 0);
         setStatic("endpointListener", null);
@@ -118,17 +118,17 @@ public class KeepADBNotificationRobolectricTest {
         // NSD/socket discovery flow (out of scope for this entry step, see class javadoc).
         setStatic("currentHost", "192.0.2.1");
         setStatic("currentPort", 40000);
-        assertTrue(KeepADBNotification.hasCurrentEndpoint());
+        assertTrue(KeepADBEndpointCoordinator.snapshot().hasEndpoint());
 
-        KeepADBNotification.invalidateEndpoint(context);
+        KeepADBEndpointCoordinator.invalidateEndpoint(context);
         // invalidateEndpoint() dispatches its widget/tile refresh via a static
         // Handler(Looper.getMainLooper()); Robolectric's main looper is paused by default, so
         // without this the post() below would never actually run within the test.
         ShadowLooper.idleMainLooper();
 
-        assertNull(KeepADBNotification.getCurrentHost());
-        assertEquals(0, KeepADBNotification.getCurrentPort());
-        assertTrue(!KeepADBNotification.hasCurrentEndpoint());
+        assertNull(KeepADBEndpointCoordinator.snapshot().host);
+        assertEquals(0, KeepADBEndpointCoordinator.snapshot().port);
+        assertTrue(!KeepADBEndpointCoordinator.snapshot().hasEndpoint());
     }
 
     /**
@@ -138,7 +138,7 @@ public class KeepADBNotificationRobolectricTest {
      * {@link KeepADBRoamNotificationRefreshContractTest} does.
      *
      * <p>The #276 roam re-verification itself ({@code onCapabilitiesChanged} ->
-     * {@code KeepADBNotification.verifyEndpointHealth()}) is intentionally NOT exercised
+     * {@code KeepADBEndpointCoordinator.verifyEndpointHealth()}) is intentionally NOT exercised
      * end-to-end here: {@code verifyEndpointHealth()} spawns a raw background {@link Thread} that
      * opens a real {@link java.net.Socket} to check reachability, which would either hang or
      * flake in a sandboxed test run. Driving that path for real would need an injectable
@@ -176,7 +176,7 @@ public class KeepADBNotificationRobolectricTest {
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
 
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
 
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         ShadowNotificationManager shadowManager = shadowOf(manager);
@@ -200,7 +200,7 @@ public class KeepADBNotificationRobolectricTest {
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
 
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
 
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         Notification notification = shadowOf(manager)
@@ -222,14 +222,14 @@ public class KeepADBNotificationRobolectricTest {
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
 
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
 
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         ShadowNotificationManager shadowManager = shadowOf(manager);
         assertNotNull(shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID));
 
         KeepADBPreferences.setNotificationHidden(context, true);
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
 
         assertNull("Notification must be cancelled when Keep-Alive is inactive and hidden is true",
                 shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID));
@@ -258,7 +258,7 @@ public class KeepADBNotificationRobolectricTest {
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
 
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
 
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         ShadowNotificationManager shadowManager = shadowOf(manager);
@@ -270,7 +270,7 @@ public class KeepADBNotificationRobolectricTest {
         assertEquals(context.getString(R.string.notification_text_disabled_keepalive_waiting),
                 notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());
         assertTrue("Cached endpoint must be cleared once Wireless Debugging is confirmed off",
-                !KeepADBNotification.hasCurrentEndpoint());
+                !KeepADBEndpointCoordinator.snapshot().hasEndpoint());
     }
 
     /**
@@ -289,7 +289,7 @@ public class KeepADBNotificationRobolectricTest {
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
 
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
 
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         ShadowNotificationManager shadowManager = shadowOf(manager);
@@ -303,13 +303,13 @@ public class KeepADBNotificationRobolectricTest {
      * must show "disabled, waiting" rather than "searching...".
      *
      * <p>#453: the previous version of this test set {@code gateway(false)} before calling {@link
-     * KeepADBNotification#refresh(Context)}, so {@code refreshInternal()}'s early {@code
+     * KeepADBEndpointCoordinator#refresh(Context)}, so {@code refreshInternal()}'s early {@code
      * !isEnabled()} guard returned before discovery ever started -- the {@code onUnavailable()}
      * branch inside {@code startDiscoveryDirectLocked()} this test claims to cover was never
      * reached. This version starts Wireless Debugging enabled so a real discovery attempt begins
      * (using the {@link KeepADBFakeNsdProbe}/{@link KeepADBFakeScheduler} seams {@link
      * KeepADBEndpoint} already exposes for its own tests, #249, plus {@link
-     * KeepADBNotification#setEndpointForTesting}, #453), then flips the gateway to disabled while
+     * KeepADBEndpointCoordinator#setEndpointForTesting}, #453), then flips the gateway to disabled while
      * that discovery is still in flight and advances the fake scheduler past {@code
      * OVERALL_TIMEOUT_MS} so the real {@code KeepADBEndpoint.Listener.onUnavailable()} callback
      * fires -- exactly the mid-discovery drop the issue describes.
@@ -326,11 +326,11 @@ public class KeepADBNotificationRobolectricTest {
         KeepADBFakeNsdProbe nsdProbe = new KeepADBFakeNsdProbe();
         KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
         KeepADBEndpoint fakeEndpoint = new KeepADBEndpoint(context, nsdProbe, scheduler);
-        KeepADBNotification.setEndpointForTesting(fakeEndpoint);
+        KeepADBEndpointCoordinator.setEndpointForTesting(fakeEndpoint);
 
         // isEnabled() is still true here: refreshInternal() must actually start discovery, not
         // take the early !isEnabled() exit the old test accidentally triggered.
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
         assertEquals("refresh() must have started a real mDNS discovery attempt",
                 1, nsdProbe.discoverServicesCallCount);
 
@@ -354,7 +354,7 @@ public class KeepADBNotificationRobolectricTest {
     }
 
     private static void setStatic(String fieldName, Object value) throws Exception {
-        Field field = KeepADBNotification.class.getDeclaredField(fieldName);
+        Field field = KeepADBEndpointCoordinator.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(null, value);
     }

@@ -29,12 +29,12 @@ import org.robolectric.annotation.Config;
  * KeepADBNotification} itself.
  *
  * <p>Unlike a source-content contract (which only proves relevant snippets exist in the right
- * source order), this drives {@link KeepADBNotification#refresh(Context)} end-to-end against a
+ * source order), this drives {@link KeepADBEndpointCoordinator#refresh(Context)} end-to-end against a
  * genuine, Robolectric-shadowed {@link android.app.NotificationManager} (matching the {@link
  * KeepADBNotificationRobolectricTest} #286 entry step) and a deterministic Wi-Fi state, then
  * asserts on the actual runtime outcome: whether a discovery attempt was actually started ({@link
- * KeepADBNotification#hasActiveDiscoveryAttemptForTesting()}) and whether the
- * {@code endpoint_discovery_skipped} diagnostics event {@link KeepADBNotification#refreshInternal}
+ * KeepADBEndpointCoordinator#hasActiveDiscoveryAttemptForTesting()}) and whether the
+ * {@code endpoint_discovery_skipped} diagnostics event {@link KeepADBEndpointCoordinator#refreshInternal}
  * emits on the skip path was actually persisted -- not whether particular source text appears.
  *
  * <p>#596 added the {@code scheduleRetryLocked*} group below: they drive a real discovery attempt
@@ -60,7 +60,7 @@ public class KeepADBWifiGatedDiscoveryBehaviorTest {
 
     @After
     public void resetSharedState() {
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         KeepADBNetwork.resetForTesting();
         KeepADB.resetForTesting();
     }
@@ -70,12 +70,12 @@ public class KeepADBWifiGatedDiscoveryBehaviorTest {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
 
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
 
         assertFalse("startDiscoveryDirectLocked() must not have run while Wi-Fi is disconnected "
                         + "(#296) -- KeepADBEndpoint must never be instantiated for a doomed-to-fail "
                         + "discovery attempt",
-                KeepADBNotification.hasActiveDiscoveryAttemptForTesting());
+                KeepADBEndpointCoordinator.hasActiveDiscoveryAttemptForTesting());
         assertTrue("refreshInternal() must record the skip as a real diagnostics event, not just "
                         + "silently no-op",
                 KeepADBDiagnostics.export(context).contains("event=endpoint_discovery_skipped"));
@@ -86,11 +86,11 @@ public class KeepADBWifiGatedDiscoveryBehaviorTest {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
 
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
 
         assertTrue("the connected case must still be reachable: startDiscoveryDirectLocked() must "
                         + "run and instantiate a real KeepADBEndpoint",
-                KeepADBNotification.hasActiveDiscoveryAttemptForTesting());
+                KeepADBEndpointCoordinator.hasActiveDiscoveryAttemptForTesting());
         assertFalse("the connected case must never be misreported as skipped",
                 KeepADBDiagnostics.export(context).contains("event=endpoint_discovery_skipped"));
     }
@@ -116,9 +116,9 @@ public class KeepADBWifiGatedDiscoveryBehaviorTest {
         KeepADBFakeNsdProbe nsdProbe = new KeepADBFakeNsdProbe();
         KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
         KeepADBEndpoint fakeEndpoint = new KeepADBEndpoint(context, nsdProbe, scheduler);
-        KeepADBNotification.setEndpointForTesting(fakeEndpoint);
+        KeepADBEndpointCoordinator.setEndpointForTesting(fakeEndpoint);
 
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
         assertEquals("precondition: the first discovery attempt must have started",
                 1, nsdProbe.discoverServicesCallCount);
 
@@ -152,9 +152,9 @@ public class KeepADBWifiGatedDiscoveryBehaviorTest {
         KeepADBFakeNsdProbe nsdProbe = new KeepADBFakeNsdProbe();
         KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
         KeepADBEndpoint fakeEndpoint = new KeepADBEndpoint(context, nsdProbe, scheduler);
-        KeepADBNotification.setEndpointForTesting(fakeEndpoint);
+        KeepADBEndpointCoordinator.setEndpointForTesting(fakeEndpoint);
 
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
         assertEquals(1, nsdProbe.discoverServicesCallCount);
 
         // Discovery fails while Wi-Fi is still connected, so scheduleRetryLocked() does queue its
@@ -184,9 +184,9 @@ public class KeepADBWifiGatedDiscoveryBehaviorTest {
         KeepADBFakeNsdProbe nsdProbe = new KeepADBFakeNsdProbe();
         KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
         KeepADBEndpoint fakeEndpoint = new KeepADBEndpoint(context, nsdProbe, scheduler);
-        KeepADBNotification.setEndpointForTesting(fakeEndpoint);
+        KeepADBEndpointCoordinator.setEndpointForTesting(fakeEndpoint);
 
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
         assertEquals(1, nsdProbe.discoverServicesCallCount);
 
         scheduler.advanceBy(8_000);

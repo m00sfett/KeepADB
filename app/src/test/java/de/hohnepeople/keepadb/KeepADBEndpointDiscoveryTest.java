@@ -67,7 +67,7 @@ public class KeepADBEndpointDiscoveryTest {
         NsdManager.DiscoveryListener staleDiscoveryListener = nsdProbe.discoveryListener;
         assertNotNull(staleDiscoveryListener);
 
-        // Simulates e.g. Wi-Fi loss: something external (KeepADBNotification.invalidateEndpoint)
+        // Simulates e.g. Wi-Fi loss: something external (KeepADBEndpointCoordinator.invalidateEndpoint)
         // calls stop() while discovery is still in progress.
         endpoint.stop();
         assertEquals(1, nsdProbe.stopServiceDiscoveryCallCount);

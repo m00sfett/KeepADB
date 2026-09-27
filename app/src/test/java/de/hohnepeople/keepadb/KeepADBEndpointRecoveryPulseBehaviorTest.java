@@ -52,16 +52,16 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
         KeepADBNetwork.resetForTesting();
         KeepADB.resetForTesting();
         KeepADBEndpoint.resetForTesting();
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
     }
 
     /**
      * Reproduces the real device coupling from #572's device comment (s20, Keep-Alive OFF, app
      * foregrounded): the pulse's own AUS write is observed by MainActivity's/KeepADBService's
-     * ContentObserver, which runs {@link KeepADBNotification#refresh}. With Keep-Alive off that
+     * ContentObserver, which runs {@link KeepADBEndpointCoordinator#refresh}. With Keep-Alive off that
      * tears the endpoint down via {@code stop() -> endpoint.stop()} on this very instance,
      * bumping {@code discoveryGeneration} before the pulse reaches its EIN stage. This test wires
-     * that exact call ({@code KeepADBNotification.refresh}, not a raw {@code endpoint.stop()})
+     * that exact call ({@code KeepADBEndpointCoordinator.refresh}, not a raw {@code endpoint.stop()})
      * into the fake gateway's disable write, matching the ~14ms real-device gap synchronously.
      *
      * <p>Before the #572 fix (guard included {@code isCurrent(generation)}): red -- the EIN write
@@ -77,7 +77,7 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
         KeepADB.setSchedulerForTesting(scheduler);
 
         KeepADBEndpoint endpoint = new KeepADBEndpoint(context, new KeepADBFakeNsdProbe(), scheduler);
-        KeepADBNotification.setEndpointForTesting(endpoint);
+        KeepADBEndpointCoordinator.setEndpointForTesting(endpoint);
 
         endpoint.maybeSendRecoveryPulse(0L);
         // The notification's postSurfaceRefresh() queues a MAIN_HANDLER runnable this test does
@@ -203,7 +203,7 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
     /**
      * {@link KeepADBSettingsGateway} fake that mirrors the real ContentObserver coupling: turning
      * Wireless Debugging off through this gateway synchronously runs the same
-     * {@link KeepADBNotification#refresh} the real observer would, without needing a real
+     * {@link KeepADBEndpointCoordinator#refresh} the real observer would, without needing a real
      * {@code Settings.Global} ContentObserver registration in a unit test.
      */
     private static final class ObservingGateway implements KeepADBSettingsGateway {
@@ -225,7 +225,7 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
             writes.add(on);
             enabled = on;
             if (!on) {
-                KeepADBNotification.refresh(context);
+                KeepADBEndpointCoordinator.refresh(context);
             }
             return true;
         }

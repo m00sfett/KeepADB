@@ -53,7 +53,7 @@ public class KeepADBMultiStateContractTest {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADBNetwork.resetForTesting();
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting(context);
     }
 
@@ -61,7 +61,7 @@ public class KeepADBMultiStateContractTest {
     public void tearDown() {
         closeEndpointServer();
         KeepADBNetwork.resetForTesting();
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADB.resetForTesting();
@@ -203,7 +203,7 @@ public class KeepADBMultiStateContractTest {
         assertEquals(context.getString(R.string.tile_state_searching),
                 tileService.getQsTile().getSubtitle());
         assertTrue("A connected Wi-Fi must start the real tile discovery path",
-                KeepADBNotification.hasActiveDiscoveryAttemptForTesting());
+                KeepADBEndpointCoordinator.hasActiveDiscoveryAttemptForTesting());
         stopTileService(tileService);
     }
 
@@ -290,7 +290,7 @@ public class KeepADBMultiStateContractTest {
         assertTrue("The tile reconnect exception must not write a disable", gateway.writes.isEmpty());
         assertEquals(KeepADB.State.ENABLED_DISCONNECTED, KeepADB.getState(context));
         assertTrue("The tile reconnect exception must start endpoint discovery",
-                KeepADBNotification.hasActiveDiscoveryAttemptForTesting());
+                KeepADBEndpointCoordinator.hasActiveDiscoveryAttemptForTesting());
         stopTileService(tileService);
     }
 
@@ -380,7 +380,7 @@ public class KeepADBMultiStateContractTest {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADBNetwork.resetForTesting();
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting(context);
         if (wifiConnected) {
             KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
@@ -405,14 +405,14 @@ public class KeepADBMultiStateContractTest {
     }
 
     private void seedEndpoint(String host, int port) throws Exception {
-        synchronized (KeepADBNotification.class) {
+        synchronized (KeepADBEndpointCoordinator.class) {
             setStaticNotificationField("currentHost", host);
             setStaticNotificationField("currentPort", port);
         }
     }
 
     private void setStaticNotificationField(String fieldName, Object value) throws Exception {
-        Field field = KeepADBNotification.class.getDeclaredField(fieldName);
+        Field field = KeepADBEndpointCoordinator.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(null, value);
     }

@@ -20,26 +20,26 @@ public class KeepADBDiscoveryBackoffTest {
 
     @Test
     public void backoffDoublesFromTwoSecondsUntilItSaturates() {
-        assertEquals(2_000L, KeepADBNotification.retryDelayMsForAttemptForTesting(0));
-        assertEquals(4_000L, KeepADBNotification.retryDelayMsForAttemptForTesting(1));
-        assertEquals(8_000L, KeepADBNotification.retryDelayMsForAttemptForTesting(2));
-        assertEquals(16_000L, KeepADBNotification.retryDelayMsForAttemptForTesting(3));
-        assertEquals(30_000L, KeepADBNotification.retryDelayMsForAttemptForTesting(4));
+        assertEquals(2_000L, KeepADBEndpointCoordinator.retryDelayMsForAttemptForTesting(0));
+        assertEquals(4_000L, KeepADBEndpointCoordinator.retryDelayMsForAttemptForTesting(1));
+        assertEquals(8_000L, KeepADBEndpointCoordinator.retryDelayMsForAttemptForTesting(2));
+        assertEquals(16_000L, KeepADBEndpointCoordinator.retryDelayMsForAttemptForTesting(3));
+        assertEquals(30_000L, KeepADBEndpointCoordinator.retryDelayMsForAttemptForTesting(4));
     }
 
     @Test
     public void backoffStaysCappedForEveryFurtherAttempt() {
         for (int attempt : new int[] { 5, 6, 32, 1_000, Integer.MAX_VALUE }) {
             assertEquals("attempt " + attempt + " must saturate at the cap",
-                    30_000L, KeepADBNotification.retryDelayMsForAttemptForTesting(attempt));
+                    30_000L, KeepADBEndpointCoordinator.retryDelayMsForAttemptForTesting(attempt));
         }
     }
 
     @Test
     public void backoffIsMonotonicAndNeverNegativeOrOverflowing() {
-        long previous = KeepADBNotification.retryDelayMsForAttemptForTesting(0);
+        long previous = KeepADBEndpointCoordinator.retryDelayMsForAttemptForTesting(0);
         for (int attempt = 1; attempt <= 128; attempt++) {
-            long delay = KeepADBNotification.retryDelayMsForAttemptForTesting(attempt);
+            long delay = KeepADBEndpointCoordinator.retryDelayMsForAttemptForTesting(attempt);
             assertTrue("attempt " + attempt + " must not shrink", delay >= previous);
             assertTrue("attempt " + attempt + " must stay within the cap", delay <= 30_000L);
             previous = delay;
@@ -48,8 +48,8 @@ public class KeepADBDiscoveryBackoffTest {
 
     @Test
     public void negativeAttemptsFallBackToTheInitialDelay() {
-        assertEquals(2_000L, KeepADBNotification.retryDelayMsForAttemptForTesting(-1));
-        assertEquals(2_000L, KeepADBNotification.retryDelayMsForAttemptForTesting(Integer.MIN_VALUE));
+        assertEquals(2_000L, KeepADBEndpointCoordinator.retryDelayMsForAttemptForTesting(-1));
+        assertEquals(2_000L, KeepADBEndpointCoordinator.retryDelayMsForAttemptForTesting(Integer.MIN_VALUE));
     }
 
     /**
@@ -60,7 +60,7 @@ public class KeepADBDiscoveryBackoffTest {
     public void theFullRetryBudgetIsBoundedInWallClockTime() {
         long total = 0;
         for (int attempt = 0; attempt < 5; attempt++) {
-            total += KeepADBNotification.retryDelayMsForAttemptForTesting(attempt);
+            total += KeepADBEndpointCoordinator.retryDelayMsForAttemptForTesting(attempt);
         }
         assertEquals(60_000L, total);
     }

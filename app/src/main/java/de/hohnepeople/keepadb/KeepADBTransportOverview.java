@@ -16,7 +16,7 @@ import java.util.List;
  * <p>Each entry is only included once its own transport class has actually confirmed ADB
  * reachability -- a bare interface/candidate address is never surfaced as an endpoint:
  * <ul>
- *   <li>WLAN/LAN reuses {@link KeepADBNotification}'s already-verified cached endpoint (its
+ *   <li>WLAN/LAN reuses {@link KeepADBEndpointCoordinator}'s already-verified cached endpoint (its
  *       background reachability probe and mDNS discovery are unchanged by this class).</li>
  *   <li>Tailscale/VPN uses {@link KeepADBVpnTransport}'s own independent verification.</li>
  *   <li>USB reuses {@link KeepADBUsbReceiver}'s system connected+configured+adb broadcast
@@ -88,20 +88,21 @@ final class KeepADBTransportOverview {
     static Snapshot current(Context context) {
         List<KeepADBTransportEndpoint> transports = new ArrayList<>();
 
-        if (KeepADBNotification.hasCurrentEndpoint()) {
+        // #594: one consistent snapshot for both the WLAN entry and the Tailscale port below.
+        KeepADBEndpointCoordinator.Snapshot wlan = KeepADBEndpointCoordinator.snapshot();
+        if (wlan.hasEndpoint()) {
             transports.add(new KeepADBTransportEndpoint(
                     KeepADBTransportEndpoint.Type.WLAN_LAN,
-                    KeepADBNotification.getCurrentHost(),
-                    KeepADBNotification.getCurrentPort(),
-                    KeepADBNotification.getCurrentEndpointVerifiedAtMs(),
+                    wlan.host,
+                    wlan.port,
+                    wlan.verifiedAtMs,
                     false));
         }
 
         boolean vpnActiveNotAdbVerified = false;
         String tailscaleIp = KeepADBVpnTransport.findTailscaleIpv4Address(context);
         if (tailscaleIp != null) {
-            int wlanPort = KeepADBNotification.hasCurrentEndpoint()
-                    ? KeepADBNotification.getCurrentPort() : 0;
+            int wlanPort = wlan.hasEndpoint() ? wlan.port : 0;
             if (wlanPort > 0 && KeepADBVpnTransport.verifyAdbReachable(tailscaleIp, wlanPort)) {
                 transports.add(new KeepADBTransportEndpoint(
                         KeepADBTransportEndpoint.Type.TAILSCALE_VPN,

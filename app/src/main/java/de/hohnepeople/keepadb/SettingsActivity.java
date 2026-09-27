@@ -212,7 +212,7 @@ public class SettingsActivity extends Activity {
             boolean wantVisible = hideNotificationToggle.isChecked();
             boolean wantHidden = !wantVisible;
             KeepADBPreferences.setNotificationHidden(this, wantHidden);
-            KeepADBNotification.refresh(this);
+            KeepADBEndpointCoordinator.refresh(this);
             Toast.makeText(this,
                     wantHidden ? R.string.settings_notification_hidden_toast : R.string.settings_notification_visible_toast,
                     Toast.LENGTH_SHORT).show();
@@ -382,7 +382,7 @@ public class SettingsActivity extends Activity {
                 webhookError.setVisibility(View.GONE);
                 KeepADBPreferences.setRegisterWebhookUrl(this, inputUrl);
                 KeepADBPreferences.setRegisterWebhookEnabled(this, true);
-                KeepADBNotification.refresh(this);
+                KeepADBEndpointCoordinator.refresh(this);
                 Toast.makeText(this, R.string.settings_webhook_enabled_toast, Toast.LENGTH_SHORT).show();
             } else {
                 webhookError.setVisibility(View.GONE);
@@ -421,7 +421,7 @@ public class SettingsActivity extends Activity {
             webhookError.setVisibility(View.GONE);
             KeepADBPreferences.setRegisterWebhookUrl(this, inputUrl);
             if (KeepADBPreferences.isRegisterWebhookEnabled(this)) {
-                KeepADBNotification.refresh(this);
+                KeepADBEndpointCoordinator.refresh(this);
             }
             Toast.makeText(this, R.string.settings_webhook_saved_toast, Toast.LENGTH_SHORT).show();
             refresh();
@@ -603,7 +603,7 @@ public class SettingsActivity extends Activity {
                     String chosenTag = languages[which].tag;
                     KeepADBLocaleHelper.setAppLanguage(this, chosenTag);
                     KeepADBWidget.refreshAll(this);
-                    KeepADBNotification.refresh(this);
+                    KeepADBEndpointCoordinator.refresh(this);
                     KeepADBUsbReceiver.refresh(this);
                 })
                 .setNegativeButton(android.R.string.cancel, null)

@@ -67,7 +67,7 @@ public class MainActivityTailscaleBuildVariantTest {
     public void tearDown() throws Exception {
         clearPreferences();
         KeepADBBuildFlags.setOverrideForTesting(null);
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         setNotificationStatic("currentHost", null);
         setNotificationStatic("currentPort", 0);
         setNotificationStatic("currentEndpointVerifiedAtMs", 0L);
@@ -159,7 +159,7 @@ public class MainActivityTailscaleBuildVariantTest {
     }
 
     private static void setNotificationStatic(String fieldName, Object value) throws Exception {
-        Field field = KeepADBNotification.class.getDeclaredField(fieldName);
+        Field field = KeepADBEndpointCoordinator.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(null, value);
     }

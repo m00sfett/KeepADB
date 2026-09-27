@@ -33,7 +33,7 @@ public class KeepADBTileService extends TileService {
     public void onStartListening() {
         cancelPendingDiscoveryCancel();
         registerListeningInstance(this);
-        KeepADBNotification.refreshForTile(this, this);
+        KeepADBEndpointCoordinator.refreshForTile(this, this);
         updateTile();
     }
 
@@ -48,7 +48,7 @@ public class KeepADBTileService extends TileService {
     public void onDestroy() {
         discardListeningInstance(this);
         cancelPendingDiscoveryCancel();
-        KeepADBNotification.cancelTileDiscovery(this);
+        KeepADBEndpointCoordinator.cancelTileDiscovery(this);
         super.onDestroy();
     }
 
@@ -73,7 +73,7 @@ public class KeepADBTileService extends TileService {
         // all three surfaces alike.
         if (state == KeepADB.State.ENABLED_DISCONNECTED) {
             KeepADBDiagnostics.event(this, "user_action", "tile", "reconnect", "tap");
-            KeepADBNotification.refreshForTile(this, this);
+            KeepADBEndpointCoordinator.refreshForTile(this, this);
             updateTile();
             return;
         }
@@ -140,7 +140,7 @@ public class KeepADBTileService extends TileService {
         KeepADBService.sync(this);
         updateTile();
         KeepADBWidget.refreshAll(this);
-        KeepADBNotification.refresh(this);
+        KeepADBEndpointCoordinator.refresh(this);
     }
 
     private void updateTile() {
@@ -176,8 +176,9 @@ public class KeepADBTileService extends TileService {
                 break;
             case ENABLED_CONNECTED:
                 tile.setState(Tile.STATE_ACTIVE);
-                String host = KeepADBNotification.getCurrentHost();
-                int port = KeepADBNotification.getCurrentPort();
+                KeepADBEndpointCoordinator.Snapshot endpoint = KeepADBEndpointCoordinator.snapshot();
+                String host = endpoint.host;
+                int port = endpoint.port;
                 if (host != null && port > 0) {
                     String displayHost = KeepADBPreferences.maskHostForDisplay(this, host);
                     if (displayHost.contains(":") && !displayHost.startsWith("[")) {
@@ -240,7 +241,7 @@ public class KeepADBTileService extends TileService {
         cancelPendingDiscoveryCancel();
         pendingDiscoveryCancel = () -> {
             pendingDiscoveryCancel = null;
-            KeepADBNotification.cancelTileDiscovery(this);
+            KeepADBEndpointCoordinator.cancelTileDiscovery(this);
         };
         handler.postDelayed(pendingDiscoveryCancel, STOP_LISTENING_CANCEL_GRACE_MS);
     }

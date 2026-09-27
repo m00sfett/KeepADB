@@ -31,7 +31,7 @@ public class KeepADBBootReceiverContractTest {
         assertTrue(receiver.contains("Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)"));
         assertTrue(receiver.contains("package_recovery"));
         assertFalse(receiver.contains("KeepADB.setEnabled"));
-        assertFalse(receiver.contains("KeepADBNotification.refresh"));
+        assertFalse(receiver.contains("KeepADBEndpointCoordinator.refresh"));
         assertFalse(receiver.contains("KeepADBWidget.refreshAll"));
     }
 
@@ -82,6 +82,15 @@ public class KeepADBBootReceiverContractTest {
         assertTrue(service.contains("stopForeground(STOP_FOREGROUND_REMOVE)"));
         assertTrue(notification.contains("manager.cancel(NOTIFICATION_ID);"));
         assertFalse(notification.contains("showPlaceholder(context, manager,"));
+        // #594: the stop decision moved to KeepADBEndpointCoordinator; its stop() must still
+        // remove the notification rather than render a placeholder.
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        int stopStart = coordinator.indexOf("private static synchronized void stop(Context context) {");
+        int stopEnd = coordinator.indexOf("\n    }\n", stopStart);
+        assertTrue(stopStart >= 0 && stopEnd > stopStart);
+        String stopBody = coordinator.substring(stopStart, stopEnd);
+        assertTrue(stopBody.contains("KeepADBNotification.remove(context);"));
+        assertFalse(stopBody.contains("KeepADBNotification.render"));
     }
 
     @Test

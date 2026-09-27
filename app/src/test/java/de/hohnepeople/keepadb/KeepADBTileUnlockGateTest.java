@@ -74,7 +74,7 @@ public class KeepADBTileUnlockGateTest {
     private void resetState() {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
         context.getSharedPreferences("keepadb_diagnostics", Context.MODE_PRIVATE).edit().clear().commit();
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         KeepADBNetwork.resetForTesting();
         KeepADB.resetForTesting(context);
         KeepADB.setSurfaceRefresherForTesting(new KeepADBFakeSurfaceRefresher());
@@ -267,14 +267,14 @@ public class KeepADBTileUnlockGateTest {
     }
 
     private void seedEndpoint(String host, int port) throws Exception {
-        synchronized (KeepADBNotification.class) {
+        synchronized (KeepADBEndpointCoordinator.class) {
             setStaticNotificationField("currentHost", host);
             setStaticNotificationField("currentPort", port);
         }
     }
 
     private void setStaticNotificationField(String fieldName, Object value) throws Exception {
-        Field field = KeepADBNotification.class.getDeclaredField(fieldName);
+        Field field = KeepADBEndpointCoordinator.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(null, value);
     }

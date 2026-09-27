@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
             // #483: re-render the masked surfaces at once, without waiting for a discovery tick.
             renderEndpoint();
             refreshWebhookStatus();
-            KeepADBNotification.refresh(this);
+            KeepADBEndpointCoordinator.refresh(this);
             KeepADBTileService.requestRefresh(this);
         });
         toggle = findViewById(R.id.toggle);
@@ -168,7 +168,7 @@ public class MainActivity extends Activity {
             }
             KeepADBService.sync(this);
             KeepADBWidget.refreshAll(this);
-            KeepADBNotification.refresh(this);
+            KeepADBEndpointCoordinator.refresh(this);
             refresh();
         });
 
@@ -179,7 +179,7 @@ public class MainActivity extends Activity {
             boolean wantHidden = !wantVisible;
             KeepADBDiagnostics.event(this, "user_action", "app", wantVisible ? "enable" : "disable", "hide_notification_toggle");
             KeepADBPreferences.setNotificationHidden(this, wantHidden);
-            KeepADBNotification.refresh(this);
+            KeepADBEndpointCoordinator.refresh(this);
             Toast.makeText(this,
                     wantHidden ? R.string.settings_notification_hidden_toast : R.string.settings_notification_visible_toast,
                     Toast.LENGTH_SHORT).show();
@@ -202,7 +202,7 @@ public class MainActivity extends Activity {
                 public void onChange(boolean selfChange) {
                     super.onChange(selfChange);
                     refresh();
-                    KeepADBNotification.refresh(MainActivity.this);
+                    KeepADBEndpointCoordinator.refresh(MainActivity.this);
                 }
             };
             try {
@@ -215,7 +215,7 @@ public class MainActivity extends Activity {
         }
         final long listenerGeneration = ++endpointListenerGeneration;
         endpointSurfaceActive = true;
-        KeepADBNotification.setEndpointListener(new KeepADBNotification.EndpointListener() {
+        KeepADBEndpointCoordinator.setEndpointListener(new KeepADBEndpointCoordinator.EndpointListener() {
             @Override
             public void onEndpoint(String host, int port) {
                 postEndpointAvailable(listenerGeneration, host, port);
@@ -245,7 +245,7 @@ public class MainActivity extends Activity {
         // SettingsActivity while this activity was paused.
         updateAdviceBannerVisibility();
         refresh();
-        KeepADBNotification.refresh(this);
+        KeepADBEndpointCoordinator.refresh(this);
         KeepADBUsbReceiver.refresh(this);
     }
 
@@ -260,7 +260,7 @@ public class MainActivity extends Activity {
         // computed for a now-paused screen never applies after the fact (mirrors the
         // endpointListenerGeneration guard above).
         transportOverviewGeneration++;
-        KeepADBNotification.clearEndpointListener();
+        KeepADBEndpointCoordinator.clearEndpointListener();
         KeepADBRegisterClient.clearRegisterStateListener();
         if (adbContentObserver != null) {
             try {
@@ -277,7 +277,7 @@ public class MainActivity extends Activity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == NOTIFICATION_PERMISSION_REQUEST) {
             refresh();
-            KeepADBNotification.refresh(this);
+            KeepADBEndpointCoordinator.refresh(this);
         }
     }
 
@@ -711,7 +711,7 @@ public class MainActivity extends Activity {
     private void refreshUiAndComponents() {
         refresh();
         KeepADBWidget.refreshAll(this);
-        KeepADBNotification.refresh(this);
+        KeepADBEndpointCoordinator.refresh(this);
         KeepADBTileService.requestRefresh(this);
         KeepADBUsbReceiver.refresh(this);
     }

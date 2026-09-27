@@ -11,7 +11,7 @@ import java.nio.file.Paths;
 import org.junit.Test;
 
 /**
- * Regression contract for issue #296: {@code KeepADBNotification.refreshInternal()} started
+ * Regression contract for issue #296: {@code KeepADBEndpointCoordinator.refreshInternal()} started
  * discovery (and {@code scheduleRetryLocked()} kept re-scheduling it with 2s/5s backoff)
  * unconditionally as soon as {@code KeepADB.isEnabled()} was true, with no check of the actual
  * Wi-Fi connection state. Without Wi-Fi, adbd's wireless-debugging listener can never be
@@ -57,7 +57,7 @@ import org.junit.Test;
  * {@code ConnectivityManager.NetworkCallback} in {@link
  * KeepADBServiceLifecycleRobolectricTest#networkCallbackPromptsForAnUntrustedAccessPointEvenWhileAlreadyActive()}
  * (that test's untrusted-network prompt only fires if {@code recheckAndEnable()} actually ran).
- * The other half -- {@code onCapabilitiesChanged()} -> {@code KeepADBNotification.verifyEndpointHealth()}
+ * The other half -- {@code onCapabilitiesChanged()} -> {@code KeepADBEndpointCoordinator.verifyEndpointHealth()}
  * -- has no behavioral equivalent: driving it through a real {@code NetworkCallback} spawns a raw
  * background verification {@code Thread} with a real socket check, which {@link
  * KeepADBNotificationRobolectricTest#wifiNetworkCallbackIsRegisteredAgainstARealConnectivityManager()}
@@ -90,7 +90,7 @@ public class KeepADBWifiGatedDiscoveryContractTest {
                 "public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {");
         assertTrue("#276/#285: a mesh roam (onCapabilitiesChanged) must still re-verify the "
                         + "cached endpoint directly, with no added Wi-Fi gate in front of it",
-                onCapabilitiesChangedBody.contains("KeepADBNotification.verifyEndpointHealth("));
+                onCapabilitiesChangedBody.contains("KeepADBEndpointCoordinator.verifyEndpointHealth("));
     }
 
     private static String read(String relativePath) throws IOException {

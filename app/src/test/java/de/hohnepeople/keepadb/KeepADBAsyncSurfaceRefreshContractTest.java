@@ -39,7 +39,7 @@ import org.junit.Test;
  * <p>The remaining seven tests stay intentionally static source-content contracts. Each protects
  * a specific internal ordering invariant (a field write landing before a cross-surface refresh
  * fires, a listener registration landing before the call that would otherwise race it, a
- * generation counter being checked before use) inside {@code KeepADBNotification}'s asynchronous
+ * generation counter being checked before use) inside {@code KeepADBEndpointCoordinator}'s asynchronous
  * discovery callbacks, {@code MainActivity}'s endpoint-listener lifecycle, and {@code
  * KeepADBWidget}'s cross-thread refresh dispatch. None of these orderings has an external,
  * black-box-observable outcome distinguishable from source inspection without either (a) a raw
@@ -59,12 +59,12 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
 
     @Test
     public void successfulDiscoveryPublishesBeforeRefreshingEverySurface() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String discoveryBody = methodBody(notification,
-                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,");
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        String discoveryBody = methodBody(coordinator,
+                "private static void startDiscoveryDirectLocked(Context appContext, Object discoveryOwner) {");
         String callbackBody = methodBody(discoveryBody,
                 discoveryBody.indexOf("public void onEndpoint(String host, int port) {"));
-        String refreshBody = methodBody(notification,
+        String refreshBody = methodBody(coordinator,
                 "private static void postSurfaceRefresh(Context appContext) {");
 
         int generationGuard = callbackBody.indexOf(
@@ -84,9 +84,9 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
 
     @Test
     public void unavailableDiscoveryClearsStateBeforeRefreshingSurfaces() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String discoveryBody = methodBody(notification,
-                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,");
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        String discoveryBody = methodBody(coordinator,
+                "private static void startDiscoveryDirectLocked(Context appContext, Object discoveryOwner) {");
         String callbackBody = methodBody(discoveryBody,
                 discoveryBody.indexOf("public void onUnavailable() {"));
 
@@ -102,12 +102,12 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
 
     @Test
     public void missingEndpointRefreshesDisconnectedSurfacesBeforeRetryingDiscovery() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String refreshBody = methodBody(notification,
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        String refreshBody = methodBody(coordinator,
                 "private static synchronized void refreshInternal(Context context, Object discoveryOwner) {");
 
         int unavailable = refreshBody.indexOf("if (endpointListener != null) endpointListener.onUnavailable();");
-        int discovery = refreshBody.indexOf("startDiscoveryDirectLocked(appContext, manager, discoveryOwner);");
+        int discovery = refreshBody.indexOf("startDiscoveryDirectLocked(appContext, discoveryOwner);");
         int surfaceRefresh = refreshBody.indexOf("postSurfaceRefresh(appContext);");
 
         assertTrue(unavailable >= 0);
@@ -118,7 +118,7 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
     @Test
     public void activityRefreshesStateOnBothEndpointListenerDirections() throws IOException {
         String activity = read("app/src/main/java/de/hohnepeople/keepadb/MainActivity.java");
-        int listenerStart = activity.indexOf("KeepADBNotification.setEndpointListener(");
+        int listenerStart = activity.indexOf("KeepADBEndpointCoordinator.setEndpointListener(");
         int listenerEnd = activity.indexOf("\n        });", listenerStart);
         assertTrue(listenerStart >= 0);
         assertTrue(listenerEnd > listenerStart);
@@ -135,10 +135,10 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
         String resumeBody = methodBody(activity, "protected void onResume() {");
         String pauseBody = methodBody(activity, "protected void onPause() {");
 
-        int endpointListener = resumeBody.indexOf("KeepADBNotification.setEndpointListener(");
+        int endpointListener = resumeBody.indexOf("KeepADBEndpointCoordinator.setEndpointListener(");
         int registerListener = resumeBody.indexOf(
                 "KeepADBRegisterClient.setRegisterStateListener(this::refreshWebhookStatus);");
-        int notificationRefresh = resumeBody.indexOf("KeepADBNotification.refresh(this);");
+        int notificationRefresh = resumeBody.indexOf("KeepADBEndpointCoordinator.refresh(this);");
 
         assertTrue(endpointListener >= 0);
         assertTrue(registerListener > endpointListener);
@@ -161,10 +161,10 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
         int resumeGeneration = resumeBody.indexOf(
                 "final long listenerGeneration = ++endpointListenerGeneration;");
         int resumeActive = resumeBody.indexOf("endpointSurfaceActive = true;");
-        int listenerRegistration = resumeBody.indexOf("KeepADBNotification.setEndpointListener(");
+        int listenerRegistration = resumeBody.indexOf("KeepADBEndpointCoordinator.setEndpointListener(");
         int pauseInactive = pauseBody.indexOf("endpointSurfaceActive = false;");
         int pauseGeneration = pauseBody.indexOf("endpointListenerGeneration++;");
-        int listenerClear = pauseBody.indexOf("KeepADBNotification.clearEndpointListener();");
+        int listenerClear = pauseBody.indexOf("KeepADBEndpointCoordinator.clearEndpointListener();");
 
         assertTrue(resumeGeneration >= 0);
         assertTrue(resumeActive > resumeGeneration);
@@ -191,12 +191,12 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
 
         assertTrue(widget.contains("static void refreshAllState(Context context)"));
         assertTrue(stateRefreshBody.contains("refreshAll(context, false);"));
-        assertFalse(stateRefreshBody.contains("KeepADBNotification.refresh(context);"));
+        assertFalse(stateRefreshBody.contains("KeepADBEndpointCoordinator.refresh(context);"));
         assertTrue(refreshBody.contains("Looper.myLooper() != Looper.getMainLooper()"));
         assertTrue(refreshBody.contains("MAIN_HANDLER.post("));
         assertTrue(renderBody.contains("if (refreshNotification)"));
         int conditional = renderBody.indexOf("if (refreshNotification)");
-        int notificationRefresh = renderBody.indexOf("KeepADBNotification.refresh(context);");
+        int notificationRefresh = renderBody.indexOf("KeepADBEndpointCoordinator.refresh(context);");
         assertTrue(notificationRefresh > conditional);
     }
 

@@ -50,7 +50,7 @@ public class KeepADBNotificationActionContractTest {
         assertTrue(receiver.contains("R.string.permission_error_toast"));
         assertTrue(receiver.contains("Toast.makeText("));
         assertTrue(receiver.contains("KeepADBService.sync(context)"));
-        assertTrue(receiver.contains("KeepADBNotification.refresh(context)"));
+        assertTrue(receiver.contains("KeepADBEndpointCoordinator.refresh(context)"));
         assertTrue(receiver.contains("KeepADBWidget.refreshAll(context)"));
     }
 

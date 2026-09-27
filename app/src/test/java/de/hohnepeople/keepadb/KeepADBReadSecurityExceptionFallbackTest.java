@@ -48,14 +48,14 @@ public class KeepADBReadSecurityExceptionFallbackTest {
                 android.Manifest.permission.POST_NOTIFICATIONS);
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         KeepADBEndpoint.resetForTesting();
         KeepADB.resetForTesting(context);
     }
 
     @After
     public void tearDown() {
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         KeepADBEndpoint.resetForTesting();
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
