@@ -23,6 +23,23 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.8.58] - Unreleased
+
+### Fixed
+- #604 (follow-up from #598): the details-off in-app trust confirmation dialog
+  (`SettingsActivity`, `ACTION_CONFIRM_IN_APP`) now survives a configuration change (rotation).
+  Previously the dialog's only state was the one-shot intent extra `KeepADBNetworkTrustPrompt
+  .EXTRA_BSSID`, consumed by `onResume()`; a rotation recreated the activity with that extra
+  already gone, so the dialog simply vanished and the user had to find the access point again
+  under "Recently blocked". The BSSID the dialog is currently bound to is now also carried in
+  `onSaveInstanceState`/`onCreate(savedInstanceState)` (new `STATE_TRUST_CONFIRMATION_BSSID`) and,
+  after a recreate, re-resolved through the same `KeepADBNetworkTrustPrompt#pendingConfirmation`
+  lookup against `KeepADBBlockedNetworkHistory` that a fresh notification tap uses -- the #598
+  binding invariant is unchanged: no BSSID from the intent or the current connection is read on
+  restore, and the click still confirms exactly the BSSID captured when the dialog first opened.
+  The accepted #598 restriction (a real process death can still reopen the dialog, correctly
+  naming the network) is unaffected and remains out of scope here.
+
 ## [1.8.57] - Unreleased
 
 ### Testing
