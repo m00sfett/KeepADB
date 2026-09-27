@@ -93,6 +93,12 @@ public class KeepADBNetworkTrustPromptTest {
         String text = notification.extras.getString(Notification.EXTRA_TEXT);
         assertTrue("Prompt text must name the SSID: " + text, text.contains("Cafe-WLAN"));
         assertTrue("Prompt text must name the BSSID: " + text, text.contains(BSSID));
+        // #598: with details on, the content intent stays the plain Settings entry it always was
+        // -- the in-app confirmation is only the details-off replacement for the allow action.
+        Intent content = shadowOf(notification.contentIntent).getSavedIntent();
+        assertEquals(SettingsActivity.class.getName(), content.getComponent().getClassName());
+        assertNull(content.getAction());
+        assertFalse(content.hasExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
     }
 
     @Test
@@ -489,6 +495,8 @@ public class KeepADBNetworkTrustPromptTest {
      */
     @Test
     public void theAllowActionRequiresAuthenticationButTheBlockActionDoesNot() {
+        // #598: the allow action only exists with connection details on.
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
@@ -521,25 +529,80 @@ public class KeepADBNetworkTrustPromptTest {
     }
 
     /**
-     * #592: with the opt-in off (the default), neither the private prompt nor its publicVersion
-     * may name the network or the BSSID anywhere visible -- Android shows the private copy on the
-     * lock screen when sensitive content is allowed there. Allow/block keep working with the
-     * original BSSID, and allow stays authentication-gated.
+     * #592/#598: with the opt-in off (the default), neither the private prompt nor its
+     * publicVersion may name the network or the BSSID anywhere visible -- Android shows the private
+     * copy on the lock screen when sensitive content is allowed there. #598: and since the user
+     * cannot see which network it is, there is no allow action either -- only block remains, and
+     * the text points to the in-app confirmation instead.
      */
     @Test
-    public void withDetailsOffThePromptNamesNeitherTheNetworkNorTheBssid() {
+    public void withDetailsOffThePromptNamesNeitherTheNetworkNorTheBssidAndHasNoAllowAction() {
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
         Notification notification = postedPrompt();
         assertNotNull(notification);
         KeepADBNotificationTextScan.assertMentionsNone(notification, "Cafe-WLAN", BSSID);
-        assertEquals(context.getString(R.string.network_prompt_public_text),
+        String confirmText = context.getString(R.string.network_prompt_confirm_in_app_text);
+        assertEquals(confirmText,
                 notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());
-        assertEquals(2, notification.actions.length);
-        assertEquals(BSSID,
-                actionIntent(notification, 0).getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
-        assertTrue(notification.actions[0].isAuthenticationRequired());
+        assertEquals(confirmText,
+                notification.publicVersion.extras.getCharSequence(Notification.EXTRA_TEXT).toString());
+        assertEquals("Only the block action may remain", 1, notification.actions.length);
+        for (int i = 0; i < notification.actions.length; i++) {
+            assertFalse("No action may trust a network the user cannot see",
+                    KeepADBReceiver.ACTION_TRUST_NETWORK.equals(actionIntent(notification, i).getAction()));
+        }
+        assertEquals(KeepADBReceiver.ACTION_DISMISS_NETWORK_PROMPT,
+                actionIntent(notification, 0).getAction());
+    }
+
+    /**
+     * #598: the details-off tap opens SettingsActivity's confirmation for exactly the access point
+     * the prompt was raised for. The intent needs its own action so it can never be matched --
+     * and have its extras overwritten by FLAG_UPDATE_CURRENT -- by the plain SettingsActivity
+     * PendingIntent the USB notification posts with the same request code 0.
+     */
+    @Test
+    public void withDetailsOffTheContentIntentOpensTheInAppConfirmationForThePromptedBssid() {
+        connectTo("Cafe-WLAN", BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        Intent content = shadowOf(postedPrompt().contentIntent).getSavedIntent();
+        assertEquals(SettingsActivity.class.getName(), content.getComponent().getClassName());
+        assertEquals(KeepADBNetworkTrustPrompt.ACTION_CONFIRM_IN_APP, content.getAction());
+        assertEquals(BSSID, content.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
+        assertFalse("The label must come from the app's own record, not from the intent",
+                content.hasExtra(KeepADBNetworkTrustPrompt.EXTRA_LABEL));
+        assertFalse(content.filterEquals(new Intent(context, SettingsActivity.class)));
+        assertTrue("Tapping the prompt must not trust anything by itself",
+                KeepADBTrustedNetwork.getEntries(context).isEmpty());
+    }
+
+    /**
+     * #598: the in-app confirmation only ever offers an access point the app itself recorded as
+     * blocked, and names it with the recorded label; anything else resolves to "nothing to
+     * confirm".
+     */
+    @Test
+    public void pendingConfirmationOnlyResolvesBssidsTheAppItselfRecordedAsBlocked() {
+        KeepADBBlockedNetworkHistory.record(context, identity("\"Cafe-WLAN\"", BSSID), 1L);
+
+        KeepADBBlockedNetworkHistory.Entry entry =
+                KeepADBNetworkTrustPrompt.pendingConfirmation(context, " AA:BB:CC:DD:EE:01 ");
+        assertNotNull(entry);
+        assertEquals(BSSID, entry.bssid);
+        assertEquals("Cafe-WLAN", entry.label());
+
+        for (String bssid : new String[] {null, "", "   ", OTHER_BSSID,
+                KeepADBNetworkIdentity.REDACTED_BSSID, KeepADBNetworkIdentity.UNSET_BSSID}) {
+            assertNull("Must not resolve: " + bssid,
+                    KeepADBNetworkTrustPrompt.pendingConfirmation(context, bssid));
+        }
+
+        // Once trusted (from anywhere), the question is answered and no longer pending.
+        KeepADBReceiver.trustBssidAndAttemptConnect(context, BSSID, "Cafe-WLAN");
+        assertNull(KeepADBNetworkTrustPrompt.pendingConfirmation(context, BSSID));
     }
 
     /** #592: the re-post after a rejected locked tap honors the opt-in as well. */
@@ -603,6 +666,8 @@ public class KeepADBNetworkTrustPromptTest {
         // allowingAddsTheAccessPointToTheAllowlistAndEnablesWirelessDebugging for the same setup.
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
+        // #598: the re-offered allow action only exists with connection details on.
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
         connectTo("Cafe-WLAN", BSSID);
