@@ -17,11 +17,28 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.49` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.50` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.50] - Unreleased
+
+### Changed
+- Shortened the three USB-ADB notification action labels ("Switch profile", "New profile",
+  "Enable WLAN-ADB") plus "Create host profile" across all 19 supported locales so they no longer
+  clip when three actions sit side by side on a 1080px device (e.g. the s20, One UI 5). The
+  WLAN-ADB action stays unambiguous (e.g. DE "WLAN-ADB an", EN "WLAN-ADB on"). Fixed
+  `settings_usb_profile_notification_subtext`, which since #592 no longer matched behavior:
+  profile/endpoint details in the USB notification depend on the separate "Show connection
+  details in notifications" opt-in, not just this toggle (#593).
+- The "Switch host profile" dialog now shows each profile's name and endpoint details (IP · host
+  · tailnet) as two separate lines instead of one long radio label, and moved the Edit/Delete
+  buttons to their own row below the text instead of sharing the radio button's row. A profile
+  with a long IP/hostname/tailnet combination used to force that row into a character-by-character
+  wrap; the accessibility content description on the radio button still carries the full summary
+  for screen readers (#593).
 
 ## [1.8.49] - Unreleased
 

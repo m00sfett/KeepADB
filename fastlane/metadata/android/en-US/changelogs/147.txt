@@ -1,0 +1,1 @@
+• Fix: USB-ADB notification action labels ("Switch profile", "New profile", "Enable WLAN-ADB") no longer get clipped on narrower phones. The "Switch host profile" dialog now shows each profile's name and connection details on separate lines instead of one crowded row.
