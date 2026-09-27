@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">オフ</string>
     <string name="settings_usb_handover_mode_manual">手動（USB 通知に操作を表示）</string>
     <string name="settings_usb_handover_mode_automatic">自動（新しい USB 接続時に有効化）</string>
-    <string name="usb_notification_enable_wlan_handover">WLAN-ADB オン</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">WLAN-ADB を有効化できませんでした。権限を確認してください。</string>
     <string name="notification_action_disable">Wifi-ADBを無効化</string>
     <string name="status_enabled_disconnected">ワイヤレスデバッグ: オン（未接続）</string>

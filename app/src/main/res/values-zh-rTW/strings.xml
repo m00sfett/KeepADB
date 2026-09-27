@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">關閉</string>
     <string name="settings_usb_handover_mode_manual">手動（在 USB 通知中顯示操作）</string>
     <string name="settings_usb_handover_mode_automatic">自動（建立新的 USB 連線時啟用）</string>
-    <string name="usb_notification_enable_wlan_handover">啟用 WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">無法啟用 WLAN-ADB。請檢查權限。</string>
     <string name="notification_action_disable">關閉 Wifi-ADB</string>
     <string name="status_enabled_disconnected">無線偵錯已開啟（未連線）</string>

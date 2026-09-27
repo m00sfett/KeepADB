@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">متوقف</string>
     <string name="settings_usb_handover_mode_manual">يدوي (إظهار الإجراء في إشعار USB)</string>
     <string name="settings_usb_handover_mode_automatic">تلقائي (التفعيل عند اتصال USB جديد)</string>
-    <string name="usb_notification_enable_wlan_handover">فعّل WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">تعذر تفعيل WLAN-ADB. تحقق من الإذن.</string>
     <string name="notification_action_disable">إيقاف Wifi-ADB</string>
     <string name="status_enabled_disconnected">تصحيح الأخطاء اللاسلكي مفعّل (غير متصل)</string>

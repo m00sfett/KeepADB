@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Отключено</string>
     <string name="settings_usb_handover_mode_manual">Вручную (показывать действие в уведомлении USB)</string>
     <string name="settings_usb_handover_mode_automatic">Автоматически (включать при новом USB-подключении)</string>
-    <string name="usb_notification_enable_wlan_handover">WLAN-ADB вкл.</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">Не удалось включить WLAN-ADB. Проверьте разрешение.</string>
     <string name="notification_action_disable">Выключить Wifi-ADB</string>
     <string name="status_enabled_disconnected">Беспроводная отладка включена (нет подключения)</string>

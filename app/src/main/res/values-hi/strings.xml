@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">बंद</string>
     <string name="settings_usb_handover_mode_manual">मैन्युअल (USB सूचना में कार्रवाई दिखाएँ)</string>
     <string name="settings_usb_handover_mode_automatic">स्वचालित (नए USB कनेक्शन पर सक्षम करें)</string>
-    <string name="usb_notification_enable_wlan_handover">WLAN-ADB चालू</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">WLAN-ADB सक्षम नहीं हो सका। अनुमति जाँचें।</string>
     <string name="notification_action_disable">Wifi-ADB बंद करें</string>
     <string name="status_enabled_disconnected">वायरलेस डीबगिंग चालू (कनेक्ट नहीं है)</string>

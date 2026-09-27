@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Tắt</string>
     <string name="settings_usb_handover_mode_manual">Thủ công (hiện thao tác trong thông báo USB)</string>
     <string name="settings_usb_handover_mode_automatic">Tự động (bật khi có kết nối USB mới)</string>
-    <string name="usb_notification_enable_wlan_handover">Bật WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">Không thể bật WLAN-ADB. Hãy kiểm tra quyền.</string>
     <string name="notification_action_disable">Tắt Wifi-ADB</string>
     <string name="status_enabled_disconnected">Gỡ lỗi không dây ĐANG BẬT (Đã ngắt kết nối)</string>

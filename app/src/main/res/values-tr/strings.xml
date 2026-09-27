@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Kapalı</string>
     <string name="settings_usb_handover_mode_manual">Manuel (USB bildiriminde eylemi göster)</string>
     <string name="settings_usb_handover_mode_automatic">Otomatik (yeni USB bağlantısında etkinleştir)</string>
-    <string name="usb_notification_enable_wlan_handover">WLAN-ADB aç</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">WLAN-ADB etkinleştirilemedi. İzni kontrol edin.</string>
     <string name="notification_action_disable">Wifi-ADByi kapat</string>
     <string name="status_enabled_disconnected">Kablosuz Hata Ayıklama AÇIK (Bağlı değil)</string>

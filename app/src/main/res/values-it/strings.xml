@@ -177,7 +177,7 @@
     <string name="usb_notification_profile_hidden">Profilo host selezionato: dettagli nell’app</string>
     <string name="usb_notification_create_profile">Crea profilo</string>
     <string name="usb_notification_switch_profile">Cambia</string>
-    <string name="usb_notification_new_profile">Crea</string>
+    <string name="usb_notification_new_profile">Nuovo</string>
     <string name="usb_profile_none">Nessun profilo host selezionato.</string>
     <string name="usb_profile_selected">Profilo host selezionato: %1$s</string>
     <string name="usb_profile_create_button">Crea profilo host</string>
@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Disattivato</string>
     <string name="settings_usb_handover_mode_manual">Manuale (mostra azione nella notifica USB)</string>
     <string name="settings_usb_handover_mode_automatic">Automatico (abilita alla nuova connessione USB)</string>
-    <string name="usb_notification_enable_wlan_handover">Attiva WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">Impossibile abilitare WLAN-ADB. Controlla l’autorizzazione.</string>
     <string name="notification_action_disable">Disattiva Wifi-ADB</string>
     <string name="status_enabled_disconnected">Debug wireless ATTIVO (Disconnesso)</string>

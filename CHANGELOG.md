@@ -29,10 +29,11 @@ are retrospective issue-version records and were never published as separate rel
 - Shortened the three USB-ADB notification action labels ("Switch profile", "New profile",
   "Enable WLAN-ADB") plus "Create host profile" across all 19 supported locales so they no longer
   clip when three actions sit side by side on a 1080px device (e.g. the s20, One UI 5, which
-  reserves room for its bell button and truncates the last action). The WLAN-ADB handover action
-  now comes first, followed by "Switch" and "New" (DE "WLAN-ADB an | Wechseln | Neu", EN
-  "WLAN-ADB on | Switch | New"), so the security-relevant action is never the one that clips;
-  every locale stays at about 24 characters of label text for the three actions. Fixed
+  gives each action an equally wide slot of about 8 Latin characters). The WLAN-ADB handover
+  action now comes first and is labeled just "WLAN-ADB" in every language (allowlisted in
+  `bin/check-i18n`), followed by "Switch" and "New" (DE "WLAN-ADB | Wechseln | Neu"); every
+  label fits one slot (at most 8 columns, CJK/Hangul counted double), pinned by
+  `KeepADBUsbActionLabelBudgetTest`. Fixed
   `settings_usb_profile_notification_subtext`, which since #592 no longer matched behavior: it
   now says that this toggle shows host profile status and actions, while the profile name and
   endpoint details (IP, host) additionally need the separate "Show connection details in

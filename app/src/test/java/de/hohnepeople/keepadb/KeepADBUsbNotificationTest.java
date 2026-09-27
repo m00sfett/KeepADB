@@ -129,7 +129,7 @@ public class KeepADBUsbNotificationTest {
 
         assertNotNull(notification.actions);
         assertEquals(3, notification.actions.length);
-        assertEquals("WLAN-ADB an", notification.actions[0].title.toString());
+        assertEquals("WLAN-ADB", notification.actions[0].title.toString());
         assertEquals("Wechseln", notification.actions[1].title.toString());
         assertEquals("Neu", notification.actions[2].title.toString());
     }

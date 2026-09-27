@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Uit</string>
     <string name="settings_usb_handover_mode_manual">Handmatig (actie in USB-melding tonen)</string>
     <string name="settings_usb_handover_mode_automatic">Automatisch (inschakelen bij nieuwe USB-verbinding)</string>
-    <string name="usb_notification_enable_wlan_handover">WLAN-ADB aan</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">WLAN-ADB kan niet worden ingeschakeld. Controleer de toestemming.</string>
     <string name="notification_action_disable">Wifi-ADB uitschakelen</string>
     <string name="status_enabled_disconnected">Draadloos debuggen is AAN (Verbinding verbroken)</string>

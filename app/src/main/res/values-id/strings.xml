@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Nonaktif</string>
     <string name="settings_usb_handover_mode_manual">Manual (tampilkan tindakan di notifikasi USB)</string>
     <string name="settings_usb_handover_mode_automatic">Otomatis (aktifkan saat koneksi USB baru)</string>
-    <string name="usb_notification_enable_wlan_handover">Mulai WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">WLAN-ADB tidak dapat diaktifkan. Periksa izin.</string>
     <string name="notification_action_disable">Nonaktifkan Wifi-ADB</string>
     <string name="status_enabled_disconnected">Debugging Nirkabel AKTIF (Terputus)</string>

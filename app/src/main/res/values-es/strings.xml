@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Desactivado</string>
     <string name="settings_usb_handover_mode_manual">Manual (mostrar acción en la notificación USB)</string>
     <string name="settings_usb_handover_mode_automatic">Automático (activar con una conexión USB nueva)</string>
-    <string name="usb_notification_enable_wlan_handover">Act. WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">No se pudo activar WLAN-ADB. Comprueba el permiso.</string>
     <string name="notification_action_disable">Desactivar Wifi-ADB</string>
     <string name="status_enabled_disconnected">Depuración inalámbrica ACTIVADA (desconectada)</string>
