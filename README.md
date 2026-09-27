@@ -149,8 +149,10 @@ not an assumed default.
   not included in the current webhook requests. Enable the webhook only for an endpoint you trust.
 - **Connection Details in Notifications:** By default, the USB-ADB notification does not show
   the host profile name, IP, or hostname, and the new-network prompt does not show the network
-  name or BSSID; both use neutral text and the details stay in the app. Settings → Notification →
-  "Show connection details in notifications" turns them on. Android may then show these details
+  name or BSSID; both use neutral text and the details stay in the app. In that mode the new-network
+  prompt also has no "Yes, allow" action: tapping it opens KeepADB, which names the network and
+  asks for the decision there ([#598](https://github.com/m00sfett/KeepADB/issues/598)).
+  Settings → Notification → "Show connection details in notifications" turns them on. Android may then show these details
   on the lock screen as well if the device is set to show sensitive notification content there;
   KeepADB's neutral lock-screen copy is only used while Android hides that content
   ([#592](https://github.com/m00sfett/KeepADB/issues/592)).
@@ -190,7 +192,9 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
    entries are preserved when upgrading. The main switch, tile, and widget remain manual overrides
    not gated by this setting. Turning the Keep-Alive toggle on does respect it: on an untrusted
    network it falls through to the trust prompt instead of enabling immediately (#577). Trusting a
-   network from that prompt notification requires an unlocked device (#578). Switching Wireless
+   network from that prompt notification requires an unlocked device (#578); with connection details
+   in notifications off (the default), the decision is made in the app, which names the network
+   (#598). Switching Wireless
    Debugging on from the Quick Settings tile also requires an unlocked device; switching it off
    from the lock screen works without unlocking (#586). Switching Wireless Debugging on from the
    USB notification's "Enable WLAN-ADB" handover action also requires an unlocked device (#588).
