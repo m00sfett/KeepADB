@@ -1,0 +1,1 @@
+• Fixed: the in-app network trust confirmation dialog no longer disappears when the screen rotates; it now reappears naming the same access point.
