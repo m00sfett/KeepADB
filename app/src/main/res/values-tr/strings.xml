@@ -177,7 +177,7 @@
     <string name="usb_notification_profile_hidden">Ana bilgisayar profili seçildi — ayrıntılar uygulamada</string>
     <string name="usb_notification_create_profile">Profil oluştur</string>
     <string name="usb_notification_switch_profile">Değiştir</string>
-    <string name="usb_notification_new_profile">Yeni profil</string>
+    <string name="usb_notification_new_profile">Yeni</string>
     <string name="usb_profile_none">Ana bilgisayar profili seçilmedi.</string>
     <string name="usb_profile_selected">Seçili ana bilgisayar profili: %1$s</string>
     <string name="usb_profile_create_button">Ana bilgisayar profili oluştur</string>

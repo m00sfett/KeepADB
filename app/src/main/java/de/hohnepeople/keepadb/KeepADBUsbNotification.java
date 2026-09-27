@@ -96,6 +96,12 @@ final class KeepADBUsbNotification {
                 // error text -- carries it as best effort.
                 .setPublicVersion(publicVersion(context));
 
+        // #593: the security-relevant handover action goes first. One UI truncates the last action
+        // when the labels do not fit, so the WLAN-ADB action must never be the one that clips.
+        if (handoverActionVisible) {
+            builder.addAction(handoverAction(context));
+        }
+
         if (profileNotificationEnabled) {
             List<KeepADBUsbProfile.Profile> profiles = KeepADBUsbProfile.getProfiles(context);
             KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.getSelected(context);
@@ -131,9 +137,6 @@ final class KeepADBUsbNotification {
                     .setContentIntent(contentIntent);
         }
 
-        if (handoverActionVisible) {
-            builder.addAction(handoverAction(context));
-        }
         return builder.build();
     }
 

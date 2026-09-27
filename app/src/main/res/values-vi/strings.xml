@@ -176,8 +176,8 @@
     <string name="usb_notification_no_profile">Chưa chọn hồ sơ máy chủ</string>
     <string name="usb_notification_profile_hidden">Đã chọn hồ sơ máy chủ — chi tiết trong ứng dụng</string>
     <string name="usb_notification_create_profile">Tạo hồ sơ</string>
-    <string name="usb_notification_switch_profile">Chuyển hồ sơ</string>
-    <string name="usb_notification_new_profile">Hồ sơ mới</string>
+    <string name="usb_notification_switch_profile">Chuyển</string>
+    <string name="usb_notification_new_profile">Mới</string>
     <string name="usb_profile_none">Chưa chọn hồ sơ máy chủ.</string>
     <string name="usb_profile_selected">Hồ sơ máy chủ đã chọn: %1$s</string>
     <string name="usb_profile_create_button">Tạo hồ sơ máy chủ</string>

@@ -176,8 +176,8 @@
     <string name="usb_notification_no_profile">未選取主機設定檔</string>
     <string name="usb_notification_profile_hidden">已選取主機設定檔 — 詳細資料請在應用程式中查看</string>
     <string name="usb_notification_create_profile">建立設定檔</string>
-    <string name="usb_notification_switch_profile">切換設定檔</string>
-    <string name="usb_notification_new_profile">新增設定檔</string>
+    <string name="usb_notification_switch_profile">切換</string>
+    <string name="usb_notification_new_profile">新增</string>
     <string name="usb_profile_none">未選取主機設定檔。</string>
     <string name="usb_profile_selected">已選取主機設定檔：%1$s</string>
     <string name="usb_profile_create_button">建立主機設定檔</string>

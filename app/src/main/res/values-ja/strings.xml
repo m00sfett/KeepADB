@@ -176,7 +176,7 @@
     <string name="usb_notification_no_profile">ホストプロファイルが選択されていません</string>
     <string name="usb_notification_profile_hidden">ホストプロファイル選択済み — 詳細はアプリで確認</string>
     <string name="usb_notification_create_profile">プロファイル作成</string>
-    <string name="usb_notification_switch_profile">プロファイル切替</string>
+    <string name="usb_notification_switch_profile">切替</string>
     <string name="usb_notification_new_profile">新規</string>
     <string name="usb_profile_none">ホストプロファイルが選択されていません。</string>
     <string name="usb_profile_selected">選択中のホストプロファイル: %1$s</string>

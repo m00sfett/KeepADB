@@ -212,7 +212,7 @@
     <string name="usb_notification_profile_hidden">Host profile selected — details in the app</string>
     <string name="usb_notification_create_profile">Add profile</string>
     <string name="usb_notification_switch_profile">Switch</string>
-    <string name="usb_notification_new_profile">New profile</string>
+    <string name="usb_notification_new_profile">New</string>
     <string name="usb_profile_none">No host profile selected.</string>
     <string name="usb_profile_selected">Selected host profile: %1$s</string>
     <string name="usb_profile_create_button">Create host profile</string>

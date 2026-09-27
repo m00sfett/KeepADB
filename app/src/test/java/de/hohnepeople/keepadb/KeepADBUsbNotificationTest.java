@@ -129,9 +129,37 @@ public class KeepADBUsbNotificationTest {
 
         assertNotNull(notification.actions);
         assertEquals(3, notification.actions.length);
-        assertEquals("Wechseln", notification.actions[0].title.toString());
-        assertEquals("Neues Profil", notification.actions[1].title.toString());
-        assertEquals("WLAN-ADB an", notification.actions[2].title.toString());
+        assertEquals("WLAN-ADB an", notification.actions[0].title.toString());
+        assertEquals("Wechseln", notification.actions[1].title.toString());
+        assertEquals("Neu", notification.actions[2].title.toString());
+    }
+
+    /**
+     * #593: One UI truncates the last action when the labels do not fit, so the security-relevant
+     * WLAN-ADB handover action must come first in every branch -- with profiles, without any
+     * profile (next to "create"), and it must be the handover intent, not just its label.
+     */
+    @Test
+    public void theHandoverActionIsAlwaysTheFirstAction() {
+        KeepADBPreferences.setAppLanguage(context, "en");
+        KeepADBUsbProfile.setNotificationEnabled(context, true);
+        KeepADBPreferences.setUsbWlanHandoverMode(context, KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL);
+        String handoverTitle = context.getString(R.string.usb_notification_enable_wlan_handover);
+
+        KeepADBUsbNotification.refresh(context, true);
+        Notification withoutProfiles = postedNotification();
+        assertEquals(2, withoutProfiles.actions.length);
+        assertEquals(handoverTitle, withoutProfiles.actions[0].title.toString());
+        assertEquals(KeepADBUsbReceiver.ACTION_HANDOVER_ENABLE,
+                shadowOf(withoutProfiles.actions[0].actionIntent).getSavedIntent().getAction());
+
+        KeepADBUsbProfile.add(context, "TestHost", "10.0.0.99", "testhost.local", "");
+        KeepADBUsbNotification.refresh(context, true);
+        Notification withProfiles = postedNotification();
+        assertEquals(3, withProfiles.actions.length);
+        assertEquals(handoverTitle, withProfiles.actions[0].title.toString());
+        assertEquals(KeepADBUsbReceiver.ACTION_HANDOVER_ENABLE,
+                shadowOf(withProfiles.actions[0].actionIntent).getSavedIntent().getAction());
     }
 
     @Test

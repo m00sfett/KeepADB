@@ -177,7 +177,7 @@
     <string name="usb_notification_profile_hidden">Profil hôte sélectionné — détails dans l’application</string>
     <string name="usb_notification_create_profile">Créer profil</string>
     <string name="usb_notification_switch_profile">Changer</string>
-    <string name="usb_notification_new_profile">Nouveau</string>
+    <string name="usb_notification_new_profile">Créer</string>
     <string name="usb_profile_none">Aucun profil d’hôte sélectionné.</string>
     <string name="usb_profile_selected">Profil d’hôte sélectionné : %1$s</string>
     <string name="usb_profile_create_button">Créer un profil d’hôte</string>
