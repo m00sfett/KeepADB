@@ -45,7 +45,7 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             }
         }
         KeepADBService.sync(context);
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
         KeepADBWidget.refreshAll(context);
         return success;
     }
@@ -141,7 +141,7 @@ public final class KeepADBReceiver extends BroadcastReceiver {
                     "auto_enable_not_permitted");
         }
         KeepADBService.sync(context);
-        KeepADBNotification.refresh(context);
+        KeepADBEndpointCoordinator.refresh(context);
         KeepADBWidget.refreshAll(context);
         return enabled;
     }

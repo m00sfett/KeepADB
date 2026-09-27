@@ -24,7 +24,7 @@ import org.junit.Test;
  * onCapabilitiesChanged}/{@code onLinkPropertiesChanged} are guaranteed to fire for every network
  * change, including ones on an already-tracked network). With no event-driven trigger, the
  * notification's cached endpoint was only ever re-verified by the 60s heartbeat
- * ({@code KeepADBService.heartbeatNow()} -&gt; {@code KeepADBNotification.verifyEndpointHealth()}),
+ * ({@code KeepADBService.heartbeatNow()} -&gt; {@code KeepADBEndpointCoordinator.verifyEndpointHealth()}),
  * while the Tile actively re-verifies the instant the user opens Quick Settings -- explaining the
  * observed asymmetry.
  *
@@ -49,7 +49,7 @@ public class KeepADBRoamNotificationRefreshContractTest {
                 "public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {");
 
         assertTrue("must re-verify (not just cache) the endpoint on a capabilities change",
-                onCapabilitiesChangedBody.contains("KeepADBNotification.verifyEndpointHealth("));
+                onCapabilitiesChangedBody.contains("KeepADBEndpointCoordinator.verifyEndpointHealth("));
         assertTrue("must stay guarded like the other callbacks so pre-foreground-promotion "
                         + "callbacks are ignored",
                 onCapabilitiesChangedBody.contains("foregroundReady"));

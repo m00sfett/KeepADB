@@ -1,0 +1,1 @@
+• Internal: improved the automated test suite's coverage of the Wi-Fi connectivity gate, the webhook draft field, and network/status handling. No user-facing change in this version.

@@ -41,7 +41,7 @@ final class KeepADBVpnTransport {
     private static final int VERIFY_TIMEOUT_MS = 400;
 
     /** Test-only seam for {@link #verifyAdbReachable}, mirroring the {@code ReachabilityProbe}
-     * pattern {@link KeepADBNotification} already uses: a real socket connect against an
+     * pattern {@link KeepADBEndpointCoordinator} already uses: a real socket connect against an
      * artificial 100.64.0.0/10 address cannot be exercised deterministically in a unit test
      * (there is no such local interface to bind), so tests substitute a fake outcome here. */
     interface ReachabilityProbe {

@@ -201,13 +201,14 @@ final class KeepADBDiagnostics {
         // only ever read through isEnabledOrNull. Unconfirmed is reported as "off" in this
         // debug-only snapshot, same as every other display surface's fallback.
         Boolean adbWifiOrNull = KeepADB.isEnabledOrNull(context, "diagnostics_snapshot");
+        // #594: one consistent snapshot, so host/port/verification time never mix two endpoints.
+        KeepADBEndpointCoordinator.Snapshot endpoint = KeepADBEndpointCoordinator.snapshot();
         String state = snapshotState(describeActiveNetwork(context),
                 KeepADBService.isWifiConnected(context),
                 KeepADBTailscaleStatus.detect(context),
                 adbWifiOrNull != null && adbWifiOrNull,
                 KeepADBPreferences.isKeepAliveEnabled(context),
-                KeepADBNotification.getCurrentHost(), KeepADBNotification.getCurrentPort(),
-                KeepADBNotification.getCurrentEndpointVerifiedAtMs(), System.currentTimeMillis());
+                endpoint.host, endpoint.port, endpoint.verifiedAtMs, System.currentTimeMillis());
         String changed = changedFields(lastSnapshotState, state);
         lastSnapshotState = state;
         String line = formatEvent(System.currentTimeMillis(), SystemClock.elapsedRealtime(),

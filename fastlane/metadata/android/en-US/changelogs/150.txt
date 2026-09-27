@@ -1,0 +1,1 @@
+• Internal: the settings screen's USB profile dialogs and webhook form were restructured behind the scenes into their own components. No user-facing change in this version.

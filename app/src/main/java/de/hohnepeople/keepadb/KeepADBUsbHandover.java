@@ -5,7 +5,7 @@ import android.content.Context;
 /**
  * Optional USB-ADB -&gt; WLAN-ADB handover (#168). Enabling WLAN-ADB via
  * {@link KeepADB#setEnabled(Context, boolean, String)} already triggers endpoint discovery and
- * register reporting on its own (see {@link KeepADBNotification#refresh(Context)}); this class
+ * register reporting on its own (see {@link KeepADBEndpointCoordinator#refresh(Context)}); this class
  * only decides *when* that call should happen for the USB handover feature.
  *
  * <p>Two entry points, both eventually reaching {@link KeepADB#setEnabled}, never with

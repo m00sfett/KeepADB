@@ -26,11 +26,17 @@ public class KeepADBNetworkSecurityContractTest {
         assertTrue(config.contains("network-security-config only supports scoping cleartext"));
     }
 
+    /**
+     * #595 moved the webhook form (including this warning) out of {@code SettingsActivity.java}
+     * into its own {@link KeepADBWebhookForm}; this contract now reads that class instead, keeping
+     * the same invariant -- the warning view exists, is wired to the {@code http://} check, and its
+     * layout id and string resource are both present.
+     */
     @Test
     public void settingsWarnsWhenAnHttpWebhookUrlIsConfigured() throws IOException {
-        String settings = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
-        assertTrue(settings.contains("webhookCleartextWarning"));
-        assertTrue(settings.contains("startsWith(\"http://\")"));
+        String webhookForm = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBWebhookForm.java");
+        assertTrue(webhookForm.contains("cleartextWarning"));
+        assertTrue(webhookForm.contains("startsWith(\"http://\")"));
 
         String layout = read("app/src/main/res/layout/activity_settings.xml");
         assertTrue(layout.contains("settings_webhook_cleartext_warning"));

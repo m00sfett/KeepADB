@@ -33,29 +33,29 @@ public class KeepADBTileDiscoveryContractTest {
         String body = methodBody(tile, "public void onStartListening() {");
 
         assertTrue(body.indexOf("registerListeningInstance(this)") >= 0);
-        assertTrue(body.indexOf("KeepADBNotification.refreshForTile(this, this);")
+        assertTrue(body.indexOf("KeepADBEndpointCoordinator.refreshForTile(this, this);")
                 > body.indexOf("registerListeningInstance(this)"));
         assertTrue(body.indexOf("updateTile();")
-                > body.indexOf("KeepADBNotification.refreshForTile(this, this);"));
+                > body.indexOf("KeepADBEndpointCoordinator.refreshForTile(this, this);"));
         assertFalse(body.contains("KeepADBPreferences.isKeepAliveEnabled"));
     }
 
     @Test
     public void refreshStartsDiscoveryForAnEnabledTileWithoutAnEndpointCache() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        int refreshStart = notification.indexOf(
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        int refreshStart = coordinator.indexOf(
                 "private static synchronized void refreshInternal(Context context, Object discoveryOwner) {");
-        int refreshEnd = notification.indexOf(
+        int refreshEnd = coordinator.indexOf(
                 "    private static void verifyCachedEndpointAsync", refreshStart);
 
         assertTrue(refreshStart >= 0);
         assertTrue(refreshEnd > refreshStart);
-        String body = notification.substring(refreshStart, refreshEnd);
+        String body = coordinator.substring(refreshStart, refreshEnd);
         // #582: the guard now reads through KeepADB.isEnabledOrNull() instead of the bare
         // isEnabled(), so a permanent OEM read restriction cannot crash this method.
         int enabledGuard = body.indexOf("if (adbEnabledOrNull == null || !adbEnabledOrNull)");
         int cacheBranch = body.indexOf("if (currentHost != null && currentPort > 0)");
-        int discovery = body.indexOf("startDiscoveryDirectLocked(appContext, manager, discoveryOwner);");
+        int discovery = body.indexOf("startDiscoveryDirectLocked(appContext, discoveryOwner);");
         int keepAlivePlaceholder = body.indexOf("if (KeepADBPreferences.isKeepAliveEnabled(appContext))");
         int placeholderBlockEnd = body.indexOf(
                 "\n        }\n\n        cancelRetryLocked();", keepAlivePlaceholder);
@@ -71,17 +71,17 @@ public class KeepADBTileDiscoveryContractTest {
 
     @Test
     public void disabledWirelessDebuggingStopsBeforeDiscovery() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String body = methodBody(notification,
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        String body = methodBody(coordinator,
                 "private static synchronized void refreshInternal(Context context, Object discoveryOwner) {");
         // #582: see the matching comment above.
         int enabledGuard = body.indexOf("if (adbEnabledOrNull == null || !adbEnabledOrNull)");
         // #445: this branch now routes through stopOrShowKeepAliveWaiting() instead of calling
         // stop() unconditionally -- see the KeepADBNotificationRobolectricTest coverage for the
         // behavioral split (real stop vs. Keep-Alive keeping the service running).
-        int stop = body.indexOf("stopOrShowKeepAliveWaiting(appContext, manager);", enabledGuard);
+        int stop = body.indexOf("stopOrShowKeepAliveWaiting(appContext);", enabledGuard);
         int stopReturn = body.indexOf("return;", stop);
-        int discovery = body.indexOf("startDiscoveryDirectLocked(appContext, manager, discoveryOwner);");
+        int discovery = body.indexOf("startDiscoveryDirectLocked(appContext, discoveryOwner);");
 
         assertTrue(enabledGuard >= 0);
         assertTrue(stop > enabledGuard);
@@ -102,38 +102,38 @@ public class KeepADBTileDiscoveryContractTest {
     @Test
     public void tileOwnsAndCancelsItsDiscoverySessionAtBothLifecycleBoundaries() throws IOException {
         String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
         String startBody = methodBody(tile, "public void onStartListening() {");
         String stopBody = methodBody(tile, "public void onStopListening() {");
         String destroyBody = methodBody(tile, "public void onDestroy() {");
         String scheduleCancelBody = methodBody(tile, "private void schedulePendingDiscoveryCancel() {");
-        String cancelBody = methodBody(notification, "static synchronized void cancelTileDiscovery(Object tileOwner) {");
+        String cancelBody = methodBody(coordinator, "static synchronized void cancelTileDiscovery(Object tileOwner) {");
 
-        assertTrue(startBody.contains("KeepADBNotification.refreshForTile(this, this);"));
+        assertTrue(startBody.contains("KeepADBEndpointCoordinator.refreshForTile(this, this);"));
         // Issue #267 (3): onStopListening() no longer cancels the discovery synchronously --
         // a brief panel close/reopen must not abort a search that is still in flight. It only
         // schedules the cancellation; onStartListening() cancels that schedule if the panel
         // reopens in time. onDestroy() still cancels immediately, unconditionally.
         assertTrue(startBody.contains("cancelPendingDiscoveryCancel();"));
         assertTrue(stopBody.contains("schedulePendingDiscoveryCancel();"));
-        assertFalse(stopBody.contains("KeepADBNotification.cancelTileDiscovery(this);"));
-        assertTrue(scheduleCancelBody.contains("KeepADBNotification.cancelTileDiscovery(this);"));
+        assertFalse(stopBody.contains("KeepADBEndpointCoordinator.cancelTileDiscovery(this);"));
+        assertTrue(scheduleCancelBody.contains("KeepADBEndpointCoordinator.cancelTileDiscovery(this);"));
         assertTrue(scheduleCancelBody.contains("handler.postDelayed("));
         assertTrue(destroyBody.contains("cancelPendingDiscoveryCancel();"));
-        assertTrue(destroyBody.contains("KeepADBNotification.cancelTileDiscovery(this);"));
+        assertTrue(destroyBody.contains("KeepADBEndpointCoordinator.cancelTileDiscovery(this);"));
         assertTrue(cancelBody.contains("activeDiscoveryOwner != tileOwner"));
         assertTrue(cancelBody.contains("discoveryRequestGeneration++"));
         assertTrue(cancelBody.contains("endpoint.stop();"));
         assertTrue(cancelBody.contains("endpoint = null;"));
         assertFalse(cancelBody.contains("markUnavailableAsync"));
-        assertFalse(cancelBody.contains("manager.cancel"));
+        assertFalse(cancelBody.contains("KeepADBNotification."));
         assertFalse(cancelBody.contains("postSurfaceRefresh"));
     }
 
     @Test
     public void closingThePanelBrieflyDoesNotCancelAnInFlightDiscovery() throws IOException {
         // Regression test for issue #267 (3): before the fix, onStopListening() called
-        // KeepADBNotification.cancelTileDiscovery(this) directly and unconditionally, so a
+        // KeepADBEndpointCoordinator.cancelTileDiscovery(this) directly and unconditionally, so a
         // 1-2s open/close of the Quick Settings panel aborted a still-running discovery
         // before it could resolve an endpoint. This asserts the grace-period mechanism that
         // replaces that immediate cancellation is actually wired up end to end.
@@ -142,7 +142,7 @@ public class KeepADBTileDiscoveryContractTest {
         String startBody = methodBody(tile, "public void onStartListening() {");
 
         assertFalse("onStopListening() must not cancel discovery synchronously anymore",
-                stopBody.contains("KeepADBNotification.cancelTileDiscovery(this);"));
+                stopBody.contains("KeepADBEndpointCoordinator.cancelTileDiscovery(this);"));
         assertTrue("onStopListening() must schedule a delayed cancellation instead",
                 stopBody.contains("schedulePendingDiscoveryCancel();"));
         assertTrue("Reopening the panel must cancel the pending delayed cancellation",
@@ -152,18 +152,18 @@ public class KeepADBTileDiscoveryContractTest {
 
     @Test
     public void ownershipFollowsTheLatestTileButNeverAdoptsAnExistingGlobalRun() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
         String endpoint = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
-        String retryBody = methodBody(notification,
-                "private static void scheduleRetryLocked(Context appContext, NotificationManager manager) {");
-        String startBody = methodBody(notification,
-                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,");
+        String retryBody = methodBody(coordinator,
+                "private static void scheduleRetryLocked(Context appContext) {");
+        String startBody = methodBody(coordinator,
+                "private static void startDiscoveryDirectLocked(Context appContext, Object discoveryOwner) {");
         String discoverBody = methodBody(endpoint,
                 "synchronized void discover(Listener listener, boolean allowRecoveryPulse) {");
-        String claimBody = methodBody(notification,
+        String claimBody = methodBody(coordinator,
                 "private static void claimDiscoveryOwnerLocked(Object discoveryOwner) {");
 
-        assertTrue(retryBody.contains("startDiscoveryDirectLocked(appContext, manager, activeDiscoveryOwner);"));
+        assertTrue(retryBody.contains("startDiscoveryDirectLocked(appContext, activeDiscoveryOwner);"));
         assertTrue(startBody.contains("claimDiscoveryOwnerLocked(discoveryOwner);"));
         assertTrue(startBody.contains("}, activeDiscoveryOwner == GLOBAL_DISCOVERY_OWNER);"));
         assertTrue(claimBody.contains(
@@ -175,9 +175,9 @@ public class KeepADBTileDiscoveryContractTest {
 
     @Test
     public void discoveryRetriesUseAFiniteExponentialBudget() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String retryBody = methodBody(notification,
-                "private static void scheduleRetryLocked(Context appContext, NotificationManager manager) {");
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        String retryBody = methodBody(coordinator,
+                "private static void scheduleRetryLocked(Context appContext) {");
 
         assertTrue(retryBody.contains("MAX_RETRY_ATTEMPTS"));
         assertTrue(retryBody.contains("retryAttempt >= MAX_RETRY_ATTEMPTS"));
@@ -191,7 +191,7 @@ public class KeepADBTileDiscoveryContractTest {
         assertTrue(retryBody.indexOf("if (retryAttempt >= MAX_RETRY_ATTEMPTS)")
                 < retryBody.indexOf("MAIN_HANDLER.postDelayed("));
 
-        String delayMethod = methodBody(notification,
+        String delayMethod = methodBody(coordinator,
                 "static long retryDelayMsForAttemptForTesting(int attempt) {");
         assertTrue(delayMethod.contains("RETRY_DELAY_MAX_MS"));
         assertTrue(delayMethod.contains("Math.min(delay, RETRY_DELAY_MAX_MS)"));
@@ -200,11 +200,11 @@ public class KeepADBTileDiscoveryContractTest {
 
     @Test
     public void cachedEndpointVerificationRejectsStaleAttemptTokens() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String discoveryBody = methodBody(notification,
-                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,");
-        String verifyBody = methodBody(notification,
-                "private static void verifyCachedEndpointAsync(Context appContext, NotificationManager manager,");
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        String discoveryBody = methodBody(coordinator,
+                "private static void startDiscoveryDirectLocked(Context appContext, Object discoveryOwner) {");
+        String verifyBody = methodBody(coordinator,
+                "private static void verifyCachedEndpointAsync(Context appContext,");
 
         assertTrue(verifyBody.contains("final long verificationToken"));
         assertTrue(verifyBody.contains("++endpointVerificationToken"));
@@ -212,14 +212,14 @@ public class KeepADBTileDiscoveryContractTest {
         int tokenGuard = verifyBody.indexOf(
                 "if (verificationToken != endpointVerificationToken) return;");
         int worker = verifyBody.indexOf("new Thread(() -> {");
-        int lock = verifyBody.indexOf("synchronized (KeepADBNotification.class) {", worker);
+        int lock = verifyBody.indexOf("synchronized (KeepADBEndpointCoordinator.class) {", worker);
         int lockEnd = findMatchingBrace(verifyBody, verifyBody.indexOf('{', lock));
         assertTrue(tokenGuard > lock && tokenGuard < lockEnd);
-        for (String mutation : new String[] { "stopOrShowKeepAliveWaiting(appContext, manager);",
+        for (String mutation : new String[] { "stopOrShowKeepAliveWaiting(appContext);",
                 "activeDiscoveryOwner = null;", "shouldLogReachable()",
                 "resetReachableConfirmed();", "currentHost = null;", "currentPort = 0;",
                 "endpointListener.onUnavailable();", "cancelRetryLocked();",
-                "startDiscoveryDirectLocked(appContext, manager, discoveryOwner);" }) {
+                "startDiscoveryDirectLocked(appContext, discoveryOwner);" }) {
             int position = verifyBody.indexOf(mutation);
             assertTrue(mutation + " must follow the token guard under the same lock",
                     position > tokenGuard && position < lockEnd);
@@ -232,7 +232,7 @@ public class KeepADBTileDiscoveryContractTest {
 
         String wifiBranch = methodBody(verifyBody,
                 "if (KeepADBService.isWifiConnected(appContext)) {");
-        assertTrue(wifiBranch.contains("startDiscoveryDirectLocked(appContext, manager, discoveryOwner);"));
+        assertTrue(wifiBranch.contains("startDiscoveryDirectLocked(appContext, discoveryOwner);"));
         // #582: see the matching comment above.
         assertTrue(verifyBody.indexOf("if (adbEnabledOrNull == null || !adbEnabledOrNull)") <
                 verifyBody.indexOf("if (reachable)"));
@@ -240,12 +240,12 @@ public class KeepADBTileDiscoveryContractTest {
         for (String signature : new String[] {
                 "static synchronized void resetForTesting() {",
                 "static synchronized void invalidateEndpoint(Context context) {",
-                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,",
-                "private static synchronized void stop(Context context, NotificationManager manager) {",
+                "private static void startDiscoveryDirectLocked(Context appContext, Object discoveryOwner) {",
+                "private static synchronized void stop(Context context) {",
                 "static synchronized void cancelTileDiscovery(Object tileOwner) {"
         }) {
             assertTrue(signature + " must invalidate older verification attempts",
-                    methodBody(notification, signature).contains("endpointVerificationToken++"));
+                    methodBody(coordinator, signature).contains("endpointVerificationToken++"));
         }
         String replacement = methodBody(discoveryBody, "public void onEndpoint(String host, int port) {");
         int replacementToken = replacement.indexOf("endpointVerificationToken++;");
@@ -257,14 +257,14 @@ public class KeepADBTileDiscoveryContractTest {
 
     @Test
     public void unavailableDiscoveryCallbackBumpsTokenAtTheMutationSite() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String discoveryBody = methodBody(notification,
-                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,");
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        String discoveryBody = methodBody(coordinator,
+                "private static void startDiscoveryDirectLocked(Context appContext, Object discoveryOwner) {");
         String unavailableBody = methodBody(discoveryBody, "public void onUnavailable() {");
 
         int generationGuard = unavailableBody.indexOf(
                 "if (requestGeneration != discoveryRequestGeneration) return;");
-        int lock = unavailableBody.indexOf("synchronized (KeepADBNotification.class) {");
+        int lock = unavailableBody.indexOf("synchronized (KeepADBEndpointCoordinator.class) {");
         int lockOpeningBrace = unavailableBody.indexOf('{', lock);
         int lockEnd = findMatchingBrace(unavailableBody, lockOpeningBrace);
         int tokenBump = unavailableBody.indexOf("endpointVerificationToken++;");
@@ -300,19 +300,19 @@ public class KeepADBTileDiscoveryContractTest {
 
     @Test
     public void activityWidgetAndKeepAlivePathsRetainGlobalDiscoveryOwnership() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
         String activity = read("app/src/main/java/de/hohnepeople/keepadb/MainActivity.java");
         String widget = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBWidget.java");
         String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
-        String refreshBody = methodBody(notification, "static synchronized void refresh(Context context) {");
-        String healthBody = methodBody(notification,
+        String refreshBody = methodBody(coordinator, "static synchronized void refresh(Context context) {");
+        String healthBody = methodBody(coordinator,
                 "static synchronized void verifyEndpointHealth(Context context) {");
 
         assertTrue(refreshBody.contains("refreshInternal(context, GLOBAL_DISCOVERY_OWNER);"));
         assertTrue(healthBody.contains("claimDiscoveryOwnerLocked(GLOBAL_DISCOVERY_OWNER);"));
-        assertTrue(activity.contains("KeepADBNotification.refresh(this);"));
-        assertTrue(widget.contains("KeepADBNotification.refresh(context);"));
-        assertTrue(service.contains("KeepADBNotification.refresh(this);"));
+        assertTrue(activity.contains("KeepADBEndpointCoordinator.refresh(this);"));
+        assertTrue(widget.contains("KeepADBEndpointCoordinator.refresh(context);"));
+        assertTrue(service.contains("KeepADBEndpointCoordinator.refresh(this);"));
         assertFalse(activity.contains("refreshForTile"));
         assertFalse(widget.contains("refreshForTile"));
         assertFalse(service.contains("refreshForTile"));
@@ -320,20 +320,20 @@ public class KeepADBTileDiscoveryContractTest {
 
     @Test
     public void tileOwnedCachedVerificationCannotStartDiscoveryAfterLifecycleCancellation() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String refreshBody = methodBody(notification,
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        String refreshBody = methodBody(coordinator,
                 "private static synchronized void refreshInternal(Context context, Object discoveryOwner) {");
-        String verifyBody = methodBody(notification,
-                "private static void verifyCachedEndpointAsync(Context appContext, NotificationManager manager,");
+        String verifyBody = methodBody(coordinator,
+                "private static void verifyCachedEndpointAsync(Context appContext,");
 
         int assignOwner = refreshBody.indexOf("claimDiscoveryOwnerLocked(discoveryOwner);");
         int verify = refreshBody.indexOf(
-                "verifyCachedEndpointAsync(appContext, manager, currentHost, currentPort, discoveryOwner);");
+                "verifyCachedEndpointAsync(appContext, currentHost, currentPort, discoveryOwner);");
         int ownerGuard = verifyBody.indexOf(
                 "if (activeDiscoveryOwner != discoveryOwner) return;");
         int clearHost = verifyBody.indexOf("currentHost = null;");
         int rediscover = verifyBody.indexOf(
-                "startDiscoveryDirectLocked(appContext, manager, discoveryOwner);");
+                "startDiscoveryDirectLocked(appContext, discoveryOwner);");
 
         assertTrue(assignOwner >= 0);
         assertTrue(verify > assignOwner);
@@ -344,11 +344,11 @@ public class KeepADBTileDiscoveryContractTest {
 
     @Test
     public void cancellationRejectsLateResultsAndLeavesANewSessionPossible() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String cancelBody = methodBody(notification,
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        String cancelBody = methodBody(coordinator,
                 "static synchronized void cancelTileDiscovery(Object tileOwner) {");
-        String discoveryBody = methodBody(notification,
-                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,");
+        String discoveryBody = methodBody(coordinator,
+                "private static void startDiscoveryDirectLocked(Context appContext, Object discoveryOwner) {");
         String endpointBody = methodBody(discoveryBody,
                 discoveryBody.indexOf("public void onEndpoint(String host, int port) {"));
         String unavailableBody = methodBody(discoveryBody,
@@ -363,20 +363,20 @@ public class KeepADBTileDiscoveryContractTest {
         assertTrue(createEndpoint >= 0);
         assertTrue(nextGeneration > createEndpoint);
         assertPublicationIsGenerationLocked(endpointBody,
-                "show(appContext, manager, host, port);",
+                "KeepADBNotification.renderEndpoint(appContext, host, port);",
                 "KeepADBRegisterClient.updateEndpointAsync(appContext, host, port);");
         assertPublicationIsGenerationLocked(unavailableBody,
-                "manager.cancel(NOTIFICATION_ID);",
+                "KeepADBNotification.remove(appContext);",
                 "KeepADBRegisterClient.markUnavailableAsync(appContext);");
     }
 
     @Test
     public void discoveryCompletionRefreshesOnlyTheCurrentListeningInstance() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        int discoveryStart = notification.indexOf("startDiscoveryDirectLocked(appContext, manager,");
-        int callback = notification.indexOf(
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        int discoveryStart = coordinator.indexOf("private static void startDiscoveryDirectLocked(");
+        int callback = coordinator.indexOf(
                 "public void onEndpoint(String host, int port) {", discoveryStart);
-        String callbackBody = methodBody(notification, callback);
+        String callbackBody = methodBody(coordinator, callback);
 
         assertTrue(discoveryStart >= 0);
         assertTrue(callback >= 0);
@@ -404,9 +404,9 @@ public class KeepADBTileDiscoveryContractTest {
 
     @Test
     public void unavailableDiscoveryRefreshesAListeningTileToDisconnectedState() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        int callback = notification.indexOf("public void onUnavailable() {");
-        String callbackBody = methodBody(notification, callback);
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        int callback = coordinator.indexOf("public void onUnavailable() {");
+        String callbackBody = methodBody(coordinator, callback);
 
         assertTrue(callback >= 0);
         assertTrue(callbackBody.indexOf("currentHost = null;") >= 0);
@@ -417,9 +417,9 @@ public class KeepADBTileDiscoveryContractTest {
 
     @Test
     public void notificationRejectsCallbacksFromSupersededDiscoveryRequests() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String discoveryBody = methodBody(notification,
-                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,");
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        String discoveryBody = methodBody(coordinator,
+                "private static void startDiscoveryDirectLocked(Context appContext, Object discoveryOwner) {");
         int generation = discoveryBody.indexOf(
                 "final long requestGeneration = ++discoveryRequestGeneration;");
         int discover = discoveryBody.indexOf("endpoint.discover(");
@@ -433,10 +433,10 @@ public class KeepADBTileDiscoveryContractTest {
         int unavailableGuard = unavailableBody.indexOf(
                 "if (requestGeneration != discoveryRequestGeneration) return;");
         int unavailablePublish = unavailableBody.indexOf("currentHost = null;");
-        String invalidateBody = methodBody(notification,
+        String invalidateBody = methodBody(coordinator,
                 "static synchronized void invalidateEndpoint(Context context) {");
-        String stopBody = methodBody(notification,
-                "private static synchronized void stop(Context context, NotificationManager manager) {");
+        String stopBody = methodBody(coordinator,
+                "private static synchronized void stop(Context context) {");
 
         assertTrue(generation >= 0);
         assertTrue(discover > generation);
@@ -450,31 +450,31 @@ public class KeepADBTileDiscoveryContractTest {
 
     @Test
     public void supersededCallbacksCannotPublishAfterGenerationValidation() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String discoveryBody = methodBody(notification,
-                "private static void startDiscoveryDirectLocked(Context appContext, NotificationManager manager,");
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        String discoveryBody = methodBody(coordinator,
+                "private static void startDiscoveryDirectLocked(Context appContext, Object discoveryOwner) {");
         String endpointBody = methodBody(discoveryBody,
                 discoveryBody.indexOf("public void onEndpoint(String host, int port) {"));
         String unavailableBody = methodBody(discoveryBody,
                 discoveryBody.indexOf("public void onUnavailable() {"));
 
         assertPublicationIsGenerationLocked(endpointBody,
-                "show(appContext, manager, host, port);",
+                "KeepADBNotification.renderEndpoint(appContext, host, port);",
                 "KeepADBRegisterClient.updateEndpointAsync(appContext, host, port);");
         assertPublicationIsGenerationLocked(unavailableBody,
-                "manager.cancel(NOTIFICATION_ID);",
+                "KeepADBNotification.remove(appContext);",
                 "KeepADBRegisterClient.markUnavailableAsync(appContext);");
     }
 
     @Test
     public void discoveryErrorsKeepTheTileDisconnected() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
         String endpoint = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
-        String unavailableBody = methodBody(notification, "public void onUnavailable() {");
-        String invalidateBody = methodBody(notification,
+        String unavailableBody = methodBody(coordinator, "public void onUnavailable() {");
+        String invalidateBody = methodBody(coordinator,
                 "static synchronized void invalidateEndpoint(Context context) {");
-        String stopBody = methodBody(notification,
-                "private static synchronized void stop(Context context, NotificationManager manager) {");
+        String stopBody = methodBody(coordinator,
+                "private static synchronized void stop(Context context) {");
         String timeoutBody = methodBody(endpoint, "private void giveUpIfStillUnresolved(long generation) {");
         String resolveFailureBody = methodBody(endpoint,
                 "public void onResolveFailed(NsdServiceInfo ignored, int errorCode) {");
@@ -536,7 +536,7 @@ public class KeepADBTileDiscoveryContractTest {
         String body = methodBody(tile, "public void onClick() {");
 
         int disconnectedBranch = body.indexOf("if (state == KeepADB.State.ENABLED_DISCONNECTED) {");
-        int reconnectCall = body.indexOf("KeepADBNotification.refreshForTile(this, this);", disconnectedBranch);
+        int reconnectCall = body.indexOf("KeepADBEndpointCoordinator.refreshForTile(this, this);", disconnectedBranch);
         int earlyReturn = body.indexOf("return;", disconnectedBranch);
         int wantAssignment = body.indexOf("boolean want = KeepADB.desiredOnForClick(state);");
 
@@ -610,7 +610,7 @@ public class KeepADBTileDiscoveryContractTest {
             String firstPublication, String secondPublication) {
         int guard = callbackBody.indexOf(
                 "if (requestGeneration != discoveryRequestGeneration) return;");
-        int lock = callbackBody.indexOf("synchronized (KeepADBNotification.class) {");
+        int lock = callbackBody.indexOf("synchronized (KeepADBEndpointCoordinator.class) {");
         int lockOpeningBrace = callbackBody.indexOf('{', lock);
         int lockEnd = findMatchingBrace(callbackBody, lockOpeningBrace);
         int first = callbackBody.indexOf(firstPublication);

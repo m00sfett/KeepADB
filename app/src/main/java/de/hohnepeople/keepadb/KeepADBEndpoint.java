@@ -39,7 +39,7 @@ final class KeepADBEndpoint {
     //  - NSD_ADDRESS_VERIFY_TIMEOUT_MS (400ms, see isPortReachable() call in the mDNS resolve
     //    path below): runs once per resolved mDNS candidate, not in a tight loop, so it can afford
     //    a somewhat larger margin for a real network round-trip.
-    //  - KeepADBNotification's cached-endpoint re-verification (500ms, hardcoded at that call
+    //  - KeepADBEndpointCoordinator's cached-endpoint re-verification (500ms, hardcoded at that call
     //    site since it belongs to that class's own heartbeat cadence): the least time-sensitive
     //    of the two, since it only re-checks an already-cached, previously-working endpoint on a
     //    periodic tick, not a fresh discovery attempt blocking endpoint delivery. Both call sites
@@ -53,7 +53,7 @@ final class KeepADBEndpoint {
     // the recovery pulse's re-enable only happens at that point, and mDNS still needs to pick
     // up the freshly re-advertised listener afterwards (typically 1-2s per README). Cutting
     // this too close would make the overall timeout fire before the pulse's own fix had a
-    // realistic chance to work. Giving up here isn't otherwise fatal: KeepADBNotification's
+    // realistic chance to work. Giving up here isn't otherwise fatal: KeepADBEndpointCoordinator's
     // onUnavailable() retries with backoff, so a too-short timeout just costs an extra cycle
     // in the slow-path case, not the endpoint.
     private static final long OVERALL_TIMEOUT_MS = 8_000;
@@ -229,7 +229,7 @@ final class KeepADBEndpoint {
     private static final long RECOVERY_PULSE_COOLDOWN_MS = 20_000;
     // Static, not per-instance: toggling adb_wifi_enabled fires KeepADBService's/MainActivity's
     // ContentObserver, which tears down and recreates the KeepADBEndpoint instance (see
-    // KeepADBNotification.stop()/startDiscoveryDirectLocked()). An instance-scoped "already
+    // KeepADBEndpointCoordinator.stop()/startDiscoveryDirectLocked()). An instance-scoped "already
     // pulsed" flag would reset with every such recreation, causing our own pulse to retrigger
     // itself every ~6.5s in an endless loop that never gave mDNS a real chance to resolve
     // anything -- found live: the recovery pulse fired repeatedly for 40+ seconds straight.
@@ -280,7 +280,7 @@ final class KeepADBEndpoint {
                 + "ms while enabled; pulsing adb_wifi_enabled to recover");
         // #572: deliberately NOT re-checking isCurrent(generation) here (only at pulse *start*,
         // above). The pulse's own AUS write is observed by MainActivity's/KeepADBService's
-        // ContentObserver, which -- with Keep-Alive off -- runs KeepADBNotification.refresh() ->
+        // ContentObserver, which -- with Keep-Alive off -- runs KeepADBEndpointCoordinator.refresh() ->
         // stopOrShowKeepAliveWaiting() -> stop() on this very endpoint instance, bumping
         // discoveryGeneration before the pulse reaches its EIN stage. Guarding the EIN write on
         // discoveryGeneration would make the pulse abort itself every time, leaving Wireless

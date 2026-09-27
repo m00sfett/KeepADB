@@ -41,7 +41,7 @@ public class KeepADBWidget extends AppWidgetProvider {
             }
             KeepADBService.sync(context);
             refreshAll(context);
-            KeepADBNotification.refresh(context);
+            KeepADBEndpointCoordinator.refresh(context);
             KeepADBTileService.requestRefresh(context);
         }
     }
@@ -66,7 +66,7 @@ public class KeepADBWidget extends AppWidgetProvider {
                 widgetText = localizedContext.getString(R.string.widget_text_disconnected);
                 break;
             case ENABLED_CONNECTED:
-                int port = KeepADBNotification.getCurrentPort();
+                int port = KeepADBEndpointCoordinator.snapshot().port;
                 if (port > 0) {
                     widgetText = localizedContext.getString(R.string.widget_text_connected_format, port);
                 } else {
@@ -91,7 +91,7 @@ public class KeepADBWidget extends AppWidgetProvider {
 
         mgr.updateAppWidget(id, views);
         if (refreshNotification) {
-            KeepADBNotification.refresh(context);
+            KeepADBEndpointCoordinator.refresh(context);
         }
     }
 

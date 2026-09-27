@@ -22,7 +22,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 /**
- * Regression coverage for #394 / #435: {@code KeepADBNotification.verifyCachedEndpointAsync()}
+ * Regression coverage for #394 / #435: {@code KeepADBEndpointCoordinator.verifyCachedEndpointAsync()}
  * periodically re-verifies an already-registered/cached endpoint. #363 briefly closed the "any
  * TCP responder is accepted" gap for this path with a TLS-sniff probe ({@code probeAdbTlsPort()}),
  * but #404 found that probe never actually matches genuine adbd on real devices, so #435 reverted
@@ -52,7 +52,7 @@ public class KeepADBCachedEndpointTlsReverifyTest {
 
     @After
     public void resetSharedState() throws Exception {
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         KeepADB.resetForTesting();
         setStatic("currentHost", null);
         setStatic("currentPort", 0);
@@ -83,12 +83,12 @@ public class KeepADBCachedEndpointTlsReverifyTest {
             // Deliberately do NOT install a fake ReachabilityProbe: this exercises the real
             // default (KeepADBEndpoint::isPortReachable as of #435) end-to-end against the
             // foreign loopback service above.
-            KeepADBNotification.verifyEndpointHealth(context);
+            KeepADBEndpointCoordinator.verifyEndpointHealth(context);
             awaitVerificationIdle();
             foreignService.join(5000);
 
             assertTrue("a plain TCP responder on the cached host:port is accepted by design "
-                    + "(#412/#435 documented trade-off)", "127.0.0.1".equals(KeepADBNotification.getCurrentHost()));
+                    + "(#412/#435 documented trade-off)", "127.0.0.1".equals(KeepADBEndpointCoordinator.snapshot().host));
         }
     }
 
@@ -103,16 +103,16 @@ public class KeepADBCachedEndpointTlsReverifyTest {
         setStatic("currentHost", "127.0.0.1");
         setStatic("currentPort", port);
 
-        KeepADBNotification.verifyEndpointHealth(context);
+        KeepADBEndpointCoordinator.verifyEndpointHealth(context);
         awaitVerificationIdle();
 
         assertNull("a cached endpoint with no responder at all must be invalidated, not confirmed "
-                + "as still reachable", KeepADBNotification.getCurrentHost());
+                + "as still reachable", KeepADBEndpointCoordinator.snapshot().host);
     }
 
     private static void awaitVerificationIdle() throws InterruptedException {
         long deadline = System.currentTimeMillis() + 5000;
-        while (KeepADBNotification.isVerificationInFlightForTesting()) {
+        while (KeepADBEndpointCoordinator.isVerificationInFlightForTesting()) {
             if (System.currentTimeMillis() > deadline) {
                 fail("verification worker did not finish within the timeout");
             }
@@ -121,7 +121,7 @@ public class KeepADBCachedEndpointTlsReverifyTest {
     }
 
     private static void setStatic(String fieldName, Object value) throws Exception {
-        Field field = KeepADBNotification.class.getDeclaredField(fieldName);
+        Field field = KeepADBEndpointCoordinator.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(null, value);
     }

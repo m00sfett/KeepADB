@@ -259,7 +259,7 @@ public class KeepADBService extends Service {
         // read) instead of skipping straight to the "already on" health check on an unconfirmed
         // value.
         if (Boolean.TRUE.equals(KeepADB.isEnabledOrNull(this, "service_heartbeat"))) {
-            KeepADBNotification.verifyEndpointHealth(this);
+            KeepADBEndpointCoordinator.verifyEndpointHealth(this);
             return;
         }
         // #536: the heartbeat is the long-lived timer that re-triggers a due automatic recheck
@@ -336,7 +336,7 @@ public class KeepADBService extends Service {
                                 KeepADBDiagnostics.event(KeepADBService.this, "recovery_or_stop", "content_observer",
                                         "stopped", "user_disabled");
                                 stop(KeepADBService.this);
-                                KeepADBNotification.refresh(KeepADBService.this);
+                                KeepADBEndpointCoordinator.refresh(KeepADBService.this);
                                 KeepADBWidget.refreshAll(KeepADBService.this);
                                 return;
                             } else if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(KeepADBService.this)) {
@@ -380,7 +380,7 @@ public class KeepADBService extends Service {
                     } else if (Boolean.FALSE.equals(adbEnabledOrNull)) {
                         stop(KeepADBService.this);
                     }
-                    KeepADBNotification.refresh(KeepADBService.this);
+                    KeepADBEndpointCoordinator.refresh(KeepADBService.this);
                     KeepADBWidget.refreshAll(KeepADBService.this);
                 }
             };
@@ -465,21 +465,21 @@ public class KeepADBService extends Service {
                     Log.d(TAG, "NetworkCallback: Wi-Fi network lost");
                     KeepADBDiagnostics.event(KeepADBService.this, "wifi_change", "network_callback",
                             "lost", "network generation=" + generation);
-                    KeepADBNotification.invalidateEndpoint(KeepADBService.this);
+                    KeepADBEndpointCoordinator.invalidateEndpoint(KeepADBService.this);
                     // #349: invalidate the local endpoint and its discovery generation before
                     // queueing remote cleanup. This prevents stale local work from re-registering
                     // the lost endpoint; markUnavailableAsync() then retains a failed cleanup's
                     // last-known registration and reports the error through the register listener.
                     // Refresh comes last so it cannot race ahead of either invalidation step.
                     KeepADBRegisterClient.markUnavailableAsync(KeepADBService.this);
-                    KeepADBNotification.refresh(KeepADBService.this);
+                    KeepADBEndpointCoordinator.refresh(KeepADBService.this);
                     KeepADBWidget.refreshAll(KeepADBService.this);
                 }
 
                 // Issue #276: a same-SSID mesh roam (new BSSID, same physical Wi-Fi Network
                 // object) fires neither onAvailable() nor onLost() above, so adbd rotating its
                 // wireless-debugging port on such a roam previously went undetected until the
-                // next 60s heartbeat (KeepADBNotification.verifyEndpointHealth() via
+                // next 60s heartbeat (KeepADBEndpointCoordinator.verifyEndpointHealth() via
                 // heartbeatNow()) -- KeepADBTileService picked up the new endpoint immediately
                 // because it re-verifies on every onStartListening(), which is what made the
                 // notification lag behind it. onCapabilitiesChanged() is documented (see
@@ -504,7 +504,7 @@ public class KeepADBService extends Service {
                     Log.d(TAG, "NetworkCallback: Wi-Fi capabilities changed; re-verifying cached endpoint");
                     KeepADBDiagnostics.event(KeepADBService.this, "wifi_change", "network_callback",
                             "capabilities_changed", "reverify_triggered");
-                    KeepADBNotification.verifyEndpointHealth(KeepADBService.this);
+                    KeepADBEndpointCoordinator.verifyEndpointHealth(KeepADBService.this);
                     checkNetworkTrustWhileActive();
                 }
             };
@@ -590,7 +590,7 @@ public class KeepADBService extends Service {
                         // #446: same prompt as the content-observer path above. It is throttled
                         // per access point, so the 60s heartbeat cannot turn it into spam.
                         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(this);
-                        KeepADBNotification.refresh(this);
+                        KeepADBEndpointCoordinator.refresh(this);
                         KeepADBWidget.refreshAll(this);
                         return;
                     }
@@ -605,7 +605,7 @@ public class KeepADBService extends Service {
                                 + "retry deferred until the backoff window elapses");
                         KeepADBDiagnostics.heartbeatEvent(this, "recheck_result", "keep_alive_check", "service", "blocked",
                                 "reason=recovery_backoff_active");
-                        KeepADBNotification.refresh(this);
+                        KeepADBEndpointCoordinator.refresh(this);
                         KeepADBWidget.refreshAll(this);
                         return;
                     }
@@ -630,7 +630,7 @@ public class KeepADBService extends Service {
                         "reason=waiting_for_network");
             }
         }
-        KeepADBNotification.refresh(this);
+        KeepADBEndpointCoordinator.refresh(this);
         KeepADBWidget.refreshAll(this);
     }
 

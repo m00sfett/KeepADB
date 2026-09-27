@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  * Regression contract for issue #285: a mesh-roam reverification triggered from {@code
  * KeepADBService.onCapabilitiesChanged()} and both outcomes of {@code
- * KeepADBNotification.verifyCachedEndpointAsync()} previously only reached logcat via {@code
+ * KeepADBEndpointCoordinator.verifyCachedEndpointAsync()} previously only reached logcat via {@code
  * Log.d}/{@code Log.w}, leaving no persisted {@code KeepADBDiag} trail to reconstruct a roam or
  * an endpoint-staleness decision after the fact. The fix adds a {@code
  * KeepADBDiagnostics.event(...)} call at each of these three points, subject to the diagnostics
@@ -36,7 +36,7 @@ public class KeepADBReverifyDiagnosticsContractTest {
         assertTrue(onCapabilitiesChangedBody.contains("\"capabilities_changed\""));
         assertTrue("the diagnostics call must precede the actual reverification trigger",
                 onCapabilitiesChangedBody.indexOf("KeepADBDiagnostics.event(")
-                        < onCapabilitiesChangedBody.indexOf("KeepADBNotification.verifyEndpointHealth("));
+                        < onCapabilitiesChangedBody.indexOf("KeepADBEndpointCoordinator.verifyEndpointHealth("));
     }
 
     @Test
@@ -120,8 +120,8 @@ public class KeepADBReverifyDiagnosticsContractTest {
     }
 
     private static String verifyCachedEndpointAsyncBody() throws IOException {
-        String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        return methodBody(notification, "private static void verifyCachedEndpointAsync(");
+        String coordinator = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpointCoordinator.java");
+        return methodBody(coordinator, "private static void verifyCachedEndpointAsync(");
     }
 
     private static String read(String relativePath) throws IOException {

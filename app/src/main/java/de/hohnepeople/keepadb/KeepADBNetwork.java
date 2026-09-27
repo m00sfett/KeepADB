@@ -64,7 +64,7 @@ import java.util.concurrent.ConcurrentHashMap;
 final class KeepADBNetwork {
     private static volatile KeepADBNetwork instance;
     // #303: test-only override for isWifiConnected(), see KeepADBWifiProbe's javadoc for why it
-    // lives here instead of on KeepADBService/KeepADBNotification. null in production, where
+    // lives here instead of on KeepADBService/KeepADBEndpointCoordinator. null in production, where
     // isWifiConnected() always falls through to the real transport-capability check below.
     private static volatile KeepADBWifiProbe wifiConnectivityOverride;
     // #352: test-only override for isWifiCallbackRegistered(), letting tests simulate a
@@ -183,7 +183,7 @@ final class KeepADBNetwork {
      * Test-only seam (#303): replaces {@link #isWifiConnected()}'s real transport-capability
      * check with {@code override}, or restores it when passed {@code null}. See {@link
      * KeepADBWifiProbe}'s javadoc for why this lives here rather than as a seam on {@code
-     * KeepADBService}/{@code KeepADBNotification}.
+     * KeepADBService}/{@code KeepADBEndpointCoordinator}.
      */
     static void setWifiConnectivityOverrideForTesting(KeepADBWifiProbe override) {
         wifiConnectivityOverride = override;

@@ -11,7 +11,7 @@ final class KeepADBAndroidSurfaceRefresher implements KeepADBSurfaceRefresher {
     @Override
     public void refreshAll(Context appContext) {
         KeepADBService.sync(appContext);
-        KeepADBNotification.refresh(appContext);
+        KeepADBEndpointCoordinator.refresh(appContext);
         KeepADBWidget.refreshAll(appContext);
     }
 }

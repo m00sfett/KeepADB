@@ -64,7 +64,7 @@ public class MainActivityTransportOverviewTest {
     @After
     public void tearDown() throws Exception {
         clearPreferences();
-        KeepADBNotification.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
         setNotificationStatic("currentHost", null);
         setNotificationStatic("currentPort", 0);
         setNotificationStatic("currentEndpointVerifiedAtMs", 0L);
@@ -134,7 +134,7 @@ public class MainActivityTransportOverviewTest {
 
     /**
      * Launches the activity and then drives one more {@code renderTransportOverview()} pass
-     * explicitly. The activity's own lifecycle also calls {@code KeepADBNotification.refresh()},
+     * explicitly. The activity's own lifecycle also calls {@code KeepADBEndpointCoordinator.refresh()},
      * which -- with wireless debugging off on this virtual device -- drops the cached endpoint
      * again. Re-seeding and re-rendering here keeps the scenario under test intact while still
      * going through the real, private render path rather than a hand-built snapshot.
@@ -187,7 +187,7 @@ public class MainActivityTransportOverviewTest {
     }
 
     private static void setNotificationStatic(String fieldName, Object value) throws Exception {
-        Field field = KeepADBNotification.class.getDeclaredField(fieldName);
+        Field field = KeepADBEndpointCoordinator.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(null, value);
     }

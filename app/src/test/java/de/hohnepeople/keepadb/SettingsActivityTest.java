@@ -67,6 +67,7 @@ public class SettingsActivityTest {
                 .clear()
                 .commit();
         KeepADB.resetForTesting();
+        KeepADBRegisterClient.resetHttpTransport();
     }
 
     /**
@@ -240,6 +241,47 @@ public class SettingsActivityTest {
         assertNull("Radio click must close the dialog", activity.getActiveSwitchProfileDialog());
     }
 
+    /**
+     * #595 AC5: the USB notification's profile actions reach SettingsActivity as an intent extra
+     * that onResume() hands to the extracted profile editor. SWITCH (with existing profiles) must
+     * open the switch list, CREATE the edit dialog; the extra is consumed, so a later resume does
+     * not reopen the dialog.
+     */
+    @Test
+    public void profileActionIntentExtraOpensTheMatchingDialogOnceAndIsConsumed() {
+        android.content.Context app = RuntimeEnvironment.getApplication();
+        KeepADBUsbProfile.add(app, "Desk", "10.0.0.1", "", "");
+
+        Intent switchIntent = new Intent(app, SettingsActivity.class)
+                .putExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION, KeepADBUsbNotification.ACTION_SWITCH);
+        ActivityController<SettingsActivity> switchController =
+                Robolectric.buildActivity(SettingsActivity.class, switchIntent).setup();
+        SettingsActivity switchActivity = switchController.get();
+        ShadowLooper.idleMainLooper();
+        AlertDialog switchDialog = switchActivity.getActiveSwitchProfileDialog();
+        assertNotNull("SWITCH must open the profile switch list", switchDialog);
+        assertNull(switchActivity.getActiveProfileEditDialog());
+        assertFalse("The extra must be consumed",
+                switchActivity.getIntent().hasExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION));
+        switchDialog.dismiss();
+        ShadowLooper.idleMainLooper();
+        switchController.pause().resume();
+        ShadowLooper.idleMainLooper();
+        assertNull("A later resume must not reopen the dialog",
+                switchActivity.getActiveSwitchProfileDialog());
+        switchController.pause().stop().destroy();
+
+        Intent createIntent = new Intent(app, SettingsActivity.class)
+                .putExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION, KeepADBUsbNotification.ACTION_CREATE);
+        ActivityController<SettingsActivity> createController =
+                Robolectric.buildActivity(SettingsActivity.class, createIntent).setup();
+        SettingsActivity createActivity = createController.get();
+        ShadowLooper.idleMainLooper();
+        assertNotNull("CREATE must open the edit dialog", createActivity.getActiveProfileEditDialog());
+        assertNull(createActivity.getActiveSwitchProfileDialog());
+        createController.pause().stop().destroy();
+    }
+
     private List<android.widget.RadioButton> openSwitchDialogRadios(SettingsActivity activity) {
         activity.findViewById(R.id.settings_usb_profile_action).performClick();
         ShadowLooper.idleMainLooper();
@@ -377,12 +419,12 @@ public class SettingsActivityTest {
     @Test
     public void profileEditDraftSavesAndRestoresAcrossRecreation() {
         Bundle restoreBundle = new Bundle();
-        restoreBundle.putBoolean(SettingsActivity.STATE_PROFILE_EDIT_SHOWING, true);
-        restoreBundle.putInt(SettingsActivity.STATE_PROFILE_EDIT_ID, -1);
-        restoreBundle.putString(SettingsActivity.STATE_PROFILE_EDIT_NAME, "My Workstation");
-        restoreBundle.putString(SettingsActivity.STATE_PROFILE_EDIT_IP, "192.168.1.100");
-        restoreBundle.putString(SettingsActivity.STATE_PROFILE_EDIT_HOSTNAME, "workstation.local");
-        restoreBundle.putString(SettingsActivity.STATE_PROFILE_EDIT_TAILNET, "workstation.tailnet");
+        restoreBundle.putBoolean(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_SHOWING, true);
+        restoreBundle.putInt(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_ID, -1);
+        restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_NAME, "My Workstation");
+        restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_IP, "192.168.1.100");
+        restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_HOSTNAME, "workstation.local");
+        restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_TAILNET, "workstation.tailnet");
 
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup(restoreBundle);
@@ -394,12 +436,12 @@ public class SettingsActivityTest {
 
         Bundle reSavedState = new Bundle();
         controller.saveInstanceState(reSavedState);
-        assertTrue(reSavedState.getBoolean(SettingsActivity.STATE_PROFILE_EDIT_SHOWING));
-        assertEquals(-1, reSavedState.getInt(SettingsActivity.STATE_PROFILE_EDIT_ID));
-        assertEquals("My Workstation", reSavedState.getString(SettingsActivity.STATE_PROFILE_EDIT_NAME));
-        assertEquals("192.168.1.100", reSavedState.getString(SettingsActivity.STATE_PROFILE_EDIT_IP));
-        assertEquals("workstation.local", reSavedState.getString(SettingsActivity.STATE_PROFILE_EDIT_HOSTNAME));
-        assertEquals("workstation.tailnet", reSavedState.getString(SettingsActivity.STATE_PROFILE_EDIT_TAILNET));
+        assertTrue(reSavedState.getBoolean(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_SHOWING));
+        assertEquals(-1, reSavedState.getInt(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_ID));
+        assertEquals("My Workstation", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_NAME));
+        assertEquals("192.168.1.100", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_IP));
+        assertEquals("workstation.local", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_HOSTNAME));
+        assertEquals("workstation.tailnet", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_TAILNET));
 
         dialog.dismiss();
         ShadowLooper.idleMainLooper();
@@ -408,19 +450,33 @@ public class SettingsActivityTest {
 
         Bundle afterDismissState = new Bundle();
         controller.saveInstanceState(afterDismissState);
-        assertFalse(afterDismissState.getBoolean(SettingsActivity.STATE_PROFILE_EDIT_SHOWING));
+        assertFalse(afterDismissState.getBoolean(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_SHOWING));
     }
 
     /**
      * #579 (UI-02): an unsaved webhook URL typed into the field must survive a real activity
      * recreation (saveInstanceState -> new instance -> setup(bundle)) instead of being replaced by
      * the saved preference value in onResume().
+     *
+     * <p>#596: also pins the rest of what {@code KeepADBSettingsWebhookDraftContractTest}'s
+     * removed {@code lifecycleRestorationDoesNotPersistOrToggleTheDraft} source-content check used
+     * to (only) assert by grepping {@code onResume()}'s body for absent method calls -- that
+     * restoring a draft must not toggle the persisted enabled flag, and must not trigger a webhook
+     * network request either. The enabled flag and the fake transport's recorded requests are both
+     * observable side effects of the exact two calls that check used to grep for
+     * ({@code setRegisterWebhookEnabled}/{@code unregisterAndDisableAsync}); driving the real
+     * lifecycle end-to-end and observing their absence is equivalent proof without depending on
+     * those specific method names.
      */
     @Test
     public void unsavedWebhookDraftSurvivesActivityRecreation() {
         String savedUrl = "https://saved.example/register/device";
         String unsavedDraft = "https://draft.example/register/other";
-        KeepADBPreferences.setRegisterWebhookUrl(RuntimeEnvironment.getApplication(), savedUrl);
+        android.content.Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setRegisterWebhookUrl(context, savedUrl);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
 
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
@@ -438,7 +494,51 @@ public class SettingsActivityTest {
         assertEquals("Unsaved webhook draft must survive recreation",
                 unsavedDraft, restoredInput.getText().toString());
         assertEquals("Recreation must not persist the draft",
-                savedUrl, KeepADBPreferences.getRegisterWebhookUrl(RuntimeEnvironment.getApplication()));
+                savedUrl, KeepADBPreferences.getRegisterWebhookUrl(context));
+        assertTrue("Recreation must not toggle the webhook enabled flag",
+                KeepADBPreferences.isRegisterWebhookEnabled(context));
+        assertTrue("Recreation must not trigger any webhook network request",
+                transport.recordedRequests.isEmpty());
+        recreated.pause().stop().destroy();
+    }
+
+    /**
+     * #596: the empty-draft counterpart of {@link #unsavedWebhookDraftSurvivesActivityRecreation()}
+     * -- an explicitly cleared field is itself a draft (distinct from "never touched", which would
+     * fall back to the saved URL) and must survive recreation the same way, not be silently
+     * replaced by the saved preference value.
+     */
+    @Test
+    public void emptyWebhookDraftSurvivesActivityRecreation() {
+        String savedUrl = "https://saved.example/register/device";
+        android.content.Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setRegisterWebhookUrl(context, savedUrl);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        EditText input = controller.get().findViewById(R.id.settings_webhook_url);
+        assertEquals(savedUrl, input.getText().toString());
+
+        input.setText("");
+        Bundle savedState = new Bundle();
+        controller.saveInstanceState(savedState);
+        controller.pause().stop().destroy();
+
+        ActivityController<SettingsActivity> recreated =
+                Robolectric.buildActivity(SettingsActivity.class).setup(savedState);
+        EditText restoredInput = recreated.get().findViewById(R.id.settings_webhook_url);
+        assertEquals("An explicitly cleared draft must survive recreation as empty, not fall back "
+                        + "to the saved URL", "", restoredInput.getText().toString());
+        assertEquals("Recreation must not persist the empty draft",
+                savedUrl, KeepADBPreferences.getRegisterWebhookUrl(context));
+        assertTrue("Recreation must not toggle the webhook enabled flag",
+                KeepADBPreferences.isRegisterWebhookEnabled(context));
+        assertTrue("Recreation must not trigger any webhook network request",
+                transport.recordedRequests.isEmpty());
+        recreated.pause().stop().destroy();
     }
 
     @Test
@@ -461,7 +561,7 @@ public class SettingsActivityTest {
 
         // Test Profile Edit Dialog dismissal on destroy
         Bundle editBundle = new Bundle();
-        editBundle.putBoolean(SettingsActivity.STATE_PROFILE_EDIT_SHOWING, true);
+        editBundle.putBoolean(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_SHOWING, true);
         ActivityController<SettingsActivity> profileController =
                 Robolectric.buildActivity(SettingsActivity.class).setup(editBundle);
         SettingsActivity profileActivity = profileController.get();
