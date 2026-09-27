@@ -17,11 +17,32 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.48` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.49` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.49] - Unreleased
+
+### Security
+- Connection details are no longer written into notifications by default. On a device that
+  allows sensitive notification content on the lock screen (as the s20 does), Android ignores a
+  notification's `publicVersion` and shows the private copy, so the USB-ADB notification revealed
+  the host profile name, IP and hostname, and the new-network prompt the network name and BSSID,
+  without unlocking. New setting Settings → Notification → "Show connection details in
+  notifications", **off by default**: while off, the USB notification shows "Host profile
+  selected — details in the app" and the network prompt its neutral lock-screen text; the details
+  remain visible in the app. Turning it on restores the previous detailed text; the settings text
+  warns that the details may then also appear on the lock screen. Toggling it re-renders a visible
+  USB notification immediately; an already posted network prompt keeps its text until it is shown
+  again. Actions, their unlock gates (#578/#586/#588) and the `publicVersion` are unchanged. Note
+  for existing users: after updating, the USB notification no longer shows the profile summary
+  until the setting is turned on (#592).
+
+### Documentation
+- `SECURITY.md` and the README's "Privacy & Security" section now describe the actual lock-screen
+  behavior: `publicVersion` only applies while Android hides sensitive content (#592).
 
 ## [1.8.48] - Unreleased
 

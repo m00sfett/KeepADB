@@ -1,0 +1,1 @@
+• Privacy: notifications no longer show your USB host profile (name, IP, host) or the name of a new Wi-Fi network by default, so they can't appear on the lock screen. To see them in the notification again, turn on Settings → Notification → "Show connection details in notifications".
