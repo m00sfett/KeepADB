@@ -30,9 +30,10 @@ are retrospective issue-version records and were never published as separate rel
   "Enable WLAN-ADB") plus "Create host profile" across all 19 supported locales so they no longer
   clip when three actions sit side by side on a 1080px device (e.g. the s20, One UI 5). The
   WLAN-ADB action stays unambiguous (e.g. DE "WLAN-ADB an", EN "WLAN-ADB on"). Fixed
-  `settings_usb_profile_notification_subtext`, which since #592 no longer matched behavior:
-  profile/endpoint details in the USB notification depend on the separate "Show connection
-  details in notifications" opt-in, not just this toggle (#593).
+  `settings_usb_profile_notification_subtext`, which since #592 no longer matched behavior: it
+  now says that this toggle shows host profile status and actions, while the profile name and
+  endpoint details (IP, host) additionally need the separate "Show connection details in
+  notifications" opt-in (#593).
 - The "Switch host profile" dialog now shows each profile's name and endpoint details (IP · host
   · tailnet) as two separate lines instead of one long radio label, and moved the Edit/Delete
   buttons to their own row below the text instead of sharing the radio button's row. A profile

@@ -169,7 +169,7 @@
     <string name="settings_usb_notification_toggle">Afficher la notification USB-ADB</string>
     <string name="settings_usb_notification_subtext">Afficher une notification distincte lorsque le débogage USB est actif. L’hôte est sélectionné manuellement.</string>
     <string name="settings_usb_profile_notification_toggle">Afficher le profil hôte dans la notification</string>
-    <string name="settings_usb_profile_notification_subtext">Affiche le profil hôte sélectionné dans la notification USB-ADB. Les détails du point de terminaison (IP, hôte) n’apparaissent que lorsque «Afficher les détails de connexion dans les notifications» est activé.</string>
+    <string name="settings_usb_profile_notification_subtext">Affiche l’état et les actions du profil hôte dans la notification USB-ADB. Le nom du profil et les détails du point de terminaison (IP, hôte) n’apparaissent que lorsque «Afficher les détails de connexion dans les notifications» est activé.</string>
     <string name="usb_notification_channel_name">Connexion USB-ADB</string>
     <string name="usb_notification_channel_desc">Profil d’hôte USB-ADB actif</string>
     <string name="usb_notification_title">USB-ADB actif</string>

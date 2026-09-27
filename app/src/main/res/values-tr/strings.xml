@@ -169,7 +169,7 @@
     <string name="settings_usb_notification_toggle">USB-ADB bildirimini göster</string>
     <string name="settings_usb_notification_subtext">USB hata ayıklama etkinken ayrı bir bildirim gösterir. Ana bilgisayar manuel olarak seçilir.</string>
     <string name="settings_usb_profile_notification_toggle">Bildirimde ana bilgisayar profilini göster</string>
-    <string name="settings_usb_profile_notification_subtext">Seçilen ana bilgisayar profilini USB-ADB bildiriminde gösterir. Uç nokta bilgileri (IP, ana bilgisayar) yalnızca «Bildirimlerde bağlantı ayrıntılarını göster» açıkken görünür.</string>
+    <string name="settings_usb_profile_notification_subtext">USB-ADB bildiriminde ana bilgisayar profilinin durumunu ve işlemlerini gösterir. Profil adı ve uç nokta bilgileri (IP, ana bilgisayar) yalnızca «Bildirimlerde bağlantı ayrıntılarını göster» açıkken görünür.</string>
     <string name="usb_notification_channel_name">USB-ADB bağlantısı</string>
     <string name="usb_notification_channel_desc">Etkin USB-ADB ana bilgisayar profili</string>
     <string name="usb_notification_title">USB-ADB etkin</string>

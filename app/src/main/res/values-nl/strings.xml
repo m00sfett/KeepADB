@@ -169,7 +169,7 @@
     <string name="settings_usb_notification_toggle">USB-ADB-melding tonen</string>
     <string name="settings_usb_notification_subtext">Toont een aparte melding zolang USB-foutopsporing actief is. De host wordt handmatig geselecteerd.</string>
     <string name="settings_usb_profile_notification_toggle">Hostprofiel in melding weergeven</string>
-    <string name="settings_usb_profile_notification_subtext">Toont het geselecteerde hostprofiel in de USB-ADB-melding. Eindpuntdetails (IP, host) verschijnen alleen als „Verbindingsdetails in meldingen tonen” is ingeschakeld.</string>
+    <string name="settings_usb_profile_notification_subtext">Toont status en acties van het hostprofiel in de USB-ADB-melding. Profielnaam en eindpuntdetails (IP, host) verschijnen alleen als „Verbindingsdetails in meldingen tonen” is ingeschakeld.</string>
     <string name="usb_notification_channel_name">USB-ADB-verbinding</string>
     <string name="usb_notification_channel_desc">Het actieve USB-ADB-hostprofiel</string>
     <string name="usb_notification_title">USB-ADB actief</string>

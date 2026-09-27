@@ -169,7 +169,7 @@
     <string name="settings_usb_notification_toggle">USB-ADB 알림 표시</string>
     <string name="settings_usb_notification_subtext">USB 디버깅이 활성화된 동안 별도의 알림을 표시합니다. 호스트는 수동으로 선택합니다.</string>
     <string name="settings_usb_profile_notification_toggle">알림에 호스트 프로필 표시</string>
-    <string name="settings_usb_profile_notification_subtext">USB-ADB 알림에 선택된 호스트 프로필을 표시합니다. 엔드포인트 세부정보(IP, 호스트)는 «알림에 연결 세부정보 표시»가 켜져 있을 때만 표시됩니다.</string>
+    <string name="settings_usb_profile_notification_subtext">USB-ADB 알림에 호스트 프로필 상태와 작업을 표시합니다. 프로필 이름과 엔드포인트 세부정보(IP, 호스트)는 «알림에 연결 세부정보 표시»가 켜져 있을 때만 표시됩니다.</string>
     <string name="usb_notification_channel_name">USB-ADB 연결</string>
     <string name="usb_notification_channel_desc">활성 USB-ADB 호스트 프로필</string>
     <string name="usb_notification_title">USB-ADB 활성화됨</string>

@@ -169,7 +169,7 @@
     <string name="settings_usb_notification_toggle">USB-ADB सूचना दिखाएँ</string>
     <string name="settings_usb_notification_subtext">USB डीबगिंग सक्रिय होने पर अलग सूचना दिखाएँ। होस्ट को मैन्युअल रूप से चुना जाता है।</string>
     <string name="settings_usb_profile_notification_toggle">सूचना में होस्ट प्रोफ़ाइल दिखाएं</string>
-    <string name="settings_usb_profile_notification_subtext">USB-ADB सूचना में चयनित होस्ट प्रोफ़ाइल दिखाता है। समापन बिंदु विवरण (IP, होस्ट) तभी दिखते हैं जब «सूचनाओं में कनेक्शन विवरण दिखाएं» चालू हो।</string>
+    <string name="settings_usb_profile_notification_subtext">USB-ADB सूचना में होस्ट प्रोफ़ाइल की स्थिति और कार्रवाइयाँ दिखाता है। प्रोफ़ाइल का नाम और समापन बिंदु विवरण (IP, होस्ट) तभी दिखते हैं जब «सूचनाओं में कनेक्शन विवरण दिखाएं» चालू हो।</string>
     <string name="usb_notification_channel_name">USB-ADB कनेक्शन</string>
     <string name="usb_notification_channel_desc">सक्रिय USB-ADB होस्ट प्रोफ़ाइल</string>
     <string name="usb_notification_title">USB-ADB सक्रिय</string>

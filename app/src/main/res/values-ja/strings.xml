@@ -169,7 +169,7 @@
     <string name="settings_usb_notification_toggle">USB-ADB 通知を表示</string>
     <string name="settings_usb_notification_subtext">USB デバッグが有効な間、別の通知を表示します。ホストは手動で選択します。</string>
     <string name="settings_usb_profile_notification_toggle">通知にホストプロファイルを表示</string>
-    <string name="settings_usb_profile_notification_subtext">USB-ADB通知に選択したホストプロファイルを表示します。エンドポイントの詳細(IP、ホスト)は「通知に接続の詳細を表示」がオンのときだけ表示されます。</string>
+    <string name="settings_usb_profile_notification_subtext">USB-ADB通知にホストプロファイルの状態と操作を表示します。プロファイル名とエンドポイントの詳細(IP、ホスト)は「通知に接続の詳細を表示」がオンのときだけ表示されます。</string>
     <string name="usb_notification_channel_name">USB-ADB 接続</string>
     <string name="usb_notification_channel_desc">有効な USB-ADB ホストプロファイル</string>
     <string name="usb_notification_title">USB-ADB は有効です</string>

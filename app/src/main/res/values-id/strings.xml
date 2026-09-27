@@ -169,7 +169,7 @@
     <string name="settings_usb_notification_toggle">Tampilkan notifikasi USB-ADB</string>
     <string name="settings_usb_notification_subtext">Tampilkan notifikasi terpisah saat debugging USB aktif. Host dipilih secara manual.</string>
     <string name="settings_usb_profile_notification_toggle">Tampilkan profil host di notifikasi</string>
-    <string name="settings_usb_profile_notification_subtext">Menampilkan profil host yang dipilih di notifikasi USB-ADB. Detail titik akhir (IP, host) hanya muncul saat «Tampilkan detail koneksi di notifikasi» diaktifkan.</string>
+    <string name="settings_usb_profile_notification_subtext">Menampilkan status dan tindakan profil host di notifikasi USB-ADB. Nama profil dan detail titik akhir (IP, host) hanya muncul saat «Tampilkan detail koneksi di notifikasi» diaktifkan.</string>
     <string name="usb_notification_channel_name">Koneksi USB-ADB</string>
     <string name="usb_notification_channel_desc">Profil host USB-ADB yang aktif</string>
     <string name="usb_notification_title">USB-ADB aktif</string>

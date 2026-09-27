@@ -169,7 +169,7 @@
     <string name="settings_usb_notification_toggle">إظهار إشعار USB-ADB</string>
     <string name="settings_usb_notification_subtext">إظهار إشعار منفصل أثناء تفعيل تصحيح أخطاء USB. يتم اختيار المضيف يدويًا.</string>
     <string name="settings_usb_profile_notification_toggle">إظهار ملف تعريف المضيف في الإشعار</string>
-    <string name="settings_usb_profile_notification_subtext">يعرض ملف تعريف المضيف المحدد في إشعار USB-ADB. تظهر تفاصيل نقطة النهاية (IP، المضيف) فقط عند تفعيل «إظهار تفاصيل الاتصال في الإشعارات».</string>
+    <string name="settings_usb_profile_notification_subtext">يعرض حالة ملف تعريف المضيف وإجراءاته في إشعار USB-ADB. لا يظهر اسم الملف وتفاصيل نقطة النهاية (IP، المضيف) إلا عند تفعيل «إظهار تفاصيل الاتصال في الإشعارات».</string>
     <string name="usb_notification_channel_name">اتصال USB-ADB</string>
     <string name="usb_notification_channel_desc">ملف تعريف مضيف USB-ADB النشط</string>
     <string name="usb_notification_title">USB-ADB مفعّل</string>

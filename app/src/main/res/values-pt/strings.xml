@@ -169,7 +169,7 @@
     <string name="settings_usb_notification_toggle">Mostrar notificação USB-ADB</string>
     <string name="settings_usb_notification_subtext">Mostrar uma notificação separada enquanto a depuração USB estiver ativa. O host é selecionado manualmente.</string>
     <string name="settings_usb_profile_notification_toggle">Mostrar perfil de host na notificação</string>
-    <string name="settings_usb_profile_notification_subtext">Mostra o perfil de host selecionado na notificação USB-ADB. Os detalhes do ponto de extremidade (IP, host) só aparecem quando «Mostrar detalhes da ligação nas notificações» estiver ativado.</string>
+    <string name="settings_usb_profile_notification_subtext">Mostra o estado e as ações do perfil de host na notificação USB-ADB. O nome do perfil e os detalhes do ponto de extremidade (IP, host) só aparecem quando «Mostrar detalhes da ligação nas notificações» estiver ativado.</string>
     <string name="usb_notification_channel_name">Conexão USB-ADB</string>
     <string name="usb_notification_channel_desc">O perfil de host USB-ADB ativo</string>
     <string name="usb_notification_title">USB-ADB ativo</string>

@@ -169,7 +169,7 @@
     <string name="settings_usb_notification_toggle">Pokaż powiadomienie USB-ADB</string>
     <string name="settings_usb_notification_subtext">Pokazuje osobne powiadomienie, gdy debugowanie USB jest aktywne. Host jest wybierany ręcznie.</string>
     <string name="settings_usb_profile_notification_toggle">Pokaż profil hosta w powiadomieniu</string>
-    <string name="settings_usb_profile_notification_subtext">Pokazuje wybrany profil hosta w powiadomieniu USB-ADB. Szczegóły punktu końcowego (IP, host) pojawiają się tylko, gdy włączona jest opcja „Pokazuj szczegóły połączenia w powiadomieniach”.</string>
+    <string name="settings_usb_profile_notification_subtext">Pokazuje stan i akcje profilu hosta w powiadomieniu USB-ADB. Nazwa profilu i szczegóły punktu końcowego (IP, host) pojawiają się tylko, gdy włączona jest opcja „Pokazuj szczegóły połączenia w powiadomieniach”.</string>
     <string name="usb_notification_channel_name">Połączenie USB-ADB</string>
     <string name="usb_notification_channel_desc">Aktywny profil hosta USB-ADB</string>
     <string name="usb_notification_title">USB-ADB jest aktywne</string>
