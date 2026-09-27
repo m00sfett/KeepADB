@@ -1,0 +1,1 @@
+• Wording cleanup: the app now consistently calls the ADB-over-Wi-Fi feature "Wifi-ADB" everywhere (menus, notifications, README) instead of the previous mix of "WLAN-ADB" and "WiFi-ADB". No behavior changes.
