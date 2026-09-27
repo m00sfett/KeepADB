@@ -211,6 +211,9 @@
     <string name="battery_optimization_title">Tối ưu hóa pin có thể giới hạn Keep-Alive</string>
     <string name="battery_optimization_body">Android có thể giới hạn hoặc dừng Keep-Alive trong nền nếu KeepADB không được miễn trừ tối ưu hóa pin.</string>
     <string name="battery_optimization_button">Mở cài đặt pin</string>
+    <string name="network_onboarding_panel_title">Giới hạn Keep-Alive ở các mạng đáng tin cậy</string>
+    <string name="network_onboarding_panel_body">Có thể giới hạn Keep-Alive ở các mạng Wi-Fi gia đình hoặc văn phòng đã biết để chặn kết nối gỡ lỗi trái phép trên các mạng lạ.</string>
+    <string name="network_onboarding_setup_button">Thiết lập</string>
     <string name="location_permission_panel_title">Cần quyền vị trí cho mạng đáng tin cậy</string>
     <string name="location_permission_panel_body">Chế độ mạng đáng tin cậy cần quyền truy cập vị trí để nhận diện mạng Wi-Fi của bạn. Nếu không có, Keep-Alive không thể xác nhận mạng đáng tin cậy và sẽ không tự động bật lại.</string>
     <string name="location_permission_panel_grant_button">Cấp quyền vị trí</string>

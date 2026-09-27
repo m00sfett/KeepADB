@@ -40,6 +40,7 @@ public class MainActivity extends Activity {
     private View notificationPermissionPanel;
     private Button notificationPermissionActionButton;
     private View batteryOptimizationPanel;
+    private View networkOnboardingPanel;
     private View adviceBanner;
     private long endpointListenerGeneration;
     private boolean endpointSurfaceActive;
@@ -103,6 +104,16 @@ public class MainActivity extends Activity {
             refresh();
         });
         batteryOptimizationPanel = findViewById(R.id.battery_optimization_panel);
+        networkOnboardingPanel = findViewById(R.id.network_onboarding_panel);
+        findViewById(R.id.network_onboarding_setup_button).setOnClickListener(v -> {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, true);
+            startActivity(intent);
+        });
+        findViewById(R.id.network_onboarding_dismiss_button).setOnClickListener(v -> {
+            KeepADBPreferences.setNetworkOnboardingPanelVisible(this, false);
+            refresh();
+        });
         adviceBanner = findViewById(R.id.advice_banner);
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
@@ -315,6 +326,13 @@ public class MainActivity extends Activity {
                 && KeepADBPreferences.isBatteryOptimizationPanelVisible(this);
         batteryOptimizationPanel.setVisibility(
                 batteryOptimizationPanelVisible ? View.VISIBLE : View.GONE);
+        // #619: network onboarding banner shown when Keep-Alive is enabled, network mode is
+        // ALL_WIFI (not restricted to trusted networks yet), and user hasn't dismissed it.
+        boolean networkOnboardingPanelVisible = KeepADBPreferences.isKeepAliveEnabled(this)
+                && KeepADBTrustedNetwork.MODE_ALL_WIFI.equals(KeepADBTrustedNetwork.getMode(this))
+                && KeepADBPreferences.isNetworkOnboardingPanelVisible(this);
+        networkOnboardingPanel.setVisibility(
+                networkOnboardingPanelVisible ? View.VISIBLE : View.GONE);
         toggle.setEnabled(configured);
         toggle.setChecked(on);
         if (!configured) {

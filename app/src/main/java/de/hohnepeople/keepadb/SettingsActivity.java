@@ -31,6 +31,8 @@ import java.util.List;
 public class SettingsActivity extends Activity {
     /** Intent extra requesting that the webhook section be scrolled into view and focused. */
     public static final String EXTRA_FOCUS_WEBHOOK = "focus_webhook";
+    /** #619: Intent extra requesting that the network section be expanded and scrolled into view. */
+    public static final String EXTRA_FOCUS_NETWORK = "focus_network";
     static final String STATE_ISSUE_REPORT_SHOWING = "settings_issue_report_showing";
     static final String STATE_ISSUE_REPORT_DRAFT = "settings_issue_report_draft";
     static final String STATE_ISSUE_REPORT_DIAGNOSTICS = "settings_issue_report_diagnostics";
@@ -44,6 +46,7 @@ public class SettingsActivity extends Activity {
 
     private ScrollView scrollView;
     private View webhookPanel;
+    private View networkPanel;
     private View permissionPanel;
     private View languageToolbarButton;
 
@@ -169,6 +172,7 @@ public class SettingsActivity extends Activity {
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         scrollView = findViewById(R.id.settings_scroll_view);
         webhookPanel = findViewById(R.id.settings_webhook_panel);
+        networkPanel = findViewById(R.id.settings_network_beta_panel);
         permissionPanel = findViewById(R.id.settings_permission_panel);
 
         // #471: wire every card's header to toggle its own body, independently of the others.
@@ -329,6 +333,11 @@ public class SettingsActivity extends Activity {
             getIntent().removeExtra(EXTRA_FOCUS_WEBHOOK);
         }
 
+        if (getIntent().hasExtra(EXTRA_FOCUS_NETWORK)) {
+            focusNetworkPanel();
+            getIntent().removeExtra(EXTRA_FOCUS_NETWORK);
+        }
+
         // #598: the details-off trust prompt's content intent. Consumed like the extras above so a
         // later resume does not ask again.
         if (KeepADBNetworkTrustPrompt.ACTION_CONFIRM_IN_APP.equals(getIntent().getAction())) {
@@ -409,6 +418,15 @@ public class SettingsActivity extends Activity {
         setCardExpanded(findViewById(R.id.settings_webhook_body), findViewById(R.id.settings_webhook_arrow), true);
         scrollView.post(() -> scrollView.smoothScrollTo(0, webhookPanel.getTop()));
         webhookForm.requestUrlFocus();
+    }
+
+    private void focusNetworkPanel() {
+        // #619: expand the network card and scroll it into view.
+        setCardExpanded(findViewById(R.id.settings_network_beta_body),
+                findViewById(R.id.settings_network_beta_arrow), true);
+        if (networkPanel != null && scrollView != null) {
+            scrollView.post(() -> scrollView.smoothScrollTo(0, networkPanel.getTop()));
+        }
     }
 
     /**

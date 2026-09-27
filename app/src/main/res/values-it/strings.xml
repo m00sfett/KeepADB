@@ -211,6 +211,9 @@
     <string name="battery_optimization_title">L’ottimizzazione della batteria può limitare Keep-Alive</string>
     <string name="battery_optimization_body">Android potrebbe limitare o arrestare Keep-Alive in background a meno che KeepADB non sia escluso dall’ottimizzazione della batteria.</string>
     <string name="battery_optimization_button">Apri impostazioni batteria</string>
+    <string name="network_onboarding_panel_title">Limita Keep-Alive alle reti attendibili</string>
+    <string name="network_onboarding_panel_body">Keep-Alive può essere limitato alle reti Wi-Fi note di casa o dell\'ufficio per bloccare connessioni di debug non autorizzate su reti esterne.</string>
+    <string name="network_onboarding_setup_button">Configura</string>
     <string name="location_permission_panel_title">Autorizzazione posizione necessaria per le reti attendibili</string>
     <string name="location_permission_panel_body">La modalità reti attendibili richiede l’accesso alla posizione per identificare la tua rete Wi-Fi. Senza di esso, Keep-Alive non può confermare una rete attendibile e non si riattiverà automaticamente.</string>
     <string name="location_permission_panel_grant_button">Concedi l\'autorizzazione posizione</string>
