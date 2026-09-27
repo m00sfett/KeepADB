@@ -75,6 +75,8 @@ public class KeepADBNetworkTrustPromptTest {
 
     @Test
     public void aBlockOnAReadableAccessPointRaisesThePromptWithBothActions() {
+        // #592: SSID/BSSID only appear in the prompt text after the opt-in.
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         connectTo("Cafe-WLAN", BSSID);
 
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
@@ -505,6 +507,7 @@ public class KeepADBNetworkTrustPromptTest {
      */
     @Test
     public void thePublicVersionNamesNeitherTheLabelNorTheBssid() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
@@ -515,6 +518,52 @@ public class KeepADBNetworkTrustPromptTest {
                 publicText != null && publicText.contains("Cafe-WLAN"));
         assertFalse("publicVersion must not name the BSSID: " + publicText,
                 publicText != null && publicText.contains(BSSID));
+    }
+
+    /**
+     * #592: with the opt-in off (the default), neither the private prompt nor its publicVersion
+     * may name the network or the BSSID anywhere visible -- Android shows the private copy on the
+     * lock screen when sensitive content is allowed there. Allow/block keep working with the
+     * original BSSID, and allow stays authentication-gated.
+     */
+    @Test
+    public void withDetailsOffThePromptNamesNeitherTheNetworkNorTheBssid() {
+        connectTo("Cafe-WLAN", BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        Notification notification = postedPrompt();
+        assertNotNull(notification);
+        KeepADBNotificationTextScan.assertMentionsNone(notification, "Cafe-WLAN", BSSID);
+        assertEquals(context.getString(R.string.network_prompt_public_text),
+                notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());
+        assertEquals(2, notification.actions.length);
+        assertEquals(BSSID,
+                actionIntent(notification, 0).getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
+        assertTrue(notification.actions[0].isAuthenticationRequired());
+    }
+
+    /** #592: the re-post after a rejected locked tap honors the opt-in as well. */
+    @Test
+    public void withDetailsOffTheLockedReshowNamesNeitherTheNetworkNorTheBssid() {
+        lockDevice();
+
+        assertFalse(KeepADBReceiver.handleTrustNetworkAction(context, BSSID, "Cafe-WLAN"));
+
+        Notification reshown = postedPrompt();
+        assertNotNull(reshown);
+        KeepADBNotificationTextScan.assertMentionsNone(reshown, "Cafe-WLAN", BSSID);
+    }
+
+    @Test
+    public void withDetailsOnThePromptNamesNetworkAndBssidInTextAndBigText() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        connectTo("Cafe-WLAN", BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        Notification notification = postedPrompt();
+        String bigText = String.valueOf(notification.extras.getCharSequence(Notification.EXTRA_BIG_TEXT));
+        assertTrue(bigText, bigText.contains("Cafe-WLAN") && bigText.contains(BSSID));
+        KeepADBNotificationTextScan.assertMentionsNone(notification.publicVersion, "Cafe-WLAN", BSSID);
     }
 
     /**

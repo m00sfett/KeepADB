@@ -69,6 +69,48 @@ public class SettingsActivityTest {
         KeepADB.resetForTesting();
     }
 
+    /**
+     * #592: the opt-in switch is off by default, persists the preference and re-renders an
+     * already visible USB card through the existing KeepADBUsbReceiver.refresh path.
+     */
+    @Test
+    public void notificationDetailsToggleDefaultsOffAndRerendersTheVisibleUsbCard() {
+        android.app.Application app = RuntimeEnvironment.getApplication();
+        shadowOf(app).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
+        app.sendStickyBroadcast(new Intent(KeepADBUsbReceiver.ACTION_USB_STATE)
+                .putExtra("connected", true)
+                .putExtra("configured", true)
+                .putExtra("adb", true));
+        KeepADBPreferences.setAppLanguage(app, "en");
+        KeepADBUsbProfile.setNotificationEnabled(app, true);
+        KeepADBUsbProfile.add(app, "TestHost", "10.0.0.99", "testhost.local", "");
+        KeepADBUsbReceiver.refresh(app);
+
+        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        Switch toggle = activity.findViewById(R.id.settings_notification_details_toggle);
+        assertNotNull(toggle);
+        assertFalse("Details must be off by default", toggle.isChecked());
+        KeepADBNotificationTextScan.assertMentionsNone(postedUsbCard(app), "TestHost", "10.0.0.99");
+
+        toggle.performClick();
+        assertTrue(KeepADBPreferences.isNotificationDetailsEnabled(app));
+        CharSequence text = postedUsbCard(app).extras.getCharSequence(
+                android.app.Notification.EXTRA_TEXT);
+        assertTrue("The visible card must be re-rendered with details: " + text,
+                String.valueOf(text).contains("TestHost"));
+
+        toggle.performClick();
+        assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(app));
+        KeepADBNotificationTextScan.assertMentionsNone(postedUsbCard(app), "TestHost", "10.0.0.99");
+        KeepADBUsbNotification.cancel(app);
+    }
+
+    private static android.app.Notification postedUsbCard(android.content.Context context) {
+        android.app.NotificationManager manager =
+                context.getSystemService(android.app.NotificationManager.class);
+        return shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID);
+    }
+
     @Test
     public void dialogContainersAreWrappedInScrollView() {
         ActivityController<SettingsActivity> controller =
