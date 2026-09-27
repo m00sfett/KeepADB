@@ -123,11 +123,21 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
      * (before it ever attempts the AUS write) must require an active Wi-Fi connection in addition
      * to the trusted-network check, not instead of it. Asserted on the observable outcome (no AUS
      * write attempted at all), not on which check appears first in the source.
+     *
+     * <p>{@link KeepADB#performRecoveryPulse}'s own {@code guard} closure independently re-checks
+     * {@code KeepADBService.isWifiConnected()} at both pulse stages (#309/#572) -- a real, useful
+     * defense-in-depth layer, but one that would silently mask a defeated entry-gate check in this
+     * test if Wi-Fi stayed disconnected throughout: the guard closure would then block the write
+     * for its own, unrelated reason, and this test would stay green regardless of whether the entry
+     * gate under test still exists at all (mutation-tested: it did). {@link
+     * WifiReconnectingScheduler} makes the two independently observable by reconnecting Wi-Fi at
+     * the exact point control would reach the guard closure, but only if the entry gate under test
+     * failed to stop it from getting there first.
      */
     @Test
     public void pulseIsNeverSentWithoutAnActiveWifiConnectionEvenOnATrustedNetwork() {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
-        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        WifiReconnectingScheduler scheduler = new WifiReconnectingScheduler();
         KeepADB.setGatewayForTesting(gateway);
         KeepADB.setSchedulerForTesting(scheduler);
         // setUp() already trusts MODE_ALL_WIFI; only Wi-Fi connectivity itself is withdrawn here.
@@ -141,15 +151,28 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
                 gateway.writes.isEmpty());
     }
 
+    /** See {@link #pulseIsNeverSentWithoutAnActiveWifiConnectionEvenOnATrustedNetwork()}'s javadoc. */
+    private static final class WifiReconnectingScheduler extends KeepADBFakeScheduler {
+        @Override
+        public void runAsync(Runnable runnable) {
+            KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+            super.runAsync(runnable);
+        }
+    }
+
     /**
      * Gegenprobe to the test above (AGENTS.md: guard both sides of a two-sided invariant): an
      * active Wi-Fi transport alone must not bypass the existing trusted-network allowlist either
      * -- the #296 fix must add a check, not replace one.
+     *
+     * <p>Mirrors the previous test's masking concern: {@code guardStillApplies}'s closure also
+     * independently re-checks {@link KeepADBTrustedNetwork#isCurrentNetworkTrusted}, so {@link
+     * TrustGrantingScheduler} restores trust only once control would reach that closure.
      */
     @Test
     public void pulseIsStillBlockedOnAnUntrustedNetworkEvenWithAnActiveWifiConnection() {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
-        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        TrustGrantingScheduler scheduler = new TrustGrantingScheduler(context);
         KeepADB.setGatewayForTesting(gateway);
         KeepADB.setSchedulerForTesting(scheduler);
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
@@ -160,6 +183,21 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
 
         assertTrue("an active Wi-Fi transport alone must not bypass the trusted-network allowlist",
                 gateway.writes.isEmpty());
+    }
+
+    /** See {@link #pulseIsStillBlockedOnAnUntrustedNetworkEvenWithAnActiveWifiConnection()}'s javadoc. */
+    private static final class TrustGrantingScheduler extends KeepADBFakeScheduler {
+        private final Context context;
+
+        TrustGrantingScheduler(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public void runAsync(Runnable runnable) {
+            KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+            super.runAsync(runnable);
+        }
     }
 
     /**
