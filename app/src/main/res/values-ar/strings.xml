@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">الإشعار الدائم</string>
     <string name="settings_hide_notification_subtext">يعرض إشعار الحالة في الشريط. إيقافه لا يؤثر على Keep-Alive أو الأدوات.</string>
     <string name="settings_hide_notification_subtext_keepalive">ضروري أثناء تفعيل Keep-Alive — يتطلبه Android لخدمة المقدمة.</string>
+    <string name="settings_notification_details_toggle">إظهار تفاصيل الاتصال في الإشعارات</string>
+    <string name="settings_notification_details_subtext">يعرض ملف تعريف مضيف USB (الاسم وعنوان IP والمضيف) واسم شبكات Wi-Fi الجديدة ومعرّف BSSID الخاص بها في الإشعارات. عند التفعيل قد تظهر هذه التفاصيل أيضًا على شاشة القفل. عند الإيقاف تُعرض داخل التطبيق فقط.</string>
     <string name="settings_section_display">الشاشة</string>
     <string name="settings_keep_display_on_toggle">إبقاء الشاشة قيد التشغيل أثناء تشغيل KeepADB في المقدمة</string>
     <string name="settings_keep_display_on_subtext">يبقي الشاشة قيد التشغيل فقط أثناء فتح هذا التطبيق. تنطفئ الشاشة بشكل طبيعي بمجرد مغادرة التطبيق.</string>
@@ -172,6 +174,7 @@
     <string name="usb_notification_channel_desc">ملف تعريف مضيف USB-ADB النشط</string>
     <string name="usb_notification_title">USB-ADB مفعّل</string>
     <string name="usb_notification_no_profile">لم يتم اختيار ملف تعريف مضيف</string>
+    <string name="usb_notification_profile_hidden">تم اختيار ملف تعريف مضيف — التفاصيل في التطبيق</string>
     <string name="usb_notification_create_profile">إنشاء ملف تعريف مضيف</string>
     <string name="usb_notification_switch_profile">تبديل الملف التعريفي</string>
     <string name="usb_notification_new_profile">ملف تعريفي جديد</string>

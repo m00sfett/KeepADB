@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">Постоянное уведомление</string>
     <string name="settings_hide_notification_subtext">Показывает уведомление о статусе на панели. Отключение не влияет на Keep-Alive или виджеты.</string>
     <string name="settings_hide_notification_subtext_keepalive">Требуется, пока активен Keep-Alive — Android нужно это для службы переднего плана.</string>
+    <string name="settings_notification_details_toggle">Показывать сведения о подключении в уведомлениях</string>
+    <string name="settings_notification_details_subtext">Показывает в уведомлениях профиль USB-хоста (имя, IP, хост), а также имя и BSSID новых сетей Wi-Fi. Если включено, эти сведения могут быть видны и на экране блокировки. Если выключено, они отображаются только в приложении.</string>
     <string name="settings_section_display">Экран</string>
     <string name="settings_keep_display_on_toggle">Не выключать экран, пока KeepADB на переднем плане</string>
     <string name="settings_keep_display_on_subtext">Экран остаётся включённым только пока это приложение открыто. При выходе из приложения экран гаснет как обычно.</string>
@@ -172,6 +174,7 @@
     <string name="usb_notification_channel_desc">Активный профиль хоста USB-ADB</string>
     <string name="usb_notification_title">USB-ADB включён</string>
     <string name="usb_notification_no_profile">Профиль хоста не выбран</string>
+    <string name="usb_notification_profile_hidden">Профиль хоста выбран — подробности в приложении</string>
     <string name="usb_notification_create_profile">Создать профиль хоста</string>
     <string name="usb_notification_switch_profile">Сменить профиль</string>
     <string name="usb_notification_new_profile">Новый профиль</string>

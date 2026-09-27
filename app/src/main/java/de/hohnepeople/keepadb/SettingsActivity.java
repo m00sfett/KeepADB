@@ -52,6 +52,7 @@ public class SettingsActivity extends Activity {
 
     private Switch hideNotificationToggle;
     private TextView hideNotificationSubtext;
+    private Switch notificationDetailsToggle;
     private Switch keepDisplayOnToggle;
     private Switch adviceBannerToggle;
     private Switch batteryOptimizationPanelToggle;
@@ -216,6 +217,14 @@ public class SettingsActivity extends Activity {
                     wantHidden ? R.string.settings_notification_hidden_toast : R.string.settings_notification_visible_toast,
                     Toast.LENGTH_SHORT).show();
             refresh();
+        });
+
+        notificationDetailsToggle = findViewById(R.id.settings_notification_details_toggle);
+        notificationDetailsToggle.setOnClickListener(v -> {
+            KeepADBPreferences.setNotificationDetailsEnabled(this, notificationDetailsToggle.isChecked());
+            // #592: re-render a currently visible USB card right away; a trust prompt already on
+            // screen keeps its text until it is posted again.
+            KeepADBUsbReceiver.refresh(this);
         });
 
         keepDisplayOnToggle = findViewById(R.id.settings_keep_display_on_toggle);
@@ -1058,6 +1067,8 @@ public class SettingsActivity extends Activity {
                     ? R.string.settings_hide_notification_subtext_keepalive
                     : R.string.settings_hide_notification_subtext);
         }
+
+        notificationDetailsToggle.setChecked(KeepADBPreferences.isNotificationDetailsEnabled(this));
 
         keepDisplayOnToggle.setChecked(KeepADBPreferences.isKeepDisplayOnEnabled(this));
 

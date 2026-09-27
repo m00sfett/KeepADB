@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">Thông báo liên tục</string>
     <string name="settings_hide_notification_subtext">Hiển thị thông báo trạng thái trên thanh thông báo. Tắt tùy chọn này không ảnh hưởng đến Keep-Alive hay tiện ích.</string>
     <string name="settings_hide_notification_subtext_keepalive">Bắt buộc khi Keep-Alive đang hoạt động — Android yêu cầu điều này cho dịch vụ nền trước.</string>
+    <string name="settings_notification_details_toggle">Hiển thị chi tiết kết nối trong thông báo</string>
+    <string name="settings_notification_details_subtext">Hiển thị hồ sơ máy chủ USB (tên, IP, máy chủ) cùng tên và BSSID của mạng Wi-Fi mới trong thông báo. Khi bật, các chi tiết này cũng có thể hiển thị trên màn hình khóa. Khi tắt, chúng chỉ hiển thị trong ứng dụng.</string>
     <string name="settings_section_display">Màn hình</string>
     <string name="settings_keep_display_on_toggle">Giữ màn hình sáng khi KeepADB đang ở nền trước</string>
     <string name="settings_keep_display_on_subtext">Chỉ giữ màn hình sáng khi ứng dụng này đang mở. Màn hình sẽ tắt bình thường ngay khi bạn rời khỏi ứng dụng.</string>
@@ -172,6 +174,7 @@
     <string name="usb_notification_channel_desc">Hồ sơ máy chủ USB-ADB đang hoạt động</string>
     <string name="usb_notification_title">USB-ADB đang hoạt động</string>
     <string name="usb_notification_no_profile">Chưa chọn hồ sơ máy chủ</string>
+    <string name="usb_notification_profile_hidden">Đã chọn hồ sơ máy chủ — chi tiết trong ứng dụng</string>
     <string name="usb_notification_create_profile">Tạo hồ sơ máy chủ</string>
     <string name="usb_notification_switch_profile">Chuyển hồ sơ</string>
     <string name="usb_notification_new_profile">Hồ sơ mới</string>

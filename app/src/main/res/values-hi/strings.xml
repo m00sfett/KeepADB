@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">स्थायी सूचना</string>
     <string name="settings_hide_notification_subtext">स्टेटस सूचना को पैनल में दिखाता है। इसे बंद करने से Keep-Alive या विजेट पर असर नहीं पड़ता।</string>
     <string name="settings_hide_notification_subtext_keepalive">Keep-Alive सक्रिय होने पर आवश्यक — Android को अग्रभूमि सेवा के लिए इसकी आवश्यकता होती है।</string>
+    <string name="settings_notification_details_toggle">सूचनाओं में कनेक्शन विवरण दिखाएं</string>
+    <string name="settings_notification_details_subtext">सूचनाओं में USB होस्ट प्रोफ़ाइल (नाम, IP, होस्ट) और नए वाई-फ़ाई नेटवर्क का नाम व BSSID दिखाता है। चालू होने पर ये विवरण लॉक स्क्रीन पर भी दिख सकते हैं। बंद होने पर ये केवल ऐप में दिखते हैं।</string>
     <string name="settings_section_display">डिस्प्ले</string>
     <string name="settings_keep_display_on_toggle">जब तक KeepADB फ़ोरग्राउंड में है, डिस्प्ले चालू रखें</string>
     <string name="settings_keep_display_on_subtext">यह सेटिंग केवल तब तक स्क्रीन को चालू रखती है जब तक यह ऐप खुला है। ऐप छोड़ते ही स्क्रीन सामान्य रूप से बंद हो जाती है।</string>
@@ -172,6 +174,7 @@
     <string name="usb_notification_channel_desc">सक्रिय USB-ADB होस्ट प्रोफ़ाइल</string>
     <string name="usb_notification_title">USB-ADB सक्रिय</string>
     <string name="usb_notification_no_profile">कोई होस्ट प्रोफ़ाइल चयनित नहीं है</string>
+    <string name="usb_notification_profile_hidden">होस्ट प्रोफ़ाइल चुनी गई — विवरण ऐप में</string>
     <string name="usb_notification_create_profile">होस्ट प्रोफ़ाइल बनाएँ</string>
     <string name="usb_notification_switch_profile">प्रोफ़ाइल बदलें</string>
     <string name="usb_notification_new_profile">नई प्रोफ़ाइल</string>

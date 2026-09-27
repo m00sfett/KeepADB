@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">常驻通知</string>
     <string name="settings_hide_notification_subtext">在通知栏中显示状态通知。关闭它不会影响 Keep-Alive 或桌面小组件。</string>
     <string name="settings_hide_notification_subtext_keepalive">Keep-Alive 处于活动状态时为必需项——Android 要求前台服务显示通知。</string>
+    <string name="settings_notification_details_toggle">在通知中显示连接详情</string>
+    <string name="settings_notification_details_subtext">在通知中显示 USB 主机配置（名称、IP、主机）以及新 Wi-Fi 网络的名称和 BSSID。开启后，这些详情也可能显示在锁屏上。关闭时，仅在应用内显示。</string>
     <string name="settings_section_display">显示屏</string>
     <string name="settings_keep_display_on_toggle">KeepADB 位于前台时保持屏幕常亮</string>
     <string name="settings_keep_display_on_subtext">仅在此应用打开期间保持屏幕常亮。离开应用后屏幕会照常熄灭。</string>
@@ -172,6 +174,7 @@
     <string name="usb_notification_channel_desc">当前使用的 USB-ADB 主机配置</string>
     <string name="usb_notification_title">USB-ADB 已启用</string>
     <string name="usb_notification_no_profile">未选择主机配置</string>
+    <string name="usb_notification_profile_hidden">已选择主机配置 — 详情请在应用中查看</string>
     <string name="usb_notification_create_profile">创建主机配置</string>
     <string name="usb_notification_switch_profile">切换配置</string>
     <string name="usb_notification_new_profile">新建配置</string>

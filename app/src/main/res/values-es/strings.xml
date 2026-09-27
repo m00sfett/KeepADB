@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">Notificación persistente</string>
     <string name="settings_hide_notification_subtext">Muestra la notificación de estado en el panel. Desactivarla no afecta a Keep-Alive ni a los widgets.</string>
     <string name="settings_hide_notification_subtext_keepalive">Necesaria mientras Keep-Alive está activo — Android la requiere para el servicio en primer plano.</string>
+    <string name="settings_notification_details_toggle">Mostrar detalles de conexión en las notificaciones</string>
+    <string name="settings_notification_details_subtext">Muestra el perfil de host USB (nombre, IP, host) y el nombre y BSSID de las nuevas redes Wi-Fi en las notificaciones. Si está activado, estos detalles también pueden verse en la pantalla de bloqueo. Si está desactivado, solo se muestran en la app.</string>
     <string name="settings_section_display">Pantalla</string>
     <string name="settings_keep_display_on_toggle">Mantener la pantalla encendida mientras KeepADB está en primer plano</string>
     <string name="settings_keep_display_on_subtext">Mantiene la pantalla encendida solo mientras esta app está abierta. La pantalla se apaga normalmente en cuanto sales de la app.</string>
@@ -172,6 +174,7 @@
     <string name="usb_notification_channel_desc">Perfil de host USB-ADB activo</string>
     <string name="usb_notification_title">USB-ADB activo</string>
     <string name="usb_notification_no_profile">No se ha seleccionado ningún perfil de host</string>
+    <string name="usb_notification_profile_hidden">Perfil de host seleccionado: detalles en la app</string>
     <string name="usb_notification_create_profile">Crear perfil de host</string>
     <string name="usb_notification_switch_profile">Cambiar de perfil</string>
     <string name="usb_notification_new_profile">Perfil nuevo</string>

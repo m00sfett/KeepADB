@@ -86,21 +86,27 @@ final class KeepADBUsbNotification {
                 .setContentTitle(context.getString(R.string.usb_notification_title))
                 .setOngoing(true)
                 .setCategory(Notification.CATEGORY_STATUS)
-                // #589: default visibility is VISIBILITY_PRIVATE, but a device configured to show
-                // private notification content on the lock screen (as the s20 tested against #578
-                // was) would otherwise still reveal contentText below, which can be a profile name
-                // plus host/IP summary (see the profileNotificationEnabled branch). publicVersion is
-                // set once here, before either branch adds its own contentText/actions, so every
-                // branch -- with or without a profile notification, with or without the handover
-                // action, and the error text -- carries it.
+                // #589: default visibility is VISIBILITY_PRIVATE; publicVersion is what a redacting
+                // lock screen shows instead. #592: Android only redacts while sensitive lock-screen
+                // content is hidden -- with it allowed (as on the s20), the private card below is
+                // shown and publicVersion is ignored, so the profile summary itself is gated behind
+                // KeepADBPreferences#isNotificationDetailsEnabled. publicVersion is set once here,
+                // before either branch adds its own contentText/actions, so every branch -- with
+                // or without a profile notification, with or without the handover action, and the
+                // error text -- carries it as best effort.
                 .setPublicVersion(publicVersion(context));
 
         if (profileNotificationEnabled) {
             List<KeepADBUsbProfile.Profile> profiles = KeepADBUsbProfile.getProfiles(context);
             KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.getSelected(context);
+            // #592: the profile summary (name, IP, host, tailnet host) only goes into the
+            // notification when the user opted in -- Android shows the private content on the lock
+            // screen whenever sensitive lock-screen content is allowed, ignoring publicVersion.
             String profileText = selected == null
                     ? context.getString(R.string.usb_notification_no_profile)
-                    : selected.summary();
+                    : KeepADBPreferences.isNotificationDetailsEnabled(context)
+                            ? selected.summary()
+                            : context.getString(R.string.usb_notification_profile_hidden);
             contentText = (handoverActionVisible && lastHandoverActionFailed)
                     ? context.getString(R.string.usb_notification_handover_error)
                     : profileText;

@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">Notifikasi persisten</string>
     <string name="settings_hide_notification_subtext">Menampilkan notifikasi status di panel. Mematikannya tidak memengaruhi Keep-Alive atau widget.</string>
     <string name="settings_hide_notification_subtext_keepalive">Diperlukan selama Keep-Alive aktif — Android memerlukannya untuk layanan latar depan.</string>
+    <string name="settings_notification_details_toggle">Tampilkan detail koneksi di notifikasi</string>
+    <string name="settings_notification_details_subtext">Menampilkan profil host USB (nama, IP, host) serta nama dan BSSID jaringan Wi-Fi baru di notifikasi. Jika aktif, detail ini juga dapat terlihat di layar kunci. Jika nonaktif, detail hanya ditampilkan di aplikasi.</string>
     <string name="settings_section_display">Layar</string>
     <string name="settings_keep_display_on_toggle">Jaga layar tetap menyala selama KeepADB berada di latar depan</string>
     <string name="settings_keep_display_on_subtext">Menjaga layar tetap menyala hanya selama aplikasi ini terbuka. Layar akan mati seperti biasa segera setelah Anda meninggalkan aplikasi.</string>
@@ -172,6 +174,7 @@
     <string name="usb_notification_channel_desc">Profil host USB-ADB yang aktif</string>
     <string name="usb_notification_title">USB-ADB aktif</string>
     <string name="usb_notification_no_profile">Belum ada profil host yang dipilih</string>
+    <string name="usb_notification_profile_hidden">Profil host dipilih — detail ada di aplikasi</string>
     <string name="usb_notification_create_profile">Buat profil host</string>
     <string name="usb_notification_switch_profile">Ganti profil</string>
     <string name="usb_notification_new_profile">Profil baru</string>

@@ -297,13 +297,19 @@ final class KeepADBNetworkTrustPrompt {
             return false;
         }
         ensureChannel(localized, manager);
-        String text = localized.getString(R.string.network_prompt_text, label, bssid);
+        // #592: network name and BSSID only go into the notification when the user opted in;
+        // otherwise the neutral text (the same one publicVersion uses) is shown. The action
+        // PendingIntents still carry bssid/label as extras -- they are never rendered.
+        String text = KeepADBPreferences.isNotificationDetailsEnabled(context)
+                ? localized.getString(R.string.network_prompt_text, label, bssid)
+                : localized.getString(R.string.network_prompt_public_text);
         Intent contentIntent = new Intent(context, SettingsActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         // #578: the lock screen shows this notification (default VISIBILITY_PRIVATE, redacted by
         // the platform unless the user opted into showing private content there -- which the
-        // device tested against had). publicVersion carries neither the label nor the BSSID, so a
-        // glance at a locked screen never leaks which access point is asking to be trusted.
+        // device tested against had). publicVersion carries neither the label nor the BSSID. #592:
+        // publicVersion is only used while Android redacts; with sensitive lock-screen content
+        // allowed, the private text above is shown, hence the opt-in check there.
         Notification publicVersion = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(localized.getString(R.string.network_prompt_title))

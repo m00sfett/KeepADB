@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">常駐通知</string>
     <string name="settings_hide_notification_subtext">ステータス通知をシェードに表示します。オフにしてもKeep-Aliveやウィジェットには影響しません。</string>
     <string name="settings_hide_notification_subtext_keepalive">Keep-Alive有効時は必須です — Androidがフォアグラウンドサービスのために必要とします。</string>
+    <string name="settings_notification_details_toggle">通知に接続の詳細を表示</string>
+    <string name="settings_notification_details_subtext">USB ホストプロファイル（名前、IP、ホスト）と新しい Wi-Fi ネットワークの名前および BSSID を通知に表示します。オンにすると、これらの詳細がロック画面にも表示される場合があります。オフの場合はアプリ内にのみ表示されます。</string>
     <string name="settings_section_display">ディスプレイ</string>
     <string name="settings_keep_display_on_toggle">KeepADBが前面表示されている間、画面をオンのままにする</string>
     <string name="settings_keep_display_on_subtext">このアプリを開いている間だけ画面をオンのままにします。アプリを離れると画面は通常どおり消灯します。</string>
@@ -172,6 +174,7 @@
     <string name="usb_notification_channel_desc">有効な USB-ADB ホストプロファイル</string>
     <string name="usb_notification_title">USB-ADB は有効です</string>
     <string name="usb_notification_no_profile">ホストプロファイルが選択されていません</string>
+    <string name="usb_notification_profile_hidden">ホストプロファイル選択済み — 詳細はアプリで確認</string>
     <string name="usb_notification_create_profile">ホストプロファイルを作成</string>
     <string name="usb_notification_switch_profile">プロファイルを切り替え</string>
     <string name="usb_notification_new_profile">新しいプロファイル</string>
