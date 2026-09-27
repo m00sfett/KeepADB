@@ -102,7 +102,7 @@
          *_warning_accessibility string next to it. -->
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">Warning</string>
-    <string name="settings_trusted_network_tradeoff_warning">Security versus convenience: turning this on largely disables \"Keep Wireless Debugging alive\". Android only lets an app read the current network\'s identity while KeepADB is open on screen — in the background the name and ID are hidden, and a hidden identity is never treated as trusted. Automatic re-enable then mostly stops working until you open the app.</string>
+    <string name="settings_trusted_network_tradeoff_warning">Location permission ensures network and BSSID detection even in the background while the Keep-Alive service is running. Automatic re-enable only occurs on trusted networks.</string>
     <string name="settings_trusted_network_toggle">Restrict Keep-Alive to trusted networks</string>
     <string name="settings_trusted_ssid_warning">Weaker check: a network name (SSID) is freely chosen and is no proof of an access point. Any access point broadcasting an allowed name is trusted, including one imitating yours. Mainly useful if you run several access points under one name.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Warning</string>
@@ -246,7 +246,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi &amp; access points (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Enable Wi-Fi &amp; access point discovery</string>
     <string name="settings_wifi_aps_beta_description">Access point discovery is an experimental beta feature that scans nearby Wi-Fi access points. It requires Location permission and may consume additional battery.</string>
-    <string name="settings_section_network_beta">Network (Beta)</string>
+    <string name="settings_section_network">Network</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Trusted Networks and Wi-Fi &amp; access points both build on the same network-trust logic and are experimental beta features. Expand either one below to turn it on and configure it on its own.</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>

@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">可以选择把 Keep-Alive 的自动重新开启限制在你标记为可信的 Wi-Fi 网络上。默认关闭。手动开关始终有效，与此设置无关。</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">警告</string>
-    <string name="settings_trusted_network_tradeoff_warning">安全与便利的取舍：开启后，“保持无线调试开启”基本失效。只有当 KeepADB 显示在屏幕上时，Android 才允许应用读取当前网络的身份；在后台，名称和标识都被隐藏，而被隐藏的身份永远不会被视为可信。此后自动重新开启通常要等你打开应用才会生效。</string>
+    <string name="settings_trusted_network_tradeoff_warning">位置权限可确保在 Keep-Alive 服务运行期间，即使在后台也能可靠检测网络与 BSSID。仅在受信任的网络上才会自动重新开启。</string>
     <string name="settings_trusted_network_toggle">将 Keep-Alive 限制为受信任的网络</string>
     <string name="settings_trusted_ssid_warning">更弱的校验：网络名称（SSID）可以随意设定，不能证明某个接入点。任何广播已允许名称的接入点都被视为可信，包括冒用你名称的接入点。主要适合以同一个名称运行多个接入点的情况。</string>
     <string name="settings_trusted_ssid_warning_accessibility">警告</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi 与接入点（测试版）</string>
     <string name="settings_wifi_aps_feature_toggle">启用 Wi-Fi 与接入点检测</string>
     <string name="settings_wifi_aps_beta_description">接入点检测是一项实验性测试功能，用于扫描附近的 Wi-Fi 接入点。该功能需要位置权限，并可能消耗更多电量。</string>
-    <string name="settings_section_network_beta">网络（测试版）</string>
+    <string name="settings_section_network">网络</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">受信任网络与 Wi-Fi 和接入点基于相同的网络信任逻辑，两者均为实验性测试版功能。展开下方任一项即可单独启用并配置。</string>
 </resources>

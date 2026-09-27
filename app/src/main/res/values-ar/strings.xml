@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">يمكنك اختياريًا تقييد إعادة تشغيل Keep-Alive التلقائية على شبكات Wi-Fi التي وسمتها بأنها موثوقة. مُعطَّل تلقائيًا. التبديل اليدوي يعمل دائمًا بصرف النظر عن هذا الإعداد.</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">تحذير</string>
-    <string name="settings_trusted_network_tradeoff_warning">الأمان مقابل الراحة: تشغيل هذا يُبطل عمل «إبقاء تصحيح الأخطاء اللاسلكي نشطًا» إلى حد كبير. لا يسمح أندرويد للتطبيق بقراءة هوية الشبكة الحالية إلا أثناء فتح KeepADB على الشاشة؛ وفي الخلفية يكون الاسم والمعرّف مخفيين، والهوية المخفية لا تُعتبر موثوقة أبدًا. وبذلك تتوقف إعادة التشغيل التلقائية في الغالب حتى تفتح التطبيق.</string>
+    <string name="settings_trusted_network_tradeoff_warning">يضمن إذن الموقع التعرف على الشبكة ومعرّف BSSID حتى في الخلفية أثناء تشغيل خدمة Keep-Alive. تتم إعادة التشغيل التلقائي فقط على الشبكات الموثوقة.</string>
     <string name="settings_trusted_network_toggle">تقييد Keep-Alive على الشبكات الموثوقة</string>
     <string name="settings_trusted_ssid_warning">تحقق أضعف: اسم الشبكة (SSID) يُختار بحرية وليس دليلًا على نقطة وصول. أي نقطة وصول تبث اسمًا مسموحًا تُعتبر موثوقة، بما فيها نقطة تنتحل اسمك. مفيد أساسًا إن كنت تشغّل عدة نقاط وصول باسم واحد.</string>
     <string name="settings_trusted_ssid_warning_accessibility">تحذير</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi ونقاط الوصول (تجريبي)</string>
     <string name="settings_wifi_aps_feature_toggle">تفعيل اكتشاف Wi-Fi ونقاط الوصول</string>
     <string name="settings_wifi_aps_beta_description">اكتشاف نقاط الوصول ميزة تجريبية تفحص نقاط وصول Wi-Fi القريبة. تتطلب إذن الموقع وقد تستهلك المزيد من طاقة البطارية.</string>
-    <string name="settings_section_network_beta">الشبكة (تجريبي)</string>
+    <string name="settings_section_network">الشبكة</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">تعتمد الشبكات الموثوقة وWi-Fi ونقاط الوصول على نفس منطق الثقة بالشبكة، وكلاهما ميزتان تجريبيتان. وسّع إحداهما أدناه لتفعيلها وضبطها بشكل منفصل.</string>
 </resources>

@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">Bạn có thể giới hạn việc tự bật lại Keep-Alive chỉ với các mạng Wi-Fi mà bạn đã đánh dấu là đáng tin cậy. Mặc định tắt. Việc bật/tắt thủ công luôn hoạt động, bất kể cài đặt này.</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">Cảnh báo</string>
-    <string name="settings_trusted_network_tradeoff_warning">An toàn đổi lấy tiện lợi: bật tùy chọn này khiến «Giữ gỡ lỗi không dây luôn bật» gần như mất tác dụng. Android chỉ cho ứng dụng đọc danh tính mạng hiện tại khi KeepADB đang mở trên màn hình — ở chế độ nền, tên và mã nhận dạng bị ẩn, và một danh tính bị ẩn không bao giờ được coi là đáng tin cậy. Sau đó việc tự bật lại thường không chạy cho đến khi bạn mở ứng dụng.</string>
+    <string name="settings_trusted_network_tradeoff_warning">Quyền vị trí đảm bảo phát hiện mạng và BSSID ngay cả ở chế độ nền khi dịch vụ Keep-Alive đang chạy. Việc tự động bật lại chỉ diễn ra trên các mạng đáng tin cậy.</string>
     <string name="settings_trusted_network_toggle">Giới hạn Keep-Alive ở các mạng đáng tin cậy</string>
     <string name="settings_trusted_ssid_warning">Kiểm tra yếu hơn: tên mạng (SSID) do người dùng tự đặt và không chứng minh được điểm truy cập nào. Mọi điểm truy cập phát một tên được phép đều được coi là đáng tin cậy, kể cả điểm mạo danh tên của bạn. Chủ yếu hữu ích nếu bạn dùng nhiều điểm truy cập chung một tên.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Cảnh báo</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi và điểm truy cập (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Bật phát hiện Wi-Fi và điểm truy cập</string>
     <string name="settings_wifi_aps_beta_description">Phát hiện điểm truy cập là tính năng thử nghiệm quét các điểm truy cập Wi-Fi lân cận. Tính năng này yêu cầu quyền vị trí và có thể tiêu tốn thêm pin.</string>
-    <string name="settings_section_network_beta">Mạng (Beta)</string>
+    <string name="settings_section_network">Mạng</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Mạng đáng tin cậy và Wi-Fi và điểm truy cập đều dựa trên cùng một logic tin cậy mạng và đều là các tính năng beta thử nghiệm. Hãy mở rộng một trong hai mục bên dưới để bật và định cấu hình riêng.</string>
 </resources>
