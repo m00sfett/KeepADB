@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">常駐通知</string>
     <string name="settings_hide_notification_subtext">ステータス通知をシェードに表示します。オフにしてもKeep-Aliveやウィジェットには影響しません。</string>
     <string name="settings_hide_notification_subtext_keepalive">Keep-Alive有効時は必須です — Androidがフォアグラウンドサービスのために必要とします。</string>
+    <string name="settings_notification_details_toggle">通知に接続の詳細を表示</string>
+    <string name="settings_notification_details_subtext">USB ホストプロファイル（名前、IP、ホスト）と新しい Wi-Fi ネットワークの名前および BSSID を通知に表示します。オンにすると、これらの詳細がロック画面にも表示される場合があります。オフの場合はアプリ内にのみ表示されます。</string>
     <string name="settings_section_display">ディスプレイ</string>
     <string name="settings_keep_display_on_toggle">KeepADBが前面表示されている間、画面をオンのままにする</string>
     <string name="settings_keep_display_on_subtext">このアプリを開いている間だけ画面をオンのままにします。アプリを離れると画面は通常どおり消灯します。</string>
@@ -167,14 +169,15 @@
     <string name="settings_usb_notification_toggle">USB-ADB 通知を表示</string>
     <string name="settings_usb_notification_subtext">USB デバッグが有効な間、別の通知を表示します。ホストは手動で選択します。</string>
     <string name="settings_usb_profile_notification_toggle">通知にホストプロファイルを表示</string>
-    <string name="settings_usb_profile_notification_subtext">USB-ADB通知に選択したホストプロファイルとエンドポイントを表示します。</string>
+    <string name="settings_usb_profile_notification_subtext">USB-ADB通知にホストプロファイルの状態と操作を表示します。プロファイル名とエンドポイントの詳細(IP、ホスト)は「通知に接続の詳細を表示」がオンのときだけ表示されます。</string>
     <string name="usb_notification_channel_name">USB-ADB 接続</string>
     <string name="usb_notification_channel_desc">有効な USB-ADB ホストプロファイル</string>
     <string name="usb_notification_title">USB-ADB は有効です</string>
     <string name="usb_notification_no_profile">ホストプロファイルが選択されていません</string>
-    <string name="usb_notification_create_profile">ホストプロファイルを作成</string>
-    <string name="usb_notification_switch_profile">プロファイルを切り替え</string>
-    <string name="usb_notification_new_profile">新しいプロファイル</string>
+    <string name="usb_notification_profile_hidden">ホストプロファイル選択済み — 詳細はアプリで確認</string>
+    <string name="usb_notification_create_profile">プロファイル作成</string>
+    <string name="usb_notification_switch_profile">切替</string>
+    <string name="usb_notification_new_profile">新規</string>
     <string name="usb_profile_none">ホストプロファイルが選択されていません。</string>
     <string name="usb_profile_selected">選択中のホストプロファイル: %1$s</string>
     <string name="usb_profile_create_button">ホストプロファイルを作成</string>
@@ -223,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">オフ</string>
     <string name="settings_usb_handover_mode_manual">手動（USB 通知に操作を表示）</string>
     <string name="settings_usb_handover_mode_automatic">自動（新しい USB 接続時に有効化）</string>
-    <string name="usb_notification_enable_wlan_handover">WLAN-ADB を有効化</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">WLAN-ADB を有効化できませんでした。権限を確認してください。</string>
     <string name="notification_action_disable">Wifi-ADBを無効化</string>
     <string name="status_enabled_disconnected">ワイヤレスデバッグ: オン（未接続）</string>

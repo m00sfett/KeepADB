@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">स्थायी सूचना</string>
     <string name="settings_hide_notification_subtext">स्टेटस सूचना को पैनल में दिखाता है। इसे बंद करने से Keep-Alive या विजेट पर असर नहीं पड़ता।</string>
     <string name="settings_hide_notification_subtext_keepalive">Keep-Alive सक्रिय होने पर आवश्यक — Android को अग्रभूमि सेवा के लिए इसकी आवश्यकता होती है।</string>
+    <string name="settings_notification_details_toggle">सूचनाओं में कनेक्शन विवरण दिखाएं</string>
+    <string name="settings_notification_details_subtext">सूचनाओं में USB होस्ट प्रोफ़ाइल (नाम, IP, होस्ट) और नए वाई-फ़ाई नेटवर्क का नाम व BSSID दिखाता है। चालू होने पर ये विवरण लॉक स्क्रीन पर भी दिख सकते हैं। बंद होने पर ये केवल ऐप में दिखते हैं।</string>
     <string name="settings_section_display">डिस्प्ले</string>
     <string name="settings_keep_display_on_toggle">जब तक KeepADB फ़ोरग्राउंड में है, डिस्प्ले चालू रखें</string>
     <string name="settings_keep_display_on_subtext">यह सेटिंग केवल तब तक स्क्रीन को चालू रखती है जब तक यह ऐप खुला है। ऐप छोड़ते ही स्क्रीन सामान्य रूप से बंद हो जाती है।</string>
@@ -167,14 +169,15 @@
     <string name="settings_usb_notification_toggle">USB-ADB सूचना दिखाएँ</string>
     <string name="settings_usb_notification_subtext">USB डीबगिंग सक्रिय होने पर अलग सूचना दिखाएँ। होस्ट को मैन्युअल रूप से चुना जाता है।</string>
     <string name="settings_usb_profile_notification_toggle">सूचना में होस्ट प्रोफ़ाइल दिखाएं</string>
-    <string name="settings_usb_profile_notification_subtext">USB-ADB सूचना में चयनित होस्ट प्रोफ़ाइल और समापन बिंदु प्रदर्शित करें।</string>
+    <string name="settings_usb_profile_notification_subtext">USB-ADB सूचना में होस्ट प्रोफ़ाइल की स्थिति और कार्रवाइयाँ दिखाता है। प्रोफ़ाइल का नाम और समापन बिंदु विवरण (IP, होस्ट) तभी दिखते हैं जब «सूचनाओं में कनेक्शन विवरण दिखाएं» चालू हो।</string>
     <string name="usb_notification_channel_name">USB-ADB कनेक्शन</string>
     <string name="usb_notification_channel_desc">सक्रिय USB-ADB होस्ट प्रोफ़ाइल</string>
     <string name="usb_notification_title">USB-ADB सक्रिय</string>
     <string name="usb_notification_no_profile">कोई होस्ट प्रोफ़ाइल चयनित नहीं है</string>
-    <string name="usb_notification_create_profile">होस्ट प्रोफ़ाइल बनाएँ</string>
-    <string name="usb_notification_switch_profile">प्रोफ़ाइल बदलें</string>
-    <string name="usb_notification_new_profile">नई प्रोफ़ाइल</string>
+    <string name="usb_notification_profile_hidden">होस्ट प्रोफ़ाइल चुनी गई — विवरण ऐप में</string>
+    <string name="usb_notification_create_profile">प्रोफ़ाइल बनाएँ</string>
+    <string name="usb_notification_switch_profile">बदलें</string>
+    <string name="usb_notification_new_profile">नई</string>
     <string name="usb_profile_none">कोई होस्ट प्रोफ़ाइल चयनित नहीं है।</string>
     <string name="usb_profile_selected">चयनित होस्ट प्रोफ़ाइल: %1$s</string>
     <string name="usb_profile_create_button">होस्ट प्रोफ़ाइल बनाएँ</string>
@@ -223,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">बंद</string>
     <string name="settings_usb_handover_mode_manual">मैन्युअल (USB सूचना में कार्रवाई दिखाएँ)</string>
     <string name="settings_usb_handover_mode_automatic">स्वचालित (नए USB कनेक्शन पर सक्षम करें)</string>
-    <string name="usb_notification_enable_wlan_handover">WLAN-ADB सक्षम करें</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">WLAN-ADB सक्षम नहीं हो सका। अनुमति जाँचें।</string>
     <string name="notification_action_disable">Wifi-ADB बंद करें</string>
     <string name="status_enabled_disconnected">वायरलेस डीबगिंग चालू (कनेक्ट नहीं है)</string>

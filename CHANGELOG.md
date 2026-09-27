@@ -17,11 +17,54 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.48` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.50` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.50] - Unreleased
+
+### Changed
+- Shortened the three USB-ADB notification action labels ("Switch profile", "New profile",
+  "Enable WLAN-ADB") plus "Create host profile" across all 19 supported locales so they no longer
+  clip when three actions sit side by side on a 1080px device (e.g. the s20, One UI 5, which
+  gives each action an equally wide slot of about 8 Latin characters). The WLAN-ADB handover
+  action now comes first and is labeled just "WLAN-ADB" in every language (allowlisted in
+  `bin/check-i18n`), followed by "Switch" and "New" (DE "WLAN-ADB | Wechseln | Neu"); every
+  label fits one slot (at most 8 columns, CJK/Hangul counted double), pinned by
+  `KeepADBUsbActionLabelBudgetTest`. Fixed
+  `settings_usb_profile_notification_subtext`, which since #592 no longer matched behavior: it
+  now says that this toggle shows host profile status and actions, while the profile name and
+  endpoint details (IP, host) additionally need the separate "Show connection details in
+  notifications" opt-in (#593).
+- The "Switch host profile" dialog now shows each profile's name and endpoint details (IP · host
+  · tailnet) as two separate lines instead of one long radio label, and moved the Edit/Delete
+  buttons to their own row below the text instead of sharing the radio button's row. A profile
+  with a long IP/hostname/tailnet combination used to force that row into a character-by-character
+  wrap; the accessibility content description on the radio button still carries the full summary
+  for screen readers (#593).
+
+## [1.8.49] - Unreleased
+
+### Security
+- Connection details are no longer written into notifications by default. On a device that
+  allows sensitive notification content on the lock screen (as the s20 does), Android ignores a
+  notification's `publicVersion` and shows the private copy, so the USB-ADB notification revealed
+  the host profile name, IP and hostname, and the new-network prompt the network name and BSSID,
+  without unlocking. New setting Settings → Notification → "Show connection details in
+  notifications", **off by default**: while off, the USB notification shows "Host profile
+  selected — details in the app" and the network prompt its neutral lock-screen text; the details
+  remain visible in the app. Turning it on restores the previous detailed text; the settings text
+  warns that the details may then also appear on the lock screen. Toggling it re-renders a visible
+  USB notification immediately; an already posted network prompt keeps its text until it is shown
+  again. Actions, their unlock gates (#578/#586/#588) and the `publicVersion` are unchanged. Note
+  for existing users: after updating, the USB notification no longer shows the profile summary
+  until the setting is turned on (#592).
+
+### Documentation
+- `SECURITY.md` and the README's "Privacy & Security" section now describe the actual lock-screen
+  behavior: `publicVersion` only applies while Android hides sensitive content (#592).
 
 ## [1.8.48] - Unreleased
 

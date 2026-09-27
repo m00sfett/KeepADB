@@ -52,6 +52,7 @@ public class SettingsActivity extends Activity {
 
     private Switch hideNotificationToggle;
     private TextView hideNotificationSubtext;
+    private Switch notificationDetailsToggle;
     private Switch keepDisplayOnToggle;
     private Switch adviceBannerToggle;
     private Switch batteryOptimizationPanelToggle;
@@ -216,6 +217,14 @@ public class SettingsActivity extends Activity {
                     wantHidden ? R.string.settings_notification_hidden_toast : R.string.settings_notification_visible_toast,
                     Toast.LENGTH_SHORT).show();
             refresh();
+        });
+
+        notificationDetailsToggle = findViewById(R.id.settings_notification_details_toggle);
+        notificationDetailsToggle.setOnClickListener(v -> {
+            KeepADBPreferences.setNotificationDetailsEnabled(this, notificationDetailsToggle.isChecked());
+            // #592: re-render a currently visible USB card right away; a trust prompt already on
+            // screen keeps its text until it is posted again.
+            KeepADBUsbReceiver.refresh(this);
         });
 
         keepDisplayOnToggle = findViewById(R.id.settings_keep_display_on_toggle);
@@ -702,27 +711,58 @@ public class SettingsActivity extends Activity {
             int padding = (int) (20 * getResources().getDisplayMetrics().density);
             options.setPadding(padding, 0, padding, 0);
             final AlertDialog[] dialogHolder = new AlertDialog[1];
+            int rowSpacing = (int) (8 * getResources().getDisplayMetrics().density);
             for (int i = 0; i < profiles.size(); i++) {
                 KeepADBUsbProfile.Profile profile = profiles.get(i);
-                android.widget.LinearLayout row = new android.widget.LinearLayout(this);
-                row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                int minTouch = (int) (48 * getResources().getDisplayMetrics().density);
+
+                // #593: name and details stacked in two lines instead of one radio label, so a
+                // profile with a long IP/host/tailnet combination wraps as whole words instead of
+                // character-by-character.
+                android.widget.LinearLayout textColumn = new android.widget.LinearLayout(this);
+                textColumn.setOrientation(android.widget.LinearLayout.VERTICAL);
+                TextView nameView = new TextView(this);
+                nameView.setText(profile.name);
+                textColumn.addView(nameView);
+                String details = profile.details();
+                if (!details.isEmpty()) {
+                    TextView detailsView = new TextView(this);
+                    detailsView.setText(details);
+                    textColumn.addView(detailsView);
+                }
+                textColumn.setLayoutParams(new android.widget.LinearLayout.LayoutParams(0,
+                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+
                 android.widget.RadioButton select = new android.widget.RadioButton(this);
-                select.setText(profile.summary());
                 select.setContentDescription(profile.summary());
                 select.setChecked(current != null && current.id == profile.id);
-                select.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
-                select.setLayoutParams(new android.widget.LinearLayout.LayoutParams(0,
-                        android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-                select.setOnClickListener(v -> {
+                select.setMinHeight(minTouch);
+                select.setMinWidth(minTouch);
+
+                android.widget.LinearLayout selectRow = new android.widget.LinearLayout(this);
+                selectRow.setGravity(android.view.Gravity.CENTER_VERTICAL);
+                selectRow.setMinimumHeight(minTouch);
+                View.OnClickListener selectListener = v -> {
                     KeepADBUsbProfile.select(this, profile.id);
                     dialogHolder[0].dismiss();
                     KeepADBUsbReceiver.refresh(this);
                     refresh();
-                });
+                };
+                selectRow.setOnClickListener(selectListener);
+                select.setOnClickListener(selectListener);
+                selectRow.addView(select);
+                selectRow.addView(textColumn);
+
+                // #593: edit/delete moved to their own row below the text instead of sharing the
+                // selection row, which used to force the row into a character-wide wrap on long
+                // profile summaries.
+                android.widget.LinearLayout actionRow = new android.widget.LinearLayout(this);
+                actionRow.setGravity(android.view.Gravity.END);
                 android.widget.Button edit = new android.widget.Button(this);
                 edit.setText(R.string.usb_profile_edit_button);
                 edit.setContentDescription(getString(
                         R.string.usb_profile_edit_action_accessibility, profile.name));
+                edit.setMinHeight(minTouch);
                 edit.setOnClickListener(v -> {
                     dialogHolder[0].dismiss();
                     showProfileEditDialog(profile);
@@ -731,13 +771,19 @@ public class SettingsActivity extends Activity {
                 delete.setText(R.string.usb_profile_delete_button);
                 delete.setContentDescription(getString(
                         R.string.usb_profile_delete_action_accessibility, profile.name));
+                delete.setMinHeight(minTouch);
                 delete.setOnClickListener(v -> {
                     dialogHolder[0].dismiss();
                     showProfileDeleteDialog(profile);
                 });
-                row.addView(select);
-                row.addView(edit);
-                row.addView(delete);
+                actionRow.addView(edit);
+                actionRow.addView(delete);
+
+                android.widget.LinearLayout row = new android.widget.LinearLayout(this);
+                row.setOrientation(android.widget.LinearLayout.VERTICAL);
+                row.setPadding(0, rowSpacing, 0, rowSpacing);
+                row.addView(selectRow);
+                row.addView(actionRow);
                 options.addView(row);
             }
             ScrollView scroll = new ScrollView(this);
@@ -1058,6 +1104,8 @@ public class SettingsActivity extends Activity {
                     ? R.string.settings_hide_notification_subtext_keepalive
                     : R.string.settings_hide_notification_subtext);
         }
+
+        notificationDetailsToggle.setChecked(KeepADBPreferences.isNotificationDetailsEnabled(this));
 
         keepDisplayOnToggle.setChecked(KeepADBPreferences.isKeepDisplayOnEnabled(this));
 

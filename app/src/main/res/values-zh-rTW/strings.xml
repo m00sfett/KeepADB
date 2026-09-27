@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">常駐通知</string>
     <string name="settings_hide_notification_subtext">在通知欄中顯示狀態通知。關閉它不會影響 Keep-Alive 或桌面小工具。</string>
     <string name="settings_hide_notification_subtext_keepalive">Keep-Alive 處於啟用狀態時為必需項——Android 要求前景服務顯示通知。</string>
+    <string name="settings_notification_details_toggle">在通知中顯示連線詳細資料</string>
+    <string name="settings_notification_details_subtext">在通知中顯示 USB 主機設定檔（名稱、IP、主機）以及新 Wi-Fi 網路的名稱和 BSSID。開啟後，這些詳細資料也可能顯示在螢幕鎖定畫面上。關閉時，僅在應用程式中顯示。</string>
     <string name="settings_section_display">螢幕</string>
     <string name="settings_keep_display_on_toggle">KeepADB 在前景執行時保持螢幕開啟</string>
     <string name="settings_keep_display_on_subtext">僅在此應用程式開啟期間保持螢幕開啟。離開應用程式後螢幕會照常熄滅。</string>
@@ -167,14 +169,15 @@
     <string name="settings_usb_notification_toggle">顯示 USB-ADB 通知</string>
     <string name="settings_usb_notification_subtext">USB 偵錯啟用時顯示個別通知。主機需手動選取。</string>
     <string name="settings_usb_profile_notification_toggle">在通知中顯示主機設定檔</string>
-    <string name="settings_usb_profile_notification_subtext">在 USB-ADB 通知中顯示所選主機設定檔與端點。</string>
+    <string name="settings_usb_profile_notification_subtext">在 USB-ADB 通知中顯示主機設定檔的狀態和操作。設定檔名稱和端點詳細資料(IP、主機)僅在開啟「在通知中顯示連線詳細資料」後才會顯示。</string>
     <string name="usb_notification_channel_name">USB-ADB 連線</string>
     <string name="usb_notification_channel_desc">目前使用的 USB-ADB 主機設定檔</string>
     <string name="usb_notification_title">USB-ADB 已啟用</string>
     <string name="usb_notification_no_profile">未選取主機設定檔</string>
-    <string name="usb_notification_create_profile">建立主機設定檔</string>
-    <string name="usb_notification_switch_profile">切換設定檔</string>
-    <string name="usb_notification_new_profile">新增設定檔</string>
+    <string name="usb_notification_profile_hidden">已選取主機設定檔 — 詳細資料請在應用程式中查看</string>
+    <string name="usb_notification_create_profile">建立設定檔</string>
+    <string name="usb_notification_switch_profile">切換</string>
+    <string name="usb_notification_new_profile">新增</string>
     <string name="usb_profile_none">未選取主機設定檔。</string>
     <string name="usb_profile_selected">已選取主機設定檔：%1$s</string>
     <string name="usb_profile_create_button">建立主機設定檔</string>
@@ -223,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">關閉</string>
     <string name="settings_usb_handover_mode_manual">手動（在 USB 通知中顯示操作）</string>
     <string name="settings_usb_handover_mode_automatic">自動（建立新的 USB 連線時啟用）</string>
-    <string name="usb_notification_enable_wlan_handover">啟用 WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">無法啟用 WLAN-ADB。請檢查權限。</string>
     <string name="notification_action_disable">關閉 Wifi-ADB</string>
     <string name="status_enabled_disconnected">無線偵錯已開啟（未連線）</string>

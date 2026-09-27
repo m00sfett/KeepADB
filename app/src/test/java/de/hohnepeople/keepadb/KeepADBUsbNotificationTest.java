@@ -82,7 +82,7 @@ public class KeepADBUsbNotificationTest {
 
         assertNotNull(notification.actions);
         assertEquals(1, notification.actions.length);
-        assertEquals("Hostprofil anlegen", notification.actions[0].title.toString());
+        assertEquals("Profil anlegen", notification.actions[0].title.toString());
     }
 
     @Test
@@ -111,7 +111,7 @@ public class KeepADBUsbNotificationTest {
 
         assertNotNull(notification.actions);
         assertEquals(1, notification.actions.length);
-        assertEquals("Créer un profil d’hôte", notification.actions[0].title.toString());
+        assertEquals("Créer profil", notification.actions[0].title.toString());
     }
 
     @Test
@@ -129,9 +129,37 @@ public class KeepADBUsbNotificationTest {
 
         assertNotNull(notification.actions);
         assertEquals(3, notification.actions.length);
-        assertEquals("Profil wechseln", notification.actions[0].title.toString());
-        assertEquals("Neues Profil", notification.actions[1].title.toString());
-        assertEquals("WLAN-ADB aktivieren", notification.actions[2].title.toString());
+        assertEquals("WLAN-ADB", notification.actions[0].title.toString());
+        assertEquals("Wechseln", notification.actions[1].title.toString());
+        assertEquals("Neu", notification.actions[2].title.toString());
+    }
+
+    /**
+     * #593: One UI truncates the last action when the labels do not fit, so the security-relevant
+     * WLAN-ADB handover action must come first in every branch -- with profiles, without any
+     * profile (next to "create"), and it must be the handover intent, not just its label.
+     */
+    @Test
+    public void theHandoverActionIsAlwaysTheFirstAction() {
+        KeepADBPreferences.setAppLanguage(context, "en");
+        KeepADBUsbProfile.setNotificationEnabled(context, true);
+        KeepADBPreferences.setUsbWlanHandoverMode(context, KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL);
+        String handoverTitle = context.getString(R.string.usb_notification_enable_wlan_handover);
+
+        KeepADBUsbNotification.refresh(context, true);
+        Notification withoutProfiles = postedNotification();
+        assertEquals(2, withoutProfiles.actions.length);
+        assertEquals(handoverTitle, withoutProfiles.actions[0].title.toString());
+        assertEquals(KeepADBUsbReceiver.ACTION_HANDOVER_ENABLE,
+                shadowOf(withoutProfiles.actions[0].actionIntent).getSavedIntent().getAction());
+
+        KeepADBUsbProfile.add(context, "TestHost", "10.0.0.99", "testhost.local", "");
+        KeepADBUsbNotification.refresh(context, true);
+        Notification withProfiles = postedNotification();
+        assertEquals(3, withProfiles.actions.length);
+        assertEquals(handoverTitle, withProfiles.actions[0].title.toString());
+        assertEquals(KeepADBUsbReceiver.ACTION_HANDOVER_ENABLE,
+                shadowOf(withProfiles.actions[0].actionIntent).getSavedIntent().getAction());
     }
 
     @Test
@@ -190,6 +218,8 @@ public class KeepADBUsbNotificationTest {
     public void thePublicVersionNamesNeitherTheProfileNorTheHost() {
         KeepADBPreferences.setAppLanguage(context, "en");
         KeepADBUsbProfile.setNotificationEnabled(context, true);
+        // #592: private content only carries the profile summary after the opt-in.
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         KeepADBUsbProfile.add(context, "TestHost", "10.0.0.99", "testhost.local", "");
 
         KeepADBUsbNotification.refresh(context, true);
@@ -243,6 +273,76 @@ public class KeepADBUsbNotificationTest {
         KeepADBUsbNotification.reportManualActionResult(context, false);
         assertNotNull("The handover error text must still carry a publicVersion",
                 shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID).publicVersion);
+    }
+
+    // --- #592: connection details are opt-in -----------------------------------------------
+
+    private static final String[] PROFILE_DETAILS = {
+            "TestHost", "10.0.0.99", "testhost.local", "testhost.tailnet.example"};
+
+    @Test
+    public void connectionDetailsInNotificationsAreOffByDefault() {
+        assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(context));
+    }
+
+    /**
+     * #592: Android ignores publicVersion while sensitive lock-screen content is allowed, so with
+     * the opt-in off (the default) nothing that the lock screen could show -- private card or
+     * publicVersion, any text field, ticker or action label -- may name the profile, IP or host.
+     * The profile actions stay available.
+     */
+    @Test
+    public void withDetailsOffTheCardNamesNeitherTheProfileNorTheHostNorTheIp() {
+        KeepADBPreferences.setAppLanguage(context, "en");
+        KeepADBUsbProfile.setNotificationEnabled(context, true);
+        KeepADBPreferences.setUsbWlanHandoverMode(context, KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL);
+        KeepADBUsbProfile.add(context, "TestHost", "10.0.0.99", "testhost.local", "testhost.tailnet.example");
+
+        KeepADBUsbNotification.refresh(context, true);
+
+        Notification notification = postedNotification();
+        assertNotNull(notification);
+        KeepADBNotificationTextScan.assertMentionsNone(notification, PROFILE_DETAILS);
+        assertEquals(context.getString(R.string.usb_notification_profile_hidden),
+                notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());
+        assertNotNull(notification.actions);
+        assertEquals("switch, new profile and handover actions stay available",
+                3, notification.actions.length);
+    }
+
+    @Test
+    public void withDetailsOnTheCardShowsTheProfileSummary() {
+        KeepADBPreferences.setAppLanguage(context, "en");
+        KeepADBUsbProfile.setNotificationEnabled(context, true);
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBUsbProfile.add(context, "TestHost", "10.0.0.99", "testhost.local", "testhost.tailnet.example");
+
+        KeepADBUsbNotification.refresh(context, true);
+
+        Notification notification = postedNotification();
+        assertNotNull(notification);
+        assertEquals("TestHost · 10.0.0.99 · testhost.local · testhost.tailnet.example",
+                notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());
+        KeepADBNotificationTextScan.assertMentionsNone(notification.publicVersion, PROFILE_DETAILS);
+    }
+
+    @Test
+    public void switchingDetailsOffAgainRemovesThemOnTheNextRefresh() {
+        KeepADBPreferences.setAppLanguage(context, "en");
+        KeepADBUsbProfile.setNotificationEnabled(context, true);
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBUsbProfile.add(context, "TestHost", "10.0.0.99", "testhost.local", "");
+        KeepADBUsbNotification.refresh(context, true);
+
+        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
+        KeepADBUsbNotification.refresh(context, true);
+
+        KeepADBNotificationTextScan.assertMentionsNone(postedNotification(), PROFILE_DETAILS);
+    }
+
+    private Notification postedNotification() {
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        return shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID);
     }
 
     @Test

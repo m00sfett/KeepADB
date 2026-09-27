@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">Постоянное уведомление</string>
     <string name="settings_hide_notification_subtext">Показывает уведомление о статусе на панели. Отключение не влияет на Keep-Alive или виджеты.</string>
     <string name="settings_hide_notification_subtext_keepalive">Требуется, пока активен Keep-Alive — Android нужно это для службы переднего плана.</string>
+    <string name="settings_notification_details_toggle">Показывать сведения о подключении в уведомлениях</string>
+    <string name="settings_notification_details_subtext">Показывает в уведомлениях профиль USB-хоста (имя, IP, хост), а также имя и BSSID новых сетей Wi-Fi. Если включено, эти сведения могут быть видны и на экране блокировки. Если выключено, они отображаются только в приложении.</string>
     <string name="settings_section_display">Экран</string>
     <string name="settings_keep_display_on_toggle">Не выключать экран, пока KeepADB на переднем плане</string>
     <string name="settings_keep_display_on_subtext">Экран остаётся включённым только пока это приложение открыто. При выходе из приложения экран гаснет как обычно.</string>
@@ -167,14 +169,15 @@
     <string name="settings_usb_notification_toggle">Показывать уведомление USB-ADB</string>
     <string name="settings_usb_notification_subtext">Показывать отдельное уведомление при активной отладке по USB. Хост выбирается вручную.</string>
     <string name="settings_usb_profile_notification_toggle">Показывать профиль хоста в уведомлении</string>
-    <string name="settings_usb_profile_notification_subtext">Отображает выбранный профиль хоста и конечные точки в уведомлении USB-ADB.</string>
+    <string name="settings_usb_profile_notification_subtext">Показывает состояние и действия профиля хоста в уведомлении USB-ADB. Имя профиля и сведения о конечной точке (IP, хост) отображаются только при включённой опции «Показывать сведения о подключении в уведомлениях».</string>
     <string name="usb_notification_channel_name">Подключение USB-ADB</string>
     <string name="usb_notification_channel_desc">Активный профиль хоста USB-ADB</string>
     <string name="usb_notification_title">USB-ADB включён</string>
     <string name="usb_notification_no_profile">Профиль хоста не выбран</string>
-    <string name="usb_notification_create_profile">Создать профиль хоста</string>
-    <string name="usb_notification_switch_profile">Сменить профиль</string>
-    <string name="usb_notification_new_profile">Новый профиль</string>
+    <string name="usb_notification_profile_hidden">Профиль хоста выбран — подробности в приложении</string>
+    <string name="usb_notification_create_profile">Создать профиль</string>
+    <string name="usb_notification_switch_profile">Сменить</string>
+    <string name="usb_notification_new_profile">Новый</string>
     <string name="usb_profile_none">Профиль хоста не выбран.</string>
     <string name="usb_profile_selected">Выбранный профиль хоста: %1$s</string>
     <string name="usb_profile_create_button">Создать профиль хоста</string>
@@ -223,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Отключено</string>
     <string name="settings_usb_handover_mode_manual">Вручную (показывать действие в уведомлении USB)</string>
     <string name="settings_usb_handover_mode_automatic">Автоматически (включать при новом USB-подключении)</string>
-    <string name="usb_notification_enable_wlan_handover">Включить WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">Не удалось включить WLAN-ADB. Проверьте разрешение.</string>
     <string name="notification_action_disable">Выключить Wifi-ADB</string>
     <string name="status_enabled_disconnected">Беспроводная отладка включена (нет подключения)</string>

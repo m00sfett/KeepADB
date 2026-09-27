@@ -69,6 +69,48 @@ public class SettingsActivityTest {
         KeepADB.resetForTesting();
     }
 
+    /**
+     * #592: the opt-in switch is off by default, persists the preference and re-renders an
+     * already visible USB card through the existing KeepADBUsbReceiver.refresh path.
+     */
+    @Test
+    public void notificationDetailsToggleDefaultsOffAndRerendersTheVisibleUsbCard() {
+        android.app.Application app = RuntimeEnvironment.getApplication();
+        shadowOf(app).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
+        app.sendStickyBroadcast(new Intent(KeepADBUsbReceiver.ACTION_USB_STATE)
+                .putExtra("connected", true)
+                .putExtra("configured", true)
+                .putExtra("adb", true));
+        KeepADBPreferences.setAppLanguage(app, "en");
+        KeepADBUsbProfile.setNotificationEnabled(app, true);
+        KeepADBUsbProfile.add(app, "TestHost", "10.0.0.99", "testhost.local", "");
+        KeepADBUsbReceiver.refresh(app);
+
+        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        Switch toggle = activity.findViewById(R.id.settings_notification_details_toggle);
+        assertNotNull(toggle);
+        assertFalse("Details must be off by default", toggle.isChecked());
+        KeepADBNotificationTextScan.assertMentionsNone(postedUsbCard(app), "TestHost", "10.0.0.99");
+
+        toggle.performClick();
+        assertTrue(KeepADBPreferences.isNotificationDetailsEnabled(app));
+        CharSequence text = postedUsbCard(app).extras.getCharSequence(
+                android.app.Notification.EXTRA_TEXT);
+        assertTrue("The visible card must be re-rendered with details: " + text,
+                String.valueOf(text).contains("TestHost"));
+
+        toggle.performClick();
+        assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(app));
+        KeepADBNotificationTextScan.assertMentionsNone(postedUsbCard(app), "TestHost", "10.0.0.99");
+        KeepADBUsbNotification.cancel(app);
+    }
+
+    private static android.app.Notification postedUsbCard(android.content.Context context) {
+        android.app.NotificationManager manager =
+                context.getSystemService(android.app.NotificationManager.class);
+        return shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID);
+    }
+
     @Test
     public void dialogContainersAreWrappedInScrollView() {
         ActivityController<SettingsActivity> controller =
@@ -97,6 +139,116 @@ public class SettingsActivityTest {
         assertNotNull("Profile edit dialog fields must be wrapped in a ScrollView", editScroll);
         editDialog.dismiss();
         ShadowLooper.idleMainLooper();
+    }
+
+    /**
+     * #593: the switch-profile dialog row must show name and endpoint details as two separate
+     * TextViews (name on its own line, "IP · Host · Tailnet" underneath) instead of one long
+     * radio label, and the Edit/Delete buttons must no longer share the radio button's row --
+     * both changes avoid the character-by-character wrap a long profile summary used to force.
+     */
+    @Test
+    public void switchProfileDialogRowSplitsNameAndDetailsAndMovesActionsOffTheSelectionRow() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        KeepADBUsbProfile.add(activity, "LongHostName", "10.20.30.40", "longhostname.example.local",
+                "longhostname.tailnet.example.net");
+        ShadowLooper.idleMainLooper();
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+        AlertDialog switchDialog = activity.getActiveSwitchProfileDialog();
+        assertNotNull("Profile switch dialog should be showing", switchDialog);
+        ScrollView switchScroll = findViewByType(switchDialog.findViewById(android.R.id.custom), ScrollView.class);
+        assertNotNull(switchScroll);
+
+        KeepADBUsbProfile.Profile profile = KeepADBUsbProfile.getProfiles(activity).get(0);
+        List<TextView> textViews = findViewsByType(switchScroll, TextView.class);
+        boolean nameOnOwnLine = false;
+        boolean detailsOnOwnLine = false;
+        boolean fullSummaryAsSingleLine = false;
+        for (TextView tv : textViews) {
+            String text = tv.getText().toString();
+            if (text.equals(profile.name)) nameOnOwnLine = true;
+            if (text.equals(profile.details())) detailsOnOwnLine = true;
+            if (text.equals(profile.summary())) fullSummaryAsSingleLine = true;
+        }
+        assertTrue("Profile name must appear as its own TextView", nameOnOwnLine);
+        assertTrue("Profile details (IP/host/tailnet) must appear as their own TextView",
+                detailsOnOwnLine);
+        assertFalse("Name and details must no longer be a single concatenated label",
+                fullSummaryAsSingleLine);
+
+        List<android.widget.RadioButton> radios =
+                findViewsByType(switchScroll, android.widget.RadioButton.class);
+        assertEquals(1, radios.size());
+        android.widget.RadioButton radio = radios.get(0);
+        assertEquals("The radio button's accessibility description must still carry the full "
+                        + "summary for screen readers", profile.summary(),
+                radio.getContentDescription().toString());
+
+        // The Edit/Delete buttons must not be direct siblings of the radio button anymore --
+        // that row used to force the whole line into a character-wide wrap on long summaries.
+        // (RadioButton is itself a Button subclass, so it is excluded from this check.)
+        ViewGroup selectionRow = (ViewGroup) radio.getParent();
+        List<Button> buttonsInSelectionRow = findViewsByType(selectionRow, Button.class);
+        buttonsInSelectionRow.remove(radio);
+        assertTrue("Edit/Delete must not share the radio button's row",
+                buttonsInSelectionRow.isEmpty());
+
+        List<Button> allButtons = findViewsByType(switchScroll, Button.class);
+        Button editButton = findButtonWithText(allButtons,
+                activity.getString(R.string.usb_profile_edit_button));
+        Button deleteButton = findButtonWithText(allButtons,
+                activity.getString(R.string.usb_profile_delete_button));
+        assertNotNull(editButton);
+        assertNotNull(deleteButton);
+        assertNotEquals("Edit button must be in a different row than the radio button",
+                selectionRow, editButton.getParent());
+        assertNotEquals("Delete button must be in a different row than the radio button",
+                selectionRow, deleteButton.getParent());
+
+        switchDialog.dismiss();
+        ShadowLooper.idleMainLooper();
+    }
+
+    /**
+     * #593: after splitting the radio label into separate TextViews, selecting a profile must
+     * still work both from the whole selection row (the text beside the radio) and from the radio
+     * itself, and must close the dialog.
+     */
+    @Test
+    public void switchProfileDialogSelectsFromTheRowAndFromTheRadio() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        KeepADBUsbProfile.Profile first = KeepADBUsbProfile.add(activity, "First", "10.0.0.1", "", "");
+        KeepADBUsbProfile.Profile second = KeepADBUsbProfile.add(activity, "Second", "10.0.0.2", "", "");
+        assertEquals(second.id, KeepADBUsbProfile.getSelected(activity).id);
+
+        android.widget.RadioButton firstRadio = openSwitchDialogRadios(activity).get(0);
+        ((View) firstRadio.getParent()).performClick();
+        ShadowLooper.idleMainLooper();
+        assertEquals(first.id, KeepADBUsbProfile.getSelected(activity).id);
+        assertNull("Row click must close the dialog", activity.getActiveSwitchProfileDialog());
+
+        android.widget.RadioButton secondRadio = openSwitchDialogRadios(activity).get(1);
+        secondRadio.performClick();
+        ShadowLooper.idleMainLooper();
+        assertEquals(second.id, KeepADBUsbProfile.getSelected(activity).id);
+        assertNull("Radio click must close the dialog", activity.getActiveSwitchProfileDialog());
+    }
+
+    private List<android.widget.RadioButton> openSwitchDialogRadios(SettingsActivity activity) {
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+        AlertDialog dialog = activity.getActiveSwitchProfileDialog();
+        assertNotNull("Profile switch dialog should be showing", dialog);
+        List<android.widget.RadioButton> radios = findViewsByType(
+                dialog.findViewById(android.R.id.custom), android.widget.RadioButton.class);
+        assertEquals(2, radios.size());
+        return radios;
     }
 
     @Test
@@ -1090,6 +1242,13 @@ public class SettingsActivityTest {
             assertTrue("Debug badge must remain an accessibility node",
                     debugBadge.isImportantForAccessibility());
         }
+    }
+
+    private static Button findButtonWithText(List<Button> buttons, String text) {
+        for (Button button : buttons) {
+            if (text.equals(button.getText().toString())) return button;
+        }
+        return null;
     }
 
     private static <T extends View> List<T> findViewsByType(View root, Class<T> type) {

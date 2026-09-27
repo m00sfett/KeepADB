@@ -37,6 +37,11 @@ final class KeepADBPreferences {
     private static final String KEY_PRIVACY_MODE_ENABLED = "privacy_mode_enabled";
     // #507: opt-in toggle for Wi-Fi & access point discovery in Settings. Defaults to false.
     static final String KEY_WIFI_APS_FEATURE_ENABLED = "wifi_aps_feature_enabled";
+    // #592: opt-in for connection details (USB host profile name/IP/host, trust-prompt network
+    // name/BSSID) inside notifications. Defaults to false: Android ignores publicVersion when the
+    // user allows sensitive lock-screen content, so the only reliable way to keep these details off
+    // the lock screen is to not put them into the notification at all.
+    static final String KEY_NOTIFICATION_DETAILS_ENABLED = "notification_details_enabled";
 
     // #168: optional USB-ADB -> WLAN-ADB handover offered from the USB notification.
     static final String USB_WLAN_HANDOVER_MODE_OFF = "off";
@@ -87,6 +92,23 @@ final class KeepADBPreferences {
                 ? mode : USB_WLAN_HANDOVER_MODE_OFF;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putString(KEY_USB_WLAN_HANDOVER_MODE, sanitized).apply();
+    }
+
+    /**
+     * #592: whether notifications may carry connection details (USB host profile summary,
+     * trust-prompt SSID/BSSID). Default OFF -- when on, those details can also appear on the lock
+     * screen if the device shows sensitive notification content there.
+     */
+    static boolean isNotificationDetailsEnabled(Context context) {
+        if (context == null) return false;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_NOTIFICATION_DETAILS_ENABLED, false);
+    }
+
+    static void setNotificationDetailsEnabled(Context context, boolean enabled) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_NOTIFICATION_DETAILS_ENABLED, enabled).apply();
     }
 
     static boolean isNotificationHidden(Context context) {

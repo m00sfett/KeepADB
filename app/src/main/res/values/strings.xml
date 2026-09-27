@@ -191,6 +191,8 @@
     <string name="settings_hide_notification_toggle">Persistent notification</string>
     <string name="settings_hide_notification_subtext">Shows the status notification in the drawer. Turning it off won’t affect Keep-Alive or widgets.</string>
     <string name="settings_hide_notification_subtext_keepalive">Required while Keep-Alive is active — Android needs it for the foreground service.</string>
+    <string name="settings_notification_details_toggle">Show connection details in notifications</string>
+    <string name="settings_notification_details_subtext">Shows the USB host profile (name, IP, host) and the name and BSSID of new Wi-Fi networks in notifications. When on, these details may also be visible on the lock screen. When off, they are only shown in the app.</string>
     <string name="settings_section_display">Display</string>
     <string name="settings_keep_display_on_toggle">Keep display on while KeepADB is in the foreground</string>
     <string name="settings_keep_display_on_subtext">Keeps the screen on only while this app is open. The screen turns off normally as soon as you leave the app.</string>
@@ -202,14 +204,15 @@
     <string name="settings_usb_notification_toggle">Show USB-ADB notification</string>
     <string name="settings_usb_notification_subtext">Show a separate notification while USB debugging is active. The host is selected manually.</string>
     <string name="settings_usb_profile_notification_toggle">Show host profile in notification</string>
-    <string name="settings_usb_profile_notification_subtext">Show the selected host profile and endpoint details in the USB-ADB notification.</string>
+    <string name="settings_usb_profile_notification_subtext">Shows host profile status and actions in the USB-ADB notification. The profile name and endpoint details (IP, host) only appear when \"Show connection details in notifications\" is turned on.</string>
     <string name="usb_notification_channel_name">USB-ADB connection</string>
     <string name="usb_notification_channel_desc">The active USB-ADB host profile</string>
     <string name="usb_notification_title">USB-ADB active</string>
     <string name="usb_notification_no_profile">No host profile selected</string>
-    <string name="usb_notification_create_profile">Create host profile</string>
-    <string name="usb_notification_switch_profile">Switch profile</string>
-    <string name="usb_notification_new_profile">New profile</string>
+    <string name="usb_notification_profile_hidden">Host profile selected — details in the app</string>
+    <string name="usb_notification_create_profile">Add profile</string>
+    <string name="usb_notification_switch_profile">Switch</string>
+    <string name="usb_notification_new_profile">New</string>
     <string name="usb_profile_none">No host profile selected.</string>
     <string name="usb_profile_selected">Selected host profile: %1$s</string>
     <string name="usb_profile_create_button">Create host profile</string>
@@ -244,7 +247,7 @@
     <string name="settings_section_network_beta">Network (Beta)</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Trusted Networks and Wi-Fi &amp; access points both build on the same network-trust logic and are experimental beta features. Expand either one below to turn it on and configure it on its own.</string>
-    <string name="usb_notification_enable_wlan_handover">Enable WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">Could not enable WLAN-ADB. Check permission.</string>
     <string name="notification_action_disable">Turn off WLAN-ADB</string>
     <string name="settings_section_version">Version</string>

@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">Notification persistante</string>
     <string name="settings_hide_notification_subtext">Affiche la notification d’état dans le volet. La désactiver n’affecte ni le Keep-Alive ni les widgets.</string>
     <string name="settings_hide_notification_subtext_keepalive">Requise tant que Keep-Alive est actif — Android l’exige pour le service de premier plan.</string>
+    <string name="settings_notification_details_toggle">Afficher les détails de connexion dans les notifications</string>
+    <string name="settings_notification_details_subtext">Affiche le profil hôte USB (nom, IP, hôte) ainsi que le nom et le BSSID des nouveaux réseaux Wi-Fi dans les notifications. Activé, ces détails peuvent aussi apparaître sur l’écran de verrouillage. Désactivé, ils ne sont visibles que dans l’application.</string>
     <string name="settings_section_display">Écran</string>
     <string name="settings_keep_display_on_toggle">Garder l’écran allumé tant que KeepADB est au premier plan</string>
     <string name="settings_keep_display_on_subtext">Garde l’écran allumé uniquement tant que cette application est ouverte. L’écran s’éteint normalement dès que vous quittez l’application.</string>
@@ -167,14 +169,15 @@
     <string name="settings_usb_notification_toggle">Afficher la notification USB-ADB</string>
     <string name="settings_usb_notification_subtext">Afficher une notification distincte lorsque le débogage USB est actif. L’hôte est sélectionné manuellement.</string>
     <string name="settings_usb_profile_notification_toggle">Afficher le profil hôte dans la notification</string>
-    <string name="settings_usb_profile_notification_subtext">Affiche le profil hôte sélectionné et les points de terminaison dans la notification USB-ADB.</string>
+    <string name="settings_usb_profile_notification_subtext">Affiche l’état et les actions du profil hôte dans la notification USB-ADB. Le nom du profil et les détails du point de terminaison (IP, hôte) n’apparaissent que lorsque «Afficher les détails de connexion dans les notifications» est activé.</string>
     <string name="usb_notification_channel_name">Connexion USB-ADB</string>
     <string name="usb_notification_channel_desc">Profil d’hôte USB-ADB actif</string>
     <string name="usb_notification_title">USB-ADB actif</string>
     <string name="usb_notification_no_profile">Aucun profil d’hôte sélectionné</string>
-    <string name="usb_notification_create_profile">Créer un profil d’hôte</string>
-    <string name="usb_notification_switch_profile">Changer de profil</string>
-    <string name="usb_notification_new_profile">Nouveau profil</string>
+    <string name="usb_notification_profile_hidden">Profil hôte sélectionné — détails dans l’application</string>
+    <string name="usb_notification_create_profile">Créer profil</string>
+    <string name="usb_notification_switch_profile">Changer</string>
+    <string name="usb_notification_new_profile">Nouveau</string>
     <string name="usb_profile_none">Aucun profil d’hôte sélectionné.</string>
     <string name="usb_profile_selected">Profil d’hôte sélectionné : %1$s</string>
     <string name="usb_profile_create_button">Créer un profil d’hôte</string>
@@ -223,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Désactivé</string>
     <string name="settings_usb_handover_mode_manual">Manuel (afficher l’action dans la notification USB)</string>
     <string name="settings_usb_handover_mode_automatic">Automatique (activer lors d’une nouvelle connexion USB)</string>
-    <string name="usb_notification_enable_wlan_handover">Activer WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">Impossible d’activer WLAN-ADB. Vérifiez l’autorisation.</string>
     <string name="notification_action_disable">Désactiver Wifi-ADB</string>
     <string name="status_enabled_disconnected">Débogage sans fil ACTIVÉ (déconnecté)</string>

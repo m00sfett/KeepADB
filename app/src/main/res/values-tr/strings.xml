@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">Kalıcı bildirim</string>
     <string name="settings_hide_notification_subtext">Durum bildirimini panelde gösterir. Kapatmak Keep-Alive\'ı veya widget\'ları etkilemez.</string>
     <string name="settings_hide_notification_subtext_keepalive">Keep-Alive etkinken gereklidir — Android bunu ön plan hizmeti için zorunlu kılar.</string>
+    <string name="settings_notification_details_toggle">Bildirimlerde bağlantı ayrıntılarını göster</string>
+    <string name="settings_notification_details_subtext">USB ana bilgisayar profilini (ad, IP, ana bilgisayar) ve yeni Wi-Fi ağlarının adını ve BSSID değerini bildirimlerde gösterir. Açıkken bu ayrıntılar kilit ekranında da görünebilir. Kapalıyken yalnızca uygulamada gösterilir.</string>
     <string name="settings_section_display">Ekran</string>
     <string name="settings_keep_display_on_toggle">KeepADB ön planda olduğu sürece ekranı açık tut</string>
     <string name="settings_keep_display_on_subtext">Ekranı yalnızca bu uygulama açıkken açık tutar. Uygulamadan çıkıldığında ekran normal şekilde kapanır.</string>
@@ -167,14 +169,15 @@
     <string name="settings_usb_notification_toggle">USB-ADB bildirimini göster</string>
     <string name="settings_usb_notification_subtext">USB hata ayıklama etkinken ayrı bir bildirim gösterir. Ana bilgisayar manuel olarak seçilir.</string>
     <string name="settings_usb_profile_notification_toggle">Bildirimde ana bilgisayar profilini göster</string>
-    <string name="settings_usb_profile_notification_subtext">Seçilen ana bilgisayar profilini ve uç noktaları USB-ADB bildiriminde gösterir.</string>
+    <string name="settings_usb_profile_notification_subtext">USB-ADB bildiriminde ana bilgisayar profilinin durumunu ve işlemlerini gösterir. Profil adı ve uç nokta bilgileri (IP, ana bilgisayar) yalnızca «Bildirimlerde bağlantı ayrıntılarını göster» açıkken görünür.</string>
     <string name="usb_notification_channel_name">USB-ADB bağlantısı</string>
     <string name="usb_notification_channel_desc">Etkin USB-ADB ana bilgisayar profili</string>
     <string name="usb_notification_title">USB-ADB etkin</string>
     <string name="usb_notification_no_profile">Ana bilgisayar profili seçilmedi</string>
-    <string name="usb_notification_create_profile">Ana bilgisayar profili oluştur</string>
-    <string name="usb_notification_switch_profile">Profili değiştir</string>
-    <string name="usb_notification_new_profile">Yeni profil</string>
+    <string name="usb_notification_profile_hidden">Ana bilgisayar profili seçildi — ayrıntılar uygulamada</string>
+    <string name="usb_notification_create_profile">Profil oluştur</string>
+    <string name="usb_notification_switch_profile">Değiştir</string>
+    <string name="usb_notification_new_profile">Yeni</string>
     <string name="usb_profile_none">Ana bilgisayar profili seçilmedi.</string>
     <string name="usb_profile_selected">Seçili ana bilgisayar profili: %1$s</string>
     <string name="usb_profile_create_button">Ana bilgisayar profili oluştur</string>
@@ -223,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Kapalı</string>
     <string name="settings_usb_handover_mode_manual">Manuel (USB bildiriminde eylemi göster)</string>
     <string name="settings_usb_handover_mode_automatic">Otomatik (yeni USB bağlantısında etkinleştir)</string>
-    <string name="usb_notification_enable_wlan_handover">WLAN-ADB’yi etkinleştir</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">WLAN-ADB etkinleştirilemedi. İzni kontrol edin.</string>
     <string name="notification_action_disable">Wifi-ADByi kapat</string>
     <string name="status_enabled_disconnected">Kablosuz Hata Ayıklama AÇIK (Bağlı değil)</string>

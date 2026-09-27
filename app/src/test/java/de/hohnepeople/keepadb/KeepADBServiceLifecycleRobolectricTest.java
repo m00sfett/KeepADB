@@ -585,6 +585,8 @@ public class KeepADBServiceLifecycleRobolectricTest {
 
     @Test
     public void contentObserverOnUntrustedNetworkTriggersNetworkTrustPrompt() {
+        // #592: SSID/BSSID only appear in the prompt text after the opt-in.
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBPreferences.setLastDesiredOn(context, true);
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
@@ -622,6 +624,8 @@ public class KeepADBServiceLifecycleRobolectricTest {
 
     @Test
     public void recheckAndEnableOnUntrustedNetworkTriggersNetworkTrustPrompt() {
+        // #592: SSID/BSSID only appear in the prompt text after the opt-in.
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBPreferences.setLastDesiredOn(context, true);
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));

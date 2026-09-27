@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">Thông báo liên tục</string>
     <string name="settings_hide_notification_subtext">Hiển thị thông báo trạng thái trên thanh thông báo. Tắt tùy chọn này không ảnh hưởng đến Keep-Alive hay tiện ích.</string>
     <string name="settings_hide_notification_subtext_keepalive">Bắt buộc khi Keep-Alive đang hoạt động — Android yêu cầu điều này cho dịch vụ nền trước.</string>
+    <string name="settings_notification_details_toggle">Hiển thị chi tiết kết nối trong thông báo</string>
+    <string name="settings_notification_details_subtext">Hiển thị hồ sơ máy chủ USB (tên, IP, máy chủ) cùng tên và BSSID của mạng Wi-Fi mới trong thông báo. Khi bật, các chi tiết này cũng có thể hiển thị trên màn hình khóa. Khi tắt, chúng chỉ hiển thị trong ứng dụng.</string>
     <string name="settings_section_display">Màn hình</string>
     <string name="settings_keep_display_on_toggle">Giữ màn hình sáng khi KeepADB đang ở nền trước</string>
     <string name="settings_keep_display_on_subtext">Chỉ giữ màn hình sáng khi ứng dụng này đang mở. Màn hình sẽ tắt bình thường ngay khi bạn rời khỏi ứng dụng.</string>
@@ -167,14 +169,15 @@
     <string name="settings_usb_notification_toggle">Hiện thông báo USB-ADB</string>
     <string name="settings_usb_notification_subtext">Hiện thông báo riêng khi gỡ lỗi USB đang hoạt động. Máy chủ được chọn thủ công.</string>
     <string name="settings_usb_profile_notification_toggle">Hiển thị hồ sơ máy chủ trong thông báo</string>
-    <string name="settings_usb_profile_notification_subtext">Hiển thị hồ sơ máy chủ đã chọn và điểm cuối trong thông báo USB-ADB.</string>
+    <string name="settings_usb_profile_notification_subtext">Hiển thị trạng thái và thao tác của hồ sơ máy chủ trong thông báo USB-ADB. Tên hồ sơ và chi tiết điểm cuối (IP, máy chủ) chỉ hiện khi bật «Hiển thị chi tiết kết nối trong thông báo».</string>
     <string name="usb_notification_channel_name">Kết nối USB-ADB</string>
     <string name="usb_notification_channel_desc">Hồ sơ máy chủ USB-ADB đang hoạt động</string>
     <string name="usb_notification_title">USB-ADB đang hoạt động</string>
     <string name="usb_notification_no_profile">Chưa chọn hồ sơ máy chủ</string>
-    <string name="usb_notification_create_profile">Tạo hồ sơ máy chủ</string>
-    <string name="usb_notification_switch_profile">Chuyển hồ sơ</string>
-    <string name="usb_notification_new_profile">Hồ sơ mới</string>
+    <string name="usb_notification_profile_hidden">Đã chọn hồ sơ máy chủ — chi tiết trong ứng dụng</string>
+    <string name="usb_notification_create_profile">Tạo hồ sơ</string>
+    <string name="usb_notification_switch_profile">Chuyển</string>
+    <string name="usb_notification_new_profile">Mới</string>
     <string name="usb_profile_none">Chưa chọn hồ sơ máy chủ.</string>
     <string name="usb_profile_selected">Hồ sơ máy chủ đã chọn: %1$s</string>
     <string name="usb_profile_create_button">Tạo hồ sơ máy chủ</string>
@@ -223,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Tắt</string>
     <string name="settings_usb_handover_mode_manual">Thủ công (hiện thao tác trong thông báo USB)</string>
     <string name="settings_usb_handover_mode_automatic">Tự động (bật khi có kết nối USB mới)</string>
-    <string name="usb_notification_enable_wlan_handover">Bật WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">Không thể bật WLAN-ADB. Hãy kiểm tra quyền.</string>
     <string name="notification_action_disable">Tắt Wifi-ADB</string>
     <string name="status_enabled_disconnected">Gỡ lỗi không dây ĐANG BẬT (Đã ngắt kết nối)</string>

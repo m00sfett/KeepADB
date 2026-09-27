@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">Notifica permanente</string>
     <string name="settings_hide_notification_subtext">Mostra la notifica di stato nel pannello. Disattivarla non influisce su Keep-Alive né sui widget.</string>
     <string name="settings_hide_notification_subtext_keepalive">Necessaria finché Keep-Alive è attivo — Android la richiede per il servizio in primo piano.</string>
+    <string name="settings_notification_details_toggle">Mostra i dettagli di connessione nelle notifiche</string>
+    <string name="settings_notification_details_subtext">Mostra nelle notifiche il profilo host USB (nome, IP, host) e il nome e il BSSID delle nuove reti Wi-Fi. Se attivo, questi dettagli possono essere visibili anche nella schermata di blocco. Se disattivato, sono visibili solo nell’app.</string>
     <string name="settings_section_display">Schermo</string>
     <string name="settings_keep_display_on_toggle">Mantieni lo schermo acceso mentre KeepADB è in primo piano</string>
     <string name="settings_keep_display_on_subtext">Mantiene lo schermo acceso solo mentre questa app è aperta. Lo schermo si spegne normalmente non appena esci dall’app.</string>
@@ -167,14 +169,15 @@
     <string name="settings_usb_notification_toggle">Mostra notifica USB-ADB</string>
     <string name="settings_usb_notification_subtext">Mostra una notifica separata mentre il debug USB è attivo. L’host viene selezionato manualmente.</string>
     <string name="settings_usb_profile_notification_toggle">Mostra profilo host nella notifica</string>
-    <string name="settings_usb_profile_notification_subtext">Mostra il profilo host selezionato e i dettagli dell’endpoint nella notifica USB-ADB.</string>
+    <string name="settings_usb_profile_notification_subtext">Mostra lo stato e le azioni del profilo host nella notifica USB-ADB. Il nome del profilo e i dettagli dell’endpoint (IP, host) compaiono solo quando «Mostra i dettagli di connessione nelle notifiche» è attivo.</string>
     <string name="usb_notification_channel_name">Connessione USB-ADB</string>
     <string name="usb_notification_channel_desc">Il profilo host USB-ADB attivo</string>
     <string name="usb_notification_title">USB-ADB attivo</string>
     <string name="usb_notification_no_profile">Nessun profilo host selezionato</string>
-    <string name="usb_notification_create_profile">Crea profilo host</string>
-    <string name="usb_notification_switch_profile">Cambia profilo</string>
-    <string name="usb_notification_new_profile">Nuovo profilo</string>
+    <string name="usb_notification_profile_hidden">Profilo host selezionato: dettagli nell’app</string>
+    <string name="usb_notification_create_profile">Crea profilo</string>
+    <string name="usb_notification_switch_profile">Cambia</string>
+    <string name="usb_notification_new_profile">Nuovo</string>
     <string name="usb_profile_none">Nessun profilo host selezionato.</string>
     <string name="usb_profile_selected">Profilo host selezionato: %1$s</string>
     <string name="usb_profile_create_button">Crea profilo host</string>
@@ -223,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Disattivato</string>
     <string name="settings_usb_handover_mode_manual">Manuale (mostra azione nella notifica USB)</string>
     <string name="settings_usb_handover_mode_automatic">Automatico (abilita alla nuova connessione USB)</string>
-    <string name="usb_notification_enable_wlan_handover">Abilita WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">Impossibile abilitare WLAN-ADB. Controlla l’autorizzazione.</string>
     <string name="notification_action_disable">Disattiva Wifi-ADB</string>
     <string name="status_enabled_disconnected">Debug wireless ATTIVO (Disconnesso)</string>

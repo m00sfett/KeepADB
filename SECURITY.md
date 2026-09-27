@@ -22,9 +22,15 @@ pretending the port isn't open. Concretely, KeepADB tries to:
   lock screen stays possible without unlocking (#586);
 - require an unlocked device to switch Wireless Debugging on from the USB notification's "Enable
   WLAN-ADB" handover action, with the same two layers as the trust action (#588);
-- keep the USB-ADB notification's host profile name and IP/hostname summary off the lock screen:
-  it carries a `publicVersion` with neutral title/text and no actions, shown instead of the private
-  content on a device configured to reveal private notification content there (#589);
+- keep connection details out of notifications by default: unless the user turns on Settings →
+  Notification → "Show connection details in notifications" (off by default), the USB-ADB
+  notification shows neither the host profile name nor its IP/hostname, and the untrusted-network
+  prompt shows neither the network name nor the BSSID; both show neutral text, the details stay in
+  the app (#592). This is the only reliable protection: Android shows a notification's
+  `publicVersion` (neutral text, no actions, set on both notifications since #578/#589) only while
+  sensitive lock-screen content is hidden. With sensitive content allowed on the lock screen, the
+  private notification is shown there, so after opting in the details can be visible without
+  unlocking. The actions and their unlock gates above are not affected by this setting;
 - keep cleartext (unencrypted) HTTP scoped to the one feature that needs it — the optional,
   user-configured webhook — and warn in-app when a webhook URL is `http://` instead of `https://`;
 - avoid persisting anything sensitive where Android backup or device transfer could pick it up

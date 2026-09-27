@@ -147,6 +147,13 @@ not an assumed default.
   sends verified WLAN-ADB endpoint events to the URL configured by the user and attempts to
   unregister the endpoint when Wireless Debugging turns off. USB profile data stays local and is
   not included in the current webhook requests. Enable the webhook only for an endpoint you trust.
+- **Connection Details in Notifications:** By default, the USB-ADB notification does not show
+  the host profile name, IP, or hostname, and the new-network prompt does not show the network
+  name or BSSID; both use neutral text and the details stay in the app. Settings → Notification →
+  "Show connection details in notifications" turns them on. Android may then show these details
+  on the lock screen as well if the device is set to show sensitive notification content there;
+  KeepADB's neutral lock-screen copy is only used while Android hides that content
+  ([#592](https://github.com/m00sfett/KeepADB/issues/592)).
 - **Cleartext HTTP Scope:** The app's network-security configuration permits cleartext
   (unencrypted) HTTP globally, but only one code path in the app ever issues an HTTP request:
   the optional webhook above, whose target is a URL you type in yourself. Android's

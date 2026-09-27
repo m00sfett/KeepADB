@@ -39,6 +39,19 @@ final class KeepADBUsbProfile {
             return value.toString();
         }
 
+        /**
+         * #593: the endpoint part of {@link #summary()} without the name, for UI that already
+         * shows the name on its own line (the "switch host profile" dialog rows) and only needs
+         * the "IP · Host · Tailnet" remainder underneath. Empty when none of the three are set.
+         */
+        String details() {
+            StringBuilder value = new StringBuilder();
+            append(value, ipAddress);
+            append(value, hostname);
+            append(value, tailnetHostname);
+            return value.length() > 3 ? value.substring(3) : value.toString();
+        }
+
         private static void append(StringBuilder value, String part) {
             if (part != null && !part.isEmpty()) value.append(" · ").append(part);
         }

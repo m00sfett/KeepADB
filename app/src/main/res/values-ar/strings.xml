@@ -156,6 +156,8 @@
     <string name="settings_hide_notification_toggle">الإشعار الدائم</string>
     <string name="settings_hide_notification_subtext">يعرض إشعار الحالة في الشريط. إيقافه لا يؤثر على Keep-Alive أو الأدوات.</string>
     <string name="settings_hide_notification_subtext_keepalive">ضروري أثناء تفعيل Keep-Alive — يتطلبه Android لخدمة المقدمة.</string>
+    <string name="settings_notification_details_toggle">إظهار تفاصيل الاتصال في الإشعارات</string>
+    <string name="settings_notification_details_subtext">يعرض ملف تعريف مضيف USB (الاسم وعنوان IP والمضيف) واسم شبكات Wi-Fi الجديدة ومعرّف BSSID الخاص بها في الإشعارات. عند التفعيل قد تظهر هذه التفاصيل أيضًا على شاشة القفل. عند الإيقاف تُعرض داخل التطبيق فقط.</string>
     <string name="settings_section_display">الشاشة</string>
     <string name="settings_keep_display_on_toggle">إبقاء الشاشة قيد التشغيل أثناء تشغيل KeepADB في المقدمة</string>
     <string name="settings_keep_display_on_subtext">يبقي الشاشة قيد التشغيل فقط أثناء فتح هذا التطبيق. تنطفئ الشاشة بشكل طبيعي بمجرد مغادرة التطبيق.</string>
@@ -167,14 +169,15 @@
     <string name="settings_usb_notification_toggle">إظهار إشعار USB-ADB</string>
     <string name="settings_usb_notification_subtext">إظهار إشعار منفصل أثناء تفعيل تصحيح أخطاء USB. يتم اختيار المضيف يدويًا.</string>
     <string name="settings_usb_profile_notification_toggle">إظهار ملف تعريف المضيف في الإشعار</string>
-    <string name="settings_usb_profile_notification_subtext">عرض ملف تعريف المضيف المحدد ونقاط النهاية في إشعار USB-ADB.</string>
+    <string name="settings_usb_profile_notification_subtext">يعرض حالة ملف تعريف المضيف وإجراءاته في إشعار USB-ADB. لا يظهر اسم الملف وتفاصيل نقطة النهاية (IP، المضيف) إلا عند تفعيل «إظهار تفاصيل الاتصال في الإشعارات».</string>
     <string name="usb_notification_channel_name">اتصال USB-ADB</string>
     <string name="usb_notification_channel_desc">ملف تعريف مضيف USB-ADB النشط</string>
     <string name="usb_notification_title">USB-ADB مفعّل</string>
     <string name="usb_notification_no_profile">لم يتم اختيار ملف تعريف مضيف</string>
-    <string name="usb_notification_create_profile">إنشاء ملف تعريف مضيف</string>
-    <string name="usb_notification_switch_profile">تبديل الملف التعريفي</string>
-    <string name="usb_notification_new_profile">ملف تعريفي جديد</string>
+    <string name="usb_notification_profile_hidden">تم اختيار ملف تعريف مضيف — التفاصيل في التطبيق</string>
+    <string name="usb_notification_create_profile">إنشاء ملف</string>
+    <string name="usb_notification_switch_profile">تبديل</string>
+    <string name="usb_notification_new_profile">جديد</string>
     <string name="usb_profile_none">لم يتم اختيار ملف تعريف مضيف.</string>
     <string name="usb_profile_selected">ملف تعريف المضيف المحدد: %1$s</string>
     <string name="usb_profile_create_button">إنشاء ملف تعريف مضيف</string>
@@ -223,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">متوقف</string>
     <string name="settings_usb_handover_mode_manual">يدوي (إظهار الإجراء في إشعار USB)</string>
     <string name="settings_usb_handover_mode_automatic">تلقائي (التفعيل عند اتصال USB جديد)</string>
-    <string name="usb_notification_enable_wlan_handover">تفعيل WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB</string>
     <string name="usb_notification_handover_error">تعذر تفعيل WLAN-ADB. تحقق من الإذن.</string>
     <string name="notification_action_disable">إيقاف Wifi-ADB</string>
     <string name="status_enabled_disconnected">تصحيح الأخطاء اللاسلكي مفعّل (غير متصل)</string>
