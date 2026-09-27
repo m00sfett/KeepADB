@@ -58,7 +58,8 @@ import java.util.List;
  * raised nothing. {@link KeepADBService}'s network callback now also calls this method while
  * active (see {@code checkNetworkTrustWhileActive()}), reusing the exact same throttled,
  * BSSID-keyed prompt. Second, an unreadable identity ({@link KeepADBNetworkIdentity#isKnown()}
- * false -- typically a missing or revoked location permission, or location services turned off)
+ * false -- under C2 (#606), {@link KeepADBService} unmasks BSSID in the background, so this
+ * indicates missing/revoked location permissions, location services turned off, or no association)
  * used to return here silently, leaving the user with no idea why Keep-Alive was blocked. It now
  * raises its own notification instead, throttled the same way under a fixed sentinel key rather
  * than a BSSID, and its content intent points directly at the likely fix.
@@ -137,7 +138,9 @@ final class KeepADBNetworkTrustPrompt {
         // An unreadable identity is not actionable as a trust choice: there is no BSSID the user
         // could allow, so the allow/block prompt below would offer a choice that cannot be
         // carried out. #460: that used to be the end of it -- the block stayed silent, and
-        // Settings only explained it if the user happened to go looking. Raise the distinct
+        // Settings only explained it if the user happened to go looking. Under C2 (#606), normal
+        // background keep-alive provides an unmasked identity; reaching this branch indicates
+        // missing location permissions or disabled location services. Raise the distinct
         // identity-unavailable notification instead, which names the problem and links straight
         // to the fix.
         if (!identity.isKnown()) {

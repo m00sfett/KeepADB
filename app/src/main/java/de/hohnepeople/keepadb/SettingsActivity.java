@@ -511,13 +511,14 @@ public class SettingsActivity extends Activity {
 
     /**
      * #492: the global opt-in. Moved back here from MainActivity's home card because turning it on
-     * is a security decision taken against the warning next to it, and because the measured
-     * Android limits (see {@code docs/trusted-networks-measurement.md}) mean switching it on
-     * materially reduces how reliably Keep-Alive works in the background.
+     * is a security decision taken against the warning next to it. Under Variante C2 (#606),
+     * granting ACCESS_FINE_LOCATION enables {@link KeepADBService} to run with {@code
+     * FOREGROUND_SERVICE_TYPE_LOCATION}, keeping Wi-Fi identity unmasked during background
+     * keep-alive.
      *
      * <p>Turning it *on* requires ACCESS_FINE_LOCATION, because without it the platform hands the
-     * app a masked identity and allowlist mode would fail closed on every check. Turning it off
-     * never asks for anything.
+     * app a masked identity (and the foreground service cannot adopt the location type), causing
+     * allowlist mode to fail closed on every check. Turning it off never asks for anything.
      */
     private void onTrustedNetworkToggleClicked() {
         boolean wantAllowlist = trustedNetworkToggle.isChecked();

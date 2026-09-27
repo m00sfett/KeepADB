@@ -51,9 +51,9 @@ public class KeepADBTrustedNetworkTest {
     @Test
     public void onlyExactRedactedBssidMayReuseVerifiedTrust() {
         FakeContext context = new FakeContext();
-        // #354: the masked-BSSID fallback is only offered while a NetworkCallback is live to
-        // invalidate the cache. This test is about *which BSSID values* may reuse verified
-        // trust, so it states that precondition and holds it constant.
+        // #354, #620: the defensive masked-BSSID fallback is only offered while a NetworkCallback
+        // is live to invalidate the cache. This test is about *which BSSID values* may reuse
+        // verified trust, so it states that precondition and holds it constant.
         KeepADBTrustedNetwork.setVerifiedTrustObserverActive(true);
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
         KeepADBNetworkIdentity verified =
@@ -398,10 +398,11 @@ public class KeepADBTrustedNetworkTest {
         assertEquals(1, KeepADBTrustedNetwork.getEntries(context).size());
     }
 
-    // #270: Android 12+ masks BSSID to REDACTED_BSSID for backgrounded apps without
-    // background-location access. These tests exercise the fallback directly through
-    // isTrustedForTesting()/an explicit KeepADBNetworkIdentity, since isCurrentNetworkTrusted()
-    // always sees an unknown identity in a plain JVM test (no real WifiManager).
+    // #270, #620: historically, Android 12+ masked BSSID to REDACTED_BSSID for backgrounded apps
+    // without location foreground service type. Under C2 (#606), KeepADBService runs with
+    // location type and unmasks BSSID in production; these tests exercise the defensive
+    // in-memory fallback (#620) directly through isTrustedForTesting() with explicit
+    // KeepADBNetworkIdentity instances.
 
     @Test
     public void maskedBssidStaysTrustedForTheSamePreviouslyVerifiedSsid() {
