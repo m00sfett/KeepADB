@@ -23,6 +23,33 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.8.53] - Unreleased
+
+### Changed
+- Internal refactor, no behavior change (codequality review CQ-02, #595): `SettingsActivity` used
+  to hold the USB profile dialog family (switch/edit/delete) and the register-webhook form
+  (input, toggle, save/clear, normalization) directly in its own `onCreate`/`onResume`/
+  `onSaveInstanceState`/`onDestroy`. Extracted into two Activity-bound classes:
+  `KeepADBUsbProfileEditor` owns the profile dialogs' state, Bundle round-trip and dismiss-time
+  cleanup, and `KeepADBWebhookForm` owns the webhook views, its draft/Bundle round-trip and its
+  three explicit actions. `SettingsActivity` stays the lifecycle owner, calling explicit
+  `restore`/`saveState`/`destroy` (profile editor) and `restoreDraft`/`ensureDraftInitialized`/
+  `saveState`/`refreshVisual` (webhook form) hooks at the matching lifecycle points. The webhook
+  URL trim-and-sanitize step, previously duplicated between the enable and save actions, now
+  lives once in `KeepADBWebhookForm#readAndNormalizeInput`. `SettingsActivity#resolveWebhookDraft`
+  was left in place -- already a good, narrow, independently tested boundary. No layout, ID,
+  notification-intent, or `notification_details_enabled` (#592) change.
+
+### Testing
+- New `KeepADBUsbProfileEditorTest` and `KeepADBWebhookFormTest` cover the new boundary's own
+  draft/Bundle contract directly on a bare `Activity`, independent of `SettingsActivity`'s own
+  lifecycle wiring (already covered end-to-end by the existing `SettingsActivityTest` recreation
+  tests, left unchanged). `KeepADBNetworkSecurityContractTest`'s source-content check for the
+  webhook cleartext warning now reads `KeepADBWebhookForm.java` instead of `SettingsActivity.java`,
+  keeping the same invariant. Every new assertion was mutation-tested against a representative
+  production mutation (draft not written to the Bundle; restore falling back to the saved URL
+  instead of the draft) in an isolated worktree to confirm it actually goes red. (#595)
+
 ## [1.8.52] - Unreleased
 
 ### Changed
