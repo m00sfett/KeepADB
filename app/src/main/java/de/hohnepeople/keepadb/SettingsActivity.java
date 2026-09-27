@@ -127,26 +127,15 @@ public class SettingsActivity extends Activity {
     // entirely and replaced by the compact toolbar button, so it no longer appears in this table.
     // #510: order below now matches the on-screen order -- Notification/Display/Advice-Banner/
     // Battery-Optimization sit together under the "Sonstiges" heading. #519: the former
-    // "Network (Beta)" heading is now itself a real collapsible card
-    // (settings_network_beta_header/body/arrow below), containing two independently collapsible
-    // sub-cards -- Trusted Networks and Wi-Fi & access points -- each still with its own
-    // header/body/arrow entry in this same table. #520 introduced the same nested treatment for
-    // "USB-ADB", but #529 removes the two inner expand levels again: only
-    // settings_usb_adb_header/body/arrow remains collapsible, while notification and handover
-    // are direct sections inside its body. #521: "Sonstiges"
-    // (formerly #510's plain, permanently visible group heading) is now itself a real
-    // collapsible card too (settings_misc_header/body/arrow below). Like #529's USB-ADB card,
-    // its contained sections are shown directly, one below another, once the outer card is
-    // expanded; unlike #519's Network (Beta) card, they are not independently collapsible.
-    // Their switches therefore no longer have header/body/arrow entries of their own here.
+    // #519 introduced the outer "Network" card (settings_network_beta_header/body/arrow below),
+    // and #618 removes the two inner expand levels: Trusted Networks and Wi-Fi & access points
+    // are now direct sections inside the network body (matching #529's USB-ADB and #521's
+    // Sonstiges structure). Only the outer network card remains collapsible.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
             {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body, R.id.settings_usb_adb_arrow},
             {R.id.settings_network_beta_header, R.id.settings_network_beta_body,
                     R.id.settings_network_beta_arrow},
-            {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body,
-                    R.id.settings_trusted_network_arrow},
-            {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body, R.id.settings_wifi_aps_arrow},
             {R.id.settings_misc_header, R.id.settings_misc_body, R.id.settings_misc_arrow},
             {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body, R.id.settings_diagnostics_arrow},
     };

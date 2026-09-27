@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">Opcjonalnie ogranicz automatyczne włączanie Keep-Alive do sieci Wi-Fi oznaczonych jako zaufane. Domyślnie wyłączone. Ręczne przełączanie działa zawsze, niezależnie od tego ustawienia.</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">Ostrzeżenie</string>
-    <string name="settings_trusted_network_tradeoff_warning">Bezpieczeństwo kontra wygoda: włączenie tej opcji w dużej mierze wyłącza „Utrzymuj debugowanie bezprzewodowe”. Android pozwala aplikacji odczytać tożsamość bieżącej sieci tylko wtedy, gdy KeepADB jest otwarty na ekranie — w tle nazwa i identyfikator są ukryte, a ukryta tożsamość nigdy nie jest uznawana za zaufaną. Automatyczne włączanie przestaje wówczas zwykle działać, dopóki nie otworzysz aplikacji.</string>
+    <string name="settings_trusted_network_tradeoff_warning">Uprawnienie do lokalizacji zapewnia wykrywanie sieci i BSSID w tle podczas działania usługi Keep-Alive. Automatyczne ponowne włączenie następuje tylko w zaufanych sieciach.</string>
     <string name="settings_trusted_network_toggle">Ogranicz Keep-Alive do zaufanych sieci</string>
     <string name="settings_trusted_ssid_warning">Słabsze sprawdzenie: nazwa sieci (SSID) jest dowolnie wybierana i nie dowodzi niczego o punkcie dostępowym. Każdy punkt dostępowy rozgłaszający dozwoloną nazwę jest uznawany za zaufany, także taki, który podszywa się pod Twój. Przydatne głównie wtedy, gdy masz kilka punktów dostępowych o jednej nazwie.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Ostrzeżenie</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi i punkty dostępu (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Włącz wykrywanie Wi-Fi i punktów dostępu</string>
     <string name="settings_wifi_aps_beta_description">Wykrywanie punktów dostępu to eksperymentalna funkcja beta, która skanuje pobliskie punkty dostępu Wi-Fi. Wymaga uprawnienia do lokalizacji i może zużywać więcej baterii.</string>
-    <string name="settings_section_network_beta">Sieć (Beta)</string>
+    <string name="settings_section_network">Sieć</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Zaufane sieci oraz Wi-Fi i punkty dostępu opierają się na tej samej logice zaufania sieciowego i są eksperymentalnymi funkcjami beta. Rozwiń dowolną z nich poniżej, aby ją włączyć i skonfigurować osobno.</string>
 </resources>

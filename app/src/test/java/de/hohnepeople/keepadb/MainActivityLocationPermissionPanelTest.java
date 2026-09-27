@@ -85,7 +85,7 @@ public class MainActivityLocationPermissionPanelTest {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
-        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
         ShadowLooper.idleMainLooper();
 
         Button inContextButton = activity.findViewById(R.id.btn_wifi_aps_grant_location_permission);
@@ -125,7 +125,7 @@ public class MainActivityLocationPermissionPanelTest {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
-        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
         ShadowLooper.idleMainLooper();
 
         assertNull(activity.findViewById(R.id.btn_wifi_aps_grant_location_permission));
@@ -138,7 +138,7 @@ public class MainActivityLocationPermissionPanelTest {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
-        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
         ShadowLooper.idleMainLooper();
 
         assertNull(activity.findViewById(R.id.btn_wifi_aps_grant_location_permission));

@@ -17,11 +17,21 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.59` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.60` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.60] - Unreleased
+
+### Changed
+- #618: Consolidated network settings in `SettingsActivity`: flattened nested collapsible
+  cards into visually structured direct sections under a single "Network" card, removed
+  experimental BETA badges, and updated the trade-off warning across all 19 languages to reflect
+  reliable background BSSID detection via `FOREGROUND_SERVICE_LOCATION`.
+- #613: Updated developer comment for `NO_PROFILE_CONTENT_REQUEST_CODE` in
+  `KeepADBUsbNotification.java` to list request code 14 (`REQUEST_CODE_IDENTITY_UNAVAILABLE`).
 
 ## [1.8.59] - Unreleased
 

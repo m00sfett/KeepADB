@@ -1,0 +1,2 @@
+• Enhanced: Consolidated Network settings by removing nested collapsible cards and dropping the Beta tag (#618).
+• Guidance: Updated Wi-Fi protection recommendations to reflect reliable background identification.

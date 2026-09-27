@@ -21,7 +21,7 @@ final class KeepADBUsbNotification {
     static final String ACTION_SWITCH = "switch";
     private static final int HANDOVER_ACTION_REQUEST_CODE = 1;
     // #603: distinct from every other SettingsActivity PendingIntent request code across the app
-    // (KeepADBNetworkTrustPrompt uses 0/10/11/12/13) -- PendingIntent#filterEquals ignores extras,
+    // (KeepADBNetworkTrustPrompt uses 0/10/11/12/13/14) -- PendingIntent#filterEquals ignores extras,
     // so an extras-free getActivity PendingIntent here would otherwise share its identity with any
     // other extras-free one, and FLAG_UPDATE_CURRENT would silently let either overwrite the other.
     private static final int NO_PROFILE_CONTENT_REQUEST_CODE = 2;

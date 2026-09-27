@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">Opcionalmente, restringe a reativação automática do Keep-Alive às redes Wi-Fi que marcaste como fiáveis. Desligado por predefinição. A alternância manual funciona sempre, independentemente desta opção.</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">Aviso</string>
-    <string name="settings_trusted_network_tradeoff_warning">Segurança contra comodidade: ativar isto deixa «Manter a depuração sem fios ativa» praticamente sem efeito. O Android só permite que uma app leia a identidade da rede atual enquanto o KeepADB estiver aberto no ecrã — em segundo plano, o nome e o identificador ficam ocultos, e uma identidade oculta nunca é tratada como fiável. A reativação automática deixa então de funcionar, na maioria dos casos, até abrires a app.</string>
+    <string name="settings_trusted_network_tradeoff_warning">A permissão de localização garante a deteção da rede e do BSSID mesmo em segundo plano enquanto o serviço Keep-Alive estiver em execução. A reativação automática só ocorre em redes de confiança.</string>
     <string name="settings_trusted_network_toggle">Restringir Keep-Alive a redes confiáveis</string>
     <string name="settings_trusted_ssid_warning">Verificação mais fraca: o nome de rede (SSID) é escolhido livremente e não prova nada sobre um ponto de acesso. Qualquer ponto de acesso que difunda um nome permitido é considerado fiável, incluindo um que imite o teu. Útil sobretudo se tiveres vários pontos de acesso com um só nome.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Aviso</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi e pontos de acesso (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Ativar detecção de Wi-Fi e pontos de acesso</string>
     <string name="settings_wifi_aps_beta_description">A detecção de pontos de acesso é um recurso beta experimental que procura pontos de acesso Wi-Fi próximos. Requer permissão de localização e pode consumir mais bateria.</string>
-    <string name="settings_section_network_beta">Rede (Beta)</string>
+    <string name="settings_section_network">Rede</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Redes confiáveis e Wi-Fi e pontos de acesso baseiam-se na mesma lógica de confiança de rede e são ambas funcionalidades experimentais beta. Expanda uma delas abaixo para ativá-la e configurá-la separadamente.</string>
 </resources>

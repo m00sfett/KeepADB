@@ -130,8 +130,8 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_usb_notification_toggle,
                 R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
-                R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_feature_toggle,
-                R.id.settings_trusted_network_header, R.id.settings_trusted_network_toggle,
+                R.id.settings_wifi_aps_feature_toggle,
+                R.id.settings_trusted_network_toggle,
                 R.id.settings_trusted_ssid_toggle,
                 R.id.settings_misc_header,
                 R.id.settings_hide_notification_toggle,
@@ -173,11 +173,8 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_webhook_header,
                 // #529: expanding the sole USB-ADB header makes both direct sections visible.
                 R.id.settings_usb_adb_header,
-                // #519: the outer "Network (Beta)" card must be expanded first -- its
-                // sub-cards' headers are only clickable/measurable once its body is VISIBLE.
+                // #519/#618: expanding the sole Network header makes both direct sections visible.
                 R.id.settings_network_beta_header,
-                R.id.settings_wifi_aps_header,
-                R.id.settings_trusted_network_header,
                 // #521: the outer "Sonstiges" card must be expanded to make its four directly
                 // nested sections' controls measurable/reachable; like #529's USB sections,
                 // they are not independently collapsible sub-cards with headers of their own.
@@ -316,6 +313,14 @@ public class KeepADBAccessibilityContractTest {
         assertFalse(usbHandoverTitle.isClickable());
         assertFalse(usbNotificationTitle.isFocusable());
         assertFalse(usbHandoverTitle.isFocusable());
+        TextView trustedNetworkTitle = settings.findViewById(R.id.settings_trusted_network_title);
+        TextView wifiApsTitle = settings.findViewById(R.id.settings_wifi_aps_title);
+        assertTrue(trustedNetworkTitle.isAccessibilityHeading());
+        assertTrue(wifiApsTitle.isAccessibilityHeading());
+        assertFalse(trustedNetworkTitle.isClickable());
+        assertFalse(wifiApsTitle.isClickable());
+        assertFalse(trustedNetworkTitle.isFocusable());
+        assertFalse(wifiApsTitle.isFocusable());
 
         assertPoliteLiveRegion(main.findViewById(R.id.status));
         assertPoliteLiveRegion(main.findViewById(R.id.webhook_status));
@@ -440,16 +445,15 @@ public class KeepADBAccessibilityContractTest {
                 usbAdbBody.indexOfChild(usbNotificationPanel)
                         < usbAdbBody.indexOfChild(usbHandoverPanel));
 
-        // #519: Trusted Networks and Wi-Fi & access points are no longer direct children of the
-        // settings content column -- they are nested sub-cards inside the "Network (Beta)"
-        // card's body, so their relative order is checked within that body instead.
+        // #519/#618: both Network sections live directly in the outer card body, so their relative
+        // order is checked there instead of in the settings content column.
         ViewGroup networkBetaBody = content.findViewById(R.id.settings_network_beta_body);
         assertNotNull(networkBetaBody);
         View trustedNetworkPanel = networkBetaBody.findViewById(R.id.settings_trusted_network_panel);
         View wifiApsPanel = networkBetaBody.findViewById(R.id.settings_wifi_aps_panel);
         assertNotNull(trustedNetworkPanel);
         assertNotNull(wifiApsPanel);
-        assertTrue("Trusted Networks must come before Wi-Fi & access points inside Network (Beta)",
+        assertTrue("Trusted Networks must come before Wi-Fi & access points inside Network",
                 networkBetaBody.indexOfChild(trustedNetworkPanel)
                         < networkBetaBody.indexOfChild(wifiApsPanel));
 

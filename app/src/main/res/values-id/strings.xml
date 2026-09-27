@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">Jika mau, batasi pengaktifan ulang otomatis Keep-Alive pada jaringan Wi-Fi yang kamu tandai sebagai tepercaya. Mati secara bawaan. Pengalihan manual selalu berfungsi, terlepas dari setelan ini.</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">Peringatan</string>
-    <string name="settings_trusted_network_tradeoff_warning">Keamanan versus kenyamanan: mengaktifkan ini membuat «Pertahankan Wireless Debugging aktif» sebagian besar tidak berfungsi. Android hanya mengizinkan aplikasi membaca identitas jaringan saat ini selagi KeepADB terbuka di layar — di latar belakang nama dan ID disembunyikan, dan identitas yang tersembunyi tidak pernah dianggap tepercaya. Pengaktifan ulang otomatis lalu umumnya berhenti bekerja sampai kamu membuka aplikasinya.</string>
+    <string name="settings_trusted_network_tradeoff_warning">Izin lokasi memastikan deteksi jaringan dan BSSID tetap berfungsi di latar belakang saat layanan Keep-Alive berjalan. Pengaktifan ulang otomatis hanya terjadi di jaringan tepercaya.</string>
     <string name="settings_trusted_network_toggle">Batasi Keep-Alive pada jaringan tepercaya</string>
     <string name="settings_trusted_ssid_warning">Pemeriksaan yang lebih lemah: nama jaringan (SSID) dipilih bebas dan bukan bukti suatu titik akses. Setiap titik akses yang menyiarkan nama yang diizinkan dianggap tepercaya, termasuk yang meniru milikmu. Terutama berguna jika kamu menjalankan beberapa titik akses dengan satu nama.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Peringatan</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi &amp; titik akses (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Aktifkan deteksi Wi-Fi &amp; titik akses</string>
     <string name="settings_wifi_aps_beta_description">Deteksi titik akses adalah fitur beta eksperimental yang memindai titik akses Wi-Fi terdekat. Fitur ini membutuhkan izin lokasi dan dapat mengonsumsi lebih banyak baterai.</string>
-    <string name="settings_section_network_beta">Jaringan (Beta)</string>
+    <string name="settings_section_network">Jaringan</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Jaringan Tepercaya dan Wi-Fi &amp; titik akses menggunakan logika kepercayaan jaringan yang sama dan keduanya merupakan fitur beta eksperimental. Perluas salah satunya di bawah untuk mengaktifkan dan mengonfigurasinya secara terpisah.</string>
 </resources>

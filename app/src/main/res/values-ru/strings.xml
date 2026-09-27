@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">При желании можно ограничить автоматическое включение Keep-Alive сетями Wi-Fi, которые вы отметили как доверенные. По умолчанию выключено. Переключение вручную работает всегда, независимо от этой настройки.</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">Предупреждение</string>
-    <string name="settings_trusted_network_tradeoff_warning">Безопасность против удобства: при включении функция «Не выключать отладку по Wi-Fi» почти перестаёт работать. Android разрешает приложению читать идентификацию текущей сети только пока KeepADB открыт на экране — в фоне имя и идентификатор скрыты, а скрытая идентификация никогда не считается доверенной. Автоматическое включение после этого обычно не срабатывает, пока вы не откроете приложение.</string>
+    <string name="settings_trusted_network_tradeoff_warning">Разрешение на доступ к местоположению обеспечивает обнаружение сети и BSSID даже в фоне во время работы службы Keep-Alive. Автоматическое повторное включение происходит только в доверенных сетях.</string>
     <string name="settings_trusted_network_toggle">Ограничить Keep-Alive доверенными сетями</string>
     <string name="settings_trusted_ssid_warning">Более слабая проверка: имя сети (SSID) выбирается произвольно и ничего не доказывает о точке доступа. Любая точка доступа, передающая разрешённое имя, считается доверенной, включая ту, что подражает вашей. Полезно в основном если у вас несколько точек доступа с одним именем.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Предупреждение</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi и точки доступа (бета)</string>
     <string name="settings_wifi_aps_feature_toggle">Включить обнаружение Wi-Fi и точек доступа</string>
     <string name="settings_wifi_aps_beta_description">Обнаружение точек доступа — экспериментальная бета-функция, сканирующая близлежащие точки доступа Wi-Fi. Требует разрешения на доступ к местоположению и может расходовать заряд батареи.</string>
-    <string name="settings_section_network_beta">Сеть (бета)</string>
+    <string name="settings_section_network">Сеть</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Доверенные сети и Wi-Fi и точки доступа используют одну и ту же логику доверия к сети и являются экспериментальными бета-функциями. Разверните любую из них ниже, чтобы включить и настроить отдельно.</string>
 </resources>
