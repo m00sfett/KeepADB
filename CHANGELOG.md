@@ -31,11 +31,11 @@ are retrospective issue-version records and were never published as separate rel
   with the setting off (the default), the main notification -- previously always showing
   `Port <port> @ <ip>` -- now shows only the status title with a neutral content text (new string
   `notification_text_active_hidden`, "Tap to see connection details in the app.", translated in
-  all 18 locales) that opens the app on tap. With the setting on, the notification is unchanged
+  all 18 locales) that opens the app on tap. With the setting on, the notification text is unchanged
   from before: `Port <port> @ <ip>` with the port in bold and `maskHostForDisplay`'s privacy-mode
   masking applied. The disable action, ongoing/no-when flags, and content intent are unaffected
-  either way -- only `KeepADBNotification#buildNotification`'s content text and title logic
-  changed; the "searching"/"disabled, waiting"/permission-missing placeholders already carried no
+  either way -- only `KeepADBNotification#buildNotification`'s content text changed (the title
+  stays the status); the "searching"/"disabled, waiting"/permission-missing placeholders already carried no
   endpoint and stay as they were.
 - `publicVersion` added to the main notification, reusing the same neutral
   `notification_text_active_hidden` text regardless of the details setting -- consistent with the
