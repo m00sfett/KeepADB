@@ -211,6 +211,9 @@
     <string name="battery_optimization_title">バッテリー最適化によりKeep-Aliveが制限される場合があります</string>
     <string name="battery_optimization_body">KeepADBがバッテリー最適化の対象外でない場合、AndroidはバックグラウンドのKeep-Aliveを制限・停止することがあります。</string>
     <string name="battery_optimization_button">バッテリー設定を開く</string>
+    <string name="network_onboarding_panel_title">Keep-Alive を信頼できるネットワークに制限</string>
+    <string name="network_onboarding_panel_body">Keep-Alive を自宅や職場の既知の Wi-Fi ネットワークに制限して、見知らぬネットワークでの不正なデバッグ接続をブロックできます。</string>
+    <string name="network_onboarding_setup_button">設定</string>
     <string name="location_permission_panel_title">信頼できるネットワークには位置情報の権限が必要です</string>
     <string name="location_permission_panel_body">信頼できるネットワークモードはWi-Fiネットワークを識別するために位置情報アクセスが必要です。これがないと、Keep-Aliveは信頼できるネットワークを確認できず、自動的に再有効化されません。</string>
     <string name="location_permission_panel_grant_button">位置情報の権限を許可</string>

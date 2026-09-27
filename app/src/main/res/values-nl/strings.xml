@@ -211,6 +211,9 @@
     <string name="battery_optimization_title">Batterijoptimalisatie kan Keep-Alive beperken</string>
     <string name="battery_optimization_body">Android kan Keep-Alive op de achtergrond beperken of stoppen, tenzij KeepADB is vrijgesteld van batterijoptimalisatie.</string>
     <string name="battery_optimization_button">Batterij-instellingen openen</string>
+    <string name="network_onboarding_panel_title">Keep-Alive beperken tot vertrouwde netwerken</string>
+    <string name="network_onboarding_panel_body">Keep-Alive kan worden beperkt tot bekende wifi-netwerken thuis of op kantoor om ongeautoriseerde foutopsporingsverbindingen op vreemde netwerken te blokkeren.</string>
+    <string name="network_onboarding_setup_button">Instellen</string>
     <string name="location_permission_panel_title">Locatietoestemming vereist voor vertrouwde netwerken</string>
     <string name="location_permission_panel_body">De modus vertrouwde netwerken heeft locatietoegang nodig om je wifi-netwerk te herkennen. Zonder deze kan Keep-Alive geen vertrouwd netwerk bevestigen en niet automatisch opnieuw inschakelen.</string>
     <string name="location_permission_panel_grant_button">Locatietoestemming verlenen</string>

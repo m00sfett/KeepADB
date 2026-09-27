@@ -211,6 +211,9 @@
     <string name="battery_optimization_title">बैटरी ऑप्टिमाइज़ेशन Keep-Alive को सीमित कर सकता है</string>
     <string name="battery_optimization_body">यदि KeepADB को बैटरी ऑप्टिमाइज़ेशन से छूट नहीं है, तो Android बैकग्राउंड में Keep-Alive को सीमित या बंद कर सकता है।</string>
     <string name="battery_optimization_button">बैटरी सेटिंग खोलें</string>
+    <string name="network_onboarding_panel_title">Keep-Alive को विश्वसनीय नेटवर्क तक सीमित करें</string>
+    <string name="network_onboarding_panel_body">Keep-Alive को ज्ञात घरेलू या कार्यालयीन वाई-फ़ाई नेटवर्क तक सीमित किया जा सकता है ताकि विदेशी नेटवर्क पर अनधिकृत डिबगिंग कनेक्शन को रोका जा सके।</string>
+    <string name="network_onboarding_setup_button">सेट करें</string>
     <string name="location_permission_panel_title">विश्वसनीय नेटवर्क के लिए स्थान अनुमति आवश्यक है</string>
     <string name="location_permission_panel_body">विश्वसनीय-नेटवर्क मोड को आपके Wi-Fi नेटवर्क की पहचान के लिए स्थान एक्सेस चाहिए। इसके बिना, Keep-Alive किसी विश्वसनीय नेटवर्क की पुष्टि नहीं कर सकता और स्वचालित रूप से फिर से चालू नहीं होगा।</string>
     <string name="location_permission_panel_grant_button">स्थान अनुमति दें</string>

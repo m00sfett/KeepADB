@@ -211,6 +211,9 @@
     <string name="battery_optimization_title">電池最佳化可能限制 Keep-Alive</string>
     <string name="battery_optimization_body">若 KeepADB 未排除在電池最佳化之外，Android 可能會限制或停止背景中的 Keep-Alive。</string>
     <string name="battery_optimization_button">開啟電池設定</string>
+    <string name="network_onboarding_panel_title">將 Keep-Alive 限制為受信任的網路</string>
+    <string name="network_onboarding_panel_body">可將 Keep-Alive 限制為已知的家庭或辦公室 Wi-Fi 網路，以封鎖在外部網路上的未授權偵錯連線。</string>
+    <string name="network_onboarding_setup_button">設定</string>
     <string name="location_permission_panel_title">受信任網路需要位置權限</string>
     <string name="location_permission_panel_body">受信任網路模式需要位置權限來識別您的 Wi-Fi 網路。沒有此權限，Keep-Alive 無法確認受信任網路，也不會自動重新啟用。</string>
     <string name="location_permission_panel_grant_button">授予位置權限</string>

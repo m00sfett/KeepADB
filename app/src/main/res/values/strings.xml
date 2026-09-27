@@ -70,6 +70,9 @@
     <string name="battery_optimization_title">Battery optimization may limit Keep-Alive</string>
     <string name="battery_optimization_body">Android may restrict or stop Keep-Alive in the background unless KeepADB is exempt from battery optimization.</string>
     <string name="battery_optimization_button">Open battery settings</string>
+    <string name="network_onboarding_panel_title">Restrict Keep-Alive to trusted networks</string>
+    <string name="network_onboarding_panel_body">Keep-Alive can be restricted to known home or office Wi-Fi networks to block unauthorized debugging connections on foreign networks.</string>
+    <string name="network_onboarding_setup_button">Set up</string>
     <string name="location_permission_panel_title">Location permission needed for trusted networks</string>
     <string name="location_permission_panel_body">Trusted-network mode needs Location access to identify your Wi-Fi network. Without it, Keep-Alive can’t confirm a trusted network and won’t re-enable automatically.</string>
     <string name="location_permission_panel_grant_button">Grant location permission</string>

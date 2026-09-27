@@ -211,6 +211,9 @@
     <string name="battery_optimization_title">A otimização da bateria pode limitar o Keep-Alive</string>
     <string name="battery_optimization_body">O Android pode limitar ou parar o Keep-Alive em segundo plano, a menos que o KeepADB esteja isento da otimização de bateria.</string>
     <string name="battery_optimization_button">Abrir definições da bateria</string>
+    <string name="network_onboarding_panel_title">Restringir Keep-Alive a redes confiáveis</string>
+    <string name="network_onboarding_panel_body">O Keep-Alive pode ser restrito a redes Wi-Fi conhecidas de casa ou do escritório para bloquear conexões de depuração não autorizadas em redes externas.</string>
+    <string name="network_onboarding_setup_button">Configurar</string>
     <string name="location_permission_panel_title">Permissão de localização necessária para redes confiáveis</string>
     <string name="location_permission_panel_body">O modo de redes confiáveis precisa de acesso à localização para identificar sua rede Wi-Fi. Sem isso, o Keep-Alive não pode confirmar uma rede confiável e não será reativado automaticamente.</string>
     <string name="location_permission_panel_grant_button">Conceder permissão de localização</string>
