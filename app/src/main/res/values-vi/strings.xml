@@ -169,13 +169,13 @@
     <string name="settings_usb_notification_toggle">Hiện thông báo USB-ADB</string>
     <string name="settings_usb_notification_subtext">Hiện thông báo riêng khi gỡ lỗi USB đang hoạt động. Máy chủ được chọn thủ công.</string>
     <string name="settings_usb_profile_notification_toggle">Hiển thị hồ sơ máy chủ trong thông báo</string>
-    <string name="settings_usb_profile_notification_subtext">Hiển thị hồ sơ máy chủ đã chọn và điểm cuối trong thông báo USB-ADB.</string>
+    <string name="settings_usb_profile_notification_subtext">Hiển thị hồ sơ máy chủ đã chọn trong thông báo USB-ADB. Chi tiết điểm cuối (IP, máy chủ) chỉ hiện khi bật «Hiển thị chi tiết kết nối trong thông báo».</string>
     <string name="usb_notification_channel_name">Kết nối USB-ADB</string>
     <string name="usb_notification_channel_desc">Hồ sơ máy chủ USB-ADB đang hoạt động</string>
     <string name="usb_notification_title">USB-ADB đang hoạt động</string>
     <string name="usb_notification_no_profile">Chưa chọn hồ sơ máy chủ</string>
     <string name="usb_notification_profile_hidden">Đã chọn hồ sơ máy chủ — chi tiết trong ứng dụng</string>
-    <string name="usb_notification_create_profile">Tạo hồ sơ máy chủ</string>
+    <string name="usb_notification_create_profile">Tạo hồ sơ</string>
     <string name="usb_notification_switch_profile">Chuyển hồ sơ</string>
     <string name="usb_notification_new_profile">Hồ sơ mới</string>
     <string name="usb_profile_none">Chưa chọn hồ sơ máy chủ.</string>

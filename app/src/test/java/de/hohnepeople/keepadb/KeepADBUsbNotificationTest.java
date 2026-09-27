@@ -82,7 +82,7 @@ public class KeepADBUsbNotificationTest {
 
         assertNotNull(notification.actions);
         assertEquals(1, notification.actions.length);
-        assertEquals("Hostprofil anlegen", notification.actions[0].title.toString());
+        assertEquals("Profil anlegen", notification.actions[0].title.toString());
     }
 
     @Test
@@ -111,7 +111,7 @@ public class KeepADBUsbNotificationTest {
 
         assertNotNull(notification.actions);
         assertEquals(1, notification.actions.length);
-        assertEquals("Créer un profil d’hôte", notification.actions[0].title.toString());
+        assertEquals("Créer profil", notification.actions[0].title.toString());
     }
 
     @Test
@@ -129,9 +129,9 @@ public class KeepADBUsbNotificationTest {
 
         assertNotNull(notification.actions);
         assertEquals(3, notification.actions.length);
-        assertEquals("Profil wechseln", notification.actions[0].title.toString());
+        assertEquals("Wechseln", notification.actions[0].title.toString());
         assertEquals("Neues Profil", notification.actions[1].title.toString());
-        assertEquals("WLAN-ADB aktivieren", notification.actions[2].title.toString());
+        assertEquals("WLAN-ADB an", notification.actions[2].title.toString());
     }
 
     @Test

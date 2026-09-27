@@ -169,13 +169,13 @@
     <string name="settings_usb_notification_toggle">Tampilkan notifikasi USB-ADB</string>
     <string name="settings_usb_notification_subtext">Tampilkan notifikasi terpisah saat debugging USB aktif. Host dipilih secara manual.</string>
     <string name="settings_usb_profile_notification_toggle">Tampilkan profil host di notifikasi</string>
-    <string name="settings_usb_profile_notification_subtext">Tampilkan profil host yang dipilih dan titik akhir di notifikasi USB-ADB.</string>
+    <string name="settings_usb_profile_notification_subtext">Menampilkan profil host yang dipilih di notifikasi USB-ADB. Detail titik akhir (IP, host) hanya muncul saat «Tampilkan detail koneksi di notifikasi» diaktifkan.</string>
     <string name="usb_notification_channel_name">Koneksi USB-ADB</string>
     <string name="usb_notification_channel_desc">Profil host USB-ADB yang aktif</string>
     <string name="usb_notification_title">USB-ADB aktif</string>
     <string name="usb_notification_no_profile">Belum ada profil host yang dipilih</string>
     <string name="usb_notification_profile_hidden">Profil host dipilih — detail ada di aplikasi</string>
-    <string name="usb_notification_create_profile">Buat profil host</string>
+    <string name="usb_notification_create_profile">Buat profil</string>
     <string name="usb_notification_switch_profile">Ganti profil</string>
     <string name="usb_notification_new_profile">Profil baru</string>
     <string name="usb_profile_none">Belum ada profil host yang dipilih.</string>
@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Nonaktif</string>
     <string name="settings_usb_handover_mode_manual">Manual (tampilkan tindakan di notifikasi USB)</string>
     <string name="settings_usb_handover_mode_automatic">Otomatis (aktifkan saat koneksi USB baru)</string>
-    <string name="usb_notification_enable_wlan_handover">Aktifkan WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB aktif</string>
     <string name="usb_notification_handover_error">WLAN-ADB tidak dapat diaktifkan. Periksa izin.</string>
     <string name="notification_action_disable">Nonaktifkan Wifi-ADB</string>
     <string name="status_enabled_disconnected">Debugging Nirkabel AKTIF (Terputus)</string>

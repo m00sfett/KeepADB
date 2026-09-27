@@ -169,13 +169,13 @@
     <string name="settings_usb_notification_toggle">顯示 USB-ADB 通知</string>
     <string name="settings_usb_notification_subtext">USB 偵錯啟用時顯示個別通知。主機需手動選取。</string>
     <string name="settings_usb_profile_notification_toggle">在通知中顯示主機設定檔</string>
-    <string name="settings_usb_profile_notification_subtext">在 USB-ADB 通知中顯示所選主機設定檔與端點。</string>
+    <string name="settings_usb_profile_notification_subtext">在 USB-ADB 通知中顯示所選主機設定檔。端點詳細資料(IP、主機)僅在開啟「在通知中顯示連線詳細資料」後才會顯示。</string>
     <string name="usb_notification_channel_name">USB-ADB 連線</string>
     <string name="usb_notification_channel_desc">目前使用的 USB-ADB 主機設定檔</string>
     <string name="usb_notification_title">USB-ADB 已啟用</string>
     <string name="usb_notification_no_profile">未選取主機設定檔</string>
     <string name="usb_notification_profile_hidden">已選取主機設定檔 — 詳細資料請在應用程式中查看</string>
-    <string name="usb_notification_create_profile">建立主機設定檔</string>
+    <string name="usb_notification_create_profile">建立設定檔</string>
     <string name="usb_notification_switch_profile">切換設定檔</string>
     <string name="usb_notification_new_profile">新增設定檔</string>
     <string name="usb_profile_none">未選取主機設定檔。</string>

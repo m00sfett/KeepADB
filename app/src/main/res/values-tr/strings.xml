@@ -169,14 +169,14 @@
     <string name="settings_usb_notification_toggle">USB-ADB bildirimini göster</string>
     <string name="settings_usb_notification_subtext">USB hata ayıklama etkinken ayrı bir bildirim gösterir. Ana bilgisayar manuel olarak seçilir.</string>
     <string name="settings_usb_profile_notification_toggle">Bildirimde ana bilgisayar profilini göster</string>
-    <string name="settings_usb_profile_notification_subtext">Seçilen ana bilgisayar profilini ve uç noktaları USB-ADB bildiriminde gösterir.</string>
+    <string name="settings_usb_profile_notification_subtext">Seçilen ana bilgisayar profilini USB-ADB bildiriminde gösterir. Uç nokta bilgileri (IP, ana bilgisayar) yalnızca «Bildirimlerde bağlantı ayrıntılarını göster» açıkken görünür.</string>
     <string name="usb_notification_channel_name">USB-ADB bağlantısı</string>
     <string name="usb_notification_channel_desc">Etkin USB-ADB ana bilgisayar profili</string>
     <string name="usb_notification_title">USB-ADB etkin</string>
     <string name="usb_notification_no_profile">Ana bilgisayar profili seçilmedi</string>
     <string name="usb_notification_profile_hidden">Ana bilgisayar profili seçildi — ayrıntılar uygulamada</string>
-    <string name="usb_notification_create_profile">Ana bilgisayar profili oluştur</string>
-    <string name="usb_notification_switch_profile">Profili değiştir</string>
+    <string name="usb_notification_create_profile">Profil oluştur</string>
+    <string name="usb_notification_switch_profile">Değiştir</string>
     <string name="usb_notification_new_profile">Yeni profil</string>
     <string name="usb_profile_none">Ana bilgisayar profili seçilmedi.</string>
     <string name="usb_profile_selected">Seçili ana bilgisayar profili: %1$s</string>
@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Kapalı</string>
     <string name="settings_usb_handover_mode_manual">Manuel (USB bildiriminde eylemi göster)</string>
     <string name="settings_usb_handover_mode_automatic">Otomatik (yeni USB bağlantısında etkinleştir)</string>
-    <string name="usb_notification_enable_wlan_handover">WLAN-ADB’yi etkinleştir</string>
+    <string name="usb_notification_enable_wlan_handover">WLAN-ADB aç</string>
     <string name="usb_notification_handover_error">WLAN-ADB etkinleştirilemedi. İzni kontrol edin.</string>
     <string name="notification_action_disable">Wifi-ADByi kapat</string>
     <string name="status_enabled_disconnected">Kablosuz Hata Ayıklama AÇIK (Bağlı değil)</string>

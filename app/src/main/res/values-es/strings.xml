@@ -169,14 +169,14 @@
     <string name="settings_usb_notification_toggle">Mostrar notificación de USB-ADB</string>
     <string name="settings_usb_notification_subtext">Muestra una notificación independiente mientras la depuración USB está activa. El host se selecciona manualmente.</string>
     <string name="settings_usb_profile_notification_toggle">Mostrar perfil de host en la notificación</string>
-    <string name="settings_usb_profile_notification_subtext">Muestra el perfil de host seleccionado y los puntos finales en la notificación de USB-ADB.</string>
+    <string name="settings_usb_profile_notification_subtext">Muestra el perfil de host seleccionado en la notificación de USB-ADB. Los detalles del endpoint (IP, host) solo aparecen cuando «Mostrar detalles de conexión en las notificaciones» está activado.</string>
     <string name="usb_notification_channel_name">Conexión USB-ADB</string>
     <string name="usb_notification_channel_desc">Perfil de host USB-ADB activo</string>
     <string name="usb_notification_title">USB-ADB activo</string>
     <string name="usb_notification_no_profile">No se ha seleccionado ningún perfil de host</string>
     <string name="usb_notification_profile_hidden">Perfil de host seleccionado: detalles en la app</string>
-    <string name="usb_notification_create_profile">Crear perfil de host</string>
-    <string name="usb_notification_switch_profile">Cambiar de perfil</string>
+    <string name="usb_notification_create_profile">Crear perfil</string>
+    <string name="usb_notification_switch_profile">Cambiar</string>
     <string name="usb_notification_new_profile">Perfil nuevo</string>
     <string name="usb_profile_none">No se ha seleccionado ningún perfil de host.</string>
     <string name="usb_profile_selected">Perfil de host seleccionado: %1$s</string>
@@ -226,7 +226,7 @@
     <string name="settings_usb_handover_mode_off">Desactivado</string>
     <string name="settings_usb_handover_mode_manual">Manual (mostrar acción en la notificación USB)</string>
     <string name="settings_usb_handover_mode_automatic">Automático (activar con una conexión USB nueva)</string>
-    <string name="usb_notification_enable_wlan_handover">Activar WLAN-ADB</string>
+    <string name="usb_notification_enable_wlan_handover">Act. WLAN-ADB</string>
     <string name="usb_notification_handover_error">No se pudo activar WLAN-ADB. Comprueba el permiso.</string>
     <string name="notification_action_disable">Desactivar Wifi-ADB</string>
     <string name="status_enabled_disconnected">Depuración inalámbrica ACTIVADA (desconectada)</string>
