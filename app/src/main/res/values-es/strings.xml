@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB: Depuración inalámbrica ACTIVADO</string>
     <string name="notification_title_disabled">KeepADB: Depuración inalámbrica DESACTIVADO</string>
     <string name="notification_text_active">Puerto %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">Toca para ver los detalles de conexión en la app.</string>
     <string name="notification_title_searching">KeepADB: Buscando punto final…</string>
     <string name="notification_text_searching">Resolviendo punto final en la red local</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive espera a que la depuración inalámbrica se reactive</string>
@@ -158,7 +159,7 @@
     <string name="settings_hide_notification_subtext">Muestra la notificación de estado en el panel. Desactivarla no afecta a Keep-Alive ni a los widgets.</string>
     <string name="settings_hide_notification_subtext_keepalive">Necesaria mientras Keep-Alive está activo — Android la requiere para el servicio en primer plano.</string>
     <string name="settings_notification_details_toggle">Mostrar detalles de conexión en las notificaciones</string>
-    <string name="settings_notification_details_subtext">Muestra el perfil de host USB (nombre, IP, host) y el nombre y BSSID de las nuevas redes Wi-Fi en las notificaciones. Si está activado, estos detalles también pueden verse en la pantalla de bloqueo. Si está desactivado, solo se muestran en la app.</string>
+    <string name="settings_notification_details_subtext">Muestra el puerto y la dirección IP en la notificación de estado persistente, el perfil de host USB (nombre, IP, host) y el nombre y BSSID de las nuevas redes Wi-Fi en las notificaciones. Si está activado, estos detalles también pueden verse en la pantalla de bloqueo. Si está desactivado, solo se muestran en la app.</string>
     <string name="settings_section_display">Pantalla</string>
     <string name="settings_keep_display_on_toggle">Mantener la pantalla encendida mientras KeepADB está en primer plano</string>
     <string name="settings_keep_display_on_subtext">Mantiene la pantalla encendida solo mientras esta app está abierta. La pantalla se apaga normalmente en cuanto sales de la app.</string>

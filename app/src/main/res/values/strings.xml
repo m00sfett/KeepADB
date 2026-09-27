@@ -55,6 +55,7 @@
     <string name="notification_title_active">KeepADB: Wireless Debugging ENABLED</string>
     <string name="notification_title_disabled">KeepADB: Wireless Debugging DISABLED</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">Tap to see connection details in the app.</string>
     <string name="notification_title_searching">KeepADB: Searching for endpoint…</string>
     <string name="notification_text_searching">Resolving endpoint on local network</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive is waiting for wireless debugging to be turned back on</string>
@@ -193,7 +194,7 @@
     <string name="settings_hide_notification_subtext">Shows the status notification in the drawer. Turning it off won’t affect Keep-Alive or widgets.</string>
     <string name="settings_hide_notification_subtext_keepalive">Required while Keep-Alive is active — Android needs it for the foreground service.</string>
     <string name="settings_notification_details_toggle">Show connection details in notifications</string>
-    <string name="settings_notification_details_subtext">Shows the USB host profile (name, IP, host) and the name and BSSID of new Wi-Fi networks in notifications. When on, these details may also be visible on the lock screen. When off, they are only shown in the app.</string>
+    <string name="settings_notification_details_subtext">Shows the port and IP address in the persistent status notification, the USB host profile (name, IP, host), and the name and BSSID of new Wi-Fi networks in notifications. When on, these details may also be visible on the lock screen. When off, they are only shown in the app.</string>
     <string name="settings_section_display">Display</string>
     <string name="settings_keep_display_on_toggle">Keep display on while KeepADB is in the foreground</string>
     <string name="settings_keep_display_on_subtext">Keeps the screen on only while this app is open. The screen turns off normally as soon as you leave the app.</string>

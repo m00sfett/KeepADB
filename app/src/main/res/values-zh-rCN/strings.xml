@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB：无线调试 已启用</string>
     <string name="notification_title_disabled">KeepADB：无线调试 已停用</string>
     <string name="notification_text_active">端口 %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">点按以在应用中查看连接详情。</string>
     <string name="notification_title_searching">KeepADB：正在搜索端点…</string>
     <string name="notification_text_searching">正在局域网中解析端点</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive 正在等待无线调试重新开启</string>
@@ -158,7 +159,7 @@
     <string name="settings_hide_notification_subtext">在通知栏中显示状态通知。关闭它不会影响 Keep-Alive 或桌面小组件。</string>
     <string name="settings_hide_notification_subtext_keepalive">Keep-Alive 处于活动状态时为必需项——Android 要求前台服务显示通知。</string>
     <string name="settings_notification_details_toggle">在通知中显示连接详情</string>
-    <string name="settings_notification_details_subtext">在通知中显示 USB 主机配置（名称、IP、主机）以及新 Wi-Fi 网络的名称和 BSSID。开启后，这些详情也可能显示在锁屏上。关闭时，仅在应用内显示。</string>
+    <string name="settings_notification_details_subtext">在常驻状态通知中显示端口和 IP 地址，在通知中显示 USB 主机配置（名称、IP、主机）以及新 Wi-Fi 网络的名称和 BSSID。开启后，这些详情也可能显示在锁屏上。关闭时，仅在应用内显示。</string>
     <string name="settings_section_display">显示屏</string>
     <string name="settings_keep_display_on_toggle">KeepADB 位于前台时保持屏幕常亮</string>
     <string name="settings_keep_display_on_subtext">仅在此应用打开期间保持屏幕常亮。离开应用后屏幕会照常熄灭。</string>

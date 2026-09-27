@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB: تصحيح الأخطاء اللاسلكي مُمَكَّن</string>
     <string name="notification_title_disabled">KeepADB: تصحيح الأخطاء اللاسلكي مُعَطَّل</string>
     <string name="notification_text_active">منفذ %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">انقر لعرض تفاصيل الاتصال في التطبيق.</string>
     <string name="notification_title_searching">KeepADB: جارٍ البحث عن نقطة النهاية…</string>
     <string name="notification_text_searching">جارٍ حل نقطة النهاية على الشبكة المحلية</string>
     <string name="notification_text_disabled_keepalive_waiting">ينتظر Keep-Alive إعادة تفعيل تصحيح الأخطاء اللاسلكي</string>
@@ -158,7 +159,7 @@
     <string name="settings_hide_notification_subtext">يعرض إشعار الحالة في الشريط. إيقافه لا يؤثر على Keep-Alive أو الأدوات.</string>
     <string name="settings_hide_notification_subtext_keepalive">ضروري أثناء تفعيل Keep-Alive — يتطلبه Android لخدمة المقدمة.</string>
     <string name="settings_notification_details_toggle">إظهار تفاصيل الاتصال في الإشعارات</string>
-    <string name="settings_notification_details_subtext">يعرض ملف تعريف مضيف USB (الاسم وعنوان IP والمضيف) واسم شبكات Wi-Fi الجديدة ومعرّف BSSID الخاص بها في الإشعارات. عند التفعيل قد تظهر هذه التفاصيل أيضًا على شاشة القفل. عند الإيقاف تُعرض داخل التطبيق فقط.</string>
+    <string name="settings_notification_details_subtext">يعرض المنفذ وعنوان IP في إشعار الحالة الدائم، وملف تعريف مضيف USB (الاسم وعنوان IP والمضيف)، واسم شبكات Wi-Fi الجديدة ومعرّف BSSID الخاص بها في الإشعارات. عند التفعيل قد تظهر هذه التفاصيل أيضًا على شاشة القفل. عند الإيقاف تُعرض داخل التطبيق فقط.</string>
     <string name="settings_section_display">الشاشة</string>
     <string name="settings_keep_display_on_toggle">إبقاء الشاشة قيد التشغيل أثناء تشغيل KeepADB في المقدمة</string>
     <string name="settings_keep_display_on_subtext">يبقي الشاشة قيد التشغيل فقط أثناء فتح هذا التطبيق. تنطفئ الشاشة بشكل طبيعي بمجرد مغادرة التطبيق.</string>

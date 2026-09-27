@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB: Debugowanie bezprzewodowe WŁĄCZONE</string>
     <string name="notification_title_disabled">KeepADB: Debugowanie bezprzewodowe WYŁĄCZONE</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">Dotknij, aby zobaczyć szczegóły połączenia w aplikacji.</string>
     <string name="notification_title_searching">KeepADB: Wyszukiwanie punktu…</string>
     <string name="notification_text_searching">Rozpoznawanie punktu końcowego w sieci lokalnej</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive czeka na ponowne włączenie debugowania bezprzewodowego</string>
@@ -158,7 +159,7 @@
     <string name="settings_hide_notification_subtext">Pokazuje powiadomienie o stanie w panelu. Wyłączenie go nie wpływa na Keep-Alive ani widżety.</string>
     <string name="settings_hide_notification_subtext_keepalive">Wymagane, gdy Keep-Alive jest aktywne — Android wymaga go dla usługi na pierwszym planie.</string>
     <string name="settings_notification_details_toggle">Pokazuj szczegóły połączenia w powiadomieniach</string>
-    <string name="settings_notification_details_subtext">Wyświetla w powiadomieniach profil hosta USB (nazwę, IP, hosta) oraz nazwę i BSSID nowych sieci Wi-Fi. Po włączeniu te szczegóły mogą być widoczne także na ekranie blokady. Po wyłączeniu są widoczne tylko w aplikacji.</string>
+    <string name="settings_notification_details_subtext">Wyświetla port i adres IP w trwałym powiadomieniu o stanie, profil hosta USB (nazwę, IP, hosta) oraz nazwę i BSSID nowych sieci Wi-Fi w powiadomieniach. Po włączeniu te szczegóły mogą być widoczne także na ekranie blokady. Po wyłączeniu są widoczne tylko w aplikacji.</string>
     <string name="settings_section_display">Ekran</string>
     <string name="settings_keep_display_on_toggle">Utrzymuj ekran włączony, gdy KeepADB działa na pierwszym planie</string>
     <string name="settings_keep_display_on_subtext">Utrzymuje ekran włączony tylko wtedy, gdy ta aplikacja jest otwarta. Ekran gaśnie normalnie zaraz po opuszczeniu aplikacji.</string>

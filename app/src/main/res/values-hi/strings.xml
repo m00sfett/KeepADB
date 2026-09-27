@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB: वायरलेस डीबगिंग सक्षम</string>
     <string name="notification_title_disabled">KeepADB: वायरलेस डीबगिंग अक्षम</string>
     <string name="notification_text_active">पोर्ट %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">कनेक्शन विवरण ऐप में देखने के लिए टैप करें।</string>
     <string name="notification_title_searching">KeepADB: एंडपॉइंट खोजा जा रहा है…</string>
     <string name="notification_text_searching">स्थानीय नेटवर्क पर एंडपॉइंट खोजा जा रहा है</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive वायरलेस डीबगिंग के फिर से चालू होने की प्रतीक्षा कर रहा है</string>
@@ -158,7 +159,7 @@
     <string name="settings_hide_notification_subtext">स्टेटस सूचना को पैनल में दिखाता है। इसे बंद करने से Keep-Alive या विजेट पर असर नहीं पड़ता।</string>
     <string name="settings_hide_notification_subtext_keepalive">Keep-Alive सक्रिय होने पर आवश्यक — Android को अग्रभूमि सेवा के लिए इसकी आवश्यकता होती है।</string>
     <string name="settings_notification_details_toggle">सूचनाओं में कनेक्शन विवरण दिखाएं</string>
-    <string name="settings_notification_details_subtext">सूचनाओं में USB होस्ट प्रोफ़ाइल (नाम, IP, होस्ट) और नए वाई-फ़ाई नेटवर्क का नाम व BSSID दिखाता है। चालू होने पर ये विवरण लॉक स्क्रीन पर भी दिख सकते हैं। बंद होने पर ये केवल ऐप में दिखते हैं।</string>
+    <string name="settings_notification_details_subtext">स्थायी स्टेटस सूचना में पोर्ट और IP पता, USB होस्ट प्रोफ़ाइल (नाम, IP, होस्ट) और नए वाई-फ़ाई नेटवर्क का नाम व BSSID सूचनाओं में दिखाता है। चालू होने पर ये विवरण लॉक स्क्रीन पर भी दिख सकते हैं। बंद होने पर ये केवल ऐप में दिखते हैं।</string>
     <string name="settings_section_display">डिस्प्ले</string>
     <string name="settings_keep_display_on_toggle">जब तक KeepADB फ़ोरग्राउंड में है, डिस्प्ले चालू रखें</string>
     <string name="settings_keep_display_on_subtext">यह सेटिंग केवल तब तक स्क्रीन को चालू रखती है जब तक यह ऐप खुला है। ऐप छोड़ते ही स्क्रीन सामान्य रूप से बंद हो जाती है।</string>

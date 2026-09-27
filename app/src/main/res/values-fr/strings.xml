@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB : Débogage sans fil ACTIVÉ</string>
     <string name="notification_title_disabled">KeepADB : Débogage sans fil DÉSACTIVÉ</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">Touchez pour voir les détails de connexion dans l’application.</string>
     <string name="notification_title_searching">KeepADB : Recherche du point de terminaison…</string>
     <string name="notification_text_searching">Résolution du point de terminaison sur le réseau local</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive attend que le débogage sans fil soit réactivé</string>
@@ -158,7 +159,7 @@
     <string name="settings_hide_notification_subtext">Affiche la notification d’état dans le volet. La désactiver n’affecte ni le Keep-Alive ni les widgets.</string>
     <string name="settings_hide_notification_subtext_keepalive">Requise tant que Keep-Alive est actif — Android l’exige pour le service de premier plan.</string>
     <string name="settings_notification_details_toggle">Afficher les détails de connexion dans les notifications</string>
-    <string name="settings_notification_details_subtext">Affiche le profil hôte USB (nom, IP, hôte) ainsi que le nom et le BSSID des nouveaux réseaux Wi-Fi dans les notifications. Activé, ces détails peuvent aussi apparaître sur l’écran de verrouillage. Désactivé, ils ne sont visibles que dans l’application.</string>
+    <string name="settings_notification_details_subtext">Affiche le port et l’adresse IP dans la notification d’état persistante, le profil hôte USB (nom, IP, hôte) ainsi que le nom et le BSSID des nouveaux réseaux Wi-Fi dans les notifications. Activé, ces détails peuvent aussi apparaître sur l’écran de verrouillage. Désactivé, ils ne sont visibles que dans l’application.</string>
     <string name="settings_section_display">Écran</string>
     <string name="settings_keep_display_on_toggle">Garder l’écran allumé tant que KeepADB est au premier plan</string>
     <string name="settings_keep_display_on_subtext">Garde l’écran allumé uniquement tant que cette application est ouverte. L’écran s’éteint normalement dès que vous quittez l’application.</string>

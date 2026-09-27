@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB: ワイヤレスデバッグ 有効</string>
     <string name="notification_title_disabled">KeepADB: ワイヤレスデバッグ 無効</string>
     <string name="notification_text_active">ポート %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">タップしてアプリで接続の詳細を確認してください。</string>
     <string name="notification_title_searching">KeepADB: エンドポイントを検索中…</string>
     <string name="notification_text_searching">ローカルネットワーク上でエンドポイントを解決中</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive がワイヤレスデバッグの再有効化を待機中です</string>
@@ -158,7 +159,7 @@
     <string name="settings_hide_notification_subtext">ステータス通知をシェードに表示します。オフにしてもKeep-Aliveやウィジェットには影響しません。</string>
     <string name="settings_hide_notification_subtext_keepalive">Keep-Alive有効時は必須です — Androidがフォアグラウンドサービスのために必要とします。</string>
     <string name="settings_notification_details_toggle">通知に接続の詳細を表示</string>
-    <string name="settings_notification_details_subtext">USB ホストプロファイル（名前、IP、ホスト）と新しい Wi-Fi ネットワークの名前および BSSID を通知に表示します。オンにすると、これらの詳細がロック画面にも表示される場合があります。オフの場合はアプリ内にのみ表示されます。</string>
+    <string name="settings_notification_details_subtext">常駐ステータス通知のポートと IP アドレス、USB ホストプロファイル（名前、IP、ホスト）、新しい Wi-Fi ネットワークの名前および BSSID を通知に表示します。オンにすると、これらの詳細がロック画面にも表示される場合があります。オフの場合はアプリ内にのみ表示されます。</string>
     <string name="settings_section_display">ディスプレイ</string>
     <string name="settings_keep_display_on_toggle">KeepADBが前面表示されている間、画面をオンのままにする</string>
     <string name="settings_keep_display_on_subtext">このアプリを開いている間だけ画面をオンのままにします。アプリを離れると画面は通常どおり消灯します。</string>

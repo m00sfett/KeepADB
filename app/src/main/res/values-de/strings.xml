@@ -53,6 +53,7 @@
     <string name="notification_title_active">KeepADB: Drahtloses Debugging AKTIVIERT</string>
     <string name="notification_title_disabled">KeepADB: Drahtloses Debugging DEAKTIVIERT</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">Tippen, um Verbindungsdetails in der App zu sehen.</string>
     <string name="notification_title_searching">KeepADB: Endpoint wird gesucht …</string>
     <string name="notification_text_searching">Endpoint wird im lokalen Netzwerk aufgelöst</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive wartet, bis Drahtloses Debugging wieder aktiviert wird</string>
@@ -189,7 +190,7 @@
     <string name="settings_hide_notification_subtext">Zeigt die Status-Benachrichtigung in der Leiste. Das Ausschalten hat keinen Einfluss auf Keep-Alive oder Widgets.</string>
     <string name="settings_hide_notification_subtext_keepalive">Erforderlich, solange Keep-Alive aktiv ist — Android benötigt sie für den Hintergrunddienst.</string>
     <string name="settings_notification_details_toggle">Verbindungsdetails in Benachrichtigungen anzeigen</string>
-    <string name="settings_notification_details_subtext">Zeigt das USB-Hostprofil (Name, IP, Host) sowie Name und BSSID neuer WLANs in Benachrichtigungen. Eingeschaltet können diese Details auch auf dem Sperrbildschirm sichtbar sein. Ausgeschaltet stehen sie nur in der App.</string>
+    <string name="settings_notification_details_subtext">Zeigt Port und IP-Adresse in der dauerhaften Status-Benachrichtigung, das USB-Hostprofil (Name, IP, Host) sowie Name und BSSID neuer WLANs in Benachrichtigungen. Eingeschaltet können diese Details auch auf dem Sperrbildschirm sichtbar sein. Ausgeschaltet stehen sie nur in der App.</string>
     <string name="settings_section_display">Bildschirm</string>
     <string name="settings_keep_display_on_toggle">Display eingeschaltet halten, solange KeepADB im Vordergrund ist</string>
     <string name="settings_keep_display_on_subtext">Hält den Bildschirm nur an, solange diese App geöffnet ist. Beim Verlassen der App schaltet sich der Bildschirm wieder wie gewohnt aus.</string>

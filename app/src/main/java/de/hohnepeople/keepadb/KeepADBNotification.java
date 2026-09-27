@@ -160,18 +160,14 @@ final class KeepADBNotification {
     }
 
     private static Notification buildNotification(Context context, String host, int port) {
-        String displayHost = KeepADBPreferences.maskHostForDisplay(context, host);
-        if (displayHost != null && displayHost.contains(":") && !displayHost.startsWith("[")) {
-            displayHost = "[" + displayHost + "]";
-        }
         String title = context.getString(R.string.notification_title_active);
-        String content = context.getString(R.string.notification_text_active, port, displayHost);
-        SpannableString styled = new SpannableString(content);
-        int portStart = content.indexOf(String.valueOf(port));
-        if (portStart >= 0) {
-            styled.setSpan(new StyleSpan(Typeface.BOLD), portStart, portStart + String.valueOf(port).length(),
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
+        // #597: the port/IP endpoint string is opt-in, gated behind the same
+        // notification_details_enabled preference #592 introduced for the USB and trust-prompt
+        // notifications. Off (the default) shows only the status; on reproduces the previous,
+        // always-shown "Port <port> @ <ip>" text.
+        CharSequence content = KeepADBPreferences.isNotificationDetailsEnabled(context)
+                ? styledEndpointText(context, host, port)
+                : context.getString(R.string.notification_text_active_hidden);
         Intent intent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,
@@ -181,12 +177,50 @@ final class KeepADBNotification {
         return new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(title)
-                .setContentText(styled)
-                .setStyle(new Notification.BigTextStyle().bigText(styled))
+                .setContentText(content)
+                .setStyle(new Notification.BigTextStyle().bigText(content))
                 .setContentIntent(pendingIntent)
                 .addAction(disableAction(context))
                 .setOngoing(true)
                 .setShowWhen(false)
+                // #597: publicVersion never carries the endpoint, regardless of the details
+                // setting -- same rule #589/#592 already apply to the USB and trust-prompt
+                // notifications. Android only shows it while sensitive lock-screen content is
+                // redacted; with it allowed, the private content above (gated by the check just
+                // above) is shown instead.
+                .setPublicVersion(publicVersion(context, title))
+                .build();
+    }
+
+    private static CharSequence styledEndpointText(Context context, String host, int port) {
+        String displayHost = KeepADBPreferences.maskHostForDisplay(context, host);
+        if (displayHost != null && displayHost.contains(":") && !displayHost.startsWith("[")) {
+            displayHost = "[" + displayHost + "]";
+        }
+        String content = context.getString(R.string.notification_text_active, port, displayHost);
+        SpannableString styled = new SpannableString(content);
+        int portStart = content.indexOf(String.valueOf(port));
+        if (portStart >= 0) {
+            styled.setSpan(new StyleSpan(Typeface.BOLD), portStart, portStart + String.valueOf(port).length(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return styled;
+    }
+
+    /**
+     * #597: the lock-screen copy shown when the platform is configured to reveal private
+     * notification content there. Reuses {@code notification_text_active_hidden} for the text --
+     * the same neutral fallback {@link #buildNotification} itself shows as contentText whenever
+     * details are off -- so the port/IP endpoint can never reach the lock screen through
+     * publicVersion, even while the opt-in is on and the private card carries it. No content
+     * intent and no actions: a glance at a locked screen must not be able to trigger anything.
+     */
+    private static Notification publicVersion(Context context, String title) {
+        return new Notification.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_keepadb)
+                .setContentTitle(title)
+                .setContentText(context.getString(R.string.notification_text_active_hidden))
+                .setCategory(Notification.CATEGORY_STATUS)
                 .build();
     }
 

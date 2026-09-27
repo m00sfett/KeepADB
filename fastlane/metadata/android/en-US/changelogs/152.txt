@@ -1,0 +1,1 @@
+• Connection details in the main notification are now opt-in too: with "Show connection details in notifications" off (the default), the persistent notification shows only the status, not the port and IP. Turn the setting on in Settings → Notification to see them there again, same as before.

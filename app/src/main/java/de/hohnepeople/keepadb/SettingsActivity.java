@@ -202,6 +202,9 @@ public class SettingsActivity extends Activity {
             // #592: re-render a currently visible USB card right away; a trust prompt already on
             // screen keeps its text until it is posted again.
             KeepADBUsbReceiver.refresh(this);
+            // #597: re-render the persistent main notification right away too -- same reasoning,
+            // it also gates its port/IP text behind this preference now.
+            KeepADBEndpointCoordinator.refresh(this);
         });
 
         keepDisplayOnToggle = findViewById(R.id.settings_keep_display_on_toggle);

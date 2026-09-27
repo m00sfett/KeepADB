@@ -30,15 +30,16 @@ pretending the port isn't open. Concretely, KeepADB tries to:
 - require an unlocked device to switch Wireless Debugging on from the USB notification's "Enable
   WLAN-ADB" handover action, with the same two layers as the trust action (#588);
 - keep connection details out of notifications by default: unless the user turns on Settings →
-  Notification → "Show connection details in notifications" (off by default), the USB-ADB
-  notification shows neither the host profile name nor its IP/hostname, and the untrusted-network
-  prompt shows neither the network name nor the BSSID; both show neutral text, the details stay in
-  the app (#592), and the prompt's trust decision moves into the app as well (#598). This is the
+  Notification → "Show connection details in notifications" (off by default), the persistent
+  main notification shows only the status (no port or IP address), the USB-ADB notification shows
+  neither the host profile name nor its IP/hostname, and the untrusted-network prompt shows
+  neither the network name nor the BSSID; all three show neutral text, the details stay in the
+  app (#592, #597), and the prompt's trust decision moves into the app as well (#598). This is the
   only reliable protection: Android shows a notification's `publicVersion` (neutral text, no
-  actions, set on both notifications since #578/#589) only while sensitive lock-screen content is
-  hidden. With sensitive content allowed on the lock screen, the private notification is shown
-  there, so after opting in the details can be visible without unlocking. The unlock gates above
-  apply in both modes;
+  actions, set on all three notifications since #578/#589/#597) only while sensitive lock-screen
+  content is hidden. With sensitive content allowed on the lock screen, the private notification
+  is shown there, so after opting in the details can be visible without unlocking. The unlock
+  gates above apply in both modes;
 - keep cleartext (unencrypted) HTTP scoped to the one feature that needs it — the optional,
   user-configured webhook — and warn in-app when a webhook URL is `http://` instead of `https://`;
 - avoid persisting anything sensitive where Android backup or device transfer could pick it up

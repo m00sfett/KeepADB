@@ -36,7 +36,7 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
 - 🔄 **Keep-Alive Foreground Service**: Monitors Wireless Debugging across reboots, network changes, and idle periods, and attempts recovery when needed.
 - 🔍 **Endpoint Discovery**: Android mDNS (NSD) is the discovery path for the active WLAN-ADB endpoint; resolution time depends on the network.
 - 🌐 **Automated Webhook Integration**: Configure an optional HTTP(S) endpoint in Settings. KeepADB currently sends WLAN-ADB events; it holds back additional verified transport events until the receiving server accepts their method names.
-- 📋 **Persistent Notification**: Displays the active connection string (`Port <port> @ <ip>`) for quick reference on your lock screen or notification panel.
+- 📋 **Persistent Notification**: Shows the current status in the notification panel. The active connection string (`Port <port> @ <ip>`) is opt-in via Settings → Notification → "Show connection details in notifications" (off by default); with it off, the notification shows only the status.
 - 🔌 **USB-ADB Assistance**: Optional USB notification, local editable host profiles, and manual or automatic USB-to-WLAN handover.
 - 🛜 **Network (Beta)**: Optional Wi-Fi and access-point tools, including trusted-network controls. On new installs, trusted-network filtering is off; enabling it requires Android location access to identify networks and can limit background recovery when Android masks that identity.
 - 👁️ **Privacy Mode**: Hide network addresses in the app's UI. This is a display setting; it does not change the endpoint reported to a configured webhook.
@@ -147,15 +147,17 @@ not an assumed default.
   sends verified WLAN-ADB endpoint events to the URL configured by the user and attempts to
   unregister the endpoint when Wireless Debugging turns off. USB profile data stays local and is
   not included in the current webhook requests. Enable the webhook only for an endpoint you trust.
-- **Connection Details in Notifications:** By default, the USB-ADB notification does not show
+- **Connection Details in Notifications:** By default, the persistent main notification does not
+  show the port or IP address (only the status), the USB-ADB notification does not show
   the host profile name, IP, or hostname, and the new-network prompt does not show the network
-  name or BSSID; both use neutral text and the details stay in the app. In that mode the new-network
+  name or BSSID; all three use neutral text and the details stay in the app. In that mode the new-network
   prompt also has no "Yes, allow" action: tapping it opens KeepADB, which names the network and
   asks for the decision there ([#598](https://github.com/m00sfett/KeepADB/issues/598)).
   Settings → Notification → "Show connection details in notifications" turns them on. Android may then show these details
   on the lock screen as well if the device is set to show sensitive notification content there;
   KeepADB's neutral lock-screen copy is only used while Android hides that content
-  ([#592](https://github.com/m00sfett/KeepADB/issues/592)).
+  ([#592](https://github.com/m00sfett/KeepADB/issues/592),
+  [#597](https://github.com/m00sfett/KeepADB/issues/597)).
 - **Cleartext HTTP Scope:** The app's network-security configuration permits cleartext
   (unencrypted) HTTP globally, but only one code path in the app ever issues an HTTP request:
   the optional webhook above, whose target is a URL you type in yourself. Android's

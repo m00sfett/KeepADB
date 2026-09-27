@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB: Debug wireless ATTIVATO</string>
     <string name="notification_title_disabled">KeepADB: Debug wireless DISATTIVATO</string>
     <string name="notification_text_active">Porta %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">Tocca per vedere i dettagli di connessione nell’app.</string>
     <string name="notification_title_searching">KeepADB: Ricerca dell’endpoint…</string>
     <string name="notification_text_searching">Risoluzione dell’endpoint sulla rete locale</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive attende che il debug wireless venga riattivato</string>
@@ -158,7 +159,7 @@
     <string name="settings_hide_notification_subtext">Mostra la notifica di stato nel pannello. Disattivarla non influisce su Keep-Alive né sui widget.</string>
     <string name="settings_hide_notification_subtext_keepalive">Necessaria finché Keep-Alive è attivo — Android la richiede per il servizio in primo piano.</string>
     <string name="settings_notification_details_toggle">Mostra i dettagli di connessione nelle notifiche</string>
-    <string name="settings_notification_details_subtext">Mostra nelle notifiche il profilo host USB (nome, IP, host) e il nome e il BSSID delle nuove reti Wi-Fi. Se attivo, questi dettagli possono essere visibili anche nella schermata di blocco. Se disattivato, sono visibili solo nell’app.</string>
+    <string name="settings_notification_details_subtext">Mostra la porta e l’indirizzo IP nella notifica di stato persistente, il profilo host USB (nome, IP, host) e il nome e il BSSID delle nuove reti Wi-Fi nelle notifiche. Se attivo, questi dettagli possono essere visibili anche nella schermata di blocco. Se disattivato, sono visibili solo nell’app.</string>
     <string name="settings_section_display">Schermo</string>
     <string name="settings_keep_display_on_toggle">Mantieni lo schermo acceso mentre KeepADB è in primo piano</string>
     <string name="settings_keep_display_on_subtext">Mantiene lo schermo acceso solo mentre questa app è aperta. Lo schermo si spegne normalmente non appena esci dall’app.</string>

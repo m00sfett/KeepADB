@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB: Debugging Nirkabel DIAKTIFKAN</string>
     <string name="notification_title_disabled">KeepADB: Debugging Nirkabel DINONAKTIFKAN</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">Ketuk untuk melihat detail koneksi di aplikasi.</string>
     <string name="notification_title_searching">KeepADB: Mencari endpoint…</string>
     <string name="notification_text_searching">Menyelesaikan endpoint di jaringan lokal</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive menunggu Debugging Nirkabel diaktifkan kembali</string>
@@ -158,7 +159,7 @@
     <string name="settings_hide_notification_subtext">Menampilkan notifikasi status di panel. Mematikannya tidak memengaruhi Keep-Alive atau widget.</string>
     <string name="settings_hide_notification_subtext_keepalive">Diperlukan selama Keep-Alive aktif — Android memerlukannya untuk layanan latar depan.</string>
     <string name="settings_notification_details_toggle">Tampilkan detail koneksi di notifikasi</string>
-    <string name="settings_notification_details_subtext">Menampilkan profil host USB (nama, IP, host) serta nama dan BSSID jaringan Wi-Fi baru di notifikasi. Jika aktif, detail ini juga dapat terlihat di layar kunci. Jika nonaktif, detail hanya ditampilkan di aplikasi.</string>
+    <string name="settings_notification_details_subtext">Menampilkan port dan alamat IP di notifikasi status persisten, profil host USB (nama, IP, host), serta nama dan BSSID jaringan Wi-Fi baru di notifikasi. Jika aktif, detail ini juga dapat terlihat di layar kunci. Jika nonaktif, detail hanya ditampilkan di aplikasi.</string>
     <string name="settings_section_display">Layar</string>
     <string name="settings_keep_display_on_toggle">Jaga layar tetap menyala selama KeepADB berada di latar depan</string>
     <string name="settings_keep_display_on_subtext">Menjaga layar tetap menyala hanya selama aplikasi ini terbuka. Layar akan mati seperti biasa segera setelah Anda meninggalkan aplikasi.</string>

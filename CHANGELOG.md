@@ -17,11 +17,66 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.54` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.55` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.55] - Unreleased
+
+### Security
+- Persistent main notification's port/IP endpoint moved behind the existing
+  `notification_details_enabled` opt-in (#597, user decision option 2 on the #592 follow-up):
+  with the setting off (the default), the main notification -- previously always showing
+  `Port <port> @ <ip>` -- now shows only the status title with a neutral content text (new string
+  `notification_text_active_hidden`, "Tap to see connection details in the app.", translated in
+  all 18 locales) that opens the app on tap. With the setting on, the notification is unchanged
+  from before: `Port <port> @ <ip>` with the port in bold and `maskHostForDisplay`'s privacy-mode
+  masking applied. The disable action, ongoing/no-when flags, and content intent are unaffected
+  either way -- only `KeepADBNotification#buildNotification`'s content text and title logic
+  changed; the "searching"/"disabled, waiting"/permission-missing placeholders already carried no
+  endpoint and stay as they were.
+- `publicVersion` added to the main notification, reusing the same neutral
+  `notification_text_active_hidden` text regardless of the details setting -- consistent with the
+  #589/#592 USB and trust-prompt notifications: with details on, the private card shows the
+  endpoint while `publicVersion` still does not, so a redacting lock screen configuration cannot
+  leak it even after the opt-in. No content intent or actions on `publicVersion` (same rule as the
+  other two notifications).
+- `SettingsActivity`'s `notificationDetailsToggle` click listener now also calls
+  `KeepADBEndpointCoordinator.refresh(this)` (alongside the existing `KeepADBUsbReceiver.refresh`
+  call from #592) so a currently visible main notification re-renders immediately when the setting
+  is flipped, without needing a service restart.
+
+### Documentation
+- README's "Persistent Notification" feature bullet and "Connection Details in Notifications"
+  privacy section, and SECURITY.md's connection-details paragraph, updated to describe the main
+  notification's port/IP as opt-in rather than always shown; `settings_notification_details_subtext`
+  extended (all 18 locales) to name the persistent status notification alongside the USB profile
+  and new-Wi-Fi-network details it already covered.
+- Existing installs upgrading to this version see the neutral status text in the main
+  notification, not the port and IP address, until they turn on Settings → Notification →
+  "Show connection details in notifications" themselves; no migration reads or writes the
+  preference, it simply defaults to off as it already did for the USB and trust-prompt
+  notifications since #592.
+
+### Testing
+- `KeepADBNotificationRobolectricTest`: `notificationHidesPortAndIpByDefault` (fresh prefs, details
+  off -- title unchanged, content text is the neutral fallback, neither port nor IP appear
+  anywhere on the notification or its `publicVersion`), `notificationShowsPortAndIpWhenDetailsEnabled`
+  (details on reproduces the previous `Port <port> @ <ip>` text exactly), and
+  `publicVersionNeverMentionsPortOrIpRegardlessOfDetailsSetting` (the counter-proof: `publicVersion`
+  stays neutral in both modes while the private card of the same "details on" notification does
+  carry the endpoint, so a fix that fed `publicVersion` from the same content would fail here).
+- `SettingsActivityTest#notificationDetailsToggleAlsoRerendersTheVisibleMainNotification`: seeds a
+  cached endpoint, confirms the default-off notification hides it, toggling on re-renders the
+  already-posted notification with the endpoint without a service restart, and toggling back off
+  re-hides it -- same shape as the existing USB-card test from #592.
+- Each new assertion was checked against a targeted production mutation (dropping the
+  `isNotificationDetailsEnabled` check so the endpoint always shows; feeding `publicVersion` from
+  the same content as the private card instead of the neutral fallback; dropping the new
+  `KeepADBEndpointCoordinator.refresh` call from the toggle listener) and confirmed to go red
+  under it before being reverted, uncommitted (#597).
 
 ## [1.8.54] - Unreleased
 
