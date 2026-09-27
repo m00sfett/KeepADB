@@ -17,11 +17,31 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.51` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.52` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.52] - Unreleased
+
+### Changed
+- Internal refactor, no behavior change (codequality review CQ-01, #594): endpoint state and its
+  lifecycle moved out of `KeepADBNotification` into the new `KeepADBEndpointCoordinator`, which
+  alone owns the cached WLAN-ADB endpoint (host/port/verification time), the discovery owner
+  (global vs. short-lived Tile), discovery generation and verification token, the verification
+  worker, the bounded retry and cancellation/stop, all under one monitor. `KeepADBNotification`
+  only renders and owns no endpoint state; `KeepADBEndpoint` stays the low-level discovery.
+  Tile, widget, `KeepADB.getState()`, transport overview, diagnostics and the foreground-service
+  notification now read one immutable endpoint snapshot instead of separate host/port/time
+  getters, so no surface can combine values of two different endpoints. The moved logic keeps
+  its guards, order and lock scope unchanged.
+
+### Testing
+- New `KeepADBEndpointCoordinatorTest` covers snapshot consistency, stale verification workers,
+  Tile owner cancellation versus the global owner and listener/snapshot agreement; each guard was
+  mutation-tested in an isolated worktree. Source-content contracts that pinned the moved logic
+  now read the coordinator source with unchanged invariants. (#594)
 
 ## [1.8.51] - Unreleased
 

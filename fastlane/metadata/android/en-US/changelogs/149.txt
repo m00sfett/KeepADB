@@ -1,0 +1,1 @@
+• Internal: the WLAN-ADB endpoint handling was restructured behind the scenes so every screen, the tile, the widget and the notification read the same endpoint state. No user-facing change in this version.
