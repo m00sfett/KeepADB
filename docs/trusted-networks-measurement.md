@@ -95,7 +95,46 @@ Service also aus, unabhängig von #606 — das betrifft den bestehenden `BootRec
 insgesamt, nicht nur die Hintergrund-Standort-Frage, und ist hier nur als Randbeobachtung
 vermerkt, nicht weiter untersucht.
 
-**Nicht gemessen: C2** (`foregroundServiceType="connectedDevice|location"` ohne
-Background-Grant). Nach dem eindeutigen C1-Ergebnis und angesichts des Aufwands eines weiteren
-Build-/Install-/Reboot-Zyklus wurde diese Variante in diesem Lauf ausgesetzt; siehe Rückfrage
-im zugehörigen Issue.
+## Nachtrag 2 (#606, 2026-09-27): Vollständige Messreihe C1, C2 und Kontrolle
+
+Im weiteren Verlauf von #606 wurde auf dem Samsung Galaxy S20 FE (Android 13 / API 33) über USB
+die vollständige Vergleichsmatrix zwischen C1 (`ACCESS_BACKGROUND_LOCATION`), C2
+(`foregroundServiceType="connectedDevice|location"` mit While-in-Use `ACCESS_FINE_LOCATION`) und
+der Kontrolle (`connectedDevice` mit `ACCESS_FINE_LOCATION`) gemessen:
+
+| Variante | Fall | Display | FGS | Grant | Gelieferte SSID | Identifiziert (`isKnown()`) | Trust-Ergebnis |
+|---|---|---|---|---|---|---|---|
+| **C1** (`connectedDevice` + Background-Grant) | `fg_act` | An | Ja | FINE + BACKGROUND | `moosNET` | `true` | `trusted` |
+| | `bg_fg` | An (Home) | Ja | FINE + BACKGROUND | `moosNET` | `true` | `trusted` |
+| | `bg_no_act` | An (Home) | Ja* | FINE + BACKGROUND | `moosNET` | `true` | `trusted` |
+| | `wifi_reconnect` | An (Home) | Ja | FINE + BACKGROUND | `moosNET` | `true` | `trusted` |
+| | `display_off` | Aus | Ja | FINE + BACKGROUND | `moosNET` | `true` | `trusted` |
+| **C2** (`connectedDevice\|location` + While-in-Use) | `fg_act` | An | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
+| | `bg_fg` | An (Home) | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
+| | `bg_no_act` | An (Home) | Ja* | Nur FINE | `moosNET` | `true` | `trusted` |
+| | `wifi_reconnect` | An (Home) | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
+| | `display_off` | Aus | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
+| **Kontrolle** (`connectedDevice` + While-in-Use) | `fg_act` | An | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
+| | `bg_fg` | An (Home) | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
+| | `bg_no_act` | An (Home) | Ja* | Nur FINE | `<unknown ssid>` | `false` | `untrusted` |
+| | `wifi_reconnect` | An (Home) | Ja | Nur FINE | `<unknown ssid>` | `false` | `untrusted` |
+| | `display_off` | Aus | Ja | Nur FINE | `<unknown ssid>` | `false` | `untrusted` |
+
+*\*Hinweis: `am stopservice` beendet einen unexportierten FGS ohne Root nicht; der Dienst lief in den Tests weiter.*
+
+### Verbindliche Produktentscheidung (#606)
+
+KeepADB setzt verbindlich **Variante C2** um:
+
+1. **Vollständige Aufhebung der Maskierung während des Keep-Alive-Betriebs:** C2 liefert bei
+   laufendem FGS dieselben zuverlässigen echten BSSID/SSID-Werte wie C1 – auch bei Reconnects und
+   bei ausgeschaltetem Display.
+2. **Minimaler Datenschutz-Impact & kein Background-Location-Grant:** Es ist kein aggressives
+   `ACCESS_BACKGROUND_LOCATION` („Immer zulassen“) nötig. Die normale While-in-Use-Berechtigung
+   `ACCESS_FINE_LOCATION` („Beim Verwenden der App“) reicht für Androids Einstufung des FGS mit
+   Service-Typ `location` völlig aus.
+3. **Optimale UX:** Keine verwirrenden Dialoge oder Umwege über Systemeinstellungen („Immer zulassen“);
+   vollständig kompatibel mit den Richtlinien von F-Droid und Google Play.
+4. **Defensiver Fallback:** Der Service-Typ `location` wird beim `startForeground()` dynamisch
+   nur dann angefordert, wenn `ACCESS_FINE_LOCATION` tatsächlich erteilt ist. Das verhindert
+   `SecurityException`s auf Android 14+ (API 34+) im Standardmodus `all_wifi` ohne Allowlist.

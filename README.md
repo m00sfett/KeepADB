@@ -189,14 +189,18 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
    connected Wi-Fi network by default. You can opt into the trusted-network restriction in
    Settings → Network (Beta). Android requires location access to provide Wi-Fi network
    identifiers; KeepADB uses it only to identify the network and does not read or store location.
-   Android may mask the network identity while KeepADB is in the background, which can pause
-   automatic recovery when the app cannot verify the network. Existing mode choices and trusted
-   entries are preserved when upgrading. The main switch, tile, and widget remain manual overrides
-   not gated by this setting. Turning the Keep-Alive toggle on does respect it: on an untrusted
-   network it falls through to the trust prompt instead of enabling immediately (#577). Trusting a
-   network from that prompt notification requires an unlocked device (#578); with connection details
-   in notifications off (the default), the decision is made in the app, which names the network
-   (#598). Switching Wireless
+   To preserve network identity (SSID/BSSID) during background keep-alive without requiring invasive
+   background location grants (`ACCESS_BACKGROUND_LOCATION`), KeepADB declares
+   `FOREGROUND_SERVICE_LOCATION` and runs `KeepADBService` with foreground service type
+   `connectedDevice|location` (#606, C2). While-in-use `ACCESS_FINE_LOCATION` is sufficient for
+   this service type, and the `location` service type is bound dynamically only when the permission
+   is granted so that standard `all_wifi` mode never triggers `SecurityException`s on Android 14+.
+   Existing mode choices and trusted entries are preserved when upgrading. The main switch, tile,
+   and widget remain manual overrides not gated by this setting. Turning the Keep-Alive toggle on
+   does respect it: on an untrusted network it falls through to the trust prompt instead of enabling
+   immediately (#577). Trusting a network from that prompt notification requires an unlocked device
+   (#578); with connection details in notifications off (the default), the decision is made in the
+   app, which names the network (#598). Switching Wireless
    Debugging on from the Quick Settings tile also requires an unlocked device; switching it off
    from the lock screen works without unlocking (#586). Switching Wireless Debugging on from the
    USB notification's "Enable Wifi-ADB" handover action also requires an unlocked device (#588).

@@ -17,11 +17,29 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.58` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.59` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.59] - Unreleased
+
+### Added
+- #606: Declared `FOREGROUND_SERVICE_LOCATION` permission in `AndroidManifest.xml` and configured
+  `KeepADBService` with `android:foregroundServiceType="connectedDevice|location"`. Under Android
+  platform rules, this classifies the running Keep-Alive foreground service as while-in-use for
+  location, unmasking Wi-Fi SSID and BSSID during background keep-alive without requiring invasive
+  background location grants (`ACCESS_BACKGROUND_LOCATION`).
+- #606: Implemented dynamic foreground service type selection in `KeepADBService#onStartCommand`.
+  `ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION` is included when `ACCESS_FINE_LOCATION` is granted,
+  and omitted dynamically when running in default `all_wifi` mode without location permissions,
+  preventing `SecurityException`s on Android 14+ (API 34+).
+- #606: Added unit tests in `KeepADBServiceLifecycleRobolectricTest` verifying
+  `determineForegroundServiceType` and dynamic `onStartCommand` service type binding for both granted
+  and denied location states.
+- #606: Updated `docs/trusted-networks-measurement.md` with the full C1, C2, and control measurement
+  matrix from the Samsung Galaxy S20 FE, and documented the privacy rationale in `README.md`.
 
 ## [1.8.58] - Unreleased
 
