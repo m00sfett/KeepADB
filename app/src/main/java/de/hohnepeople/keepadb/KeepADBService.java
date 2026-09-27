@@ -25,6 +25,14 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Foreground service that monitors Wi-Fi connectivity and wireless debugging state
  * to automatically re-enable Wireless Debugging and push new endpoints to the register.
+ *
+ * <p>Under Variante C2 (#606), this service dynamically requests foreground service type
+ * {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE} augmented with
+ * {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_LOCATION} whenever {@link
+ * Manifest.permission#ACCESS_FINE_LOCATION} is granted. This satisfies Android's while-in-use
+ * location requirement, allowing SSID and BSSID to be resolved unmasked in the background
+ * across screen-off events and network reconnects without requiring background location
+ * permissions.
  */
 public class KeepADBService extends Service {
     private static final String TAG = "KeepADBService";
@@ -443,15 +451,12 @@ public class KeepADBService extends Service {
             networkCallback = new ConnectivityManager.NetworkCallback() {
                 @Override
                 public void onAvailable(Network network) {
-                    // #354: ConnectivityManager does not guarantee that onLost(old) is delivered
-                    // before onAvailable(new). Relying on onLost alone (#313) left a window in
-                    // which recheckAndEnable() below evaluated the *new* connection against a
-                    // cache still describing the *old* one -- and a masked BSSID plus a matching
-                    // SSID would then have inherited trust it never earned. Invalidating here as
-                    // well closes that window from the other side. Deliberate consequence,
-                    // decided on the issue: the #270 masked-BSSID convenience does not survive a
-                    // reconnect, so a fresh BSSID verification is required afterwards. Must stay
-                    // the first statement -- everything below can read the cache.
+                    // #354, #620: ConnectivityManager does not guarantee that onLost(old) is delivered
+                    // before onAvailable(new). Under C2 (#606), normal background operation receives
+                    // unmasked BSSIDs directly; however, KeepADBTrustedNetwork retains an in-memory
+                    // verification cache as a defensive fallback (#620). Invalidating here ensures
+                    // that a new connection never inherits trust from an old connection's cached
+                    // SSID. Must stay the first statement -- everything below can read the cache.
                     KeepADBTrustedNetwork.forgetVerifiedTrust();
                     if (network != null) {
                         availableWifiNetworks.add(network);
@@ -469,8 +474,8 @@ public class KeepADBService extends Service {
 
                 @Override
                 public void onLost(Network network) {
-                    // #313: a masked reconnect must require fresh BSSID verification,
-                    // even when foreground promotion has not completed.
+                    // #313, #620: invalidates the defensive verified-trust cache on network loss,
+                    // ensuring any reconnect requires fresh BSSID verification.
                     KeepADBTrustedNetwork.forgetVerifiedTrust();
                     if (network != null) {
                         availableWifiNetworks.remove(network);
@@ -535,10 +540,10 @@ public class KeepADBService extends Service {
             };
             cm.registerNetworkCallback(request, networkCallback, new Handler(Looper.getMainLooper()));
             isRegisteredNetworkCallback = true;
-            // #354: only now is an invalidator actually live, so only now may the masked-BSSID
-            // fallback be offered. Deliberately after the register call -- the reverse order
-            // would open a window that advertises an observer which isn't watching yet. A failed
-            // registration falls into the catch below and leaves the flag false (fail closed).
+            // #354, #620: only now is an invalidator actually live, so only now may the defensive
+            // masked-BSSID fallback be offered. Deliberately after the register call -- the reverse
+            // order would open a window that advertises an observer which isn't watching yet. A
+            // failed registration falls into the catch below and leaves the flag false (fail closed).
             KeepADBTrustedNetwork.setVerifiedTrustObserverActive(true);
         } catch (RuntimeException e) {
             Log.e(TAG, "Failed to register network callback", e);
@@ -552,8 +557,8 @@ public class KeepADBService extends Service {
         isRegisteredNetworkCallback = false;
         networkCallback = null;
         availableWifiNetworks.clear();
-        // #354: ahead of the actual unregister call (and of anything that can throw), so the
-        // fallback is withdrawn before the observer stops watching, never after.
+        // #354, #620: ahead of the actual unregister call (and of anything that can throw), so the
+        // defensive fallback is withdrawn before the observer stops watching, never after.
         KeepADBTrustedNetwork.setVerifiedTrustObserverActive(false);
         try {
             ConnectivityManager cm = getSystemService(ConnectivityManager.class);

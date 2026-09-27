@@ -211,6 +211,9 @@
     <string name="battery_optimization_title">قد يحد تحسين البطارية من Keep-Alive</string>
     <string name="battery_optimization_body">قد يقيّد Android أو الشركة المصنّعة تشغيل Keep-Alive في الخلفية أو يوقفه ما لم يكن KeepADB مستثنى من تحسين البطارية.</string>
     <string name="battery_optimization_button">فتح إعدادات البطارية</string>
+    <string name="network_onboarding_panel_title">تقييد Keep-Alive على الشبكات الموثوقة</string>
+    <string name="network_onboarding_panel_body">يمكن تقييد Keep-Alive على شبكات Wi-Fi المنزلية أو المكتبية المعروفة لمنع اتصالات تصحيح الأخطاء غير المصرح بها على الشبكات الخارجية.</string>
+    <string name="network_onboarding_setup_button">إعداد</string>
     <string name="location_permission_panel_title">إذن الموقع مطلوب للشبكات الموثوقة</string>
     <string name="location_permission_panel_body">يحتاج وضع الشبكات الموثوقة إلى إذن الموقع للتعرّف على شبكة Wi-Fi الخاصة بك. بدونه، لا يمكن لـ Keep-Alive تأكيد شبكة موثوقة ولن يُعاد تفعيله تلقائيًا.</string>
     <string name="location_permission_panel_grant_button">منح إذن الموقع</string>

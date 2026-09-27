@@ -30,6 +30,9 @@ final class KeepADBPreferences {
     // screen, following the same visible/dismissed pattern as KEY_ADVICE_BANNER_VISIBLE above.
     private static final String KEY_BATTERY_OPTIMIZATION_PANEL_VISIBLE =
             "battery_optimization_panel_visible";
+    // #619: independent dismiss state for the network onboarding banner on the main screen.
+    private static final String KEY_NETWORK_ONBOARDING_PANEL_VISIBLE =
+            "network_onboarding_panel_visible";
     // #482: display-only privacy toggle. Persists whether network addresses currently shown in
     // the UI should be masked -- purely a rendering preference, never the toggle facade's own
     // WRITE_SECURE_SETTINGS state and never the real ADB transport. The actual masking logic
@@ -570,6 +573,27 @@ final class KeepADBPreferences {
     static void setBatteryOptimizationPanelVisible(Context context, boolean visible) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_BATTERY_OPTIMIZATION_PANEL_VISIBLE, visible).apply();
+    }
+
+    /** #619: network onboarding banner visibility (dismiss state). Default ON (true). */
+    static boolean isNetworkOnboardingPanelVisible(Context context) {
+        if (context == null) return true;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_NETWORK_ONBOARDING_PANEL_VISIBLE, true);
+    }
+
+    static void setNetworkOnboardingPanelVisible(Context context, boolean visible) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_NETWORK_ONBOARDING_PANEL_VISIBLE, visible).apply();
+    }
+
+    static boolean isNetworkOnboardingDismissed(Context context) {
+        return !isNetworkOnboardingPanelVisible(context);
+    }
+
+    static void setNetworkOnboardingDismissed(Context context, boolean dismissed) {
+        setNetworkOnboardingPanelVisible(context, !dismissed);
     }
 
     /** #482/#483/#488/#509: whether currently-displayed network addresses should be masked in

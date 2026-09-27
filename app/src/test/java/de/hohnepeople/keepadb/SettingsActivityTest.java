@@ -937,6 +937,20 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void focusNetworkExtraExpandsTheNetworkCard() {
+        Intent intent = new Intent(RuntimeEnvironment.getApplication(), SettingsActivity.class)
+                .putExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class, intent).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.settings_network_beta_body).getVisibility());
+        TextView arrow = activity.findViewById(R.id.settings_network_beta_arrow);
+        assertEquals("−", arrow.getText().toString());
+    }
+
+    @Test
     public void resetAppButtonShowsConfirmationDialogWithCorrectContentAndWiring() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();

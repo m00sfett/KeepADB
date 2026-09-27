@@ -10,14 +10,15 @@ import java.util.List;
  * Persisted trusted-network allowlist policy for automatic Keep-Alive re-enable (#245).
  *
  * <p>#492 reversed #260's default: {@link #MODE_ALL_WIFI} is now the default for a new or
- * never-initialized installation, and {@link #MODE_ALLOWLIST} is an explicit opt-in. The reason is
- * measured, not aesthetic -- see the Android identity limits documented in {@code
- * docs/trusted-networks-measurement.md}: outside a visible activity the platform masks SSID and
- * BSSID together, so an allowlist-mode installation cannot confirm a trusted network in the
- * background at all and Keep-Alive's automatic re-enable simply stops working there. Shipping that
- * as the silent default made the app's headline convenience feature fail for reasons the user never
- * chose. The restriction is still offered, now as a deliberate comfort-versus-security trade-off
- * the user opts into with the warning in front of them.
+ * never-initialized installation, and {@link #MODE_ALLOWLIST} is an explicit opt-in.
+ * Historically, under #492 when the foreground service held only the {@code connectedDevice}
+ * type, Android masked SSID and BSSID together outside a visible activity (see {@code
+ * docs/trusted-networks-measurement.md}), preventing background allowlist confirmation. Under
+ * Variante C2 (#606), {@link KeepADBService} dynamically requests {@code connectedDevice|location}
+ * with {@link android.Manifest.permission#ACCESS_FINE_LOCATION}, qualifying as while-in-use and
+ * keeping SSID and BSSID unmasked during background keep-alive. {@link #MODE_ALLOWLIST} remains
+ * an explicit opt-in as a deliberate comfort-versus-security trade-off: it requires location
+ * permissions and strictly bounds automatic re-enable to explicitly approved access points.
  *
  * <p>Existing installations are not widened by that flip. {@link #ensureModeInitialized} persists
  * {@link #MODE_ALLOWLIST} for any installation that never wrote a mode but does hold allowlist
@@ -47,12 +48,20 @@ final class KeepADBTrustedNetwork {
     static final String MODE_ALLOWLIST = "allowlist";
 
     /**
-     * In-process memory of the last real, BSSID-verified trust decision (#270). Android 12+
-     * masks {@code WifiInfo#getBSSID()} to {@link KeepADBNetworkIdentity#REDACTED_BSSID} for
-     * background apps without background-location access, which would otherwise make {@link
-     * #isCurrentNetworkTrusted} fail closed on every background check even on a genuinely
-     * trusted, still-connected network -- KeepADB then never re-enables Wi-Fi debugging in the
-     * background at all, only once the user brings the app to the foreground.
+     * In-process memory of the last real, BSSID-verified trust decision (#270, retained as a
+     * defensive fallback in #620).
+     *
+     * <p>Historically (prior to C2 / #606), background apps without background-location access had
+     * {@code WifiInfo#getBSSID()} masked to {@link KeepADBNetworkIdentity#REDACTED_BSSID} by
+     * Android 12+, which caused background trust checks to fail closed even on genuinely trusted
+     * networks. Under Variante C2 (#606), {@link KeepADBService} runs with {@code
+     * connectedDevice|location} and {@code ACCESS_FINE_LOCATION}, so Android classifies the FGS as
+     * while-in-use and delivers unmasked SSID and BSSID directly during background keep-alive
+     * (including screen lock and reconnects).
+     *
+     * <p>This in-memory state is retained as an inert, fail-closed defensive fallback (#620) for
+     * edge cases (e.g. if the location FGS type is temporarily unavailable, or on OEM Wi-Fi stacks
+     * that exhibit unexpected masking behavior).
      *
      * <p>Design choice: "retain the last verified state for the connection" rather than an
      * SSID-only allowlist fallback. A pure SSID fallback (match the allowlist by SSID whenever
@@ -73,14 +82,17 @@ final class KeepADBTrustedNetwork {
 
     /**
      * Whether something is currently watching for the connection changes that {@link
-     * #lastVerifiedTrustedSsid} is only meaningful in the absence of (#354). The cache above does
-     * not stand for "this SSID is trusted"; it stands for "the connection verified moments ago is
-     * still the same one". Nothing in a masked reading can establish that on its own -- the claim
-     * only holds because {@link KeepADBService}'s Wi-Fi {@code NetworkCallback} invalidates the
-     * cache on every {@code onAvailable}/{@code onLost}, i.e. on every event that could have
-     * substituted a different connection underneath us.
+     * #lastVerifiedTrustedSsid} is only meaningful in the absence of (#354, #620). The defensive
+     * fallback cache above does not stand for "this SSID is trusted"; it stands for "the connection
+     * verified moments ago is still the same one". Nothing in a masked reading can establish that
+     * on its own -- the claim only holds because {@link KeepADBService}'s Wi-Fi {@code
+     * NetworkCallback} invalidates the cache on every {@code onAvailable}/{@code onLost}, i.e. on
+     * every event that could have substituted a different connection underneath us.
      *
-     * <p>Without that callback registered, nobody clears the cache: a process that stays alive
+     * <p>While normal operation under C2 (#606) receives unmasked BSSIDs directly via {@code
+     * connectedDevice|location}, this defensive guard ensures that if the fallback is ever reached,
+     * it is only active while an invalidator is demonstrably live and fails closed otherwise.
+     * Without that callback registered, nobody clears the cache: a process that stays alive
      * with the service stopped (the app was opened once, a {@code KeepADBUsbReceiver} broadcast
      * woke the process, ...) can carry a verified SSID for an unbounded time across arbitrarily
      * many unobserved network changes, and {@link KeepADBEndpoint}'s recovery pulse and {@link
@@ -88,23 +100,15 @@ final class KeepADBTrustedNetwork {
      * the fallback is only offered while an invalidator is demonstrably live, and fails closed
      * otherwise; this is the same fail-closed direction the rest of the class takes.
      *
-     * <p>#270 is not lost by this: its actual use case is the background Keep-Alive re-enable,
-     * which by construction only runs while {@link KeepADBService} -- and therefore its callback
-     * -- is running. A foreground app is not subject to the platform's background BSSID masking
-     * in the first place and never reaches the fallback.
-     *
      * <p>#355: is the "BSSID redacted, SSID still readable" case this fallback exists for
      * actually reachable? Source-level analysis of AOSP's {@code WifiServiceImpl.getConnectionInfo()}
      * says no on stock Android: SSID, BSSID and network ID are hidden together behind one single
      * {@code canAccessScanResults(...)} permission check on the same {@code WifiInfo} snapshot --
      * there's no code path that redacts BSSID while leaving SSID intact, so on AOSP-faithful
      * builds {@link #hasMatchingVerifiedTrust} can never actually be reached with a non-null
-     * {@link KeepADBNetworkIdentity#displaySsid()}. This wasn't re-verified with a live
-     * permission-toggle experiment on hardware (analysis was judged sufficient for this pass);
-     * kept as a defensive fallback anyway rather than removed, because an OEM Wi-Fi stack that
-     * splits the two checks (or a future AOSP version that does) would silently reintroduce the
-     * failure mode #270 was written to prevent, and the fallback is inert -- not merely unlikely
-     * to fire -- everywhere it doesn't apply. See the issue for the full reasoning.
+     * {@link KeepADBNetworkIdentity#displaySsid()}. Under C2 (#606), the FGS location type
+     * unmasks both fields in production; the mechanism is retained purely as a defensive, inert
+     * safeguard against OEM Wi-Fi stack quirks or split checks.
      */
     private static volatile boolean verifiedTrustObserverActive;
 
@@ -230,10 +234,11 @@ final class KeepADBTrustedNetwork {
     /**
      * Adds the currently connected network's SSID. Returns null when the identity is not fully
      * readable -- an {@link KeepADBNetworkIdentity#isKnown()} check is deliberately required on
-     * top of a non-null SSID even though only the SSID is stored: per the measurement in {@code
-     * docs/trusted-networks-measurement.md} the platform masks SSID and BSSID together, so a
-     * readable SSID paired with a masked BSSID is not a state this device produces, and treating
-     * it as addable would only open a path to storing a placeholder.
+     * top of a non-null SSID even though only the SSID is stored: when identity is masked by the
+     * platform (e.g. without location permissions or active location services), SSID and BSSID
+     * are masked together (see {@code docs/trusted-networks-measurement.md}), so a readable SSID
+     * paired with a masked BSSID is not a state Android produces, and treating it as addable would
+     * only open a path to storing a placeholder.
      */
     static SsidEntry addCurrentSsid(Context context) {
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
@@ -389,15 +394,11 @@ final class KeepADBTrustedNetwork {
             editor.putString(KEY_IDS, ids.toString());
         }
         editor.apply();
-        // #270 follow-up: removing an entry revokes trust for whatever BSSID it named. The
-        // masked-BSSID fallback below only ever compares against an SSID, not a BSSID, so it
-        // can't tell whether the just-removed entry was the one that produced the cached SSID
-        // -- e.g. the user is still connected to the now-removed network and its masked-BSSID
-        // background reading would otherwise keep matching the stale cache and stay trusted
-        // after the user explicitly revoked it. Clearing unconditionally on every removal is
-        // the safe (fail-closed) choice: it can cost one extra background cycle of the fallback
-        // not applying to an unrelated, still-trusted network, but it can never leave a revoked
-        // network fail-open.
+        // #270/#620 follow-up: removing an entry revokes trust for whatever BSSID it named.
+        // Even though C2 (#606) normally supplies unmasked BSSIDs directly, the defensive
+        // fallback cache compares against SSID and cannot distinguish which BSSID produced the
+        // cached trust. Clearing unconditionally on every removal ensures strict fail-closed
+        // hygiene: a revoked network never remains trusted through stale fallback cache.
         forgetVerifiedTrust();
         return true;
     }
@@ -429,9 +430,8 @@ final class KeepADBTrustedNetwork {
         if (!isAllowlistMode(context)) return BlockReason.NONE;
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
         if (isTrusted(context, identity)) return BlockReason.NONE;
-        // isTrusted() already tried the masked-BSSID fallback below -- if it still couldn't
-        // decide, tell the difference between "we can see it's unlisted" (identity known) and
-        // "we can't even tell what network this is" (identity unknown), same as before #270.
+        // isTrusted() already evaluated allowlist and tried the defensive fallback below --
+        // if it still couldn't decide, distinguish "unlisted but known" from "identity unknown".
         return identity.isKnown() ? BlockReason.UNTRUSTED_NETWORK : BlockReason.IDENTITY_UNAVAILABLE;
     }
 
@@ -451,6 +451,10 @@ final class KeepADBTrustedNetwork {
             }
             return trusted;
         }
+        // Defensive fallback path (#270, #354, #620): under C2 (#606), identity.isKnown() is
+        // normally true during foreground service execution with ACCESS_FINE_LOCATION. If BSSID
+        // is redacted (e.g. OEM quirks or missing location type), the fallback evaluates whether
+        // this is a verified continuation of the same connection under an active observer.
         if (!KeepADBNetworkIdentity.REDACTED_BSSID.equals(identity.bssid)) {
             // Unknown or disconnected identity breaks continuity; only exact platform
             // masking may retain a previously verified connection's trust (#313).
@@ -479,9 +483,10 @@ final class KeepADBTrustedNetwork {
     /**
      * The optional SSID match (#492), reached only from the {@code identity.isKnown()} branch of
      * {@link #isTrusted} -- i.e. only when the platform handed us a real, unmasked BSSID for this
-     * very reading. That precondition is what keeps this from becoming the SSID-only fallback
-     * {@link #lastVerifiedTrustedSsid}'s javadoc rejects: it never rescues a masked reading, so it
-     * cannot be satisfied by a rogue access point whose BSSID was never visible.
+     * very reading (guaranteed during background keep-alive by C2, #606). That precondition is what
+     * keeps this from becoming the SSID-only fallback {@link #lastVerifiedTrustedSsid}'s javadoc
+     * rejects: it never rescues a masked reading, so it cannot be satisfied by a rogue access point
+     * whose BSSID was never visible.
      *
      * <p>What it does accept is a *readable* access point whose BSSID is not listed but whose SSID
      * is. That is a genuinely weaker security model and the whole point of the separate opt-in: an
@@ -517,8 +522,9 @@ final class KeepADBTrustedNetwork {
 
     /**
      * Declares whether a live {@code NetworkCallback} is currently invalidating this cache on
-     * every connection change (#354). Called by {@link KeepADBService} around its Wi-Fi callback
-     * registration; see {@link #verifiedTrustObserverActive}.
+     * every connection change (#354, #620). Called by {@link KeepADBService} around its Wi-Fi
+     * callback registration to bound the defensive fallback; see {@link
+     * #verifiedTrustObserverActive}.
      *
      * <p>Every transition -- in either direction -- also drops the cached SSID: the identity of
      * who is watching just changed, so no previously cached reading can still claim uninterrupted
@@ -541,7 +547,7 @@ final class KeepADBTrustedNetwork {
     /** Test-only: clears the in-process verified-trust memory <em>and</em> the #354 observer
      * flag, so tests don't leak state into each other (both are intentionally static/process-wide
      * in production). Resetting to the fail-closed state means a test that wants to exercise the
-     * masked-BSSID fallback has to state that precondition explicitly. */
+     * defensive masked-BSSID fallback has to state that precondition explicitly. */
     static void resetVerifiedTrustForTesting() {
         lastVerifiedTrustedSsid = null;
         verifiedTrustObserverActive = false;

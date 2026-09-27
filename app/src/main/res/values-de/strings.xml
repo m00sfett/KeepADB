@@ -67,6 +67,9 @@
     <string name="battery_optimization_title">Akkuoptimierung kann Keep-Alive einschränken</string>
     <string name="battery_optimization_body">Android kann Keep-Alive im Hintergrund einschränken oder beenden, wenn KeepADB nicht von der Akkuoptimierung ausgenommen ist.</string>
     <string name="battery_optimization_button">Akku-Einstellungen öffnen</string>
+    <string name="network_onboarding_panel_title">Keep-Alive auf vertrauenswürdige Netzwerke beschränken</string>
+    <string name="network_onboarding_panel_body">Keep-Alive kann auf bekannte Heim- oder Büronetzwerke beschränkt werden, um unbefugtes Debugging in fremden WLANs zu blockieren.</string>
+    <string name="network_onboarding_setup_button">Einrichten</string>
     <string name="location_permission_panel_title">Standortberechtigung für vertrauenswürdige Netzwerke nötig</string>
     <string name="location_permission_panel_body">Der Modus „Vertrauenswürdige Netzwerke“ benötigt Standortzugriff, um dein WLAN zu erkennen. Ohne diesen kann Keep-Alive kein vertrauenswürdiges WLAN bestätigen und schaltet nicht automatisch wieder ein.</string>
     <string name="location_permission_panel_grant_button">Standortberechtigung erteilen</string>

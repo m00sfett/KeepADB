@@ -1,0 +1,2 @@
+• Guidance: Added network security onboarding banner on the main screen to easily set up trusted Wi-Fi networks (#619).
+• Internal: Refactored network trust documentation and safeguards for Android 12+ location services (#620).

@@ -17,11 +17,23 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.60` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.61` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.61] - Unreleased
+
+### Added
+- #619: Added network onboarding banner on `MainActivity` for users with Keep-Alive enabled
+  who have not yet restricted protection to trusted Wi-Fi networks (`all_wifi` mode).
+  Includes direct setup action with `EXTRA_FOCUS_NETWORK` in `SettingsActivity` and dismiss persistence.
+
+### Changed
+- #620: Updated Javadoc and docstrings across `KeepADBTrustedNetwork`, `KeepADBNetworkIdentity`,
+  `KeepADBNetworkTrustPrompt`, and `KeepADBService` to accurately reflect while-in-use FGS location
+  privileges under Android 12+ (C2, #606); documented in-memory BSSID masking fallback as a defensive safeguard.
 
 ## [1.8.60] - Unreleased
 

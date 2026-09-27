@@ -211,6 +211,9 @@
     <string name="battery_optimization_title">电池优化可能限制 Keep-Alive</string>
     <string name="battery_optimization_body">若 KeepADB 未被排除在电池优化之外，Android 可能会限制或停止后台的 Keep-Alive。</string>
     <string name="battery_optimization_button">打开电池设置</string>
+    <string name="network_onboarding_panel_title">将 Keep-Alive 限制为受信任的网络</string>
+    <string name="network_onboarding_panel_body">可将 Keep-Alive 限制为已知的家庭或办公室 Wi-Fi 网络，以阻止在外部网络上进行未授权的调试连接。</string>
+    <string name="network_onboarding_setup_button">设置</string>
     <string name="location_permission_panel_title">受信任网络需要位置权限</string>
     <string name="location_permission_panel_body">受信任网络模式需要位置权限来识别你的 Wi-Fi 网络。没有此权限，Keep-Alive 无法确认受信任网络，也不会自动重新启用。</string>
     <string name="location_permission_panel_grant_button">授予位置权限</string>

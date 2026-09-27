@@ -211,6 +211,9 @@
     <string name="battery_optimization_title">Оптимизация батареи может ограничить Keep-Alive</string>
     <string name="battery_optimization_body">Android может ограничить или остановить Keep-Alive в фоне, если KeepADB не исключён из оптимизации батареи.</string>
     <string name="battery_optimization_button">Открыть настройки батареи</string>
+    <string name="network_onboarding_panel_title">Ограничить Keep-Alive доверенными сетями</string>
+    <string name="network_onboarding_panel_body">Keep-Alive можно ограничить известными домашними или офисными сетями Wi-Fi, чтобы блокировать несанкционированные подключения отладки в чужих сетях.</string>
+    <string name="network_onboarding_setup_button">Настроить</string>
     <string name="location_permission_panel_title">Для доверенных сетей требуется разрешение на геолокацию</string>
     <string name="location_permission_panel_body">Режиму доверенных сетей нужен доступ к геолокации, чтобы распознать вашу сеть Wi-Fi. Без него Keep-Alive не может подтвердить доверенную сеть и не включится автоматически.</string>
     <string name="location_permission_panel_grant_button">Предоставить разрешение на геолокацию</string>

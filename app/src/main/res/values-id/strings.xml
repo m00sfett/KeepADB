@@ -211,6 +211,9 @@
     <string name="battery_optimization_title">Pengoptimalan baterai dapat membatasi Keep-Alive</string>
     <string name="battery_optimization_body">Android dapat membatasi atau menghentikan Keep-Alive di latar belakang kecuali KeepADB dikecualikan dari pengoptimalan baterai.</string>
     <string name="battery_optimization_button">Buka setelan baterai</string>
+    <string name="network_onboarding_panel_title">Batasi Keep-Alive pada jaringan tepercaya</string>
+    <string name="network_onboarding_panel_body">Keep-Alive dapat dibatasi pada jaringan Wi-Fi rumah atau kantor yang dikenal untuk memblokir koneksi debugging tanpa izin di jaringan asing.</string>
+    <string name="network_onboarding_setup_button">Siapkan</string>
     <string name="location_permission_panel_title">Izin lokasi diperlukan untuk jaringan tepercaya</string>
     <string name="location_permission_panel_body">Mode jaringan tepercaya memerlukan akses lokasi untuk mengenali jaringan Wi-Fi Anda. Tanpa itu, Keep-Alive tidak dapat memastikan jaringan tepercaya dan tidak akan aktif kembali secara otomatis.</string>
     <string name="location_permission_panel_grant_button">Berikan izin lokasi</string>
