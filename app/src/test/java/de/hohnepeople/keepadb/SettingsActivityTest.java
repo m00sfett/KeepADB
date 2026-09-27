@@ -213,6 +213,44 @@ public class SettingsActivityTest {
         ShadowLooper.idleMainLooper();
     }
 
+    /**
+     * #593: after splitting the radio label into separate TextViews, selecting a profile must
+     * still work both from the whole selection row (the text beside the radio) and from the radio
+     * itself, and must close the dialog.
+     */
+    @Test
+    public void switchProfileDialogSelectsFromTheRowAndFromTheRadio() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        KeepADBUsbProfile.Profile first = KeepADBUsbProfile.add(activity, "First", "10.0.0.1", "", "");
+        KeepADBUsbProfile.Profile second = KeepADBUsbProfile.add(activity, "Second", "10.0.0.2", "", "");
+        assertEquals(second.id, KeepADBUsbProfile.getSelected(activity).id);
+
+        android.widget.RadioButton firstRadio = openSwitchDialogRadios(activity).get(0);
+        ((View) firstRadio.getParent()).performClick();
+        ShadowLooper.idleMainLooper();
+        assertEquals(first.id, KeepADBUsbProfile.getSelected(activity).id);
+        assertNull("Row click must close the dialog", activity.getActiveSwitchProfileDialog());
+
+        android.widget.RadioButton secondRadio = openSwitchDialogRadios(activity).get(1);
+        secondRadio.performClick();
+        ShadowLooper.idleMainLooper();
+        assertEquals(second.id, KeepADBUsbProfile.getSelected(activity).id);
+        assertNull("Radio click must close the dialog", activity.getActiveSwitchProfileDialog());
+    }
+
+    private List<android.widget.RadioButton> openSwitchDialogRadios(SettingsActivity activity) {
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+        AlertDialog dialog = activity.getActiveSwitchProfileDialog();
+        assertNotNull("Profile switch dialog should be showing", dialog);
+        List<android.widget.RadioButton> radios = findViewsByType(
+                dialog.findViewById(android.R.id.custom), android.widget.RadioButton.class);
+        assertEquals(2, radios.size());
+        return radios;
+    }
+
     @Test
     public void actionButtonsHaveContextualAccessibilityDescriptions() {
         ActivityController<SettingsActivity> controller =
