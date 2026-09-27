@@ -208,8 +208,8 @@ final class KeepADBNotification {
     }
 
     /**
-     * #597: the lock-screen copy shown when the platform is configured to reveal private
-     * notification content there. Reuses {@code notification_text_active_hidden} for the text --
+     * #597: the lock-screen copy Android shows while it redacts sensitive notification content
+     * there (with sensitive content allowed, the private notification is shown instead). Reuses {@code notification_text_active_hidden} for the text --
      * the same neutral fallback {@link #buildNotification} itself shows as contentText whenever
      * details are off -- so the port/IP endpoint can never reach the lock screen through
      * publicVersion, even while the opt-in is on and the private card carries it. No content
