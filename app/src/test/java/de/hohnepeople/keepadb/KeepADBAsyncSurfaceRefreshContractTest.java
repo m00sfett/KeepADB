@@ -36,24 +36,39 @@ import org.junit.Test;
  * MainActivity} through each of the three distinct last-report outcomes and assert on the
  * actually rendered {@code TextView} text.
  *
- * <p>The remaining seven tests stay intentionally static source-content contracts. Each protects
- * a specific internal ordering invariant (a field write landing before a cross-surface refresh
- * fires, a listener registration landing before the call that would otherwise race it, a
- * generation counter being checked before use) inside {@code KeepADBEndpointCoordinator}'s asynchronous
- * discovery callbacks, {@code MainActivity}'s endpoint-listener lifecycle, and {@code
- * KeepADBWidget}'s cross-thread refresh dispatch. None of these orderings has an external,
- * black-box-observable outcome distinguishable from source inspection without either (a) a raw
- * background {@link Thread} plus real socket check -- already documented as deliberately out of
- * Robolectric's scope by {@link
- * KeepADBNotificationRobolectricTest#wifiNetworkCallbackIsRegisteredAgainstARealConnectivityManager()}
- * -- or (b) standing up materially new test infrastructure this bounded issue does not cover (a
- * full {@code ActivityController}-driven exercise of {@code MainActivity}'s private {@code
+ * <p>#601 removed two more of this class's tests -- {@code
+ * activityDropsQueuedEndpointCallbacksAfterPauseAndRecreation} and {@code
+ * widgetStateRefreshRunsOnMainThreadWithoutStartingDiscovery} -- which the previous revision of
+ * this Javadoc had flagged as follow-up work rather than attempted, since real behavior tests for
+ * them needed test infrastructure this class's helpers do not provide: a full {@code
+ * ActivityController}-driven exercise of {@code MainActivity}'s private {@code
  * endpointListenerGeneration}/{@code endpointSurfaceActive} race guard across pause/resume/
- * recreate, and an {@code AppWidgetManager} fake for {@code KeepADBWidget}'s main-thread dispatch
- * -- both flagged as follow-up work, not attempted here per AGENTS.md's "kein Refactor" scope
- * limit on this issue). Kept per AGENTS.md/#286: each protects a clearly named invariant and a
- * text check is well suited to it, since the property under test is an ordering fact about the
- * source itself, not a computed runtime value.
+ * recreate, and a real {@code AppWidgetManager} fake for {@code KeepADBWidget}'s main-thread
+ * dispatch. Both are now covered by real Robolectric behavior tests instead: {@link
+ * MainActivityEndpointListenerGenerationTest#activityDropsQueuedEndpointCallbacksAfterPauseAndRecreation()}
+ * drives a real {@code MainActivity} through exactly that {@code ActivityController} pause/
+ * resume/recreate choreography and asserts that a callback delivered through a superseded
+ * listener/generation never reaches the rendered {@code R.id.endpoint} text, while a
+ * current-generation callback does; {@link
+ * KeepADBWidgetMainThreadRefreshTest#widgetStateRefreshRunsOnMainThreadWithoutStartingDiscovery()}
+ * drives {@code KeepADBWidget.refreshAllState(Context)} from a genuine background {@link Thread}
+ * against a real {@code ShadowAppWidgetManager}-backed widget and asserts both that the rendered
+ * {@code RemoteViews} text only changes after the main looper runs the posted update, and that no
+ * discovery attempt is ever started (via {@code
+ * KeepADBEndpointCoordinator#hasActiveDiscoveryAttemptForTesting()}).
+ *
+ * <p>The remaining five tests stay intentionally static source-content contracts. Each protects a
+ * specific internal ordering invariant (a field write landing before a cross-surface refresh
+ * fires, a listener registration landing before the call that would otherwise race it) inside
+ * {@code KeepADBEndpointCoordinator}'s asynchronous discovery callbacks and {@code
+ * MainActivity}'s endpoint-listener/webhook-listener registration order. None of these orderings
+ * has an external, black-box-observable outcome distinguishable from source inspection without a
+ * raw background {@link Thread} plus real socket check -- already documented as deliberately out
+ * of Robolectric's scope by {@link
+ * KeepADBNotificationRobolectricTest#wifiNetworkCallbackIsRegisteredAgainstARealConnectivityManager()}.
+ * Kept per AGENTS.md/#286: each protects a clearly named invariant and a text check is well suited
+ * to it, since the property under test is an ordering fact about the source itself, not a
+ * computed runtime value.
  */
 public class KeepADBAsyncSurfaceRefreshContractTest {
 
@@ -146,60 +161,6 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
         assertTrue(pauseBody.contains("KeepADBRegisterClient.clearRegisterStateListener();"));
     }
 
-    @Test
-    public void activityDropsQueuedEndpointCallbacksAfterPauseAndRecreation() throws IOException {
-        String activity = read("app/src/main/java/de/hohnepeople/keepadb/MainActivity.java");
-        String resumeBody = methodBody(activity, "protected void onResume() {");
-        String pauseBody = methodBody(activity, "protected void onPause() {");
-        String availableBody = methodBody(activity,
-                "private void postEndpointAvailable(long listenerGeneration, String host, int port) {");
-        String unavailableBody = methodBody(activity,
-                "private void postEndpointUnavailable(long listenerGeneration) {");
-        String guardBody = methodBody(activity,
-                "private boolean isEndpointSurfaceActive(long listenerGeneration) {");
-
-        int resumeGeneration = resumeBody.indexOf(
-                "final long listenerGeneration = ++endpointListenerGeneration;");
-        int resumeActive = resumeBody.indexOf("endpointSurfaceActive = true;");
-        int listenerRegistration = resumeBody.indexOf("KeepADBEndpointCoordinator.setEndpointListener(");
-        int pauseInactive = pauseBody.indexOf("endpointSurfaceActive = false;");
-        int pauseGeneration = pauseBody.indexOf("endpointListenerGeneration++;");
-        int listenerClear = pauseBody.indexOf("KeepADBEndpointCoordinator.clearEndpointListener();");
-
-        assertTrue(resumeGeneration >= 0);
-        assertTrue(resumeActive > resumeGeneration);
-        assertTrue(listenerRegistration > resumeActive);
-        assertTrue(pauseInactive >= 0);
-        assertTrue(pauseGeneration > pauseInactive);
-        assertTrue(listenerClear > pauseGeneration);
-        assertQueuedCallbackIsGuarded(availableBody);
-        assertQueuedCallbackIsGuarded(unavailableBody);
-        assertTrue(guardBody.contains("endpointSurfaceActive"));
-        assertTrue(guardBody.contains("listenerGeneration == endpointListenerGeneration"));
-        assertTrue(guardBody.contains("isFinishing()"));
-        assertTrue(guardBody.contains("isDestroyed()"));
-    }
-
-    @Test
-    public void widgetStateRefreshRunsOnMainThreadWithoutStartingDiscovery() throws IOException {
-        String widget = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBWidget.java");
-        String stateRefreshBody = methodBody(widget, "static void refreshAllState(Context context) {");
-        String refreshBody = methodBody(widget,
-                "private static void refreshAll(Context context, boolean refreshNotification) {");
-        String renderBody = methodBody(widget,
-                "private void render(Context context, AppWidgetManager mgr, int id, boolean refreshNotification) {");
-
-        assertTrue(widget.contains("static void refreshAllState(Context context)"));
-        assertTrue(stateRefreshBody.contains("refreshAll(context, false);"));
-        assertFalse(stateRefreshBody.contains("KeepADBEndpointCoordinator.refresh(context);"));
-        assertTrue(refreshBody.contains("Looper.myLooper() != Looper.getMainLooper()"));
-        assertTrue(refreshBody.contains("MAIN_HANDLER.post("));
-        assertTrue(renderBody.contains("if (refreshNotification)"));
-        int conditional = renderBody.indexOf("if (refreshNotification)");
-        int notificationRefresh = renderBody.indexOf("KeepADBEndpointCoordinator.refresh(context);");
-        assertTrue(notificationRefresh > conditional);
-    }
-
     private static String read(String relativePath) throws IOException {
         Path directory = Paths.get("").toAbsolutePath();
         while (directory != null && !Files.exists(directory.resolve("settings.gradle"))) {
@@ -237,21 +198,6 @@ public class KeepADBAsyncSurfaceRefreshContractTest {
         if (nextCallback < 0) nextCallback = listener.length();
         String callback = listener.substring(start, nextCallback);
         assertTrue(callback.contains(updateCall));
-    }
-
-    private static void assertQueuedCallbackIsGuarded(String callbackBody) {
-        int post = callbackBody.indexOf("runOnUiThread");
-        int guard = callbackBody.indexOf("if (!isEndpointSurfaceActive(listenerGeneration)) return;");
-        // #483: the endpoint text is rendered through renderEndpoint() so the privacy toggle can
-        // re-render it without waiting for a discovery tick. The ordering contract is unchanged:
-        // guard first, then the endpoint render, then refresh().
-        int endpoint = callbackBody.indexOf("renderEndpoint();");
-        if (endpoint < 0) endpoint = callbackBody.indexOf("endpoint.setText");
-        int refresh = callbackBody.indexOf("refresh();");
-        assertTrue(post >= 0);
-        assertTrue(guard > post);
-        assertTrue(endpoint > guard);
-        assertTrue(refresh > endpoint);
     }
 
     private static int findMatchingBrace(String source, int openingBrace) {
