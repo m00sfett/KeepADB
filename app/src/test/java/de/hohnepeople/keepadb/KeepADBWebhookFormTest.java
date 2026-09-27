@@ -1,6 +1,8 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
@@ -9,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import org.junit.After;
 import org.junit.Before;
@@ -153,5 +156,82 @@ public class KeepADBWebhookFormTest {
         assertTrue("Toggle must reflect the persisted enabled flag", toggle.isChecked());
         assertEquals("Cleartext warning must be shown for a persisted http:// URL",
                 View.VISIBLE, warning.getVisibility());
+    }
+
+    /**
+     * #595 AC2, save side of the empty-input rules: with the webhook disabled, saving an empty
+     * (whitespace-only) field is an explicit "forget the URL" and succeeds.
+     */
+    @Test
+    public void savingAnEmptyInputClearsTheSavedUrlWhileTheWebhookIsDisabled() {
+        Activity activity = newActivityWithSettingsLayout();
+        KeepADBPreferences.setRegisterWebhookUrl(activity, "https://saved.example/register/device");
+        int[] changeCount = {0};
+        KeepADBWebhookForm form = new KeepADBWebhookForm(activity, () -> changeCount[0]++);
+
+        EditText input = activity.findViewById(R.id.settings_webhook_url);
+        TextView error = activity.findViewById(R.id.settings_webhook_error);
+        input.setText("   ");
+        activity.findViewById(R.id.settings_webhook_save).performClick();
+
+        assertNull("An empty save while disabled must clear the persisted URL",
+                KeepADBPreferences.getRegisterWebhookUrl(activity));
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertEquals(View.GONE, error.getVisibility());
+        assertEquals(1, changeCount[0]);
+    }
+
+    /**
+     * #595 AC2, the other side of the same save rule: while the webhook is enabled an empty save
+     * is rejected and must neither drop the persisted URL nor disable the webhook.
+     */
+    @Test
+    public void savingAnEmptyInputIsRejectedWhileTheWebhookIsEnabled() {
+        Activity activity = newActivityWithSettingsLayout();
+        KeepADBPreferences.setRegisterWebhookUrl(activity, "https://saved.example/register/device");
+        KeepADBPreferences.setRegisterWebhookEnabled(activity, true);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        int[] changeCount = {0};
+        KeepADBWebhookForm form = new KeepADBWebhookForm(activity, () -> changeCount[0]++);
+
+        EditText input = activity.findViewById(R.id.settings_webhook_url);
+        TextView error = activity.findViewById(R.id.settings_webhook_error);
+        input.setText("");
+        activity.findViewById(R.id.settings_webhook_save).performClick();
+
+        assertEquals("https://saved.example/register/device",
+                KeepADBPreferences.getRegisterWebhookUrl(activity));
+        assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertEquals(View.VISIBLE, error.getVisibility());
+        assertEquals(activity.getString(R.string.settings_webhook_error_missing_url),
+                error.getText().toString());
+        assertTrue(transport.recordedRequests.isEmpty());
+        assertEquals(0, changeCount[0]);
+    }
+
+    /**
+     * #595 AC2, enable side: unlike save, enabling never accepts an empty input -- the toggle
+     * snaps back off and nothing is persisted.
+     */
+    @Test
+    public void enablingWithAnEmptyInputIsRejectedAndSnapsTheToggleBack() {
+        Activity activity = newActivityWithSettingsLayout();
+        int[] changeCount = {0};
+        KeepADBWebhookForm form = new KeepADBWebhookForm(activity, () -> changeCount[0]++);
+
+        EditText input = activity.findViewById(R.id.settings_webhook_url);
+        Switch toggle = activity.findViewById(R.id.settings_webhook_toggle);
+        TextView error = activity.findViewById(R.id.settings_webhook_error);
+        input.setText("  ");
+        toggle.performClick();
+
+        assertFalse("The toggle must snap back off", toggle.isChecked());
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertNull(KeepADBPreferences.getRegisterWebhookUrl(activity));
+        assertEquals(View.VISIBLE, error.getVisibility());
+        assertEquals(activity.getString(R.string.settings_webhook_error_missing_url),
+                error.getText().toString());
+        assertEquals(0, changeCount[0]);
     }
 }

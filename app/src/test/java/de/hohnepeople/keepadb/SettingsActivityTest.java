@@ -241,6 +241,47 @@ public class SettingsActivityTest {
         assertNull("Radio click must close the dialog", activity.getActiveSwitchProfileDialog());
     }
 
+    /**
+     * #595 AC5: the USB notification's profile actions reach SettingsActivity as an intent extra
+     * that onResume() hands to the extracted profile editor. SWITCH (with existing profiles) must
+     * open the switch list, CREATE the edit dialog; the extra is consumed, so a later resume does
+     * not reopen the dialog.
+     */
+    @Test
+    public void profileActionIntentExtraOpensTheMatchingDialogOnceAndIsConsumed() {
+        android.content.Context app = RuntimeEnvironment.getApplication();
+        KeepADBUsbProfile.add(app, "Desk", "10.0.0.1", "", "");
+
+        Intent switchIntent = new Intent(app, SettingsActivity.class)
+                .putExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION, KeepADBUsbNotification.ACTION_SWITCH);
+        ActivityController<SettingsActivity> switchController =
+                Robolectric.buildActivity(SettingsActivity.class, switchIntent).setup();
+        SettingsActivity switchActivity = switchController.get();
+        ShadowLooper.idleMainLooper();
+        AlertDialog switchDialog = switchActivity.getActiveSwitchProfileDialog();
+        assertNotNull("SWITCH must open the profile switch list", switchDialog);
+        assertNull(switchActivity.getActiveProfileEditDialog());
+        assertFalse("The extra must be consumed",
+                switchActivity.getIntent().hasExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION));
+        switchDialog.dismiss();
+        ShadowLooper.idleMainLooper();
+        switchController.pause().resume();
+        ShadowLooper.idleMainLooper();
+        assertNull("A later resume must not reopen the dialog",
+                switchActivity.getActiveSwitchProfileDialog());
+        switchController.pause().stop().destroy();
+
+        Intent createIntent = new Intent(app, SettingsActivity.class)
+                .putExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION, KeepADBUsbNotification.ACTION_CREATE);
+        ActivityController<SettingsActivity> createController =
+                Robolectric.buildActivity(SettingsActivity.class, createIntent).setup();
+        SettingsActivity createActivity = createController.get();
+        ShadowLooper.idleMainLooper();
+        assertNotNull("CREATE must open the edit dialog", createActivity.getActiveProfileEditDialog());
+        assertNull(createActivity.getActiveSwitchProfileDialog());
+        createController.pause().stop().destroy();
+    }
+
     private List<android.widget.RadioButton> openSwitchDialogRadios(SettingsActivity activity) {
         activity.findViewById(R.id.settings_usb_profile_action).performClick();
         ShadowLooper.idleMainLooper();
