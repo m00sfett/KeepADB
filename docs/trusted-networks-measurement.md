@@ -63,3 +63,39 @@ aus dem laufenden Prozess.
 - **Nur eine Plattform.** Alle Werte stammen von Android 13 auf dem S20. Ein OEM-WLAN-Stack, der
   die beiden Berechtigungsprüfungen trennt, würde Schlussfolgerung 3 lokal aufheben; genau dafür
   bleibt der defensive Fallback in `KeepADBTrustedNetwork` bestehen.
+
+## Nachtrag (#606, 2026-09-27): Mess-Spike mit `ACCESS_BACKGROUND_LOCATION` (C1)
+
+Vor der Produktentscheidung zu #606 (Richtung C, Hintergrund-Standort) wurde auf einem
+Wegwerf-Branch (`spike/606-background-location-measurement`, nicht gemergt) gemessen, ob
+`ACCESS_BACKGROUND_LOCATION` die in Fall B/C oben dokumentierte Maskierung tatsächlich aufhebt.
+Aufbau: dieselbe Log-Sonde in `KeepADBNetworkIdentity.current()` wie oben, plus ein temporärer
+exportierter `BroadcastReceiver` (`Spike606ProbeReceiver`), der die Lesung per
+`adb shell am broadcast -a de.hohnepeople.keepadb.SPIKE606_PROBE` unabhängig vom App-Zustand
+auslöst. Berechtigung erteilt via `pm grant … android.permission.ACCESS_BACKGROUND_LOCATION`,
+Service-Typ unverändert `connectedDevice`. Referenzwahrheit: `moosNET`,
+`2c:91:ab:0f:13:05` (5 GHz) bzw. `2c:91:ab:0f:13:04` (2,4 GHz, nach Reboot neu verbunden).
+
+| Fall | App-/Geräte-Zustand | Gelieferte SSID | Gelieferte BSSID | `isKnown()` |
+|---|---|---|---|---|
+| C1-B | Foreground-Service läuft, keine sichtbare Activity | `moosNET` | `2c:91:ab:0f:13:05` | `true` |
+| C1-C | kein Service läuft, App vollständig im Hintergrund | `moosNET` | `2c:91:ab:0f:13:05` | `true` |
+| C1-Reboot | echter Reboot, App **nie geöffnet**, Service durch `BootReceiver` automatisch gestartet, Bildschirm gesperrt | `moosNET` | `2c:91:ab:0f:13:04` | `true` |
+
+**Ergebnis: eindeutig positiv in allen drei kritischen Fällen.** Mit erteiltem
+`ACCESS_BACKGROUND_LOCATION` liefert `WifiManager#getConnectionInfo()` in genau den Zuständen,
+die Fall B/C oben maskiert hatten, die echte Identität — auch nach einem kompletten Reboot ohne
+jede App-Interaktion. Das hebt die in Schlussfolgerung 2 oben beschriebene
+Plattformgrenze auf, sofern die Berechtigung erteilt ist.
+
+**Randbefund (Boot-Timing, kein #606-Fehler):** Nach einem echten Reboot liefert Android
+`BOOT_COMPLETED` an nicht direct-boot-fähige Apps erst **nach der ersten Entsperrung** des
+Geräts (FBE/credential-encrypted storage). Vor der ersten Entsperrung bleibt der Foreground-
+Service also aus, unabhängig von #606 — das betrifft den bestehenden `BootReceiver`-Mechanismus
+insgesamt, nicht nur die Hintergrund-Standort-Frage, und ist hier nur als Randbeobachtung
+vermerkt, nicht weiter untersucht.
+
+**Nicht gemessen: C2** (`foregroundServiceType="connectedDevice|location"` ohne
+Background-Grant). Nach dem eindeutigen C1-Ergebnis und angesichts des Aufwands eines weiteren
+Build-/Install-/Reboot-Zyklus wurde diese Variante in diesem Lauf ausgesetzt; siehe Rückfrage
+im zugehörigen Issue.
