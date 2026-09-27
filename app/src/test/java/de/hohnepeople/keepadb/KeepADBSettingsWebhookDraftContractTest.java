@@ -1,18 +1,34 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.junit.Test;
 
-/** Contracts for preserving the webhook URL draft without changing persisted state. */
+/**
+ * Contracts for preserving the webhook URL draft without changing persisted state.
+ *
+ * <p>The three tests below exercise {@link SettingsActivity#resolveWebhookDraft} directly as a
+ * pure function -- genuine behavior tests, not source greps, and unaffected by #596.
+ *
+ * <p>#596 (codequality review CQ-03) removed the fourth test that used to live here,
+ * {@code lifecycleRestorationDoesNotPersistOrToggleTheDraft}: it grepped {@code onResume()}'s
+ * source body (sliced off at the next method's declaration) for the *absence* of three setter/
+ * network method names. A refactor that renamed or inlined any of those calls could turn it red
+ * with no behavior change, and it never actually drove a real activity restore to prove the draft
+ * itself came through intact. Replaced by two real Robolectric activity-recreation tests in
+ * {@link SettingsActivityTest}:
+ * <ul>
+ *   <li>{@link SettingsActivityTest#unsavedWebhookDraftSurvivesActivityRecreation()} (partially
+ *       edited draft; pre-existing since #579, now also asserting the enabled flag and network
+ *       request stay untouched).</li>
+ *   <li>{@link SettingsActivityTest#emptyWebhookDraftSurvivesActivityRecreation()} (#596: the
+ *       empty-draft case the source-content check never actually exercised either).</li>
+ * </ul>
+ * Both drive a real {@code saveInstanceState -> new instance -> setup(bundle)} cycle and assert
+ * on the actual outcome: the restored field text, {@code KeepADBPreferences}' persisted URL and
+ * enabled flag, and a {@link KeepADBFakeHttpTransport}'s recorded requests -- the same three
+ * things the removed check named by method name, but proven by effect instead of by grep.
+ */
 public class KeepADBSettingsWebhookDraftContractTest {
     @Test
     public void emptyDraftIsPreserved() {
@@ -29,35 +45,5 @@ public class KeepADBSettingsWebhookDraftContractTest {
     public void partiallyEditedDraftWinsOverSavedUrl() {
         assertEquals("https://draft.example/pa",
                 SettingsActivity.resolveWebhookDraft("https://saved.example", "https://draft.example/pa", true));
-    }
-
-    @Test
-    public void lifecycleRestorationDoesNotPersistOrToggleTheDraft() throws IOException {
-        String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
-        assertTrue(activity.contains("onSaveInstanceState(Bundle outState)"));
-        assertTrue(activity.contains("STATE_WEBHOOK_DRAFT_URL"));
-        assertTrue(activity.contains("if (!webhookDraftInitialized)"));
-
-        int onResumeStart = activity.indexOf("protected void onResume()");
-        int onResumeEnd = activity.indexOf("protected void onSaveInstanceState", onResumeStart);
-        String onResume = activity.substring(onResumeStart, onResumeEnd);
-        assertFalse(onResume.contains("setRegisterWebhookUrl"));
-        assertFalse(onResume.contains("setRegisterWebhookEnabled"));
-        assertFalse(onResume.contains("unregisterAndDisableAsync"));
-    }
-
-    private static Path projectPath(String relativePath) {
-        Path directory = Paths.get("").toAbsolutePath();
-        while (directory != null && !Files.exists(directory.resolve("settings.gradle"))) {
-            directory = directory.getParent();
-        }
-        if (directory == null) {
-            throw new IllegalStateException("Could not locate project root");
-        }
-        return directory.resolve(relativePath);
-    }
-
-    private static String read(String relativePath) throws IOException {
-        return new String(Files.readAllBytes(projectPath(relativePath)), StandardCharsets.UTF_8);
     }
 }

@@ -67,6 +67,7 @@ public class SettingsActivityTest {
                 .clear()
                 .commit();
         KeepADB.resetForTesting();
+        KeepADBRegisterClient.resetHttpTransport();
     }
 
     /**
@@ -415,12 +416,26 @@ public class SettingsActivityTest {
      * #579 (UI-02): an unsaved webhook URL typed into the field must survive a real activity
      * recreation (saveInstanceState -> new instance -> setup(bundle)) instead of being replaced by
      * the saved preference value in onResume().
+     *
+     * <p>#596: also pins the rest of what {@code KeepADBSettingsWebhookDraftContractTest}'s
+     * removed {@code lifecycleRestorationDoesNotPersistOrToggleTheDraft} source-content check used
+     * to (only) assert by grepping {@code onResume()}'s body for absent method calls -- that
+     * restoring a draft must not toggle the persisted enabled flag, and must not trigger a webhook
+     * network request either. The enabled flag and the fake transport's recorded requests are both
+     * observable side effects of the exact two calls that check used to grep for
+     * ({@code setRegisterWebhookEnabled}/{@code unregisterAndDisableAsync}); driving the real
+     * lifecycle end-to-end and observing their absence is equivalent proof without depending on
+     * those specific method names.
      */
     @Test
     public void unsavedWebhookDraftSurvivesActivityRecreation() {
         String savedUrl = "https://saved.example/register/device";
         String unsavedDraft = "https://draft.example/register/other";
-        KeepADBPreferences.setRegisterWebhookUrl(RuntimeEnvironment.getApplication(), savedUrl);
+        android.content.Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setRegisterWebhookUrl(context, savedUrl);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
 
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
@@ -438,7 +453,51 @@ public class SettingsActivityTest {
         assertEquals("Unsaved webhook draft must survive recreation",
                 unsavedDraft, restoredInput.getText().toString());
         assertEquals("Recreation must not persist the draft",
-                savedUrl, KeepADBPreferences.getRegisterWebhookUrl(RuntimeEnvironment.getApplication()));
+                savedUrl, KeepADBPreferences.getRegisterWebhookUrl(context));
+        assertTrue("Recreation must not toggle the webhook enabled flag",
+                KeepADBPreferences.isRegisterWebhookEnabled(context));
+        assertTrue("Recreation must not trigger any webhook network request",
+                transport.recordedRequests.isEmpty());
+        recreated.pause().stop().destroy();
+    }
+
+    /**
+     * #596: the empty-draft counterpart of {@link #unsavedWebhookDraftSurvivesActivityRecreation()}
+     * -- an explicitly cleared field is itself a draft (distinct from "never touched", which would
+     * fall back to the saved URL) and must survive recreation the same way, not be silently
+     * replaced by the saved preference value.
+     */
+    @Test
+    public void emptyWebhookDraftSurvivesActivityRecreation() {
+        String savedUrl = "https://saved.example/register/device";
+        android.content.Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setRegisterWebhookUrl(context, savedUrl);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        EditText input = controller.get().findViewById(R.id.settings_webhook_url);
+        assertEquals(savedUrl, input.getText().toString());
+
+        input.setText("");
+        Bundle savedState = new Bundle();
+        controller.saveInstanceState(savedState);
+        controller.pause().stop().destroy();
+
+        ActivityController<SettingsActivity> recreated =
+                Robolectric.buildActivity(SettingsActivity.class).setup(savedState);
+        EditText restoredInput = recreated.get().findViewById(R.id.settings_webhook_url);
+        assertEquals("An explicitly cleared draft must survive recreation as empty, not fall back "
+                        + "to the saved URL", "", restoredInput.getText().toString());
+        assertEquals("Recreation must not persist the empty draft",
+                savedUrl, KeepADBPreferences.getRegisterWebhookUrl(context));
+        assertTrue("Recreation must not toggle the webhook enabled flag",
+                KeepADBPreferences.isRegisterWebhookEnabled(context));
+        assertTrue("Recreation must not trigger any webhook network request",
+                transport.recordedRequests.isEmpty());
+        recreated.pause().stop().destroy();
     }
 
     @Test
