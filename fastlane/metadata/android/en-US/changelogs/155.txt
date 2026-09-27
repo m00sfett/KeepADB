@@ -1,0 +1,1 @@
+• Internal: hardened two notifications' tap targets against a possible future overwrite. No user-facing change in this version.

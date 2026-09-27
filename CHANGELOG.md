@@ -17,11 +17,30 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.57` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.58` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.58] - Unreleased
+
+### Fixed
+- #603: `KeepADBUsbNotification`'s no-profile content intent and two `KeepADBNetworkTrustPrompt`
+  content intents (`showIdentityUnavailable`, and the details-on branch of `show`) each opened
+  `SettingsActivity` with an extras-free `PendingIntent.getActivity(context, 0, ...)`.
+  `PendingIntent#filterEquals` ignores extras, so all three -- request code 0, same component,
+  same action-less intent -- shared one `PendingIntent` identity; harmless today since none of
+  them relies on extras, but a future extra added to any one of them would have had
+  `FLAG_UPDATE_CURRENT` silently overwrite another's pending tap target. Gave each its own request
+  code (`KeepADBUsbNotification.NO_PROFILE_CONTENT_REQUEST_CODE = 2`;
+  `KeepADBNetworkTrustPrompt.REQUEST_CODE_DETAILS_ON_CONTENT = 13` and
+  `REQUEST_CODE_IDENTITY_UNAVAILABLE = 14`, alongside the existing 10/11/12), none colliding with
+  each other or with the existing `HANDOVER_ACTION_REQUEST_CODE = 1` and
+  `REQUEST_CODE_CONFIRM_IN_APP = 12`. No behavior change. New
+  `KeepADBUsbNotificationTest#noProfileContentIntentUsesARequestCodeDistinctFromNetworkTrustPromptOnes`
+  reads the request code back via Robolectric's `ShadowPendingIntent#getRequestCode()` and asserts
+  it avoids every `KeepADBNetworkTrustPrompt` request code.
 
 ## [1.8.57] - Unreleased
 

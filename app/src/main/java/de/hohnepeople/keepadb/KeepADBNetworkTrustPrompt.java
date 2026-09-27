@@ -95,6 +95,13 @@ final class KeepADBNetworkTrustPrompt {
     private static final int REQUEST_CODE_TRUST = 10;
     private static final int REQUEST_CODE_DISMISS = 11;
     private static final int REQUEST_CODE_CONFIRM_IN_APP = 12;
+    // #603: distinct request codes for the two remaining extras-free SettingsActivity
+    // getActivity PendingIntents in this class -- PendingIntent#filterEquals ignores extras, so
+    // without these both would otherwise share an identity with each other and with
+    // KeepADBUsbNotification's own extras-free SettingsActivity PendingIntent, letting
+    // FLAG_UPDATE_CURRENT silently overwrite one with the other.
+    private static final int REQUEST_CODE_DETAILS_ON_CONTENT = 13;
+    private static final int REQUEST_CODE_IDENTITY_UNAVAILABLE = 14;
 
     /**
      * Throttle key for the identity-unavailable notification (#460). It shares {@link
@@ -321,7 +328,7 @@ final class KeepADBNetworkTrustPrompt {
                 ? localized.getString(R.string.network_prompt_text, label, bssid)
                 : localized.getString(R.string.network_prompt_confirm_in_app_text);
         PendingIntent contentIntent = details
-                ? PendingIntent.getActivity(context, 0,
+                ? PendingIntent.getActivity(context, REQUEST_CODE_DETAILS_ON_CONTENT,
                         new Intent(context, SettingsActivity.class)
                                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                                         | Intent.FLAG_ACTIVITY_CLEAR_TOP),
@@ -443,7 +450,7 @@ final class KeepADBNetworkTrustPrompt {
                 .setContentTitle(localized.getString(R.string.network_prompt_identity_unavailable_title))
                 .setContentText(text)
                 .setStyle(new Notification.BigTextStyle().bigText(text))
-                .setContentIntent(PendingIntent.getActivity(context, 0,
+                .setContentIntent(PendingIntent.getActivity(context, REQUEST_CODE_IDENTITY_UNAVAILABLE,
                         identityUnavailableFixIntent(context),
                         PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE))
                 .setCategory(Notification.CATEGORY_STATUS)
