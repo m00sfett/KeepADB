@@ -122,4 +122,69 @@ public class MainActivityWebhookStatusTest {
         assertTrue("Expected the full host in status text with privacy mode off: " + text,
                 text.contains("http://100.111.111.21:50829/register/s20"));
     }
+
+    /**
+     * #596: replaces {@code KeepADBAsyncSurfaceRefreshContractTest}'s removed {@code
+     * activityRendersEveryPersistedWebhookReportState}, which only grepped {@code
+     * refreshWebhookStatus()}'s source for the {@code WEBHOOK_STATUS_FAILED}/{@code
+     * R.string.webhook_status_failed} constant names. This drives the three distinct last-report
+     * outcomes through a real {@link MainActivity} and asserts on the actually rendered text.
+     */
+    @Test
+    public void webhookStatusRendersTheFailedReportText() {
+        Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        TextView webhookStatus = controller.get().findViewById(R.id.webhook_status);
+        assertNotNull(webhookStatus);
+        String text = webhookStatus.getText().toString();
+
+        assertTrue("Expected the failed-report text: " + text,
+                text.contains(context.getString(R.string.webhook_status_failed)));
+        controller.pause().close();
+    }
+
+    /** See {@link #webhookStatusRendersTheFailedReportText()}. */
+    @Test
+    public void webhookStatusRendersTheDeregisteredEndpointTextAfterASuccessfulDeregistration() {
+        Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
+        KeepADBPreferences.setWebhookLastReportedAtNow(context);
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "");
+
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        TextView webhookStatus = controller.get().findViewById(R.id.webhook_status);
+        assertNotNull(webhookStatus);
+        String text = webhookStatus.getText().toString();
+
+        assertTrue("Expected the deregistered-endpoint text (distinct from 'never reported'): " + text,
+                text.contains(context.getString(R.string.webhook_status_deregistered)));
+        controller.pause().close();
+    }
+
+    /** See {@link #webhookStatusRendersTheFailedReportText()}. */
+    @Test
+    public void webhookStatusRendersTheNoEndpointTextWhenNothingWasEverReported() {
+        Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        // Default state: no report status, no reported-at timestamp, no reported endpoint yet.
+
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        TextView webhookStatus = controller.get().findViewById(R.id.webhook_status);
+        assertNotNull(webhookStatus);
+        String text = webhookStatus.getText().toString();
+
+        assertTrue("Expected the no-endpoint-yet text: " + text,
+                text.contains(context.getString(R.string.webhook_status_no_endpoint)));
+        controller.pause().close();
+    }
 }

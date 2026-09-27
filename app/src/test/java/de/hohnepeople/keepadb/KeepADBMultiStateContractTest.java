@@ -207,6 +207,30 @@ public class KeepADBMultiStateContractTest {
         stopTileService(tileService);
     }
 
+    /**
+     * #596: closes the one direction the removed {@code KeepADBAsyncSurfaceRefreshContractTest}
+     * source-content checks ({@code connectedStateUsesAnAtomicEndpointPair}/{@code
+     * stateContractPinsConnectedAndMissingEndpointDirections}) asserted about {@code
+     * KeepADB.getState()}'s source order (the Wi-Fi guard must be checked before the endpoint
+     * guard) that this file's existing {@code prepareState}/{@code assert*Action} coverage did not
+     * yet exercise: a cached endpoint alone must never be reported as {@code ENABLED_CONNECTED}
+     * once Wi-Fi itself is down, even though nothing in normal operation is expected to leave a
+     * stale cached endpoint behind after a real disconnect (the notification's own event-driven
+     * teardown already clears it) -- this is the defensive belt-and-suspenders case the guard
+     * order exists for.
+     */
+    @Test
+    public void aCachedEndpointNeverReportsConnectedOnceWifiIsDisconnected() throws Exception {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+        seedEndpoint("127.0.0.1", openEndpointServer());
+
+        assertEquals("KeepADB.getState() must report ENABLED_DISCONNECTED, not ENABLED_CONNECTED, "
+                        + "whenever Wi-Fi itself is down -- a cached endpoint address alone must "
+                        + "never be enough",
+                KeepADB.State.ENABLED_DISCONNECTED, KeepADB.getState(context));
+    }
+
     @Test
     public void permissionMissingIsRenderedAndCannotTriggerAnySurfaceAction() {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
