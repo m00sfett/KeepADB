@@ -26,10 +26,10 @@ final class KeepADBUsbNotification {
     // other extras-free one, and FLAG_UPDATE_CURRENT would silently let either overwrite the other.
     private static final int NO_PROFILE_CONTENT_REQUEST_CODE = 2;
 
-    // #168: set when the MANUAL "Enable WLAN-ADB" action failed (e.g. missing
+    // #168: set when the MANUAL "Enable Wifi-ADB" action failed (e.g. missing
     // WRITE_SECURE_SETTINGS), so the notification shows a clear error instead of silently doing
     // nothing or implying success. Cleared as soon as the action button's own precondition
-    // (connected, MANUAL mode, WLAN-ADB still off) no longer holds -- disconnect or a successful
+    // (connected, MANUAL mode, Wifi-ADB still off) no longer holds -- disconnect or a successful
     // enable both make the button (and with it the error) disappear together.
     private static volatile boolean lastHandoverActionFailed;
 
@@ -67,7 +67,7 @@ final class KeepADBUsbNotification {
         return lastHandoverActionFailed;
     }
 
-    /** Result callback for the MANUAL "Enable WLAN-ADB" action (#168). USB is still connected at
+    /** Result callback for the MANUAL "Enable Wifi-ADB" action (#168). USB is still connected at
      * this point (the button that triggered it is only shown while connected), so re-deriving the
      * notification with connected=true is safe and not treated as a fresh connect edge. */
     static void reportManualActionResult(Context context, boolean success) {
@@ -102,7 +102,7 @@ final class KeepADBUsbNotification {
                 .setPublicVersion(publicVersion(context));
 
         // #593: the security-relevant handover action goes first. One UI truncates the last action
-        // when the labels do not fit, so the WLAN-ADB action must never be the one that clips.
+        // when the labels do not fit, so the Wifi-ADB action must never be the one that clips.
         if (handoverActionVisible) {
             builder.addAction(handoverAction(context));
         }

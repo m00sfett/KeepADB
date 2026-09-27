@@ -250,7 +250,7 @@
 
         <!-- #520/#529: "USB-ADB" is the only collapsible level for these settings. Collapsed,
              only the outer title is visible; expanding it reveals the notification and USB ->
-             WLAN-ADB handover sections directly, with no nested header/body/arrow controls. -->
+             Wifi-ADB handover sections directly, with no nested header/body/arrow controls. -->
         <LinearLayout
             android:id="@+id/settings_usb_adb_panel"
             android:layout_width="match_parent"
@@ -400,7 +400,7 @@
             android:layout_marginBottom="16dp"
             android:background="@color/border_red" />
 
-        <!-- USB -> WLAN-ADB Handover Section (#168/#529: directly visible inside the outer body) -->
+        <!-- USB -> Wifi-ADB Handover Section (#168/#529: directly visible inside the outer body) -->
         <LinearLayout
             android:id="@+id/settings_usb_handover_panel"
             android:layout_width="match_parent"

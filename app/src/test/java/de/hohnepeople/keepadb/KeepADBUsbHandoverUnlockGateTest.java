@@ -35,7 +35,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowKeyguardManager;
 
 /**
- * #588: the USB notification's MANUAL "Enable WLAN-ADB" action must not switch Wireless Debugging
+ * #588: the USB notification's MANUAL "Enable Wifi-ADB" action must not switch Wireless Debugging
  * on from a locked, secured device. Pinned on both layers: the built {@link Notification.Action}
  * asks the platform to reauthenticate (API 31+), and the real receiver path refuses while
  * {@link KeyguardManager#isDeviceLocked()} -- on API 30 too, where the platform flag is absent.

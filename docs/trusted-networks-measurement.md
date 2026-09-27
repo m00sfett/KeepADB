@@ -58,7 +58,7 @@ aus dem laufenden Prozess.
 
 - **Echter AP-/Mesh-Wechsel nicht gemessen.** Das Testnetz hat zwar zwei BSSIDs unter einer SSID
   (siehe oben), ein Bandwechsel lässt sich aber nicht fernsteuernd erzwingen, und ein zweiter
-  physischer Zugangspunkt stand nicht bereit. Ein Wechsel hätte zudem die WLAN-ADB-Verbindung
+  physischer Zugangspunkt stand nicht bereit. Ein Wechsel hätte zudem die Wifi-ADB-Verbindung
   gekappt, über die gemessen wurde. Nicht simuliert, sondern hier als offene Lücke vermerkt.
 - **Nur eine Plattform.** Alle Werte stammen von Android 13 auf dem S20. Ein OEM-WLAN-Stack, der
   die beiden Berechtigungsprüfungen trennt, würde Schlussfolgerung 3 lokal aufheben; genau dafür

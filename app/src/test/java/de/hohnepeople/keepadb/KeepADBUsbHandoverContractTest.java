@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 import org.junit.Test;
 
 /**
- * Contract tests for the #168 USB-ADB -&gt; WLAN-ADB handover wiring. Mirrors
+ * Contract tests for the #168 USB-ADB -&gt; Wifi-ADB handover wiring. Mirrors
  * {@link KeepADBBootReceiverContractTest}'s source-reading style for the parts that need a real
  * Android Context (NotificationManager, checkSelfPermission, ContentResolver) and therefore
  * can't run as plain JVM behavioral tests without Robolectric. The decision core itself
@@ -51,7 +51,7 @@ public class KeepADBUsbHandoverContractTest {
         // one-shot token consumed by KeepADBService's content observer for an unrelated
         // Keep-Alive decision, so a second independent reader of it can be silently starved by
         // that consume() -- confirmed on real hardware (manual off -> content observer's
-        // consumeUserDisabled() -> later genuine USB reconnect wrongly re-enabled WLAN-ADB).
+        // consumeUserDisabled() -> later genuine USB reconnect wrongly re-enabled Wifi-ADB).
         assertTrue(body.contains("KeepADB.wasLastExplicitIntentOff(appContext)"));
         assertFalse(body.contains("KeepADB.isUserDisabled()"));
         // #582: reads through the safe isEnabledOrNull() wrapper now, not the bare isEnabled(),
@@ -137,7 +137,7 @@ public class KeepADBUsbHandoverContractTest {
 
         // Unlike setKeepAliveEnabled(), merely picking a handover mode must not itself clear an
         // earlier explicit user disable -- only a genuine new connect edge (AUTOMATIC) or the
-        // manual notification action may ever re-enable WLAN-ADB.
+        // manual notification action may ever re-enable Wifi-ADB.
         assertFalse(setterBody.contains("consumeUserDisabled"));
 
         int keepAliveStart = preferences.indexOf("static void setKeepAliveEnabled(Context context, boolean enabled)");

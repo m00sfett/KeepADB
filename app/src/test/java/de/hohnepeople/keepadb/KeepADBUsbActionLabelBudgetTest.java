@@ -54,10 +54,10 @@ public class KeepADBUsbActionLabelBudgetTest {
 
     @Test
     public void columnRuleCountsWideScriptsTwiceAndMarksNotAtAll() {
-        assertEquals(8, columns("WLAN-ADB"));
+        assertEquals(8, columns("Wifi-ADB"));
         assertEquals(4, columns("切换"));
         assertEquals(3, columns("बदलें"));
-        assertTrue(columns("WLAN-ADB an") > SLOT_BUDGET);
+        assertTrue(columns("Wifi-ADB an") > SLOT_BUDGET);
         assertTrue(columns("プロファイル切替") > SLOT_BUDGET);
     }
 

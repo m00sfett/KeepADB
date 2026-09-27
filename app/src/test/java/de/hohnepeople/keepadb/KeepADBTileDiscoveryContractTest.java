@@ -508,7 +508,7 @@ public class KeepADBTileDiscoveryContractTest {
             throws IOException {
         // Carries issue #267 (2) forward across the #318 rework. #267 established that a tap must
         // not switch Wireless Debugging *off* while it only looks disconnected, and that the
-        // "WLAN-ADB actually off, Keep-Alive merely waiting for its own timer" sub-case must force
+        // "Wifi-ADB actually off, Keep-Alive merely waiting for its own timer" sub-case must force
         // an immediate re-enable rather than a no-op refreshForTile(). #318 kept that behavior but
         // stopped expressing it as a tile-only special case: the sub-case became its own state,
         // OFF_KEEP_ALIVE_WAITING, and KeepADB.desiredOnForClick() maps it to "enable" for the
@@ -528,8 +528,8 @@ public class KeepADBTileDiscoveryContractTest {
     public void tappingTheTileWhileEnabledButDisconnectedStillReconnectsInsteadOfDisabling()
             throws IOException {
         // Issue #267 (2), upheld across #318 by explicit user decision (#318 comment 5605497911):
-        // ENABLED_DISCONNECTED means WLAN-ADB is on but no endpoint is known, and a tap on the
-        // tile in that situation must retry discovery, never switch WLAN-ADB off. This is the one
+        // ENABLED_DISCONNECTED means Wifi-ADB is on but no endpoint is known, and a tap on the
+        // tile in that situation must retry discovery, never switch Wifi-ADB off. This is the one
         // sanctioned deviation from the otherwise uniform click semantics; MainActivity's switch
         // and the widget deliberately keep disabling for the same state.
         String tile = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTileService.java");
@@ -545,7 +545,7 @@ public class KeepADBTileDiscoveryContractTest {
         assertTrue("The exception must retrigger discovery", reconnectCall > disconnectedBranch);
         assertTrue("It must return before reaching the shared toggle logic",
                 earlyReturn > reconnectCall);
-        assertTrue("The toggle (which would disable WLAN-ADB) must be unreachable from it",
+        assertTrue("The toggle (which would disable Wifi-ADB) must be unreachable from it",
                 wantAssignment > earlyReturn);
         assertFalse("The exception must never disable wireless debugging",
                 body.substring(disconnectedBranch, earlyReturn).contains("KeepADB.setEnabled(this, false"));

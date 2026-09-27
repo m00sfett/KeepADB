@@ -165,7 +165,7 @@ public class KeepADBUsbNotificationTest {
 
     /**
      * #593: One UI truncates the last action when the labels do not fit, so the security-relevant
-     * WLAN-ADB handover action must come first in every branch -- with profiles, without any
+     * Wifi-ADB handover action must come first in every branch -- with profiles, without any
      * profile (next to "create"), and it must be the handover intent, not just its label.
      */
     @Test

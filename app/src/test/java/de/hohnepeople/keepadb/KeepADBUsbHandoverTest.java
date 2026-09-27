@@ -17,7 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Behavioral tests for the #168 USB-ADB -&gt; WLAN-ADB handover decision core. These exercise
+ * Behavioral tests for the #168 USB-ADB -&gt; Wifi-ADB handover decision core. These exercise
  * {@link KeepADBUsbHandover#onRawUsbBroadcastInternal} directly -- it takes plain booleans/String
  * instead of a Context, so the connect-edge tracking and the isUserDisabled()/isEnabled() guards
  * can be proven without any Android stubbing.
@@ -75,7 +75,7 @@ public class KeepADBUsbHandoverTest {
         // First connect: fires and (in the real flow) KeepADB.setEnabled would be called.
         assertTrue(KeepADBUsbHandover.onRawUsbBroadcastInternal(true, AUTOMATIC, false, false));
 
-        // Disconnect, then the user explicitly turns WLAN-ADB off (isUserDisabled() becomes true
+        // Disconnect, then the user explicitly turns Wifi-ADB off (isUserDisabled() becomes true
         // in the real KeepADB class after such a call). A later, genuine new connect edge must
         // NOT override that explicit choice.
         KeepADBUsbHandover.onRawUsbBroadcastInternal(false, AUTOMATIC, false, false);
@@ -129,7 +129,7 @@ public class KeepADBUsbHandoverTest {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
         KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
 
-        // 1. User manually turns WLAN-ADB off via the app toggle.
+        // 1. User manually turns Wifi-ADB off via the app toggle.
         KeepADB.setEnabled(ctx, false, "app");
         assertTrue("setEnabled(false) must record the last explicit intent as off",
                 KeepADB.wasLastExplicitIntentOff(ctx));
@@ -165,7 +165,7 @@ public class KeepADBUsbHandoverTest {
         // Start with lastDesiredOn = true (default)
         assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
 
-        // 1. Connect USB -> in AUTOMATIC mode with lastDesiredOn=true, handover fires and sets WLAN-ADB on
+        // 1. Connect USB -> in AUTOMATIC mode with lastDesiredOn=true, handover fires and sets Wifi-ADB on
         KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
         assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
 
@@ -175,7 +175,7 @@ public class KeepADBUsbHandoverTest {
         // 3. USB disconnects -> clears edge
         KeepADBUsbHandover.onRawUsbBroadcast(ctx, false);
 
-        // 4. User manually disables WLAN-ADB
+        // 4. User manually disables Wifi-ADB
         KeepADB.setEnabled(ctx, false, "app");
         assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
 
@@ -202,7 +202,7 @@ public class KeepADBUsbHandoverTest {
         KeepADB.setSchedulerForTesting(scheduler);
 
         // No real WifiInfo is available in this plain JVM test, so the network's identity is
-        // unknown -- allowlist mode must fail closed and never enable WLAN-ADB automatically.
+        // unknown -- allowlist mode must fail closed and never enable Wifi-ADB automatically.
         KeepADBUsbHandover.onRawUsbBroadcast(ctx, true);
 
         assertTrue("no write should reach the gateway when the network is untrusted/unknown",
@@ -390,7 +390,7 @@ public class KeepADBUsbHandoverTest {
         FakeContext ctx = new FakeContext();
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
 
-        // 1. User disables WLAN-ADB
+        // 1. User disables Wifi-ADB
         KeepADB.setEnabled(ctx, false, "app");
         assertFalse(KeepADBPreferences.getLastDesiredOn(ctx));
         assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
@@ -401,7 +401,7 @@ public class KeepADBUsbHandoverTest {
         // Even though in-memory reset defaults lastDesiredOn to true, checking with ctx reads persisted prefs
         assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
 
-        // 3. User or manual action enables WLAN-ADB
+        // 3. User or manual action enables Wifi-ADB
         KeepADB.setEnabled(ctx, true, "app");
         assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
         assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));

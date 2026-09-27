@@ -61,14 +61,14 @@ public class KeepADBTileService extends TileService {
         //
         // Why the tile and not the other two: the tile is the surface a user reaches *while*
         // waiting for an endpoint, and #267 established that a tap there must retry discovery
-        // rather than switch WLAN-ADB off. MainActivity's switch and the widget stay on the
+        // rather than switch Wifi-ADB off. MainActivity's switch and the widget stay on the
         // uniform semantics -- a switch that refuses to switch off would be worse than the
         // inconsistency #318 set out to remove.
         //
         // Note what is *not* special-cased here any more: since #318 split the enum, reaching
         // ENABLED_DISCONNECTED proves adb_wifi_enabled == 1, so refreshForTile() genuinely
         // retriggers discovery instead of being the no-op that #267's follow-up review found.
-        // The "WLAN-ADB actually off, Keep-Alive merely waiting" sub-case is now
+        // The "Wifi-ADB actually off, Keep-Alive merely waiting" sub-case is now
         // OFF_KEEP_ALIVE_WAITING and is handled by desiredOnForClick() as a plain enable, on
         // all three surfaces alike.
         if (state == KeepADB.State.ENABLED_DISCONNECTED) {
@@ -214,13 +214,13 @@ public class KeepADBTileService extends TileService {
      * Issue #267 (1): tells the two {@code ENABLED_DISCONNECTED} sub-cases apart -- only one is a
      * genuine dead end:
      * <ul>
-     *     <li>WLAN-ADB is on and Wi-Fi is connected, but mDNS discovery has not found an endpoint
+     *     <li>Wifi-ADB is on and Wi-Fi is connected, but mDNS discovery has not found an endpoint
      *         yet -- transitional, so it should read as "searching", not "disconnected".</li>
-     *     <li>WLAN-ADB is on but there is no Wi-Fi connection at all -- nothing is in flight, so
+     *     <li>Wifi-ADB is on but there is no Wi-Fi connection at all -- nothing is in flight, so
      *         "disconnected" remains accurate.</li>
      * </ul>
      *
-     * <p>#318 moved the third former sub-case (WLAN-ADB off, Keep-Alive waiting) out of
+     * <p>#318 moved the third former sub-case (Wifi-ADB off, Keep-Alive waiting) out of
      * {@code ENABLED_DISCONNECTED} into {@code OFF_KEEP_ALIVE_WAITING}, which has its own subtitle.
      * The check below (via {@link KeepADB#isEnabledOrNull}, #582) is kept as a defensive fallback:
      * state and this helper read {@code adb_wifi_enabled} at two different moments, so the setting

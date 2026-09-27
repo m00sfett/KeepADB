@@ -45,7 +45,7 @@ final class KeepADBToggleState {
     // bug: whichever reads first "uses it up" for the other. Confirmed on real hardware: a
     // manual off -> content-observer's consumeUserDisabled() (unrelated Keep-Alive decision,
     // resets userDisabled as a side effect) -> a later genuine USB reconnect wrongly saw
-    // isUserDisabled()==false and re-enabled WLAN-ADB despite the explicit manual off.
+    // isUserDisabled()==false and re-enabled Wifi-ADB despite the explicit manual off.
     // lastDesiredOn fixes this by never being consumed -- only ever overwritten by the next
     // requestToggle() call (or forced via forceLastDesiredOn) -- so a read here can't starve
     // any other reader.

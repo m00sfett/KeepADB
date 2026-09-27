@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 import org.junit.Test;
 
 /**
- * Static contracts for Issue #173 (offer WLAN-ADB disable action in notification).
+ * Static contracts for Issue #173 (offer Wifi-ADB disable action in notification).
  */
 public class KeepADBNotificationActionContractTest {
 
