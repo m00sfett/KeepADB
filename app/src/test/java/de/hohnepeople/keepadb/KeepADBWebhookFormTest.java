@@ -65,7 +65,7 @@ public class KeepADBWebhookFormTest {
         KeepADBWebhookForm form = new KeepADBWebhookForm(activity, () -> changeCount[0]++);
 
         Bundle incoming = new Bundle();
-        incoming.putString(SettingsActivity.STATE_WEBHOOK_DRAFT_URL, "https://draft.example/boundary");
+        incoming.putString(KeepADBWebhookForm.STATE_WEBHOOK_DRAFT_URL, "https://draft.example/boundary");
         form.restoreDraft(incoming);
 
         EditText input = activity.findViewById(R.id.settings_webhook_url);
@@ -75,7 +75,7 @@ public class KeepADBWebhookFormTest {
         Bundle outgoing = new Bundle();
         form.saveState(outgoing);
         assertEquals("https://draft.example/boundary",
-                outgoing.getString(SettingsActivity.STATE_WEBHOOK_DRAFT_URL));
+                outgoing.getString(KeepADBWebhookForm.STATE_WEBHOOK_DRAFT_URL));
 
         assertEquals("Restoring/saving the draft must not persist it",
                 "https://saved.example/register/device", KeepADBPreferences.getRegisterWebhookUrl(activity));

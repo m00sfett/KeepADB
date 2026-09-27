@@ -55,12 +55,12 @@ public class KeepADBUsbProfileEditorTest {
 
         Bundle saved = new Bundle();
         editor.saveState(saved);
-        assertTrue(saved.getBoolean(SettingsActivity.STATE_PROFILE_EDIT_SHOWING));
-        assertEquals(-1, saved.getInt(SettingsActivity.STATE_PROFILE_EDIT_ID));
-        assertEquals("Draft-Host", saved.getString(SettingsActivity.STATE_PROFILE_EDIT_NAME));
-        assertEquals("10.1.2.3", saved.getString(SettingsActivity.STATE_PROFILE_EDIT_IP));
-        assertEquals("draft.local", saved.getString(SettingsActivity.STATE_PROFILE_EDIT_HOSTNAME));
-        assertEquals("draft.tailnet", saved.getString(SettingsActivity.STATE_PROFILE_EDIT_TAILNET));
+        assertTrue(saved.getBoolean(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_SHOWING));
+        assertEquals(-1, saved.getInt(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_ID));
+        assertEquals("Draft-Host", saved.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_NAME));
+        assertEquals("10.1.2.3", saved.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_IP));
+        assertEquals("draft.local", saved.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_HOSTNAME));
+        assertEquals("draft.tailnet", saved.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_TAILNET));
 
         // A brand new editor instance, standing in for the fresh instance SettingsActivity#onCreate
         // creates on every real recreation -- no shared state with the editor above.
@@ -99,7 +99,7 @@ public class KeepADBUsbProfileEditorTest {
 
         Bundle outState = new Bundle();
         editor.saveState(outState);
-        assertFalse(outState.containsKey(SettingsActivity.STATE_PROFILE_EDIT_SHOWING));
+        assertFalse(outState.containsKey(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_SHOWING));
     }
 
     @Test

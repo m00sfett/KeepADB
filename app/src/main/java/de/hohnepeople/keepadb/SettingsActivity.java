@@ -31,16 +31,9 @@ import java.util.List;
 public class SettingsActivity extends Activity {
     /** Intent extra requesting that the webhook section be scrolled into view and focused. */
     public static final String EXTRA_FOCUS_WEBHOOK = "focus_webhook";
-    static final String STATE_WEBHOOK_DRAFT_URL = "settings_webhook_draft_url";
     static final String STATE_ISSUE_REPORT_SHOWING = "settings_issue_report_showing";
     static final String STATE_ISSUE_REPORT_DRAFT = "settings_issue_report_draft";
     static final String STATE_ISSUE_REPORT_DIAGNOSTICS = "settings_issue_report_diagnostics";
-    static final String STATE_PROFILE_EDIT_SHOWING = "settings_profile_edit_showing";
-    static final String STATE_PROFILE_EDIT_ID = "settings_profile_edit_id";
-    static final String STATE_PROFILE_EDIT_NAME = "settings_profile_edit_name";
-    static final String STATE_PROFILE_EDIT_IP = "settings_profile_edit_ip";
-    static final String STATE_PROFILE_EDIT_HOSTNAME = "settings_profile_edit_hostname";
-    static final String STATE_PROFILE_EDIT_TAILNET = "settings_profile_edit_tailnet";
 
     private ScrollView scrollView;
     private View webhookPanel;

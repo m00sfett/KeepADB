@@ -378,12 +378,12 @@ public class SettingsActivityTest {
     @Test
     public void profileEditDraftSavesAndRestoresAcrossRecreation() {
         Bundle restoreBundle = new Bundle();
-        restoreBundle.putBoolean(SettingsActivity.STATE_PROFILE_EDIT_SHOWING, true);
-        restoreBundle.putInt(SettingsActivity.STATE_PROFILE_EDIT_ID, -1);
-        restoreBundle.putString(SettingsActivity.STATE_PROFILE_EDIT_NAME, "My Workstation");
-        restoreBundle.putString(SettingsActivity.STATE_PROFILE_EDIT_IP, "192.168.1.100");
-        restoreBundle.putString(SettingsActivity.STATE_PROFILE_EDIT_HOSTNAME, "workstation.local");
-        restoreBundle.putString(SettingsActivity.STATE_PROFILE_EDIT_TAILNET, "workstation.tailnet");
+        restoreBundle.putBoolean(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_SHOWING, true);
+        restoreBundle.putInt(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_ID, -1);
+        restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_NAME, "My Workstation");
+        restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_IP, "192.168.1.100");
+        restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_HOSTNAME, "workstation.local");
+        restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_TAILNET, "workstation.tailnet");
 
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup(restoreBundle);
@@ -395,12 +395,12 @@ public class SettingsActivityTest {
 
         Bundle reSavedState = new Bundle();
         controller.saveInstanceState(reSavedState);
-        assertTrue(reSavedState.getBoolean(SettingsActivity.STATE_PROFILE_EDIT_SHOWING));
-        assertEquals(-1, reSavedState.getInt(SettingsActivity.STATE_PROFILE_EDIT_ID));
-        assertEquals("My Workstation", reSavedState.getString(SettingsActivity.STATE_PROFILE_EDIT_NAME));
-        assertEquals("192.168.1.100", reSavedState.getString(SettingsActivity.STATE_PROFILE_EDIT_IP));
-        assertEquals("workstation.local", reSavedState.getString(SettingsActivity.STATE_PROFILE_EDIT_HOSTNAME));
-        assertEquals("workstation.tailnet", reSavedState.getString(SettingsActivity.STATE_PROFILE_EDIT_TAILNET));
+        assertTrue(reSavedState.getBoolean(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_SHOWING));
+        assertEquals(-1, reSavedState.getInt(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_ID));
+        assertEquals("My Workstation", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_NAME));
+        assertEquals("192.168.1.100", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_IP));
+        assertEquals("workstation.local", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_HOSTNAME));
+        assertEquals("workstation.tailnet", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_TAILNET));
 
         dialog.dismiss();
         ShadowLooper.idleMainLooper();
@@ -409,7 +409,7 @@ public class SettingsActivityTest {
 
         Bundle afterDismissState = new Bundle();
         controller.saveInstanceState(afterDismissState);
-        assertFalse(afterDismissState.getBoolean(SettingsActivity.STATE_PROFILE_EDIT_SHOWING));
+        assertFalse(afterDismissState.getBoolean(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_SHOWING));
     }
 
     /**
@@ -520,7 +520,7 @@ public class SettingsActivityTest {
 
         // Test Profile Edit Dialog dismissal on destroy
         Bundle editBundle = new Bundle();
-        editBundle.putBoolean(SettingsActivity.STATE_PROFILE_EDIT_SHOWING, true);
+        editBundle.putBoolean(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_SHOWING, true);
         ActivityController<SettingsActivity> profileController =
                 Robolectric.buildActivity(SettingsActivity.class).setup(editBundle);
         SettingsActivity profileActivity = profileController.get();

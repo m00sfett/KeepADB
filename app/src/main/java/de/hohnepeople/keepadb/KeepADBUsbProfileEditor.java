@@ -28,6 +28,15 @@ import java.util.List;
  * so no dialog or view reference here ever survives a real activity recreation.
  */
 final class KeepADBUsbProfileEditor {
+    // Bundle keys of the in-progress edit draft (#595: owned here, next to the field list, so a
+    // new profile field needs no change in SettingsActivity; key strings unchanged).
+    static final String STATE_PROFILE_EDIT_SHOWING = "settings_profile_edit_showing";
+    static final String STATE_PROFILE_EDIT_ID = "settings_profile_edit_id";
+    static final String STATE_PROFILE_EDIT_NAME = "settings_profile_edit_name";
+    static final String STATE_PROFILE_EDIT_IP = "settings_profile_edit_ip";
+    static final String STATE_PROFILE_EDIT_HOSTNAME = "settings_profile_edit_hostname";
+    static final String STATE_PROFILE_EDIT_TAILNET = "settings_profile_edit_tailnet";
+
     private final Activity activity;
     private final Runnable onProfileChanged;
 
@@ -54,10 +63,10 @@ final class KeepADBUsbProfileEditor {
     /** Call from {@code SettingsActivity#onCreate} with the incoming (possibly null) state. */
     void restore(Bundle savedInstanceState) {
         if (savedInstanceState == null
-                || !savedInstanceState.getBoolean(SettingsActivity.STATE_PROFILE_EDIT_SHOWING, false)) {
+                || !savedInstanceState.getBoolean(STATE_PROFILE_EDIT_SHOWING, false)) {
             return;
         }
-        int profileId = savedInstanceState.getInt(SettingsActivity.STATE_PROFILE_EDIT_ID, -1);
+        int profileId = savedInstanceState.getInt(STATE_PROFILE_EDIT_ID, -1);
         KeepADBUsbProfile.Profile editingProfile = null;
         if (profileId != -1) {
             for (KeepADBUsbProfile.Profile p : KeepADBUsbProfile.getProfiles(activity)) {
@@ -67,10 +76,10 @@ final class KeepADBUsbProfileEditor {
                 }
             }
         }
-        String draftName = savedInstanceState.getString(SettingsActivity.STATE_PROFILE_EDIT_NAME);
-        String draftIp = savedInstanceState.getString(SettingsActivity.STATE_PROFILE_EDIT_IP);
-        String draftHostname = savedInstanceState.getString(SettingsActivity.STATE_PROFILE_EDIT_HOSTNAME);
-        String draftTailnet = savedInstanceState.getString(SettingsActivity.STATE_PROFILE_EDIT_TAILNET);
+        String draftName = savedInstanceState.getString(STATE_PROFILE_EDIT_NAME);
+        String draftIp = savedInstanceState.getString(STATE_PROFILE_EDIT_IP);
+        String draftHostname = savedInstanceState.getString(STATE_PROFILE_EDIT_HOSTNAME);
+        String draftTailnet = savedInstanceState.getString(STATE_PROFILE_EDIT_TAILNET);
         showEditDialog(editingProfile, draftName, draftIp, draftHostname, draftTailnet);
     }
 
@@ -79,19 +88,19 @@ final class KeepADBUsbProfileEditor {
         if (activeEditDialog == null || !activeEditDialog.isShowing()) {
             return;
         }
-        outState.putBoolean(SettingsActivity.STATE_PROFILE_EDIT_SHOWING, true);
-        outState.putInt(SettingsActivity.STATE_PROFILE_EDIT_ID,
+        outState.putBoolean(STATE_PROFILE_EDIT_SHOWING, true);
+        outState.putInt(STATE_PROFILE_EDIT_ID,
                 activeEditId != null ? activeEditId : -1);
-        outState.putString(SettingsActivity.STATE_PROFILE_EDIT_NAME,
+        outState.putString(STATE_PROFILE_EDIT_NAME,
                 activeEditName != null && activeEditName.getText() != null
                         ? activeEditName.getText().toString() : "");
-        outState.putString(SettingsActivity.STATE_PROFILE_EDIT_IP,
+        outState.putString(STATE_PROFILE_EDIT_IP,
                 activeEditIp != null && activeEditIp.getText() != null
                         ? activeEditIp.getText().toString() : "");
-        outState.putString(SettingsActivity.STATE_PROFILE_EDIT_HOSTNAME,
+        outState.putString(STATE_PROFILE_EDIT_HOSTNAME,
                 activeEditHostname != null && activeEditHostname.getText() != null
                         ? activeEditHostname.getText().toString() : "");
-        outState.putString(SettingsActivity.STATE_PROFILE_EDIT_TAILNET,
+        outState.putString(STATE_PROFILE_EDIT_TAILNET,
                 activeEditTailnet != null && activeEditTailnet.getText() != null
                         ? activeEditTailnet.getText().toString() : "");
     }

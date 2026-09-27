@@ -31,6 +31,9 @@ import java.util.Locale;
  * it here would only have added an indirection without changing what it guards.
  */
 final class KeepADBWebhookForm {
+    // Bundle key of the unsaved URL draft (#595: owned by the form; value unchanged).
+    static final String STATE_WEBHOOK_DRAFT_URL = "settings_webhook_draft_url";
+
     private final Activity activity;
     private final Runnable onChange;
 
@@ -80,10 +83,10 @@ final class KeepADBWebhookForm {
     /** Call from {@code SettingsActivity#onCreate} with the incoming (possibly null) state. */
     void restoreDraft(Bundle savedInstanceState) {
         if (savedInstanceState != null
-                && savedInstanceState.containsKey(SettingsActivity.STATE_WEBHOOK_DRAFT_URL)) {
+                && savedInstanceState.containsKey(STATE_WEBHOOK_DRAFT_URL)) {
             urlInput.setText(SettingsActivity.resolveWebhookDraft(
                     KeepADBPreferences.getRegisterWebhookUrl(activity),
-                    savedInstanceState.getString(SettingsActivity.STATE_WEBHOOK_DRAFT_URL), true));
+                    savedInstanceState.getString(STATE_WEBHOOK_DRAFT_URL), true));
             draftInitialized = true;
         }
     }
@@ -102,7 +105,7 @@ final class KeepADBWebhookForm {
 
     /** Call from {@code SettingsActivity#onSaveInstanceState}. */
     void saveState(Bundle outState) {
-        outState.putString(SettingsActivity.STATE_WEBHOOK_DRAFT_URL,
+        outState.putString(STATE_WEBHOOK_DRAFT_URL,
                 urlInput.getText() == null ? "" : urlInput.getText().toString());
     }
 
