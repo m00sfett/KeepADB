@@ -17,11 +17,55 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.53` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.54` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.54] - Unreleased
+
+### Security
+- Trust decision moved into the app while connection details are off (#598, user decision
+  option 2 on the #592 follow-up): with `notification_details_enabled` off (the default), the
+  untrusted-network prompt no longer carries a "Yes, allow" action -- the user could not see which
+  network it would trust. Its text (and `publicVersion`) now reads "New Wi-Fi network detected —
+  tap to confirm it in the app" (new string `network_prompt_confirm_in_app_text`, translated in
+  all 18 locales); "No, block" stays. The tap opens `SettingsActivity` with a confirmation dialog
+  naming the network and its BSSID, with allow/block. With details on, the prompt is unchanged
+  (named network, allow action with the #578 unlock requirement, plain Settings content intent).
+- Binding: the dialog binds to the access point the prompt was raised for, as recorded by the app
+  in `KeepADBBlockedNetworkHistory` -- the content intent carries only the BSSID as a selector,
+  and `KeepADBNetworkTrustPrompt#pendingConfirmation` resolves it against that record (label
+  included). It is never bound to the current connection and never re-read at click time, so a
+  roam between notification and tap, or between dialog and click, cannot make it trust a
+  different BSSID; whether Wireless Debugging is then switched on stays
+  `KeepADBService#isAutoEnableStillPermitted`'s decision. A BSSID without a pending record
+  (already trusted, evicted, placeholder, never seen) opens no confirmation, only the
+  recently-blocked list. `SettingsActivity` stays non-exported and the PendingIntent immutable.
+- Allow goes through `KeepADBReceiver#handleTrustNetworkAction` -- the notification action's own
+  path with its locked-device check and placeholder-BSSID rejection, ending in
+  `trustBssidAndAttemptConnect`/`KeepADBTrustedNetwork#addBssid` -- and block through
+  `handleDismissNetworkPromptAction`; no second way into the allowlist.
+
+### Fixed
+- The confirmation content intent uses its own action and request code: the USB notification also
+  posts a `SettingsActivity` PendingIntent with request code 0 and `FLAG_UPDATE_CURRENT`, and
+  PendingIntent matching ignores extras, so sharing that identity would let either notification
+  overwrite the other's extras (#598).
+
+### Testing
+- New `SettingsActivityTrustConfirmationTest` drives the dialog with the intent saved in the real
+  posted notification: allow trusts exactly the named BSSID, block trusts nothing, a roam before
+  the tap or while the dialog is open still trusts only the prompted BSSID, an unrecorded or
+  placeholder BSSID and a forged label extra cannot introduce a network or name, a BSSID extra
+  without the confirm action opens nothing, the intent is consumed, and a click while the device
+  reports locked trusts nothing. `KeepADBNetworkTrustPromptTest` pins both modes (no allow action
+  and neutral text/publicVersion with details off; allow action and plain content intent with
+  details on) and `pendingConfirmation`. Each new assertion was checked against a targeted
+  production mutation (allow action in both modes, trusting the current BSSID at click time,
+  resolving without the recorded entry, content intent without its action, SettingsActivity
+  accepting the extra without the action) and goes red under it (#598).
 
 ## [1.8.53] - Unreleased
 

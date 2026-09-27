@@ -1,0 +1,1 @@
+• Safer network trust: while connection details are hidden in notifications (the default), the new-network notification no longer offers "Yes, allow". Tap it to open KeepADB, which shows the network's name and asks you to allow or block it there, so you never trust a network you cannot see.
