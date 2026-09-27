@@ -16,6 +16,33 @@ import org.junit.Test;
  * ConnectivityManager.getAllNetworks()} enumeration must not remain on the normal
  * connectivity path in {@link KeepADBService} or {@link KeepADBEndpoint} -- both now delegate
  * to the single {@link KeepADBNetwork} tracker, which uses callback-based tracking instead.
+ *
+ * <p>#596 (codequality review CQ-03) reduced this class: it used to also assert that specific
+ * delegation calls (e.g. {@code "KeepADBNetwork.get(context).isWifiConnected()"}) are textually
+ * present in {@code KeepADBService}/{@code KeepADBEndpoint}, and a whole separate method
+ * re-asserted {@code isWifiConnected()}'s fallback structure the same way. Both kinds of
+ * assertion proved the call sites are spelled out in source, not that they actually delegate at
+ * runtime. Removed in favor of existing/added behavior coverage:
+ * <ul>
+ *   <li>{@code KeepADBService.isWifiConnected()}'s delegation and its synchronous {@code
+ *       WifiInfo} fallback (the removed {@code isWifiConnectedKeepsTheWifiIpAddressFallback}) are
+ *       already driven end-to-end, with a real Robolectric {@code ConnectivityManager}/{@code
+ *       WifiManager}, by {@link KeepADBNetworkRobustnessBehaviorTest} and {@link
+ *       KeepADBStartupRaceWifiFallbackTest}.</li>
+ *   <li>{@code KeepADBEndpoint}'s delegation to {@code KeepADBNetwork.getWifiIpv4Address()}/{@code
+ *       isActiveWifiAddress()} (the removed {@code assertTrue(endpoint.contains(...))} lines) had
+ *       no prior behavioral equivalent -- {@link KeepADBActiveWifiAddressStalenessTest} and
+ *       {@link KeepADBEndpointAddressBindingTest} only ever exercised {@link KeepADBNetwork}'s own
+ *       decision logic directly, never through {@link KeepADBEndpoint}'s production entry points.
+ *       {@link KeepADBEndpointNetworkDelegationBehaviorTest} (#596, new) closes that gap.</li>
+ * </ul>
+ * The remaining {@code getAllNetworks} absence check and {@link
+ * #networkTrackingAvoidsTheApi31OnlyClearCapabilitiesCall()} stay intentionally static: both are
+ * bans on specific deprecated/API-31-only platform methods for a minSdk-30 app, not assertions
+ * about a computed runtime value -- Robolectric's shadow layer (pinned to API 34 for these tests,
+ * #286) would happily run either banned call without the {@code NoSuchMethodError} a real API 30
+ * device throws, so no behavior test at this project's current test layer could ever observe the
+ * regression these two bans exist to catch.
  */
 public class KeepADBNetworkContractTest {
 
@@ -26,22 +53,6 @@ public class KeepADBNetworkContractTest {
 
         assertFalse(service.contains("getAllNetworks"));
         assertFalse(endpoint.contains("getAllNetworks"));
-
-        assertTrue(service.contains("KeepADBNetwork.get(context).isWifiConnected()"));
-        assertTrue(endpoint.contains("KeepADBNetwork.get(context).getWifiIpv4Address()"));
-        // #314 narrowed the former isKnownLocalAddress() (any tracked network, including the
-        // default route) to the active Wi-Fi network's own addresses; the delegation to the
-        // single KeepADBNetwork tracker that #250 established is unchanged.
-        assertTrue(endpoint.contains("KeepADBNetwork.get(context).isActiveWifiAddress(addr)"));
-    }
-
-    @Test
-    public void isWifiConnectedKeepsTheWifiIpAddressFallback() throws IOException {
-        String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
-        String methodBody = methodBody(service, "static boolean isWifiConnected(Context context) {");
-
-        assertTrue(methodBody.contains("KeepADBNetwork.get(context).isWifiConnected()"));
-        assertTrue(methodBody.contains("KeepADBEndpoint.getWifiIpAddress(context) != null"));
     }
 
     @Test
@@ -59,29 +70,6 @@ public class KeepADBNetworkContractTest {
         assertTrue(network.contains("hasTransport(NetworkCapabilities.TRANSPORT_WIFI)"));
         assertTrue(network.contains("!capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)"));
         assertTrue(network.contains("resetForTesting"));
-    }
-
-    private static String methodBody(String source, String signature) {
-        int methodStart = source.indexOf(signature);
-        assertTrue("Missing method: " + signature, methodStart >= 0);
-        int openingBrace = source.indexOf('{', methodStart);
-        assertTrue("Missing opening brace: " + signature, openingBrace > methodStart);
-        int methodEnd = findMatchingBrace(source, openingBrace);
-        assertTrue("Missing closing brace: " + signature, methodEnd > openingBrace);
-        return source.substring(methodStart, methodEnd + 1);
-    }
-
-    private static int findMatchingBrace(String source, int openingBrace) {
-        int depth = 0;
-        for (int i = openingBrace; i < source.length(); i++) {
-            char current = source.charAt(i);
-            if (current == '{') {
-                depth++;
-            } else if (current == '}' && --depth == 0) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     private static String read(String relativePath) throws IOException {
