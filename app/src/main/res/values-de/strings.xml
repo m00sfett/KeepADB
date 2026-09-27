@@ -98,7 +98,7 @@
     <string name="settings_trusted_network_subtext">Optional lässt sich das automatische Wiedereinschalten von Keep-Alive auf WLANs beschränken, die du als vertrauenswürdig markiert hast. Standardmäßig aus. Manuelles Umschalten funktioniert unabhängig von dieser Einstellung immer.</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">Warnung</string>
-    <string name="settings_trusted_network_tradeoff_warning">Sicherheit gegen Komfort: Einschalten setzt „Drahtloses Debugging aktiv halten“ größtenteils außer Betrieb. Android lässt eine App die Identität des aktuellen Netzwerks nur lesen, während KeepADB auf dem Bildschirm offen ist — im Hintergrund sind Name und Kennung verborgen, und eine verborgene Identität gilt nie als vertrauenswürdig. Das automatische Wiedereinschalten funktioniert dann meist erst, wenn du die App öffnest.</string>
+    <string name="settings_trusted_network_tradeoff_warning">Die Standortberechtigung sichert die Erkennung von Netzwerk und BSSID auch im Hintergrund während des Keep-Alive-Dienstes ab. Das automatische Wiedereinschalten erfolgt nur in vertrauenswürdigen Netzwerken.</string>
     <string name="settings_trusted_network_toggle">Keep-Alive auf vertrauenswürdige Netzwerke beschränken</string>
     <string name="settings_trusted_ssid_warning">Schwächere Prüfung: Ein Netzwerkname (SSID) ist frei wählbar und kein Nachweis für einen Zugangspunkt. Jeder Zugangspunkt, der einen freigegebenen Namen aussendet, gilt als vertrauenswürdig — auch einer, der deinen nachahmt. Sinnvoll vor allem, wenn du mehrere Zugangspunkte unter einem Namen betreibst.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Warnung</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">WLAN &amp; Access Points (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">WLAN- &amp; Access-Point-Erkennung aktivieren</string>
     <string name="settings_wifi_aps_beta_description">Die Access-Point-Erkennung ist eine experimentelle Beta-Funktion zur Erfassung von WLAN-Access-Points in der Umgebung. Sie erfordert die Standortberechtigung und kann mehr Akku verbrauchen.</string>
-    <string name="settings_section_network_beta">Netzwerk (Beta)</string>
+    <string name="settings_section_network">Netzwerk</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Vertrauenswürdige Netzwerke und WLAN &amp; Access Points bauen auf derselben Netzwerk-Vertrauenslogik auf und sind beide experimentelle Beta-Funktionen. Klappe eine der beiden unten auf, um sie einzuschalten und einzeln zu konfigurieren.</string>
 </resources>

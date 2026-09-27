@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">Opcionalmente puedes limitar la reactivación automática de Keep-Alive a las redes Wi-Fi que hayas marcado como de confianza. Desactivado de forma predeterminada. El cambio manual funciona siempre, con independencia de este ajuste.</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">Advertencia</string>
-    <string name="settings_trusted_network_tradeoff_warning">Seguridad frente a comodidad: activarlo deja «Mantener activa la depuración inalámbrica» prácticamente sin efecto. Android solo permite que una app lea la identidad de la red actual mientras KeepADB está abierto en pantalla; en segundo plano el nombre y el identificador quedan ocultos, y una identidad oculta nunca se considera de confianza. La reactivación automática deja entonces de funcionar casi siempre hasta que abras la app.</string>
+    <string name="settings_trusted_network_tradeoff_warning">El permiso de ubicación asegura la detección de la red y el BSSID incluso en segundo plano mientras el servicio Keep-Alive está activo. La reactivación automática solo se produce en redes de confianza.</string>
     <string name="settings_trusted_network_toggle">Restringir Keep-Alive a redes de confianza</string>
     <string name="settings_trusted_ssid_warning">Comprobación más débil: el nombre de red (SSID) se elige libremente y no demuestra nada sobre un punto de acceso. Cualquier punto de acceso que emita un nombre permitido se considera de confianza, incluido uno que imite el tuyo. Útil sobre todo si tienes varios puntos de acceso con un mismo nombre.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Advertencia</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi y puntos de acceso (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Activar detección de Wi-Fi y puntos de acceso</string>
     <string name="settings_wifi_aps_beta_description">La detección de puntos de acceso es una función beta experimental que analiza puntos de acceso Wi-Fi cercanos. Requiere permiso de ubicación y puede consumir más batería.</string>
-    <string name="settings_section_network_beta">Red (Beta)</string>
+    <string name="settings_section_network">Red</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Redes de confianza y Wi-Fi y puntos de acceso se basan en la misma lógica de confianza de red y son ambas funciones beta experimentales. Despliega cualquiera de ellas a continuación para activarla y configurarla por separado.</string>
 </resources>

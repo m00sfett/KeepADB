@@ -320,7 +320,7 @@ public class MainActivityAccessPointOverviewTest {
         KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
         ActivityController<SettingsActivity> controller = Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
-        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
         ShadowLooper.idleMainLooper();
         return activity;
     }

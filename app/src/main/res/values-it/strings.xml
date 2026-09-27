@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">Se vuoi, puoi limitare la riattivazione automatica di Keep-Alive alle reti Wi-Fi che hai contrassegnato come attendibili. Disattivato per impostazione predefinita. Il comando manuale funziona sempre, indipendentemente da questa impostazione.</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">Avviso</string>
-    <string name="settings_trusted_network_tradeoff_warning">Sicurezza contro comodità: attivandolo, «Mantieni attivo il debug wireless» smette in gran parte di funzionare. Android consente a un\'app di leggere l\'identità della rete attuale solo mentre KeepADB è aperto sullo schermo: in background nome e identificativo sono nascosti, e un\'identità nascosta non viene mai considerata attendibile. La riattivazione automatica resta quindi quasi sempre ferma finché non apri l\'app.</string>
+    <string name="settings_trusted_network_tradeoff_warning">L\'autorizzazione di posizione garantisce il rilevamento della rete e del BSSID anche in background durante l\'esecuzione del servizio Keep-Alive. La riattivazione automatica avviene solo su reti attendibili.</string>
     <string name="settings_trusted_network_toggle">Limita Keep-Alive alle reti attendibili</string>
     <string name="settings_trusted_ssid_warning">Verifica più debole: il nome di rete (SSID) è scelto liberamente e non dimostra nulla su un punto di accesso. Qualsiasi punto di accesso che trasmette un nome consentito è considerato attendibile, compreso uno che imita il tuo. Utile soprattutto se gestisci più punti di accesso con un solo nome.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Avviso</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi e punti di accesso (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Attiva rilevamento Wi-Fi e punti di accesso</string>
     <string name="settings_wifi_aps_beta_description">Il rilevamento dei punti di accesso è una funzione beta sperimentale che scansiona i punti di accesso Wi-Fi nelle vicinanze. Richiede l\'autorizzazione di posizione e può consumare più batteria.</string>
-    <string name="settings_section_network_beta">Rete (Beta)</string>
+    <string name="settings_section_network">Rete</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Reti attendibili e Wi-Fi e punti di accesso si basano sulla stessa logica di attendibilità di rete e sono entrambe funzionalità sperimentali beta. Espandi una delle due qui sotto per attivarla e configurarla separatamente.</string>
 </resources>

@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">Je kunt het automatisch opnieuw inschakelen van Keep-Alive desgewenst beperken tot wifinetwerken die je als vertrouwd hebt gemarkeerd. Standaard uit. Handmatig omschakelen werkt altijd, los van deze instelling.</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">Waarschuwing</string>
-    <string name="settings_trusted_network_tradeoff_warning">Veiligheid tegen gemak: als je dit aanzet, werkt „Draadloos debuggen actief houden” grotendeels niet meer. Android laat een app de identiteit van het huidige netwerk alleen lezen zolang KeepADB op het scherm open staat — op de achtergrond zijn naam en id verborgen, en een verborgen identiteit geldt nooit als vertrouwd. Automatisch opnieuw inschakelen werkt dan meestal pas als je de app opent.</string>
+    <string name="settings_trusted_network_tradeoff_warning">Locatietoestemming garandeert detectie van het netwerk en BSSID, ook op de achtergrond terwijl de Keep-Alive-dienst actief is. Automatisch opnieuw inschakelen gebeurt alleen op vertrouwde netwerken.</string>
     <string name="settings_trusted_network_toggle">Keep-Alive beperken tot vertrouwde netwerken</string>
     <string name="settings_trusted_ssid_warning">Zwakkere controle: een netwerknaam (SSID) is vrij te kiezen en bewijst niets over een toegangspunt. Elk toegangspunt dat een toegestane naam uitzendt, geldt als vertrouwd, ook een dat het jouwe imiteert. Vooral nuttig als je meerdere toegangspunten onder één naam gebruikt.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Waarschuwing</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wifi en access points (bèta)</string>
     <string name="settings_wifi_aps_feature_toggle">Detectie van wifi en access points inschakelen</string>
     <string name="settings_wifi_aps_beta_description">Detectie van access points is een experimentele bètafunctie die nabijgelegen wifi-access points scant. Dit vereist locatietoestemming en kan extra batterij verbruiken.</string>
-    <string name="settings_section_network_beta">Netwerk (bèta)</string>
+    <string name="settings_section_network">Netwerk</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Vertrouwde netwerken en wifi en access points zijn gebaseerd op dezelfde netwerkvertrouwenslogica en zijn beide experimentele bètafuncties. Klap hieronder een van beide open om deze in te schakelen en apart te configureren.</string>
 </resources>

@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">必要に応じて、Keep-Alive の自動再有効化を、信頼済みとして登録した Wi-Fi ネットワークだけに限定できます。初期設定はオフです。手動の切り替えはこの設定に関係なく常に動作します。</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">警告</string>
-    <string name="settings_trusted_network_tradeoff_warning">安全性と利便性の取引: これをオンにすると「ワイヤレスデバッグを維持」はほぼ機能しなくなります。Android がアプリに現在のネットワークの識別情報を読ませるのは KeepADB が画面に開いている間だけで、バックグラウンドでは名前と ID が隠され、隠された識別情報は決して信頼済みとして扱われません。その結果、自動再有効化はアプリを開くまでほとんど働かなくなります。</string>
+    <string name="settings_trusted_network_tradeoff_warning">位置情報の権限により、Keep-Alive サービスの実行中もバックグラウンドでネットワークと BSSID を確実に検出できます。自動再有効化は信頼できるネットワーク上でのみ行われます。</string>
     <string name="settings_trusted_network_toggle">Keep-Alive を信頼できるネットワークに制限</string>
     <string name="settings_trusted_ssid_warning">より弱い確認です: ネットワーク名 (SSID) は自由に決められる文字列で、アクセスポイントの証明にはなりません。許可した名前を発信するアクセスポイントはすべて信頼済みとして扱われ、あなたの名前をまねたものも含まれます。主に、同じ名前で複数のアクセスポイントを運用している場合に役立ちます。</string>
     <string name="settings_trusted_ssid_warning_accessibility">警告</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi とアクセスポイント（ベータ）</string>
     <string name="settings_wifi_aps_feature_toggle">Wi-Fi とアクセスポイントの検出を有効化</string>
     <string name="settings_wifi_aps_beta_description">アクセスポイントの検出は、近くの Wi-Fi アクセスポイントをスキャンする試験的なベータ機能です。位置情報の権限が必要で、バッテリー消費が増加する可能性があります。</string>
-    <string name="settings_section_network_beta">ネットワーク（ベータ）</string>
+    <string name="settings_section_network">ネットワーク</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">信頼できるネットワークとWi-Fi・アクセスポイントは同じネットワーク信頼ロジックに基づいており、どちらも実験的なベータ機能です。以下のいずれかを展開して、個別に有効化・設定してください。</string>
 </resources>

@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">चाहें तो Keep-Alive के स्वतः चालू होने को उन Wi-Fi नेटवर्क तक सीमित कर सकते हैं जिन्हें आपने भरोसेमंद बताया है। डिफ़ॉल्ट रूप से बंद। मैन्युअल स्विच इस सेटिंग से स्वतंत्र रूप से हमेशा काम करता है।</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">चेतावनी</string>
-    <string name="settings_trusted_network_tradeoff_warning">सुरक्षा बदले सुविधा: इसे चालू करने पर «वायरलेस डीबगिंग चालू रखें» लगभग बेकार हो जाता है। Android किसी ऐप को मौजूदा नेटवर्क की पहचान सिर्फ़ तब पढ़ने देता है जब KeepADB स्क्रीन पर खुला हो — बैकग्राउंड में नाम और आईडी छिपे रहते हैं, और छिपी पहचान कभी भरोसेमंद नहीं मानी जाती। इसके बाद स्वतः चालू होना आम तौर पर तब तक नहीं होता जब तक आप ऐप न खोलें।</string>
+    <string name="settings_trusted_network_tradeoff_warning">स्थान अनुमति Keep-Alive सेवा चलने के दौरान बैकग्राउंड में भी नेटवर्क और BSSID पहचान सुरक्षित करती है। स्वतः पुनः चालू होना केवल विश्वसनीय नेटवर्क पर होता है।</string>
     <string name="settings_trusted_network_toggle">Keep-Alive को विश्वसनीय नेटवर्क तक सीमित करें</string>
     <string name="settings_trusted_ssid_warning">कमज़ोर जाँच: नेटवर्क का नाम (SSID) मनचाहा रखा जा सकता है और यह किसी ऐक्सेस पॉइंट का सबूत नहीं है। अनुमति वाला नाम प्रसारित करने वाला हर ऐक्सेस पॉइंट भरोसेमंद माना जाता है, आपके नाम की नकल करने वाला भी। यह मुख्य रूप से तब उपयोगी है जब आप एक ही नाम से कई ऐक्सेस पॉइंट चलाते हैं।</string>
     <string name="settings_trusted_ssid_warning_accessibility">चेतावनी</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi और एक्सेस पॉइंट (बीटा)</string>
     <string name="settings_wifi_aps_feature_toggle">Wi-Fi और एक्सेस पॉइंट पहचान सक्षम करें</string>
     <string name="settings_wifi_aps_beta_description">एक्सेस पॉइंट पहचान एक प्रयोगात्मक बीटा सुविधा है जो आस-पास के Wi-Fi एक्सेस पॉइंट स्कैन करती है। इसके लिए स्थान अनुमति आवश्यक है और यह अधिक बैटरी उपयोग कर सकती है।</string>
-    <string name="settings_section_network_beta">नेटवर्क (बीटा)</string>
+    <string name="settings_section_network">नेटवर्क</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">विश्वसनीय नेटवर्क और Wi-Fi और एक्सेस पॉइंट दोनों एक ही नेटवर्क-विश्वास लॉजिक पर आधारित हैं और दोनों प्रायोगिक बीटा सुविधाएं हैं। इसे चालू करने और अलग से कॉन्फ़िगर करने के लिए नीचे दोनों में से किसी एक को खोलें।</string>
 </resources>

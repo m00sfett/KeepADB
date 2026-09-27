@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">Vous pouvez limiter la réactivation automatique de Keep-Alive aux réseaux Wi-Fi que vous avez marqués comme approuvés. Désactivé par défaut. La bascule manuelle fonctionne toujours, quel que soit ce réglage.</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">Avertissement</string>
-    <string name="settings_trusted_network_tradeoff_warning">Sécurité contre confort : activer cette option rend « Maintenir le débogage sans fil actif » largement inopérant. Android ne laisse une application lire l\'identité du réseau actuel que lorsque KeepADB est ouvert à l\'écran — en arrière-plan, le nom et l\'identifiant sont masqués, et une identité masquée n\'est jamais considérée comme approuvée. La réactivation automatique cesse alors le plus souvent de fonctionner jusqu\'à ce que vous ouvriez l\'application.</string>
+    <string name="settings_trusted_network_tradeoff_warning">L\'autorisation de localisation assure la détection du réseau et du BSSID même en arrière-plan pendant l\'exécution du service Keep-Alive. La réactivation automatique n\'a lieu que sur les réseaux approuvés.</string>
     <string name="settings_trusted_network_toggle">Restreindre Keep-Alive aux réseaux de confiance</string>
     <string name="settings_trusted_ssid_warning">Vérification plus faible : un nom de réseau (SSID) est librement choisi et ne prouve rien sur un point d\'accès. Tout point d\'accès diffusant un nom autorisé est approuvé, y compris un imitateur du vôtre. Utile surtout si vous exploitez plusieurs points d\'accès sous un même nom.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Avertissement</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi et points d’accès (Bêta)</string>
     <string name="settings_wifi_aps_feature_toggle">Activer la détection Wi-Fi et des points d’accès</string>
     <string name="settings_wifi_aps_beta_description">La détection des points d’accès est une fonctionnalité bêta expérimentale qui analyse les points d’accès Wi-Fi à proximité. Elle nécessite l’autorisation de localisation et peut consommer plus de batterie.</string>
-    <string name="settings_section_network_beta">Réseau (Bêta)</string>
+    <string name="settings_section_network">Réseau</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Réseaux de confiance et Wi-Fi et points d’accès reposent sur la même logique de confiance réseau et sont toutes deux des fonctionnalités expérimentales bêta. Développez l’une ou l’autre ci-dessous pour l’activer et la configurer séparément.</string>
 </resources>

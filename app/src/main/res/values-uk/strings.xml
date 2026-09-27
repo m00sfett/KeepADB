@@ -75,7 +75,7 @@
     <string name="settings_trusted_network_subtext">За бажанням можна обмежити автоматичне ввімкнення Keep-Alive мережами Wi-Fi, які ви позначили як довірені. Типово вимкнено. Перемикання вручну працює завжди, незалежно від цього параметра.</string>
     <string name="settings_warning_marker">!</string>
     <string name="settings_trusted_network_warning_accessibility">Попередження</string>
-    <string name="settings_trusted_network_tradeoff_warning">Безпека проти зручності: після ввімкнення функція «Тримати бездротове зневаджування активним» майже перестає працювати. Android дозволяє застосунку читати ідентичність поточної мережі лише поки KeepADB відкритий на екрані — у фоні назва та ідентифікатор приховані, а прихована ідентичність ніколи не вважається довіреною. Автоматичне ввімкнення тоді зазвичай не спрацьовує, доки ви не відкриєте застосунок.</string>
+    <string name="settings_trusted_network_tradeoff_warning">Дозвіл на місцезнаходження забезпечує виявлення мережі та BSSID навіть у фоновому режимі під час роботи служби Keep-Alive. Автоматичне повторне ввімкнення відбувається лише в довірених мережах.</string>
     <string name="settings_trusted_network_toggle">Обмежити Keep-Alive довіреними мережами</string>
     <string name="settings_trusted_ssid_warning">Слабша перевірка: назва мережі (SSID) обирається довільно й нічого не доводить про точку доступу. Будь-яка точка доступу, що передає дозволену назву, вважається довіреною — навіть та, що наслідує вашу. Корисно передусім якщо у вас кілька точок доступу з однією назвою.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Попередження</string>
@@ -330,7 +330,7 @@
     <string name="settings_section_wifi_aps">Wi-Fi і точки доступу (бета)</string>
     <string name="settings_wifi_aps_feature_toggle">Увімкнути виявлення Wi-Fi і точок доступу</string>
     <string name="settings_wifi_aps_beta_description">Виявлення точок доступу — це експериментальна бета-функція, яка сканує найближчі точки доступу Wi-Fi. Потребує дозволу на місцезнаходження та може витрачати більше заряду акумулятора.</string>
-    <string name="settings_section_network_beta">Мережа (бета)</string>
+    <string name="settings_section_network">Мережа</string>
     <string name="settings_beta_badge" translatable="false">BETA</string>
     <string name="settings_network_beta_group_subtext">Довірені мережі та Wi-Fi і точки доступу базуються на одній логіці довіри до мережі та є експериментальними бета-функціями. Розгорніть будь-яку з них нижче, щоб увімкнути та налаштувати окремо.</string>
 </resources>

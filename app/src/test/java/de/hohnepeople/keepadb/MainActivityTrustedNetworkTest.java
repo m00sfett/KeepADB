@@ -67,7 +67,7 @@ public class MainActivityTrustedNetworkTest {
         KeepADBPreferences.setWifiApsFeatureEnabled(RuntimeEnvironment.getApplication(), true);
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
-        controller.get().findViewById(R.id.settings_wifi_aps_header).performClick();
+        controller.get().findViewById(R.id.settings_network_beta_header).performClick();
         ShadowLooper.idleMainLooper();
         return controller;
     }

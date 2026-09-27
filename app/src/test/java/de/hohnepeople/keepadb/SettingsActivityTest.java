@@ -793,8 +793,7 @@ public class SettingsActivityTest {
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body},
             {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body},
-            {R.id.settings_trusted_network_header, R.id.settings_trusted_network_body},
-            {R.id.settings_wifi_aps_header, R.id.settings_wifi_aps_body},
+            {R.id.settings_network_beta_header, R.id.settings_network_beta_body},
             {R.id.settings_misc_header, R.id.settings_misc_body},
             {R.id.settings_diagnostics_header, R.id.settings_diagnostics_body},
     };
@@ -1089,17 +1088,12 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void wifiApsPanelStartsCollapsedAndDisabledByDefault() {
+    public void wifiApsSectionDisabledByDefault() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        View body = activity.findViewById(R.id.settings_wifi_aps_body);
-        assertNotNull(body);
-        assertEquals("WiFi APs body starts collapsed", View.GONE, body.getVisibility());
-
-        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
-        assertEquals("Expanding header makes body visible", View.VISIBLE, body.getVisibility());
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
 
         Switch toggle = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
         assertNotNull(toggle);
@@ -1110,15 +1104,9 @@ public class SettingsActivityTest {
         assertNotNull(content);
         assertEquals("Content container is GONE when opt-in is disabled", View.GONE, content.getVisibility());
 
-        TextView betaBadge = activity.findViewById(R.id.settings_wifi_aps_beta_badge);
-        assertNotNull(betaBadge);
-        assertEquals(View.VISIBLE, betaBadge.getVisibility());
-        assertEquals("BETA", betaBadge.getText().toString());
-
-        TextView betaDesc = activity.findViewById(R.id.settings_wifi_aps_beta_description);
-        assertNotNull(betaDesc);
-        assertEquals(View.VISIBLE, betaDesc.getVisibility());
-        assertEquals(activity.getString(R.string.settings_wifi_aps_beta_description), betaDesc.getText().toString());
+        int betaBadgeId = activity.getResources().getIdentifier(
+                "settings_wifi_aps_beta_badge", "id", activity.getPackageName());
+        assertEquals("Beta badge id must be removed", 0, betaBadgeId);
     }
 
     @Test
@@ -1127,7 +1115,7 @@ public class SettingsActivityTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
         Switch toggle = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
         View content = activity.findViewById(R.id.settings_wifi_aps_content);
 
@@ -1254,14 +1242,12 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #510/#519: Trusted Networks and Wi-Fi &amp; access points are nested as independently
-     * collapsible sub-cards inside the "Network (Beta)" card, which is itself collapsible and,
-     * once expanded, shows the shared description explaining the relationship and beta status.
-     * Both sub-cards stay independently collapsible and both carry their own "BETA" badge --
-     * previously only the Wi-Fi &amp; access points card had one.
+     * #618: Trusted Networks and Wi-Fi & access points are direct sections inside one collapsible
+     * card. Opening the outer card must reveal every existing control without another expand target.
+     * Beta badges are removed and the heading is Network without Beta.
      */
     @Test
-    public void networkBetaGroupHeadingIntroducesBothBetaFeaturesConsistently() {
+    public void networkCardShowsBothDirectSectionsAfterOneExpandStep() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
@@ -1270,45 +1256,56 @@ public class SettingsActivityTest {
         assertNotNull(outerPanel);
         assertEquals(View.VISIBLE, outerPanel.getVisibility());
 
-        // #519: the outer card itself starts collapsed, like every other collapsible card, and
-        // must be expanded before its description and sub-cards become reachable.
         View outerBody = activity.findViewById(R.id.settings_network_beta_body);
+        TextView outerArrow = activity.findViewById(R.id.settings_network_beta_arrow);
+        View trustedSection = activity.findViewById(R.id.settings_trusted_network_panel);
+        View wifiApsSection = activity.findViewById(R.id.settings_wifi_aps_panel);
+        TextView trustedTitle = activity.findViewById(R.id.settings_trusted_network_title);
+        TextView wifiApsTitle = activity.findViewById(R.id.settings_wifi_aps_title);
+        int[] directControls = {
+                R.id.settings_trusted_network_toggle,
+                R.id.settings_trusted_ssid_toggle,
+                R.id.settings_wifi_aps_feature_toggle,
+        };
+
         assertEquals(View.GONE, outerBody.getVisibility());
+        assertEquals("+", outerArrow.getText().toString());
+        assertFalse(trustedSection.hasOnClickListeners());
+        assertFalse(wifiApsSection.hasOnClickListeners());
+        assertFalse(trustedTitle.isClickable());
+        assertFalse(trustedTitle.isFocusable());
+        assertFalse(wifiApsTitle.isClickable());
+        assertFalse(wifiApsTitle.isFocusable());
+        assertTrue(trustedTitle.isAccessibilityHeading());
+        assertTrue(wifiApsTitle.isAccessibilityHeading());
+        assertEquals("Trusted network beta badge id must be removed", 0,
+                activity.getResources().getIdentifier(
+                        "settings_trusted_network_beta_badge", "id", activity.getPackageName()));
+        assertEquals("Wifi aps beta badge id must be removed", 0,
+                activity.getResources().getIdentifier(
+                        "settings_wifi_aps_beta_badge", "id", activity.getPackageName()));
+
+        for (int id : directControls) {
+            assertFalse("Network control must stay hidden while the outer card is closed: " + id,
+                    activity.findViewById(id).isShown());
+        }
+
         activity.findViewById(R.id.settings_network_beta_header).performClick();
+
         assertEquals(View.VISIBLE, outerBody.getVisibility());
+        assertEquals("−", outerArrow.getText().toString());
+        for (int id : directControls) {
+            View control = activity.findViewById(id);
+            assertTrue("Network control must be shown after one outer expand step: " + id,
+                    control.isShown());
+            assertTrue("Network control must keep its click listener: " + id,
+                    control.hasOnClickListeners());
+        }
 
-        TextView groupSubtext = activity.findViewById(R.id.settings_network_beta_group_subtext);
-        assertNotNull(groupSubtext);
-        assertEquals(activity.getString(R.string.settings_network_beta_group_subtext),
-                groupSubtext.getText().toString());
-
-        TextView trustedNetworkBadge = activity.findViewById(R.id.settings_trusted_network_beta_badge);
-        assertNotNull(trustedNetworkBadge);
-        assertEquals(View.VISIBLE, trustedNetworkBadge.getVisibility());
-        assertEquals("BETA", trustedNetworkBadge.getText().toString());
-
-        TextView wifiApsBadge = activity.findViewById(R.id.settings_wifi_aps_beta_badge);
-        assertNotNull(wifiApsBadge);
-        assertEquals(View.VISIBLE, wifiApsBadge.getVisibility());
-        assertEquals("BETA", wifiApsBadge.getText().toString());
-
-        // Both features must remain separately expandable -- expanding one must not affect the
-        // other's collapsed state (this is the same independence guarantee as #471, just applied
-        // across the new shared group heading).
-        View trustedNetworkBody = activity.findViewById(R.id.settings_trusted_network_body);
-        View wifiApsBody = activity.findViewById(R.id.settings_wifi_aps_body);
-        assertEquals(View.GONE, trustedNetworkBody.getVisibility());
-        assertEquals(View.GONE, wifiApsBody.getVisibility());
-
-        activity.findViewById(R.id.settings_trusted_network_header).performClick();
-        assertEquals(View.VISIBLE, trustedNetworkBody.getVisibility());
-        assertEquals("Expanding trusted networks must not expand Wi-Fi & access points",
-                View.GONE, wifiApsBody.getVisibility());
-
-        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
-        assertEquals(View.VISIBLE, wifiApsBody.getVisibility());
-        assertEquals("Wi-Fi & access points must stay expanded independently of trusted networks",
-                View.VISIBLE, trustedNetworkBody.getVisibility());
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
+        assertEquals(View.GONE, outerBody.getVisibility());
+        assertEquals("+", outerArrow.getText().toString());
+        controller.pause().stop().destroy();
     }
 
     /**
@@ -1353,12 +1350,12 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #510 acceptance criterion 7: a fresh install must leave both network beta features
+     * #510 acceptance criterion 7 / #618: a fresh install must leave both network features
      * (Trusted Networks and Wi-Fi &amp; access points) disabled -- the visual regrouping must
      * not change either feature's default preference value.
      */
     @Test
-    public void bothNetworkBetaFeaturesAreDisabledOnFreshInstall() {
+    public void bothNetworkFeaturesAreDisabledOnFreshInstall() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
@@ -1368,12 +1365,12 @@ public class SettingsActivityTest {
         assertFalse("Wi-Fi & access points feature must default to off",
                 KeepADBPreferences.isWifiApsFeatureEnabled(activity));
 
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
+
         Switch trustedNetworkToggle = activity.findViewById(R.id.settings_trusted_network_toggle);
-        activity.findViewById(R.id.settings_trusted_network_header).performClick();
         assertFalse(trustedNetworkToggle.isChecked());
 
         Switch wifiApsToggle = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
-        activity.findViewById(R.id.settings_wifi_aps_header).performClick();
         assertFalse(wifiApsToggle.isChecked());
     }
 
