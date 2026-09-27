@@ -20,6 +20,11 @@ final class KeepADBUsbNotification {
     static final String ACTION_CREATE = "create";
     static final String ACTION_SWITCH = "switch";
     private static final int HANDOVER_ACTION_REQUEST_CODE = 1;
+    // #603: distinct from every other SettingsActivity PendingIntent request code across the app
+    // (KeepADBNetworkTrustPrompt uses 0/10/11/12/13) -- PendingIntent#filterEquals ignores extras,
+    // so an extras-free getActivity PendingIntent here would otherwise share its identity with any
+    // other extras-free one, and FLAG_UPDATE_CURRENT would silently let either overwrite the other.
+    private static final int NO_PROFILE_CONTENT_REQUEST_CODE = 2;
 
     // #168: set when the MANUAL "Enable WLAN-ADB" action failed (e.g. missing
     // WRITE_SECURE_SETTINGS), so the notification shows a clear error instead of silently doing
@@ -131,7 +136,7 @@ final class KeepADBUsbNotification {
                     : context.getString(R.string.usb_notification_title);
             Intent intent = new Intent(context, SettingsActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            contentIntent = PendingIntent.getActivity(context, 0, intent,
+            contentIntent = PendingIntent.getActivity(context, NO_PROFILE_CONTENT_REQUEST_CODE, intent,
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             builder.setContentText(contentText)
                     .setContentIntent(contentIntent);

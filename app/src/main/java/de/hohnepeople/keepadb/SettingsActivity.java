@@ -34,6 +34,13 @@ public class SettingsActivity extends Activity {
     static final String STATE_ISSUE_REPORT_SHOWING = "settings_issue_report_showing";
     static final String STATE_ISSUE_REPORT_DRAFT = "settings_issue_report_draft";
     static final String STATE_ISSUE_REPORT_DIAGNOSTICS = "settings_issue_report_diagnostics";
+    /**
+     * #604: the BSSID the currently showing #598 trust confirmation dialog is bound to, carried
+     * across a {@code recreate()} (rotation). Only ever a BSSID this app already captured from its
+     * own {@link KeepADBBlockedNetworkHistory} record via {@link #showTrustConfirmationDialog} --
+     * never re-read from the intent (already consumed by then) or from the current connection.
+     */
+    static final String STATE_TRUST_CONFIRMATION_BSSID = "settings_trust_confirmation_bssid";
 
     private ScrollView scrollView;
     private View webhookPanel;
@@ -91,6 +98,8 @@ public class SettingsActivity extends Activity {
     private Button wifiApsRecentlyBlockedButton;
     private AlertDialog activeBlockedNetworksDialog;
     private AlertDialog activeTrustConfirmationDialog;
+    /** #604: the BSSID {@link #activeTrustConfirmationDialog} is bound to, or null if none is showing. */
+    private String activeTrustConfirmationBssid;
     private boolean wifiApsExpanded;
     private boolean wifiApsTrustedOnly;
 
@@ -303,6 +312,15 @@ public class SettingsActivity extends Activity {
                         STATE_ISSUE_REPORT_DIAGNOSTICS, false);
                 showIssueReportDialog(draftBody, includeDiagnostics);
             }
+            // #604: re-show the #598 trust confirmation dialog after a rotation. The BSSID is the
+            // one this instance already captured before the recreate -- showTrustConfirmationDialog
+            // re-resolves it against KeepADBBlockedNetworkHistory exactly as it does for a fresh
+            // notification tap, it is never taken from the intent (already consumed) or re-read
+            // from the current connection.
+            String pendingBssid = savedInstanceState.getString(STATE_TRUST_CONFIRMATION_BSSID);
+            if (pendingBssid != null) {
+                showTrustConfirmationDialog(pendingBssid);
+            }
         }
     }
 
@@ -345,6 +363,10 @@ public class SettingsActivity extends Activity {
                     activeIssueReportDiagnostics != null && activeIssueReportDiagnostics.isChecked());
         }
         usbProfileEditor.saveState(outState);
+        if (activeTrustConfirmationDialog != null && activeTrustConfirmationDialog.isShowing()
+                && activeTrustConfirmationBssid != null) {
+            outState.putString(STATE_TRUST_CONFIRMATION_BSSID, activeTrustConfirmationBssid);
+        }
     }
 
     @Override
@@ -1234,9 +1256,11 @@ public class SettingsActivity extends Activity {
                         KeepADBReceiver.handleDismissNetworkPromptAction(this))
                 .create();
         activeTrustConfirmationDialog = dialog;
+        activeTrustConfirmationBssid = confirmedBssid;
         dialog.setOnDismissListener(d -> {
             if (activeTrustConfirmationDialog == d) {
                 activeTrustConfirmationDialog = null;
+                activeTrustConfirmationBssid = null;
             }
         });
         dialog.show();

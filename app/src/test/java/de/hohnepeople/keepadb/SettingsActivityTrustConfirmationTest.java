@@ -232,6 +232,39 @@ public class SettingsActivityTrustConfirmationTest {
         controller.pause().stop().destroy();
     }
 
+    /**
+     * #604: a rotation ({@code recreate()}) must not lose the dialog. The intent's action/extra is
+     * already consumed by the first {@code onResume()}, so the recreated instance can only be
+     * showing the dialog again if the BSSID survived in {@code onSaveInstanceState}/{@code
+     * onCreate}'s saved-instance bundle -- and it must be the same BSSID, resolved again from the
+     * app's own blocked-network record, not re-read from the (by then actionless) intent.
+     */
+    @Test
+    public void aRotationKeepsTheConfirmationDialogShowingTheSameNetwork() {
+        Intent tap = promptTapIntentFor("Cafe-WLAN", BSSID);
+        ActivityController<SettingsActivity> controller = open(tap);
+        AlertDialog dialogBeforeRotation = controller.get().getActiveTrustConfirmationDialog();
+        assertNotNull(dialogBeforeRotation);
+
+        controller.recreate();
+        ShadowLooper.idleMainLooper();
+
+        SettingsActivity recreated = controller.get();
+        AlertDialog dialogAfterRotation = recreated.getActiveTrustConfirmationDialog();
+        assertNotNull("The dialog must reappear after rotation", dialogAfterRotation);
+        String message = messageOf(dialogAfterRotation);
+        assertTrue("Must still name the originally prompted network: " + message,
+                message.contains("Cafe-WLAN"));
+        assertTrue("Must still name the originally prompted BSSID: " + message,
+                message.contains(BSSID));
+
+        dialogAfterRotation.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertOnlyTrusted(BSSID);
+        controller.pause().stop().destroy();
+    }
+
     @Test
     public void theConfirmIntentIsConsumedAndALaterResumeDoesNotAskAgain() {
         Intent tap = promptTapIntentFor("Cafe-WLAN", BSSID);

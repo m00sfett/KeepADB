@@ -21,6 +21,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowNotificationManager;
+import org.robolectric.shadows.ShadowPendingIntent;
 
 /**
  * Unit and behavioral tests for {@link KeepADBUsbNotification} (Issue #323).
@@ -83,6 +84,34 @@ public class KeepADBUsbNotificationTest {
         assertNotNull(notification.actions);
         assertEquals(1, notification.actions.length);
         assertEquals("Profil anlegen", notification.actions[0].title.toString());
+    }
+
+    /**
+     * #603: the no-profile content intent is an extras-free getActivity PendingIntent on
+     * SettingsActivity, exactly like several PendingIntents in KeepADBNetworkTrustPrompt --
+     * PendingIntent#filterEquals ignores extras, so it must carry a request code that collides
+     * with none of theirs (0/10/11/12/13/14), or FLAG_UPDATE_CURRENT would let one notification's
+     * tap target silently overwrite another's.
+     */
+    @Test
+    public void noProfileContentIntentUsesARequestCodeDistinctFromNetworkTrustPromptOnes() {
+        KeepADBUsbProfile.setNotificationEnabled(context, true);
+        KeepADBUsbProfile.setProfileNotificationEnabled(context, false);
+
+        KeepADBUsbNotification.refresh(context, true);
+
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        Notification notification = shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID);
+        assertNotNull(notification);
+        ShadowPendingIntent shadowPendingIntent = shadowOf(notification.contentIntent);
+        assertEquals(SettingsActivity.class.getName(),
+                shadowPendingIntent.getSavedIntent().getComponent().getClassName());
+        int requestCode = shadowPendingIntent.getRequestCode();
+        for (int reserved : new int[] {0, 10, 11, 12, 13, 14}) {
+            assertFalse("Request code " + requestCode
+                            + " must not collide with a KeepADBNetworkTrustPrompt request code",
+                    requestCode == reserved);
+        }
     }
 
     @Test
