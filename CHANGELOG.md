@@ -17,7 +17,7 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.52` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.53` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
@@ -49,6 +49,13 @@ are retrospective issue-version records and were never published as separate rel
   keeping the same invariant. Every new assertion was mutation-tested against a representative
   production mutation (draft not written to the Bundle; restore falling back to the saved URL
   instead of the draft) in an isolated worktree to confirm it actually goes red. (#595)
+- Review repair (#595): the Bundle keys of the profile edit draft and the webhook draft moved
+  from `SettingsActivity` into `KeepADBUsbProfileEditor`/`KeepADBWebhookForm` (key strings
+  unchanged), so a new profile field no longer touches `SettingsActivity`. New tests pin the
+  webhook form's different empty-input rules (empty save clears the URL while disabled, is
+  rejected while enabled; enabling with an empty URL snaps the toggle back) and the USB
+  notification's profile-action extra (SWITCH/CREATE open the matching dialog once, the extra is
+  consumed); each goes red under its targeted mutation.
 
 ## [1.8.52] - Unreleased
 
@@ -88,6 +95,8 @@ are retrospective issue-version records and were never published as separate rel
   gained three webhook-report-text tests for `KeepADBAsyncSurfaceRefreshContractTest`'s removed
   assertions. Every new/changed assertion was mutation-tested against a representative production
   mutation in an isolated worktree to confirm it actually goes red. (#596)
+- Review repair (#596): `KeepADBWifiProbe`'s javadoc no longer claims that contract tests pin
+  every `isWifiConnected` call site's source text.
 
 ## [1.8.50] - Unreleased
 
