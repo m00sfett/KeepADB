@@ -17,20 +17,29 @@ pretending the port isn't open. Concretely, KeepADB tries to:
   the "Yes, allow" action asks the platform to reauthenticate before it fires (API 31+), and
   `KeepADBReceiver` refuses the action and re-offers the same prompt if it is somehow reached
   while the device reports itself locked, on every Android version this app supports (#578);
+- never offer a trust decision without naming the network: with connection details off (the
+  default, see below) the prompt notification has no "Yes, allow" action. Tapping it opens the
+  app, which shows the network name and BSSID of the access point the prompt was raised for and
+  asks for allow or block there. The dialog binds to that access point as recorded by the app
+  itself, not to the current connection or to anything in the launching intent, so a network
+  change before the tap or before the click cannot make it trust a different access point. Allow
+  goes through the same receiver path and locked-device check as the notification action (#598);
 - require an unlocked device to switch Wireless Debugging on from the Quick Settings tile: on a
   locked, secured device the tile asks Android for the unlock first; switching it off from the
   lock screen stays possible without unlocking (#586);
 - require an unlocked device to switch Wireless Debugging on from the USB notification's "Enable
   WLAN-ADB" handover action, with the same two layers as the trust action (#588);
 - keep connection details out of notifications by default: unless the user turns on Settings →
-  Notification → "Show connection details in notifications" (off by default), the USB-ADB
-  notification shows neither the host profile name nor its IP/hostname, and the untrusted-network
-  prompt shows neither the network name nor the BSSID; both show neutral text, the details stay in
-  the app (#592). This is the only reliable protection: Android shows a notification's
-  `publicVersion` (neutral text, no actions, set on both notifications since #578/#589) only while
-  sensitive lock-screen content is hidden. With sensitive content allowed on the lock screen, the
-  private notification is shown there, so after opting in the details can be visible without
-  unlocking. The actions and their unlock gates above are not affected by this setting;
+  Notification → "Show connection details in notifications" (off by default), the persistent
+  main notification shows only the status (no port or IP address), the USB-ADB notification shows
+  neither the host profile name nor its IP/hostname, and the untrusted-network prompt shows
+  neither the network name nor the BSSID; all three show neutral text, the details stay in the
+  app (#592, #597), and the prompt's trust decision moves into the app as well (#598). This is the
+  only reliable protection: Android shows a notification's `publicVersion` (neutral text, no
+  actions, set on all three notifications since #578/#589/#597) only while sensitive lock-screen
+  content is hidden. With sensitive content allowed on the lock screen, the private notification
+  is shown there, so after opting in the details can be visible without unlocking. The unlock
+  gates above apply in both modes;
 - keep cleartext (unencrypted) HTTP scoped to the one feature that needs it — the optional,
   user-configured webhook — and warn in-app when a webhook URL is `http://` instead of `https://`;
 - avoid persisting anything sensitive where Android backup or device transfer could pick it up

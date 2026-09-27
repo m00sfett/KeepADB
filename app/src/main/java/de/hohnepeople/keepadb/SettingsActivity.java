@@ -90,6 +90,7 @@ public class SettingsActivity extends Activity {
     private TextView wifiSsidsEmpty;
     private Button wifiApsRecentlyBlockedButton;
     private AlertDialog activeBlockedNetworksDialog;
+    private AlertDialog activeTrustConfirmationDialog;
     private boolean wifiApsExpanded;
     private boolean wifiApsTrustedOnly;
 
@@ -201,6 +202,9 @@ public class SettingsActivity extends Activity {
             // #592: re-render a currently visible USB card right away; a trust prompt already on
             // screen keeps its text until it is posted again.
             KeepADBUsbReceiver.refresh(this);
+            // #597: re-render the persistent main notification right away too -- same reasoning,
+            // it also gates its port/IP text behind this preference now.
+            KeepADBEndpointCoordinator.refresh(this);
         });
 
         keepDisplayOnToggle = findViewById(R.id.settings_keep_display_on_toggle);
@@ -317,6 +321,15 @@ public class SettingsActivity extends Activity {
             focusWebhookPanel();
             getIntent().removeExtra(EXTRA_FOCUS_WEBHOOK);
         }
+
+        // #598: the details-off trust prompt's content intent. Consumed like the extras above so a
+        // later resume does not ask again.
+        if (KeepADBNetworkTrustPrompt.ACTION_CONFIRM_IN_APP.equals(getIntent().getAction())) {
+            String bssid = getIntent().getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID);
+            getIntent().setAction(null);
+            getIntent().removeExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID);
+            showTrustConfirmationDialog(bssid);
+        }
     }
 
     @Override
@@ -359,6 +372,13 @@ public class SettingsActivity extends Activity {
                 activeBlockedNetworksDialog.dismiss();
             }
             activeBlockedNetworksDialog = null;
+        }
+
+        if (activeTrustConfirmationDialog != null) {
+            if (activeTrustConfirmationDialog.isShowing()) {
+                activeTrustConfirmationDialog.dismiss();
+            }
+            activeTrustConfirmationDialog = null;
         }
 
         super.onDestroy();
@@ -1164,6 +1184,73 @@ public class SettingsActivity extends Activity {
 
     AlertDialog getActiveBlockedNetworksDialog() {
         return activeBlockedNetworksDialog;
+    }
+
+    /**
+     * #598: the in-app half of the details-off trust prompt. The notification names no network, so
+     * this dialog is where the user sees which one they are deciding on -- label and BSSID of the
+     * access point the prompt was raised for, taken from {@link
+     * KeepADBNetworkTrustPrompt#pendingConfirmation}, never from the intent or from the current
+     * connection. Both buttons act on that captured entry only: allow goes through {@link
+     * KeepADBReceiver#handleTrustNetworkAction} (the notification allow action's own path, with its
+     * locked-device gate and BSSID validation, ending in {@code trustBssidAndAttemptConnect}), and
+     * block through {@link KeepADBReceiver#handleDismissNetworkPromptAction}, exactly like the
+     * notification's block action. Nothing is re-read at click time, so a roam between showing the
+     * dialog and the click cannot swap in a different BSSID.
+     *
+     * <p>If there is no pending entry for {@code bssid} (already trusted, evicted, or unknown), no
+     * trust choice is offered; the recently-blocked list opens instead, where every entry still
+     * needs its own explicit click.
+     */
+    private void showTrustConfirmationDialog(String bssid) {
+        KeepADBBlockedNetworkHistory.Entry entry =
+                KeepADBNetworkTrustPrompt.pendingConfirmation(this, bssid);
+        if (entry == null) {
+            KeepADBDiagnostics.event(this, "user_action", "network_trust_prompt", "skipped",
+                    "confirmation_not_pending");
+            showBlockedNetworkDialog();
+            return;
+        }
+        final String confirmedBssid = entry.bssid;
+        final String confirmedLabel = entry.label();
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.network_prompt_title)
+                .setMessage(getString(R.string.network_prompt_text, confirmedLabel, confirmedBssid))
+                .setPositiveButton(R.string.network_prompt_allow, (d, which) -> {
+                    boolean enabled = KeepADBReceiver.handleTrustNetworkAction(
+                            this, confirmedBssid, confirmedLabel);
+                    if (isListedAsTrusted(confirmedBssid)) {
+                        Toast.makeText(this,
+                                getString(R.string.settings_trusted_network_added_toast,
+                                        confirmedLabel),
+                                Toast.LENGTH_SHORT).show();
+                        if (!enabled && !hasSecureSettingsPermission()) {
+                            showToggleErrorToast();
+                        }
+                    }
+                    refresh();
+                })
+                .setNegativeButton(R.string.network_prompt_block, (d, which) ->
+                        KeepADBReceiver.handleDismissNetworkPromptAction(this))
+                .create();
+        activeTrustConfirmationDialog = dialog;
+        dialog.setOnDismissListener(d -> {
+            if (activeTrustConfirmationDialog == d) {
+                activeTrustConfirmationDialog = null;
+            }
+        });
+        dialog.show();
+    }
+
+    private boolean isListedAsTrusted(String bssid) {
+        for (KeepADBTrustedNetwork.Entry entry : KeepADBTrustedNetwork.getEntries(this)) {
+            if (entry.bssid.equalsIgnoreCase(bssid)) return true;
+        }
+        return false;
+    }
+
+    AlertDialog getActiveTrustConfirmationDialog() {
+        return activeTrustConfirmationDialog;
     }
 
     private boolean hasSecureSettingsPermission() {

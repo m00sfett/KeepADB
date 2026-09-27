@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB：無線偵錯 已啟用</string>
     <string name="notification_title_disabled">KeepADB：無線偵錯 已停用</string>
     <string name="notification_text_active">連接埠 %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">輕觸以在應用程式中查看連線詳細資料。</string>
     <string name="notification_title_searching">KeepADB：正在搜尋端點…</string>
     <string name="notification_text_searching">正在區域網路中解析端點</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive 正在等待無線偵錯重新開啟</string>
@@ -109,6 +110,7 @@
     <string name="network_prompt_allow">是，允許</string>
     <string name="network_prompt_block">否，封鎖</string>
     <string name="network_prompt_public_text">有網路要求成為 Keep-Alive 的信任網路 — 開啟 KeepADB 以決定。</string>
+    <string name="network_prompt_confirm_in_app_text">偵測到新的 Wi-Fi 網路 — 輕觸以在應用程式中確認。</string>
     <string name="network_prompt_identity_unavailable_title">無法識別目前的 Wi-Fi 網路</string>
     <string name="network_prompt_identity_unavailable_text">由於無法讀取網路身分，Keep-Alive 自動重新啟用已暫停。點一下以修正定位權限或定位服務。</string>
     <string name="settings_trusted_network_blocked_button">近期遭封鎖（%1$d）</string>
@@ -157,7 +159,7 @@
     <string name="settings_hide_notification_subtext">在通知欄中顯示狀態通知。關閉它不會影響 Keep-Alive 或桌面小工具。</string>
     <string name="settings_hide_notification_subtext_keepalive">Keep-Alive 處於啟用狀態時為必需項——Android 要求前景服務顯示通知。</string>
     <string name="settings_notification_details_toggle">在通知中顯示連線詳細資料</string>
-    <string name="settings_notification_details_subtext">在通知中顯示 USB 主機設定檔（名稱、IP、主機）以及新 Wi-Fi 網路的名稱和 BSSID。開啟後，這些詳細資料也可能顯示在螢幕鎖定畫面上。關閉時，僅在應用程式中顯示。</string>
+    <string name="settings_notification_details_subtext">在常駐狀態通知中顯示連接埠和 IP 位址，在通知中顯示 USB 主機設定檔（名稱、IP、主機）以及新 Wi-Fi 網路的名稱和 BSSID。開啟後，這些詳細資料也可能顯示在螢幕鎖定畫面上。關閉時，僅在應用程式中顯示。</string>
     <string name="settings_section_display">螢幕</string>
     <string name="settings_keep_display_on_toggle">KeepADB 在前景執行時保持螢幕開啟</string>
     <string name="settings_keep_display_on_subtext">僅在此應用程式開啟期間保持螢幕開啟。離開應用程式後螢幕會照常熄滅。</string>

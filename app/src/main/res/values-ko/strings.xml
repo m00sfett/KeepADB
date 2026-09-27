@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB: 무선 디버깅 활성화됨</string>
     <string name="notification_title_disabled">KeepADB: 무선 디버깅 비활성화됨</string>
     <string name="notification_text_active">포트 %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">탭하여 앱에서 연결 세부정보를 확인하세요.</string>
     <string name="notification_title_searching">KeepADB: 엔드포인트 검색 중…</string>
     <string name="notification_text_searching">로컬 네트워크에서 엔드포인트 확인 중</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive가 무선 디버깅이 다시 켜지기를 기다리는 중</string>
@@ -109,6 +110,7 @@
     <string name="network_prompt_allow">예, 허용</string>
     <string name="network_prompt_block">아니요, 차단</string>
     <string name="network_prompt_public_text">한 네트워크가 Keep-Alive를 위해 신뢰할 네트워크가 되려고 합니다 — 결정하려면 KeepADB를 여세요.</string>
+    <string name="network_prompt_confirm_in_app_text">새 Wi-Fi 네트워크가 감지되었습니다 — 탭하여 앱에서 확인하세요.</string>
     <string name="network_prompt_identity_unavailable_title">현재 Wi-Fi 네트워크를 식별할 수 없습니다</string>
     <string name="network_prompt_identity_unavailable_text">네트워크 ID를 읽을 수 없어 Keep-Alive 자동 재활성화가 일시 중지되었습니다. 위치 권한 또는 위치 서비스를 수정하려면 탭하세요.</string>
     <string name="settings_trusted_network_blocked_button">최근 차단됨 (%1$d)</string>
@@ -157,7 +159,7 @@
     <string name="settings_hide_notification_subtext">상태 알림을 알림 창에 표시합니다. 끄더라도 Keep-Alive나 위젯에는 영향이 없습니다.</string>
     <string name="settings_hide_notification_subtext_keepalive">Keep-Alive가 활성화되어 있는 동안 필수입니다 — Android가 포그라운드 서비스를 위해 요구합니다.</string>
     <string name="settings_notification_details_toggle">알림에 연결 세부정보 표시</string>
-    <string name="settings_notification_details_subtext">USB 호스트 프로필(이름, IP, 호스트)과 새 Wi-Fi 네트워크의 이름 및 BSSID를 알림에 표시합니다. 켜면 이 세부정보가 잠금 화면에도 표시될 수 있습니다. 끄면 앱에서만 표시됩니다.</string>
+    <string name="settings_notification_details_subtext">상시 상태 알림의 포트 및 IP 주소, USB 호스트 프로필(이름, IP, 호스트), 새 Wi-Fi 네트워크의 이름 및 BSSID를 알림에 표시합니다. 켜면 이 세부정보가 잠금 화면에도 표시될 수 있습니다. 끄면 앱에서만 표시됩니다.</string>
     <string name="settings_section_display">디스플레이</string>
     <string name="settings_keep_display_on_toggle">KeepADB가 포그라운드에 있는 동안 화면 켜짐 유지</string>
     <string name="settings_keep_display_on_subtext">이 앱이 열려 있는 동안에만 화면을 켜진 상태로 유지합니다. 앱을 벗어나면 화면은 평소처럼 꺼집니다.</string>

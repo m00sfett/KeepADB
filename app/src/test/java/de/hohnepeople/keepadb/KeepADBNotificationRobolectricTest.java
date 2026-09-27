@@ -172,6 +172,9 @@ public class KeepADBNotificationRobolectricTest {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBPreferences.setNotificationHidden(context, true);
         KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        // #597: this test is about the notification-hidden interaction, not about connection
+        // details -- opt in so the endpoint text it asserts on is actually present.
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
 
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
@@ -196,6 +199,9 @@ public class KeepADBNotificationRobolectricTest {
         KeepADB.setGatewayForTesting(gateway);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        // #597: this test is about privacy-mode masking, not about connection details -- opt in
+        // so the (masked) endpoint text it asserts on is actually present.
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
 
         setStatic("currentHost", "192.168.1.50");
         setStatic("currentPort", 39123);
@@ -210,6 +216,108 @@ public class KeepADBNotificationRobolectricTest {
         assertTrue(content.contains("39123"));
         assertTrue(content.contains("192.*.*.*"));
         assertFalse(content.contains("192.168.1.50"));
+    }
+
+    // --- #597: main notification port/IP gated behind notification_details_enabled -----------
+
+    /**
+     * #597: connection details in the persistent main notification are opt-in, default off, and
+     * gated behind the same {@code notification_details_enabled} preference #592 introduced for
+     * the USB and trust-prompt notifications -- fresh prefs (default) must show neither the port
+     * nor the IP anywhere on the notification, only the neutral status text.
+     */
+    @Test
+    public void notificationHidesPortAndIpByDefault() throws Exception {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        assertFalse("details must be off by default", KeepADBPreferences.isNotificationDetailsEnabled(context));
+
+        setStatic("currentHost", "192.168.1.50");
+        setStatic("currentPort", 39123);
+
+        KeepADBEndpointCoordinator.refresh(context);
+
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        Notification notification = shadowOf(manager).getNotification(KeepADBNotification.NOTIFICATION_ID);
+        assertNotNull(notification);
+        assertEquals(context.getString(R.string.notification_title_active),
+                notification.extras.getString(Notification.EXTRA_TITLE));
+        assertEquals(context.getString(R.string.notification_text_active_hidden),
+                notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());
+        KeepADBNotificationTextScan.assertMentionsNone(notification, "39123", "192.168.1.50");
+    }
+
+    /**
+     * #597: with the opt-in on, the main notification must reproduce the previous, always-shown
+     * behavior exactly -- "Port &lt;port&gt; @ &lt;ip&gt;" -- so this is also the counter-proof
+     * for the test above: a fix that hid the endpoint unconditionally would fail this one.
+     */
+    @Test
+    public void notificationShowsPortAndIpWhenDetailsEnabled() throws Exception {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+
+        setStatic("currentHost", "192.168.1.50");
+        setStatic("currentPort", 39123);
+
+        KeepADBEndpointCoordinator.refresh(context);
+
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        Notification notification = shadowOf(manager).getNotification(KeepADBNotification.NOTIFICATION_ID);
+        assertNotNull(notification);
+        assertEquals(context.getString(R.string.notification_title_active),
+                notification.extras.getString(Notification.EXTRA_TITLE));
+        String content = notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString();
+        assertTrue(content.contains("39123"));
+        assertTrue(content.contains("192.168.1.50"));
+    }
+
+    /**
+     * #597: publicVersion must never carry the endpoint, even while the private card does (the
+     * opt-in is on) -- same rule #589/#592 already apply to the USB and trust-prompt
+     * notifications. This is the counter-proof for the two tests above: a fix that only touched
+     * the private contentText, or that set publicVersion from the same content, would fail here.
+     */
+    @Test
+    public void publicVersionNeverMentionsPortOrIpRegardlessOfDetailsSetting() throws Exception {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        setStatic("currentHost", "192.168.1.50");
+        setStatic("currentPort", 39123);
+
+        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
+        KeepADBEndpointCoordinator.refresh(context);
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        Notification offNotification = shadowOf(manager).getNotification(KeepADBNotification.NOTIFICATION_ID);
+        assertNotNull("A publicVersion must be set for the lock screen", offNotification.publicVersion);
+        assertPublicVersionMentionsNeither(offNotification, "39123", "192.168.1.50");
+
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        KeepADBEndpointCoordinator.refresh(context);
+        Notification onNotification = shadowOf(manager).getNotification(KeepADBNotification.NOTIFICATION_ID);
+        assertNotNull("A publicVersion must be set for the lock screen", onNotification.publicVersion);
+        assertPublicVersionMentionsNeither(onNotification, "39123", "192.168.1.50");
+        // Counter-proof for the "regardless of setting" claim: the private card of this very
+        // notification does carry the endpoint while onNotification.publicVersion does not.
+        String privateContent = onNotification.extras.getCharSequence(Notification.EXTRA_TEXT).toString();
+        assertTrue(privateContent.contains("39123") && privateContent.contains("192.168.1.50"));
+    }
+
+    private static void assertPublicVersionMentionsNeither(Notification notification, String... values) {
+        Notification publicVersion = notification.publicVersion;
+        assertNotNull(publicVersion);
+        String title = publicVersion.extras.getString(Notification.EXTRA_TITLE);
+        CharSequence text = publicVersion.extras.getCharSequence(Notification.EXTRA_TEXT);
+        for (String value : values) {
+            assertFalse("publicVersion must not mention '" + value + "' in the title: " + title,
+                    title != null && title.contains(value));
+            assertFalse("publicVersion must not mention '" + value + "' in the text: " + text,
+                    text != null && text.toString().contains(value));
+        }
     }
 
     @Test

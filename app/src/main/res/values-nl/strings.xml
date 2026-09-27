@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB: Draadloze foutopsporing INGESCHAKELD</string>
     <string name="notification_title_disabled">KeepADB: Draadloze foutopsporing UITGESCHAKELD</string>
     <string name="notification_text_active">Poort %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">Tik om verbindingsdetails in de app te bekijken.</string>
     <string name="notification_title_searching">KeepADB: Zoeken naar eindpunt…</string>
     <string name="notification_text_searching">Eindpunt oplossen op lokaal netwerk</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive wacht tot Draadloze foutopsporing weer wordt ingeschakeld</string>
@@ -109,6 +110,7 @@
     <string name="network_prompt_allow">Ja, toestaan</string>
     <string name="network_prompt_block">Nee, blokkeren</string>
     <string name="network_prompt_public_text">Een netwerk wil vertrouwd worden voor Keep-Alive — open KeepADB om te beslissen.</string>
+    <string name="network_prompt_confirm_in_app_text">Nieuw wifi-netwerk gedetecteerd — tik om het in de app te bevestigen.</string>
     <string name="network_prompt_identity_unavailable_title">Huidig wifi-netwerk kan niet worden geïdentificeerd</string>
     <string name="network_prompt_identity_unavailable_text">Automatisch opnieuw inschakelen van Keep-Alive is gepauzeerd omdat de identiteit van het netwerk niet kan worden gelezen. Tik om de locatietoestemming of locatieservice te herstellen.</string>
     <string name="settings_trusted_network_blocked_button">Onlangs geblokkeerd (%1$d)</string>
@@ -157,7 +159,7 @@
     <string name="settings_hide_notification_subtext">Toont de statusmelding in het paneel. Uitschakelen heeft geen invloed op Keep-Alive of widgets.</string>
     <string name="settings_hide_notification_subtext_keepalive">Vereist zolang Keep-Alive actief is — Android heeft deze nodig voor de voorgrondservice.</string>
     <string name="settings_notification_details_toggle">Verbindingsdetails in meldingen tonen</string>
-    <string name="settings_notification_details_subtext">Toont het USB-hostprofiel (naam, IP, host) en de naam en BSSID van nieuwe wifi-netwerken in meldingen. Als dit aan staat, kunnen deze details ook op het vergrendelscherm zichtbaar zijn. Als het uit staat, zie je ze alleen in de app.</string>
+    <string name="settings_notification_details_subtext">Toont de poort en het IP-adres in de blijvende statusmelding, het USB-hostprofiel (naam, IP, host) en de naam en BSSID van nieuwe wifi-netwerken in meldingen. Als dit aan staat, kunnen deze details ook op het vergrendelscherm zichtbaar zijn. Als het uit staat, zie je ze alleen in de app.</string>
     <string name="settings_section_display">Scherm</string>
     <string name="settings_keep_display_on_toggle">Scherm aan houden zolang KeepADB op de voorgrond is</string>
     <string name="settings_keep_display_on_subtext">Houdt het scherm alleen aan zolang deze app geopend is. Het scherm gaat normaal weer uit zodra je de app verlaat.</string>

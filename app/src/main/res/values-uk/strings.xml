@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB: Бездротове налагодження УВІМКНЕНО</string>
     <string name="notification_title_disabled">KeepADB: Бездротове налагодження ВИМКНЕНО</string>
     <string name="notification_text_active">Порт %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">Торкніться, щоб побачити відомості про з’єднання в застосунку.</string>
     <string name="notification_title_searching">KeepADB: Пошук кінцевої точки…</string>
     <string name="notification_text_searching">Визначення кінцевої точки в локальній мережі</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive чекає на повторне увімкнення бездротового налагодження</string>
@@ -109,6 +110,7 @@
     <string name="network_prompt_allow">Так, дозволити</string>
     <string name="network_prompt_block">Ні, заблокувати</string>
     <string name="network_prompt_public_text">Мережа хоче стати довіреною для Keep-Alive — відкрийте KeepADB, щоб вирішити.</string>
+    <string name="network_prompt_confirm_in_app_text">Виявлено нову мережу Wi-Fi — торкніться, щоб підтвердити її в застосунку.</string>
     <string name="network_prompt_identity_unavailable_title">Не вдається визначити поточну мережу Wi-Fi</string>
     <string name="network_prompt_identity_unavailable_text">Автоматичне повторне ввімкнення Keep-Alive призупинено, оскільки не вдається прочитати ідентифікатор мережі. Торкніться, щоб виправити дозвіл геолокації або службу геолокації.</string>
     <string name="settings_trusted_network_blocked_button">Нещодавно заблоковано (%1$d)</string>
@@ -157,7 +159,7 @@
     <string name="settings_hide_notification_subtext">Показує сповіщення про стан на панелі. Вимкнення не впливає на Keep-Alive чи віджети.</string>
     <string name="settings_hide_notification_subtext_keepalive">Потрібне, поки Keep-Alive активний — Android вимагає його для служби переднього плану.</string>
     <string name="settings_notification_details_toggle">Показувати відомості про з’єднання у сповіщеннях</string>
-    <string name="settings_notification_details_subtext">Показує у сповіщеннях профіль USB-хоста (ім’я, IP, хост), а також назву та BSSID нових мереж Wi-Fi. Якщо ввімкнено, ці відомості можуть бути видимі й на екрані блокування. Якщо вимкнено, вони відображаються лише в застосунку.</string>
+    <string name="settings_notification_details_subtext">Показує порт та IP-адресу в постійному сповіщенні про стан, профіль USB-хоста (ім’я, IP, хост), а також назву та BSSID нових мереж Wi-Fi у сповіщеннях. Якщо ввімкнено, ці відомості можуть бути видимі й на екрані блокування. Якщо вимкнено, вони відображаються лише в застосунку.</string>
     <string name="settings_section_display">Екран</string>
     <string name="settings_keep_display_on_toggle">Тримати екран увімкненим, поки KeepADB на передньому плані</string>
     <string name="settings_keep_display_on_subtext">Тримає екран увімкненим лише поки цей додаток відкритий. Екран вимикається як зазвичай, щойно ви виходите з додатка.</string>

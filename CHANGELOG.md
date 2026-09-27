@@ -17,11 +17,110 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.53` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.55` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.55] - Unreleased
+
+### Security
+- Persistent main notification's port/IP endpoint moved behind the existing
+  `notification_details_enabled` opt-in (#597, user decision option 2 on the #592 follow-up):
+  with the setting off (the default), the main notification -- previously always showing
+  `Port <port> @ <ip>` -- now shows only the status title with a neutral content text (new string
+  `notification_text_active_hidden`, "Tap to see connection details in the app.", translated in
+  all 18 locales) that opens the app on tap. With the setting on, the notification text is unchanged
+  from before: `Port <port> @ <ip>` with the port in bold and `maskHostForDisplay`'s privacy-mode
+  masking applied. The disable action, ongoing/no-when flags, and content intent are unaffected
+  either way -- only `KeepADBNotification#buildNotification`'s content text changed (the title
+  stays the status); the "searching"/"disabled, waiting"/permission-missing placeholders already carried no
+  endpoint and stay as they were.
+- `publicVersion` added to the main notification, reusing the same neutral
+  `notification_text_active_hidden` text regardless of the details setting -- consistent with the
+  #589/#592 USB and trust-prompt notifications: with details on, the private card shows the
+  endpoint while `publicVersion` still does not, so a redacting lock screen configuration cannot
+  leak it even after the opt-in. No content intent or actions on `publicVersion` (same rule as the
+  other two notifications).
+- `SettingsActivity`'s `notificationDetailsToggle` click listener now also calls
+  `KeepADBEndpointCoordinator.refresh(this)` (alongside the existing `KeepADBUsbReceiver.refresh`
+  call from #592) so a currently visible main notification re-renders immediately when the setting
+  is flipped, without needing a service restart.
+
+### Documentation
+- README's "Persistent Notification" feature bullet and "Connection Details in Notifications"
+  privacy section, and SECURITY.md's connection-details paragraph, updated to describe the main
+  notification's port/IP as opt-in rather than always shown; `settings_notification_details_subtext`
+  extended (all 18 locales) to name the persistent status notification alongside the USB profile
+  and new-Wi-Fi-network details it already covered.
+- Existing installs upgrading to this version see the neutral status text in the main
+  notification, not the port and IP address, until they turn on Settings → Notification →
+  "Show connection details in notifications" themselves; no migration reads or writes the
+  preference, it simply defaults to off as it already did for the USB and trust-prompt
+  notifications since #592.
+
+### Testing
+- `KeepADBNotificationRobolectricTest`: `notificationHidesPortAndIpByDefault` (fresh prefs, details
+  off -- title unchanged, content text is the neutral fallback, neither port nor IP appear
+  anywhere on the notification or its `publicVersion`), `notificationShowsPortAndIpWhenDetailsEnabled`
+  (details on reproduces the previous `Port <port> @ <ip>` text exactly), and
+  `publicVersionNeverMentionsPortOrIpRegardlessOfDetailsSetting` (the counter-proof: `publicVersion`
+  stays neutral in both modes while the private card of the same "details on" notification does
+  carry the endpoint, so a fix that fed `publicVersion` from the same content would fail here).
+- `SettingsActivityTest#notificationDetailsToggleAlsoRerendersTheVisibleMainNotification`: seeds a
+  cached endpoint, confirms the default-off notification hides it, toggling on re-renders the
+  already-posted notification with the endpoint without a service restart, and toggling back off
+  re-hides it -- same shape as the existing USB-card test from #592.
+- Each new assertion was checked against a targeted production mutation (dropping the
+  `isNotificationDetailsEnabled` check so the endpoint always shows; feeding `publicVersion` from
+  the same content as the private card instead of the neutral fallback; dropping the new
+  `KeepADBEndpointCoordinator.refresh` call from the toggle listener) and confirmed to go red
+  under it before being reverted, uncommitted (#597).
+
+## [1.8.54] - Unreleased
+
+### Security
+- Trust decision moved into the app while connection details are off (#598, user decision
+  option 2 on the #592 follow-up): with `notification_details_enabled` off (the default), the
+  untrusted-network prompt no longer carries a "Yes, allow" action -- the user could not see which
+  network it would trust. Its text (and `publicVersion`) now reads "New Wi-Fi network detected —
+  tap to confirm it in the app" (new string `network_prompt_confirm_in_app_text`, translated in
+  all 18 locales); "No, block" stays. The tap opens `SettingsActivity` with a confirmation dialog
+  naming the network and its BSSID, with allow/block. With details on, the prompt is unchanged
+  (named network, allow action with the #578 unlock requirement, plain Settings content intent).
+- Binding: the dialog binds to the access point the prompt was raised for, as recorded by the app
+  in `KeepADBBlockedNetworkHistory` -- the content intent carries only the BSSID as a selector,
+  and `KeepADBNetworkTrustPrompt#pendingConfirmation` resolves it against that record (label
+  included). It is never bound to the current connection and never re-read at click time, so a
+  roam between notification and tap, or between dialog and click, cannot make it trust a
+  different BSSID; whether Wireless Debugging is then switched on stays
+  `KeepADBService#isAutoEnableStillPermitted`'s decision. A BSSID without a pending record
+  (already trusted, evicted, placeholder, never seen) opens no confirmation, only the
+  recently-blocked list. `SettingsActivity` stays non-exported and the PendingIntent immutable.
+- Allow goes through `KeepADBReceiver#handleTrustNetworkAction` -- the notification action's own
+  path with its locked-device check and placeholder-BSSID rejection, ending in
+  `trustBssidAndAttemptConnect`/`KeepADBTrustedNetwork#addBssid` -- and block through
+  `handleDismissNetworkPromptAction`; no second way into the allowlist.
+
+### Fixed
+- The confirmation content intent uses its own action and request code: the USB notification also
+  posts a `SettingsActivity` PendingIntent with request code 0 and `FLAG_UPDATE_CURRENT`, and
+  PendingIntent matching ignores extras, so sharing that identity would let either notification
+  overwrite the other's extras (#598).
+
+### Testing
+- New `SettingsActivityTrustConfirmationTest` drives the dialog with the intent saved in the real
+  posted notification: allow trusts exactly the named BSSID, block trusts nothing, a roam before
+  the tap or while the dialog is open still trusts only the prompted BSSID, an unrecorded or
+  placeholder BSSID and a forged label extra cannot introduce a network or name, a BSSID extra
+  without the confirm action opens nothing, the intent is consumed, and a click while the device
+  reports locked trusts nothing. `KeepADBNetworkTrustPromptTest` pins both modes (no allow action
+  and neutral text/publicVersion with details off; allow action and plain content intent with
+  details on) and `pendingConfirmation`. Each new assertion was checked against a targeted
+  production mutation (allow action in both modes, trusting the current BSSID at click time,
+  resolving without the recorded entry, content intent without its action, SettingsActivity
+  accepting the extra without the action) and goes red under it (#598).
 
 ## [1.8.53] - Unreleased
 

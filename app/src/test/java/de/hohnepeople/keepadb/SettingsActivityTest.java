@@ -68,6 +68,7 @@ public class SettingsActivityTest {
                 .commit();
         KeepADB.resetForTesting();
         KeepADBRegisterClient.resetHttpTransport();
+        KeepADBEndpointCoordinator.resetForTesting();
     }
 
     /**
@@ -110,6 +111,58 @@ public class SettingsActivityTest {
         android.app.NotificationManager manager =
                 context.getSystemService(android.app.NotificationManager.class);
         return shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID);
+    }
+
+    /**
+     * #597: the persistent main notification also gates its port/IP endpoint text behind
+     * {@code notification_details_enabled} now, so it needs the same "toggle re-renders the
+     * already-visible notification" wiring the USB card got in #592.
+     */
+    @Test
+    public void notificationDetailsToggleAlsoRerendersTheVisibleMainNotification() throws Exception {
+        android.app.Application app = RuntimeEnvironment.getApplication();
+        shadowOf(app).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
+        KeepADBPreferences.setAppLanguage(app, "en");
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADBPreferences.setKeepAliveEnabled(app, true);
+        setCoordinatorEndpoint("192.168.1.50", 39123);
+        KeepADBEndpointCoordinator.refresh(app);
+
+        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        Switch toggle = activity.findViewById(R.id.settings_notification_details_toggle);
+        assertNotNull(toggle);
+        assertFalse("Details must be off by default", toggle.isChecked());
+        KeepADBNotificationTextScan.assertMentionsNone(postedMainNotification(app), "39123", "192.168.1.50");
+
+        toggle.performClick();
+        assertTrue(KeepADBPreferences.isNotificationDetailsEnabled(app));
+        CharSequence textOn = postedMainNotification(app).extras.getCharSequence(
+                android.app.Notification.EXTRA_TEXT);
+        assertTrue("The visible main notification must be re-rendered with the endpoint: " + textOn,
+                String.valueOf(textOn).contains("39123") && String.valueOf(textOn).contains("192.168.1.50"));
+
+        toggle.performClick();
+        assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(app));
+        KeepADBNotificationTextScan.assertMentionsNone(postedMainNotification(app), "39123", "192.168.1.50");
+    }
+
+    private static android.app.Notification postedMainNotification(android.content.Context context) {
+        android.app.NotificationManager manager =
+                context.getSystemService(android.app.NotificationManager.class);
+        return shadowOf(manager).getNotification(KeepADBNotification.NOTIFICATION_ID);
+    }
+
+    /** Seeds {@link KeepADBEndpointCoordinator}'s cached endpoint the way a completed discovery
+     * would, without driving the full mDNS/socket discovery flow -- same seam
+     * {@link KeepADBNotificationRobolectricTest} already uses for this. */
+    private static void setCoordinatorEndpoint(String host, int port) throws Exception {
+        java.lang.reflect.Field hostField = KeepADBEndpointCoordinator.class.getDeclaredField("currentHost");
+        hostField.setAccessible(true);
+        hostField.set(null, host);
+        java.lang.reflect.Field portField = KeepADBEndpointCoordinator.class.getDeclaredField("currentPort");
+        portField.setAccessible(true);
+        portField.set(null, port);
     }
 
     @Test

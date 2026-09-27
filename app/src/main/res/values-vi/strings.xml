@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB: Gỡ lỗi không dây ĐÃ BẬT</string>
     <string name="notification_title_disabled">KeepADB: Gỡ lỗi không dây ĐÃ TẮT</string>
     <string name="notification_text_active">Cổng %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">Nhấn để xem chi tiết kết nối trong ứng dụng.</string>
     <string name="notification_title_searching">KeepADB: Đang tìm điểm cuối…</string>
     <string name="notification_text_searching">Đang phân giải điểm cuối trên mạng cục bộ</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive đang chờ gỡ lỗi không dây được bật lại</string>
@@ -109,6 +110,7 @@
     <string name="network_prompt_allow">Có, cho phép</string>
     <string name="network_prompt_block">Không, chặn</string>
     <string name="network_prompt_public_text">Một mạng muốn trở thành đáng tin cậy cho Keep-Alive — mở KeepADB để quyết định.</string>
+    <string name="network_prompt_confirm_in_app_text">Đã phát hiện mạng Wi-Fi mới — nhấn để xác nhận trong ứng dụng.</string>
     <string name="network_prompt_identity_unavailable_title">Không thể nhận dạng mạng Wi-Fi hiện tại</string>
     <string name="network_prompt_identity_unavailable_text">Tự động bật lại Keep-Alive đã tạm dừng vì không thể đọc danh tính của mạng. Nhấn để khắc phục quyền vị trí hoặc dịch vụ vị trí.</string>
     <string name="settings_trusted_network_blocked_button">Vừa bị chặn (%1$d)</string>
@@ -157,7 +159,7 @@
     <string name="settings_hide_notification_subtext">Hiển thị thông báo trạng thái trên thanh thông báo. Tắt tùy chọn này không ảnh hưởng đến Keep-Alive hay tiện ích.</string>
     <string name="settings_hide_notification_subtext_keepalive">Bắt buộc khi Keep-Alive đang hoạt động — Android yêu cầu điều này cho dịch vụ nền trước.</string>
     <string name="settings_notification_details_toggle">Hiển thị chi tiết kết nối trong thông báo</string>
-    <string name="settings_notification_details_subtext">Hiển thị hồ sơ máy chủ USB (tên, IP, máy chủ) cùng tên và BSSID của mạng Wi-Fi mới trong thông báo. Khi bật, các chi tiết này cũng có thể hiển thị trên màn hình khóa. Khi tắt, chúng chỉ hiển thị trong ứng dụng.</string>
+    <string name="settings_notification_details_subtext">Hiển thị cổng và địa chỉ IP trong thông báo trạng thái thường trực, hồ sơ máy chủ USB (tên, IP, máy chủ) cùng tên và BSSID của mạng Wi-Fi mới trong thông báo. Khi bật, các chi tiết này cũng có thể hiển thị trên màn hình khóa. Khi tắt, chúng chỉ hiển thị trong ứng dụng.</string>
     <string name="settings_section_display">Màn hình</string>
     <string name="settings_keep_display_on_toggle">Giữ màn hình sáng khi KeepADB đang ở nền trước</string>
     <string name="settings_keep_display_on_subtext">Chỉ giữ màn hình sáng khi ứng dụng này đang mở. Màn hình sẽ tắt bình thường ngay khi bạn rời khỏi ứng dụng.</string>

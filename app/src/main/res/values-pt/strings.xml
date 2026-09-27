@@ -42,6 +42,7 @@
     <string name="notification_title_active">KeepADB: Depuração sem fio ATIVADO</string>
     <string name="notification_title_disabled">KeepADB: Depuração sem fio DESATIVADO</string>
     <string name="notification_text_active">Porta %1$d @ %2$s</string>
+    <string name="notification_text_active_hidden">Toque para ver os detalhes da ligação na app.</string>
     <string name="notification_title_searching">KeepADB: Procurando endpoint…</string>
     <string name="notification_text_searching">Resolvendo endpoint na rede local</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive aguarda a reativação da depuração sem fio</string>
@@ -109,6 +110,7 @@
     <string name="network_prompt_allow">Sim, permitir</string>
     <string name="network_prompt_block">Não, bloquear</string>
     <string name="network_prompt_public_text">Uma rede quer tornar-se fiável para o Keep-Alive — abra o KeepADB para decidir.</string>
+    <string name="network_prompt_confirm_in_app_text">Nova rede Wi-Fi detetada — toque para a confirmar na app.</string>
     <string name="network_prompt_identity_unavailable_title">Não é possível identificar a rede Wi-Fi atual</string>
     <string name="network_prompt_identity_unavailable_text">A reativação automática do Keep-Alive está pausada porque a identidade da rede não pode ser lida. Toque para corrigir a permissão de localização ou o serviço de localização.</string>
     <string name="settings_trusted_network_blocked_button">Bloqueadas há pouco (%1$d)</string>
@@ -157,7 +159,7 @@
     <string name="settings_hide_notification_subtext">Mostra a notificação de estado no painel. Desativá-la não afeta o Keep-Alive nem os widgets.</string>
     <string name="settings_hide_notification_subtext_keepalive">Necessária enquanto o Keep-Alive está ativo — o Android a exige para o serviço em primeiro plano.</string>
     <string name="settings_notification_details_toggle">Mostrar detalhes da ligação nas notificações</string>
-    <string name="settings_notification_details_subtext">Mostra nas notificações o perfil de host USB (nome, IP, host) e o nome e BSSID das novas redes Wi-Fi. Quando ativado, estes detalhes podem também ficar visíveis no ecrã de bloqueio. Quando desativado, só aparecem na app.</string>
+    <string name="settings_notification_details_subtext">Mostra a porta e o endereço IP na notificação de estado persistente, o perfil de host USB (nome, IP, host) e o nome e BSSID das novas redes Wi-Fi nas notificações. Quando ativado, estes detalhes podem também ficar visíveis no ecrã de bloqueio. Quando desativado, só aparecem na app.</string>
     <string name="settings_section_display">Tela</string>
     <string name="settings_keep_display_on_toggle">Manter a tela ligada enquanto o KeepADB estiver em primeiro plano</string>
     <string name="settings_keep_display_on_subtext">Mantém a tela ligada apenas enquanto este app está aberto. A tela se apaga normalmente assim que você sai do app.</string>
