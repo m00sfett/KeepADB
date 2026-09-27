@@ -129,7 +129,7 @@ public class KeepADBUsbNotificationTest {
 
         assertNotNull(notification.actions);
         assertEquals(3, notification.actions.length);
-        assertEquals("WLAN-ADB", notification.actions[0].title.toString());
+        assertEquals("Wifi-ADB", notification.actions[0].title.toString());
         assertEquals("Wechseln", notification.actions[1].title.toString());
         assertEquals("Neu", notification.actions[2].title.toString());
     }
@@ -176,7 +176,7 @@ public class KeepADBUsbNotificationTest {
 
         CharSequence content = notification.extras.getCharSequence(Notification.EXTRA_TEXT);
         assertNotNull(content);
-        assertEquals("WLAN-ADB konnte nicht aktiviert werden. Berechtigung prüfen.", content.toString());
+        assertEquals("Wifi-ADB konnte nicht aktiviert werden. Berechtigung prüfen.", content.toString());
 
         // Switch to French and verify the error message is translated
         KeepADBPreferences.setAppLanguage(context, "fr");
@@ -186,7 +186,7 @@ public class KeepADBUsbNotificationTest {
         assertNotNull(notificationFr);
         CharSequence contentFr = notificationFr.extras.getCharSequence(Notification.EXTRA_TEXT);
         assertNotNull(contentFr);
-        assertEquals("Impossible d’activer WLAN-ADB. Vérifiez l’autorisation.", contentFr.toString());
+        assertEquals("Impossible d’activer Wifi-ADB. Vérifiez l’autorisation.", contentFr.toString());
     }
 
     @Test

@@ -60,7 +60,7 @@ public class KeepADBNotificationActionContractTest {
         String germanStrings = read("app/src/main/res/values-de/strings.xml");
 
         assertTrue(defaultStrings.contains("<string name=\"notification_action_disable\">"));
-        assertTrue(germanStrings.contains("<string name=\"notification_action_disable\">WLAN-ADB ausschalten</string>"));
+        assertTrue(germanStrings.contains("<string name=\"notification_action_disable\">Wifi-ADB ausschalten</string>"));
     }
 
     private static String read(String relativePath) throws IOException {
