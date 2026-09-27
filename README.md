@@ -19,9 +19,9 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
 - **1-Tap Toggling**: Enable or disable Wireless Debugging instantly from your Quick Settings or Home Screen.
 - **Keep-Alive Watchdog**: Tries to restore Wireless Debugging after Wi-Fi reconnects, access-point changes, or a restart. If Android does not confirm an automatic enable, KeepADB backs off instead of retrying rapidly.
 - **Live Endpoint Resolution**: Discovers the dynamic port and local IP address through Android's mDNS service discovery (`_adb-tls-connect._tcp`). Discovery time depends on network conditions.
-- **Webhook Sync & Dev-Automation**: When enabled, reports verified WLAN-ADB endpoint changes to the user-configured local workstation or automation service. Turning Wireless Debugging off triggers an unregister request.
+- **Webhook Sync & Dev-Automation**: When enabled, reports verified Wifi-ADB endpoint changes to the user-configured local workstation or automation service. Turning Wireless Debugging off triggers an unregister request.
 - **USB-ADB Host Profiles**: Shows an optional USB connection notification and keeps editable host profiles locally on the device. USB profile data is not sent through the current webhook contract.
-- **USB → WLAN-ADB Handover**: Optionally offers a notification action or automatically enables WLAN-ADB when a new USB debugging connection appears. The feature is off by default and respects a deliberate manual OFF state.
+- **USB → Wifi-ADB Handover**: Optionally offers a notification action or automatically enables Wifi-ADB when a new USB debugging connection appears. The feature is off by default and respects a deliberate manual OFF state.
 - **Recovery Diagnostics**: Keeps a small redacted event history on the device and exports it through Android's share sheet when troubleshooting is needed.
 - **No Root Required**: Operates using Android's standard `WRITE_SECURE_SETTINGS` permission granted once via ADB.
 
@@ -34,13 +34,13 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
   - **Home Screen Widget**: 1x1 interactive widget showing live status.
   - **Main App**: Clean interface with status readout, keep-alive toggle, and current endpoint details.
 - 🔄 **Keep-Alive Foreground Service**: Monitors Wireless Debugging across reboots, network changes, and idle periods, and attempts recovery when needed.
-- 🔍 **Endpoint Discovery**: Android mDNS (NSD) is the discovery path for the active WLAN-ADB endpoint; resolution time depends on the network.
-- 🌐 **Automated Webhook Integration**: Configure an optional HTTP(S) endpoint in Settings. KeepADB currently sends WLAN-ADB events; it holds back additional verified transport events until the receiving server accepts their method names.
+- 🔍 **Endpoint Discovery**: Android mDNS (NSD) is the discovery path for the active Wifi-ADB endpoint; resolution time depends on the network.
+- 🌐 **Automated Webhook Integration**: Configure an optional HTTP(S) endpoint in Settings. KeepADB currently sends Wifi-ADB events; it holds back additional verified transport events until the receiving server accepts their method names.
 - 📋 **Persistent Notification**: Shows the current status in the notification panel. The active connection string (`Port <port> @ <ip>`) is opt-in via Settings → Notification → "Show connection details in notifications" (off by default); with it off, the notification shows only the status.
-- 🔌 **USB-ADB Assistance**: Optional USB notification, local editable host profiles, and manual or automatic USB-to-WLAN handover.
+- 🔌 **USB-ADB Assistance**: Optional USB notification, local editable host profiles, and manual or automatic USB-to-Wifi-ADB handover.
 - 🛜 **Network (Beta)**: Optional Wi-Fi and access-point tools, including trusted-network controls. On new installs, trusted-network filtering is off; enabling it requires Android location access to identify networks and can limit background recovery when Android masks that identity.
 - 👁️ **Privacy Mode**: Hide network addresses in the app's UI. This is a display setting; it does not change the endpoint reported to a configured webhook.
-- 🧰 **Diagnostics & Reliability**: Exportable redacted diagnostics, battery-optimization guidance, and a direct notification action to turn off WLAN-ADB.
+- 🧰 **Diagnostics & Reliability**: Exportable redacted diagnostics, battery-optimization guidance, and a direct notification action to turn off Wifi-ADB.
 - ⚙️ **Central Settings**: Dedicated settings screen with language, notification, USB handover, Network (Beta), privacy, diagnostics, and optional webhook controls.
 - 🎨 **Adaptive Icon & Theme**: Native adaptive icon (Terminal Prompt + Wi-Fi Broadcast) with Android 13+ Material You monochrome support and a cohesive Dark/Red/Yellow palette using standard system typography.
 - 🛡️ **Zero Runtime Dependencies**: Built purely on native Android AOSP framework APIs — no third-party libraries, no custom font bloat, no trackers, and no analytics.
@@ -72,7 +72,7 @@ adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTIN
 - **Quick Settings Tile**: Swipe down your notification shade twice, tap the Edit (pencil) icon, and drag the **KeepADB** tile into your active tiles. Tap to toggle on/off. On a locked device, switching on asks you to unlock first.
 - **Home Widget**: Long-press on your home screen, choose Widgets, and add the **KeepADB** widget.
 - **Persistent Keep-Alive**: Open the KeepADB app and enable **Keep persistently active**. KeepADB monitors network state and attempts recovery. Android may ask you to approve Wireless Debugging for a network. If Android does not confirm the change, KeepADB backs off instead of retrying rapidly; approve only a system prompt you expect.
-- **Settings**: Tap **Settings** in the top header to configure language, notifications, local USB host profiles, USB-to-WLAN handover, Network (Beta), privacy mode, diagnostics, battery guidance, or the optional webhook endpoint.
+- **Settings**: Tap **Settings** in the top header to configure language, notifications, local USB host profiles, USB-to-Wifi-ADB handover, Network (Beta), privacy mode, diagnostics, battery guidance, or the optional webhook endpoint.
 
 ---
 
@@ -81,14 +81,14 @@ adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTIN
 For developers who want their PC, IDE, or CI setup to automatically discover and connect to their Android device:
 
 1. Open **KeepADB Settings** and enter your webhook URL (e.g. `http://192.168.1.100:5000/api/adb-register` or a Tailscale endpoint).
-2. When Wireless Debugging is on and its endpoint is verified, KeepADB sends a contract-v2 event for the WLAN-ADB endpoint:
+2. When Wireless Debugging is on and its endpoint is verified, KeepADB sends a contract-v2 event for the Wifi-ADB endpoint:
    ```http
    POST /api/adb-register HTTP/1.1
    Content-Type: application/json
 
    {"contract_version":2,"method":"wlan-adb","active":true,"endpoint":"192.168.1.50:41234","source":"keepadb-app","observed_at":"<UTC timestamp>","event_id":"<idempotency id>"}
    ```
-3. When Wireless Debugging turns **OFF**, KeepADB sends an HTTP `DELETE` request to unregister the previously reported WLAN endpoint. Failed cleanup is retried later.
+3. When Wireless Debugging turns **OFF**, KeepADB sends an HTTP `DELETE` request to unregister the previously reported Wifi-ADB endpoint. Failed cleanup is retried later.
 4. USB profiles remain on the device. KeepADB holds additional verified transport events back instead of sending methods the receiving server does not currently accept.
 5. Cleartext HTTP is supported for private LAN / VPN setups. Sensitive URL parts are redacted
    from logs, and webhook URLs are excluded from Android cloud backups.
@@ -144,7 +144,7 @@ not an assumed default.
 - **No Internet Telemetry:** KeepADB does not send analytics or crash reports to any external server.
 - **No Third-Party SDKs:** 100% open-source code using only Android platform components.
 - **Optional Webhook Sync:** By default, no webhook requests are sent. When enabled, KeepADB
-  sends verified WLAN-ADB endpoint events to the URL configured by the user and attempts to
+  sends verified Wifi-ADB endpoint events to the URL configured by the user and attempts to
   unregister the endpoint when Wireless Debugging turns off. USB profile data stays local and is
   not included in the current webhook requests. Enable the webhook only for an endpoint you trust.
 - **Connection Details in Notifications:** By default, the persistent main notification does not
@@ -199,7 +199,7 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
    (#598). Switching Wireless
    Debugging on from the Quick Settings tile also requires an unlocked device; switching it off
    from the lock screen works without unlocking (#586). Switching Wireless Debugging on from the
-   USB notification's "Enable WLAN-ADB" handover action also requires an unlocked device (#588).
+   USB notification's "Enable Wifi-ADB" handover action also requires an unlocked device (#588).
 5. **Android network approval:** Android may show a system prompt the first time Wireless
    Debugging is enabled on a Wi-Fi network. Confirm only a prompt you expect. If Android does not
    confirm the automatic change, KeepADB backs off instead of retrying rapidly.

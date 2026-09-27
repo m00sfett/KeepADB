@@ -17,11 +17,60 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.55` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.57` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.57] - Unreleased
+
+### Testing
+- #601 (follow-up from #596): replaced `KeepADBAsyncSurfaceRefreshContractTest`'s two remaining
+  static source-content contracts with real Robolectric behavior tests. New
+  `MainActivityEndpointListenerGenerationTest#activityDropsQueuedEndpointCallbacksAfterPauseAndRecreation`
+  drives a real `MainActivity` through `ActivityController` pause/resume/recreate and asserts that
+  a callback delivered through a superseded endpoint-listener generation never moves the rendered
+  `R.id.endpoint` text, while a current-generation callback does -- exercising the exact
+  `endpointListenerGeneration`/`endpointSurfaceActive` guard `isEndpointSurfaceActive()` enforces,
+  via reflective access to `KeepADBEndpointCoordinator`'s private `endpointListener` field rather
+  than a new production seam (same pattern `KeepADBEndpointCoordinatorTest`'s `setStatic` already
+  uses). New `KeepADBWidgetMainThreadRefreshTest#widgetStateRefreshRunsOnMainThreadWithoutStartingDiscovery`
+  drives `KeepADBWidget.refreshAllState(Context)` from a genuine background `Thread` against a
+  real `ShadowAppWidgetManager`-backed widget and asserts both that the rendered `RemoteViews`
+  text only changes once the (Robolectric-paused) main looper runs the posted update, and that no
+  discovery attempt is ever started (`KeepADBEndpointCoordinator#hasActiveDiscoveryAttemptForTesting()`).
+  Both new tests were mutation-tested in an isolated worktree against representative production
+  mutations (the generation guard forced to always-active and always-discard; the widget's
+  main-thread post skipped) to confirm each goes red for the right reason. The class's
+  remaining five static tests and their javadoc explanation are unchanged; the class went from
+  seven tests to five.
+
+## [1.8.56] - Unreleased
+
+### Documentation
+- Unified the wording for Android's ADB-over-Wi-Fi feature across all 19 UI languages plus
+  README.md, SECURITY.md, and the Fastlane store texts: the product term is now consistently
+  **"Wifi-ADB"** everywhere, replacing the previous mix of "WLAN-ADB", "WiFi-ADB", and
+  "Wi-Fi-ADB" (#599, user-decided glossary). About 116 mixed-spelling occurrences from the
+  original audit collapse onto one canonical spelling: 94 in `values*/strings.xml` (19 locales,
+  5 strings each except `de`, which phrases one of the five without naming the term), 11 in
+  README.md, 1 in SECURITY.md, and 2 in `fastlane/metadata/android/en-US/full_description.txt`.
+  The existing `KeepADBUsbActionLabelBudgetTest` #593 8-character USB handover slot stays
+  satisfied ("Wifi-ADB" is 8 Latin characters, same as "WLAN-ADB" before it).
+- Left two things deliberately untouched: the term for the Wi-Fi network itself (unrelated to
+  the ADB feature name) already follows each language's own convention -- German "WLAN", English
+  "Wi-Fi", and the equivalent system term elsewhere -- and technical values (the `wlan-adb`
+  register/webhook protocol method, Java identifiers, log tokens) that must not change. Dutch
+  (`values-nl`) was the one language actually mixing "Wi-Fi-netwerk"/"Wi-Fi-verbinding" with the
+  already-dominant lowercase "wifi-netwerk"/"wifi-verbinding" spelling; normalized 10 occurrences
+  to the lowercase compound form used elsewhere in the same file and matching the Taalunie
+  wordlist ("wifinetwerk"). Historical `CHANGELOG.md` sections and the numbered
+  `fastlane/metadata/android/en-US/changelogs/*.txt` files that already shipped keep their
+  original "WLAN-ADB" wording, per the user decision not to rewrite published release notes.
+- `bin/check-i18n`'s `usb_notification_enable_wlan_handover` ALLOWLIST entry (#593) updated to
+  describe the renamed "Wifi-ADB" term instead of "WLAN-ADB"; the exemption itself is unchanged
+  (the label is still identical across all 19 locales by design).
 
 ## [1.8.55] - Unreleased
 
