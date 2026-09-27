@@ -141,6 +141,78 @@ public class SettingsActivityTest {
         ShadowLooper.idleMainLooper();
     }
 
+    /**
+     * #593: the switch-profile dialog row must show name and endpoint details as two separate
+     * TextViews (name on its own line, "IP · Host · Tailnet" underneath) instead of one long
+     * radio label, and the Edit/Delete buttons must no longer share the radio button's row --
+     * both changes avoid the character-by-character wrap a long profile summary used to force.
+     */
+    @Test
+    public void switchProfileDialogRowSplitsNameAndDetailsAndMovesActionsOffTheSelectionRow() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+
+        KeepADBUsbProfile.add(activity, "LongHostName", "10.20.30.40", "longhostname.example.local",
+                "longhostname.tailnet.example.net");
+        ShadowLooper.idleMainLooper();
+        activity.findViewById(R.id.settings_usb_profile_action).performClick();
+        ShadowLooper.idleMainLooper();
+        AlertDialog switchDialog = activity.getActiveSwitchProfileDialog();
+        assertNotNull("Profile switch dialog should be showing", switchDialog);
+        ScrollView switchScroll = findViewByType(switchDialog.findViewById(android.R.id.custom), ScrollView.class);
+        assertNotNull(switchScroll);
+
+        KeepADBUsbProfile.Profile profile = KeepADBUsbProfile.getProfiles(activity).get(0);
+        List<TextView> textViews = findViewsByType(switchScroll, TextView.class);
+        boolean nameOnOwnLine = false;
+        boolean detailsOnOwnLine = false;
+        boolean fullSummaryAsSingleLine = false;
+        for (TextView tv : textViews) {
+            String text = tv.getText().toString();
+            if (text.equals(profile.name)) nameOnOwnLine = true;
+            if (text.equals(profile.details())) detailsOnOwnLine = true;
+            if (text.equals(profile.summary())) fullSummaryAsSingleLine = true;
+        }
+        assertTrue("Profile name must appear as its own TextView", nameOnOwnLine);
+        assertTrue("Profile details (IP/host/tailnet) must appear as their own TextView",
+                detailsOnOwnLine);
+        assertFalse("Name and details must no longer be a single concatenated label",
+                fullSummaryAsSingleLine);
+
+        List<android.widget.RadioButton> radios =
+                findViewsByType(switchScroll, android.widget.RadioButton.class);
+        assertEquals(1, radios.size());
+        android.widget.RadioButton radio = radios.get(0);
+        assertEquals("The radio button's accessibility description must still carry the full "
+                        + "summary for screen readers", profile.summary(),
+                radio.getContentDescription().toString());
+
+        // The Edit/Delete buttons must not be direct siblings of the radio button anymore --
+        // that row used to force the whole line into a character-wide wrap on long summaries.
+        // (RadioButton is itself a Button subclass, so it is excluded from this check.)
+        ViewGroup selectionRow = (ViewGroup) radio.getParent();
+        List<Button> buttonsInSelectionRow = findViewsByType(selectionRow, Button.class);
+        buttonsInSelectionRow.remove(radio);
+        assertTrue("Edit/Delete must not share the radio button's row",
+                buttonsInSelectionRow.isEmpty());
+
+        List<Button> allButtons = findViewsByType(switchScroll, Button.class);
+        Button editButton = findButtonWithText(allButtons,
+                activity.getString(R.string.usb_profile_edit_button));
+        Button deleteButton = findButtonWithText(allButtons,
+                activity.getString(R.string.usb_profile_delete_button));
+        assertNotNull(editButton);
+        assertNotNull(deleteButton);
+        assertNotEquals("Edit button must be in a different row than the radio button",
+                selectionRow, editButton.getParent());
+        assertNotEquals("Delete button must be in a different row than the radio button",
+                selectionRow, deleteButton.getParent());
+
+        switchDialog.dismiss();
+        ShadowLooper.idleMainLooper();
+    }
+
     @Test
     public void actionButtonsHaveContextualAccessibilityDescriptions() {
         ActivityController<SettingsActivity> controller =
@@ -1132,6 +1204,13 @@ public class SettingsActivityTest {
             assertTrue("Debug badge must remain an accessibility node",
                     debugBadge.isImportantForAccessibility());
         }
+    }
+
+    private static Button findButtonWithText(List<Button> buttons, String text) {
+        for (Button button : buttons) {
+            if (text.equals(button.getText().toString())) return button;
+        }
+        return null;
     }
 
     private static <T extends View> List<T> findViewsByType(View root, Class<T> type) {
