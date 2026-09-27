@@ -1,8 +1,11 @@
 package de.hohnepeople.keepadb;
 
+import android.Manifest;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.database.ContentObserver;
 import android.net.ConnectivityManager;
 import android.net.Network;
@@ -166,14 +169,36 @@ public class KeepADBService extends Service {
         }
     }
 
+    /**
+     * Determines the foreground service type to request when entering foreground mode (#606, C2).
+     *
+     * <p>Always includes {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE}.
+     * If {@link Manifest.permission#ACCESS_FINE_LOCATION} is granted,
+     * {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_LOCATION} is also requested so that Android
+     * treats this service as while-in-use for Wi-Fi identity verification (unmasking SSID/BSSID
+     * during background keep-alive). If the location permission is not granted (e.g. in default
+     * {@code all_wifi} mode without trusted-network allowlist), {@code location} is omitted
+     * dynamically to prevent a {@link SecurityException} on Android 14+ (API 34+).
+     */
+    static int determineForegroundServiceType(Context context) {
+        int type = ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
+        if (context != null
+                && context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            type |= ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+        }
+        return type;
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "received",
                 "startId=" + startId + " flags=" + flags);
         Log.d(TAG, "onStartCommand startId=" + startId + " flags=" + flags);
         try {
+            int serviceType = determineForegroundServiceType(this);
             startForeground(KeepADBNotification.NOTIFICATION_ID,
-                    KeepADBNotification.getServiceNotification(this));
+                    KeepADBNotification.getServiceNotification(this),
+                    serviceType);
         } catch (RuntimeException e) {
             KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "failed",
                     "foreground_promotion_exception");

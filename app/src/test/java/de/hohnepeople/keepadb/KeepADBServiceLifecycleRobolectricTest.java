@@ -1034,4 +1034,52 @@ public class KeepADBServiceLifecycleRobolectricTest {
             controller.destroy();
         }
     }
+
+    @Test
+    public void determineForegroundServiceTypeReturnsConnectedDeviceWhenLocationNotGranted() {
+        shadowOf((Application) context).denyPermissions(android.Manifest.permission.ACCESS_FINE_LOCATION);
+        int type = KeepADBService.determineForegroundServiceType(context);
+        assertEquals(android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE, type);
+    }
+
+    @Test
+    public void determineForegroundServiceTypeIncludesLocationWhenFineLocationGranted() {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.ACCESS_FINE_LOCATION);
+        int type = KeepADBService.determineForegroundServiceType(context);
+        int expected = android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+                | android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+        assertEquals(expected, type);
+    }
+
+    @Test
+    public void onStartCommandPassesDynamicForegroundServiceTypeMatchingPermissionState() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+
+        // Case 1: Location not granted -> connectedDevice only (#606: prevents SecurityException on API 34+)
+        shadowOf((Application) context).denyPermissions(android.Manifest.permission.ACCESS_FINE_LOCATION);
+        ServiceController<KeepADBService> controllerWithoutLoc = Robolectric.buildService(KeepADBService.class);
+        try {
+            KeepADBService service = controllerWithoutLoc.create().get();
+            service.onStartCommand(new Intent(), 0, 1);
+            assertEquals(android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE,
+                    service.getForegroundServiceType());
+        } finally {
+            controllerWithoutLoc.destroy();
+        }
+
+        // Case 2: Location granted -> connectedDevice | location (#606, C2: unmasks SSID/BSSID during FGS)
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.ACCESS_FINE_LOCATION);
+        ServiceController<KeepADBService> controllerWithLoc = Robolectric.buildService(KeepADBService.class);
+        try {
+            KeepADBService service = controllerWithLoc.create().get();
+            service.onStartCommand(new Intent(), 0, 1);
+            int expected = android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+                    | android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+            assertEquals(expected, service.getForegroundServiceType());
+        } finally {
+            controllerWithLoc.destroy();
+        }
+    }
 }

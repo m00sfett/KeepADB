@@ -1,0 +1,2 @@
+• Enhanced: Wi-Fi network identification during background keep-alive now stays unmasked across reconnects and screen-off events without requiring invasive background location permissions (#606).
+• Internal: KeepADBService dynamically negotiates foreground service types to prevent permission exceptions on Android 14+.
