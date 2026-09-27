@@ -21,77 +21,53 @@ import org.junit.Test;
  * "trusted network" allowlist policy only, which says nothing about whether the device is still
  * on a Wi-Fi transport at all.
  *
- * <p>Chosen test style: a source-content contract, matching the existing pattern this codebase
- * already uses for equivalent internal-state-machine guarantees (see
- * {@link KeepADBRoamNotificationRefreshContractTest}). All three fixed methods are private
- * static/instance methods of classes that manage process-wide static discovery/retry state via a
- * real {@code KeepADBEndpoint} they construct internally (not the injectable
- * {@code KeepADBNsdProbe}/{@code KeepADBScheduler} seam {@link KeepADBEndpointDiscoveryTest} uses)
- * -- there is no seam today to observe "did startDiscoveryDirectLocked() actually get skipped"
- * from outside without either reflection-driven poking at static fields (fragile, and already
- * avoided for exactly this reason per {@link KeepADBEndpointDiscoveryTest}'s own class javadoc)
- * or a larger DI refactor that is out of scope for this fix.
+ * <p>#596 (codequality review CQ-03): this class used to hold four source-content assertions --
+ * grepping method bodies for snippet presence/order/occurrence count instead of observing runtime
+ * behavior, so a semantically equivalent refactor could turn them red, and a coincidental text
+ * match could turn them green without the guard actually working. Three were migrated to real
+ * behavior tests that drive the production entry points end-to-end and observe the actual
+ * outcome instead:
+ * <ul>
+ *   <li>{@code refreshInternalChecksWifiConnectionBeforeStartingDiscovery} ->
+ *       {@link KeepADBWifiGatedDiscoveryBehaviorTest#refreshNeverStartsDiscoveryWithoutAnActiveWifiConnection()}
+ *       / {@link KeepADBWifiGatedDiscoveryBehaviorTest#refreshStartsDiscoveryOnceWifiIsConnected()}
+ *       (already existed pre-#596).</li>
+ *   <li>{@code scheduleRetryLockedAbortsWithoutAnActiveWifiConnection} -> the three
+ *       {@code retry*} tests added to {@link KeepADBWifiGatedDiscoveryBehaviorTest} by #596,
+ *       which drive a real discovery attempt to {@code onUnavailable()} via the {@link
+ *       KeepADBFakeNsdProbe}/{@link KeepADBFakeScheduler} seam and observe whether a second
+ *       discovery attempt actually starts after the retry delay, both with and without Wi-Fi
+ *       dropping at each of the two check sites.</li>
+ *   <li>{@code recoveryPulseChecksTheActualWifiTransportInAdditionToTrustedNetwork} -> the two
+ *       {@code pulseIs*} tests #596 added to {@link KeepADBEndpointRecoveryPulseBehaviorTest},
+ *       which observe whether {@code maybeSendRecoveryPulse()} actually attempts its AUS write
+ *       (or not) for each combination of Wi-Fi connectivity and trusted-network state. The pure
+ *       *order* between those two checks was dropped rather than replaced: both are early returns
+ *       with no side effect in between, so their relative order has no observable runtime
+ *       difference for a test to pin -- the source-order assertion proved nothing beyond "both
+ *       checks are textually present", which the two behavior tests above already prove more
+ *       directly (each check independently blocks the pulse regardless of the other).</li>
+ * </ul>
  *
- * <p>The fix reuses the existing {@code KeepADBService.isWifiConnected(Context)} check (already
- * used by {@code recheckAndEnable()}/the content observer) rather than introducing a second,
- * duplicate Wi-Fi check.
+ * <p>The remaining {@link #reconnectAndRoamPathsInKeepADBServiceRemainUntouched()} stays a
+ * source-content contract deliberately: it is a regression guard against a *future* change
+ * re-introducing a Wi-Fi gate in front of {@code KeepADBService}'s two already-event-driven
+ * paths (see its own javadoc). Half of what it protects -- the {@code onAvailable()} ->
+ * {@code recheckAndEnable()} call -- is meanwhile also exercised behaviorally through a real
+ * {@code ConnectivityManager.NetworkCallback} in {@link
+ * KeepADBServiceLifecycleRobolectricTest#networkCallbackPromptsForAnUntrustedAccessPointEvenWhileAlreadyActive()}
+ * (that test's untrusted-network prompt only fires if {@code recheckAndEnable()} actually ran).
+ * The other half -- {@code onCapabilitiesChanged()} -> {@code KeepADBNotification.verifyEndpointHealth()}
+ * -- has no behavioral equivalent: driving it through a real {@code NetworkCallback} spawns a raw
+ * background verification {@code Thread} with a real socket check, which {@link
+ * KeepADBNotificationRobolectricTest#wifiNetworkCallbackIsRegisteredAgainstARealConnectivityManager()}
+ * already documents as deliberately out of scope for Robolectric here (hang/flake risk); a fix
+ * would need a materially larger DI change than this issue's bounded scope allows. Kept as an
+ * intentionally static architecture check per AGENTS.md/#286: its purpose (no gate added in
+ * front of these two calls) is clearly named and a text check is well suited to it -- the
+ * property under test is literally "the call site's text is unconditional", not a runtime value.
  */
 public class KeepADBWifiGatedDiscoveryContractTest {
-
-    @Test
-    public void refreshInternalChecksWifiConnectionBeforeStartingDiscovery() throws IOException {
-        String source = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String refreshInternalBody = methodBody(source,
-                "private static synchronized void refreshInternal(Context context, Object discoveryOwner) {");
-
-        int wifiCheckIndex = refreshInternalBody.indexOf("KeepADBService.isWifiConnected(appContext)");
-        int startDiscoveryIndex = refreshInternalBody.indexOf("startDiscoveryDirectLocked(appContext, manager, discoveryOwner);");
-
-        assertTrue("refreshInternal() must check the active Wi-Fi connection state before "
-                        + "starting discovery -- there is nothing for adbd's listener to be "
-                        + "reachable on otherwise",
-                wifiCheckIndex >= 0);
-        assertTrue("startDiscoveryDirectLocked() must still be reachable for the connected case",
-                startDiscoveryIndex >= 0);
-        assertTrue("the Wi-Fi check must gate the discovery start, i.e. appear before it in "
-                        + "source order",
-                wifiCheckIndex < startDiscoveryIndex);
-    }
-
-    @Test
-    public void scheduleRetryLockedAbortsWithoutAnActiveWifiConnection() throws IOException {
-        String source = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNotification.java");
-        String scheduleRetryLockedBody = methodBody(source,
-                "private static void scheduleRetryLocked(Context appContext, NotificationManager manager) {");
-
-        long wifiCheckOccurrences = countOccurrences(scheduleRetryLockedBody,
-                "KeepADBService.isWifiConnected(appContext)");
-
-        assertTrue("scheduleRetryLocked() must abort the retry chain (both when first asked to "
-                        + "schedule, and inside the scheduled runnable itself) once there is no "
-                        + "active Wi-Fi connection -- otherwise the 2s/5s backoff loop runs "
-                        + "forever with Wi-Fi off",
-                wifiCheckOccurrences >= 2);
-    }
-
-    @Test
-    public void recoveryPulseChecksTheActualWifiTransportInAdditionToTrustedNetwork() throws IOException {
-        String source = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBEndpoint.java");
-        String methodBody = methodBody(source, "void maybeSendRecoveryPulse(long generation) {");
-
-        int wifiCheckIndex = methodBody.indexOf("KeepADBService.isWifiConnected(appContext)");
-        int trustedNetworkCheckIndex = methodBody.indexOf("KeepADBTrustedNetwork.isCurrentNetworkTrusted(appContext)");
-
-        assertTrue("maybeSendRecoveryPulse() must check the actual Wi-Fi transport in addition "
-                        + "to the trusted-network allowlist policy -- 'trusted network' says "
-                        + "nothing about whether Wi-Fi is even connected right now",
-                wifiCheckIndex >= 0);
-        assertTrue("the existing trusted-network gate must remain in place (#245/#270 unaffected)",
-                trustedNetworkCheckIndex >= 0);
-        assertTrue("the Wi-Fi transport check must gate the pulse before the trusted-network "
-                        + "check, i.e. appear first in source order",
-                wifiCheckIndex < trustedNetworkCheckIndex);
-    }
 
     /**
      * Regression guard: the event-driven reconnect path (#22/#192) and the mesh-roam
@@ -115,16 +91,6 @@ public class KeepADBWifiGatedDiscoveryContractTest {
         assertTrue("#276/#285: a mesh roam (onCapabilitiesChanged) must still re-verify the "
                         + "cached endpoint directly, with no added Wi-Fi gate in front of it",
                 onCapabilitiesChangedBody.contains("KeepADBNotification.verifyEndpointHealth("));
-    }
-
-    private static long countOccurrences(String haystack, String needle) {
-        long count = 0;
-        int index = 0;
-        while ((index = haystack.indexOf(needle, index)) >= 0) {
-            count++;
-            index += needle.length();
-        }
-        return count;
     }
 
     private static String read(String relativePath) throws IOException {

@@ -23,7 +23,11 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
 
-/** End-to-end behavior coverage for the endpoint-owned recovery guard (#347). */
+/**
+ * End-to-end behavior coverage for the endpoint-owned recovery guard (#347). #596 added the
+ * {@code pulseIs*} entry-gate tests below, replacing the equivalent source-content assertions
+ * formerly in {@link KeepADBWifiGatedDiscoveryContractTest}.
+ */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class KeepADBEndpointRecoveryPulseBehaviorTest {
@@ -111,6 +115,51 @@ public class KeepADBEndpointRecoveryPulseBehaviorTest {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
         NetworkChangingScheduler scheduler = new NetworkChangingScheduler(() -> KeepADB.noteNetworkChanged());
         assertRecoveryRestoreIsCancelled(gateway, scheduler);
+    }
+
+    /**
+     * #296/#596: "trusted network" is an allowlist policy decision and says nothing about whether
+     * the device is actually on a Wi-Fi transport at all right now -- so the pulse's *entry* gate
+     * (before it ever attempts the AUS write) must require an active Wi-Fi connection in addition
+     * to the trusted-network check, not instead of it. Asserted on the observable outcome (no AUS
+     * write attempted at all), not on which check appears first in the source.
+     */
+    @Test
+    public void pulseIsNeverSentWithoutAnActiveWifiConnectionEvenOnATrustedNetwork() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(scheduler);
+        // setUp() already trusts MODE_ALL_WIFI; only Wi-Fi connectivity itself is withdrawn here.
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+
+        KeepADBEndpoint endpoint = new KeepADBEndpoint(context, new KeepADBFakeNsdProbe(), scheduler);
+        endpoint.maybeSendRecoveryPulse(0L);
+
+        assertTrue("a trusted network alone must not be enough to send a recovery pulse without "
+                        + "an active Wi-Fi transport for adbd to ever listen on",
+                gateway.writes.isEmpty());
+    }
+
+    /**
+     * Gegenprobe to the test above (AGENTS.md: guard both sides of a two-sided invariant): an
+     * active Wi-Fi transport alone must not bypass the existing trusted-network allowlist either
+     * -- the #296 fix must add a check, not replace one.
+     */
+    @Test
+    public void pulseIsStillBlockedOnAnUntrustedNetworkEvenWithAnActiveWifiConnection() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        KeepADB.setGatewayForTesting(gateway);
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+
+        KeepADBEndpoint endpoint = new KeepADBEndpoint(context, new KeepADBFakeNsdProbe(), scheduler);
+        endpoint.maybeSendRecoveryPulse(0L);
+
+        assertTrue("an active Wi-Fi transport alone must not bypass the trusted-network allowlist",
+                gateway.writes.isEmpty());
     }
 
     /**
