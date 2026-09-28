@@ -125,11 +125,11 @@ der Kontrolle (`connectedDevice` mit `ACCESS_FINE_LOCATION`) gemessen:
 | | `bg_no_act`† | An (Home) | Ja† | Nur FINE | `moosNET` | `true` | `untrusted`‡ |
 | | `wifi_reconnect` | An (Home) | Ja | Nur FINE | `moosNET` | `true` | `untrusted`‡ |
 | | `display_off` | Aus | Ja | Nur FINE | `moosNET` | `true` | `untrusted`‡ |
-| **Kontrolle** (`connectedDevice` + While-in-Use) | `fg_act` | An | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
-| | `bg_fg` | An (Home) | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
-| | `bg_no_act`† | An (Home) | Ja† | Nur FINE | `<unknown ssid>` | `false` | `untrusted` |
-| | `wifi_reconnect` | An (Home) | Ja | Nur FINE | `<unknown ssid>` | `false` | `untrusted` |
-| | `display_off` | Aus | Ja | Nur FINE | `<unknown ssid>` | `false` | `untrusted` |
+| **Kontrolle** (`connectedDevice` + While-in-Use) | `fg_act` | An | Ja | Nur FINE | `moosNET` | `true` | `untrusted`‡ |
+| | `bg_fg` | An (Home) | Ja | Nur FINE | `moosNET` | `true` | `untrusted`‡ |
+| | `bg_no_act`† | An (Home) | Ja† | Nur FINE | `<unknown ssid>` | `false` | `identity_unavailable` |
+| | `wifi_reconnect` | An (Home) | Ja | Nur FINE | `<unknown ssid>` | `false` | `identity_unavailable` |
+| | `display_off` | Aus | Ja | Nur FINE | `<unknown ssid>` | `false` | `identity_unavailable` |
 
 *†Hinweis zu `bg_no_act`:* Die Testabsicht war ursprünglich `bg_no_fgs` (Hintergrund **ohne**
 laufenden Foreground-Service, App vollständig beendet). `am stopservice` beendet einen
@@ -146,14 +146,15 @@ diesen Zuständen) — nicht der **positive Trust-Ausgang** selbst. Der einzige 
 tatsächlich belegte positive Trust-Fall unter C2 mit gelistetem AP ist Fall 5 in Nachtrag 3
 unten. Innerhalb C1 waren `fg_act`, `bg_fg` und `bg_no_act` mit gelistetem AP gemessen (dort
 stimmt `trusted`); `wifi_reconnect` und `display_off` liefen nach einem Reconnect auf einen zum
-Messzeitpunkt nicht gelisteten AP.
+Messzeitpunkt nicht gelisteten AP. Dasselbe gilt für die Kontrolle `fg_act`/`bg_fg` (AP `…13:05`,
+nicht gelistet); die maskierten Kontrollzeilen stehen in den Rohdaten als `identity_unavailable`.
 
 ### Verbindliche Produktentscheidung (#606)
 
 *Präzisierung (#626, siehe Nachtrag 3 unten):* Punkt 1 galt für alle hier gemessenen Fälle, in
 denen der Service-Record aus dem Vordergrund stammte. Nachtrag 3 zeigt, dass ein rein im
-Hintergrund entstandener Service-Record (Boot, Prozess-Neustart, App-Update ohne je geöffnete
-App) die Maskierung *nicht* aufhebt — auf API 33 dauerhaft (#630), auf API 34+ beendet Android den
+Hintergrund entstandener Service-Record (Boot, Prozess-Neustart eines solchen Records,
+App-Update — jeweils bis zum nächsten Öffnen der App) die Maskierung *nicht* aufhebt — auf API 33 dauerhaft (#630), auf API 34+ beendet Android den
 Dienst dabei sogar (#629). Die Entscheidung für C2 bleibt unverändert richtig, der Anspruch
 "vollständige Aufhebung" gilt aber nur bedingt auf den Vordergrund-Ursprung.
 
