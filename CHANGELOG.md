@@ -23,6 +23,45 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.8.64] - Unreleased
+
+### Fixed
+- #629: on API 34+, `KeepADBService.onStartCommand()` requesting FGS type `connectedDevice|
+  location` from a background start (boot, `MY_PACKAGE_REPLACED`, or a background `sync()`) with
+  `ACCESS_FINE_LOCATION` granted made `startForeground()` throw `SecurityException` every time --
+  `failForegroundStart()` then tore the whole Keep-Alive service down with no retry. Measured
+  (#626) to kill Keep-Alive after every reboot and every app update on Android 14+ once the user
+  had granted location for the trusted-network allowlist. Bound decision (2026-09-28): on that
+  exception, retry once with `connectedDevice` alone instead of stopping the service. The service
+  now survives every background start on API 34/35; Wi-Fi identity resolution stays fail-closed/
+  masked, as before, until a foreground-originated start (e.g. opening the app, #630/#628)
+  promotes it with `location` again. Covered end to end by new Robolectric tests that exercise
+  the real `onStartCommand()` retry control flow (the `SecurityException` catch, the fallback
+  type computation, and the diagnostics) via a test-only `promoteToForeground()` seam, since no
+  mocking framework is available and Robolectric's own shadow does not model this API 34
+  restriction. A live re-run on a booted API 34/35 emulator (the same setup Nachtrag 3 used to
+  originally reproduce the crash) could not be completed in this pass -- the AVD's cold boot did
+  not finish under this session's host load -- and remains an open follow-up. See
+  `docs/trusted-networks-measurement.md`, Nachtrag 4.
+
+### Documentation
+- #630: investigated a fully automatic workaround for the API 33 background-`ServiceRecord`
+  masking (`IDENTITY_UNAVAILABLE` until `MainActivity` is opened) before considering it a
+  documented platform limit, per the 2026-09-28 decision on #630. A periodic self-trigger and a
+  service-originated activity trampoline were both ruled out (the former never re-evaluates an
+  existing `ServiceRecord`'s While-in-Use grant; the latter is blocked by Android 10+'s
+  background-activity-start restrictions without user interaction). Measured instead, on the S20,
+  that the already-shipped #616 opt-in (`ACCESS_BACKGROUND_LOCATION`) *does* lift the masking for
+  a background-originated `ServiceRecord` end to end -- automatic Wireless-Debugging re-enable
+  succeeded with zero app-foreground interaction -- even though the record's own
+  `allowWhileInUsePermissionInFgs` flag stays `false`. A controlled revoke/grant A/B comparison on
+  the same access point confirms the permission, not some other factor, causes the difference. No
+  code change: #630 is resolved for users who complete the #616 setup card; for users who decline
+  it, the masked-until-`MainActivity`-opens behavior (#628) remains the documented, deliberate
+  tradeoff, since no clean automatic alternative exists. See `docs/trusted-networks-measurement.md`,
+  Nachtrag 4, which also corrects the #616 changelog entry below from an untested assumption to a
+  measured fact.
+
 ## [1.8.63] - Unreleased
 
 ### Added

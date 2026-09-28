@@ -317,3 +317,80 @@ KeepADBDiag: event=service_destroy …
   gemessen. **Annahme:** wie API 34, weil 6a–6c auf beiden Versionen identisch waren.
 - **Emulator-WLAN** ist virtuell (`AndroidWifi`). Aussagen zur Identitäts-Maskierung auf API
   34/35 gelten für die AOSP-Plattformlogik, nicht für OEM-WLAN-Stacks.
+
+## Nachtrag 4 (#629/#630, 2026-09-28): SecurityException-Fallback und die #616-Gegenprobe mit `ACCESS_BACKGROUND_LOCATION`
+
+Gemessen auf `fix/629-630-background-start-fgs`, versionName 1.8.64 / versionCode 161. Zwei
+getrennte Nachweise geplant: der #629-Fix auf einem API-34/35-Emulator und die
+#630-Workaround-Gegenprobe auf dem S20 (API 33, physisch, `android-target s20`). Der
+Emulator-Nachweis blieb in diesem Durchlauf unvollständig (siehe unten); der S20-Nachweis ist
+vollständig.
+
+### #629: `startForeground()`-Fallback auf `connectedDevice` bei `SecurityException`
+
+`KeepADBService.onStartCommand()` fängt die `SecurityException` aus Fall 6a/6b jetzt ab und
+promotet erneut mit dem um `FOREGROUND_SERVICE_TYPE_LOCATION` reduzierten Typ, statt den Service
+über `failForegroundStart()` zu beenden (Nutzerentscheidung 2026-09-28 auf #629).
+
+**Emulator-Nachweis unvollständig:** `KeepADB_API34` wurde für einen frischen End-to-End-Nachweis
+gestartet (Hintergrundstart via Neuinstallation → `MY_PACKAGE_REPLACED` → `BootReceiver`, FINE
+erteilt, Akku-Optimierung-Ausnahme via `dumpsys deviceidle whitelist +paket` vorgesehen, sonst wie
+in Nachtrag 3 vermerkt sonst vorzeitige `ForegroundServiceStartNotAllowedException`). Der
+Kaltstart der AVD wurde durch Host-Ressourcendruck in dieser Session (parallele S20-Messung,
+Gradle-Läufe, Swap-Nutzung) so weit verlangsamt, dass `pm`/`package`-Dienste auch nach knapp 50
+Minuten nicht bereitstanden; der Emulator wurde danach beendet, ohne dass `onStartCommand` auf ihm
+lief. Das ist ein offener Nachtrag, kein negatives Ergebnis — die ursprüngliche
+`SecurityException` selbst ist in Nachtrag 3 bereits real auf API 34 **und** API 35 reproduziert
+und dokumentiert (Rohdaten dort), nur der Fix-Pfad selbst wurde in dieser Session nicht zusätzlich
+frisch auf einem Emulator bestätigt.
+
+**Tatsächlicher Nachweis in diesem Durchlauf:** die reale `onStartCommand()`-Kontrollfluss-Probe
+per Robolectric (`KeepADBServiceLifecycleRobolectricTest`,
+`onStartCommandFallsBackToConnectedDeviceWhenLocationPromotionIsDeniedInBackground` plus die zwei
+Regressionsproben daneben). Da kein Mocking-Framework zur Verfügung steht und Robolectrics Shadow
+die reale API-34-Restriktion nicht modelliert, wirft ein Test-Seam
+(`KeepADBService#promoteToForeground(int)`, per Testunterklasse überschrieben) exakt die
+gemessene `SecurityException` für den `location`-Typ; der reale Produktionscode in
+`onStartCommand()` -- Catch, Fallback-Typberechnung, Diagnostik, `START_STICKY`-Rückgabe,
+Listener-Registrierung -- läuft dabei unverändert durch. Ergebnis: `START_STICKY` statt
+`START_NOT_STICKY`, `dumpsys`-Shadow-Äquivalent zeigt `foregroundServiceType=16`
+(`connectedDevice` allein), Diagnose-Export enthält `outcome=retrying
+detail=foreground_promotion_denied_location fallbackType=16` gefolgt von `outcome=ready
+detail=foreground=true`, nie `detail=foreground_promotion_failed`.
+
+### #630: `ACCESS_BACKGROUND_LOCATION` (#616) hebt die Hintergrundmaskierung tatsächlich auf
+
+Vor dem Schließen von #630 als Plattformgrenze wurde ernsthaft geprüft, ob ein automatischer
+Workaround ohne Nutzerinteraktion existiert (Nutzerentscheidung 2026-09-28 auf #630). Erwogen und
+verworfen: ein periodischer Selbst-Trigger des Service, der sich selbst erneut promotet — bringt
+nichts, weil `allowWhileInUsePermissionInFgs` am `ServiceRecord` hängt und durch ein erneutes
+`startForeground()` aus demselben, bereits im Hintergrund entstandenen Record **nicht** neu bewertet
+wird (Nachtrag 3, Schlussfolgerung 2); ein automatischer Trampolin-Start von `MainActivity` aus dem
+Service heraus — blockiert seit Android 10 durch die Background-Activity-Start-Restriktionen ohne
+Nutzerinteraktion, würde also selbst wieder eine Ausnahme brauchen, die nicht besteht.
+
+Stattdessen wurde der zum Zeitpunkt von #616 nur angenommene, nie gemessene Mechanismus jetzt
+nachgewiesen: `ACCESS_BACKGROUND_LOCATION` hebt die Maskierung eines **aus dem Hintergrund
+entstandenen** `ServiceRecord` tatsächlich auf, obwohl dessen `allowWhileInUsePermissionInFgs`
+dabei `false` bleibt. Der ursprünglich in Nachtrag 3 verwendete Indikator (`curCapability`/
+`allowWhileInUsePermissionInFgs`) zeigt also nur, ob der Record die FGS-Typ-Deklaration `location`
+*legal* halten darf — nicht, ob der eigentliche Standortzugriff (und damit die WLAN-Identität)
+gewährt wird. Letzteres hängt zusätzlich an der Berechtigungsstufe: Der Hintergrund-Tier
+(`ACCESS_BACKGROUND_LOCATION`) umgeht die Vordergrund-Prüfung dafür unabhängig vom
+`ServiceRecord`-Capability-Flag.
+
+Kontrollierter A/B-Vergleich auf dem S20 (gleicher AP `0c:72:74:a4:68:ff`, allowlist-Modus,
+gleicher Hintergrundstart-Pfad Neuinstallation → `MY_PACKAGE_REPLACED`, gleicher
+`settings put global adb_wifi_enabled 0`-Auslöser für den ContentObserver-Recovery-Pfad):
+
+| Lauf | `ACCESS_BACKGROUND_LOCATION` | `allowWhileInUsePermissionInFgs` | ContentObserver-Ergebnis |
+|---|---|---|---|
+| 1 | erteilt (`pm grant`) | `false` (unverändert) | `event=recovery_attempt … outcome=success` — Wireless Debugging automatisch wieder an, ganz ohne App-Vordergrund |
+| 2 (Kontrolle) | entzogen (`pm revoke`), sonst identisch | `false` | `Wireless Debugging dropped on an untrusted Wi-Fi network; not auto re-enabling` / `event=recovery_or_stop … outcome=blocked detail=untrusted_network` — exakt der #630-Befund |
+
+Damit ist #630 für Nutzer, die den bereits ausgelieferten #616-Opt-in abschließen, tatsächlich
+gelöst — nicht nur angenommen. Für Nutzer, die den Hintergrund-Grant ablehnen, bleibt die Maskierung
+bis zum manuellen Öffnen von `MainActivity` bestehen (#628); dafür existiert nachweislich kein
+sauberer automatischer Workaround ohne Nutzerinteraktion oder ohne die Berechtigung selbst. Kein
+Code-Fix in KeepADB nötig; die Entscheidung ist Dokumentation der bereits bestehenden Lösung plus
+Korrektur der bis dahin unbelegten Annahme im #616-Changelog-Eintrag.

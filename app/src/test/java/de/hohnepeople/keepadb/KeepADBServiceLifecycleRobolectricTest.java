@@ -1081,4 +1081,156 @@ public class KeepADBServiceLifecycleRobolectricTest {
             controllerWithLoc.destroy();
         }
     }
+
+    // -----------------------------------------------------------------------------------------
+    // #629: API 34+ background start with ACCESS_FINE_LOCATION granted throws SecurityException
+    // from startForeground(type=connectedDevice|location) because the process is not in an
+    // "eligible" foreground state -- true of every background start regardless of the granted
+    // permission. Robolectric's shadow does not itself reproduce this platform restriction (it
+    // has no model of FGS-from-background eligibility), so these tests use a minimal subclass
+    // that overrides the single test seam ({@link KeepADBService#promoteToForeground(int)}) to
+    // throw exactly that SecurityException once for a location-including type -- everything else
+    // (the retry decision, the fallback type computation, diagnostics, and whether the service
+    // survives) runs through the real onStartCommand() control flow, not an isolated call to
+    // fallback code.
+    // -----------------------------------------------------------------------------------------
+
+    /** Throws SecurityException on the first promotion attempt that requests type=location. */
+    private static class LocationDeniedOnceService extends KeepADBService {
+        private boolean thrown = false;
+
+        @Override
+        void promoteToForeground(int serviceType) {
+            if (!thrown
+                    && (serviceType & android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION) != 0) {
+                thrown = true;
+                throw new SecurityException("Starting FGS with type location ... targetSDK=35 "
+                        + "requires permissions: ... and the app must be in the eligible "
+                        + "state/exemptions to access the foreground only permission "
+                        + "(test fake, #629)");
+            }
+            super.promoteToForeground(serviceType);
+        }
+    }
+
+    /** Always throws SecurityException, even for the connectedDevice-only fallback type. */
+    private static class LocationDeniedEveryTimeService extends KeepADBService {
+        @Override
+        void promoteToForeground(int serviceType) {
+            throw new SecurityException("Starting FGS ... (test fake, #629, no eligible state "
+                    + "for any type)");
+        }
+    }
+
+    @Test
+    public void onStartCommandFallsBackToConnectedDeviceWhenLocationPromotionIsDeniedInBackground() {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.ACCESS_FINE_LOCATION);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+
+        ConnectivityManager connectivityManager = context.getSystemService(ConnectivityManager.class);
+        ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
+
+        ServiceController<LocationDeniedOnceService> controller =
+                Robolectric.buildService(LocationDeniedOnceService.class);
+        try {
+            controller.create();
+            int startId = 42;
+            int result = controller.get()
+                    .onStartCommand(new Intent(context, KeepADBService.class), 0, startId);
+
+            assertEquals("#629: a background start denied the location type must retry with "
+                            + "connectedDevice and keep running (START_STICKY), not stop itself",
+                    Service.START_STICKY, result);
+            ShadowLooper.idleMainLooper();
+
+            ShadowService shadowService = shadowOf(controller.get());
+            assertFalse("#629: the service must never be torn down for a recoverable "
+                            + "location-type denial",
+                    shadowService.isForegroundStopped());
+            assertEquals("#629: the fallback promotion must have actually landed with "
+                            + "connectedDevice only (location dropped)",
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE,
+                    controller.get().getForegroundServiceType());
+            assertFalse("#629: the service must still register its listeners, i.e. behave as a "
+                            + "normal successful start, not a degraded/half-alive one",
+                    shadowConnectivityManager.getNetworkCallbacks().isEmpty());
+
+            String export = KeepADBDiagnostics.export(context);
+            assertTrue("#629: the retry must be diagnosable",
+                    export.contains("event=service_start_command source=lifecycle outcome=retrying "
+                            + "detail=foreground_promotion_denied_location fallbackType="
+                            + android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE));
+            assertTrue("#629: the service must reach the normal 'ready' outcome after the fallback",
+                    export.contains("event=service_start_command source=lifecycle outcome=ready detail=foreground=true"));
+            assertFalse("#629: the retry path must not go through failForegroundStart()",
+                    export.contains("detail=foreground_promotion_failed"));
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    @Test
+    public void onStartCommandDoesNotRetryWhenLocationWasNeverRequested() {
+        // Location was not granted in the first place, so determineForegroundServiceType() never
+        // requests it -- any SecurityException here is NOT the #629 background/location
+        // restriction, and must fall through to the original stop-the-service behavior unchanged.
+        shadowOf((Application) context).denyPermissions(android.Manifest.permission.ACCESS_FINE_LOCATION);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+
+        ServiceController<LocationDeniedEveryTimeService> controller =
+                Robolectric.buildService(LocationDeniedEveryTimeService.class);
+        try {
+            controller.create();
+            int startId = 7;
+            int result = controller.get()
+                    .onStartCommand(new Intent(context, KeepADBService.class), 0, startId);
+
+            assertEquals("A SecurityException unrelated to the location type must still stop "
+                            + "the service as before",
+                    Service.START_NOT_STICKY, result);
+            ShadowService shadowService = shadowOf(controller.get());
+            assertTrue(shadowService.isForegroundStopped());
+            assertEquals(startId, shadowService.getStopSelfResultId());
+
+            String export = KeepADBDiagnostics.export(context);
+            assertTrue(export.contains("event=service_start_command source=lifecycle outcome=failed "
+                    + "detail=foreground_promotion_exception"));
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    @Test
+    public void onStartCommandStopsServiceWhenTheFallbackPromotionAlsoFails() {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.ACCESS_FINE_LOCATION);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+
+        ServiceController<LocationDeniedEveryTimeService> controller =
+                Robolectric.buildService(LocationDeniedEveryTimeService.class);
+        try {
+            controller.create();
+            int startId = 9;
+            int result = controller.get()
+                    .onStartCommand(new Intent(context, KeepADBService.class), 0, startId);
+
+            assertEquals("When even the connectedDevice-only fallback throws, the service must "
+                            + "still fail safe (stop) rather than loop or crash",
+                    Service.START_NOT_STICKY, result);
+            ShadowService shadowService = shadowOf(controller.get());
+            assertTrue(shadowService.isForegroundStopped());
+            assertEquals(startId, shadowService.getStopSelfResultId());
+
+            String export = KeepADBDiagnostics.export(context);
+            assertTrue(export.contains("event=service_start_command source=lifecycle outcome=failed "
+                    + "detail=foreground_promotion_exception_after_fallback"));
+        } finally {
+            controller.destroy();
+        }
+    }
 }

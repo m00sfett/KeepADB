@@ -1,0 +1,1 @@
+• Reliability: Keep-Alive no longer stops itself after a reboot or app update on Android 14+ when location access is granted for trusted networks. It now recovers automatically instead of staying off until the app is opened.
