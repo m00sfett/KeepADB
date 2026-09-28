@@ -370,8 +370,8 @@ public class KeepADBNetworkTrustPromptTest {
      * location toggle fixes that -- only promoting the service through a foreground start does,
      * and only {@link MainActivity#onResume()} does that (it unconditionally calls {@link
      * KeepADBService#sync}). {@link SettingsActivity} does not call {@code sync()} on resume and
-     * was measured to have no effect. So the click path must open {@link MainActivity}, not fall
-     * back to {@link SettingsActivity} as it used to.
+     * therefore cannot re-promote the service. So the click path must open {@link MainActivity},
+     * not fall back to {@link SettingsActivity} as it used to.
      */
     @Test
     public void theIdentityUnavailableNotificationOpensMainActivityWhenPermissionAndLocationAreBothFine() {
@@ -388,7 +388,7 @@ public class KeepADBNetworkTrustPromptTest {
         Intent target = shadowOf(notification.contentIntent).getSavedIntent();
         assertEquals("The fix path must open MainActivity, whose onResume() promotes the "
                         + "service back to foreground via sync() -- SettingsActivity does not "
-                        + "call sync() and was measured to have no effect here",
+                        + "call sync() and cannot re-promote the service",
                 MainActivity.class.getName(), target.getComponent().getClassName());
     }
 

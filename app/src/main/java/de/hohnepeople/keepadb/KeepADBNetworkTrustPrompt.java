@@ -482,7 +482,7 @@ final class KeepADBNetworkTrustPrompt {
      * amount of re-checking permission or location fixes it; only promoting the service through a
      * foreground start does, and only {@link MainActivity#onResume()} does that (it
      * unconditionally calls {@link KeepADBService#sync}). {@link SettingsActivity} does not call
-     * {@code sync()} on resume and was measured to have no effect here. So this branch now opens
+     * {@code sync()} on resume, so it cannot re-promote the service. So this branch now opens
      * {@link MainActivity} instead of falling back to {@link SettingsActivity}, which used to
      * describe the state via {@code settings_trusted_network_status_identity_unavailable} without
      * offering a working fix. (On API 34+ this background-start case does not apply the same way

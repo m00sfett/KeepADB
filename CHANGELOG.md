@@ -41,8 +41,8 @@ are retrospective issue-version records and were never published as separate rel
   `docs/trusted-networks-measurement.md`, "Nachtrag 3"): on API 33 that combination means the
   Keep-Alive service was started from the background (boot, a sticky restart, or a background
   `sync()`) and never received a While-in-Use location grant for its foreground-service record.
-  `SettingsActivity` does not call `KeepADBService#sync` on resume and was measured to have no
-  effect; `MainActivity#onResume()` does call it, promoting the service back to a foreground
+  `SettingsActivity` does not call `KeepADBService#sync` on resume and therefore cannot re-promote
+  the service; `MainActivity#onResume()` does call it, promoting the service back to a foreground
   record and unmasking the identity. Updated `network_prompt_identity_unavailable_text`,
   `status_off_keep_alive_blocked_identity_unavailable`, and
   `settings_trusted_network_status_identity_unavailable` in all 19 languages to name this
