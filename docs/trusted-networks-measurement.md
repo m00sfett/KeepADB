@@ -171,3 +171,148 @@ KeepADB setzt verbindlich **Variante C2** um:
 4. **Defensiver Fallback:** Der Service-Typ `location` wird beim `startForeground()` dynamisch
    nur dann angefordert, wenn `ACCESS_FINE_LOCATION` tatsächlich erteilt ist. Das verhindert
    `SecurityException`s auf Android 14+ (API 34+) im Standardmodus `all_wifi` ohne Allowlist.
+
+## Nachtrag 3 (#626, 2026-09-28): C2-Messlücken Boot, Sticky-Restart, Hintergrund-`sync()`, Laufzeit-Grant, API 34/35
+
+Gemessen auf dem Wegwerf-Branch `test/626-c2-measurement-gaps` (nicht gemergt). Basis ist
+`origin/master` mit versionName 1.8.61 / versionCode 158, also der C2-Stand aus #606/#617:
+`connectedDevice|location`, der Typ `location` wird nur mit erteiltem `ACCESS_FINE_LOCATION`
+angefordert. Paket `de.hohnepeople.keepadb.debug`.
+
+**Messwerkzeug (nur auf dem Branch):** Die Log-Sonde `Probe626Receiver` (Tag `C626`) schreibt
+SSID, BSSID, `isKnown()`, FINE-Status, Trust-Modus, `isCurrentNetworkTrusted()`,
+`getBlockReason()`, den angeforderten FGS-Typ und `Service#getForegroundServiceType()`. Sie läuft
+in `onStartCommand` direkt nach `startForeground`, bei jedem Heartbeat und auf
+`am broadcast`-Anstoß. Ein Fehlschlag von `startForeground` wird mit Stacktrace geloggt.
+Zusätzliche Aktionen: `SYNC626` ruft `KeepADBService.sync()` im Receiver auf, `SYNCDELAY626`
+ruft es 20 s nach dem Receiver prozessintern ohne Broadcast-Kontext auf, `MODE626` setzt
+Trust-Modus, Allowlist-BSSID und Keep-Alive.
+**Zusätzliche Systemsicht** (unabhängig von der App): `dumpsys activity processes` →
+`curCapability`. Das `L` an erster Stelle ist die Standort-Capability des Prozesses, also
+While-in-Use. `dumpsys activity services` liefert `allowWhileInUsePermissionInFgs` und
+`allowStartForeground` des ServiceRecords.
+
+Trust-Konfiguration für alle Trust-Aussagen: Modus `allowlist`, **aktueller AP gelistet**
+(S20: `0c:72:74:a4:69:00`, Emulator: `00:13:10:85:fe:01`). `IDENTITY_UNAVAILABLE` heißt deshalb
+immer: Der Zugangspunkt wäre vertrauenswürdig, die App kann ihn nur nicht sehen.
+
+### Messung: Samsung Galaxy S20 FE (SM-G780G), Android 13 / API 33
+
+| Nr. | Fall | Ursprung des ServiceRecords | FGS-Typ angefordert/aktiv | `curCapability` | `allowWhileInUse…` | Identität | Trust |
+|---|---|---|---|---|---|---|---|
+| A | Neuinstallation → `MY_PACKAGE_REPLACED` → `BootReceiver` startet Service (Hintergrund), 2× reproduziert | Hintergrund (`SYSTEM_ALLOW_LISTED`) | 24/24 | `---N` | `false` | maskiert (`<unknown ssid>`, `02:00:…`) | `untrusted` / `IDENTITY_UNAVAILABLE` |
+| 1 | **Echter Reboot**, Keep-Alive an, erste Entsperrung manuell durch den Nutzer, danach keine App-Interaktion | Hintergrund, aber `ACTIVITY_STARTER` (Prozess war von SystemUI über den KeepADB-QS-Tile gebunden, `uidState: BFGS`) | 24/24 | `L--N` | `true` | `moosNET` / `0c:72:74:a4:69:00` | `trusted`, Auto-Re-Enable `success` |
+| 2a | Process-death eines **aus dem Hintergrund** gestarteten Service (`am crash`) → START_STICKY-Restart nach 1000 ms | Hintergrund, vom alten Record geerbt | 24/24 | `---N` | `false` | maskiert | `untrusted` / `IDENTITY_UNAVAILABLE` |
+| 2b | Process-death eines **aus dem Vordergrund** gestarteten Service (FINE entziehen und sofort wieder erteilen; Prozess stirbt, der Record bleibt) → START_STICKY-Restart | Vordergrund (`PROC_STATE_TOP`), vom alten Record geerbt | 24/24 | `L--N` | `true` | echt | `trusted` |
+| 3a | `MainActivity` im Vordergrund, `onResume` → `sync()` | Vordergrund | 24/24 | `LCMN` | `true` | echt | `trusted` |
+| 3b | danach HOME, kein weiterer Aufruf | Vordergrund | 24/24 | `L--N` | `true` | echt | `trusted` |
+| 3c | danach `sync()` aus dem Hintergrund (Receiver) | Vordergrund | 24/24 | `L--N` | `true` | echt | `trusted` |
+| 3d | Hintergrund-Record (Fall A), dann prozessinternes `sync()` ohne Broadcast-Kontext (`SYNCDELAY626`) | Hintergrund | 24/24 | `---N` | `false` | maskiert | `untrusted` |
+| 3e | Hintergrund-Record, `sync()` im Receiver eines Shell-Broadcasts | Hintergrund | 24/24 | `---N` | `false` | maskiert | `untrusted` |
+| 3f | automatisches Re-Enable nach Reconnect (Fall 5) löst über den Surface-Refresher `sync()` → `onStartCommand` aus | Vordergrund-Äquivalent aus Fall 1 | 24/24 | `L--N` | `true` | echt | `trusted` |
+| 4a | FINE entzogen (Prozess stirbt, Sticky-Restart) | Vordergrund-Record | 16/16 | `---N` | – | maskiert | `IDENTITY_UNAVAILABLE` |
+| 4b | FINE zur Laufzeit erteilt, Service läuft, kein neues `onStartCommand` | unverändert | 16/16 | `---N` | – | **maskiert** | `IDENTITY_UNAVAILABLE` |
+| 4c | danach `sync()` aus dem Hintergrund → `onStartCommand` fordert 24 an | Vordergrund-Record | 24/24 | `L--N` | `true` | echt | `trusted` |
+| 4'a–c | wie 4a–4c, aber Record aus dem Hintergrund (Neuinstallation) | Hintergrund | 16 → 24 | `---N` durchgehend | `false` | maskiert, auch nach `sync()` | `IDENTITY_UNAVAILABLE` |
+| 5 | **Positiver Trust-Fall:** Display aus (`mWakefulness=Dozing`), WLAN aus/ein, Reconnect auf den gelisteten AP | Record aus Fall 1 (`allowWhileInUse=true`) | 24/24 | `L--N` | `true` | `moosNET` / `0c:72:74:a4:69:00` | `trusted`, `Auto-enabling Wireless Debugging (Wi-Fi connected)`, `recovery_attempt … success`, `adb_wifi_enabled=1` |
+
+Rohdaten-Auszüge (S20):
+
+```
+# A (Hintergrundstart nach Paket-Update)
+C626: probe caller=onStartCommand startId=1 … ssid=<unknown ssid> bssid=02:00:00:00:00:00 known=false fine=true mode=allowlist trusted=false block=IDENTITY_UNAVAILABLE requestedType=24 actualType=24
+curCapability=---N ; allowWhileInUsePermissionInFgs=false ; allowStartForeground=SYSTEM_ALLOW_LISTED
+# 1 (Reboot, BOOT_COMPLETED erst 20:28:10 nach manueller Entsperrung)
+KeepADBDiag: event=boot_completed … keepAlive=true ; event=boot_recovery … success
+C626: probe caller=onStartCommand startId=1 … ssid="moosNET" bssid=0c:72:74:a4:69:00 known=true … trusted=true block=NONE requestedType=24 actualType=24
+allowWhileInUsePermissionInFgs=true ; allowStartForeground=ACTIVITY_STARTER ; uidState: BFGS
+# 2a
+ActivityManager: Scheduling restart of crashed service …KeepADBService in 1000ms for start-requested
+C626: probe caller=onStartCommand startId=4 … known=false … block=IDENTITY_UNAVAILABLE requestedType=24 actualType=24 ; curCapability=---N
+# 4b → 4c
+C626: probe caller=broadcast … known=false fine=true … requestedType=16 actualType=16      (nach pm grant)
+C626: probe caller=onStartCommand startId=4 … known=true fine=true … trusted=true requestedType=24 actualType=24
+# 5
+KeepADBService: NetworkCallback: Wi-Fi network available
+KeepADBService: Auto-enabling Wireless Debugging (Wi-Fi connected)
+KeepADBDiag: event=recovery_attempt … outcome=success detail=intentId=2 desired=true actual=true writeAccepted=true
+C626: probe caller=onStartCommand startId=3 … ssid="moosNET" bssid=0c:72:74:a4:69:00 known=true … trusted=true
+```
+
+### Messung: Android-Emulator (`sdk_gphone64_x86_64`), API 34 (`UE1A.230829.050`) und API 35 (`AE3A.240806.043`)
+
+Gleiche Konfiguration: FINE erteilt, Allowlist mit dem aktuellen AP, Keep-Alive an, Paket per
+`dumpsys deviceidle whitelist` vom Akku-Optimieren ausgenommen. Ohne diese Ausnahme lehnt
+Android den Hintergrundstart schon vorher mit `ForegroundServiceStartNotAllowedException` ab
+(`code:DENIED`); das gilt unabhängig von C2.
+
+| Fall | API 34 | API 35 |
+|---|---|---|
+| 6a: Hintergrundstart (Receiver → `sync()` → `startForegroundService`) | `startForeground` wirft `SecurityException: Starting FGS with type location … the app must be in the eligible state/exemptions to access the foreground only permission`. `failForegroundStart()` beendet den Service (`foreground_promotion_failed`, `onDestroy`), 0 ServiceRecords | identisch |
+| 6b: echter Reboot → `BootReceiver` | identisch: `boot_recovery … success`, danach `SecurityException` in `onStartCommand`, Service gestoppt, **Keep-Alive nach Reboot tot** | identisch |
+| 6c: Start aus dem Vordergrund (`MainActivity`), HOME, danach `sync()` aus dem Hintergrund | läuft, `curCapability=L--NFU`, Identität echt, `trusted`; das erneute `startForeground` wirft nicht | läuft, `L--NFUA`, echt, `trusted` |
+| 6d: Process-death eines vordergrund-gestarteten Service, Sticky-Restart | läuft weiter, Identität echt, `trusted` (Record-Ursprung `PROC_STATE_TOP` bleibt erhalten) | nicht separat gemessen (siehe Annahmen) |
+| Kontrolle: FINE nicht erteilt, Hintergrundstart | – | Service läuft mit Typ 16 (`connectedDevice`), keine Exception; der dynamische Fallback aus #606 greift nur hier |
+
+Rohdaten-Auszug (API 34, Reboot):
+
+```
+KeepADBDiag: sdk=34 event=boot_completed … keepAlive=true
+ActivityManager: Background started FGS: Allowed [… code:SYSTEM_ALLOW_LISTED …]
+ActivityManager: Foreground service started from background can not have location/camera/microphone access: service de.hohnepeople.keepadb.debug/de.hohnepeople.keepadb.KeepADBService
+C626: startForeground failed startId=1 flags=0
+C626: java.lang.SecurityException: Starting FGS with type location … targetSDK=35 requires permissions: … [android.permission.FOREGROUND_SERVICE_LOCATION] any of … [ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION] and the app must be in the eligible state/exemptions to access the foreground only permission
+KeepADBDiag: event=service_start_command … outcome=stopped detail=foreground_promotion_failed cleanupRequested=true
+KeepADBDiag: event=service_destroy …
+```
+
+### Belastbare Schlussfolgerungen (Messung)
+
+1. **Entscheidend ist der Ursprung des ServiceRecords, nicht der angeforderte Typ.** Unter C2
+   meldet Android in allen S20-Fällen `actualType=24` (location aktiv). Standortzugriff
+   (`curCapability` mit `L`) und damit eine lesbare Identität gibt es trotzdem nur, wenn der
+   Record mit `allowWhileInUsePermissionInFgs=true` entstanden ist: Start aus dem Vordergrund
+   oder mit einer Systemausnahme wie `ACTIVITY_STARTER`.
+2. **`sync()` aus dem Hintergrund stuft nicht herab (3c, 3f) und nicht herauf (3d, 3e).** Das
+   erneute `startForeground` übernimmt den Status des bestehenden Records.
+3. **START_STICKY-Restart erbt den Record-Status (2a/2b).** Nach einem Process-death bleibt ein
+   Vordergrund-Record lesbar, ein Hintergrund-Record bleibt maskiert.
+4. **Ein Laufzeit-Grant wirkt erst beim nächsten `onStartCommand` (4b → 4c), und nur bei einem
+   Vordergrund-Record.** Bei einem Hintergrund-Record bleibt die Identität auch danach maskiert
+   (4'). Die Codeanalyse aus #624 ist damit bestätigt und präzisiert.
+5. **Positiver End-to-End-Trust unter C2 ist belegt (5):** Display aus, Reconnect, `trusted`,
+   automatisches Re-Enable erfolgreich. Voraussetzung ist ein Record mit While-in-Use.
+6. **API 34/35: Ein Hintergrundstart mit FINE-Grant beendet den Keep-Alive-Service.** Das gilt
+   für Boot und jeden Hintergrundstart ohne laufenden Vordergrund-Record. Die Aussage in der
+   #606-Entscheidung (Punkt 4), der dynamische Fallback verhindere `SecurityException`s auf API
+   34+, stimmt nur für den Fall *ohne* FINE-Grant. Mit FINE-Grant ist der Fehler reproduzierbar.
+
+### Annahmen und nicht gemessene Varianten (keine Messung)
+
+- **Fall 1 ohne QS-Tile nicht gemessen.** Beim S20-Reboot war der Debug-Tile eingerichtet. Der
+  Prozess wurde dadurch von SystemUI gebunden und bekam `ACTIVITY_STARTER`. Ein Reboot ohne Tile
+  hätte den Tile entfernen und eine weitere manuelle Entsperrung durch den Nutzer erfordern
+  müssen. Beides war in diesem Lauf nicht vorgesehen: Der Tile bleibt auf dem Gerät, und die
+  Entsperrung lässt sich nicht fernsteuern. **Annahme** nach Fall A (gleicher `BootReceiver`-Pfad,
+  Hintergrundstart ohne Tile-Bindung → `---N`): Ohne Tile oder eine andere Systemausnahme ist die
+  Identität nach dem Boot auf API 33 maskiert. Die Freigabe über den Tile ist ein
+  Samsung/SystemUI-Nebeneffekt und keine zugesicherte Plattformgarantie.
+- **Vor der ersten Entsperrung** kam weder `BOOT_COMPLETED` an die App noch USB-ADB zustande. Die
+  Messung beginnt deshalb frühestens nach der Entsperrung, wie schon in Nachtrag 1 beschrieben.
+- **Tile-Klick und Widget als `sync()`-Auslöser nicht direkt gemessen.** `cmd statusbar
+  click-tile` blieb auf One UI 5 wirkungslos (kein App-Log, `adb_wifi_enabled` unverändert),
+  der Widget-Receiver ist nicht exportiert. Ersatzweise gemessen wurden derselbe
+  `KeepADBService.sync()`-Pfad aus dem Hintergrund (3c–3e) und der reale automatische
+  Re-Enable-Pfad (3f). **Annahme:** Tile und Widget verhalten sich wie 3c/3d. Für den Tile
+  könnte die SystemUI-Bindung wie in Fall 1 zusätzlich While-in-Use gewähren; das ist
+  ungemessen.
+- **`am kill`** beendet einen laufenden FGS-Prozess nicht (PID unverändert), `run-as … kill`
+  scheiterte an Samsungs PID-Namespace. Process-death wurde deshalb über `am crash` (2a) und über
+  Entziehen und sofortiges Wiedererteilen von FINE (2b) ausgelöst. Ein zweites `am crash`
+  innerhalb kurzer Zeit löste Samsungs Dialog „wird wiederholt beendet“ aus. „App schließen“
+  beendete den Prozess dort **ohne** Service-Restart; dieser Lauf zählt nicht als
+  Sticky-Stichprobe.
+- **API 35, Fall 6d** (Sticky-Restart eines vordergrund-gestarteten Service) nicht separat
+  gemessen. **Annahme:** wie API 34, weil 6a–6c auf beiden Versionen identisch waren.
+- **Emulator-WLAN** ist virtuell (`AndroidWifi`). Aussagen zur Identitäts-Maskierung auf API
+  34/35 gelten für die AOSP-Plattformlogik, nicht für OEM-WLAN-Stacks.
