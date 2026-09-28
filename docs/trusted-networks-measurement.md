@@ -322,9 +322,9 @@ KeepADBDiag: event=service_destroy …
 
 Gemessen auf `fix/629-630-background-start-fgs`, versionName 1.8.64 / versionCode 161. Zwei
 getrennte Nachweise geplant: der #629-Fix auf einem API-34/35-Emulator und die
-#630-Workaround-Gegenprobe auf dem S20 (API 33, physisch, `android-target s20`). Der
-Emulator-Nachweis blieb in diesem Durchlauf unvollständig (siehe unten); der S20-Nachweis ist
-vollständig.
+#630-Workaround-Gegenprobe auf dem S20 (API 33, physisch, `android-target s20`). Beide Nachweise
+sind inzwischen vollständig; der Emulator-Nachweis wurde im unabhängigen Review dieses Commits
+nachgeholt (siehe unten), nicht mehr in der ursprünglichen Implementierungs-Session.
 
 ### #629: `startForeground()`-Fallback auf `connectedDevice` bei `SecurityException`
 
@@ -332,17 +332,37 @@ vollständig.
 promotet erneut mit dem um `FOREGROUND_SERVICE_TYPE_LOCATION` reduzierten Typ, statt den Service
 über `failForegroundStart()` zu beenden (Nutzerentscheidung 2026-09-28 auf #629).
 
-**Emulator-Nachweis unvollständig:** `KeepADB_API34` wurde für einen frischen End-to-End-Nachweis
-gestartet (Hintergrundstart via Neuinstallation → `MY_PACKAGE_REPLACED` → `BootReceiver`, FINE
-erteilt, Akku-Optimierung-Ausnahme via `dumpsys deviceidle whitelist +paket` vorgesehen, sonst wie
-in Nachtrag 3 vermerkt sonst vorzeitige `ForegroundServiceStartNotAllowedException`). Der
-Kaltstart der AVD wurde durch Host-Ressourcendruck in dieser Session (parallele S20-Messung,
-Gradle-Läufe, Swap-Nutzung) so weit verlangsamt, dass `pm`/`package`-Dienste auch nach knapp 50
-Minuten nicht bereitstanden; der Emulator wurde danach beendet, ohne dass `onStartCommand` auf ihm
-lief. Das ist ein offener Nachtrag, kein negatives Ergebnis — die ursprüngliche
-`SecurityException` selbst ist in Nachtrag 3 bereits real auf API 34 **und** API 35 reproduziert
-und dokumentiert (Rohdaten dort), nur der Fix-Pfad selbst wurde in dieser Session nicht zusätzlich
-frisch auf einem Emulator bestätigt.
+**Emulator-Nachweis (nachgeholt im Review, 2026-09-28, `KeepADB_API34`, API 34, Build 1.8.64/161,
+Paket `de.hohnepeople.keepadb.debug`):** Ausgangssituation ohne den in Fall 6a/6b beschriebenen
+Umweg über eine echte Neuinstallation — der Hintergrundstart wurde über einen echten,
+warmen `adb reboot` der AVD erzeugt, nachdem die App zuvor einmal im Vordergrund geöffnet worden
+war (um den Android-"stopped state" zu verlassen, der einer frisch installierten/force-gestoppten
+App sonst jede Broadcast-Zustellung inklusive `BOOT_COMPLETED` verweigert). Vorbereitung:
+`pm grant … ACCESS_FINE_LOCATION` gesetzt, `keep_alive_enabled=true` in den SharedPreferences
+hinterlegt, App einmal per `am start` geöffnet (setzt `stopped=false`, promotet dabei selbst
+erfolgreich mit `location`, siehe Gegenprobe unten), dann `adb reboot`.
+
+Ergebnis nach dem Reboot — `dumpsys activity services de.hohnepeople.keepadb.debug` zeigt einen
+lebenden `ServiceRecord` (`isForeground=true`, `types=00000010` = `connectedDevice` allein,
+`mAllowWhileInUsePermissionInFgsReason=DENIED`, wie von #630 erwartet), Logcat bestätigt exakt den
+neuen Pfad:
+
+```
+ActivityManager: Foreground service started from background can not have location/camera/microphone access: service de.hohnepeople.keepadb.debug/de.hohnepeople.keepadb.KeepADBService
+KeepADBService: startForeground denied type=location from background; retrying with connectedDevice only (#629)
+KeepADBService: java.lang.SecurityException: Starting FGS with type location … targetSDK=35 requires permissions: … and the app must be in the eligible state/exemptions to access the foreground only permission
+KeepADBDiag: event=service_start_command source=lifecycle outcome=retrying detail=foreground_promotion_denied_location fallbackType=16
+KeepADBDiag: event=service_start_command source=lifecycle outcome=ready detail=foreground=true
+```
+
+Kein `outcome=failed`/`foreground_promotion_failed` in der gesamten Prozess-Session; der Service
+lief im Anschluss normal weiter (Heartbeat, `NetworkCallback`-Registrierung, `keep_alive_check`).
+Das ist der frische, lebende End-to-End-Nachweis, den die ursprüngliche Implementierungs-Session
+mangels rechtzeitig gebooteter AVD nicht mehr erbringen konnte — die ursprüngliche
+`SecurityException` selbst war schon vorher in Nachtrag 3 real auf API 34 **und** API 35
+reproduziert (Rohdaten dort); dieser Nachtrag bestätigt jetzt zusätzlich, dass der Fallback in
+#629 sie auf einer echten, frisch gebooteten AVD tatsächlich abfängt und den Service am Leben
+hält, statt es nur über Robolectric zu simulieren.
 
 **Tatsächlicher Nachweis in diesem Durchlauf:** die reale `onStartCommand()`-Kontrollfluss-Probe
 per Robolectric (`KeepADBServiceLifecycleRobolectricTest`,

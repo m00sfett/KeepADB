@@ -39,10 +39,12 @@ are retrospective issue-version records and were never published as separate rel
   the real `onStartCommand()` retry control flow (the `SecurityException` catch, the fallback
   type computation, and the diagnostics) via a test-only `promoteToForeground()` seam, since no
   mocking framework is available and Robolectric's own shadow does not model this API 34
-  restriction. A live re-run on a booted API 34/35 emulator (the same setup Nachtrag 3 used to
-  originally reproduce the crash) could not be completed in this pass -- the AVD's cold boot did
-  not finish under this session's host load -- and remains an open follow-up. See
-  `docs/trusted-networks-measurement.md`, Nachtrag 4.
+  restriction. Confirmed end to end in independent review on a freshly booted API 34 emulator
+  (real `adb reboot` -> `BootReceiver` -> background `startForeground()`): the platform throws the
+  same `SecurityException` as in Nachtrag 3, the service logs the `#629` retry and lands on
+  `connectedDevice` alone, and `dumpsys activity services` shows the `ServiceRecord` alive and
+  foregrounded afterwards instead of torn down. See `docs/trusted-networks-measurement.md`,
+  Nachtrag 4.
 
 ### Documentation
 - #630: investigated a fully automatic workaround for the API 33 background-`ServiceRecord`
@@ -66,7 +68,9 @@ are retrospective issue-version records and were never published as separate rel
 
 ### Added
 - #616: Optional `ACCESS_BACKGROUND_LOCATION` ("Allow all the time") for trusted networks, so a
-  Keep-Alive service started from the background can still read the Wi-Fi identity (#626/#630).
+  Keep-Alive service started from the background can still read the Wi-Fi identity (#626/#630;
+  originally an untested assumption, confirmed end to end by the #630 Nachtrag 4 S20 A/B
+  measurement).
   The permission is now declared in the manifest but never requested through a runtime dialog.
   While trusted-network mode is on and the grant is missing, the main screen shows a dismissible
   setup card next to the other setup hints; "Set up now" opens KeepADB's system app-details page,
