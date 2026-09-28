@@ -68,7 +68,11 @@ final class KeepADBNetworkIdentity {
      * Returns null for {@link WifiManager#UNKNOWN_SSID} (BSSID known, SSID unreadable at the
      * moment of the query -- issue #269): treating that placeholder as a real SSID would file
      * BSSID-history observations and mesh-add labels under the literal placeholder string
-     * instead of correctly falling back to "no SSID known".
+     * instead of correctly falling back to "no SSID known". This is a defensive measure, not a
+     * reaction to an observed platform behavior: every masking measurement so far (see
+     * {@code docs/trusted-networks-measurement.md}) found SSID and BSSID masked together or both
+     * available, never one without the other. The check stays because nothing guarantees that
+     * split state cannot occur on an untested OEM Wi-Fi stack or a future Android version.
      */
     String displaySsid() {
         if (ssid == null || WifiManager.UNKNOWN_SSID.equals(ssid)) return null;

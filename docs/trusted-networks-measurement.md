@@ -31,6 +31,17 @@ aus dem laufenden Prozess.
 
 ## Belastbare Schlussfolgerungen
 
+> **Überholt durch #606 (Variante C2) und deren Nachmessung in #626.** Die fünf Schlussfolgerungen
+> unten beschreiben den Stand vor #492/#606, als der Foreground-Service ausschließlich den Typ
+> `connectedDevice` hielt und `ACCESS_BACKGROUND_LOCATION` nicht zur Debatte stand. Sie bleiben als
+> historischer Messbefund korrekt, sind aber für den aktuellen C2-Stand **nicht mehr maßgeblich**
+> — insbesondere Schlussfolgerung 2 ("Ein laufender Foreground Service ersetzt den Vordergrund
+> nicht") gilt unter C2 nur noch eingeschränkt: Nachtrag 3 zeigt, dass der *Ursprung* des
+> Service-Starts (Vordergrund- vs. Hintergrund-Record) entscheidend ist, nicht der deklarierte
+> Servicetyp. Aktueller Stand: siehe "Nachtrag" (C1-Spike), "Nachtrag 2" (C1/C2-Vergleich) und
+> "Nachtrag 3" (#626, Service-Record-Ursprung, API 34/35-Regression #629, dauerhafte
+> Hintergrundmaskierung auf API 33 #630).
+
 1. **Nur der Vordergrund liefert eine verwertbare Identität.** Genau ein gemessener Fall (A/A2)
    ergibt eine echte SSID und BSSID: sichtbare Aktivität, FINE-Grant, aktive Standortdienste.
    Fehlt irgendeines davon, liefert die Plattform Platzhalter.
@@ -106,23 +117,45 @@ der Kontrolle (`connectedDevice` mit `ACCESS_FINE_LOCATION`) gemessen:
 |---|---|---|---|---|---|---|---|
 | **C1** (`connectedDevice` + Background-Grant) | `fg_act` | An | Ja | FINE + BACKGROUND | `moosNET` | `true` | `trusted` |
 | | `bg_fg` | An (Home) | Ja | FINE + BACKGROUND | `moosNET` | `true` | `trusted` |
-| | `bg_no_act` | An (Home) | Ja* | FINE + BACKGROUND | `moosNET` | `true` | `trusted` |
-| | `wifi_reconnect` | An (Home) | Ja | FINE + BACKGROUND | `moosNET` | `true` | `trusted` |
-| | `display_off` | Aus | Ja | FINE + BACKGROUND | `moosNET` | `true` | `trusted` |
-| **C2** (`connectedDevice\|location` + While-in-Use) | `fg_act` | An | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
-| | `bg_fg` | An (Home) | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
-| | `bg_no_act` | An (Home) | Ja* | Nur FINE | `moosNET` | `true` | `trusted` |
-| | `wifi_reconnect` | An (Home) | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
-| | `display_off` | Aus | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
+| | `bg_no_act`† | An (Home) | Ja† | FINE + BACKGROUND | `moosNET` | `true` | `trusted` |
+| | `wifi_reconnect` | An (Home) | Ja | FINE + BACKGROUND | `moosNET` | `true` | `untrusted`‡ |
+| | `display_off` | Aus | Ja | FINE + BACKGROUND | `moosNET` | `true` | `untrusted`‡ |
+| **C2** (`connectedDevice\|location` + While-in-Use) | `fg_act` | An | Ja | Nur FINE | `moosNET` | `true` | `untrusted`‡ |
+| | `bg_fg` | An (Home) | Ja | Nur FINE | `moosNET` | `true` | `untrusted`‡ |
+| | `bg_no_act`† | An (Home) | Ja† | Nur FINE | `moosNET` | `true` | `untrusted`‡ |
+| | `wifi_reconnect` | An (Home) | Ja | Nur FINE | `moosNET` | `true` | `untrusted`‡ |
+| | `display_off` | Aus | Ja | Nur FINE | `moosNET` | `true` | `untrusted`‡ |
 | **Kontrolle** (`connectedDevice` + While-in-Use) | `fg_act` | An | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
 | | `bg_fg` | An (Home) | Ja | Nur FINE | `moosNET` | `true` | `trusted` |
-| | `bg_no_act` | An (Home) | Ja* | Nur FINE | `<unknown ssid>` | `false` | `untrusted` |
+| | `bg_no_act`† | An (Home) | Ja† | Nur FINE | `<unknown ssid>` | `false` | `untrusted` |
 | | `wifi_reconnect` | An (Home) | Ja | Nur FINE | `<unknown ssid>` | `false` | `untrusted` |
 | | `display_off` | Aus | Ja | Nur FINE | `<unknown ssid>` | `false` | `untrusted` |
 
-*\*Hinweis: `am stopservice` beendet einen unexportierten FGS ohne Root nicht; der Dienst lief in den Tests weiter.*
+*†Hinweis zu `bg_no_act`:* Die Testabsicht war ursprünglich `bg_no_fgs` (Hintergrund **ohne**
+laufenden Foreground-Service, App vollständig beendet). `am stopservice` beendet einen
+unexportierten FGS ohne Root aber nicht; der Dienst lief in allen `bg_no_act`-Läufen nachweislich
+weiter (Spalte „FGS" = `Ja`). Der Fall deckt deshalb nur „Hintergrund, keine sichtbare Aktivität,
+Dienst läuft" ab, nicht „Hintergrund ohne Dienst" — das unterscheidet ihn nicht von `bg_fg`.
+
+*‡Korrektur (Audit #624/#627):* Die als `untrusted` markierten Zeilen wurden bei der
+ursprünglichen Dokumentation fälschlich als `trusted` eingetragen. Tatsächlich war in diesen
+Läufen der aktuelle Access Point nicht in der Allowlist gelistet, sodass `isCurrentNetworkTrusted()`
+korrekt `false` lieferte, obwohl die Identität erfolgreich aufgelöst wurde (`isKnown()=true`).
+Belegt ist damit ausschließlich **`identity_known`** (die SSID/BSSID-Auflösung funktioniert in
+diesen Zuständen) — nicht der **positive Trust-Ausgang** selbst. Der einzige in dieser Messreihe
+tatsächlich belegte positive Trust-Fall unter C2 mit gelistetem AP ist Fall 5 in Nachtrag 3
+unten. Innerhalb C1 waren `fg_act`, `bg_fg` und `bg_no_act` mit gelistetem AP gemessen (dort
+stimmt `trusted`); `wifi_reconnect` und `display_off` liefen nach einem Reconnect auf einen zum
+Messzeitpunkt nicht gelisteten AP.
 
 ### Verbindliche Produktentscheidung (#606)
+
+*Präzisierung (#626, siehe Nachtrag 3 unten):* Punkt 1 galt für alle hier gemessenen Fälle, in
+denen der Service-Record aus dem Vordergrund stammte. Nachtrag 3 zeigt, dass ein rein im
+Hintergrund entstandener Service-Record (Boot, Prozess-Neustart, App-Update ohne je geöffnete
+App) die Maskierung *nicht* aufhebt — auf API 33 dauerhaft (#630), auf API 34+ beendet Android den
+Dienst dabei sogar (#629). Die Entscheidung für C2 bleibt unverändert richtig, der Anspruch
+"vollständige Aufhebung" gilt aber nur bedingt auf den Vordergrund-Ursprung.
 
 KeepADB setzt verbindlich **Variante C2** um:
 

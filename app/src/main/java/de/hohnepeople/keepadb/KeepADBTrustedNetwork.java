@@ -404,10 +404,11 @@ final class KeepADBTrustedNetwork {
     }
 
     /**
-     * The policy gate for automatic re-enable call sites. In {@link #MODE_ALLOWLIST} (default,
-     * #260), the current network's identity must be known and match a listed BSSID -- an
-     * unavailable identity or an unlisted network is never trusted. In {@link #MODE_ALL_WIFI},
-     * every network is trusted, matching pre-#245 behavior.
+     * The policy gate for automatic re-enable call sites. In {@link #MODE_ALLOWLIST} (explicit
+     * opt-in since #492; the default from #260 until then), the current network's identity must
+     * be known and match a listed BSSID -- an unavailable identity or an unlisted network is
+     * never trusted. In {@link #MODE_ALL_WIFI} (default since #492), every network is trusted,
+     * matching pre-#245 behavior.
      *
      * <p>#348: this method alone is never sufficient to permit an automatic re-enable. It
      * answers "is whatever network we're on acceptable", never "is a Wi-Fi transport actually

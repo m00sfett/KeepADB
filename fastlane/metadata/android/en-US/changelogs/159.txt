@@ -1,0 +1,2 @@
+• Docs: Corrected outdated background-masking claims in the app description and security policy to match the current reliable background network detection (#627).
+• Internal: Corrected measurement documentation and code comments, and added a manifest contract test guarding the background location setup (#627).
