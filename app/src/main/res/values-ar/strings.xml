@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">تم السماح باسم الشبكة &quot;%1$s&quot;</string>
     <string name="wifi_ssids_removed_toast">تمت إزالة اسم الشبكة &quot;%1$s&quot;</string>
     <string name="settings_trusted_network_status_untrusted">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: هذه الشبكة ليست ضمن قائمتك الموثوقة.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: لا يمكن تحديد هوية الشبكة الحالية.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: لا يمكن تحديد هوية الشبكة الحالية. تحقق من إذن/خدمة الموقع، أو أعد فتح التطبيق إذا بدأ Keep-Alive في الخلفية.</string>
     <string name="settings_trusted_network_permission_title">إذن الموقع مطلوب</string>
     <string name="settings_trusted_network_permission_message">يتطلب Android إذن الوصول إلى الموقع قبل أن يتمكن التطبيق من قراءة اسم شبكة Wi-Fi الحالية ومعرّفها. يستخدم KeepADB هذا فقط للتعرف على الشبكات الموثوقة ولا يقرأ أو يخزن موقعك أبدًا.</string>
     <string name="settings_trusted_network_permission_grant">سماح</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">تريد إحدى الشبكات أن تصبح موثوقة لأجل البقاء نشطًا — افتح KeepADB لاتخاذ القرار.</string>
     <string name="network_prompt_confirm_in_app_text">تم اكتشاف شبكة Wi-Fi جديدة — انقر لتأكيدها في التطبيق.</string>
     <string name="network_prompt_identity_unavailable_title">تعذّر التعرف على شبكة الواي فاي الحالية</string>
-    <string name="network_prompt_identity_unavailable_text">تم إيقاف إعادة التفعيل التلقائي لـ Keep-Alive مؤقتًا لأنه لا يمكن قراءة هوية الشبكة. اضغط لإصلاح إذن الموقع أو خدمة الموقع.</string>
+    <string name="network_prompt_identity_unavailable_text">تم إيقاف إعادة التفعيل التلقائي لـ Keep-Alive مؤقتًا لأنه لا يمكن قراءة هوية الشبكة. عادةً ما يكون السبب هو عدم منح إذن الموقع أو تعطيل خدمة الموقع، لكن قد يحدث ذلك أيضًا إذا بدأت خدمة Keep-Alive في الخلفية. اضغط للإصلاح.</string>
     <string name="settings_trusted_network_blocked_button">محظورة مؤخرًا (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">الشبكات المحظورة مؤخرًا</string>
     <string name="settings_trusted_network_blocked_empty_message">لم يتم حظر أي شبكة مؤخرًا.</string>
@@ -322,7 +322,7 @@
     <string name="settings_website_link_accessibility">افتح HohnePeople.de في المتصفح</string>
     <string name="status_off_keep_alive_waiting">تصحيح الأخطاء اللاسلكي مُعَطَّل — ينتظر Keep-Alive الشبكة</string>
     <string name="status_off_keep_alive_blocked_untrusted">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: هذه الشبكة غير موثوقة</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: تعذر تحديد هوية الشبكة، تحقق من إذن الموقع</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: تعذر تحديد هوية الشبكة، تحقق من إذن الموقع أو أعد فتح التطبيق</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: قم بتأكيد مربع حوار شبكة تصحيح الأخطاء اللاسلكي في Android، ثم اضغط على المفتاح لإعادة المحاولة</string>
     <string name="status_pending">جارٍ التبديل…</string>
     <string name="state_pending">جارٍ التبديل…</string>

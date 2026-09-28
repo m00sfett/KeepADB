@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">Имя сети «%1$s» разрешено</string>
     <string name="wifi_ssids_removed_toast">Имя сети «%1$s» удалено</string>
     <string name="settings_trusted_network_status_untrusted">Автоматическое повторное включение приостановлено: этой сети Wi-Fi нет в вашем списке доверенных.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">Автоматическое повторное включение приостановлено: не удаётся определить идентификатор текущей сети.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">Автоматическое повторное включение приостановлено: не удаётся определить идентификатор текущей сети. Проверьте разрешение/службу геолокации либо откройте приложение заново, если Keep-Alive запустился в фоновом режиме.</string>
     <string name="settings_trusted_network_permission_title">Требуется разрешение на геолокацию</string>
     <string name="settings_trusted_network_permission_message">Android требует доступ к геолокации, прежде чем приложение сможет прочитать имя и идентификатор текущей сети Wi-Fi. KeepADB использует это только для распознавания доверенных сетей и никогда не считывает и не хранит ваше местоположение.</string>
     <string name="settings_trusted_network_permission_grant">Разрешить</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">Сеть хочет стать доверенной для Keep-Alive — откройте KeepADB, чтобы решить.</string>
     <string name="network_prompt_confirm_in_app_text">Обнаружена новая сеть Wi-Fi — нажмите, чтобы подтвердить её в приложении.</string>
     <string name="network_prompt_identity_unavailable_title">Не удаётся определить текущую сеть Wi-Fi</string>
-    <string name="network_prompt_identity_unavailable_text">Автоматическое повторное включение Keep-Alive приостановлено, так как не удаётся прочитать идентификатор сети. Нажмите, чтобы исправить разрешение геолокации или службу геолокации.</string>
+    <string name="network_prompt_identity_unavailable_text">Автоматическое повторное включение Keep-Alive приостановлено, так как не удаётся прочитать идентификатор сети. Обычно отсутствует разрешение на геолокацию или служба геолокации отключена, но это может произойти и если Keep-Alive запустился в фоновом режиме. Нажмите, чтобы исправить.</string>
     <string name="settings_trusted_network_blocked_button">Недавно заблокировано (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Недавно заблокированные сети</string>
     <string name="settings_trusted_network_blocked_empty_message">В последнее время ни одна сеть не блокировалась.</string>
@@ -322,7 +322,7 @@
     <string name="settings_website_link_accessibility">Открыть HohnePeople.de в браузере</string>
     <string name="status_off_keep_alive_waiting">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive ждёт сеть</string>
     <string name="status_off_keep_alive_blocked_untrusted">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: эта сеть Wi-Fi не является доверенной</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: не удаётся определить сеть, проверьте разрешение на геолокацию</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: не удаётся определить сеть, проверьте разрешение на геолокацию или откройте приложение заново</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: подтвердите системный диалог Android о сети для беспроводной отладки, затем нажмите переключатель, чтобы повторить попытку</string>
     <string name="status_pending">Переключение…</string>
     <string name="state_pending">Переключение…</string>

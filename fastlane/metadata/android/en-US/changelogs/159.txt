@@ -1,0 +1,1 @@
+• Fixed: the "network identity unavailable" notice now also explains and fixes the case where Keep-Alive started in the background and never got a location permission for its own foreground service — tapping it opens the app, which resolves this case directly.

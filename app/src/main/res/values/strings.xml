@@ -111,7 +111,7 @@
     <string name="settings_trusted_ssid_warning_accessibility">Warning</string>
     <string name="settings_trusted_ssid_toggle">Also allow by network name (SSID)</string>
     <string name="settings_trusted_network_status_untrusted">Keep-Alive auto re-enable is paused: this Wi-Fi network isn\'t in your trusted list.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">Keep-Alive auto re-enable is paused: the current network\'s identity can\'t be determined.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">Keep-Alive auto re-enable is paused: the current network\'s identity can\'t be determined. Check the location permission/service, or reopen the app if Keep-Alive started in the background.</string>
     <string name="settings_trusted_network_permission_title">Location permission needed</string>
     <string name="settings_trusted_network_permission_message">Android requires Location access before an app can read the current Wi-Fi network\'s name and ID. KeepADB uses this only to recognize trusted networks and never reads or stores your location.</string>
     <string name="settings_trusted_network_permission_grant">Grant</string>
@@ -132,7 +132,7 @@
     <string name="network_prompt_public_text">A network wants to be trusted for Keep-Alive — open KeepADB to decide.</string>
     <string name="network_prompt_confirm_in_app_text">New Wi-Fi network detected — tap to confirm it in the app.</string>
     <string name="network_prompt_identity_unavailable_title">Can\'t identify the current Wi-Fi network</string>
-    <string name="network_prompt_identity_unavailable_text">Keep-Alive auto re-enable is paused because the network\'s identity can\'t be read. Tap to fix the location permission or location service.</string>
+    <string name="network_prompt_identity_unavailable_text">Keep-Alive auto re-enable is paused because the network\'s identity can\'t be read. This is usually a missing location permission or a disabled location service, but it can also happen after Keep-Alive started in the background. Tap to fix it.</string>
     <string name="settings_trusted_network_blocked_button">Recently blocked (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Recently blocked networks</string>
     <string name="settings_trusted_network_blocked_empty_message">No network has been blocked recently.</string>
@@ -332,7 +332,7 @@
     <string name="settings_website_link_accessibility">Open HohnePeople.de in your browser</string>
     <string name="status_off_keep_alive_waiting">Wireless Debugging is OFF – Keep-Alive is waiting for the network</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wireless Debugging is OFF – Keep-Alive is paused: this Wi-Fi network isn\'t trusted</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Wireless Debugging is OFF – Keep-Alive is paused: network identity unavailable, check Location permission</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wireless Debugging is OFF – Keep-Alive is paused: network identity unavailable, check Location permission or reopen the app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wireless Debugging is OFF – Keep-Alive is paused: confirm Android\'s Wireless Debugging network dialog, then tap the switch to retry</string>
     <string name="status_pending">Switching…</string>
     <string name="state_pending">Switching…</string>

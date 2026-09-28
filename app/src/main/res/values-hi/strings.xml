@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">नेटवर्क नाम &quot;%1$s&quot; को अनुमति दी गई</string>
     <string name="wifi_ssids_removed_toast">नेटवर्क नाम &quot;%1$s&quot; हटाया गया</string>
     <string name="settings_trusted_network_status_untrusted">स्वचालित पुनः-सक्षमन रोका गया: यह Wi-Fi नेटवर्क आपकी विश्वसनीय सूची में नहीं है।</string>
-    <string name="settings_trusted_network_status_identity_unavailable">स्वचालित पुनः-सक्षमन रोका गया: वर्तमान नेटवर्क की पहचान निर्धारित नहीं की जा सकती।</string>
+    <string name="settings_trusted_network_status_identity_unavailable">स्वचालित पुनः-सक्षमन रोका गया: वर्तमान नेटवर्क की पहचान निर्धारित नहीं की जा सकती। स्थान अनुमति/सेवा जाँचें, या यदि Keep-Alive पृष्ठभूमि में शुरू हुआ था तो ऐप को एक बार फिर से खोलें।</string>
     <string name="settings_trusted_network_permission_title">स्थान अनुमति आवश्यक है</string>
     <string name="settings_trusted_network_permission_message">किसी ऐप को वर्तमान Wi-Fi नेटवर्क का नाम और ID पढ़ने से पहले Android को स्थान एक्सेस की आवश्यकता होती है। KeepADB इसका उपयोग केवल विश्वसनीय नेटवर्क को पहचानने के लिए करता है और कभी भी आपका स्थान नहीं पढ़ता या संग्रहीत नहीं करता।</string>
     <string name="settings_trusted_network_permission_grant">अनुमति दें</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">कोई नेटवर्क Keep-Alive के लिए भरोसेमंद बनना चाहता है — फ़ैसला लेने के लिए KeepADB खोलें।</string>
     <string name="network_prompt_confirm_in_app_text">नया Wi-Fi नेटवर्क मिला — ऐप में पुष्टि करने के लिए टैप करें।</string>
     <string name="network_prompt_identity_unavailable_title">वर्तमान वाई-फाई नेटवर्क की पहचान नहीं हो पा रही</string>
-    <string name="network_prompt_identity_unavailable_text">Keep-Alive की स्वचालित पुनः-सक्षमता रोकी गई है क्योंकि नेटवर्क की पहचान नहीं पढ़ी जा सकती। स्थान अनुमति या स्थान सेवा ठीक करने के लिए टैप करें।</string>
+    <string name="network_prompt_identity_unavailable_text">Keep-Alive की स्वचालित पुनः-सक्षमता रोकी गई है क्योंकि नेटवर्क की पहचान नहीं पढ़ी जा सकती। आमतौर पर स्थान अनुमति नहीं है या स्थान सेवा बंद है, लेकिन यह तब भी हो सकता है जब Keep-Alive पृष्ठभूमि में शुरू हुआ हो। ठीक करने के लिए टैप करें।</string>
     <string name="settings_trusted_network_blocked_button">हाल में रोके गए (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">हाल में रोके गए नेटवर्क</string>
     <string name="settings_trusted_network_blocked_empty_message">हाल में कोई नेटवर्क नहीं रोका गया।</string>
@@ -322,7 +322,7 @@
     <string name="settings_website_link_accessibility">ब्राउज़र में HohnePeople.de खोलें</string>
     <string name="status_off_keep_alive_waiting">वायरलेस डीबगिंग बंद है – Keep-Alive नेटवर्क की प्रतीक्षा कर रहा है</string>
     <string name="status_off_keep_alive_blocked_untrusted">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क विश्वसनीय नहीं है</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: नेटवर्क की पहचान नहीं हो पा रही, स्थान अनुमति जाँचें</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: नेटवर्क की पहचान नहीं हो पा रही, स्थान अनुमति जाँचें या ऐप फिर से खोलें</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: Android के वायरलेस डीबगिंग नेटवर्क संवाद की पुष्टि करें, फिर पुनः प्रयास के लिए स्विच पर टैप करें</string>
     <string name="status_pending">बदला जा रहा है…</string>
     <string name="state_pending">बदला जा रहा है…</string>
