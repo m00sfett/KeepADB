@@ -197,16 +197,59 @@ public class KeepADBService extends Service {
         return type;
     }
 
+    /**
+     * Thin, overridable wrapper around the (final) {@link Service#startForeground(int,
+     * android.app.Notification, int)} so tests can simulate the platform's #629 background/
+     * location {@link SecurityException} without a mocking framework, by subclassing this service
+     * and overriding this single method to throw for a chosen type. Production behavior is
+     * unchanged.
+     */
+    void promoteToForeground(int serviceType) {
+        startForeground(KeepADBNotification.NOTIFICATION_ID,
+                KeepADBNotification.getServiceNotification(this),
+                serviceType);
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "received",
                 "startId=" + startId + " flags=" + flags);
         Log.d(TAG, "onStartCommand startId=" + startId + " flags=" + flags);
+        int serviceType = determineForegroundServiceType(this);
         try {
-            int serviceType = determineForegroundServiceType(this);
-            startForeground(KeepADBNotification.NOTIFICATION_ID,
-                    KeepADBNotification.getServiceNotification(this),
-                    serviceType);
+            promoteToForeground(serviceType);
+        } catch (SecurityException locationDenied) {
+            // #629: on API 34+, a background start (boot, MY_PACKAGE_REPLACED, or a background
+            // sync()) with ACCESS_FINE_LOCATION granted requests type location together with
+            // connectedDevice, and startForeground() throws SecurityException here because the
+            // process is not in an "eligible" foreground state at the moment of the call --
+            // which every background start is, independent of the granted permission. Bound
+            // decision (2026-09-28): retry once with connectedDevice alone instead of letting
+            // failForegroundStart() below tear the whole service down. Trust stays fail-closed --
+            // the Wi-Fi identity remains masked without the location type -- until a later
+            // foreground-originated start (e.g. MainActivity opened, see #630/#628) promotes the
+            // service with location again.
+            if ((serviceType & ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION) == 0) {
+                // No location bit was requested in the first place, so this is not the known
+                // background/location restriction -- behave exactly as before.
+                KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "failed",
+                        "foreground_promotion_exception");
+                failForegroundStart(startId, locationDenied);
+                return START_NOT_STICKY;
+            }
+            int fallbackType = serviceType & ~ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION;
+            KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "retrying",
+                    "foreground_promotion_denied_location fallbackType=" + fallbackType);
+            Log.w(TAG, "startForeground denied type=location from background; "
+                    + "retrying with connectedDevice only (#629)", locationDenied);
+            try {
+                promoteToForeground(fallbackType);
+            } catch (RuntimeException fallbackFailed) {
+                KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "failed",
+                        "foreground_promotion_exception_after_fallback");
+                failForegroundStart(startId, fallbackFailed);
+                return START_NOT_STICKY;
+            }
         } catch (RuntimeException e) {
             KeepADBDiagnostics.event(this, "service_start_command", "lifecycle", "failed",
                     "foreground_promotion_exception");
