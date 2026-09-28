@@ -41,10 +41,39 @@ are retrospective issue-version records and were never published as separate rel
   was verified. The only behavior change is in the split-masking case that AOSP and the S20 FE never
   produce, and only toward stricter.
 
+### Documentation
+- #627: Corrected the "Android can mask network identifiers in the background" claim in
+  `SECURITY.md`, `README.md`, and `fastlane/metadata/android/en-US/full_description.txt` to
+  reflect the C2 measurement (#606, #626): identity stays readable in the background once the
+  Keep-Alive service has been started while the app was in the foreground at least once; the
+  remaining masking cases are a missing/approximate location permission, location being off, or a
+  service instance that has only ever been started from the background (boot, a process restart,
+  or an app update before the app was opened) -- which on Android 14+ can end the service outright
+  (see #629).
+- #627: Removed the stale "(Beta)" wording for the Network settings section from `README.md`
+  and `fastlane/metadata/android/en-US/full_description.txt`; the settings UI itself already
+  dropped Beta status in #618.
+- #627: Marked conclusions 1-5 in `docs/trusted-networks-measurement.md` as superseded by the
+  C2 decision (#606) and its follow-up measurement (#626), and corrected the "Nachtrag 2" table:
+  the C2 rows and the C1 `wifi_reconnect`/`display_off` rows were actually `untrusted` because the
+  access point used in that run was not on the allowlist -- what was measured is `identity_known`,
+  not a positive trust outcome. Clarified that the `bg_no_act` case's foreground service kept
+  running throughout (the originally intended `bg_no_fgs` scenario could not be produced without
+  root, since `am stopservice` does not stop an unexported FGS).
+- #627: Corrected the `MODE_ALLOWLIST (default, #260)` Javadoc reference in
+  `KeepADBTrustedNetwork.isCurrentNetworkTrusted` to reflect #492's default flip
+  (`MODE_ALL_WIFI` is the default since #492; `MODE_ALLOWLIST` is the opt-in).
+- #627: Documented `KeepADBNetworkIdentity#displaySsid()`'s `UNKNOWN_SSID` handling (#269) as a
+  defensive measure for a split BSSID-known/SSID-unreadable state that no measurement has
+  actually observed.
+
 ### Testing
 - #625: Replaced the cache/observer tests with fail-closed and statelessness tests, a reflection
   guard against mutable static state in `KeepADBTrustedNetwork`, and a Robolectric test that drives
   the running service's callbacks; sensitivity shown by re-inserting an SSID cache (tests turn red).
+- #627: Added `KeepADBServiceManifestContractTest`, a static contract test verifying
+  `KeepADBService` declares `foregroundServiceType="connectedDevice|location"`,
+  `FOREGROUND_SERVICE_LOCATION` is declared, and `ACCESS_BACKGROUND_LOCATION` is never declared.
 
 ## [1.8.61] - Unreleased
 

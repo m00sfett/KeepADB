@@ -9,10 +9,17 @@ The security work in this project is about narrowing *when* and *how* that happe
 pretending the port isn't open. Concretely, KeepADB tries to:
 
 - let the user restrict automatic Wireless Debugging re-enable to selected networks with the
-  optional trusted-network setting under Settings → Network (Beta). On a fresh install, this
-  restriction is off and any connected Wi-Fi network may be used; enabling it requires Android
-  location access to identify networks and can limit background recovery when Android masks that
-  identity. Existing choices and saved networks are preserved when upgrading;
+  optional trusted-network setting under Settings → Network. On a fresh install, this restriction
+  is off and any connected Wi-Fi network may be used; enabling it requires Android location
+  access to identify networks. KeepADB's foreground service requests the `location` service type
+  (with while-in-use `ACCESS_FINE_LOCATION`, never `ACCESS_BACKGROUND_LOCATION`) specifically so
+  that identity stays readable during Keep-Alive, including in the background (#606, "C2" — see
+  `docs/trusted-networks-measurement.md`). Recovery can still pause when identity genuinely isn't
+  available: the permission is missing or only coarse, device location is off, or the Keep-Alive
+  service was started from the background — boot, a process restart, or an app update — before
+  the app was ever opened in the foreground once after install (#626; on Android 14+ a
+  background-originated start with the permission already granted can even end the service
+  outright, tracked as #629). Existing choices and saved networks are preserved when upgrading;
 - require an unlocked device to trust a network from the untrusted-network prompt notification:
   the "Yes, allow" action asks the platform to reauthenticate before it fires (API 31+), and
   `KeepADBReceiver` refuses the action and re-offers the same prompt if it is somehow reached
@@ -64,9 +71,13 @@ support branch; please update to the latest version before reporting an issue.
   (see README "Getting Started") — KeepADB cannot grant this permission to itself.
 - Automatic re-enable (Keep-Alive) only fires while Wi-Fi is connected. On a fresh install, it
   may use any connected Wi-Fi network; when the optional trusted-network restriction is enabled,
-  it only acts when the current network can be verified as trusted. Android can mask network
-  identifiers in the background, in which case recovery may pause. Every automatic re-enable path
-  checks the last explicit user intent before acting, so it does not fire while that intent is OFF;
+  it only acts when the current network can be verified as trusted. Since #606 ("C2"), that
+  verification stays reliable in the background as long as the Keep-Alive service was started
+  while the app was in the foreground at least once. It can still be unavailable — missing or
+  approximate location permission, location off, or a service instance that has only ever been
+  started from the background (see above) — in which case recovery may pause. Every automatic
+  re-enable path checks the last explicit user intent before acting, so it does not fire while
+  that intent is OFF;
   this is enforced in code (tracked and tested as of issue #309), not merely a design intention,
   but it is a property of the current implementation rather than an absolute physical guarantee.
 - Android may require a system approval for Wireless Debugging on a Wi-Fi network. KeepADB backs
