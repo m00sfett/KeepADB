@@ -83,6 +83,11 @@ are retrospective issue-version records and were never published as separate rel
 - #627: Documented `KeepADBNetworkIdentity#displaySsid()`'s `UNKNOWN_SSID` handling (#269) as a
   defensive measure for a split BSSID-known/SSID-unreadable state that no measurement has
   actually observed.
+- #626: Added "Nachtrag 3" to `docs/trusted-networks-measurement.md` with the C2 measurement-gap
+  results (boot, sticky restart, background `sync()`, runtime grant, API 34/35): identity
+  readability depends on the origin of the service record, not on the requested FGS type; a
+  background-originated record stays masked on API 33 (#630) and is terminated on API 34+ (#629).
+  The throwaway measurement probe used for this run was not merged.
 
 ### Testing
 - #625: Replaced the cache/observer tests with fail-closed and statelessness tests, a reflection
@@ -91,6 +96,8 @@ are retrospective issue-version records and were never published as separate rel
 - #627: Added `KeepADBServiceManifestContractTest`, a static contract test verifying
   `KeepADBService` declares `foregroundServiceType="connectedDevice|location"`,
   `FOREGROUND_SERVICE_LOCATION` is declared, and `ACCESS_BACKGROUND_LOCATION` is never declared.
+- #628: Added a `KeepADBNetworkTrustPromptTest` case pinning that the identity-unavailable fix
+  intent opens `MainActivity` when permission and location services are both fine.
 
 ## [1.8.61] - Unreleased
 
