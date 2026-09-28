@@ -49,7 +49,6 @@ public class MainActivityKeepAliveTrustGateTest {
                 .edit()
                 .clear()
                 .commit();
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
     }
 
     @After
@@ -61,7 +60,6 @@ public class MainActivityKeepAliveTrustGateTest {
                 .commit();
         KeepADB.resetForTesting();
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(null);
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
     }
 
     /**

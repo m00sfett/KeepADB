@@ -11,8 +11,8 @@ android {
         applicationId 'de.hohnepeople.keepadb'
         minSdk 30
         targetSdk 35
-        versionCode 158
-        versionName '1.8.61'
+        versionCode 159
+        versionName '1.8.62'
     }
 
     buildTypes {

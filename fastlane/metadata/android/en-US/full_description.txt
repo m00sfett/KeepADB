@@ -8,11 +8,11 @@ Features:
 * Endpoint discovery through Android NSD/mDNS (_adb-tls-connect._tcp); timing depends on network conditions
 * Optional HTTP(S) webhook, disabled by default, for verified Wifi-ADB endpoints
 * Configurable status notification, endpoint display, and privacy mode to hide addresses in the app
-* Network (Beta) Wi-Fi and access-point tools, plus an optional trusted-network restriction
+* Network Wi-Fi and access-point tools, plus an optional trusted-network restriction
 * 19 interface languages and right-to-left layout support
 * No advertising, analytics, tracking, or third-party runtime libraries
 
-On fresh installs, trusted-network filtering is off, so Keep-Alive may use any connected Wi-Fi network. Enabling the restriction requires Android location access to identify networks. Android may mask that identity in the background, which can pause automatic recovery. KeepADB uses location access only to identify the Wi-Fi network; it does not read or store your location.
+On fresh installs, trusted-network filtering is off, so Keep-Alive may use any connected Wi-Fi network. Enabling the restriction requires Android location access to identify networks. KeepADB's Keep-Alive service is set up so that identity stays readable in the background too, as long as it was started while the app was open; recovery can still pause if the permission is missing or approximate, location is off, or the service was started in the background (e.g. after a restart or an app update) and the app has not been opened since. KeepADB uses location access only to identify the Wi-Fi network; it does not read or store your location.
 
 When USB debugging is connected, KeepADB can show a USB notification and associate it with an editable host profile stored on the device. It can optionally offer or perform a USB-to-Wifi-ADB handover. USB profile data is not sent through the current webhook contract.
 

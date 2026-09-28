@@ -36,7 +36,6 @@ public class KeepADBAutoEnableWifiTransportGateTest {
     @Before
     public void setUp() {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
         KeepADBNetwork.resetForTesting();
         KeepADB.resetForTesting();
     }

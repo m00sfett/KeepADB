@@ -17,11 +17,87 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.61` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.62` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.62] - Unreleased
+
+### Removed
+- #625: Removed the in-process SSID trust continuity cache from `KeepADBTrustedNetwork`
+  (`lastVerifiedTrustedSsid`, `verifiedTrustObserverActive`, `rememberVerifiedTrust()`,
+  `forgetVerifiedTrust()`, `setVerifiedTrustObserverActive()`, `resetVerifiedTrustForTesting()`)
+  and its invalidation/observer calls in `KeepADBService`'s Wi-Fi `NetworkCallback`. The cache
+  (#270/#313/#353/#354/#355/#620) assumed Android masks only the BSSID in the background; AOSP
+  masks SSID and BSSID together (audit #624), so it could only ever widen trust and carried a
+  theoretical stale-read TOCTOU. Network generation (#310) and `availableWifiNetworks` are unchanged.
+
+### Fixed
+- #628: `KeepADBNetworkTrustPrompt#identityUnavailableFixIntent` now opens `MainActivity` instead
+  of falling back to `SettingsActivity` when location permission is granted, location services
+  are on, and the network identity is still unavailable. Measured for #626 (see
+  `docs/trusted-networks-measurement.md`, "Nachtrag 3"): on API 33 that combination means the
+  Keep-Alive service was started from the background (boot, a sticky restart, or a background
+  `sync()`) and never received a While-in-Use location grant for its foreground-service record.
+  `SettingsActivity` does not call `KeepADBService#sync` on resume and therefore cannot re-promote
+  the service; `MainActivity#onResume()` does call it, promoting the service back to a foreground
+  record and unmasking the identity. Updated `network_prompt_identity_unavailable_text`,
+  `status_off_keep_alive_blocked_identity_unavailable`, and
+  `settings_trusted_network_status_identity_unavailable` in all 19 languages to name this
+  additional cause. No change to `isTrusted`/allowlist behavior; an unknown identity still fails
+  closed. Out of scope: API 34+, where the same background-start combination throws
+  `SecurityException` and stops the service outright instead of running masked -- tracked
+  separately as #629.
+
+### Security
+- #625: `KeepADBTrustedNetwork.isTrusted()` is now a pure, stateless decision: a network is trusted
+  only if its identity is known and its BSSID is listed or, with the SSID opt-in (#492), its SSID is
+  listed exactly. A masked or unknown identity is always rejected, also directly after the same SSID
+  was verified. The only behavior change is in the split-masking case that AOSP and the S20 FE never
+  produce, and only toward stricter.
+
+### Documentation
+- #627: Corrected the "Android can mask network identifiers in the background" claim in
+  `SECURITY.md`, `README.md`, and `fastlane/metadata/android/en-US/full_description.txt` to
+  reflect the C2 measurement (#606, #626): identity stays readable in the background while the
+  running Keep-Alive service was started with the app in the foreground (or the app has been opened
+  since); the remaining masking cases are a missing/approximate location permission, location being
+  off, or a service started from the background (boot, a process restart of such a service, or an
+  app update) until the app is opened again (#630) -- which on Android 14+ can end the service
+  outright (see #629).
+- #627: Removed the stale "(Beta)" wording for the Network settings section from `README.md`
+  and `fastlane/metadata/android/en-US/full_description.txt`; the settings UI itself already
+  dropped Beta status in #618.
+- #627: Marked conclusions 1-5 in `docs/trusted-networks-measurement.md` as superseded by the
+  C2 decision (#606) and its follow-up measurement (#626), and corrected the "Nachtrag 2" table:
+  the C2 rows, the C1 `wifi_reconnect`/`display_off` rows and the control `fg_act`/`bg_fg` rows
+  were actually `untrusted` because the access point used in that run was not on the allowlist -- what was measured is `identity_known`,
+  not a positive trust outcome. Clarified that the `bg_no_act` case's foreground service kept
+  running throughout (the originally intended `bg_no_fgs` scenario could not be produced without
+  root, since `am stopservice` does not stop an unexported FGS).
+- #627: Corrected the `MODE_ALLOWLIST (default, #260)` Javadoc reference in
+  `KeepADBTrustedNetwork.isCurrentNetworkTrusted` to reflect #492's default flip
+  (`MODE_ALL_WIFI` is the default since #492; `MODE_ALLOWLIST` is the opt-in).
+- #627: Documented `KeepADBNetworkIdentity#displaySsid()`'s `UNKNOWN_SSID` handling (#269) as a
+  defensive measure for a split BSSID-known/SSID-unreadable state that no measurement has
+  actually observed.
+- #626: Added "Nachtrag 3" to `docs/trusted-networks-measurement.md` with the C2 measurement-gap
+  results (boot, sticky restart, background `sync()`, runtime grant, API 34/35): identity
+  readability depends on the origin of the service record, not on the requested FGS type; a
+  background-originated record stays masked on API 33 (#630) and is terminated on API 34+ (#629).
+  The throwaway measurement probe used for this run was not merged.
+
+### Testing
+- #625: Replaced the cache/observer tests with fail-closed and statelessness tests, a reflection
+  guard against mutable static state in `KeepADBTrustedNetwork`, and a Robolectric test that drives
+  the running service's callbacks; sensitivity shown by re-inserting an SSID cache (tests turn red).
+- #627: Added `KeepADBServiceManifestContractTest`, a static contract test verifying
+  `KeepADBService` declares `foregroundServiceType="connectedDevice|location"`,
+  `FOREGROUND_SERVICE_LOCATION` is declared, and `ACCESS_BACKGROUND_LOCATION` is never declared.
+- #628: Added a `KeepADBNetworkTrustPromptTest` case pinning that the identity-unavailable fix
+  intent opens `MainActivity` when permission and location services are both fine.
 
 ## [1.8.61] - Unreleased
 

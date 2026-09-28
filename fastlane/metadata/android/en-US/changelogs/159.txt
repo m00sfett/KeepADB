@@ -1,0 +1,3 @@
+• Wi-Fi Protection: Network recognition in background keep-alive without background location permission, simpler settings, quick onboarding.
+• Privacy & Security: Connection details hidden on the lock screen by default; unlock needed to turn Wifi-ADB on. Safer trust prompts; hidden network identities are never trusted.
+• Reliability: Webhook pacing, unified "Wifi-ADB" naming, fixes on restricted devices. The "identity unavailable" notice now covers background starts; tap it to fix.

@@ -59,7 +59,6 @@ public class KeepADBStatusDecouplingTest {
                 .getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADB.resetForTesting();
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
     }
 
     private void withAdbSetting(boolean enabled) {

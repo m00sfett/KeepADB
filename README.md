@@ -38,10 +38,10 @@ Since Android 11, Google provides native **Wireless Debugging** (`Settings.Globa
 - 🌐 **Automated Webhook Integration**: Configure an optional HTTP(S) endpoint in Settings. KeepADB currently sends Wifi-ADB events; it holds back additional verified transport events until the receiving server accepts their method names.
 - 📋 **Persistent Notification**: Shows the current status in the notification panel. The active connection string (`Port <port> @ <ip>`) is opt-in via Settings → Notification → "Show connection details in notifications" (off by default); with it off, the notification shows only the status.
 - 🔌 **USB-ADB Assistance**: Optional USB notification, local editable host profiles, and manual or automatic USB-to-Wifi-ADB handover.
-- 🛜 **Network (Beta)**: Optional Wi-Fi and access-point tools, including trusted-network controls. On new installs, trusted-network filtering is off; enabling it requires Android location access to identify networks and can limit background recovery when Android masks that identity.
+- 🛜 **Network**: Optional Wi-Fi and access-point tools, including trusted-network controls. On new installs, trusted-network filtering is off; enabling it requires Android location access to identify networks. Since #606, the Keep-Alive service keeps that identity readable in the background too, as long as it was started while the app was open in the foreground, or the app has been opened since (see [SECURITY.md](SECURITY.md) for the remaining cases where recovery can still pause).
 - 👁️ **Privacy Mode**: Hide network addresses in the app's UI. This is a display setting; it does not change the endpoint reported to a configured webhook.
 - 🧰 **Diagnostics & Reliability**: Exportable redacted diagnostics, battery-optimization guidance, and a direct notification action to turn off Wifi-ADB.
-- ⚙️ **Central Settings**: Dedicated settings screen with language, notification, USB handover, Network (Beta), privacy, diagnostics, and optional webhook controls.
+- ⚙️ **Central Settings**: Dedicated settings screen with language, notification, USB handover, Network, privacy, diagnostics, and optional webhook controls.
 - 🎨 **Adaptive Icon & Theme**: Native adaptive icon (Terminal Prompt + Wi-Fi Broadcast) with Android 13+ Material You monochrome support and a cohesive Dark/Red/Yellow palette using standard system typography.
 - 🛡️ **Zero Runtime Dependencies**: Built purely on native Android AOSP framework APIs — no third-party libraries, no custom font bloat, no trackers, and no analytics.
 - 🌍 **Multi-Language**: Full localization for 19 major world languages (English, German, Spanish, French, Portuguese, Italian, Dutch, Polish, Ukrainian, Russian, Turkish, Arabic, Hindi, Simplified & Traditional Chinese, Japanese, Korean, Indonesian, Vietnamese) with native Android 13+ Per-App Language Preferences and RTL support.
@@ -72,7 +72,7 @@ adb shell pm grant de.hohnepeople.keepadb android.permission.WRITE_SECURE_SETTIN
 - **Quick Settings Tile**: Swipe down your notification shade twice, tap the Edit (pencil) icon, and drag the **KeepADB** tile into your active tiles. Tap to toggle on/off. On a locked device, switching on asks you to unlock first.
 - **Home Widget**: Long-press on your home screen, choose Widgets, and add the **KeepADB** widget.
 - **Persistent Keep-Alive**: Open the KeepADB app and enable **Keep persistently active**. KeepADB monitors network state and attempts recovery. Android may ask you to approve Wireless Debugging for a network. If Android does not confirm the change, KeepADB backs off instead of retrying rapidly; approve only a system prompt you expect.
-- **Settings**: Tap **Settings** in the top header to configure language, notifications, local USB host profiles, USB-to-Wifi-ADB handover, Network (Beta), privacy mode, diagnostics, battery guidance, or the optional webhook endpoint.
+- **Settings**: Tap **Settings** in the top header to configure language, notifications, local USB host profiles, USB-to-Wifi-ADB handover, Network, privacy mode, diagnostics, battery guidance, or the optional webhook endpoint.
 
 ---
 
@@ -185,9 +185,9 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
 1. **Trusted Networks Only:** Keep persistent Keep-Alive enabled primarily on trusted home/office Wi-Fi networks or isolated VPNs (e.g. Tailscale / WireGuard).
 2. **Public Wi-Fi Precaution:** When connecting to public Wi-Fi hotspots, guest networks, or unmanaged shared Wi-Fi, turn Wireless Debugging **OFF** (via 1-tap Tile, Widget, or Main App) to prevent unauthorized devices on the local subnet from attempting pairing requests.
 3. **Pairing Prompts:** Android requires TLS pairing authentication. **Never confirm unexpected pairing dialogs or unfamiliar RSA key fingerprints** on your device screen.
-4. **Trusted Networks (optional, Network Beta):** On a new installation, Keep-Alive can use any
+4. **Trusted Networks (optional, under Network):** On a new installation, Keep-Alive can use any
    connected Wi-Fi network by default. You can opt into the trusted-network restriction in
-   Settings → Network (Beta). Android requires location access to provide Wi-Fi network
+   Settings → Network. Android requires location access to provide Wi-Fi network
    identifiers; KeepADB uses it only to identify the network and does not read or store location.
    To preserve network identity (SSID/BSSID) during background keep-alive without requiring invasive
    background location grants (`ACCESS_BACKGROUND_LOCATION`), KeepADB declares
@@ -195,7 +195,11 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
    `connectedDevice|location` (#606, C2). While-in-use `ACCESS_FINE_LOCATION` is sufficient for
    this service type, and the `location` service type is bound dynamically only when the permission
    is granted so that standard `all_wifi` mode never triggers `SecurityException`s on Android 14+.
-   Existing mode choices and trusted entries are preserved when upgrading. The main switch, tile,
+   This keeps identity readable in the background while the running service was started in the
+   foreground; a service instance that has only ever been started from the background (boot, a
+   process restart, or an app update, until the app is opened again) can still
+   run with the identity masked, and on Android 14+ that combination can end the service outright
+   (see [SECURITY.md](SECURITY.md)). Existing mode choices and trusted entries are preserved when upgrading. The main switch, tile,
    and widget remain manual overrides not gated by this setting. Turning the Keep-Alive toggle on
    does respect it: on an untrusted network it falls through to the trust prompt instead of enabling
    immediately (#577). Trusting a network from that prompt notification requires an unlocked device

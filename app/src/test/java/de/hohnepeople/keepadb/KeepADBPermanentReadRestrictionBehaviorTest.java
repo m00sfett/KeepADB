@@ -76,7 +76,6 @@ public class KeepADBPermanentReadRestrictionBehaviorTest {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
         context.getSharedPreferences("keepadb_diagnostics", Context.MODE_PRIVATE).edit().clear().commit();
         context.getSharedPreferences("keepadb_trusted_networks", Context.MODE_PRIVATE).edit().clear().commit();
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADBNetwork.resetForTesting();
         KeepADB.resetForTesting();

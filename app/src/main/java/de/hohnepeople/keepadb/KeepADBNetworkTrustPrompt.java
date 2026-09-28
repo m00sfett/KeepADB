@@ -59,7 +59,10 @@ import java.util.List;
  * active (see {@code checkNetworkTrustWhileActive()}), reusing the exact same throttled,
  * BSSID-keyed prompt. Second, an unreadable identity ({@link KeepADBNetworkIdentity#isKnown()}
  * false -- under C2 (#606), {@link KeepADBService} unmasks BSSID in the background, so this
- * indicates missing/revoked location permissions, location services turned off, or no association)
+ * indicates missing/revoked location permissions, location services turned off, no association,
+ * or -- measured for #626/#628 on API 33, see {@code docs/trusted-networks-measurement.md} -- a
+ * Keep-Alive service that was started from the background and never received a While-in-Use
+ * location grant for its foreground-service record)
  * used to return here silently, leaving the user with no idea why Keep-Alive was blocked. It now
  * raises its own notification instead, throttled the same way under a fixed sentinel key rather
  * than a BSSID, and its content intent points directly at the likely fix.
@@ -465,12 +468,26 @@ final class KeepADBNetworkTrustPrompt {
     }
 
     /**
-     * #460: sends the user straight at the likely cause instead of just Settings. A missing (or
-     * revoked) {@code ACCESS_FINE_LOCATION} grant opens this app's system permission page; a
+     * #460/#628: sends the user straight at the likely cause instead of just Settings. A missing
+     * (or revoked) {@code ACCESS_FINE_LOCATION} grant opens this app's system permission page; a
      * granted permission with location services turned off opens the system location toggle.
-     * Falls back to {@link SettingsActivity} -- which explains the state either way via {@code
-     * settings_trusted_network_status_identity_unavailable} -- if neither system screen exists on
-     * this OEM build, or if the cause could not be determined.
+     *
+     * <p>#628: if permission and location are both fine, the remaining cause is the one measured
+     * for #626 (see {@code docs/trusted-networks-measurement.md}, "Nachtrag 3"): on API 33 the
+     * Keep-Alive service was started from the background (boot, a sticky restart after the
+     * service originally started from the background, or a background {@code sync()}) and never
+     * received a While-in-Use location grant for its foreground-service record -- Android ties
+     * that grant to how the *service record* was created, not to whether the app currently holds
+     * the permission. Such a service keeps running -- masked, but otherwise functional -- and no
+     * amount of re-checking permission or location fixes it; only promoting the service through a
+     * foreground start does, and only {@link MainActivity#onResume()} does that (it
+     * unconditionally calls {@link KeepADBService#sync}). {@link SettingsActivity} does not call
+     * {@code sync()} on resume, so it cannot re-promote the service. So this branch now opens
+     * {@link MainActivity} instead of falling back to {@link SettingsActivity}, which used to
+     * describe the state via {@code settings_trusted_network_status_identity_unavailable} without
+     * offering a working fix. (On API 34+ this background-start case does not apply the same way
+     * -- a background start with a location-typed foreground service throws {@code
+     * SecurityException} and stops the service outright, tracked separately as #629.)
      */
     private static Intent identityUnavailableFixIntent(Context context) {
         if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -490,7 +507,7 @@ final class KeepADBNetworkTrustPrompt {
             return new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
-        return new Intent(context, SettingsActivity.class)
+        return new Intent(context, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
