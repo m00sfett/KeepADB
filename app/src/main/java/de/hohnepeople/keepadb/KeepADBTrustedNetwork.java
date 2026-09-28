@@ -15,8 +15,11 @@ import java.util.List;
  * type, Android masked SSID and BSSID together outside a visible activity (see {@code
  * docs/trusted-networks-measurement.md}), preventing background allowlist confirmation. Under
  * Variante C2 (#606), {@link KeepADBService} dynamically requests {@code connectedDevice|location}
- * with {@link android.Manifest.permission#ACCESS_FINE_LOCATION}, qualifying as while-in-use and
- * keeping SSID and BSSID unmasked during background keep-alive. {@link #MODE_ALLOWLIST} remains
+ * with {@link android.Manifest.permission#ACCESS_FINE_LOCATION}; a service started from the
+ * foreground qualifies as while-in-use and keeps SSID and BSSID unmasked during background
+ * keep-alive. A service started from the background (boot, app update, sticky restart of such a
+ * service) does not and stays masked until the app is opened (#626, #630) -- this class then
+ * fails closed like for any other unknown identity. {@link #MODE_ALLOWLIST} remains
  * an explicit opt-in as a deliberate comfort-versus-security trade-off: it requires location
  * permissions and strictly bounds automatic re-enable to explicitly approved access points.
  *
