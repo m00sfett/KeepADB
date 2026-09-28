@@ -58,11 +58,12 @@ import java.util.List;
  * raised nothing. {@link KeepADBService}'s network callback now also calls this method while
  * active (see {@code checkNetworkTrustWhileActive()}), reusing the exact same throttled,
  * BSSID-keyed prompt. Second, an unreadable identity ({@link KeepADBNetworkIdentity#isKnown()}
- * false -- under C2 (#606), {@link KeepADBService} unmasks BSSID in the background, so this
- * indicates missing/revoked location permissions, location services turned off, no association,
- * or -- measured for #626/#628 on API 33, see {@code docs/trusted-networks-measurement.md} -- a
- * Keep-Alive service that was started from the background and never received a While-in-Use
- * location grant for its foreground-service record)
+ * false -- under C2 (#606), {@link KeepADBService} unmasks BSSID only once its foreground
+ * promotion actually originated from the foreground, so this indicates missing/revoked location
+ * permissions, location services turned off, no association, or -- measured for #626/#628/#629 on
+ * API 33 and 34+, see {@code docs/trusted-networks-measurement.md} -- a Keep-Alive service that
+ * was started from the background and never received a While-in-Use location grant for its
+ * foreground-service record)
  * used to return here silently, leaving the user with no idea why Keep-Alive was blocked. It now
  * raises its own notification instead, throttled the same way under a fixed sentinel key rather
  * than a BSSID, and its content intent points directly at the likely fix.
@@ -142,8 +143,10 @@ final class KeepADBNetworkTrustPrompt {
         // could allow, so the allow/block prompt below would offer a choice that cannot be
         // carried out. #460: that used to be the end of it -- the block stayed silent, and
         // Settings only explained it if the user happened to go looking. Under C2 (#606), normal
-        // background keep-alive provides an unmasked identity; reaching this branch indicates
-        // missing location permissions or disabled location services. Raise the distinct
+        // background keep-alive provides an unmasked identity once its foreground promotion
+        // originated from the foreground; reaching this branch indicates missing location
+        // permissions, disabled location services, or a still background-originated service
+        // record (#629/#630). Raise the distinct
         // identity-unavailable notification instead, which names the problem and links straight
         // to the fix.
         if (!identity.isKnown()) {
@@ -485,9 +488,11 @@ final class KeepADBNetworkTrustPrompt {
      * {@code sync()} on resume, so it cannot re-promote the service. So this branch now opens
      * {@link MainActivity} instead of falling back to {@link SettingsActivity}, which used to
      * describe the state via {@code settings_trusted_network_status_identity_unavailable} without
-     * offering a working fix. (On API 34+ this background-start case does not apply the same way
-     * -- a background start with a location-typed foreground service throws {@code
-     * SecurityException} and stops the service outright, tracked separately as #629.)
+     * offering a working fix. (On API 34+ this background-start case still applies: a background
+     * start with a location-typed foreground service throws {@code SecurityException}, but since
+     * #629 {@link KeepADBService#onStartCommand} catches it and retries with {@code
+     * connectedDevice} alone instead of stopping the service, so the masked-but-running state
+     * described above is reached there too.)
      */
     private static Intent identityUnavailableFixIntent(Context context) {
         if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)

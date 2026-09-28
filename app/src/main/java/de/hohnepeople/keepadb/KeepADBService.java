@@ -30,9 +30,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE} augmented with
  * {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_LOCATION} whenever {@link
  * Manifest.permission#ACCESS_FINE_LOCATION} is granted. This satisfies Android's while-in-use
- * location requirement, allowing SSID and BSSID to be resolved unmasked in the background
- * across screen-off events and network reconnects without requiring background location
- * permissions.
+ * location requirement, allowing SSID and BSSID to be resolved unmasked across screen-off events
+ * and network reconnects without requiring background location permissions -- but only once the
+ * service's foreground promotion actually originated from the foreground. A promotion that starts
+ * from the background (boot, {@code MY_PACKAGE_REPLACED}, a background sync) cannot request the
+ * {@code location} type on API 34+ and falls back to {@code connectedDevice} alone (#629), so the
+ * Wi-Fi identity stays masked until a later foreground-originated start re-promotes the service
+ * with {@code location} (#630); the #616 always-on-top opt-in makes such a foreground-originated
+ * start the common case in practice, but does not guarantee it.
  */
 public class KeepADBService extends Service {
     private static final String TAG = "KeepADBService";
@@ -183,10 +188,15 @@ public class KeepADBService extends Service {
      * <p>Always includes {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE}.
      * If {@link Manifest.permission#ACCESS_FINE_LOCATION} is granted,
      * {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_LOCATION} is also requested so that Android
-     * treats this service as while-in-use for Wi-Fi identity verification (unmasking SSID/BSSID
-     * during background keep-alive). If the location permission is not granted (e.g. in default
-     * {@code all_wifi} mode without trusted-network allowlist), {@code location} is omitted
-     * dynamically to prevent a {@link SecurityException} on Android 14+ (API 34+).
+     * treats this service as while-in-use for Wi-Fi identity verification, which unmasks
+     * SSID/BSSID only when the resulting {@code startForeground()} call succeeds -- on API 34+ a
+     * background-originated promotion still throws {@link SecurityException} for the
+     * {@code location} type, and {@link #onStartCommand} retries once with
+     * {@code connectedDevice} alone rather than tearing the service down (#629); the identity
+     * stays masked for that instance until a foreground-originated restart (#630). If the
+     * location permission is not granted at all (e.g. in default {@code all_wifi} mode without
+     * trusted-network allowlist), {@code location} is omitted dynamically up front, which never
+     * throws.
      */
     static int determineForegroundServiceType(Context context) {
         int type = ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;

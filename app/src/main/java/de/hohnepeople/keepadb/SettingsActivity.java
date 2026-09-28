@@ -518,8 +518,10 @@ public class SettingsActivity extends Activity {
      * #492: the global opt-in. Moved back here from MainActivity's home card because turning it on
      * is a security decision taken against the warning next to it. Under Variante C2 (#606),
      * granting ACCESS_FINE_LOCATION enables {@link KeepADBService} to run with {@code
-     * FOREGROUND_SERVICE_TYPE_LOCATION}, keeping Wi-Fi identity unmasked during background
-     * keep-alive.
+     * FOREGROUND_SERVICE_TYPE_LOCATION}, which keeps Wi-Fi identity unmasked during keep-alive
+     * only when the service's foreground promotion originated from the foreground; a
+     * background-originated promotion falls back to {@code connectedDevice} alone and stays
+     * masked until a later foreground-originated restart (#629/#630).
      *
      * <p>Turning it *on* requires ACCESS_FINE_LOCATION, because without it the platform hands the
      * app a masked identity (and the foreground service cannot adopt the location type), causing

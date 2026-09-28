@@ -23,6 +23,24 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.8.65] - Unreleased
+
+### Documentation
+- #631: `KeepADBTrustedNetwork.isCurrentNetworkTrusted()`'s Javadoc said `MODE_ALLOWLIST` trust
+  required identity known and a listed BSSID, omitting the #492 opt-in SSID match that `isTrusted()`
+  (#625) already documented correctly. Now names both paths (BSSID match, or with SSID matching
+  enabled, an exact SSID match), each gated on a known identity. No behavior change.
+- #632: several comments and docs still claimed an unconditional background unmasking of Wi-Fi
+  identity, or a `SecurityException`/service-death outcome for a background-originated FGS
+  promotion with `ACCESS_FINE_LOCATION` granted, both superseded by the #629 fallback (retry with
+  `connectedDevice` alone instead of ending the service) and the #630 finding (masking persists
+  until a foreground-originated restart, worked around in practice by the #616 opt-in). Corrected
+  `KeepADBService`'s class and `determineForegroundServiceType()` Javadoc, `SettingsActivity`'s
+  opt-in switch Javadoc, `KeepADBNetworkTrustPrompt`'s class and method comments, `README.md`'s
+  Trusted Networks section, `SECURITY.md`'s threat-model bullet, and
+  `docs/trusted-networks-measurement.md`'s binding-decision point 4 to state the foreground-origin
+  dependency and the actual #629 fallback behavior. No code/test behavior change.
+
 ## [1.8.64] - Unreleased
 
 ### Fixed
