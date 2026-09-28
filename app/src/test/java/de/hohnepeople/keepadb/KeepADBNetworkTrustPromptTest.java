@@ -60,7 +60,6 @@ public class KeepADBNetworkTrustPromptTest {
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         prefs().edit().clear().commit();
         KeepADB.resetForTesting();
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
     }
 
     @After
@@ -68,7 +67,6 @@ public class KeepADBNetworkTrustPromptTest {
         prefs().edit().clear().commit();
         KeepADB.resetForTesting();
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(null);
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
     }
 
     // --- Raising and throttling -------------------------------------------------------------

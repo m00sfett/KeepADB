@@ -4,6 +4,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,118 +38,48 @@ public class KeepADBTrustedNetworkContractTest {
         assertFalse(manualActionBody.contains("KeepADBTrustedNetwork"));
     }
 
+    /**
+     * #625: {@link KeepADBTrustedNetwork} holds no process-wide trust state. Every static field
+     * must be a compile-time-style constant ({@code final}); a mutable static -- such as the
+     * removed {@code lastVerifiedTrustedSsid} cache or its {@code verifiedTrustObserverActive}
+     * gate -- would let one trust decision influence the next and is exactly what this forbids.
+     */
     @Test
-    public void networkLossInvalidatesVerifiedTrustBeforeAnyEarlyReturn() throws IOException {
-        String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
-        String onLost = methodBody(service, "public void onLost(Network network) {");
-        // Ordering alone would also accept an invalidation guarded by a condition.
-        // Require the production call as the first statement, outside any conditional.
-        String statements = onLost.substring(onLost.indexOf('{') + 1)
-                .replaceAll("(?s)/\\*.*?\\*/|//[^\\r\\n]*", "").trim();
-        assertTrue("Trust invalidation must be unconditional at callback entry",
-                statements.startsWith("KeepADBTrustedNetwork.forgetVerifiedTrust();"));
-        int invalidation = onLost.indexOf("KeepADBTrustedNetwork.forgetVerifiedTrust();");
-        assertTrue("onLost must discard verified trust", invalidation >= 0);
-        // Locate the anchors before comparing against them: a plain "invalidation < indexOf(...)"
-        // silently turns a vanished anchor into -1 and then reports a misleading ordering
-        // failure, when the real cause is that the construct this test orders against is gone.
-        int foregroundGate = onLost.indexOf("if (!foregroundReady)");
-        assertTrue("onLost no longer contains the foreground-ready gate this test orders "
-                + "against -- update this contract test to the new control flow", foregroundGate >= 0);
-        int earlyReturn = onLost.indexOf("return;");
-        assertTrue("onLost no longer contains an early return this test orders against -- "
-                + "update this contract test to the new control flow", earlyReturn >= 0);
-        assertTrue("Trust invalidation must precede the foreground gate",
-                invalidation < foregroundGate);
-        assertTrue("Trust invalidation must precede any early return",
-                invalidation < earlyReturn);
+    public void trustedNetworkPolicyHoldsNoMutableProcessState() {
+        for (Field field : KeepADBTrustedNetwork.class.getDeclaredFields()) {
+            if (field.isSynthetic() || !Modifier.isStatic(field.getModifiers())) continue;
+            assertTrue("Mutable static state in KeepADBTrustedNetwork: " + field.getName(),
+                    Modifier.isFinal(field.getModifiers()));
+        }
     }
 
     /**
-     * #354: {@code ConnectivityManager} gives no ordering guarantee between {@code onLost(old)}
-     * and {@code onAvailable(new)}. Invalidating only in {@code onLost} (#313) therefore left a
-     * window in which {@code onAvailable} -&gt; {@code recheckAndEnable()} -&gt; {@code
-     * isCurrentNetworkTrusted()} evaluated the new connection against the old connection's cache.
-     * The invalidation must be unconditional and first, i.e. ahead of every statement in the
-     * callback that can reach the cache.
+     * #625: the Wi-Fi {@code NetworkCallback} and its (un)registration no longer invalidate or
+     * announce anything to the trust policy -- there is nothing left to invalidate. Network
+     * generation (#310) and the {@code availableWifiNetworks} bookkeeping stay exactly where they
+     * were; this pins both halves so the removal cannot silently take either with it.
      */
     @Test
-    public void networkAvailabilityInvalidatesVerifiedTrustBeforeAnyTrustRead() throws IOException {
+    public void networkCallbacksCarryNoTrustCacheInvalidation() throws IOException {
         String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
         String onAvailable = methodBody(service, "public void onAvailable(Network network) {");
-        String statements = onAvailable.substring(onAvailable.indexOf('{') + 1)
-                .replaceAll("(?s)/\\*.*?\\*/|//[^\\r\\n]*", "").trim();
-        assertTrue("Trust invalidation must be the unconditional first statement of onAvailable",
-                statements.startsWith("KeepADBTrustedNetwork.forgetVerifiedTrust();"));
-        int invalidation = onAvailable.indexOf("KeepADBTrustedNetwork.forgetVerifiedTrust();");
-        assertTrue("onAvailable must discard verified trust", invalidation >= 0);
-        // Locate the anchor first, so a vanished recheck call reports its own cause instead of
-        // a misleading ordering failure (same reasoning as the onLost test above).
-        int recheck = onAvailable.indexOf("recheckAndEnable();");
-        assertTrue("onAvailable no longer calls recheckAndEnable() -- update this contract test "
-                + "to the new control flow", recheck >= 0);
-        assertTrue("Trust invalidation must precede the recheck that reads the trust cache",
-                invalidation < recheck);
-    }
-
-    /**
-     * #354, #620: {@code onLost}/{@code onAvailable} only fire while {@link KeepADBService} has
-     * its callback registered. While C2 (#606) unmasks BSSID in production, the defensive
-     * fallback remains gated on a live invalidator, and this pins that KeepADBService is what
-     * actually declares -- and withdraws -- that state.
-     */
-    @Test
-    public void theMaskedBssidFallbackIsTiedToTheLiveNetworkCallback() throws IOException {
-        String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
+        String onLost = methodBody(service, "public void onLost(Network network) {");
         String register = methodBody(service, "private void registerNetworkCallback() {");
         String unregister = methodBody(service, "private void unregisterNetworkCallback() {");
-        assertTrue("registerNetworkCallback() must announce the live invalidator",
-                register.contains("KeepADBTrustedNetwork.setVerifiedTrustObserverActive(true);"));
-        assertTrue("unregisterNetworkCallback() must withdraw it again",
-                unregister.contains("KeepADBTrustedNetwork.setVerifiedTrustObserverActive(false);"));
+        for (String body : new String[] { onAvailable, onLost, unregister }) {
+            assertFalse("Network callback code must not call into the trust policy's state: "
+                    + body.substring(0, body.indexOf('{')), body.contains("KeepADBTrustedNetwork."));
+        }
+        // registerNetworkCallback() contains onAvailable/onLost; check only its own statements.
+        String registerOwn = register.substring(register.indexOf("cm.registerNetworkCallback("));
+        assertFalse(registerOwn.contains("KeepADBTrustedNetwork."));
+        assertFalse(service.contains("VerifiedTrust"));
 
-        // Ordering in both methods must keep the unsafe combination ("fallback offered, nobody
-        // watching") impossible: announce only after registering, withdraw before unregistering.
-        int registerCall = register.indexOf("cm.registerNetworkCallback(");
-        assertTrue("registerNetworkCallback() no longer registers the callback the way this "
-                + "contract test orders against", registerCall >= 0);
-        assertTrue("The fallback must not be announced before the callback is registered",
-                registerCall < register.indexOf("KeepADBTrustedNetwork.setVerifiedTrustObserverActive(true);"));
-        int unregisterCall = unregister.indexOf("cm.unregisterNetworkCallback(");
-        assertTrue("unregisterNetworkCallback() no longer unregisters the callback the way this "
-                + "contract test orders against", unregisterCall >= 0);
-        assertTrue("The fallback must be withdrawn before the callback stops watching",
-                unregister.indexOf("KeepADBTrustedNetwork.setVerifiedTrustObserverActive(false);")
-                        < unregisterCall);
-    }
-
-    /**
-     * #375: {@link KeepADBTrustedNetwork#setVerifiedTrustObserverActive(boolean)} relies on the
-     * exact order of its three statements to stay race-free (#354's javadoc on the method spells
-     * out why) -- but no unit test can observe the underlying volatile interleaving directly.
-     * Pin the source order instead, so a later "cleanup" refactor that reorders the statements
-     * fails loudly rather than silently reintroducing the race.
-     */
-    @Test
-    public void setVerifiedTrustObserverActiveKeepsItsRaceFreeStatementOrder() throws IOException {
-        String trustedNetwork = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTrustedNetwork.java");
-        String method = methodBody(trustedNetwork,
-                "static void setVerifiedTrustObserverActive(boolean active) {");
-        int deactivate = method.indexOf("verifiedTrustObserverActive = false;");
-        int forget = method.indexOf("forgetVerifiedTrust();");
-        int reactivate = method.indexOf("verifiedTrustObserverActive = active;");
-        assertTrue("setVerifiedTrustObserverActive no longer deactivates first -- update this "
-                + "contract test to the new control flow", deactivate >= 0);
-        assertTrue("setVerifiedTrustObserverActive no longer forgets verified trust -- update "
-                + "this contract test to the new control flow", forget >= 0);
-        assertTrue("setVerifiedTrustObserverActive no longer applies the requested state -- "
-                + "update this contract test to the new control flow", reactivate >= 0);
-        assertTrue("Must deactivate the observer before forgetting verified trust, so a "
-                + "concurrent reader never observes \"active with a stale entry\"",
-                deactivate < forget);
-        assertTrue("Must forget verified trust before applying the requested state, so a "
-                + "concurrent reader can only ever observe a stricter state than the final one",
-                forget < reactivate);
+        assertTrue(onAvailable.contains("availableWifiNetworks.add(network);"));
+        assertTrue(onAvailable.contains("KeepADB.noteNetworkChanged();"));
+        assertTrue(onLost.contains("availableWifiNetworks.remove(network);"));
+        assertTrue(onLost.contains("KeepADB.noteNetworkChanged();"));
+        assertTrue(unregister.contains("availableWifiNetworks.clear();"));
     }
 
     private static String methodBody(String source, String signature) {

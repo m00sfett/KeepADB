@@ -64,7 +64,6 @@ public class SettingsActivityTrustConfirmationTest {
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         prefs().edit().clear().commit();
         KeepADB.resetForTesting();
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
     }
 
     @After
@@ -72,7 +71,6 @@ public class SettingsActivityTrustConfirmationTest {
         prefs().edit().clear().commit();
         KeepADB.resetForTesting();
         KeepADBRegisterClient.resetHttpTransport();
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
         unlockDevice();
     }
 
