@@ -12,7 +12,8 @@ pretending the port isn't open. Concretely, KeepADB tries to:
   optional trusted-network setting under Settings → Network. On a fresh install, this restriction
   is off and any connected Wi-Fi network may be used; enabling it requires Android location
   access to identify networks. KeepADB's foreground service requests the `location` service type
-  (with while-in-use `ACCESS_FINE_LOCATION`, never `ACCESS_BACKGROUND_LOCATION`) specifically so
+  (with while-in-use `ACCESS_FINE_LOCATION`; `ACCESS_BACKGROUND_LOCATION` is only an optional
+  grant the user sets on the app's permission page, #616) specifically so
   that identity stays readable during Keep-Alive, including in the background (#606, "C2" — see
   `docs/trusted-networks-measurement.md`). Recovery can still pause when identity genuinely isn't
   available: the permission is missing or only coarse, device location is off, or the running

@@ -33,6 +33,10 @@ final class KeepADBPreferences {
     // #619: independent dismiss state for the network onboarding banner on the main screen.
     private static final String KEY_NETWORK_ONBOARDING_PANEL_VISIBLE =
             "network_onboarding_panel_visible";
+    // #616: dismiss state for the background-location setup card on the main screen. Controls
+    // only the card; it never grants the permission or changes the trusted-network mode.
+    private static final String KEY_BACKGROUND_LOCATION_PANEL_VISIBLE =
+            "background_location_panel_visible";
     // #482: display-only privacy toggle. Persists whether network addresses currently shown in
     // the UI should be masked -- purely a rendering preference, never the toggle facade's own
     // WRITE_SECURE_SETTINGS state and never the real ADB transport. The actual masking logic
@@ -586,6 +590,17 @@ final class KeepADBPreferences {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_NETWORK_ONBOARDING_PANEL_VISIBLE, visible).apply();
+    }
+
+    /** #616: background-location setup card visibility (dismiss state). Default ON (true). */
+    static boolean isBackgroundLocationPanelVisible(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_BACKGROUND_LOCATION_PANEL_VISIBLE, true);
+    }
+
+    static void setBackgroundLocationPanelVisible(Context context, boolean visible) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_BACKGROUND_LOCATION_PANEL_VISIBLE, visible).apply();
     }
 
     static boolean isNetworkOnboardingDismissed(Context context) {

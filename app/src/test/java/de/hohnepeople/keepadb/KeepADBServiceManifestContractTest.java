@@ -16,9 +16,9 @@ import org.junit.Test;
 /**
  * Static contract for the C2 decision (#606, measured in #626): {@link KeepADBService} keeps
  * its while-in-use-only location footprint. C2 relies on the service qualifying for the
- * {@code location} foreground-service type while only holding {@code ACCESS_FINE_LOCATION} --
- * never {@code ACCESS_BACKGROUND_LOCATION}, which this project deliberately avoids (see
- * {@code SECURITY.md} and {@code docs/trusted-networks-measurement.md}, "Nachtrag 2", point 2).
+ * {@code location} foreground-service type while holding {@code ACCESS_FINE_LOCATION}; since #616
+ * {@code ACCESS_BACKGROUND_LOCATION} is additionally declared as an optional, user-set grant for
+ * the background-start path C2 cannot cover (see {@code docs/trusted-networks-measurement.md}).
  *
  * <p>#626 also found that C2's protection is conditional on the service having been started
  * while the app was in the foreground at least once (see {@code docs/trusted-networks-measurement.md},
@@ -27,8 +27,7 @@ import org.junit.Test;
  * that runtime behavior (no Robolectric/instrumentation here), but it locks down the static
  * manifest contract the whole approach depends on: the declared type still includes {@code
  * location}, the matching {@code FOREGROUND_SERVICE_LOCATION} permission is present, and
- * {@code ACCESS_BACKGROUND_LOCATION} is never declared. Losing any one of these silently would
- * either break the C2 recovery path or regress into the very permission this project avoids.
+ * {@code ACCESS_BACKGROUND_LOCATION} is declared but never requested through a runtime dialog.
  */
 public class KeepADBServiceManifestContractTest {
     private static final Pattern KEEPADB_SERVICE = Pattern.compile(
@@ -54,13 +53,27 @@ public class KeepADBServiceManifestContractTest {
                         "<uses-permission android:name=\"android.permission.FOREGROUND_SERVICE_LOCATION\""));
     }
 
+    /**
+     * #616 reverses the former "never declared" contract: the user opted into an optional
+     * background grant for the background-start path C2 cannot cover (#626/#630). It must be
+     * declared (otherwise Android never offers "Allow all the time"), but it is never requested
+     * through a runtime dialog -- the user sets it on the app's permission page.
+     */
     @Test
-    public void backgroundLocationPermissionIsNeverDeclared() throws IOException {
+    public void backgroundLocationPermissionIsDeclaredButNeverRequestedAtRuntime() throws IOException {
         String manifest = readManifest();
-        assertFalse(
-                "android.permission.ACCESS_BACKGROUND_LOCATION must never be declared -- C2 (#606) "
-                        + "was chosen specifically to avoid it; see docs/trusted-networks-measurement.md",
-                manifest.contains("android.permission.ACCESS_BACKGROUND_LOCATION"));
+        assertTrue(
+                "android.permission.ACCESS_BACKGROUND_LOCATION must be declared (#616)",
+                manifest.contains(
+                        "<uses-permission android:name=\"android.permission.ACCESS_BACKGROUND_LOCATION\""));
+        for (String source : new String[]{"MainActivity.java", "SettingsActivity.java",
+                "KeepADBBackgroundLocation.java", "KeepADBNetworkTrustPrompt.java"}) {
+            String code = read("app/src/main/java/de/hohnepeople/keepadb/" + source);
+            Matcher request = Pattern.compile("requestPermissions\\([^;]*ACCESS_BACKGROUND_LOCATION",
+                    Pattern.DOTALL).matcher(code);
+            assertFalse(source + " must never request ACCESS_BACKGROUND_LOCATION at runtime (#616)",
+                    request.find());
+        }
     }
 
     private static String extractKeepADBServiceElement(String manifest) {

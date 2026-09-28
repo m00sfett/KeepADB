@@ -1,0 +1,3 @@
+• Wi-Fi Protection: Optional "Allow all the time" location setup card keeps trusted networks recognized when Keep-Alive starts in the background; status in Settings. No location is read or stored.
+• Privacy & Security: Connection details hidden on the lock screen by default; unlock needed to turn Wifi-ADB on. Hidden network identities are never trusted.
+• Reliability: Webhook pacing, unified "Wifi-ADB" naming, fixes on restricted devices.

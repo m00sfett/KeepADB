@@ -214,6 +214,13 @@
     <string name="network_onboarding_panel_title">將 Keep-Alive 限制為受信任的網路</string>
     <string name="network_onboarding_panel_body">可將 Keep-Alive 限制為已知的家庭或辦公室 Wi-Fi 網路，以封鎖在外部網路上的未授權偵錯連線。</string>
     <string name="network_onboarding_setup_button">設定</string>
+    <string name="background_location_panel_title">可信任網路的背景存取</string>
+    <string name="background_location_panel_body">為了在 Keep-Alive 於背景啟動時也能辨識你的可信任 Wi-Fi（SSID/BSSID），KeepADB 需要將位置存取權設為「一律允許」。KeepADB 絕不會判定或儲存你裝置的位置。請在下一個畫面開啟「權限 › 位置資訊」，並自行選擇「一律允許」；KeepADB 無法代你授予此權限。未授予時，無法讀取身分的網路永遠不會被視為可信任。</string>
+    <string name="background_location_setup_button">立即設定</string>
+    <string name="background_location_settings_button">檢查背景存取</string>
+    <string name="background_location_status_granted">背景存取：已允許。即使 Keep-Alive 在背景啟動，也能辨識可信任網路。KeepADB 絕不會讀取或儲存你裝置的位置。</string>
+    <string name="background_location_status_missing">背景存取：未允許。Keep-Alive 在背景啟動時可能無法讀取 Wi-Fi 身分；此時 KeepADB 會將該網路視為不可信任，在你開啟應用程式前不會自動開啟無線偵錯。</string>
+    <string name="background_location_status_missing_inactive">背景存取：未允許。僅在可信任網路模式開啟時需要。</string>
     <string name="location_permission_panel_title">受信任網路需要位置權限</string>
     <string name="location_permission_panel_body">受信任網路模式需要位置權限來識別您的 Wi-Fi 網路。沒有此權限，Keep-Alive 無法確認受信任網路，也不會自動重新啟用。</string>
     <string name="location_permission_panel_grant_button">授予位置權限</string>

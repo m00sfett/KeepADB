@@ -189,8 +189,8 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
    connected Wi-Fi network by default. You can opt into the trusted-network restriction in
    Settings → Network. Android requires location access to provide Wi-Fi network
    identifiers; KeepADB uses it only to identify the network and does not read or store location.
-   To preserve network identity (SSID/BSSID) during background keep-alive without requiring invasive
-   background location grants (`ACCESS_BACKGROUND_LOCATION`), KeepADB declares
+   To preserve network identity (SSID/BSSID) during background keep-alive without requiring
+   background location grants (`ACCESS_BACKGROUND_LOCATION`) by default, KeepADB declares
    `FOREGROUND_SERVICE_LOCATION` and runs `KeepADBService` with foreground service type
    `connectedDevice|location` (#606, C2). While-in-use `ACCESS_FINE_LOCATION` is sufficient for
    this service type, and the `location` service type is bound dynamically only when the permission
@@ -199,7 +199,11 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
    foreground; a service instance that has only ever been started from the background (boot, a
    process restart, or an app update, until the app is opened again) can still
    run with the identity masked, and on Android 14+ that combination can end the service outright
-   (see [SECURITY.md](SECURITY.md)). Existing mode choices and trusted entries are preserved when upgrading. The main switch, tile,
+   (see [SECURITY.md](SECURITY.md)). To cover that background-start path, you can optionally set
+   Location to "Allow all the time" on KeepADB's Android permission page (#616); the main screen
+   offers this as a dismissible setup card while trusted-network mode is on, and Settings → Network
+   always shows its status. KeepADB cannot grant it for you and never reads or stores location;
+   without it an unreadable network identity is never trusted. Existing mode choices and trusted entries are preserved when upgrading. The main switch, tile,
    and widget remain manual overrides not gated by this setting. Turning the Keep-Alive toggle on
    does respect it: on an untrusted network it falls through to the trust prompt instead of enabling
    immediately (#577). Trusting a network from that prompt notification requires an unlocked device

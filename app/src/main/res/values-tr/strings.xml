@@ -214,6 +214,13 @@
     <string name="network_onboarding_panel_title">Keep-Alive\'ı güvenilir ağlarla sınırla</string>
     <string name="network_onboarding_panel_body">Yabancı ağlarda yetkisiz hata ayıklama bağlantılarını engellemek için Keep-Alive bilinen ev veya iş yeri Wi-Fi ağlarıyla sınırlandırılabilir.</string>
     <string name="network_onboarding_setup_button">Ayarla</string>
+    <string name="background_location_panel_title">Güvenilir ağlar için arka plan erişimi</string>
+    <string name="background_location_panel_body">Keep-Alive arka planda başladığında güvenilir Wi-Fi ağınızı (SSID/BSSID) tanımak için KeepADB’nin konum erişiminin “Her zaman izin ver” olarak ayarlanması gerekir. KeepADB cihazınızın konumunu asla belirlemez veya kaydetmez. Sonraki ekranda İzinler › Konum’u açın ve “Her zaman izin ver” seçeneğini kendiniz seçin; KeepADB bu izni sizin yerinize veremez. Bu izin olmadan kimliği okunamayan bir ağ asla güvenilir sayılmaz.</string>
+    <string name="background_location_setup_button">Şimdi ayarla</string>
+    <string name="background_location_settings_button">Arka plan erişimini kontrol et</string>
+    <string name="background_location_status_granted">Arka plan erişimi: izin verildi. Keep-Alive arka planda başlasa bile güvenilir ağlar tanınır. KeepADB cihazınızın konumunu asla okumaz veya kaydetmez.</string>
+    <string name="background_location_status_missing">Arka plan erişimi: izin verilmedi. Keep-Alive arka planda başladığında Wi-Fi kimliği okunamayabilir; KeepADB bu durumda ağı güvenilmez sayar ve siz uygulamayı açana kadar kablosuz hata ayıklamayı otomatik olarak açmaz.</string>
+    <string name="background_location_status_missing_inactive">Arka plan erişimi: izin verilmedi. Yalnızca güvenilir ağ modu açıkken gereklidir.</string>
     <string name="location_permission_panel_title">Güvenilir ağlar için konum izni gerekli</string>
     <string name="location_permission_panel_body">Güvenilir ağ modu, Wi-Fi ağınızı tanımak için konum erişimine ihtiyaç duyar. Bu olmadan Keep-Alive güvenilir bir ağı doğrulayamaz ve otomatik olarak yeniden etkinleşmez.</string>
     <string name="location_permission_panel_grant_button">Konum iznini ver</string>

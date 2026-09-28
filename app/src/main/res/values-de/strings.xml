@@ -70,6 +70,13 @@
     <string name="network_onboarding_panel_title">Keep-Alive auf vertrauenswürdige Netzwerke beschränken</string>
     <string name="network_onboarding_panel_body">Keep-Alive kann auf bekannte Heim- oder Büronetzwerke beschränkt werden, um unbefugtes Debugging in fremden WLANs zu blockieren.</string>
     <string name="network_onboarding_setup_button">Einrichten</string>
+    <string name="background_location_panel_title">Hintergrundzugriff für vertrauenswürdige Netzwerke</string>
+    <string name="background_location_panel_body">Damit KeepADB dein vertrauenswürdiges WLAN (SSID/BSSID) auch erkennt, wenn Keep-Alive im Hintergrund startet, muss der Standortzugriff auf „Immer zulassen“ stehen. KeepADB ermittelt oder speichert niemals die Position deines Geräts. Öffne auf der nächsten Seite Berechtigungen › Standort und wähle selbst „Immer zulassen“; KeepADB kann das nicht für dich erteilen. Ohne diese Freigabe wird ein Netzwerk mit nicht lesbarer Identität nie als vertrauenswürdig behandelt.</string>
+    <string name="background_location_setup_button">Jetzt einrichten</string>
+    <string name="background_location_settings_button">Hintergrundzugriff prüfen</string>
+    <string name="background_location_status_granted">Hintergrundzugriff: erlaubt. Vertrauenswürdige Netzwerke werden auch erkannt, wenn Keep-Alive im Hintergrund startet. KeepADB liest oder speichert niemals die Position deines Geräts.</string>
+    <string name="background_location_status_missing">Hintergrundzugriff: nicht erlaubt. Startet Keep-Alive im Hintergrund, ist die WLAN-Identität eventuell nicht lesbar; KeepADB behandelt das Netzwerk dann als nicht vertrauenswürdig und schaltet Drahtloses Debugging erst automatisch ein, wenn du die App öffnest.</string>
+    <string name="background_location_status_missing_inactive">Hintergrundzugriff: nicht erlaubt. Nur nötig, solange der Modus für vertrauenswürdige Netzwerke aktiv ist.</string>
     <string name="location_permission_panel_title">Standortberechtigung für vertrauenswürdige Netzwerke nötig</string>
     <string name="location_permission_panel_body">Der Modus „Vertrauenswürdige Netzwerke“ benötigt Standortzugriff, um dein WLAN zu erkennen. Ohne diesen kann Keep-Alive kein vertrauenswürdiges WLAN bestätigen und schaltet nicht automatisch wieder ein.</string>
     <string name="location_permission_panel_grant_button">Standortberechtigung erteilen</string>
