@@ -55,10 +55,8 @@ public class KeepADBToggleSchedulingTest {
         KeepADB.setSchedulerForTesting(scheduler);
         KeepADB.setGatewayForTesting(gateway);
         KeepADB.setSurfaceRefresherForTesting(surfaces);
-        // The verified-trust memory is intentionally process-wide in production, so it has to be
-        // cleared here or a neighbouring test could leave this one's trust checks fail-open.
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
-        // #348: same reasoning for the Wi-Fi-transport override -- it's a static seam too.
+        // #348: the Wi-Fi-transport override is a process-wide static seam, so it has to be
+        // cleared here or a neighbouring test could leak its connectivity state into this one.
         KeepADBNetwork.resetForTesting();
         ctx = new FakeContext();
     }
@@ -66,7 +64,6 @@ public class KeepADBToggleSchedulingTest {
     @After
     public void tearDown() {
         KeepADB.resetForTesting();
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
         KeepADBNetwork.resetForTesting();
     }
 

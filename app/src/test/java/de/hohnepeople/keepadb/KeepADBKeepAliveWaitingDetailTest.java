@@ -39,7 +39,6 @@ public class KeepADBKeepAliveWaitingDetailTest {
         context = RuntimeEnvironment.getApplication();
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
         KeepADB.resetForTesting();
     }
 
@@ -47,7 +46,6 @@ public class KeepADBKeepAliveWaitingDetailTest {
     public void tearDown() {
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit().clear().commit();
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
         KeepADB.resetForTesting();
     }
 

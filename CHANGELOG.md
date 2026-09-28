@@ -17,11 +17,34 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.61` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.62` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.62] - Unreleased
+
+### Removed
+- #625: Removed the in-process SSID trust continuity cache from `KeepADBTrustedNetwork`
+  (`lastVerifiedTrustedSsid`, `verifiedTrustObserverActive`, `rememberVerifiedTrust()`,
+  `forgetVerifiedTrust()`, `setVerifiedTrustObserverActive()`, `resetVerifiedTrustForTesting()`)
+  and its invalidation/observer calls in `KeepADBService`'s Wi-Fi `NetworkCallback`. The cache
+  (#270/#313/#353/#354/#355/#620) assumed Android masks only the BSSID in the background; AOSP
+  masks SSID and BSSID together (audit #624), so it could only ever widen trust and carried a
+  theoretical stale-read TOCTOU. Network generation (#310) and `availableWifiNetworks` are unchanged.
+
+### Security
+- #625: `KeepADBTrustedNetwork.isTrusted()` is now a pure, stateless decision: a network is trusted
+  only if its identity is known and its BSSID is listed or, with the SSID opt-in (#492), its SSID is
+  listed exactly. A masked or unknown identity is always rejected, also directly after the same SSID
+  was verified. The only behavior change is in the split-masking case that AOSP and the S20 FE never
+  produce, and only toward stricter.
+
+### Testing
+- #625: Replaced the cache/observer tests with fail-closed and statelessness tests, a reflection
+  guard against mutable static state in `KeepADBTrustedNetwork`, and a Robolectric test that drives
+  the running service's callbacks; sensitivity shown by re-inserting an SSID cache (tests turn red).
 
 ## [1.8.61] - Unreleased
 

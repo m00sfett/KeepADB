@@ -77,7 +77,6 @@ public class KeepADBServiceLifecycleRobolectricTest {
                 .edit()
                 .clear()
                 .commit();
-        KeepADBTrustedNetwork.resetVerifiedTrustForTesting();
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADBNetwork.resetForTesting();
         KeepADB.resetForTesting();
