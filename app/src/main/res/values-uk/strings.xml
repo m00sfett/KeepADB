@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">Назву мережі «%1$s» дозволено</string>
     <string name="wifi_ssids_removed_toast">Назву мережі «%1$s» видалено</string>
     <string name="settings_trusted_network_status_untrusted">Автоматичне повторне ввімкнення призупинено: цієї мережі Wi-Fi немає у вашому списку довірених.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">Автоматичне повторне ввімкнення призупинено: не вдається визначити ідентифікатор поточної мережі.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">Автоматичне повторне ввімкнення призупинено: не вдається визначити ідентифікатор поточної мережі. Перевірте дозвіл/службу геолокації або відкрийте застосунок знову, якщо Keep-Alive запустився у фоновому режимі.</string>
     <string name="settings_trusted_network_permission_title">Потрібен дозвіл на геолокацію</string>
     <string name="settings_trusted_network_permission_message">Android вимагає доступу до геолокації, перш ніж додаток зможе прочитати назву та ідентифікатор поточної мережі Wi-Fi. KeepADB використовує це лише для розпізнавання довірених мереж і ніколи не зчитує й не зберігає ваше місцезнаходження.</string>
     <string name="settings_trusted_network_permission_grant">Дозволити</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">Мережа хоче стати довіреною для Keep-Alive — відкрийте KeepADB, щоб вирішити.</string>
     <string name="network_prompt_confirm_in_app_text">Виявлено нову мережу Wi-Fi — торкніться, щоб підтвердити її в застосунку.</string>
     <string name="network_prompt_identity_unavailable_title">Не вдається визначити поточну мережу Wi-Fi</string>
-    <string name="network_prompt_identity_unavailable_text">Автоматичне повторне ввімкнення Keep-Alive призупинено, оскільки не вдається прочитати ідентифікатор мережі. Торкніться, щоб виправити дозвіл геолокації або службу геолокації.</string>
+    <string name="network_prompt_identity_unavailable_text">Автоматичне повторне ввімкнення Keep-Alive призупинено, оскільки не вдається прочитати ідентифікатор мережі. Зазвичай бракує дозволу на геолокацію або вимкнено службу геолокації, але це може статися й тоді, коли Keep-Alive запустився у фоновому режимі. Торкніться, щоб виправити.</string>
     <string name="settings_trusted_network_blocked_button">Нещодавно заблоковано (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Нещодавно заблоковані мережі</string>
     <string name="settings_trusted_network_blocked_empty_message">Останнім часом жодну мережу не було заблоковано.</string>
@@ -322,7 +322,7 @@
     <string name="settings_website_link_accessibility">Відкрити HohnePeople.de у браузері</string>
     <string name="status_off_keep_alive_waiting">Бездротове налагодження ВИМКНЕНО — Keep-Alive чекає на мережу</string>
     <string name="status_off_keep_alive_blocked_untrusted">Бездротове налагодження ВИМКНЕНО — Keep-Alive призупинено: ця мережа Wi-Fi не є довіреною</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Бездротове налагодження ВИМКНЕНО — Keep-Alive призупинено: не вдається визначити мережу, перевірте дозвіл на геолокацію</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Бездротове налагодження ВИМКНЕНО — Keep-Alive призупинено: не вдається визначити мережу, перевірте дозвіл на геолокацію або відкрийте застосунок знову</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Бездротове налагодження ВИМКНЕНО — Keep-Alive призупинено: підтвердьте системний діалог Android про мережу бездротового налагодження, потім торкніться перемикача, щоб повторити спробу</string>
     <string name="status_pending">Перемикання…</string>
     <string name="state_pending">Перемикання…</string>

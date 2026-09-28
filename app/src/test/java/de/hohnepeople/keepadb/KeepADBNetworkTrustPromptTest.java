@@ -361,6 +361,37 @@ public class KeepADBNetworkTrustPromptTest {
         assertEquals(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS, target.getAction());
     }
 
+    /**
+     * #628: measured for #626 (see {@code docs/trusted-networks-measurement.md}, "Nachtrag 3") --
+     * on API 33, when both permission and location service are fine and the identity is still
+     * unavailable, the actual cause is a Keep-Alive service that was started from the background
+     * (boot, a sticky restart, or a background {@code sync()}) and never received a While-in-Use
+     * location grant for its foreground-service record. Neither the app-permission page nor the
+     * location toggle fixes that -- only promoting the service through a foreground start does,
+     * and only {@link MainActivity#onResume()} does that (it unconditionally calls {@link
+     * KeepADBService#sync}). {@link SettingsActivity} does not call {@code sync()} on resume and
+     * was measured to have no effect. So the click path must open {@link MainActivity}, not fall
+     * back to {@link SettingsActivity} as it used to.
+     */
+    @Test
+    public void theIdentityUnavailableNotificationOpensMainActivityWhenPermissionAndLocationAreBothFine() {
+        connectTo("Cafe-WLAN", KeepADBNetworkIdentity.REDACTED_BSSID);
+        shadowOf((Application) context).grantPermissions(
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
+        android.location.LocationManager locationManager =
+                (android.location.LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        shadowOf(locationManager).setLocationEnabled(true);
+
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        Notification notification = postedPrompt();
+        Intent target = shadowOf(notification.contentIntent).getSavedIntent();
+        assertEquals("The fix path must open MainActivity, whose onResume() promotes the "
+                        + "service back to foreground via sync() -- SettingsActivity does not "
+                        + "call sync() and was measured to have no effect here",
+                MainActivity.class.getName(), target.getComponent().getClassName());
+    }
+
     @Test
     public void raisingAndThrottlingThePromptNeverTrustsAnything() {
         // #492: allowlist mode is now an opt-in, so the "is this network trusted" assertion below

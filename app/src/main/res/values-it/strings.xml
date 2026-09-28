@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">Nome di rete «%1$s» consentito</string>
     <string name="wifi_ssids_removed_toast">Nome di rete «%1$s» rimosso</string>
     <string name="settings_trusted_network_status_untrusted">Riattivazione automatica in pausa: questa rete Wi-Fi non è nella tua lista attendibile.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">Riattivazione automatica in pausa: impossibile determinare l\'identità della rete attuale.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">Riattivazione automatica in pausa: impossibile determinare l\'identità della rete attuale. Controlla il permesso/servizio di localizzazione, oppure riapri l\'app se Keep-Alive è stato avviato in background.</string>
     <string name="settings_trusted_network_permission_title">Autorizzazione posizione necessaria</string>
     <string name="settings_trusted_network_permission_message">Android richiede l\'accesso alla posizione prima che un\'app possa leggere il nome e l\'ID della rete Wi-Fi attuale. KeepADB lo usa solo per riconoscere le reti attendibili e non legge né memorizza mai la tua posizione.</string>
     <string name="settings_trusted_network_permission_grant">Consenti</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">Una rete vuole diventare affidabile per Keep-Alive — apri KeepADB per decidere.</string>
     <string name="network_prompt_confirm_in_app_text">Nuova rete Wi-Fi rilevata — tocca per confermarla nell\'app.</string>
     <string name="network_prompt_identity_unavailable_title">Impossibile identificare la rete Wi-Fi attuale</string>
-    <string name="network_prompt_identity_unavailable_text">La riattivazione automatica di Keep-Alive è in pausa perché l\'identità della rete non può essere letta. Tocca per correggere il permesso di localizzazione o il servizio di localizzazione.</string>
+    <string name="network_prompt_identity_unavailable_text">La riattivazione automatica di Keep-Alive è in pausa perché l\'identità della rete non può essere letta. Di solito manca il permesso di localizzazione o il servizio di localizzazione è disattivato, ma può capitare anche se Keep-Alive è stato avviato in background. Tocca per risolvere.</string>
     <string name="settings_trusted_network_blocked_button">Bloccate di recente (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Reti bloccate di recente</string>
     <string name="settings_trusted_network_blocked_empty_message">Di recente non è stata bloccata nessuna rete.</string>
@@ -322,7 +322,7 @@
     <string name="settings_website_link_accessibility">Apri HohnePeople.de nel browser</string>
     <string name="status_off_keep_alive_waiting">Debug wireless DISATTIVO – Keep-Alive attende la rete</string>
     <string name="status_off_keep_alive_blocked_untrusted">Debug wireless DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi non è attendibile</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Debug wireless DISATTIVO – Keep-Alive in pausa: identità di rete non determinabile, controlla il permesso Posizione</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Debug wireless DISATTIVO – Keep-Alive in pausa: identità di rete non determinabile, controlla il permesso Posizione o riapri l\'app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Debug wireless DISATTIVO – Keep-Alive in pausa: conferma la finestra di dialogo di rete del debug wireless di Android, poi tocca l\'interruttore per riprovare</string>
     <string name="status_pending">Cambio in corso…</string>
     <string name="state_pending">Cambio in corso…</string>

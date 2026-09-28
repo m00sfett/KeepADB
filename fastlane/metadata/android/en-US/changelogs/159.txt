@@ -3,3 +3,4 @@
 • Reliability: Improved register webhook pacing, unified "Wifi-ADB" naming, and stability fixes on restricted devices.
 • Docs: Corrected outdated background-masking claims in the app description and security policy to match the current reliable background network detection (#627).
 • Internal: Corrected measurement documentation and code comments, and added a manifest contract test guarding the background location setup (#627).
+• Fixed: the "network identity unavailable" notice now also explains and fixes the case where Keep-Alive started in the background and never got a location permission for its own foreground service — tapping it opens the app, which resolves this case directly.

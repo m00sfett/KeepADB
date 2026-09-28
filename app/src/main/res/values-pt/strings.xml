@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">Nome de rede «%1$s» permitido</string>
     <string name="wifi_ssids_removed_toast">Nome de rede «%1$s» removido</string>
     <string name="settings_trusted_network_status_untrusted">Reativação automática pausada: esta rede Wi-Fi não está na sua lista de confiáveis.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">Reativação automática pausada: não é possível determinar a identidade da rede atual.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">Reativação automática pausada: não é possível determinar a identidade da rede atual. Verifique a permissão/serviço de localização, ou reabra o aplicativo se o Keep-Alive tiver iniciado em segundo plano.</string>
     <string name="settings_trusted_network_permission_title">Permissão de localização necessária</string>
     <string name="settings_trusted_network_permission_message">O Android exige acesso à localização antes que um app possa ler o nome e o ID da rede Wi-Fi atual. O KeepADB usa isso apenas para reconhecer redes confiáveis e nunca lê ou armazena sua localização.</string>
     <string name="settings_trusted_network_permission_grant">Conceder</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">Uma rede quer tornar-se fiável para o Keep-Alive — abra o KeepADB para decidir.</string>
     <string name="network_prompt_confirm_in_app_text">Nova rede Wi-Fi detetada — toque para a confirmar na app.</string>
     <string name="network_prompt_identity_unavailable_title">Não é possível identificar a rede Wi-Fi atual</string>
-    <string name="network_prompt_identity_unavailable_text">A reativação automática do Keep-Alive está pausada porque a identidade da rede não pode ser lida. Toque para corrigir a permissão de localização ou o serviço de localização.</string>
+    <string name="network_prompt_identity_unavailable_text">A reativação automática do Keep-Alive está pausada porque a identidade da rede não pode ser lida. Normalmente falta a permissão de localização ou o serviço de localização está desativado, mas isso também pode acontecer se o Keep-Alive tiver iniciado em segundo plano. Toque para corrigir.</string>
     <string name="settings_trusted_network_blocked_button">Bloqueadas há pouco (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Redes bloqueadas recentemente</string>
     <string name="settings_trusted_network_blocked_empty_message">Não foi bloqueada nenhuma rede recentemente.</string>
@@ -322,7 +322,7 @@
     <string name="settings_website_link_accessibility">Abrir HohnePeople.de no navegador</string>
     <string name="status_off_keep_alive_waiting">Depuração sem fio DESATIVADA – Keep-Alive aguarda a rede</string>
     <string name="status_off_keep_alive_blocked_untrusted">Depuração sem fio DESATIVADA – Keep-Alive em pausa: esta rede Wi-Fi não é confiável</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Depuração sem fio DESATIVADA – Keep-Alive em pausa: identidade da rede indisponível, verifique a permissão de localização</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Depuração sem fio DESATIVADA – Keep-Alive em pausa: identidade da rede indisponível, verifique a permissão de localização ou reabra o aplicativo</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Depuração sem fio DESATIVADA – Keep-Alive em pausa: confirme a caixa de diálogo de rede da depuração sem fio do Android e depois toque no interruptor para tentar novamente</string>
     <string name="status_pending">Alternando…</string>
     <string name="state_pending">Alternando…</string>

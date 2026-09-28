@@ -34,6 +34,23 @@ are retrospective issue-version records and were never published as separate rel
   masks SSID and BSSID together (audit #624), so it could only ever widen trust and carried a
   theoretical stale-read TOCTOU. Network generation (#310) and `availableWifiNetworks` are unchanged.
 
+### Fixed
+- #628: `KeepADBNetworkTrustPrompt#identityUnavailableFixIntent` now opens `MainActivity` instead
+  of falling back to `SettingsActivity` when location permission is granted, location services
+  are on, and the network identity is still unavailable. Measured for #626 (see
+  `docs/trusted-networks-measurement.md`, "Nachtrag 3"): on API 33 that combination means the
+  Keep-Alive service was started from the background (boot, a sticky restart, or a background
+  `sync()`) and never received a While-in-Use location grant for its foreground-service record.
+  `SettingsActivity` does not call `KeepADBService#sync` on resume and was measured to have no
+  effect; `MainActivity#onResume()` does call it, promoting the service back to a foreground
+  record and unmasking the identity. Updated `network_prompt_identity_unavailable_text`,
+  `status_off_keep_alive_blocked_identity_unavailable`, and
+  `settings_trusted_network_status_identity_unavailable` in all 19 languages to name this
+  additional cause. No change to `isTrusted`/allowlist behavior; an unknown identity still fails
+  closed. Out of scope: API 34+, where the same background-start combination throws
+  `SecurityException` and stops the service outright instead of running masked -- tracked
+  separately as #629.
+
 ### Security
 - #625: `KeepADBTrustedNetwork.isTrusted()` is now a pure, stateless decision: a network is trusted
   only if its identity is known and its BSSID is listed or, with the SSID opt-in (#492), its SSID is
