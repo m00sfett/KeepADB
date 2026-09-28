@@ -67,6 +67,7 @@ public class SettingsActivity extends Activity {
     private Switch trustedNetworkToggle;
     private Switch trustedSsidToggle;
     private TextView trustedNetworkStatus;
+    private TextView backgroundLocationStatus;
 
     private KeepADBWebhookForm webhookForm;
     private TextView versionNameText;
@@ -281,6 +282,10 @@ public class SettingsActivity extends Activity {
 
         trustedNetworkToggle = findViewById(R.id.settings_trusted_network_toggle);
         trustedNetworkStatus = findViewById(R.id.settings_trusted_network_status);
+        backgroundLocationStatus = findViewById(R.id.settings_background_location_status);
+        // #616: only opens the system page; the grant itself is the user's choice there.
+        findViewById(R.id.settings_background_location_button).setOnClickListener(v ->
+                KeepADBBackgroundLocation.openSettings(this));
         trustedSsidToggle = findViewById(R.id.settings_trusted_ssid_toggle);
         // OnClick, not OnCheckedChange: refresh() re-renders both switches from the persisted
         // state, and a checked-change listener would fire on that programmatic write too.
@@ -809,6 +814,13 @@ public class SettingsActivity extends Activity {
         } else {
             trustedNetworkStatus.setVisibility(View.GONE);
         }
+        // #616: always visible here, so the background grant can be checked or set up later,
+        // independent of the main-screen card and its dismiss state.
+        backgroundLocationStatus.setText(KeepADBBackgroundLocation.isGranted(this)
+                ? R.string.background_location_status_granted
+                : KeepADBTrustedNetwork.isAllowlistMode(this)
+                        ? R.string.background_location_status_missing
+                        : R.string.background_location_status_missing_inactive);
 
         // #507: Wi-Fi & Access Points opt-in rendering
         boolean wifiApsEnabled = KeepADBPreferences.isWifiApsFeatureEnabled(this);

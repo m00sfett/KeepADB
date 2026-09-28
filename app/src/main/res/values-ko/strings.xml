@@ -214,6 +214,13 @@
     <string name="network_onboarding_panel_title">Keep-Alive를 신뢰할 수 있는 네트워크로 제한</string>
     <string name="network_onboarding_panel_body">알 수 없는 네트워크에서 무단 디버깅 연결을 차단하도록 Keep-Alive를 알려진 가정 또는 사무실 Wi-Fi 네트워크로 제한할 수 있습니다.</string>
     <string name="network_onboarding_setup_button">설정</string>
+    <string name="background_location_panel_title">신뢰할 수 있는 네트워크를 위한 백그라운드 액세스</string>
+    <string name="background_location_panel_body">Keep-Alive가 백그라운드에서 시작될 때도 신뢰하는 Wi-Fi(SSID/BSSID)를 인식하려면 위치 액세스를 ‘항상 허용’으로 설정해야 합니다. KeepADB는 기기 위치를 확인하거나 저장하지 않습니다. 다음 화면에서 권한 › 위치를 열고 직접 ‘항상 허용’을 선택하세요. KeepADB가 대신 권한을 부여할 수는 없습니다. 허용하지 않으면 식별 정보를 읽을 수 없는 네트워크는 절대 신뢰하지 않습니다.</string>
+    <string name="background_location_setup_button">지금 설정</string>
+    <string name="background_location_settings_button">백그라운드 액세스 확인</string>
+    <string name="background_location_status_granted">백그라운드 액세스: 허용됨. Keep-Alive가 백그라운드에서 시작되어도 신뢰하는 네트워크를 인식합니다. KeepADB는 기기 위치를 읽거나 저장하지 않습니다.</string>
+    <string name="background_location_status_missing">백그라운드 액세스: 허용되지 않음. Keep-Alive가 백그라운드에서 시작되면 Wi-Fi 식별 정보를 읽지 못할 수 있습니다. 이 경우 KeepADB는 네트워크를 신뢰하지 않는 것으로 처리하며, 앱을 열 때까지 무선 디버깅을 자동으로 켜지 않습니다.</string>
+    <string name="background_location_status_missing_inactive">백그라운드 액세스: 허용되지 않음. 신뢰할 수 있는 네트워크 모드가 켜져 있을 때만 필요합니다.</string>
     <string name="location_permission_panel_title">신뢰할 수 있는 네트워크에는 위치 권한이 필요합니다</string>
     <string name="location_permission_panel_body">신뢰할 수 있는 네트워크 모드는 Wi-Fi 네트워크를 식별하려면 위치 액세스가 필요합니다. 이 권한이 없으면 Keep-Alive는 신뢰할 수 있는 네트워크를 확인할 수 없어 자동으로 다시 켜지지 않습니다.</string>
     <string name="location_permission_panel_grant_button">위치 권한 허용</string>

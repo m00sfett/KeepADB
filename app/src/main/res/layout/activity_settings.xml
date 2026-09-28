@@ -604,6 +604,33 @@
                     android:textSize="13sp"
                     android:visibility="gone" />
 
+                <!-- #616: background-location status and setup, reachable independent of onboarding. -->
+                <TextView
+                    android:id="@+id/settings_background_location_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/night_text"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/settings_background_location_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_btn_secondary"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/background_location_settings_button"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="15sp" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"

@@ -18,6 +18,11 @@
          acts on a FINE grant; a COARSE-only grant is treated the same as denied. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- #616: optional "Allow all the time" grant so a Keep-Alive service started from the
+         background can still read the Wi-Fi identity (#626/#630). Never requested at runtime and
+         never used for location: the user sets it on the app's permission page. Without it an
+         unreadable identity stays untrusted (fail-closed). -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />

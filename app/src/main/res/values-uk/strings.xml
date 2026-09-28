@@ -214,6 +214,13 @@
     <string name="network_onboarding_panel_title">Обмежити Keep-Alive довіреними мережами</string>
     <string name="network_onboarding_panel_body">Keep-Alive можна обмежити відомими домашніми або офісними мережами Wi-Fi, щоб блокувати несанкціоновані з\'єднання налагодження в чужих мережах.</string>
     <string name="network_onboarding_setup_button">Налаштувати</string>
+    <string name="background_location_panel_title">Фоновий доступ для довірених мереж</string>
+    <string name="background_location_panel_body">Щоб розпізнавати довірену мережу Wi-Fi (SSID/BSSID), коли Keep-Alive запускається у фоні, KeepADB потрібен доступ до геоданих із варіантом «Дозволити завжди». KeepADB ніколи не визначає і не зберігає розташування пристрою. На наступному екрані відкрийте Дозволи › Геодані та самостійно виберіть «Дозволити завжди»; KeepADB не може надати цей дозвіл замість вас. Без нього мережа з нечитабельним ідентифікатором ніколи не вважається довіреною.</string>
+    <string name="background_location_setup_button">Налаштувати зараз</string>
+    <string name="background_location_settings_button">Перевірити фоновий доступ</string>
+    <string name="background_location_status_granted">Фоновий доступ: дозволено. Довірені мережі розпізнаються, навіть коли Keep-Alive запускається у фоні. KeepADB ніколи не зчитує і не зберігає розташування пристрою.</string>
+    <string name="background_location_status_missing">Фоновий доступ: не дозволено. Коли Keep-Alive запускається у фоні, ідентифікатор Wi-Fi може бути нечитабельним; тоді KeepADB вважає мережу недовіреною і не вмикає бездротове налагодження автоматично, доки ви не відкриєте застосунок.</string>
+    <string name="background_location_status_missing_inactive">Фоновий доступ: не дозволено. Потрібен лише тоді, коли ввімкнено режим довірених мереж.</string>
     <string name="location_permission_panel_title">Для довірених мереж потрібен дозвіл на геолокацію</string>
     <string name="location_permission_panel_body">Режиму довірених мереж потрібен доступ до геолокації, щоб розпізнати вашу мережу Wi-Fi. Без нього Keep-Alive не може підтвердити довірену мережу і не увімкнеться автоматично.</string>
     <string name="location_permission_panel_grant_button">Надати дозвіл на геолокацію</string>

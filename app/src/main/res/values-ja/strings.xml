@@ -214,6 +214,13 @@
     <string name="network_onboarding_panel_title">Keep-Alive を信頼できるネットワークに制限</string>
     <string name="network_onboarding_panel_body">Keep-Alive を自宅や職場の既知の Wi-Fi ネットワークに制限して、見知らぬネットワークでの不正なデバッグ接続をブロックできます。</string>
     <string name="network_onboarding_setup_button">設定</string>
+    <string name="background_location_panel_title">信頼済みネットワーク用のバックグラウンドアクセス</string>
+    <string name="background_location_panel_body">Keep-Alive がバックグラウンドで起動したときにも信頼済み Wi-Fi（SSID/BSSID）を認識するには、位置情報へのアクセスを「常に許可」に設定する必要があります。KeepADB が端末の位置を特定・保存することはありません。次の画面で［権限］›［位置情報］を開き、ご自身で「常に許可」を選んでください。KeepADB がこの権限を代わりに付与することはできません。許可がない場合、識別情報を読み取れないネットワークは信頼済みとして扱われません。</string>
+    <string name="background_location_setup_button">今すぐ設定</string>
+    <string name="background_location_settings_button">バックグラウンドアクセスを確認</string>
+    <string name="background_location_status_granted">バックグラウンドアクセス：許可済み。Keep-Alive がバックグラウンドで起動しても信頼済みネットワークを認識します。KeepADB が端末の位置を読み取ったり保存したりすることはありません。</string>
+    <string name="background_location_status_missing">バックグラウンドアクセス：未許可。Keep-Alive がバックグラウンドで起動すると Wi-Fi の識別情報を読み取れないことがあります。その場合 KeepADB はネットワークを信頼されていないものとして扱い、アプリを開くまでワイヤレスデバッグを自動で有効にしません。</string>
+    <string name="background_location_status_missing_inactive">バックグラウンドアクセス：未許可。信頼済みネットワークモードがオンのときだけ必要です。</string>
     <string name="location_permission_panel_title">信頼できるネットワークには位置情報の権限が必要です</string>
     <string name="location_permission_panel_body">信頼できるネットワークモードはWi-Fiネットワークを識別するために位置情報アクセスが必要です。これがないと、Keep-Aliveは信頼できるネットワークを確認できず、自動的に再有効化されません。</string>
     <string name="location_permission_panel_grant_button">位置情報の権限を許可</string>

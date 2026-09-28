@@ -214,6 +214,13 @@
     <string name="network_onboarding_panel_title">Restringir Keep-Alive a redes de confianza</string>
     <string name="network_onboarding_panel_body">Keep-Alive se puede restringir a redes Wi-Fi conocidas del hogar o la oficina para bloquear conexiones de depuración no autorizadas en redes externas.</string>
     <string name="network_onboarding_setup_button">Configurar</string>
+    <string name="background_location_panel_title">Acceso en segundo plano para redes de confianza</string>
+    <string name="background_location_panel_body">Para reconocer tu Wi-Fi de confianza (SSID/BSSID) cuando Keep-Alive se inicia en segundo plano, KeepADB necesita el acceso a la ubicación en «Permitir todo el tiempo». KeepADB nunca determina ni guarda la posición de tu dispositivo. En la siguiente pantalla, abre Permisos › Ubicación y elige tú mismo «Permitir todo el tiempo»; KeepADB no puede concederlo por ti. Sin él, una red cuya identidad no se puede leer nunca se considera de confianza.</string>
+    <string name="background_location_setup_button">Configurar ahora</string>
+    <string name="background_location_settings_button">Comprobar acceso en segundo plano</string>
+    <string name="background_location_status_granted">Acceso en segundo plano: permitido. Las redes de confianza se reconocen incluso cuando Keep-Alive se inicia en segundo plano. KeepADB nunca lee ni guarda la posición de tu dispositivo.</string>
+    <string name="background_location_status_missing">Acceso en segundo plano: no permitido. Si Keep-Alive se inicia en segundo plano, puede que la identidad de la Wi-Fi no se pueda leer; KeepADB trata entonces la red como no confiable y no activa la depuración inalámbrica automáticamente hasta que abras la app.</string>
+    <string name="background_location_status_missing_inactive">Acceso en segundo plano: no permitido. Solo es necesario mientras el modo de redes de confianza está activo.</string>
     <string name="location_permission_panel_title">Se requiere permiso de ubicación para redes de confianza</string>
     <string name="location_permission_panel_body">El modo de redes de confianza necesita acceso a la ubicación para identificar tu red Wi-Fi. Sin él, Keep-Alive no puede confirmar una red de confianza y no se reactivará automáticamente.</string>
     <string name="location_permission_panel_grant_button">Conceder permiso de ubicación</string>

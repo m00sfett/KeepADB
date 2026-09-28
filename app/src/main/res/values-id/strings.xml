@@ -214,6 +214,13 @@
     <string name="network_onboarding_panel_title">Batasi Keep-Alive pada jaringan tepercaya</string>
     <string name="network_onboarding_panel_body">Keep-Alive dapat dibatasi pada jaringan Wi-Fi rumah atau kantor yang dikenal untuk memblokir koneksi debugging tanpa izin di jaringan asing.</string>
     <string name="network_onboarding_setup_button">Siapkan</string>
+    <string name="background_location_panel_title">Akses latar belakang untuk jaringan tepercaya</string>
+    <string name="background_location_panel_body">Agar Wi-Fi tepercaya Anda (SSID/BSSID) tetap dikenali saat Keep-Alive dimulai di latar belakang, KeepADB memerlukan akses lokasi dengan pilihan “Izinkan sepanjang waktu”. KeepADB tidak pernah menentukan atau menyimpan posisi perangkat Anda. Di layar berikutnya, buka Izin › Lokasi lalu pilih sendiri “Izinkan sepanjang waktu”; KeepADB tidak dapat memberikannya untuk Anda. Tanpa izin ini, jaringan yang identitasnya tidak terbaca tidak pernah dianggap tepercaya.</string>
+    <string name="background_location_setup_button">Siapkan sekarang</string>
+    <string name="background_location_settings_button">Periksa akses latar belakang</string>
+    <string name="background_location_status_granted">Akses latar belakang: diizinkan. Jaringan tepercaya tetap dikenali meskipun Keep-Alive dimulai di latar belakang. KeepADB tidak pernah membaca atau menyimpan posisi perangkat Anda.</string>
+    <string name="background_location_status_missing">Akses latar belakang: tidak diizinkan. Saat Keep-Alive dimulai di latar belakang, identitas Wi-Fi mungkin tidak terbaca; KeepADB lalu menganggap jaringan tidak tepercaya dan tidak mengaktifkan debugging nirkabel secara otomatis sampai Anda membuka aplikasi.</string>
+    <string name="background_location_status_missing_inactive">Akses latar belakang: tidak diizinkan. Hanya diperlukan saat mode jaringan tepercaya aktif.</string>
     <string name="location_permission_panel_title">Izin lokasi diperlukan untuk jaringan tepercaya</string>
     <string name="location_permission_panel_body">Mode jaringan tepercaya memerlukan akses lokasi untuk mengenali jaringan Wi-Fi Anda. Tanpa itu, Keep-Alive tidak dapat memastikan jaringan tepercaya dan tidak akan aktif kembali secara otomatis.</string>
     <string name="location_permission_panel_grant_button">Berikan izin lokasi</string>

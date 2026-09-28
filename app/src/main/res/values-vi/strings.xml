@@ -214,6 +214,13 @@
     <string name="network_onboarding_panel_title">Giới hạn Keep-Alive ở các mạng đáng tin cậy</string>
     <string name="network_onboarding_panel_body">Có thể giới hạn Keep-Alive ở các mạng Wi-Fi gia đình hoặc văn phòng đã biết để chặn kết nối gỡ lỗi trái phép trên các mạng lạ.</string>
     <string name="network_onboarding_setup_button">Thiết lập</string>
+    <string name="background_location_panel_title">Truy cập nền cho mạng tin cậy</string>
+    <string name="background_location_panel_body">Để nhận ra Wi-Fi tin cậy của bạn (SSID/BSSID) khi Keep-Alive khởi động trong nền, KeepADB cần quyền truy cập vị trí ở chế độ “Luôn cho phép”. KeepADB không bao giờ xác định hay lưu vị trí thiết bị của bạn. Ở màn hình tiếp theo, mở Quyền › Vị trí và tự chọn “Luôn cho phép”; KeepADB không thể cấp quyền này thay bạn. Nếu không có quyền này, mạng có danh tính không đọc được sẽ không bao giờ được tin cậy.</string>
+    <string name="background_location_setup_button">Thiết lập ngay</string>
+    <string name="background_location_settings_button">Kiểm tra truy cập nền</string>
+    <string name="background_location_status_granted">Truy cập nền: đã cho phép. Mạng tin cậy vẫn được nhận ra ngay cả khi Keep-Alive khởi động trong nền. KeepADB không bao giờ đọc hay lưu vị trí thiết bị của bạn.</string>
+    <string name="background_location_status_missing">Truy cập nền: chưa cho phép. Khi Keep-Alive khởi động trong nền, danh tính Wi-Fi có thể không đọc được; khi đó KeepADB coi mạng là không tin cậy và không tự bật gỡ lỗi không dây cho đến khi bạn mở ứng dụng.</string>
+    <string name="background_location_status_missing_inactive">Truy cập nền: chưa cho phép. Chỉ cần khi chế độ mạng tin cậy đang bật.</string>
     <string name="location_permission_panel_title">Cần quyền vị trí cho mạng đáng tin cậy</string>
     <string name="location_permission_panel_body">Chế độ mạng đáng tin cậy cần quyền truy cập vị trí để nhận diện mạng Wi-Fi của bạn. Nếu không có, Keep-Alive không thể xác nhận mạng đáng tin cậy và sẽ không tự động bật lại.</string>
     <string name="location_permission_panel_grant_button">Cấp quyền vị trí</string>

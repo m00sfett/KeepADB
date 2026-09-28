@@ -17,11 +17,32 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.62` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.63` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.63] - Unreleased
+
+### Added
+- #616: Optional `ACCESS_BACKGROUND_LOCATION` ("Allow all the time") for trusted networks, so a
+  Keep-Alive service started from the background can still read the Wi-Fi identity (#626/#630).
+  The permission is now declared in the manifest but never requested through a runtime dialog.
+  While trusted-network mode is on and the grant is missing, the main screen shows a dismissible
+  setup card next to the other setup hints; "Set up now" opens KeepADB's system app-details page,
+  where the user picks "Location > Allow all the time" himself. The card re-reads the grant on
+  return, disappears once it is granted and reappears after a later revocation, even if it was
+  dismissed before. Dismissing never changes the permission, the trusted-network mode or the
+  allowlist. Settings → Network always shows the background-access status with a button to the
+  same system page, independent of the card. New helper `KeepADBBackgroundLocation`.
+
+### Changed
+- #616: `KeepADBServiceManifestContractTest` now requires `ACCESS_BACKGROUND_LOCATION` to be
+  declared and forbids runtime `requestPermissions` calls for it, reversing the former
+  "never declared" contract from #606 per the reopened #616 decision. README and SECURITY.md
+  describe the optional grant. Fail-closed behavior is unchanged: without the grant an
+  unreadable or masked identity is never trusted.
 
 ## [1.8.62] - Unreleased
 

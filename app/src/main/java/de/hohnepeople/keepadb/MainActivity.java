@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
     private Button notificationPermissionActionButton;
     private View batteryOptimizationPanel;
     private View networkOnboardingPanel;
+    private View backgroundLocationPanel;
     private View adviceBanner;
     private long endpointListenerGeneration;
     private boolean endpointSurfaceActive;
@@ -112,6 +113,15 @@ public class MainActivity extends Activity {
         });
         findViewById(R.id.network_onboarding_dismiss_button).setOnClickListener(v -> {
             KeepADBPreferences.setNetworkOnboardingPanelVisible(this, false);
+            refresh();
+        });
+        backgroundLocationPanel = findViewById(R.id.background_location_panel);
+        // #616: only opens the system page; the user picks "Allow all the time" there himself.
+        // onResume() -> refresh() re-reads the grant on return.
+        findViewById(R.id.btn_background_location_setup).setOnClickListener(v ->
+                KeepADBBackgroundLocation.openSettings(this));
+        findViewById(R.id.btn_dismiss_background_location_panel).setOnClickListener(v -> {
+            KeepADBPreferences.setBackgroundLocationPanelVisible(this, false);
             refresh();
         });
         adviceBanner = findViewById(R.id.advice_banner);
@@ -333,6 +343,16 @@ public class MainActivity extends Activity {
                 && KeepADBPreferences.isNetworkOnboardingPanelVisible(this);
         networkOnboardingPanel.setVisibility(
                 networkOnboardingPanelVisible ? View.VISIBLE : View.GONE);
+        // #616: background-location card, only while trusted-network mode needs the grant and
+        // it is missing. A dismiss hides it until the grant is observed; an observed grant
+        // re-arms the card so a later revocation surfaces the missing state again.
+        if (KeepADBBackgroundLocation.isGranted(this)) {
+            KeepADBPreferences.setBackgroundLocationPanelVisible(this, true);
+        }
+        boolean backgroundLocationPanelVisible = KeepADBBackgroundLocation.isSetupNeeded(this)
+                && KeepADBPreferences.isBackgroundLocationPanelVisible(this);
+        backgroundLocationPanel.setVisibility(
+                backgroundLocationPanelVisible ? View.VISIBLE : View.GONE);
         toggle.setEnabled(configured);
         toggle.setChecked(on);
         if (!configured) {

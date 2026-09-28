@@ -214,6 +214,13 @@
     <string name="network_onboarding_panel_title">Keep-Alive को विश्वसनीय नेटवर्क तक सीमित करें</string>
     <string name="network_onboarding_panel_body">Keep-Alive को ज्ञात घरेलू या कार्यालयीन वाई-फ़ाई नेटवर्क तक सीमित किया जा सकता है ताकि विदेशी नेटवर्क पर अनधिकृत डिबगिंग कनेक्शन को रोका जा सके।</string>
     <string name="network_onboarding_setup_button">सेट करें</string>
+    <string name="background_location_panel_title">भरोसेमंद नेटवर्क के लिए बैकग्राउंड एक्सेस</string>
+    <string name="background_location_panel_body">जब Keep-Alive बैकग्राउंड में शुरू हो, तब आपके भरोसेमंद Wi-Fi (SSID/BSSID) को पहचानने के लिए KeepADB को जगह की जानकारी का एक्सेस “हर समय अनुमति दें” पर चाहिए। KeepADB आपके डिवाइस की लोकेशन कभी पता नहीं करता और न ही सेव करता है। अगली स्क्रीन पर अनुमतियां › जगह की जानकारी खोलें और खुद “हर समय अनुमति दें” चुनें; KeepADB यह अनुमति आपकी जगह नहीं दे सकता। इसके बिना, जिस नेटवर्क की पहचान पढ़ी न जा सके उसे कभी भरोसेमंद नहीं माना जाता।</string>
+    <string name="background_location_setup_button">अभी सेट अप करें</string>
+    <string name="background_location_settings_button">बैकग्राउंड एक्सेस जांचें</string>
+    <string name="background_location_status_granted">बैकग्राउंड एक्सेस: अनुमति है। Keep-Alive बैकग्राउंड में शुरू होने पर भी भरोसेमंद नेटवर्क पहचाने जाते हैं। KeepADB आपके डिवाइस की लोकेशन कभी नहीं पढ़ता और न सेव करता है।</string>
+    <string name="background_location_status_missing">बैकग्राउंड एक्सेस: अनुमति नहीं है। Keep-Alive बैकग्राउंड में शुरू होने पर Wi-Fi की पहचान पढ़ी न जा सके, ऐसा हो सकता है; तब KeepADB नेटवर्क को अविश्वसनीय मानता है और जब तक आप ऐप नहीं खोलते, वायरलेस डीबगिंग अपने आप चालू नहीं करता।</string>
+    <string name="background_location_status_missing_inactive">बैकग्राउंड एक्सेस: अनुमति नहीं है। केवल तभी ज़रूरी है जब भरोसेमंद नेटवर्क मोड चालू हो।</string>
     <string name="location_permission_panel_title">विश्वसनीय नेटवर्क के लिए स्थान अनुमति आवश्यक है</string>
     <string name="location_permission_panel_body">विश्वसनीय-नेटवर्क मोड को आपके Wi-Fi नेटवर्क की पहचान के लिए स्थान एक्सेस चाहिए। इसके बिना, Keep-Alive किसी विश्वसनीय नेटवर्क की पुष्टि नहीं कर सकता और स्वचालित रूप से फिर से चालू नहीं होगा।</string>
     <string name="location_permission_panel_grant_button">स्थान अनुमति दें</string>

@@ -73,6 +73,13 @@
     <string name="network_onboarding_panel_title">Restrict Keep-Alive to trusted networks</string>
     <string name="network_onboarding_panel_body">Keep-Alive can be restricted to known home or office Wi-Fi networks to block unauthorized debugging connections on foreign networks.</string>
     <string name="network_onboarding_setup_button">Set up</string>
+    <string name="background_location_panel_title">Background access for trusted networks</string>
+    <string name="background_location_panel_body">To recognize your trusted Wi-Fi (SSID/BSSID) when Keep-Alive starts in the background, KeepADB needs Location access set to “Allow all the time”. KeepADB never determines or stores your device’s position. On the next screen, open Permissions › Location and choose “Allow all the time” yourself; KeepADB cannot grant this for you. Without it, a network whose identity can’t be read is never trusted.</string>
+    <string name="background_location_setup_button">Set up now</string>
+    <string name="background_location_settings_button">Check background access</string>
+    <string name="background_location_status_granted">Background access: allowed. Trusted networks are recognized even when Keep-Alive starts in the background. KeepADB never reads or stores your device’s position.</string>
+    <string name="background_location_status_missing">Background access: not allowed. When Keep-Alive starts in the background, the Wi-Fi identity may be unreadable; KeepADB then treats the network as untrusted and does not enable Wireless Debugging automatically until you open the app.</string>
+    <string name="background_location_status_missing_inactive">Background access: not allowed. Only needed while trusted-network mode is on.</string>
     <string name="location_permission_panel_title">Location permission needed for trusted networks</string>
     <string name="location_permission_panel_body">Trusted-network mode needs Location access to identify your Wi-Fi network. Without it, Keep-Alive can’t confirm a trusted network and won’t re-enable automatically.</string>
     <string name="location_permission_panel_grant_button">Grant location permission</string>
