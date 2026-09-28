@@ -19,9 +19,10 @@ pretending the port isn't open. Concretely, KeepADB tries to:
   available: the permission is missing or only coarse, device location is off, or the running
   Keep-Alive service was started from the background — after a reboot, an app update, or a
   process restart of such a background-started service — and the app has not been opened in the
-  foreground since (#626, tracked as #630; on Android 14+ a
-  background-originated start with the permission already granted can even end the service
-  outright, tracked as #629). Existing choices and saved networks are preserved when upgrading;
+  foreground since (#626, tracked as #630; on Android 14+ a background-originated start with the
+  permission already granted throws a `SecurityException` for the `location` type, which the
+  service now catches and falls back from to `connectedDevice` alone instead of ending the
+  service, tracked as #629). Existing choices and saved networks are preserved when upgrading;
 - require an unlocked device to trust a network from the untrusted-network prompt notification:
   the "Yes, allow" action asks the platform to reauthenticate before it fires (API 31+), and
   `KeepADBReceiver` refuses the action and re-offers the same prompt if it is somehow reached

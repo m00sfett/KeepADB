@@ -194,12 +194,14 @@ Wireless Debugging (`adbd`) opens a network port on your local network interface
    `FOREGROUND_SERVICE_LOCATION` and runs `KeepADBService` with foreground service type
    `connectedDevice|location` (#606, C2). While-in-use `ACCESS_FINE_LOCATION` is sufficient for
    this service type, and the `location` service type is bound dynamically only when the permission
-   is granted so that standard `all_wifi` mode never triggers `SecurityException`s on Android 14+.
-   This keeps identity readable in the background while the running service was started in the
-   foreground; a service instance that has only ever been started from the background (boot, a
-   process restart, or an app update, until the app is opened again) can still
-   run with the identity masked, and on Android 14+ that combination can end the service outright
-   (see [SECURITY.md](SECURITY.md)). To cover that background-start path, you can optionally set
+   is granted so that standard `all_wifi` mode never triggers `SecurityException`s on Android 14+
+   in the first place. This keeps identity readable in the background while the running service
+   was started in the foreground; a service instance that has only ever been started from the
+   background (boot, a process restart, or an app update, until the app is opened again) still
+   runs with the identity masked, because on Android 14+ a background-originated
+   `startForeground()` call cannot obtain the `location` type and falls back to `connectedDevice`
+   alone instead of ending the service (#629; see [SECURITY.md](SECURITY.md)). To cover that
+   background-start path, you can optionally set
    Location to "Allow all the time" on KeepADB's Android permission page (#616); the main screen
    offers this as a dismissible setup card while trusted-network mode is on, and Settings → Network
    always shows its status. KeepADB cannot grant it for you and never reads or stores location;

@@ -171,7 +171,14 @@ KeepADB setzt verbindlich **Variante C2** um:
    vollständig kompatibel mit den Richtlinien von F-Droid und Google Play.
 4. **Defensiver Fallback:** Der Service-Typ `location` wird beim `startForeground()` dynamisch
    nur dann angefordert, wenn `ACCESS_FINE_LOCATION` tatsächlich erteilt ist. Das verhindert
-   `SecurityException`s auf Android 14+ (API 34+) im Standardmodus `all_wifi` ohne Allowlist.
+   `SecurityException`s auf Android 14+ (API 34+) von vornherein nur im Standardmodus `all_wifi`
+   ohne Allowlist (kein FINE-Grant, also kein `location`-Typ in der Anfrage). Mit erteiltem
+   FINE-Grant und einem Hintergrundstart wirft `startForeground()` die Exception weiterhin (siehe
+   Nachtrag 3, Fall 6); seit #629 fängt `onStartCommand()` sie ab und promotet stattdessen einmalig
+   mit `connectedDevice` allein, statt den Service zu beenden — die Identität bleibt dabei
+   maskiert, bis ein späterer, vordergrund-ausgelöster Start den Service erneut mit `location`
+   promotet (#630). Das #616-Opt-in (`ACCESS_BACKGROUND_LOCATION`) hebt diese Maskierung in der
+   Praxis auf, ohne dass ein solcher Neustart nötig ist (Nachtrag 4).
 
 ## Nachtrag 3 (#626, 2026-09-28): C2-Messlücken Boot, Sticky-Restart, Hintergrund-`sync()`, Laufzeit-Grant, API 34/35
 
