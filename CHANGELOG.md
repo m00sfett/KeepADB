@@ -17,11 +17,22 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.68` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.69` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.69] - Unreleased
+
+### Documentation
+- #642: Javadocs in `KeepADBService` and `SettingsActivity` now mirror "Nachtrag 5" of
+  `docs/trusted-networks-measurement.md` (foreground service type and location grant behavior).
+  Comments only; no app behavior changed.
+
+### Changed
+- #643: The hints shown when the current network identity cannot be read now name "Allow all the
+  time" as the lasting fix. Updated in all 19 languages; the tap target is unchanged.
 
 ## [1.8.68] - Unreleased
 
