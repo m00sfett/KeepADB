@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">Netwerknaam „%1$s” toegestaan</string>
     <string name="wifi_ssids_removed_toast">Netwerknaam „%1$s” verwijderd</string>
     <string name="settings_trusted_network_status_untrusted">Automatisch opnieuw inschakelen gepauzeerd: dit wifi-netwerk staat niet op uw vertrouwde lijst.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">Automatisch opnieuw inschakelen gepauzeerd: de identiteit van het huidige netwerk kan niet worden bepaald. Controleer de locatietoestemming/-service, of open de app opnieuw als Keep-Alive op de achtergrond is gestart.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">Automatisch opnieuw inschakelen gepauzeerd: de identiteit van het huidige netwerk kan niet worden bepaald. Controleer de locatietoestemming/-service, of open de app opnieuw als Keep-Alive op de achtergrond is gestart. Blijvende oplossing: zet locatie op ‘Altijd toestaan’.</string>
     <string name="settings_trusted_network_permission_title">Locatietoestemming vereist</string>
     <string name="settings_trusted_network_permission_message">Android vereist locatietoegang voordat een app de naam en ID van het huidige wifi-netwerk kan lezen. KeepADB gebruikt dit alleen om vertrouwde netwerken te herkennen en leest of bewaart nooit uw locatie.</string>
     <string name="settings_trusted_network_permission_grant">Toestaan</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">Een netwerk wil vertrouwd worden voor Keep-Alive — open KeepADB om te beslissen.</string>
     <string name="network_prompt_confirm_in_app_text">Nieuw wifi-netwerk gedetecteerd — tik om het in de app te bevestigen.</string>
     <string name="network_prompt_identity_unavailable_title">Huidig wifi-netwerk kan niet worden geïdentificeerd</string>
-    <string name="network_prompt_identity_unavailable_text">Automatisch opnieuw inschakelen van Keep-Alive is gepauzeerd omdat de identiteit van het netwerk niet kan worden gelezen. Meestal ontbreekt de locatietoestemming of is de locatieservice uitgeschakeld, maar dit kan ook gebeuren als Keep-Alive op de achtergrond is gestart. Tik om dit op te lossen.</string>
+    <string name="network_prompt_identity_unavailable_text">Automatisch opnieuw inschakelen van Keep-Alive is gepauzeerd omdat de identiteit van het netwerk niet kan worden gelezen. Meestal ontbreekt de locatietoestemming of is de locatieservice uitgeschakeld, maar dit kan ook gebeuren als Keep-Alive op de achtergrond is gestart; locatie op ‘Altijd toestaan’ zetten lost dat blijvend op. Tik om dit op te lossen.</string>
     <string name="settings_trusted_network_blocked_button">Onlangs geblokkeerd (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Onlangs geblokkeerde netwerken</string>
     <string name="settings_trusted_network_blocked_empty_message">Er is onlangs geen netwerk geblokkeerd.</string>
@@ -329,7 +329,7 @@
     <string name="settings_website_link_accessibility">HohnePeople.de openen in browser</string>
     <string name="status_off_keep_alive_waiting">Draadloze foutopsporing is UIT – Keep-Alive wacht op het netwerk</string>
     <string name="status_off_keep_alive_blocked_untrusted">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: dit wifi-netwerk is niet vertrouwd</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: netwerkidentiteit onbekend, controleer de locatietoestemming of open de app opnieuw</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: netwerkidentiteit onbekend, controleer de locatietoestemming (‘Altijd toestaan’) of open de app opnieuw</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: bevestig Android\'s netwerkdialoog voor draadloze foutopsporing en tik daarna op de schakelaar om het opnieuw te proberen</string>
     <string name="status_pending">Bezig met omschakelen…</string>
     <string name="state_pending">Bezig met omschakelen…</string>

@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">&quot;%1$s&quot; ağ adına izin verildi</string>
     <string name="wifi_ssids_removed_toast">&quot;%1$s&quot; ağ adı kaldırıldı</string>
     <string name="settings_trusted_network_status_untrusted">Otomatik yeniden etkinleştirme duraklatıldı: bu Wi-Fi ağı güvenilir listenizde değil.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">Otomatik yeniden etkinleştirme duraklatıldı: mevcut ağın kimliği belirlenemiyor. Konum izni/hizmetini kontrol edin veya Keep-Alive arka planda başladıysa uygulamayı yeniden açın.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">Otomatik yeniden etkinleştirme duraklatıldı: mevcut ağın kimliği belirlenemiyor. Konum izni/hizmetini kontrol edin veya Keep-Alive arka planda başladıysa uygulamayı yeniden açın. Kalıcı çözüm için konumu “Her zaman izin ver” olarak ayarlayın.</string>
     <string name="settings_trusted_network_permission_title">Konum izni gerekli</string>
     <string name="settings_trusted_network_permission_message">Bir uygulamanın mevcut Wi-Fi ağının adını ve kimliğini okuyabilmesi için Android konum erişimi gerektirir. KeepADB bunu yalnızca güvenilir ağları tanımak için kullanır ve konumunuzu asla okumaz veya saklamaz.</string>
     <string name="settings_trusted_network_permission_grant">İzin ver</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">Bir ağ Keep-Alive için güvenilir sayılmak istiyor — karar vermek için KeepADB\'yi açın.</string>
     <string name="network_prompt_confirm_in_app_text">Yeni Wi-Fi ağı algılandı — uygulamada onaylamak için dokunun.</string>
     <string name="network_prompt_identity_unavailable_title">Mevcut Wi-Fi ağı tanımlanamıyor</string>
-    <string name="network_prompt_identity_unavailable_text">Ağın kimliği okunamadığı için Keep-Alive otomatik yeniden etkinleştirme duraklatıldı. Genellikle konum izni eksiktir veya konum hizmeti kapalıdır, ancak Keep-Alive arka planda başlatıldığında da bu olabilir. Düzeltmek için dokunun.</string>
+    <string name="network_prompt_identity_unavailable_text">Ağın kimliği okunamadığı için Keep-Alive otomatik yeniden etkinleştirme duraklatıldı. Genellikle konum izni eksiktir veya konum hizmeti kapalıdır, ancak Keep-Alive arka planda başlatıldığında da bu olabilir. Konumu “Her zaman izin ver” olarak ayarlamak bunu kalıcı olarak çözer. Düzeltmek için dokunun.</string>
     <string name="settings_trusted_network_blocked_button">Yakında engellenenler (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Yakın zamanda engellenen ağlar</string>
     <string name="settings_trusted_network_blocked_empty_message">Son zamanlarda hiçbir ağ engellenmedi.</string>
@@ -329,7 +329,7 @@
     <string name="settings_website_link_accessibility">HohnePeople.de\'yi tarayıcıda aç</string>
     <string name="status_off_keep_alive_waiting">Kablosuz Hata Ayıklama KAPALI – Keep-Alive ağı bekliyor</string>
     <string name="status_off_keep_alive_blocked_untrusted">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı güvenilir değil</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: ağ kimliği belirlenemiyor, Konum iznini kontrol edin veya uygulamayı yeniden açın</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: ağ kimliği belirlenemiyor, Konum iznini (“Her zaman izin ver”) kontrol edin veya uygulamayı yeniden açın</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: Android\'ın kablosuz hata ayıklama ağ iletişim kutusunu onaylayın, ardından yeniden denemek için anahtara dokunun</string>
     <string name="status_pending">Değiştiriliyor…</string>
     <string name="state_pending">Değiştiriliyor…</string>

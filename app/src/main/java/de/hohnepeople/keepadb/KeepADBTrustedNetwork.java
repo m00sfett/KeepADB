@@ -18,8 +18,10 @@ import java.util.List;
  * with {@link android.Manifest.permission#ACCESS_FINE_LOCATION}; a service started from the
  * foreground qualifies as while-in-use and keeps SSID and BSSID unmasked during background
  * keep-alive. A service started from the background (boot, app update, sticky restart of such a
- * service) does not and stays masked until the app is opened (#626, #630) -- this class then
- * fails closed like for any other unknown identity. {@link #MODE_ALLOWLIST} remains
+ * service) does not and stays masked until the app is opened (#626, #630), unless the user also
+ * granted {@code ACCESS_BACKGROUND_LOCATION} ("Allow all the time"): with it the identity is
+ * readable after a background start on API 30 to 36.1 (#643, "Nachtrag 5" in the measurement
+ * doc). Without that grant this class fails closed like for any other unknown identity. {@link #MODE_ALLOWLIST} remains
  * an explicit opt-in as a deliberate comfort-versus-security trade-off: it requires location
  * permissions and strictly bounds automatic re-enable to explicitly approved access points.
  *

@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">Đã cho phép tên mạng &quot;%1$s&quot;</string>
     <string name="wifi_ssids_removed_toast">Đã xóa tên mạng &quot;%1$s&quot;</string>
     <string name="settings_trusted_network_status_untrusted">Tự động bật lại đã tạm dừng: mạng Wi-Fi này không có trong danh sách đáng tin cậy của bạn.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">Tự động bật lại đã tạm dừng: không thể xác định danh tính của mạng hiện tại. Kiểm tra quyền/dịch vụ vị trí, hoặc mở lại ứng dụng nếu Keep-Alive đã khởi động ở chế độ nền.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">Tự động bật lại đã tạm dừng: không thể xác định danh tính của mạng hiện tại. Kiểm tra quyền/dịch vụ vị trí, hoặc mở lại ứng dụng nếu Keep-Alive đã khởi động ở chế độ nền. Để khắc phục vĩnh viễn, đặt Vị trí thành “Luôn cho phép”.</string>
     <string name="settings_trusted_network_permission_title">Cần quyền vị trí</string>
     <string name="settings_trusted_network_permission_message">Android yêu cầu quyền truy cập vị trí trước khi ứng dụng có thể đọc tên và ID của mạng Wi-Fi hiện tại. KeepADB chỉ sử dụng quyền này để nhận diện các mạng đáng tin cậy và không bao giờ đọc hoặc lưu trữ vị trí của bạn.</string>
     <string name="settings_trusted_network_permission_grant">Cho phép</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">Một mạng muốn trở thành đáng tin cậy cho Keep-Alive — mở KeepADB để quyết định.</string>
     <string name="network_prompt_confirm_in_app_text">Đã phát hiện mạng Wi-Fi mới — nhấn để xác nhận trong ứng dụng.</string>
     <string name="network_prompt_identity_unavailable_title">Không thể nhận dạng mạng Wi-Fi hiện tại</string>
-    <string name="network_prompt_identity_unavailable_text">Tự động bật lại Keep-Alive đã tạm dừng vì không thể đọc danh tính của mạng. Thường là do thiếu quyền vị trí hoặc dịch vụ vị trí đang tắt, nhưng cũng có thể xảy ra nếu Keep-Alive được khởi động ở chế độ nền. Nhấn để khắc phục.</string>
+    <string name="network_prompt_identity_unavailable_text">Tự động bật lại Keep-Alive đã tạm dừng vì không thể đọc danh tính của mạng. Thường là do thiếu quyền vị trí hoặc dịch vụ vị trí đang tắt, nhưng cũng có thể xảy ra nếu Keep-Alive được khởi động ở chế độ nền; đặt Vị trí thành “Luôn cho phép” sẽ khắc phục vĩnh viễn. Nhấn để khắc phục.</string>
     <string name="settings_trusted_network_blocked_button">Vừa bị chặn (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Mạng vừa bị chặn</string>
     <string name="settings_trusted_network_blocked_empty_message">Gần đây chưa có mạng nào bị chặn.</string>
@@ -329,7 +329,7 @@
     <string name="settings_website_link_accessibility">Mở HohnePeople.de trong trình duyệt</string>
     <string name="status_off_keep_alive_waiting">Gỡ lỗi không dây đang TẮT – Keep-Alive đang chờ mạng</string>
     <string name="status_off_keep_alive_blocked_untrusted">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: mạng Wi-Fi này không đáng tin cậy</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: không xác định được mạng, hãy kiểm tra quyền Vị trí hoặc mở lại ứng dụng</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: không xác định được mạng, hãy kiểm tra quyền Vị trí (“Luôn cho phép”) hoặc mở lại ứng dụng</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: hãy xác nhận hộp thoại mạng Gỡ lỗi không dây của Android, sau đó nhấn vào công tắc để thử lại</string>
     <string name="status_pending">Đang chuyển…</string>
     <string name="state_pending">Đang chuyển…</string>

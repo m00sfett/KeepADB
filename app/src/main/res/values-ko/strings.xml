@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">네트워크 이름 &quot;%1$s&quot;을 허용했습니다</string>
     <string name="wifi_ssids_removed_toast">네트워크 이름 &quot;%1$s&quot;을 제거했습니다</string>
     <string name="settings_trusted_network_status_untrusted">자동 재활성화가 일시 중지됨: 이 Wi-Fi 네트워크는 신뢰 목록에 없습니다.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">자동 재활성화가 일시 중지됨: 현재 네트워크의 ID를 확인할 수 없습니다. 위치 권한/서비스를 확인하거나, Keep-Alive가 백그라운드에서 시작된 경우 앱을 다시 열어보세요.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">자동 재활성화가 일시 중지됨: 현재 네트워크의 ID를 확인할 수 없습니다. 위치 권한/서비스를 확인하거나, Keep-Alive가 백그라운드에서 시작된 경우 앱을 다시 열어보세요. 영구적으로 해결하려면 위치 권한을 ‘항상 허용’으로 설정하세요.</string>
     <string name="settings_trusted_network_permission_title">위치 권한 필요</string>
     <string name="settings_trusted_network_permission_message">앱이 현재 Wi-Fi 네트워크의 이름과 ID를 읽으려면 Android에서 위치 액세스를 요구합니다. KeepADB는 이를 신뢰할 수 있는 네트워크를 인식하는 데만 사용하며 위치를 읽거나 저장하지 않습니다.</string>
     <string name="settings_trusted_network_permission_grant">허용</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">한 네트워크가 Keep-Alive를 위해 신뢰할 네트워크가 되려고 합니다 — 결정하려면 KeepADB를 여세요.</string>
     <string name="network_prompt_confirm_in_app_text">새 Wi-Fi 네트워크가 감지되었습니다 — 탭하여 앱에서 확인하세요.</string>
     <string name="network_prompt_identity_unavailable_title">현재 Wi-Fi 네트워크를 식별할 수 없습니다</string>
-    <string name="network_prompt_identity_unavailable_text">네트워크 ID를 읽을 수 없어 Keep-Alive 자동 재활성화가 일시 중지되었습니다. 보통 위치 권한이 없거나 위치 서비스가 꺼져 있기 때문이지만, Keep-Alive가 백그라운드에서 시작된 경우에도 발생할 수 있습니다. 해결하려면 탭하세요.</string>
+    <string name="network_prompt_identity_unavailable_text">네트워크 ID를 읽을 수 없어 Keep-Alive 자동 재활성화가 일시 중지되었습니다. 보통 위치 권한이 없거나 위치 서비스가 꺼져 있기 때문이지만, Keep-Alive가 백그라운드에서 시작된 경우에도 발생할 수 있습니다. 위치 권한을 ‘항상 허용’으로 설정하면 영구적으로 해결됩니다. 해결하려면 탭하세요.</string>
     <string name="settings_trusted_network_blocked_button">최근 차단됨 (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">최근 차단된 네트워크</string>
     <string name="settings_trusted_network_blocked_empty_message">최근에 차단된 네트워크가 없습니다.</string>
@@ -329,7 +329,7 @@
     <string name="settings_website_link_accessibility">브라우저에서 HohnePeople.de 열기</string>
     <string name="status_off_keep_alive_waiting">무선 디버깅 꺼짐 – Keep-Alive가 네트워크를 기다리는 중</string>
     <string name="status_off_keep_alive_blocked_untrusted">무선 디버깅 꺼짐 – Keep-Alive 일시 중지됨: 이 Wi-Fi 네트워크는 신뢰할 수 없습니다</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">무선 디버깅 꺼짐 – Keep-Alive 일시 중지됨: 네트워크 ID를 확인할 수 없습니다. 위치 권한을 확인하거나 앱을 다시 여세요</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">무선 디버깅 꺼짐 – Keep-Alive 일시 중지됨: 네트워크 ID를 확인할 수 없습니다. 위치 권한(‘항상 허용’)을 확인하거나 앱을 다시 여세요</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">무선 디버깅 꺼짐 – Keep-Alive 일시 중지됨: Android의 무선 디버깅 네트워크 대화상자를 확인한 후 스위치를 탭하여 다시 시도하세요</string>
     <string name="status_pending">전환 중…</string>
     <string name="state_pending">전환 중…</string>

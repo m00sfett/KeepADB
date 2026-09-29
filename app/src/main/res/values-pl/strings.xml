@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">Zezwolono na nazwę sieci „%1$s”</string>
     <string name="wifi_ssids_removed_toast">Usunięto nazwę sieci „%1$s”</string>
     <string name="settings_trusted_network_status_untrusted">Automatyczne ponowne włączanie wstrzymane: tej sieci Wi-Fi nie ma na liście zaufanych.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">Automatyczne ponowne włączanie wstrzymane: nie można określić tożsamości bieżącej sieci. Sprawdź uprawnienie/usługę lokalizacji lub otwórz aplikację ponownie, jeśli Keep-Alive uruchomił się w tle.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">Automatyczne ponowne włączanie wstrzymane: nie można określić tożsamości bieżącej sieci. Sprawdź uprawnienie/usługę lokalizacji lub otwórz aplikację ponownie, jeśli Keep-Alive uruchomił się w tle. Trwale pomaga ustawienie lokalizacji na „Zezwalaj zawsze”.</string>
     <string name="settings_trusted_network_permission_title">Wymagane uprawnienie lokalizacji</string>
     <string name="settings_trusted_network_permission_message">Android wymaga dostępu do lokalizacji, zanim aplikacja odczyta nazwę i identyfikator bieżącej sieci Wi-Fi. KeepADB używa tego wyłącznie do rozpoznawania zaufanych sieci i nigdy nie odczytuje ani nie przechowuje Twojej lokalizacji.</string>
     <string name="settings_trusted_network_permission_grant">Zezwól</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">Sieć chce zostać zaufana na potrzeby Keep-Alive — otwórz KeepADB, aby zdecydować.</string>
     <string name="network_prompt_confirm_in_app_text">Wykryto nową sieć Wi-Fi — dotknij, aby potwierdzić ją w aplikacji.</string>
     <string name="network_prompt_identity_unavailable_title">Nie można zidentyfikować bieżącej sieci Wi-Fi</string>
-    <string name="network_prompt_identity_unavailable_text">Automatyczne ponowne włączanie Keep-Alive jest wstrzymane, ponieważ nie można odczytać tożsamości sieci. Zwykle brakuje uprawnienia lokalizacji lub usługa lokalizacji jest wyłączona, ale może się to zdarzyć również, gdy Keep-Alive uruchomił się w tle. Dotknij, aby to naprawić.</string>
+    <string name="network_prompt_identity_unavailable_text">Automatyczne ponowne włączanie Keep-Alive jest wstrzymane, ponieważ nie można odczytać tożsamości sieci. Zwykle brakuje uprawnienia lokalizacji lub usługa lokalizacji jest wyłączona, ale może się to zdarzyć również, gdy Keep-Alive uruchomił się w tle; ustawienie lokalizacji na „Zezwalaj zawsze” naprawia to trwale. Dotknij, aby to naprawić.</string>
     <string name="settings_trusted_network_blocked_button">Ostatnio zablokowane (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Ostatnio zablokowane sieci</string>
     <string name="settings_trusted_network_blocked_empty_message">Ostatnio żadna sieć nie została zablokowana.</string>
@@ -329,7 +329,7 @@
     <string name="settings_website_link_accessibility">Otwórz HohnePeople.de w przeglądarce</string>
     <string name="status_off_keep_alive_waiting">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive czeka na sieć</string>
     <string name="status_off_keep_alive_blocked_untrusted">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: ta sieć Wi-Fi nie jest zaufana</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: nie można ustalić tożsamości sieci, sprawdź uprawnienie lokalizacji lub otwórz aplikację ponownie</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: nie można ustalić tożsamości sieci, sprawdź uprawnienie lokalizacji („Zezwalaj zawsze”) lub otwórz aplikację ponownie</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: potwierdź okno dialogowe sieci debugowania bezprzewodowego Androida, a następnie dotknij przełącznika, aby spróbować ponownie</string>
     <string name="status_pending">Przełączanie…</string>
     <string name="state_pending">Przełączanie…</string>
