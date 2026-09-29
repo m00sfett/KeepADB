@@ -17,11 +17,20 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.67` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.68` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.68] - Unreleased
+
+### Documentation
+- #642: `docs/trusted-networks-measurement.md` gains "Nachtrag 5" with the emulator API matrix
+  (API 30 to 36.1) measured on 2026-09-29. With the optional "Allow all the time" grant, a
+  background-started keep-alive service reads the real Wi-Fi identity on every supported API, and
+  on API 34+ keeps the `location` service type without triggering the #629 fallback. The note
+  also lists the matrix's measurement gaps. No app behavior changed.
 
 ## [1.8.67] - Unreleased
 
