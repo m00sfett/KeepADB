@@ -40,7 +40,7 @@ aus dem laufenden Prozess.
 > Service-Starts (Vordergrund- vs. Hintergrund-Record) entscheidend ist, nicht der deklarierte
 > Servicetyp. Aktueller Stand: siehe "Nachtrag" (C1-Spike), "Nachtrag 2" (C1/C2-Vergleich) und
 > "Nachtrag 3" (#626, Service-Record-Ursprung, API 34/35-Regression #629, dauerhafte
-> Hintergrundmaskierung auf API 33 #630).
+> Hintergrundmaskierung auf API 33 #630) sowie "Nachtrag 5" (Emulator-API-Matrix API 30 bis 36.1).
 
 1. **Nur der Vordergrund liefert eine verwertbare Identität.** Genau ein gemessener Fall (A/A2)
    ergibt eine echte SSID und BSSID: sichtbare Aktivität, FINE-Grant, aktive Standortdienste.
@@ -426,3 +426,51 @@ bis zum manuellen Öffnen von `MainActivity` bestehen (#628); dafür existiert n
 sauberer automatischer Workaround ohne Nutzerinteraktion oder ohne die Berechtigung selbst. Kein
 Code-Fix in KeepADB nötig; die Entscheidung ist Dokumentation der bereits bestehenden Lösung plus
 Korrektur der bis dahin unbelegten Annahme im #616-Changelog-Eintrag.
+
+## Nachtrag 5 (#642–#646, 2026-09-29): Emulator-API-Matrix API 30 bis 36.1
+
+Gemessen auf sieben Emulatoren (`KeepADB_API30` bis `KeepADB_API35`, Pixel-2-Profil, sowie
+`Dev_Galaxy_S20_API_36_1_Play`, S20-Profil) mit einer isolierten Messkopie
+`de.hohnepeople.keepadb.debug.apimatrix`, gebaut aus `master` `3351c4e` (1.8.67 / 164). Plan:
+`notes/emulator-background-location-api-matrix-plan.md` im Projekt-Metadatenordner. Bericht und
+Rohdaten (Probe-JSON im Logcat, `dumpsys activity services`, Permission-Readbacks) liegen lokal
+unter `~/agent/output/keepadb-api-matrix-20260929/`; sie sind nicht Teil des Repositories. Die
+Probe selbst war reine Messausrüstung und ist nicht Teil eines Commits. Die Tabelle unten ist aus
+den Rohdaten nachgeprüft, nicht aus der Zusammenfassung des Berichts übernommen.
+
+| API | Hintergrundstart ohne `ACCESS_BACKGROUND_LOCATION` | Hintergrundstart mit `ACCESS_BACKGROUND_LOCATION` |
+|---|---|---|
+| 30–33 | FGS läuft, Identität maskiert (`identity_known=false`) | FGS läuft, echte SSID/BSSID (`identity_known=true`), auch bei Display aus |
+| 34, 35, 36.1 | `location`-Hochstufung abgelehnt, #629-Fallback aktiv (`types=0x10`, `fallbackType=16`), Identität maskiert | **kein** Fallback: FGS hält `connectedDevice|location` (`types=0x18`), echte SSID/BSSID, auch bei Display aus |
+
+Hintergrundstart heißt hier: `install -r` löst `MY_PACKAGE_REPLACED` im `BootReceiver` aus,
+`MainActivity` wird danach nicht geöffnet. FINE war in beiden Spalten erteilt.
+
+### Belastbare Schlussfolgerungen
+
+1. **`ACCESS_BACKGROUND_LOCATION` entmaskiert die Identität nach einem Hintergrundstart auf jeder
+   unterstützten API (30 bis 36.1).** Das bestätigt den S20-Befund aus Nachtrag 4 plattformweit.
+2. **Mit Hintergrund-Grant wirft die `location`-Hochstufung auf API 34+ keine
+   `SecurityException`.** Der #629-Fallback greift nur ohne Hintergrund-Grant. Die Annahme in
+   #642, `startForeground()` mit Typ `location` scheitere aus dem Hintergrund auf API 34+
+   grundsätzlich, stimmt deshalb nur für den Fall ohne Hintergrund-Grant.
+3. **Die aktuelle C2-Typwahl bleibt richtig.** Mit Hintergrund-Grant ist der `location`-Typ nicht
+   redundant, sondern wird regulär gehalten. Ohne Hintergrund-Grant ist er für
+   Vordergrundstarts nötig (Nachtrag 3), und der Fallback fängt den Hintergrundstart ab. Ob
+   `connectedDevice` allein zusammen mit dem Hintergrund-Grant ebenfalls eine lesbare Identität
+   liefert, hat diese Matrix **nicht** gemessen: In allen Hintergrund-Grant-Fällen hielt der
+   Record den `location`-Typ.
+
+### Messlücken dieser Matrix
+
+- **Vordergrund-Kontrolle nur auf API 36.1 gültig.** Auf API 30 bis 35 lief in der Probe des
+  Vordergrundfalls kein Keep-Alive-Service (`keep_alive_service_running=false`,
+  `foreground_service_type_requested=0`). Gemessen wurde dort nur die Lesung aus der sichtbaren
+  Aktivität, nicht ein aus dem Vordergrund gestarteter Service. Für API 33 bis 35 deckt Nachtrag 3
+  diesen Fall ab, für API 30 bis 32 bleibt er ungemessen.
+- **Allowlist-Entscheidung nur auf API 36.1 gemessen.** Auf API 30 bis 35 stand die Messkopie im
+  Modus `all_wifi`. Dort belegt `network_trusted=true` nur den Standardmodus, nicht eine
+  Allowlist-Freigabe. Die Identitätslesung selbst ist davon unabhängig gültig.
+- Die Recovery-Proben (ContentObserver, `writeAccepted=true`) liefen auf allen sieben APIs
+  erfolgreich, auf API 30 bis 35 aber ebenfalls im Modus `all_wifi`.
+- Emulatoren prüfen Plattformverhalten, keine OEM-Abweichungen.
