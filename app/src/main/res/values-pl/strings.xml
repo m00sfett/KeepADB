@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">Aby rozpoznać zaufaną sieć Wi-Fi (SSID/BSSID), gdy Keep-Alive uruchamia się w tle, KeepADB potrzebuje dostępu do lokalizacji ustawionego na „Zezwalaj zawsze”. KeepADB nigdy nie ustala ani nie zapisuje położenia urządzenia. Na następnym ekranie otwórz Uprawnienia › Lokalizacja i samodzielnie wybierz „Zezwalaj zawsze”; KeepADB nie może przyznać tego za Ciebie. Bez tego sieć o nieczytelnej tożsamości nigdy nie jest uznawana za zaufaną.</string>
     <string name="background_location_setup_button">Skonfiguruj teraz</string>
     <string name="background_location_settings_button">Sprawdź dostęp w tle</string>
+    <string name="background_location_dialog_later">Później</string>
     <string name="background_location_status_granted">Dostęp w tle: dozwolony. Zaufane sieci są rozpoznawane także wtedy, gdy Keep-Alive uruchamia się w tle. KeepADB nigdy nie odczytuje ani nie zapisuje położenia urządzenia.</string>
     <string name="background_location_status_missing">Dostęp w tle: niedozwolony. Gdy Keep-Alive uruchamia się w tle, tożsamość sieci Wi-Fi może być nieczytelna; KeepADB traktuje wtedy sieć jako niezaufaną i nie włącza automatycznie debugowania bezprzewodowego, dopóki nie otworzysz aplikacji.</string>
     <string name="background_location_status_missing_inactive">Dostęp w tle: niedozwolony. Potrzebny tylko, gdy tryb zaufanych sieci jest włączony.</string>

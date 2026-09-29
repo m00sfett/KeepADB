@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">للتعرّف على شبكة Wi-Fi الموثوقة (SSID/BSSID) عند بدء Keep-Alive في الخلفية، يحتاج KeepADB إلى ضبط الوصول إلى الموقع على «السماح طوال الوقت». لا يحدد KeepADB موقع جهازك ولا يحفظه أبدًا. في الشاشة التالية افتح الأذونات › الموقع واختر بنفسك «السماح طوال الوقت»؛ لا يستطيع KeepADB منح هذا الإذن نيابةً عنك. بدونه لا تُعامل الشبكة التي تتعذر قراءة هويتها كشبكة موثوقة أبدًا.</string>
     <string name="background_location_setup_button">الإعداد الآن</string>
     <string name="background_location_settings_button">التحقق من الوصول في الخلفية</string>
+    <string name="background_location_dialog_later">لاحقًا</string>
     <string name="background_location_status_granted">الوصول في الخلفية: مسموح. يتم التعرّف على الشبكات الموثوقة حتى عند بدء Keep-Alive في الخلفية. لا يقرأ KeepADB موقع جهازك ولا يحفظه أبدًا.</string>
     <string name="background_location_status_missing">الوصول في الخلفية: غير مسموح. عند بدء Keep-Alive في الخلفية قد تتعذر قراءة هوية شبكة Wi-Fi؛ عندها يعامل KeepADB الشبكة كغير موثوقة ولا يفعّل تصحيح الأخطاء اللاسلكي تلقائيًا حتى تفتح التطبيق.</string>
     <string name="background_location_status_missing_inactive">الوصول في الخلفية: غير مسموح. مطلوب فقط أثناء تفعيل وضع الشبكات الموثوقة.</string>

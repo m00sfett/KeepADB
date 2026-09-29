@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">Om je vertrouwde wifi (SSID/BSSID) te herkennen wanneer Keep-Alive op de achtergrond start, heeft KeepADB locatietoegang nodig met de instelling ‘Altijd toestaan’. KeepADB bepaalt of bewaart nooit de positie van je apparaat. Open op het volgende scherm Rechten › Locatie en kies zelf ‘Altijd toestaan’; KeepADB kan dit niet voor je verlenen. Zonder deze toestemming wordt een netwerk met onleesbare identiteit nooit vertrouwd.</string>
     <string name="background_location_setup_button">Nu instellen</string>
     <string name="background_location_settings_button">Achtergrondtoegang controleren</string>
+    <string name="background_location_dialog_later">Later</string>
     <string name="background_location_status_granted">Achtergrondtoegang: toegestaan. Vertrouwde netwerken worden ook herkend wanneer Keep-Alive op de achtergrond start. KeepADB leest of bewaart nooit de positie van je apparaat.</string>
     <string name="background_location_status_missing">Achtergrondtoegang: niet toegestaan. Start Keep-Alive op de achtergrond, dan is de wifi-identiteit mogelijk onleesbaar; KeepADB behandelt het netwerk dan als niet vertrouwd en schakelt draadloze foutopsporing pas automatisch in als je de app opent.</string>
     <string name="background_location_status_missing_inactive">Achtergrondtoegang: niet toegestaan. Alleen nodig zolang de modus voor vertrouwde netwerken aan staat.</string>

@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">为了在 Keep-Alive 于后台启动时也能识别你的可信 Wi-Fi（SSID/BSSID），KeepADB 需要将位置信息权限设为“始终允许”。KeepADB 绝不会确定或存储你设备的位置。请在下一个页面中打开“权限 › 位置信息”，并自行选择“始终允许”；KeepADB 无法替你授予此权限。未授予时，无法读取身份的网络永远不会被视为可信。</string>
     <string name="background_location_setup_button">立即设置</string>
     <string name="background_location_settings_button">检查后台访问</string>
+    <string name="background_location_dialog_later">稍后</string>
     <string name="background_location_status_granted">后台访问：已允许。即使 Keep-Alive 在后台启动，也能识别可信网络。KeepADB 绝不会读取或存储你设备的位置。</string>
     <string name="background_location_status_missing">后台访问：未允许。Keep-Alive 在后台启动时可能无法读取 Wi-Fi 身份；此时 KeepADB 会将该网络视为不可信，在你打开应用之前不会自动开启无线调试。</string>
     <string name="background_location_status_missing_inactive">后台访问：未允许。仅在可信网络模式开启时需要。</string>

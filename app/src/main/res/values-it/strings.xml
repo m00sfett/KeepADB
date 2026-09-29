@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">Per riconoscere la tua rete Wi-Fi attendibile (SSID/BSSID) quando Keep-Alive si avvia in background, KeepADB ha bisogno dell’accesso alla posizione impostato su «Consenti sempre». KeepADB non determina né salva mai la posizione del dispositivo. Nella schermata successiva apri Autorizzazioni › Posizione e scegli tu «Consenti sempre»; KeepADB non può concederlo al posto tuo. Senza questo permesso, una rete con identità non leggibile non viene mai considerata attendibile.</string>
     <string name="background_location_setup_button">Configura ora</string>
     <string name="background_location_settings_button">Controlla accesso in background</string>
+    <string name="background_location_dialog_later">Più tardi</string>
     <string name="background_location_status_granted">Accesso in background: consentito. Le reti attendibili vengono riconosciute anche quando Keep-Alive si avvia in background. KeepADB non legge né salva mai la posizione del dispositivo.</string>
     <string name="background_location_status_missing">Accesso in background: non consentito. Se Keep-Alive si avvia in background, l’identità della rete Wi-Fi potrebbe non essere leggibile; KeepADB considera allora la rete non attendibile e non attiva il debug wireless automaticamente finché non apri l’app.</string>
     <string name="background_location_status_missing_inactive">Accesso in background: non consentito. Serve solo quando la modalità reti attendibili è attiva.</string>

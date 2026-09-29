@@ -152,6 +152,10 @@ public class MainActivityBackgroundLocationPanelTest {
         TextView status = settings.findViewById(R.id.settings_background_location_status);
         assertEquals(context.getString(R.string.background_location_status_missing), status.getText().toString());
         settings.findViewById(R.id.settings_background_location_button).performClick();
+        // #644: the rationale dialog comes first; the jump is its "Open settings" action.
+        org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog()
+                .getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+        org.robolectric.shadows.ShadowLooper.idleMainLooper();
         Intent intent = shadowOf(settings).getNextStartedActivity();
         assertEquals(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, intent.getAction());
 
