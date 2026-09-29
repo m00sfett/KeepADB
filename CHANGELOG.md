@@ -26,12 +26,14 @@ are retrospective issue-version records and were never published as separate rel
 ## [1.8.70] - Unreleased
 
 ### Added
-- #644: After trusted-network mode is switched on without "Allow all the time" and before the
-  settings button jumps to the system page, a dialog now explains why background location access
-  is needed. Its actions are "Open settings", "Trust all Wi-Fi networks instead" and "Later". The
-  background location grant is never requested through a runtime dialog. No dialog appears when
-  the grant already exists or the restriction is off; the trust-all action is omitted in all-Wi-Fi
-  mode. New string `background_location_dialog_later` in all 19 languages.
+- #644: Settings now show a rationale dialog for the optional background location grant ("Allow
+  all the time") in two situations, both only while the grant is missing: right after
+  trusted-network mode has been switched on, and when the "Check background access" button is
+  pressed. The dialog explains that the access is only used to recognize the trusted Wi-Fi and
+  offers "Open settings", "Trust all Wi-Fi networks instead" and "Later". The trust-all action is
+  omitted when all Wi-Fi networks are already trusted. With the grant present, the button still
+  jumps straight to the app's system settings page. The grant itself is never requested through a
+  runtime dialog. New string `background_location_dialog_later` in all 19 languages.
 
 ### Changed
 - #645: The background access status line in Settings now shows three states in color as well as
