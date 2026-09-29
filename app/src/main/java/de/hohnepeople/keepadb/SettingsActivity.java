@@ -882,11 +882,21 @@ public class SettingsActivity extends Activity {
         }
         // #616: always visible here, so the background grant can be checked or set up later,
         // independent of the main-screen card and its dismiss state.
-        backgroundLocationStatus.setText(KeepADBBackgroundLocation.isGranted(this)
-                ? R.string.background_location_status_granted
-                : KeepADBTrustedNetwork.isAllowlistMode(this)
-                        ? R.string.background_location_status_missing
-                        : R.string.background_location_status_missing_inactive);
+        // #645: colour reinforces the state, the text still carries it on its own.
+        int statusText;
+        int statusColor;
+        if (KeepADBBackgroundLocation.isGranted(this)) {
+            statusText = R.string.background_location_status_granted;
+            statusColor = R.color.status_ok_green;
+        } else if (KeepADBTrustedNetwork.isAllowlistMode(this)) {
+            statusText = R.string.background_location_status_missing;
+            statusColor = R.color.text_yellow;
+        } else {
+            statusText = R.string.background_location_status_missing_inactive;
+            statusColor = R.color.night_muted;
+        }
+        backgroundLocationStatus.setText(statusText);
+        backgroundLocationStatus.setTextColor(getColor(statusColor));
 
         // #507: Wi-Fi & Access Points opt-in rendering
         boolean wifiApsEnabled = KeepADBPreferences.isWifiApsFeatureEnabled(this);
