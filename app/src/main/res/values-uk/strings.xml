@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">Щоб розпізнавати довірену мережу Wi-Fi (SSID/BSSID), коли Keep-Alive запускається у фоні, KeepADB потрібен доступ до геоданих із варіантом «Дозволити завжди». KeepADB ніколи не визначає і не зберігає розташування пристрою. На наступному екрані відкрийте Дозволи › Геодані та самостійно виберіть «Дозволити завжди»; KeepADB не може надати цей дозвіл замість вас. Без нього мережа з нечитабельним ідентифікатором ніколи не вважається довіреною.</string>
     <string name="background_location_setup_button">Налаштувати зараз</string>
     <string name="background_location_settings_button">Перевірити фоновий доступ</string>
+    <string name="background_location_dialog_later">Пізніше</string>
     <string name="background_location_status_granted">Фоновий доступ: дозволено. Довірені мережі розпізнаються, навіть коли Keep-Alive запускається у фоні. KeepADB ніколи не зчитує і не зберігає розташування пристрою.</string>
     <string name="background_location_status_missing">Фоновий доступ: не дозволено. Коли Keep-Alive запускається у фоні, ідентифікатор Wi-Fi може бути нечитабельним; тоді KeepADB вважає мережу недовіреною і не вмикає бездротове налагодження автоматично, доки ви не відкриєте застосунок.</string>
     <string name="background_location_status_missing_inactive">Фоновий доступ: не дозволено. Потрібен лише тоді, коли ввімкнено режим довірених мереж.</string>

@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">जब Keep-Alive बैकग्राउंड में शुरू हो, तब आपके भरोसेमंद Wi-Fi (SSID/BSSID) को पहचानने के लिए KeepADB को जगह की जानकारी का एक्सेस “हर समय अनुमति दें” पर चाहिए। KeepADB आपके डिवाइस की लोकेशन कभी पता नहीं करता और न ही सेव करता है। अगली स्क्रीन पर अनुमतियां › जगह की जानकारी खोलें और खुद “हर समय अनुमति दें” चुनें; KeepADB यह अनुमति आपकी जगह नहीं दे सकता। इसके बिना, जिस नेटवर्क की पहचान पढ़ी न जा सके उसे कभी भरोसेमंद नहीं माना जाता।</string>
     <string name="background_location_setup_button">अभी सेट अप करें</string>
     <string name="background_location_settings_button">बैकग्राउंड एक्सेस जांचें</string>
+    <string name="background_location_dialog_later">बाद में</string>
     <string name="background_location_status_granted">बैकग्राउंड एक्सेस: अनुमति है। Keep-Alive बैकग्राउंड में शुरू होने पर भी भरोसेमंद नेटवर्क पहचाने जाते हैं। KeepADB आपके डिवाइस की लोकेशन कभी नहीं पढ़ता और न सेव करता है।</string>
     <string name="background_location_status_missing">बैकग्राउंड एक्सेस: अनुमति नहीं है। Keep-Alive बैकग्राउंड में शुरू होने पर Wi-Fi की पहचान पढ़ी न जा सके, ऐसा हो सकता है; तब KeepADB नेटवर्क को अविश्वसनीय मानता है और जब तक आप ऐप नहीं खोलते, वायरलेस डीबगिंग अपने आप चालू नहीं करता।</string>
     <string name="background_location_status_missing_inactive">बैकग्राउंड एक्सेस: अनुमति नहीं है। केवल तभी ज़रूरी है जब भरोसेमंद नेटवर्क मोड चालू हो।</string>
