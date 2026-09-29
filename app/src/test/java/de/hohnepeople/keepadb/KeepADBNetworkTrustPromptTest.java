@@ -308,6 +308,50 @@ public class KeepADBNetworkTrustPromptTest {
     }
 
     /**
+     * #643 (AK1): with ACCESS_BACKGROUND_LOCATION the identity is readable after a background
+     * start (measurement "Nachtrag 5", API 30 to 36.1), so the real call path -- {@link
+     * KeepADBNetworkTrustPrompt#onBlockedByUntrustedNetwork} and {@link
+     * KeepADBTrustedNetwork#getBlockReason} -- must see an ordinary unlisted network: the
+     * allow/block prompt and UNTRUSTED_NETWORK, never the identity-unavailable fallback.
+     */
+    @Test
+    public void aReadableIdentityRaisesTheAllowBlockPromptAndNotTheIdentityUnavailableFallback() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        connectTo("Cafe-WLAN", BSSID);
+
+        assertEquals(KeepADBTrustedNetwork.BlockReason.UNTRUSTED_NETWORK,
+                KeepADBTrustedNetwork.getBlockReason(context));
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        Notification notification = postedPrompt();
+        assertNotNull(notification);
+        assertEquals(context.getString(R.string.network_prompt_title),
+                String.valueOf(notification.extras.getCharSequence(Notification.EXTRA_TITLE)));
+        assertEquals("The readable network belongs in the blocked history", 1,
+                KeepADBBlockedNetworkHistory.getEntries(context).size());
+    }
+
+    /**
+     * #643 (AK1), counterpart: without the background grant the identity stays masked and the
+     * fallback (block reason and its own notification) must remain -- fail closed.
+     */
+    @Test
+    public void aMaskedIdentityStillYieldsTheIdentityUnavailableFallbackInAllowlistMode() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        connectTo("Cafe-WLAN", KeepADBNetworkIdentity.REDACTED_BSSID);
+
+        assertEquals(KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE,
+                KeepADBTrustedNetwork.getBlockReason(context));
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        Notification notification = postedPrompt();
+        assertNotNull(notification);
+        assertEquals(context.getString(R.string.network_prompt_identity_unavailable_title),
+                String.valueOf(notification.extras.getCharSequence(Notification.EXTRA_TITLE)));
+        assertTrue(KeepADBBlockedNetworkHistory.getEntries(context).isEmpty());
+    }
+
+    /**
      * Same throttle mechanism as the BSSID-keyed prompt (#460): repeated blocks on an unreadable
      * identity must not re-alert on every heartbeat.
      */

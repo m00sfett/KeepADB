@@ -493,6 +493,14 @@ final class KeepADBNetworkTrustPrompt {
      * #629 {@link KeepADBService#onStartCommand} catches it and retries with {@code
      * connectedDevice} alone instead of stopping the service, so the masked-but-running state
      * described above is reached there too.)
+     *
+     * <p>#643: the permanent alternative is the background location grant ({@code
+     * ACCESS_BACKGROUND_LOCATION}, "Allow all the time"): with it the identity is readable after a
+     * background start too (measurement "Nachtrag 5", API 30 to 36.1), so this notification only
+     * appears without it. The tap target for the "permission and location fine" case stays {@link
+     * MainActivity}: it re-promotes the service at once, and in allowlist mode without that grant
+     * it also shows the {@code background_location_panel} card leading to "Allow all the time".
+     * The notification text names that option as the lasting fix.
      */
     private static Intent identityUnavailableFixIntent(Context context) {
         if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)

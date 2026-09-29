@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">Nama jaringan &quot;%1$s&quot; diizinkan</string>
     <string name="wifi_ssids_removed_toast">Nama jaringan &quot;%1$s&quot; dihapus</string>
     <string name="settings_trusted_network_status_untrusted">Pengaktifan ulang otomatis dijeda: jaringan Wi-Fi ini tidak ada dalam daftar tepercaya Anda.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">Pengaktifan ulang otomatis dijeda: identitas jaringan saat ini tidak dapat ditentukan. Periksa izin/layanan lokasi, atau buka kembali aplikasi jika Keep-Alive dimulai di latar belakang.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">Pengaktifan ulang otomatis dijeda: identitas jaringan saat ini tidak dapat ditentukan. Periksa izin/layanan lokasi, atau buka kembali aplikasi jika Keep-Alive dimulai di latar belakang. Untuk solusi permanen, atur Lokasi ke “Izinkan sepanjang waktu”.</string>
     <string name="settings_trusted_network_permission_title">Izin lokasi diperlukan</string>
     <string name="settings_trusted_network_permission_message">Android memerlukan akses lokasi sebelum aplikasi dapat membaca nama dan ID jaringan Wi-Fi saat ini. KeepADB hanya menggunakan ini untuk mengenali jaringan tepercaya dan tidak pernah membaca atau menyimpan lokasi Anda.</string>
     <string name="settings_trusted_network_permission_grant">Izinkan</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">Sebuah jaringan ingin dijadikan tepercaya untuk Keep-Alive — buka KeepADB untuk memutuskan.</string>
     <string name="network_prompt_confirm_in_app_text">Jaringan Wi-Fi baru terdeteksi — ketuk untuk mengonfirmasinya di aplikasi.</string>
     <string name="network_prompt_identity_unavailable_title">Tidak dapat mengidentifikasi jaringan Wi-Fi saat ini</string>
-    <string name="network_prompt_identity_unavailable_text">Pengaktifan ulang otomatis Keep-Alive dijeda karena identitas jaringan tidak dapat dibaca. Biasanya izin lokasi tidak ada atau layanan lokasi nonaktif, tetapi ini juga bisa terjadi jika Keep-Alive dimulai di latar belakang. Ketuk untuk memperbaikinya.</string>
+    <string name="network_prompt_identity_unavailable_text">Pengaktifan ulang otomatis Keep-Alive dijeda karena identitas jaringan tidak dapat dibaca. Biasanya izin lokasi tidak ada atau layanan lokasi nonaktif, tetapi ini juga bisa terjadi jika Keep-Alive dimulai di latar belakang; mengatur Lokasi ke “Izinkan sepanjang waktu” memperbaikinya secara permanen. Ketuk untuk memperbaikinya.</string>
     <string name="settings_trusted_network_blocked_button">Baru diblokir (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Jaringan yang baru diblokir</string>
     <string name="settings_trusted_network_blocked_empty_message">Belum ada jaringan yang diblokir belakangan ini.</string>
@@ -329,7 +329,7 @@
     <string name="settings_website_link_accessibility">Buka HohnePeople.de di browser</string>
     <string name="status_off_keep_alive_waiting">Debugging Nirkabel NONAKTIF – Keep-Alive menunggu jaringan</string>
     <string name="status_off_keep_alive_blocked_untrusted">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini tidak tepercaya</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: identitas jaringan tidak dapat ditentukan, periksa izin Lokasi atau buka kembali aplikasi</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: identitas jaringan tidak dapat ditentukan, periksa izin Lokasi (“Izinkan sepanjang waktu”) atau buka kembali aplikasi</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: konfirmasi dialog jaringan Debugging Nirkabel Android, lalu ketuk sakelar untuk mencoba lagi</string>
     <string name="status_pending">Mengalihkan…</string>
     <string name="state_pending">Mengalihkan…</string>
