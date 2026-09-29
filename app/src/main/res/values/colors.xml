@@ -18,4 +18,7 @@
     <color name="advice_border">#8A6A12</color>
     <color name="night_text">#EDE6DC</color>
     <color name="night_muted">#A79B8C</color>
+    <!-- #645: "ok" state, warm green in keeping with the red/yellow palette;
+         contrast on panel #14100D is 8.62:1 (WCAG AA needs 4.5:1). -->
+    <color name="status_ok_green">#7FBF6A</color>
 </resources>

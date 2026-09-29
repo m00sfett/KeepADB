@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">Agar Wi-Fi tepercaya Anda (SSID/BSSID) tetap dikenali saat Keep-Alive dimulai di latar belakang, KeepADB memerlukan akses lokasi dengan pilihan “Izinkan sepanjang waktu”. KeepADB tidak pernah menentukan atau menyimpan posisi perangkat Anda. Di layar berikutnya, buka Izin › Lokasi lalu pilih sendiri “Izinkan sepanjang waktu”; KeepADB tidak dapat memberikannya untuk Anda. Tanpa izin ini, jaringan yang identitasnya tidak terbaca tidak pernah dianggap tepercaya.</string>
     <string name="background_location_setup_button">Siapkan sekarang</string>
     <string name="background_location_settings_button">Periksa akses latar belakang</string>
+    <string name="background_location_dialog_later">Nanti</string>
     <string name="background_location_status_granted">Akses latar belakang: diizinkan. Jaringan tepercaya tetap dikenali meskipun Keep-Alive dimulai di latar belakang. KeepADB tidak pernah membaca atau menyimpan posisi perangkat Anda.</string>
     <string name="background_location_status_missing">Akses latar belakang: tidak diizinkan. Saat Keep-Alive dimulai di latar belakang, identitas Wi-Fi mungkin tidak terbaca; KeepADB lalu menganggap jaringan tidak tepercaya dan tidak mengaktifkan debugging nirkabel secara otomatis sampai Anda membuka aplikasi.</string>
     <string name="background_location_status_missing_inactive">Akses latar belakang: tidak diizinkan. Hanya diperlukan saat mode jaringan tepercaya aktif.</string>

@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">Pour reconnaître ton Wi-Fi de confiance (SSID/BSSID) lorsque Keep-Alive démarre en arrière-plan, KeepADB a besoin de l’accès à la position réglé sur « Toujours autoriser ». KeepADB ne détermine ni n’enregistre jamais la position de ton appareil. Sur l’écran suivant, ouvre Autorisations › Position et choisis toi-même « Toujours autoriser » ; KeepADB ne peut pas l’accorder à ta place. Sans cela, un réseau dont l’identité est illisible n’est jamais considéré comme fiable.</string>
     <string name="background_location_setup_button">Configurer maintenant</string>
     <string name="background_location_settings_button">Vérifier l’accès en arrière-plan</string>
+    <string name="background_location_dialog_later">Plus tard</string>
     <string name="background_location_status_granted">Accès en arrière-plan : autorisé. Les réseaux de confiance sont reconnus même lorsque Keep-Alive démarre en arrière-plan. KeepADB ne lit ni n’enregistre jamais la position de ton appareil.</string>
     <string name="background_location_status_missing">Accès en arrière-plan : non autorisé. Si Keep-Alive démarre en arrière-plan, l’identité du Wi-Fi peut être illisible ; KeepADB considère alors le réseau comme non fiable et n’active pas automatiquement le débogage sans fil tant que tu n’as pas ouvert l’app.</string>
     <string name="background_location_status_missing_inactive">Accès en arrière-plan : non autorisé. Nécessaire uniquement quand le mode réseaux de confiance est activé.</string>

@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">Keep-Alive arka planda başladığında güvenilir Wi-Fi ağınızı (SSID/BSSID) tanımak için KeepADB’nin konum erişiminin “Her zaman izin ver” olarak ayarlanması gerekir. KeepADB cihazınızın konumunu asla belirlemez veya kaydetmez. Sonraki ekranda İzinler › Konum’u açın ve “Her zaman izin ver” seçeneğini kendiniz seçin; KeepADB bu izni sizin yerinize veremez. Bu izin olmadan kimliği okunamayan bir ağ asla güvenilir sayılmaz.</string>
     <string name="background_location_setup_button">Şimdi ayarla</string>
     <string name="background_location_settings_button">Arka plan erişimini kontrol et</string>
+    <string name="background_location_dialog_later">Daha sonra</string>
     <string name="background_location_status_granted">Arka plan erişimi: izin verildi. Keep-Alive arka planda başlasa bile güvenilir ağlar tanınır. KeepADB cihazınızın konumunu asla okumaz veya kaydetmez.</string>
     <string name="background_location_status_missing">Arka plan erişimi: izin verilmedi. Keep-Alive arka planda başladığında Wi-Fi kimliği okunamayabilir; KeepADB bu durumda ağı güvenilmez sayar ve siz uygulamayı açana kadar kablosuz hata ayıklamayı otomatik olarak açmaz.</string>
     <string name="background_location_status_missing_inactive">Arka plan erişimi: izin verilmedi. Yalnızca güvenilir ağ modu açıkken gereklidir.</string>

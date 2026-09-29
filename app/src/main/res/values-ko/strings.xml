@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">Keep-Alive가 백그라운드에서 시작될 때도 신뢰하는 Wi-Fi(SSID/BSSID)를 인식하려면 위치 액세스를 ‘항상 허용’으로 설정해야 합니다. KeepADB는 기기 위치를 확인하거나 저장하지 않습니다. 다음 화면에서 권한 › 위치를 열고 직접 ‘항상 허용’을 선택하세요. KeepADB가 대신 권한을 부여할 수는 없습니다. 허용하지 않으면 식별 정보를 읽을 수 없는 네트워크는 절대 신뢰하지 않습니다.</string>
     <string name="background_location_setup_button">지금 설정</string>
     <string name="background_location_settings_button">백그라운드 액세스 확인</string>
+    <string name="background_location_dialog_later">나중에</string>
     <string name="background_location_status_granted">백그라운드 액세스: 허용됨. Keep-Alive가 백그라운드에서 시작되어도 신뢰하는 네트워크를 인식합니다. KeepADB는 기기 위치를 읽거나 저장하지 않습니다.</string>
     <string name="background_location_status_missing">백그라운드 액세스: 허용되지 않음. Keep-Alive가 백그라운드에서 시작되면 Wi-Fi 식별 정보를 읽지 못할 수 있습니다. 이 경우 KeepADB는 네트워크를 신뢰하지 않는 것으로 처리하며, 앱을 열 때까지 무선 디버깅을 자동으로 켜지 않습니다.</string>
     <string name="background_location_status_missing_inactive">백그라운드 액세스: 허용되지 않음. 신뢰할 수 있는 네트워크 모드가 켜져 있을 때만 필요합니다.</string>

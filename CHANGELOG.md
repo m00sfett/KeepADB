@@ -17,11 +17,28 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.69` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.70` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.70] - Unreleased
+
+### Added
+- #644: Settings now show a rationale dialog for the optional background location grant ("Allow
+  all the time") in two situations, both only while the grant is missing: right after
+  trusted-network mode has been switched on, and when the "Check background access" button is
+  pressed. The dialog explains that the access is only used to recognize the trusted Wi-Fi and
+  offers "Open settings", "Trust all Wi-Fi networks instead" and "Later". The trust-all action is
+  omitted when all Wi-Fi networks are already trusted. With the grant present, the button still
+  jumps straight to the app's system settings page. The grant itself is never requested through a
+  runtime dialog. New string `background_location_dialog_later` in all 19 languages.
+
+### Changed
+- #645: The background access status line in Settings now shows three states in color as well as
+  text: active (green), restricted (amber) and neutral. The new green keeps a contrast of at
+  least 4.5:1 on the panel background (8.62:1).
 
 ## [1.8.69] - Unreleased
 

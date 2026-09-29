@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">Para reconhecer seu Wi-Fi confiável (SSID/BSSID) quando o Keep-Alive inicia em segundo plano, o KeepADB precisa do acesso à localização definido como “Permitir o tempo todo”. O KeepADB nunca determina nem armazena a posição do seu dispositivo. Na próxima tela, abra Permissões › Localização e escolha você mesmo “Permitir o tempo todo”; o KeepADB não pode conceder isso por você. Sem isso, uma rede cuja identidade não pode ser lida nunca é considerada confiável.</string>
     <string name="background_location_setup_button">Configurar agora</string>
     <string name="background_location_settings_button">Verificar acesso em segundo plano</string>
+    <string name="background_location_dialog_later">Mais tarde</string>
     <string name="background_location_status_granted">Acesso em segundo plano: permitido. Redes confiáveis são reconhecidas mesmo quando o Keep-Alive inicia em segundo plano. O KeepADB nunca lê nem armazena a posição do seu dispositivo.</string>
     <string name="background_location_status_missing">Acesso em segundo plano: não permitido. Quando o Keep-Alive inicia em segundo plano, a identidade do Wi-Fi pode ficar ilegível; o KeepADB trata então a rede como não confiável e não ativa a depuração sem fio automaticamente até você abrir o app.</string>
     <string name="background_location_status_missing_inactive">Acesso em segundo plano: não permitido. Necessário apenas enquanto o modo de redes confiáveis estiver ativo.</string>

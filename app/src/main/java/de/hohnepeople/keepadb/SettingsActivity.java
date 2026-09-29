@@ -102,6 +102,8 @@ public class SettingsActivity extends Activity {
     private Button wifiApsRecentlyBlockedButton;
     private AlertDialog activeBlockedNetworksDialog;
     private AlertDialog activeTrustConfirmationDialog;
+    /** #644: the step-2 rationale dialog for the optional background location grant, if showing. */
+    private AlertDialog activeBackgroundLocationDialog;
     /** #604: the BSSID {@link #activeTrustConfirmationDialog} is bound to, or null if none is showing. */
     private String activeTrustConfirmationBssid;
     private boolean wifiApsExpanded;
@@ -283,9 +285,16 @@ public class SettingsActivity extends Activity {
         trustedNetworkToggle = findViewById(R.id.settings_trusted_network_toggle);
         trustedNetworkStatus = findViewById(R.id.settings_trusted_network_status);
         backgroundLocationStatus = findViewById(R.id.settings_background_location_status);
-        // #616: only opens the system page; the grant itself is the user's choice there.
-        findViewById(R.id.settings_background_location_button).setOnClickListener(v ->
-                KeepADBBackgroundLocation.openSettings(this));
+        // #616/#644: never grants anything; the user picks "Allow all the time" on the system
+        // page. Without the grant, the rationale dialog comes first (step 2); with it, the button
+        // goes straight to the page so the grant can still be checked or revoked.
+        findViewById(R.id.settings_background_location_button).setOnClickListener(v -> {
+            if (KeepADBBackgroundLocation.isGranted(this)) {
+                KeepADBBackgroundLocation.openSettings(this);
+            } else {
+                showBackgroundLocationDialog();
+            }
+        });
         trustedSsidToggle = findViewById(R.id.settings_trusted_ssid_toggle);
         // OnClick, not OnCheckedChange: refresh() re-renders both switches from the persisted
         // state, and a checked-change listener would fire on that programmatic write too.
@@ -404,6 +413,13 @@ public class SettingsActivity extends Activity {
                 activeTrustConfirmationDialog.dismiss();
             }
             activeTrustConfirmationDialog = null;
+        }
+
+        if (activeBackgroundLocationDialog != null) {
+            if (activeBackgroundLocationDialog.isShowing()) {
+                activeBackgroundLocationDialog.dismiss();
+            }
+            activeBackgroundLocationDialog = null;
         }
 
         super.onDestroy();
@@ -540,8 +556,7 @@ public class SettingsActivity extends Activity {
         // checked state from the persisted mode either way.
         trustedNetworkToggle.setChecked(false);
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-            refresh();
+            enableAllowlistMode();
             return;
         }
         new AlertDialog.Builder(this)
@@ -558,6 +573,53 @@ public class SettingsActivity extends Activity {
                 .show();
     }
 
+    /**
+     * Step 1 is done (ACCESS_FINE_LOCATION is granted): switches to allowlist mode and, unless the
+     * optional background grant is already there, follows up with the step-2 rationale (#644).
+     */
+    private void enableAllowlistMode() {
+        KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        refresh();
+        if (!KeepADBBackgroundLocation.isGranted(this)) {
+            showBackgroundLocationDialog();
+        }
+    }
+
+    /**
+     * #644, step 2: explains why "Allow all the time" is wanted and lets the user act on it. This
+     * never requests ACCESS_BACKGROUND_LOCATION itself -- since Android 11 the only way is the
+     * app's system permission page, which "Open settings" jumps to.
+     *
+     * <p>"Trust all Wi-Fi networks instead" is only offered while allowlist mode is on; in
+     * all-Wi-Fi mode it would be a no-op. "Later" keeps whatever mode is set (allowlist then runs
+     * with foreground location only, and the status line keeps showing the missing grant).
+     */
+    private void showBackgroundLocationDialog() {
+        if (activeBackgroundLocationDialog != null && activeBackgroundLocationDialog.isShowing()) {
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.background_location_panel_title)
+                .setMessage(R.string.background_location_panel_body)
+                .setPositiveButton(R.string.location_permission_settings_button, (d, which) ->
+                        KeepADBBackgroundLocation.openSettings(this))
+                .setNegativeButton(R.string.background_location_dialog_later, null);
+        if (KeepADBTrustedNetwork.isAllowlistMode(this)) {
+            builder.setNeutralButton(R.string.location_permission_panel_fallback_button, (d, which) -> {
+                KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+                refresh();
+            });
+        }
+        AlertDialog dialog = builder.create();
+        activeBackgroundLocationDialog = dialog;
+        dialog.setOnDismissListener(d -> {
+            if (activeBackgroundLocationDialog == d) {
+                activeBackgroundLocationDialog = null;
+            }
+        });
+        dialog.show();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -568,12 +630,12 @@ public class SettingsActivity extends Activity {
             boolean granted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED;
             if (granted) {
-                KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+                enableAllowlistMode();
             } else {
                 Toast.makeText(this, R.string.settings_trusted_network_permission_denied_toast,
                         Toast.LENGTH_LONG).show();
+                refresh();
             }
-            refresh();
         } else if (requestCode == WIFI_APS_LOCATION_PERMISSION_REQUEST) {
             refresh();
         }
@@ -820,11 +882,21 @@ public class SettingsActivity extends Activity {
         }
         // #616: always visible here, so the background grant can be checked or set up later,
         // independent of the main-screen card and its dismiss state.
-        backgroundLocationStatus.setText(KeepADBBackgroundLocation.isGranted(this)
-                ? R.string.background_location_status_granted
-                : KeepADBTrustedNetwork.isAllowlistMode(this)
-                        ? R.string.background_location_status_missing
-                        : R.string.background_location_status_missing_inactive);
+        // #645: colour reinforces the state, the text still carries it on its own.
+        int statusText;
+        int statusColor;
+        if (KeepADBBackgroundLocation.isGranted(this)) {
+            statusText = R.string.background_location_status_granted;
+            statusColor = R.color.status_ok_green;
+        } else if (KeepADBTrustedNetwork.isAllowlistMode(this)) {
+            statusText = R.string.background_location_status_missing;
+            statusColor = R.color.text_yellow;
+        } else {
+            statusText = R.string.background_location_status_missing_inactive;
+            statusColor = R.color.night_muted;
+        }
+        backgroundLocationStatus.setText(statusText);
+        backgroundLocationStatus.setTextColor(getColor(statusColor));
 
         // #507: Wi-Fi & Access Points opt-in rendering
         boolean wifiApsEnabled = KeepADBPreferences.isWifiApsFeatureEnabled(this);

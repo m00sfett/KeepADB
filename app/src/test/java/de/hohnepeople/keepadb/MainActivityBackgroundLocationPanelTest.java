@@ -111,6 +111,19 @@ public class MainActivityBackgroundLocationPanelTest {
     }
 
     @Test
+    public void dismissSurvivesActivityRestartAndProcessRecreation() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        ActivityController<MainActivity> first = Robolectric.buildActivity(MainActivity.class).setup();
+        first.get().findViewById(R.id.btn_dismiss_background_location_panel).performClick();
+        first.pause().stop().destroy();
+
+        // A brand-new activity instance reads only the persisted preference.
+        ActivityController<MainActivity> second = Robolectric.buildActivity(MainActivity.class).setup();
+        assertEquals(View.GONE, panelVisibility(second));
+        assertFalse(KeepADBPreferences.isBackgroundLocationPanelVisible(context));
+    }
+
+    @Test
     public void grantAfterReturnHidesCardAndLaterRevocationShowsItAgainEvenAfterDismiss() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup();
@@ -152,6 +165,10 @@ public class MainActivityBackgroundLocationPanelTest {
         TextView status = settings.findViewById(R.id.settings_background_location_status);
         assertEquals(context.getString(R.string.background_location_status_missing), status.getText().toString());
         settings.findViewById(R.id.settings_background_location_button).performClick();
+        // #644: the rationale dialog comes first; the jump is its "Open settings" action.
+        org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog()
+                .getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+        org.robolectric.shadows.ShadowLooper.idleMainLooper();
         Intent intent = shadowOf(settings).getNextStartedActivity();
         assertEquals(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, intent.getAction());
 

@@ -218,6 +218,7 @@
     <string name="background_location_panel_body">Чтобы распознавать доверенную сеть Wi-Fi (SSID/BSSID), когда Keep-Alive запускается в фоне, KeepADB нужен доступ к местоположению с вариантом «Разрешить в любом режиме». KeepADB никогда не определяет и не сохраняет положение устройства. На следующем экране откройте Разрешения › Местоположение и сами выберите «Разрешить в любом режиме»; KeepADB не может выдать это разрешение за вас. Без него сеть с нечитаемым идентификатором никогда не считается доверенной.</string>
     <string name="background_location_setup_button">Настроить сейчас</string>
     <string name="background_location_settings_button">Проверить фоновый доступ</string>
+    <string name="background_location_dialog_later">Позже</string>
     <string name="background_location_status_granted">Фоновый доступ: разрешён. Доверенные сети распознаются, даже когда Keep-Alive запускается в фоне. KeepADB никогда не считывает и не сохраняет положение устройства.</string>
     <string name="background_location_status_missing">Фоновый доступ: не разрешён. При запуске Keep-Alive в фоне идентификатор Wi-Fi может быть нечитаем; тогда KeepADB считает сеть недоверенной и не включает отладку по Wi-Fi автоматически, пока вы не откроете приложение.</string>
     <string name="background_location_status_missing_inactive">Фоновый доступ: не разрешён. Нужен только при включённом режиме доверенных сетей.</string>
