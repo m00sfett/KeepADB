@@ -1,0 +1,1 @@
+Trusted-network mode now explains why background location access is needed and lets you open settings, trust all Wi-Fi networks instead, or decide later. The background access status in Settings is now also color-coded.
