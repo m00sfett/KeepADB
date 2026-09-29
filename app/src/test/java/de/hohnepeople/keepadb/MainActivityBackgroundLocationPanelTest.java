@@ -111,6 +111,19 @@ public class MainActivityBackgroundLocationPanelTest {
     }
 
     @Test
+    public void dismissSurvivesActivityRestartAndProcessRecreation() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        ActivityController<MainActivity> first = Robolectric.buildActivity(MainActivity.class).setup();
+        first.get().findViewById(R.id.btn_dismiss_background_location_panel).performClick();
+        first.pause().stop().destroy();
+
+        // A brand-new activity instance reads only the persisted preference.
+        ActivityController<MainActivity> second = Robolectric.buildActivity(MainActivity.class).setup();
+        assertEquals(View.GONE, panelVisibility(second));
+        assertFalse(KeepADBPreferences.isBackgroundLocationPanelVisible(context));
+    }
+
+    @Test
     public void grantAfterReturnHidesCardAndLaterRevocationShowsItAgainEvenAfterDismiss() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup();
