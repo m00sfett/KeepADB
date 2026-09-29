@@ -163,10 +163,15 @@ KeepADB setzt verbindlich **Variante C2** um:
 1. **Vollständige Aufhebung der Maskierung während des Keep-Alive-Betriebs:** C2 liefert bei
    laufendem FGS dieselben zuverlässigen echten BSSID/SSID-Werte wie C1 – auch bei Reconnects und
    bei ausgeschaltetem Display.
-2. **Minimaler Datenschutz-Impact & kein Background-Location-Grant:** Es ist kein aggressives
-   `ACCESS_BACKGROUND_LOCATION` („Immer zulassen“) nötig. Die normale While-in-Use-Berechtigung
-   `ACCESS_FINE_LOCATION` („Beim Verwenden der App“) reicht für Androids Einstufung des FGS mit
-   Service-Typ `location` völlig aus.
+2. **Minimaler Datenschutz-Impact & kein Background-Location-Grant standardmäßig erforderlich:**
+   Es ist kein aggressives `ACCESS_BACKGROUND_LOCATION` („Immer zulassen“) nötig. Die normale
+   While-in-Use-Berechtigung `ACCESS_FINE_LOCATION` („Beim Verwenden der App“) reicht für Androids
+   Einstufung des FGS mit Service-Typ `location` völlig aus. *Stand vor #616 (2026-09-27):* Diese
+   Aussage beschreibt den Standardfall ohne Hintergrundstart-Problematik. Seit #616 bietet KeepADB
+   `ACCESS_BACKGROUND_LOCATION` zusätzlich als **optionalen** Opt-in an, weil #626/#629/#630 zeigen,
+   dass ein rein im Hintergrund gestarteter Service-Record ohne diesen Grant dauerhaft maskiert
+   bleibt (siehe Punkt 4 unten und Nachtrag 4). Der Grant bleibt weiterhin nicht Voraussetzung für
+   den normalen Betrieb, sondern eine bewusste Nutzerentscheidung für den Hintergrundstart-Fall.
 3. **Optimale UX:** Keine verwirrenden Dialoge oder Umwege über Systemeinstellungen („Immer zulassen“);
    vollständig kompatibel mit den Richtlinien von F-Droid und Google Play.
 4. **Defensiver Fallback:** Der Service-Typ `location` wird beim `startForeground()` dynamisch

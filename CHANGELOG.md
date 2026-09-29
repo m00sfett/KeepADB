@@ -23,6 +23,21 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.8.66] - Unreleased
+
+### Documentation
+- #634: `fastlane/metadata/android/en-US/full_description.txt` described the background recovery
+  pause (missing/approximate permission, location off, or a background-originated service start)
+  without mentioning the #616 opt-in that covers the background-start case. Now names the optional
+  "Allow all the time" location grant as the way to keep identity readable across a background
+  start too, while keeping the no-location-determination/storage guarantee explicit. No code
+  change.
+- #635: the C2 binding-decision's point 2 ("no background-location grant needed") in
+  `docs/trusted-networks-measurement.md` predates #616 and did not mark itself as describing the
+  pre-#616 default-mode state. Added a note that #616 later introduced `ACCESS_BACKGROUND_LOCATION`
+  as an optional opt-in for the background-start case found in #626/#629/#630, without changing
+  the underlying default-mode decision. No code change.
+
 ## [1.8.65] - Unreleased
 
 ### Documentation

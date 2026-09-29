@@ -1,0 +1,1 @@
+• Documentation: the Play/F-Droid store description and the developer measurement notes now mention the optional "Allow all the time" location grant that keeps Wi-Fi identity readable after a background-started restart. No functional change.
