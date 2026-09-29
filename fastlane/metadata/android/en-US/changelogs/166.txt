@@ -1,0 +1,1 @@
+Clearer hints now explain how to fix an unreadable Wi-Fi network identity by allowing location access all the time.

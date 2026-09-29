@@ -519,9 +519,11 @@ public class SettingsActivity extends Activity {
      * is a security decision taken against the warning next to it. Under Variante C2 (#606),
      * granting ACCESS_FINE_LOCATION enables {@link KeepADBService} to run with {@code
      * FOREGROUND_SERVICE_TYPE_LOCATION}, which keeps Wi-Fi identity unmasked during keep-alive
-     * only when the service's foreground promotion originated from the foreground; a
-     * background-originated promotion falls back to {@code connectedDevice} alone and stays
-     * masked until a later foreground-originated restart (#629/#630).
+     * when the service's foreground promotion originated from the foreground, or from the
+     * background with the optional #616 {@code ACCESS_BACKGROUND_LOCATION} grant ("Allow all the
+     * time"). Without that grant, a background-originated promotion stays masked until a later
+     * foreground-originated restart, and on API 34+ it falls back to {@code connectedDevice}
+     * alone (#629/#630; see {@code docs/trusted-networks-measurement.md}, "Nachtrag 5").
      *
      * <p>Turning it *on* requires ACCESS_FINE_LOCATION, because without it the platform hands the
      * app a masked identity (and the foreground service cannot adopt the location type), causing

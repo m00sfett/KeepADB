@@ -124,7 +124,7 @@
     <string name="wifi_ssids_added_toast">Netzwerkname „%1$s“ freigegeben</string>
     <string name="wifi_ssids_removed_toast">Netzwerkname „%1$s“ entfernt</string>
     <string name="settings_trusted_network_status_untrusted">Automatisches Wiedereinschalten pausiert: Dieses WLAN steht nicht auf deiner vertrauenswürdigen Liste.</string>
-    <string name="settings_trusted_network_status_identity_unavailable">Automatisches Wiedereinschalten pausiert: Die Identität des aktuellen Netzwerks kann nicht ermittelt werden. Standortberechtigung/-dienst prüfen oder die App einmal öffnen, falls Keep-Alive im Hintergrund gestartet wurde.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">Automatisches Wiedereinschalten pausiert: Die Identität des aktuellen Netzwerks kann nicht ermittelt werden. Standortberechtigung/-dienst prüfen oder die App einmal öffnen, falls Keep-Alive im Hintergrund gestartet wurde. Dauerhaft hilft Standort auf „Immer zulassen“.</string>
     <string name="settings_trusted_network_permission_title">Standortzugriff erforderlich</string>
     <string name="settings_trusted_network_permission_message">Android verlangt Standortzugriff, damit eine App den Namen und die ID des aktuellen WLANs lesen kann. KeepADB nutzt dies ausschließlich zur Wiedererkennung vertrauenswürdiger Netzwerke und liest oder speichert niemals deinen Standort.</string>
     <string name="settings_trusted_network_permission_grant">Erlauben</string>
@@ -145,7 +145,7 @@
     <string name="network_prompt_public_text">Ein Netzwerk möchte für Keep-Alive vertrauenswürdig werden — zum Entscheiden KeepADB öffnen.</string>
     <string name="network_prompt_confirm_in_app_text">Neues WLAN erkannt — tippen, um es in der App zu bestätigen.</string>
     <string name="network_prompt_identity_unavailable_title">Aktuelles WLAN kann nicht identifiziert werden</string>
-    <string name="network_prompt_identity_unavailable_text">Automatisches Wiedereinschalten von Keep-Alive ist pausiert, weil die Identität des Netzwerks nicht gelesen werden kann. Meist fehlt die Standortberechtigung oder der Standortdienst ist aus, es kann aber auch daran liegen, dass Keep-Alive im Hintergrund gestartet wurde. Zum Beheben tippen.</string>
+    <string name="network_prompt_identity_unavailable_text">Automatisches Wiedereinschalten von Keep-Alive ist pausiert, weil die Identität des Netzwerks nicht gelesen werden kann. Meist fehlt die Standortberechtigung oder der Standortdienst ist aus, es kann aber auch daran liegen, dass Keep-Alive im Hintergrund gestartet wurde; Standort auf „Immer zulassen“ zu stellen behebt das dauerhaft. Zum Beheben tippen.</string>
     <string name="settings_trusted_network_blocked_button">Kürzlich blockiert (%1$d)</string>
     <string name="settings_trusted_network_blocked_title">Kürzlich blockierte Netzwerke</string>
     <string name="settings_trusted_network_blocked_empty_message">Zuletzt wurde kein Netzwerk blockiert.</string>
@@ -329,7 +329,7 @@
     <string name="settings_website_link_accessibility">HohnePeople.de im Browser öffnen</string>
     <string name="status_off_keep_alive_waiting">Drahtloses Debugging ist AUS – Keep-Alive wartet auf das Netzwerk</string>
     <string name="status_off_keep_alive_blocked_untrusted">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Dieses WLAN ist nicht vertrauenswürdig</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Netzwerk-Identität nicht ermittelbar, Standortberechtigung prüfen oder App neu öffnen</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Netzwerk-Identität nicht ermittelbar, Standortberechtigung („Immer zulassen“) prüfen oder App neu öffnen</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Androids Systemdialog für Drahtloses Debugging bestätigen, dann zum erneuten Versuch antippen</string>
     <string name="status_pending">Wird umgeschaltet …</string>
     <string name="state_pending">Wird umgeschaltet …</string>

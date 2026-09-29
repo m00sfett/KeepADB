@@ -91,7 +91,7 @@
     <string name="wifi_ssids_added_toast">已允许网络名称“%1$s”</string>
     <string name="wifi_ssids_removed_toast">已移除网络名称“%1$s”</string>
     <string name="settings_trusted_network_status_untrusted">自动重新启用已暂停:此 Wi-Fi 网络不在您的受信任列表中。</string>
-    <string name="settings_trusted_network_status_identity_unavailable">自动重新启用已暂停:无法确定当前网络的身份。请检查定位权限/服务，如果 Keep-Alive 是在后台启动的，请重新打开应用。</string>
+    <string name="settings_trusted_network_status_identity_unavailable">自动重新启用已暂停:无法确定当前网络的身份。请检查定位权限/服务，如果 Keep-Alive 是在后台启动的，请重新打开应用；也可将位置信息权限设为“始终允许”以永久解决。</string>
     <string name="settings_trusted_network_permission_title">需要位置权限</string>
     <string name="settings_trusted_network_permission_message">在应用读取当前 Wi-Fi 网络的名称和 ID 之前,Android 需要位置访问权限。KeepADB 仅使用此权限来识别受信任的网络,绝不会读取或存储您的位置信息。</string>
     <string name="settings_trusted_network_permission_grant">授予</string>
@@ -112,7 +112,7 @@
     <string name="network_prompt_public_text">有网络请求成为 Keep-Alive 的受信任网络 — 打开 KeepADB 进行决定。</string>
     <string name="network_prompt_confirm_in_app_text">检测到新的 Wi-Fi 网络 — 点按以在应用中确认。</string>
     <string name="network_prompt_identity_unavailable_title">无法识别当前的 Wi-Fi 网络</string>
-    <string name="network_prompt_identity_unavailable_text">由于无法读取网络身份，Keep-Alive 自动重新启用已暂停。通常是缺少定位权限或定位服务已关闭，但如果 Keep-Alive 是在后台启动的，也可能出现这种情况。点按以修复。</string>
+    <string name="network_prompt_identity_unavailable_text">由于无法读取网络身份，Keep-Alive 自动重新启用已暂停。通常是缺少定位权限或定位服务已关闭，但如果 Keep-Alive 是在后台启动的，也可能出现这种情况。将位置信息权限设为“始终允许”可永久解决。点按以修复。</string>
     <string name="settings_trusted_network_blocked_button">近期被拦截（%1$d）</string>
     <string name="settings_trusted_network_blocked_title">近期被拦截的网络</string>
     <string name="settings_trusted_network_blocked_empty_message">近期没有网络被拦截。</string>
@@ -329,7 +329,7 @@
     <string name="settings_website_link_accessibility">在浏览器中打开 HohnePeople.de</string>
     <string name="status_off_keep_alive_waiting">无线调试已关闭 – Keep-Alive 正在等待网络</string>
     <string name="status_off_keep_alive_blocked_untrusted">无线调试已关闭 – Keep-Alive 已暂停:此 Wi-Fi 网络不受信任</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">无线调试已关闭 – Keep-Alive 已暂停:无法确定网络身份,请检查位置权限或重新打开应用</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">无线调试已关闭 – Keep-Alive 已暂停:无法确定网络身份,请检查位置权限（“始终允许”）或重新打开应用</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">无线调试已关闭 – Keep-Alive 已暂停:请确认 Android 的无线调试网络对话框,然后点按开关重试</string>
     <string name="status_pending">正在切换…</string>
     <string name="state_pending">正在切换…</string>

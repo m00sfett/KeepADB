@@ -138,6 +138,47 @@ public class KeepADBResourceContractTest {
         }
     }
 
+    /**
+     * #643: the three identity-unavailable texts must name the permanent fix, the system option
+     * "Allow all the time" in that locale's own wording (the same wording the background
+     * location panel uses), not only "reopen the app".
+     */
+    @Test
+    public void identityUnavailableTextsNameTheAllowAllTheTimeOptionInEveryLocale()
+            throws Exception {
+        Map<String, String> phrases = new LinkedHashMap<>();
+        phrases.put("", "Allow all the time");
+        phrases.put("de", "Immer zulassen");
+        phrases.put("es", "Permitir todo el tiempo");
+        phrases.put("fr", "Toujours autoriser");
+        phrases.put("pt", "Permitir o tempo todo");
+        phrases.put("it", "Consenti sempre");
+        phrases.put("nl", "Altijd toestaan");
+        phrases.put("pl", "Zezwalaj zawsze");
+        phrases.put("uk", "Дозволити завжди");
+        phrases.put("ru", "Разрешить в любом режиме");
+        phrases.put("tr", "Her zaman izin ver");
+        phrases.put("ar", "السماح طوال الوقت");
+        phrases.put("hi", "हर समय अनुमति दें");
+        phrases.put("zh-CN", "始终允许");
+        phrases.put("zh-TW", "一律允許");
+        phrases.put("ja", "常に許可");
+        phrases.put("ko", "항상 허용");
+        phrases.put("id", "Izinkan sepanjang waktu");
+        phrases.put("vi", "Luôn cho phép");
+        String[] names = {"network_prompt_identity_unavailable_text",
+                "settings_trusted_network_status_identity_unavailable",
+                "status_off_keep_alive_blocked_identity_unavailable"};
+        for (Map.Entry<String, String> phrase : phrases.entrySet()) {
+            String qualifier = phrase.getKey().isEmpty() ? ""
+                    : SUPPORTED_LOCALES.get(phrase.getKey());
+            for (String name : names) {
+                assertTrue(phrase.getKey() + "/" + name + " must mention '" + phrase.getValue() + "'",
+                        compiledValue(name, qualifier).contains(phrase.getValue()));
+            }
+        }
+    }
+
     @Test
     public void translatedContractStringsDoNotSilentlyFallBackToEnglishWhereRuntimeCanSelectThem()
             throws Exception {
