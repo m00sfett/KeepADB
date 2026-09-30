@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLog;
 import org.robolectric.shadows.ShadowLooper;
 
 @RunWith(RobolectricTestRunner.class)
@@ -123,6 +124,17 @@ public class KeepADBRegisterClientTest {
         assertFalse(recordedRequests.isEmpty());
         assertTrue(recordedRequests.get(0).startsWith("POST"));
         assertTrue(recordedRequests.toString().contains("192.168.1.50:41234"));
+    }
+
+    @Test
+    public void testPostEndpointDoesNotLogEndpointInCleartext() {
+        ShadowLog.clear();
+        String url = "http://127.0.0.1:" + testServerPort + "/register";
+        assertTrue(KeepADBRegisterClient.postEndpoint(url, "192.168.1.50:41234"));
+        StringBuilder logged = new StringBuilder();
+        for (ShadowLog.LogItem item : ShadowLog.getLogs()) logged.append(item.msg).append('\n');
+        assertTrue(logged.toString().contains("returned HTTP 200"));
+        assertFalse(logged.toString(), logged.toString().contains("192.168.1.50"));
     }
 
     @Test
