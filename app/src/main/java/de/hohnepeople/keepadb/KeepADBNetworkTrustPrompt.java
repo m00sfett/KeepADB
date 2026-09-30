@@ -196,11 +196,10 @@ final class KeepADBNetworkTrustPrompt {
         return shown;
     }
 
-    /** SSID if readable, otherwise the BSSID -- the identifier shown to the user. */
+    /** Raw SSID or BSSID fallback for trust actions; casing is applied only when rendered. */
     static String labelFor(KeepADBNetworkIdentity identity) {
         String ssid = identity.displaySsid();
-        return (ssid == null || ssid.isEmpty())
-                ? identity.bssid.toUpperCase(Locale.ROOT) : ssid;
+        return (ssid == null || ssid.isEmpty()) ? identity.bssid : ssid;
     }
 
     /**

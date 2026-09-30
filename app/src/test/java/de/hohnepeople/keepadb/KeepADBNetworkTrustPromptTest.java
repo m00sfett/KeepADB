@@ -101,9 +101,23 @@ public class KeepADBNetworkTrustPromptTest {
     }
 
     @Test
-    public void anUnreadableSsidUsesTheUppercaseBssidAsItsPromptLabel() {
-        assertEquals("AA:BB:CC:DD:EE:01", KeepADBNetworkTrustPrompt.labelFor(
-                new KeepADBNetworkIdentity(WifiManager.UNKNOWN_SSID, BSSID)));
+    public void anUnreadableSsidDisplaysUppercaseWithoutChangingTheTrustedLabel() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        connectTo("", BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        Notification notification = postedPrompt();
+        assertTrue(notification.extras.getString(Notification.EXTRA_TEXT)
+                .contains(BSSID.toUpperCase(java.util.Locale.ROOT)));
+        Intent allow = actionIntent(notification, 0);
+        assertEquals(BSSID, allow.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
+        assertEquals("The action keeps the raw fallback label", BSSID,
+                allow.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_LABEL));
+        KeepADBReceiver.handleTrustNetworkAction(context,
+                allow.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID),
+                allow.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_LABEL));
+        assertEquals(BSSID, KeepADBTrustedNetwork.getEntries(context).get(0).bssid);
+        assertEquals("Storage keeps the raw fallback label", BSSID,
+                KeepADBTrustedNetwork.getEntries(context).get(0).label);
     }
 
     @Test
