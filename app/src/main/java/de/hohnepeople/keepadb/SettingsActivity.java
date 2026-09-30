@@ -539,7 +539,7 @@ public class SettingsActivity extends Activity {
      * number of names, so collapsing it never hides an active setting.
      */
     private void setSsidSectionExpanded(boolean expanded) {
-        setCardExpanded(networkSsidBody, networkSsidArrow, expanded);
+        setCardExpanded(networkSsidHeader, networkSsidBody, networkSsidArrow, expanded);
         networkSsidHeader.setStateDescription(getString(expanded
                 ? R.string.card_state_expanded : R.string.card_state_collapsed));
     }
@@ -548,14 +548,16 @@ public class SettingsActivity extends Activity {
         // #471: the webhook card is collapsed by default like every other card; a caller asking
         // to focus its URL field (e.g. MainActivity's webhook setup shortcut) needs the body
         // actually expanded first, or requestFocus() below would silently no-op on a GONE view.
-        setCardExpanded(findViewById(R.id.settings_webhook_body), findViewById(R.id.settings_webhook_arrow), true);
+        setCardExpanded(findViewById(R.id.settings_webhook_header), findViewById(R.id.settings_webhook_body),
+                findViewById(R.id.settings_webhook_arrow), true);
         scrollView.post(() -> scrollView.smoothScrollTo(0, webhookPanel.getTop()));
         webhookForm.requestUrlFocus();
     }
 
     private void focusNetworkPanel() {
         // #619: expand the network card and scroll it into view.
-        setCardExpanded(findViewById(R.id.settings_network_beta_body),
+        setCardExpanded(findViewById(R.id.settings_network_beta_header),
+                findViewById(R.id.settings_network_beta_body),
                 findViewById(R.id.settings_network_beta_arrow), true);
         if (networkPanel != null && scrollView != null) {
             scrollView.post(() -> scrollView.smoothScrollTo(0, networkPanel.getTop()));
@@ -571,10 +573,14 @@ public class SettingsActivity extends Activity {
         View header = findViewById(headerId);
         View body = findViewById(bodyId);
         TextView arrow = findViewById(arrowId);
-        header.setOnClickListener(v -> setCardExpanded(body, arrow, body.getVisibility() != View.VISIBLE));
+        setCardExpanded(header, body, arrow, body.getVisibility() == View.VISIBLE);
+        header.setOnClickListener(v -> setCardExpanded(header, body, arrow, body.getVisibility() != View.VISIBLE));
     }
 
-    private void setCardExpanded(View body, TextView arrow, boolean expanded) {
+    private void setCardExpanded(View header, View body, TextView arrow, boolean expanded) {
+        // TalkBack: announce the expanded/collapsed state like the Wi-Fi-name section header (#655).
+        header.setStateDescription(getString(expanded
+                ? R.string.card_state_expanded : R.string.card_state_collapsed));
         body.setVisibility(expanded ? View.VISIBLE : View.GONE);
         arrow.setText(expanded ? CARD_EXPANDED_SYMBOL : CARD_COLLAPSED_SYMBOL);
     }
