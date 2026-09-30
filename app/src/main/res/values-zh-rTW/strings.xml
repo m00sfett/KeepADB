@@ -199,7 +199,7 @@
     <string name="background_location_dialog_later">稍後</string>
     <string name="background_location_status_granted">背景存取：已允許。即使 Keep-Alive 在背景啟動，也能辨識已允許的存取點。KeepADB 絕不會讀取或儲存你裝置的位置。</string>
     <string name="background_location_status_missing">背景存取：受限。Keep-Alive 在背景啟動時，Android 可能隱藏 Wi-Fi 身分；此時 KeepADB 會將該網路視為未允許，在你開啟應用程式前不會自動開啟無線偵錯。</string>
-    <string name="background_location_status_missing_inactive">背景存取：目前模式不需要。僅「僅限已允許的存取點」需要。</string>
+    <string name="background_location_status_missing_inactive">背景存取：目前設定不需要。Keep-Alive 在背景執行時，檢查存取點或 Wi-Fi 名稱需要這項權限。</string>
     <string name="location_permission_panel_title">受信任網路需要位置權限</string>
     <string name="location_permission_panel_body">受信任網路模式需要位置權限來識別您的 Wi-Fi 網路。沒有此權限，Keep-Alive 無法確認受信任網路，也不會自動重新啟用。</string>
     <string name="location_permission_panel_grant_button">授予位置權限</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">Keep-Alive 正在等待連接 Wi-Fi 網路。</string>
     <string name="network_cause_permission_missing">自動重新啟用已暫停：沒有位置權限時，Android 會隱藏你連接的是哪個存取點。</string>
     <string name="network_cause_location_off">自動重新啟用已暫停：位置已關閉，因此 Android 會隱藏你連接的是哪個存取點。</string>
-    <string name="network_cause_unreadable_all_wifi">目前無法讀取該網路。在「在所有 Wi-Fi 網路中」模式下這無關緊要，但「僅限已允許的存取點」需要它。</string>
+    <string name="network_cause_unreadable_all_wifi">目前無法讀取網路。自動重新啟用仍可繼續，但需要可讀取的網路資訊來檢查已儲存的存取點或 Wi-Fi 名稱。</string>
     <string name="network_cause_not_allowed">自動重新啟用已暫停：此存取點不在你的允許清單中。</string>
     <string name="network_cause_allowed">Keep-Alive 可以在此重新開啟無線偵錯。</string>
     <string name="network_cause_allowed_by_name">Keep-Alive 可以在此重新開啟無線偵錯。任何使用此 Wi-Fi 名稱且可讀取的存取點都會被接受。</string>
