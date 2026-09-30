@@ -1123,10 +1123,7 @@ public class SettingsActivity extends Activity {
         row.addView(label);
 
         if (!listed) {
-            Button add = new Button(this);
-            add.setBackgroundResource(R.drawable.bg_btn_primary);
-            add.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
-            add.setTextColor(getColor(R.color.title_yellow));
+            Button add = newRowActionButton(R.drawable.bg_btn_primary, R.color.title_yellow);
             add.setText(R.string.wifi_ssids_add_button);
             add.setContentDescription(getString(R.string.wifi_ssids_add_accessibility, shownName));
             add.setOnClickListener(v -> {
@@ -1140,13 +1137,37 @@ public class SettingsActivity extends Activity {
                 }
                 refresh();
             });
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
-            add.setLayoutParams(params);
             row.addView(add);
         }
         return row;
+    }
+
+    /**
+     * #655: the Allow/Remove action of a Wi-Fi-name row, laid out like the row buttons of {@link
+     * NetworkListActivity}. The Material default button has no horizontal padding, so at a large
+     * font the label filled the whole button and touched both edges; here the padding is explicit,
+     * the height is at least 48dp, and the button sits at the start edge below the name, so a long
+     * label wraps inside the row instead of being cut.
+     */
+    private Button newRowActionButton(int backgroundRes, int textColorRes) {
+        Button button = new Button(this);
+        button.setBackgroundResource(backgroundRes);
+        button.setMinHeight(dp(48));
+        button.setPadding(dp(16), dp(8), dp(16), dp(8));
+        button.setTextColor(getColor(textColorRes));
+        button.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+        button.setTypeface(android.graphics.Typeface.create("sans-serif-condensed",
+                android.graphics.Typeface.BOLD));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.topMargin = dp(8);
+        params.gravity = android.view.Gravity.START;
+        button.setLayoutParams(params);
+        return button;
+    }
+
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density);
     }
 
     private View buildTrustedSsidRow(KeepADBTrustedNetwork.SsidEntry entry, int position) {
@@ -1165,10 +1186,7 @@ public class SettingsActivity extends Activity {
         label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
         row.addView(label);
 
-        Button remove = new Button(this);
-        remove.setBackgroundResource(R.drawable.bg_btn_secondary);
-        remove.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
-        remove.setTextColor(getColor(R.color.text_yellow));
+        Button remove = newRowActionButton(R.drawable.bg_btn_secondary, R.color.text_yellow);
         remove.setText(R.string.wifi_ssids_remove_button);
         remove.setContentDescription(getString(R.string.wifi_ssids_remove_accessibility, shownName));
         remove.setOnClickListener(v -> {
@@ -1178,10 +1196,6 @@ public class SettingsActivity extends Activity {
             }
             refresh();
         });
-        LinearLayout.LayoutParams removeParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        removeParams.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
-        remove.setLayoutParams(removeParams);
         row.addView(remove);
         return row;
     }

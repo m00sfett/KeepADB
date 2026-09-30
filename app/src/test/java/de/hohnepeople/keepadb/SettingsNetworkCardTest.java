@@ -21,6 +21,7 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -694,6 +695,56 @@ public class SettingsNetworkCardTest {
         assertTrue(KeepADBTrustedNetwork.getSsidEntries(context).isEmpty());
     }
 
+    /**
+     * #655 visual acceptance: at font scale 2.0 the Allow and Remove actions of this section were
+     * only as tall as their label and the label touched both button edges, because the Material
+     * default button has no horizontal padding. Every action of the section now keeps its own
+     * padding, a 48dp minimum that holds in the measured layout at the largest font, its place
+     * below the name in a vertical row, and a label that may wrap but is never cut.
+     */
+    @Test
+    public void theWifiNameActionsKeepPaddingAndA48dpTargetAtTheLargestFont() {
+        RuntimeEnvironment.setFontScale(2.0f);
+        connectTo("MeshHome", "aa:bb:cc:dd:ee:06");
+        KeepADBTrustedNetwork.addSsid(context, "Mesh");
+        SettingsActivity activity = open();
+        activity.findViewById(R.id.network_ssid_header).performClick();
+        View root = activity.getWindow().getDecorView();
+        int width = dp(360);
+        root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(dp(4000), View.MeasureSpec.EXACTLY));
+        root.layout(0, 0, root.getMeasuredWidth(), root.getMeasuredHeight());
+
+        List<Button> actions = new ArrayList<>(
+                buttonsOf(activity.findViewById(R.id.wifi_ssids_current_row)));
+        actions.addAll(buttonsOf(activity.findViewById(R.id.wifi_ssids_list)));
+        assertEquals("Allow for the current name, Remove for the saved one", 2, actions.size());
+        for (Button action : actions) {
+            String name = action.getText().toString();
+            assertEquals("The fixture runs at the largest font scale", 2.0f,
+                    activity.getResources().getConfiguration().fontScale, 0.001f);
+            assertTrue(name + ": at least 48dp high once measured at font scale 2.0",
+                    action.getMeasuredHeight() >= dp(48));
+            assertTrue(name + ": the 48dp minimum is declared, not only reached by the font size",
+                    action.getMinHeight() >= dp(48));
+            assertTrue(name + ": the label keeps air to both edges",
+                    action.getPaddingLeft() >= dp(16) && action.getPaddingRight() >= dp(16));
+            assertTrue(name + ": the label keeps air above and below",
+                    action.getPaddingTop() >= dp(8) && action.getPaddingBottom() >= dp(8));
+            assertNull(name + ": a long label must wrap, not be cut with an ellipsis",
+                    action.getEllipsize());
+            assertEquals(name + ": a long label must wrap, not be limited to one line",
+                    Integer.MAX_VALUE, action.getMaxLines());
+            assertTrue(name + ": the action sits below its name in a vertical row",
+                    action.getParent() instanceof LinearLayout
+                            && ((LinearLayout) action.getParent()).getOrientation()
+                                    == LinearLayout.VERTICAL
+                            && ((ViewGroup) action.getParent()).indexOfChild(action) > 0);
+            assertTrue(name + ": never wider than the row it sits in",
+                    action.getMeasuredWidth() <= ((View) action.getParent()).getMeasuredWidth());
+        }
+    }
+
     @Test
     public void anUnreadableIdentityOffersNoNameAddAction() {
         connectTo(WifiManager.UNKNOWN_SSID, KeepADBNetworkIdentity.REDACTED_BSSID);
@@ -870,6 +921,10 @@ public class SettingsNetworkCardTest {
 
     private SharedPreferences prefs() {
         return context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE);
+    }
+
+    private int dp(int value) {
+        return (int) (value * context.getResources().getDisplayMetrics().density);
     }
 
     /** Every persisted key that decides trust: the mode and both allowlists with the name switch. */
