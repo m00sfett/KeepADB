@@ -216,6 +216,28 @@ public class NetworkListActivityTest {
         }
     }
 
+    /** #686: the mesh question must not outlive the activity (rotation would leak its window). */
+    @Test
+    public void theMeshQuestionIsDismissedWhenTheViewIsDestroyed() {
+        preparedForAnAutomaticEnable("MeshHome", "aa:bb:cc:dd:ee:03");
+        KeepADBBssidHistory.recordObservation(context, "MeshHome", "aa:bb:cc:dd:ee:04");
+        ActivityController<NetworkListActivity> controller = Robolectric.buildActivity(
+                NetworkListActivity.class, NetworkListActivity.intent(context,
+                        NetworkListActivity.VIEW_ALLOWED)).setup();
+        ShadowLooper.idleMainLooper();
+        NetworkListActivity activity = controller.get();
+
+        findButton(activity.findViewById(R.id.wifi_aps_current_row)).performClick();
+        ShadowLooper.idleMainLooper();
+        AlertDialog mesh = ShadowAlertDialog.getLatestAlertDialog();
+        assertNotNull(mesh);
+        assertTrue("The mesh question is on screen", mesh.isShowing());
+
+        controller.destroy();
+
+        assertFalse("Destroying the activity dismisses the mesh question", mesh.isShowing());
+    }
+
     @Test
     public void allowedViewNamesAnAllowedCurrentAccessPointAsSuch() {
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");

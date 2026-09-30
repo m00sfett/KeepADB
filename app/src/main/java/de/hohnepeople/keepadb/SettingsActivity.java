@@ -149,6 +149,8 @@ public class SettingsActivity extends Activity {
     private AlertDialog activeTrustConfirmationDialog;
     /** #644: the step-2 rationale dialog for the optional background location grant, if showing. */
     private AlertDialog activeBackgroundLocationDialog;
+    /** #686: the mesh question after allowing an access point; not restored, see onDestroy. */
+    private AlertDialog activeMeshDialog;
 
     /** #661: refreshes the visible Network card while a Wi-Fi network changes. */
     private ConnectivityManager.NetworkCallback wifiStatusCallback;
@@ -518,6 +520,14 @@ public class SettingsActivity extends Activity {
                 activeAllowlistPermissionDialog.dismiss();
             }
             activeAllowlistPermissionDialog = null;
+        }
+
+        // #686: derived from live data and only offered right after an allow; not restored.
+        if (activeMeshDialog != null) {
+            if (activeMeshDialog.isShowing()) {
+                activeMeshDialog.dismiss();
+            }
+            activeMeshDialog = null;
         }
 
         super.onDestroy();
@@ -1226,8 +1236,8 @@ public class SettingsActivity extends Activity {
             case ALLOW_ACCESS_POINT:
                 if (networkActionBssid != null) {
                     // Grants exactly the access point the card showed; never switches anything on.
-                    KeepADBNetworkActions.allowAccessPoint(this, networkActionBssid,
-                            networkActionLabel, true, this::refresh);
+                    activeMeshDialog = KeepADBNetworkActions.allowAccessPoint(this,
+                            networkActionBssid, networkActionLabel, true, this::refresh);
                 }
                 break;
             case GRANT_LOCATION:
