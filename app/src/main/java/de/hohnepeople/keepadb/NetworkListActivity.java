@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -51,6 +52,8 @@ public class NetworkListActivity extends Activity {
     private TextView showMore;
     private TextView emptyView;
     private boolean expanded;
+    /** #686: the mesh question after allowing an access point; dismissed in onDestroy. */
+    private AlertDialog activeMeshDialog;
     /** Numbers the hidden names of the view being shown; replaced on every render (#654). */
     private KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
 
@@ -61,6 +64,18 @@ public class NetworkListActivity extends Activity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(KeepADBLocaleHelper.wrapContext(newBase));
+    }
+
+    @Override
+    protected void onDestroy() {
+        // Derived from live data and only offered right after an allow; not restored (#686).
+        if (activeMeshDialog != null) {
+            if (activeMeshDialog.isShowing()) {
+                activeMeshDialog.dismiss();
+            }
+            activeMeshDialog = null;
+        }
+        super.onDestroy();
     }
 
     @Override
@@ -241,8 +256,8 @@ public class NetworkListActivity extends Activity {
             if (item.trusted) {
                 KeepADBNetworkActions.removeAccessPoint(this, item.bssid, this::render);
             } else {
-                KeepADBNetworkActions.allowAccessPoint(this, item.bssid, item.label(),
-                        item.current, this::render);
+                activeMeshDialog = KeepADBNetworkActions.allowAccessPoint(this, item.bssid,
+                        item.label(), item.current, this::render);
             }
         };
         return buildRow(primary, secondary,
