@@ -60,6 +60,11 @@ public class SettingsActivity extends Activity {
     static final String STATE_BACKGROUND_LOCATION_SHOWING = "settings_background_location_showing";
     static final String STATE_USB_HANDOVER_MODE_SHOWING = "settings_usb_handover_mode_showing";
     static final String STATE_LANGUAGE_SELECTION_SHOWING = "settings_language_selection_showing";
+    /**
+     * #682: flag for the trusted-network location permission rationale dialog. A restored dialog
+     * is only re-shown; the permission request still runs solely from the user's own tap.
+     */
+    static final String STATE_ALLOWLIST_PERMISSION_SHOWING = "settings_allowlist_permission_showing";
 
     private ScrollView scrollView;
     private View webhookPanel;
@@ -127,6 +132,8 @@ public class SettingsActivity extends Activity {
     /** #672: the USB handover mode and language selection dialogs, if showing. */
     private AlertDialog activeUsbHandoverModeDialog;
     private AlertDialog activeLanguageSelectionDialog;
+    /** #682: the trusted-network location permission rationale dialog, if showing. */
+    private AlertDialog activeAllowlistPermissionDialog;
 
     private KeepADBUsbProfileEditor usbProfileEditor;
 
@@ -330,6 +337,11 @@ public class SettingsActivity extends Activity {
             if (savedInstanceState.getBoolean(STATE_LANGUAGE_SELECTION_SHOWING, false)) {
                 showLanguageSelectionDialog();
             }
+            // #682: only re-show the rationale; neither the permission request nor the mode
+            // change happens without the user's own tap on the positive button.
+            if (savedInstanceState.getBoolean(STATE_ALLOWLIST_PERMISSION_SHOWING, false)) {
+                showAllowlistPermissionDialog();
+            }
         }
     }
 
@@ -445,6 +457,8 @@ public class SettingsActivity extends Activity {
         outState.putBoolean(STATE_USB_HANDOVER_MODE_SHOWING, isShowing(activeUsbHandoverModeDialog));
         outState.putBoolean(STATE_LANGUAGE_SELECTION_SHOWING,
                 isShowing(activeLanguageSelectionDialog));
+        outState.putBoolean(STATE_ALLOWLIST_PERMISSION_SHOWING,
+                isShowing(activeAllowlistPermissionDialog));
     }
 
     private static boolean isShowing(AlertDialog dialog) {
@@ -497,6 +511,13 @@ public class SettingsActivity extends Activity {
                 activeLanguageSelectionDialog.dismiss();
             }
             activeLanguageSelectionDialog = null;
+        }
+
+        if (activeAllowlistPermissionDialog != null) {
+            if (activeAllowlistPermissionDialog.isShowing()) {
+                activeAllowlistPermissionDialog.dismiss();
+            }
+            activeAllowlistPermissionDialog = null;
         }
 
         super.onDestroy();
@@ -748,10 +769,18 @@ public class SettingsActivity extends Activity {
             enableAllowlistMode();
             return;
         }
-        new AlertDialog.Builder(this)
+        showAllowlistPermissionDialog();
+    }
+
+    /** #682: the rationale shown before ACCESS_FINE_LOCATION is requested for allowlist mode. */
+    private void showAllowlistPermissionDialog() {
+        if (isShowing(activeAllowlistPermissionDialog)) {
+            return;
+        }
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.settings_trusted_network_permission_title)
                 .setMessage(R.string.settings_trusted_network_permission_message)
-                .setPositiveButton(R.string.settings_trusted_network_permission_grant, (dialog, which) ->
+                .setPositiveButton(R.string.settings_trusted_network_permission_grant, (d, which) ->
                         // Requested together per Android's guidance for FINE: the system then
                         // offers the user a precise/approximate choice in one dialog. Only a FINE
                         // grant is actually usable here (see onRequestPermissionsResult).
@@ -759,7 +788,14 @@ public class SettingsActivity extends Activity {
                                         Manifest.permission.ACCESS_COARSE_LOCATION},
                                 TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST))
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+        activeAllowlistPermissionDialog = dialog;
+        dialog.setOnDismissListener(d -> {
+            if (activeAllowlistPermissionDialog == d) {
+                activeAllowlistPermissionDialog = null;
+            }
+        });
+        dialog.show();
     }
 
     /**
@@ -984,6 +1020,10 @@ public class SettingsActivity extends Activity {
             }
         });
         dialog.show();
+    }
+
+    AlertDialog getActiveAllowlistPermissionDialog() {
+        return activeAllowlistPermissionDialog;
     }
 
     AlertDialog getActiveResetAppDialog() {

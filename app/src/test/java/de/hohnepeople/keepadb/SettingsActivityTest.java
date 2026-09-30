@@ -1526,6 +1526,54 @@ public class SettingsActivityTest {
         restored.pause().stop().destroy();
     }
 
+    @Test
+    public void allowlistPermissionDialogSurvivesRotationWithoutRequestingOrSwitching() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        controller.get().findViewById(R.id.network_mode_allowlist).performClick();
+        assertNotNull(controller.get().getActiveAllowlistPermissionDialog());
+        assertDialogShowingWithTitle(R.string.settings_trusted_network_permission_title,
+                controller.get());
+        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(controller.get()));
+
+        ActivityController<SettingsActivity> restored = rotate(controller);
+        SettingsActivity activity = restored.get();
+
+        assertNotNull("Permission rationale must be restored",
+                activity.getActiveAllowlistPermissionDialog());
+        assertDialogShowingWithTitle(R.string.settings_trusted_network_permission_title, activity);
+        assertNull("Restoring must never request the permission",
+                shadowOf(activity).getLastRequestedPermission());
+        assertFalse("Restoring must never switch the mode",
+                KeepADBTrustedNetwork.isAllowlistMode(activity));
+        assertTrue(((android.widget.RadioButton) activity.findViewById(R.id.network_mode_all_wifi))
+                .isChecked());
+
+        activity.getActiveAllowlistPermissionDialog().dismiss();
+        restored.pause().stop().destroy();
+    }
+
+    @Test
+    public void allowlistPermissionDialogIsNotRestoredAfterDismissAndClosedOnDestroy() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        controller.get().findViewById(R.id.network_mode_allowlist).performClick();
+        AlertDialog first = controller.get().getActiveAllowlistPermissionDialog();
+        first.dismiss();
+        ShadowLooper.idleMainLooper();
+        assertNull(controller.get().getActiveAllowlistPermissionDialog());
+
+        ActivityController<SettingsActivity> restored = rotate(controller);
+        assertNull("A dismissed dialog must not come back",
+                restored.get().getActiveAllowlistPermissionDialog());
+
+        restored.get().findViewById(R.id.network_mode_allowlist).performClick();
+        AlertDialog open = restored.get().getActiveAllowlistPermissionDialog();
+        assertNotNull(open);
+        restored.pause().stop().destroy();
+        assertFalse("onDestroy must close the dialog (no window leak)", open.isShowing());
+    }
+
     private static Button findButtonWithText(List<Button> buttons, String text) {
         for (Button button : buttons) {
             if (text.equals(button.getText().toString())) return button;
