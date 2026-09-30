@@ -369,7 +369,8 @@ final class KeepADBEndpoint {
                         }
                         final InetAddress addr = resolved.getHost();
                         if (!isOwnWifiAddress(appContext, addr)) {
-                            Log.w(TAG, "Ignoring mDNS ADB service that is not on our active Wi-Fi address: " + addr);
+                            Log.w(TAG, "Ignoring mDNS ADB service that is not on our active Wi-Fi address: "
+                                    + KeepADBAddressMask.maskHost(addr.getHostAddress()));
                             resolving = false;
                             processNextResolveLocked(generation);
                             return;

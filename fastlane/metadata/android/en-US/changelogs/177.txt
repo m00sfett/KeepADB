@@ -1,0 +1,1 @@
+Keep-Alive now switches on wireless debugging immediately, even while an automatic recovery wait is running on a trusted network. The mesh access-point hint dialog no longer leaks when you rotate or leave Settings, and logcat hides the address of foreign mDNS ADB services for better privacy.

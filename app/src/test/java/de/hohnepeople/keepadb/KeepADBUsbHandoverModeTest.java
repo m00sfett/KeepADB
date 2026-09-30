@@ -2,7 +2,6 @@ package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
 
-import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 

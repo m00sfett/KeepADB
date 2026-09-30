@@ -17,11 +17,22 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3` and `1.9.4` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4` and `1.9.5` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.5] - Unreleased
+
+### Fixed
+- #680: Switching Keep-Alive on in the app enables wireless debugging immediately, even during an active automatic recovery backoff on a trusted network; untrusted networks still get the trust prompt.
+- #686: The mesh access-point hint dialog shown after allowing an access point no longer leaks a window when Settings or the network list is destroyed or rotated.
+- #685 (Privacy): The warning for foreign mDNS ADB services masks the address in logcat.
+
+### Testing
+- #687: Three unused imports removed from tests.
+- #680, #685, #686: Regression tests for each of the fixes above.
 
 ## [1.9.4] - Unreleased
 

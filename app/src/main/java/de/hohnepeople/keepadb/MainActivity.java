@@ -179,7 +179,10 @@ public class MainActivity extends Activity {
                 // check. On an untrusted network this falls through to the same trust-prompt path
                 // the automatic recheck already uses, rather than writing immediately. The main
                 // switch, tile and widget are untouched and keep writing without this gate (#245).
-                if (KeepADBService.isAutoEnableStillPermitted(this)) {
+                // #680: deliberately switching Keep-Alive on is a user intent, so it overrides an
+                // active #496 recovery backoff (which only throttles automatic retries), like the
+                // trust prompt's "allow" (#670); Keep-Alive, Wi-Fi and trust must still hold.
+                if (KeepADBService.isAutoEnableStillPermittedIgnoringBackoff(this)) {
                     if (!KeepADB.setEnabled(this, true, "app")) {
                         showToggleErrorToast();
                     }

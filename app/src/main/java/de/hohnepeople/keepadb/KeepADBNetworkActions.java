@@ -27,8 +27,10 @@ final class KeepADBNetworkActions {
      * separate, explicit question; nothing beyond {@code bssid} is ever allowed implicitly.
      *
      * @param onChanged run after every change so the caller can re-render; may be null.
+     * @return the mesh question if it was shown, else null; the caller owns it and must dismiss it
+     *     in {@code onDestroy}, otherwise a rotation leaks its window (#686).
      */
-    static void allowAccessPoint(Activity activity, String bssid, String label, boolean offerMesh,
+    static AlertDialog allowAccessPoint(Activity activity, String bssid, String label, boolean offerMesh,
                                  Runnable onChanged) {
         KeepADBTrustedNetwork.Entry added = KeepADBReceiver.allowBssidOnly(activity, bssid, label);
         if (added == null) {
@@ -41,8 +43,9 @@ final class KeepADBNetworkActions {
         }
         if (onChanged != null) onChanged.run();
         if (added != null && offerMesh) {
-            offerAdditionalMeshBssids(activity, onChanged);
+            return offerAdditionalMeshBssids(activity, onChanged);
         }
+        return null;
     }
 
     /** Removes the allowlist entry for {@code bssid}; no other entry is touched. */
@@ -64,21 +67,24 @@ final class KeepADBNetworkActions {
      * Offers the other access points KeepADB has seen under the current network name (#266). Only
      * shown for a readable identity with a known name and at least one access point that is not
      * allowed yet; accepting allows exactly those, via the grant-only path.
+     *
+     * @return the shown dialog, or null when nothing was offered; the caller must dismiss it when
+     *     its activity is destroyed (#686).
      */
-    static void offerAdditionalMeshBssids(Activity activity, Runnable onChanged) {
+    static AlertDialog offerAdditionalMeshBssids(Activity activity, Runnable onChanged) {
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(activity);
-        if (!identity.isKnown()) return;
+        if (!identity.isKnown()) return null;
         String ssid = identity.displaySsid();
-        if (ssid == null || ssid.isEmpty()) return;
+        if (ssid == null || ssid.isEmpty()) return null;
 
         List<String> alreadyListed = new ArrayList<>();
         for (KeepADBTrustedNetwork.Entry listed : KeepADBTrustedNetwork.getEntries(activity)) {
             alreadyListed.add(listed.bssid);
         }
         List<String> additional = KeepADBBssidHistory.getAdditionalBssids(activity, ssid, alreadyListed);
-        if (additional.isEmpty()) return;
+        if (additional.isEmpty()) return null;
 
-        new AlertDialog.Builder(activity)
+        return new AlertDialog.Builder(activity)
                 .setTitle(R.string.settings_trusted_network_mesh_title)
                 .setMessage(activity.getString(R.string.settings_trusted_network_mesh_message,
                         additional.size(), KeepADBNetworkDisplay.quoted(activity, ssid)))
