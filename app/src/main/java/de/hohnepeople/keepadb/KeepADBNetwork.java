@@ -320,7 +320,7 @@ final class KeepADBNetwork {
         return wifiCallbackRegistered;
     }
 
-    /** Wi-Fi transport, excluding VPN-over-Wi-Fi -- unchanged from the prior getAllNetworks() predicate. */
+    /** Wi-Fi transport, excluding VPN-over-Wi-Fi -- same predicate as before the #676 rewrite. */
     static boolean isEligibleWifiTransport(NetworkCapabilities capabilities) {
         return capabilities != null
                 && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
