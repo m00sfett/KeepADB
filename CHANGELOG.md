@@ -71,9 +71,13 @@ are retrospective issue-version records and were never published as separate rel
   identity is still required, then a listed BSSID or, only with the matching on, an exactly listed
   name. The effect line now says that only readable access points are accepted by name.
 - #654: With the privacy mode on, network names and addresses are hidden on the whole card and in
-  all list views (name placeholder with a position number, BSSID masked to its first octet), in
-  descriptions and in toasts; a hint explains why. The trust confirmation of the prompt
-  notification (#598) keeps naming the network it asks about.
+  all list views, in descriptions and in toasts; a hint explains why. A hidden name reads "Name
+  hidden #n" with one number per Wi-Fi name, counted separately in each list or view in the order
+  the rows are shown: the same name always gets the same number (also on several access points of
+  one mesh), different names never share one, and the current access point counts together with
+  the list entries of its view. A single name outside a list stays "Name hidden". A hidden BSSID
+  keeps its first and its last octet (`de:*:*:*:*:ad`), the four in between stay masked. The trust
+  confirmation of the prompt notification (#598) keeps naming the network it asks about.
 
 ### Added
 - #654: `NetworkListActivity` (not exported) with three management views opened from the card:
@@ -118,7 +122,10 @@ are retrospective issue-version records and were never published as separate rel
   its first round (emulator, font scale 2.0) led to the fixes above, each with a regression test
   in `SettingsNetworkCardTest`, `NetworkListActivityTest` and `KeepADBResourceContractTest`
   (per-state label checks, an all-locale guard against truncated mode names, font-scale-2.0 button
-  measurements).
+  measurements). Its second round (privacy mode: per-name numbering, first and last BSSID octet)
+  is guarded in `KeepADBNetworkDisplayTest`, `KeepADBAddressMaskTest`, `NetworkListActivityTest`
+  and `SettingsNetworkCardTest` from both sides: the same name gets one number and two names never
+  share one, and a hidden address shows exactly the first and the last octet and no other.
 
 ## [1.8.71] - Unreleased
 
