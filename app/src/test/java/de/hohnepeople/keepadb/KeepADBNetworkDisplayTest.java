@@ -64,11 +64,11 @@ public class KeepADBNetworkDisplayTest {
         assertEquals(hiddenName() + " #3", KeepADBNetworkDisplay.ssid(context, "HomeMesh", 3));
         assertEquals("A single shown name needs no position", hiddenName(),
                 KeepADBNetworkDisplay.ssid(context, "HomeMesh", 0));
-        assertEquals("AA:*:*:*:*:*", KeepADBNetworkDisplay.bssid(context, "AA:BB:CC:DD:EE:01"));
+        assertEquals("AA:*:*:*:*:01", KeepADBNetworkDisplay.bssid(context, "AA:BB:CC:DD:EE:01"));
         assertEquals(hiddenName() + " #2",
                 KeepADBNetworkDisplay.label(context, "HomeMesh", "AA:BB:CC:DD:EE:01", 2));
         assertEquals("An unnamed access point falls back to the masked address",
-                "AA:*:*:*:*:*", KeepADBNetworkDisplay.label(context, null, "AA:BB:CC:DD:EE:01", 2));
+                "AA:*:*:*:*:01", KeepADBNetworkDisplay.label(context, null, "AA:BB:CC:DD:EE:01", 2));
         assertEquals(hiddenName(), KeepADBNetworkDisplay.quoted(context, "HomeMesh"));
         assertEquals("A stored label that is a BSSID copy is hidden too", hiddenName(),
                 KeepADBNetworkDisplay.quoted(context, "AA:BB:CC:DD:EE:01"));

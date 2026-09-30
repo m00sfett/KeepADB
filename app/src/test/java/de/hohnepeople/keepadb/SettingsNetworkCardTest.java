@@ -935,6 +935,25 @@ public class SettingsNetworkCardTest {
                 concealed.contains(context.getString(R.string.network_privacy_name_hidden)));
     }
 
+    /** #654: the current BSSID in the card reads first and last octet while hidden, all when not. */
+    @Test
+    public void privacyModeShowsTheFirstAndTheLastOctetOfTheCurrentAddress() {
+        connectTo("HomeMesh", "de:11:22:33:44:ad");
+
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        assertEquals("HomeMesh \u00b7 de:11:22:33:44:ad",
+                text(open(), R.id.network_connection_line));
+
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        SettingsActivity hidden = open();
+        assertEquals(context.getString(R.string.network_privacy_name_hidden)
+                + " \u00b7 de:*:*:*:*:ad", text(hidden, R.id.network_connection_line));
+        String concealed = everything(hidden);
+        for (String middle : new String[] {":11:", ":22:", ":33:", ":44:"}) {
+            assertFalse("A middle octet is visible: " + concealed, concealed.contains(middle));
+        }
+    }
+
     @Test
     public void theConfirmationForAllowingTheCurrentNameUsesTheHiddenPlaceholderToo() {
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");

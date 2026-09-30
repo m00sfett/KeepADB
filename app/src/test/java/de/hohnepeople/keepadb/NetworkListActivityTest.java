@@ -692,6 +692,53 @@ public class NetworkListActivityTest {
         }
     }
 
+    /**
+     * #654: a hidden BSSID shows exactly its first and its last octet in every view. Checked on
+     * both sides: a view that masks the last octet as well and a view that lets a middle octet
+     * through both fail, because every address-shaped text must be {@code xx:*:*:*:*:yy} with the
+     * octets of the fixture and no middle octet may appear anywhere.
+     */
+    @Test
+    public void hiddenAddressesShowExactlyTheFirstAndTheLastOctetInEveryView() {
+        connectTo("HomeMesh", "de:11:22:33:44:ad");
+        KeepADBTrustedNetwork.addBssid(context, "c0:55:66:77:88:0f", "Cafe-WLAN");
+        KeepADBBssidHistory.recordObservation(context, "OfficeMesh", "a1:99:98:97:96:b2");
+        KeepADBBlockedNetworkHistory.record(context,
+                new KeepADBNetworkIdentity("Hotel-WLAN", "f2:a3:a4:a5:a6:3c"), 1_000L);
+        String[] middleOctets = {"11", "22", "33", "44", "55", "66", "77", "88", "99", "98", "97",
+                "96", "a3", "a4", "a5", "a6"};
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+
+        assertMaskedAddresses(open(NetworkListActivity.VIEW_ALLOWED), middleOctets,
+                "de:*:*:*:*:ad", "c0:*:*:*:*:0f");
+        assertMaskedAddresses(open(NetworkListActivity.VIEW_OBSERVED), middleOctets,
+                "de:*:*:*:*:ad", "a1:*:*:*:*:b2");
+        assertMaskedAddresses(open(NetworkListActivity.VIEW_PREVENTED), middleOctets,
+                "f2:*:*:*:*:3c");
+
+        // The off state shows the complete addresses, nothing masked.
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        String shown = everythingShown(open(NetworkListActivity.VIEW_ALLOWED)).toLowerCase(
+                java.util.Locale.ROOT);
+        assertTrue(shown, shown.contains("de:11:22:33:44:ad"));
+        assertTrue(shown, shown.contains("c0:55:66:77:88:0f"));
+        assertFalse(shown, shown.contains(":*:"));
+    }
+
+    private static void assertMaskedAddresses(Activity activity, String[] middleOctets,
+                                              String... expected) {
+        String everything = everythingShown(activity).toLowerCase(java.util.Locale.ROOT);
+        java.util.regex.Matcher matcher = java.util.regex.Pattern
+                .compile("\\b[0-9a-f*]{1,2}(?::[0-9a-f*]{1,2}){5}\\b").matcher(everything);
+        java.util.Set<String> found = new java.util.TreeSet<>();
+        while (matcher.find()) found.add(matcher.group());
+        assertEquals(everything, new java.util.TreeSet<>(java.util.Arrays.asList(expected)), found);
+        for (String octet : middleOctets) {
+            assertFalse("A middle octet '" + octet + "' is visible: " + everything,
+                    everything.contains(":" + octet + ":"));
+        }
+    }
+
     @Test
     public void everyRowActionIsAtLeast48dpHighAndHasAContextualDescription() {
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");

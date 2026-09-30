@@ -86,11 +86,12 @@ final class KeepADBAddressMask {
     }
 
     /**
-     * #654: masks an access point's BSSID (its MAC address) while the privacy mode is on, using
-     * the same one-part-stays rule as IPv4: {@code aa:bb:cc:dd:ee:01} becomes {@code aa:*:*:*:*:*}.
-     * Anything that is not exactly six colon-separated hex octets -- a partial value, a placeholder,
-     * a different notation -- is masked entirely to {@link #MASKED} rather than shown as-is, so an
-     * unexpected format can never leak through the masking.
+     * #654: masks an access point's BSSID (its MAC address) while the privacy mode is on. The first
+     * and the last octet stay, the four between them are masked (user decision of 2026-09-30):
+     * {@code aa:bb:cc:dd:ee:01} becomes {@code aa:*:*:*:*:01}. The case of the kept octets is not
+     * changed. Anything that is not exactly six colon-separated hex octets -- a partial value, a
+     * placeholder, a different notation -- is masked entirely to {@link #MASKED} rather than shown
+     * as-is, so an unexpected format can never leak through the masking.
      */
     static String maskBssid(String bssid) {
         if (bssid == null) return null;
@@ -104,7 +105,7 @@ final class KeepADBAddressMask {
                 return MASKED;
             }
         }
-        return parts[0] + ":*:*:*:*:*";
+        return parts[0] + ":*:*:*:*:" + parts[5];
     }
 
     /**
