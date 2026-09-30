@@ -71,6 +71,24 @@ public class SettingsActivityTest {
         KeepADBEndpointCoordinator.resetForTesting();
     }
 
+    /** #677: every main card header announces its expanded/collapsed state to TalkBack. */
+    @Test
+    public void mainCardHeadersKeepStateDescriptionInSyncWithExpandedState() {
+        KeepADBPreferences.setAppLanguage(RuntimeEnvironment.getApplication(), "en");
+        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        int[] headers = {R.id.settings_webhook_header, R.id.settings_usb_adb_header,
+                R.id.settings_network_beta_header, R.id.settings_misc_header,
+                R.id.settings_diagnostics_header};
+        for (int id : headers) {
+            View header = activity.findViewById(id);
+            assertEquals("Collapsed initially", "Collapsed", String.valueOf(header.getStateDescription()));
+            header.performClick();
+            assertEquals("Expanded after click", "Expanded", String.valueOf(header.getStateDescription()));
+            header.performClick();
+            assertEquals("Collapsed again", "Collapsed", String.valueOf(header.getStateDescription()));
+        }
+    }
+
     /**
      * #592: the opt-in switch is off by default, persists the preference and re-renders an
      * already visible USB card through the existing KeepADBUsbReceiver.refresh path.

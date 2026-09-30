@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,6 +41,12 @@ public class KeepADBUsbHandoverTest {
         KeepADBUsbNotification.resetForTesting();
         // #348: fail-closed default (no Wi-Fi transport) between tests -- individual tests opt
         // into an active transport via KeepADBNetwork.setWifiConnectivityOverrideForTesting().
+        KeepADBNetwork.resetForTesting();
+    }
+
+    @After
+    public void tearDown() {
+        KeepADB.resetForTesting();
         KeepADBNetwork.resetForTesting();
     }
 

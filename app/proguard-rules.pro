@@ -9,6 +9,7 @@
 # unreachable from the manifest is still protected.
 -keep class de.hohnepeople.keepadb.MainActivity
 -keep class de.hohnepeople.keepadb.SettingsActivity
+-keep class de.hohnepeople.keepadb.NetworkListActivity
 -keep class de.hohnepeople.keepadb.KeepADBService
 -keep class de.hohnepeople.keepadb.KeepADBTileService
 -keep class de.hohnepeople.keepadb.KeepADBWidget
