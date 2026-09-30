@@ -199,7 +199,7 @@
     <string name="background_location_dialog_later">Later</string>
     <string name="background_location_status_granted">Achtergrondtoegang: toegestaan. Toegestane access points worden ook herkend wanneer Keep-Alive op de achtergrond start. KeepADB leest of bewaart nooit de positie van je apparaat.</string>
     <string name="background_location_status_missing">Achtergrondtoegang: beperkt. Start Keep-Alive op de achtergrond, dan kan Android de wifi-identiteit verbergen; KeepADB behandelt het netwerk dan als niet toegestaan en schakelt Draadloze foutopsporing pas automatisch in als je de app opent.</string>
-    <string name="background_location_status_missing_inactive">Achtergrondtoegang: niet nodig in de huidige modus. Alleen nodig voor ‘Alleen toegestane access points’.</string>
+    <string name="background_location_status_missing_inactive">Toegang op de achtergrond: niet nodig in deze configuratie. Hiermee worden toegangspunten of wifi-namen gecontroleerd wanneer Keep-Alive op de achtergrond actief is.</string>
     <string name="location_permission_panel_title">Locatietoestemming vereist voor vertrouwde netwerken</string>
     <string name="location_permission_panel_body">De modus vertrouwde netwerken heeft locatietoegang nodig om je wifi-netwerk te herkennen. Zonder deze kan Keep-Alive geen vertrouwd netwerk bevestigen en niet automatisch opnieuw inschakelen.</string>
     <string name="location_permission_panel_grant_button">Locatietoestemming verlenen</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">Keep-Alive wacht tot er een wifi-netwerk is verbonden.</string>
     <string name="network_cause_permission_missing">Automatisch opnieuw inschakelen gepauzeerd: zonder locatietoegang verbergt Android met welk access point je verbonden bent.</string>
     <string name="network_cause_location_off">Automatisch opnieuw inschakelen gepauzeerd: locatie staat uit, dus Android verbergt met welk access point je verbonden bent.</string>
-    <string name="network_cause_unreadable_all_wifi">Het netwerk kan nu niet worden gelezen. In de modus ‘In alle wifi-netwerken’ maakt dat niet uit, maar ‘Alleen toegestane access points’ heeft het nodig.</string>
+    <string name="network_cause_unreadable_all_wifi">Het netwerk kan nu niet worden gelezen. Automatisch opnieuw inschakelen kan doorgaan, maar leesbare netwerkgegevens zijn nodig om opgeslagen toegangspunten of wifi-namen te controleren.</string>
     <string name="network_cause_not_allowed">Automatisch opnieuw inschakelen gepauzeerd: dit access point staat niet op je lijst met toegestane access points.</string>
     <string name="network_cause_allowed">Keep-Alive mag Draadloze foutopsporing hier weer inschakelen.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive mag Draadloze foutopsporing hier weer inschakelen. Elk leesbaar access point met deze wifi-naam wordt geaccepteerd.</string>

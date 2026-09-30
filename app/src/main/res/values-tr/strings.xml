@@ -199,7 +199,7 @@
     <string name="background_location_dialog_later">Daha sonra</string>
     <string name="background_location_status_granted">Arka plan erişimi: izin verildi. Keep-Alive arka planda başlasa bile izin verilen erişim noktaları tanınır. KeepADB cihazının konumunu asla okumaz veya kaydetmez.</string>
     <string name="background_location_status_missing">Arka plan erişimi: kısıtlı. Keep-Alive arka planda başlarsa Android Wi-Fi kimliğini gizleyebilir; KeepADB bu durumda ağı izin verilmemiş sayar ve sen uygulamayı açana kadar Kablosuz Hata Ayıklamayı otomatik olarak açmaz.</string>
-    <string name="background_location_status_missing_inactive">Arka plan erişimi: mevcut modda gerekmiyor. Yalnızca “Yalnızca izin verilen erişim noktaları” için gerekir.</string>
+    <string name="background_location_status_missing_inactive">Arka plan erişimi: bu ayarda gerekli değil. Keep-Alive arka planda çalışırken erişim noktalarını veya Wi-Fi adlarını denetlemek için kullanılır.</string>
     <string name="location_permission_panel_title">Güvenilir ağlar için konum izni gerekli</string>
     <string name="location_permission_panel_body">Güvenilir ağ modu, Wi-Fi ağınızı tanımak için konum erişimine ihtiyaç duyar. Bu olmadan Keep-Alive güvenilir bir ağı doğrulayamaz ve otomatik olarak yeniden etkinleşmez.</string>
     <string name="location_permission_panel_grant_button">Konum iznini ver</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">Keep-Alive bir Wi-Fi ağının bağlanmasını bekliyor.</string>
     <string name="network_cause_permission_missing">Otomatik yeniden etkinleştirme duraklatıldı: Konum erişimi olmadan Android hangi erişim noktasına bağlı olduğunu gizler.</string>
     <string name="network_cause_location_off">Otomatik yeniden etkinleştirme duraklatıldı: Konum kapalı olduğu için Android hangi erişim noktasına bağlı olduğunu gizler.</string>
-    <string name="network_cause_unreadable_all_wifi">Ağ şu anda okunamıyor. “Tüm Wi-Fi ağlarında” modunda bunun önemi yok, ancak “Yalnızca izin verilen erişim noktaları” buna ihtiyaç duyar.</string>
+    <string name="network_cause_unreadable_all_wifi">Ağ şu anda okunamıyor. Otomatik yeniden etkinleştirme devam edebilir, ancak kayıtlı erişim noktalarını veya Wi-Fi adlarını denetlemek için okunabilir ağ bilgileri gerekir.</string>
     <string name="network_cause_not_allowed">Otomatik yeniden etkinleştirme duraklatıldı: bu erişim noktası izin verilenler listende değil.</string>
     <string name="network_cause_allowed">Keep-Alive burada Kablosuz Hata Ayıklamayı yeniden açabilir.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive burada Kablosuz Hata Ayıklamayı yeniden açabilir. Bu Wi-Fi adına sahip okunabilen her erişim noktası kabul edilir.</string>

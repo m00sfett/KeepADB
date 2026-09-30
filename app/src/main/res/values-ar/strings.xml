@@ -199,7 +199,7 @@
     <string name="background_location_dialog_later">لاحقًا</string>
     <string name="background_location_status_granted">الوصول في الخلفية: مسموح. يتم التعرّف على نقاط الوصول المسموح بها حتى عند بدء Keep-Alive في الخلفية. لا يقرأ KeepADB موقع جهازك ولا يحفظه أبدًا.</string>
     <string name="background_location_status_missing">الوصول في الخلفية: مقيّد. عند بدء Keep-Alive في الخلفية قد يخفي Android هوية شبكة Wi-Fi؛ عندها يعامل KeepADB الشبكة كغير مسموح بها ولا يفعّل تصحيح الأخطاء اللاسلكي تلقائيًا حتى تفتح التطبيق.</string>
-    <string name="background_location_status_missing_inactive">الوصول في الخلفية: غير مطلوب في الوضع الحالي. مطلوب فقط لخيار «نقاط الوصول المسموح بها فقط».</string>
+    <string name="background_location_status_missing_inactive">الوصول في الخلفية: غير مطلوب في هذا الإعداد. يُستخدم للتحقق من نقاط الوصول أو أسماء Wi-Fi عندما يعمل Keep-Alive في الخلفية.</string>
     <string name="location_permission_panel_title">إذن الموقع مطلوب للشبكات الموثوقة</string>
     <string name="location_permission_panel_body">يحتاج وضع الشبكات الموثوقة إلى إذن الموقع للتعرّف على شبكة Wi-Fi الخاصة بك. بدونه، لا يمكن لـ Keep-Alive تأكيد شبكة موثوقة ولن يُعاد تفعيله تلقائيًا.</string>
     <string name="location_permission_panel_grant_button">منح إذن الموقع</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">ينتظر Keep-Alive اتصال شبكة Wi-Fi.</string>
     <string name="network_cause_permission_missing">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: بدون إذن الوصول إلى الموقع يخفي Android نقطة الوصول المتصل بها.</string>
     <string name="network_cause_location_off">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: الموقع متوقف، لذا يخفي Android نقطة الوصول المتصل بها.</string>
-    <string name="network_cause_unreadable_all_wifi">تتعذر قراءة الشبكة الآن. لا يهم ذلك في وضع «في جميع شبكات Wi-Fi»، لكن «نقاط الوصول المسموح بها فقط» تحتاج إليه.</string>
+    <string name="network_cause_unreadable_all_wifi">تتعذر قراءة الشبكة الآن. يمكن أن تستمر إعادة التفعيل التلقائية، لكن يلزم توفر بيانات شبكة قابلة للقراءة للتحقق من نقاط الوصول أو أسماء Wi-Fi المحفوظة.</string>
     <string name="network_cause_not_allowed">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: نقطة الوصول هذه ليست في قائمة المسموح بها.</string>
     <string name="network_cause_allowed">يمكن لـ Keep-Alive إعادة تفعيل تصحيح الأخطاء اللاسلكي هنا.</string>
     <string name="network_cause_allowed_by_name">يمكن لـ Keep-Alive إعادة تفعيل تصحيح الأخطاء اللاسلكي هنا. تُقبل أي نقطة وصول قابلة للقراءة بهذا الاسم من Wi-Fi.</string>

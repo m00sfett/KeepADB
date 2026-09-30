@@ -56,7 +56,9 @@ public class KeepADBResourceContractTest {
             R.string.back,
             R.string.advice_banner_text,
             R.string.settings_language_accessibility,
-            R.string.settings_usb_handover_accessibility
+            R.string.settings_usb_handover_accessibility,
+            R.string.background_location_status_missing_inactive,
+            R.string.network_cause_unreadable_all_wifi
     };
 
     private final Context context = ApplicationProvider.getApplicationContext();
@@ -196,6 +198,35 @@ public class KeepADBResourceContractTest {
                 String value = compiledValue(name, locale.getValue());
                 assertFalse(locale.getKey() + "/" + name + " quotes a truncated mode name: " + value,
                         value.contains("\u2026") || value.contains("..."));
+            }
+        }
+    }
+
+    /** #660: these explanations must stay independent of either selectable mode label. */
+    @Test
+    public void backgroundAccessGuidanceNeverQuotesAModeLabelInAnyLocale() throws Exception {
+        String[] names = {"background_location_status_missing_inactive",
+                "network_cause_unreadable_all_wifi"};
+        String[] modeLabels = {"network_mode_option_aps", "network_mode_option_aps_names"};
+        String[] englishModeLabels = {"Only allowed access points",
+                "Allowed access points and Wi-Fi names"};
+        Map<String, String> locales = new LinkedHashMap<>(SUPPORTED_LOCALES);
+        locales.put("default", "");
+
+        for (Map.Entry<String, String> locale : locales.entrySet()) {
+            for (String name : names) {
+                String value = compiledValue(name, locale.getValue());
+                for (String modeLabel : modeLabels) {
+                    String label = compiledValue(modeLabel, locale.getValue());
+                    assertFalse(locale.getKey() + "/" + name + " quotes the mode label '"
+                                    + label + "': " + value,
+                            value.contains(label));
+                }
+                for (String label : englishModeLabels) {
+                    assertFalse(locale.getKey() + "/" + name + " quotes an English mode label: "
+                                    + value,
+                            value.contains(label));
+                }
             }
         }
     }

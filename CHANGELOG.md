@@ -23,6 +23,20 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.8.74] - Unreleased
+
+### Fixed
+- #662: When a Wi-Fi name is unreadable, trust notification actions retain the original BSSID fallback label for storage; uppercase conversion is applied only to displayed text. Independent review repair of the 1.8.73 candidate.
+
+## [1.8.73] - Unreleased
+
+### Fixed
+- #658: The in-app trust confirmation and success toast mask the prompted network name and BSSID in privacy mode; the allow action keeps the raw network identity.
+- #659: Disabling access-point observation also stops Settings from recording new observations; existing history is retained.
+- #660: Background-access and unreadable-network guidance use mode-neutral explanations in all 19 languages.
+- #661: The open Settings Network card refreshes on Wi-Fi availability, loss and capability changes and unregisters its callback when the activity stops.
+- #662: BSSIDs display uppercase hex in network views, trust prompts, toasts and privacy masks; stored addresses and trust matching are unchanged.
+
 ## [1.8.72] - Unreleased
 
 ### Changed

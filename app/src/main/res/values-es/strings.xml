@@ -199,7 +199,7 @@
     <string name="background_location_dialog_later">Más tarde</string>
     <string name="background_location_status_granted">Acceso en segundo plano: permitido. Los puntos de acceso permitidos se reconocen incluso cuando Keep-Alive se inicia en segundo plano. KeepADB nunca lee ni guarda la posición de tu dispositivo.</string>
     <string name="background_location_status_missing">Acceso en segundo plano: restringido. Si Keep-Alive se inicia en segundo plano, Android puede ocultar la identidad de la Wi-Fi; KeepADB trata entonces la red como no permitida y no activa la depuración inalámbrica automáticamente hasta que abras la app.</string>
-    <string name="background_location_status_missing_inactive">Acceso en segundo plano: no necesario en el modo actual. Solo hace falta para «Solo puntos de acceso permitidos».</string>
+    <string name="background_location_status_missing_inactive">Acceso en segundo plano: no es necesario en esta configuración. Se necesita para comprobar puntos de acceso o nombres de Wi-Fi cuando Keep-Alive se ejecuta en segundo plano.</string>
     <string name="location_permission_panel_title">Se requiere permiso de ubicación para redes de confianza</string>
     <string name="location_permission_panel_body">El modo de redes de confianza necesita acceso a la ubicación para identificar tu red Wi-Fi. Sin él, Keep-Alive no puede confirmar una red de confianza y no se reactivará automáticamente.</string>
     <string name="location_permission_panel_grant_button">Conceder permiso de ubicación</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">Keep-Alive espera a que se conecte una red Wi-Fi.</string>
     <string name="network_cause_permission_missing">Reactivación automática pausada: sin acceso a la ubicación, Android oculta a qué punto de acceso estás conectado.</string>
     <string name="network_cause_location_off">Reactivación automática pausada: la ubicación está desactivada, por lo que Android oculta a qué punto de acceso estás conectado.</string>
-    <string name="network_cause_unreadable_all_wifi">Ahora mismo no se puede leer la red. En el modo «En todas las redes Wi-Fi» no importa, pero «Solo puntos de acceso permitidos» lo necesita.</string>
+    <string name="network_cause_unreadable_all_wifi">Ahora mismo no se puede leer la red. La reactivación automática puede continuar, pero se necesitan datos de red legibles para comprobar los puntos de acceso o nombres de Wi-Fi guardados.</string>
     <string name="network_cause_not_allowed">Reactivación automática pausada: este punto de acceso no está en tu lista de permitidos.</string>
     <string name="network_cause_allowed">Keep-Alive puede reactivar aquí la depuración inalámbrica.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive puede reactivar aquí la depuración inalámbrica. Se acepta cualquier punto de acceso legible con este nombre de Wi-Fi.</string>

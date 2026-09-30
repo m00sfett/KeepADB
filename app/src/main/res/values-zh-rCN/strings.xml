@@ -199,7 +199,7 @@
     <string name="background_location_dialog_later">稍后</string>
     <string name="background_location_status_granted">后台访问：已允许。即使 Keep-Alive 在后台启动，也能识别已允许的接入点。KeepADB 绝不会读取或存储你设备的位置。</string>
     <string name="background_location_status_missing">后台访问：受限。Keep-Alive 在后台启动时，Android 可能隐藏 Wi-Fi 身份；此时 KeepADB 会将该网络视为未允许，在你打开应用之前不会自动开启无线调试。</string>
-    <string name="background_location_status_missing_inactive">后台访问：当前模式下不需要。仅“仅限已允许的接入点”需要。</string>
+    <string name="background_location_status_missing_inactive">后台访问：此设置下不需要。Keep-Alive 在后台运行时，检查接入点或 Wi-Fi 名称需要此权限。</string>
     <string name="location_permission_panel_title">受信任网络需要位置权限</string>
     <string name="location_permission_panel_body">受信任网络模式需要位置权限来识别你的 Wi-Fi 网络。没有此权限，Keep-Alive 无法确认受信任网络，也不会自动重新启用。</string>
     <string name="location_permission_panel_grant_button">授予位置权限</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">Keep-Alive 正在等待连接 Wi-Fi 网络。</string>
     <string name="network_cause_permission_missing">自动重新启用已暂停：没有位置权限时，Android 会隐藏你连接的是哪个接入点。</string>
     <string name="network_cause_location_off">自动重新启用已暂停：位置已关闭，因此 Android 会隐藏你连接的是哪个接入点。</string>
-    <string name="network_cause_unreadable_all_wifi">目前无法读取该网络。在“在所有 Wi-Fi 网络中”模式下这无关紧要，但“仅限已允许的接入点”需要它。</string>
+    <string name="network_cause_unreadable_all_wifi">目前无法读取网络。自动重新启用仍可继续，但需要可读取的网络信息来检查已保存的接入点或 Wi-Fi 名称。</string>
     <string name="network_cause_not_allowed">自动重新启用已暂停：此接入点不在你的允许列表中。</string>
     <string name="network_cause_allowed">Keep-Alive 可以在此重新开启无线调试。</string>
     <string name="network_cause_allowed_by_name">Keep-Alive 可以在此重新开启无线调试。任何使用此 Wi-Fi 名称且可读取的接入点都会被接受。</string>

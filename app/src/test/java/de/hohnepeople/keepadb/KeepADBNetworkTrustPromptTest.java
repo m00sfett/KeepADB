@@ -90,13 +90,34 @@ public class KeepADBNetworkTrustPromptTest {
         // The SSID is what the user recognizes; the BSSID disambiguates a mesh access point.
         String text = notification.extras.getString(Notification.EXTRA_TEXT);
         assertTrue("Prompt text must name the SSID: " + text, text.contains("Cafe-WLAN"));
-        assertTrue("Prompt text must name the BSSID: " + text, text.contains(BSSID));
+        assertTrue("Prompt text must name the BSSID: " + text,
+                text.contains(BSSID.toUpperCase(java.util.Locale.ROOT)));
         // #598: with details on, the content intent stays the plain Settings entry it always was
         // -- the in-app confirmation is only the details-off replacement for the allow action.
         Intent content = shadowOf(notification.contentIntent).getSavedIntent();
         assertEquals(SettingsActivity.class.getName(), content.getComponent().getClassName());
         assertNull(content.getAction());
         assertFalse(content.hasExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
+    }
+
+    @Test
+    public void anUnreadableSsidDisplaysUppercaseWithoutChangingTheTrustedLabel() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        connectTo("", BSSID);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        Notification notification = postedPrompt();
+        assertTrue(notification.extras.getString(Notification.EXTRA_TEXT)
+                .contains(BSSID.toUpperCase(java.util.Locale.ROOT)));
+        Intent allow = actionIntent(notification, 0);
+        assertEquals(BSSID, allow.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
+        assertEquals("The action keeps the raw fallback label", BSSID,
+                allow.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_LABEL));
+        KeepADBReceiver.handleTrustNetworkAction(context,
+                allow.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID),
+                allow.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_LABEL));
+        assertEquals(BSSID, KeepADBTrustedNetwork.getEntries(context).get(0).bssid);
+        assertEquals("Storage keeps the raw fallback label", BSSID,
+                KeepADBTrustedNetwork.getEntries(context).get(0).label);
     }
 
     @Test
@@ -598,7 +619,7 @@ public class KeepADBNetworkTrustPromptTest {
         assertFalse("publicVersion must not name the SSID: " + publicText,
                 publicText != null && publicText.contains("Cafe-WLAN"));
         assertFalse("publicVersion must not name the BSSID: " + publicText,
-                publicText != null && publicText.contains(BSSID));
+                publicText != null && publicText.contains(BSSID.toUpperCase(java.util.Locale.ROOT)));
     }
 
     /**
@@ -615,7 +636,8 @@ public class KeepADBNetworkTrustPromptTest {
 
         Notification notification = postedPrompt();
         assertNotNull(notification);
-        KeepADBNotificationTextScan.assertMentionsNone(notification, "Cafe-WLAN", BSSID);
+        KeepADBNotificationTextScan.assertMentionsNone(notification, "Cafe-WLAN", BSSID,
+                BSSID.toUpperCase(java.util.Locale.ROOT));
         String confirmText = context.getString(R.string.network_prompt_confirm_in_app_text);
         assertEquals(confirmText,
                 notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());
@@ -687,7 +709,8 @@ public class KeepADBNetworkTrustPromptTest {
 
         Notification reshown = postedPrompt();
         assertNotNull(reshown);
-        KeepADBNotificationTextScan.assertMentionsNone(reshown, "Cafe-WLAN", BSSID);
+        KeepADBNotificationTextScan.assertMentionsNone(reshown, "Cafe-WLAN", BSSID,
+                BSSID.toUpperCase(java.util.Locale.ROOT));
     }
 
     @Test
@@ -698,8 +721,10 @@ public class KeepADBNetworkTrustPromptTest {
 
         Notification notification = postedPrompt();
         String bigText = String.valueOf(notification.extras.getCharSequence(Notification.EXTRA_BIG_TEXT));
-        assertTrue(bigText, bigText.contains("Cafe-WLAN") && bigText.contains(BSSID));
-        KeepADBNotificationTextScan.assertMentionsNone(notification.publicVersion, "Cafe-WLAN", BSSID);
+        assertTrue(bigText, bigText.contains("Cafe-WLAN")
+                && bigText.contains(BSSID.toUpperCase(java.util.Locale.ROOT)));
+        KeepADBNotificationTextScan.assertMentionsNone(notification.publicVersion, "Cafe-WLAN", BSSID,
+                BSSID.toUpperCase(java.util.Locale.ROOT));
     }
 
     /**
