@@ -17,11 +17,87 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.71` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.72` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.72] - Unreleased
+
+### Changed
+- #654: The Network card in Settings is reordered top to bottom: the current connection first
+  (network, allowed or not, the cause and the one fitting action), then the mode choice, the
+  background-access facts, the access-point entries, the observation option and, last, the
+  advanced Wi-Fi-name section. The active mode ("Automatic re-enable: ...") is readable in the
+  closed card head and is read back from the stored settings. The former on/off switch for the
+  restriction became a two-option choice ("In all Wi-Fi networks" / "Only allowed access points",
+  or "Allowed access points and Wi-Fi names" while the name matching is on); the location permission
+  and background-access steps behind it are unchanged, and tapping the already selected option
+  never re-opens a dialog.
+- #654: Connection, decision and permission are shown as separate facts. The status names the
+  connection as allowed access point, allowed by Wi-Fi name, not allowed, not readable or no Wi-Fi,
+  always in words with colour only as a reinforcement. The cause and action fit the situation:
+  allow this access point, grant the location permission, open the location or Wi-Fi settings, or
+  set up background access. In "all networks" mode the texts say that the allow lists do not count
+  there and that nothing is paused.
+- #654: Background access and the current reading are two separate lines. The access status reads
+  allowed, restricted or not required in the current mode (texts of
+  `background_location_status_*` reworded; the setup button reads "Set up background access" while
+  restricted); "Right now" states whether the network is readable this moment and explicitly does
+  not claim that a background start could read it, while a missing grant does not claim a current
+  failure.
+- #654: Allowing an access point afterwards -- from the current-connection action, the allowed and
+  observed lists, the recently-prevented history and the mesh offer -- now only writes the allowlist
+  entry and clears the question it answers (`KeepADBReceiver#allowBssidOnly`). It no longer starts
+  an enable action itself; the regular Keep-Alive path decides from the current connection, mode
+  and settings (the service is only asked to look again). The allow action of the untrusted-network
+  prompt notification and its in-app confirmation (#598) are unchanged and still attempt the
+  connection at once.
+- #654: The observation option ("Observe access points", former "Enable Wi-Fi & access point
+  discovery") now controls only the observed-access-points list. Allowed and recently prevented
+  access points, the state and the advanced section stay reachable with it off. The stored key is
+  unchanged.
+- #655: The Wi-Fi-name matching switch moved from the former Trusted Networks section into the
+  advanced section "Allow by Wi-Fi name" at the very bottom of the Network card, together with its
+  risk warning (unchanged: any access point broadcasting an allowed name is accepted), the current
+  name action and the name list. The section is collapsed by default, but its closed header states
+  the effect -- off, on, or saved without effect in the current mode -- and the number of names,
+  never a name. The setting stays off by default, every stored value and name is kept as is, and the
+  redesign never switches the matching or the mode by itself. No trust rule changed: a known
+  identity is still required, then a listed BSSID or, only with the matching on, an exactly listed
+  name. The effect line now says that only readable access points are accepted by name.
+- #654: With the privacy mode on, network names and addresses are hidden on the whole card and in
+  all list views (name placeholder with a position number, BSSID masked to its first octet), in
+  descriptions and in toasts; a hint explains why. The trust confirmation of the prompt
+  notification (#598) keeps naming the network it asks about.
+
+### Added
+- #654: `NetworkListActivity` (not exported) with three management views opened from the card:
+  allowed access points (current access point first, then every explicitly allowed one, with
+  allow/remove actions and the "list does not count in all-networks mode" hint), recently prevented
+  re-enabling (the automatic history, newest first, with reason and an allow action -- no block list,
+  no manual entries) and observed access points. Long lists collapse behind "Show more" after 20
+  rows.
+- #654: `KeepADBNetworkCardState` (pure derivation of mode, name-matching effect, connection,
+  cause, action and the two background facts), `KeepADBNetworkCardText`, `KeepADBNetworkDisplay`,
+  `KeepADBNetworkActions` and `KeepADBAddressMask#maskBssid`. New strings in all 19 languages.
+
+### Removed
+- #654: The "show trusted access points only" filter, the inline access-point list, the "Security
+  management" block and the "recently blocked" dialog (replaced by the views above), the Beta group
+  texts and badge string of the former Wi-Fi & access points section, and the unused id
+  `btn_wifi_aps_grant_location_permission`. 26 obsolete strings removed from all 19 languages.
+
+### Testing
+- #654/#655: `KeepADBNetworkCardStateTest` and `KeepADBNetworkCardStateTrustAgreementTest` (the card
+  shows "allowed" exactly when `KeepADBTrustedNetwork` trusts, over every identity, list and switch
+  combination), `SettingsNetworkCardTest`, `NetworkListActivityTest`, `NetworkListActivityLocaleTest`,
+  `KeepADBAllowOnlyTest` (with a control test proving the old path would have enabled in the same
+  setup), `KeepADBNetworkDisplayTest` and `KeepADBNetworkCardTextTest`. The former
+  `MainActivityAccessPointOverviewTest` and `MainActivityTrustedNetworkTest` were ported into these
+  classes; their "allowing enables Wireless Debugging at once" assertions were inverted on purpose.
+  Visual acceptance on a real rendering (dark theme, large font, small displays) is still pending.
 
 ## [1.8.71] - Unreleased
 
