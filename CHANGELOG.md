@@ -23,6 +23,17 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.9.3] - Unreleased
+
+### Fixed
+- #670: An explicit Allow tap at the network trust prompt enables wireless debugging immediately, even during an active automatic recovery backoff (keep-alive, Wi-Fi and trust checks still apply).
+- #671: Register: additional transports are only reported if the operation is still current after the primary POST.
+- #674: (Privacy) logcat shows the WLAN endpoint and BSSID masked; diagnostics export and ring buffer are unchanged.
+- #675: A SecurityException in applyNow rolls the last desired intent back; a locked handover tap no longer re-posts the USB notification after unplug.
+
+### Testing
+- #670, #671, #674, #675: Regression tests for each of the fixes above.
+
 ## [1.9.1] - Unreleased
 
 ### Testing
