@@ -619,3 +619,74 @@ network" steht.
 - `package_verifier`- und `verifier_verify_adb_installs`-Einstellungen standen auf den AVDs bereits
   seit dem Lauf aus Nachtrag 5 auf `0` und wurden auf diesen Ausgangswert zurückgesetzt, nicht auf
   den Auslieferungszustand.
+
+## Nachtrag 7 (#651, 2026-09-30): Realer S20-Reboot mit Zwei-Schritt-Grant (Restkriterium AK3 aus #646)
+
+Gemessen auf dem Samsung Galaxy S20 FE (SM-G780G, Android 13 / API 33, One UI) per USB-ADB
+(Serial `RF8T307S88H`), Debug-Build `master` `d795643`, versionName 1.8.71 / versionCode 168, Paket
+`de.hohnepeople.keepadb.debug`, installiert per `adb install -r` über 1.8.64. Das QS-Tile blieb
+eingerichtet (Projektregel), WLAN `moosNET` (BSSID `0c:72:74:a4:69:00` steht in der Allowlist),
+Allowlist-Modus, Keep-Alive an. Rohdaten (Logcat vor/nach beiden Reboots, Screenshots, Ablaufprotokoll)
+liegen lokal unter `~/agent/output/keepadb-e2e-651-20260930/`, die UI-Helfer unter
+`~/agent/workspace/keepadb-e2e-651/`; beides ist nicht Teil des Repositories.
+
+### Zwei-Schritt-Grant über die UI
+
+Vor dem Lauf wurden FINE, COARSE und BACKGROUND per `pm revoke` entzogen (Readback `granted=false`).
+Danach ausschließlich über die Oberfläche: Einstellungen › Netzwerk › „Restrict Keep-Alive to
+trusted networks“ aus und wieder an → Erklärdialog „Location permission needed“ → GRANT →
+System-Dialog „Bei Nutzung der App“ → Schritt-2-Dialog „Background access for trusted networks“
+(OPEN SETTINGS / LATER / TRUST ALL WI-FI NETWORKS INSTEAD) → OPEN SETTINGS → App-Info › Berechtigungen
+› Standort › „Immer zulassen“. Readback danach: FINE, COARSE und `ACCESS_BACKGROUND_LOCATION`
+`granted=true`. Der Grant wurde an keiner Stelle von der App selbst angefordert; der Dialog hat den
+Nutzer wie beabsichtigt nur in die Systemeinstellungen geführt.
+
+### Fall 1: echter Reboot mit Hintergrund-Grant
+
+`adb reboot`, danach nur entsperrt, KeepADB nicht geöffnet. Ergebnis (Logcat, `KeepADBDiag`):
+
+```
+04:01:35 event=boot_completed source=system outcome=received detail=keepAlive=true
+04:01:36 event=boot_recovery source=boot_receiver outcome=success detail=service_start
+04:01:36 event=keep_alive_check source=service outcome=started detail=wifiConnected=true adbWifi=false
+04:01:36 event=recovery_attempt source=keep_alive_check outcome=success detail=intentId=1 desired=true actual=true writeAccepted=true
+04:01:36 event=state_observed source=content_observer outcome=changed detail=adbWifi=true
+04:01:37 event=endpoint_discovered source=nsd_or_probe outcome=success detail=host=192.168.178.24 port=44697
+```
+
+`settings get global adb_wifi_enabled` lieferte danach `1`; `AdbDebuggingManager` nahm eine TLS-Verbindung
+an (`Received WIFI TLS connected key message`). **Wireless Debugging war nach einem echten Reboot ohne
+Zutun wieder real aktiv.** Damit ist das, was auf dem Emulator nicht darstellbar war
+(`state_mismatch actual=false`, Nachtrag 6), auf echter Hardware belegt.
+
+### Fall 2 (Gegenprobe): echter Reboot ohne Hintergrund-Grant
+
+`pm revoke … ACCESS_BACKGROUND_LOCATION` (FINE und Allowlist blieben), `adb reboot`, nur entsperrt.
+Ergebnis: **kein fail-closed.** Identisches Bild wie in Fall 1 (`boot_completed` 04:07:57,
+`recovery_attempt … success writeAccepted=true`, `adbWifi=on`, Endpoint `192.168.178.24:44491`,
+`endpoint_verified reachable`; auf dem Gerät erschien wieder der `adb-tls-connect`-Transport). Der
+Hinweistext aus #643 kam nicht zum Einsatz, weil die Identität lesbar war.
+
+Das widerspricht dem Erwartungsbild des Issues nicht als Fehler der App, sondern bestätigt die bereits
+in Nachtrag 3 festgehaltene Annahme: Mit eingerichtetem QS-Tile bindet SystemUI den Prozess und
+gewährt While-in-Use (Samsung-/SystemUI-Nebeneffekt, keine Plattformgarantie). Der fail-closed-Pfad
+`IDENTITY_UNAVAILABLE` ohne Grant lässt sich daher **auf dem S20 nur ohne Tile** messen. Das Tile wurde
+nicht entfernt (Projektregel). Der fail-closed-Nachweis stützt sich weiter auf Nachtrag 3 (Fall A, S20
+ohne Tile-Bindung) und die Emulator-Matrix (Nachtrag 5 und 6).
+
+### Beobachtung: verzögerte `BOOT_COMPLETED`-Zustellung
+
+Trotz sofortigem Entsperren (Gerät ab ca. 03:58:50 entsperrt) kam `BOOT_COMPLETED` erst um 04:01:35, in
+Fall 2 um 04:07:57 (Boot ca. 04:05:40). Das sind rund zweieinhalb Minuten bis zur Zustellung; die
+Ursache (Samsung-Broadcast-Verzögerung, Last direkt nach dem Boot) wurde nicht untersucht. Für das
+Nutzerbild heißt das: Die Wiederherstellung passiert nicht sofort nach dem Entsperren, sondern nach der
+Zustellung des Boot-Broadcasts.
+
+### Schluss
+
+- **AK3 aus #646 ist auf echter Hardware erfüllt:** Autonomes Wiedereinschalten nach echtem Reboot mit
+  Zwei-Schritt-Grant, Allowlist und aktuellem `master` (1.8.71).
+- Nicht belegt bleibt der fail-closed-Fall auf dem S20 mit Tile (siehe Fall 2); das ist eine
+  Messgrenze des Gerätezustands, kein App-Befund.
+- Nach dem Lauf: BACKGROUND wieder erteilt, QS-Tile vorhanden, KeepADB im Vordergrund,
+  Wireless Debugging an.
