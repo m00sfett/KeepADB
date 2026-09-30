@@ -11,9 +11,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.LinkAddress;
 import android.net.LinkProperties;
-import android.net.Network;
 import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -26,10 +24,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowConnectivityManager;
-import org.robolectric.shadows.ShadowNetwork;
-import org.robolectric.shadows.ShadowNetworkCapabilities;
-import org.robolectric.shadows.ShadowNetworkInfo;
 
 /**
  * End-to-end aggregation coverage for #538's four required transport scenarios (only WLAN; WLAN
