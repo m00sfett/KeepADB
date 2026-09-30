@@ -23,7 +23,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.After;
 import org.junit.Before;
@@ -674,7 +679,7 @@ public class NetworkListActivityTest {
     }
 
     @Test
-    public void hiddenRowsStayDistinguishableByPositionWithoutRevealingAnything() {
+    public void hiddenRowsOfDifferentNamesStayDistinguishableByNumberWithoutRevealingAnything() {
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:02", "Cafe-WLAN");
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:03", "Hotel-WLAN");
         KeepADBPreferences.setPrivacyModeEnabled(context, true);
@@ -690,6 +695,151 @@ public class NetworkListActivityTest {
             assertTrue("Buttons stay distinguishable for TalkBack: " + description,
                     description.contains(hidden + " #"));
         }
+    }
+
+    /**
+     * #654 (user decision of 2026-09-30): hidden names are numbered per name. In the allowed view
+     * the current access point and the list entries share one count, so the same name reads alike
+     * on every row (several access points of one mesh) and two different names never share a
+     * number -- in particular no list entry takes the number of the current access point.
+     */
+    @Test
+    public void hiddenNamesAreNumberedPerNameAndTheCurrentAccessPointSharesTheCount() {
+        connectTo("HomeMesh", "a1:00:00:00:00:a1");
+        KeepADBTrustedNetwork.addBssid(context, "b2:00:00:00:00:b2", "HomeMesh");
+        KeepADBTrustedNetwork.addBssid(context, "c3:00:00:00:00:c3", "Cafe-WLAN");
+        KeepADBTrustedNetwork.addBssid(context, "d4:00:00:00:00:d4", "HomeMesh");
+        KeepADBTrustedNetwork.addBssid(context, "e5:00:00:00:00:e5", "Hotel-WLAN");
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+
+        NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
+
+        String hidden = context.getString(R.string.network_privacy_name_hidden);
+        Map<String, String> names = namesByMaskedAddress(activity);
+        assertEquals(names.toString(), 5, names.size());
+        assertEquals("The current access point", hidden + " #1", names.get("a1:*:*:*:*:a1"));
+        assertEquals("Same name as the current one", hidden + " #1", names.get("b2:*:*:*:*:b2"));
+        assertEquals("Another name", hidden + " #2", names.get("c3:*:*:*:*:c3"));
+        assertEquals("A second access point of the current name", hidden + " #1",
+                names.get("d4:*:*:*:*:d4"));
+        assertEquals("A third name", hidden + " #3", names.get("e5:*:*:*:*:e5"));
+        // The row action names its target with the same number, so TalkBack reads what is shown.
+        Button removeCafe = findButtonWithDescription(activity.findViewById(R.id.wifi_aps_list),
+                context.getString(R.string.network_action_remove_ap_accessibility, hidden + " #2"));
+        assertNotNull(removeCafe);
+    }
+
+    @Test
+    public void theObservedViewNumbersHiddenNamesPerNameToo() {
+        connectTo("HomeMesh", "a1:00:00:00:00:a1");
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "b2:00:00:00:00:b2");
+        KeepADBBssidHistory.recordObservation(context, "Cafe-WLAN", "c3:00:00:00:00:c3");
+        KeepADBBssidHistory.recordObservation(context, "Hotel-WLAN", "e5:00:00:00:00:e5");
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "d4:00:00:00:00:d4");
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+
+        Map<String, String> names = namesByMaskedAddress(open(NetworkListActivity.VIEW_OBSERVED));
+
+        String hidden = context.getString(R.string.network_privacy_name_hidden);
+        assertEquals(names.toString(), 5, names.size());
+        assertEquals(hidden + " #1", names.get("a1:*:*:*:*:a1"));
+        assertEquals(hidden + " #1", names.get("b2:*:*:*:*:b2"));
+        assertEquals(hidden + " #1", names.get("d4:*:*:*:*:d4"));
+        assertNotEquals("Two different names must not read alike", names.get("c3:*:*:*:*:c3"),
+                names.get("e5:*:*:*:*:e5"));
+        assertEquals("Names other than the current one are #2 and #3, in either order",
+                new HashSet<>(java.util.Arrays.asList(hidden + " #2", hidden + " #3")),
+                new HashSet<>(java.util.Arrays.asList(names.get("c3:*:*:*:*:c3"),
+                        names.get("e5:*:*:*:*:e5"))));
+    }
+
+    @Test
+    public void thePreventedViewNumbersHiddenNamesPerNameInTheOrderShown() {
+        KeepADBBlockedNetworkHistory.record(context,
+                new KeepADBNetworkIdentity("Hotel-WLAN", "f1:00:00:00:00:f1"), 1_000L);
+        KeepADBBlockedNetworkHistory.record(context,
+                new KeepADBNetworkIdentity("Cafe-WLAN", "f2:00:00:00:00:f2"), 2_000L);
+        KeepADBBlockedNetworkHistory.record(context,
+                new KeepADBNetworkIdentity("Hotel-WLAN", "f3:00:00:00:00:f3"), 3_000L);
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+
+        Map<String, String> names = namesByMaskedAddress(open(NetworkListActivity.VIEW_PREVENTED));
+
+        String hidden = context.getString(R.string.network_privacy_name_hidden);
+        assertEquals(names.toString(), 3, names.size());
+        assertEquals("Newest entry first, so its name is #1", hidden + " #1",
+                names.get("f3:*:*:*:*:f3"));
+        assertEquals(hidden + " #2", names.get("f2:*:*:*:*:f2"));
+        assertEquals("The older entry of the same name reads alike", hidden + " #1",
+                names.get("f1:*:*:*:*:f1"));
+    }
+
+    /**
+     * A redraw (the view is shown again) and the "show more" toggle must not renumber rows that
+     * were already there: the numbers follow the order the rows are shown in, so rows 21 and on
+     * continue the count and a repeated name in a later row reuses its earlier number.
+     */
+    @Test
+    public void hiddenNumbersSurviveARedrawAndTheShowMoreToggle() {
+        for (int i = 0; i < NetworkListActivity.COLLAPSED_ROWS + 5; i++) {
+            KeepADBBssidHistory.recordObservation(context, "Neighbor" + i, otherBssid(i));
+        }
+        // A second access point of one name, recorded last so it is listed first (newest first).
+        KeepADBBssidHistory.recordObservation(context, "Neighbor3", "cc:cc:cc:cc:cc:03");
+        connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        ActivityController<NetworkListActivity> controller = Robolectric.buildActivity(
+                NetworkListActivity.class, NetworkListActivity.intent(context,
+                        NetworkListActivity.VIEW_OBSERVED)).setup();
+        ShadowLooper.idleMainLooper();
+        NetworkListActivity activity = controller.get();
+
+        Map<String, String> collapsed = namesByMaskedAddress(activity);
+        assertEquals(NetworkListActivity.COLLAPSED_ROWS + 1, collapsed.size());
+
+        controller.pause().resume();
+        assertEquals("A redraw keeps every number", collapsed, namesByMaskedAddress(activity));
+
+        activity.findViewById(R.id.wifi_aps_toggle).performClick();
+        Map<String, String> expanded = namesByMaskedAddress(activity);
+        assertEquals(NetworkListActivity.COLLAPSED_ROWS + 5 + 1 + 1, expanded.size());
+        for (Map.Entry<String, String> row : collapsed.entrySet()) {
+            assertEquals("Showing more must not renumber " + row.getKey(), row.getValue(),
+                    expanded.get(row.getKey()));
+        }
+        assertEquals("Both access points of one name read alike", expanded.get("bb:*:*:*:*:03"),
+                expanded.get("cc:*:*:*:*:03"));
+        assertEquals("One number per name: HomeMesh and the 25 neighbours",
+                NetworkListActivity.COLLAPSED_ROWS + 5 + 1, new HashSet<>(expanded.values()).size());
+    }
+
+    /**
+     * The count belongs to one drawing of the view: after the list changed, the rows are numbered
+     * again from the first one, so a name that left does not leave a gap behind.
+     */
+    @Test
+    public void aRedrawAfterAChangeCountsAgainFromTheFirstRow() {
+        connectTo("HomeMesh", "a1:00:00:00:00:a1");
+        KeepADBTrustedNetwork.addBssid(context, "c3:00:00:00:00:c3", "Cafe-WLAN");
+        KeepADBTrustedNetwork.addBssid(context, "e5:00:00:00:00:e5", "Hotel-WLAN");
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
+        String hidden = context.getString(R.string.network_privacy_name_hidden);
+        Map<String, String> before = namesByMaskedAddress(activity);
+        assertEquals(hidden + " #2", before.get("c3:*:*:*:*:c3"));
+        assertEquals(hidden + " #3", before.get("e5:*:*:*:*:e5"));
+
+        Button removeCafe = findButtonWithDescription(activity.findViewById(R.id.wifi_aps_list),
+                context.getString(R.string.network_action_remove_ap_accessibility, hidden + " #2"));
+        assertNotNull(removeCafe);
+        removeCafe.performClick();
+        ShadowLooper.idleMainLooper();
+
+        Map<String, String> after = namesByMaskedAddress(activity);
+        assertEquals(after.toString(), 2, after.size());
+        assertEquals(hidden + " #1", after.get("a1:*:*:*:*:a1"));
+        assertEquals("The remaining name moves up, no gap at #2", hidden + " #2",
+                after.get("e5:*:*:*:*:e5"));
     }
 
     /**
@@ -822,6 +972,35 @@ public class NetworkListActivityTest {
             ViewGroup group = (ViewGroup) view;
             for (int i = 0; i < group.getChildCount(); i++) collectAll(group.getChildAt(i), out);
         }
+    }
+
+    /**
+     * The name each row of the current-access-point row and the list shows, by the masked address
+     * the row carries (first and last octet), lower-cased. The current badge is stripped.
+     */
+    private static Map<String, String> namesByMaskedAddress(NetworkListActivity activity) {
+        Pattern masked = Pattern.compile("[0-9a-f]{2}:\\*:\\*:\\*:\\*:[0-9a-f]{2}");
+        String badge = activity.getString(R.string.wifi_aps_current_badge) + " \u00b7 ";
+        Map<String, String> result = new LinkedHashMap<>();
+        for (int group : new int[] {R.id.wifi_aps_current_row, R.id.wifi_aps_list}) {
+            ViewGroup rows = activity.findViewById(group);
+            for (int i = 0; i < rows.getChildCount(); i++) {
+                List<String> texts = allText(rows.getChildAt(i));
+                String name = texts.get(0);
+                if (name.startsWith(badge)) name = name.substring(badge.length());
+                String address = null;
+                for (String text : texts) {
+                    Matcher matcher = masked.matcher(text.toLowerCase(java.util.Locale.ROOT));
+                    if (matcher.find()) {
+                        address = matcher.group();
+                        break;
+                    }
+                }
+                assertNotNull("A row carries its masked address: " + joined(texts), address);
+                assertNull("Every row has its own address: " + address, result.put(address, name));
+            }
+        }
+        return result;
     }
 
     private static List<String> allText(View root) {

@@ -938,7 +938,7 @@ public class SettingsActivity extends Activity {
         networkStatusLabel.setTextColor(getColor(
                 KeepADBNetworkCardText.connectionColor(state.connection, state.mode)));
         if (identity.isKnown()) {
-            networkConnectionLine.setText(KeepADBNetworkDisplay.ssid(this, identity.displaySsid(), 0)
+            networkConnectionLine.setText(KeepADBNetworkDisplay.ssid(this, identity.displaySsid(), null)
                     + " · " + KeepADBNetworkDisplay.bssid(this, identity.bssid));
             networkConnectionLine.setVisibility(View.VISIBLE);
         } else {
@@ -1025,7 +1025,7 @@ public class SettingsActivity extends Activity {
         networkStatusAction.setContentDescription(
                 state.action == KeepADBNetworkCardState.Action.ALLOW_ACCESS_POINT
                         ? getString(R.string.network_action_allow_ap_accessibility,
-                                KeepADBNetworkDisplay.label(this, ssid, identity.bssid, 0))
+                                KeepADBNetworkDisplay.label(this, ssid, identity.bssid, null))
                         : null);
         networkStatusAction.setVisibility(View.VISIBLE);
     }
@@ -1095,6 +1095,8 @@ public class SettingsActivity extends Activity {
     private void renderSsidNames(KeepADBNetworkIdentity identity) {
         wifiSsidsCurrentRow.removeAllViews();
         wifiSsidsList.removeAllViews();
+        // One numbering for the current name and the list, so a hidden name reads alike in both.
+        KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
 
         String currentSsid = identity.isKnown() ? identity.displaySsid() : null;
         if (currentSsid == null || currentSsid.isEmpty()) {
@@ -1104,19 +1106,19 @@ public class SettingsActivity extends Activity {
             unknown.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
             wifiSsidsCurrentRow.addView(unknown);
         } else {
-            wifiSsidsCurrentRow.addView(buildCurrentSsidRow(currentSsid));
+            wifiSsidsCurrentRow.addView(buildCurrentSsidRow(currentSsid, numbering));
         }
 
         List<KeepADBTrustedNetwork.SsidEntry> entries = KeepADBTrustedNetwork.getSsidEntries(this);
-        for (int i = 0; i < entries.size(); i++) {
-            wifiSsidsList.addView(buildTrustedSsidRow(entries.get(i), i + 1));
+        for (KeepADBTrustedNetwork.SsidEntry entry : entries) {
+            wifiSsidsList.addView(buildTrustedSsidRow(entry, numbering));
         }
         wifiSsidsEmpty.setVisibility(entries.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
-    private View buildCurrentSsidRow(String currentSsid) {
+    private View buildCurrentSsidRow(String currentSsid, KeepADBNetworkDisplay.Numbering numbering) {
         boolean listed = KeepADBTrustedNetwork.findSsidEntryForCurrentNetwork(this) != null;
-        String shownName = KeepADBNetworkDisplay.ssid(this, currentSsid, 0);
+        String shownName = KeepADBNetworkDisplay.ssid(this, currentSsid, numbering);
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.VERTICAL);
 
@@ -1137,7 +1139,7 @@ public class SettingsActivity extends Activity {
                             Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(this, getString(R.string.wifi_ssids_added_toast,
-                            KeepADBNetworkDisplay.ssid(this, added.ssid, 0)), Toast.LENGTH_SHORT).show();
+                            KeepADBNetworkDisplay.ssid(this, added.ssid, null)), Toast.LENGTH_SHORT).show();
                 }
                 refresh();
             });
@@ -1174,8 +1176,9 @@ public class SettingsActivity extends Activity {
         return (int) (value * getResources().getDisplayMetrics().density);
     }
 
-    private View buildTrustedSsidRow(KeepADBTrustedNetwork.SsidEntry entry, int position) {
-        String shownName = KeepADBNetworkDisplay.ssid(this, entry.ssid, position);
+    private View buildTrustedSsidRow(KeepADBTrustedNetwork.SsidEntry entry,
+                                     KeepADBNetworkDisplay.Numbering numbering) {
+        String shownName = KeepADBNetworkDisplay.ssid(this, entry.ssid, numbering);
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.VERTICAL);
         int topMargin = (int) (12 * getResources().getDisplayMetrics().density);

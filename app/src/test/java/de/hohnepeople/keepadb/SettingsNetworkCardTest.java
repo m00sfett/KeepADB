@@ -935,6 +935,41 @@ public class SettingsNetworkCardTest {
                 concealed.contains(context.getString(R.string.network_privacy_name_hidden)));
     }
 
+    /**
+     * #654 (user decision of 2026-09-30): in the Wi-Fi-name section the current name and the list
+     * share one count of hidden names -- the same name reads alike in both places and a listed
+     * name never takes the number of a different current name.
+     */
+    @Test
+    public void hiddenWifiNamesAreNumberedPerNameAcrossTheCurrentRowAndTheList() {
+        KeepADBTrustedNetwork.addSsid(context, "Cafe-WLAN");
+        KeepADBTrustedNetwork.addSsid(context, "HomeMesh");
+        KeepADBTrustedNetwork.addSsid(context, "Hotel-WLAN");
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        SettingsActivity activity = open();
+        activity.findViewById(R.id.network_ssid_header).performClick();
+
+        String hidden = context.getString(R.string.network_privacy_name_hidden);
+        String badge = context.getString(R.string.wifi_aps_current_badge) + " \u00b7 ";
+        assertTrue(textsOf(activity.findViewById(R.id.wifi_ssids_current_row)).toString(),
+                textsOf(activity.findViewById(R.id.wifi_ssids_current_row))
+                        .contains(badge + hidden + " #1"));
+        List<String> listed = new ArrayList<>();
+        for (String text : textsOf(activity.findViewById(R.id.wifi_ssids_list))) {
+            if (text.startsWith(hidden)) listed.add(text);
+        }
+        assertEquals("Cafe-WLAN, HomeMesh (the current name), Hotel-WLAN, in list order",
+                java.util.Arrays.asList(hidden + " #2", hidden + " #1", hidden + " #3"), listed);
+        // The remove action of the current name's entry is described with that same number.
+        boolean described = false;
+        for (Button button : buttonsOf(activity.findViewById(R.id.wifi_ssids_list))) {
+            described |= context.getString(R.string.wifi_ssids_remove_accessibility, hidden + " #1")
+                    .contentEquals(button.getContentDescription());
+        }
+        assertTrue("The action names its target with the shown number", described);
+    }
+
     /** #654: the current BSSID in the card reads first and last octet while hidden, all when not. */
     @Test
     public void privacyModeShowsTheFirstAndTheLastOctetOfTheCurrentAddress() {

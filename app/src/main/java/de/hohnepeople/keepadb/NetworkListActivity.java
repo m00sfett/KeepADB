@@ -51,6 +51,8 @@ public class NetworkListActivity extends Activity {
     private TextView showMore;
     private TextView emptyView;
     private boolean expanded;
+    /** Numbers the hidden names of the view being shown; replaced on every render (#654). */
+    private KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
 
     static Intent intent(Context context, String view) {
         return new Intent(context, NetworkListActivity.class).putExtra(EXTRA_VIEW, view);
@@ -102,6 +104,7 @@ public class NetworkListActivity extends Activity {
     }
 
     private void render() {
+        numbering = new KeepADBNetworkDisplay.Numbering();
         currentRow.removeAllViews();
         list.removeAllViews();
         showMore.setVisibility(View.GONE);
@@ -140,7 +143,7 @@ public class NetworkListActivity extends Activity {
     private void renderAllowed() {
         ApRows rows = accessPointRows(false);
         showCurrent(rows.current);
-        addRows(rows.others, rows.firstOtherPosition);
+        addRows(rows.others);
         if (KeepADBTrustedNetwork.getEntries(this).isEmpty()) {
             emptyView.setText(R.string.network_view_allowed_empty);
             emptyView.setVisibility(View.VISIBLE);
@@ -152,7 +155,7 @@ public class NetworkListActivity extends Activity {
     private void renderObserved() {
         ApRows rows = accessPointRows(true);
         showCurrent(rows.current);
-        addRows(rows.others, rows.firstOtherPosition);
+        addRows(rows.others);
         if (rows.others.isEmpty()) {
             emptyView.setText(R.string.wifi_aps_empty);
             emptyView.setVisibility(View.VISIBLE);
@@ -163,7 +166,6 @@ public class NetworkListActivity extends Activity {
     private static final class ApRows {
         KeepADBAccessPointOverview.ApItem current;
         final List<KeepADBAccessPointOverview.ApItem> others = new ArrayList<>();
-        int firstOtherPosition = 1;
     }
 
     private ApRows accessPointRows(boolean observedOnly) {
@@ -184,7 +186,6 @@ public class NetworkListActivity extends Activity {
                 rows.others.add(item);
             }
         }
-        rows.firstOtherPosition = rows.current != null ? 2 : 1;
         return rows;
     }
 
@@ -195,15 +196,15 @@ public class NetworkListActivity extends Activity {
             currentRow.addView(unknown);
             return;
         }
-        currentRow.addView(buildAccessPointRow(current, 1, true));
+        currentRow.addView(buildAccessPointRow(current, true));
     }
 
-    private void addRows(List<KeepADBAccessPointOverview.ApItem> others, int firstPosition) {
+    private void addRows(List<KeepADBAccessPointOverview.ApItem> others) {
         boolean collapsible = others.size() > COLLAPSED_ROWS;
         boolean showAll = expanded && collapsible;
         int visible = showAll || !collapsible ? others.size() : COLLAPSED_ROWS;
         for (int i = 0; i < visible; i++) {
-            list.addView(buildAccessPointRow(others.get(i), firstPosition + i, false));
+            list.addView(buildAccessPointRow(others.get(i), false));
         }
         if (collapsible) {
             showMore.setVisibility(View.VISIBLE);
@@ -215,9 +216,9 @@ public class NetworkListActivity extends Activity {
         }
     }
 
-    private View buildAccessPointRow(KeepADBAccessPointOverview.ApItem item, int position,
+    private View buildAccessPointRow(KeepADBAccessPointOverview.ApItem item,
                                      boolean highlightCurrent) {
-        String name = KeepADBNetworkDisplay.label(this, item.ssid, item.bssid, position);
+        String name = KeepADBNetworkDisplay.label(this, item.ssid, item.bssid, numbering);
         String primary = highlightCurrent
                 ? getString(R.string.wifi_aps_current_badge) + " · " + name : name;
         boolean allowlist = KeepADBTrustedNetwork.isAllowlistMode(this);
@@ -262,10 +263,9 @@ public class NetworkListActivity extends Activity {
         }
         // Newest first: the access point the user just failed to connect on is the one they came
         // here for, and getEntries() returns the log oldest-first.
-        int position = 1;
         for (int i = entries.size() - 1; i >= 0; i--) {
             KeepADBBlockedNetworkHistory.Entry entry = entries.get(i);
-            String name = KeepADBNetworkDisplay.label(this, entry.ssid, entry.bssid, position);
+            String name = KeepADBNetworkDisplay.label(this, entry.ssid, entry.bssid, numbering);
             boolean nameIsBssid = entry.ssid == null || entry.ssid.isEmpty();
             String detail = getString(R.string.settings_trusted_network_blocked_detail,
                     KeepADBNetworkDisplay.bssid(this, entry.bssid),
@@ -283,7 +283,6 @@ public class NetworkListActivity extends Activity {
                     () -> KeepADBNetworkActions.allowAccessPoint(this, entry.bssid, entry.label(),
                             false, this::render),
                     false));
-            position++;
         }
     }
 
