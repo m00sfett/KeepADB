@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.8.73] - Unreleased
+
+### Fixed
+- #660: Replaced obsolete allowlist-only mode labels in the background-access and unreadable-network guidance with neutral explanations in all 19 languages.
+
 ## [1.8.72] - Unreleased
 
 ### Changed

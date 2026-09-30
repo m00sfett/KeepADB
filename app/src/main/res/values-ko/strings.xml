@@ -199,7 +199,7 @@
     <string name="background_location_dialog_later">나중에</string>
     <string name="background_location_status_granted">백그라운드 액세스: 허용됨. Keep-Alive가 백그라운드에서 시작되어도 허용된 액세스 포인트를 인식합니다. KeepADB는 기기 위치를 읽거나 저장하지 않습니다.</string>
     <string name="background_location_status_missing">백그라운드 액세스: 제한됨. Keep-Alive가 백그라운드에서 시작되면 Android가 Wi-Fi 식별 정보를 숨길 수 있습니다. 이 경우 KeepADB는 네트워크를 허용되지 않은 것으로 처리하며, 앱을 열 때까지 무선 디버깅을 자동으로 켜지 않습니다.</string>
-    <string name="background_location_status_missing_inactive">백그라운드 액세스: 현재 모드에서는 필요하지 않음. “허용된 액세스 포인트만”에서만 필요합니다.</string>
+    <string name="background_location_status_missing_inactive">백그라운드 액세스: 이 설정에서는 필요하지 않습니다. Keep-Alive가 백그라운드에서 실행될 때 액세스 포인트나 Wi-Fi 이름을 확인하는 데 필요합니다.</string>
     <string name="location_permission_panel_title">신뢰할 수 있는 네트워크에는 위치 권한이 필요합니다</string>
     <string name="location_permission_panel_body">신뢰할 수 있는 네트워크 모드는 Wi-Fi 네트워크를 식별하려면 위치 액세스가 필요합니다. 이 권한이 없으면 Keep-Alive는 신뢰할 수 있는 네트워크를 확인할 수 없어 자동으로 다시 켜지지 않습니다.</string>
     <string name="location_permission_panel_grant_button">위치 권한 허용</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">Keep-Alive가 Wi-Fi 네트워크가 연결되기를 기다리고 있습니다.</string>
     <string name="network_cause_permission_missing">자동 재활성화가 일시 중지됨: 위치 액세스가 없으면 Android가 어떤 액세스 포인트에 연결되어 있는지 숨깁니다.</string>
     <string name="network_cause_location_off">자동 재활성화가 일시 중지됨: 위치가 꺼져 있어 Android가 어떤 액세스 포인트에 연결되어 있는지 숨깁니다.</string>
-    <string name="network_cause_unreadable_all_wifi">지금은 네트워크를 읽을 수 없습니다. “모든 Wi-Fi 네트워크에서” 모드에서는 상관없지만 “허용된 액세스 포인트만”에는 필요합니다.</string>
+    <string name="network_cause_unreadable_all_wifi">현재 네트워크를 읽을 수 없습니다. 자동 재활성화는 계속할 수 있지만, 저장된 액세스 포인트나 Wi-Fi 이름을 확인하려면 읽을 수 있는 네트워크 정보가 필요합니다.</string>
     <string name="network_cause_not_allowed">자동 재활성화가 일시 중지됨: 이 액세스 포인트는 허용 목록에 없습니다.</string>
     <string name="network_cause_allowed">Keep-Alive가 여기서 무선 디버깅을 다시 켤 수 있습니다.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive가 여기서 무선 디버깅을 다시 켤 수 있습니다. 이 Wi-Fi 이름을 가진 읽을 수 있는 모든 액세스 포인트가 허용됩니다.</string>

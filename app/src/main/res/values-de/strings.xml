@@ -77,7 +77,7 @@
     <string name="background_location_dialog_later">Später</string>
     <string name="background_location_status_granted">Hintergrundzugriff: erlaubt. Freigegebene Access Points werden auch erkannt, wenn Keep-Alive im Hintergrund startet. KeepADB liest oder speichert niemals die Position deines Geräts.</string>
     <string name="background_location_status_missing">Hintergrundzugriff: eingeschränkt. Startet Keep-Alive im Hintergrund, kann Android die WLAN-Identität verbergen; KeepADB behandelt das Netzwerk dann als nicht freigegeben und schaltet Drahtloses Debugging erst automatisch ein, wenn du die App öffnest.</string>
-    <string name="background_location_status_missing_inactive">Hintergrundzugriff: im aktuellen Modus nicht erforderlich. Er wird nur für „Nur freigegebene Access Points“ gebraucht.</string>
+    <string name="background_location_status_missing_inactive">Hintergrundzugriff: in dieser Konfiguration nicht erforderlich. Er wird benötigt, um Access Points oder WLAN-Namen abzugleichen, wenn Keep-Alive im Hintergrund läuft.</string>
     <string name="location_permission_panel_title">Standortberechtigung für vertrauenswürdige Netzwerke nötig</string>
     <string name="location_permission_panel_body">Der Modus „Vertrauenswürdige Netzwerke“ benötigt Standortzugriff, um dein WLAN zu erkennen. Ohne diesen kann Keep-Alive kein vertrauenswürdiges WLAN bestätigen und schaltet nicht automatisch wieder ein.</string>
     <string name="location_permission_panel_grant_button">Standortberechtigung erteilen</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">Keep-Alive wartet, bis ein WLAN verbunden ist.</string>
     <string name="network_cause_permission_missing">Automatisches Wiedereinschalten pausiert: Ohne Standortzugriff verbirgt Android, mit welchem Access Point du verbunden bist.</string>
     <string name="network_cause_location_off">Automatisches Wiedereinschalten pausiert: Der Standort ist ausgeschaltet, daher verbirgt Android, mit welchem Access Point du verbunden bist.</string>
-    <string name="network_cause_unreadable_all_wifi">Das Netzwerk ist gerade nicht lesbar. Im Modus „In allen WLANs“ spielt das keine Rolle, „Nur freigegebene Access Points“ braucht es aber.</string>
+    <string name="network_cause_unreadable_all_wifi">Das Netzwerk ist gerade nicht lesbar. Die automatische Reaktivierung kann fortgesetzt werden; zum Prüfen gespeicherter Access Points oder WLAN-Namen werden lesbare Netzwerkdaten benötigt.</string>
     <string name="network_cause_not_allowed">Automatisches Wiedereinschalten pausiert: Dieser Access Point steht nicht auf deiner Freigabeliste.</string>
     <string name="network_cause_allowed">Keep-Alive darf Drahtloses Debugging hier wieder einschalten.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive darf Drahtloses Debugging hier wieder einschalten. Jeder lesbare Access Point mit diesem WLAN-Namen wird akzeptiert.</string>

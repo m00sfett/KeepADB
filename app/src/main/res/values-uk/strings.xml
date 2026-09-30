@@ -199,7 +199,7 @@
     <string name="background_location_dialog_later">Пізніше</string>
     <string name="background_location_status_granted">Фоновий доступ: дозволено. Дозволені точки доступу розпізнаються, навіть коли Keep-Alive запускається у фоні. KeepADB ніколи не зчитує і не зберігає розташування пристрою.</string>
     <string name="background_location_status_missing">Фоновий доступ: обмежено. Якщо Keep-Alive запускається у фоні, Android може приховати ідентифікатор Wi-Fi; тоді KeepADB вважає мережу недозволеною і не вмикає бездротове налагодження автоматично, доки ви не відкриєте застосунок.</string>
-    <string name="background_location_status_missing_inactive">Фоновий доступ: у поточному режимі не потрібен. Він потрібен лише для «Лише дозволені точки доступу».</string>
+    <string name="background_location_status_missing_inactive">Фоновий доступ: у цій конфігурації не потрібен. Він потрібен, щоб перевіряти точки доступу або назви Wi-Fi, коли Keep-Alive працює у фоновому режимі.</string>
     <string name="location_permission_panel_title">Для довірених мереж потрібен дозвіл на геолокацію</string>
     <string name="location_permission_panel_body">Режиму довірених мереж потрібен доступ до геолокації, щоб розпізнати вашу мережу Wi-Fi. Без нього Keep-Alive не може підтвердити довірену мережу і не увімкнеться автоматично.</string>
     <string name="location_permission_panel_grant_button">Надати дозвіл на геолокацію</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">Keep-Alive чекає на підключення до мережі Wi-Fi.</string>
     <string name="network_cause_permission_missing">Автоматичне повторне ввімкнення призупинено: без доступу до геолокації Android приховує, до якої точки доступу ви підключені.</string>
     <string name="network_cause_location_off">Автоматичне повторне ввімкнення призупинено: геолокацію вимкнено, тому Android приховує, до якої точки доступу ви підключені.</string>
-    <string name="network_cause_unreadable_all_wifi">Мережу зараз не можна прочитати. У режимі «У всіх мережах Wi-Fi» це не має значення, але для «Лише дозволені точки доступу» це потрібно.</string>
+    <string name="network_cause_unreadable_all_wifi">Мережу зараз неможливо прочитати. Автоматичне повторне ввімкнення може тривати, але для перевірки збережених точок доступу чи назв Wi-Fi потрібні доступні для читання дані мережі.</string>
     <string name="network_cause_not_allowed">Автоматичне повторне ввімкнення призупинено: цієї точки доступу немає у вашому списку дозволених.</string>
     <string name="network_cause_allowed">Keep-Alive може тут знову ввімкнути бездротове налагодження.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive може тут знову ввімкнути бездротове налагодження. Приймається будь-яка читабельна точка доступу з цією назвою Wi-Fi.</string>

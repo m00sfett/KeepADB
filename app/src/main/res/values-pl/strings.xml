@@ -199,7 +199,7 @@
     <string name="background_location_dialog_later">Później</string>
     <string name="background_location_status_granted">Dostęp w tle: dozwolony. Dozwolone punkty dostępowe są rozpoznawane także wtedy, gdy Keep-Alive uruchamia się w tle. KeepADB nigdy nie odczytuje ani nie zapisuje położenia urządzenia.</string>
     <string name="background_location_status_missing">Dostęp w tle: ograniczony. Gdy Keep-Alive uruchamia się w tle, Android może ukryć tożsamość sieci Wi-Fi; KeepADB traktuje wtedy sieć jako niedozwoloną i nie włącza automatycznie debugowania bezprzewodowego, dopóki nie otworzysz aplikacji.</string>
-    <string name="background_location_status_missing_inactive">Dostęp w tle: niepotrzebny w bieżącym trybie. Jest wymagany tylko dla „Tylko dozwolone punkty dostępowe”.</string>
+    <string name="background_location_status_missing_inactive">Dostęp w tle: nie jest wymagany w tej konfiguracji. Służy do sprawdzania punktów dostępu lub nazw Wi-Fi, gdy Keep-Alive działa w tle.</string>
     <string name="location_permission_panel_title">Wymagane uprawnienie lokalizacji dla zaufanych sieci</string>
     <string name="location_permission_panel_body">Tryb zaufanych sieci wymaga dostępu do lokalizacji, aby rozpoznać Twoją sieć Wi-Fi. Bez tego Keep-Alive nie może potwierdzić zaufanej sieci i nie włączy się automatycznie ponownie.</string>
     <string name="location_permission_panel_grant_button">Przyznaj uprawnienie lokalizacji</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">Keep-Alive czeka na połączenie z siecią Wi-Fi.</string>
     <string name="network_cause_permission_missing">Automatyczne ponowne włączanie wstrzymane: bez dostępu do lokalizacji Android ukrywa, z jakim punktem dostępowym jesteś połączony.</string>
     <string name="network_cause_location_off">Automatyczne ponowne włączanie wstrzymane: lokalizacja jest wyłączona, więc Android ukrywa, z jakim punktem dostępowym jesteś połączony.</string>
-    <string name="network_cause_unreadable_all_wifi">Sieci nie można teraz odczytać. W trybie „We wszystkich sieciach Wi-Fi” nie ma to znaczenia, ale „Tylko dozwolone punkty dostępowe” tego wymaga.</string>
+    <string name="network_cause_unreadable_all_wifi">Nie można teraz odczytać sieci. Automatyczne ponowne włączanie może działać dalej, ale do sprawdzenia zapisanych punktów dostępu lub nazw Wi-Fi potrzebne są czytelne dane sieci.</string>
     <string name="network_cause_not_allowed">Automatyczne ponowne włączanie wstrzymane: tego punktu dostępowego nie ma na liście dozwolonych.</string>
     <string name="network_cause_allowed">Keep-Alive może tutaj ponownie włączyć debugowanie bezprzewodowe.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive może tutaj ponownie włączyć debugowanie bezprzewodowe. Akceptowany jest każdy czytelny punkt dostępowy o tej nazwie Wi-Fi.</string>

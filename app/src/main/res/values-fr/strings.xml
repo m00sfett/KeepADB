@@ -199,7 +199,7 @@
     <string name="background_location_dialog_later">Plus tard</string>
     <string name="background_location_status_granted">Accès en arrière-plan : autorisé. Les points d’accès autorisés sont reconnus même lorsque Keep-Alive démarre en arrière-plan. KeepADB ne lit ni n’enregistre jamais la position de votre appareil.</string>
     <string name="background_location_status_missing">Accès en arrière-plan : restreint. Si Keep-Alive démarre en arrière-plan, Android peut masquer l’identité du Wi-Fi ; KeepADB considère alors le réseau comme non autorisé et n’active pas automatiquement le débogage sans fil tant que vous n’avez pas ouvert l’app.</string>
-    <string name="background_location_status_missing_inactive">Accès en arrière-plan : inutile dans le mode actuel. Il n’est nécessaire que pour « Uniquement les points d’accès autorisés ».</string>
+    <string name="background_location_status_missing_inactive">Accès en arrière-plan : non requis dans cette configuration. Il sert à vérifier les points d’accès ou les noms Wi-Fi lorsque Keep-Alive s’exécute en arrière-plan.</string>
     <string name="location_permission_panel_title">Autorisation de localisation requise pour les réseaux de confiance</string>
     <string name="location_permission_panel_body">Le mode réseaux de confiance a besoin de la localisation pour identifier votre réseau Wi-Fi. Sans elle, Keep-Alive ne peut pas confirmer un réseau de confiance et ne se réactivera pas automatiquement.</string>
     <string name="location_permission_panel_grant_button">Autoriser la localisation</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">Keep-Alive attend qu’un réseau Wi-Fi soit connecté.</string>
     <string name="network_cause_permission_missing">Réactivation automatique en pause : sans accès à la localisation, Android masque le point d’accès auquel vous êtes connecté.</string>
     <string name="network_cause_location_off">Réactivation automatique en pause : la localisation est désactivée, donc Android masque le point d’accès auquel vous êtes connecté.</string>
-    <string name="network_cause_unreadable_all_wifi">Le réseau est illisible pour le moment. Cela n’a pas d’importance dans le mode « Dans tous les réseaux Wi-Fi », mais « Uniquement les points d’accès autorisés » en a besoin.</string>
+    <string name="network_cause_unreadable_all_wifi">Le réseau ne peut pas être lu pour le moment. La réactivation automatique peut continuer, mais des données réseau lisibles sont nécessaires pour vérifier les points d’accès ou les noms Wi-Fi enregistrés.</string>
     <string name="network_cause_not_allowed">Réactivation automatique en pause : ce point d’accès ne figure pas dans votre liste d’autorisés.</string>
     <string name="network_cause_allowed">Keep-Alive peut réactiver ici le débogage sans fil.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive peut réactiver ici le débogage sans fil. Tout point d’accès lisible portant ce nom Wi-Fi est accepté.</string>

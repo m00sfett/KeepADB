@@ -199,7 +199,7 @@
     <string name="background_location_dialog_later">Nanti</string>
     <string name="background_location_status_granted">Akses latar belakang: diizinkan. Titik akses yang diizinkan tetap dikenali meskipun Keep-Alive dimulai di latar belakang. KeepADB tidak pernah membaca atau menyimpan posisi perangkat Anda.</string>
     <string name="background_location_status_missing">Akses latar belakang: dibatasi. Jika Keep-Alive dimulai di latar belakang, Android dapat menyembunyikan identitas Wi-Fi; KeepADB lalu menganggap jaringan tidak diizinkan dan tidak mengaktifkan Debugging Nirkabel secara otomatis sampai Anda membuka aplikasi.</string>
-    <string name="background_location_status_missing_inactive">Akses latar belakang: tidak diperlukan pada mode saat ini. Hanya dibutuhkan untuk “Hanya titik akses yang diizinkan”.</string>
+    <string name="background_location_status_missing_inactive">Akses latar belakang: tidak diperlukan dalam konfigurasi ini. Akses ini digunakan untuk memeriksa titik akses atau nama Wi-Fi saat Keep-Alive berjalan di latar belakang.</string>
     <string name="location_permission_panel_title">Izin lokasi diperlukan untuk jaringan tepercaya</string>
     <string name="location_permission_panel_body">Mode jaringan tepercaya memerlukan akses lokasi untuk mengenali jaringan Wi-Fi Anda. Tanpa itu, Keep-Alive tidak dapat memastikan jaringan tepercaya dan tidak akan aktif kembali secara otomatis.</string>
     <string name="location_permission_panel_grant_button">Berikan izin lokasi</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">Keep-Alive menunggu sampai jaringan Wi-Fi terhubung.</string>
     <string name="network_cause_permission_missing">Pengaktifan ulang otomatis dijeda: tanpa akses Lokasi, Android menyembunyikan titik akses yang terhubung dengan Anda.</string>
     <string name="network_cause_location_off">Pengaktifan ulang otomatis dijeda: Lokasi dimatikan, sehingga Android menyembunyikan titik akses yang terhubung dengan Anda.</string>
-    <string name="network_cause_unreadable_all_wifi">Jaringan tidak dapat dibaca saat ini. Pada mode “Di semua jaringan Wi-Fi” hal ini tidak masalah, tetapi “Hanya titik akses yang diizinkan” membutuhkannya.</string>
+    <string name="network_cause_unreadable_all_wifi">Jaringan tidak dapat dibaca saat ini. Pengaktifan ulang otomatis dapat berlanjut, tetapi data jaringan yang dapat dibaca diperlukan untuk memeriksa titik akses atau nama Wi-Fi yang tersimpan.</string>
     <string name="network_cause_not_allowed">Pengaktifan ulang otomatis dijeda: titik akses ini tidak ada dalam daftar yang diizinkan.</string>
     <string name="network_cause_allowed">Keep-Alive boleh mengaktifkan ulang Debugging Nirkabel di sini.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive boleh mengaktifkan ulang Debugging Nirkabel di sini. Setiap titik akses yang terbaca dengan nama Wi-Fi ini diterima.</string>

@@ -199,7 +199,7 @@
     <string name="background_location_dialog_later">Để sau</string>
     <string name="background_location_status_granted">Truy cập nền: đã cho phép. Điểm truy cập được phép vẫn được nhận ra ngay cả khi Keep-Alive khởi động trong nền. KeepADB không bao giờ đọc hay lưu vị trí thiết bị của bạn.</string>
     <string name="background_location_status_missing">Truy cập nền: bị hạn chế. Nếu Keep-Alive khởi động trong nền, Android có thể ẩn danh tính Wi-Fi; khi đó KeepADB coi mạng là không được phép và không tự bật gỡ lỗi không dây cho đến khi bạn mở ứng dụng.</string>
-    <string name="background_location_status_missing_inactive">Truy cập nền: không cần ở chế độ hiện tại. Chỉ cần cho “Chỉ điểm truy cập được phép”.</string>
+    <string name="background_location_status_missing_inactive">Quyền truy cập nền: không cần trong thiết lập này. Quyền này dùng để kiểm tra điểm truy cập hoặc tên Wi-Fi khi Keep-Alive chạy trong nền.</string>
     <string name="location_permission_panel_title">Cần quyền vị trí cho mạng đáng tin cậy</string>
     <string name="location_permission_panel_body">Chế độ mạng đáng tin cậy cần quyền truy cập vị trí để nhận diện mạng Wi-Fi của bạn. Nếu không có, Keep-Alive không thể xác nhận mạng đáng tin cậy và sẽ không tự động bật lại.</string>
     <string name="location_permission_panel_grant_button">Cấp quyền vị trí</string>
@@ -334,7 +334,7 @@
     <string name="network_cause_no_wifi">Keep-Alive đang chờ mạng Wi-Fi được kết nối.</string>
     <string name="network_cause_permission_missing">Tự động bật lại đã tạm dừng: không có quyền truy cập Vị trí, Android sẽ ẩn điểm truy cập mà bạn đang kết nối.</string>
     <string name="network_cause_location_off">Tự động bật lại đã tạm dừng: Vị trí đang tắt nên Android ẩn điểm truy cập mà bạn đang kết nối.</string>
-    <string name="network_cause_unreadable_all_wifi">Hiện chưa đọc được mạng. Ở chế độ “Trong mọi mạng Wi-Fi” điều này không quan trọng, nhưng “Chỉ điểm truy cập được phép” cần đến nó.</string>
+    <string name="network_cause_unreadable_all_wifi">Hiện không thể đọc mạng. Tính năng tự động bật lại vẫn có thể tiếp tục, nhưng cần đọc được dữ liệu mạng để kiểm tra các điểm truy cập hoặc tên Wi-Fi đã lưu.</string>
     <string name="network_cause_not_allowed">Tự động bật lại đã tạm dừng: điểm truy cập này không có trong danh sách được phép của bạn.</string>
     <string name="network_cause_allowed">Keep-Alive được phép bật lại gỡ lỗi không dây tại đây.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive được phép bật lại gỡ lỗi không dây tại đây. Mọi điểm truy cập đọc được có tên Wi-Fi này đều được chấp nhận.</string>
