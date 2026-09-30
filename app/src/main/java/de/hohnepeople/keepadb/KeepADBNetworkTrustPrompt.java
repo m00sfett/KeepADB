@@ -16,6 +16,7 @@ import android.provider.Settings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Asks the user -- once per access point, not once per heartbeat -- whether a newly seen,
@@ -198,7 +199,8 @@ final class KeepADBNetworkTrustPrompt {
     /** SSID if readable, otherwise the BSSID -- the identifier shown to the user. */
     static String labelFor(KeepADBNetworkIdentity identity) {
         String ssid = identity.displaySsid();
-        return (ssid == null || ssid.isEmpty()) ? identity.bssid : ssid;
+        return (ssid == null || ssid.isEmpty())
+                ? identity.bssid.toUpperCase(Locale.ROOT) : ssid;
     }
 
     /**
@@ -333,8 +335,11 @@ final class KeepADBNetworkTrustPrompt {
         // tapping the notification opens SettingsActivity's confirmation dialog, which names the
         // network before anything can be trusted (see confirmInAppIntent/pendingConfirmation).
         boolean details = KeepADBPreferences.isNotificationDetailsEnabled(context);
+        String displayBssid = bssid.toUpperCase(Locale.ROOT);
+        String displayLabel = label != null && label.equalsIgnoreCase(bssid)
+                ? displayBssid : label;
         String text = details
-                ? localized.getString(R.string.network_prompt_text, label, bssid)
+                ? localized.getString(R.string.network_prompt_text, displayLabel, displayBssid)
                 : localized.getString(R.string.network_prompt_confirm_in_app_text);
         PendingIntent contentIntent = details
                 ? PendingIntent.getActivity(context, REQUEST_CODE_DETAILS_ON_CONTENT,

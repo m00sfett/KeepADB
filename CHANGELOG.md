@@ -26,7 +26,11 @@ are retrospective issue-version records and were never published as separate rel
 ## [1.8.73] - Unreleased
 
 ### Fixed
-- #660: Replaced obsolete allowlist-only mode labels in the background-access and unreadable-network guidance with neutral explanations in all 19 languages.
+- #658: The in-app trust confirmation and success toast mask the prompted network name and BSSID in privacy mode; the allow action keeps the raw network identity.
+- #659: Disabling access-point observation also stops Settings from recording new observations; existing history is retained.
+- #660: Background-access and unreadable-network guidance use mode-neutral explanations in all 19 languages.
+- #661: The open Settings Network card refreshes on Wi-Fi availability, loss and capability changes and unregisters its callback when the activity stops.
+- #662: BSSIDs display uppercase hex in network views, trust prompts, toasts and privacy masks; stored addresses and trust matching are unchanged.
 
 ## [1.8.72] - Unreleased
 

@@ -551,6 +551,8 @@ public class NetworkListActivityTest {
         assertTrue(rendered.toString(), rendered.contains("Hotel-WLAN"));
         assertTrue("Newest first: the access point the user just failed on is at the top",
                 rendered.indexOf("Hotel-WLAN") < rendered.indexOf("Cafe-WLAN"));
+        assertTrue("The prevented list formats BSSIDs like the other lists: " + rendered,
+                rendered.stream().anyMatch(text -> text.contains("AA:BB:CC:DD:EE:02")));
         assertEquals("Every entry states its reason", 2, count(rendered,
                 context.getString(R.string.network_view_prevented_reason)));
         assertTrue("Nothing is allowed merely by looking at the list",
@@ -630,7 +632,7 @@ public class NetworkListActivityTest {
         NetworkListActivity activity = open(NetworkListActivity.VIEW_PREVENTED);
 
         List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
-        assertTrue(joined(texts), texts.contains("aa:bb:cc:dd:ee:09"));
+        assertTrue(joined(texts), texts.stream().anyMatch(text -> text.contains("AA:BB:CC:DD:EE:09")));
         assertFalse(joined(texts), texts.contains(WifiManager.UNKNOWN_SSID));
     }
 
@@ -856,30 +858,29 @@ public class NetworkListActivityTest {
         KeepADBBlockedNetworkHistory.record(context,
                 new KeepADBNetworkIdentity("Hotel-WLAN", "f2:a3:a4:a5:a6:3c"), 1_000L);
         String[] middleOctets = {"11", "22", "33", "44", "55", "66", "77", "88", "99", "98", "97",
-                "96", "a3", "a4", "a5", "a6"};
+                "96", "A3", "A4", "A5", "A6"};
         KeepADBPreferences.setPrivacyModeEnabled(context, true);
 
         assertMaskedAddresses(open(NetworkListActivity.VIEW_ALLOWED), middleOctets,
-                "de:*:*:*:*:ad", "c0:*:*:*:*:0f");
+                "DE:*:*:*:*:AD", "C0:*:*:*:*:0F");
         assertMaskedAddresses(open(NetworkListActivity.VIEW_OBSERVED), middleOctets,
-                "de:*:*:*:*:ad", "a1:*:*:*:*:b2");
+                "DE:*:*:*:*:AD", "A1:*:*:*:*:B2");
         assertMaskedAddresses(open(NetworkListActivity.VIEW_PREVENTED), middleOctets,
-                "f2:*:*:*:*:3c");
+                "F2:*:*:*:*:3C");
 
         // The off state shows the complete addresses, nothing masked.
         KeepADBPreferences.setPrivacyModeEnabled(context, false);
-        String shown = everythingShown(open(NetworkListActivity.VIEW_ALLOWED)).toLowerCase(
-                java.util.Locale.ROOT);
-        assertTrue(shown, shown.contains("de:11:22:33:44:ad"));
-        assertTrue(shown, shown.contains("c0:55:66:77:88:0f"));
+        String shown = everythingShown(open(NetworkListActivity.VIEW_ALLOWED));
+        assertTrue(shown, shown.contains("DE:11:22:33:44:AD"));
+        assertTrue(shown, shown.contains("C0:55:66:77:88:0F"));
         assertFalse(shown, shown.contains(":*:"));
     }
 
     private static void assertMaskedAddresses(Activity activity, String[] middleOctets,
                                               String... expected) {
-        String everything = everythingShown(activity).toLowerCase(java.util.Locale.ROOT);
+        String everything = everythingShown(activity);
         java.util.regex.Matcher matcher = java.util.regex.Pattern
-                .compile("\\b[0-9a-f*]{1,2}(?::[0-9a-f*]{1,2}){5}\\b").matcher(everything);
+                .compile("\\b[0-9A-F*]{1,2}(?::[0-9A-F*]{1,2}){5}\\b").matcher(everything);
         java.util.Set<String> found = new java.util.TreeSet<>();
         while (matcher.find()) found.add(matcher.group());
         assertEquals(everything, new java.util.TreeSet<>(java.util.Arrays.asList(expected)), found);

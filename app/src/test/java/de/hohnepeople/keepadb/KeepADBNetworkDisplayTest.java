@@ -58,7 +58,8 @@ public class KeepADBNetworkDisplayTest {
         assertEquals("HomeMesh", KeepADBNetworkDisplay.ssid(context, "HomeMesh", numbering));
         assertEquals("HomeMesh", KeepADBNetworkDisplay.ssid(context, "HomeMesh", null));
         assertEquals("AA:BB:CC:DD:EE:01", KeepADBNetworkDisplay.bssid(context, "AA:BB:CC:DD:EE:01"));
-        assertEquals("aa:bb:cc:dd:ee:01", KeepADBNetworkDisplay.bssid(context, "aa:bb:cc:dd:ee:01"));
+        assertEquals("AA:BB:CC:DD:EE:01", KeepADBNetworkDisplay.bssid(context, "aa:bb:cc:dd:ee:01"));
+        assertEquals("DE:11:22:33:44:AD", KeepADBNetworkDisplay.bssid(context, "de:11:22:33:44:ad"));
         assertEquals("HomeMesh",
                 KeepADBNetworkDisplay.label(context, "HomeMesh", "AA:BB:CC:DD:EE:01", numbering));
         assertEquals("AA:BB:CC:DD:EE:01",
@@ -102,6 +103,16 @@ public class KeepADBNetworkDisplayTest {
         KeepADBPreferences.setPrivacyModeEnabled(context, true);
         assertEquals("", KeepADBNetworkDisplay.bssid(context, null));
         assertEquals("", KeepADBNetworkDisplay.quoted(context, null));
+    }
+
+    @Test
+    public void aQuotedBssidCopyIsUppercaseWhileAnSsidKeepsItsCase() {
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        String bssid = "aa:bb:cc:dd:ee:01";
+        assertEquals("AA:BB:CC:DD:EE:01",
+                KeepADBNetworkDisplay.quoted(context, bssid, bssid));
+        assertEquals("HomeMesh", KeepADBNetworkDisplay.quoted(context, "HomeMesh", bssid));
+        assertEquals("The stored BSSID remains in its original case", "aa:bb:cc:dd:ee:01", bssid);
     }
 
     // --- numbering of hidden names (#654) -----------------------------------------------------

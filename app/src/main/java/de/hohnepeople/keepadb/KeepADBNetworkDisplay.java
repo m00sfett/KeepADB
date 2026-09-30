@@ -3,6 +3,7 @@ package de.hohnepeople.keepadb;
 import android.content.Context;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -59,7 +60,8 @@ final class KeepADBNetworkDisplay {
 
     static String bssid(Context context, String bssid) {
         if (bssid == null) return "";
-        return hidden(context) ? KeepADBAddressMask.maskBssid(bssid) : bssid;
+        String displayBssid = bssid.toUpperCase(Locale.ROOT);
+        return hidden(context) ? KeepADBAddressMask.maskBssid(displayBssid) : displayBssid;
     }
 
     /** The name if one is known, otherwise the BSSID -- each hidden or masked as required. */
@@ -73,8 +75,17 @@ final class KeepADBNetworkDisplay {
      * dialogs that quote it.
      */
     static String quoted(Context context, String storedLabel) {
+        return quoted(context, storedLabel, null);
+    }
+
+    /** Quotes an SSID or BSSID copy as a network label, formatting a BSSID only for display. */
+    static String quoted(Context context, String storedLabel, String bssid) {
         if (storedLabel == null) return "";
-        return hidden(context) ? placeholder(context, 0) : storedLabel;
+        if (hidden(context)) return placeholder(context, 0);
+        if (bssid != null && storedLabel.equalsIgnoreCase(bssid)) {
+            return KeepADBNetworkDisplay.bssid(context, storedLabel);
+        }
+        return storedLabel;
     }
 
     private static String placeholder(Context context, int number) {

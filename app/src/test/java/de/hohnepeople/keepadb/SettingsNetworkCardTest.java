@@ -15,6 +15,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
@@ -44,6 +46,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.shadows.ShadowDialog;
 import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowNetwork;
 import org.robolectric.shadows.ShadowWifiInfo;
 
 /**
@@ -177,7 +180,7 @@ public class SettingsNetworkCardTest {
         assertEquals(context.getString(R.string.network_status_allowed_ap), text(activity, R.id.network_status_label));
         assertEquals(context.getColor(R.color.status_ok_green),
                 ((TextView) activity.findViewById(R.id.network_status_label)).getCurrentTextColor());
-        assertEquals("HomeMesh · aa:bb:cc:dd:ee:01", text(activity, R.id.network_connection_line));
+        assertEquals("HomeMesh · AA:BB:CC:DD:EE:01", text(activity, R.id.network_connection_line));
         assertEquals(context.getString(R.string.network_cause_allowed), text(activity, R.id.network_status_cause));
         assertEquals(View.GONE, activity.findViewById(R.id.network_status_action).getVisibility());
     }
@@ -510,6 +513,45 @@ public class SettingsNetworkCardTest {
         assertEquals("1", text(activity, R.id.network_allowed_count));
     }
 
+    @Test
+    public void theOpenCardRefreshesForWifiChangesAndUnregistersWhenStopped() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "HomeMesh");
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:02");
+
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
+        ShadowLooper.idleMainLooper();
+        assertEquals(context.getString(R.string.network_status_not_allowed),
+                text(activity, R.id.network_status_label));
+
+        ConnectivityManager connectivityManager =
+                context.getSystemService(ConnectivityManager.class);
+        assertEquals("The visible Settings activity registers one Wi-Fi callback", 1,
+                shadowOf(connectivityManager).getNetworkCallbacks().size());
+
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
+        Network network = ShadowNetwork.newInstance(101);
+        for (ConnectivityManager.NetworkCallback callback
+                : shadowOf(connectivityManager).getNetworkCallbacks()) {
+            callback.onAvailable(network);
+        }
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(context.getString(R.string.network_status_allowed_ap),
+                text(activity, R.id.network_status_label));
+        assertEquals("The callback only refreshes display state", 1,
+                KeepADBTrustedNetwork.getEntries(context).size());
+        assertFalse(KeepADB.isEnabled(context));
+
+        controller.stop();
+        assertTrue("The Wi-Fi callback is removed with the visible activity",
+                shadowOf(connectivityManager).getNetworkCallbacks().isEmpty());
+        controller.destroy();
+    }
+
     /**
      * #654: the observation option controls only the observation and its list. Allowed and
      * prevented entries, the state and the advanced section stay reachable with it off, and
@@ -543,6 +585,36 @@ public class SettingsNetworkCardTest {
         assertFalse(activity.findViewById(R.id.network_observed_row).isShown());
         assertTrue(activity.findViewById(R.id.network_allowed_row).isShown());
         assertEquals(trustBefore, trustSettings());
+    }
+
+    @Test
+    public void turningObservationOffStopsSettingsRefreshAndKeepsHistory() {
+        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:bb:cc:dd:ee:01");
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:02");
+
+        SettingsActivity activity = open();
+        assertEquals(java.util.Arrays.asList("aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"),
+                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
+
+        Switch observe = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
+        assertTrue(observe.isChecked());
+        observe.performClick();
+        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
+
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:03");
+        activity.refresh();
+        assertEquals("Turning observation off retains prior entries and records no new one",
+                java.util.Arrays.asList("aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"),
+                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
+
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:04");
+        SettingsActivity reopened = open();
+        assertFalse(((Switch) reopened.findViewById(R.id.settings_wifi_aps_feature_toggle))
+                .isChecked());
+        assertEquals("Opening Settings while observation is off does not record either",
+                java.util.Arrays.asList("aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"),
+                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
     }
 
     @Test
@@ -919,7 +991,7 @@ public class SettingsNetworkCardTest {
         String visible = everything(shown);
         assertTrue(visible, visible.contains("HomeMesh"));
         assertTrue(visible, visible.contains("SavedName"));
-        assertTrue(visible, visible.contains("aa:bb:cc:dd:ee:01"));
+        assertTrue(visible, visible.contains("AA:BB:CC:DD:EE:01"));
         assertEquals(View.GONE, shown.findViewById(R.id.network_privacy_hint).getVisibility());
 
         KeepADBPreferences.setPrivacyModeEnabled(context, true);
@@ -976,13 +1048,13 @@ public class SettingsNetworkCardTest {
         connectTo("HomeMesh", "de:11:22:33:44:ad");
 
         KeepADBPreferences.setPrivacyModeEnabled(context, false);
-        assertEquals("HomeMesh \u00b7 de:11:22:33:44:ad",
+        assertEquals("HomeMesh \u00b7 DE:11:22:33:44:AD",
                 text(open(), R.id.network_connection_line));
 
         KeepADBPreferences.setPrivacyModeEnabled(context, true);
         SettingsActivity hidden = open();
         assertEquals(context.getString(R.string.network_privacy_name_hidden)
-                + " \u00b7 de:*:*:*:*:ad", text(hidden, R.id.network_connection_line));
+                + " \u00b7 DE:*:*:*:*:AD", text(hidden, R.id.network_connection_line));
         String concealed = everything(hidden);
         for (String middle : new String[] {":11:", ":22:", ":33:", ":44:"}) {
             assertFalse("A middle octet is visible: " + concealed, concealed.contains(middle));

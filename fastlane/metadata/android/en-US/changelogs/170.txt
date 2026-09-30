@@ -1,1 +1,1 @@
-Network guidance now explains when background access is needed and why unreadable Wi-Fi details matter for checking saved access points or network names. Texts are updated in all 19 languages.
+Privacy mode now masks network names and access-point addresses in trust confirmations and success messages. Pausing access-point observation stops new records and keeps history. The open Network card updates when Wi-Fi changes. Access-point addresses display in uppercase, including privacy masks. Background-access and unreadable-network guidance are clearer in all 19 languages.

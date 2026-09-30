@@ -171,17 +171,17 @@ public class KeepADBAddressMaskTest {
     @Test
     public void bssidKeepsOnlyTheFirstAndTheLastOctet() {
         assertEquals("AA:*:*:*:*:01", KeepADBAddressMask.maskBssid("AA:BB:CC:DD:EE:01"));
-        assertEquals("aa:*:*:*:*:01", KeepADBAddressMask.maskBssid("aa:bb:cc:dd:ee:01"));
-        assertEquals("02:*:*:*:*:5e", KeepADBAddressMask.maskBssid(" 02:1a:2b:3c:4d:5e "));
-        assertEquals("The example of the user decision", "de:*:*:*:*:ad",
+        assertEquals("AA:*:*:*:*:01", KeepADBAddressMask.maskBssid("aa:bb:cc:dd:ee:01"));
+        assertEquals("02:*:*:*:*:5E", KeepADBAddressMask.maskBssid(" 02:1a:2b:3c:4d:5e "));
+        assertEquals("The example of the user decision", "DE:*:*:*:*:AD",
                 KeepADBAddressMask.maskBssid("de:11:22:33:44:ad"));
     }
 
     @Test
-    public void theCaseOfTheKeptOctetsIsNotChanged() {
-        assertEquals("aA:*:*:*:*:Ff", KeepADBAddressMask.maskBssid("aA:bB:cC:dD:eE:Ff"));
+    public void theKeptOctetsAreAlwaysUppercase() {
+        assertEquals("AA:*:*:*:*:FF", KeepADBAddressMask.maskBssid("aA:bB:cC:dD:eE:Ff"));
         assertEquals("AA:*:*:*:*:FF", KeepADBAddressMask.maskBssid("AA:11:22:33:44:FF"));
-        assertEquals("aa:*:*:*:*:ff", KeepADBAddressMask.maskBssid("aa:11:22:33:44:ff"));
+        assertEquals("AA:*:*:*:*:FF", KeepADBAddressMask.maskBssid("aa:11:22:33:44:ff"));
     }
 
     @Test
@@ -202,16 +202,16 @@ public class KeepADBAddressMaskTest {
     public void onlyTheFirstAndTheLastOctetInfluenceTheMask() {
         String[] base = {"a0", "b1", "c2", "d3", "e4", "f5"};
         String baseMask = KeepADBAddressMask.maskBssid(String.join(":", base));
-        assertEquals("a0:*:*:*:*:f5", baseMask);
+        assertEquals("A0:*:*:*:*:F5", baseMask);
         for (int position = 0; position < 6; position++) {
             for (int value = 0; value < 256; value++) {
                 String[] octets = base.clone();
                 octets[position] = String.format(Locale.ROOT, "%02x", value);
                 String masked = KeepADBAddressMask.maskBssid(String.join(":", octets));
                 if (position == 0) {
-                    assertEquals(octets[0] + ":*:*:*:*:f5", masked);
+                    assertEquals(octets[0].toUpperCase(Locale.ROOT) + ":*:*:*:*:F5", masked);
                 } else if (position == 5) {
-                    assertEquals("a0:*:*:*:*:" + octets[5], masked);
+                    assertEquals("A0:*:*:*:*:" + octets[5].toUpperCase(Locale.ROOT), masked);
                 } else {
                     assertEquals("Octet " + position + " must not show up in the mask: " + masked,
                             baseMask, masked);

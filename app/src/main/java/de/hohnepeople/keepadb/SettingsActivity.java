@@ -9,9 +9,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.text.InputType;
 import android.view.View;
@@ -123,6 +129,9 @@ public class SettingsActivity extends Activity {
     private AlertDialog activeTrustConfirmationDialog;
     /** #644: the step-2 rationale dialog for the optional background location grant, if showing. */
     private AlertDialog activeBackgroundLocationDialog;
+
+    /** #661: refreshes the visible Network card while a Wi-Fi network changes. */
+    private ConnectivityManager.NetworkCallback wifiStatusCallback;
     /** #604: the BSSID {@link #activeTrustConfirmationDialog} is bound to, or null if none is showing. */
     private String activeTrustConfirmationBssid;
 
@@ -299,6 +308,12 @@ public class SettingsActivity extends Activity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        registerWifiStatusCallback();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         webhookForm.ensureDraftInitialized();
@@ -326,6 +341,58 @@ public class SettingsActivity extends Activity {
             getIntent().setAction(null);
             getIntent().removeExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID);
             showTrustConfirmationDialog(bssid);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        unregisterWifiStatusCallback();
+        super.onStop();
+    }
+
+    private void registerWifiStatusCallback() {
+        if (wifiStatusCallback != null) return;
+        ConnectivityManager connectivityManager = getSystemService(ConnectivityManager.class);
+        if (connectivityManager == null) return;
+
+        ConnectivityManager.NetworkCallback callback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+                refresh();
+            }
+
+            @Override
+            public void onLost(Network network) {
+                refresh();
+            }
+
+            @Override
+            public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
+                refresh();
+            }
+        };
+        try {
+            NetworkRequest request = new NetworkRequest.Builder()
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    .build();
+            connectivityManager.registerNetworkCallback(
+                    request, callback, new Handler(Looper.getMainLooper()));
+            wifiStatusCallback = callback;
+        } catch (RuntimeException e) {
+            android.util.Log.w("KeepADB", "Failed to register Settings Wi-Fi callback", e);
+        }
+    }
+
+    private void unregisterWifiStatusCallback() {
+        ConnectivityManager.NetworkCallback callback = wifiStatusCallback;
+        if (callback == null) return;
+        wifiStatusCallback = null;
+        ConnectivityManager connectivityManager = getSystemService(ConnectivityManager.class);
+        if (connectivityManager == null) return;
+        try {
+            connectivityManager.unregisterNetworkCallback(callback);
+        } catch (RuntimeException e) {
+            android.util.Log.w("KeepADB", "Failed to unregister Settings Wi-Fi callback", e);
         }
     }
 
@@ -903,9 +970,10 @@ public class SettingsActivity extends Activity {
                 getString(R.string.settings_usb_handover_accessibility, getString(handoverModeLabel)));
 
         // Piggyback the mesh-BSSID observation history (#266) on this already-happening
-        // identity read instead of adding a new background poll/service for it.
+        // identity read instead of adding a new background poll/service for it. The user's
+        // observation option gates every write, including reads caused by opening Settings.
         KeepADBNetworkIdentity currentIdentity = KeepADBNetworkIdentity.current(this);
-        if (currentIdentity.isKnown()) {
+        if (currentIdentity.isKnown() && KeepADBPreferences.isWifiApsFeatureEnabled(this)) {
             KeepADBBssidHistory.recordObservation(this, currentIdentity.displaySsid(), currentIdentity.bssid);
         }
 
@@ -1234,16 +1302,20 @@ public class SettingsActivity extends Activity {
         }
         final String confirmedBssid = entry.bssid;
         final String confirmedLabel = entry.label();
+        final String displayLabel = KeepADBNetworkDisplay.quoted(
+                this, confirmedLabel, confirmedBssid);
+        final String displayBssid = KeepADBNetworkDisplay.bssid(this, confirmedBssid);
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.network_prompt_title)
-                .setMessage(getString(R.string.network_prompt_text, confirmedLabel, confirmedBssid))
+                .setMessage(getString(R.string.network_prompt_text, displayLabel, displayBssid))
                 .setPositiveButton(R.string.network_prompt_allow, (d, which) -> {
                     boolean enabled = KeepADBReceiver.handleTrustNetworkAction(
                             this, confirmedBssid, confirmedLabel);
                     if (isListedAsTrusted(confirmedBssid)) {
                         Toast.makeText(this,
                                 getString(R.string.settings_trusted_network_added_toast,
-                                        confirmedLabel),
+                                        KeepADBNetworkDisplay.quoted(this, confirmedLabel,
+                                                confirmedBssid)),
                                 Toast.LENGTH_SHORT).show();
                         if (!enabled && !hasSecureSettingsPermission()) {
                             showToggleErrorToast();
