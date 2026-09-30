@@ -343,7 +343,8 @@ final class KeepADBEndpointCoordinator {
                     }
                     return;
                 }
-                Log.w(TAG, "Cached endpoint " + host + ":" + port
+                Log.w(TAG, "Cached endpoint "
+                        + KeepADBAddressMask.maskEndpointForDisplay(KeepADBEndpoint.formatEndpoint(host, port))
                         + " no longer reachable; invalidating and rediscovering");
                 KeepADBDiagnostics.event(appContext, "endpoint_verified", "nsd_or_probe",
                         "stale_invalidated", "host=" + host + " port=" + port);
