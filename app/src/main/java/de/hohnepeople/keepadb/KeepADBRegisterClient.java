@@ -461,6 +461,12 @@ final class KeepADBRegisterClient {
         // POST to new target URL
         final String cleanupToRemember = unfinishedCleanupUrl;
         if (postEndpoint(targetUrl, targetEndpoint)) {
+            // #671: the primary POST can block for seconds, during which a disconnect or a newer
+            // endpoint may have superseded this transaction. Abort before any secondary transport
+            // is sent, so a stale snapshot never goes out for an outdated target. Same outcome as
+            // the stale branch of the synchronized block below: no state, preference or listener
+            // side effects (the newer operation owns those).
+            if (opGen != currentOpGeneration) return;
             // #539: the same trigger now also reports every OTHER currently verified transport,
             // each into its own register slot. Deliberately after the WLAN POST and outside this
             // transaction's success accounting: the transaction is about `targetEndpoint`, whose
@@ -756,7 +762,8 @@ final class KeepADBRegisterClient {
                 }
 
                 int code = conn.getResponseCode();
-                Log.d(TAG, "Register update for " + logLabel + " returned HTTP " + code);
+                Log.d(TAG, "Register update for " + KeepADBAddressMask.maskEndpointForDisplay(logLabel)
+                        + " returned HTTP " + code);
                 return code >= 200 && code < 300;
             } catch (IOException e) {
                 Log.w(TAG, "Could not update register at " + sanitizeUrl(targetUrl));

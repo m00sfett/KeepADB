@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLog;
 import org.robolectric.shadows.ShadowLooper;
 
 @RunWith(RobolectricTestRunner.class)
@@ -123,6 +124,17 @@ public class KeepADBRegisterClientTest {
         assertFalse(recordedRequests.isEmpty());
         assertTrue(recordedRequests.get(0).startsWith("POST"));
         assertTrue(recordedRequests.toString().contains("192.168.1.50:41234"));
+    }
+
+    @Test
+    public void testPostEndpointDoesNotLogEndpointInCleartext() {
+        ShadowLog.clear();
+        String url = "http://127.0.0.1:" + testServerPort + "/register";
+        assertTrue(KeepADBRegisterClient.postEndpoint(url, "192.168.1.50:41234"));
+        StringBuilder logged = new StringBuilder();
+        for (ShadowLog.LogItem item : ShadowLog.getLogs()) logged.append(item.msg).append('\n');
+        assertTrue(logged.toString().contains("returned HTTP 200"));
+        assertFalse(logged.toString(), logged.toString().contains("192.168.1.50"));
     }
 
     @Test
@@ -886,6 +898,81 @@ public class KeepADBRegisterClientTest {
                         + "already-registered resource",
                 newerUrl, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
         assertEquals(newerEndpoint, KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+    }
+
+    /**
+     * #671: a generation change during the primary WLAN POST must abort the transaction before
+     * any secondary transport (here USB) is sent. The USB transport is made verifiable through the
+     * sticky USB broadcast and accepted by the server through the existing
+     * {@code setServerSupportedMethodsForTesting} seam (production is shielded by
+     * SERVER_SUPPORTED_METHODS, which only lists wlan-adb).
+     */
+    @Test
+    public void testGenerationChangeDuringPrimaryPostSkipsSecondaryTransports() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        String url = "http://register.example/register/dev1";
+        KeepADBPreferences.setRegisterWebhookUrl(context, url);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBRegisterPayload.setServerSupportedMethodsForTesting(
+                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "usb-adb")));
+        try {
+            setUsbAdbConnectedForTesting(context, true);
+            KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+            KeepADBRegisterClient.setHttpTransport(transport);
+            transport.setRequestCallback(req -> {
+                if ("POST".equals(req.method) && req.payload != null
+                        && req.payload.contains("wlan-adb")) {
+                    // Model "a disconnect/newer endpoint superseded this operation while the
+                    // primary POST was in flight".
+                    KeepADBRegisterClient.bumpOpGenerationForTesting();
+                }
+            });
+
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
+            KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+            assertEquals("only the primary POST may have been sent", 1, transport.getRequestCount());
+            assertNull("a superseded transaction must not move the registered state",
+                    KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+        } finally {
+            setUsbAdbConnectedForTesting(context, false);
+            KeepADBRegisterPayload.setServerSupportedMethodsForTesting(null);
+        }
+    }
+
+    /** Control for the #671 test: without a generation change the USB report really is sent, so
+     * the test above cannot pass merely because the secondary path is unreachable. */
+    @Test
+    public void testSecondaryTransportIsSentWhenOperationStaysCurrent() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        String url = "http://register.example/register/dev1";
+        KeepADBPreferences.setRegisterWebhookUrl(context, url);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBRegisterPayload.setServerSupportedMethodsForTesting(
+                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "usb-adb")));
+        try {
+            setUsbAdbConnectedForTesting(context, true);
+            KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+            KeepADBRegisterClient.setHttpTransport(transport);
+
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
+            KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+            assertEquals(2, transport.getRequestCount());
+            assertTrue(transport.getLastRequest().payload.contains("usb-adb"));
+            assertEquals(url, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+        } finally {
+            setUsbAdbConnectedForTesting(context, false);
+            KeepADBRegisterPayload.setServerSupportedMethodsForTesting(null);
+        }
+    }
+
+    private static void setUsbAdbConnectedForTesting(Context context, boolean connected) {
+        android.content.Intent intent = new android.content.Intent(KeepADBUsbReceiver.ACTION_USB_STATE);
+        intent.putExtra("connected", connected);
+        intent.putExtra("configured", connected);
+        intent.putExtra("adb", connected);
+        context.sendStickyBroadcast(intent);
     }
 
     /**

@@ -499,6 +499,8 @@ final class KeepADB {
             Log.e(TAG, "Missing WRITE_SECURE_SETTINGS when applying toggle", e);
             KeepADBDiagnostics.event(appContext, eventName, source, "failed",
                     "intentId=" + token + " reason=security_exception");
+            state.rollbackIntent(previousLastDesiredOn);
+            KeepADBPreferences.setLastDesiredOn(appContext, previousLastDesiredOn);
             surfaces.refreshAll(appContext); // #318: never leave the surfaces stuck in pending.
             return false;
         }
