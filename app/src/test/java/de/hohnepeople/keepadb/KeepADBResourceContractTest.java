@@ -359,6 +359,13 @@ public class KeepADBResourceContractTest {
                 new Object[] {stringWitness, stringWitness});
         result.put("settings_trusted_network_blocked_allow_accessibility",
                 new Object[] {stringWitness});
+        result.put("network_head_mode", new Object[] {stringWitness});
+        result.put("network_action_allow_ap_accessibility", new Object[] {stringWitness});
+        result.put("network_action_remove_ap_accessibility", new Object[] {stringWitness});
+        result.put("network_ssid_state_on", new Object[] {integerWitness});
+        result.put("network_ssid_state_no_effect", new Object[] {integerWitness});
+        result.put("network_ap_allowed_toast", new Object[] {stringWitness});
+        result.put("network_ap_removed_toast", new Object[] {stringWitness});
         result.put("wifi_aps_mesh_label", new Object[] {integerWitness, integerWitness});
         result.put("wifi_aps_show_more_button", new Object[] {integerWitness});
         result.put("wifi_aps_trust_accessibility", new Object[] {stringWitness});
