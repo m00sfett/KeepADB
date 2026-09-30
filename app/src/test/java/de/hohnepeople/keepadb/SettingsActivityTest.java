@@ -71,6 +71,24 @@ public class SettingsActivityTest {
         KeepADBEndpointCoordinator.resetForTesting();
     }
 
+    /** #677: every main card header announces its expanded/collapsed state to TalkBack. */
+    @Test
+    public void mainCardHeadersKeepStateDescriptionInSyncWithExpandedState() {
+        KeepADBPreferences.setAppLanguage(RuntimeEnvironment.getApplication(), "en");
+        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        int[] headers = {R.id.settings_webhook_header, R.id.settings_usb_adb_header,
+                R.id.settings_network_beta_header, R.id.settings_misc_header,
+                R.id.settings_diagnostics_header};
+        for (int id : headers) {
+            View header = activity.findViewById(id);
+            assertEquals("Collapsed initially", "Collapsed", String.valueOf(header.getStateDescription()));
+            header.performClick();
+            assertEquals("Expanded after click", "Expanded", String.valueOf(header.getStateDescription()));
+            header.performClick();
+            assertEquals("Collapsed again", "Collapsed", String.valueOf(header.getStateDescription()));
+        }
+    }
+
     /**
      * #592: the opt-in switch is off by default, persists the preference and re-renders an
      * already visible USB card through the existing KeepADBUsbReceiver.refresh path.
@@ -1420,6 +1438,92 @@ public class SettingsActivityTest {
             assertTrue("Debug badge must remain an accessibility node",
                     debugBadge.isImportantForAccessibility());
         }
+    }
+
+    /**
+     * #672: rotates the activity (saveInstanceState -> destroy -> fresh instance restored from the
+     * bundle, like the #604 tests) and returns the new controller.
+     */
+    private static ActivityController<SettingsActivity> rotate(
+            ActivityController<SettingsActivity> controller) {
+        Bundle state = new Bundle();
+        controller.saveInstanceState(state);
+        controller.pause().stop().destroy();
+        ShadowLooper.idleMainLooper();
+        return Robolectric.buildActivity(SettingsActivity.class).setup(state);
+    }
+
+    private static void assertDialogShowingWithTitle(int titleRes, SettingsActivity activity) {
+        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
+        assertNotNull("Dialog must be showing after rotation", dialog);
+        assertTrue(dialog.isShowing());
+        assertEquals(activity.getString(titleRes), shadowOf(dialog).getTitle().toString());
+    }
+
+    @Test
+    public void resetAppDialogSurvivesRotationButStillNeedsConfirmTap() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        controller.get().findViewById(R.id.settings_reset_app).performClick();
+        assertNotNull(controller.get().getActiveResetAppDialog());
+
+        ActivityController<SettingsActivity> restored = rotate(controller);
+        SettingsActivity activity = restored.get();
+
+        AlertDialog dialog = activity.getActiveResetAppDialog();
+        assertNotNull("Reset dialog must be restored", dialog);
+        assertTrue(dialog.isShowing());
+        assertFalse("Restoring must never execute the reset",
+                shadowOf((android.app.ActivityManager) activity.getSystemService(
+                        android.content.Context.ACTIVITY_SERVICE)).isApplicationUserDataCleared());
+
+        dialog.dismiss();
+        restored.pause().stop().destroy();
+    }
+
+    @Test
+    public void backgroundLocationDialogSurvivesRotation() throws Exception {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        java.lang.reflect.Method show =
+                SettingsActivity.class.getDeclaredMethod("showBackgroundLocationDialog");
+        show.setAccessible(true);
+        show.invoke(controller.get());
+        assertDialogShowingWithTitle(R.string.background_location_panel_title, controller.get());
+
+        ActivityController<SettingsActivity> restored = rotate(controller);
+        assertDialogShowingWithTitle(R.string.background_location_panel_title, restored.get());
+
+        ShadowAlertDialog.getLatestAlertDialog().dismiss();
+        restored.pause().stop().destroy();
+    }
+
+    @Test
+    public void usbHandoverModeDialogSurvivesRotation() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        controller.get().findViewById(R.id.settings_usb_handover_selector).performClick();
+        assertDialogShowingWithTitle(R.string.settings_usb_handover_dialog_title, controller.get());
+
+        ActivityController<SettingsActivity> restored = rotate(controller);
+        assertDialogShowingWithTitle(R.string.settings_usb_handover_dialog_title, restored.get());
+
+        ShadowAlertDialog.getLatestAlertDialog().dismiss();
+        restored.pause().stop().destroy();
+    }
+
+    @Test
+    public void languageSelectionDialogSurvivesRotation() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        controller.get().findViewById(R.id.settings_language_toolbar_button).performClick();
+        assertDialogShowingWithTitle(R.string.settings_language_dialog_title, controller.get());
+
+        ActivityController<SettingsActivity> restored = rotate(controller);
+        assertDialogShowingWithTitle(R.string.settings_language_dialog_title, restored.get());
+
+        ShadowAlertDialog.getLatestAlertDialog().dismiss();
+        restored.pause().stop().destroy();
     }
 
     private static Button findButtonWithText(List<Button> buttons, String text) {

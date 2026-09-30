@@ -312,6 +312,7 @@
     <string name="settings_license_line">Licensed under the GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Open HohnePeople.de in your browser</string>
+    <string name="settings_no_browser_found">No app found to open this link.</string>
     <string name="status_off_keep_alive_waiting">Wireless Debugging is OFF – Keep-Alive is waiting for the network</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wireless Debugging is OFF – Keep-Alive is paused: this Wi-Fi network isn\'t trusted</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wireless Debugging is OFF – Keep-Alive is paused: network identity unavailable, check Location permission (“Allow all the time”) or reopen the app</string>

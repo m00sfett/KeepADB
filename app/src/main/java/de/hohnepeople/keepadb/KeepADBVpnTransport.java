@@ -1,11 +1,8 @@
 package de.hohnepeople.keepadb;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
 import android.net.LinkAddress;
 import android.net.LinkProperties;
-import android.net.Network;
-import android.net.NetworkCapabilities;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -19,6 +16,9 @@ import java.net.InetAddress;
  * preferences, not network detection). This class is therefore independent, deliberately narrow,
  * and does not depend on or wait for that work; reconciling the two is left to the later
  * cross-branch review the parent orchestration already plans for.
+ *
+ * <p>Since #676 the VPN networks come from {@link KeepADBNetwork}'s callback-based VPN tracking
+ * instead of the network enumeration deprecated since API 31.
  *
  * <p>Detection is two-staged, matching the #538 acceptance criterion that an active VPN
  * interface alone must never be presented as an ADB endpoint:
@@ -61,16 +61,7 @@ final class KeepADBVpnTransport {
     static String findTailscaleIpv4Address(Context context) {
         if (context == null) return null;
         try {
-            ConnectivityManager cm = connectivityManager(context);
-            if (cm == null) return null;
-            Network[] networks = cm.getAllNetworks();
-            if (networks == null) return null;
-            for (Network network : networks) {
-                NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
-                if (capabilities == null || !capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
-                    continue;
-                }
-                LinkProperties linkProperties = cm.getLinkProperties(network);
+            for (LinkProperties linkProperties : KeepADBNetwork.get(context).vpnLinkPropertiesSnapshot()) {
                 if (linkProperties == null) continue;
                 for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
                     InetAddress address = linkAddress.getAddress();
@@ -89,24 +80,10 @@ final class KeepADBVpnTransport {
     static boolean hasActiveVpnTransport(Context context) {
         if (context == null) return false;
         try {
-            ConnectivityManager cm = connectivityManager(context);
-            if (cm == null) return false;
-            Network[] networks = cm.getAllNetworks();
-            if (networks == null) return false;
-            for (Network network : networks) {
-                NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
-                if (capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
-                    return true;
-                }
-            }
+            return KeepADBNetwork.get(context).hasVpnNetwork();
         } catch (Exception ignored) {
+            return false;
         }
-        return false;
-    }
-
-    private static ConnectivityManager connectivityManager(Context context) {
-        return (ConnectivityManager) context.getApplicationContext()
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
     /** Tailscale's documented CGNAT allocation range for tailnet device addresses:
