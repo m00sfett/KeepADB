@@ -97,8 +97,9 @@ are retrospective issue-version records and were never published as separate rel
   filling the button and touching both edges: the Material default button has no horizontal padding
   (Robolectric layout pass: 0, about 10dp vertical). Both now come from one helper that mirrors the
   row buttons of `NetworkListActivity` (16dp/8dp padding, 48dp minimum height, start edge below the
-  name, 15sp condensed bold); in the same layout pass at font scale 2.0 they are 53dp high with the
-  label inset. The 48dp minimum itself was already met and is unchanged.
+  name, 15sp condensed bold); in the same layout pass at font scale 2.0 the label keeps a 16dp inset
+  on both sides and the buttons measure above the 48dp minimum. The 48dp minimum itself was already
+  met and is unchanged.
 - #654: The inactive-list hint and the status cause of the "all networks" mode quoted a truncated
   mode name ("Only allowed ...") that matched no visible label once the name matching renamed the
   second option. The hint is now a format string (`network_list_inactive_hint`, new argument) that
