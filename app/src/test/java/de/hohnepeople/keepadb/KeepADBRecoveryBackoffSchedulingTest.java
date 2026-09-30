@@ -181,6 +181,36 @@ public class KeepADBRecoveryBackoffSchedulingTest {
                 KeepADB.isAutomaticEnableBackoffBlocked());
     }
 
+    /** #675: a SecurityException on the write must roll the recorded intent back, like a rejected write. */
+    @Test
+    public void aSecurityExceptionRollsTheIntentBackToThePreviousOne() {
+        final boolean[] revoked = {false};
+        KeepADB.setGatewayForTesting(new KeepADBSettingsGateway() {
+            @Override
+            public boolean isEnabled(Context context) {
+                return false;
+            }
+
+            @Override
+            public boolean write(Context appContext, boolean on) {
+                if (revoked[0]) throw new SecurityException("WRITE_SECURE_SETTINGS revoked");
+                return true;
+            }
+        });
+        String manual = KeepADB.SOURCE_USB_HANDOVER_MANUAL;
+        assertTrue(KeepADB.setEnabled(ctx, false, manual));
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+        revoked[0] = true;
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS + 1);
+
+        assertFalse(KeepADB.setEnabled(ctx, true, manual));
+
+        assertTrue("the failed enable must not stay recorded as the last intent",
+                KeepADB.wasLastExplicitIntentOff(ctx));
+        assertFalse("the persisted last intent must be rolled back too",
+                KeepADBPreferences.getLastDesiredOn(ctx));
+    }
+
     @Test
     public void theBlockClearsOnceTheFirstRetryDelayHasElapsed() {
         KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());

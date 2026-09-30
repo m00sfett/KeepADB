@@ -132,6 +132,7 @@ public class KeepADBUsbHandoverUnlockGateTest {
         KeepADBUsbNotification.reportManualActionResult(context, false);
         assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
         setDeviceLocked(true);
+        sendStickyUsbState(true);
 
         new KeepADBUsbReceiver().onReceive(context, handoverIntent());
 
@@ -162,6 +163,19 @@ public class KeepADBUsbHandoverUnlockGateTest {
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS + 1);
 
         assertEquals(Collections.singletonList(true), gateway.writes);
+    }
+
+    /** #675: the locked re-post must follow the real USB state, not assume "connected". */
+    @Test
+    public void aLockedTapAfterUnplugDoesNotRepostTheNotification() {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        setDeviceLocked(true);
+        sendStickyUsbState(false);
+        KeepADBUsbNotification.cancel(context);
+
+        new KeepADBUsbReceiver().onReceive(context, handoverIntent());
+
+        assertEquals(null, postedNotification());
     }
 
     // --- Exposure contract ------------------------------------------------------------------
@@ -200,6 +214,7 @@ public class KeepADBUsbHandoverUnlockGateTest {
         KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
         KeepADB.setGatewayForTesting(gateway);
         setDeviceLocked(true);
+        sendStickyUsbState(true);
         // Model a lock screen that dismissed the notification on the tap: only the receiver's own
         // re-post can bring the action back.
         KeepADBUsbNotification.cancel(context);
@@ -221,6 +236,13 @@ public class KeepADBUsbHandoverUnlockGateTest {
         setDeviceLocked(false);
         assertTrue(KeepADBUsbReceiver.handleHandoverEnableAction(context));
         assertEquals(Collections.singletonList(true), gateway.writes);
+    }
+
+    private void sendStickyUsbState(boolean connected) {
+        context.sendStickyBroadcast(new Intent(KeepADBUsbReceiver.ACTION_USB_STATE)
+                .putExtra("connected", connected)
+                .putExtra("configured", connected)
+                .putExtra("adb", connected));
     }
 
     private Intent handoverIntent() {

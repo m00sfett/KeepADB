@@ -53,9 +53,9 @@ public final class KeepADBUsbReceiver extends BroadcastReceiver {
                     "blocked", "device_locked");
             // Not a failure: Wifi-ADB is untouched, so lastHandoverActionFailed (whose text points
             // at the permission) is left as it was. Re-post the notification instead so the action
-            // stays available to tap again after unlocking -- there is no unlock listener. USB is
-            // still connected here for the same reason reportManualActionResult assumes it.
-            KeepADBUsbNotification.refresh(context, true);
+            // stays available to tap again after unlocking -- there is no unlock listener.
+            // The USB state is queried live (#675): the cable may be gone by now.
+            refresh(context);
             return false;
         }
         boolean success = KeepADBUsbHandover.handleManualAction(context);
