@@ -1,0 +1,1 @@
+No change to the app itself: this patch only makes debug builds easier to tell apart from the release app, with a clear (DBG) label on the Quick Settings tile and the app title in every language.
