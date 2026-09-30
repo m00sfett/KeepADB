@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,6 +24,12 @@ public class KeepADBReceiverTest {
     @Before
     public void setUp() {
         KeepADB.resetForTesting();
+    }
+
+    @After
+    public void tearDown() {
+        KeepADB.resetForTesting();
+        KeepADBNetwork.resetForTesting();
     }
 
     @Test

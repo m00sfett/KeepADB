@@ -306,6 +306,7 @@
     <string name="settings_license_line">GNU एफेरो जनरल पब्लिक लाइसेंस v3 (AGPLv3) के तहत लाइसेंस प्राप्त</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">ब्राउज़र में HohnePeople.de खोलें</string>
+    <string name="settings_no_browser_found">इस लिंक को खोलने के लिए कोई ऐप नहीं मिला।</string>
     <string name="status_off_keep_alive_waiting">वायरलेस डीबगिंग बंद है – Keep-Alive नेटवर्क की प्रतीक्षा कर रहा है</string>
     <string name="status_off_keep_alive_blocked_untrusted">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क विश्वसनीय नहीं है</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: नेटवर्क की पहचान नहीं हो पा रही, स्थान अनुमति (“हर समय अनुमति दें”) जाँचें या ऐप फिर से खोलें</string>

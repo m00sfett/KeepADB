@@ -17,7 +17,7 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.9.1` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2` and `1.9.3` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
@@ -33,6 +33,20 @@ are retrospective issue-version records and were never published as separate rel
 
 ### Testing
 - #670, #671, #674, #675: Regression tests for each of the fixes above.
+
+## [1.9.2] - Unreleased
+
+### Changed
+- VPN/Tailscale detection uses callback tracking in `KeepADBNetwork` instead of the deprecated `getAllNetworks()`; behavior is unchanged, and `inactiveEvent` is documented as a contract-v2 API reserve (#676).
+- The proguard documentation list includes `NetworkListActivity`; `buildToolsVersion` is 35.0.0 (#677).
+
+### Fixed
+- Website and feedback links in Settings no longer crash on devices without a browser; a neutral toast is shown instead (#673).
+- The reset-app, background-location, USB handover and language dialogs survive rotation; reset still needs the confirm tap (#672).
+- The main Settings cards expose their expanded/collapsed state to TalkBack (#677).
+
+### Testing
+- Regression tests for the missing-browser link handling (#673), dialog rotation (#672) and VPN callback tracking (#676); test teardowns reset static seams (#677).
 
 ## [1.9.1] - Unreleased
 

@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -50,6 +51,15 @@ public class SettingsActivity extends Activity {
      * never re-read from the intent (already consumed by then) or from the current connection.
      */
     static final String STATE_TRUST_CONFIRMATION_BSSID = "settings_trust_confirmation_bssid";
+    /**
+     * #672: flags for the reset-app, background-location, USB handover mode and language dialogs
+     * showing at the time of a {@code recreate()} (rotation). Pure "was showing" markers; a
+     * restored reset-app dialog is only re-shown and still needs the user's own confirm tap.
+     */
+    static final String STATE_RESET_APP_SHOWING = "settings_reset_app_showing";
+    static final String STATE_BACKGROUND_LOCATION_SHOWING = "settings_background_location_showing";
+    static final String STATE_USB_HANDOVER_MODE_SHOWING = "settings_usb_handover_mode_showing";
+    static final String STATE_LANGUAGE_SELECTION_SHOWING = "settings_language_selection_showing";
 
     private ScrollView scrollView;
     private View webhookPanel;
@@ -114,6 +124,9 @@ public class SettingsActivity extends Activity {
     private CheckBox activeIssueReportDiagnostics;
 
     private AlertDialog activeResetAppDialog;
+    /** #672: the USB handover mode and language selection dialogs, if showing. */
+    private AlertDialog activeUsbHandoverModeDialog;
+    private AlertDialog activeLanguageSelectionDialog;
 
     private KeepADBUsbProfileEditor usbProfileEditor;
 
@@ -196,8 +209,7 @@ public class SettingsActivity extends Activity {
 
         websiteLinkText = findViewById(R.id.settings_website_link);
         websiteLinkText.setPaintFlags(websiteLinkText.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
-        websiteLinkText.setOnClickListener(v ->
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(WEBSITE_URL))));
+        websiteLinkText.setOnClickListener(v -> openWebLink(WEBSITE_URL));
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         scrollView = findViewById(R.id.settings_scroll_view);
@@ -303,6 +315,20 @@ public class SettingsActivity extends Activity {
             String pendingBssid = savedInstanceState.getString(STATE_TRUST_CONFIRMATION_BSSID);
             if (pendingBssid != null) {
                 showTrustConfirmationDialog(pendingBssid);
+            }
+            // #672: re-show the remaining plain dialogs. The reset-app dialog is only re-shown,
+            // its destructive action still runs solely from the user's own confirm tap.
+            if (savedInstanceState.getBoolean(STATE_RESET_APP_SHOWING, false)) {
+                showResetAppDialog();
+            }
+            if (savedInstanceState.getBoolean(STATE_BACKGROUND_LOCATION_SHOWING, false)) {
+                showBackgroundLocationDialog();
+            }
+            if (savedInstanceState.getBoolean(STATE_USB_HANDOVER_MODE_SHOWING, false)) {
+                showUsbHandoverModeDialog();
+            }
+            if (savedInstanceState.getBoolean(STATE_LANGUAGE_SELECTION_SHOWING, false)) {
+                showLanguageSelectionDialog();
             }
         }
     }
@@ -413,6 +439,16 @@ public class SettingsActivity extends Activity {
                 && activeTrustConfirmationBssid != null) {
             outState.putString(STATE_TRUST_CONFIRMATION_BSSID, activeTrustConfirmationBssid);
         }
+        outState.putBoolean(STATE_RESET_APP_SHOWING, isShowing(activeResetAppDialog));
+        outState.putBoolean(STATE_BACKGROUND_LOCATION_SHOWING,
+                isShowing(activeBackgroundLocationDialog));
+        outState.putBoolean(STATE_USB_HANDOVER_MODE_SHOWING, isShowing(activeUsbHandoverModeDialog));
+        outState.putBoolean(STATE_LANGUAGE_SELECTION_SHOWING,
+                isShowing(activeLanguageSelectionDialog));
+    }
+
+    private static boolean isShowing(AlertDialog dialog) {
+        return dialog != null && dialog.isShowing();
     }
 
     @Override
@@ -447,6 +483,20 @@ public class SettingsActivity extends Activity {
                 activeBackgroundLocationDialog.dismiss();
             }
             activeBackgroundLocationDialog = null;
+        }
+
+        if (activeUsbHandoverModeDialog != null) {
+            if (activeUsbHandoverModeDialog.isShowing()) {
+                activeUsbHandoverModeDialog.dismiss();
+            }
+            activeUsbHandoverModeDialog = null;
+        }
+
+        if (activeLanguageSelectionDialog != null) {
+            if (activeLanguageSelectionDialog.isShowing()) {
+                activeLanguageSelectionDialog.dismiss();
+            }
+            activeLanguageSelectionDialog = null;
         }
 
         super.onDestroy();
@@ -539,7 +589,7 @@ public class SettingsActivity extends Activity {
      * number of names, so collapsing it never hides an active setting.
      */
     private void setSsidSectionExpanded(boolean expanded) {
-        setCardExpanded(networkSsidBody, networkSsidArrow, expanded);
+        setCardExpanded(networkSsidHeader, networkSsidBody, networkSsidArrow, expanded);
         networkSsidHeader.setStateDescription(getString(expanded
                 ? R.string.card_state_expanded : R.string.card_state_collapsed));
     }
@@ -548,14 +598,16 @@ public class SettingsActivity extends Activity {
         // #471: the webhook card is collapsed by default like every other card; a caller asking
         // to focus its URL field (e.g. MainActivity's webhook setup shortcut) needs the body
         // actually expanded first, or requestFocus() below would silently no-op on a GONE view.
-        setCardExpanded(findViewById(R.id.settings_webhook_body), findViewById(R.id.settings_webhook_arrow), true);
+        setCardExpanded(findViewById(R.id.settings_webhook_header), findViewById(R.id.settings_webhook_body),
+                findViewById(R.id.settings_webhook_arrow), true);
         scrollView.post(() -> scrollView.smoothScrollTo(0, webhookPanel.getTop()));
         webhookForm.requestUrlFocus();
     }
 
     private void focusNetworkPanel() {
         // #619: expand the network card and scroll it into view.
-        setCardExpanded(findViewById(R.id.settings_network_beta_body),
+        setCardExpanded(findViewById(R.id.settings_network_beta_header),
+                findViewById(R.id.settings_network_beta_body),
                 findViewById(R.id.settings_network_beta_arrow), true);
         if (networkPanel != null && scrollView != null) {
             scrollView.post(() -> scrollView.smoothScrollTo(0, networkPanel.getTop()));
@@ -571,10 +623,14 @@ public class SettingsActivity extends Activity {
         View header = findViewById(headerId);
         View body = findViewById(bodyId);
         TextView arrow = findViewById(arrowId);
-        header.setOnClickListener(v -> setCardExpanded(body, arrow, body.getVisibility() != View.VISIBLE));
+        setCardExpanded(header, body, arrow, body.getVisibility() == View.VISIBLE);
+        header.setOnClickListener(v -> setCardExpanded(header, body, arrow, body.getVisibility() != View.VISIBLE));
     }
 
-    private void setCardExpanded(View body, TextView arrow, boolean expanded) {
+    private void setCardExpanded(View header, View body, TextView arrow, boolean expanded) {
+        // TalkBack: announce the expanded/collapsed state like the Wi-Fi-name section header (#655).
+        header.setStateDescription(getString(expanded
+                ? R.string.card_state_expanded : R.string.card_state_collapsed));
         body.setVisibility(expanded ? View.VISIBLE : View.GONE);
         arrow.setText(expanded ? CARD_EXPANDED_SYMBOL : CARD_COLLAPSED_SYMBOL);
     }
@@ -596,7 +652,10 @@ public class SettingsActivity extends Activity {
             }
         }
 
-        new AlertDialog.Builder(this)
+        if (isShowing(activeLanguageSelectionDialog)) {
+            return;
+        }
+        AlertDialog picker = new AlertDialog.Builder(this)
                 .setTitle(R.string.settings_language_dialog_title)
                 .setSingleChoiceItems(displayItems, selectedIndex, (dialog, which) -> {
                     dialog.dismiss();
@@ -607,7 +666,14 @@ public class SettingsActivity extends Activity {
                     KeepADBUsbReceiver.refresh(this);
                 })
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+        activeLanguageSelectionDialog = picker;
+        picker.setOnDismissListener(d -> {
+            if (activeLanguageSelectionDialog == d) {
+                activeLanguageSelectionDialog = null;
+            }
+        });
+        picker.show();
     }
 
     private void showUsbHandoverModeDialog() {
@@ -627,7 +693,10 @@ public class SettingsActivity extends Activity {
             if (modes[i].equals(currentMode)) selectedIndex = i;
         }
 
-        new AlertDialog.Builder(this)
+        if (isShowing(activeUsbHandoverModeDialog)) {
+            return;
+        }
+        AlertDialog picker = new AlertDialog.Builder(this)
                 .setTitle(R.string.settings_usb_handover_dialog_title)
                 .setSingleChoiceItems(displayItems, selectedIndex, (dialog, which) -> {
                     dialog.dismiss();
@@ -639,7 +708,14 @@ public class SettingsActivity extends Activity {
                     refresh();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+        activeUsbHandoverModeDialog = picker;
+        picker.setOnDismissListener(d -> {
+            if (activeUsbHandoverModeDialog == d) {
+                activeUsbHandoverModeDialog = null;
+            }
+        });
+        picker.show();
     }
 
     /**
@@ -850,9 +926,7 @@ public class SettingsActivity extends Activity {
                     preview.setText(KeepADBIssueReporter.removeDiagnosticsSection(
                             preview.getText().toString(), diagnosticsTitle));
                 }
-                Intent browser = new Intent(Intent.ACTION_VIEW,
-                        Uri.parse(KeepADBIssueReporter.FEEDBACK_URL));
-                startActivity(browser);
+                openWebLink(KeepADBIssueReporter.FEEDBACK_URL);
                 dialog.dismiss();
             });
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> {
@@ -870,6 +944,15 @@ public class SettingsActivity extends Activity {
             });
         });
         dialog.show();
+    }
+
+    /** Opens a web link; devices without a browser get a neutral toast instead of a crash. */
+    void openWebLink(String url) {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        } catch (ActivityNotFoundException | SecurityException e) {
+            Toast.makeText(this, R.string.settings_no_browser_found, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showResetAppDialog() {

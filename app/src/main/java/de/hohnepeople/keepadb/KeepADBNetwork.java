@@ -60,6 +60,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * synchronous fallback (see {@link KeepADBService#isWifiConnected(Context)}) distinguish a
  * genuinely negative, authoritative answer from "this tracker never managed to register its
  * callback and cannot know".
+ *
+ * <p>#676: a third callback, scoped to {@code TRANSPORT_VPN}, tracks VPN networks for {@link
+ * KeepADBVpnTransport} so that class no longer needs {@code getAllNetworks()} either. VPN
+ * networks lack {@code NET_CAPABILITY_NOT_VPN}, which a default {@link NetworkRequest.Builder}
+ * requires, so that capability is removed from the request explicitly (available since API 21).
+ * Like the Wi-Fi tracker it is asynchronous: until its first delivery {@link
+ * #hasVpnNetwork()} falls back to the synchronous default network ({@link
+ * ConnectivityManager#getActiveNetwork()}, not deprecated), which covers the usual case of a
+ * VPN being the default route.
  */
 final class KeepADBNetwork {
     private static volatile KeepADBNetwork instance;
@@ -77,6 +86,12 @@ final class KeepADBNetwork {
     private final ConnectivityManager connectivityManager;
     private final ConnectivityManager.NetworkCallback wifiCallback;
     private final ConnectivityManager.NetworkCallback defaultCallback;
+    private final ConnectivityManager.NetworkCallback vpnCallback;
+    private final Map<Network, NetworkCapabilities> vpnCapabilities = new ConcurrentHashMap<>();
+    private final Map<Network, LinkProperties> vpnLinkProperties = new ConcurrentHashMap<>();
+    // #676: whether vpnCallback has been invoked at least once (same reasoning as
+    // wifiCallbackObserved). While false, the tracked VPN maps are not yet authoritative.
+    private volatile boolean vpnCallbackObserved;
     private final Map<Network, NetworkCapabilities> wifiCapabilities = new ConcurrentHashMap<>();
     private final Map<Network, LinkProperties> wifiLinkProperties = new ConcurrentHashMap<>();
     // #352: whether registerNetworkCallback() for wifiCallback actually succeeded. false means
@@ -135,6 +150,26 @@ final class KeepADBNetwork {
                 defaultLinkProperties.remove(network);
             }
         };
+        vpnCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
+                vpnCapabilities.put(network, capabilities);
+                vpnCallbackObserved = true;
+            }
+
+            @Override
+            public void onLinkPropertiesChanged(Network network, LinkProperties linkProperties) {
+                vpnLinkProperties.put(network, linkProperties);
+                vpnCallbackObserved = true;
+            }
+
+            @Override
+            public void onLost(Network network) {
+                vpnCapabilities.remove(network);
+                vpnLinkProperties.remove(network);
+                vpnCallbackObserved = true;
+            }
+        };
         if (connectivityManager != null) {
             try {
                 NetworkRequest wifiRequest = new NetworkRequest.Builder()
@@ -152,6 +187,16 @@ final class KeepADBNetwork {
             try {
                 connectivityManager.registerDefaultNetworkCallback(defaultCallback);
             } catch (RuntimeException ignored) {
+            }
+            try {
+                NetworkRequest vpnRequest = new NetworkRequest.Builder()
+                        .addTransportType(NetworkCapabilities.TRANSPORT_VPN)
+                        .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+                        .build();
+                connectivityManager.registerNetworkCallback(vpnRequest, vpnCallback);
+            } catch (RuntimeException ignored) {
+                // Best-effort: hasVpnNetwork() then keeps using its synchronous default-network
+                // fallback, and vpnLinkProperties() stays empty.
             }
         }
     }
@@ -173,10 +218,68 @@ final class KeepADBNetwork {
                 instance.connectivityManager.unregisterNetworkCallback(instance.defaultCallback);
             } catch (RuntimeException ignored) {
             }
+            try {
+                instance.connectivityManager.unregisterNetworkCallback(instance.vpnCallback);
+            } catch (RuntimeException ignored) {
+            }
         }
         instance = null;
         wifiConnectivityOverride = null;
         wifiCallbackRegisteredOverride = null;
+    }
+
+    /** Test-only seam (#676): the VPN callback, so tests can deliver VPN network events to it alone. */
+    ConnectivityManager.NetworkCallback vpnCallbackForTesting() {
+        return vpnCallback;
+    }
+
+    /**
+     * Whether any VPN-transport network is currently tracked (#676), regardless of address range.
+     * Until the VPN callback has delivered for the first time, falls back to the synchronous
+     * default network, see the class javadoc.
+     */
+    boolean hasVpnNetwork() {
+        for (NetworkCapabilities capabilities : vpnCapabilities.values()) {
+            if (capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                return true;
+            }
+        }
+        if (!vpnCallbackObserved && connectivityManager != null) {
+            try {
+                Network active = connectivityManager.getActiveNetwork();
+                NetworkCapabilities capabilities =
+                        active != null ? connectivityManager.getNetworkCapabilities(active) : null;
+                return capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN);
+            } catch (RuntimeException ignored) {
+            }
+        }
+        return false;
+    }
+
+    /** Snapshot of the link properties of all tracked VPN-transport networks (#676). */
+    List<LinkProperties> vpnLinkPropertiesSnapshot() {
+        List<LinkProperties> result = new ArrayList<>();
+        for (Map.Entry<Network, LinkProperties> entry : vpnLinkProperties.entrySet()) {
+            NetworkCapabilities capabilities = vpnCapabilities.get(entry.getKey());
+            if (capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                result.add(entry.getValue());
+            }
+        }
+        if (result.isEmpty() && !vpnCallbackObserved && connectivityManager != null) {
+            try {
+                Network active = connectivityManager.getActiveNetwork();
+                NetworkCapabilities capabilities =
+                        active != null ? connectivityManager.getNetworkCapabilities(active) : null;
+                LinkProperties linkProperties =
+                        active != null ? connectivityManager.getLinkProperties(active) : null;
+                if (linkProperties != null && capabilities != null
+                        && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                    result.add(linkProperties);
+                }
+            } catch (RuntimeException ignored) {
+            }
+        }
+        return result;
     }
 
     /**

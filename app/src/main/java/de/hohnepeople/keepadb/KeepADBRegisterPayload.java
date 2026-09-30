@@ -201,6 +201,11 @@ final class KeepADBRegisterPayload {
      * Builds the deactivation event for one transport. It names its {@code method} explicitly, so
      * it can only ever clear its own slot -- the server rejects a deactivation whose slot would
      * have to be inherited from the legacy projection.
+     *
+     * <p>Contract-v2 API reserve (#676): no production code calls this today -- deactivations
+     * currently go out as HTTP DELETE, not as an {@code active:false} event. It is kept as the
+     * contract-conformant builder for that event form and is pinned by {@code
+     * KeepADBRegisterPayloadTest}, so it is deliberately not removed as dead code.
      */
     static Event inactiveEvent(Type type, long observedAtMs) {
         String method = type.method;

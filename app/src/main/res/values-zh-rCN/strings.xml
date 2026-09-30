@@ -306,6 +306,7 @@
     <string name="settings_license_line">根据 GNU Affero 通用公共许可证 v3（AGPLv3）授权</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">在浏览器中打开 HohnePeople.de</string>
+    <string name="settings_no_browser_found">未找到可打开此链接的应用。</string>
     <string name="status_off_keep_alive_waiting">无线调试已关闭 – Keep-Alive 正在等待网络</string>
     <string name="status_off_keep_alive_blocked_untrusted">无线调试已关闭 – Keep-Alive 已暂停:此 Wi-Fi 网络不受信任</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">无线调试已关闭 – Keep-Alive 已暂停:无法确定网络身份,请检查位置权限（“始终允许”）或重新打开应用</string>
