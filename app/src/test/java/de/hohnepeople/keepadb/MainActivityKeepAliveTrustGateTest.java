@@ -139,6 +139,73 @@ public class MainActivityKeepAliveTrustGateTest {
     }
 
     /**
+     * #680: deliberately switching Keep-Alive on overrides an active recovery backoff on a
+     * trusted network (red without the fix: the click path used the backoff-including guard).
+     */
+    @Test
+    public void keepAliveToggleEnablesImmediatelyDespiteActiveRecoveryBackoffOnTrustedNetwork() {
+        Context context = grantAutoEnableInfrastructure();
+        engageRecoveryBackoff(context);
+        KeepADBPreferences.setKeepAliveEnabled(context, false);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        connectTo(SSID, BSSID);
+
+        MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
+        Switch keepAliveToggle = activity.findViewById(R.id.keep_alive_toggle);
+        assertFalse("Precondition: Keep-Alive starts off", keepAliveToggle.isChecked());
+        assertTrue("Precondition: backoff active", KeepADB.isAutomaticEnableBackoffBlocked());
+
+        keepAliveToggle.performClick();
+
+        assertTrue(KeepADBPreferences.isKeepAliveEnabled(activity));
+        assertTrue("Keep-Alive ON is a user intent and must override the recovery backoff",
+                KeepADB.isEnabled(activity));
+    }
+
+    /** #680 guard: the backoff override must not weaken the trust check. */
+    @Test
+    public void keepAliveToggleDoesNotEnableOnUntrustedNetworkDuringRecoveryBackoff() {
+        Context context = grantAutoEnableInfrastructure();
+        engageRecoveryBackoff(context);
+        KeepADBPreferences.setKeepAliveEnabled(context, false);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        connectTo(SSID, BSSID);
+
+        MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
+        Switch keepAliveToggle = activity.findViewById(R.id.keep_alive_toggle);
+
+        keepAliveToggle.performClick();
+
+        assertTrue(KeepADBPreferences.isKeepAliveEnabled(activity));
+        assertFalse("Untrusted network: no ADB without the trust prompt, backoff or not",
+                KeepADB.isEnabled(activity));
+        assertTrue("The trust prompt path must still be taken",
+                promptPosted(context));
+    }
+
+    private boolean promptPosted(Context context) {
+        android.app.NotificationManager nm = (android.app.NotificationManager)
+                context.getSystemService(Context.NOTIFICATION_SERVICE);
+        for (android.service.notification.StatusBarNotification n : nm.getActiveNotifications()) {
+            if (n.getId() == KeepADBNetworkTrustPrompt.NOTIFICATION_ID) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** A stale readback after an automatic enable engages the #496 backoff (as in #670's test). */
+    private void engageRecoveryBackoff(Context context) {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
+        KeepADB.setEnabled(context, true, "keep_alive_check");
+    }
+
+    /**
      * Shared setup mirroring {@code MainActivityTrustedNetworkTest#grantAutoEnableForTesting}:
      * grants {@code WRITE_SECURE_SETTINGS}, forces the Wi-Fi-connectivity check to report
      * connected, and installs a gateway that starts switched off.
