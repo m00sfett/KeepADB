@@ -498,6 +498,48 @@ public class KeepADBNetworkTrustPromptTest {
         assertNull("The answered prompt must go away", postedPrompt());
     }
 
+    /** #670: an explicit allow must not wait for the automatic-retry backoff to expire. */
+    @Test
+    public void allowingEnablesImmediatelyEvenWhileTheAutomaticRecoveryBackoffIsActive() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        // A stale readback after an automatic enable engages the #496 backoff.
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
+        KeepADB.setEnabled(context, true, "keep_alive_check");
+        assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+
+        assertTrue(KeepADBReceiver.handleTrustNetworkAction(context, BSSID, "Cafe-WLAN"));
+
+        assertTrue(KeepADB.isEnabled(context));
+        assertFalse("the manual confirmation must reopen the automatic path",
+                KeepADB.isAutomaticEnableBackoffBlocked());
+    }
+
+    /** #670: ignoring the backoff must not weaken the other guard conditions. */
+    @Test
+    public void allowingDuringTheBackoffStillDoesNotEnableWhenWifiIsGone() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
+        KeepADB.setEnabled(context, true, "keep_alive_check");
+        assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+
+        assertFalse(KeepADBReceiver.handleTrustNetworkAction(context, BSSID, "Cafe-WLAN"));
+
+        assertFalse(KeepADB.isEnabled(context));
+    }
+
     /**
      * A notification can be tapped arbitrarily late. Allowing the access point the user actually
      * saw must never turn Wireless Debugging on wherever the device happens to be by then.
