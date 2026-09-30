@@ -180,7 +180,7 @@ public class SettingsNetworkCardTest {
         assertEquals(context.getString(R.string.network_status_allowed_ap), text(activity, R.id.network_status_label));
         assertEquals(context.getColor(R.color.status_ok_green),
                 ((TextView) activity.findViewById(R.id.network_status_label)).getCurrentTextColor());
-        assertEquals("HomeMesh · aa:bb:cc:dd:ee:01", text(activity, R.id.network_connection_line));
+        assertEquals("HomeMesh · AA:BB:CC:DD:EE:01", text(activity, R.id.network_connection_line));
         assertEquals(context.getString(R.string.network_cause_allowed), text(activity, R.id.network_status_cause));
         assertEquals(View.GONE, activity.findViewById(R.id.network_status_action).getVisibility());
     }
@@ -991,7 +991,7 @@ public class SettingsNetworkCardTest {
         String visible = everything(shown);
         assertTrue(visible, visible.contains("HomeMesh"));
         assertTrue(visible, visible.contains("SavedName"));
-        assertTrue(visible, visible.contains("aa:bb:cc:dd:ee:01"));
+        assertTrue(visible, visible.contains("AA:BB:CC:DD:EE:01"));
         assertEquals(View.GONE, shown.findViewById(R.id.network_privacy_hint).getVisibility());
 
         KeepADBPreferences.setPrivacyModeEnabled(context, true);
@@ -1048,13 +1048,13 @@ public class SettingsNetworkCardTest {
         connectTo("HomeMesh", "de:11:22:33:44:ad");
 
         KeepADBPreferences.setPrivacyModeEnabled(context, false);
-        assertEquals("HomeMesh \u00b7 de:11:22:33:44:ad",
+        assertEquals("HomeMesh \u00b7 DE:11:22:33:44:AD",
                 text(open(), R.id.network_connection_line));
 
         KeepADBPreferences.setPrivacyModeEnabled(context, true);
         SettingsActivity hidden = open();
         assertEquals(context.getString(R.string.network_privacy_name_hidden)
-                + " \u00b7 de:*:*:*:*:ad", text(hidden, R.id.network_connection_line));
+                + " \u00b7 DE:*:*:*:*:AD", text(hidden, R.id.network_connection_line));
         String concealed = everything(hidden);
         for (String middle : new String[] {":11:", ":22:", ":33:", ":44:"}) {
             assertFalse("A middle octet is visible: " + concealed, concealed.contains(middle));

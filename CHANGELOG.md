@@ -103,6 +103,8 @@ are retrospective issue-version records and were never published as separate rel
   while opening or refreshing the screen; observations already in history are retained.
 - #661: An open Settings Network card now refreshes on Wi-Fi availability, loss and capability
   changes, and removes its callback when the activity stops.
+- #662: BSSIDs now use uppercase hex in every network view, trust prompt, toast and privacy mask;
+  stored addresses and trust matching remain unchanged.
 - #655: At font scale 2.0 the Allow and Remove buttons of the Wi-Fi-name section had the label
   filling the button and touching both edges: the Material default button has no horizontal padding
   (Robolectric layout pass: 0, about 10dp vertical). Both now come from one helper that mirrors the

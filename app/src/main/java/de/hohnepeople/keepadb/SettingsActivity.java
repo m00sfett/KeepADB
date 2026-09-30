@@ -1302,7 +1302,8 @@ public class SettingsActivity extends Activity {
         }
         final String confirmedBssid = entry.bssid;
         final String confirmedLabel = entry.label();
-        final String displayLabel = KeepADBNetworkDisplay.quoted(this, confirmedLabel);
+        final String displayLabel = KeepADBNetworkDisplay.quoted(
+                this, confirmedLabel, confirmedBssid);
         final String displayBssid = KeepADBNetworkDisplay.bssid(this, confirmedBssid);
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.network_prompt_title)
@@ -1313,7 +1314,8 @@ public class SettingsActivity extends Activity {
                     if (isListedAsTrusted(confirmedBssid)) {
                         Toast.makeText(this,
                                 getString(R.string.settings_trusted_network_added_toast,
-                                        KeepADBNetworkDisplay.quoted(this, confirmedLabel)),
+                                        KeepADBNetworkDisplay.quoted(this, confirmedLabel,
+                                                confirmedBssid)),
                                 Toast.LENGTH_SHORT).show();
                         if (!enabled && !hasSecureSettingsPermission()) {
                             showToggleErrorToast();

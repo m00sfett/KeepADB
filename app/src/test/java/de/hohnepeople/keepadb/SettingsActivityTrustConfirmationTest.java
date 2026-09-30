@@ -83,7 +83,8 @@ public class SettingsActivityTrustConfirmationTest {
         assertNotNull("The tap must open the confirmation dialog", dialog);
         String message = messageOf(dialog);
         assertTrue("The dialog must name the network: " + message, message.contains("Cafe-WLAN"));
-        assertTrue("The dialog must name the BSSID: " + message, message.contains(BSSID));
+        assertTrue("The dialog must name the BSSID: " + message,
+                message.contains(BSSID.toUpperCase(java.util.Locale.ROOT)));
         assertTrue("Opening the dialog must not trust anything by itself",
                 KeepADBTrustedNetwork.getEntries(context).isEmpty());
 
@@ -112,8 +113,10 @@ public class SettingsActivityTrustConfirmationTest {
                 message.contains("Cafe-WLAN"));
         assertFalse("The dialog must not expose the full BSSID: " + message,
                 message.contains(BSSID));
+        assertFalse("The dialog must not expose an uppercase BSSID either: " + message,
+                message.contains(BSSID.toUpperCase(java.util.Locale.ROOT)));
         assertTrue("The dialog still identifies the prompted access point by a masked BSSID: " + message,
-                message.toLowerCase(java.util.Locale.ROOT).contains("aa:*:*:*:*:01"));
+                message.contains("AA:*:*:*:*:01"));
 
         org.robolectric.shadows.ShadowToast.reset();
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
@@ -123,6 +126,8 @@ public class SettingsActivityTrustConfirmationTest {
         assertNotNull(toast);
         assertFalse("The toast must not expose the SSID: " + toast, toast.contains("Cafe-WLAN"));
         assertFalse("The toast must not expose the BSSID: " + toast, toast.contains(BSSID));
+        assertFalse("The toast must not expose an uppercase BSSID either: " + toast,
+                toast.contains(BSSID.toUpperCase(java.util.Locale.ROOT)));
         List<KeepADBTrustedNetwork.Entry> entries = KeepADBTrustedNetwork.getEntries(context);
         assertEquals(1, entries.size());
         assertEquals("Trust remains bound to the original BSSID", BSSID, entries.get(0).bssid);
@@ -167,9 +172,9 @@ public class SettingsActivityTrustConfirmationTest {
         AlertDialog dialog = controller.get().getActiveTrustConfirmationDialog();
         assertNotNull(dialog);
         String message = messageOf(dialog);
-        assertTrue(message, message.contains(BSSID));
+        assertTrue(message, message.contains(BSSID.toUpperCase(java.util.Locale.ROOT)));
         assertFalse("The dialog must not name the current access point: " + message,
-                message.contains(OTHER_BSSID));
+                message.contains(OTHER_BSSID.toUpperCase(java.util.Locale.ROOT)));
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
         ShadowLooper.idleMainLooper();
@@ -288,7 +293,7 @@ public class SettingsActivityTrustConfirmationTest {
         assertTrue("Must still name the originally prompted network: " + message,
                 message.contains("Cafe-WLAN"));
         assertTrue("Must still name the originally prompted BSSID: " + message,
-                message.contains(BSSID));
+                message.contains(BSSID.toUpperCase(java.util.Locale.ROOT)));
 
         dialogAfterRotation.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
         ShadowLooper.idleMainLooper();

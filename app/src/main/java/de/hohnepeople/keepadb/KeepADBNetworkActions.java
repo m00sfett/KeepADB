@@ -36,7 +36,7 @@ final class KeepADBNetworkActions {
                     Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(activity, activity.getString(R.string.network_ap_allowed_toast,
-                            KeepADBNetworkDisplay.quoted(activity, added.label)),
+                            KeepADBNetworkDisplay.quoted(activity, added.label, added.bssid)),
                     Toast.LENGTH_SHORT).show();
         }
         if (onChanged != null) onChanged.run();
@@ -51,7 +51,7 @@ final class KeepADBNetworkActions {
             if (entry.bssid.equalsIgnoreCase(bssid)) {
                 if (KeepADBTrustedNetwork.remove(activity, entry.id)) {
                     Toast.makeText(activity, activity.getString(R.string.network_ap_removed_toast,
-                                    KeepADBNetworkDisplay.quoted(activity, entry.label)),
+                                    KeepADBNetworkDisplay.quoted(activity, entry.label, entry.bssid)),
                             Toast.LENGTH_SHORT).show();
                 }
                 break;
