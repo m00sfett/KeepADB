@@ -128,10 +128,20 @@ public class KeepADBService extends Service {
         // call sites that decide whether to schedule an attempt in the first place. Closes the
         // narrow race where two automatic triggers both pass the call-site pre-check before
         // either's write lands and the first one's mismatch engages the backoff.
+        return isAutoEnableStillPermittedIgnoringBackoff(context)
+                && !KeepADB.isAutomaticEnableBackoffBlocked();
+    }
+
+    /**
+     * #670: every {@link #isAutoEnableStillPermitted} condition except the #496 automatic-enable
+     * backoff. For explicit user confirmations (the trust prompt's "allow"): the backoff only
+     * throttles <em>automatic</em> retries and is reset by the manual {@link KeepADB#setEnabled}
+     * source anyway, while the Keep-Alive, Wi-Fi and trust conditions must still hold.
+     */
+    static boolean isAutoEnableStillPermittedIgnoringBackoff(Context context) {
         return KeepADBPreferences.isKeepAliveEnabled(context)
                 && isWifiConnected(context)
-                && KeepADBTrustedNetwork.isCurrentNetworkTrusted(context)
-                && !KeepADB.isAutomaticEnableBackoffBlocked();
+                && KeepADBTrustedNetwork.isCurrentNetworkTrusted(context);
     }
 
     /**

@@ -109,7 +109,7 @@ public final class KeepADBReceiver extends BroadcastReceiver {
      * anywhere in the app, the question the prompt was asking no longer applies and it must not
      * remain visible.
      *
-     * <p>The subsequent enable is gated by {@link KeepADBService#isAutoEnableStillPermitted},
+     * <p>The subsequent enable is gated by {@link KeepADBService#isAutoEnableStillPermittedIgnoringBackoff},
      * not performed unconditionally: this can run arbitrarily late relative to when the access
      * point was actually seen (a tapped notification), and by then the device may have roamed to
      * a <em>different</em> untrusted access point or dropped Wi-Fi entirely. Turning Wireless
@@ -123,7 +123,8 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         recordTrust(context, bssid, label);
 
         boolean enabled = false;
-        if (KeepADBService.isAutoEnableStillPermitted(context)) {
+        // #670: the explicit tap must not be blocked by the automatic-retry backoff.
+        if (KeepADBService.isAutoEnableStillPermittedIgnoringBackoff(context)) {
             enabled = KeepADB.setEnabled(context, true, KeepADB.SOURCE_NETWORK_TRUST_PROMPT);
             if (!enabled) {
                 KeepADBNotification.showPermissionMissing(context);
