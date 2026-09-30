@@ -1234,16 +1234,18 @@ public class SettingsActivity extends Activity {
         }
         final String confirmedBssid = entry.bssid;
         final String confirmedLabel = entry.label();
+        final String displayLabel = KeepADBNetworkDisplay.quoted(this, confirmedLabel);
+        final String displayBssid = KeepADBNetworkDisplay.bssid(this, confirmedBssid);
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.network_prompt_title)
-                .setMessage(getString(R.string.network_prompt_text, confirmedLabel, confirmedBssid))
+                .setMessage(getString(R.string.network_prompt_text, displayLabel, displayBssid))
                 .setPositiveButton(R.string.network_prompt_allow, (d, which) -> {
                     boolean enabled = KeepADBReceiver.handleTrustNetworkAction(
                             this, confirmedBssid, confirmedLabel);
                     if (isListedAsTrusted(confirmedBssid)) {
                         Toast.makeText(this,
                                 getString(R.string.settings_trusted_network_added_toast,
-                                        confirmedLabel),
+                                        KeepADBNetworkDisplay.quoted(this, confirmedLabel)),
                                 Toast.LENGTH_SHORT).show();
                         if (!enabled && !hasSecureSettingsPermission()) {
                             showToggleErrorToast();
