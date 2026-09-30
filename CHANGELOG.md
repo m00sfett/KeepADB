@@ -17,11 +17,26 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.70` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.8.71` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.8.71] - Unreleased
+
+### Documentation
+- #646: `docs/trusted-networks-measurement.md` gains "Nachtrag 6" with the end-to-end emulator
+  matrix for API 30 to 36.1 on 1.8.70 (measured 2026-09-30): foreground control with a running
+  Keep-Alive service, the two-step location grant driven through the real UI (rationale dialog,
+  "Allow all the time" on the system page, three-state status line), reboot with and without the
+  background grant, and the identity-unavailable notification and status texts. It closes the gaps
+  listed in "Nachtrag 5". No app behavior changed.
+
+### Fixed
+- #646: The French background-location texts (`background_location_panel_body`,
+  `background_location_status_granted`, `background_location_status_missing`) addressed the user
+  informally while the rest of the French resources use the formal "vous". Unified to "vous".
 
 ## [1.8.70] - Unreleased
 
