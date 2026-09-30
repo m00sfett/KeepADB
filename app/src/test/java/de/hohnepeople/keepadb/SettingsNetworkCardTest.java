@@ -1012,6 +1012,32 @@ public class SettingsNetworkCardTest {
         assertFalse(org.robolectric.shadows.ShadowToast.getTextOfLatestToast().contains("HomeMesh"));
     }
 
+    /**
+     * #654: a hidden name that stands alone -- the description of the status action, the toast
+     * after allowing it -- reads "Name hidden" without a number. The number belongs to the rows
+     * of a list; outside one it would point at a row that is not there.
+     */
+    @Test
+    public void aHiddenNameOutsideAListCarriesNoNumber() {
+        preparedForAnAutomaticEnable();
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        SettingsActivity activity = open();
+        String hidden = context.getString(R.string.network_privacy_name_hidden);
+
+        Button action = activity.findViewById(R.id.network_status_action);
+        assertEquals(View.VISIBLE, action.getVisibility());
+        assertEquals(context.getString(R.string.network_action_allow_ap_accessibility, hidden),
+                action.getContentDescription().toString());
+
+        activity.findViewById(R.id.network_ssid_header).performClick();
+        org.robolectric.shadows.ShadowToast.reset();
+        buttonsOf(activity.findViewById(R.id.wifi_ssids_current_row)).get(0).performClick();
+        assertEquals(context.getString(R.string.wifi_ssids_added_toast, hidden),
+                org.robolectric.shadows.ShadowToast.getTextOfLatestToast());
+    }
+
     // --- helpers ------------------------------------------------------------------------------
 
     private SettingsActivity open() {
