@@ -122,10 +122,11 @@ are retrospective issue-version records and were never published as separate rel
   its first round (emulator, font scale 2.0) led to the fixes above, each with a regression test
   in `SettingsNetworkCardTest`, `NetworkListActivityTest` and `KeepADBResourceContractTest`
   (per-state label checks, an all-locale guard against truncated mode names, font-scale-2.0 button
-  measurements). Its second round (privacy mode: per-name numbering, first and last BSSID octet)
-  is guarded in `KeepADBNetworkDisplayTest`, `KeepADBAddressMaskTest`, `NetworkListActivityTest`
-  and `SettingsNetworkCardTest` from both sides: the same name gets one number and two names never
-  share one, and a hidden address shows exactly the first and the last octet and no other.
+  measurements). The later privacy-mode refinement (user decision of 2026-09-30: per-name
+  numbering, first and last BSSID octet) is guarded in `KeepADBNetworkDisplayTest`,
+  `KeepADBAddressMaskTest`, `NetworkListActivityTest` and `SettingsNetworkCardTest` from both
+  sides: the same name gets one number and two names never share one, a name outside a list stays
+  unnumbered, and a hidden address shows exactly the first and the last octet and no other.
 
 ## [1.8.71] - Unreleased
 
