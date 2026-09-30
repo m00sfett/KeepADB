@@ -1,0 +1,1 @@
+The location-permission explanation in Settings no longer breaks when you rotate the screen, and the permission is only requested after you tap. Logcat now hides the host of a cached endpoint that is no longer reachable, for better privacy.

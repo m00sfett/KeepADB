@@ -17,11 +17,23 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2` and `1.9.3` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3` and `1.9.4` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.4] - Unreleased
+
+### Fixed
+- #681 (Privacy): The logcat warning "Cached endpoint ... no longer reachable" masks the endpoint host (port stays visible; diagnostics event line unchanged).
+- #682: The trusted-network location-permission rationale dialog in Settings survives rotation and no longer leaks a window (permission is only requested after the tap).
+
+### Changed
+- #683: Javadoc of `isEligibleWifiTransport` no longer refers to the removed `getAllNetworks()` logic; unused imports removed from three tests.
+
+### Testing
+- #681, #682: Regression tests for the masked stale-endpoint warning and the rotation-safe permission rationale dialog.
 
 ## [1.9.3] - Unreleased
 
