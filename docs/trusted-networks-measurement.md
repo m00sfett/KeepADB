@@ -667,8 +667,8 @@ Ergebnis: **kein fail-closed.** Identisches Bild wie in Fall 1 (`boot_completed`
 `endpoint_verified reachable`; auf dem Gerät erschien wieder der `adb-tls-connect`-Transport). Der
 Hinweistext aus #643 kam nicht zum Einsatz, weil die Identität lesbar war.
 
-Das widerspricht dem Erwartungsbild des Issues nicht als Fehler der App, sondern bestätigt die bereits
-in Nachtrag 3 festgehaltene Annahme: Mit eingerichtetem QS-Tile bindet SystemUI den Prozess und
+Das widerspricht dem Erwartungsbild des Issues nicht als Fehler der App, sondern passt zu der bereits
+in Nachtrag 3 festgehaltenen Annahme (hier nicht isoliert geprüft): Mit eingerichtetem QS-Tile bindet SystemUI den Prozess und
 gewährt While-in-Use (Samsung-/SystemUI-Nebeneffekt, keine Plattformgarantie). Der fail-closed-Pfad
 `IDENTITY_UNAVAILABLE` ohne Grant lässt sich daher **auf dem S20 nur ohne Tile** messen. Das Tile wurde
 nicht entfernt (Projektregel). Der fail-closed-Nachweis stützt sich weiter auf Nachtrag 3 (Fall A, S20
