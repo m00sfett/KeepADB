@@ -15,6 +15,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
@@ -44,6 +46,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.shadows.ShadowDialog;
 import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowNetwork;
 import org.robolectric.shadows.ShadowWifiInfo;
 
 /**
@@ -508,6 +511,45 @@ public class SettingsNetworkCardTest {
         controller.pause().resume();
 
         assertEquals("1", text(activity, R.id.network_allowed_count));
+    }
+
+    @Test
+    public void theOpenCardRefreshesForWifiChangesAndUnregistersWhenStopped() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "HomeMesh");
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:02");
+
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
+        ShadowLooper.idleMainLooper();
+        assertEquals(context.getString(R.string.network_status_not_allowed),
+                text(activity, R.id.network_status_label));
+
+        ConnectivityManager connectivityManager =
+                context.getSystemService(ConnectivityManager.class);
+        assertEquals("The visible Settings activity registers one Wi-Fi callback", 1,
+                shadowOf(connectivityManager).getNetworkCallbacks().size());
+
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
+        Network network = ShadowNetwork.newInstance(101);
+        for (ConnectivityManager.NetworkCallback callback
+                : shadowOf(connectivityManager).getNetworkCallbacks()) {
+            callback.onAvailable(network);
+        }
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(context.getString(R.string.network_status_allowed_ap),
+                text(activity, R.id.network_status_label));
+        assertEquals("The callback only refreshes display state", 1,
+                KeepADBTrustedNetwork.getEntries(context).size());
+        assertFalse(KeepADB.isEnabled(context));
+
+        controller.stop();
+        assertTrue("The Wi-Fi callback is removed with the visible activity",
+                shadowOf(connectivityManager).getNetworkCallbacks().isEmpty());
+        controller.destroy();
     }
 
     /**

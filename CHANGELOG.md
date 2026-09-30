@@ -101,6 +101,8 @@ are retrospective issue-version records and were never published as separate rel
   BSSID while privacy mode is on. The allow action still uses the original trusted-network entry.
 - #659: Turning off "Observe access points" now stops Settings from recording new observations
   while opening or refreshing the screen; observations already in history are retained.
+- #661: An open Settings Network card now refreshes on Wi-Fi availability, loss and capability
+  changes, and removes its callback when the activity stops.
 - #655: At font scale 2.0 the Allow and Remove buttons of the Wi-Fi-name section had the label
   filling the button and touching both edges: the Material default button has no horizontal padding
   (Robolectric layout pass: 0, about 10dp vertical). Both now come from one helper that mirrors the
@@ -131,10 +133,11 @@ are retrospective issue-version records and were never published as separate rel
   `KeepADBAddressMaskTest`, `NetworkListActivityTest` and `SettingsNetworkCardTest` from both
   sides: the same name gets one number and two names never share one, a name outside a list stays
   unnumbered, and a hidden address shows exactly the first and the last octet and no other.
-- #658/#659: `SettingsActivityTrustConfirmationTest` verifies that privacy mode masks the
+- #658/#659/#661: `SettingsActivityTrustConfirmationTest` verifies that privacy mode masks the
   confirmation dialog and success toast without changing the trusted identity;
   `SettingsNetworkCardTest` verifies that disabling observation prevents settings refreshes and
-  openings from recording new entries while preserving existing history.
+  openings from recording new entries while preserving existing history, and that the visible
+  card refreshes after a Wi-Fi callback and releases it when stopped.
 
 ## [1.8.71] - Unreleased
 
