@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">स्वचालित पुनः-सक्षमन रोका गया: यह ऐक्सेस पॉइंट आपकी अनुमति सूची में नहीं है।</string>
     <string name="network_cause_allowed">Keep-Alive यहाँ वायरलेस डीबगिंग फिर से चालू कर सकता है।</string>
     <string name="network_cause_allowed_by_name">Keep-Alive यहाँ वायरलेस डीबगिंग फिर से चालू कर सकता है। इस Wi-Fi नाम वाला हर पढ़ा जा सकने वाला ऐक्सेस पॉइंट स्वीकार किया जाता है।</string>
-    <string name="network_cause_all_wifi">“सभी Wi-Fi नेटवर्क में” सक्रिय है, इसलिए Keep-Alive यहाँ फिर से चालू कर सकता है। अनुमति सूचियाँ केवल “केवल अनुमति प्राप्त …” मोड में गिनी जाती हैं।</string>
+    <string name="network_cause_all_wifi">“सभी Wi-Fi नेटवर्क में” सक्रिय है, इसलिए Keep-Alive यहाँ फिर से चालू कर सकता है। इस मोड में अनुमति सूचियाँ नहीं गिनी जातीं।</string>
     <string name="network_action_allow_ap">इस ऐक्सेस पॉइंट को अनुमति दें</string>
     <string name="network_action_location_settings">स्थान सेटिंग खोलें</string>
     <string name="network_action_wifi_settings">Wi-Fi सेटिंग खोलें</string>

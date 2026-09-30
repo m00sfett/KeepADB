@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">自动重新启用已暂停：此接入点不在你的允许列表中。</string>
     <string name="network_cause_allowed">Keep-Alive 可以在此重新开启无线调试。</string>
     <string name="network_cause_allowed_by_name">Keep-Alive 可以在此重新开启无线调试。任何使用此 Wi-Fi 名称且可读取的接入点都会被接受。</string>
-    <string name="network_cause_all_wifi">“在所有 Wi-Fi 网络中”已启用，因此 Keep-Alive 可以在此重新开启。允许列表仅在“仅限已允许 …”模式下生效。</string>
+    <string name="network_cause_all_wifi">“在所有 Wi-Fi 网络中”已启用，因此 Keep-Alive 可以在此重新开启。在此模式下，允许列表不生效。</string>
     <string name="network_action_allow_ap">允许此接入点</string>
     <string name="network_action_location_settings">打开位置设置</string>
     <string name="network_action_wifi_settings">打开 Wi-Fi 设置</string>

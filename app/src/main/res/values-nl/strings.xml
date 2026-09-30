@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">Automatisch opnieuw inschakelen gepauzeerd: dit access point staat niet op je lijst met toegestane access points.</string>
     <string name="network_cause_allowed">Keep-Alive mag Draadloze foutopsporing hier weer inschakelen.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive mag Draadloze foutopsporing hier weer inschakelen. Elk leesbaar access point met deze wifi-naam wordt geaccepteerd.</string>
-    <string name="network_cause_all_wifi">‘In alle wifi-netwerken’ is actief, dus Keep-Alive mag hier weer inschakelen. Lijsten met toegestane items tellen pas in de modus ‘Alleen toegestane …’.</string>
+    <string name="network_cause_all_wifi">‘In alle wifi-netwerken’ is actief, dus Keep-Alive mag hier weer inschakelen. Lijsten met toegestane items tellen in deze modus niet mee.</string>
     <string name="network_action_allow_ap">Dit access point toestaan</string>
     <string name="network_action_location_settings">Locatie-instellingen openen</string>
     <string name="network_action_wifi_settings">Wifi-instellingen openen</string>

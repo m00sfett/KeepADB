@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">Riattivazione automatica in pausa: questo punto di accesso non è nella tua lista dei consentiti.</string>
     <string name="network_cause_allowed">Keep-Alive può riattivare qui il debug wireless.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive può riattivare qui il debug wireless. Viene accettato ogni punto di accesso leggibile con questo nome Wi-Fi.</string>
-    <string name="network_cause_all_wifi">«In tutte le reti Wi-Fi» è attivo, quindi Keep-Alive può riattivare qui. Le liste dei consentiti contano solo nella modalità «Solo consentiti …».</string>
+    <string name="network_cause_all_wifi">«In tutte le reti Wi-Fi» è attivo, quindi Keep-Alive può riattivare qui. Le liste dei consentiti non contano in questa modalità.</string>
     <string name="network_action_allow_ap">Consenti questo punto di accesso</string>
     <string name="network_action_location_settings">Apri impostazioni posizione</string>
     <string name="network_action_wifi_settings">Apri impostazioni Wi-Fi</string>

@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">Pengaktifan ulang otomatis dijeda: titik akses ini tidak ada dalam daftar yang diizinkan.</string>
     <string name="network_cause_allowed">Keep-Alive boleh mengaktifkan ulang Debugging Nirkabel di sini.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive boleh mengaktifkan ulang Debugging Nirkabel di sini. Setiap titik akses yang terbaca dengan nama Wi-Fi ini diterima.</string>
-    <string name="network_cause_all_wifi">“Di semua jaringan Wi-Fi” aktif, jadi Keep-Alive boleh mengaktifkan ulang di sini. Daftar yang diizinkan baru diperhitungkan dalam mode “Hanya yang diizinkan …”.</string>
+    <string name="network_cause_all_wifi">“Di semua jaringan Wi-Fi” aktif, jadi Keep-Alive boleh mengaktifkan ulang di sini. Daftar yang diizinkan tidak diperhitungkan dalam mode ini.</string>
     <string name="network_action_allow_ap">Izinkan titik akses ini</string>
     <string name="network_action_location_settings">Buka setelan lokasi</string>
     <string name="network_action_wifi_settings">Buka setelan Wi-Fi</string>

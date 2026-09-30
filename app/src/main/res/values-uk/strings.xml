@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">Автоматичне повторне ввімкнення призупинено: цієї точки доступу немає у вашому списку дозволених.</string>
     <string name="network_cause_allowed">Keep-Alive може тут знову ввімкнути бездротове налагодження.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive може тут знову ввімкнути бездротове налагодження. Приймається будь-яка читабельна точка доступу з цією назвою Wi-Fi.</string>
-    <string name="network_cause_all_wifi">Активний режим «У всіх мережах Wi-Fi», тому Keep-Alive може тут знову вмикати. Списки дозволених враховуються лише в режимі «Лише дозволені …».</string>
+    <string name="network_cause_all_wifi">Активний режим «У всіх мережах Wi-Fi», тому Keep-Alive може тут знову вмикати. У цьому режимі списки дозволених не враховуються.</string>
     <string name="network_action_allow_ap">Дозволити цю точку доступу</string>
     <string name="network_action_location_settings">Відкрити налаштування геолокації</string>
     <string name="network_action_wifi_settings">Відкрити налаштування Wi-Fi</string>

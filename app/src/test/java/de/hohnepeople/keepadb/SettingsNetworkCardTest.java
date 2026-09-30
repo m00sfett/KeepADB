@@ -288,6 +288,36 @@ public class SettingsNetworkCardTest {
                 text(activity, R.id.network_status_action));
     }
 
+    /**
+     * #654 visual acceptance: the all-networks cause ended in "... the 'Only allowed ...' mode",
+     * right above a choice whose second option read "Allowed access points and Wi-Fi names" once
+     * the matching was on. The sentence now names neither label of the second option, so it cannot
+     * contradict whichever one the choice shows.
+     */
+    @Test
+    public void theAllNetworksCauseNamesNeitherLabelOfTheAllowedOptionInEitherState() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
+        for (boolean names : new boolean[] {false, true}) {
+            KeepADBTrustedNetwork.setSsidMatchingEnabled(context, names);
+            SettingsActivity activity = open();
+
+            String cause = text(activity, R.id.network_status_cause);
+
+            assertEquals(context.getString(R.string.network_cause_all_wifi), cause);
+            assertTrue("It still names the active mode: " + cause,
+                    cause.contains(context.getString(R.string.network_mode_option_all_wifi)));
+            assertFalse("No truncated mode name: " + cause, cause.contains("\u2026"));
+            for (int label : new int[] {R.string.network_mode_option_aps,
+                    R.string.network_mode_option_aps_names}) {
+                assertFalse("names=" + names + ": must not quote '" + context.getString(label)
+                        + "': " + cause, cause.contains(context.getString(label)));
+            }
+            assertFalse("Nothing else may shorten a mode name either: " + cause,
+                    cause.contains("Only allowed"));
+        }
+    }
+
     @Test
     public void noWifiOffersTheWifiSettings() {
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);

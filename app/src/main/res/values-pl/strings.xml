@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">Automatyczne ponowne włączanie wstrzymane: tego punktu dostępowego nie ma na liście dozwolonych.</string>
     <string name="network_cause_allowed">Keep-Alive może tutaj ponownie włączyć debugowanie bezprzewodowe.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive może tutaj ponownie włączyć debugowanie bezprzewodowe. Akceptowany jest każdy czytelny punkt dostępowy o tej nazwie Wi-Fi.</string>
-    <string name="network_cause_all_wifi">Aktywny jest tryb „We wszystkich sieciach Wi-Fi”, więc Keep-Alive może tutaj ponownie włączać. Listy dozwolonych liczą się dopiero w trybie „Tylko dozwolone …”.</string>
+    <string name="network_cause_all_wifi">Aktywny jest tryb „We wszystkich sieciach Wi-Fi”, więc Keep-Alive może tutaj ponownie włączać. W tym trybie listy dozwolonych się nie liczą.</string>
     <string name="network_action_allow_ap">Zezwól na ten punkt dostępowy</string>
     <string name="network_action_location_settings">Otwórz ustawienia lokalizacji</string>
     <string name="network_action_wifi_settings">Otwórz ustawienia Wi-Fi</string>

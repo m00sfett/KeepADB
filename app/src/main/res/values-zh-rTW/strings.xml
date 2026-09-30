@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">自動重新啟用已暫停：此存取點不在你的允許清單中。</string>
     <string name="network_cause_allowed">Keep-Alive 可以在此重新開啟無線偵錯。</string>
     <string name="network_cause_allowed_by_name">Keep-Alive 可以在此重新開啟無線偵錯。任何使用此 Wi-Fi 名稱且可讀取的存取點都會被接受。</string>
-    <string name="network_cause_all_wifi">「在所有 Wi-Fi 網路中」已啟用，因此 Keep-Alive 可以在此重新開啟。允許清單僅在「僅限已允許 …」模式下生效。</string>
+    <string name="network_cause_all_wifi">「在所有 Wi-Fi 網路中」已啟用，因此 Keep-Alive 可以在此重新開啟。在此模式下，允許清單不生效。</string>
     <string name="network_action_allow_ap">允許此存取點</string>
     <string name="network_action_location_settings">開啟位置設定</string>
     <string name="network_action_wifi_settings">開啟 Wi-Fi 設定</string>

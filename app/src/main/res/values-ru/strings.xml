@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">Автоматическое повторное включение приостановлено: этой точки доступа нет в вашем списке разрешённых.</string>
     <string name="network_cause_allowed">Keep-Alive может здесь снова включить беспроводную отладку.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive может здесь снова включить беспроводную отладку. Принимается любая читаемая точка доступа с этим именем Wi-Fi.</string>
-    <string name="network_cause_all_wifi">Активен режим «Во всех сетях Wi-Fi», поэтому Keep-Alive может здесь снова включать. Списки разрешённых учитываются только в режиме «Только разрешённые …».</string>
+    <string name="network_cause_all_wifi">Активен режим «Во всех сетях Wi-Fi», поэтому Keep-Alive может здесь снова включать. В этом режиме списки разрешённых не учитываются.</string>
     <string name="network_action_allow_ap">Разрешить эту точку доступа</string>
     <string name="network_action_location_settings">Открыть настройки геолокации</string>
     <string name="network_action_wifi_settings">Открыть настройки Wi-Fi</string>

@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">Reactivación automática pausada: este punto de acceso no está en tu lista de permitidos.</string>
     <string name="network_cause_allowed">Keep-Alive puede reactivar aquí la depuración inalámbrica.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive puede reactivar aquí la depuración inalámbrica. Se acepta cualquier punto de acceso legible con este nombre de Wi-Fi.</string>
-    <string name="network_cause_all_wifi">«En todas las redes Wi-Fi» está activo, así que Keep-Alive puede reactivar aquí. Las listas de permitidos solo cuentan en el modo «Solo permitidos …».</string>
+    <string name="network_cause_all_wifi">«En todas las redes Wi-Fi» está activo, así que Keep-Alive puede reactivar aquí. Las listas de permitidos no cuentan en este modo.</string>
     <string name="network_action_allow_ap">Permitir este punto de acceso</string>
     <string name="network_action_location_settings">Abrir ajustes de ubicación</string>
     <string name="network_action_wifi_settings">Abrir ajustes de Wi-Fi</string>

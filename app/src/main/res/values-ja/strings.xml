@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">自動再有効化は一時停止中：このアクセスポイントは許可リストにありません。</string>
     <string name="network_cause_allowed">Keep-Alive はここでワイヤレスデバッグを再度有効にできます。</string>
     <string name="network_cause_allowed_by_name">Keep-Alive はここでワイヤレスデバッグを再度有効にできます。この Wi-Fi 名を持つ、読み取れるアクセスポイントはすべて受け入れられます。</string>
-    <string name="network_cause_all_wifi">「すべての Wi-Fi ネットワークで」が有効なため、Keep-Alive はここで再有効化できます。許可リストは「許可したもののみ …」モードでのみ有効です。</string>
+    <string name="network_cause_all_wifi">「すべての Wi-Fi ネットワークで」が有効なため、Keep-Alive はここで再有効化できます。このモードでは許可リストは使われません。</string>
     <string name="network_action_allow_ap">このアクセスポイントを許可</string>
     <string name="network_action_location_settings">位置情報の設定を開く</string>
     <string name="network_action_wifi_settings">Wi-Fi の設定を開く</string>

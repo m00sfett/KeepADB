@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">Automatisches Wiedereinschalten pausiert: Dieser Access Point steht nicht auf deiner Freigabeliste.</string>
     <string name="network_cause_allowed">Keep-Alive darf Drahtloses Debugging hier wieder einschalten.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive darf Drahtloses Debugging hier wieder einschalten. Jeder lesbare Access Point mit diesem WLAN-Namen wird akzeptiert.</string>
-    <string name="network_cause_all_wifi">„In allen WLANs“ ist aktiv, daher darf Keep-Alive hier wieder einschalten. Freigabelisten zählen erst im Modus „Nur freigegebene …“.</string>
+    <string name="network_cause_all_wifi">„In allen WLANs“ ist aktiv, daher darf Keep-Alive hier wieder einschalten. Freigabelisten zählen in diesem Modus nicht.</string>
     <string name="network_action_allow_ap">Diesen Access Point freigeben</string>
     <string name="network_action_location_settings">Standorteinstellungen öffnen</string>
     <string name="network_action_wifi_settings">WLAN-Einstellungen öffnen</string>

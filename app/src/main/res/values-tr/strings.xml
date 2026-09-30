@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">Otomatik yeniden etkinleştirme duraklatıldı: bu erişim noktası izin verilenler listende değil.</string>
     <string name="network_cause_allowed">Keep-Alive burada Kablosuz Hata Ayıklamayı yeniden açabilir.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive burada Kablosuz Hata Ayıklamayı yeniden açabilir. Bu Wi-Fi adına sahip okunabilen her erişim noktası kabul edilir.</string>
-    <string name="network_cause_all_wifi">“Tüm Wi-Fi ağlarında” etkin, bu yüzden Keep-Alive burada yeniden açabilir. İzin verilenler listeleri yalnızca “Yalnızca izin verilenler …” modunda geçerlidir.</string>
+    <string name="network_cause_all_wifi">“Tüm Wi-Fi ağlarında” etkin, bu yüzden Keep-Alive burada yeniden açabilir. Bu modda izin verilenler listeleri dikkate alınmaz.</string>
     <string name="network_action_allow_ap">Bu erişim noktasına izin ver</string>
     <string name="network_action_location_settings">Konum ayarlarını aç</string>
     <string name="network_action_wifi_settings">Wi-Fi ayarlarını aç</string>

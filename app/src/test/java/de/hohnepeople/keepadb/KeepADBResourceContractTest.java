@@ -180,14 +180,15 @@ public class KeepADBResourceContractTest {
     }
 
     /**
-     * #654 visual acceptance: the list-inactive hint used to quote a truncated mode name ("Only
-     * allowed ...") that matched no visible label once the Wi-Fi-name matching renamed the option
-     * to "Allowed access points and Wi-Fi names". It now takes the visible label as its argument;
-     * no locale may quote a truncated mode name again.
+     * #654 visual acceptance: the list-inactive hint and the all-networks cause used to quote a
+     * truncated mode name ("Only allowed ...") that matched no visible label once the Wi-Fi-name
+     * matching renamed the option to "Allowed access points and Wi-Fi names". The hint now takes
+     * the visible label as its argument and the cause names no allowed mode at all; no locale may
+     * quote a truncated mode name again.
      */
     @Test
     public void modeHintsNeverQuoteATruncatedModeNameInAnyLocale() throws Exception {
-        String[] names = {"network_list_inactive_hint"};
+        String[] names = {"network_list_inactive_hint", "network_cause_all_wifi"};
         Map<String, String> locales = new LinkedHashMap<>(SUPPORTED_LOCALES);
         locales.put("default", "");
         for (Map.Entry<String, String> locale : locales.entrySet()) {

@@ -338,7 +338,7 @@
     <string name="network_cause_not_allowed">Réactivation automatique en pause : ce point d’accès ne figure pas dans votre liste d’autorisés.</string>
     <string name="network_cause_allowed">Keep-Alive peut réactiver ici le débogage sans fil.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive peut réactiver ici le débogage sans fil. Tout point d’accès lisible portant ce nom Wi-Fi est accepté.</string>
-    <string name="network_cause_all_wifi">« Dans tous les réseaux Wi-Fi » est actif, donc Keep-Alive peut réactiver ici. Les listes d’autorisés ne comptent que dans le mode « Uniquement autorisés … ».</string>
+    <string name="network_cause_all_wifi">« Dans tous les réseaux Wi-Fi » est actif, donc Keep-Alive peut réactiver ici. Les listes d’autorisés ne comptent pas dans ce mode.</string>
     <string name="network_action_allow_ap">Autoriser ce point d’accès</string>
     <string name="network_action_location_settings">Ouvrir les paramètres de localisation</string>
     <string name="network_action_wifi_settings">Ouvrir les paramètres Wi-Fi</string>

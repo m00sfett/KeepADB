@@ -342,7 +342,7 @@
     <string name="network_cause_not_allowed">Keep-Alive auto re-enable is paused: this access point isn’t on your allowed list.</string>
     <string name="network_cause_allowed">Keep-Alive may re-enable Wireless Debugging here.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive may re-enable Wireless Debugging here. Any readable access point with this Wi-Fi name is accepted.</string>
-    <string name="network_cause_all_wifi">“In all Wi-Fi networks” is active, so Keep-Alive may re-enable here. Allowed lists only count in the “Only allowed …” mode.</string>
+    <string name="network_cause_all_wifi">“In all Wi-Fi networks” is active, so Keep-Alive may re-enable here. Allowed lists don’t count in this mode.</string>
     <string name="network_action_allow_ap">Allow this access point</string>
     <string name="network_action_location_settings">Open location settings</string>
     <string name="network_action_wifi_settings">Open Wi-Fi settings</string>
