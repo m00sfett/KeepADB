@@ -1083,10 +1083,13 @@ public class KeepADBServiceLifecycleRobolectricTest {
     }
 
     // -----------------------------------------------------------------------------------------
-    // #629: API 34+ background start with ACCESS_FINE_LOCATION granted throws SecurityException
-    // from startForeground(type=connectedDevice|location) because the process is not in an
-    // "eligible" foreground state -- true of every background start regardless of the granted
-    // permission. Robolectric's shadow does not itself reproduce this platform restriction (it
+    // #629: API 34+ background start with ACCESS_FINE_LOCATION but without
+    // ACCESS_BACKGROUND_LOCATION can throw SecurityException from
+    // startForeground(type=connectedDevice|location) when the process lacks while-in-use
+    // eligibility. Missing while-in-use permission also prevents location promotion; a valid
+    // background-location grant with the required location permission can exempt this
+    // while-in-use restriction, while other background-FGS start rules still apply.
+    // Robolectric's shadow does not reproduce this restriction (it
     // has no model of FGS-from-background eligibility), so these tests use a minimal subclass
     // that overrides the single test seam ({@link KeepADBService#promoteToForeground(int)}) to
     // throw exactly that SecurityException once for a location-including type -- everything else

@@ -17,11 +17,16 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.9.0` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.9.1` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.1] - Unreleased
+
+### Testing
+- #668: Correct the location-grant scope in service test comments and keep Wi-Fi connected in the scheduling regression test, so it detects removal of the trust check during cooldown. No application behavior changes.
 
 ## [1.9.0] - Unreleased
 
