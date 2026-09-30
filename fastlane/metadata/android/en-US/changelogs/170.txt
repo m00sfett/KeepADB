@@ -1,0 +1,1 @@
+Network guidance now explains when background access is needed and why unreadable Wi-Fi details matter for checking saved access points or network names. Texts are updated in all 19 languages.
