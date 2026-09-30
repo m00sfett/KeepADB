@@ -546,6 +546,36 @@ public class SettingsNetworkCardTest {
     }
 
     @Test
+    public void turningObservationOffStopsSettingsRefreshAndKeepsHistory() {
+        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:bb:cc:dd:ee:01");
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:02");
+
+        SettingsActivity activity = open();
+        assertEquals(java.util.Arrays.asList("aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"),
+                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
+
+        Switch observe = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
+        assertTrue(observe.isChecked());
+        observe.performClick();
+        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
+
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:03");
+        activity.refresh();
+        assertEquals("Turning observation off retains prior entries and records no new one",
+                java.util.Arrays.asList("aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"),
+                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
+
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:04");
+        SettingsActivity reopened = open();
+        assertFalse(((Switch) reopened.findViewById(R.id.settings_wifi_aps_feature_toggle))
+                .isChecked());
+        assertEquals("Opening Settings while observation is off does not record either",
+                java.util.Arrays.asList("aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"),
+                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
+    }
+
+    @Test
     public void theInactiveListHintAppearsOnlyInAllNetworksModeWithSavedEntries() {
         View hint;
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);

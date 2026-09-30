@@ -903,9 +903,10 @@ public class SettingsActivity extends Activity {
                 getString(R.string.settings_usb_handover_accessibility, getString(handoverModeLabel)));
 
         // Piggyback the mesh-BSSID observation history (#266) on this already-happening
-        // identity read instead of adding a new background poll/service for it.
+        // identity read instead of adding a new background poll/service for it. The user's
+        // observation option gates every write, including reads caused by opening Settings.
         KeepADBNetworkIdentity currentIdentity = KeepADBNetworkIdentity.current(this);
-        if (currentIdentity.isKnown()) {
+        if (currentIdentity.isKnown() && KeepADBPreferences.isWifiApsFeatureEnabled(this)) {
             KeepADBBssidHistory.recordObservation(this, currentIdentity.displaySsid(), currentIdentity.bssid);
         }
 
