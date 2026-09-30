@@ -422,6 +422,8 @@ public class KeepADBToggleSchedulingTest {
     public void pendingAutomaticEnableIsDroppedWhenTheNetworkIsNoLongerTrusted() {
         KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBPreferences.setKeepAliveEnabled(ctx, true);
+        // Keep the transport guard permissive so only trust withdrawal cancels the enable.
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
 
         assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
         assertTrue(KeepADB.setEnabled(ctx, true, AUTO, KeepADBService::isAutoEnableStillPermitted));
