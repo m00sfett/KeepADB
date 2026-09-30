@@ -306,6 +306,7 @@
     <string name="settings_license_line">Розповсюджується за ліцензією GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Відкрити HohnePeople.de у браузері</string>
+    <string name="settings_no_browser_found">Не знайдено застосунок для відкриття цього посилання.</string>
     <string name="status_off_keep_alive_waiting">Бездротове налагодження ВИМКНЕНО — Keep-Alive чекає на мережу</string>
     <string name="status_off_keep_alive_blocked_untrusted">Бездротове налагодження ВИМКНЕНО — Keep-Alive призупинено: ця мережа Wi-Fi не є довіреною</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Бездротове налагодження ВИМКНЕНО — Keep-Alive призупинено: не вдається визначити мережу, перевірте дозвіл на геолокацію («Дозволити завжди») або відкрийте застосунок знову</string>

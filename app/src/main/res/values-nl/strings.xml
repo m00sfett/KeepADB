@@ -306,6 +306,7 @@
     <string name="settings_license_line">Uitgebracht onder de GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">HohnePeople.de openen in browser</string>
+    <string name="settings_no_browser_found">Geen app gevonden om deze link te openen.</string>
     <string name="status_off_keep_alive_waiting">Draadloze foutopsporing is UIT – Keep-Alive wacht op het netwerk</string>
     <string name="status_off_keep_alive_blocked_untrusted">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: dit wifi-netwerk is niet vertrouwd</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: netwerkidentiteit onbekend, controleer de locatietoestemming (‘Altijd toestaan’) of open de app opnieuw</string>

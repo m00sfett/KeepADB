@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -196,8 +197,7 @@ public class SettingsActivity extends Activity {
 
         websiteLinkText = findViewById(R.id.settings_website_link);
         websiteLinkText.setPaintFlags(websiteLinkText.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
-        websiteLinkText.setOnClickListener(v ->
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(WEBSITE_URL))));
+        websiteLinkText.setOnClickListener(v -> openWebLink(WEBSITE_URL));
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
         scrollView = findViewById(R.id.settings_scroll_view);
@@ -850,9 +850,7 @@ public class SettingsActivity extends Activity {
                     preview.setText(KeepADBIssueReporter.removeDiagnosticsSection(
                             preview.getText().toString(), diagnosticsTitle));
                 }
-                Intent browser = new Intent(Intent.ACTION_VIEW,
-                        Uri.parse(KeepADBIssueReporter.FEEDBACK_URL));
-                startActivity(browser);
+                openWebLink(KeepADBIssueReporter.FEEDBACK_URL);
                 dialog.dismiss();
             });
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> {
@@ -870,6 +868,15 @@ public class SettingsActivity extends Activity {
             });
         });
         dialog.show();
+    }
+
+    /** Opens a web link; devices without a browser get a neutral toast instead of a crash. */
+    void openWebLink(String url) {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        } catch (ActivityNotFoundException | SecurityException e) {
+            Toast.makeText(this, R.string.settings_no_browser_found, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showResetAppDialog() {

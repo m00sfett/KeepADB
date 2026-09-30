@@ -306,6 +306,7 @@
     <string name="settings_license_line">Concesso in licenza con GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Apri HohnePeople.de nel browser</string>
+    <string name="settings_no_browser_found">Nessuna app trovata per aprire questo link.</string>
     <string name="status_off_keep_alive_waiting">Debug wireless DISATTIVO – Keep-Alive attende la rete</string>
     <string name="status_off_keep_alive_blocked_untrusted">Debug wireless DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi non è attendibile</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Debug wireless DISATTIVO – Keep-Alive in pausa: identità di rete non determinabile, controlla il permesso Posizione («Consenti sempre») o riapri l\'app</string>

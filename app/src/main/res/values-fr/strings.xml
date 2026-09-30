@@ -306,6 +306,7 @@
     <string name="settings_license_line">Sous licence GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Ouvrir HohnePeople.de dans le navigateur</string>
+    <string name="settings_no_browser_found">Aucune application trouvée pour ouvrir ce lien.</string>
     <string name="status_off_keep_alive_waiting">Débogage sans fil DÉSACTIVÉ – Keep-Alive attend le réseau</string>
     <string name="status_off_keep_alive_blocked_untrusted">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : ce réseau Wi-Fi n\'est pas approuvé</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : identité du réseau indéterminable, vérifiez l\'autorisation de localisation (« Toujours autoriser ») ou rouvrez l\'application</string>
