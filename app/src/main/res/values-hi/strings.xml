@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">अनुमति प्राप्त ऐक्सेस पॉइंट और Wi-Fi नाम</string>
     <string name="network_mode_title">स्वचालित पुनः-सक्षमन</string>
     <string name="network_mode_hint">यह Keep-Alive पर लागू होता है। वायरलेस डीबगिंग को हाथ से चालू करना हमेशा काम करता है।</string>
-    <string name="network_list_inactive_hint">इस सूची को केवल “केवल अनुमति प्राप्त …” मोड में गिना जाता है।</string>
+    <string name="network_list_inactive_hint">इस सूची को केवल “%1$s” मोड में गिना जाता है।</string>
     <string name="network_current_title">वर्तमान कनेक्शन</string>
     <string name="network_status_no_wifi">Wi-Fi कनेक्शन नहीं है</string>
     <string name="network_status_unreadable">पढ़ा नहीं जा सकता</string>

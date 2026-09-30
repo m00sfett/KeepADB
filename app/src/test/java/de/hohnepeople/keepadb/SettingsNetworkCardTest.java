@@ -526,12 +526,53 @@ public class SettingsNetworkCardTest {
         SettingsActivity allWifi = open();
         hint = allWifi.findViewById(R.id.network_lists_inactive_hint);
         assertEquals(View.VISIBLE, hint.getVisibility());
-        assertEquals(context.getString(R.string.network_list_inactive_hint),
+        assertEquals(context.getString(R.string.network_list_inactive_hint,
+                        context.getString(R.string.network_mode_option_aps)),
                 ((TextView) hint).getText().toString());
         assertEquals("The saved list stays reachable", "1", text(allWifi, R.id.network_allowed_count));
 
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         assertEquals(View.GONE, open().findViewById(R.id.network_lists_inactive_hint).getVisibility());
+    }
+
+    /**
+     * #654 visual acceptance: the hint named the mode as "Only allowed ..." while the choice read
+     * "Allowed access points and Wi-Fi names" once the name matching was on. In every state the
+     * hint now names the label the second option shows at that moment, everywhere it appears: the
+     * card entry and, with the matching saved but without effect, the line of the advanced section.
+     */
+    @Test
+    public void theInactiveListHintNamesTheSecondOptionExactlyAsTheChoiceShowsItInEveryState() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "A");
+        String[] seenOptions = new String[2];
+        for (boolean names : new boolean[] {false, true}) {
+            KeepADBTrustedNetwork.setSsidMatchingEnabled(context, names);
+            SettingsActivity activity = open();
+            activity.findViewById(R.id.network_ssid_header).performClick();
+            String option = ((RadioButton) activity.findViewById(R.id.network_mode_allowlist))
+                    .getText().toString();
+            seenOptions[names ? 1 : 0] = option;
+            assertEquals("The fixture shows the label of the matching state",
+                    context.getString(names ? R.string.network_mode_option_aps_names
+                            : R.string.network_mode_option_aps), option);
+
+            TextView cardHint = activity.findViewById(R.id.network_lists_inactive_hint);
+            assertEquals(View.VISIBLE, cardHint.getVisibility());
+            assertTrue("names=" + names + ": the card hint names the visible option '" + option
+                    + "': " + cardHint.getText(), cardHint.getText().toString().contains(option));
+            assertFalse("No truncated mode name: " + cardHint.getText(),
+                    cardHint.getText().toString().contains("\u2026"));
+
+            if (names) {
+                String effect = text(activity, R.id.network_ssid_effect);
+                assertTrue("The advanced section names the visible option '" + option + "': "
+                        + effect, effect.contains(option));
+                assertFalse("No truncated mode name: " + effect, effect.contains("\u2026"));
+                assertEquals("The same sentence in both places", cardHint.getText().toString(), effect);
+            }
+        }
+        assertNotEquals("The two states really show different labels", seenOptions[0], seenOptions[1]);
     }
 
     // --- the advanced Wi-Fi-name section -----------------------------------------------------
@@ -642,7 +683,9 @@ public class SettingsNetworkCardTest {
 
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         SettingsActivity noEffect = open();
-        assertEquals(context.getString(R.string.network_list_inactive_hint),
+        assertEquals("Saved matching names the option as it reads while the matching is on",
+                context.getString(R.string.network_list_inactive_hint,
+                        context.getString(R.string.network_mode_option_aps_names)),
                 text(noEffect, R.id.network_ssid_effect));
     }
 

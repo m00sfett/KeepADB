@@ -306,9 +306,24 @@ public class NetworkListActivityTest {
         NetworkListActivity allWifi = open(NetworkListActivity.VIEW_ALLOWED);
         TextView hint = allWifi.findViewById(R.id.network_list_inactive_hint);
         assertEquals(View.VISIBLE, hint.getVisibility());
-        assertEquals(context.getString(R.string.network_list_inactive_hint), hint.getText().toString());
+        assertEquals(context.getString(R.string.network_list_inactive_hint,
+                        context.getString(R.string.network_mode_option_aps)),
+                hint.getText().toString());
         assertTrue("The saved entry stays reachable",
                 allText(allWifi.findViewById(R.id.wifi_aps_list)).contains("Cafe"));
+
+        // #654 visual acceptance: with the name matching on, the second option of the mode choice
+        // reads "Allowed access points and Wi-Fi names", and the hint must say exactly that.
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
+        TextView namedHint = open(NetworkListActivity.VIEW_ALLOWED)
+                .findViewById(R.id.network_list_inactive_hint);
+        assertEquals(context.getString(R.string.network_list_inactive_hint,
+                        context.getString(R.string.network_mode_option_aps_names)),
+                namedHint.getText().toString());
+        assertTrue(namedHint.getText().toString()
+                .contains(context.getString(R.string.network_mode_option_aps_names)));
+        assertFalse("No truncated mode name", namedHint.getText().toString().contains("\u2026"));
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, false);
 
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         NetworkListActivity allowlist = open(NetworkListActivity.VIEW_ALLOWED);

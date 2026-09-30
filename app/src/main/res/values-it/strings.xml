@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">Punti di accesso e nomi Wi-Fi consentiti</string>
     <string name="network_mode_title">Riattivazione automatica</string>
     <string name="network_mode_hint">Vale per Keep-Alive. L’attivazione manuale del debug wireless funziona sempre.</string>
-    <string name="network_list_inactive_hint">Questo elenco viene considerato solo nella modalità «Solo consentiti …».</string>
+    <string name="network_list_inactive_hint">Questo elenco viene considerato solo nella modalità «%1$s».</string>
     <string name="network_current_title">Connessione attuale</string>
     <string name="network_status_no_wifi">Nessuna connessione Wi-Fi</string>
     <string name="network_status_unreadable">Non leggibile</string>

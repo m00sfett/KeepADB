@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">許可したアクセスポイントと Wi-Fi 名</string>
     <string name="network_mode_title">自動再有効化</string>
     <string name="network_mode_hint">Keep-Alive に適用されます。ワイヤレスデバッグを手動でオンにする操作は常に可能です。</string>
-    <string name="network_list_inactive_hint">このリストは「許可したもののみ …」モードでのみ考慮されます。</string>
+    <string name="network_list_inactive_hint">このリストは「%1$s」モードでのみ考慮されます。</string>
     <string name="network_current_title">現在の接続</string>
     <string name="network_status_no_wifi">Wi-Fi 未接続</string>
     <string name="network_status_unreadable">読み取れません</string>

@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">Toegestane access points en wifi-namen</string>
     <string name="network_mode_title">Automatisch opnieuw inschakelen</string>
     <string name="network_mode_hint">Geldt voor Keep-Alive. Draadloze foutopsporing handmatig inschakelen werkt altijd.</string>
-    <string name="network_list_inactive_hint">Deze lijst wordt pas meegenomen in de modus ‘Alleen toegestane …’.</string>
+    <string name="network_list_inactive_hint">Deze lijst wordt pas meegenomen in de modus ‘%1$s’.</string>
     <string name="network_current_title">Huidige verbinding</string>
     <string name="network_status_no_wifi">Geen wifi-verbinding</string>
     <string name="network_status_unreadable">Niet leesbaar</string>

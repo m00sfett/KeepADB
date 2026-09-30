@@ -126,6 +126,8 @@ public class NetworkListActivity extends Activity {
                 titleView.setText(R.string.network_row_allowed);
                 introView.setText(R.string.network_view_allowed_intro);
                 // The list stays reachable in "all networks" mode but does not count there.
+                inactiveHint.setText(KeepADBNetworkCardText.inactiveListHint(this,
+                        KeepADBTrustedNetwork.isSsidMatchingEnabled(this)));
                 inactiveHint.setVisibility(KeepADBTrustedNetwork.isAllowlistMode(this)
                         ? View.GONE : View.VISIBLE);
                 renderAllowed();

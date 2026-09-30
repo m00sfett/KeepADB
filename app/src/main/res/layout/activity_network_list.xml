@@ -67,7 +67,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:fontFamily="sans-serif"
-                android:text="@string/network_list_inactive_hint"
                 android:textColor="@color/text_yellow"
                 android:textSize="13sp"
                 android:visibility="gone" />

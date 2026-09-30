@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">Разрешённые точки доступа и имена Wi-Fi</string>
     <string name="network_mode_title">Автоматическое повторное включение</string>
     <string name="network_mode_hint">Относится к Keep-Alive. Ручное включение беспроводной отладки всегда работает.</string>
-    <string name="network_list_inactive_hint">Этот список учитывается только в режиме «Только разрешённые …».</string>
+    <string name="network_list_inactive_hint">Этот список учитывается только в режиме «%1$s».</string>
     <string name="network_current_title">Текущее подключение</string>
     <string name="network_status_no_wifi">Нет подключения к Wi-Fi</string>
     <string name="network_status_unreadable">Не читается</string>

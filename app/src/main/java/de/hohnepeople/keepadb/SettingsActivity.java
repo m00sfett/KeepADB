@@ -80,7 +80,7 @@ public class SettingsActivity extends Activity {
     private Button backgroundLocationButton;
     private TextView networkAllowedCount;
     private TextView networkPreventedCount;
-    private View networkListsInactiveHint;
+    private TextView networkListsInactiveHint;
     private View networkSsidHeader;
     private View networkSsidBody;
     private TextView networkSsidArrow;
@@ -971,6 +971,8 @@ public class SettingsActivity extends Activity {
         networkAllowedCount.setText(String.valueOf(allowedCount));
         networkPreventedCount.setText(
                 String.valueOf(KeepADBBlockedNetworkHistory.getEntries(this).size()));
+        networkListsInactiveHint.setText(
+                KeepADBNetworkCardText.inactiveListHint(this, ssidMatching));
         networkListsInactiveHint.setVisibility(
                 state.mode == KeepADBNetworkCardState.Mode.ALL_WIFI && allowedCount > 0
                         ? View.VISIBLE : View.GONE);
@@ -995,7 +997,9 @@ public class SettingsActivity extends Activity {
                 networkSsidState.setText(R.string.network_ssid_state_off);
                 break;
         }
-        networkSsidEffect.setText(KeepADBNetworkCardText.nameMatchingEffect(state.nameMatching));
+        networkSsidEffect.setText(state.nameMatching == KeepADBNetworkCardState.NameMatching.NO_EFFECT
+                ? KeepADBNetworkCardText.inactiveListHint(this, ssidMatching)
+                : getString(KeepADBNetworkCardText.nameMatchingEffect(state.nameMatching)));
         trustedSsidToggle.setEnabled(KeepADBTrustedNetwork.isAllowlistMode(this));
         trustedSsidToggle.setChecked(ssidMatching);
         renderSsidNames(identity);

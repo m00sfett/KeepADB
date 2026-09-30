@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">Points d’accès et noms Wi-Fi autorisés</string>
     <string name="network_mode_title">Réactivation automatique</string>
     <string name="network_mode_hint">S’applique à Keep-Alive. L’activation manuelle du débogage sans fil fonctionne toujours.</string>
-    <string name="network_list_inactive_hint">Cette liste n’est prise en compte que dans le mode « Uniquement autorisés … ».</string>
+    <string name="network_list_inactive_hint">Cette liste n’est prise en compte que dans le mode « %1$s ».</string>
     <string name="network_current_title">Connexion actuelle</string>
     <string name="network_status_no_wifi">Aucune connexion Wi-Fi</string>
     <string name="network_status_unreadable">Illisible</string>

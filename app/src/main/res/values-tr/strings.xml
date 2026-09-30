@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">İzin verilen erişim noktaları ve Wi-Fi adları</string>
     <string name="network_mode_title">Otomatik yeniden etkinleştirme</string>
     <string name="network_mode_hint">Keep-Alive için geçerlidir. Kablosuz Hata Ayıklamayı elle açmak her zaman çalışır.</string>
-    <string name="network_list_inactive_hint">Bu liste yalnızca “Yalnızca izin verilenler …” modunda dikkate alınır.</string>
+    <string name="network_list_inactive_hint">Bu liste yalnızca “%1$s” modunda dikkate alınır.</string>
     <string name="network_current_title">Mevcut bağlantı</string>
     <string name="network_status_no_wifi">Wi-Fi bağlantısı yok</string>
     <string name="network_status_unreadable">Okunamıyor</string>

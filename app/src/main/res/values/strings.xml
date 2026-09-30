@@ -328,7 +328,7 @@
     <string name="network_mode_option_aps_names">Allowed access points and Wi-Fi names</string>
     <string name="network_mode_title">Automatic re-enable</string>
     <string name="network_mode_hint">Applies to Keep-Alive. Switching Wireless Debugging on manually always works.</string>
-    <string name="network_list_inactive_hint">This list is only considered in the “Only allowed …” mode.</string>
+    <string name="network_list_inactive_hint">This list is only considered in the “%1$s” mode.</string>
     <string name="network_current_title">Current connection</string>
     <string name="network_status_no_wifi">No Wi-Fi connection</string>
     <string name="network_status_unreadable">Not readable</string>

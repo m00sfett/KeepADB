@@ -826,7 +826,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif"
-                        android:text="@string/network_list_inactive_hint"
                         android:textColor="@color/night_muted"
                         android:textSize="13sp"
                         android:visibility="gone" />

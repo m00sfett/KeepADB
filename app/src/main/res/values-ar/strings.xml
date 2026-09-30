@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">نقاط الوصول وأسماء Wi-Fi المسموح بها</string>
     <string name="network_mode_title">إعادة التفعيل التلقائي</string>
     <string name="network_mode_hint">ينطبق على Keep-Alive. يعمل تفعيل تصحيح الأخطاء اللاسلكي يدويًا دائمًا.</string>
-    <string name="network_list_inactive_hint">تُؤخذ هذه القائمة في الاعتبار فقط في وضع «المسموح بها فقط …».</string>
+    <string name="network_list_inactive_hint">تُؤخذ هذه القائمة في الاعتبار فقط في وضع «%1$s».</string>
     <string name="network_current_title">الاتصال الحالي</string>
     <string name="network_status_no_wifi">لا يوجد اتصال Wi-Fi</string>
     <string name="network_status_unreadable">غير قابل للقراءة</string>

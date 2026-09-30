@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">Дозволені точки доступу та назви Wi-Fi</string>
     <string name="network_mode_title">Автоматичне повторне ввімкнення</string>
     <string name="network_mode_hint">Стосується Keep-Alive. Ручне ввімкнення бездротового налагодження завжди працює.</string>
-    <string name="network_list_inactive_hint">Цей список враховується лише в режимі «Лише дозволені …».</string>
+    <string name="network_list_inactive_hint">Цей список враховується лише в режимі «%1$s».</string>
     <string name="network_current_title">Поточне підключення</string>
     <string name="network_status_no_wifi">Немає підключення до Wi-Fi</string>
     <string name="network_status_unreadable">Не читається</string>

@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">Điểm truy cập và tên Wi-Fi được phép</string>
     <string name="network_mode_title">Tự động bật lại</string>
     <string name="network_mode_hint">Áp dụng cho Keep-Alive. Tự bật gỡ lỗi không dây thủ công luôn hoạt động.</string>
-    <string name="network_list_inactive_hint">Danh sách này chỉ được xét ở chế độ “Chỉ được phép …”.</string>
+    <string name="network_list_inactive_hint">Danh sách này chỉ được xét ở chế độ “%1$s”.</string>
     <string name="network_current_title">Kết nối hiện tại</string>
     <string name="network_status_no_wifi">Không có kết nối Wi-Fi</string>
     <string name="network_status_unreadable">Không đọc được</string>

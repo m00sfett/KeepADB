@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">Dozwolone punkty dostępowe i nazwy Wi-Fi</string>
     <string name="network_mode_title">Automatyczne ponowne włączanie</string>
     <string name="network_mode_hint">Dotyczy Keep-Alive. Ręczne włączenie debugowania bezprzewodowego zawsze działa.</string>
-    <string name="network_list_inactive_hint">Ta lista jest uwzględniana dopiero w trybie „Tylko dozwolone …”.</string>
+    <string name="network_list_inactive_hint">Ta lista jest uwzględniana dopiero w trybie „%1$s”.</string>
     <string name="network_current_title">Bieżące połączenie</string>
     <string name="network_status_no_wifi">Brak połączenia Wi-Fi</string>
     <string name="network_status_unreadable">Nieczytelne</string>

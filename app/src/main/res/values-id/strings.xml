@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">Titik akses dan nama Wi-Fi yang diizinkan</string>
     <string name="network_mode_title">Pengaktifan ulang otomatis</string>
     <string name="network_mode_hint">Berlaku untuk Keep-Alive. Mengaktifkan Debugging Nirkabel secara manual selalu berfungsi.</string>
-    <string name="network_list_inactive_hint">Daftar ini baru diperhitungkan dalam mode “Hanya yang diizinkan …”.</string>
+    <string name="network_list_inactive_hint">Daftar ini baru diperhitungkan dalam mode “%1$s”.</string>
     <string name="network_current_title">Koneksi saat ini</string>
     <string name="network_status_no_wifi">Tidak ada koneksi Wi-Fi</string>
     <string name="network_status_unreadable">Tidak terbaca</string>

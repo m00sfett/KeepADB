@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">Puntos de acceso y nombres de Wi-Fi permitidos</string>
     <string name="network_mode_title">Reactivación automática</string>
     <string name="network_mode_hint">Se aplica a Keep-Alive. Activar la depuración inalámbrica manualmente siempre funciona.</string>
-    <string name="network_list_inactive_hint">Esta lista solo se tiene en cuenta en el modo «Solo permitidos …».</string>
+    <string name="network_list_inactive_hint">Esta lista solo se tiene en cuenta en el modo «%1$s».</string>
     <string name="network_current_title">Conexión actual</string>
     <string name="network_status_no_wifi">Sin conexión Wi-Fi</string>
     <string name="network_status_unreadable">No legible</string>

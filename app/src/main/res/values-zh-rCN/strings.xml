@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">已允许的接入点和 Wi-Fi 名称</string>
     <string name="network_mode_title">自动重新启用</string>
     <string name="network_mode_hint">适用于 Keep-Alive。手动开启无线调试始终可用。</string>
-    <string name="network_list_inactive_hint">此列表仅在“仅限已允许 …”模式下生效。</string>
+    <string name="network_list_inactive_hint">此列表仅在“%1$s”模式下生效。</string>
     <string name="network_current_title">当前连接</string>
     <string name="network_status_no_wifi">未连接 Wi-Fi</string>
     <string name="network_status_unreadable">无法读取</string>

@@ -324,7 +324,7 @@
     <string name="network_mode_option_aps_names">Freigegebene Access Points und WLAN-Namen</string>
     <string name="network_mode_title">Automatisches Wiedereinschalten</string>
     <string name="network_mode_hint">Gilt für Keep-Alive. Manuelles Einschalten von Drahtlosem Debugging funktioniert immer.</string>
-    <string name="network_list_inactive_hint">Diese Liste wird erst im Modus „Nur freigegebene …“ berücksichtigt.</string>
+    <string name="network_list_inactive_hint">Diese Liste wird erst im Modus „%1$s“ berücksichtigt.</string>
     <string name="network_current_title">Aktuelle Verbindung</string>
     <string name="network_status_no_wifi">Kein WLAN verbunden</string>
     <string name="network_status_unreadable">Nicht lesbar</string>
