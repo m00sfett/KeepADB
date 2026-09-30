@@ -181,8 +181,11 @@ public class SettingsActivityTrustConfirmationTest {
         SettingsActivity activity = controller.get();
 
         assertNull(activity.getActiveTrustConfirmationDialog());
-        assertNotNull("The recently-blocked list opens instead",
-                activity.getActiveBlockedNetworksDialog());
+        Intent fallback = shadowOf(activity).getNextStartedActivity();
+        assertNotNull("The recently-prevented view opens instead", fallback);
+        assertEquals(NetworkListActivity.class.getName(), fallback.getComponent().getClassName());
+        assertEquals(NetworkListActivity.VIEW_PREVENTED,
+                fallback.getStringExtra(NetworkListActivity.EXTRA_VIEW));
         assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
         controller.pause().stop().destroy();
 

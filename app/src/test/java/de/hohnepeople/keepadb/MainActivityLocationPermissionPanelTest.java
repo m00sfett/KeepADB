@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -29,10 +30,11 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLooper;
 
 /**
- * Onboarding coverage for issue #459, #504, and #507:
+ * Onboarding coverage for issue #459, #504, #507 and #654:
  * Following #507, {@code MainActivity} no longer surfaces any location permission panel or
- * in-context prompt -- the location permission flow has moved into {@link SettingsActivity}
- * under the "Wi-Fi &amp; Access Points" beta opt-in card.
+ * in-context prompt -- the location permission flow lives in {@link SettingsActivity}'s Network
+ * card. Since #654 the grant button belongs to the current-connection status there and does not
+ * depend on the observation option.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -52,6 +54,7 @@ public class MainActivityLocationPermissionPanelTest {
                 android.Manifest.permission.ACCESS_FINE_LOCATION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
     }
 
     @After
@@ -68,18 +71,17 @@ public class MainActivityLocationPermissionPanelTest {
                 Robolectric.buildActivity(MainActivity.class).setup();
         MainActivity activity = controller.get();
 
-        assertNull(activity.findViewById(R.id.btn_wifi_aps_grant_location_permission));
+        assertNull(activity.findViewById(R.id.network_status_action));
 
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         controller.pause().resume();
         ShadowLooper.idleMainLooper();
 
-        assertNull(activity.findViewById(R.id.btn_wifi_aps_grant_location_permission));
+        assertNull(activity.findViewById(R.id.network_status_action));
     }
 
     @Test
-    public void settingsWifiApsCardShowsLocationGrantButtonWhenOptedInAndPermissionMissing() {
-        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
+    public void settingsNetworkCardShowsLocationGrantButtonWhenPermissionIsMissing() {
 
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
@@ -87,8 +89,10 @@ public class MainActivityLocationPermissionPanelTest {
         activity.findViewById(R.id.settings_network_beta_header).performClick();
         ShadowLooper.idleMainLooper();
 
-        Button inContextButton = activity.findViewById(R.id.btn_wifi_aps_grant_location_permission);
-        assertNotNull("In-context grant button must be present in wifiApsCurrentRow when opted in", inContextButton);
+        Button inContextButton = activity.findViewById(R.id.network_status_action);
+        assertNotNull("In-context grant button must be present in the current-connection status",
+                inContextButton);
+        assertEquals(View.VISIBLE, inContextButton.getVisibility());
         assertEquals(context.getString(R.string.location_permission_panel_grant_button),
                 inContextButton.getText().toString());
 
@@ -104,7 +108,7 @@ public class MainActivityLocationPermissionPanelTest {
                         android.Manifest.permission.ACCESS_COARSE_LOCATION},
                 new int[]{PackageManager.PERMISSION_DENIED, PackageManager.PERMISSION_DENIED});
 
-        Button updatedButton = activity.findViewById(R.id.btn_wifi_aps_grant_location_permission);
+        Button updatedButton = activity.findViewById(R.id.network_status_action);
         assertNotNull(updatedButton);
         assertEquals(context.getString(R.string.location_permission_settings_button),
                 updatedButton.getText().toString());
@@ -116,8 +120,7 @@ public class MainActivityLocationPermissionPanelTest {
     }
 
     @Test
-    public void settingsWifiApsCardHidesLocationGrantButtonWhenPermissionGranted() {
-        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
+    public void settingsNetworkCardHidesLocationGrantButtonWhenPermissionGranted() {
         shadowOf((Application) context).grantPermissions(
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
 
@@ -127,11 +130,20 @@ public class MainActivityLocationPermissionPanelTest {
         activity.findViewById(R.id.settings_network_beta_header).performClick();
         ShadowLooper.idleMainLooper();
 
-        assertNull(activity.findViewById(R.id.btn_wifi_aps_grant_location_permission));
+        Button action = activity.findViewById(R.id.network_status_action);
+        assertNotEquals("The grant is not offered once it is granted",
+                context.getString(R.string.location_permission_panel_grant_button),
+                action.getText().toString());
+        assertNotEquals(context.getString(R.string.location_permission_settings_button),
+                action.getText().toString());
     }
 
+    /**
+     * #654: the grant sits in the current-connection status, which is independent of the
+     * observation option -- switching observation off must not take it away.
+     */
     @Test
-    public void settingsWifiApsCardHidesLocationGrantButtonWhenOptInIsDisabled() {
+    public void locationGrantButtonDoesNotDependOnTheObservationOption() {
         KeepADBPreferences.setWifiApsFeatureEnabled(context, false);
 
         ActivityController<SettingsActivity> controller =
@@ -140,6 +152,9 @@ public class MainActivityLocationPermissionPanelTest {
         activity.findViewById(R.id.settings_network_beta_header).performClick();
         ShadowLooper.idleMainLooper();
 
-        assertNull(activity.findViewById(R.id.btn_wifi_aps_grant_location_permission));
+        Button action = activity.findViewById(R.id.network_status_action);
+        assertEquals(View.VISIBLE, action.getVisibility());
+        assertEquals(context.getString(R.string.location_permission_panel_grant_button),
+                action.getText().toString());
     }
 }

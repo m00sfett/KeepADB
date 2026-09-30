@@ -1058,37 +1058,40 @@ public class SettingsActivityTest {
         shadowOf(wifiManager).setConnectionInfo(info);
     }
 
-    @SuppressWarnings("unchecked")
     /**
-     * #492: the two policy switches are the only surface the security decision is taken on, so the
-     * wiring itself needs pinning, not just the persisted semantics in {@link
-     * KeepADBTrustedNetworkTest}. Asserts all three properties the issue names for them: both start
-     * off on a fresh install, the global switch actually persists the mode, and the SSID switch is
+     * #492/#654: the mode choice and the Wi-Fi-name switch are the only surfaces the security
+     * decision is taken on, so the wiring itself needs pinning, not just the persisted semantics in
+     * {@link KeepADBTrustedNetworkTest}. Asserts the properties the issue names for them: both start
+     * off on a fresh install, the mode choice actually persists the mode, and the name switch is
      * inoperable until the restriction it widens is on (and becomes operable in the same refresh,
-     * not only after re-entering Settings).
+     * not only after re-entering Settings). Going back to all networks never touches the saved
+     * name setting -- the UI never turns it on or off by itself.
      */
     @Test
-    public void bothPolicySwitchesStartOffAndTheSsidOneIsGatedOnTheRestriction() {
+    public void bothPolicyControlsStartOffAndTheSsidOneIsGatedOnTheRestriction() {
         shadowOf(RuntimeEnvironment.getApplication())
                 .grantPermissions(android.Manifest.permission.ACCESS_FINE_LOCATION);
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        Switch restriction = activity.findViewById(R.id.settings_trusted_network_toggle);
+        android.widget.RadioButton allWifi = activity.findViewById(R.id.network_mode_all_wifi);
+        android.widget.RadioButton allowlist = activity.findViewById(R.id.network_mode_allowlist);
         Switch ssid = activity.findViewById(R.id.settings_trusted_ssid_toggle);
 
-        assertFalse("The restriction is opt-in and off on a fresh install", restriction.isChecked());
+        assertTrue("All networks is the default on a fresh install", allWifi.isChecked());
+        assertFalse("The restriction is opt-in and off on a fresh install", allowlist.isChecked());
         assertFalse("The SSID alternative is a second, separate opt-in", ssid.isChecked());
         assertFalse("A switch that widens nothing must not be operable", ssid.isEnabled());
         assertFalse(KeepADBTrustedNetwork.isAllowlistMode(activity));
 
-        // A CompoundButton toggles itself inside performClick() before the listener runs, so the
+        // A RadioButton checks itself inside performClick() before the listener runs, so the
         // click alone is the user gesture -- no setChecked() priming.
-        restriction.performClick();
-        assertTrue("The switch must persist the mode, not just render it",
+        allowlist.performClick();
+        assertTrue("The choice must persist the mode, not just render it",
                 KeepADBTrustedNetwork.isAllowlistMode(activity));
-        assertTrue(restriction.isChecked());
+        assertTrue(allowlist.isChecked());
+        assertFalse(allWifi.isChecked());
         assertTrue("The SSID switch must become operable in the same refresh", ssid.isEnabled());
         assertFalse("Enabling the restriction must not enable the SSID alternative with it",
                 KeepADBTrustedNetwork.isSsidMatchingEnabled(activity));
@@ -1096,9 +1099,12 @@ public class SettingsActivityTest {
         ssid.performClick();
         assertTrue(KeepADBTrustedNetwork.isSsidMatchingEnabled(activity));
 
-        restriction.performClick();
+        allWifi.performClick();
         assertFalse(KeepADBTrustedNetwork.isAllowlistMode(activity));
+        assertTrue(allWifi.isChecked());
         assertFalse("Opting back out must disarm the widening switch again", ssid.isEnabled());
+        assertTrue("Leaving the restriction must keep the saved name setting untouched",
+                KeepADBTrustedNetwork.isSsidMatchingEnabled(activity));
     }
 
     @Test
@@ -1256,12 +1262,12 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #618: Trusted Networks and Wi-Fi & access points are direct sections inside one collapsible
-     * card. Opening the outer card must reveal every existing control without another expand target.
-     * Beta badges are removed and the heading is Network without Beta.
+     * #618/#654: the Network card is one collapsible card. Opening it must reveal every section
+     * without another expand target, except the advanced Wi-Fi-name section, which is the one
+     * deliberately collapsed sub-section at the very bottom. Beta badges stay removed.
      */
     @Test
-    public void networkCardShowsBothDirectSectionsAfterOneExpandStep() {
+    public void networkCardShowsItsSectionsAfterOneExpandStep() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
@@ -1272,36 +1278,40 @@ public class SettingsActivityTest {
 
         View outerBody = activity.findViewById(R.id.settings_network_beta_body);
         TextView outerArrow = activity.findViewById(R.id.settings_network_beta_arrow);
-        View trustedSection = activity.findViewById(R.id.settings_trusted_network_panel);
-        View wifiApsSection = activity.findViewById(R.id.settings_wifi_aps_panel);
-        TextView trustedTitle = activity.findViewById(R.id.settings_trusted_network_title);
-        TextView wifiApsTitle = activity.findViewById(R.id.settings_wifi_aps_title);
+        int[] headings = {
+                R.id.network_status_heading,
+                R.id.network_mode_heading,
+                R.id.network_background_heading,
+                R.id.network_manage_heading,
+                R.id.network_observation_heading,
+        };
         int[] directControls = {
-                R.id.settings_trusted_network_toggle,
-                R.id.settings_trusted_ssid_toggle,
+                R.id.network_mode_all_wifi,
+                R.id.network_mode_allowlist,
+                R.id.settings_background_location_button,
+                R.id.network_allowed_row,
+                R.id.network_prevented_row,
                 R.id.settings_wifi_aps_feature_toggle,
+                R.id.network_ssid_header,
         };
 
         assertEquals(View.GONE, outerBody.getVisibility());
         assertEquals("+", outerArrow.getText().toString());
-        assertFalse(trustedSection.hasOnClickListeners());
-        assertFalse(wifiApsSection.hasOnClickListeners());
-        assertFalse(trustedTitle.isClickable());
-        assertFalse(trustedTitle.isFocusable());
-        assertFalse(wifiApsTitle.isClickable());
-        assertFalse(wifiApsTitle.isFocusable());
-        assertTrue(trustedTitle.isAccessibilityHeading());
-        assertTrue(wifiApsTitle.isAccessibilityHeading());
-        assertEquals("Trusted network beta badge id must be removed", 0,
-                activity.getResources().getIdentifier(
-                        "settings_trusted_network_beta_badge", "id", activity.getPackageName()));
-        assertEquals("Wifi aps beta badge id must be removed", 0,
-                activity.getResources().getIdentifier(
-                        "settings_wifi_aps_beta_badge", "id", activity.getPackageName()));
-
+        for (int id : headings) {
+            TextView heading = activity.findViewById(id);
+            assertTrue("Section heading must be an accessibility heading: " + id,
+                    heading.isAccessibilityHeading());
+            assertFalse(heading.isClickable());
+            assertFalse(heading.isFocusable());
+        }
         for (int id : directControls) {
-            assertFalse("Network control must stay hidden while the outer card is closed: " + id,
+            assertFalse("Network control must stay hidden while the card is closed: " + id,
                     activity.findViewById(id).isShown());
+        }
+        for (String badge : new String[] {"settings_trusted_network_beta_badge",
+                "settings_wifi_aps_beta_badge"}) {
+            assertEquals("Beta badge id must be removed: " + badge, 0,
+                    activity.getResources().getIdentifier(badge, "id", activity.getPackageName()));
         }
 
         activity.findViewById(R.id.settings_network_beta_header).performClick();
@@ -1315,6 +1325,8 @@ public class SettingsActivityTest {
             assertTrue("Network control must keep its click listener: " + id,
                     control.hasOnClickListeners());
         }
+        assertFalse("The advanced section starts collapsed: its switch is still hidden",
+                activity.findViewById(R.id.settings_trusted_ssid_toggle).isShown());
 
         activity.findViewById(R.id.settings_network_beta_header).performClick();
         assertEquals(View.GONE, outerBody.getVisibility());
@@ -1381,8 +1393,10 @@ public class SettingsActivityTest {
 
         activity.findViewById(R.id.settings_network_beta_header).performClick();
 
-        Switch trustedNetworkToggle = activity.findViewById(R.id.settings_trusted_network_toggle);
-        assertFalse(trustedNetworkToggle.isChecked());
+        assertTrue(((android.widget.RadioButton) activity.findViewById(R.id.network_mode_all_wifi))
+                .isChecked());
+        assertFalse(((android.widget.RadioButton) activity.findViewById(R.id.network_mode_allowlist))
+                .isChecked());
 
         Switch wifiApsToggle = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
         assertFalse(wifiApsToggle.isChecked());

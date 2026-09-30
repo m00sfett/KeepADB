@@ -16,7 +16,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.view.View;
-import android.widget.Switch;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -73,8 +73,13 @@ public class SettingsBackgroundLocationDialogTest {
         return Robolectric.buildActivity(SettingsActivity.class).setup();
     }
 
-    private static Switch trustedToggle(SettingsActivity activity) {
-        return activity.findViewById(R.id.settings_trusted_network_toggle);
+    /** The "Only allowed access points" option of the mode choice (#654); clicking it opts in. */
+    private static RadioButton trustedToggle(SettingsActivity activity) {
+        return activity.findViewById(R.id.network_mode_allowlist);
+    }
+
+    private static RadioButton allWifiOption(SettingsActivity activity) {
+        return activity.findViewById(R.id.network_mode_all_wifi);
     }
 
     private static AlertDialog latestDialog() {
@@ -149,6 +154,9 @@ public class SettingsBackgroundLocationDialogTest {
         }
         assertFalse("Not enabled before the user answered the system dialog",
                 KeepADBTrustedNetwork.isAllowlistMode(context));
+        assertTrue("The choice shows the stored mode, not the option that was just tapped",
+                allWifiOption(activity).isChecked());
+        assertFalse(trustedToggle(activity).isChecked());
         ShadowDialog.reset();
 
         shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
@@ -206,10 +214,31 @@ public class SettingsBackgroundLocationDialogTest {
         SettingsActivity activity = openSettings().get();
         assertTrue(trustedToggle(activity).isChecked());
 
-        trustedToggle(activity).performClick();
+        allWifiOption(activity).performClick();
 
         assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
+        assertTrue(allWifiOption(activity).isChecked());
         assertNoDialogShown();
+    }
+
+    /**
+     * #654: the mode is a choice, so the already selected option can be clicked again. That must
+     * neither ask for anything nor show the step-2 rationale a second time.
+     */
+    @Test
+    public void clickingTheAlreadySelectedAllowlistOptionAgainShowsNoDialog() {
+        SettingsActivity activity = openSettings().get();
+        trustedToggle(activity).performClick();
+        click(latestDialog(), AlertDialog.BUTTON_NEGATIVE);
+        ShadowDialog.reset();
+        assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
+
+        trustedToggle(activity).performClick();
+
+        assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
+        assertTrue(trustedToggle(activity).isChecked());
+        assertNoDialogShown();
+        assertNoRuntimeRequest(activity);
     }
 
     // --- The three actions ------------------------------------------------------------------
