@@ -306,6 +306,7 @@
     <string name="settings_license_line">GNU Affero General Public License v3 (AGPLv3) ile lisanslanmıştır</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">HohnePeople.de\'yi tarayıcıda aç</string>
+    <string name="settings_no_browser_found">Bu bağlantıyı açacak uygulama bulunamadı.</string>
     <string name="status_off_keep_alive_waiting">Kablosuz Hata Ayıklama KAPALI – Keep-Alive ağı bekliyor</string>
     <string name="status_off_keep_alive_blocked_untrusted">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı güvenilir değil</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: ağ kimliği belirlenemiyor, Konum iznini (“Her zaman izin ver”) kontrol edin veya uygulamayı yeniden açın</string>

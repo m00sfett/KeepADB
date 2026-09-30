@@ -306,6 +306,7 @@
     <string name="settings_license_line">Na licencji GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Otwórz HohnePeople.de w przeglądarce</string>
+    <string name="settings_no_browser_found">Nie znaleziono aplikacji do otwarcia tego linku.</string>
     <string name="status_off_keep_alive_waiting">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive czeka na sieć</string>
     <string name="status_off_keep_alive_blocked_untrusted">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: ta sieć Wi-Fi nie jest zaufana</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: nie można ustalić tożsamości sieci, sprawdź uprawnienie lokalizacji („Zezwalaj zawsze”) lub otwórz aplikację ponownie</string>

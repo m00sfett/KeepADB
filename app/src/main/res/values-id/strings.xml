@@ -306,6 +306,7 @@
     <string name="settings_license_line">Dilisensikan di bawah GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Buka HohnePeople.de di browser</string>
+    <string name="settings_no_browser_found">Tidak ada aplikasi untuk membuka tautan ini.</string>
     <string name="status_off_keep_alive_waiting">Debugging Nirkabel NONAKTIF – Keep-Alive menunggu jaringan</string>
     <string name="status_off_keep_alive_blocked_untrusted">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini tidak tepercaya</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: identitas jaringan tidak dapat ditentukan, periksa izin Lokasi (“Izinkan sepanjang waktu”) atau buka kembali aplikasi</string>

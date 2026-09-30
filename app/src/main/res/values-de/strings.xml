@@ -306,6 +306,7 @@
     <string name="settings_license_line">Lizenziert unter der GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">HohnePeople.de im Browser öffnen</string>
+    <string name="settings_no_browser_found">Keine App zum Öffnen dieses Links gefunden.</string>
     <string name="status_off_keep_alive_waiting">Drahtloses Debugging ist AUS – Keep-Alive wartet auf das Netzwerk</string>
     <string name="status_off_keep_alive_blocked_untrusted">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Dieses WLAN ist nicht vertrauenswürdig</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Netzwerk-Identität nicht ermittelbar, Standortberechtigung („Immer zulassen“) prüfen oder App neu öffnen</string>

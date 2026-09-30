@@ -306,6 +306,7 @@
     <string name="settings_license_line">Được cấp phép theo GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Mở HohnePeople.de trong trình duyệt</string>
+    <string name="settings_no_browser_found">Không tìm thấy ứng dụng để mở liên kết này.</string>
     <string name="status_off_keep_alive_waiting">Gỡ lỗi không dây đang TẮT – Keep-Alive đang chờ mạng</string>
     <string name="status_off_keep_alive_blocked_untrusted">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: mạng Wi-Fi này không đáng tin cậy</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: không xác định được mạng, hãy kiểm tra quyền Vị trí (“Luôn cho phép”) hoặc mở lại ứng dụng</string>
