@@ -51,6 +51,15 @@ public class SettingsActivity extends Activity {
      * never re-read from the intent (already consumed by then) or from the current connection.
      */
     static final String STATE_TRUST_CONFIRMATION_BSSID = "settings_trust_confirmation_bssid";
+    /**
+     * #672: flags for the reset-app, background-location, USB handover mode and language dialogs
+     * showing at the time of a {@code recreate()} (rotation). Pure "was showing" markers; a
+     * restored reset-app dialog is only re-shown and still needs the user's own confirm tap.
+     */
+    static final String STATE_RESET_APP_SHOWING = "settings_reset_app_showing";
+    static final String STATE_BACKGROUND_LOCATION_SHOWING = "settings_background_location_showing";
+    static final String STATE_USB_HANDOVER_MODE_SHOWING = "settings_usb_handover_mode_showing";
+    static final String STATE_LANGUAGE_SELECTION_SHOWING = "settings_language_selection_showing";
 
     private ScrollView scrollView;
     private View webhookPanel;
@@ -115,6 +124,9 @@ public class SettingsActivity extends Activity {
     private CheckBox activeIssueReportDiagnostics;
 
     private AlertDialog activeResetAppDialog;
+    /** #672: the USB handover mode and language selection dialogs, if showing. */
+    private AlertDialog activeUsbHandoverModeDialog;
+    private AlertDialog activeLanguageSelectionDialog;
 
     private KeepADBUsbProfileEditor usbProfileEditor;
 
@@ -304,6 +316,20 @@ public class SettingsActivity extends Activity {
             if (pendingBssid != null) {
                 showTrustConfirmationDialog(pendingBssid);
             }
+            // #672: re-show the remaining plain dialogs. The reset-app dialog is only re-shown,
+            // its destructive action still runs solely from the user's own confirm tap.
+            if (savedInstanceState.getBoolean(STATE_RESET_APP_SHOWING, false)) {
+                showResetAppDialog();
+            }
+            if (savedInstanceState.getBoolean(STATE_BACKGROUND_LOCATION_SHOWING, false)) {
+                showBackgroundLocationDialog();
+            }
+            if (savedInstanceState.getBoolean(STATE_USB_HANDOVER_MODE_SHOWING, false)) {
+                showUsbHandoverModeDialog();
+            }
+            if (savedInstanceState.getBoolean(STATE_LANGUAGE_SELECTION_SHOWING, false)) {
+                showLanguageSelectionDialog();
+            }
         }
     }
 
@@ -413,6 +439,16 @@ public class SettingsActivity extends Activity {
                 && activeTrustConfirmationBssid != null) {
             outState.putString(STATE_TRUST_CONFIRMATION_BSSID, activeTrustConfirmationBssid);
         }
+        outState.putBoolean(STATE_RESET_APP_SHOWING, isShowing(activeResetAppDialog));
+        outState.putBoolean(STATE_BACKGROUND_LOCATION_SHOWING,
+                isShowing(activeBackgroundLocationDialog));
+        outState.putBoolean(STATE_USB_HANDOVER_MODE_SHOWING, isShowing(activeUsbHandoverModeDialog));
+        outState.putBoolean(STATE_LANGUAGE_SELECTION_SHOWING,
+                isShowing(activeLanguageSelectionDialog));
+    }
+
+    private static boolean isShowing(AlertDialog dialog) {
+        return dialog != null && dialog.isShowing();
     }
 
     @Override
@@ -447,6 +483,20 @@ public class SettingsActivity extends Activity {
                 activeBackgroundLocationDialog.dismiss();
             }
             activeBackgroundLocationDialog = null;
+        }
+
+        if (activeUsbHandoverModeDialog != null) {
+            if (activeUsbHandoverModeDialog.isShowing()) {
+                activeUsbHandoverModeDialog.dismiss();
+            }
+            activeUsbHandoverModeDialog = null;
+        }
+
+        if (activeLanguageSelectionDialog != null) {
+            if (activeLanguageSelectionDialog.isShowing()) {
+                activeLanguageSelectionDialog.dismiss();
+            }
+            activeLanguageSelectionDialog = null;
         }
 
         super.onDestroy();
@@ -596,7 +646,10 @@ public class SettingsActivity extends Activity {
             }
         }
 
-        new AlertDialog.Builder(this)
+        if (isShowing(activeLanguageSelectionDialog)) {
+            return;
+        }
+        AlertDialog picker = new AlertDialog.Builder(this)
                 .setTitle(R.string.settings_language_dialog_title)
                 .setSingleChoiceItems(displayItems, selectedIndex, (dialog, which) -> {
                     dialog.dismiss();
@@ -607,7 +660,14 @@ public class SettingsActivity extends Activity {
                     KeepADBUsbReceiver.refresh(this);
                 })
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+        activeLanguageSelectionDialog = picker;
+        picker.setOnDismissListener(d -> {
+            if (activeLanguageSelectionDialog == d) {
+                activeLanguageSelectionDialog = null;
+            }
+        });
+        picker.show();
     }
 
     private void showUsbHandoverModeDialog() {
@@ -627,7 +687,10 @@ public class SettingsActivity extends Activity {
             if (modes[i].equals(currentMode)) selectedIndex = i;
         }
 
-        new AlertDialog.Builder(this)
+        if (isShowing(activeUsbHandoverModeDialog)) {
+            return;
+        }
+        AlertDialog picker = new AlertDialog.Builder(this)
                 .setTitle(R.string.settings_usb_handover_dialog_title)
                 .setSingleChoiceItems(displayItems, selectedIndex, (dialog, which) -> {
                     dialog.dismiss();
@@ -639,7 +702,14 @@ public class SettingsActivity extends Activity {
                     refresh();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+        activeUsbHandoverModeDialog = picker;
+        picker.setOnDismissListener(d -> {
+            if (activeUsbHandoverModeDialog == d) {
+                activeUsbHandoverModeDialog = null;
+            }
+        });
+        picker.show();
     }
 
     /**
