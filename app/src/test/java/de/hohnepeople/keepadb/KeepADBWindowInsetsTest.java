@@ -71,6 +71,19 @@ public class KeepADBWindowInsetsTest {
         assertContentBottomMarginFollowsDispatchedInsets(header, content);
     }
 
+    @Test
+    public void networkListActivityDispatchesRealInsetsToHeaderAndContent() {
+        ActivityController<NetworkListActivity> controller = Robolectric.buildActivity(
+                NetworkListActivity.class,
+                NetworkListActivity.intent(org.robolectric.RuntimeEnvironment.getApplication(),
+                        NetworkListActivity.VIEW_ALLOWED)).setup();
+        NetworkListActivity activity = controller.get();
+
+        View header = activity.findViewById(R.id.header_bar);
+        View content = activity.findViewById(R.id.network_list_scroll);
+        assertContentBottomMarginFollowsDispatchedInsets(header, content);
+    }
+
     /**
      * Dispatches a genuine {@link WindowInsets} event (built with the real system bar/IME insets
      * the production code reads) into the view tree via {@link View#dispatchApplyWindowInsets},
