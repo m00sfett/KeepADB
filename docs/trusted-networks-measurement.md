@@ -474,3 +474,148 @@ Hintergrundstart heißt hier: `install -r` löst `MY_PACKAGE_REPLACED` im `BootR
 - Die Recovery-Proben (ContentObserver, `writeAccepted=true`) liefen auf allen sieben APIs
   erfolgreich, auf API 30 bis 35 aber ebenfalls im Modus `all_wifi`.
 - Emulatoren prüfen Plattformverhalten, keine OEM-Abweichungen.
+
+## Nachtrag 6 (#646, 2026-09-30): E2E-Emulator-Matrix API 30 bis 36.1
+
+Gemessen auf denselben sieben Emulatoren wie Nachtrag 5 (`KeepADB_API30` bis `KeepADB_API35`,
+Pixel-2-Profil, 1080x1920; `Dev_Galaxy_S20_API_36_1_Play`, S20-Profil, 1440x3200; `SDK_INT_FULL`
+nur auf 36.1 vorhanden: `36.1`), jeweils einzeln, sichtbares Fenster, `-gpu host`, `-no-snapshot`,
+Port 5554 / ADB 5038, alle ADB-Aktionen über `android-target emulator`. Code-Stand: `master`
+`f985c92` (enthält #642 bis #645, Schritt-2-Dialog, dreistufige Statuszeile und die neuen
+IDENTITY_UNAVAILABLE-Texte). Die Messkopie war eine frische `git archive`-Kopie dieses Stands mit
+Paket `de.hohnepeople.keepadb.debug.apimatrix` und einer DUMP-geschützten Probe
+(`ApiMatrixProbeReceiver`, JSON-Sample im Logcat); beides ist reine Messausrüstung und nicht Teil
+eines Commits. Die Probe hat gegenüber Nachtrag 5 zwei zusätzliche Operationen
+(`prep_allowlist`, `add_bssid`: Allowlist-Modus bzw. reale BSSID über die Prefs-API) und liefert
+zusätzlich die aktiven Notifications und die Zahl der Allowlist-Einträge. Rohdaten, Screenshots und
+UI-Dumps liegen lokal unter `~/agent/output/keepadb-e2e-646-20260930/raw/<avd>/`, die Messskripte
+unter `~/agent/workspace/keepadb-e2e-646/`; beides ist nicht Teil des Repositories.
+
+Die WLAN-Referenz war auf allen sieben AVDs identisch und wurde je Lauf aus `dumpsys wifi` gelesen
+(SSID `AndroidWifi`, BSSID `00:13:10:85:fe:01`), nicht festverdrahtet. Alle Fälle liefen im
+Allowlist-Modus mit genau diesem Eintrag (`trust_mode=allowlist`, `allowlist_entries=1`), Standortdienste an,
+Keep-Alive an, `WRITE_SECURE_SETTINGS` per `pm grant`. Jede Zeile hat WLAN-Referenz,
+Permission-Readback (`dumpsys package`), ein frisches Probe-Sample und den FGS-/Trust-Zustand.
+
+### Ergebnisse
+
+**F1 Vordergrund-Kontrolle mit laufendem Service** (nur FINE, Service über den Keep-Alive-Schalter in
+`MainActivity` gestartet, danach Home, Samples bei Display an und aus):
+
+| API | Identität | Trust-Entscheidung | FGS |
+|---|---|---|---|
+| 30 bis 33 | lesbar, `00:13:10:85:fe:01`, Display an und aus | `network_trusted=true`, `NONE` | läuft (`isForeground=true`), angefordert Typ 24 (`connectedDevice|location`); das `dumpsys` nennt den Typ vor API 34 nicht |
+| 34, 35, 36.1 | lesbar, `00:13:10:85:fe:01`, Display an und aus | `network_trusted=true`, `NONE` | läuft, `types=0x18` |
+
+Damit ist die in Nachtrag 5 offene Vordergrund-Kontrolle mit tatsächlich laufendem Service auf
+allen sieben APIs gemessen (der Service-Record hat `createdFromFg=true`).
+
+**F2 Zweistufiger Grant über die echte UI** (frische Installation, nur `WRITE_SECURE_SETTINGS` und
+`POST_NOTIFICATIONS` per `pm grant`, danach ausschließlich `uiautomator dump` und `input tap`):
+Das Ergebnis ist auf **allen sieben APIs identisch und vollständig per UI** erreicht, kein
+`pm grant`-Fallback und keine als "blockiert (UI)" markierte Stufe.
+
+1. Einstellungen, Bereich "Network", Schalter "Restrict Keep-Alive to trusted networks": Rationale-Dialog
+   "Location permission needed", "Grant".
+2. Systemdialog: "While using the app" (ab API 31 mit Precise/Approximate-Auswahl, Precise
+   vorgewählt; API 30 ohne). Readback danach: FINE und COARSE `granted=true`, Background
+   `granted=false`.
+3. Schritt-2-Dialog "Background access for trusted networks" erscheint sofort (Screenshot und
+   Dump je AVD als `04-step2-dialog.png` / `.xml`), mit "Open settings", "Later" und "Trust all
+   Wi-Fi networks instead".
+4. "Later": Statuszeile wechselt von neutral auf "not allowed, restricted". Danach bringt der Button
+   "Check background access" denselben Dialog erneut (`06-step2-dialog-via-button.png`).
+5. "Open settings": App-Info, Permissions, Location, "Allow all the time". Readback:
+   `ACCESS_BACKGROUND_LOCATION granted=true`.
+6. Zurück in den Einstellungen: Text "Background access: allowed …". Die Textfarbe wurde aus dem
+   Screenshot gemessen:
+
+| Stufe | Textfarbe (Mittel über alle Text-Pixel) | Nächste App-Farbe |
+|---|---|---|
+| vor dem Modus (neutral) | `(163,151,137)` bis `(164,152,137)` | `night_muted` `#A79B8C` (Abstand 5 bis 6) |
+| Modus an, Grant fehlt (eingeschränkt) | `(221,182,57)` bis `(221,181,57)` | `text_yellow` `#E0B83A` (Abstand 4) |
+| Grant erteilt | `(124,185,103)` bis `(124,186,104)` | `status_ok_green` `#7FBF6A` (Abstand 6 bis 7) |
+
+Die reale BSSID kam bei F2 nicht aus der UI, sondern über die Probe (`add_bssid`, Prefs-API), weil
+der Allowlist-Modus zwar über den UI-Schalter eingeschaltet wurde, die Eintragung der aktuellen
+BSSID über die UI aber nicht Teil des Auftrags war. Mit dem Eintrag und dem Grant blendet die
+Einstellungsseite die Zeile "this Wi-Fi network isn't in your trusted list" aus (vorher sichtbar),
+die Identität ist lesbar (`identity_known=true`, `NONE`).
+
+**F3 Reboot mit Background-Grant** (`adb reboot`, `MainActivity` danach nicht geöffnet, Paket vorher
+einmal geöffnet, also nicht im Stopped-State):
+
+| API | Service nach dem Boot | Identität | Recovery (`adb_wifi_enabled` 1 dann 0) |
+|---|---|---|---|
+| 30 bis 33 | läuft aus `BOOT_COMPLETED` (`createdFromFg=false`), Typ 24 angefordert | lesbar, `NONE` | `recovery_attempt accepted`, `success writeAccepted=true` |
+| 34, 35, 36.1 | läuft, `types=0x18` (kein Fallback) | lesbar, `NONE` | `recovery_attempt accepted`, `success writeAccepted=true` |
+
+**F4 Reboot ohne Background-Grant** (nur FINE, sonst wie F3):
+
+| API | Service nach dem Boot | Identität | Recovery und Notification |
+|---|---|---|---|
+| 30 bis 33 | läuft, Typ 24 angefordert | maskiert (`02:00:00:00:00:00`), `IDENTITY_UNAVAILABLE` | `recovery_or_stop blocked untrusted_network`, kein `recovery_attempt`; Notification-ID 3 "Can't identify the current Wi-Fi network" mit dem neuen Text (vollständiger Wortlaut geprüft) |
+| 34, 35, 36.1 | läuft, `types=0x10`; `foreground_promotion_denied_location fallbackType=16` genau einmal im Boot-Log | maskiert, `IDENTITY_UNAVAILABLE` | wie oben |
+
+**F5 (Ergänzung) Identität nicht lesbar, weil FINE fehlt** (frische Installation, Allowlist, Service aus
+`MainActivity` gestartet): die Hauptseite zeigt auf allen sieben APIs den neuen Statustext "Wireless
+Debugging is OFF – Keep-Alive is paused: network identity unavailable, check Location permission
+(“Allow all the time”) or reopen the app", und die Notification "Can't identify the current Wi-Fi
+network" steht.
+
+### Belastbare Schlussfolgerungen
+
+1. **Die Nachtrag-5-Lücken sind geschlossen.** Vordergrundstart mit laufendem Service (F1) und
+   Allowlist-Entscheidung statt `all_wifi` sind auf API 30 bis 36.1 gemessen; der zweistufige
+   Grant-Flow (#644) läuft auf jeder API vollständig über die UI.
+2. **Der Boot-Pfad entspricht dem `MY_PACKAGE_REPLACED`-Pfad aus Nachtrag 5.** Mit
+   Background-Grant liest ein aus `BOOT_COMPLETED` gestarteter Service die Identität und hält auf
+   API 34+ `connectedDevice|location` (`0x18`). Ohne Grant bleibt sie maskiert, der Allowlist-Modus
+   sperrt fail-closed, und auf API 34+ greift der #629-Fallback (`0x10`).
+3. **Vordergrundstart mit nur FINE liest die Identität auf jeder API**, auch bei ausgeschaltetem
+   Display, solange der Service aus `MainActivity` heraus gestartet wurde (Nachtrag 3, jetzt auf
+   API 30 bis 32 nachgezogen).
+4. **Die neuen Texte (#643) erscheinen wie vorgesehen**: Notification bei blockierter Recovery (F4),
+   Hauptseiten-Status (F5). Die Einstellungsseiten-Zeile `settings_trusted_network_status_identity_unavailable`
+   wurde nicht live gerendert (siehe Lücken).
+5. **Ein Öffnen der App hebt die Sperre auf, wie der Hinweistext sagt**: In F4 zeigte die Hauptseite nach
+   dem Öffnen den Backoff-Text "confirm Android's Wireless Debugging network dialog" statt des Identitäts-Texts.
+   Das setzt eine lesbare Identität voraus (`resolveKeepAliveWaitingDetail` prüft die Identität zuerst); die
+   sichtbare Aktivität hat sie also entmaskiert. Der Identitäts-Text ist auf der Hauptseite deshalb
+   nur bei fehlendem FINE oder ausgeschalteten Standortdiensten sichtbar (F5).
+
+### Messlücken und Einschränkungen
+
+- Vor API 34 nennt `dumpsys activity services` keinen FGS-Typ; dort belegt nur der angeforderte
+  Typ aus der Probe, dass `location` mitgesendet wird.
+- Die Allowlist-BSSID kam über die Prefs-API der Probe, nicht über die UI. Das Hinzufügen des
+  aktuellen Netzwerks über die Oberfläche ist in dieser Matrix nicht gemessen.
+- Die Einstellungszeile `settings_trusted_network_status_identity_unavailable` wurde nicht live
+  gerendert: In F2 und F4 wurde die Einstellungsseite nicht im Zustand "Allowlist an, Identität
+  maskiert" geöffnet. Ihren Text deckt nur die Lektüre in Teil 1 ab.
+- Recovery ist nur bis zur akzeptierten Schreibung belegt. Auf keinem Emulator wird Wireless
+  Debugging real aktiv: Nach 3 s liest die App `actual=false` (`state_mismatch`), der Backoff
+  #496 greift, und Android zeigt seinen "Allow wireless debugging on this network?"-Dialog
+  (`WifiDebuggingActivity`), ausgelöst durch den `adb_wifi_enabled`-Schreibzugriff. Das ist
+  Emulatorverhalten und keine Aussage über echte Geräte.
+- `adb reboot` ist ein harter Neustart ohne Framework-Shutdown. Ohne etwa 15 s Wartezeit vorher
+  gingen frisch per `pm grant` erteilte Berechtigungen (`WRITE_SECURE_SETTINGS`,
+  `POST_NOTIFICATIONS`, Background) verloren; ein Probelauf auf API 33 zeigte das (Ordner
+  `raw/_dev-KeepADB_API33-flow-development/`). Alle gewerteten Läufe warten 15 s und prüfen die Grants
+  nach dem Boot erneut (alle Läufe im ersten Anlauf). Auf echten Geräten mit normalem Neustart ist das nicht zu erwarten.
+- Auf den AVDs lagen fremde KeepADB-Installationen: API 30 bis 32 das Release-Paket
+  `de.hohnepeople.keepadb`, API 34 zusätzlich `.debug`, API 35 `.debug`, API 36.1 `.debug`, Release und
+  `de.hohnepeople.boksy`; auf API 34 lief deren Keep-Alive-Service nach dem Boot mit. Die Auswertung
+  wertet daher nur Log-Zeilen mit der PID des eigenen Prozesses (aus dem `ServiceRecord`); diese
+  Pakete wurden nicht angefasst.
+- F4 wurde je AVD dreimal gefahren (`F4-run1`, `F4-run2`, `F4`): Der erste Lauf blieb von Androids
+  Wireless-Debugging-Dialog verdeckt, sodass die Hauptseite nicht lesbar war, der zweite scrollte
+  noch nicht zur Statuskarte. Identität, FGS-Typ, Notification und Recovery sind in allen drei
+  Läufen je API gleich; die Tabelle stützt sich auf den letzten.
+- F2 lief nur mit AOSP-Permission-Controller und -Einstellungen. One UI und andere OEM-Oberflächen
+  sind nicht abgedeckt; die Emulatoren prüfen Plattformverhalten.
+- Ob `connectedDevice` allein mit Background-Grant eine lesbare Identität liefert, bleibt wie in
+  Nachtrag 5 ungemessen.
+- `package_verifier`- und `verifier_verify_adb_installs`-Einstellungen standen auf den AVDs bereits
+  seit dem Lauf aus Nachtrag 5 auf `0` und wurden auf diesen Ausgangswert zurückgesetzt, nicht auf
+  den Auslieferungszustand.
