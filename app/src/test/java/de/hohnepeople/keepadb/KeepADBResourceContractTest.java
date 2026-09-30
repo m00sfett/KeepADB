@@ -50,6 +50,13 @@ public class KeepADBResourceContractTest {
     private static final Pattern RESOURCE_CONFIGURATION = Pattern.compile(
             "(?m)^      \\(([^)]*)\\)(?:\\s|$)");
     private static final Map<String, String> SUPPORTED_LOCALES = supportedLocales();
+    /**
+     * #690: brand strings are translatable="false" and live only in values/, so that the debug
+     * overlay ("(DBG) KeepADB") applies to every locale. A locale bucket for one of these keys
+     * would shadow that overlay again, hence the table must contain the default entry only.
+     */
+    private static final Set<String> BRAND_KEYS =
+            Set.of("app_name", "title_keepadb", "tile_label");
     private static final int[] TRANSLATED_CONTRACTS = {
             R.string.notification_permission_panel_title,
             R.string.battery_optimization_body,
@@ -71,7 +78,9 @@ public class KeepADBResourceContractTest {
             Resources resources = resourcesFor(languageTag);
             for (Field field : stringResourceFields()) {
                 int id = field.getInt(null);
-                String value = compiledValue(field.getName(), SUPPORTED_LOCALES.get(languageTag));
+                String bucket = BRAND_KEYS.contains(field.getName()) ? ""
+                        : SUPPORTED_LOCALES.get(languageTag);
+                String value = compiledValue(field.getName(), bucket);
                 assertFalse(languageTag + " returned an empty value for " + field.getName(),
                         value.trim().isEmpty());
                 assertEquals(languageTag + " changed format arguments for " + field.getName(),
@@ -133,6 +142,11 @@ public class KeepADBResourceContractTest {
             Set<String> actual = configurations.get(field.getName());
             assertTrue("Missing compiled string resource " + field.getName(), actual != null);
             assertTrue("Missing default value for " + field.getName(), actual.contains(""));
+            if (BRAND_KEYS.contains(field.getName())) {
+                assertEquals("Brand string " + field.getName()
+                        + " must be defined in values/ only (#690)", Set.of(""), actual);
+                continue;
+            }
             for (String localeTag : SUPPORTED_LOCALES.values()) {
                 assertTrue("Missing " + localeTag + " entry for " + field.getName(),
                         actual.contains(localeTag));

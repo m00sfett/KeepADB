@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KeepADB</string>
-    <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">प्रारंभिक सेटअप</string>
     <string name="setup_body">USB डीबगिंग सक्षम करके इस डिवाइस को कंप्यूटर से USB द्वारा कनेक्ट करें। पहले कंप्यूटर पर "adb devices" चलाकर कनेक्ट किए गए डिवाइस और एमुलेटर की सूची देखें, फिर वहाँ दिखाया गया सटीक सीरियल नंबर उपयोग करें।</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
@@ -34,7 +32,6 @@
     <string name="keep_alive_subtext">कनेक्शन टूटने, नेटवर्क बदलने या रीबूट होने पर स्वतः पुनः कनेक्ट करें</string>
     <string name="widget_text_on">वायरलेस डीबगिंग: चालू</string>
     <string name="widget_text_off">वायरलेस डीबगिंग: बंद</string>
-    <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: अनुमति गायब है (pm grant आवश्यक है)</string>
     <string name="permission_error_toast">अनुमति गायब है। PC से एक बार चलाएं:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">वायरलेस डीबगिंग एंडपॉइंट</string>

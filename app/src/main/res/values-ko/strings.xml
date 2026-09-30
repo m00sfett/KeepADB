@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KeepADB</string>
-    <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">초기 설정</string>
     <string name="setup_body">USB 디버깅을 활성화한 상태로 이 기기를 컴퓨터에 USB로 연결하세요. 먼저 컴퓨터에서 "adb devices"를 실행해 연결된 기기와 에뮬레이터 목록을 확인한 다음, 거기 표시된 정확한 시리얼 번호를 사용하세요.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
@@ -34,7 +32,6 @@
     <string name="keep_alive_subtext">연결 끊김, 네트워크 변경 또는 재부팅 시 자동 재연결</string>
     <string name="widget_text_on">무선 디버깅: 켜짐</string>
     <string name="widget_text_off">무선 디버깅: 꺼짐</string>
-    <string name="tile_label">@string/app_name</string>
     <string name="tile_permission_error">KeepADB: 권한 누락 (pm grant 필요)</string>
     <string name="permission_error_toast">권한이 없습니다. PC에서 한 번 실행하세요:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">무선 디버깅 엔드포인트</string>

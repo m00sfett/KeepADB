@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KeepADB</string>
-    <string name="title_keepadb">KeepADB</string>
+    <string name="app_name" translatable="false">KeepADB</string>
+    <string name="title_keepadb" translatable="false">KeepADB</string>
     <string name="setup_title">First-time setup</string>
     <string name="setup_body">Connect this device to a computer via USB with USB debugging enabled. First run \"adb devices\" on the computer to list connected devices and emulators, then use the exact serial number shown there.</string>
     <string name="setup_single_device_label">Only one device listed:</string>
@@ -41,7 +41,7 @@
     <string name="widget_text_disconnected">Wireless Debugging: Disconnected</string>
     <string name="widget_text_connected_format">Wireless Debugging: ON (:%1$d)</string>
     <string name="widget_text_permission_missing">KeepADB: Permission missing</string>
-    <string name="tile_label">@string/app_name</string>
+    <string name="tile_label" translatable="false">@string/app_name</string>
     <string name="tile_state_off">Off</string>
     <string name="tile_state_disconnected">Disconnected</string>
     <string name="tile_state_searching">Searching…</string>
