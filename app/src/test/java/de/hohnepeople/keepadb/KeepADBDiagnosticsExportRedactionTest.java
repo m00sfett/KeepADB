@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLog;
 
 /**
  * #574: end-to-end proof that a BSSID written through a real diagnostics event site never
@@ -61,5 +62,19 @@ public class KeepADBDiagnosticsExportRedactionTest {
         String issueReportExport = KeepADBDiagnostics.exportForIssueReport(context);
         assertTrue(issueReportExport.contains("bssid=02:11:22:*:*:*"));
         assertFalse(issueReportExport.contains("33:44:55"));
+    }
+
+    @Test
+    public void logcatNeverReceivesFullBssidButExportKeepsOui() {
+        KeepADBBuildFlags.setOverrideForTesting(false);
+        ShadowLog.clear();
+        KeepADBDiagnostics.event(context, "user_action", "network_trust_prompt", "allowed",
+                "bssid=02:aa:bb:cc:dd:ee");
+
+        StringBuilder logged = new StringBuilder();
+        for (ShadowLog.LogItem item : ShadowLog.getLogs()) logged.append(item.msg).append('\n');
+        assertTrue(logged.toString().contains("bssid=02:aa:bb:*:*:*"));
+        assertFalse(logged.toString().contains("cc:dd:ee"));
+        assertTrue(KeepADBDiagnostics.export(context).contains("bssid=02:aa:bb:*:*:*"));
     }
 }

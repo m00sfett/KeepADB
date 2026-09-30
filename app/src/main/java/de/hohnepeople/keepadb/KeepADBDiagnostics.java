@@ -53,7 +53,7 @@ final class KeepADBDiagnostics {
     static void event(Context context, String name, String source, String outcome, String detail) {
         String line = formatEvent(System.currentTimeMillis(), SystemClock.elapsedRealtime(),
                 Process.myPid(), name, source, outcome, detail);
-        Log.i(TAG, line);
+        Log.i(TAG, maskNetworkIdentifiersForExport(line)); // #674: logcat never gets a full BSSID
         if (context == null) return;
         KeepADBDiagnosticJournal journal = debugJournal(context);
         if (journal != null) {
@@ -113,7 +113,7 @@ final class KeepADBDiagnostics {
         String signature = name + '\u0001' + outcome + '\u0001' + detail;
         String line = formatEvent(System.currentTimeMillis(), SystemClock.elapsedRealtime(),
                 Process.myPid(), name, source, outcome, detail);
-        Log.i(TAG, line);
+        Log.i(TAG, maskNetworkIdentifiersForExport(line)); // #674: logcat never gets a full BSSID
         if (context == null) return;
         KeepADBDiagnosticJournal journal = debugBuild ? journalFor(context) : null;
         if (journal != null) {
@@ -214,7 +214,7 @@ final class KeepADBDiagnostics {
         String line = formatEvent(System.currentTimeMillis(), SystemClock.elapsedRealtime(),
                 Process.myPid(), "state_snapshot", "heartbeat", "sampled",
                 state + " changed=" + changed);
-        Log.i(TAG, line);
+        Log.i(TAG, maskNetworkIdentifiersForExport(line)); // #674: logcat never gets a full BSSID
         journal.recordSample("state_snapshot", state, line);
     }
 

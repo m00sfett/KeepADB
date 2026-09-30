@@ -756,7 +756,8 @@ final class KeepADBRegisterClient {
                 }
 
                 int code = conn.getResponseCode();
-                Log.d(TAG, "Register update for " + logLabel + " returned HTTP " + code);
+                Log.d(TAG, "Register update for " + KeepADBAddressMask.maskEndpointForDisplay(logLabel)
+                        + " returned HTTP " + code);
                 return code >= 200 && code < 300;
             } catch (IOException e) {
                 Log.w(TAG, "Could not update register at " + sanitizeUrl(targetUrl));
