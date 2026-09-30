@@ -55,6 +55,19 @@ public class KeepADBNetworkContractTest {
         assertFalse(endpoint.contains("getAllNetworks"));
     }
 
+    /** #676: the VPN transport uses KeepADBNetwork's callback tracking, not the deprecated enumeration. */
+    @Test
+    public void vpnTransportUsesCallbackTrackingInsteadOfGetAllNetworks() throws IOException {
+        String vpnTransport = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBVpnTransport.java");
+        String network = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNetwork.java");
+
+        assertFalse(vpnTransport.contains("getAllNetworks"));
+        // A default request requires NET_CAPABILITY_NOT_VPN, which no VPN network has; without
+        // removing it the VPN callback would never fire on a real device.
+        assertTrue(network.contains("addTransportType(NetworkCapabilities.TRANSPORT_VPN)"));
+        assertTrue(network.contains("removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)"));
+    }
+
     @Test
     public void networkTrackingAvoidsTheApi31OnlyClearCapabilitiesCall() throws IOException {
         String network = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBNetwork.java");

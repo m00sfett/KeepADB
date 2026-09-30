@@ -260,18 +260,7 @@ public class KeepADBTransportOverviewTest {
      * for either, so both are driven reflectively against the real framework classes loaded at
      * test run time. */
     private void addVpnNetwork(String ipv4) throws Exception {
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
-        Network vpnNetwork = ShadowNetwork.newInstance(9001);
-        NetworkInfo vpnNetworkInfo = ShadowNetworkInfo.newInstance(
-                NetworkInfo.DetailedState.CONNECTED, ConnectivityManager.TYPE_VPN, 0, true, true);
-        NetworkCapabilities capabilities = ShadowNetworkCapabilities.newInstance();
-        shadowOf(capabilities).addTransportType(NetworkCapabilities.TRANSPORT_VPN);
-
-        shadowConnectivityManager.addNetwork(vpnNetwork, vpnNetworkInfo);
-        shadowConnectivityManager.setNetworkCapabilities(vpnNetwork, capabilities);
-        shadowConnectivityManager.setLinkProperties(vpnNetwork, linkPropertiesWithIpv4(ipv4));
+        KeepADBVpnTestSupport.deliverVpnNetwork(context, 9001, linkPropertiesWithIpv4(ipv4));
     }
 
     private static LinkProperties linkPropertiesWithIpv4(String ipv4) throws Exception {
