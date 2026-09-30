@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -162,4 +163,37 @@ public class KeepADBAddressMaskTest {
     // false. Actually exercising that OnClickListener needs a live MainActivity (Robolectric or an
     // instrumented device run), which this module's plain JUnit + Android stub setup does not
     // provide -- verified instead by reading MainActivity.java rather than by an automated test.
+
+    // --- BSSID (#654) -------------------------------------------------------
+
+    @Test
+    public void bssidKeepsOnlyTheFirstOctet() {
+        assertEquals("AA:*:*:*:*:*", KeepADBAddressMask.maskBssid("AA:BB:CC:DD:EE:01"));
+        assertEquals("aa:*:*:*:*:*", KeepADBAddressMask.maskBssid("aa:bb:cc:dd:ee:01"));
+        assertEquals("02:*:*:*:*:*", KeepADBAddressMask.maskBssid(" 02:1a:2b:3c:4d:5e "));
+    }
+
+    @Test
+    public void aMaskedBssidNeverContainsALaterOctet() {
+        String masked = KeepADBAddressMask.maskBssid("aa:bb:cc:dd:ee:01");
+        for (String later : new String[] {"bb", "cc", "dd", "ee", "01"}) {
+            assertFalse("Masked BSSID leaks '" + later + "': " + masked, masked.contains(later));
+        }
+    }
+
+    @Test
+    public void anythingThatIsNotASixOctetBssidIsMaskedCompletely() {
+        for (String odd : new String[] {"aa:bb:cc", "aa:bb:cc:dd:ee", "aa:bb:cc:dd:ee:01:02",
+                "aa-bb-cc-dd-ee-01", "zz:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:0", "aa:bb:cc:dd:ee:001",
+                "not a bssid", "aabbccddee01"}) {
+            assertEquals("Unexpected format must not leak: " + odd, "***",
+                    KeepADBAddressMask.maskBssid(odd));
+        }
+    }
+
+    @Test
+    public void blankBssidsPassThroughWithoutInventingAMask() {
+        assertEquals(null, KeepADBAddressMask.maskBssid(null));
+        assertEquals("", KeepADBAddressMask.maskBssid(""));
+    }
 }
