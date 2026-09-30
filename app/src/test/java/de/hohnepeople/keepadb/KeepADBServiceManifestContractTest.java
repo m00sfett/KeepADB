@@ -25,7 +25,8 @@ import org.junit.Test;
  * "Nachtrag 3"): without ACCESS_BACKGROUND_LOCATION, a background-originated service record
  * cannot rely on the declared location type alone for while-in-use access. A missing while-in-use
  * location permission also prevents access; the optional background grant with the required
- * location permission covers background starts in the grant/API matrix. This test cannot exercise
+ * location permission can exempt this while-in-use restriction. Other background-FGS start rules
+ * still apply. This test cannot exercise
  * that runtime behavior (no Robolectric/instrumentation here), but it locks down the static
  * manifest contract the whole approach depends on: the declared type still includes {@code
  * location}, the matching {@code FOREGROUND_SERVICE_LOCATION} permission is present, and
