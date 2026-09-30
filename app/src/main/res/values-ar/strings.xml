@@ -71,17 +71,10 @@
     <string name="settings_webhook_error_invalid_url">رابط غير صالح. يجب أن يبدأ بـ http:// أو https:// مع اسم مضيف صالح.</string>
     <string name="settings_webhook_error_missing_url">يرجى إدخال رابط HTTP/HTTPS صالح قبل تفعيل المزامنة.</string>
     <string name="settings_webhook_cleartext_warning">يستخدم هذا الرابط بروتوكول HTTP غير المشفر — يتم إرسال البيانات كنص عادي. استخدمه فقط في شبكة محلية أو VPN موثوقة.</string>
-    <string name="settings_section_trusted_network">الشبكات الموثوقة</string>
-    <string name="settings_trusted_network_subtext">يمكنك اختياريًا تقييد إعادة تشغيل Keep-Alive التلقائية على شبكات Wi-Fi التي وسمتها بأنها موثوقة. مُعطَّل تلقائيًا. التبديل اليدوي يعمل دائمًا بصرف النظر عن هذا الإعداد.</string>
     <string name="settings_warning_marker">!</string>
-    <string name="settings_trusted_network_warning_accessibility">تحذير</string>
-    <string name="settings_trusted_network_tradeoff_warning">يضمن إذن الموقع التعرف على الشبكة ومعرّف BSSID حتى في الخلفية أثناء تشغيل خدمة Keep-Alive. تتم إعادة التشغيل التلقائي فقط على الشبكات الموثوقة.</string>
-    <string name="settings_trusted_network_toggle">تقييد Keep-Alive على الشبكات الموثوقة</string>
     <string name="settings_trusted_ssid_warning">تحقق أضعف: اسم الشبكة (SSID) يُختار بحرية وليس دليلًا على نقطة وصول. أي نقطة وصول تبث اسمًا مسموحًا تُعتبر موثوقة، بما فيها نقطة تنتحل اسمك. مفيد أساسًا إن كنت تشغّل عدة نقاط وصول باسم واحد.</string>
     <string name="settings_trusted_ssid_warning_accessibility">تحذير</string>
     <string name="settings_trusted_ssid_toggle">السماح أيضًا باسم الشبكة (SSID)</string>
-    <string name="wifi_ssids_title">أسماء الشبكات الموثوقة (SSID)</string>
-    <string name="wifi_ssids_warning">اسم الشبكة ليس دليلًا على نقطة وصول: أي نقطة وصول تبث اسمًا مدرجًا تُعتبر موثوقة، بما فيها المنتحلة. مفيد فقط إن كنت تشغّل عدة نقاط وصول باسم واحد.</string>
     <string name="wifi_ssids_current_unknown">لا يمكن قراءة اسم الشبكة الحالية، لذا لا يمكن إضافته (تحقق من إذن الموقع).</string>
     <string name="wifi_ssids_empty">لا توجد أسماء شبكات مسموحة بعد.</string>
     <string name="wifi_ssids_add_button">السماح</string>
@@ -90,7 +83,6 @@
     <string name="wifi_ssids_remove_accessibility">إزالة اسم الشبكة &quot;%1$s&quot;</string>
     <string name="wifi_ssids_added_toast">تم السماح باسم الشبكة &quot;%1$s&quot;</string>
     <string name="wifi_ssids_removed_toast">تمت إزالة اسم الشبكة &quot;%1$s&quot;</string>
-    <string name="settings_trusted_network_status_untrusted">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: هذه الشبكة ليست ضمن قائمتك الموثوقة.</string>
     <string name="settings_trusted_network_status_identity_unavailable">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: لا يمكن تحديد هوية الشبكة الحالية. تحقق من إذن/خدمة الموقع، أو أعد فتح التطبيق إذا بدأ Keep-Alive في الخلفية، أو اضبط الموقع على «السماح طوال الوقت» لحل ذلك نهائيًا.</string>
     <string name="settings_trusted_network_permission_title">إذن الموقع مطلوب</string>
     <string name="settings_trusted_network_permission_message">يتطلب Android إذن الوصول إلى الموقع قبل أن يتمكن التطبيق من قراءة اسم شبكة Wi-Fi الحالية ومعرّفها. يستخدم KeepADB هذا فقط للتعرف على الشبكات الموثوقة ولا يقرأ أو يخزن موقعك أبدًا.</string>
@@ -98,7 +90,6 @@
     <string name="settings_trusted_network_permission_denied_toast">تم رفض الإذن — البقاء في وضع «كل شبكات Wi-Fi».</string>
     <string name="settings_trusted_network_add_failed_toast">تعذر تحديد الشبكة الحالية. تحقق من اتصال Wi-Fi وإذن الموقع.</string>
     <string name="settings_trusted_network_added_toast">تمت إضافة \"%1$s\" إلى الشبكات الموثوقة</string>
-    <string name="settings_trusted_network_removed_toast">تمت إزالة "%1$s" من الشبكات الموثوقة</string>
     <string name="settings_trusted_network_mesh_title">إضافة نقاط وصول أخرى؟</string>
     <string name="settings_trusted_network_mesh_message">رصد KeepADB أيضًا %1$d نقطة وصول أخرى تبث \"%2$s\". هل تريد إضافتها جميعًا إلى الشبكات الموثوقة؟</string>
     <string name="settings_trusted_network_mesh_add_button">إضافة الكل</string>
@@ -113,14 +104,7 @@
     <string name="network_prompt_confirm_in_app_text">تم اكتشاف شبكة Wi-Fi جديدة — انقر لتأكيدها في التطبيق.</string>
     <string name="network_prompt_identity_unavailable_title">تعذّر التعرف على شبكة الواي فاي الحالية</string>
     <string name="network_prompt_identity_unavailable_text">تم إيقاف إعادة التفعيل التلقائي لـ Keep-Alive مؤقتًا لأنه لا يمكن قراءة هوية الشبكة. عادةً ما يكون السبب هو عدم منح إذن الموقع أو تعطيل خدمة الموقع، لكن قد يحدث ذلك أيضًا إذا بدأت خدمة Keep-Alive في الخلفية؛ ويحل ذلك نهائيًا ضبط الموقع على «السماح طوال الوقت». اضغط للإصلاح.</string>
-    <string name="settings_trusted_network_blocked_button">محظورة مؤخرًا (%1$d)</string>
-    <string name="settings_trusted_network_blocked_title">الشبكات المحظورة مؤخرًا</string>
-    <string name="settings_trusted_network_blocked_empty_message">لم يتم حظر أي شبكة مؤخرًا.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · شوهدت %2$s</string>
-    <string name="settings_trusted_network_blocked_allow_button">اسمح</string>
-    <string name="settings_trusted_network_blocked_allow_accessibility">السماح بالشبكة المحظورة \"%1$s\"</string>
-    <string name="wifi_aps_title">Wi-Fi ونقاط الوصول</string>
-    <string name="wifi_aps_trusted_only_toggle">عرض نقاط الوصول الموثوقة فقط</string>
     <string name="wifi_aps_current_badge">الحالية</string>
     <string name="wifi_aps_trusted_status">موثوقة</string>
     <string name="wifi_aps_untrusted_status">غير موثوقة</string>
@@ -128,14 +112,8 @@
     <string name="wifi_aps_ssid_unknown">اسم شبكة غير معروف</string>
     <string name="wifi_aps_current_unknown">تعذر تحديد شبكة Wi-Fi الحالية (تحقق من إذن الموقع).</string>
     <string name="wifi_aps_empty">لم يتم تسجيل نقاط وصول أخرى بعد.</string>
-    <string name="wifi_aps_trust_button">وثوق</string>
-    <string name="wifi_aps_untrust_button">إلغاء الوثوق</string>
-    <string name="wifi_aps_trust_accessibility">إضافة \"%1$s\" إلى الشبكات الموثوقة</string>
-    <string name="wifi_aps_untrust_accessibility">إزالة \"%1$s\" من الشبكات الموثوقة</string>
     <string name="wifi_aps_show_more_button">إظهار %1$d إضافية</string>
     <string name="wifi_aps_show_less_button">إظهار أقل</string>
-    <string name="home_security_actions_title">إدارة الأمان</string>
-    <string name="home_security_actions_body">راجع نقاط الوصول التي حُجبت عليها إعادة تشغيل Keep-Alive التلقائية مؤخرًا، واسمح بإحداها لاحقًا إن كانت لك.</string>
     <string name="settings_webhook_saved_toast">تم حفظ رابط Webhook</string>
     <string name="settings_webhook_cleared_toast">تم مسح إعدادات Webhook</string>
     <string name="settings_webhook_enabled_toast">تم تفعيل مزامنة Webhook</string>
@@ -338,12 +316,8 @@
     <string name="widget_text_keep_alive_waiting">تصحيح لاسلكي: إيقاف (في الانتظار)</string>
     <string name="widget_text_pending">تصحيح لاسلكي: جارٍ التبديل…</string>
     <string name="toggle_failed_toast">تعذّر تبديل تصحيح الأخطاء اللاسلكي. يرجى المحاولة مرة أخرى.</string>
-    <string name="settings_section_wifi_aps">Wi-Fi ونقاط الوصول (تجريبي)</string>
     <string name="settings_wifi_aps_feature_toggle">رصد نقاط الوصول</string>
-    <string name="settings_wifi_aps_beta_description">اكتشاف نقاط الوصول ميزة تجريبية تفحص نقاط وصول Wi-Fi القريبة. تتطلب إذن الموقع وقد تستهلك المزيد من طاقة البطارية.</string>
     <string name="settings_section_network">الشبكة</string>
-    <string name="settings_beta_badge" translatable="false">BETA</string>
-    <string name="settings_network_beta_group_subtext">تعتمد الشبكات الموثوقة وWi-Fi ونقاط الوصول على نفس منطق الثقة بالشبكة، وكلاهما ميزتان تجريبيتان. وسّع إحداهما أدناه لتفعيلها وضبطها بشكل منفصل.</string>
     <string name="network_head_mode">إعادة التفعيل التلقائي: %1$s</string>
     <string name="network_mode_option_all_wifi">في جميع شبكات Wi-Fi</string>
     <string name="network_mode_option_aps">نقاط الوصول المسموح بها فقط</string>

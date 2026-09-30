@@ -71,17 +71,10 @@
     <string name="settings_webhook_error_invalid_url">अमान्य URL। एक मान्य होस्ट के साथ http:// या https:// से शुरू होना चाहिए।</string>
     <string name="settings_webhook_error_missing_url">सिंक सक्षम करने से पहले कृपया एक मान्य HTTP/HTTPS URL दर्ज करें।</string>
     <string name="settings_webhook_cleartext_warning">यह URL असुरक्षित HTTP का उपयोग करता है — डेटा सादे टेक्स्ट में भेजा जाता है। इसका उपयोग केवल किसी विश्वसनीय LAN या VPN पर करें।</string>
-    <string name="settings_section_trusted_network">विश्वसनीय नेटवर्क</string>
-    <string name="settings_trusted_network_subtext">चाहें तो Keep-Alive के स्वतः चालू होने को उन Wi-Fi नेटवर्क तक सीमित कर सकते हैं जिन्हें आपने भरोसेमंद बताया है। डिफ़ॉल्ट रूप से बंद। मैन्युअल स्विच इस सेटिंग से स्वतंत्र रूप से हमेशा काम करता है।</string>
     <string name="settings_warning_marker">!</string>
-    <string name="settings_trusted_network_warning_accessibility">चेतावनी</string>
-    <string name="settings_trusted_network_tradeoff_warning">स्थान अनुमति Keep-Alive सेवा चलने के दौरान बैकग्राउंड में भी नेटवर्क और BSSID पहचान सुरक्षित करती है। स्वतः पुनः चालू होना केवल विश्वसनीय नेटवर्क पर होता है।</string>
-    <string name="settings_trusted_network_toggle">Keep-Alive को विश्वसनीय नेटवर्क तक सीमित करें</string>
     <string name="settings_trusted_ssid_warning">कमज़ोर जाँच: नेटवर्क का नाम (SSID) मनचाहा रखा जा सकता है और यह किसी ऐक्सेस पॉइंट का सबूत नहीं है। अनुमति वाला नाम प्रसारित करने वाला हर ऐक्सेस पॉइंट भरोसेमंद माना जाता है, आपके नाम की नकल करने वाला भी। यह मुख्य रूप से तब उपयोगी है जब आप एक ही नाम से कई ऐक्सेस पॉइंट चलाते हैं।</string>
     <string name="settings_trusted_ssid_warning_accessibility">चेतावनी</string>
     <string name="settings_trusted_ssid_toggle">नेटवर्क नाम (SSID) से भी अनुमति दें</string>
-    <string name="wifi_ssids_title">भरोसेमंद नेटवर्क नाम (SSID)</string>
-    <string name="wifi_ssids_warning">नेटवर्क का नाम किसी ऐक्सेस पॉइंट का सबूत नहीं है: सूची वाला नाम प्रसारित करने वाला हर ऐक्सेस पॉइंट भरोसेमंद माना जाता है, नकली भी। यह सिर्फ़ तब उपयोगी है जब आप एक ही नाम से कई ऐक्सेस पॉइंट चलाते हैं।</string>
     <string name="wifi_ssids_current_unknown">मौजूदा नेटवर्क का नाम पढ़ा नहीं जा सकता, इसलिए उसे जोड़ा नहीं जा सकता (स्थान अनुमति जाँचें)।</string>
     <string name="wifi_ssids_empty">अभी कोई नेटवर्क नाम अनुमत नहीं है।</string>
     <string name="wifi_ssids_add_button">अनुमति दें</string>
@@ -90,7 +83,6 @@
     <string name="wifi_ssids_remove_accessibility">नेटवर्क नाम &quot;%1$s&quot; हटाएँ</string>
     <string name="wifi_ssids_added_toast">नेटवर्क नाम &quot;%1$s&quot; को अनुमति दी गई</string>
     <string name="wifi_ssids_removed_toast">नेटवर्क नाम &quot;%1$s&quot; हटाया गया</string>
-    <string name="settings_trusted_network_status_untrusted">स्वचालित पुनः-सक्षमन रोका गया: यह Wi-Fi नेटवर्क आपकी विश्वसनीय सूची में नहीं है।</string>
     <string name="settings_trusted_network_status_identity_unavailable">स्वचालित पुनः-सक्षमन रोका गया: वर्तमान नेटवर्क की पहचान निर्धारित नहीं की जा सकती। स्थान अनुमति/सेवा जाँचें, या यदि Keep-Alive पृष्ठभूमि में शुरू हुआ था तो ऐप को एक बार फिर से खोलें। स्थायी समाधान के लिए स्थान अनुमति को “हर समय अनुमति दें” पर सेट करें।</string>
     <string name="settings_trusted_network_permission_title">स्थान अनुमति आवश्यक है</string>
     <string name="settings_trusted_network_permission_message">किसी ऐप को वर्तमान Wi-Fi नेटवर्क का नाम और ID पढ़ने से पहले Android को स्थान एक्सेस की आवश्यकता होती है। KeepADB इसका उपयोग केवल विश्वसनीय नेटवर्क को पहचानने के लिए करता है और कभी भी आपका स्थान नहीं पढ़ता या संग्रहीत नहीं करता।</string>
@@ -98,7 +90,6 @@
     <string name="settings_trusted_network_permission_denied_toast">अनुमति अस्वीकृत — \"सभी Wi-Fi नेटवर्क\" मोड में बना रहेगा।</string>
     <string name="settings_trusted_network_add_failed_toast">वर्तमान नेटवर्क निर्धारित नहीं किया जा सका। Wi-Fi कनेक्शन और स्थान अनुमति जांचें।</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" को विश्वसनीय नेटवर्क में जोड़ा गया</string>
-    <string name="settings_trusted_network_removed_toast">"%1$s" को विश्वसनीय नेटवर्क से हटाया गया</string>
     <string name="settings_trusted_network_mesh_title">अन्य एक्सेस पॉइंट जोड़ें?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB ने %1$d अन्य एक्सेस पॉइंट भी देखे हैं जो \"%2$s\" प्रसारित करते हैं। क्या इन्हें भी विश्वसनीय सूची में जोड़ना है?</string>
     <string name="settings_trusted_network_mesh_add_button">सभी जोड़ें</string>
@@ -113,14 +104,7 @@
     <string name="network_prompt_confirm_in_app_text">नया Wi-Fi नेटवर्क मिला — ऐप में पुष्टि करने के लिए टैप करें।</string>
     <string name="network_prompt_identity_unavailable_title">वर्तमान वाई-फाई नेटवर्क की पहचान नहीं हो पा रही</string>
     <string name="network_prompt_identity_unavailable_text">Keep-Alive की स्वचालित पुनः-सक्षमता रोकी गई है क्योंकि नेटवर्क की पहचान नहीं पढ़ी जा सकती। आमतौर पर स्थान अनुमति नहीं है या स्थान सेवा बंद है, लेकिन यह तब भी हो सकता है जब Keep-Alive पृष्ठभूमि में शुरू हुआ हो। स्थान अनुमति को “हर समय अनुमति दें” पर सेट करने से यह हमेशा के लिए ठीक हो जाता है। ठीक करने के लिए टैप करें।</string>
-    <string name="settings_trusted_network_blocked_button">हाल में रोके गए (%1$d)</string>
-    <string name="settings_trusted_network_blocked_title">हाल में रोके गए नेटवर्क</string>
-    <string name="settings_trusted_network_blocked_empty_message">हाल में कोई नेटवर्क नहीं रोका गया।</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · देखा गया %2$s</string>
-    <string name="settings_trusted_network_blocked_allow_button">अनुमति दें</string>
-    <string name="settings_trusted_network_blocked_allow_accessibility">रोके गए नेटवर्क \"%1$s\" को अनुमति दें</string>
-    <string name="wifi_aps_title">Wi-Fi और एक्सेस पॉइंट</string>
-    <string name="wifi_aps_trusted_only_toggle">केवल विश्वसनीय एक्सेस पॉइंट दिखाएं</string>
     <string name="wifi_aps_current_badge">वर्तमान</string>
     <string name="wifi_aps_trusted_status">विश्वसनीय</string>
     <string name="wifi_aps_untrusted_status">अविश्वसनीय</string>
@@ -128,14 +112,8 @@
     <string name="wifi_aps_ssid_unknown">अज्ञात नेटवर्क नाम</string>
     <string name="wifi_aps_current_unknown">वर्तमान Wi-Fi नेटवर्क की पहचान नहीं हो पा रही (स्थान अनुमति जांचें)।</string>
     <string name="wifi_aps_empty">अभी तक कोई अन्य एक्सेस पॉइंट दर्ज नहीं हुआ।</string>
-    <string name="wifi_aps_trust_button">भरोसा करें</string>
-    <string name="wifi_aps_untrust_button">भरोसा हटाएं</string>
-    <string name="wifi_aps_trust_accessibility">\"%1$s\" को विश्वसनीय नेटवर्क में जोड़ें</string>
-    <string name="wifi_aps_untrust_accessibility">\"%1$s\" को विश्वसनीय नेटवर्क से हटाएं</string>
     <string name="wifi_aps_show_more_button">%1$d और दिखाएं</string>
     <string name="wifi_aps_show_less_button">कम दिखाएं</string>
-    <string name="home_security_actions_title">सुरक्षा प्रबंधन</string>
-    <string name="home_security_actions_body">उन ऐक्सेस पॉइंट देखें जिन पर हाल में Keep-Alive का स्वतः चालू होना रोका गया, और अगर वह आपका था तो बाद में उसे अनुमति दें।</string>
     <string name="settings_webhook_saved_toast">वेबहुक URL सहेजा गया</string>
     <string name="settings_webhook_cleared_toast">वेबहुक कॉन्फ़िगरेशन साफ़ किया गया</string>
     <string name="settings_webhook_enabled_toast">वेबहुक सिंक सक्षम किया गया</string>
@@ -338,12 +316,8 @@
     <string name="widget_text_keep_alive_waiting">वायरलेस डीबगिंग: बंद (प्रतीक्षा में)</string>
     <string name="widget_text_pending">वायरलेस डीबगिंग: बदला जा रहा है…</string>
     <string name="toggle_failed_toast">वायरलेस डीबगिंग नहीं बदली जा सकी। कृपया फिर से प्रयास करें।</string>
-    <string name="settings_section_wifi_aps">Wi-Fi और एक्सेस पॉइंट (बीटा)</string>
     <string name="settings_wifi_aps_feature_toggle">ऐक्सेस पॉइंट की निगरानी करें</string>
-    <string name="settings_wifi_aps_beta_description">एक्सेस पॉइंट पहचान एक प्रयोगात्मक बीटा सुविधा है जो आस-पास के Wi-Fi एक्सेस पॉइंट स्कैन करती है। इसके लिए स्थान अनुमति आवश्यक है और यह अधिक बैटरी उपयोग कर सकती है।</string>
     <string name="settings_section_network">नेटवर्क</string>
-    <string name="settings_beta_badge" translatable="false">BETA</string>
-    <string name="settings_network_beta_group_subtext">विश्वसनीय नेटवर्क और Wi-Fi और एक्सेस पॉइंट दोनों एक ही नेटवर्क-विश्वास लॉजिक पर आधारित हैं और दोनों प्रायोगिक बीटा सुविधाएं हैं। इसे चालू करने और अलग से कॉन्फ़िगर करने के लिए नीचे दोनों में से किसी एक को खोलें।</string>
     <string name="network_head_mode">स्वचालित पुनः-सक्षमन: %1$s</string>
     <string name="network_mode_option_all_wifi">सभी Wi-Fi नेटवर्क में</string>
     <string name="network_mode_option_aps">केवल अनुमति प्राप्त ऐक्सेस पॉइंट</string>

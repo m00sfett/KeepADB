@@ -71,17 +71,10 @@
     <string name="settings_webhook_error_invalid_url">Недійсна URL-адреса. Має починатися з http:// або https:// з дійсним хостом.</string>
     <string name="settings_webhook_error_missing_url">Будь ласка, введіть дійсну URL-адресу HTTP/HTTPS перед увімкненням синхронізації.</string>
     <string name="settings_webhook_cleartext_warning">Ця URL-адреса використовує незашифрований HTTP — дані передаються у відкритому вигляді. Використовуйте лише в довіреній локальній мережі або VPN.</string>
-    <string name="settings_section_trusted_network">Довірені мережі</string>
-    <string name="settings_trusted_network_subtext">За бажанням можна обмежити автоматичне ввімкнення Keep-Alive мережами Wi-Fi, які ви позначили як довірені. Типово вимкнено. Перемикання вручну працює завжди, незалежно від цього параметра.</string>
     <string name="settings_warning_marker">!</string>
-    <string name="settings_trusted_network_warning_accessibility">Попередження</string>
-    <string name="settings_trusted_network_tradeoff_warning">Дозвіл на місцезнаходження забезпечує виявлення мережі та BSSID навіть у фоновому режимі під час роботи служби Keep-Alive. Автоматичне повторне ввімкнення відбувається лише в довірених мережах.</string>
-    <string name="settings_trusted_network_toggle">Обмежити Keep-Alive довіреними мережами</string>
     <string name="settings_trusted_ssid_warning">Слабша перевірка: назва мережі (SSID) обирається довільно й нічого не доводить про точку доступу. Будь-яка точка доступу, що передає дозволену назву, вважається довіреною — навіть та, що наслідує вашу. Корисно передусім якщо у вас кілька точок доступу з однією назвою.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Попередження</string>
     <string name="settings_trusted_ssid_toggle">Дозволяти також за назвою мережі (SSID)</string>
-    <string name="wifi_ssids_title">Довірені назви мереж (SSID)</string>
-    <string name="wifi_ssids_warning">Назва мережі нічого не доводить про точку доступу: будь-яка точка доступу, що передає назву зі списку, вважається довіреною, зокрема підроблена. Корисно лише якщо у вас кілька точок доступу з однією назвою.</string>
     <string name="wifi_ssids_current_unknown">Назву поточної мережі не вдається прочитати, тому її не можна додати (перевірте дозвіл на доступ до місцеположення).</string>
     <string name="wifi_ssids_empty">Ще немає дозволених назв мереж.</string>
     <string name="wifi_ssids_add_button">Дозволити</string>
@@ -90,7 +83,6 @@
     <string name="wifi_ssids_remove_accessibility">Видалити назву мережі «%1$s»</string>
     <string name="wifi_ssids_added_toast">Назву мережі «%1$s» дозволено</string>
     <string name="wifi_ssids_removed_toast">Назву мережі «%1$s» видалено</string>
-    <string name="settings_trusted_network_status_untrusted">Автоматичне повторне ввімкнення призупинено: цієї мережі Wi-Fi немає у вашому списку довірених.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Автоматичне повторне ввімкнення призупинено: не вдається визначити ідентифікатор поточної мережі. Перевірте дозвіл/службу геолокації або відкрийте застосунок знову, якщо Keep-Alive запустився у фоновому режимі. Постійне рішення: виберіть для геолокації «Дозволити завжди».</string>
     <string name="settings_trusted_network_permission_title">Потрібен дозвіл на геолокацію</string>
     <string name="settings_trusted_network_permission_message">Android вимагає доступу до геолокації, перш ніж додаток зможе прочитати назву та ідентифікатор поточної мережі Wi-Fi. KeepADB використовує це лише для розпізнавання довірених мереж і ніколи не зчитує й не зберігає ваше місцезнаходження.</string>
@@ -98,7 +90,6 @@
     <string name="settings_trusted_network_permission_denied_toast">У дозволі відмовлено — залишається режим «усі мережі Wi-Fi».</string>
     <string name="settings_trusted_network_add_failed_toast">Не вдалося визначити поточну мережу. Перевірте підключення Wi-Fi і дозвіл на геолокацію.</string>
     <string name="settings_trusted_network_added_toast">«%1$s» додано до довірених мереж</string>
-    <string name="settings_trusted_network_removed_toast">«%1$s» видалено з довірених мереж</string>
     <string name="settings_trusted_network_mesh_title">Додати інші точки доступу?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB також виявив %1$d інших точок доступу, що транслюють «%2$s». Додати їх також до довірених мереж?</string>
     <string name="settings_trusted_network_mesh_add_button">Додати всі</string>
@@ -113,14 +104,7 @@
     <string name="network_prompt_confirm_in_app_text">Виявлено нову мережу Wi-Fi — торкніться, щоб підтвердити її в застосунку.</string>
     <string name="network_prompt_identity_unavailable_title">Не вдається визначити поточну мережу Wi-Fi</string>
     <string name="network_prompt_identity_unavailable_text">Автоматичне повторне ввімкнення Keep-Alive призупинено, оскільки не вдається прочитати ідентифікатор мережі. Зазвичай бракує дозволу на геолокацію або вимкнено службу геолокації, але це може статися й тоді, коли Keep-Alive запустився у фоновому режимі; встановлення геолокації на «Дозволити завжди» усуває це назавжди. Торкніться, щоб виправити.</string>
-    <string name="settings_trusted_network_blocked_button">Нещодавно заблоковано (%1$d)</string>
-    <string name="settings_trusted_network_blocked_title">Нещодавно заблоковані мережі</string>
-    <string name="settings_trusted_network_blocked_empty_message">Останнім часом жодну мережу не було заблоковано.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · помічено %2$s</string>
-    <string name="settings_trusted_network_blocked_allow_button">Дозволити</string>
-    <string name="settings_trusted_network_blocked_allow_accessibility">Дозволити заблоковану мережу \"%1$s\"</string>
-    <string name="wifi_aps_title">Wi-Fi і точки доступу</string>
-    <string name="wifi_aps_trusted_only_toggle">Показувати лише довірені точки доступу</string>
     <string name="wifi_aps_current_badge">Поточна</string>
     <string name="wifi_aps_trusted_status">Довірена</string>
     <string name="wifi_aps_untrusted_status">Недовірена</string>
@@ -128,14 +112,8 @@
     <string name="wifi_aps_ssid_unknown">Невідома назва мережі</string>
     <string name="wifi_aps_current_unknown">Не вдається визначити поточну мережу Wi-Fi (перевірте дозвіл на геолокацію).</string>
     <string name="wifi_aps_empty">Інших точок доступу поки не зафіксовано.</string>
-    <string name="wifi_aps_trust_button">Довіряти</string>
-    <string name="wifi_aps_untrust_button">Скасувати довіру</string>
-    <string name="wifi_aps_trust_accessibility">Додати «%1$s» до довірених мереж</string>
-    <string name="wifi_aps_untrust_accessibility">Видалити «%1$s» з довірених мереж</string>
     <string name="wifi_aps_show_more_button">Показати ще %1$d</string>
     <string name="wifi_aps_show_less_button">Показати менше</string>
-    <string name="home_security_actions_title">Керування безпекою</string>
-    <string name="home_security_actions_body">Перегляньте точки доступу, на яких нещодавно було заблоковано автоматичне ввімкнення Keep-Alive, і дозвольте одну з них згодом, якщо вона ваша.</string>
     <string name="settings_webhook_saved_toast">URL-адресу Webhook збережено</string>
     <string name="settings_webhook_cleared_toast">Конфігурацію Webhook очищено</string>
     <string name="settings_webhook_enabled_toast">Синхронізацію Webhook увімкнено</string>
@@ -338,12 +316,8 @@
     <string name="widget_text_keep_alive_waiting">Бездротове налагодження: ВИМК (очікування)</string>
     <string name="widget_text_pending">Бездротове налагодження: перемикання…</string>
     <string name="toggle_failed_toast">Не вдалося перемкнути бездротове налагодження. Спробуйте ще раз.</string>
-    <string name="settings_section_wifi_aps">Wi-Fi і точки доступу (бета)</string>
     <string name="settings_wifi_aps_feature_toggle">Спостерігати за точками доступу</string>
-    <string name="settings_wifi_aps_beta_description">Виявлення точок доступу — це експериментальна бета-функція, яка сканує найближчі точки доступу Wi-Fi. Потребує дозволу на місцезнаходження та може витрачати більше заряду акумулятора.</string>
     <string name="settings_section_network">Мережа</string>
-    <string name="settings_beta_badge" translatable="false">BETA</string>
-    <string name="settings_network_beta_group_subtext">Довірені мережі та Wi-Fi і точки доступу базуються на одній логіці довіри до мережі та є експериментальними бета-функціями. Розгорніть будь-яку з них нижче, щоб увімкнути та налаштувати окремо.</string>
     <string name="network_head_mode">Автоматичне повторне ввімкнення: %1$s</string>
     <string name="network_mode_option_all_wifi">У всіх мережах Wi-Fi</string>
     <string name="network_mode_option_aps">Лише дозволені точки доступу</string>

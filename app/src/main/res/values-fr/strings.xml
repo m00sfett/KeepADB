@@ -71,17 +71,10 @@
     <string name="settings_webhook_error_invalid_url">URL non valide. Doit commencer par http:// ou https:// avec un hôte valide.</string>
     <string name="settings_webhook_error_missing_url">Veuillez saisir une URL HTTP/HTTPS valide avant d’activer la synchronisation.</string>
     <string name="settings_webhook_cleartext_warning">Cette URL utilise HTTP non chiffré : les données sont envoyées en texte clair. À utiliser uniquement sur un réseau local ou VPN de confiance.</string>
-    <string name="settings_section_trusted_network">Réseaux de confiance</string>
-    <string name="settings_trusted_network_subtext">Vous pouvez limiter la réactivation automatique de Keep-Alive aux réseaux Wi-Fi que vous avez marqués comme approuvés. Désactivé par défaut. La bascule manuelle fonctionne toujours, quel que soit ce réglage.</string>
     <string name="settings_warning_marker">!</string>
-    <string name="settings_trusted_network_warning_accessibility">Avertissement</string>
-    <string name="settings_trusted_network_tradeoff_warning">L\'autorisation de localisation assure la détection du réseau et du BSSID même en arrière-plan pendant l\'exécution du service Keep-Alive. La réactivation automatique n\'a lieu que sur les réseaux approuvés.</string>
-    <string name="settings_trusted_network_toggle">Restreindre Keep-Alive aux réseaux de confiance</string>
     <string name="settings_trusted_ssid_warning">Vérification plus faible : un nom de réseau (SSID) est librement choisi et ne prouve rien sur un point d\'accès. Tout point d\'accès diffusant un nom autorisé est approuvé, y compris un imitateur du vôtre. Utile surtout si vous exploitez plusieurs points d\'accès sous un même nom.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Avertissement</string>
     <string name="settings_trusted_ssid_toggle">Autoriser aussi par nom de réseau (SSID)</string>
-    <string name="wifi_ssids_title">Noms de réseau approuvés (SSID)</string>
-    <string name="wifi_ssids_warning">Un nom de réseau ne prouve rien sur un point d\'accès : tout point d\'accès diffusant un nom listé est approuvé, y compris un imitateur. Utile uniquement si vous exploitez plusieurs points d\'accès sous un même nom.</string>
     <string name="wifi_ssids_current_unknown">Le nom du réseau actuel est illisible et ne peut donc pas être ajouté (vérifiez l\'autorisation de localisation).</string>
     <string name="wifi_ssids_empty">Aucun nom de réseau autorisé pour l\'instant.</string>
     <string name="wifi_ssids_add_button">Autoriser</string>
@@ -90,7 +83,6 @@
     <string name="wifi_ssids_remove_accessibility">Retirer le nom de réseau « %1$s »</string>
     <string name="wifi_ssids_added_toast">Nom de réseau « %1$s » autorisé</string>
     <string name="wifi_ssids_removed_toast">Nom de réseau « %1$s » retiré</string>
-    <string name="settings_trusted_network_status_untrusted">Réactivation automatique en pause : ce réseau Wi-Fi n\'est pas dans votre liste de confiance.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Réactivation automatique en pause : l\'identité du réseau actuel est indéterminable. Vérifiez l\'autorisation/le service de localisation, ou rouvrez l\'application si Keep-Alive a démarré en arrière-plan. Pour un correctif durable, réglez la localisation sur « Toujours autoriser ».</string>
     <string name="settings_trusted_network_permission_title">Autorisation de localisation requise</string>
     <string name="settings_trusted_network_permission_message">Android exige l\'accès à la localisation avant qu\'une application puisse lire le nom et l\'identifiant du réseau Wi-Fi actuel. KeepADB l\'utilise uniquement pour reconnaître les réseaux de confiance et ne lit ni ne stocke jamais votre position.</string>
@@ -98,7 +90,6 @@
     <string name="settings_trusted_network_permission_denied_toast">Autorisation refusée — maintien du mode « tous les réseaux Wi-Fi ».</string>
     <string name="settings_trusted_network_add_failed_toast">Impossible de déterminer le réseau actuel. Vérifiez la connexion Wi-Fi et l\'autorisation de localisation.</string>
     <string name="settings_trusted_network_added_toast">« %1$s » ajouté aux réseaux de confiance</string>
-    <string name="settings_trusted_network_removed_toast">« %1$s » supprimé des réseaux de confiance</string>
     <string name="settings_trusted_network_mesh_title">Ajouter d\'autres points d\'accès ?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB a également détecté %1$d autres points d\'accès diffusant « %2$s ». Voulez-vous les ajouter aussi à votre liste de confiance ?</string>
     <string name="settings_trusted_network_mesh_add_button">Tout ajouter</string>
@@ -113,14 +104,7 @@
     <string name="network_prompt_confirm_in_app_text">Nouveau réseau Wi-Fi détecté — touchez pour le confirmer dans l\'app.</string>
     <string name="network_prompt_identity_unavailable_title">Impossible d\'identifier le réseau Wi-Fi actuel</string>
     <string name="network_prompt_identity_unavailable_text">La réactivation automatique de Keep-Alive est en pause car l\'identité du réseau est illisible. Il manque généralement l\'autorisation de localisation ou le service de localisation est désactivé, mais cela peut aussi arriver si Keep-Alive a démarré en arrière-plan ; régler la localisation sur « Toujours autoriser » le corrige durablement. Appuyez pour corriger.</string>
-    <string name="settings_trusted_network_blocked_button">Bloqués récemment (%1$d)</string>
-    <string name="settings_trusted_network_blocked_title">Réseaux bloqués récemment</string>
-    <string name="settings_trusted_network_blocked_empty_message">Aucun réseau n\'a été bloqué récemment.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · vu %2$s</string>
-    <string name="settings_trusted_network_blocked_allow_button">Autoriser</string>
-    <string name="settings_trusted_network_blocked_allow_accessibility">Autoriser le réseau bloqué \"%1$s\"</string>
-    <string name="wifi_aps_title">Wi-Fi et points d’accès</string>
-    <string name="wifi_aps_trusted_only_toggle">Afficher uniquement les points d’accès de confiance</string>
     <string name="wifi_aps_current_badge">Actuel</string>
     <string name="wifi_aps_trusted_status">De confiance</string>
     <string name="wifi_aps_untrusted_status">Non approuvé</string>
@@ -128,14 +112,8 @@
     <string name="wifi_aps_ssid_unknown">Nom de réseau inconnu</string>
     <string name="wifi_aps_current_unknown">Le réseau Wi-Fi actuel est indéterminable (vérifiez l’autorisation de localisation).</string>
     <string name="wifi_aps_empty">Aucun autre point d’accès enregistré pour le moment.</string>
-    <string name="wifi_aps_trust_button">Approuver</string>
-    <string name="wifi_aps_untrust_button">Retirer la confiance</string>
-    <string name="wifi_aps_trust_accessibility">Ajouter \"%1$s\" aux réseaux de confiance</string>
-    <string name="wifi_aps_untrust_accessibility">Retirer \"%1$s\" des réseaux de confiance</string>
     <string name="wifi_aps_show_more_button">Afficher %1$d de plus</string>
     <string name="wifi_aps_show_less_button">Afficher moins</string>
-    <string name="home_security_actions_title">Gestion de la sécurité</string>
-    <string name="home_security_actions_body">Examinez les points d\'accès sur lesquels la réactivation automatique de Keep-Alive a récemment été bloquée, et autorisez-en un après coup s\'il était le vôtre.</string>
     <string name="settings_webhook_saved_toast">URL du Webhook enregistrée</string>
     <string name="settings_webhook_cleared_toast">Configuration du Webhook effacée</string>
     <string name="settings_webhook_enabled_toast">Synchronisation Webhook activée</string>
@@ -338,12 +316,8 @@
     <string name="widget_text_keep_alive_waiting">Débogage sans fil : NON (en attente)</string>
     <string name="widget_text_pending">Débogage sans fil : changement en cours…</string>
     <string name="toggle_failed_toast">Impossible de changer le débogage sans fil. Veuillez réessayer.</string>
-    <string name="settings_section_wifi_aps">Wi-Fi et points d’accès (Bêta)</string>
     <string name="settings_wifi_aps_feature_toggle">Observer les points d’accès</string>
-    <string name="settings_wifi_aps_beta_description">La détection des points d’accès est une fonctionnalité bêta expérimentale qui analyse les points d’accès Wi-Fi à proximité. Elle nécessite l’autorisation de localisation et peut consommer plus de batterie.</string>
     <string name="settings_section_network">Réseau</string>
-    <string name="settings_beta_badge" translatable="false">BETA</string>
-    <string name="settings_network_beta_group_subtext">Réseaux de confiance et Wi-Fi et points d’accès reposent sur la même logique de confiance réseau et sont toutes deux des fonctionnalités expérimentales bêta. Développez l’une ou l’autre ci-dessous pour l’activer et la configurer séparément.</string>
     <string name="network_head_mode">Réactivation automatique : %1$s</string>
     <string name="network_mode_option_all_wifi">Dans tous les réseaux Wi-Fi</string>
     <string name="network_mode_option_aps">Uniquement les points d’accès autorisés</string>

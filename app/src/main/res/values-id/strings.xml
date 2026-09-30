@@ -71,17 +71,10 @@
     <string name="settings_webhook_error_invalid_url">URL tidak valid. Harus dimulai dengan http:// atau https:// dengan host yang valid.</string>
     <string name="settings_webhook_error_missing_url">Harap masukkan URL HTTP/HTTPS yang valid sebelum mengaktifkan sinkronisasi.</string>
     <string name="settings_webhook_cleartext_warning">URL ini menggunakan HTTP tanpa enkripsi — data dikirim dalam teks biasa. Hanya gunakan di LAN atau VPN yang tepercaya.</string>
-    <string name="settings_section_trusted_network">Jaringan Tepercaya</string>
-    <string name="settings_trusted_network_subtext">Jika mau, batasi pengaktifan ulang otomatis Keep-Alive pada jaringan Wi-Fi yang kamu tandai sebagai tepercaya. Mati secara bawaan. Pengalihan manual selalu berfungsi, terlepas dari setelan ini.</string>
     <string name="settings_warning_marker">!</string>
-    <string name="settings_trusted_network_warning_accessibility">Peringatan</string>
-    <string name="settings_trusted_network_tradeoff_warning">Izin lokasi memastikan deteksi jaringan dan BSSID tetap berfungsi di latar belakang saat layanan Keep-Alive berjalan. Pengaktifan ulang otomatis hanya terjadi di jaringan tepercaya.</string>
-    <string name="settings_trusted_network_toggle">Batasi Keep-Alive pada jaringan tepercaya</string>
     <string name="settings_trusted_ssid_warning">Pemeriksaan yang lebih lemah: nama jaringan (SSID) dipilih bebas dan bukan bukti suatu titik akses. Setiap titik akses yang menyiarkan nama yang diizinkan dianggap tepercaya, termasuk yang meniru milikmu. Terutama berguna jika kamu menjalankan beberapa titik akses dengan satu nama.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Peringatan</string>
     <string name="settings_trusted_ssid_toggle">Izinkan juga berdasarkan nama jaringan (SSID)</string>
-    <string name="wifi_ssids_title">Nama jaringan tepercaya (SSID)</string>
-    <string name="wifi_ssids_warning">Nama jaringan bukan bukti suatu titik akses: setiap titik akses yang menyiarkan nama terdaftar dianggap tepercaya, termasuk yang ditiru. Hanya berguna jika kamu menjalankan beberapa titik akses dengan satu nama.</string>
     <string name="wifi_ssids_current_unknown">Nama jaringan saat ini tidak terbaca, jadi tidak bisa ditambahkan (periksa izin lokasi).</string>
     <string name="wifi_ssids_empty">Belum ada nama jaringan yang diizinkan.</string>
     <string name="wifi_ssids_add_button">Izinkan</string>
@@ -90,7 +83,6 @@
     <string name="wifi_ssids_remove_accessibility">Hapus nama jaringan &quot;%1$s&quot;</string>
     <string name="wifi_ssids_added_toast">Nama jaringan &quot;%1$s&quot; diizinkan</string>
     <string name="wifi_ssids_removed_toast">Nama jaringan &quot;%1$s&quot; dihapus</string>
-    <string name="settings_trusted_network_status_untrusted">Pengaktifan ulang otomatis dijeda: jaringan Wi-Fi ini tidak ada dalam daftar tepercaya Anda.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Pengaktifan ulang otomatis dijeda: identitas jaringan saat ini tidak dapat ditentukan. Periksa izin/layanan lokasi, atau buka kembali aplikasi jika Keep-Alive dimulai di latar belakang. Untuk solusi permanen, atur Lokasi ke “Izinkan sepanjang waktu”.</string>
     <string name="settings_trusted_network_permission_title">Izin lokasi diperlukan</string>
     <string name="settings_trusted_network_permission_message">Android memerlukan akses lokasi sebelum aplikasi dapat membaca nama dan ID jaringan Wi-Fi saat ini. KeepADB hanya menggunakan ini untuk mengenali jaringan tepercaya dan tidak pernah membaca atau menyimpan lokasi Anda.</string>
@@ -98,7 +90,6 @@
     <string name="settings_trusted_network_permission_denied_toast">Izin ditolak — tetap pada mode \"semua jaringan Wi-Fi\".</string>
     <string name="settings_trusted_network_add_failed_toast">Tidak dapat menentukan jaringan saat ini. Periksa koneksi Wi-Fi dan izin lokasi.</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" ditambahkan ke jaringan tepercaya</string>
-    <string name="settings_trusted_network_removed_toast">"%1$s" dihapus dari jaringan tepercaya</string>
     <string name="settings_trusted_network_mesh_title">Tambahkan titik akses lain?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB juga mendeteksi %1$d titik akses lain yang menyiarkan \"%2$s\". Tambahkan juga ke daftar tepercaya?</string>
     <string name="settings_trusted_network_mesh_add_button">Tambahkan semua</string>
@@ -113,14 +104,7 @@
     <string name="network_prompt_confirm_in_app_text">Jaringan Wi-Fi baru terdeteksi — ketuk untuk mengonfirmasinya di aplikasi.</string>
     <string name="network_prompt_identity_unavailable_title">Tidak dapat mengidentifikasi jaringan Wi-Fi saat ini</string>
     <string name="network_prompt_identity_unavailable_text">Pengaktifan ulang otomatis Keep-Alive dijeda karena identitas jaringan tidak dapat dibaca. Biasanya izin lokasi tidak ada atau layanan lokasi nonaktif, tetapi ini juga bisa terjadi jika Keep-Alive dimulai di latar belakang; mengatur Lokasi ke “Izinkan sepanjang waktu” memperbaikinya secara permanen. Ketuk untuk memperbaikinya.</string>
-    <string name="settings_trusted_network_blocked_button">Baru diblokir (%1$d)</string>
-    <string name="settings_trusted_network_blocked_title">Jaringan yang baru diblokir</string>
-    <string name="settings_trusted_network_blocked_empty_message">Belum ada jaringan yang diblokir belakangan ini.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · terlihat %2$s</string>
-    <string name="settings_trusted_network_blocked_allow_button">Izinkan</string>
-    <string name="settings_trusted_network_blocked_allow_accessibility">Izinkan jaringan terblokir \"%1$s\"</string>
-    <string name="wifi_aps_title">Wi-Fi &amp; titik akses</string>
-    <string name="wifi_aps_trusted_only_toggle">Tampilkan hanya titik akses tepercaya</string>
     <string name="wifi_aps_current_badge">Saat ini</string>
     <string name="wifi_aps_trusted_status">Tepercaya</string>
     <string name="wifi_aps_untrusted_status">Tidak tepercaya</string>
@@ -128,14 +112,8 @@
     <string name="wifi_aps_ssid_unknown">Nama jaringan tidak diketahui</string>
     <string name="wifi_aps_current_unknown">Jaringan Wi-Fi saat ini tidak dapat ditentukan (periksa izin lokasi).</string>
     <string name="wifi_aps_empty">Belum ada titik akses lain yang tercatat.</string>
-    <string name="wifi_aps_trust_button">Percayai</string>
-    <string name="wifi_aps_untrust_button">Batalkan kepercayaan</string>
-    <string name="wifi_aps_trust_accessibility">Tambahkan \"%1$s\" ke jaringan tepercaya</string>
-    <string name="wifi_aps_untrust_accessibility">Hapus \"%1$s\" dari jaringan tepercaya</string>
     <string name="wifi_aps_show_more_button">Tampilkan %1$d lagi</string>
     <string name="wifi_aps_show_less_button">Tampilkan lebih sedikit</string>
-    <string name="home_security_actions_title">Manajemen keamanan</string>
-    <string name="home_security_actions_body">Periksa titik akses tempat pengaktifan ulang otomatis Keep-Alive baru-baru ini diblokir, dan izinkan salah satunya setelahnya jika itu milikmu.</string>
     <string name="settings_webhook_saved_toast">URL Webhook disimpan</string>
     <string name="settings_webhook_cleared_toast">Konfigurasi Webhook dihapus</string>
     <string name="settings_webhook_enabled_toast">Sinkronisasi Webhook diaktifkan</string>
@@ -338,12 +316,8 @@
     <string name="widget_text_keep_alive_waiting">Debugging Nirkabel: NONAKTIF (menunggu)</string>
     <string name="widget_text_pending">Debugging Nirkabel: mengalihkan…</string>
     <string name="toggle_failed_toast">Debugging Nirkabel tidak dapat dialihkan. Silakan coba lagi.</string>
-    <string name="settings_section_wifi_aps">Wi-Fi &amp; titik akses (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Amati titik akses</string>
-    <string name="settings_wifi_aps_beta_description">Deteksi titik akses adalah fitur beta eksperimental yang memindai titik akses Wi-Fi terdekat. Fitur ini membutuhkan izin lokasi dan dapat mengonsumsi lebih banyak baterai.</string>
     <string name="settings_section_network">Jaringan</string>
-    <string name="settings_beta_badge" translatable="false">BETA</string>
-    <string name="settings_network_beta_group_subtext">Jaringan Tepercaya dan Wi-Fi &amp; titik akses menggunakan logika kepercayaan jaringan yang sama dan keduanya merupakan fitur beta eksperimental. Perluas salah satunya di bawah untuk mengaktifkan dan mengonfigurasinya secara terpisah.</string>
     <string name="network_head_mode">Pengaktifan ulang otomatis: %1$s</string>
     <string name="network_mode_option_all_wifi">Di semua jaringan Wi-Fi</string>
     <string name="network_mode_option_aps">Hanya titik akses yang diizinkan</string>

@@ -71,17 +71,10 @@
     <string name="settings_webhook_error_invalid_url">無效的 URL。必須以 http:// 或 https:// 開頭並包含有效的主機名稱。</string>
     <string name="settings_webhook_error_missing_url">啟用同步前請輸入有效的 HTTP/HTTPS URL。</string>
     <string name="settings_webhook_cleartext_warning">此 URL 使用未加密的 HTTP — 資料以明文形式傳送。僅限在受信任的區域網路或 VPN 中使用。</string>
-    <string name="settings_section_trusted_network">受信任的網路</string>
-    <string name="settings_trusted_network_subtext">可以選擇把 Keep-Alive 的自動重新開啟限制在你標記為信任的 Wi-Fi 網路上。預設關閉。手動切換一律有效，與這項設定無關。</string>
     <string name="settings_warning_marker">!</string>
-    <string name="settings_trusted_network_warning_accessibility">警告</string>
-    <string name="settings_trusted_network_tradeoff_warning">位置權限可確保在 Keep-Alive 服務執行期間，即使在背景中也能可靠偵測網路與 BSSID。僅在受信任的網路上才會自動重新開啟。</string>
-    <string name="settings_trusted_network_toggle">將 Keep-Alive 限制為受信任的網路</string>
     <string name="settings_trusted_ssid_warning">較弱的檢查：網路名稱（SSID）可以任意設定，無法證明某個存取點。任何廣播已允許名稱的存取點都會視為信任，包括冒用你名稱的存取點。主要適合以同一個名稱執行多個存取點的情況。</string>
     <string name="settings_trusted_ssid_warning_accessibility">警告</string>
     <string name="settings_trusted_ssid_toggle">也依網路名稱（SSID）允許</string>
-    <string name="wifi_ssids_title">信任的網路名稱（SSID）</string>
-    <string name="wifi_ssids_warning">網路名稱無法證明某個存取點：任何廣播清單中名稱的存取點都會視為信任，包括冒用的存取點。只有以同一個名稱執行多個存取點時才有用。</string>
     <string name="wifi_ssids_current_unknown">無法讀取目前的網路名稱，因此無法新增（請檢查位置權限）。</string>
     <string name="wifi_ssids_empty">尚未允許任何網路名稱。</string>
     <string name="wifi_ssids_add_button">允許</string>
@@ -90,7 +83,6 @@
     <string name="wifi_ssids_remove_accessibility">移除網路名稱「%1$s」</string>
     <string name="wifi_ssids_added_toast">已允許網路名稱「%1$s」</string>
     <string name="wifi_ssids_removed_toast">已移除網路名稱「%1$s」</string>
-    <string name="settings_trusted_network_status_untrusted">自動重新啟用已暫停:此 Wi-Fi 網路不在您的受信任清單中。</string>
     <string name="settings_trusted_network_status_identity_unavailable">自動重新啟用已暫停:無法判斷目前網路的身分。請檢查定位權限/服務，如果 Keep-Alive 是在背景啟動的，請重新開啟應用程式；也可將位置存取權設為「一律允許」以永久解決。</string>
     <string name="settings_trusted_network_permission_title">需要位置權限</string>
     <string name="settings_trusted_network_permission_message">應用程式讀取目前 Wi-Fi 網路的名稱與 ID 前,Android 需要位置存取權限。KeepADB 僅用此權限識別受信任的網路,絕不會讀取或儲存您的位置。</string>
@@ -98,7 +90,6 @@
     <string name="settings_trusted_network_permission_denied_toast">權限遭拒 — 將維持「所有 Wi-Fi 網路」模式。</string>
     <string name="settings_trusted_network_add_failed_toast">無法判斷目前網路。請檢查 Wi-Fi 連線與位置權限。</string>
     <string name="settings_trusted_network_added_toast">已將「%1$s」新增至受信任的網路</string>
-    <string name="settings_trusted_network_removed_toast">已將「%1$s」從受信任的網路中移除</string>
     <string name="settings_trusted_network_mesh_title">是否新增其他無線基地台?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB 也偵測到其他 %1$d 個廣播「%2$s」的無線基地台。要一併新增到信任清單嗎?</string>
     <string name="settings_trusted_network_mesh_add_button">全部新增</string>
@@ -113,14 +104,7 @@
     <string name="network_prompt_confirm_in_app_text">偵測到新的 Wi-Fi 網路 — 輕觸以在應用程式中確認。</string>
     <string name="network_prompt_identity_unavailable_title">無法識別目前的 Wi-Fi 網路</string>
     <string name="network_prompt_identity_unavailable_text">由於無法讀取網路身分，Keep-Alive 自動重新啟用已暫停。通常是缺少定位權限或定位服務已關閉，但如果 Keep-Alive 是在背景啟動的，也可能發生這種情況。將位置存取權設為「一律允許」即可永久解決。點一下以修正。</string>
-    <string name="settings_trusted_network_blocked_button">近期遭封鎖（%1$d）</string>
-    <string name="settings_trusted_network_blocked_title">近期遭封鎖的網路</string>
-    <string name="settings_trusted_network_blocked_empty_message">近期沒有網路遭到封鎖。</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · 於 %2$s發現</string>
-    <string name="settings_trusted_network_blocked_allow_button">允許</string>
-    <string name="settings_trusted_network_blocked_allow_accessibility">允許遭封鎖的網路「%1$s」</string>
-    <string name="wifi_aps_title">Wi-Fi 與存取點</string>
-    <string name="wifi_aps_trusted_only_toggle">僅顯示受信任的存取點</string>
     <string name="wifi_aps_current_badge">目前</string>
     <string name="wifi_aps_trusted_status">受信任</string>
     <string name="wifi_aps_untrusted_status">不受信任</string>
@@ -128,14 +112,8 @@
     <string name="wifi_aps_ssid_unknown">未知網路名稱</string>
     <string name="wifi_aps_current_unknown">無法判斷目前的 Wi-Fi 網路（請檢查位置權限）。</string>
     <string name="wifi_aps_empty">尚未記錄其他存取點。</string>
-    <string name="wifi_aps_trust_button">信任</string>
-    <string name="wifi_aps_untrust_button">取消信任</string>
-    <string name="wifi_aps_trust_accessibility">將「%1$s」加入信任的網路</string>
-    <string name="wifi_aps_untrust_accessibility">從信任的網路中移除「%1$s」</string>
     <string name="wifi_aps_show_more_button">顯示另外 %1$d 個</string>
     <string name="wifi_aps_show_less_button">收合</string>
-    <string name="home_security_actions_title">安全管理</string>
-    <string name="home_security_actions_body">查看最近被阻止自動重新開啟 Keep-Alive 的存取點；如果是你自己的，可以事後允許它。</string>
     <string name="settings_webhook_saved_toast">Webhook URL 已儲存</string>
     <string name="settings_webhook_cleared_toast">Webhook 設定已清除</string>
     <string name="settings_webhook_enabled_toast">Webhook 同步已啟用</string>
@@ -338,12 +316,8 @@
     <string name="widget_text_keep_alive_waiting">無線偵錯：關（等待中）</string>
     <string name="widget_text_pending">無線偵錯：正在切換…</string>
     <string name="toggle_failed_toast">無法切換無線偵錯，請重試。</string>
-    <string name="settings_section_wifi_aps">Wi-Fi 與存取點（測試版）</string>
     <string name="settings_wifi_aps_feature_toggle">觀察存取點</string>
-    <string name="settings_wifi_aps_beta_description">存取點偵測是一項實驗性測試功能，用於掃描附近的 Wi-Fi 存取點。此功能需要位置權限，並可能消耗更多電力。</string>
     <string name="settings_section_network">網路</string>
-    <string name="settings_beta_badge" translatable="false">BETA</string>
-    <string name="settings_network_beta_group_subtext">受信任網路與 Wi-Fi 及存取點皆基於相同的網路信任邏輯，兩者皆為實驗性測試版功能。展開下方任一項即可個別啟用並設定。</string>
     <string name="network_head_mode">自動重新啟用：%1$s</string>
     <string name="network_mode_option_all_wifi">在所有 Wi-Fi 網路中</string>
     <string name="network_mode_option_aps">僅限已允許的存取點</string>

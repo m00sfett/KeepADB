@@ -71,17 +71,10 @@
     <string name="settings_webhook_error_invalid_url">URL non valido. Deve iniziare con http:// o https:// con un host valido.</string>
     <string name="settings_webhook_error_missing_url">Inserisci un URL HTTP/HTTPS valido prima di abilitare la sincronizzazione.</string>
     <string name="settings_webhook_cleartext_warning">Questo URL utilizza HTTP non crittografato: i dati vengono inviati in chiaro. Usalo solo su una LAN o VPN affidabile.</string>
-    <string name="settings_section_trusted_network">Reti attendibili</string>
-    <string name="settings_trusted_network_subtext">Se vuoi, puoi limitare la riattivazione automatica di Keep-Alive alle reti Wi-Fi che hai contrassegnato come attendibili. Disattivato per impostazione predefinita. Il comando manuale funziona sempre, indipendentemente da questa impostazione.</string>
     <string name="settings_warning_marker">!</string>
-    <string name="settings_trusted_network_warning_accessibility">Avviso</string>
-    <string name="settings_trusted_network_tradeoff_warning">L\'autorizzazione di posizione garantisce il rilevamento della rete e del BSSID anche in background durante l\'esecuzione del servizio Keep-Alive. La riattivazione automatica avviene solo su reti attendibili.</string>
-    <string name="settings_trusted_network_toggle">Limita Keep-Alive alle reti attendibili</string>
     <string name="settings_trusted_ssid_warning">Verifica più debole: il nome di rete (SSID) è scelto liberamente e non dimostra nulla su un punto di accesso. Qualsiasi punto di accesso che trasmette un nome consentito è considerato attendibile, compreso uno che imita il tuo. Utile soprattutto se gestisci più punti di accesso con un solo nome.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Avviso</string>
     <string name="settings_trusted_ssid_toggle">Consenti anche per nome di rete (SSID)</string>
-    <string name="wifi_ssids_title">Nomi di rete attendibili (SSID)</string>
-    <string name="wifi_ssids_warning">Un nome di rete non dimostra nulla su un punto di accesso: qualsiasi punto di accesso che trasmette un nome elencato è considerato attendibile, anche uno imitato. Utile solo se gestisci più punti di accesso con un solo nome.</string>
     <string name="wifi_ssids_current_unknown">Il nome della rete attuale non è leggibile, quindi non può essere aggiunto (controlla l\'autorizzazione di posizione).</string>
     <string name="wifi_ssids_empty">Nessun nome di rete ancora consentito.</string>
     <string name="wifi_ssids_add_button">Consenti</string>
@@ -90,7 +83,6 @@
     <string name="wifi_ssids_remove_accessibility">Rimuovi il nome di rete «%1$s»</string>
     <string name="wifi_ssids_added_toast">Nome di rete «%1$s» consentito</string>
     <string name="wifi_ssids_removed_toast">Nome di rete «%1$s» rimosso</string>
-    <string name="settings_trusted_network_status_untrusted">Riattivazione automatica in pausa: questa rete Wi-Fi non è nella tua lista attendibile.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Riattivazione automatica in pausa: impossibile determinare l\'identità della rete attuale. Controlla il permesso/servizio di localizzazione, oppure riapri l\'app se Keep-Alive è stato avviato in background. Per una soluzione permanente imposta la posizione su «Consenti sempre».</string>
     <string name="settings_trusted_network_permission_title">Autorizzazione posizione necessaria</string>
     <string name="settings_trusted_network_permission_message">Android richiede l\'accesso alla posizione prima che un\'app possa leggere il nome e l\'ID della rete Wi-Fi attuale. KeepADB lo usa solo per riconoscere le reti attendibili e non legge né memorizza mai la tua posizione.</string>
@@ -98,7 +90,6 @@
     <string name="settings_trusted_network_permission_denied_toast">Autorizzazione negata: resta attiva la modalità \"tutte le reti Wi-Fi\".</string>
     <string name="settings_trusted_network_add_failed_toast">Impossibile determinare la rete attuale. Controlla la connessione Wi-Fi e l\'autorizzazione alla posizione.</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" aggiunta alle reti attendibili</string>
-    <string name="settings_trusted_network_removed_toast">"%1$s" rimossa dalle reti attendibili</string>
     <string name="settings_trusted_network_mesh_title">Aggiungere altri access point?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB ha rilevato anche %1$d altri access point che trasmettono \"%2$s\". Vuoi aggiungerli anche alla lista attendibile?</string>
     <string name="settings_trusted_network_mesh_add_button">Aggiungi tutti</string>
@@ -113,14 +104,7 @@
     <string name="network_prompt_confirm_in_app_text">Nuova rete Wi-Fi rilevata — tocca per confermarla nell\'app.</string>
     <string name="network_prompt_identity_unavailable_title">Impossibile identificare la rete Wi-Fi attuale</string>
     <string name="network_prompt_identity_unavailable_text">La riattivazione automatica di Keep-Alive è in pausa perché l\'identità della rete non può essere letta. Di solito manca il permesso di localizzazione o il servizio di localizzazione è disattivato, ma può capitare anche se Keep-Alive è stato avviato in background; impostare la posizione su «Consenti sempre» lo risolve in modo permanente. Tocca per risolvere.</string>
-    <string name="settings_trusted_network_blocked_button">Bloccate di recente (%1$d)</string>
-    <string name="settings_trusted_network_blocked_title">Reti bloccate di recente</string>
-    <string name="settings_trusted_network_blocked_empty_message">Di recente non è stata bloccata nessuna rete.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · vista %2$s</string>
-    <string name="settings_trusted_network_blocked_allow_button">Consenti</string>
-    <string name="settings_trusted_network_blocked_allow_accessibility">Consenti la rete bloccata \"%1$s\"</string>
-    <string name="wifi_aps_title">Wi-Fi e punti di accesso</string>
-    <string name="wifi_aps_trusted_only_toggle">Mostra solo i punti di accesso attendibili</string>
     <string name="wifi_aps_current_badge">Attuale</string>
     <string name="wifi_aps_trusted_status">Attendibile</string>
     <string name="wifi_aps_untrusted_status">Non attendibile</string>
@@ -128,14 +112,8 @@
     <string name="wifi_aps_ssid_unknown">Nome rete sconosciuto</string>
     <string name="wifi_aps_current_unknown">Impossibile identificare la rete Wi-Fi attuale (controlla l’autorizzazione posizione).</string>
     <string name="wifi_aps_empty">Nessun altro punto di accesso registrato finora.</string>
-    <string name="wifi_aps_trust_button">Considera attendibile</string>
-    <string name="wifi_aps_untrust_button">Rimuovi fiducia</string>
-    <string name="wifi_aps_trust_accessibility">Aggiungi \"%1$s\" alle reti attendibili</string>
-    <string name="wifi_aps_untrust_accessibility">Rimuovi \"%1$s\" dalle reti attendibili</string>
     <string name="wifi_aps_show_more_button">Mostra altri %1$d</string>
     <string name="wifi_aps_show_less_button">Mostra meno</string>
-    <string name="home_security_actions_title">Gestione sicurezza</string>
-    <string name="home_security_actions_body">Controlla i punti di accesso su cui la riattivazione automatica di Keep-Alive è stata bloccata di recente e consentine uno a posteriori se era tuo.</string>
     <string name="settings_webhook_saved_toast">URL del Webhook salvato</string>
     <string name="settings_webhook_cleared_toast">Configurazione Webhook cancellata</string>
     <string name="settings_webhook_enabled_toast">Sincronizzazione Webhook abilitata</string>
@@ -338,12 +316,8 @@
     <string name="widget_text_keep_alive_waiting">Debug wireless: DISATTIVO (in attesa)</string>
     <string name="widget_text_pending">Debug wireless: cambio in corso…</string>
     <string name="toggle_failed_toast">Impossibile cambiare il debug wireless. Riprova.</string>
-    <string name="settings_section_wifi_aps">Wi-Fi e punti di accesso (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Osserva i punti di accesso</string>
-    <string name="settings_wifi_aps_beta_description">Il rilevamento dei punti di accesso è una funzione beta sperimentale che scansiona i punti di accesso Wi-Fi nelle vicinanze. Richiede l\'autorizzazione di posizione e può consumare più batteria.</string>
     <string name="settings_section_network">Rete</string>
-    <string name="settings_beta_badge" translatable="false">BETA</string>
-    <string name="settings_network_beta_group_subtext">Reti attendibili e Wi-Fi e punti di accesso si basano sulla stessa logica di attendibilità di rete e sono entrambe funzionalità sperimentali beta. Espandi una delle due qui sotto per attivarla e configurarla separatamente.</string>
     <string name="network_head_mode">Riattivazione automatica: %1$s</string>
     <string name="network_mode_option_all_wifi">In tutte le reti Wi-Fi</string>
     <string name="network_mode_option_aps">Solo punti di accesso consentiti</string>

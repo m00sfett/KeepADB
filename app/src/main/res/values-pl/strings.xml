@@ -71,17 +71,10 @@
     <string name="settings_webhook_error_invalid_url">Nieprawidłowy adres URL. Musi zaczynać się od http:// lub https:// z prawidłowym hostem.</string>
     <string name="settings_webhook_error_missing_url">Wprowadź prawidłowy adres URL HTTP/HTTPS przed włączeniem synchronizacji.</string>
     <string name="settings_webhook_cleartext_warning">Ten adres URL używa niezaszyfrowanego HTTP — dane są wysyłane jawnym tekstem. Używaj go tylko w zaufanej sieci LAN lub VPN.</string>
-    <string name="settings_section_trusted_network">Zaufane sieci</string>
-    <string name="settings_trusted_network_subtext">Opcjonalnie ogranicz automatyczne włączanie Keep-Alive do sieci Wi-Fi oznaczonych jako zaufane. Domyślnie wyłączone. Ręczne przełączanie działa zawsze, niezależnie od tego ustawienia.</string>
     <string name="settings_warning_marker">!</string>
-    <string name="settings_trusted_network_warning_accessibility">Ostrzeżenie</string>
-    <string name="settings_trusted_network_tradeoff_warning">Uprawnienie do lokalizacji zapewnia wykrywanie sieci i BSSID w tle podczas działania usługi Keep-Alive. Automatyczne ponowne włączenie następuje tylko w zaufanych sieciach.</string>
-    <string name="settings_trusted_network_toggle">Ogranicz Keep-Alive do zaufanych sieci</string>
     <string name="settings_trusted_ssid_warning">Słabsze sprawdzenie: nazwa sieci (SSID) jest dowolnie wybierana i nie dowodzi niczego o punkcie dostępowym. Każdy punkt dostępowy rozgłaszający dozwoloną nazwę jest uznawany za zaufany, także taki, który podszywa się pod Twój. Przydatne głównie wtedy, gdy masz kilka punktów dostępowych o jednej nazwie.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Ostrzeżenie</string>
     <string name="settings_trusted_ssid_toggle">Zezwalaj też według nazwy sieci (SSID)</string>
-    <string name="wifi_ssids_title">Zaufane nazwy sieci (SSID)</string>
-    <string name="wifi_ssids_warning">Nazwa sieci nie dowodzi niczego o punkcie dostępowym: każdy punkt dostępowy rozgłaszający nazwę z listy jest uznawany za zaufany, również podszywający się. Przydatne tylko wtedy, gdy masz kilka punktów dostępowych o jednej nazwie.</string>
     <string name="wifi_ssids_current_unknown">Nie można odczytać nazwy bieżącej sieci, więc nie da się jej dodać (sprawdź uprawnienie do lokalizacji).</string>
     <string name="wifi_ssids_empty">Nie dodano jeszcze żadnych nazw sieci.</string>
     <string name="wifi_ssids_add_button">Zezwól</string>
@@ -90,7 +83,6 @@
     <string name="wifi_ssids_remove_accessibility">Usuń nazwę sieci „%1$s”</string>
     <string name="wifi_ssids_added_toast">Zezwolono na nazwę sieci „%1$s”</string>
     <string name="wifi_ssids_removed_toast">Usunięto nazwę sieci „%1$s”</string>
-    <string name="settings_trusted_network_status_untrusted">Automatyczne ponowne włączanie wstrzymane: tej sieci Wi-Fi nie ma na liście zaufanych.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Automatyczne ponowne włączanie wstrzymane: nie można określić tożsamości bieżącej sieci. Sprawdź uprawnienie/usługę lokalizacji lub otwórz aplikację ponownie, jeśli Keep-Alive uruchomił się w tle. Trwale pomaga ustawienie lokalizacji na „Zezwalaj zawsze”.</string>
     <string name="settings_trusted_network_permission_title">Wymagane uprawnienie lokalizacji</string>
     <string name="settings_trusted_network_permission_message">Android wymaga dostępu do lokalizacji, zanim aplikacja odczyta nazwę i identyfikator bieżącej sieci Wi-Fi. KeepADB używa tego wyłącznie do rozpoznawania zaufanych sieci i nigdy nie odczytuje ani nie przechowuje Twojej lokalizacji.</string>
@@ -98,7 +90,6 @@
     <string name="settings_trusted_network_permission_denied_toast">Odmówiono uprawnienia — pozostaje tryb „wszystkie sieci Wi-Fi”.</string>
     <string name="settings_trusted_network_add_failed_toast">Nie można określić bieżącej sieci. Sprawdź połączenie Wi-Fi i uprawnienie lokalizacji.</string>
     <string name="settings_trusted_network_added_toast">Dodano „%1$s” do zaufanych sieci</string>
-    <string name="settings_trusted_network_removed_toast">Usunięto „%1$s” z zaufanych sieci</string>
     <string name="settings_trusted_network_mesh_title">Dodać inne punkty dostępu?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB wykrył także %1$d innych punktów dostępu nadających „%2$s”. Dodać je również do zaufanych sieci?</string>
     <string name="settings_trusted_network_mesh_add_button">Dodaj wszystkie</string>
@@ -113,14 +104,7 @@
     <string name="network_prompt_confirm_in_app_text">Wykryto nową sieć Wi-Fi — dotknij, aby potwierdzić ją w aplikacji.</string>
     <string name="network_prompt_identity_unavailable_title">Nie można zidentyfikować bieżącej sieci Wi-Fi</string>
     <string name="network_prompt_identity_unavailable_text">Automatyczne ponowne włączanie Keep-Alive jest wstrzymane, ponieważ nie można odczytać tożsamości sieci. Zwykle brakuje uprawnienia lokalizacji lub usługa lokalizacji jest wyłączona, ale może się to zdarzyć również, gdy Keep-Alive uruchomił się w tle; ustawienie lokalizacji na „Zezwalaj zawsze” naprawia to trwale. Dotknij, aby to naprawić.</string>
-    <string name="settings_trusted_network_blocked_button">Ostatnio zablokowane (%1$d)</string>
-    <string name="settings_trusted_network_blocked_title">Ostatnio zablokowane sieci</string>
-    <string name="settings_trusted_network_blocked_empty_message">Ostatnio żadna sieć nie została zablokowana.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · widziano %2$s</string>
-    <string name="settings_trusted_network_blocked_allow_button">Zezwól</string>
-    <string name="settings_trusted_network_blocked_allow_accessibility">Zezwól na zablokowaną sieć \"%1$s\"</string>
-    <string name="wifi_aps_title">Wi-Fi i punkty dostępu</string>
-    <string name="wifi_aps_trusted_only_toggle">Pokaż tylko zaufane punkty dostępu</string>
     <string name="wifi_aps_current_badge">Bieżący</string>
     <string name="wifi_aps_trusted_status">Zaufany</string>
     <string name="wifi_aps_untrusted_status">Niezaufany</string>
@@ -128,14 +112,8 @@
     <string name="wifi_aps_ssid_unknown">Nieznana nazwa sieci</string>
     <string name="wifi_aps_current_unknown">Nie można określić bieżącej sieci Wi-Fi (sprawdź uprawnienie lokalizacji).</string>
     <string name="wifi_aps_empty">Nie zarejestrowano jeszcze innych punktów dostępu.</string>
-    <string name="wifi_aps_trust_button">Zaufaj</string>
-    <string name="wifi_aps_untrust_button">Cofnij zaufanie</string>
-    <string name="wifi_aps_trust_accessibility">Dodaj \"%1$s\" do zaufanych sieci</string>
-    <string name="wifi_aps_untrust_accessibility">Usuń \"%1$s\" z zaufanych sieci</string>
     <string name="wifi_aps_show_more_button">Pokaż %1$d więcej</string>
     <string name="wifi_aps_show_less_button">Pokaż mniej</string>
-    <string name="home_security_actions_title">Zarządzanie zabezpieczeniami</string>
-    <string name="home_security_actions_body">Przejrzyj punkty dostępowe, na których automatyczne włączanie Keep-Alive zostało ostatnio zablokowane, i zezwól na jeden po fakcie, jeśli był Twój.</string>
     <string name="settings_webhook_saved_toast">Zapisano adres URL Webhooka</string>
     <string name="settings_webhook_cleared_toast">Wyczyszczono konfigurację Webhooka</string>
     <string name="settings_webhook_enabled_toast">Włączono synchronizację Webhook</string>
@@ -338,12 +316,8 @@
     <string name="widget_text_keep_alive_waiting">Debugowanie bezprzewodowe: WYŁ. (oczekiwanie)</string>
     <string name="widget_text_pending">Debugowanie bezprzewodowe: przełączanie…</string>
     <string name="toggle_failed_toast">Nie udało się przełączyć debugowania bezprzewodowego. Spróbuj ponownie.</string>
-    <string name="settings_section_wifi_aps">Wi-Fi i punkty dostępu (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Obserwuj punkty dostępowe</string>
-    <string name="settings_wifi_aps_beta_description">Wykrywanie punktów dostępu to eksperymentalna funkcja beta, która skanuje pobliskie punkty dostępu Wi-Fi. Wymaga uprawnienia do lokalizacji i może zużywać więcej baterii.</string>
     <string name="settings_section_network">Sieć</string>
-    <string name="settings_beta_badge" translatable="false">BETA</string>
-    <string name="settings_network_beta_group_subtext">Zaufane sieci oraz Wi-Fi i punkty dostępu opierają się na tej samej logice zaufania sieciowego i są eksperymentalnymi funkcjami beta. Rozwiń dowolną z nich poniżej, aby ją włączyć i skonfigurować osobno.</string>
     <string name="network_head_mode">Automatyczne ponowne włączanie: %1$s</string>
     <string name="network_mode_option_all_wifi">We wszystkich sieciach Wi-Fi</string>
     <string name="network_mode_option_aps">Tylko dozwolone punkty dostępowe</string>

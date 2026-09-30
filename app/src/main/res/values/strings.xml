@@ -107,18 +107,12 @@
     <string name="settings_webhook_error_invalid_url">Invalid URL. Must start with http:// or https:// with a valid host.</string>
     <string name="settings_webhook_error_missing_url">Please enter a valid HTTP/HTTPS URL before enabling sync.</string>
     <string name="settings_webhook_cleartext_warning">This URL uses unencrypted HTTP — data is sent in plain text. Only use this on a trusted LAN or VPN.</string>
-    <string name="settings_section_trusted_network">Trusted Networks</string>
-    <string name="settings_trusted_network_subtext">Optionally restrict automatic Keep-Alive re-enable to Wi-Fi networks you\'ve marked as trusted. Off by default. Manual toggling always works regardless of this setting.</string>
     <!-- Pure punctuation marker for the red warning badge; the spoken label is the separate
          *_warning_accessibility string next to it. -->
     <string name="settings_warning_marker">!</string>
-    <string name="settings_trusted_network_warning_accessibility">Warning</string>
-    <string name="settings_trusted_network_tradeoff_warning">Location permission ensures network and BSSID detection even in the background while the Keep-Alive service is running. Automatic re-enable only occurs on trusted networks.</string>
-    <string name="settings_trusted_network_toggle">Restrict Keep-Alive to trusted networks</string>
     <string name="settings_trusted_ssid_warning">Weaker check: a network name (SSID) is freely chosen and is no proof of an access point. Any access point broadcasting an allowed name is trusted, including one imitating yours. Mainly useful if you run several access points under one name.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Warning</string>
     <string name="settings_trusted_ssid_toggle">Also allow by network name (SSID)</string>
-    <string name="settings_trusted_network_status_untrusted">Keep-Alive auto re-enable is paused: this Wi-Fi network isn\'t in your trusted list.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Keep-Alive auto re-enable is paused: the current network\'s identity can\'t be determined. Check the location permission/service, or reopen the app if Keep-Alive started in the background. For a permanent fix, set Location to “Allow all the time”.</string>
     <string name="settings_trusted_network_permission_title">Location permission needed</string>
     <string name="settings_trusted_network_permission_message">Android requires Location access before an app can read the current Wi-Fi network\'s name and ID. KeepADB uses this only to recognize trusted networks and never reads or stores your location.</string>
@@ -126,7 +120,6 @@
     <string name="settings_trusted_network_permission_denied_toast">Permission denied — staying on \"all Wi-Fi networks\" mode.</string>
     <string name="settings_trusted_network_add_failed_toast">Couldn\'t determine the current network. Check that Wi-Fi is connected and Location permission is granted.</string>
     <string name="settings_trusted_network_added_toast">Added \"%1$s\" to trusted networks</string>
-    <string name="settings_trusted_network_removed_toast">Removed \"%1$s\" from trusted networks</string>
     <string name="settings_trusted_network_mesh_title">Add other access points?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB has also seen %1$d other access points broadcasting \"%2$s\". Add them to your trusted list too?</string>
     <string name="settings_trusted_network_mesh_add_button">Add all</string>
@@ -141,14 +134,7 @@
     <string name="network_prompt_confirm_in_app_text">New Wi-Fi network detected — tap to confirm it in the app.</string>
     <string name="network_prompt_identity_unavailable_title">Can\'t identify the current Wi-Fi network</string>
     <string name="network_prompt_identity_unavailable_text">Keep-Alive auto re-enable is paused because the network\'s identity can\'t be read. This is usually a missing location permission or a disabled location service, but it can also happen after Keep-Alive started in the background; setting Location to “Allow all the time” fixes that permanently. Tap to fix it.</string>
-    <string name="settings_trusted_network_blocked_button">Recently blocked (%1$d)</string>
-    <string name="settings_trusted_network_blocked_title">Recently blocked networks</string>
-    <string name="settings_trusted_network_blocked_empty_message">No network has been blocked recently.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · seen %2$s</string>
-    <string name="settings_trusted_network_blocked_allow_button">Allow</string>
-    <string name="settings_trusted_network_blocked_allow_accessibility">Allow blocked network \"%1$s\"</string>
-    <string name="wifi_aps_title">Wi-Fi &amp; access points</string>
-    <string name="wifi_aps_trusted_only_toggle">Show trusted access points only</string>
     <string name="wifi_aps_current_badge">Current</string>
     <string name="wifi_aps_trusted_status">Trusted</string>
     <string name="wifi_aps_untrusted_status">Not trusted</string>
@@ -156,14 +142,8 @@
     <string name="wifi_aps_ssid_unknown">Unknown network name</string>
     <string name="wifi_aps_current_unknown">Current Wi-Fi network can\'t be identified (check Location permission).</string>
     <string name="wifi_aps_empty">No other access points recorded yet.</string>
-    <string name="wifi_aps_trust_button">Trust</string>
-    <string name="wifi_aps_untrust_button">Untrust</string>
-    <string name="wifi_aps_trust_accessibility">Add \"%1$s\" to trusted networks</string>
-    <string name="wifi_aps_untrust_accessibility">Remove \"%1$s\" from trusted networks</string>
     <string name="wifi_aps_show_more_button">Show %1$d more</string>
     <string name="wifi_aps_show_less_button">Show less</string>
-    <string name="wifi_ssids_title">Trusted network names (SSIDs)</string>
-    <string name="wifi_ssids_warning">A network name is not proof of an access point: every access point broadcasting a listed name is trusted, including one imitating it. Only useful if you run several access points under one name.</string>
     <string name="wifi_ssids_current_unknown">Current network name can\'t be read, so it can\'t be added (check Location permission).</string>
     <string name="wifi_ssids_empty">No network names allowed yet.</string>
     <string name="wifi_ssids_add_button">Allow</string>
@@ -172,8 +152,6 @@
     <string name="wifi_ssids_remove_accessibility">Remove network name \"%1$s\"</string>
     <string name="wifi_ssids_added_toast">Allowed network name \"%1$s\"</string>
     <string name="wifi_ssids_removed_toast">Removed network name \"%1$s\"</string>
-    <string name="home_security_actions_title">Security management</string>
-    <string name="home_security_actions_body">Review the access points on which automatic Keep-Alive re-enable was recently blocked, and allow one after the fact if it was yours.</string>
     <string name="settings_webhook_saved_toast">Webhook URL saved</string>
     <string name="settings_webhook_cleared_toast">Webhook configuration cleared</string>
     <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>
@@ -254,12 +232,8 @@
     <string name="settings_usb_handover_mode_off">Off</string>
     <string name="settings_usb_handover_mode_manual">Manual (show action in USB notification)</string>
     <string name="settings_usb_handover_mode_automatic">Automatic (enable on new USB connection)</string>
-    <string name="settings_section_wifi_aps">Wi-Fi &amp; access points (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Observe access points</string>
-    <string name="settings_wifi_aps_beta_description">Access point discovery is an experimental beta feature that scans nearby Wi-Fi access points. It requires Location permission and may consume additional battery.</string>
     <string name="settings_section_network">Network</string>
-    <string name="settings_beta_badge" translatable="false">BETA</string>
-    <string name="settings_network_beta_group_subtext">Trusted Networks and Wi-Fi &amp; access points both build on the same network-trust logic and are experimental beta features. Expand either one below to turn it on and configure it on its own.</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Could not enable Wifi-ADB. Check permission.</string>
     <string name="notification_action_disable">Turn off Wifi-ADB</string>

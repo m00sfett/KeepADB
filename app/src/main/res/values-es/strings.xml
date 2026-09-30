@@ -71,17 +71,10 @@
     <string name="settings_webhook_error_invalid_url">URL no válida. Debe comenzar con http:// o https:// con un host válido.</string>
     <string name="settings_webhook_error_missing_url">Introduce una URL HTTP/HTTPS válida antes de activar la sincronización.</string>
     <string name="settings_webhook_cleartext_warning">Esta URL usa HTTP sin cifrar: los datos se envían en texto plano. Utilízala solo en una LAN o VPN de confianza.</string>
-    <string name="settings_section_trusted_network">Redes de confianza</string>
-    <string name="settings_trusted_network_subtext">Opcionalmente puedes limitar la reactivación automática de Keep-Alive a las redes Wi-Fi que hayas marcado como de confianza. Desactivado de forma predeterminada. El cambio manual funciona siempre, con independencia de este ajuste.</string>
     <string name="settings_warning_marker">!</string>
-    <string name="settings_trusted_network_warning_accessibility">Advertencia</string>
-    <string name="settings_trusted_network_tradeoff_warning">El permiso de ubicación asegura la detección de la red y el BSSID incluso en segundo plano mientras el servicio Keep-Alive está activo. La reactivación automática solo se produce en redes de confianza.</string>
-    <string name="settings_trusted_network_toggle">Restringir Keep-Alive a redes de confianza</string>
     <string name="settings_trusted_ssid_warning">Comprobación más débil: el nombre de red (SSID) se elige libremente y no demuestra nada sobre un punto de acceso. Cualquier punto de acceso que emita un nombre permitido se considera de confianza, incluido uno que imite el tuyo. Útil sobre todo si tienes varios puntos de acceso con un mismo nombre.</string>
     <string name="settings_trusted_ssid_warning_accessibility">Advertencia</string>
     <string name="settings_trusted_ssid_toggle">Permitir también por nombre de red (SSID)</string>
-    <string name="wifi_ssids_title">Nombres de red de confianza (SSID)</string>
-    <string name="wifi_ssids_warning">Un nombre de red no demuestra nada sobre un punto de acceso: cualquier punto de acceso que emita un nombre de la lista se considera de confianza, incluido uno imitado. Solo es útil si tienes varios puntos de acceso con un mismo nombre.</string>
     <string name="wifi_ssids_current_unknown">El nombre de la red actual no se puede leer, así que no se puede añadir (comprueba el permiso de ubicación).</string>
     <string name="wifi_ssids_empty">Todavía no hay nombres de red permitidos.</string>
     <string name="wifi_ssids_add_button">Permitir</string>
@@ -90,7 +83,6 @@
     <string name="wifi_ssids_remove_accessibility">Quitar el nombre de red «%1$s»</string>
     <string name="wifi_ssids_added_toast">Nombre de red «%1$s» permitido</string>
     <string name="wifi_ssids_removed_toast">Nombre de red «%1$s» quitado</string>
-    <string name="settings_trusted_network_status_untrusted">Reactivación automática pausada: esta red Wi-Fi no está en tu lista de confianza.</string>
     <string name="settings_trusted_network_status_identity_unavailable">Reactivación automática pausada: no se puede determinar la identidad de la red actual. Revisa el permiso o servicio de ubicación, o vuelve a abrir la app si Keep-Alive se inició en segundo plano. Para una solución permanente, configura la ubicación en «Permitir todo el tiempo».</string>
     <string name="settings_trusted_network_permission_title">Se requiere permiso de ubicación</string>
     <string name="settings_trusted_network_permission_message">Android requiere acceso a la ubicación para que una app pueda leer el nombre e ID de la red Wi-Fi actual. KeepADB lo usa solo para reconocer redes de confianza y nunca lee ni almacena tu ubicación.</string>
@@ -98,7 +90,6 @@
     <string name="settings_trusted_network_permission_denied_toast">Permiso denegado; se mantiene el modo \"todas las redes Wi-Fi\".</string>
     <string name="settings_trusted_network_add_failed_toast">No se pudo determinar la red actual. Comprueba la conexión Wi-Fi y el permiso de ubicación.</string>
     <string name="settings_trusted_network_added_toast">Se añadió \"%1$s\" a las redes de confianza</string>
-    <string name="settings_trusted_network_removed_toast">Se quitó "%1$s" de las redes de confianza</string>
     <string name="settings_trusted_network_mesh_title">¿Añadir otros puntos de acceso?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB también ha detectado %1$d puntos de acceso adicionales que emiten \"%2$s\". ¿Quieres añadirlos también a tu lista de confianza?</string>
     <string name="settings_trusted_network_mesh_add_button">Añadir todos</string>
@@ -113,14 +104,7 @@
     <string name="network_prompt_confirm_in_app_text">Nueva red Wi-Fi detectada — toca para confirmarla en la app.</string>
     <string name="network_prompt_identity_unavailable_title">No se puede identificar la red Wi-Fi actual</string>
     <string name="network_prompt_identity_unavailable_text">La reactivación automática de Keep-Alive está pausada porque no se puede leer la identidad de la red. Normalmente falta el permiso de ubicación o el servicio de ubicación está desactivado, pero también puede ocurrir si Keep-Alive se inició en segundo plano; configurar la ubicación en «Permitir todo el tiempo» lo soluciona de forma permanente. Toca para solucionarlo.</string>
-    <string name="settings_trusted_network_blocked_button">Bloqueadas hace poco (%1$d)</string>
-    <string name="settings_trusted_network_blocked_title">Redes bloqueadas recientemente</string>
-    <string name="settings_trusted_network_blocked_empty_message">No se ha bloqueado ninguna red últimamente.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · visto %2$s</string>
-    <string name="settings_trusted_network_blocked_allow_button">Permitir</string>
-    <string name="settings_trusted_network_blocked_allow_accessibility">Permitir la red bloqueada \"%1$s\"</string>
-    <string name="wifi_aps_title">Wi-Fi y puntos de acceso</string>
-    <string name="wifi_aps_trusted_only_toggle">Mostrar solo puntos de acceso de confianza</string>
     <string name="wifi_aps_current_badge">Actual</string>
     <string name="wifi_aps_trusted_status">De confianza</string>
     <string name="wifi_aps_untrusted_status">No es de confianza</string>
@@ -128,14 +112,8 @@
     <string name="wifi_aps_ssid_unknown">Nombre de red desconocido</string>
     <string name="wifi_aps_current_unknown">No se puede identificar la red Wi-Fi actual (comprueba el permiso de ubicación).</string>
     <string name="wifi_aps_empty">Aún no se han registrado más puntos de acceso.</string>
-    <string name="wifi_aps_trust_button">Confiar</string>
-    <string name="wifi_aps_untrust_button">Quitar confianza</string>
-    <string name="wifi_aps_trust_accessibility">Añadir \"%1$s\" a las redes de confianza</string>
-    <string name="wifi_aps_untrust_accessibility">Quitar \"%1$s\" de las redes de confianza</string>
     <string name="wifi_aps_show_more_button">Mostrar %1$d más</string>
     <string name="wifi_aps_show_less_button">Mostrar menos</string>
-    <string name="home_security_actions_title">Gestión de seguridad</string>
-    <string name="home_security_actions_body">Revisa los puntos de acceso en los que se bloqueó hace poco la reactivación automática de Keep-Alive y permite uno a posteriori si era tuyo.</string>
     <string name="settings_webhook_saved_toast">URL de Webhook guardada</string>
     <string name="settings_webhook_cleared_toast">Configuración de Webhook borrada</string>
     <string name="settings_webhook_enabled_toast">Sincronización Webhook activada</string>
@@ -338,12 +316,8 @@
     <string name="widget_text_keep_alive_waiting">Depuración inalámbrica: NO (esperando)</string>
     <string name="widget_text_pending">Depuración inalámbrica: cambiando…</string>
     <string name="toggle_failed_toast">No se pudo cambiar la depuración inalámbrica. Inténtalo de nuevo.</string>
-    <string name="settings_section_wifi_aps">Wi-Fi y puntos de acceso (Beta)</string>
     <string name="settings_wifi_aps_feature_toggle">Observar puntos de acceso</string>
-    <string name="settings_wifi_aps_beta_description">La detección de puntos de acceso es una función beta experimental que analiza puntos de acceso Wi-Fi cercanos. Requiere permiso de ubicación y puede consumir más batería.</string>
     <string name="settings_section_network">Red</string>
-    <string name="settings_beta_badge" translatable="false">BETA</string>
-    <string name="settings_network_beta_group_subtext">Redes de confianza y Wi-Fi y puntos de acceso se basan en la misma lógica de confianza de red y son ambas funciones beta experimentales. Despliega cualquiera de ellas a continuación para activarla y configurarla por separado.</string>
     <string name="network_head_mode">Reactivación automática: %1$s</string>
     <string name="network_mode_option_all_wifi">En todas las redes Wi-Fi</string>
     <string name="network_mode_option_aps">Solo puntos de acceso permitidos</string>

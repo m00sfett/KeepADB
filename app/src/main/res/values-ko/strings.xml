@@ -71,17 +71,10 @@
     <string name="settings_webhook_error_invalid_url">잘못된 URL입니다. 유효한 호스트와 함께 http:// 또는 https://로 시작해야 합니다.</string>
     <string name="settings_webhook_error_missing_url">동기화를 활성화하기 전에 유효한 HTTP/HTTPS URL을 입력하세요.</string>
     <string name="settings_webhook_cleartext_warning">이 URL은 암호화되지 않은 HTTP를 사용합니다 — 데이터가 평문으로 전송됩니다. 신뢰할 수 있는 LAN 또는 VPN에서만 사용하세요.</string>
-    <string name="settings_section_trusted_network">신뢰할 수 있는 네트워크</string>
-    <string name="settings_trusted_network_subtext">원하면 Keep-Alive의 자동 재활성화를 신뢰할 수 있다고 표시한 Wi-Fi 네트워크로만 제한할 수 있습니다. 기본값은 꺼짐입니다. 수동 전환은 이 설정과 무관하게 항상 작동합니다.</string>
     <string name="settings_warning_marker">!</string>
-    <string name="settings_trusted_network_warning_accessibility">경고</string>
-    <string name="settings_trusted_network_tradeoff_warning">위치 권한을 통해 Keep-Alive 서비스 실행 중에도 백그라운드에서 네트워크와 BSSID를 안정적으로 감지합니다. 자동 재활성화는 신뢰할 수 있는 네트워크에서만 발생합니다。</string>
-    <string name="settings_trusted_network_toggle">Keep-Alive를 신뢰할 수 있는 네트워크로 제한</string>
     <string name="settings_trusted_ssid_warning">더 약한 확인입니다. 네트워크 이름(SSID)은 자유롭게 정하는 문자열이며 액세스 포인트를 증명하지 못합니다. 허용된 이름을 송출하는 모든 액세스 포인트가 신뢰할 수 있는 것으로 처리되며, 사용자의 이름을 흉내낸 것도 포함됩니다. 주로 하나의 이름으로 여러 액세스 포인트를 운영할 때 유용합니다.</string>
     <string name="settings_trusted_ssid_warning_accessibility">경고</string>
     <string name="settings_trusted_ssid_toggle">네트워크 이름(SSID)으로도 허용</string>
-    <string name="wifi_ssids_title">신뢰할 수 있는 네트워크 이름(SSID)</string>
-    <string name="wifi_ssids_warning">네트워크 이름은 액세스 포인트를 증명하지 못합니다. 목록에 있는 이름을 송출하는 모든 액세스 포인트가 신뢰할 수 있는 것으로 처리되며, 흉내낸 것도 포함됩니다. 하나의 이름으로 여러 액세스 포인트를 운영할 때만 유용합니다.</string>
     <string name="wifi_ssids_current_unknown">현재 네트워크 이름을 읽을 수 없어 추가할 수 없습니다(위치 권한을 확인하세요).</string>
     <string name="wifi_ssids_empty">아직 허용된 네트워크 이름이 없습니다.</string>
     <string name="wifi_ssids_add_button">허용</string>
@@ -90,7 +83,6 @@
     <string name="wifi_ssids_remove_accessibility">네트워크 이름 &quot;%1$s&quot; 제거</string>
     <string name="wifi_ssids_added_toast">네트워크 이름 &quot;%1$s&quot;을 허용했습니다</string>
     <string name="wifi_ssids_removed_toast">네트워크 이름 &quot;%1$s&quot;을 제거했습니다</string>
-    <string name="settings_trusted_network_status_untrusted">자동 재활성화가 일시 중지됨: 이 Wi-Fi 네트워크는 신뢰 목록에 없습니다.</string>
     <string name="settings_trusted_network_status_identity_unavailable">자동 재활성화가 일시 중지됨: 현재 네트워크의 ID를 확인할 수 없습니다. 위치 권한/서비스를 확인하거나, Keep-Alive가 백그라운드에서 시작된 경우 앱을 다시 열어보세요. 영구적으로 해결하려면 위치 권한을 ‘항상 허용’으로 설정하세요.</string>
     <string name="settings_trusted_network_permission_title">위치 권한 필요</string>
     <string name="settings_trusted_network_permission_message">앱이 현재 Wi-Fi 네트워크의 이름과 ID를 읽으려면 Android에서 위치 액세스를 요구합니다. KeepADB는 이를 신뢰할 수 있는 네트워크를 인식하는 데만 사용하며 위치를 읽거나 저장하지 않습니다.</string>
@@ -98,7 +90,6 @@
     <string name="settings_trusted_network_permission_denied_toast">권한이 거부되었습니다 — \'모든 Wi-Fi 네트워크\' 모드를 유지합니다.</string>
     <string name="settings_trusted_network_add_failed_toast">현재 네트워크를 확인할 수 없습니다. Wi-Fi 연결과 위치 권한을 확인하세요.</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\"을(를) 신뢰할 수 있는 네트워크에 추가했습니다</string>
-    <string name="settings_trusted_network_removed_toast">"%1$s"을(를) 신뢰할 수 있는 네트워크에서 제거했습니다</string>
     <string name="settings_trusted_network_mesh_title">다른 액세스 포인트도 추가할까요?</string>
     <string name="settings_trusted_network_mesh_message">KeepADB가 다른 액세스 포인트 %1$d개가 \"%2$s\"을(를) 방송하는 것을 감지했습니다. 신뢰할 수 있는 목록에 함께 추가할까요?</string>
     <string name="settings_trusted_network_mesh_add_button">모두 추가</string>
@@ -113,14 +104,7 @@
     <string name="network_prompt_confirm_in_app_text">새 Wi-Fi 네트워크가 감지되었습니다 — 탭하여 앱에서 확인하세요.</string>
     <string name="network_prompt_identity_unavailable_title">현재 Wi-Fi 네트워크를 식별할 수 없습니다</string>
     <string name="network_prompt_identity_unavailable_text">네트워크 ID를 읽을 수 없어 Keep-Alive 자동 재활성화가 일시 중지되었습니다. 보통 위치 권한이 없거나 위치 서비스가 꺼져 있기 때문이지만, Keep-Alive가 백그라운드에서 시작된 경우에도 발생할 수 있습니다. 위치 권한을 ‘항상 허용’으로 설정하면 영구적으로 해결됩니다. 해결하려면 탭하세요.</string>
-    <string name="settings_trusted_network_blocked_button">최근 차단됨 (%1$d)</string>
-    <string name="settings_trusted_network_blocked_title">최근 차단된 네트워크</string>
-    <string name="settings_trusted_network_blocked_empty_message">최근에 차단된 네트워크가 없습니다.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · %2$s에 확인</string>
-    <string name="settings_trusted_network_blocked_allow_button">허용</string>
-    <string name="settings_trusted_network_blocked_allow_accessibility">차단된 네트워크 \"%1$s\" 허용</string>
-    <string name="wifi_aps_title">Wi-Fi 岊 액세스 포인트</string>
-    <string name="wifi_aps_trusted_only_toggle">신뢰할 수 있는 액세스 포인트만 표시</string>
     <string name="wifi_aps_current_badge">현재</string>
     <string name="wifi_aps_trusted_status">신뢰됨</string>
     <string name="wifi_aps_untrusted_status">신뢰되지 않음</string>
@@ -128,14 +112,8 @@
     <string name="wifi_aps_ssid_unknown">알 수 없는 네트워크 이름</string>
     <string name="wifi_aps_current_unknown">현재 Wi-Fi 네트워크를 확인할 수 없습니다(위치 권한을 확인하세요).</string>
     <string name="wifi_aps_empty">아직 기록된 다른 액세스 포인트가 없습니다.</string>
-    <string name="wifi_aps_trust_button">신뢰</string>
-    <string name="wifi_aps_untrust_button">신뢰 해제</string>
-    <string name="wifi_aps_trust_accessibility">\"%1$s\"을(를) 신뢰할 수 있는 네트워크에 추가</string>
-    <string name="wifi_aps_untrust_accessibility">\"%1$s\"을(를) 신뢰할 수 있는 네트워크에서 제거</string>
     <string name="wifi_aps_show_more_button">%1$d개 더 보기</string>
     <string name="wifi_aps_show_less_button">간단히 보기</string>
-    <string name="home_security_actions_title">보안 관리</string>
-    <string name="home_security_actions_body">최근에 Keep-Alive 자동 재활성화가 차단된 액세스 포인트를 살펴보고, 본인의 것이었다면 나중에 허용하세요.</string>
     <string name="settings_webhook_saved_toast">웹훅 URL이 저장되었습니다</string>
     <string name="settings_webhook_cleared_toast">웹훅 설정이 지워졌습니다</string>
     <string name="settings_webhook_enabled_toast">웹훅 동기화가 활성화되었습니다</string>
@@ -338,12 +316,8 @@
     <string name="widget_text_keep_alive_waiting">무선 디버깅: 꺼짐(대기 중)</string>
     <string name="widget_text_pending">무선 디버깅: 전환 중…</string>
     <string name="toggle_failed_toast">무선 디버깅을 전환하지 못했습니다. 다시 시도해 주세요.</string>
-    <string name="settings_section_wifi_aps">Wi-Fi 및 액세스 포인트 (베타)</string>
     <string name="settings_wifi_aps_feature_toggle">액세스 포인트 관찰</string>
-    <string name="settings_wifi_aps_beta_description">액세스 포인트 검색은 주변 Wi-Fi 액세스 포인트를 스캔하는 실험적 베타 기능입니다. 위치 권한이 필요하며 배터리를 더 소모할 수 있습니다。</string>
     <string name="settings_section_network">네트워크</string>
-    <string name="settings_beta_badge" translatable="false">BETA</string>
-    <string name="settings_network_beta_group_subtext">신뢰할 수 있는 네트워크와 Wi-Fi 및 액세스 포인트는 동일한 네트워크 신뢰 로직을 기반으로 하며 둘 다 실험적인 베타 기능입니다. 아래에서 하나를 펼쳐 개별적으로 활성화하고 구성하세요.</string>
     <string name="network_head_mode">자동 재활성화: %1$s</string>
     <string name="network_mode_option_all_wifi">모든 Wi-Fi 네트워크에서</string>
     <string name="network_mode_option_aps">허용된 액세스 포인트만</string>
