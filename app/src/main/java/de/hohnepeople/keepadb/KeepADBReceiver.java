@@ -100,10 +100,10 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     /**
      * #470: trusts {@code bssid} and immediately attempts the connection that being untrusted
      * was blocking -- shared by {@link #handleTrustNetworkAction} (the notification's "allow"
-     * action), {@link MainActivity}'s per-access-point trust button and, since #475, {@link
-     * SettingsActivity}'s blocked-networks "Allow" dialog, manual "add current network" button
-     * and mesh-BSSID convenience prompt, so trusting a network from anywhere in the app never
-     * requires opening the notification first.
+     * action) and {@link SettingsActivity}'s in-app trust confirmation for that same prompt
+     * (#598), so a trust decision taken on the prompt itself takes effect right away. The
+     * Settings list and card actions do not use this path any more: since #654 they only grant
+     * the allowance, see {@link #allowBssidOnly}.
      *
      * <p>Also cancels/clears the notification prompt either way: once a network is trusted from
      * anywhere in the app, the question the prompt was asking no longer applies and it must not
@@ -111,24 +111,16 @@ public final class KeepADBReceiver extends BroadcastReceiver {
      *
      * <p>The subsequent enable is gated by {@link KeepADBService#isAutoEnableStillPermitted},
      * not performed unconditionally: this can run arbitrarily late relative to when the access
-     * point was actually seen (a tapped notification, a non-current row in the main screen's
-     * access-point list), and by then the device may have roamed to a <em>different</em>
-     * untrusted access point or dropped Wi-Fi entirely. Turning Wireless Debugging on there would
-     * extend the user's consent for this access point to one they never saw. If the guard says
-     * no, the allowlist entry still stands and the normal Keep-Alive path enables as soon as the
-     * device is back on it.
+     * point was actually seen (a tapped notification), and by then the device may have roamed to
+     * a <em>different</em> untrusted access point or dropped Wi-Fi entirely. Turning Wireless
+     * Debugging on there would extend the user's consent for this access point to one they never
+     * saw. If the guard says no, the allowlist entry still stands and the normal Keep-Alive path
+     * enables as soon as the device is back on it.
      *
      * @return true if Wireless Debugging was actually turned on by this call.
      */
     static boolean trustBssidAndAttemptConnect(Context context, String bssid, String label) {
-        KeepADBTrustedNetwork.addBssid(context, bssid, label);
-        KeepADBBlockedNetworkHistory.remove(context, bssid);
-        KeepADBNetworkTrustPrompt.cancel(context);
-        // #474: only forget the marker for the access point just trusted -- a global clear would
-        // also silently drop the anti-spam history for a different, still-untrusted access point
-        // that has its own pending prompt (e.g. trusting a historical AP from MainActivity while
-        // the currently-connected, untrusted AP still awaits its own decision).
-        KeepADBNetworkTrustPrompt.clearPromptState(context, bssid);
+        recordTrust(context, bssid, label);
 
         boolean enabled = false;
         if (KeepADBService.isAutoEnableStillPermitted(context)) {
@@ -144,6 +136,38 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         KeepADBEndpointCoordinator.refresh(context);
         KeepADBWidget.refreshAll(context);
         return enabled;
+    }
+
+    /**
+     * #654: the grant-only path of the Settings surfaces (the current-connection action, the
+     * allowed, observed and recently-prevented lists, the mesh offer). Allowing an access point
+     * afterwards grants exactly that and nothing else: it writes the allowlist entry and clears
+     * the question it answers, but never switches Wireless Debugging on itself. What happens next
+     * is decided by the regular Keep-Alive path from the current connection, mode and settings;
+     * {@link KeepADBService#sync} only lets that path look again (a service start ends in its
+     * normal {@code recheckAndEnable()}), it does not bypass any of its guards.
+     *
+     * @return the allowlist entry, or null if {@code bssid} was blank and nothing was stored.
+     */
+    static KeepADBTrustedNetwork.Entry allowBssidOnly(Context context, String bssid, String label) {
+        KeepADBTrustedNetwork.Entry entry = recordTrust(context, bssid, label);
+        KeepADBDiagnostics.event(context, "user_action", "network_allow", "allowed", "grant_only");
+        KeepADBService.sync(context);
+        KeepADBEndpointCoordinator.refresh(context);
+        KeepADBWidget.refreshAll(context);
+        return entry;
+    }
+
+    private static KeepADBTrustedNetwork.Entry recordTrust(Context context, String bssid, String label) {
+        KeepADBTrustedNetwork.Entry entry = KeepADBTrustedNetwork.addBssid(context, bssid, label);
+        KeepADBBlockedNetworkHistory.remove(context, bssid);
+        KeepADBNetworkTrustPrompt.cancel(context);
+        // #474: only forget the marker for the access point just trusted -- a global clear would
+        // also silently drop the anti-spam history for a different, still-untrusted access point
+        // that has its own pending prompt (e.g. trusting a historical AP from MainActivity while
+        // the currently-connected, untrusted AP still awaits its own decision).
+        KeepADBNetworkTrustPrompt.clearPromptState(context, bssid);
+        return entry;
     }
 
     /**

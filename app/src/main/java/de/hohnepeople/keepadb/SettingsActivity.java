@@ -8,23 +8,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.InputType;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /** Central settings screen for KeepADB options (Keep-Alive, Language, Webhook, etc.). */
@@ -64,10 +65,37 @@ public class SettingsActivity extends Activity {
     private TextView usbHandoverSelectedText;
     private View usbHandoverSelector;
 
-    private Switch trustedNetworkToggle;
-    private Switch trustedSsidToggle;
-    private TextView trustedNetworkStatus;
+    // #654/#655: the Network card.
+    private TextView networkSubtitle;
+    private TextView networkStatusLabel;
+    private TextView networkConnectionLine;
+    private TextView networkStatusCause;
+    private Button networkStatusAction;
+    private TextView networkPrivacyHint;
+    private RadioGroup networkModeGroup;
+    private RadioButton networkModeAllWifi;
+    private RadioButton networkModeAllowlist;
     private TextView backgroundLocationStatus;
+    private TextView networkDetectionNow;
+    private Button backgroundLocationButton;
+    private TextView networkAllowedCount;
+    private TextView networkPreventedCount;
+    private TextView networkListsInactiveHint;
+    private View networkSsidHeader;
+    private View networkSsidBody;
+    private TextView networkSsidArrow;
+    private TextView networkSsidState;
+    private TextView networkSsidEffect;
+    private Switch trustedSsidToggle;
+    /**
+     * What {@link #networkStatusAction} does right now and which access point it is bound to,
+     * captured when the card was rendered: the button acts on the access point the user saw,
+     * never on whatever the device happens to be connected to at click time.
+     */
+    private KeepADBNetworkCardState.Action networkStatusActionKind =
+            KeepADBNetworkCardState.Action.NONE;
+    private String networkActionBssid;
+    private String networkActionLabel;
 
     private KeepADBWebhookForm webhookForm;
     private TextView versionNameText;
@@ -83,31 +111,20 @@ public class SettingsActivity extends Activity {
 
     private KeepADBUsbProfileEditor usbProfileEditor;
 
-    // #507: Wi-Fi & Access Points settings views and state
+    // #507/#654: Wi-Fi observation and the Wi-Fi-name list of the Network card.
     static final int WIFI_APS_LOCATION_PERMISSION_REQUEST = 3002;
     private static final String LOCATION_PERMISSION_REQUESTED = "location_permission_requested";
-    private static final int WIFI_APS_COLLAPSED_OTHERS = 5;
 
     private Switch wifiApsFeatureToggle;
     private View wifiApsContent;
-    private Switch wifiApsTrustedOnlyToggle;
-    private LinearLayout wifiApsCurrentRow;
-    private LinearLayout wifiApsList;
-    private TextView wifiApsToggle;
-    private TextView wifiApsEmpty;
-    private LinearLayout wifiSsidsSection;
     private LinearLayout wifiSsidsCurrentRow;
     private LinearLayout wifiSsidsList;
     private TextView wifiSsidsEmpty;
-    private Button wifiApsRecentlyBlockedButton;
-    private AlertDialog activeBlockedNetworksDialog;
     private AlertDialog activeTrustConfirmationDialog;
     /** #644: the step-2 rationale dialog for the optional background location grant, if showing. */
     private AlertDialog activeBackgroundLocationDialog;
     /** #604: the BSSID {@link #activeTrustConfirmationDialog} is bound to, or null if none is showing. */
     private String activeTrustConfirmationBssid;
-    private boolean wifiApsExpanded;
-    private boolean wifiApsTrustedOnly;
 
     static final String WEBSITE_URL = "https://hohnepeople.de";
 
@@ -136,7 +153,8 @@ public class SettingsActivity extends Activity {
     // #519 introduced the outer "Network" card (settings_network_beta_header/body/arrow below),
     // and #618 removes the two inner expand levels: Trusted Networks and Wi-Fi & access points
     // are now direct sections inside the network body (matching #529's USB-ADB and #521's
-    // Sonstiges structure). Only the outer network card remains collapsible.
+    // Sonstiges structure). Only the outer network card is in this table; the advanced Wi-Fi-name
+    // section inside it (#655) is one more collapsed-by-default toggle, bound in bindNetworkCard().
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
             {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body, R.id.settings_usb_adb_arrow},
@@ -251,58 +269,7 @@ public class SettingsActivity extends Activity {
         usbHandoverSelector = findViewById(R.id.settings_usb_handover_selector);
         usbHandoverSelector.setOnClickListener(v -> showUsbHandoverModeDialog());
 
-        wifiApsFeatureToggle = findViewById(R.id.settings_wifi_aps_feature_toggle);
-        wifiApsContent = findViewById(R.id.settings_wifi_aps_content);
-        wifiApsTrustedOnlyToggle = findViewById(R.id.wifi_aps_trusted_only_toggle);
-        wifiApsCurrentRow = findViewById(R.id.wifi_aps_current_row);
-        wifiApsList = findViewById(R.id.wifi_aps_list);
-        wifiApsEmpty = findViewById(R.id.wifi_aps_empty);
-        wifiApsToggle = findViewById(R.id.wifi_aps_toggle);
-        wifiSsidsSection = findViewById(R.id.wifi_ssids_section);
-        wifiSsidsCurrentRow = findViewById(R.id.wifi_ssids_current_row);
-        wifiSsidsList = findViewById(R.id.wifi_ssids_list);
-        wifiSsidsEmpty = findViewById(R.id.wifi_ssids_empty);
-        wifiApsRecentlyBlockedButton = findViewById(R.id.wifi_aps_recently_blocked_button);
-
-        wifiApsFeatureToggle.setOnClickListener(v -> {
-            boolean want = wifiApsFeatureToggle.isChecked();
-            KeepADBPreferences.setWifiApsFeatureEnabled(this, want);
-            refresh();
-        });
-        wifiApsToggle.setOnClickListener(v -> {
-            wifiApsExpanded = !wifiApsExpanded;
-            renderAccessPointOverview();
-        });
-        wifiApsTrustedOnlyToggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            wifiApsTrustedOnly = isChecked;
-            renderAccessPointOverview();
-        });
-        if (wifiApsRecentlyBlockedButton != null) {
-            wifiApsRecentlyBlockedButton.setOnClickListener(v -> showBlockedNetworkDialog());
-        }
-
-
-        trustedNetworkToggle = findViewById(R.id.settings_trusted_network_toggle);
-        trustedNetworkStatus = findViewById(R.id.settings_trusted_network_status);
-        backgroundLocationStatus = findViewById(R.id.settings_background_location_status);
-        // #616/#644: never grants anything; the user picks "Allow all the time" on the system
-        // page. Without the grant, the rationale dialog comes first (step 2); with it, the button
-        // goes straight to the page so the grant can still be checked or revoked.
-        findViewById(R.id.settings_background_location_button).setOnClickListener(v -> {
-            if (KeepADBBackgroundLocation.isGranted(this)) {
-                KeepADBBackgroundLocation.openSettings(this);
-            } else {
-                showBackgroundLocationDialog();
-            }
-        });
-        trustedSsidToggle = findViewById(R.id.settings_trusted_ssid_toggle);
-        // OnClick, not OnCheckedChange: refresh() re-renders both switches from the persisted
-        // state, and a checked-change listener would fire on that programmatic write too.
-        trustedNetworkToggle.setOnClickListener(v -> onTrustedNetworkToggleClicked());
-        trustedSsidToggle.setOnClickListener(v -> {
-            KeepADBTrustedNetwork.setSsidMatchingEnabled(this, trustedSsidToggle.isChecked());
-            refresh();
-        });
+        bindNetworkCard();
 
         findViewById(R.id.settings_diagnostics_export).setOnClickListener(v -> shareDiagnostics());
         findViewById(R.id.settings_issue_report).setOnClickListener(v -> showIssueReportDialog());
@@ -401,13 +368,6 @@ public class SettingsActivity extends Activity {
 
         usbProfileEditor.destroy();
 
-        if (activeBlockedNetworksDialog != null) {
-            if (activeBlockedNetworksDialog.isShowing()) {
-                activeBlockedNetworksDialog.dismiss();
-            }
-            activeBlockedNetworksDialog = null;
-        }
-
         if (activeTrustConfirmationDialog != null) {
             if (activeTrustConfirmationDialog.isShowing()) {
                 activeTrustConfirmationDialog.dismiss();
@@ -430,6 +390,91 @@ public class SettingsActivity extends Activity {
             return currentDraft == null ? "" : currentDraft;
         }
         return savedUrl == null ? "" : savedUrl;
+    }
+
+    /**
+     * #654/#655: wires the Network card. Every switch and choice uses OnClick, not a
+     * checked-change listener: {@link #refresh()} re-renders them from the persisted state, and a
+     * checked-change listener would fire on that programmatic write too (and so could change a
+     * stored setting just by opening Settings).
+     */
+    private void bindNetworkCard() {
+        networkSubtitle = findViewById(R.id.settings_network_beta_subtitle);
+        networkStatusLabel = findViewById(R.id.network_status_label);
+        networkConnectionLine = findViewById(R.id.network_connection_line);
+        networkStatusCause = findViewById(R.id.network_status_cause);
+        networkStatusAction = findViewById(R.id.network_status_action);
+        networkPrivacyHint = findViewById(R.id.network_privacy_hint);
+        networkModeGroup = findViewById(R.id.network_mode_group);
+        networkModeAllWifi = findViewById(R.id.network_mode_all_wifi);
+        networkModeAllowlist = findViewById(R.id.network_mode_allowlist);
+        backgroundLocationStatus = findViewById(R.id.settings_background_location_status);
+        networkDetectionNow = findViewById(R.id.network_detection_now);
+        backgroundLocationButton = findViewById(R.id.settings_background_location_button);
+        networkAllowedCount = findViewById(R.id.network_allowed_count);
+        networkPreventedCount = findViewById(R.id.network_prevented_count);
+        networkListsInactiveHint = findViewById(R.id.network_lists_inactive_hint);
+        wifiApsFeatureToggle = findViewById(R.id.settings_wifi_aps_feature_toggle);
+        wifiApsContent = findViewById(R.id.settings_wifi_aps_content);
+        networkSsidHeader = findViewById(R.id.network_ssid_header);
+        networkSsidBody = findViewById(R.id.network_ssid_body);
+        networkSsidArrow = findViewById(R.id.network_ssid_arrow);
+        networkSsidState = findViewById(R.id.network_ssid_state);
+        networkSsidEffect = findViewById(R.id.network_ssid_effect);
+        trustedSsidToggle = findViewById(R.id.settings_trusted_ssid_toggle);
+        wifiSsidsCurrentRow = findViewById(R.id.wifi_ssids_current_row);
+        wifiSsidsList = findViewById(R.id.wifi_ssids_list);
+        wifiSsidsEmpty = findViewById(R.id.wifi_ssids_empty);
+
+        networkStatusAction.setOnClickListener(v -> onNetworkStatusActionClicked());
+        networkModeAllWifi.setOnClickListener(v -> {
+            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+            refresh();
+        });
+        networkModeAllowlist.setOnClickListener(v -> onAllowlistOptionClicked());
+
+        // #616/#644: never grants anything; the user picks "Allow all the time" on the system
+        // page. Without the grant, the rationale dialog comes first (step 2); with it, the button
+        // goes straight to the page so the grant can still be checked or revoked.
+        backgroundLocationButton.setOnClickListener(v -> {
+            if (KeepADBBackgroundLocation.isGranted(this)) {
+                KeepADBBackgroundLocation.openSettings(this);
+            } else {
+                showBackgroundLocationDialog();
+            }
+        });
+
+        findViewById(R.id.network_allowed_row).setOnClickListener(v ->
+                startActivity(NetworkListActivity.intent(this, NetworkListActivity.VIEW_ALLOWED)));
+        findViewById(R.id.network_prevented_row).setOnClickListener(v ->
+                startActivity(NetworkListActivity.intent(this, NetworkListActivity.VIEW_PREVENTED)));
+        findViewById(R.id.network_observed_row).setOnClickListener(v ->
+                startActivity(NetworkListActivity.intent(this, NetworkListActivity.VIEW_OBSERVED)));
+
+        // The observation option only controls the observation and its list (#654).
+        wifiApsFeatureToggle.setOnClickListener(v -> {
+            KeepADBPreferences.setWifiApsFeatureEnabled(this, wifiApsFeatureToggle.isChecked());
+            refresh();
+        });
+
+        networkSsidHeader.setOnClickListener(v ->
+                setSsidSectionExpanded(networkSsidBody.getVisibility() != View.VISIBLE));
+        setSsidSectionExpanded(false);
+        trustedSsidToggle.setOnClickListener(v -> {
+            KeepADBTrustedNetwork.setSsidMatchingEnabled(this, trustedSsidToggle.isChecked());
+            refresh();
+        });
+    }
+
+    /**
+     * #655: the advanced Wi-Fi-name section starts collapsed like every card and, like the cards,
+     * keeps no expand state across openings. Its closed header already names the state and the
+     * number of names, so collapsing it never hides an active setting.
+     */
+    private void setSsidSectionExpanded(boolean expanded) {
+        setCardExpanded(networkSsidBody, networkSsidArrow, expanded);
+        networkSsidHeader.setStateDescription(getString(expanded
+                ? R.string.card_state_expanded : R.string.card_state_collapsed));
     }
 
     private void focusWebhookPanel() {
@@ -531,30 +576,31 @@ public class SettingsActivity extends Activity {
     }
 
     /**
-     * #492: the global opt-in. Moved back here from MainActivity's home card because turning it on
-     * is a security decision taken against the warning next to it. Under Variante C2 (#606),
-     * granting ACCESS_FINE_LOCATION enables {@link KeepADBService} to run with {@code
-     * FOREGROUND_SERVICE_TYPE_LOCATION}, which keeps Wi-Fi identity unmasked during keep-alive
-     * when the service's foreground promotion originated from the foreground, or from the
-     * background with the optional #616 {@code ACCESS_BACKGROUND_LOCATION} grant ("Allow all the
-     * time"). Without that grant, a background-originated promotion stays masked until a later
-     * foreground-originated restart, and on API 34+ it falls back to {@code connectedDevice}
-     * alone (#629/#630; see {@code docs/trusted-networks-measurement.md}, "Nachtrag 5").
+     * #492: the global opt-in, now the second option of the mode choice (#654). Moved back here
+     * from MainActivity's home card because turning it on is a security decision taken with the
+     * background-access facts in view. Under Variante C2 (#606), granting ACCESS_FINE_LOCATION
+     * enables {@link KeepADBService} to run with {@code FOREGROUND_SERVICE_TYPE_LOCATION}, which
+     * keeps Wi-Fi identity unmasked during keep-alive when the service's foreground promotion
+     * originated from the foreground, or from the background with the optional #616 {@code
+     * ACCESS_BACKGROUND_LOCATION} grant ("Allow all the time"). Without that grant, a
+     * background-originated promotion stays masked until a later foreground-originated restart,
+     * and on API 34+ it falls back to {@code connectedDevice} alone (#629/#630; see {@code
+     * docs/trusted-networks-measurement.md}, "Nachtrag 5").
      *
      * <p>Turning it *on* requires ACCESS_FINE_LOCATION, because without it the platform hands the
      * app a masked identity (and the foreground service cannot adopt the location type), causing
-     * allowlist mode to fail closed on every check. Turning it off never asks for anything.
+     * allowlist mode to fail closed on every check. Choosing "all Wi-Fi networks" again never asks
+     * for anything. Clicking the option that is already selected does nothing, so it can never
+     * re-open a dialog.
      */
-    private void onTrustedNetworkToggleClicked() {
-        boolean wantAllowlist = trustedNetworkToggle.isChecked();
-        if (!wantAllowlist) {
-            KeepADBTrustedNetwork.setMode(this, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+    private void onAllowlistOptionClicked() {
+        if (KeepADBTrustedNetwork.isAllowlistMode(this)) {
             refresh();
             return;
         }
-        // Revert the switch until permission is confirmed; refresh() below re-derives the actual
-        // checked state from the persisted mode either way.
-        trustedNetworkToggle.setChecked(false);
+        // Keep the choice on "all networks" until permission is confirmed; refresh() re-derives
+        // the shown choice from the persisted mode either way.
+        networkModeGroup.check(R.id.network_mode_all_wifi);
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             enableAllowlistMode();
             return;
@@ -863,246 +909,157 @@ public class SettingsActivity extends Activity {
             KeepADBBssidHistory.recordObservation(this, currentIdentity.displaySsid(), currentIdentity.bssid);
         }
 
-        // #492: the two policy switches, rendered from the persisted state on every refresh so a
-        // permission-denied or cancelled opt-in can never leave the switch claiming to be on.
-        trustedNetworkToggle.setChecked(KeepADBTrustedNetwork.isAllowlistMode(this));
-        // The SSID alternative only widens what allowlist mode accepts, so offering it while
-        // allowlist mode is off would present a switch that changes nothing.
+        renderNetworkCard(currentIdentity);
+    }
+
+    /**
+     * #654/#655: renders the Network card from the persisted settings and the current connection,
+     * top to bottom in the order the user reads it. All facts come from {@link
+     * KeepADBNetworkCardState}; this method only shows them. It never writes a setting: opening or
+     * refreshing Settings can therefore never switch the mode or the Wi-Fi-name matching, whatever
+     * the connection looks like.
+     */
+    private void renderNetworkCard(KeepADBNetworkIdentity identity) {
+        boolean fineLocation = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+        // A readable BSSID proves an association, so the transport is only asked without one.
+        boolean wifiConnected = identity.isKnown() || KeepADBService.isWifiConnected(this);
+        KeepADBNetworkCardState.Snapshot state = KeepADBNetworkCardState.derive(
+                KeepADBNetworkCardState.read(this, identity, wifiConnected, fineLocation,
+                        isLocationServiceOn(), KeepADBBackgroundLocation.isGranted(this)));
+        boolean ssidMatching = KeepADBTrustedNetwork.isSsidMatchingEnabled(this);
+
+        // Head: the active mode, read back from the stored settings, visible while closed.
+        networkSubtitle.setText(getString(R.string.network_head_mode,
+                getString(KeepADBNetworkCardText.modeOption(state.mode))));
+
+        // Current connection: decision, cause and the fitting action come before the mode choice.
+        networkStatusLabel.setText(KeepADBNetworkCardText.connectionLabel(state.connection));
+        networkStatusLabel.setTextColor(getColor(
+                KeepADBNetworkCardText.connectionColor(state.connection, state.mode)));
+        if (identity.isKnown()) {
+            networkConnectionLine.setText(KeepADBNetworkDisplay.ssid(this, identity.displaySsid(), null)
+                    + " · " + KeepADBNetworkDisplay.bssid(this, identity.bssid));
+            networkConnectionLine.setVisibility(View.VISIBLE);
+        } else {
+            networkConnectionLine.setVisibility(View.GONE);
+        }
+        networkStatusCause.setText(KeepADBNetworkCardText.cause(state.cause));
+        renderStatusAction(state, identity);
+        networkPrivacyHint.setVisibility(KeepADBNetworkDisplay.hidden(this) ? View.VISIBLE : View.GONE);
+
+        // Mode choice: rendered from the persisted mode, so a cancelled opt-in can never leave the
+        // choice claiming a mode that is not stored. The second option names the Wi-Fi names
+        // while the matching setting is on.
+        networkModeGroup.check(state.mode == KeepADBNetworkCardState.Mode.ALL_WIFI
+                ? R.id.network_mode_all_wifi : R.id.network_mode_allowlist);
+        networkModeAllowlist.setText(KeepADBNetworkCardText.modeOption(
+                KeepADBNetworkCardState.mode(true, ssidMatching)));
+
+        // Background access (#616/#645) and the current reading are two separate facts.
+        backgroundLocationStatus.setText(KeepADBNetworkCardText.background(state.background));
+        backgroundLocationStatus.setTextColor(
+                getColor(KeepADBNetworkCardText.backgroundColor(state.background)));
+        networkDetectionNow.setText(KeepADBNetworkCardText.detection(state.detection));
+        backgroundLocationButton.setText(
+                state.background == KeepADBNetworkCardState.Background.RESTRICTED
+                        ? R.string.network_background_setup_button
+                        : R.string.background_location_settings_button);
+
+        // Management entries stay reachable in every mode and whatever the observation says.
+        int allowedCount = KeepADBTrustedNetwork.getEntries(this).size();
+        networkAllowedCount.setText(String.valueOf(allowedCount));
+        networkPreventedCount.setText(
+                String.valueOf(KeepADBBlockedNetworkHistory.getEntries(this).size()));
+        networkListsInactiveHint.setText(
+                KeepADBNetworkCardText.inactiveListHint(this, ssidMatching));
+        networkListsInactiveHint.setVisibility(
+                state.mode == KeepADBNetworkCardState.Mode.ALL_WIFI && allowedCount > 0
+                        ? View.VISIBLE : View.GONE);
+
+        // Observation: controls only the observation and its list (#654).
+        boolean observing = KeepADBPreferences.isWifiApsFeatureEnabled(this);
+        wifiApsFeatureToggle.setChecked(observing);
+        wifiApsContent.setVisibility(observing ? View.VISIBLE : View.GONE);
+
+        // Advanced Wi-Fi-name section (#655): the header states the effect and the number of
+        // names, never a name. The switch stays inoperable while it would change nothing.
+        int nameCount = KeepADBTrustedNetwork.getSsidEntries(this).size();
+        switch (state.nameMatching) {
+            case ACTIVE:
+                networkSsidState.setText(getString(R.string.network_ssid_state_on, nameCount));
+                break;
+            case NO_EFFECT:
+                networkSsidState.setText(getString(R.string.network_ssid_state_no_effect, nameCount));
+                break;
+            case OFF:
+            default:
+                networkSsidState.setText(R.string.network_ssid_state_off);
+                break;
+        }
+        networkSsidEffect.setText(state.nameMatching == KeepADBNetworkCardState.NameMatching.NO_EFFECT
+                ? KeepADBNetworkCardText.inactiveListHint(this, ssidMatching)
+                : getString(KeepADBNetworkCardText.nameMatchingEffect(state.nameMatching)));
         trustedSsidToggle.setEnabled(KeepADBTrustedNetwork.isAllowlistMode(this));
-        trustedSsidToggle.setChecked(KeepADBTrustedNetwork.isSsidMatchingEnabled(this));
-        KeepADBTrustedNetwork.BlockReason blockReason = KeepADBTrustedNetwork.getBlockReason(this);
-        if (blockReason == KeepADBTrustedNetwork.BlockReason.UNTRUSTED_NETWORK) {
-            trustedNetworkStatus.setText(R.string.settings_trusted_network_status_untrusted);
-            trustedNetworkStatus.setVisibility(View.VISIBLE);
-        } else if (blockReason == KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE) {
-            trustedNetworkStatus.setText(R.string.settings_trusted_network_status_identity_unavailable);
-            trustedNetworkStatus.setVisibility(View.VISIBLE);
-        } else {
-            trustedNetworkStatus.setVisibility(View.GONE);
-        }
-        // #616: always visible here, so the background grant can be checked or set up later,
-        // independent of the main-screen card and its dismiss state.
-        // #645: colour reinforces the state, the text still carries it on its own.
-        int statusText;
-        int statusColor;
-        if (KeepADBBackgroundLocation.isGranted(this)) {
-            statusText = R.string.background_location_status_granted;
-            statusColor = R.color.status_ok_green;
-        } else if (KeepADBTrustedNetwork.isAllowlistMode(this)) {
-            statusText = R.string.background_location_status_missing;
-            statusColor = R.color.text_yellow;
-        } else {
-            statusText = R.string.background_location_status_missing_inactive;
-            statusColor = R.color.night_muted;
-        }
-        backgroundLocationStatus.setText(statusText);
-        backgroundLocationStatus.setTextColor(getColor(statusColor));
-
-        // #507: Wi-Fi & Access Points opt-in rendering
-        boolean wifiApsEnabled = KeepADBPreferences.isWifiApsFeatureEnabled(this);
-        wifiApsFeatureToggle.setChecked(wifiApsEnabled);
-        wifiApsContent.setVisibility(wifiApsEnabled ? View.VISIBLE : View.GONE);
-        if (wifiApsEnabled) {
-            renderAccessPointOverview();
-            renderTrustedSsidSection();
-            renderBlockedNetworkButton();
-        }
+        trustedSsidToggle.setChecked(ssidMatching);
+        renderSsidNames(identity);
     }
 
-    private void renderBlockedNetworkButton() {
-        if (wifiApsRecentlyBlockedButton != null) {
-            wifiApsRecentlyBlockedButton.setText(getString(R.string.settings_trusted_network_blocked_button,
-                    KeepADBBlockedNetworkHistory.getEntries(this).size()));
+    private void renderStatusAction(KeepADBNetworkCardState.Snapshot state,
+                                    KeepADBNetworkIdentity identity) {
+        networkStatusActionKind = state.action;
+        String ssid = identity.isKnown() ? identity.displaySsid() : null;
+        networkActionBssid = identity.isKnown() ? identity.bssid : null;
+        networkActionLabel = (ssid == null || ssid.isEmpty()) ? networkActionBssid : ssid;
+
+        int label = KeepADBNetworkCardText.action(state.action);
+        if (label == 0) {
+            networkStatusAction.setVisibility(View.GONE);
+            return;
         }
+        if (state.action == KeepADBNetworkCardState.Action.GRANT_LOCATION
+                && isLocationPermissionPermanentlyDenied()) {
+            label = R.string.location_permission_settings_button;
+        }
+        networkStatusAction.setText(label);
+        networkStatusAction.setContentDescription(
+                state.action == KeepADBNetworkCardState.Action.ALLOW_ACCESS_POINT
+                        ? getString(R.string.network_action_allow_ap_accessibility,
+                                KeepADBNetworkDisplay.label(this, ssid, identity.bssid, null))
+                        : null);
+        networkStatusAction.setVisibility(View.VISIBLE);
     }
 
-    private void renderAccessPointOverview() {
-        List<KeepADBAccessPointOverview.ApItem> items = KeepADBAccessPointOverview.buildItems(this);
-
-        wifiApsCurrentRow.removeAllViews();
-        wifiApsList.removeAllViews();
-
-        KeepADBAccessPointOverview.ApItem currentItem = null;
-        List<KeepADBAccessPointOverview.ApItem> others = new ArrayList<>();
-        for (KeepADBAccessPointOverview.ApItem item : items) {
-            if (item.current) {
-                currentItem = item;
-            } else {
-                others.add(item);
-            }
-        }
-
-        boolean currentHiddenByFilter = wifiApsTrustedOnly && currentItem != null && !currentItem.trusted;
-        if (currentHiddenByFilter) {
-            currentItem = null;
-        }
-        if (wifiApsTrustedOnly) {
-            others.removeIf(item -> !item.trusted);
-        }
-
-        if (currentItem != null) {
-            wifiApsCurrentRow.addView(buildAccessPointRow(currentItem, true));
-        } else if (!currentHiddenByFilter) {
-            TextView unknown = new TextView(this);
-            unknown.setText(R.string.wifi_aps_current_unknown);
-            unknown.setTextColor(getColor(R.color.night_muted));
-            unknown.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
-            wifiApsCurrentRow.addView(unknown);
-
-            boolean locationGranted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED;
-            if (!locationGranted) {
-                Button grantButton = new Button(this);
-                grantButton.setId(R.id.btn_wifi_aps_grant_location_permission);
-                grantButton.setBackgroundResource(R.drawable.bg_btn_primary);
-                grantButton.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
-                grantButton.setPadding(
-                        (int) (16 * getResources().getDisplayMetrics().density),
-                        (int) (8 * getResources().getDisplayMetrics().density),
-                        (int) (16 * getResources().getDisplayMetrics().density),
-                        (int) (8 * getResources().getDisplayMetrics().density));
-                grantButton.setTextColor(getColor(R.color.title_yellow));
-                grantButton.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
-                grantButton.setTypeface(android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.BOLD));
-                boolean permanentlyDenied = isLocationPermissionPermanentlyDenied();
-                grantButton.setText(permanentlyDenied
-                        ? R.string.location_permission_settings_button
-                        : R.string.location_permission_panel_grant_button);
-                grantButton.setOnClickListener(v -> onLocationPermissionActionClick());
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                lp.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
-                grantButton.setLayoutParams(lp);
-                wifiApsCurrentRow.addView(grantButton);
-            }
-        }
-
-        boolean collapsible = others.size() > WIFI_APS_COLLAPSED_OTHERS;
-        boolean expanded = wifiApsExpanded && collapsible;
-        int visibleCount = expanded ? others.size() : Math.min(others.size(), WIFI_APS_COLLAPSED_OTHERS);
-        for (int i = 0; i < visibleCount; i++) {
-            wifiApsList.addView(buildAccessPointRow(others.get(i), false));
-        }
-        wifiApsEmpty.setVisibility(others.isEmpty() ? View.VISIBLE : View.GONE);
-
-        if (collapsible) {
-            wifiApsToggle.setVisibility(View.VISIBLE);
-            wifiApsToggle.setText(expanded
-                    ? getString(R.string.wifi_aps_show_less_button)
-                    : getString(R.string.wifi_aps_show_more_button, others.size() - WIFI_APS_COLLAPSED_OTHERS));
-        } else {
-            wifiApsToggle.setVisibility(View.GONE);
-            wifiApsExpanded = false;
-        }
-    }
-
-    private View buildAccessPointRow(KeepADBAccessPointOverview.ApItem item, boolean highlightCurrent) {
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        if (!highlightCurrent) {
-            int topMargin = (int) (12 * getResources().getDisplayMetrics().density);
-            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            rowParams.topMargin = topMargin;
-            row.setLayoutParams(rowParams);
-        }
-
-        LinearLayout labelColumn = new LinearLayout(this);
-        labelColumn.setOrientation(LinearLayout.VERTICAL);
-        labelColumn.setLayoutParams(new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-
-        TextView label = new TextView(this);
-        String ssidLabel = (item.ssid == null || item.ssid.isEmpty())
-                ? getString(R.string.wifi_aps_ssid_unknown) : item.ssid;
-        label.setText(highlightCurrent
-                ? getString(R.string.wifi_aps_current_badge) + " · " + ssidLabel
-                : ssidLabel);
-        label.setTextColor(getColor(R.color.night_text));
-        label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
-
-        TextView bssidText = new TextView(this);
-        bssidText.setText(item.bssid);
-        bssidText.setTextColor(getColor(R.color.night_muted));
-        bssidText.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
-
-        labelColumn.addView(label);
-        labelColumn.addView(bssidText);
-
-        Button trustButton = new Button(this);
-        trustButton.setBackgroundResource(
-                item.trusted ? R.drawable.bg_btn_secondary : R.drawable.bg_btn_primary);
-        trustButton.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
-        trustButton.setTextColor(getColor(item.trusted ? R.color.text_yellow : R.color.title_yellow));
-        trustButton.setText(item.trusted ? R.string.wifi_aps_untrust_button : R.string.wifi_aps_trust_button);
-        trustButton.setContentDescription(getString(
-                item.trusted ? R.string.wifi_aps_untrust_accessibility : R.string.wifi_aps_trust_accessibility,
-                ssidLabel));
-        trustButton.setOnClickListener(v -> toggleAccessPointTrust(item, ssidLabel));
-
-        row.addView(labelColumn);
-        row.addView(trustButton);
-        return row;
-    }
-
-    private void toggleAccessPointTrust(KeepADBAccessPointOverview.ApItem item, String label) {
-        if (item.trusted) {
-            KeepADBTrustedNetwork.Entry match = null;
-            for (KeepADBTrustedNetwork.Entry entry : KeepADBTrustedNetwork.getEntries(this)) {
-                if (entry.bssid.equalsIgnoreCase(item.bssid)) {
-                    match = entry;
-                    break;
+    private void onNetworkStatusActionClicked() {
+        switch (networkStatusActionKind) {
+            case ALLOW_ACCESS_POINT:
+                if (networkActionBssid != null) {
+                    // Grants exactly the access point the card showed; never switches anything on.
+                    KeepADBNetworkActions.allowAccessPoint(this, networkActionBssid,
+                            networkActionLabel, true, this::refresh);
                 }
-            }
-            if (match != null && KeepADBTrustedNetwork.remove(this, match.id)) {
-                Toast.makeText(this, getString(R.string.settings_trusted_network_removed_toast, match.label),
-                        Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            KeepADBTrustedNetwork.Entry added = KeepADBTrustedNetwork.addBssid(this, item.bssid, label);
-            if (added != null) {
-                Toast.makeText(this, getString(R.string.settings_trusted_network_added_toast, added.label),
-                        Toast.LENGTH_SHORT).show();
-                boolean enabled = KeepADBReceiver.trustBssidAndAttemptConnect(this, item.bssid, added.label);
-                if (!enabled && !hasSecureSettingsPermission()) {
-                    showToggleErrorToast();
-                }
-                if (item.current) {
-                    offerAdditionalMeshBssids();
-                }
-            }
+                break;
+            case GRANT_LOCATION:
+                onLocationPermissionActionClick();
+                break;
+            case OPEN_LOCATION_SETTINGS:
+                KeepADBNetworkActions.openLocationSettings(this);
+                break;
+            case OPEN_WIFI_SETTINGS:
+                KeepADBNetworkActions.openWifiSettings(this);
+                break;
+            case SET_UP_BACKGROUND:
+                showBackgroundLocationDialog();
+                break;
+            case NONE:
+            default:
+                break;
         }
-        refresh();
     }
 
-    private void offerAdditionalMeshBssids() {
-        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(this);
-        if (!identity.isKnown()) return;
-        String ssid = identity.displaySsid();
-        if (ssid == null || ssid.isEmpty()) return;
-
-        List<String> alreadyListed = new ArrayList<>();
-        for (KeepADBTrustedNetwork.Entry listed : KeepADBTrustedNetwork.getEntries(this)) {
-            alreadyListed.add(listed.bssid);
-        }
-        List<String> additional = KeepADBBssidHistory.getAdditionalBssids(this, ssid, alreadyListed);
-        if (additional.isEmpty()) return;
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.settings_trusted_network_mesh_title)
-                .setMessage(getString(R.string.settings_trusted_network_mesh_message, additional.size(), ssid))
-                .setPositiveButton(R.string.settings_trusted_network_mesh_add_button, (dialog, which) -> {
-                    for (String bssid : additional) {
-                        KeepADBReceiver.trustBssidAndAttemptConnect(this, bssid, ssid);
-                    }
-                    Toast.makeText(this,
-                            getString(R.string.settings_trusted_network_mesh_added_toast, additional.size()),
-                            Toast.LENGTH_SHORT).show();
-                    refresh();
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+    private boolean isLocationServiceOn() {
+        LocationManager manager = getSystemService(LocationManager.class);
+        return manager == null || manager.isLocationEnabled();
     }
 
     private boolean isLocationPermissionPermanentlyDenied() {
@@ -1130,15 +1087,17 @@ public class SettingsActivity extends Activity {
         startActivity(intent);
     }
 
-    private void renderTrustedSsidSection() {
-        boolean enabled = KeepADBTrustedNetwork.isSsidMatchingEnabled(this);
-        wifiSsidsSection.setVisibility(enabled ? View.VISIBLE : View.GONE);
-        if (!enabled) return;
-
+    /**
+     * #655: the Wi-Fi-name list of the advanced section -- the current name with its add action,
+     * then every saved name with its remove action. It renders whatever the switch says, so saved
+     * names stay reachable in every mode; the effect line above it says whether they count.
+     */
+    private void renderSsidNames(KeepADBNetworkIdentity identity) {
         wifiSsidsCurrentRow.removeAllViews();
         wifiSsidsList.removeAllViews();
+        // One numbering for the current name and the list, so a hidden name reads alike in both.
+        KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
 
-        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(this);
         String currentSsid = identity.isKnown() ? identity.displaySsid() : null;
         if (currentSsid == null || currentSsid.isEmpty()) {
             TextView unknown = new TextView(this);
@@ -1147,45 +1106,40 @@ public class SettingsActivity extends Activity {
             unknown.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 13);
             wifiSsidsCurrentRow.addView(unknown);
         } else {
-            wifiSsidsCurrentRow.addView(buildCurrentSsidRow(currentSsid));
+            wifiSsidsCurrentRow.addView(buildCurrentSsidRow(currentSsid, numbering));
         }
 
         List<KeepADBTrustedNetwork.SsidEntry> entries = KeepADBTrustedNetwork.getSsidEntries(this);
         for (KeepADBTrustedNetwork.SsidEntry entry : entries) {
-            wifiSsidsList.addView(buildTrustedSsidRow(entry));
+            wifiSsidsList.addView(buildTrustedSsidRow(entry, numbering));
         }
         wifiSsidsEmpty.setVisibility(entries.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
-    private View buildCurrentSsidRow(String currentSsid) {
+    private View buildCurrentSsidRow(String currentSsid, KeepADBNetworkDisplay.Numbering numbering) {
         boolean listed = KeepADBTrustedNetwork.findSsidEntryForCurrentNetwork(this) != null;
+        String shownName = KeepADBNetworkDisplay.ssid(this, currentSsid, numbering);
         LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setOrientation(LinearLayout.VERTICAL);
 
         TextView label = new TextView(this);
-        label.setText(getString(R.string.wifi_aps_current_badge) + " · " + currentSsid);
+        label.setText(getString(R.string.wifi_aps_current_badge) + " · " + shownName);
         label.setTextColor(getColor(R.color.night_text));
         label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
-        label.setLayoutParams(new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
         row.addView(label);
 
         if (!listed) {
-            Button add = new Button(this);
-            add.setBackgroundResource(R.drawable.bg_btn_primary);
-            add.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
-            add.setTextColor(getColor(R.color.title_yellow));
+            Button add = newRowActionButton(R.drawable.bg_btn_primary, R.color.title_yellow);
             add.setText(R.string.wifi_ssids_add_button);
-            add.setContentDescription(getString(R.string.wifi_ssids_add_accessibility, currentSsid));
+            add.setContentDescription(getString(R.string.wifi_ssids_add_accessibility, shownName));
             add.setOnClickListener(v -> {
                 KeepADBTrustedNetwork.SsidEntry added = KeepADBTrustedNetwork.addCurrentSsid(this);
                 if (added == null) {
                     Toast.makeText(this, R.string.settings_trusted_network_add_failed_toast,
                             Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(this, getString(R.string.wifi_ssids_added_toast, added.ssid),
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.wifi_ssids_added_toast,
+                            KeepADBNetworkDisplay.ssid(this, added.ssid, null)), Toast.LENGTH_SHORT).show();
                 }
                 refresh();
             });
@@ -1194,10 +1148,39 @@ public class SettingsActivity extends Activity {
         return row;
     }
 
-    private View buildTrustedSsidRow(KeepADBTrustedNetwork.SsidEntry entry) {
+    /**
+     * #655: the Allow/Remove action of a Wi-Fi-name row, laid out like the row buttons of {@link
+     * NetworkListActivity}. The Material default button has no horizontal padding, so at a large
+     * font the label filled the whole button and touched both edges; here the padding is explicit,
+     * the height is at least 48dp, and the button sits at the start edge below the name, so a long
+     * label wraps inside the row instead of being cut.
+     */
+    private Button newRowActionButton(int backgroundRes, int textColorRes) {
+        Button button = new Button(this);
+        button.setBackgroundResource(backgroundRes);
+        button.setMinHeight(dp(48));
+        button.setPadding(dp(16), dp(8), dp(16), dp(8));
+        button.setTextColor(getColor(textColorRes));
+        button.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+        button.setTypeface(android.graphics.Typeface.create("sans-serif-condensed",
+                android.graphics.Typeface.BOLD));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.topMargin = dp(8);
+        params.gravity = android.view.Gravity.START;
+        button.setLayoutParams(params);
+        return button;
+    }
+
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density);
+    }
+
+    private View buildTrustedSsidRow(KeepADBTrustedNetwork.SsidEntry entry,
+                                     KeepADBNetworkDisplay.Numbering numbering) {
+        String shownName = KeepADBNetworkDisplay.ssid(this, entry.ssid, numbering);
         LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setOrientation(LinearLayout.VERTICAL);
         int topMargin = (int) (12 * getResources().getDisplayMetrics().density);
         LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -1205,103 +1188,23 @@ public class SettingsActivity extends Activity {
         row.setLayoutParams(rowParams);
 
         TextView label = new TextView(this);
-        label.setText(entry.ssid);
+        label.setText(shownName);
         label.setTextColor(getColor(R.color.night_text));
         label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
-        label.setLayoutParams(new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
         row.addView(label);
 
-        Button remove = new Button(this);
-        remove.setBackgroundResource(R.drawable.bg_btn_secondary);
-        remove.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
-        remove.setTextColor(getColor(R.color.text_yellow));
+        Button remove = newRowActionButton(R.drawable.bg_btn_secondary, R.color.text_yellow);
         remove.setText(R.string.wifi_ssids_remove_button);
-        remove.setContentDescription(getString(R.string.wifi_ssids_remove_accessibility, entry.ssid));
+        remove.setContentDescription(getString(R.string.wifi_ssids_remove_accessibility, shownName));
         remove.setOnClickListener(v -> {
             if (KeepADBTrustedNetwork.removeSsid(this, entry.id)) {
-                Toast.makeText(this, getString(R.string.wifi_ssids_removed_toast, entry.ssid),
+                Toast.makeText(this, getString(R.string.wifi_ssids_removed_toast, shownName),
                         Toast.LENGTH_SHORT).show();
             }
             refresh();
         });
         row.addView(remove);
         return row;
-    }
-
-    private void showBlockedNetworkDialog() {
-        List<KeepADBBlockedNetworkHistory.Entry> entries =
-                KeepADBBlockedNetworkHistory.getEntries(this);
-        if (entries.isEmpty()) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.settings_trusted_network_blocked_title)
-                    .setMessage(R.string.settings_trusted_network_blocked_empty_message)
-                    .setPositiveButton(android.R.string.ok, null)
-                    .show();
-            return;
-        }
-        LinearLayout rows = new LinearLayout(this);
-        rows.setOrientation(LinearLayout.VERTICAL);
-        int padding = (int) (20 * getResources().getDisplayMetrics().density);
-        rows.setPadding(padding, 0, padding, 0);
-        final AlertDialog[] dialogHolder = new AlertDialog[1];
-        // Newest first: the access point the user just failed to connect on is the one they came
-        // here for, and getEntries() returns the log oldest-first.
-        for (int i = entries.size() - 1; i >= 0; i--) {
-            KeepADBBlockedNetworkHistory.Entry entry = entries.get(i);
-            LinearLayout row = new LinearLayout(this);
-            row.setGravity(Gravity.CENTER_VERTICAL);
-            LinearLayout labelColumn = new LinearLayout(this);
-            labelColumn.setOrientation(LinearLayout.VERTICAL);
-            labelColumn.setLayoutParams(new LinearLayout.LayoutParams(0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT, 1));
-            TextView label = new TextView(this);
-            label.setText(entry.label());
-            label.setTextColor(getColor(R.color.night_text));
-            TextView detail = new TextView(this);
-            detail.setText(getString(R.string.settings_trusted_network_blocked_detail,
-                    entry.bssid,
-                    android.text.format.DateUtils.getRelativeTimeSpanString(entry.lastSeenAt,
-                            System.currentTimeMillis(),
-                            android.text.format.DateUtils.MINUTE_IN_MILLIS).toString()));
-            detail.setTextColor(getColor(R.color.night_muted));
-            detail.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
-            labelColumn.addView(label);
-            labelColumn.addView(detail);
-            Button allow = new Button(this);
-            allow.setText(R.string.settings_trusted_network_blocked_allow_button);
-            allow.setContentDescription(getString(
-                    R.string.settings_trusted_network_blocked_allow_accessibility, entry.label()));
-            allow.setOnClickListener(v -> {
-                KeepADBReceiver.trustBssidAndAttemptConnect(this, entry.bssid, entry.label());
-                Toast.makeText(this,
-                        getString(R.string.settings_trusted_network_added_toast, entry.label()),
-                        Toast.LENGTH_SHORT).show();
-                dialogHolder[0].dismiss();
-                refresh();
-            });
-            row.addView(labelColumn);
-            row.addView(allow);
-            rows.addView(row);
-        }
-        ScrollView scroll = new ScrollView(this);
-        scroll.addView(rows);
-        dialogHolder[0] = new AlertDialog.Builder(this)
-                .setTitle(R.string.settings_trusted_network_blocked_title)
-                .setView(scroll)
-                .setPositiveButton(android.R.string.ok, null)
-                .create();
-        activeBlockedNetworksDialog = dialogHolder[0];
-        dialogHolder[0].setOnDismissListener(d -> {
-            if (activeBlockedNetworksDialog == d) {
-                activeBlockedNetworksDialog = null;
-            }
-        });
-        dialogHolder[0].show();
-    }
-
-    AlertDialog getActiveBlockedNetworksDialog() {
-        return activeBlockedNetworksDialog;
     }
 
     /**
@@ -1326,7 +1229,7 @@ public class SettingsActivity extends Activity {
         if (entry == null) {
             KeepADBDiagnostics.event(this, "user_action", "network_trust_prompt", "skipped",
                     "confirmation_not_pending");
-            showBlockedNetworkDialog();
+            startActivity(NetworkListActivity.intent(this, NetworkListActivity.VIEW_PREVENTED));
             return;
         }
         final String confirmedBssid = entry.bssid;

@@ -58,6 +58,11 @@
             android:name=".SettingsActivity"
             android:exported="false" />
 
+        <!-- #654: allowed / recently prevented / observed access points, opened from Settings. -->
+        <activity
+            android:name=".NetworkListActivity"
+            android:exported="false" />
+
         <service
             android:name=".KeepADBService"
             android:exported="false"

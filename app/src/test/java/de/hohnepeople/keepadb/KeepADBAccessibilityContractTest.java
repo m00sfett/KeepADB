@@ -131,7 +131,13 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
                 R.id.settings_wifi_aps_feature_toggle,
-                R.id.settings_trusted_network_toggle,
+                R.id.network_status_action,
+                R.id.network_mode_all_wifi,
+                R.id.network_mode_allowlist,
+                R.id.settings_background_location_button,
+                R.id.network_allowed_row,
+                R.id.network_prevented_row,
+                R.id.network_ssid_header,
                 R.id.settings_trusted_ssid_toggle,
                 R.id.settings_misc_header,
                 R.id.settings_hide_notification_toggle,
@@ -147,7 +153,7 @@ public class KeepADBAccessibilityContractTest {
         assertMinSize(widget.findViewById(R.id.widget_label));
     }
 
-    /** #507: verifies touch targets inside the Wi-Fi & Access Points opt-in content. */
+    /** #507/#654: verifies touch targets inside the observation content. */
     @Test
     public void settingsWifiApsContentInteractiveViewsKeep48DpTouchTargets() {
         View settings = runtimeView(R.layout.activity_settings);
@@ -156,8 +162,7 @@ public class KeepADBAccessibilityContractTest {
         measureAndLayout(settings, 360, 2400);
 
         int[] wifiApsControls = {
-                R.id.wifi_aps_trusted_only_toggle,
-                R.id.wifi_aps_recently_blocked_button
+                R.id.network_observed_row
         };
         for (int id : wifiApsControls) {
             assertMinSize(settings.findViewById(id));
@@ -182,6 +187,8 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_diagnostics_header
         };
         for (int id : headers) settings.findViewById(id).performClick();
+        // #655: the advanced Wi-Fi-name section is the one nested, collapsed sub-section.
+        settings.findViewById(R.id.network_ssid_header).performClick();
     }
 
     @Test
@@ -240,7 +247,11 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_usb_notification_toggle, R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
                 R.id.settings_wifi_aps_feature_toggle,
-                R.id.settings_trusted_network_toggle, R.id.settings_trusted_ssid_toggle,
+                R.id.network_status_action, R.id.network_mode_all_wifi,
+                R.id.network_mode_allowlist, R.id.settings_background_location_button,
+                R.id.network_allowed_row, R.id.network_prevented_row,
+                R.id.network_observed_row, R.id.network_ssid_header,
+                R.id.settings_trusted_ssid_toggle,
                 R.id.settings_hide_notification_toggle,
                 R.id.settings_keep_display_on_toggle, R.id.settings_advice_banner_toggle,
                 R.id.settings_battery_optimization_panel_toggle,
@@ -313,14 +324,17 @@ public class KeepADBAccessibilityContractTest {
         assertFalse(usbHandoverTitle.isClickable());
         assertFalse(usbNotificationTitle.isFocusable());
         assertFalse(usbHandoverTitle.isFocusable());
-        TextView trustedNetworkTitle = settings.findViewById(R.id.settings_trusted_network_title);
-        TextView wifiApsTitle = settings.findViewById(R.id.settings_wifi_aps_title);
-        assertTrue(trustedNetworkTitle.isAccessibilityHeading());
-        assertTrue(wifiApsTitle.isAccessibilityHeading());
-        assertFalse(trustedNetworkTitle.isClickable());
-        assertFalse(wifiApsTitle.isClickable());
-        assertFalse(trustedNetworkTitle.isFocusable());
-        assertFalse(wifiApsTitle.isFocusable());
+        // #654: every Network section starts with a non-interactive accessibility heading.
+        for (int id : new int[] {R.id.network_status_heading, R.id.network_mode_heading,
+                R.id.network_background_heading, R.id.network_manage_heading,
+                R.id.network_observation_heading}) {
+            TextView heading = settings.findViewById(id);
+            assertTrue(heading.isAccessibilityHeading());
+            assertFalse(heading.isClickable());
+            assertFalse(heading.isFocusable());
+        }
+        assertPoliteLiveRegion(settings.findViewById(R.id.network_status_label));
+        assertPoliteLiveRegion(settings.findViewById(R.id.settings_background_location_status));
 
         assertPoliteLiveRegion(main.findViewById(R.id.status));
         assertPoliteLiveRegion(main.findViewById(R.id.webhook_status));
@@ -409,9 +423,8 @@ public class KeepADBAccessibilityContractTest {
         // #510/#519/#520/#521/#529: the core, everyday ADB settings start with the webhook card,
         // then the "USB-ADB" card, with notification and USB -> Wifi-ADB handover shown as direct
         // sections after the sole outer expand step.
-        // Below that sits the "Network (Beta)" card -- itself collapsible since #519, with
-        // Trusted Networks and Wi-Fi & access points nested as independently collapsible
-        // sub-cards inside its body -- then the "Sonstiges" card, itself collapsible since #521,
+        // Below that sits the "Network" card -- itself collapsible since #519, with its sections
+        // shown directly inside its body (#618/#654) -- then the "Sonstiges" card, itself collapsible since #521,
         // with the four notice/display-preference sections shown directly inside its body,
         // matching #529's one-level USB-ADB structure.
         // #518: the language panel no longer exists in this content column at all -- it moved to
@@ -449,13 +462,27 @@ public class KeepADBAccessibilityContractTest {
         // order is checked there instead of in the settings content column.
         ViewGroup networkBetaBody = content.findViewById(R.id.settings_network_beta_body);
         assertNotNull(networkBetaBody);
-        View trustedNetworkPanel = networkBetaBody.findViewById(R.id.settings_trusted_network_panel);
-        View wifiApsPanel = networkBetaBody.findViewById(R.id.settings_wifi_aps_panel);
-        assertNotNull(trustedNetworkPanel);
-        assertNotNull(wifiApsPanel);
-        assertTrue("Trusted Networks must come before Wi-Fi & access points inside Network",
-                networkBetaBody.indexOfChild(trustedNetworkPanel)
-                        < networkBetaBody.indexOfChild(wifiApsPanel));
+        // #654/#655: the Network sections read current connection, mode, background access,
+        // access-point entries, observation -- and the advanced Wi-Fi-name section is last.
+        int[] networkSections = {
+                R.id.settings_network_status_panel,
+                R.id.settings_network_mode_panel,
+                R.id.settings_network_background_panel,
+                R.id.settings_network_manage_panel,
+                R.id.settings_wifi_aps_panel,
+                R.id.settings_network_ssid_panel
+        };
+        int previousSection = -1;
+        for (int sectionId : networkSections) {
+            View section = networkBetaBody.findViewById(sectionId);
+            assertNotNull("Missing Network section " + sectionId, section);
+            int index = networkBetaBody.indexOfChild(section);
+            assertTrue("Network section is out of order: " + sectionId, index > previousSection);
+            previousSection = index;
+        }
+        View lastNetworkChild = networkBetaBody.getChildAt(networkBetaBody.getChildCount() - 1);
+        assertEquals("The Wi-Fi-name section is the last content of the Network card",
+                R.id.settings_network_ssid_panel, lastNetworkChild.getId());
 
         // #521: persistent notification, keep-display-on, advice-banner and battery-optimization
         // are no longer direct children of the settings content column either -- they sit

@@ -106,6 +106,7 @@ ALLOWLIST = {
     "settings_section_general": {"es"},         # "General" is the correct Spanish word
     "settings_section_notification": {"fr"},    # "Notification" is the correct French word
     "usb_profile_hostname_hint": {"de"},        # "Hostname (optional)" is correct German (cf. nl "Hostnaam (optioneel)")
+    "network_manage_title": {"nl"},             # "Access points" is the Dutch loanword used throughout the nl strings (#654)
 }
 
 STRING_RE = re.compile(r'<string\b([^>]*)>(.*?)</string>', re.S)

@@ -465,10 +465,13 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- #519/#618: "Network" is a collapsible outer card (formerly Network (Beta)).
-             Collapsed, only the title is visible; expanding it reveals the two direct sections
-             below: Trusted Networks and Wi-Fi & access points, matching #529's USB-ADB and #521's
-             Sonstiges structure. Neither is independently collapsible. -->
+        <!-- #519/#618/#654: "Network" is a collapsible outer card. Collapsed, only the title and
+             the active mode are visible; expanded, the body reads top to bottom as: the current
+             connection with its cause and fitting action, the mode choice, the background-access
+             facts, the two management entries (allowed access points, recently prevented
+             re-enabling), the observation option and, always last, the advanced Wi-Fi-name
+             section with its warning, switch and name list together (#655). Long lists live in
+             NetworkListActivity, not here. -->
         <LinearLayout
             android:id="@+id/settings_network_beta_panel"
             android:layout_width="match_parent"
@@ -497,20 +500,37 @@
                     android:importantForAccessibility="no"
                     android:src="@drawable/ic_wifi" />
 
-                <TextView
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_section_network"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_section_network"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <!-- #654: the active mode, read back from the stored settings on every
+                         refresh, so it stays visible while the card is closed. -->
+                    <TextView
+                        android:id="@+id/settings_network_beta_subtitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/night_muted"
+                        android:textSize="13sp" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/settings_network_beta_arrow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
                     android:importantForAccessibility="no"
                     android:fontFamily="sans-serif-condensed"
                     android:text="+"
@@ -527,293 +547,545 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-        <!-- Trusted-Network Allowlist Section (#245; #618: directly visible inside the outer body) -->
-        <LinearLayout
-            android:id="@+id/settings_trusted_network_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/settings_trusted_network_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:accessibilityHeading="true"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_trusted_network"
-                android:textColor="@color/title_yellow"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:fontFamily="sans-serif"
-                    android:text="@string/settings_trusted_network_subtext"
-                    android:textColor="@color/night_muted"
-                    android:textSize="13sp" />
-
+                <!-- Current connection: connection, decision, cause and action come before the
+                     mode choice (#654). Colour only ever reinforces the status text. -->
                 <LinearLayout
+                    android:id="@+id/settings_network_status_panel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="24dp"
+                        android:id="@+id/network_status_heading"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="top"
-                        android:contentDescription="@string/settings_trusted_network_warning_accessibility"
+                        android:accessibilityHeading="true"
                         android:fontFamily="sans-serif-condensed"
-                        android:text="@string/settings_warning_marker"
-                        android:textColor="@color/border_red"
-                        android:textSize="18sp"
+                        android:text="@string/network_current_title"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
                     <TextView
-                        android:layout_width="0dp"
+                        android:id="@+id/network_status_label"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_marginTop="8dp"
+                        android:accessibilityLiveRegion="polite"
+                        android:fontFamily="sans-serif-condensed"
+                        android:textColor="@color/night_text"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/network_connection_line"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif"
-                        android:text="@string/settings_trusted_network_tradeoff_warning"
-                        android:textColor="@color/text_yellow"
+                        android:textColor="@color/night_text"
+                        android:textSize="15sp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/network_status_cause"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/night_text"
                         android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/network_status_action"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_btn_primary"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:paddingStart="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="8dp"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="15sp"
+                        android:visibility="gone" />
+
+                    <!-- #654: shown only while the privacy mode hides names and addresses. -->
+                    <TextView
+                        android:id="@+id/network_privacy_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/network_privacy_hint"
+                        android:textColor="@color/night_muted"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
                 </LinearLayout>
-
-                <Switch
-                    android:id="@+id/settings_trusted_network_toggle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:minHeight="48dp"
-                    android:text="@string/settings_trusted_network_toggle"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/settings_trusted_network_status"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:accessibilityLiveRegion="polite"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="13sp"
-                    android:visibility="gone" />
-
-                <!-- #616: background-location status and setup, reachable independent of onboarding. -->
-                <TextView
-                    android:id="@+id/settings_background_location_status"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:accessibilityLiveRegion="polite"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/night_text"
-                    android:textSize="13sp" />
-
-                <Button
-                    android:id="@+id/settings_background_location_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_btn_secondary"
-                    android:fontFamily="sans-serif-condensed"
-                    android:minHeight="48dp"
-                    android:paddingStart="16dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="16dp"
-                    android:paddingBottom="8dp"
-                    android:text="@string/background_location_settings_button"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="15sp" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
                     android:background="@color/border_red" />
 
+                <!-- Mode choice. Two options instead of the former switch: reads as a choice
+                     between two states and keeps large text and TalkBack straightforward. -->
                 <LinearLayout
+                    android:id="@+id/settings_network_mode_panel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:baselineAligned="false"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="24dp"
+                        android:id="@+id/network_mode_heading"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="top"
-                        android:contentDescription="@string/settings_trusted_ssid_warning_accessibility"
+                        android:accessibilityHeading="true"
                         android:fontFamily="sans-serif-condensed"
-                        android:text="@string/settings_warning_marker"
-                        android:textColor="@color/border_red"
-                        android:textSize="18sp"
+                        android:text="@string/network_mode_title"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:layout_width="0dp"
+                    <RadioGroup
+                        android:id="@+id/network_mode_group"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_marginTop="4dp"
+                        android:orientation="vertical">
+
+                        <RadioButton
+                            android:id="@+id/network_mode_all_wifi"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-condensed"
+                            android:minHeight="48dp"
+                            android:text="@string/network_mode_option_all_wifi"
+                            android:textColor="@color/text_yellow"
+                            android:textSize="15sp" />
+
+                        <RadioButton
+                            android:id="@+id/network_mode_allowlist"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-condensed"
+                            android:minHeight="48dp"
+                            android:text="@string/network_mode_option_aps"
+                            android:textColor="@color/text_yellow"
+                            android:textSize="15sp" />
+                    </RadioGroup>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif"
-                        android:text="@string/settings_trusted_ssid_warning"
-                        android:textColor="@color/text_yellow"
+                        android:text="@string/network_mode_hint"
+                        android:textColor="@color/night_muted"
                         android:textSize="13sp" />
                 </LinearLayout>
 
-                <Switch
-                    android:id="@+id/settings_trusted_ssid_toggle"
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:minHeight="48dp"
-                    android:text="@string/settings_trusted_ssid_toggle"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="14sp" />
-        </LinearLayout>
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/border_red" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="@color/border_red" />
-
-        <!-- Wi-Fi & Access Points Section (#507; #618: directly visible inside the outer body) -->
-        <LinearLayout
-            android:id="@+id/settings_wifi_aps_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/settings_wifi_aps_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:accessibilityHeading="true"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_wifi_aps"
-                android:textColor="@color/title_yellow"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-                <Switch
-                    android:id="@+id/settings_wifi_aps_feature_toggle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:minHeight="48dp"
-                    android:text="@string/settings_wifi_aps_feature_toggle"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="14sp" />
-
+                <!-- Background access (#616/#644/#654): the grant and the current reading are
+                     two separate facts and are shown as two separate lines. -->
                 <LinearLayout
-                    android:id="@+id/settings_wifi_aps_content"
+                    android:id="@+id/settings_network_background_panel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="vertical"
-                    android:visibility="gone">
+                    android:orientation="vertical">
 
-                    <Switch
-                        android:id="@+id/wifi_aps_trusted_only_toggle"
+                    <TextView
+                        android:id="@+id/network_background_heading"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
+                        android:accessibilityHeading="true"
                         android:fontFamily="sans-serif-condensed"
-                        android:minHeight="48dp"
-                        android:text="@string/wifi_aps_trusted_only_toggle"
-                        android:textColor="@color/text_yellow"
-                        android:textSize="14sp" />
+                        android:text="@string/network_background_title"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-                    <LinearLayout
-                        android:id="@+id/wifi_aps_current_row"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_card_clickable"
-                        android:orientation="vertical"
-                        android:padding="12dp" />
-
-                    <LinearLayout
-                        android:id="@+id/wifi_aps_list"
+                    <TextView
+                        android:id="@+id/settings_background_location_status"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:orientation="vertical" />
+                        android:accessibilityLiveRegion="polite"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/night_text"
+                        android:textSize="13sp" />
 
                     <TextView
-                        android:id="@+id/wifi_aps_toggle"
+                        android:id="@+id/network_detection_now"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/night_text"
+                        android:textSize="13sp" />
+
+                    <Button
+                        android:id="@+id/settings_background_location_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_btn_secondary"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:paddingStart="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="8dp"
+                        android:text="@string/background_location_settings_button"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/border_red" />
+
+                <!-- Management entries (#654): long lists open their own view. They stay
+                     reachable whatever the mode and whatever the observation option says. -->
+                <LinearLayout
+                    android:id="@+id/settings_network_manage_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/network_manage_heading"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:accessibilityHeading="true"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/network_manage_title"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/network_allowed_row"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:background="?android:attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
-                        android:fontFamily="sans-serif-condensed"
-                        android:gravity="center"
+                        android:gravity="center_vertical"
                         android:minHeight="48dp"
-                        android:paddingTop="12dp"
-                        android:paddingBottom="12dp"
-                        android:textColor="@color/text_yellow"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:visibility="gone" />
+                        android:orientation="horizontal">
 
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="sans-serif-condensed"
+                            android:text="@string/network_row_allowed"
+                            android:textColor="@color/night_text"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:id="@+id/network_allowed_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:fontFamily="sans-serif-condensed"
+                            android:textColor="@color/text_yellow"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:fontFamily="sans-serif-condensed"
+                            android:importantForAccessibility="no"
+                            android:text="›"
+                            android:textColor="@color/title_yellow"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- #654: in "all networks" mode the saved lists stay reachable but are
+                         explained as not counting there. -->
                     <TextView
-                        android:id="@+id/wifi_aps_empty"
+                        android:id="@+id/network_lists_inactive_hint"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
                         android:fontFamily="sans-serif"
-                        android:text="@string/wifi_aps_empty"
                         android:textColor="@color/night_muted"
                         android:textSize="13sp"
                         android:visibility="gone" />
 
-                    <View
+                    <LinearLayout
+                        android:id="@+id/network_prevented_row"
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="12dp"
-                        android:background="@color/border_red" />
+                        android:layout_height="wrap_content"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:minHeight="48dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="sans-serif-condensed"
+                            android:text="@string/network_row_prevented"
+                            android:textColor="@color/night_text"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:id="@+id/network_prevented_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:fontFamily="sans-serif-condensed"
+                            android:textColor="@color/text_yellow"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:fontFamily="sans-serif-condensed"
+                            android:importantForAccessibility="no"
+                            android:text="›"
+                            android:textColor="@color/title_yellow"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/border_red" />
+
+                <!-- Wi-Fi observation (#507/#654): the option controls only the observation and
+                     its list; allowing, removing and the checks above never depend on it. -->
+                <LinearLayout
+                    android:id="@+id/settings_wifi_aps_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/network_observation_heading"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:accessibilityHeading="true"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/network_observation_title"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <Switch
+                        android:id="@+id/settings_wifi_aps_feature_toggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:text="@string/settings_wifi_aps_feature_toggle"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/network_observation_hint"
+                        android:textColor="@color/night_muted"
+                        android:textSize="13sp" />
 
                     <LinearLayout
-                        android:id="@+id/wifi_ssids_section"
+                        android:id="@+id/settings_wifi_aps_content"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:visibility="gone">
 
-                        <TextView
+                        <LinearLayout
+                            android:id="@+id/network_observed_row"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:accessibilityHeading="true"
+                            android:background="?android:attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:minHeight="48dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif-condensed"
+                                android:text="@string/network_row_observed"
+                                android:textColor="@color/night_text"
+                                android:textSize="15sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:fontFamily="sans-serif-condensed"
+                                android:importantForAccessibility="no"
+                                android:text="›"
+                                android:textColor="@color/title_yellow"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/border_red" />
+
+                <!-- Advanced: allow by Wi-Fi name (#492/#655). Always the last content of the
+                     card: state, risk warning, switch and name list belong together and stay
+                     reachable whatever the observation option says. Collapsed by default like
+                     every card, but the closed header still names the state and the number of
+                     names, never a name itself. -->
+                <LinearLayout
+                    android:id="@+id/settings_network_ssid_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/network_ssid_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:minHeight="48dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif-condensed"
+                                android:text="@string/network_ssid_title"
+                                android:textColor="@color/title_yellow"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/network_ssid_state"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="sans-serif"
+                                android:textColor="@color/night_text"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/network_ssid_arrow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
                             android:fontFamily="sans-serif-condensed"
-                            android:text="@string/wifi_ssids_title"
+                            android:importantForAccessibility="no"
+                            android:text="+"
                             android:textColor="@color/title_yellow"
                             android:textSize="18sp"
                             android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/network_ssid_body"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="vertical"
+                        android:visibility="gone">
 
                         <TextView
+                            android:id="@+id/network_ssid_effect"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:layout_marginBottom="8dp"
                             android:fontFamily="sans-serif"
-                            android:text="@string/wifi_ssids_warning"
-                            android:textColor="@color/text_yellow"
+                            android:textColor="@color/night_text"
                             android:textSize="13sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:baselineAligned="false"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="24dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="top"
+                                android:contentDescription="@string/settings_trusted_ssid_warning_accessibility"
+                                android:fontFamily="sans-serif-condensed"
+                                android:text="@string/settings_warning_marker"
+                                android:textColor="@color/border_red"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:fontFamily="sans-serif"
+                                android:text="@string/settings_trusted_ssid_warning"
+                                android:textColor="@color/text_yellow"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+
+                        <Switch
+                            android:id="@+id/settings_trusted_ssid_toggle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="sans-serif-condensed"
+                            android:minHeight="48dp"
+                            android:text="@string/settings_trusted_ssid_toggle"
+                            android:textColor="@color/text_yellow"
+                            android:textSize="14sp" />
 
                         <LinearLayout
                             android:id="@+id/wifi_ssids_current_row"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
                             android:background="@drawable/bg_card_clickable"
                             android:orientation="vertical"
                             android:padding="12dp" />
@@ -835,49 +1107,8 @@
                             android:textColor="@color/night_muted"
                             android:textSize="13sp"
                             android:visibility="gone" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginTop="12dp"
-                            android:layout_marginBottom="12dp"
-                            android:background="@color/border_red" />
                     </LinearLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:accessibilityHeading="true"
-                        android:fontFamily="sans-serif-condensed"
-                        android:text="@string/home_security_actions_title"
-                        android:textColor="@color/title_yellow"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginBottom="8dp"
-                        android:fontFamily="sans-serif"
-                        android:text="@string/home_security_actions_body"
-                        android:textColor="@color/night_muted"
-                        android:textSize="13sp" />
-
-                    <Button
-                        android:id="@+id/wifi_aps_recently_blocked_button"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:background="@drawable/bg_btn_secondary"
-                        android:fontFamily="sans-serif-condensed"
-                        android:minHeight="48dp"
-                        android:textColor="@color/text_yellow"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
                 </LinearLayout>
-        </LinearLayout>
-
             </LinearLayout>
         </LinearLayout>
 

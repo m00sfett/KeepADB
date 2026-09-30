@@ -1,6 +1,9 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+import java.util.Locale;
 
 import org.junit.Test;
 
@@ -162,4 +165,77 @@ public class KeepADBAddressMaskTest {
     // false. Actually exercising that OnClickListener needs a live MainActivity (Robolectric or an
     // instrumented device run), which this module's plain JUnit + Android stub setup does not
     // provide -- verified instead by reading MainActivity.java rather than by an automated test.
+
+    // --- BSSID (#654) -------------------------------------------------------
+
+    @Test
+    public void bssidKeepsOnlyTheFirstAndTheLastOctet() {
+        assertEquals("AA:*:*:*:*:01", KeepADBAddressMask.maskBssid("AA:BB:CC:DD:EE:01"));
+        assertEquals("aa:*:*:*:*:01", KeepADBAddressMask.maskBssid("aa:bb:cc:dd:ee:01"));
+        assertEquals("02:*:*:*:*:5e", KeepADBAddressMask.maskBssid(" 02:1a:2b:3c:4d:5e "));
+        assertEquals("The example of the user decision", "de:*:*:*:*:ad",
+                KeepADBAddressMask.maskBssid("de:11:22:33:44:ad"));
+    }
+
+    @Test
+    public void theCaseOfTheKeptOctetsIsNotChanged() {
+        assertEquals("aA:*:*:*:*:Ff", KeepADBAddressMask.maskBssid("aA:bB:cC:dD:eE:Ff"));
+        assertEquals("AA:*:*:*:*:FF", KeepADBAddressMask.maskBssid("AA:11:22:33:44:FF"));
+        assertEquals("aa:*:*:*:*:ff", KeepADBAddressMask.maskBssid("aa:11:22:33:44:ff"));
+    }
+
+    @Test
+    public void aMaskedBssidNeverContainsAMiddleOctet() {
+        String masked = KeepADBAddressMask.maskBssid("aa:bb:cc:dd:ee:01");
+        for (String middle : new String[] {"bb", "cc", "dd", "ee"}) {
+            assertFalse("Masked BSSID leaks '" + middle + "': " + masked, masked.contains(middle));
+        }
+    }
+
+    /**
+     * Both sides of the rule over every octet value: the first and the last octet decide the
+     * output (hiding one of them is wrong), the four between them never do (showing one of them is
+     * wrong). A test that only looked for the middle octets would stay green when the last octet
+     * is masked again; one that only looked for the last would stay green when an extra octet leaks.
+     */
+    @Test
+    public void onlyTheFirstAndTheLastOctetInfluenceTheMask() {
+        String[] base = {"a0", "b1", "c2", "d3", "e4", "f5"};
+        String baseMask = KeepADBAddressMask.maskBssid(String.join(":", base));
+        assertEquals("a0:*:*:*:*:f5", baseMask);
+        for (int position = 0; position < 6; position++) {
+            for (int value = 0; value < 256; value++) {
+                String[] octets = base.clone();
+                octets[position] = String.format(Locale.ROOT, "%02x", value);
+                String masked = KeepADBAddressMask.maskBssid(String.join(":", octets));
+                if (position == 0) {
+                    assertEquals(octets[0] + ":*:*:*:*:f5", masked);
+                } else if (position == 5) {
+                    assertEquals("a0:*:*:*:*:" + octets[5], masked);
+                } else {
+                    assertEquals("Octet " + position + " must not show up in the mask: " + masked,
+                            baseMask, masked);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void anythingThatIsNotASixOctetBssidIsMaskedCompletely() {
+        for (String odd : new String[] {"aa:bb:cc", "aa:bb:cc:dd:ee", "aa:bb:cc:dd:ee:01:02",
+                "aa-bb-cc-dd-ee-01", "zz:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:0", "aa:bb:cc:dd:ee:001",
+                "not a bssid", "aabbccddee01", "aa:bb:cc:dd:ee:", ":bb:cc:dd:ee:01",
+                "aa::cc:dd:ee:01", "aa:bb:cc:dd:ee:0g", "aa:bb:cc:dd:ee:-1", "aa:bb:cc:dd:ee:0 1",
+                "aa:bb:cc:dd:ee:01:", "aa:bb:cc:dd:ee:ff:00:11"}) {
+            assertEquals("Unexpected format must not leak: " + odd, "***",
+                    KeepADBAddressMask.maskBssid(odd));
+        }
+    }
+
+    @Test
+    public void blankBssidsPassThroughWithoutInventingAMask() {
+        assertEquals(null, KeepADBAddressMask.maskBssid(null));
+        assertEquals("", KeepADBAddressMask.maskBssid(""));
+        assertEquals("   ", KeepADBAddressMask.maskBssid("   "));
+    }
 }
