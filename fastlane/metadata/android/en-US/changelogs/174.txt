@@ -1,0 +1,1 @@
+Settings links no longer crash on phones without a browser, and dialogs such as reset and language survive screen rotation. TalkBack now announces whether the Settings cards are expanded or collapsed. VPN and Tailscale detection was modernized without changing behavior.
