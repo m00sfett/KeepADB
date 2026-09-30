@@ -17,11 +17,28 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the `1.8.72` candidate below. `v1.4.5` was the
+`v1.8.38` is the latest public release before the `1.9.0` candidate below. `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.0] - Unreleased
+
+### Added
+- Optional background-location setup with a second-step explanation and clear foreground/background access status, so network recovery can work after a background start (#616, #619, #644, #645).
+- Separate management views for allowed, observed and recently prevented access points, with the current connection and its next action first in Network settings (#654, #655).
+
+### Changed
+- Connection details in notifications are opt-in; trust decisions move into the app when details are hidden (#592, #597, #598).
+- Wi-Fi-name matching stays an advanced, off-by-default option. Allowing an access point afterwards grants only that allowance; the normal Keep-Alive path decides when to enable debugging (#654, #655).
+- #650: Prepare version 1.9.0 / versionCode 172 for the next release. All unpublished development snapshots from 1.8.39 through 1.8.74 belong to this release candidate; their technical records and version codes below remain unchanged. The minor increment accounts for the new user-facing background-access flow (#644), without claiming publication.
+
+### Fixed
+- Network identity remains fail-closed when unreadable; Android 14+ background service starts fall back safely when the location service type is unavailable (#625, #628, #629, #630).
+- Trust and enable actions require an unlocked device where specified; privacy mode hides network details in app confirmations and success messages (#578, #586, #588, #658).
+- The observation switch stops recording, the open Network card follows Wi-Fi changes, and BSSID formatting is consistent without changing stored identities (#659, #661, #662).
+- Network guidance is mode-neutral in all 19 languages (#660); earlier localization, UI, diagnostics and reliability fixes remain documented in the development snapshots below.
 
 ## [1.8.74] - Unreleased
 
