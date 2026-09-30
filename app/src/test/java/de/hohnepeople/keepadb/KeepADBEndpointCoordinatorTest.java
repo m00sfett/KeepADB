@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLog;
 
 /**
  * #594: behavior tests at the new {@link KeepADBEndpointCoordinator} boundary -- the component
@@ -168,6 +169,27 @@ public class KeepADBEndpointCoordinatorTest {
         assertFalse(KeepADBEndpointCoordinator.snapshot().hasEndpoint());
         assertEquals("the stale endpoint must trigger exactly one rediscovery",
                 2, nsdProbe.discoverServicesCallCount);
+    }
+
+    /** #681: the stale-endpoint warning must not put the cached host in logcat in cleartext. */
+    @Test
+    public void staleEndpointWarningDoesNotLogHostInCleartext() throws Exception {
+        installFakeEndpoint();
+        KeepADBEndpointCoordinator.refresh(context);
+        deliver(capturedListener(), "192.0.2.1", 40000);
+        KeepADBEndpointCoordinator.setReachabilityProbeForTesting((host, port, timeoutMs) -> false);
+        ShadowLog.clear();
+
+        KeepADBEndpointCoordinator.verifyEndpointHealth(context);
+        awaitVerificationIdle();
+
+        // Only the warning line is checked: the diagnostics event line keeps its export masking.
+        String warning = null;
+        for (ShadowLog.LogItem item : ShadowLog.getLogs()) {
+            if (item.msg.contains("no longer reachable")) warning = item.msg;
+        }
+        assertNotNull("stale-endpoint warning must be logged", warning);
+        assertFalse(warning, warning.contains("192.0.2.1"));
     }
 
     /** Owner cancellation: a Tile cancels its own discovery and a late Tile result is dropped. */
