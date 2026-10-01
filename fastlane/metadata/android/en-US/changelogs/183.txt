@@ -1,0 +1,1 @@
+No change to the app itself: this patch only reorganizes the code that keeps track of register cleanups that could not be delivered yet, so future fixes there are safer. When and how often such a cleanup is retried, and what is remembered across a restart or a reboot, stays exactly the same, and your settings stay as they are.
