@@ -408,6 +408,12 @@ public class KeepADBResourceContractTest {
         result.put("widget_text_connected_format", new Object[] {integerWitness});
         result.put("tile_state_connected_format", new Object[] {stringWitness, integerWitness});
         result.put("permission_error_toast", new Object[] {stringWitness});
+        result.put("notification_title_active", new Object[] {stringWitness});
+        result.put("notification_title_disabled", new Object[] {stringWitness});
+        result.put("notification_title_searching", new Object[] {stringWitness});
+        result.put("notification_permission_missing_title", new Object[] {stringWitness});
+        result.put("widget_text_permission_missing", new Object[] {stringWitness});
+        result.put("tile_permission_error", new Object[] {stringWitness});
         result.put("setup_command", new Object[] {stringWitness});
         result.put("setup_command_multi", new Object[] {stringWitness});
         result.put("notification_text_active", new Object[] {integerWitness, stringWitness});
