@@ -205,8 +205,10 @@ public class KeepADBTileService extends TileService {
      * despite the permission being granted, instead of blaming setup for both.
      */
     private void showToggleErrorToast() {
-        Toast.makeText(this, getString(KeepADB.hasPermission(this)
-                        ? R.string.toggle_failed_toast : R.string.tile_permission_error),
+        // The brand prefix is passed in (not hardcoded) so debug builds show "(DBG) KeepADB" (#690).
+        Toast.makeText(this, KeepADB.hasPermission(this)
+                        ? getString(R.string.toggle_failed_toast)
+                        : getString(R.string.tile_permission_error, getString(R.string.app_name)),
                 Toast.LENGTH_LONG).show();
     }
 

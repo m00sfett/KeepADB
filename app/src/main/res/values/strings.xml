@@ -40,7 +40,7 @@
     <string name="widget_text_off">Wireless Debugging: OFF</string>
     <string name="widget_text_disconnected">Wireless Debugging: Disconnected</string>
     <string name="widget_text_connected_format">Wireless Debugging: ON (:%1$d)</string>
-    <string name="widget_text_permission_missing">KeepADB: Permission missing</string>
+    <string name="widget_text_permission_missing">%1$s: Permission missing</string>
     <string name="tile_label" translatable="false">@string/app_name</string>
     <string name="tile_state_off">Off</string>
     <string name="tile_state_disconnected">Disconnected</string>
@@ -48,20 +48,20 @@
     <string name="tile_state_connected">Connected</string>
     <string name="tile_state_connected_format">%1$s:%2$d</string>
     <string name="tile_state_permission_missing">Permission missing</string>
-    <string name="tile_permission_error">KeepADB: Permission missing (pm grant required)</string>
+    <string name="tile_permission_error">%1$s: Permission missing (pm grant required)</string>
     <string name="permission_error_toast">Permission missing. Run once from PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Wireless Debugging Endpoint</string>
     <string name="notification_channel_desc">Current IP address and port of Wireless Debugging</string>
-    <string name="notification_title_active">KeepADB: Wireless Debugging ENABLED</string>
-    <string name="notification_title_disabled">KeepADB: Wireless Debugging DISABLED</string>
+    <string name="notification_title_active">%1$s: Wireless Debugging ENABLED</string>
+    <string name="notification_title_disabled">%1$s: Wireless Debugging DISABLED</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Tap to see connection details in the app.</string>
-    <string name="notification_title_searching">KeepADB: Searching for endpoint…</string>
+    <string name="notification_title_searching">%1$s: Searching for endpoint…</string>
     <string name="notification_text_searching">Resolving endpoint on local network</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive is waiting for wireless debugging to be turned back on</string>
     <string name="notification_service_title">Keep Wireless Debugging Active</string>
     <string name="notification_service_text">Monitoring Wi-Fi connection and Wireless Debugging status</string>
-    <string name="notification_permission_missing_title">KeepADB: Permission missing</string>
+    <string name="notification_permission_missing_title">%1$s: Permission missing</string>
     <string name="notification_permission_missing_text">Grant WRITE_SECURE_SETTINGS from PC via adb shell pm grant</string>
     <string name="notification_permission_panel_title">Notifications</string>
     <string name="notification_permission_panel_body">With notifications enabled, you can see whether the KeepADB background service and Keep-Alive are running. If the connection drops, KeepADB lets you know right away. Wireless Debugging works fine without this permission too.</string>

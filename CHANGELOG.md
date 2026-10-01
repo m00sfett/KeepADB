@@ -27,6 +27,7 @@ are retrospective issue-version records and were never published as separate rel
 
 ### Fixed
 - #690: Debug builds mark the brand label with `(DBG)` in every locale, including the Quick Settings tile and the in-app title: `app_name`, `title_keepadb` and `tile_label` are now `translatable="false"` and defined only in `values/`, so the debug overlay is no longer shadowed by locale-specific copies. The release label stays `KeepADB`.
+- #690: The same applies to notification titles, the widget permission text and the tile permission toast: their leading brand name is now a `%1$s` argument filled from `app_name`, so debug shows `(DBG) KeepADB:` there and release stays `KeepADB:`.
 
 ### Documentation
 - #689: Keep-Alive click comment in `MainActivity` names the guard actually used since #680.

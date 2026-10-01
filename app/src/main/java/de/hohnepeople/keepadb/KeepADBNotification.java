@@ -39,7 +39,7 @@ final class KeepADBNotification {
             return buildNotification(appContext, snapshot.host, snapshot.port);
         } else {
             return buildPlaceholderNotification(appContext,
-                    appContext.getString(R.string.notification_title_searching),
+                    appContext.getString(R.string.notification_title_searching, appContext.getString(R.string.app_name)),
                     appContext.getString(R.string.notification_text_searching));
         }
     }
@@ -53,7 +53,7 @@ final class KeepADBNotification {
             if (manager == null) return;
             ensureChannel(appContext, manager);
             showPlaceholder(appContext, manager,
-                    appContext.getString(R.string.notification_permission_missing_title),
+                    appContext.getString(R.string.notification_permission_missing_title, appContext.getString(R.string.app_name)),
                     appContext.getString(R.string.notification_permission_missing_text));
         }
     }
@@ -83,7 +83,7 @@ final class KeepADBNotification {
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
         if (manager == null) return;
         showPlaceholder(appContext, manager,
-                appContext.getString(R.string.notification_title_searching),
+                appContext.getString(R.string.notification_title_searching, appContext.getString(R.string.app_name)),
                 appContext.getString(R.string.notification_text_searching));
     }
 
@@ -92,7 +92,7 @@ final class KeepADBNotification {
         NotificationManager manager = appContext.getSystemService(NotificationManager.class);
         if (manager == null) return;
         showPlaceholder(appContext, manager,
-                appContext.getString(R.string.notification_title_disabled),
+                appContext.getString(R.string.notification_title_disabled, appContext.getString(R.string.app_name)),
                 appContext.getString(R.string.notification_text_disabled_keepalive_waiting));
     }
 
@@ -160,7 +160,7 @@ final class KeepADBNotification {
     }
 
     private static Notification buildNotification(Context context, String host, int port) {
-        String title = context.getString(R.string.notification_title_active);
+        String title = context.getString(R.string.notification_title_active, context.getString(R.string.app_name));
         // #597: the port/IP endpoint string is opt-in, gated behind the same
         // notification_details_enabled preference #592 introduced for the USB and trust-prompt
         // notifications. Off (the default) shows only the status; on reproduces the previous,
@@ -243,7 +243,7 @@ final class KeepADBNotification {
         // never offer to disable a state that isn't positively known to be "on".
         Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(context, "notification");
         if (adbEnabledOrNull != null && adbEnabledOrNull
-                && !context.getString(R.string.notification_permission_missing_title).equals(title)) {
+                && !context.getString(R.string.notification_permission_missing_title, context.getString(R.string.app_name)).equals(title)) {
             builder.addAction(disableAction(context));
         }
         return builder.build();
