@@ -12,12 +12,8 @@ import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -29,15 +25,13 @@ public class SettingsActivity extends Activity {
     public static final String EXTRA_FOCUS_WEBHOOK = "focus_webhook";
     /** #619: Intent extra requesting that the network section be expanded and scrolled into view. */
     public static final String EXTRA_FOCUS_NETWORK = "focus_network";
-    static final String STATE_ISSUE_REPORT_SHOWING = "settings_issue_report_showing";
-    static final String STATE_ISSUE_REPORT_DRAFT = "settings_issue_report_draft";
-    static final String STATE_ISSUE_REPORT_DIAGNOSTICS = "settings_issue_report_diagnostics";
     /**
      * #672: flags for the reset-app, USB handover mode and language dialogs showing at the time of
      * a {@code recreate()} (rotation). Pure "was showing" markers; a restored reset-app dialog is
      * only re-shown and still needs the user's own confirm tap. The Bundle keys of the Network
      * card's dialogs (trust confirmation, background location, allowlist permission) are owned by
-     * {@link KeepADBNetworkCard} (#697).
+     * {@link KeepADBNetworkCard} (#697), those of the feedback report dialog by {@link
+     * KeepADBDiagnosticsController} (#698).
      */
     static final String STATE_RESET_APP_SHOWING = "settings_reset_app_showing";
     static final String STATE_USB_HANDOVER_MODE_SHOWING = "settings_usb_handover_mode_showing";
@@ -72,9 +66,8 @@ public class SettingsActivity extends Activity {
     private TextView versionDebugBadge;
     private TextView websiteLinkText;
 
-    private AlertDialog activeIssueReportDialog;
-    private EditText activeIssueReportPreview;
-    private CheckBox activeIssueReportDiagnostics;
+    // #698: the diagnostics export and the feedback report dialog (draft, preview, opt-in).
+    private KeepADBDiagnosticsController diagnosticsController;
 
     private AlertDialog activeResetAppDialog;
     /** #672: the USB handover mode and language selection dialogs, if showing. */
@@ -206,8 +199,7 @@ public class SettingsActivity extends Activity {
 
         networkCard = new KeepADBNetworkCard(this, this::refresh);
 
-        findViewById(R.id.settings_diagnostics_export).setOnClickListener(v -> shareDiagnostics());
-        findViewById(R.id.settings_issue_report).setOnClickListener(v -> showIssueReportDialog());
+        diagnosticsController = new KeepADBDiagnosticsController(this, this::openWebLink);
         findViewById(R.id.settings_reset_app).setOnClickListener(v -> showResetAppDialog());
 
         webhookForm = new KeepADBWebhookForm(this, this::refresh);
@@ -215,12 +207,7 @@ public class SettingsActivity extends Activity {
         usbProfileEditor.restore(savedInstanceState);
 
         if (savedInstanceState != null) {
-            if (savedInstanceState.getBoolean(STATE_ISSUE_REPORT_SHOWING, false)) {
-                String draftBody = savedInstanceState.getString(STATE_ISSUE_REPORT_DRAFT);
-                boolean includeDiagnostics = savedInstanceState.getBoolean(
-                        STATE_ISSUE_REPORT_DIAGNOSTICS, false);
-                showIssueReportDialog(draftBody, includeDiagnostics);
-            }
+            diagnosticsController.restore(savedInstanceState);
             // #604/#672/#682 (#697): the Network card re-shows its own trust confirmation,
             // background-location and allowlist permission dialogs from the same bundle.
             networkCard.restore(savedInstanceState);
@@ -295,14 +282,7 @@ public class SettingsActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         webhookForm.saveState(outState);
-        if (activeIssueReportDialog != null && activeIssueReportDialog.isShowing()) {
-            outState.putBoolean(STATE_ISSUE_REPORT_SHOWING, true);
-            outState.putString(STATE_ISSUE_REPORT_DRAFT,
-                    activeIssueReportPreview != null && activeIssueReportPreview.getText() != null
-                            ? activeIssueReportPreview.getText().toString() : "");
-            outState.putBoolean(STATE_ISSUE_REPORT_DIAGNOSTICS,
-                    activeIssueReportDiagnostics != null && activeIssueReportDiagnostics.isChecked());
-        }
+        diagnosticsController.saveState(outState);
         usbProfileEditor.saveState(outState);
         networkCard.saveState(outState);
         outState.putBoolean(STATE_RESET_APP_SHOWING, isShowing(activeResetAppDialog));
@@ -317,14 +297,7 @@ public class SettingsActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        if (activeIssueReportDialog != null) {
-            if (activeIssueReportDialog.isShowing()) {
-                activeIssueReportDialog.dismiss();
-            }
-            activeIssueReportDialog = null;
-        }
-        activeIssueReportPreview = null;
-        activeIssueReportDiagnostics = null;
+        diagnosticsController.destroy();
 
         if (activeResetAppDialog != null) {
             if (activeResetAppDialog.isShowing()) {
@@ -492,122 +465,6 @@ public class SettingsActivity extends Activity {
         picker.show();
     }
 
-    private void shareDiagnostics() {
-        KeepADBDiagnostics.event(this, "diagnostics_export", "settings", "requested",
-                "share_sheet");
-        Intent share = new Intent(Intent.ACTION_SEND)
-                .setType("text/plain")
-                .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.settings_diagnostics_export_subject))
-                .putExtra(Intent.EXTRA_TEXT, KeepADBDiagnostics.export(this));
-        startActivity(Intent.createChooser(share, getString(R.string.settings_diagnostics_export)));
-    }
-
-    private void showIssueReportDialog() {
-        showIssueReportDialog(null, false);
-    }
-
-    private void showIssueReportDialog(String draftBody, boolean includeDiagnostics) {
-        LinearLayout content = new LinearLayout(this);
-        content.setOrientation(LinearLayout.VERTICAL);
-        int padding = (int) (20 * getResources().getDisplayMetrics().density);
-        content.setPadding(padding, 0, padding, 0);
-
-        TextView intro = new TextView(this);
-        intro.setText(R.string.settings_issue_report_dialog_message);
-        intro.setTextSize(13);
-        content.addView(intro);
-
-        CheckBox diagnostics = new CheckBox(this);
-        diagnostics.setText(R.string.settings_issue_report_include_diagnostics);
-        diagnostics.setContentDescription(getString(R.string.settings_issue_report_include_diagnostics));
-        content.addView(diagnostics);
-
-        ScrollView previewScroll = new ScrollView(this);
-        previewScroll.setFillViewport(true);
-        previewScroll.setScrollbarFadingEnabled(false);
-        LinearLayout.LayoutParams previewScrollParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, (int) (280 * getResources().getDisplayMetrics().density));
-        previewScrollParams.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
-        previewScroll.setLayoutParams(previewScrollParams);
-
-        EditText preview = new EditText(this);
-        preview.setGravity(android.view.Gravity.TOP | android.view.Gravity.START);
-        preview.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
-                | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        preview.setTextSize(13);
-        preview.setBackgroundResource(R.drawable.bg_input);
-        preview.setPadding(padding, padding, padding, padding);
-        preview.setHint(R.string.settings_issue_report_preview_hint);
-        preview.setContentDescription(getString(R.string.settings_issue_report_preview));
-        previewScroll.addView(preview);
-        content.addView(previewScroll);
-
-        String withoutDiagnostics = KeepADBIssueReporter.buildBody(this, false);
-        final String[] diagnosticsSection = {null};
-        String diagnosticsTitle = getString(R.string.issue_report_diagnostics_section);
-        preview.setText(withoutDiagnostics);
-        if (draftBody != null) {
-            preview.setText(draftBody);
-        }
-        if (includeDiagnostics) {
-            diagnostics.setChecked(true);
-        }
-        diagnostics.setOnCheckedChangeListener((button, checked) -> {
-            String current = preview.getText().toString();
-            if (checked && !KeepADBIssueReporter.containsDiagnosticsSection(current, diagnosticsTitle)) {
-                if (diagnosticsSection[0] == null) {
-                    diagnosticsSection[0] = KeepADBIssueReporter.buildDiagnosticsSection(this);
-                }
-                preview.setText(KeepADBIssueReporter.addDiagnosticsSection(current,
-                        diagnosticsSection[0]));
-            } else if (!checked) {
-                String withoutSection = KeepADBIssueReporter.removeDiagnosticsSection(
-                        current, diagnosticsTitle);
-                if (!withoutSection.equals(current)) preview.setText(withoutSection);
-            }
-        });
-
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(R.string.settings_issue_report_dialog_title)
-                .setView(content)
-                .setPositiveButton(R.string.settings_issue_report_open_feedback, null)
-                .setNeutralButton(R.string.settings_issue_report_share, null)
-                .setNegativeButton(android.R.string.cancel, null)
-                .create();
-        activeIssueReportDialog = dialog;
-        activeIssueReportPreview = preview;
-        activeIssueReportDiagnostics = diagnostics;
-        dialog.setOnDismissListener(d -> {
-            activeIssueReportDialog = null;
-            activeIssueReportPreview = null;
-            activeIssueReportDiagnostics = null;
-        });
-        dialog.setOnShowListener(ignored -> {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-                if (!diagnostics.isChecked()) {
-                    preview.setText(KeepADBIssueReporter.removeDiagnosticsSection(
-                            preview.getText().toString(), diagnosticsTitle));
-                }
-                openWebLink(KeepADBIssueReporter.FEEDBACK_URL);
-                dialog.dismiss();
-            });
-            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> {
-                String body = preview.getText().toString();
-                if (!diagnostics.isChecked()) {
-                    body = KeepADBIssueReporter.removeDiagnosticsSection(body, diagnosticsTitle);
-                    preview.setText(body);
-                }
-                Intent share = new Intent(Intent.ACTION_SEND)
-                        .setType("text/plain")
-                        .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.issue_report_title))
-                        .putExtra(Intent.EXTRA_TEXT, body);
-                startActivity(Intent.createChooser(
-                        share, getString(R.string.settings_issue_report_share)));
-            });
-        });
-        dialog.show();
-    }
-
     /** Opens a web link; devices without a browser get a neutral toast instead of a crash. */
     void openWebLink(String url) {
         try {
@@ -661,7 +518,7 @@ public class SettingsActivity extends Activity {
     }
 
     AlertDialog getActiveIssueReportDialog() {
-        return activeIssueReportDialog;
+        return diagnosticsController.getActiveIssueReportDialog();
     }
 
     AlertDialog getActiveProfileEditDialog() {

@@ -13,46 +13,68 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 
-/** Static contracts for the privacy-safe feedback report draft flow. */
+/**
+ * Static contracts for the privacy-safe feedback report draft flow.
+ *
+ * <p>#698: the dialog moved from {@code SettingsActivity.java} into {@code
+ * KeepADBDiagnosticsController.java}. The positive wiring assertions now read the controller; the
+ * negative ones (no GitHub, no issue tracker) read both files, so the guard cannot go blind by the
+ * code moving out of the file it used to scan. The browser path stays in the activity and is
+ * asserted there.
+ */
 public class KeepADBIssueReporterContractTest {
+    private static final String ACTIVITY_SOURCE =
+            "app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java";
+    private static final String CONTROLLER_SOURCE =
+            "app/src/main/java/de/hohnepeople/keepadb/KeepADBDiagnosticsController.java";
+
     @Test
     public void builderTargetsTheStaticFeedbackPageInsteadOfGitHub() throws IOException {
         String reporter = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBIssueReporter.java");
-        String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
+        String activity = read(ACTIVITY_SOURCE);
+        String controller = read(CONTROLLER_SOURCE);
         assertTrue(reporter.contains("https://hohnepeople.de/keepadb/feedback"));
         assertFalse(reporter.contains("github.com"));
         assertFalse(reporter.contains("issues/new"));
         assertTrue(reporter.contains("KeepADBDiagnostics.exportForIssueReport(context)"));
-        assertTrue(activity.contains("KeepADBIssueReporter.FEEDBACK_URL"));
-        assertFalse(activity.contains("github.com"));
-        assertFalse(activity.contains("issues/new"));
-        assertTrue(activity.contains("preview.getText().toString()"));
+        assertTrue(controller.contains("KeepADBIssueReporter.FEEDBACK_URL"));
+        for (String source : new String[] {activity, controller}) {
+            assertFalse(source.contains("github.com"));
+            assertFalse(source.contains("issues/new"));
+        }
+        assertTrue(controller.contains("preview.getText().toString()"));
+        assertTrue(controller.contains("setText(withoutDiagnostics)"));
+        // The feedback page is opened through the activity's shared browser path, which owns the
+        // ACTION_VIEW intent and the missing-browser handling (#673).
+        assertTrue(controller.contains("openWebLink.accept(KeepADBIssueReporter.FEEDBACK_URL)"));
+        assertFalse(controller.contains("Intent.ACTION_VIEW"));
         assertTrue(activity.contains("Intent.ACTION_VIEW"));
-        assertTrue(activity.contains("setText(withoutDiagnostics)"));
+        assertTrue(activity.contains("catch (ActivityNotFoundException | SecurityException"));
+        assertTrue(activity.contains("new KeepADBDiagnosticsController(this, this::openWebLink)"));
     }
 
     @Test
     public void shareActionSendsTheEditableBodyWithoutAnyGitHubOrIssueTrackerDependency()
             throws IOException {
-        String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
-        assertTrue(activity.contains("setNeutralButton(R.string.settings_issue_report_share"));
-        assertTrue(activity.contains("BUTTON_NEUTRAL"));
-        assertTrue(activity.contains("new Intent(Intent.ACTION_SEND)"));
-        assertTrue(activity.contains("Intent.EXTRA_TEXT"));
-        assertTrue(activity.contains("Intent.createChooser("));
+        String controller = read(CONTROLLER_SOURCE);
+        assertTrue(controller.contains("setNeutralButton(R.string.settings_issue_report_share"));
+        assertTrue(controller.contains("BUTTON_NEUTRAL"));
+        assertTrue(controller.contains("new Intent(Intent.ACTION_SEND)"));
+        assertTrue(controller.contains("Intent.EXTRA_TEXT"));
+        assertTrue(controller.contains("Intent.createChooser("));
     }
 
     @Test
     public void previewRequiresExplicitDiagnosticsOptInAndKeepsDraftEditable() throws IOException {
-        String activity = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
-        assertTrue(activity.contains("settings_issue_report_include_diagnostics"));
-        assertTrue(activity.contains("setOnCheckedChangeListener"));
-        assertTrue(activity.contains("setInputType(InputType.TYPE_CLASS_TEXT"));
-        assertTrue(activity.contains("setPositiveButton(R.string.settings_issue_report_open_feedback"));
-        assertTrue(activity.contains("removeDiagnosticsSection"));
-        assertTrue(activity.contains("buildDiagnosticsSection"));
-        assertTrue(activity.indexOf("buildDiagnosticsSection(this)")
-                > activity.indexOf("if (checked &&"));
+        String controller = read(CONTROLLER_SOURCE);
+        assertTrue(controller.contains("settings_issue_report_include_diagnostics"));
+        assertTrue(controller.contains("setOnCheckedChangeListener"));
+        assertTrue(controller.contains("setInputType(InputType.TYPE_CLASS_TEXT"));
+        assertTrue(controller.contains("setPositiveButton(R.string.settings_issue_report_open_feedback"));
+        assertTrue(controller.contains("removeDiagnosticsSection"));
+        assertTrue(controller.contains("buildDiagnosticsSection"));
+        assertTrue(controller.indexOf("buildDiagnosticsSection(activity)")
+                > controller.indexOf("if (checked &&"));
         assertTrue(read("app/src/main/res/values/strings.xml")
                 .contains("Nothing is sent automatically"));
     }

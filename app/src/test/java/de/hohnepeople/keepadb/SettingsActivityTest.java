@@ -447,9 +447,9 @@ public class SettingsActivityTest {
         controller.saveInstanceState(savedState);
 
         assertTrue("Saved state must record issue report is showing",
-                savedState.getBoolean(SettingsActivity.STATE_ISSUE_REPORT_SHOWING));
+                savedState.getBoolean(KeepADBDiagnosticsController.STATE_ISSUE_REPORT_SHOWING));
         assertNotNull("Saved state must contain draft body",
-                savedState.getString(SettingsActivity.STATE_ISSUE_REPORT_DRAFT));
+                savedState.getString(KeepADBDiagnosticsController.STATE_ISSUE_REPORT_DRAFT));
 
         // Dismissing clears active reference
         dialog.dismiss();
@@ -460,13 +460,13 @@ public class SettingsActivityTest {
         Bundle afterDismissState = new Bundle();
         controller.saveInstanceState(afterDismissState);
         assertFalse("Saved state must not report dialog showing after dismiss",
-                afterDismissState.getBoolean(SettingsActivity.STATE_ISSUE_REPORT_SHOWING));
+                afterDismissState.getBoolean(KeepADBDiagnosticsController.STATE_ISSUE_REPORT_SHOWING));
 
         // Now test restoration with customized draft values
         Bundle restoreBundle = new Bundle();
-        restoreBundle.putBoolean(SettingsActivity.STATE_ISSUE_REPORT_SHOWING, true);
-        restoreBundle.putString(SettingsActivity.STATE_ISSUE_REPORT_DRAFT, "Restored draft problem description");
-        restoreBundle.putBoolean(SettingsActivity.STATE_ISSUE_REPORT_DIAGNOSTICS, true);
+        restoreBundle.putBoolean(KeepADBDiagnosticsController.STATE_ISSUE_REPORT_SHOWING, true);
+        restoreBundle.putString(KeepADBDiagnosticsController.STATE_ISSUE_REPORT_DRAFT, "Restored draft problem description");
+        restoreBundle.putBoolean(KeepADBDiagnosticsController.STATE_ISSUE_REPORT_DIAGNOSTICS, true);
 
         ActivityController<SettingsActivity> restoredController =
                 Robolectric.buildActivity(SettingsActivity.class).setup(restoreBundle);
@@ -480,8 +480,8 @@ public class SettingsActivityTest {
         Bundle reSavedState = new Bundle();
         restoredController.saveInstanceState(reSavedState);
         assertEquals("Restored draft problem description",
-                reSavedState.getString(SettingsActivity.STATE_ISSUE_REPORT_DRAFT));
-        assertTrue(reSavedState.getBoolean(SettingsActivity.STATE_ISSUE_REPORT_DIAGNOSTICS));
+                reSavedState.getString(KeepADBDiagnosticsController.STATE_ISSUE_REPORT_DRAFT));
+        assertTrue(reSavedState.getBoolean(KeepADBDiagnosticsController.STATE_ISSUE_REPORT_DIAGNOSTICS));
 
         restoredDialog.dismiss();
         ShadowLooper.idleMainLooper();

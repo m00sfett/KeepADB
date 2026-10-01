@@ -99,7 +99,11 @@ public class KeepADBDiagnosticsTest {
     public void requiredPathsAreInstrumentedAndExportIsUserReachable() throws IOException {
         String core = read("app/src/main/java/de/hohnepeople/keepadb/KeepADB.java");
         String service = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBService.java");
+        // #698: the export button moved from SettingsActivity into KeepADBDiagnosticsController;
+        // the activity must still create it, or the export would silently become unreachable.
         String settings = read("app/src/main/java/de/hohnepeople/keepadb/SettingsActivity.java");
+        String exportController =
+                read("app/src/main/java/de/hohnepeople/keepadb/KeepADBDiagnosticsController.java");
 
         assertTrue(core.contains("intentId="));
         assertTrue(core.contains("\"recovery_attempt\""));
@@ -107,8 +111,9 @@ public class KeepADBDiagnosticsTest {
         assertTrue(service.contains("\"wifi_change\""));
         assertTrue(service.contains("\"service_create\""));
         assertTrue(service.contains("heartbeatGapMs="));
-        assertTrue(settings.contains("KeepADBDiagnostics.export(this)"));
-        assertTrue(settings.contains("Intent.ACTION_SEND"));
+        assertTrue(exportController.contains("KeepADBDiagnostics.export(activity)"));
+        assertTrue(exportController.contains("Intent.ACTION_SEND"));
+        assertTrue(settings.contains("new KeepADBDiagnosticsController(this, this::openWebLink)"));
     }
 
     private static String read(String relativePath) throws IOException {
