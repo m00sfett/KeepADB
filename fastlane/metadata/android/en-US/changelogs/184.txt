@@ -1,0 +1,1 @@
+No change to the app itself: this patch only moves the code that sends the register requests into its own file, so future work on it is easier to review. Which requests are sent, when, how long the app waits and what is logged stays exactly the same, and your settings stay as they are.

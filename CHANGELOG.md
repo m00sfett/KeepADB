@@ -17,11 +17,19 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10` and `1.9.11` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11` and `1.9.12` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.12] - Unreleased
+
+### Changed
+- #700: Internal refactor, no behavior change: the default HTTP adapter `DefaultHttpTransport`, a private nested class of `KeepADBRegisterClient`, is now the package-private `KeepADBHttpTransport` in its own file. It still implements the existing `KeepADBRegisterClient.HttpTransport` seam (`postJson`/`delete`), so `setHttpTransport`/`resetHttpTransport`, `KeepADBFakeHttpTransport` and the RegisterClient, payload and multi-transport wiring tests work unchanged. The method bodies are token-identical to the previous ones (comments and whitespace ignored; the only difference is that the two `sanitizeUrl` calls are qualified as `KeepADBRegisterClient.sanitizeUrl`). The adapter now bundles the HTTP configuration and the connection release in one place: only a 2xx response is success for POST and DELETE, redirects stay disabled, connect and read timeout stay 2000 ms (`TIMEOUT_MS` moved with it), the POST body stays UTF-8 with fixed-length streaming, and `disconnect()` stays in a `finally` block on every path. The log lines are unchanged and still use the redacted URL (`sanitizeUrl`) or the masked endpoint label, under the same `KeepADBRegisterClient` log tag. The adapter is stateless: no executor, queue, timer, retry, operation generation or preferences access. `KeepADBRegisterClient` stays the single owner of the executor, `currentOpGeneration`, the pending-cleanup queue and retry decision, the commit order, the report snapshot and the listener, and still decides what a transport result means. It no longer imports `java.io`/`java.net` HTTP types.
+- Testing (#700): `KeepADBHttpTransportTest` exercises the real adapter against a loopback socket server (2xx-only success, no redirect for POST and DELETE even to a successful target, 2000 ms timeout, fixed-length UTF-8 body and headers, socket release, redacted and masked logs); `KeepADBHttpTransportContractTest` guards the adapter source (no state or scheduling, the HTTP configuration and `finally`-disconnect in both methods, every log statement redacted) and the client's lack of HTTP configuration of its own. The existing source contract `PendingCleanupRetryRepositoryContractTest` now expects the adapter, not the client, as the only class that opens an `HttpURLConnection`; the executor, generation and repository-ownership guards stay on the client.
+
+No change to the app itself: this patch only moves the code that sends the register requests into its own file, so future work on it is easier to review. Which requests are sent, when, how long the app waits and what is logged stays exactly the same, and your settings stay as they are.
 
 ## [1.9.11] - Unreleased
 
