@@ -33,6 +33,7 @@ are retrospective issue-version records and were never published as separate rel
 
 ### Testing
 - #690: `KeepADBDebugBrandLabelTest` checks the `(DBG)` label in all 19 locales (debug variant); `bin/check-i18n` no longer needs allowlist entries for the three brand strings, and `KeepADBResourceContractTest` now requires those brand keys to exist in `values/` only.
+- #690: Automatic debug/release label guard: `KeepADBVariantLabelContractTest` (the `(DBG)` marker may only come from `src/debug`) and `bin/check-variant-labels`, a new step 5/5 of `bin/verify` that inspects the built APKs (debug: `(DBG) KeepADB` in all locale buckets and the manifest; release: no `DBG` anywhere, plain `KeepADB`).
 
 ## [1.9.5] - Unreleased
 
