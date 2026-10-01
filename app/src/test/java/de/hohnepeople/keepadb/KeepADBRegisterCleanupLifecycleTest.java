@@ -824,6 +824,30 @@ public class KeepADBRegisterCleanupLifecycleTest {
                 prefs.getString("register_webhook_pending_cleanup_order", null));
     }
 
+    /**
+     * Records are orphaned by evictions, and an eviction only happens on a backlog that is at its
+     * cap of four: that is where an earlier build leaves them. The sweep must not depend on how
+     * full the backlog is, and must leave the four records of the pending entries alone.
+     */
+    @Test
+    public void aFlushSweepsTheOrphansOfAFullBacklogToo() {
+        fillTheBacklogWithSpentRecords();
+        plantRecord("http://evicted-earlier-a.example/register", SPENT_TWICE);
+        plantRecord("http://evicted-earlier-b.example/register", "garbage");
+
+        flushAt(1_000L);
+
+        assertEquals("the backlog is untouched", Arrays.asList(FULL_FIFO),
+                new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+        assertEquals("exactly the four records of the pending entries stay: " + retryKeys(),
+                FULL_FIFO.length, retryKeys().size());
+        for (String entry : FULL_FIFO) {
+            assertEquals("a pending entry keeps its record: " + entry, SPENT_TWICE,
+                    retryRecord(entry));
+        }
+        assertEquals("the sweep sends nothing", 0, transport.getRequestCount());
+    }
+
     @Test
     public void aFlushKeepsTheRecordsOfLegacyEntriesThatHaveNoOrderKeyYet() {
         String legacyKey = "register_webhook_pending_cleanup";
