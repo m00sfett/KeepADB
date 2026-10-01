@@ -21,7 +21,7 @@ import org.junit.Test;
  * Behavior tests for #314: an endpoint candidate is only accepted when its address is actually
  * bound to an eligible Wi-Fi network of this device.
  *
- * <p>The decision itself ({@link KeepADBNetwork#matchesActiveWifiAddress}) is exercised directly
+ * <p>The decision itself ({@link WifiAddressPolicy#matchesActiveWifiAddress}) is exercised directly
  * against real {@link InetAddress} values, so these are genuine behavior tests and not source
  * greps. What they deliberately cannot cover is the collection step feeding it -- which
  * {@code LinkProperties} of which tracked network contribute addresses -- because
@@ -46,15 +46,15 @@ public class KeepADBEndpointAddressBindingTest {
                 InetAddress.getByName(OWN_WIFI_IP));
 
         assertTrue("our own Wi-Fi address must be accepted",
-                KeepADBNetwork.matchesActiveWifiAddress(
+                WifiAddressPolicy.matchesActiveWifiAddress(
                         InetAddress.getByName(OWN_WIFI_IP), activeWifiAddresses));
 
         // A neighbour on the same subnet is reachable and "local looking", but is not us.
         assertFalse("a different host on the same subnet must be rejected",
-                KeepADBNetwork.matchesActiveWifiAddress(
+                WifiAddressPolicy.matchesActiveWifiAddress(
                         InetAddress.getByName("192.168.178.51"), activeWifiAddresses));
         assertFalse("the subnet's gateway must be rejected",
-                KeepADBNetwork.matchesActiveWifiAddress(
+                WifiAddressPolicy.matchesActiveWifiAddress(
                         InetAddress.getByName("192.168.178.1"), activeWifiAddresses));
     }
 
@@ -67,22 +67,22 @@ public class KeepADBEndpointAddressBindingTest {
         // The regression this issue is about: any link-local or loopback address used to pass
         // unconditionally, before our own interfaces were ever consulted.
         assertFalse("a foreign IPv6 link-local address must be rejected",
-                KeepADBNetwork.matchesActiveWifiAddress(
+                WifiAddressPolicy.matchesActiveWifiAddress(
                         InetAddress.getByName("fe80::2"), activeWifiAddresses));
         assertFalse("IPv4 loopback must be rejected",
-                KeepADBNetwork.matchesActiveWifiAddress(
+                WifiAddressPolicy.matchesActiveWifiAddress(
                         InetAddress.getByName("127.0.0.1"), activeWifiAddresses));
         assertFalse("IPv6 loopback must be rejected",
-                KeepADBNetwork.matchesActiveWifiAddress(
+                WifiAddressPolicy.matchesActiveWifiAddress(
                         InetAddress.getByName("::1"), activeWifiAddresses));
         assertFalse("a link-local IPv4 (169.254/16) address must be rejected",
-                KeepADBNetwork.matchesActiveWifiAddress(
+                WifiAddressPolicy.matchesActiveWifiAddress(
                         InetAddress.getByName("169.254.7.7"), activeWifiAddresses));
 
         // Our own Wi-Fi interface's link-local address stays valid: adbd has been observed
         // advertising IPv6-only, so rejecting link-local as a class would break discovery.
         assertTrue("our own Wi-Fi link-local address must stay accepted",
-                KeepADBNetwork.matchesActiveWifiAddress(
+                WifiAddressPolicy.matchesActiveWifiAddress(
                         InetAddress.getByName("fe80::1"), activeWifiAddresses));
     }
 
@@ -93,7 +93,7 @@ public class KeepADBEndpointAddressBindingTest {
      * advertising IPv6-only, a scope-strict comparison would reject our own endpoint -- so this
      * pins that a scope-id difference alone never causes a rejection. The deliberate cost of
      * that (an identical address on another interface is not distinguished) is documented on
-     * {@link KeepADBNetwork#matchesActiveWifiAddress} and is not asserted here.
+     * {@link WifiAddressPolicy#matchesActiveWifiAddress} and is not asserted here.
      */
     @Test
     public void ownLinkLocalIsAcceptedRegardlessOfItsScopeIdRepresentation() throws Exception {
@@ -103,17 +103,17 @@ public class KeepADBEndpointAddressBindingTest {
 
         assertTrue("a resolved link-local address with an interface scope must still match our"
                         + " scopeless Wi-Fi link address",
-                KeepADBNetwork.matchesActiveWifiAddress(
+                WifiAddressPolicy.matchesActiveWifiAddress(
                         Inet6Address.getByAddress(null, linkLocalBytes, 1), scopelessWifiAddress));
 
         // ...and the same the other way around, if the tracked address is the scoped one.
-        assertTrue(KeepADBNetwork.matchesActiveWifiAddress(
+        assertTrue(WifiAddressPolicy.matchesActiveWifiAddress(
                 InetAddress.getByName("fe80::1"),
                 Collections.singletonList(
                         Inet6Address.getByAddress(null, linkLocalBytes, 1))));
 
         // A different link-local address stays rejected, scope id or not.
-        assertFalse(KeepADBNetwork.matchesActiveWifiAddress(
+        assertFalse(WifiAddressPolicy.matchesActiveWifiAddress(
                 Inet6Address.getByAddress(null, InetAddress.getByName("fe80::2").getAddress(), 1),
                 scopelessWifiAddress));
     }
@@ -134,12 +134,12 @@ public class KeepADBEndpointAddressBindingTest {
 
         assertFalse("a candidate resolved on a different real interface must be rejected even "
                         + "though the bytes match our own Wi-Fi link-local address",
-                KeepADBNetwork.matchesActiveWifiAddress(
+                WifiAddressPolicy.matchesActiveWifiAddress(
                         Inet6Address.getByAddress(null, linkLocalBytes, 9), ownWifiScopedAddress));
 
         assertTrue("a candidate resolved on the same real interface as our own Wi-Fi link-local "
                         + "address must still be accepted",
-                KeepADBNetwork.matchesActiveWifiAddress(
+                WifiAddressPolicy.matchesActiveWifiAddress(
                         Inet6Address.getByAddress(null, linkLocalBytes, 7), ownWifiScopedAddress));
     }
 
@@ -149,9 +149,9 @@ public class KeepADBEndpointAddressBindingTest {
                 InetAddress.getByName("127.0.0.1"),
                 InetAddress.getByName("0.0.0.0"));
 
-        assertFalse(KeepADBNetwork.matchesActiveWifiAddress(
+        assertFalse(WifiAddressPolicy.matchesActiveWifiAddress(
                 InetAddress.getByName("127.0.0.1"), withLoopback));
-        assertFalse(KeepADBNetwork.matchesActiveWifiAddress(
+        assertFalse(WifiAddressPolicy.matchesActiveWifiAddress(
                 InetAddress.getByName("0.0.0.0"), withLoopback));
     }
 
@@ -160,10 +160,10 @@ public class KeepADBEndpointAddressBindingTest {
         List<InetAddress> noWifi = new ArrayList<>();
         for (String candidate : new String[] { OWN_WIFI_IP, "127.0.0.1", "::1", "fe80::1", "10.0.0.2" }) {
             assertFalse("must fail closed without Wi-Fi: " + candidate,
-                    KeepADBNetwork.matchesActiveWifiAddress(InetAddress.getByName(candidate), noWifi));
+                    WifiAddressPolicy.matchesActiveWifiAddress(InetAddress.getByName(candidate), noWifi));
         }
-        assertFalse(KeepADBNetwork.matchesActiveWifiAddress(InetAddress.getByName(OWN_WIFI_IP), null));
-        assertFalse(KeepADBNetwork.matchesActiveWifiAddress(null, noWifi));
+        assertFalse(WifiAddressPolicy.matchesActiveWifiAddress(InetAddress.getByName(OWN_WIFI_IP), null));
+        assertFalse(WifiAddressPolicy.matchesActiveWifiAddress(null, noWifi));
     }
 
     /**

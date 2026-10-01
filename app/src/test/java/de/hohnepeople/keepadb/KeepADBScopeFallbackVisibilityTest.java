@@ -20,7 +20,7 @@ import org.junit.Test;
 
 /**
  * Regression coverage for #403 (R21 follow-up on #364): the scope-id comparison in {@link
- * KeepADBNetwork#matchesActiveWifiAddress} silently falls back to the scope-blind, pre-#364
+ * WifiAddressPolicy#matchesActiveWifiAddress} silently falls back to the scope-blind, pre-#364
  * comparison whenever either side's scope id could not be resolved to a concrete interface
  * (scope id {@code 0}) -- and until this issue, nothing observed that this happened at all.
  */
@@ -32,7 +32,7 @@ public class KeepADBScopeFallbackVisibilityTest {
      * network's interface), so it carries scope {@code 0}, while the candidate arrives with a
      * concrete, nonzero scope from a *different* real interface. Byte-identical, but genuinely a
      * different device on a different interface (the #364 attacker model) -- and without a
-     * resolved own-side scope, {@link KeepADBNetwork#matchesActiveWifiAddress} cannot reject it.
+     * resolved own-side scope, {@link WifiAddressPolicy#matchesActiveWifiAddress} cannot reject it.
      * This must still be accepted (fail-open is the documented, deliberate behaviour), but the
      * fallback sink must fire exactly once to make that acceptance observable.
      */
@@ -47,7 +47,7 @@ public class KeepADBScopeFallbackVisibilityTest {
                 Inet6Address.getByAddress(null, linkLocalBytes, 9);
 
         List<int[]> reportedFallbacks = new ArrayList<>();
-        boolean matched = KeepADBNetwork.matchesActiveWifiAddress(candidateOnAnotherInterface,
+        boolean matched = WifiAddressPolicy.matchesActiveWifiAddress(candidateOnAnotherInterface,
                 activeWifiAddresses,
                 (candidateScope, activeScope) -> reportedFallbacks.add(
                         new int[] { candidateScope, activeScope }));
@@ -68,7 +68,7 @@ public class KeepADBScopeFallbackVisibilityTest {
         InetAddress scopelessCandidate = InetAddress.getByName("fe80::1");
 
         List<int[]> reportedFallbacks = new ArrayList<>();
-        boolean matched = KeepADBNetwork.matchesActiveWifiAddress(scopelessCandidate,
+        boolean matched = WifiAddressPolicy.matchesActiveWifiAddress(scopelessCandidate,
                 activeWifiAddresses,
                 (candidateScope, activeScope) -> reportedFallbacks.add(
                         new int[] { candidateScope, activeScope }));
@@ -92,7 +92,7 @@ public class KeepADBScopeFallbackVisibilityTest {
         InetAddress candidateSameInterface = Inet6Address.getByAddress(null, linkLocalBytes, 7);
 
         List<int[]> reportedFallbacks = new ArrayList<>();
-        boolean matched = KeepADBNetwork.matchesActiveWifiAddress(candidateSameInterface,
+        boolean matched = WifiAddressPolicy.matchesActiveWifiAddress(candidateSameInterface,
                 activeWifiAddresses,
                 (candidateScope, activeScope) -> reportedFallbacks.add(
                         new int[] { candidateScope, activeScope }));
@@ -111,7 +111,7 @@ public class KeepADBScopeFallbackVisibilityTest {
         InetAddress candidateOtherInterface = Inet6Address.getByAddress(null, linkLocalBytes, 9);
 
         List<int[]> reportedFallbacks = new ArrayList<>();
-        boolean matched = KeepADBNetwork.matchesActiveWifiAddress(candidateOtherInterface,
+        boolean matched = WifiAddressPolicy.matchesActiveWifiAddress(candidateOtherInterface,
                 activeWifiAddresses,
                 (candidateScope, activeScope) -> reportedFallbacks.add(
                         new int[] { candidateScope, activeScope }));
@@ -125,7 +125,7 @@ public class KeepADBScopeFallbackVisibilityTest {
     public void twoArgOverloadStillWorksWithoutASink() throws Exception {
         List<InetAddress> activeWifiAddresses = Collections.singletonList(
                 InetAddress.getByName("fe80::1"));
-        assertTrue(KeepADBNetwork.matchesActiveWifiAddress(
+        assertTrue(WifiAddressPolicy.matchesActiveWifiAddress(
                 InetAddress.getByName("fe80::1"), activeWifiAddresses));
     }
 
@@ -133,7 +133,7 @@ public class KeepADBScopeFallbackVisibilityTest {
      * #403 AC2: the own-side interface resolution must not depend solely on {@code
      * NetworkInterface.getByName(interfaceName)} -- when that direct lookup can't find anything
      * (bogus/stale interface name), a byte-match scan across all enumerable interfaces must still
-     * find the real one. Exercised via {@link KeepADBNetwork#resolveScopeInterfaceByByteMatch}
+     * find the real one. Exercised via {@link WifiAddressPolicy#resolveScopeInterfaceByByteMatch}
      * directly (#410): the loopback interface used to stand in for "an interface that really
      * holds this address" here, but #410 excludes loopback interfaces from the scan on purpose, so
      * a synthetic, non-loopback-eligible candidate takes its place instead.
@@ -144,10 +144,10 @@ public class KeepADBScopeFallbackVisibilityTest {
         NetworkInterface loopback = findLoopbackInterface();
         assumeTrue("test environment must expose a loopback interface", loopback != null);
         byte[] addressBytes = InetAddress.getByName("fe80::1").getAddress();
-        KeepADBNetwork.ScopeCandidate eligibleCandidate = new KeepADBNetwork.ScopeCandidate(
+        WifiAddressPolicy.ScopeCandidate eligibleCandidate = new WifiAddressPolicy.ScopeCandidate(
                 loopback, true, Collections.singletonList(addressBytes));
 
-        NetworkInterface resolved = KeepADBNetwork.resolveScopeInterfaceByByteMatch(
+        NetworkInterface resolved = WifiAddressPolicy.resolveScopeInterfaceByByteMatch(
                 Collections.singletonList(eligibleCandidate), addressBytes);
 
         assertNotNull("the byte-match fallback must find the interface holding this address",
@@ -172,10 +172,12 @@ public class KeepADBScopeFallbackVisibilityTest {
         // MAC-derived link-local address -- the exact ambiguity named in #410. The underlying real
         // NetworkInterface object is reused for both synthetic candidates; only the "two eligible
         // candidates hold the same address" shape matters for this decision.
-        KeepADBNetwork.ScopeCandidate wlan = new KeepADBNetwork.ScopeCandidate(loopback, true, addresses);
-        KeepADBNetwork.ScopeCandidate p2p = new KeepADBNetwork.ScopeCandidate(loopback, true, addresses);
+        WifiAddressPolicy.ScopeCandidate wlan =
+                new WifiAddressPolicy.ScopeCandidate(loopback, true, addresses);
+        WifiAddressPolicy.ScopeCandidate p2p =
+                new WifiAddressPolicy.ScopeCandidate(loopback, true, addresses);
 
-        NetworkInterface resolved = KeepADBNetwork.resolveScopeInterfaceByByteMatch(
+        NetworkInterface resolved = WifiAddressPolicy.resolveScopeInterfaceByByteMatch(
                 java.util.Arrays.asList(wlan, p2p), addressBytes);
 
         assertNull("an ambiguous match must be treated as unresolvable, not guessed", resolved);
@@ -187,10 +189,10 @@ public class KeepADBScopeFallbackVisibilityTest {
         NetworkInterface loopback = findLoopbackInterface();
         assumeTrue(loopback != null);
         byte[] addressBytes = InetAddress.getByName("fe80::1").getAddress();
-        KeepADBNetwork.ScopeCandidate ineligible = new KeepADBNetwork.ScopeCandidate(
+        WifiAddressPolicy.ScopeCandidate ineligible = new WifiAddressPolicy.ScopeCandidate(
                 loopback, false, Collections.singletonList(addressBytes));
 
-        NetworkInterface resolved = KeepADBNetwork.resolveScopeInterfaceByByteMatch(
+        NetworkInterface resolved = WifiAddressPolicy.resolveScopeInterfaceByByteMatch(
                 Collections.singletonList(ineligible), addressBytes);
 
         assertNull(resolved);
@@ -206,6 +208,73 @@ public class KeepADBScopeFallbackVisibilityTest {
                 loopback.getName(), InetAddress.getByName("203.0.113.1"));
 
         assertEquals(loopback.getName(), resolved.getName());
+    }
+
+    /**
+     * #699: reading a live interface ({@code isUp()}, {@code isLoopback()}, {@code
+     * getInetAddresses()}) is the I/O adapter that stays in {@link KeepADBNetwork} while the byte
+     * comparison moved to {@link WifiAddressPolicy}. The loopback interface really holds {@code
+     * 127.0.0.1}, so a scan that let it through would stamp a tracked link-local address with the
+     * loopback index (#410 excludes loopback on purpose); with the bogus name the direct lookup
+     * cannot resolve, only the scan is left, and it must come back empty.
+     */
+    @Test
+    public void resolveScopeInterfaceNeverStampsWithTheLoopbackInterfaceItScans() throws Exception {
+        NetworkInterface loopback = findLoopbackInterface();
+        assumeTrue("test environment must expose a loopback interface", loopback != null);
+        InetAddress heldByLoopback = firstAddress(loopback);
+        assumeTrue("the loopback interface must hold an address", heldByLoopback != null);
+
+        assertNull("a loopback interface is not eligible for the byte-match scan",
+                KeepADBNetwork.resolveScopeInterface(
+                        "definitely-not-a-real-interface-699", heldByLoopback));
+    }
+
+    /**
+     * #699: the positive side of the same adapter, on the real topology of the machine running the
+     * test -- an up, non-loopback interface that alone holds one of its addresses must be found by
+     * that address when the name lookup cannot help. It needs such an interface (any ordinary
+     * host, CI runner or container has one) and is skipped, not failed, on a machine without one.
+     */
+    @Test
+    public void resolveScopeInterfaceFindsALiveNonLoopbackInterfaceByOneOfItsAddresses()
+            throws Exception {
+        NetworkInterface expected = null;
+        InetAddress heldOnlyByIt = null;
+        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        List<NetworkInterface> all = interfaces == null ? new ArrayList<NetworkInterface>()
+                : Collections.list(interfaces);
+        for (NetworkInterface candidate : all) {
+            if (!candidate.isUp() || candidate.isLoopback()) continue;
+            for (InetAddress address : Collections.list(candidate.getInetAddresses())) {
+                if (holders(all, address) == 1) {
+                    expected = candidate;
+                    heldOnlyByIt = address;
+                    break;
+                }
+            }
+            if (expected != null) break;
+        }
+        assumeTrue("test environment must have an up, non-loopback interface with its own address",
+                expected != null);
+
+        NetworkInterface resolved = KeepADBNetwork.resolveScopeInterface(
+                "definitely-not-a-real-interface-699", heldOnlyByIt);
+
+        assertNotNull("the byte-match scan must find the interface holding " + heldOnlyByIt, resolved);
+        assertEquals(expected.getName(), resolved.getName());
+    }
+
+    /** How many live, non-loopback interfaces hold exactly these address bytes. */
+    private static int holders(List<NetworkInterface> all, InetAddress address) throws Exception {
+        int holders = 0;
+        for (NetworkInterface candidate : all) {
+            if (!candidate.isUp() || candidate.isLoopback()) continue;
+            for (InetAddress held : Collections.list(candidate.getInetAddresses())) {
+                if (java.util.Arrays.equals(held.getAddress(), address.getAddress())) holders++;
+            }
+        }
+        return holders;
     }
 
     private static NetworkInterface findLoopbackInterface() throws Exception {

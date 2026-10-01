@@ -1,0 +1,1 @@
+No change to the app itself: this patch only reorganizes the code that decides whether a discovered wireless-debugging address really belongs to your phone's Wi-Fi, so future fixes there are safer. Which addresses are accepted or rejected stays exactly the same, and your settings and allowed networks stay as they are.
