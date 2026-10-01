@@ -17,11 +17,22 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6` and `1.9.7` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7` and `1.9.8` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.8] - Unreleased
+
+### Changed
+- #697: Internal refactor, no behavior change: the Network card of `SettingsActivity` -- its views, the access point its action button was rendered for, the Wi-Fi status callback and the allowlist-permission, background-location, trust-confirmation and mesh dialogs -- now lives in the package-private `KeepADBNetworkCard`, following `KeepADBWebhookForm` and `KeepADBUsbProfileEditor`. `SettingsActivity` keeps the screen composition, the one-time intent consumption and the Android lifecycle and calls explicit `restore`/`start`/`refresh`/`stop`/`saveState`/`destroy`/`onRequestPermissionsResult` hooks. Preferences (including the Activity's `location_permission_requested` flag), Bundle keys, the request codes 3001/3002 and layout ids are unchanged, so users see no difference. The one theoretical difference: should several dialogs be restored at once after a rotation, the Network card's three are now re-shown together, before the reset-app, USB handover and language dialogs.
+
+### Testing
+- #697: New `SettingsNetworkCardLifecycleTest` pins the transitions that changed owner: stop removes only the card's own Wi-Fi callback and every restart registers exactly one, the action acts on the access point that was last rendered (neither a stale one nor the one the device roamed to), destroy closes the trust and background-location dialogs, a save before destroy keeps the trust binding and the restore ignores a roam, the mesh question is neither saved nor restored, a restored background rationale grants and requests nothing, rendering and restoring write no preference in 48 mode/grant/connection combinations, Wi-Fi-name matching stays off and the card reopens collapsed after a rotation, and the preference flag, Bundle keys and request codes stay unchanged.
+- #697: `SettingsActivityTrustConfirmationTest` gained the restore cases (record gone, saved BSSID never recorded, dismissed dialog not saved); `SettingsBackgroundLocationDialogTest` gained approximate-only, interrupted and actual-permission-state cases and the check that no other request code enables the allowlist. New `KeepADBNetworkCardContractTest` pins `KeepADBNetworkCard` as the single owner of the card's state, dialogs and request codes and the main-looper handler of the Wi-Fi callback (the Robolectric shadow ignores the handler).
+- #697: `KeepADBServiceManifestContractTest` now also scans `KeepADBNetworkCard.java` for a runtime `ACCESS_BACKGROUND_LOCATION` request (the `requestPermissions` calls moved there; the guard would otherwise have gone blind), the reflection call in `SettingsActivityTest` now opens the dialog through the card's button, and the request-code symbol moved with the code. No assertion was removed or weakened.
+- #697: Each new assertion was checked against targeted production mutations in a disposable copy (35 mutations, all caught; one equivalent mutation, a same-value preference write, is unobservable by design).
 
 ## [1.9.7] - Unreleased
 
