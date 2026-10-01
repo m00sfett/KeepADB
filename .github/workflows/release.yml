@@ -88,7 +88,7 @@ jobs:
       - name: Check translation consistency
         run: python3 bin/check-i18n
 
-      # Deliberately JDK 21, unlike the JDK 17 used by bin/verify, bin/gradlew and ci.yml (#575):
+      # Deliberately JDK 21, unlike the JDK 17 used by bin/verify, bin/gradlew and ci.yml:
       # commit 6359714 aligned this release build with the F-Droid build toolchain so the signed
       # GitHub APK matches what F-Droid reproduces. Do not "fix" this to 17 without re-checking
       # F-Droid reproducibility.

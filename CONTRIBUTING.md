@@ -21,11 +21,12 @@ Before opening a pull request, run the full local verification gate:
 ./bin/verify
 ```
 
-This checks (in order): a clean git diff (no trailing whitespace/conflict markers), the i18n
-copy-paste check (`bin/check-i18n`), unit tests + lint + a debug build, and a release build.
-All of these must pass. This local gate is the acceptance check for pull requests: the GitHub
-`CI` workflow runs the same checks, but it no longer starts automatically on pushes or pull
-requests and is only started manually (`workflow_dispatch`) when a maintainer asks for it.
+This checks (in order): git diff whitespace/errors, the i18n copy-paste check
+(`bin/check-i18n`), unit tests + lint + a debug build, a release build, and the brand labels
+in both built APKs (`bin/check-variant-labels`). All of these must pass. The GitHub `CI`
+workflow runs this same `bin/verify` gate automatically on pushes to `master` and on pull
+requests. Manual runs (`workflow_dispatch`) are also available. Standard GitHub-hosted
+runners are free for this public repository.
 
 To run an individual step instead of the full gate:
 
