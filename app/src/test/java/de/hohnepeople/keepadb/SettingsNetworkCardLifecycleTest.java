@@ -167,6 +167,36 @@ public class SettingsNetworkCardLifecycleTest {
         assertEquals(BSSID_B, entries.get(0).bssid);
     }
 
+    /**
+     * Each of the card's three Wi-Fi callbacks refreshes the card on its own. A roam between two
+     * access points of one network typically reaches the card only as a capabilities change, and a
+     * dropped or newly available network only as lost or available; delivering the callbacks one
+     * at a time keeps a refresh that is missing from just one of the three from hiding behind the
+     * other two (the all-in-one delivery of {@link #deliverWifiChange()} cannot tell them apart).
+     */
+    @Test
+    public void everyWifiCallbackRefreshesTheCardOnItsOwn() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        connectTo("Cafe-WLAN", BSSID_A);
+        SettingsActivity activity = open();
+        assertEquals("Cafe-WLAN · AA:BB:CC:DD:EE:01", text(activity, R.id.network_connection_line));
+
+        String[] callbackNames = {"onAvailable", "onLost", "onCapabilitiesChanged"};
+        String[] bssids = {"aa:bb:cc:dd:ee:11", "aa:bb:cc:dd:ee:12", "aa:bb:cc:dd:ee:13"};
+        String shown = "Cafe-WLAN · AA:BB:CC:DD:EE:01";
+        for (int callback = 0; callback < callbackNames.length; callback++) {
+            connectTo("Cafe-WLAN", bssids[callback]);
+            assertEquals("Without a callback the card still shows the previous access point",
+                    shown, text(activity, R.id.network_connection_line));
+
+            deliverWifiCallback(callback);
+
+            shown = "Cafe-WLAN · " + bssids[callback].toUpperCase(java.util.Locale.ROOT);
+            assertEquals(callbackNames[callback] + " re-renders the card on its own",
+                    shown, text(activity, R.id.network_connection_line));
+        }
+    }
+
     // --- destroy ------------------------------------------------------------------------------------
 
     @Test
@@ -512,6 +542,22 @@ public class SettingsNetworkCardLifecycleTest {
             callback.onAvailable(network);
             callback.onCapabilitiesChanged(network, new NetworkCapabilities());
             callback.onLost(network);
+        }
+        ShadowLooper.idleMainLooper();
+    }
+
+    /** Delivers exactly one callback kind (0 available, 1 lost, 2 capabilities changed). */
+    private void deliverWifiCallback(int kind) {
+        ConnectivityManager manager = context.getSystemService(ConnectivityManager.class);
+        Network network = ShadowNetwork.newInstance(101);
+        for (ConnectivityManager.NetworkCallback callback : new ArrayList<>(callbacks(manager))) {
+            if (kind == 0) {
+                callback.onAvailable(network);
+            } else if (kind == 1) {
+                callback.onLost(network);
+            } else {
+                callback.onCapabilitiesChanged(network, new NetworkCapabilities());
+            }
         }
         ShadowLooper.idleMainLooper();
     }
