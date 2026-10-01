@@ -40,8 +40,9 @@ import org.robolectric.shadows.ShadowNetworkCapabilities;
  * <p>Existing behavior coverage ({@link KeepADBActiveWifiAddressStalenessTest}, {@link
  * KeepADBEndpointAddressBindingTest}, {@link KeepADBNetworkRobustnessBehaviorTest}) drives {@link
  * KeepADBNetwork}'s own decision logic thoroughly, but always by calling {@code
- * KeepADBNetwork.matchesActiveWifiAddress}/{@code isActiveWifiAddress}/{@code getWifiIpv4Address}
- * directly -- none of it goes through {@link KeepADBEndpoint}'s production entry points. This
+ * WifiAddressPolicy.matchesActiveWifiAddress} (#699: formerly on {@code KeepADBNetwork}) or {@code
+ * KeepADBNetwork.isActiveWifiAddress}/{@code getWifiIpv4Address} directly -- none of it goes
+ * through {@link KeepADBEndpoint}'s production entry points. This
  * class closes that gap: it delivers a real tracked Wi-Fi network to a live {@link KeepADBNetwork}
  * singleton via a real, Robolectric-shadowed {@link ConnectivityManager} callback (matching {@link
  * KeepADBNetworkRobustnessBehaviorTest}'s pattern), then calls {@link
