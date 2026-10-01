@@ -97,6 +97,17 @@ public class SettingsBackgroundLocationDialogTest {
                 shadow.getMessage().toString());
     }
 
+    /** Clicks the allowlist option and accepts the rationale; returns the system permission request. */
+    private static ShadowActivity.PermissionsRequest askForTheGrant(SettingsActivity activity) {
+        trustedToggle(activity).performClick();
+        click(latestDialog(), AlertDialog.BUTTON_POSITIVE);
+        ShadowActivity.PermissionsRequest request = shadowOf(activity).getLastRequestedPermission();
+        assertNotNull(request);
+        assertEquals(KeepADBNetworkCard.TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST,
+                request.requestCode);
+        return request;
+    }
+
     /** Dialog button handlers run through a Handler message, so the looper must be drained. */
     private static void click(AlertDialog dialog, int which) {
         dialog.getButton(which).performClick();
@@ -181,6 +192,99 @@ public class SettingsBackgroundLocationDialogTest {
 
         assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
         assertNoDialogShown();
+    }
+
+    /**
+     * #697: only a FINE grant opens allowlist mode. The user may answer the system dialog with
+     * "approximate" (COARSE granted, FINE denied): that enables nothing, shows no step 2 and says
+     * so, and the choice keeps showing the stored mode.
+     */
+    @Test
+    public void anApproximateOnlyGrantEnablesNothingAndShowsNoStepTwo() {
+        shadowOf((Application) context).denyPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
+        SettingsActivity activity = openSettings().get();
+        ShadowActivity.PermissionsRequest request = askForTheGrant(activity);
+        ShadowDialog.reset();
+        org.robolectric.shadows.ShadowToast.reset();
+
+        shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_COARSE_LOCATION);
+        activity.onRequestPermissionsResult(request.requestCode, request.requestedPermissions,
+                new int[]{PackageManager.PERMISSION_DENIED, PackageManager.PERMISSION_GRANTED});
+
+        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
+        assertNoDialogShown();
+        assertTrue(allWifiOption(activity).isChecked());
+        assertFalse(trustedToggle(activity).isChecked());
+        assertEquals(context.getString(R.string.settings_trusted_network_permission_denied_toast),
+                org.robolectric.shadows.ShadowToast.getTextOfLatestToast());
+    }
+
+    /**
+     * An interrupted request (the app was backgrounded while the system dialog was up) can arrive
+     * with empty result arrays: with FINE still missing it enables nothing and shows no step 2.
+     */
+    @Test
+    public void anInterruptedRequestEnablesNothingWhileTheGrantIsMissing() {
+        shadowOf((Application) context).denyPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
+        SettingsActivity activity = openSettings().get();
+        ShadowActivity.PermissionsRequest request = askForTheGrant(activity);
+        ShadowDialog.reset();
+        org.robolectric.shadows.ShadowToast.reset();
+
+        activity.onRequestPermissionsResult(request.requestCode, new String[0], new int[0]);
+
+        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
+        assertNoDialogShown();
+        assertTrue(allWifiOption(activity).isChecked());
+        assertEquals(context.getString(R.string.settings_trusted_network_permission_denied_toast),
+                org.robolectric.shadows.ShadowToast.getTextOfLatestToast());
+    }
+
+    /**
+     * The other side of the two tests above: the actual permission state decides, not the result
+     * arrays. An interrupted (empty) result while FINE was in fact granted still enables the mode
+     * and follows up with step 2; results that claim a grant while FINE is in fact denied enable
+     * nothing.
+     */
+    @Test
+    public void theActualPermissionStateDecidesNotTheResultArrays() {
+        shadowOf((Application) context).denyPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
+        SettingsActivity activity = openSettings().get();
+        ShadowActivity.PermissionsRequest request = askForTheGrant(activity);
+
+        // Claims "granted", but FINE is denied: nothing is enabled.
+        ShadowDialog.reset();
+        activity.onRequestPermissionsResult(request.requestCode, request.requestedPermissions,
+                new int[]{PackageManager.PERMISSION_GRANTED, PackageManager.PERMISSION_GRANTED});
+        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
+        assertNoDialogShown();
+
+        // Empty result, but FINE is granted by now: enabled, step 2 follows.
+        shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
+        activity.onRequestPermissionsResult(request.requestCode, new String[0], new int[0]);
+        assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
+        assertIsStepTwoDialog(latestDialog());
+    }
+
+    /**
+     * The card's other request code (the observation grant) and any foreign code only re-render:
+     * they never switch the mode and never raise a dialog, whatever the permission state is.
+     */
+    @Test
+    public void onlyTheAllowlistRequestEnablesTheModeNoOtherResultDoes() {
+        SettingsActivity activity = openSettings().get();
+        assertTrue("FINE is granted in this setup", activity.checkSelfPermission(
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+        ShadowDialog.reset();
+
+        for (int code : new int[]{KeepADBNetworkCard.WIFI_APS_LOCATION_PERMISSION_REQUEST, 9999, 0,
+                -1}) {
+            activity.onRequestPermissionsResult(code,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    new int[]{PackageManager.PERMISSION_GRANTED});
+            assertFalse("Request code " + code, KeepADBTrustedNetwork.isAllowlistMode(context));
+            assertNoDialogShown();
+        }
     }
 
     @Test

@@ -1482,13 +1482,12 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void backgroundLocationDialogSurvivesRotation() throws Exception {
+    public void backgroundLocationDialogSurvivesRotation() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
-        java.lang.reflect.Method show =
-                SettingsActivity.class.getDeclaredMethod("showBackgroundLocationDialog");
-        show.setAccessible(true);
-        show.invoke(controller.get());
+        // #697: the dialog now belongs to KeepADBNetworkCard; open it through its real entry
+        // point (the card's background-access button, no grant yet) instead of reflection.
+        controller.get().findViewById(R.id.settings_background_location_button).performClick();
         assertDialogShowingWithTitle(R.string.background_location_panel_title, controller.get());
 
         ActivityController<SettingsActivity> restored = rotate(controller);

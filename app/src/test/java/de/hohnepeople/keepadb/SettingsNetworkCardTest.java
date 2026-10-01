@@ -379,10 +379,10 @@ public class SettingsNetworkCardTest {
                 shadowOf(activity).getLastRequestedPermission();
         assertNotNull(request);
         assertEquals(Manifest.permission.ACCESS_FINE_LOCATION, request.requestedPermissions[0]);
-        assertEquals(SettingsActivity.WIFI_APS_LOCATION_PERMISSION_REQUEST, request.requestCode);
+        assertEquals(KeepADBNetworkCard.WIFI_APS_LOCATION_PERMISSION_REQUEST, request.requestCode);
 
         // After a permanent denial the same button leads to the app's system settings instead.
-        activity.onRequestPermissionsResult(SettingsActivity.WIFI_APS_LOCATION_PERMISSION_REQUEST,
+        activity.onRequestPermissionsResult(KeepADBNetworkCard.WIFI_APS_LOCATION_PERMISSION_REQUEST,
                 new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION},
                 new int[] {android.content.pm.PackageManager.PERMISSION_DENIED,
