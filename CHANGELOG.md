@@ -17,11 +17,22 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7` and `1.9.8` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8` and `1.9.9` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.9] - Unreleased
+
+### Changed
+- #698: Internal refactor, no behavior change: the diagnostics export button and the feedback report dialog of `SettingsActivity` -- the two button bindings, the active dialog with its editable preview and the diagnostics opt-in checkbox, and their save/restore/destroy -- now live in the package-private `KeepADBDiagnosticsController`, following `KeepADBNetworkCard`, `KeepADBWebhookForm` and `KeepADBUsbProfileEditor`. `SettingsActivity` keeps the screen composition and the Android lifecycle and calls explicit `restore`/`saveState`/`destroy` hooks. `KeepADBIssueReporter` stays the body and section builder, `KeepADBDiagnostics.export` stays the redaction owner, and the reset-app dialog stays completely in the activity. The feedback page is still opened through the activity's own `openWebLink`, so a device without a browser keeps getting the toast. The Bundle keys (`settings_issue_report_showing`/`_draft`/`_diagnostics`), string resources and layout ids are unchanged, so users see no difference. As before, diagnostics enter the report only through the opt-in checkbox, and a restored dialog sets that checkbox before its listener is attached, so a restore neither rebuilds nor duplicates the diagnostics section.
+
+### Testing
+- #698: New `SettingsIssueReportDialogTest` (20 tests) drives the real dialog: nothing from the diagnostics store before the opt-in and exactly one section after it, withdrawal removes it and keeps the handwritten text, Share sends `text/plain` with the section only when checked and leaves dialog and draft standing, the feedback button dismisses and opens only the static page (also without a browser), a restore uses the saved draft verbatim and sets the box before the listener (no rebuilt or duplicated section, also for a stale section with an unchecked box), repeated rotations keep text, box and a single section, destroy closes the dialog, the Bundle keys and string resources are unchanged, and the export button shares `text/plain` and records its diagnostic event once per request. A diagnostics canary proves the "absent" assertions are not vacuous.
+- #698: New `KeepADBDiagnosticsControllerContractTest` pins `KeepADBDiagnosticsController` as the single owner of the export and the dialog, the reset-app flow staying in the activity, and that no other main source reads diagnostics for sharing.
+- #698: `KeepADBIssueReporterContractTest` and `KeepADBDiagnosticsTest` now read the controller for their wiring assertions, and the no-GitHub guards scan the activity and the controller, so the guards do not go blind by the code moving; the Bundle-key symbols in `SettingsActivityTest` moved with the code. No assertion was removed or weakened.
+- #698: Each new assertion was checked against targeted production mutations in a disposable copy (45 mutations: diagnostics without opt-in, section kept after withdrawal, duplicate section, box set after the listener, lost draft or box state on rotation, dialog left open on destroy, Share/feedback behavior, export event/format, browser bypass, second owner or second diagnostics reader, Bundle key and resource changes). One survived at first (the listener's duplicate-section guard) and got its own test; all 45 are now caught.
 
 ## [1.9.8] - Unreleased
 
