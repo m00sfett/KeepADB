@@ -92,7 +92,7 @@ public class KeepADBNotificationRobolectricTest {
         assertEquals(NotificationManager.IMPORTANCE_LOW, channel.getImportance());
 
         String title = notification.extras.getString(Notification.EXTRA_TITLE);
-        assertEquals(context.getString(R.string.notification_title_searching), title);
+        assertEquals(context.getString(R.string.notification_title_searching, context.getString(R.string.app_name)), title);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class KeepADBNotificationRobolectricTest {
         assertNotNull("showPermissionMissing() must post a real notification via NotificationManager",
                 notification);
         String title = notification.extras.getString(Notification.EXTRA_TITLE);
-        assertEquals(context.getString(R.string.notification_permission_missing_title), title);
+        assertEquals(context.getString(R.string.notification_permission_missing_title, context.getString(R.string.app_name)), title);
         assertTrue("permission-missing placeholder must not offer a disable action the user cannot "
                         + "act on without the permission it is warning about",
                 notification.actions == null || notification.actions.length == 0);
@@ -186,7 +186,7 @@ public class KeepADBNotificationRobolectricTest {
         Notification notification = shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID);
         assertNotNull("Notification must update and be posted when Keep-Alive is active even if hidden",
                 notification);
-        assertEquals(context.getString(R.string.notification_title_active),
+        assertEquals(context.getString(R.string.notification_title_active, context.getString(R.string.app_name)),
                 notification.extras.getString(Notification.EXTRA_TITLE));
         String content = notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString();
         assertTrue(content.contains("39123"));
@@ -241,7 +241,7 @@ public class KeepADBNotificationRobolectricTest {
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         Notification notification = shadowOf(manager).getNotification(KeepADBNotification.NOTIFICATION_ID);
         assertNotNull(notification);
-        assertEquals(context.getString(R.string.notification_title_active),
+        assertEquals(context.getString(R.string.notification_title_active, context.getString(R.string.app_name)),
                 notification.extras.getString(Notification.EXTRA_TITLE));
         assertEquals(context.getString(R.string.notification_text_active_hidden),
                 notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());
@@ -268,7 +268,7 @@ public class KeepADBNotificationRobolectricTest {
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         Notification notification = shadowOf(manager).getNotification(KeepADBNotification.NOTIFICATION_ID);
         assertNotNull(notification);
-        assertEquals(context.getString(R.string.notification_title_active),
+        assertEquals(context.getString(R.string.notification_title_active, context.getString(R.string.app_name)),
                 notification.extras.getString(Notification.EXTRA_TITLE));
         String content = notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString();
         assertTrue(content.contains("39123"));
@@ -373,7 +373,7 @@ public class KeepADBNotificationRobolectricTest {
         Notification notification = shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID);
         assertNotNull("Notification must still be posted (service stays foreground) instead of "
                 + "being left on its previous content or silently cancelled", notification);
-        assertEquals(context.getString(R.string.notification_title_disabled),
+        assertEquals(context.getString(R.string.notification_title_disabled, context.getString(R.string.app_name)),
                 notification.extras.getString(Notification.EXTRA_TITLE));
         assertEquals(context.getString(R.string.notification_text_disabled_keepalive_waiting),
                 notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());
@@ -455,7 +455,7 @@ public class KeepADBNotificationRobolectricTest {
         ShadowNotificationManager shadowManager = shadowOf(manager);
         Notification notification = shadowManager.getNotification(KeepADBNotification.NOTIFICATION_ID);
         assertNotNull("Notification must still be posted when Keep-Alive is waiting", notification);
-        assertEquals(context.getString(R.string.notification_title_disabled),
+        assertEquals(context.getString(R.string.notification_title_disabled, context.getString(R.string.app_name)),
                 notification.extras.getString(Notification.EXTRA_TITLE));
         assertEquals(context.getString(R.string.notification_text_disabled_keepalive_waiting),
                 notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString());

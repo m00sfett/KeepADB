@@ -17,11 +17,24 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4` and `1.9.5` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5` and `1.9.6` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.6] - Unreleased
+
+### Fixed
+- #690: Debug builds mark the brand label with `(DBG)` in every locale, including the Quick Settings tile and the in-app title: `app_name`, `title_keepadb` and `tile_label` are now `translatable="false"` and defined only in `values/`, so the debug overlay is no longer shadowed by locale-specific copies. The release label stays `KeepADB`.
+- #690: The same applies to notification titles, the widget permission text and the tile permission toast: their leading brand name is now a `%1$s` argument filled from `app_name`, so debug shows `(DBG) KeepADB:` there and release stays `KeepADB:`.
+
+### Documentation
+- #689: Keep-Alive click comment in `MainActivity` names the guard actually used since #680.
+
+### Testing
+- #690: `KeepADBDebugBrandLabelTest` checks the `(DBG)` label in all 19 locales (debug variant); `bin/check-i18n` no longer needs allowlist entries for the three brand strings, and `KeepADBResourceContractTest` now requires those brand keys to exist in `values/` only.
+- #690: Automatic debug/release label guard: `KeepADBVariantLabelContractTest` (the `(DBG)` marker may only come from `src/debug`) and `bin/check-variant-labels`, a new step 5/5 of `bin/verify` that inspects the built APKs (debug: `(DBG) KeepADB` in all locale buckets and the manifest; release: no `DBG` anywhere, plain `KeepADB`).
 
 ## [1.9.5] - Unreleased
 

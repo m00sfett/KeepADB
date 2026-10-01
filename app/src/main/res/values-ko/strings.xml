@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KeepADB</string>
-    <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">초기 설정</string>
     <string name="setup_body">USB 디버깅을 활성화한 상태로 이 기기를 컴퓨터에 USB로 연결하세요. 먼저 컴퓨터에서 "adb devices"를 실행해 연결된 기기와 에뮬레이터 목록을 확인한 다음, 거기 표시된 정확한 시리얼 번호를 사용하세요.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
@@ -34,21 +32,20 @@
     <string name="keep_alive_subtext">연결 끊김, 네트워크 변경 또는 재부팅 시 자동 재연결</string>
     <string name="widget_text_on">무선 디버깅: 켜짐</string>
     <string name="widget_text_off">무선 디버깅: 꺼짐</string>
-    <string name="tile_label">@string/app_name</string>
-    <string name="tile_permission_error">KeepADB: 권한 누락 (pm grant 필요)</string>
+    <string name="tile_permission_error">%1$s: 권한 누락 (pm grant 필요)</string>
     <string name="permission_error_toast">권한이 없습니다. PC에서 한 번 실행하세요:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">무선 디버깅 엔드포인트</string>
     <string name="notification_channel_desc">무선 디버깅의 현재 IP 주소 및 포트</string>
-    <string name="notification_title_active">KeepADB: 무선 디버깅 활성화됨</string>
-    <string name="notification_title_disabled">KeepADB: 무선 디버깅 비활성화됨</string>
+    <string name="notification_title_active">%1$s: 무선 디버깅 활성화됨</string>
+    <string name="notification_title_disabled">%1$s: 무선 디버깅 비활성화됨</string>
     <string name="notification_text_active">포트 %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">탭하여 앱에서 연결 세부정보를 확인하세요.</string>
-    <string name="notification_title_searching">KeepADB: 엔드포인트 검색 중…</string>
+    <string name="notification_title_searching">%1$s: 엔드포인트 검색 중…</string>
     <string name="notification_text_searching">로컬 네트워크에서 엔드포인트 확인 중</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive가 무선 디버깅이 다시 켜지기를 기다리는 중</string>
     <string name="notification_service_title">무선 디버깅 활성 상태 유지</string>
     <string name="notification_service_text">Wi-Fi 연결 및 무선 디버깅 상태 모니터링 중</string>
-    <string name="notification_permission_missing_title">KeepADB: 권한 누락</string>
+    <string name="notification_permission_missing_title">%1$s: 권한 누락</string>
     <string name="notification_permission_panel_title">알림</string>
     <string name="notification_permission_panel_body">알림을 켜면 KeepADB 백그라운드 서비스와 Keep-Alive가 작동 중인지 확인할 수 있습니다. 연결이 끊기면 KeepADB가 즉시 알려줍니다. 이 권한이 없어도 무선 디버깅은 정상적으로 작동합니다.</string>
     <string name="notification_permission_request_button">알림 허용</string>
@@ -224,7 +221,7 @@
     <string name="status_permission_missing">시스템 권한 없음</string>
     <string name="widget_text_disconnected">무선 디버깅: 연결 끊김</string>
     <string name="widget_text_connected_format">무선 디버깅: 켜짐 (:%1$d)</string>
-    <string name="widget_text_permission_missing">KeepADB: 권한 없음</string>
+    <string name="widget_text_permission_missing">%1$s: 권한 없음</string>
     <string name="tile_state_off">꺼짐</string>
     <string name="tile_state_disconnected">연결 끊김</string>
     <string name="tile_state_searching">검색 중…</string>

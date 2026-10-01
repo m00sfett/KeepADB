@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KeepADB</string>
-    <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Configuração inicial</string>
     <string name="setup_body">Conecte este dispositivo a um computador via USB com a depuração USB ativada. Execute primeiro "adb devices" no computador para listar dispositivos e emuladores conectados, depois use o número de série exato mostrado ali.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
@@ -34,21 +32,20 @@
     <string name="keep_alive_subtext">Reconexão automática em caso de queda, troca de rede ou reinicialização</string>
     <string name="widget_text_on">Depuração sem fio: SIM</string>
     <string name="widget_text_off">Depuração sem fio: NÃO</string>
-    <string name="tile_label">@string/app_name</string>
-    <string name="tile_permission_error">KeepADB: Permissão ausente (pm grant necessário)</string>
+    <string name="tile_permission_error">%1$s: Permissão ausente (pm grant necessário)</string>
     <string name="permission_error_toast">Permissão ausente. Execute uma vez no PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Endpoint de depuração sem fio</string>
     <string name="notification_channel_desc">Endereço IP e porta atuais da depuração sem fio</string>
-    <string name="notification_title_active">KeepADB: Depuração sem fio ATIVADO</string>
-    <string name="notification_title_disabled">KeepADB: Depuração sem fio DESATIVADO</string>
+    <string name="notification_title_active">%1$s: Depuração sem fio ATIVADO</string>
+    <string name="notification_title_disabled">%1$s: Depuração sem fio DESATIVADO</string>
     <string name="notification_text_active">Porta %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Toque para ver os detalhes da ligação na app.</string>
-    <string name="notification_title_searching">KeepADB: Procurando endpoint…</string>
+    <string name="notification_title_searching">%1$s: Procurando endpoint…</string>
     <string name="notification_text_searching">Resolvendo endpoint na rede local</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive aguarda a reativação da depuração sem fio</string>
     <string name="notification_service_title">Manter depuração sem fio ativa</string>
     <string name="notification_service_text">Monitorando conexão Wi-Fi e status da depuração sem fio</string>
-    <string name="notification_permission_missing_title">KeepADB: Permissão ausente</string>
+    <string name="notification_permission_missing_title">%1$s: Permissão ausente</string>
     <string name="notification_permission_panel_title">Notificações</string>
     <string name="notification_permission_panel_body">Com as notificações ativadas, pode ver se o serviço em segundo plano do KeepADB e o Keep-Alive estão a funcionar. Se a ligação cair, o KeepADB avisa-o de imediato. A depuração sem fios também funciona bem sem esta permissão.</string>
     <string name="notification_permission_request_button">Permitir notificações</string>
@@ -224,7 +221,7 @@
     <string name="status_permission_missing">Permissão do sistema ausente</string>
     <string name="widget_text_disconnected">Depuração sem fio: Desconectada</string>
     <string name="widget_text_connected_format">Depuração sem fio: ATIVADA (:%1$d)</string>
-    <string name="widget_text_permission_missing">KeepADB: Permissão ausente</string>
+    <string name="widget_text_permission_missing">%1$s: Permissão ausente</string>
     <string name="tile_state_off">Desativado</string>
     <string name="tile_state_disconnected">Desconectado</string>
     <string name="tile_state_searching">Procurando…</string>

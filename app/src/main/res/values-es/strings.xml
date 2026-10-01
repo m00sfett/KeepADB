@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KeepADB</string>
-    <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Configuración inicial</string>
     <string name="setup_body">Conecta este dispositivo a un ordenador por USB con la depuración USB activada. Ejecuta primero "adb devices" en el ordenador para listar los dispositivos y emuladores conectados, y usa después el número de serie exacto que aparece ahí.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
@@ -34,21 +32,20 @@
     <string name="keep_alive_subtext">Reconexión automática en desconexión, cambio de red o reinicio</string>
     <string name="widget_text_on">Depuración inalámbrica: SÍ</string>
     <string name="widget_text_off">Depuración inalámbrica: NO</string>
-    <string name="tile_label">@string/app_name</string>
-    <string name="tile_permission_error">KeepADB: Falta permiso (requiere pm grant)</string>
+    <string name="tile_permission_error">%1$s: Falta permiso (requiere pm grant)</string>
     <string name="permission_error_toast">Falta permiso. Ejecuta una vez desde el PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Punto final de depuración inalámbrica</string>
     <string name="notification_channel_desc">Dirección IP y puerto actuales de la depuración inalámbrica</string>
-    <string name="notification_title_active">KeepADB: Depuración inalámbrica ACTIVADO</string>
-    <string name="notification_title_disabled">KeepADB: Depuración inalámbrica DESACTIVADO</string>
+    <string name="notification_title_active">%1$s: Depuración inalámbrica ACTIVADO</string>
+    <string name="notification_title_disabled">%1$s: Depuración inalámbrica DESACTIVADO</string>
     <string name="notification_text_active">Puerto %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Toca para ver los detalles de conexión en la app.</string>
-    <string name="notification_title_searching">KeepADB: Buscando punto final…</string>
+    <string name="notification_title_searching">%1$s: Buscando punto final…</string>
     <string name="notification_text_searching">Resolviendo punto final en la red local</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive espera a que la depuración inalámbrica se reactive</string>
     <string name="notification_service_title">Mantener depuración inalámbrica activa</string>
     <string name="notification_service_text">Monitoreando conexión Wi-Fi y estado de depuración inalámbrica</string>
-    <string name="notification_permission_missing_title">KeepADB: Falta permiso</string>
+    <string name="notification_permission_missing_title">%1$s: Falta permiso</string>
     <string name="notification_permission_panel_title">Notificaciones</string>
     <string name="notification_permission_panel_body">Con las notificaciones activadas, puedes ver si el servicio en segundo plano de KeepADB y Keep-Alive están funcionando. Si se pierde la conexión, KeepADB te avisa enseguida. La depuración inalámbrica también funciona sin este permiso.</string>
     <string name="notification_permission_request_button">Permitir notificaciones</string>
@@ -224,7 +221,7 @@
     <string name="status_permission_missing">Falta el permiso del sistema</string>
     <string name="widget_text_disconnected">Depuración inalámbrica: Desconectada</string>
     <string name="widget_text_connected_format">Depuración inalámbrica: ACTIVADA (:%1$d)</string>
-    <string name="widget_text_permission_missing">KeepADB: Falta el permiso</string>
+    <string name="widget_text_permission_missing">%1$s: Falta el permiso</string>
     <string name="tile_state_off">Desactivado</string>
     <string name="tile_state_disconnected">Desconectado</string>
     <string name="tile_state_searching">Buscando…</string>

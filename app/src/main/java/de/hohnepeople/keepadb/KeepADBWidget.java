@@ -53,7 +53,7 @@ public class KeepADBWidget extends AppWidgetProvider {
         String widgetText;
         switch (state) {
             case PERMISSION_MISSING:
-                widgetText = localizedContext.getString(R.string.widget_text_permission_missing);
+                widgetText = localizedContext.getString(R.string.widget_text_permission_missing, localizedContext.getString(R.string.app_name));
                 break;
             case OFF:
                 widgetText = localizedContext.getString(R.string.widget_text_off);

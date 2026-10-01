@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KeepADB</string>
-    <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">İlk kurulum</string>
     <string name="setup_body">Bu cihazı USB hata ayıklama etkinken bir bilgisayara USB ile bağlayın. Önce bilgisayarda "adb devices" komutunu çalıştırarak bağlı cihazları ve emülatörleri listeleyin, ardından orada gösterilen tam seri numarasını kullanın.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
@@ -34,21 +32,20 @@
     <string name="keep_alive_subtext">Bağlantı kesintisi, ağ değişikliği veya yeniden başlatmada otomatik yeniden bağlanma</string>
     <string name="widget_text_on">Kablosuz Hata Ayıklama: AÇIK</string>
     <string name="widget_text_off">Kablosuz Hata Ayıklama: KAPALI</string>
-    <string name="tile_label">@string/app_name</string>
-    <string name="tile_permission_error">KeepADB: İzin eksik (pm grant gerekli)</string>
+    <string name="tile_permission_error">%1$s: İzin eksik (pm grant gerekli)</string>
     <string name="permission_error_toast">İzin eksik. PC’den bir kez çalıştırın:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Kablosuz Hata Ayıklama Uç Noktası</string>
     <string name="notification_channel_desc">Kablosuz Hata Ayıklamanın geçerli IP adresi ve bağlantı noktası</string>
-    <string name="notification_title_active">KeepADB: Kablosuz Hata Ayıklama ETKİN</string>
-    <string name="notification_title_disabled">KeepADB: Kablosuz Hata Ayıklama DEVRE DIŞI</string>
+    <string name="notification_title_active">%1$s: Kablosuz Hata Ayıklama ETKİN</string>
+    <string name="notification_title_disabled">%1$s: Kablosuz Hata Ayıklama DEVRE DIŞI</string>
     <string name="notification_text_active">Bağlantı noktası %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Bağlantı ayrıntılarını uygulamada görmek için dokunun.</string>
-    <string name="notification_title_searching">KeepADB: Uç nokta aranıyor…</string>
+    <string name="notification_title_searching">%1$s: Uç nokta aranıyor…</string>
     <string name="notification_text_searching">Yerel ağda uç nokta çözümleniyor</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive, Kablosuz Hata Ayıklamanın yeniden açılmasını bekliyor</string>
     <string name="notification_service_title">Kablosuz Hata Ayıklamayı Aktif Tut</string>
     <string name="notification_service_text">Wi-Fi bağlantısı ve Kablosuz Hata Ayıklama durumu izleniyor</string>
-    <string name="notification_permission_missing_title">KeepADB: İzin eksik</string>
+    <string name="notification_permission_missing_title">%1$s: İzin eksik</string>
     <string name="notification_permission_panel_title">Bildirimler</string>
     <string name="notification_permission_panel_body">Bildirimler açık olduğunda KeepADB arka plan hizmetinin ve Keep-Alive\'ın çalışıp çalışmadığını görebilirsiniz. Bağlantı koparsa KeepADB sizi hemen bilgilendirir. Kablosuz Hata Ayıklama bu izin olmadan da sorunsuz çalışır.</string>
     <string name="notification_permission_request_button">Bildirimlere izin ver</string>
@@ -224,7 +221,7 @@
     <string name="status_permission_missing">Sistem izni eksik</string>
     <string name="widget_text_disconnected">Kablosuz Hata Ayıklama: Bağlı değil</string>
     <string name="widget_text_connected_format">Kablosuz Hata Ayıklama: AÇIK (:%1$d)</string>
-    <string name="widget_text_permission_missing">KeepADB: İzin eksik</string>
+    <string name="widget_text_permission_missing">%1$s: İzin eksik</string>
     <string name="tile_state_off">Kapalı</string>
     <string name="tile_state_disconnected">Bağlı değil</string>
     <string name="tile_state_searching">Aranıyor…</string>

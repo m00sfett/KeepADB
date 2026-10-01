@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KeepADB</string>
-    <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Eerste installatie</string>
     <string name="setup_body">Verbind dit apparaat via USB met een computer met USB-foutopsporing ingeschakeld. Voer eerst "adb devices" uit op de computer om verbonden apparaten en emulators te tonen, en gebruik daarna het exacte serienummer dat daar wordt weergegeven.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
@@ -34,21 +32,20 @@
     <string name="keep_alive_subtext">Automatisch opnieuw verbinden bij verbroken verbinding, netwerkwijziging of herstart</string>
     <string name="widget_text_on">Draadloze foutopsporing: AAN</string>
     <string name="widget_text_off">Draadloze foutopsporing: UIT</string>
-    <string name="tile_label">@string/app_name</string>
-    <string name="tile_permission_error">KeepADB: Toestemming ontbreekt (pm grant vereist)</string>
+    <string name="tile_permission_error">%1$s: Toestemming ontbreekt (pm grant vereist)</string>
     <string name="permission_error_toast">Toestemming ontbreekt. Voer eenmalig uit op PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Eindpunt voor draadloze foutopsporing</string>
     <string name="notification_channel_desc">Huidig IP-adres en poort van draadloze foutopsporing</string>
-    <string name="notification_title_active">KeepADB: Draadloze foutopsporing INGESCHAKELD</string>
-    <string name="notification_title_disabled">KeepADB: Draadloze foutopsporing UITGESCHAKELD</string>
+    <string name="notification_title_active">%1$s: Draadloze foutopsporing INGESCHAKELD</string>
+    <string name="notification_title_disabled">%1$s: Draadloze foutopsporing UITGESCHAKELD</string>
     <string name="notification_text_active">Poort %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Tik om verbindingsdetails in de app te bekijken.</string>
-    <string name="notification_title_searching">KeepADB: Zoeken naar eindpunt…</string>
+    <string name="notification_title_searching">%1$s: Zoeken naar eindpunt…</string>
     <string name="notification_text_searching">Eindpunt oplossen op lokaal netwerk</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive wacht tot Draadloze foutopsporing weer wordt ingeschakeld</string>
     <string name="notification_service_title">Draadloze foutopsporing actief houden</string>
     <string name="notification_service_text">wifi-verbinding en status van draadloze foutopsporing controleren</string>
-    <string name="notification_permission_missing_title">KeepADB: Toestemming ontbreekt</string>
+    <string name="notification_permission_missing_title">%1$s: Toestemming ontbreekt</string>
     <string name="notification_permission_panel_title">Meldingen</string>
     <string name="notification_permission_panel_body">Met meldingen ingeschakeld zie je of de achtergrondservice van KeepADB en Keep-Alive actief zijn. Als de verbinding wegvalt, waarschuwt KeepADB je direct. Draadloos debuggen werkt ook zonder deze toestemming gewoon.</string>
     <string name="notification_permission_request_button">Meldingen toestaan</string>
@@ -224,7 +221,7 @@
     <string name="status_permission_missing">Systeemtoestemming ontbreekt</string>
     <string name="widget_text_disconnected">Draadloos debuggen: Verbinding verbroken</string>
     <string name="widget_text_connected_format">Draadloos debuggen: AAN (:%1$d)</string>
-    <string name="widget_text_permission_missing">KeepADB: Toestemming ontbreekt</string>
+    <string name="widget_text_permission_missing">%1$s: Toestemming ontbreekt</string>
     <string name="tile_state_off">Uit</string>
     <string name="tile_state_disconnected">Niet verbonden</string>
     <string name="tile_state_searching">Zoeken…</string>

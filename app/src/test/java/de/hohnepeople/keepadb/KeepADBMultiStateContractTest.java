@@ -247,7 +247,7 @@ public class KeepADBMultiStateContractTest {
         activity.pause().close();
 
         View widget = renderWidget();
-        assertEquals(context.getString(R.string.widget_text_permission_missing), widgetText(widget));
+        assertEquals(context.getString(R.string.widget_text_permission_missing, context.getString(R.string.app_name)), widgetText(widget));
         clickWidget(widget);
         assertTrue(gateway.writes.isEmpty());
 

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KeepADB</string>
-    <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Thiết lập ban đầu</string>
     <string name="setup_body">Kết nối thiết bị này với máy tính qua USB khi đã bật gỡ lỗi USB. Trước tiên chạy "adb devices" trên máy tính để liệt kê các thiết bị và trình giả lập đang kết nối, sau đó dùng đúng số sê-ri hiển thị ở đó.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
@@ -34,21 +32,20 @@
     <string name="keep_alive_subtext">Tự động kết nối lại khi mất kết nối, đổi mạng hoặc khởi động lại</string>
     <string name="widget_text_on">Gỡ lỗi không dây: BẬT</string>
     <string name="widget_text_off">Gỡ lỗi không dây: TẮT</string>
-    <string name="tile_label">@string/app_name</string>
-    <string name="tile_permission_error">KeepADB: Thiếu quyền (cần pm grant)</string>
+    <string name="tile_permission_error">%1$s: Thiếu quyền (cần pm grant)</string>
     <string name="permission_error_toast">Thiếu quyền. Chạy một lần từ PC:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Điểm cuối gỡ lỗi không dây</string>
     <string name="notification_channel_desc">Địa chỉ IP và cổng hiện tại của Gỡ lỗi không dây</string>
-    <string name="notification_title_active">KeepADB: Gỡ lỗi không dây ĐÃ BẬT</string>
-    <string name="notification_title_disabled">KeepADB: Gỡ lỗi không dây ĐÃ TẮT</string>
+    <string name="notification_title_active">%1$s: Gỡ lỗi không dây ĐÃ BẬT</string>
+    <string name="notification_title_disabled">%1$s: Gỡ lỗi không dây ĐÃ TẮT</string>
     <string name="notification_text_active">Cổng %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Nhấn để xem chi tiết kết nối trong ứng dụng.</string>
-    <string name="notification_title_searching">KeepADB: Đang tìm điểm cuối…</string>
+    <string name="notification_title_searching">%1$s: Đang tìm điểm cuối…</string>
     <string name="notification_text_searching">Đang phân giải điểm cuối trên mạng cục bộ</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive đang chờ gỡ lỗi không dây được bật lại</string>
     <string name="notification_service_title">Duy trì gỡ lỗi không dây hoạt động</string>
     <string name="notification_service_text">Đang theo dõi kết nối Wi-Fi và trạng thái gỡ lỗi không dây</string>
-    <string name="notification_permission_missing_title">KeepADB: Thiếu quyền</string>
+    <string name="notification_permission_missing_title">%1$s: Thiếu quyền</string>
     <string name="notification_permission_panel_title">Thông báo</string>
     <string name="notification_permission_panel_body">Khi bật thông báo, bạn có thể xem dịch vụ nền của KeepADB và Keep-Alive có đang chạy hay không. Nếu mất kết nối, KeepADB sẽ báo cho bạn ngay lập tức. Gỡ lỗi không dây vẫn hoạt động tốt mà không cần quyền này.</string>
     <string name="notification_permission_request_button">Cho phép thông báo</string>
@@ -224,7 +221,7 @@
     <string name="status_permission_missing">Thiếu quyền hệ thống</string>
     <string name="widget_text_disconnected">Gỡ lỗi không dây: Đã ngắt kết nối</string>
     <string name="widget_text_connected_format">Gỡ lỗi không dây: ĐANG BẬT (:%1$d)</string>
-    <string name="widget_text_permission_missing">KeepADB: Thiếu quyền</string>
+    <string name="widget_text_permission_missing">%1$s: Thiếu quyền</string>
     <string name="tile_state_off">Tắt</string>
     <string name="tile_state_disconnected">Đã ngắt kết nối</string>
     <string name="tile_state_searching">Đang tìm…</string>

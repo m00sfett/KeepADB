@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+"""Checks the built debug and release APKs for the (DBG) brand label (#690).
+
+Debug must carry "(DBG) KeepADB" for app_name/title_keepadb/tile_label in every locale bucket
+and in the manifest; release must not contain "DBG" anywhere (resource table, manifest) and
+must use plain "KeepADB" everywhere. Run by bin/verify after assembleDebug/assembleRelease.
+Needs aapt2 from the Android SDK build-tools (ANDROID_HOME / ANDROID_SDK_ROOT / ~/Android/Sdk).
+"""
+import glob
+import os
+import re
+import subprocess
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+KEYS = ("app_name", "title_keepadb", "tile_label")
+DEBUG_APK = os.path.join(ROOT, "app/build/outputs/apk/debug/app-debug.apk")
+RELEASE_APKS = sorted(glob.glob(os.path.join(ROOT, "app/build/outputs/apk/release/*.apk")))
+
+
+def find_aapt2():
+    roots = [os.environ.get("ANDROID_HOME"), os.environ.get("ANDROID_SDK_ROOT"),
+             os.path.expanduser("~/Android/Sdk")]
+    props = os.path.join(ROOT, "local.properties")
+    if os.path.exists(props):
+        m = re.search(r"^sdk\.dir=(.+)$", open(props).read(), re.M)
+        if m:
+            roots.insert(0, m.group(1).strip())
+    for sdk in filter(None, roots):
+        found = sorted(glob.glob(os.path.join(sdk, "build-tools", "*", "aapt2")))
+        if found:
+            return found[-1]
+    sys.exit("check-variant-labels: aapt2 not found (set ANDROID_HOME)")
+
+
+def dump(aapt2, *args):
+    return subprocess.run([aapt2, "dump", *args], check=True, capture_output=True,
+                          text=True).stdout
+
+
+def brand_values(resources):
+    """Returns {key: {config: value}} for the brand strings from 'aapt2 dump resources'."""
+    result = {}
+    for key in KEYS:
+        block = re.search(r"resource 0x[0-9a-f]+ string/%s\b.*?(?=\n    resource |\n  type |\Z)"
+                          % key, resources, re.S)
+        values = {}
+        if block:
+            for config, value in re.findall(r"^      \(([^)]*)\) (.*)$", block.group(0), re.M):
+                values[config or "default"] = value.strip().strip('"')
+        result[key] = values
+    return result
+
+
+def check(aapt2, apk, expected_label, must_contain_dbg):
+    problems = []
+    name = os.path.basename(apk)
+    strings = dump(aapt2, "strings", apk)
+    manifest = dump(aapt2, "xmltree", "--file", "AndroidManifest.xml", apk)
+    has_dbg = "DBG" in strings or "DBG" in manifest
+    if has_dbg != must_contain_dbg:
+        problems.append("%s: DBG %s in resource table/manifest"
+                        % (name, "missing" if must_contain_dbg else "present"))
+    for key, values in brand_values(dump(aapt2, "resources", apk)).items():
+        if not values:
+            problems.append("%s: string/%s not found" % (name, key))
+        for config, value in values.items():
+            # tile_label is an alias; it resolves to app_name, so accept the reference.
+            if value not in (expected_label, "@string/app_name"):
+                problems.append("%s: string/%s [%s] = %r (expected %r)"
+                                % (name, key, config, value, expected_label))
+    badging = dump(aapt2, "badging", apk)
+    labels = re.findall(r"^application-label(?:-[^:]+)?:'(.*)'$", badging, re.M)
+    if not labels or any(label != expected_label for label in labels):
+        problems.append("%s: application labels %r (expected only %r)"
+                        % (name, sorted(set(labels)), expected_label))
+    return problems
+
+
+def main():
+    aapt2 = find_aapt2()
+    problems = []
+    if not os.path.exists(DEBUG_APK):
+        problems.append("missing debug APK: " + DEBUG_APK)
+    else:
+        problems += check(aapt2, DEBUG_APK, "(DBG) KeepADB", True)
+    if not RELEASE_APKS:
+        problems.append("missing release APK in app/build/outputs/apk/release")
+    for apk in RELEASE_APKS:
+        problems += check(aapt2, apk, "KeepADB", False)
+    if problems:
+        print("check-variant-labels: FAILED", file=sys.stderr)
+        for p in problems:
+            print("  - " + p, file=sys.stderr)
+        sys.exit(1)
+    print("check-variant-labels: debug carries (DBG) everywhere, release carries none.")
+
+
+if __name__ == "__main__":
+    main()

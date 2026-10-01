@@ -174,9 +174,10 @@ public class MainActivity extends Activity {
                     && adbEnabledOrNull != null && !adbEnabledOrNull) {
                 // #577: "Keep-Alive ON" means "keep it alive wherever that's permitted", not
                 // "switch it on right here regardless of trust" -- so this immediate enable now
-                // shares the exact same automatic-enable guard the service itself re-checks
-                // (KeepADBService#isAutoEnableStillPermitted) instead of a second, parallel trust
-                // check. On an untrusted network this falls through to the same trust-prompt path
+                // shares the automatic-enable guard the service itself re-checks
+                // (KeepADBService#isAutoEnableStillPermittedIgnoringBackoff: Keep-Alive, Wi-Fi and
+                // trust, minus the #496 backoff, see #680 below) instead of a second, parallel
+                // trust check. On an untrusted network this falls through to the same trust-prompt path
                 // the automatic recheck already uses, rather than writing immediately. The main
                 // switch, tile and widget are untouched and keep writing without this gate (#245).
                 // #680: deliberately switching Keep-Alive on is a user intent, so it overrides an

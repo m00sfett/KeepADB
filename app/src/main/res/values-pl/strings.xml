@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">KeepADB</string>
-    <string name="title_keepadb">KeepADB</string>
     <string name="setup_title">Wstępna konfiguracja</string>
     <string name="setup_body">Podłącz to urządzenie do komputera przez USB z włączonym debugowaniem USB. Najpierw uruchom na komputerze "adb devices", aby wyświetlić listę podłączonych urządzeń i emulatorów, a następnie użyj dokładnego numeru seryjnego pokazanego tam.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
@@ -34,21 +32,20 @@
     <string name="keep_alive_subtext">Automatyczne wznawianie połączenia po rozłączeniu, zmianie sieci lub restarcie</string>
     <string name="widget_text_on">Debugowanie bezprzewodowe: WŁ.</string>
     <string name="widget_text_off">Debugowanie bezprzewodowe: WYŁ.</string>
-    <string name="tile_label">@string/app_name</string>
-    <string name="tile_permission_error">KeepADB: Brak uprawnień (wymagane pm grant)</string>
+    <string name="tile_permission_error">%1$s: Brak uprawnień (wymagane pm grant)</string>
     <string name="permission_error_toast">Brak uprawnień. Uruchom raz z komputera:\nadb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="notification_channel_name">Punkt końcowy debugowania bezprzewodowego</string>
     <string name="notification_channel_desc">Bieżący adres IP i port debugowania bezprzewodowego</string>
-    <string name="notification_title_active">KeepADB: Debugowanie bezprzewodowe WŁĄCZONE</string>
-    <string name="notification_title_disabled">KeepADB: Debugowanie bezprzewodowe WYŁĄCZONE</string>
+    <string name="notification_title_active">%1$s: Debugowanie bezprzewodowe WŁĄCZONE</string>
+    <string name="notification_title_disabled">%1$s: Debugowanie bezprzewodowe WYŁĄCZONE</string>
     <string name="notification_text_active">Port %1$d @ %2$s</string>
     <string name="notification_text_active_hidden">Dotknij, aby zobaczyć szczegóły połączenia w aplikacji.</string>
-    <string name="notification_title_searching">KeepADB: Wyszukiwanie punktu…</string>
+    <string name="notification_title_searching">%1$s: Wyszukiwanie punktu…</string>
     <string name="notification_text_searching">Rozpoznawanie punktu końcowego w sieci lokalnej</string>
     <string name="notification_text_disabled_keepalive_waiting">Keep-Alive czeka na ponowne włączenie debugowania bezprzewodowego</string>
     <string name="notification_service_title">Utrzymuj debugowanie bezprzewodowe aktywne</string>
     <string name="notification_service_text">Monitorowanie połączenia Wi-Fi i stanu debugowania bezprzewodowego</string>
-    <string name="notification_permission_missing_title">KeepADB: Brak uprawnień</string>
+    <string name="notification_permission_missing_title">%1$s: Brak uprawnień</string>
     <string name="notification_permission_panel_title">Powiadomienia</string>
     <string name="notification_permission_panel_body">Po włączeniu powiadomień widzisz, czy usługa w tle KeepADB i Keep-Alive działają. Jeśli połączenie zostanie utracone, KeepADB od razu Cię poinformuje. Debugowanie bezprzewodowe działa również bez tego uprawnienia.</string>
     <string name="notification_permission_request_button">Zezwól na powiadomienia</string>
@@ -224,7 +221,7 @@
     <string name="status_permission_missing">Brak uprawnienia systemowego</string>
     <string name="widget_text_disconnected">Debugowanie bezprzewodowe: Rozłączone</string>
     <string name="widget_text_connected_format">Debugowanie bezprzewodowe: WŁ. (:%1$d)</string>
-    <string name="widget_text_permission_missing">KeepADB: Brak uprawnień</string>
+    <string name="widget_text_permission_missing">%1$s: Brak uprawnień</string>
     <string name="tile_state_off">Wyłączone</string>
     <string name="tile_state_disconnected">Rozłączone</string>
     <string name="tile_state_searching">Wyszukiwanie…</string>
