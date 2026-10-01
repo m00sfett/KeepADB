@@ -38,6 +38,7 @@ public class PendingCleanupRetryRepositoryContractTest {
     private static final String SOURCE_DIRECTORY = "app/src/main/java/de/hohnepeople/keepadb/";
     private static final String CLIENT = "KeepADBRegisterClient.java";
     private static final String REPOSITORY = "PendingCleanupRetryRepository.java";
+    private static final String HTTP_ADAPTER = "KeepADBHttpTransport.java";
 
     /**
      * No instance and no mutable static field means no queue, cache, lock, timer or generation can
@@ -115,9 +116,10 @@ public class PendingCleanupRetryRepositoryContractTest {
     }
 
     /**
-     * The record has one caller, and the client is the only class that holds the generation, the
-     * executor and an HTTP connection. A second owner of any of them would be a second transaction
-     * owner, which is exactly what this extraction must not create.
+     * The record has one caller, and the client is the only class that holds the generation and the
+     * executor; the HTTP connection lives in the stateless adapter {@code KeepADBHttpTransport}
+     * (#700), the only other class that may open one. A second owner of any of them would be a
+     * second transaction owner, which is exactly what this extraction must not create.
      */
     @Test
     public void onlyTheClientUsesTheRepositoryAndOwnsGenerationExecutorAndHttp() throws IOException {
@@ -152,8 +154,8 @@ public class PendingCleanupRetryRepositoryContractTest {
                 List.of(CLIENT), generationOwners);
         assertEquals("The client is the only owner of the register executor: " + executors,
                 List.of(CLIENT), executors);
-        assertEquals("The client is the only class that opens a connection: " + connections,
-                List.of(CLIENT), connections);
+        assertEquals("The HTTP adapter is the only class that opens a connection: " + connections,
+                List.of(HTTP_ADAPTER), connections);
     }
 
     /**

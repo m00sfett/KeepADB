@@ -5,18 +5,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /** Sends optional background reachability updates to a custom register or webhook endpoint. */
 final class KeepADBRegisterClient {
     private static final String TAG = "KeepADBRegisterClient";
-    private static final int TIMEOUT_MS = 2000;
     /**
      * #562: coordinated retry staffage for {@link #markUnavailableAsync}. Repeated notification-
      * /service refreshes and network callbacks used to re-issue an immediate DELETE on every call
@@ -645,68 +639,7 @@ final class KeepADBRegisterClient {
         boolean delete(String targetUrl);
     }
 
-    private static final class DefaultHttpTransport implements HttpTransport {
-        @Override
-        public boolean postJson(String targetUrl, String payload, String logLabel) {
-            HttpURLConnection conn = null;
-            try {
-                byte[] bytes = payload.getBytes(StandardCharsets.UTF_8);
-
-                URL url = new URL(targetUrl);
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setInstanceFollowRedirects(false);
-                conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-                conn.setConnectTimeout(TIMEOUT_MS);
-                conn.setReadTimeout(TIMEOUT_MS);
-                conn.setDoOutput(true);
-                conn.setFixedLengthStreamingMode(bytes.length);
-
-                try (OutputStream os = conn.getOutputStream()) {
-                    os.write(bytes);
-                    os.flush();
-                }
-
-                int code = conn.getResponseCode();
-                Log.d(TAG, "Register update for " + KeepADBAddressMask.maskEndpointForDisplay(logLabel)
-                        + " returned HTTP " + code);
-                return code >= 200 && code < 300;
-            } catch (IOException e) {
-                Log.w(TAG, "Could not update register at " + sanitizeUrl(targetUrl));
-                return false;
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                }
-            }
-        }
-
-        @Override
-        public boolean delete(String targetUrl) {
-            HttpURLConnection conn = null;
-            try {
-                URL url = new URL(targetUrl);
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("DELETE");
-                conn.setInstanceFollowRedirects(false);
-                conn.setConnectTimeout(TIMEOUT_MS);
-                conn.setReadTimeout(TIMEOUT_MS);
-
-                int code = conn.getResponseCode();
-                Log.d(TAG, "Register delete returned HTTP " + code);
-                return code >= 200 && code < 300;
-            } catch (IOException e) {
-                Log.w(TAG, "Could not reach register to unregister at " + sanitizeUrl(targetUrl));
-                return false;
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                }
-            }
-        }
-    }
-
-    private static final HttpTransport DEFAULT_TRANSPORT = new DefaultHttpTransport();
+    private static final HttpTransport DEFAULT_TRANSPORT = new KeepADBHttpTransport();
     private static volatile HttpTransport httpTransport = DEFAULT_TRANSPORT;
 
     static void setHttpTransport(HttpTransport transport) {
