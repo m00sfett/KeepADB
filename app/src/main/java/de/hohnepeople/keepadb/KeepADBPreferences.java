@@ -321,9 +321,15 @@ final class KeepADBPreferences {
         return getPendingCleanups(context, KEY_WEBHOOK_PENDING_CLEANUP);
     }
 
-    static void addPendingWebhookCleanupUrl(Context context, String url) {
-        if (url == null || url.trim().isEmpty()) return;
-        addPendingCleanup(context, KEY_WEBHOOK_PENDING_CLEANUP, url);
+    /**
+     * Queues {@code url} as a pending cleanup. Returns the entry that had to make room for it --
+     * the OLDEST one of a full backlog, see {@link #MAX_PENDING_CLEANUPS} -- or {@code null} when
+     * nothing was evicted (blank url, entry already queued, or a free slot). #707: the caller owns
+     * whatever else belongs to an evicted entry (its retry record); this class does not know it.
+     */
+    static String addPendingWebhookCleanupUrl(Context context, String url) {
+        if (url == null || url.trim().isEmpty()) return null;
+        return addPendingCleanup(context, KEY_WEBHOOK_PENDING_CLEANUP, url);
     }
 
     static void removePendingWebhookCleanupUrl(Context context, String url) {
@@ -383,19 +389,21 @@ final class KeepADBPreferences {
                 .apply();
     }
 
-    private static void addPendingCleanup(Context context, String key, String entry) {
-        if (context == null) return;
+    private static String addPendingCleanup(Context context, String key, String entry) {
+        if (context == null) return null;
         java.util.LinkedHashSet<String> pending = getPendingCleanups(context, key);
-        if (pending.contains(entry)) return;
+        if (pending.contains(entry)) return null;
+        String evicted = null;
         if (pending.size() >= MAX_PENDING_CLEANUPS) {
             // #368: evict the OLDEST entry (head of insertion order), not the newest, so the
             // newest -- most likely to still be a live orphan registration -- is kept.
             java.util.Iterator<String> oldest = pending.iterator();
-            oldest.next();
+            evicted = oldest.next();
             oldest.remove();
         }
         pending.add(entry);
         persistPendingCleanups(context, key, pending);
+        return evicted;
     }
 
     private static void removePendingCleanup(Context context, String key, String entry) {

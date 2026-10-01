@@ -5,7 +5,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
@@ -22,6 +27,11 @@ import org.junit.Test;
  * picture: its budget, backoff, expiry, restart and legacy-entry behavior with literal numbers
  * (the older tests below use the repository's own constants), the write-ahead of the cleanup to
  * remember and the rule that a cleanup never outlives or overwrites a newer registration.
+ *
+ * <p>#707 added the retry record's end of life: the record of an entry that a full backlog evicts
+ * goes with it, and a sweep on the register executor removes the records of entries that are no
+ * longer pending (what an earlier build left behind). Both are driven through the client and its
+ * executor here; the sweep's key rules are pinned in {@link PendingCleanupRetryRepositoryTest}.
  */
 public class KeepADBRegisterCleanupLifecycleTest {
 
@@ -262,7 +272,8 @@ public class KeepADBRegisterCleanupLifecycleTest {
         // Backlog is already at MAX_PENDING_CLEANUPS; one more add must evict the reconstructed
         // oldest entry (FIFO, #368), not silently grow past the bound or drop the newest one.
         String newUrl = "http://new-after-migration/register";
-        KeepADBPreferences.addPendingWebhookCleanupUrl(context, newUrl);
+        assertEquals("the eviction is reported with the entry the reconstructed order dropped (#707)",
+                expectedEvicted, KeepADBPreferences.addPendingWebhookCleanupUrl(context, newUrl));
 
         Set<String> finalPending = KeepADBPreferences.getPendingWebhookCleanupUrls(context);
         assertEquals(KeepADBPreferences.MAX_PENDING_CLEANUPS, finalPending.size());
@@ -632,6 +643,412 @@ public class KeepADBRegisterCleanupLifecycleTest {
 
         assertTrue("the old URL must already be queued when the snapshot is written",
                 rememberedBeforeSnapshot.get());
+    }
+
+    // ---- #707: the end of life of a retry record. ----
+
+    private static final String[] FULL_FIFO = {"http://e0.example/register",
+            "http://e1.example/register", "http://e2.example/register", "http://e3.example/register"};
+    /** Two failed attempts, not due before 91 s: a flush at 1 s neither attempts nor drops it. */
+    private static final String SPENT_TWICE = "2,91000,86401000";
+
+    @Test
+    public void addingToAFullBacklogReportsTheEntryItEvictedAndOtherwiseNothing() {
+        assertEquals(KeepADBPreferences.MAX_PENDING_CLEANUPS, FULL_FIFO.length);
+        for (String entry : FULL_FIFO) {
+            assertNull("a free slot evicts nothing", KeepADBPreferences.addPendingWebhookCleanupUrl(context, entry));
+        }
+        assertNull("an entry that is queued already changes nothing",
+                KeepADBPreferences.addPendingWebhookCleanupUrl(context, FULL_FIFO[2]));
+        assertNull(KeepADBPreferences.addPendingWebhookCleanupUrl(context, null));
+        assertNull(KeepADBPreferences.addPendingWebhookCleanupUrl(context, "  "));
+        assertEquals(Arrays.asList(FULL_FIFO),
+                new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+
+        assertEquals("the OLDEST entry makes room, never the new one", FULL_FIFO[0],
+                KeepADBPreferences.addPendingWebhookCleanupUrl(context, "http://e4.example/register"));
+        assertEquals(FULL_FIFO[1],
+                KeepADBPreferences.addPendingWebhookCleanupUrl(context, "http://e5.example/register"));
+        assertEquals(Arrays.asList(FULL_FIFO[2], FULL_FIFO[3], "http://e4.example/register",
+                "http://e5.example/register"),
+                new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+    }
+
+    @Test
+    public void anEvictedEntryLosesItsRetryRecordAndOnlyThatOne() throws Exception {
+        configureWebhook(NEW_URL);
+        fillTheBacklogWithSpentRecords();
+
+        runTheEvictingTransaction();
+
+        assertEquals("the oldest entry made room for the old URL",
+                Arrays.asList(FULL_FIFO[1], FULL_FIFO[2], FULL_FIFO[3], OLD_URL),
+                new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+        assertNull("the evicted entry is gone for good, its record must not outlive it",
+                retryRecord(FULL_FIFO[0]));
+        for (int i = 1; i < FULL_FIFO.length; i++) {
+            assertEquals("an entry that stays queued keeps its record: " + FULL_FIFO[i], SPENT_TWICE,
+                    retryRecord(FULL_FIFO[i]));
+        }
+        assertNull("the entry that was just queued has not failed yet", retryRecord(OLD_URL));
+        assertEquals("exactly the three records of the entries that stay: " + retryKeys(), 3,
+                retryKeys().size());
+        assertEquals("evicting is local bookkeeping: the old URL's DELETE and the new POST only", 2,
+                transport.getRequestCount());
+    }
+
+    @Test
+    public void anEvictedLegacyEntryWithCredentialsLosesItsRecordUnderItsRawKey() throws Exception {
+        configureWebhook(NEW_URL);
+        String legacy = "http://admin:secret@legacy.example/register?token=abc";
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, legacy);
+        plantRecord(legacy, SPENT_TWICE);
+        for (int i = 1; i < FULL_FIFO.length; i++) {
+            KeepADBPreferences.addPendingWebhookCleanupUrl(context, FULL_FIFO[i]);
+            plantRecord(FULL_FIFO[i], SPENT_TWICE);
+        }
+
+        runTheEvictingTransaction();
+
+        assertFalse(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(legacy));
+        assertNull("the record belongs to the raw stored entry, not to its canonical resource",
+                retryRecord(legacy));
+        assertNull(retryRecord("http://legacy.example/register?token=abc"));
+        assertEquals(3, retryKeys().size());
+    }
+
+    /**
+     * Acceptance of #707 on the record alone: no flush runs between the eviction and the entry being
+     * queued again, so only the removal at eviction can make the record fresh.
+     */
+    @Test
+    public void anEntryQueuedAgainRightAfterItsEvictionStartsWithAFreshRecord() throws Exception {
+        configureWebhook(NEW_URL);
+        fillTheBacklogWithSpentRecords();
+        runTheEvictingTransaction();
+        KeepADBPreferences.removePendingWebhookCleanupUrl(context, OLD_URL);
+
+        assertNull(KeepADBPreferences.addPendingWebhookCleanupUrl(context, FULL_FIFO[0]));
+
+        PendingCleanupRetryRepository.RetryState state =
+                PendingCleanupRetryRepository.read(context, FULL_FIFO[0], 5_000L);
+        assertEquals("no attempt inherited from the entry's earlier life", 0, state.attempts);
+        assertEquals("due immediately", 5_000L, state.nextAttemptAt);
+        assertEquals("and a new 24h expiry", 5_000L + DAY_MS, state.expiresAt);
+    }
+
+    /**
+     * The same acceptance through the client only: the entry is queued again by a later transaction,
+     * which flushes first, and is then attempted like any new cleanup. This path is covered twice --
+     * by the removal at eviction and by the sweep at that flush -- so it only fails when both are
+     * missing; each of them is pinned on its own by the tests around it.
+     */
+    @Test
+    public void anEntryQueuedAgainByALaterTransactionIsAttemptedWithAFreshRecord() throws Exception {
+        configureWebhook(NEW_URL);
+        fillTheBacklogWithSpentRecords();
+        runTheEvictingTransaction();
+        assertEquals(2, transport.getRequestCount());
+
+        // The evicted URL was registered once more and is replaced again, unreachable again.
+        KeepADBRegisterClient.setWlanStateForTesting(FULL_FIFO[0], "192.168.1.52:41236");
+        configureWebhook("http://newer.example/register");
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.52", 41237);
+        waitUntil(() -> "http://newer.example/register".equals(
+                KeepADBPreferences.getWebhookLastReportedUrl(context)), 3000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertTrue("queued again", KeepADBPreferences.getPendingWebhookCleanupUrls(context)
+                .contains(FULL_FIFO[0]));
+        assertNull("without the record of its earlier life", retryRecord(FULL_FIFO[0]));
+
+        transport.clearRequests();
+        flushAt(2_000L);
+        assertEquals("a fresh record is due at once, an inherited one would wait until 91 s", 1,
+                countDeletes(FULL_FIFO[0]));
+        assertEquals("one failed attempt, expiring 24h after this flush, not after the old one",
+                "1,32000,86402000", retryRecord(FULL_FIFO[0]));
+    }
+
+    /**
+     * The generation guard of the commit block covers the eviction as well: a superseded update
+     * neither queues its cleanup nor evicts anything (that is {@code
+     * KeepADBRegisterClientTest#testUpdateSupersededDuringItsSecondaryTransportsDoesNotEvictOrQueue}
+     * for the commit block itself); here the check after the primary POST.
+     */
+    @Test
+    public void anUpdateSupersededDuringItsPostEvictsNothing() throws Exception {
+        configureWebhook(NEW_URL);
+        fillTheBacklogWithSpentRecords();
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
+        KeepADBRegisterClient.setWlanStateForTesting(OLD_URL, "192.168.1.50:41234");
+        transport.setDeleteSuccess(false);
+        transport.setRequestCallback(req -> {
+            if ("POST".equals(req.method)) KeepADBRegisterClient.bumpOpGenerationForTesting();
+        });
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals("the POST was sent, then the operation noticed it was superseded", "POST",
+                transport.getLastRequest().method);
+        assertEquals("nothing was queued and so nothing was evicted", Arrays.asList(FULL_FIFO),
+                new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+        for (String entry : FULL_FIFO) {
+            assertEquals(SPENT_TWICE, retryRecord(entry));
+        }
+    }
+
+    @Test
+    public void aFlushSweepsTheRecordsOfEntriesThatAreNoLongerPendingAndNothingElse() {
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, FULL_FIFO[1]);
+        plantRecord(FULL_FIFO[1], SPENT_TWICE);
+        plantRecord(FULL_FIFO[0], "1,31000,86401000");
+        plantRecord("http://admin:secret@legacy.example/register?token=abc", "garbage");
+        plantRecord("", "no entry at all");
+        android.content.SharedPreferences prefs =
+                context.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE);
+        java.util.Map<String, Object> nonRecordKeysBefore = nonRecordKeys();
+        List<String> pendingBefore = new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context));
+
+        flushAt(1_000L);
+
+        assertEquals("only the record of the entry that is still pending stays: " + retryKeys(),
+                java.util.Collections.singleton(RETRY_KEY_PREFIX + FULL_FIFO[1]), retryKeys());
+        assertEquals(SPENT_TWICE, retryRecord(FULL_FIFO[1]));
+        assertEquals("the sweep sends nothing", 0, transport.getRequestCount());
+        assertEquals("and changes no entry", pendingBefore,
+                new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+        assertEquals("nor any other preference", nonRecordKeysBefore, nonRecordKeys());
+        assertEquals(String.join("\u001D", pendingBefore),
+                prefs.getString("register_webhook_pending_cleanup_order", null));
+    }
+
+    /**
+     * Records are orphaned by evictions, and an eviction only happens on a backlog that is at its
+     * cap of four: that is where an earlier build leaves them. The sweep must not depend on how
+     * full the backlog is, and must leave the four records of the pending entries alone.
+     */
+    @Test
+    public void aFlushSweepsTheOrphansOfAFullBacklogToo() {
+        fillTheBacklogWithSpentRecords();
+        plantRecord("http://evicted-earlier-a.example/register", SPENT_TWICE);
+        plantRecord("http://evicted-earlier-b.example/register", "garbage");
+
+        flushAt(1_000L);
+
+        assertEquals("the backlog is untouched", Arrays.asList(FULL_FIFO),
+                new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+        assertEquals("exactly the four records of the pending entries stay: " + retryKeys(),
+                FULL_FIFO.length, retryKeys().size());
+        for (String entry : FULL_FIFO) {
+            assertEquals("a pending entry keeps its record: " + entry, SPENT_TWICE,
+                    retryRecord(entry));
+        }
+        assertEquals("the sweep sends nothing", 0, transport.getRequestCount());
+    }
+
+    @Test
+    public void aFlushKeepsTheRecordsOfLegacyEntriesThatHaveNoOrderKeyYet() {
+        String legacyKey = "register_webhook_pending_cleanup";
+        String credentials = "http://admin:secret@legacy.example/register?token=abc";
+        android.content.SharedPreferences prefs =
+                context.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE);
+        prefs.edit().putStringSet(legacyKey,
+                new java.util.HashSet<>(Arrays.asList(credentials, FULL_FIFO[1]))).apply();
+        assertFalse("test precondition: the pre-#368 shape has no order key",
+                prefs.contains(legacyKey + "_order"));
+        plantRecord(credentials, SPENT_TWICE);
+        plantRecord(FULL_FIFO[1], SPENT_TWICE);
+        plantRecord(FULL_FIFO[0], SPENT_TWICE);
+
+        flushAt(1_000L);
+
+        assertEquals("the legacy entries are active, only the dead one goes: " + retryKeys(),
+                new java.util.TreeSet<>(Arrays.asList(RETRY_KEY_PREFIX + credentials,
+                        RETRY_KEY_PREFIX + FULL_FIFO[1])),
+                retryKeys());
+        assertEquals(new java.util.HashSet<>(Arrays.asList(credentials, FULL_FIFO[1])),
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context));
+        assertEquals(0, transport.getRequestCount());
+    }
+
+    @Test
+    public void aFlushWithAnEmptyBacklogLeavesNoRetryRecordBehind() {
+        plantRecord(FULL_FIFO[0], SPENT_TWICE);
+        plantRecord(FULL_FIFO[1], "garbage");
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+
+        flushAt(1_000L);
+
+        assertTrue("without a pending entry every record is dead: " + retryKeys(),
+                retryKeys().isEmpty());
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertEquals(0, transport.getRequestCount());
+    }
+
+    @Test
+    public void anUpdateTransactionSweepsOnTheExecutorBeforeItDoesAnythingElse() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, FULL_FIFO[1]);
+        plantRecord(FULL_FIFO[1], SPENT_TWICE);
+        plantRecord(FULL_FIFO[0], SPENT_TWICE);
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+        waitUntil(() -> NEW_URL.equals(KeepADBPreferences.getWebhookLastReportedUrl(context)), 3000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals(java.util.Collections.singleton(RETRY_KEY_PREFIX + FULL_FIFO[1]), retryKeys());
+    }
+
+    @Test
+    public void aDeleteTransactionSweepsOnTheExecutorBeforeItDoesAnythingElse() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, FULL_FIFO[1]);
+        plantRecord(FULL_FIFO[1], SPENT_TWICE);
+        plantRecord(FULL_FIFO[0], SPENT_TWICE);
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
+
+        KeepADBRegisterClient.unregisterAndDisableAsync(context);
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals(java.util.Collections.singleton(RETRY_KEY_PREFIX + FULL_FIFO[1]), retryKeys());
+    }
+
+    /**
+     * Only the register executor sweeps. The caller of an entry point returns at once with the work
+     * queued behind a running transaction, and must not have touched the preferences file; the
+     * queued transaction sweeps when it starts.
+     */
+    @Test
+    public void theSweepRunsOnTheRegisterExecutorNeverOnTheCaller() throws Exception {
+        configureWebhook(NEW_URL);
+        CountDownLatch firstPostRunning = new CountDownLatch(1);
+        CountDownLatch releaseFirstPost = new CountDownLatch(1);
+        transport.setRequestCallback(req -> {
+            if (!"POST".equals(req.method) || firstPostRunning.getCount() == 0) return;
+            firstPostRunning.countDown();
+            try {
+                releaseFirstPost.await(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+        assertTrue("the first transaction is inside its POST on the executor",
+                firstPostRunning.await(3, TimeUnit.SECONDS));
+        plantRecord(FULL_FIFO[0], SPENT_TWICE);
+        try {
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.52", 41236);
+            assertEquals("the caller returned and has swept nothing: the executor is busy and owns "
+                    + "the sweep", SPENT_TWICE, retryRecord(FULL_FIFO[0]));
+        } finally {
+            releaseFirstPost.countDown();
+        }
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertNull("the queued transaction swept when it started", retryRecord(FULL_FIFO[0]));
+    }
+
+    /**
+     * The sweep is no commit work: it must not wait for the class monitor. The test holds the
+     * monitor itself while a transaction is queued; the executor reaches the monitor only after its
+     * flush, so a sweep that needs the monitor (or runs inside a commit block) would not have run
+     * by the time the monitor is released.
+     */
+    @Test
+    public void theDeleteTransactionSweepsWithoutTheClassMonitor() throws Exception {
+        configureWebhook(NEW_URL);
+        plantRecord(FULL_FIFO[0], SPENT_TWICE);
+
+        boolean sweptWhileTheMonitorWasHeld;
+        synchronized (KeepADBRegisterClient.class) {
+            KeepADBRegisterClient.unregisterAndDisableAsync(context);
+            sweptWhileTheMonitorWasHeld = waitForRecordToDisappear(FULL_FIFO[0], 2000);
+        }
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertTrue("the executor swept while this thread still held the class monitor",
+                sweptWhileTheMonitorWasHeld);
+    }
+
+    @Test
+    public void theUpdateTransactionSweepsWithoutTheClassMonitor() throws Exception {
+        configureWebhook(NEW_URL);
+        plantRecord(FULL_FIFO[0], SPENT_TWICE);
+
+        boolean sweptWhileTheMonitorWasHeld;
+        synchronized (KeepADBRegisterClient.class) {
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+            sweptWhileTheMonitorWasHeld = waitForRecordToDisappear(FULL_FIFO[0], 2000);
+        }
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertTrue("the executor swept while this thread still held the class monitor",
+                sweptWhileTheMonitorWasHeld);
+    }
+
+    // ---- helpers of the #707 tests ----
+
+    private void fillTheBacklogWithSpentRecords() {
+        for (String entry : FULL_FIFO) {
+            KeepADBPreferences.addPendingWebhookCleanupUrl(context, entry);
+            plantRecord(entry, SPENT_TWICE);
+        }
+        assertEquals(KeepADBPreferences.MAX_PENDING_CLEANUPS,
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).size());
+    }
+
+    /**
+     * Replaces {@link #OLD_URL} by {@link #NEW_URL} while the old one is unreachable and the
+     * backlog is full: the old URL is queued as a cleanup and evicts the oldest entry. At 1 s every
+     * entry of {@link #SPENT_TWICE} is neither due nor expired, so the flush in front of the update
+     * changes none of them.
+     */
+    private void runTheEvictingTransaction() throws Exception {
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
+        KeepADBRegisterClient.setWlanStateForTesting(OLD_URL, "192.168.1.50:41234");
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+        waitUntil(() -> NEW_URL.equals(KeepADBPreferences.getWebhookLastReportedUrl(context)), 3000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+    }
+
+    private void plantRecord(String entry, String value) {
+        context.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE).edit()
+                .putString(RETRY_KEY_PREFIX + entry, value).commit();
+    }
+
+    private int countDeletes(String url) {
+        int count = 0;
+        synchronized (transport.recordedRequests) {
+            for (KeepADBFakeHttpTransport.Request request : transport.recordedRequests) {
+                if ("DELETE".equals(request.method) && url.equals(request.url)) count++;
+            }
+        }
+        return count;
+    }
+
+    private java.util.Map<String, Object> nonRecordKeys() {
+        java.util.Map<String, Object> others = new java.util.TreeMap<>();
+        for (java.util.Map.Entry<String, ?> stored : context.getSharedPreferences("keepadb_prefs",
+                android.content.Context.MODE_PRIVATE).getAll().entrySet()) {
+            if (!stored.getKey().startsWith(RETRY_KEY_PREFIX)) others.put(stored.getKey(), stored.getValue());
+        }
+        return others;
+    }
+
+    private boolean waitForRecordToDisappear(String entry, long timeoutMs) throws InterruptedException {
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < deadline) {
+            if (retryRecord(entry) == null) return true;
+            Thread.sleep(10);
+        }
+        return retryRecord(entry) == null;
     }
 
     private void flushAt(long now) {

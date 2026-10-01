@@ -1250,6 +1250,62 @@ public class KeepADBRegisterClientTest {
         }
     }
 
+    /**
+     * #707: the same guard covers what the commit block does to the cleanup backlog. The update
+     * would queue its unreachable old URL and evict the oldest of four entries together with that
+     * entry's retry record; superseded during its secondary transports, it must do none of it.
+     */
+    @Test
+    public void testUpdateSupersededDuringItsSecondaryTransportsDoesNotEvictOrQueue() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL1);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        String[] backlog = {"http://e0.example/register", "http://e1.example/register",
+                "http://e2.example/register", "http://e3.example/register"};
+        String recordKeyPrefix = "register_webhook_pending_cleanup_retry_state:";
+        for (String entry : backlog) {
+            KeepADBPreferences.addPendingWebhookCleanupUrl(context, entry);
+            context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
+                    .putString(recordKeyPrefix + entry, "2,91000,86401000").commit();
+        }
+        // None of them is due or expired at 1 s, so the flush in front of the update leaves them be.
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
+        KeepADBRegisterClient.setWlanStateForTesting(URL2, "192.168.1.9:40999");
+        KeepADBRegisterPayload.setServerSupportedMethodsForTesting(
+                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "usb-adb")));
+        try {
+            setUsbAdbConnectedForTesting(context, true);
+            KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+            transport.setDeleteSuccess(false);
+            transport.setRequestCallback(req -> {
+                if ("POST".equals(req.method) && req.payload != null
+                        && req.payload.contains("usb-adb")) {
+                    KeepADBRegisterClient.bumpOpGenerationForTesting();
+                }
+            });
+            KeepADBRegisterClient.setHttpTransport(transport);
+
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
+            KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+            assertEquals("the old URL's DELETE, the WLAN POST and the USB POST were sent while the "
+                    + "operation was current", 3, transport.getRequestCount());
+            assertNull("a superseded update must not commit its registration",
+                    KeepADBPreferences.getWebhookLastReportedUrl(context));
+            assertEquals("and must not queue its cleanup, which would evict the oldest entry",
+                    java.util.Arrays.asList(backlog),
+                    new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+            for (String entry : backlog) {
+                assertEquals("nor drop a retry record: " + entry, "2,91000,86401000",
+                        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
+                                .getString(recordKeyPrefix + entry, null));
+            }
+        } finally {
+            setUsbAdbConnectedForTesting(context, false);
+            KeepADBRegisterPayload.setServerSupportedMethodsForTesting(null);
+        }
+    }
+
     @Test
     public void testFailedUpdateSupersededDuringItsPostRecordsNoFailure() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
