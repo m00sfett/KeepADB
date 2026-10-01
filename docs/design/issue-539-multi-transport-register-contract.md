@@ -1,3 +1,10 @@
+> Historischer Entwurf vom 2026-09-21. Die damalige Inspektion des externen Servers und die
+> Aussagen zu unterstützten Methoden, GET-Ansichten, Ablage und HTTP-Fehlern wurden für diese
+> Dokumentationsfassung nicht erneut verifiziert und sind keine aktuelle Serverbeschreibung. Für
+> den aktuellen App-Sender gilt [webhook-register.md](../webhook-register.md).
+
+---
+
 # Vertragsentwurf: Mehrere verifizierte ADB-Transporte im Webhook-/Register-Vertrag (#539)
 
 Stand: 2026-09-21. Gilt für den Webhook-POST der KeepADB-App an

@@ -1,33 +1,44 @@
-# KeepADB diagnostics
+# KeepADB-Diagnosen
 
-KeepADB writes structured diagnostic events to Logcat with the tag `KeepADBDiag`. Each event
-contains an ISO-8601 wall-clock timestamp, elapsed-clock value, process ID, Android SDK, event
-name, trigger source, outcome, and a short detail field.
+KeepADB protokolliert strukturierte Ereignisse mit dem Logcat-Tag KeepADBDiag. Ereignisse enthalten
+Zeitstempel, verstrichene Zeit, Prozess-ID, Android-SDK, Ereignistyp, Auslöser, Ergebnis und ein
+kurzes Detailfeld.
 
-The same lines are held in a bounded local ring buffer of at most 128 events in the app's private
-`SharedPreferences`. Settings > Diagnostics > Export diagnostics opens Android's share sheet with
-the plain-text export: one `key=value` event per line after the `KeepADB diagnostics v1` header.
-The buffer is overwritten oldest-first and excluded from cloud backup and device transfer. KeepADB
-does not upload it automatically; data leaves the app only when the user chooses a share target.
+## Anzeigen und Teilen
 
-Pairing codes, tokens, passwords, authorization values, and URLs are redacted before Logcat and
-the export buffer. Endpoint IP/port values may remain because they are the subject of the Wifi-ADB
-diagnosis. Logcat retention is controlled by Android; the local buffer is limited to 128 events.
+In **Einstellungen → Diagnose → Diagnose exportieren** öffnet Androids Teilen-Menü einen
+Text-Export. KeepADB lädt Diagnosen nicht automatisch hoch. Ein Export verlässt die App erst, wenn
+du selbst ein Ziel auswählst. Für einen flüchtigen Live-Auszug kann Androids Logcat verwendet
+werden:
 
-A Wi-Fi access point's BSSID is shortened before export: only its OUI (the first three octets,
-which identify the network adapter vendor, not one physical access point) stays, the remaining
-three are masked. An SSID would be masked in full the same way, though no current event actually
-records one. The feedback report draft (Settings > Report a problem) redacts both fully instead,
-on top of the same host/port/secret/URL rules, before the diagnostics text is inserted into the
-editable draft.
+~~~sh
+adb logcat -s KeepADBDiag
+~~~
 
-A debug build additionally keeps a 48-hour diagnostics journal instead of the 128-event ring
-buffer, including a per-minute network/Keep-Alive/Tailscale/endpoint state snapshot fed by the
-service heartbeat; that snapshot's shown endpoint host/port go through the same "may remain, this
-is the Wifi-ADB diagnosis subject" rule above, and any BSSID/SSID it were to carry would go
-through the same shortening/masking as any other exported event.
+Release-Builds halten höchstens 128 Ereignisse in einem privaten Ringpuffer; ältere Einträge
+werden überschrieben. Debug-Builds verwenden stattdessen ein Journal mit einem 48-Stunden-Fenster
+und zusätzlichen periodischen Zustandsständen. Android-Cloud-Backup und Geräteübertragung sind
+deaktiviert.
 
-The event sequence is intended to be read as `user_action`/`toggle_attempt` -> `state_observed` ->
-`recovery_attempt`/`recovery_or_stop` -> `service_*`. `intentId` correlates scheduled and completed
-toggle or recovery writes. A service restart records the elapsed gap since the last persisted
-heartbeat when one exists; its `pid` can be compared with surrounding events.
+## Maskierung und enthaltene Daten
+
+Paarungscodes, Kennwörter, Tokens, Autorisierungswerte und URLs werden vor Speicherung und Export
+redigiert. Diagnoseausgaben können dennoch den WLAN-ADB-Endpunkt mit Host und Port enthalten,
+weil dieser Gegenstand der Diagnose ist.
+
+Beim Export bleibt von einer gültigen BSSID nur der erste Dreierblock (OUI, Herstellerkennung)
+sichtbar; die restlichen drei Blöcke werden maskiert. Ungültige BSSID-Werte und SSIDs werden
+vollständig maskiert. Ein Fehlerbericht aus **Einstellungen → Problem melden** maskiert zusätzlich
+Host und Port sowie BSSID und SSID vollständig, bevor die Diagnosen in den editierbaren
+Berichtsentwurf eingefügt werden.
+
+Logcat hat Androids eigene Aufbewahrungsdauer. Ein Diagnoseexport kann weiterhin private
+Netzwerkadressen enthalten. Prüfe die Vorschau und entferne vertrauliche Angaben, bevor du den
+Text an andere weitergibst.
+
+## Ereignisfolge lesen
+
+Typische Abläufe erscheinen als Benutzeraktion oder Umschaltversuch, beobachteter Zustand,
+Wiederherstellungsversuch oder Stopp und danach Service-Ereignisse. intentId verbindet geplante und
+abgeschlossene Umschalt- oder Wiederherstellungsschreibvorgänge. Prozess-ID und verstrichene Zeit
+helfen, einen Dienstneustart oder eine Lücke zwischen Ereignissen.

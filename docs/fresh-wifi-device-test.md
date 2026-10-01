@@ -1,3 +1,9 @@
+> Historischer Einzeltest vom 2026-09-18 auf einem Galaxy S20 FE mit P60-Hotspot. Die
+> Beobachtungen dokumentieren genau diesen Testaufbau und sind weder eine aktuelle Freigabe noch
+> eine allgemeine Aussage über andere Geräte.
+
+---
+
 # Testweg „frisches WLAN" über den P60-Hotspot (#496)
 
 Für Fixes am Wifi-ADB-Verhalten braucht der Pflicht-Gerätetest auf dem S20 (`s20`) ein

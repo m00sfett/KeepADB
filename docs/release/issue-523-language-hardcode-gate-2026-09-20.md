@@ -1,3 +1,8 @@
+> Datierter Prüfbericht für den Scope von Issue #523. Der Pass-Befund gilt für den dort
+> genannten Kandidatenstand und ersetzt keine heutige Prüfung.
+
+---
+
 # Issue #523 – finaler Sprach- und Hardcode-Gate
 
 Stand: 2026-09-20
