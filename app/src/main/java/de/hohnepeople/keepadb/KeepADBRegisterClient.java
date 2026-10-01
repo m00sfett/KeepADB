@@ -1,7 +1,6 @@
 package de.hohnepeople.keepadb;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -18,13 +17,6 @@ import java.util.concurrent.Executors;
 final class KeepADBRegisterClient {
     private static final String TAG = "KeepADBRegisterClient";
     private static final int TIMEOUT_MS = 2000;
-    private static final String PREFS_NAME = "keepadb_prefs";
-    private static final String KEY_PENDING_CLEANUP_RETRY_STATE =
-            "register_webhook_pending_cleanup_retry_state";
-    static final int MAX_PENDING_CLEANUP_ATTEMPTS = 3;
-    static final long PENDING_CLEANUP_EXPIRY_MS = 24L * 60L * 60L * 1000L;
-    static final long PENDING_CLEANUP_INITIAL_BACKOFF_MS = 30_000L;
-    static final long PENDING_CLEANUP_MAX_BACKOFF_MS = 5L * 60L * 1000L;
     /**
      * #562: coordinated retry staffage for {@link #markUnavailableAsync}. Repeated notification-
      * /service refreshes and network callbacks used to re-issue an immediate DELETE on every call
@@ -251,37 +243,34 @@ final class KeepADBRegisterClient {
      * A pending cleanup is deliberately bounded independently of the four-entry FIFO cap in
      * {@link KeepADBPreferences}. Each entry gets a persisted expiry, attempt budget and
      * exponential backoff, so an unreachable host cannot block every later register transaction.
+     * The retry record and its numbers live in {@link PendingCleanupRetryRepository} (#701); this
+     * client keeps the decision when an entry is attempted or discarded, and the clock.
      */
     private static boolean shouldAttemptPendingCleanup(Context context, String entry) {
         long now = pendingCleanupNow();
-        PendingCleanupRetryState state = readPendingCleanupRetryState(context, entry, now);
-        if (now >= state.expiresAt) {
+        PendingCleanupRetryRepository.RetryState state =
+                PendingCleanupRetryRepository.read(context, entry, now);
+        if (state.isExpired(now)) {
             discardPendingCleanup(context, entry, "expired");
             return false;
         }
-        if (state.attempts >= MAX_PENDING_CLEANUP_ATTEMPTS) {
+        if (state.isExhausted()) {
             discardPendingCleanup(context, entry, "attempt_limit");
             return false;
         }
-        return now >= state.nextAttemptAt;
+        return state.isDue(now);
     }
 
     private static void recordPendingCleanupFailure(Context context, String entry) {
-        long now = pendingCleanupNow();
-        PendingCleanupRetryState state = readPendingCleanupRetryState(context, entry, now);
-        state.attempts++;
-        if (state.attempts >= MAX_PENDING_CLEANUP_ATTEMPTS) {
+        if (PendingCleanupRetryRepository.recordFailure(context, entry, pendingCleanupNow())) {
             discardPendingCleanup(context, entry, "attempt_limit");
-            return;
         }
-        state.nextAttemptAt = saturatingAdd(now, pendingCleanupBackoffMs(state.attempts));
-        writePendingCleanupRetryState(context, entry, state);
     }
 
     private static void discardPendingCleanup(Context context, String entry, String reason) {
         if (entry == null) return;
         KeepADBPreferences.removePendingWebhookCleanupUrl(context, entry);
-        removePendingCleanupRetryState(context, entry);
+        PendingCleanupRetryRepository.remove(context, entry);
         Log.w(TAG, "Dropping pending register cleanup (" + reason + "): " + sanitizeUrl(entry));
     }
 
@@ -298,7 +287,7 @@ final class KeepADBRegisterClient {
         for (String rawUrl : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
             if (targetKey.equals(registrationResourceKey(rawUrl))) {
                 KeepADBPreferences.removePendingWebhookCleanupUrl(context, rawUrl);
-                removePendingCleanupRetryState(context, rawUrl);
+                PendingCleanupRetryRepository.remove(context, rawUrl);
             }
         }
     }
@@ -312,7 +301,9 @@ final class KeepADBRegisterClient {
      * expiry (or backoff) effectively unreachable after a reboot until uptime climbs back up to
      * the old absolute value -- a far worse regression than the wall-clock-jump risk this gate
      * already accepts. See {@link #markUnavailableNow()} for the in-memory-only #562 gate, which
-     * has no such persistence and does get the monotonic clock.
+     * has no such persistence and does get the monotonic clock. The persisted record itself lives
+     * in {@link PendingCleanupRetryRepository} (#701), which reads no clock and only receives
+     * this value.
      */
     private static long pendingCleanupNow() {
         Long testNow = pendingCleanupNowForTesting;
@@ -333,76 +324,9 @@ final class KeepADBRegisterClient {
         return testNow != null ? testNow : SystemClock.elapsedRealtime();
     }
 
-    private static long pendingCleanupBackoffMs(int attempts) {
-        long backoff = PENDING_CLEANUP_INITIAL_BACKOFF_MS;
-        for (int i = 1; i < attempts && backoff < PENDING_CLEANUP_MAX_BACKOFF_MS; i++) {
-            if (backoff > PENDING_CLEANUP_MAX_BACKOFF_MS / 2L) {
-                return PENDING_CLEANUP_MAX_BACKOFF_MS;
-            }
-            backoff *= 2L;
-        }
-        return Math.min(backoff, PENDING_CLEANUP_MAX_BACKOFF_MS);
-    }
-
     private static long saturatingAdd(long left, long right) {
         if (right > 0L && left > Long.MAX_VALUE - right) return Long.MAX_VALUE;
         return left + right;
-    }
-
-    private static final class PendingCleanupRetryState {
-        int attempts;
-        long nextAttemptAt;
-        long expiresAt;
-
-        PendingCleanupRetryState(int attempts, long nextAttemptAt, long expiresAt) {
-            this.attempts = attempts;
-            this.nextAttemptAt = nextAttemptAt;
-            this.expiresAt = expiresAt;
-        }
-    }
-
-    private static PendingCleanupRetryState readPendingCleanupRetryState(Context context, String entry,
-            long now) {
-        PendingCleanupRetryState fallback = new PendingCleanupRetryState(0, now,
-                saturatingAdd(now, PENDING_CLEANUP_EXPIRY_MS));
-        if (context == null || entry == null) return fallback;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String stored = prefs.getString(pendingCleanupRetryStateKey(entry), null);
-        if (stored == null || stored.trim().isEmpty()) return fallback;
-        String[] fields = stored.split(",", -1);
-        if (fields.length != 3) {
-            Log.w(TAG, "Ignoring malformed pending cleanup retry state");
-            return fallback;
-        }
-        try {
-            int attempts = Math.max(0, Integer.parseInt(fields[0]));
-            long nextAttemptAt = Long.parseLong(fields[1]);
-            long expiresAt = Long.parseLong(fields[2]);
-            return new PendingCleanupRetryState(attempts, nextAttemptAt, expiresAt);
-        } catch (NumberFormatException e) {
-            Log.w(TAG, "Ignoring malformed pending cleanup retry state");
-            return fallback;
-        }
-    }
-
-    private static void writePendingCleanupRetryState(Context context, String entry,
-            PendingCleanupRetryState state) {
-        if (context == null || entry == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String encoded = state.attempts + "," + state.nextAttemptAt + "," + state.expiresAt;
-        prefs.edit().putString(pendingCleanupRetryStateKey(entry), encoded).apply();
-    }
-
-    private static void removePendingCleanupRetryState(Context context, String entry) {
-        if (context == null || entry == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String key = pendingCleanupRetryStateKey(entry);
-        if (prefs.getString(key, null) == null) return;
-        prefs.edit().remove(key).apply();
-    }
-
-    private static String pendingCleanupRetryStateKey(String entry) {
-        return KEY_PENDING_CLEANUP_RETRY_STATE + ":" + entry;
     }
 
     /**

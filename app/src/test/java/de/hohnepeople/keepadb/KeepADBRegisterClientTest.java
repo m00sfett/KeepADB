@@ -967,6 +967,371 @@ public class KeepADBRegisterClientTest {
         }
     }
 
+    /**
+     * #701: the commit monitor only commits state. No request -- the cleanup flush, the old-URL
+     * DELETE, the primary POST, a secondary transport, the markUnavailable DELETE or the
+     * unregister DELETE -- may run while the register thread holds the class monitor, or every
+     * other register call and every reader of the report state would block behind a slow host.
+     * Asserted inside the transport, on the thread that performs each request.
+     */
+    @Test
+    public void testNoRequestRunsWhileTheClassMonitorIsHeld() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        String url1 = "http://register.example/register/dev1";
+        String url2 = "http://register.example/register/dev2";
+        String stale = "http://stale.example/register";
+        KeepADBPreferences.setRegisterWebhookUrl(context, url1);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, stale);
+        KeepADBRegisterPayload.setServerSupportedMethodsForTesting(
+                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "usb-adb")));
+        List<String> requests = Collections.synchronizedList(new ArrayList<>());
+        List<String> madeWhileHoldingTheMonitor = Collections.synchronizedList(new ArrayList<>());
+        try {
+            setUsbAdbConnectedForTesting(context, true);
+            KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+            // The stale cleanup stays unreachable, so it is queued again for every transaction.
+            transport.setFailingUrl(stale);
+            transport.setRequestCallback(req -> {
+                boolean usb = req.payload != null && req.payload.contains("usb-adb");
+                requests.add(req.method + " " + req.url + (usb ? " usb" : ""));
+                if (Thread.holdsLock(KeepADBRegisterClient.class)) {
+                    madeWhileHoldingTheMonitor.add(req.toString());
+                }
+            });
+            KeepADBRegisterClient.setHttpTransport(transport);
+
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
+            KeepADBRegisterClient.awaitIdleForTesting(3000);
+            KeepADBPreferences.setRegisterWebhookUrl(context, url2);
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.11", 41001);
+            KeepADBRegisterClient.awaitIdleForTesting(3000);
+            // Let the unreachable stale cleanup fall due again, so that the flush of the two
+            // delete transactions below really sends its request as well.
+            long wallClock = System.currentTimeMillis();
+            KeepADBRegisterClient.setPendingCleanupNowForTesting(wallClock + 60_000L);
+            KeepADBRegisterClient.markUnavailableAsync(context);
+            KeepADBRegisterClient.awaitIdleForTesting(3000);
+            KeepADBRegisterClient.setPendingCleanupNowForTesting(wallClock + 400_000L);
+            KeepADBRegisterClient.unregisterAndDisableAsync(context);
+            KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+            assertEquals("the stale cleanup was attempted by the first update and by both delete transactions", 3L,
+                    requests.stream().filter(r -> r.equals("DELETE " + stale)).count());
+            for (String expected : new String[] {"DELETE " + stale, "POST " + url1,
+                    "POST " + url1 + " usb", "DELETE " + url1, "POST " + url2,
+                    "POST " + url2 + " usb", "DELETE " + url2}) {
+                assertTrue("the scenario must exercise '" + expected + "': " + requests,
+                        requests.contains(expected));
+            }
+            assertTrue("the scenario must have run the whole sequence: " + requests,
+                    requests.size() >= 10);
+            assertEquals("no request may be made inside the class monitor",
+                    new ArrayList<String>(), new ArrayList<>(madeWhileHoldingTheMonitor));
+        } finally {
+            setUsbAdbConnectedForTesting(context, false);
+            KeepADBRegisterPayload.setServerSupportedMethodsForTesting(null);
+        }
+    }
+
+    /**
+     * #701: a legacy pending entry may still carry userinfo and a token. Every line the retry
+     * record writes about it -- the DELETE failures and the drop once the budget is used up --
+     * must be redacted, and the entry's own key in the preferences file is the only place its raw
+     * text lives.
+     */
+    @Test
+    public void testDroppedLegacyCredentialCleanupIsLoggedWithoutItsCredentials() {
+        Context context = ApplicationProvider.getApplicationContext();
+        String legacy = "http://admin:secret@legacy.example/register?token=abc";
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, legacy);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+        ShadowLog.clear();
+
+        for (long now : new long[] {1_000L, 31_000L, 91_000L}) {
+            KeepADBRegisterClient.setPendingCleanupNowForTesting(now);
+            KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+        }
+
+        boolean droppedLineSeen = false;
+        for (ShadowLog.LogItem item : ShadowLog.getLogs()) {
+            String line = String.valueOf(item.msg);
+            if (line.contains("Dropping pending register cleanup (attempt_limit)")) {
+                droppedLineSeen = true;
+            }
+            for (String secret : new String[] {"admin", "secret", "token", "abc"}) {
+                assertFalse("log line leaks '" + secret + "': " + line, line.contains(secret));
+            }
+        }
+        assertTrue("the drop must be logged", droppedLineSeen);
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
+
+    // ---- #701: an older operation never overwrites or outlives a newer registration. ----
+
+    private static final String URL1 = "http://register.example/register/dev1";
+    private static final String URL2 = "http://register.example/register/dev2";
+
+    /**
+     * Registers at {@link #URL1}, blocks the register thread inside a further update, queues the
+     * two given operations behind it (the second supersedes the first) and lets everything run.
+     * Returns what was sent after the first registration, as {@code METHOD url} lines.
+     */
+    private List<String> requestsOfAnOperationSupersededWhileQueued(Context context,
+            Runnable staleOperation, Runnable newerOperation) throws Exception {
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL1);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        assertEquals(URL1, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+        transport.clearRequests();
+
+        CountDownLatch blockerStarted = new CountDownLatch(1);
+        CountDownLatch releaseBlocker = new CountDownLatch(1);
+        transport.setRequestCallback(req -> {
+            if ("POST".equals(req.method) && req.payload != null && req.payload.contains("41001")) {
+                blockerStarted.countDown();
+                try {
+                    releaseBlocker.await(3, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+        try {
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41001);
+            assertTrue(blockerStarted.await(3, TimeUnit.SECONDS));
+            staleOperation.run();
+            newerOperation.run();
+        } finally {
+            releaseBlocker.countDown();
+        }
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        List<String> requests = new ArrayList<>();
+        synchronized (transport.recordedRequests) {
+            for (KeepADBFakeHttpTransport.Request request : transport.recordedRequests) {
+                requests.add(request.method + " " + request.url);
+            }
+        }
+        return requests;
+    }
+
+    private static void assertOnlyTheBlockerAndTheNewerPostWereSent(List<String> requests) {
+        assertEquals("the superseded operation must send nothing, not even a cleanup",
+                java.util.Arrays.asList("POST " + URL1, "POST " + URL1), requests);
+    }
+
+    @Test
+    public void testQueuedUpdateSupersededBeforeItStartsSendsNothing() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        // The user switches the webhook to another URL and back while the thread is busy. The
+        // first switch would DELETE the live registration if it still ran.
+        List<String> requests = requestsOfAnOperationSupersededWhileQueued(context, () -> {
+            KeepADBPreferences.setRegisterWebhookUrl(context, URL2);
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41002);
+        }, () -> {
+            KeepADBPreferences.setRegisterWebhookUrl(context, URL1);
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41003);
+        });
+
+        assertOnlyTheBlockerAndTheNewerPostWereSent(requests);
+        assertEquals("192.168.1.10:41003", KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+    }
+
+    @Test
+    public void testQueuedDisconnectSupersededBeforeItStartsSendsNoDelete() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        List<String> requests = requestsOfAnOperationSupersededWhileQueued(context,
+                () -> KeepADBRegisterClient.markUnavailableAsync(context),
+                () -> KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41002));
+
+        assertOnlyTheBlockerAndTheNewerPostWereSent(requests);
+        assertEquals("192.168.1.10:41002", KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+    }
+
+    @Test
+    public void testQueuedUnregisterSupersededBeforeItStartsSendsNoDelete() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        List<String> requests = requestsOfAnOperationSupersededWhileQueued(context,
+                () -> KeepADBRegisterClient.unregisterAndDisableAsync(context),
+                () -> KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41002));
+
+        assertOnlyTheBlockerAndTheNewerPostWereSent(requests);
+        assertEquals("192.168.1.10:41002", KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+    }
+
+    /**
+     * An update superseded while its old-URL DELETE was in flight must stop right there. If it went
+     * on it would register the endpoint at its own, already outdated target -- a registration
+     * nobody would ever clean up, because the newer operation only knows the URL it moves to.
+     */
+    @Test
+    public void testSupersededMigrationNeverPostsToItsOwnTargetAfterItsOldUrlDelete()
+            throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        String url3 = "http://register.example/register/dev3";
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL1);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        CountDownLatch deleteStarted = new CountDownLatch(1);
+        CountDownLatch releaseDelete = new CountDownLatch(1);
+        transport.setRequestCallback(req -> {
+            if ("DELETE".equals(req.method) && URL1.equals(req.url)) {
+                deleteStarted.countDown();
+                try {
+                    releaseDelete.await(3, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+        try {
+            KeepADBPreferences.setRegisterWebhookUrl(context, URL2);
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.11", 41001);
+            assertTrue(deleteStarted.await(3, TimeUnit.SECONDS));
+            KeepADBPreferences.setRegisterWebhookUrl(context, url3);
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.12", 41002);
+        } finally {
+            releaseDelete.countDown();
+        }
+        waitUntil(() -> url3.equals(KeepADBRegisterClient.getLastRegisteredUrlForTesting()), 3000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        synchronized (transport.recordedRequests) {
+            for (KeepADBFakeHttpTransport.Request request : transport.recordedRequests) {
+                assertFalse("a superseded migration must not register at its own target: " + request,
+                        URL2.equals(request.url));
+            }
+        }
+    }
+
+    /**
+     * The commit block guards its own generation: the secondary transports are sent after the
+     * primary POST and can take seconds, so the operation may be superseded after the check that
+     * precedes them.
+     */
+    @Test
+    public void testUpdateSupersededDuringItsSecondaryTransportsDoesNotCommit() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL1);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBRegisterPayload.setServerSupportedMethodsForTesting(
+                new java.util.HashSet<>(java.util.Arrays.asList("wlan-adb", "usb-adb")));
+        try {
+            setUsbAdbConnectedForTesting(context, true);
+            KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+            transport.setRequestCallback(req -> {
+                if ("POST".equals(req.method) && req.payload != null
+                        && req.payload.contains("usb-adb")) {
+                    KeepADBRegisterClient.bumpOpGenerationForTesting();
+                }
+            });
+            KeepADBRegisterClient.setHttpTransport(transport);
+
+            KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
+            KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+            assertEquals("the secondary transport was sent while the operation was current", 2,
+                    transport.getRequestCount());
+            assertNull("a superseded update must not commit its registration",
+                    KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+            assertNull(KeepADBPreferences.getWebhookLastReportedUrl(context));
+            assertNull(KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        } finally {
+            setUsbAdbConnectedForTesting(context, false);
+            KeepADBRegisterPayload.setServerSupportedMethodsForTesting(null);
+        }
+    }
+
+    @Test
+    public void testFailedUpdateSupersededDuringItsPostRecordsNoFailure() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL1);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        String statusBefore = KeepADBPreferences.getWebhookLastReportStatus(context);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setPostSuccess(false);
+        transport.setRequestCallback(req -> KeepADBRegisterClient.bumpOpGenerationForTesting());
+        KeepADBRegisterClient.setHttpTransport(transport);
+        AtomicBoolean listenerNotified = new AtomicBoolean(false);
+        KeepADBRegisterClient.setRegisterStateListener(() -> listenerNotified.set(true));
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(1, transport.getRequestCount());
+        assertEquals("the newer operation owns the status", statusBefore,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertTrue("and the in-flight flag it set", KeepADBRegisterClient.isWlanUpdateInFlightForTesting());
+        assertFalse(listenerNotified.get());
+    }
+
+    /**
+     * A DELETE that succeeds after a newer registration took over must neither clear that
+     * registration nor write a "deregistered" report over it.
+     */
+    @Test
+    public void testDeleteSupersededByANewerRegistrationLeavesItAlone() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        String newerUrl = "http://register.example/register/newer";
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL1);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+        transport.setRequestCallback(req -> {
+            if ("DELETE".equals(req.method) && URL1.equals(req.url)) {
+                KeepADBRegisterClient.bumpOpGenerationForTesting();
+                KeepADBRegisterClient.setWlanStateForTesting(newerUrl, "192.168.9.9:9999");
+            }
+        });
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals("a confirmed DELETE must not clear a different, newer registration",
+                newerUrl, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+        assertEquals("nor report the endpoint as deregistered", KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals(URL1, KeepADBPreferences.getWebhookLastReportedUrl(context));
+    }
+
+    @Test
+    public void testFailedDeleteSupersededByANewerOperationBooksNoRetryAndNoFailure() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, URL1);
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.10", 41000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        transport.setDeleteSuccess(false);
+        transport.setRequestCallback(req -> {
+            if ("DELETE".equals(req.method)) {
+                KeepADBRegisterClient.bumpOpGenerationForTesting();
+            }
+        });
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals("a superseded DELETE must not start the #562 retry gate", 0,
+                KeepADBRegisterClient.getMarkUnavailableRetryAttemptsForTesting());
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_SUCCESS,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+    }
+
     private static void setUsbAdbConnectedForTesting(Context context, boolean connected) {
         android.content.Intent intent = new android.content.Intent(KeepADBUsbReceiver.ACTION_USB_STATE);
         intent.putExtra("connected", connected);
@@ -1018,6 +1383,34 @@ public class KeepADBRegisterClientTest {
 
         assertEquals("the backward wall-clock jump must not extend the in-memory #562 gate",
                 2, transport.getRequestCount());
+    }
+
+    /**
+     * #701: no clock seam here. The in-memory #562 gate really runs on the monotonic clock, a
+     * retry circle of its own that shares nothing with the wall-clock times of the persisted
+     * pending-cleanup record; the seam-driven tests around it cannot see which clock is behind it.
+     */
+    @Test
+    public void testMarkUnavailableGateRunsOnTheMonotonicClockWithoutASeam() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportedUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "192.168.1.50:41234");
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        transport.setDeleteSuccess(false);
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        long before = android.os.SystemClock.elapsedRealtime();
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+        long after = android.os.SystemClock.elapsedRealtime();
+
+        long nextAttemptAt = KeepADBRegisterClient.getMarkUnavailableNextAttemptAtForTesting();
+        assertEquals(1, transport.getRequestCount());
+        assertTrue("the first retry is due 5s after the monotonic clock, was " + nextAttemptAt
+                        + " for a monotonic clock of " + before,
+                nextAttemptAt >= before + 5_000L && nextAttemptAt <= after + 5_000L);
     }
 
     /**

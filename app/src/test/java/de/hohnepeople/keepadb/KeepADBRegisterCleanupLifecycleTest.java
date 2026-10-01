@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,11 @@ import org.junit.Test;
  * retryable cleanup of a superseded webhook URL (WLAN), and a WLAN snapshot that reaches the
  * preferences file as a single editor transaction. The preferences fake counts {@code apply()}
  * calls, which is what makes the atomicity claim observable rather than a code-shape assertion.
+ *
+ * <p>#701 added the persisted retry record ({@link PendingCleanupRetryRepository}) to this
+ * picture: its budget, backoff, expiry, restart and legacy-entry behavior with literal numbers
+ * (the older tests below use the repository's own constants), the write-ahead of the cleanup to
+ * remember and the rule that a cleanup never outlives or overwrites a newer registration.
  */
 public class KeepADBRegisterCleanupLifecycleTest {
 
@@ -287,7 +293,7 @@ public class KeepADBRegisterCleanupLifecycleTest {
         assertEquals(1, transport.getRequestCount());
 
         KeepADBRegisterClient.setPendingCleanupNowForTesting(
-                1_000L + KeepADBRegisterClient.PENDING_CLEANUP_INITIAL_BACKOFF_MS);
+                1_000L + PendingCleanupRetryRepository.INITIAL_BACKOFF_MS);
         KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
         assertEquals(2, transport.getRequestCount());
         assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(OLD_URL));
@@ -300,13 +306,13 @@ public class KeepADBRegisterCleanupLifecycleTest {
 
         KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
         KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
-        for (int attempt = 1; attempt < KeepADBRegisterClient.MAX_PENDING_CLEANUP_ATTEMPTS; attempt++) {
+        for (int attempt = 1; attempt < PendingCleanupRetryRepository.MAX_ATTEMPTS; attempt++) {
             KeepADBRegisterClient.setPendingCleanupNowForTesting(
-                    1_000_000L + attempt * KeepADBRegisterClient.PENDING_CLEANUP_MAX_BACKOFF_MS);
+                    1_000_000L + attempt * PendingCleanupRetryRepository.MAX_BACKOFF_MS);
             KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
         }
 
-        assertEquals(KeepADBRegisterClient.MAX_PENDING_CLEANUP_ATTEMPTS,
+        assertEquals(PendingCleanupRetryRepository.MAX_ATTEMPTS,
                 transport.getRequestCount());
         assertTrue("An unreachable cleanup must not remain in every future transaction",
                 KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
@@ -320,7 +326,7 @@ public class KeepADBRegisterCleanupLifecycleTest {
         KeepADBRegisterClient.setPendingCleanupNowForTesting(2_000L);
         KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
         KeepADBRegisterClient.setPendingCleanupNowForTesting(
-                2_000L + KeepADBRegisterClient.PENDING_CLEANUP_EXPIRY_MS + 1L);
+                2_000L + PendingCleanupRetryRepository.EXPIRY_MS + 1L);
         KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
 
         assertEquals(1, transport.getRequestCount());
@@ -336,14 +342,321 @@ public class KeepADBRegisterCleanupLifecycleTest {
 
         KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
         KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
-        for (int attempt = 1; attempt < KeepADBRegisterClient.MAX_PENDING_CLEANUP_ATTEMPTS; attempt++) {
+        for (int attempt = 1; attempt < PendingCleanupRetryRepository.MAX_ATTEMPTS; attempt++) {
             KeepADBRegisterClient.setPendingCleanupNowForTesting(
-                    1_000_000L + attempt * KeepADBRegisterClient.PENDING_CLEANUP_MAX_BACKOFF_MS);
+                    1_000_000L + attempt * PendingCleanupRetryRepository.MAX_BACKOFF_MS);
             KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
         }
 
         assertTrue("The retry budget must remove malformed WLAN entries from the WLAN queue",
                 KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+    }
+
+    // ---- #701: the persisted retry record, driven through the client with literal numbers. ----
+
+    private static final String RETRY_KEY_PREFIX = "register_webhook_pending_cleanup_retry_state:";
+    private static final long DAY_MS = 86_400_000L;
+
+    @Test
+    public void pendingCleanupIsAttemptedThreeTimesWithTheFixedBackoffAndThenDropped() {
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, OLD_URL);
+        transport.setDeleteSuccess(false);
+
+        flushAt(1_000L);
+        assertEquals(1, transport.getRequestCount());
+        assertEquals("1,31000,86401000", retryRecord(OLD_URL));
+
+        flushAt(30_999L);
+        assertEquals("the 30s backoff of the first failure is still open", 1,
+                transport.getRequestCount());
+
+        flushAt(31_000L);
+        assertEquals(2, transport.getRequestCount());
+        assertEquals("the second failure doubles the backoff and keeps the expiry",
+                "2,91000,86401000", retryRecord(OLD_URL));
+
+        flushAt(90_999L);
+        assertEquals("the 60s backoff of the second failure is still open", 2,
+                transport.getRequestCount());
+
+        flushAt(91_000L);
+        assertEquals("the third attempt uses the budget", 3, transport.getRequestCount());
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertNull("the dropped entry leaves no retry record behind", retryRecord(OLD_URL));
+
+        flushAt(91_000L + 3_600_000L);
+        assertEquals("a dropped entry is never attempted again", 3, transport.getRequestCount());
+    }
+
+    @Test
+    public void retryRecordAndBudgetSurviveProcessRestarts() {
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, OLD_URL);
+        transport.setDeleteSuccess(false);
+
+        flushAt(1_000L);
+        restartProcess();
+        flushAt(30_999L);
+        assertEquals("the backoff is read back from the preferences file after a restart", 1,
+                transport.getRequestCount());
+
+        flushAt(31_000L);
+        assertEquals(2, transport.getRequestCount());
+        restartProcess();
+        flushAt(90_999L);
+        assertEquals(2, transport.getRequestCount());
+
+        flushAt(91_000L);
+        assertEquals("the attempt budget counts across restarts", 3, transport.getRequestCount());
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertNull(retryRecord(OLD_URL));
+    }
+
+    @Test
+    public void expiryIsMeasuredFromTheFirstFailureAndDropsTheEntryWithoutAnotherRequest() {
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, OLD_URL);
+        transport.setDeleteSuccess(false);
+
+        flushAt(2_000L);
+        assertEquals("1,32000,86402000", retryRecord(OLD_URL));
+
+        flushAt(86_401_999L);
+        assertEquals("one millisecond before the expiry the entry is still attempted", 2,
+                transport.getRequestCount());
+        assertEquals("2,86461999,86402000", retryRecord(OLD_URL));
+
+        flushAt(86_402_000L);
+        assertEquals("exactly at the expiry the entry is dropped without a request", 2,
+                transport.getRequestCount());
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertNull(retryRecord(OLD_URL));
+    }
+
+    /**
+     * No clock seam here on purpose: the stored times are absolute wall-clock times. A monotonic
+     * clock restarts near zero on every reboot, which would leave a stored 24h expiry unreachable
+     * until uptime caught up. A restart in the middle shows the real stored time still gates.
+     */
+    @Test
+    public void persistedRetryTimesAreAbsoluteWallClockTimesThatSurviveARestart() {
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, OLD_URL);
+        transport.setDeleteSuccess(false);
+
+        long before = System.currentTimeMillis();
+        KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+        long after = System.currentTimeMillis();
+
+        String[] fields = retryRecord(OLD_URL).split(",");
+        assertEquals("1", fields[0]);
+        long nextAttemptAt = Long.parseLong(fields[1]);
+        long expiresAt = Long.parseLong(fields[2]);
+        assertTrue("next attempt = wall clock + 30s, was " + nextAttemptAt,
+                nextAttemptAt >= before + 30_000L && nextAttemptAt <= after + 30_000L);
+        assertTrue("expiry = wall clock + 24h, was " + expiresAt,
+                expiresAt >= before + DAY_MS && expiresAt <= after + DAY_MS);
+
+        restartProcess();
+        KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+        assertEquals("the stored wall-clock time still gates the retry after a restart", 1,
+                transport.getRequestCount());
+    }
+
+    @Test
+    public void aStoredRecordThatAlreadyUsedItsBudgetIsDroppedWithoutARequest() {
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, OLD_URL);
+        // As left behind by a build with a larger budget: three failed attempts, due long ago.
+        context.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE).edit()
+                .putString(RETRY_KEY_PREFIX + OLD_URL, "3,0," + (5_000L + DAY_MS)).commit();
+
+        flushAt(5_000L);
+
+        assertEquals("a spent budget never buys another request", 0, transport.getRequestCount());
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertNull(retryRecord(OLD_URL));
+    }
+
+    @Test
+    public void pendingCleanupFifoKeepsFourEntriesOnItsDocumentedKeys() {
+        for (int i = 0; i < 6; i++) {
+            KeepADBPreferences.addPendingWebhookCleanupUrl(context, "http://host" + i + "/register");
+        }
+
+        assertEquals(4, KeepADBPreferences.getPendingWebhookCleanupUrls(context).size());
+        android.content.SharedPreferences prefs =
+                context.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE);
+        assertEquals(new java.util.HashSet<>(java.util.Arrays.asList("http://host2/register",
+                "http://host3/register", "http://host4/register", "http://host5/register")),
+                prefs.getStringSet("register_webhook_pending_cleanup", null));
+        assertEquals("the oldest two were evicted, the rest keep their insertion order",
+                "http://host2/register\u001Dhttp://host3/register\u001D"
+                        + "http://host4/register\u001Dhttp://host5/register",
+                prefs.getString("register_webhook_pending_cleanup_order", null));
+    }
+
+    @Test
+    public void legacyCredentialEntryKeepsItsRecordAcrossRestartsAndIsDroppedWithIt() {
+        String legacy = "http://admin:secret@legacy.example/register?token=abc";
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, legacy);
+        transport.setDeleteSuccess(false);
+
+        flushAt(1_000L);
+        assertEquals("the record belongs to the stored raw entry", "1,31000,86401000",
+                retryRecord(legacy));
+
+        restartProcess();
+        flushAt(31_000L);
+        restartProcess();
+        flushAt(91_000L);
+
+        assertEquals(3, transport.getRequestCount());
+        for (KeepADBFakeHttpTransport.Request request : transport.recordedRequests) {
+            assertEquals("DELETE", request.method);
+            assertEquals("http://legacy.example/register?token=abc", request.url);
+            assertFalse(request.url.contains("secret") || request.url.contains("admin"));
+        }
+        assertTrue("the raw entry is dropped with the exhausted budget",
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertTrue("and its retry record with it: " + retryKeys(), retryKeys().isEmpty());
+    }
+
+    @Test
+    public void aSuccessfulRetryRemovesTheRawEntryAndItsRetryRecord() {
+        String legacy = "http://admin:secret@legacy.example/register?token=abc";
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, legacy);
+        transport.setDeleteSuccess(false);
+        flushAt(1_000L);
+        assertEquals(1, retryKeys().size());
+
+        transport.setDeleteSuccess(true);
+        flushAt(31_000L);
+
+        assertEquals(2, transport.getRequestCount());
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertTrue("a delivered cleanup leaves no retry record: " + retryKeys(),
+                retryKeys().isEmpty());
+    }
+
+    // ---- #701: a cleanup never outlives or overwrites a newer registration. ----
+
+    @Test
+    public void aNewRegistrationDropsEveryObsoleteSpellingOfItsResourceAndOnlyThose()
+            throws Exception {
+        configureWebhook(NEW_URL);
+        String sameResource = "HTTP://New.Example:80/register/";
+        String[] otherResources = {"http://new.example/register2", "http://new.example:8080/register",
+                "http://other.example/register"};
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, sameResource);
+        for (String other : otherResources) {
+            KeepADBPreferences.addPendingWebhookCleanupUrl(context, other);
+        }
+        transport.setDeleteSuccess(false);
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+        waitUntil(() -> NEW_URL.equals(KeepADBPreferences.getWebhookLastReportedUrl(context)), 3000);
+        Thread.sleep(100);
+
+        Set<String> pending = KeepADBPreferences.getPendingWebhookCleanupUrls(context);
+        assertFalse("the spelling of the resource just registered is obsolete: " + pending,
+                pending.contains(sameResource));
+        assertEquals("another path, port or host is another resource and stays queued: " + pending,
+                new java.util.HashSet<>(java.util.Arrays.asList(otherResources)), pending);
+        assertFalse("the obsolete entry leaves no retry record: " + retryKeys(),
+                retryKeys().contains(RETRY_KEY_PREFIX + sameResource));
+        assertEquals("each entry that stays queued keeps exactly its own record", 3,
+                retryKeys().size());
+    }
+
+    @Test
+    public void aFlushNeverDeletesAResourceThatIsLiveAndDropsItsRetryRecord() {
+        String sameResource = "http://new.example:80/register/";
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, sameResource);
+        transport.setDeleteSuccess(false);
+        flushAt(1_000L);
+        assertEquals("while it is not live the cleanup is attempted", 1, transport.getRequestCount());
+        assertEquals(1, retryKeys().size());
+
+        KeepADBRegisterClient.setWlanStateForTesting(NEW_URL, "192.168.1.51:41235");
+        transport.setDeleteSuccess(true);
+        flushAt(31_000L);
+
+        assertEquals("a live registration is never deleted by an older cleanup", 1,
+                transport.getRequestCount());
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertTrue("and the obsolete record goes with it: " + retryKeys(), retryKeys().isEmpty());
+        assertEquals(NEW_URL, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+    }
+
+    @Test
+    public void aSuccessfulDeleteOfAResourceDropsTheObsoleteCleanupsOfThatResource()
+            throws Exception {
+        configureWebhook(NEW_URL);
+        String sameResource = "HTTP://New.Example:80/register/";
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, sameResource);
+        // Only the queued spelling stays unreachable; the DELETE of the webhook URL itself works.
+        transport.setFailingUrl("http://New.Example:80/register/");
+
+        KeepADBRegisterClient.unregisterAndDisableAsync(context);
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+        Thread.sleep(100);
+
+        assertEquals("the queued spelling is attempted first and fails, then the URL is deleted",
+                2, transport.getRequestCount());
+        assertEquals(NEW_URL, transport.getLastRequest().url);
+        assertTrue("the resource is gone, so its queued cleanup is obsolete: "
+                        + KeepADBPreferences.getPendingWebhookCleanupUrls(context),
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertTrue("and so is its retry record: " + retryKeys(), retryKeys().isEmpty());
+    }
+
+    /**
+     * Write-ahead: when the report snapshot moves on to the new URL, the cleanup of the old one is
+     * already in the preferences file, so a crash between the two writes cannot forget it. The
+     * fake sees each editor transaction just before it is applied.
+     */
+    @Test
+    public void cleanupToRememberIsPersistedBeforeTheReportSnapshotMovesOn() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBRegisterClient.setWlanStateForTesting(OLD_URL, "192.168.1.50:41234");
+        transport.setDeleteSuccess(false);
+        AtomicReference<Boolean> rememberedBeforeSnapshot = new AtomicReference<>();
+        context.preferences.beforeApply = (changedKeys, before) -> {
+            if (changedKeys.contains("register_webhook_last_url")) {
+                Object stored = before.get("register_webhook_pending_cleanup");
+                rememberedBeforeSnapshot.set(
+                        stored instanceof Set && ((Set<?>) stored).contains(OLD_URL));
+            }
+        };
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+        waitUntil(() -> rememberedBeforeSnapshot.get() != null, 3000);
+
+        assertTrue("the old URL must already be queued when the snapshot is written",
+                rememberedBeforeSnapshot.get());
+    }
+
+    private void flushAt(long now) {
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(now);
+        KeepADBRegisterClient.flushPendingCleanupsForTesting(context);
+    }
+
+    /** A new process: all static client state is gone, the preferences file and the server stay. */
+    private void restartProcess() {
+        KeepADBRegisterClient.resetForTesting();
+        KeepADBRegisterClient.setHttpTransport(transport);
+    }
+
+    private String retryRecord(String entry) {
+        return context.getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE)
+                .getString(RETRY_KEY_PREFIX + entry, null);
+    }
+
+    private Set<String> retryKeys() {
+        Set<String> keys = new java.util.TreeSet<>();
+        for (String key : context.getSharedPreferences("keepadb_prefs",
+                android.content.Context.MODE_PRIVATE).getAll().keySet()) {
+            if (key.startsWith(RETRY_KEY_PREFIX)) keys.add(key);
+        }
+        return keys;
     }
 
     private void configureWebhook(String url) {
@@ -384,6 +697,8 @@ public class KeepADBRegisterCleanupLifecycleTest {
         private final java.util.Map<String, Object> values =
                 java.util.Collections.synchronizedMap(new java.util.HashMap<>());
         final AtomicInteger applyCount = new AtomicInteger();
+        /** Sees the keys of an editor transaction and the stored values just before it is applied. */
+        volatile java.util.function.BiConsumer<Set<String>, java.util.Map<String, Object>> beforeApply;
 
         @Override
         public java.util.Map<String, ?> getAll() {
@@ -505,6 +820,17 @@ public class KeepADBRegisterCleanupLifecycleTest {
             @Override
             public void apply() {
                 applyCount.incrementAndGet();
+                java.util.function.BiConsumer<Set<String>, java.util.Map<String, Object>> observer =
+                        beforeApply;
+                if (observer != null) {
+                    java.util.Set<String> changed = new java.util.HashSet<>(updates.keySet());
+                    changed.addAll(removals);
+                    java.util.Map<String, Object> stored;
+                    synchronized (values) {
+                        stored = new java.util.HashMap<>(values);
+                    }
+                    observer.accept(changed, stored);
+                }
                 synchronized (values) {
                     if (clear) values.clear();
                     for (String key : removals) values.remove(key);
