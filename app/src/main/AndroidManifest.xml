@@ -10,18 +10,16 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <!-- Requested only at runtime, only when the user turns on the trusted-network allowlist
-         (#245): Android requires it before an app can read a real SSID/BSSID rather than a
-         redacted placeholder. Never used for location; see README "Privacy & Security".
-         ACCESS_COARSE_LOCATION is declared alongside it only because Android requires both
-         when an app requests FINE (API 31+ CoarseFineLocation lint check); the app only ever
-         acts on a FINE grant; a COARSE-only grant is treated the same as denied. -->
+    <!-- Requested only when the user enables the trusted-network allowlist. Android requires
+         precise location permission to expose SSID/BSSID; the app uses it only for network
+         identity, never to determine location. COARSE is declared with FINE for API 31+ request
+         requirements, but a COARSE-only grant is treated as denied. See docs/trusted-networks.md. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- #616: optional "Allow all the time" grant so a Keep-Alive service started from the
-         background can still read the Wi-Fi identity (#626/#630). Never requested at runtime and
-         never used for location: the user sets it on the app's permission page. Without it an
-         unreadable identity stays untrusted (fail-closed). -->
+    <!-- Optional "Allow all the time" permission can expose Wi-Fi identity after a background
+         Keep-Alive start. The app never requests this grant at runtime or uses it to determine
+         location; the user sets it on Android's app-permission page. Unreadable identity stays
+         untrusted. See docs/trusted-networks.md. -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />

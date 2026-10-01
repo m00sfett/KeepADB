@@ -207,12 +207,8 @@ final class KeepADBPreferences {
     }
 
     /**
-     * #350: sanitised on read, not only on write. Installations that stored this value before
-     * {@link #setRegisterWebhookUrl(Context, String)} started stripping userinfo still hold a raw
-     * URL here, and this value is not just displayed — the register client uses it as the DELETE /
-     * {@code active:false} target when the webhook URL changes. Sanitising at the read boundary
-     * means such a legacy value can neither reach the network with its credentials attached nor
-     * reach a log line, without needing a one-shot migration that a downgrade could undo.
+     * Sanitised on read so a legacy URL containing user information cannot be reused by a later
+     * cleanup request or written to a log. Production cleanup uses HTTP DELETE at the stored URL.
      */
     static String getWebhookLastReportedUrl(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);

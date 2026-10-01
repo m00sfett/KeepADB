@@ -13,34 +13,15 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * #539: builds the register/webhook wire payloads for every currently verified ADB transport.
+ * Builds JSON events from locally verified ADB transports.
  *
- * <p>Pure and side-effect free: it neither performs I/O nor reads app state, so the exact bytes
- * that go on the wire are unit-testable without a device, a network or the live register server.
- * The contract itself is specified in {@code docs/design/issue-539-multi-transport-register-contract.md};
- * this class is its only producer inside the app.
- *
- * <p>Key properties, all covered by {@code KeepADBRegisterPayloadTest}:
- * <ul>
- *   <li><b>One event per transport.</b> Every verified transport becomes its own event carrying
- *       its own {@code method}. The register server keeps one slot per method, so WLAN, Tailscale
- *       and USB updates never overwrite or clear one another.</li>
- *   <li><b>Only verified transports.</b> The input list is by construction the set of transports
- *       whose own class confirmed ADB reachability (see {@code KeepADBTransportOverview} once
- *       #538 has landed). A candidate or merely active interface never reaches this class, and an
- *       empty input produces no events rather than a clearing event.</li>
- *   <li><b>Idempotent repetition.</b> {@link #eventIdFor} derives the {@code event_id} from the
- *       reported state alone, not from the time of reporting. Re-sending an unchanged state
- *       therefore repeats the same {@code event_id}, which the server answers as {@code duplicate}
- *       without touching the stored slot. A genuine state change yields a different id and is
- *       accepted as a new event.</li>
- *   <li><b>No new secrets.</b> The payload carries exactly the endpoint data the register already
- *       held; the destination stays the user-entered, app-bound webhook URL.</li>
- * </ul>
+ * <p>This class performs no I/O. KeepADBRegisterPayloadTest checks the generated data without a
+ * device or live receiver. The current sender gate permits only WLAN-ADB events; locally built
+ * Tailscale and USB candidates are held back before transmission. See docs/webhook-register.md.
  */
 final class KeepADBRegisterPayload {
 
-    /** Wire contract version. Must match the deployed server's {@code REGISTER_CONTRACT_VERSION}. */
+    /** Locally emitted event schema version; external receiver compatibility is not verified here. */
     static final int CONTRACT_VERSION = 2;
 
     /** Value of the {@code source} field, distinguishing app-originated from host-originated events. */
@@ -49,10 +30,8 @@ final class KeepADBRegisterPayload {
     private KeepADBRegisterPayload() {}
 
     /**
-     * Transport classes and their wire {@code method} names. The names mirror the register's own
-     * slot keys; {@link Type#WLAN_LAN} and {@link Type#TAILSCALE_VPN} are deliberately distinct
-     * slots even when they currently share the same ADB port, because they are reachable over
-     * different paths and expire independently.
+     * Locally generated transport labels. The app can build WLAN, Tailscale and USB candidates,
+     * while the separate sender allowlist currently permits WLAN-ADB only.
      */
     enum Type {
         WLAN_LAN("wlan-adb"),
@@ -67,22 +46,15 @@ final class KeepADBRegisterPayload {
     }
 
     /**
-     * Methods the currently deployed {@code phone-register-server} accepts. Everything else is
-     * still built and returned, but flagged {@link Event#serverSupported} {@code false} so the
-     * sender can hold it back instead of provoking an HTTP 400 against the live register.
-     *
-     * <p>This is the single constant to widen once the server-side change (its
-     * {@code VALID_METHODS} set, and accepting an active USB event that carries no endpoint yet)
-     * has been deployed. It is intentionally not a user-facing setting.
+     * Local sender allowlist retained under its existing name: only wlan-adb is currently sent.
+     * This value describes app behavior, not the methods accepted by an external server.
      */
     static final Set<String> SERVER_SUPPORTED_METHODS =
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList(Type.WLAN_LAN.method)));
 
     /**
-     * Test-only override of {@link #SERVER_SUPPORTED_METHODS}. Exists so a test can simulate the
-     * future, widened server without editing the constant: "events are held back today" and
-     * "the very same production path sends them once the server accepts them" are two different
-     * claims, and only the second one proves the reporting path is actually wired up.
+     * Test-only override of the local send allowlist, used to exercise event dispatch without
+     * changing production policy or relying on an external receiver.
      */
     private static volatile Set<String> serverSupportedMethodsForTesting;
 
@@ -96,7 +68,7 @@ final class KeepADBRegisterPayload {
         return (override != null ? override : SERVER_SUPPORTED_METHODS).contains(method);
     }
 
-    /** One verified transport, as handed in by the caller. Mirrors the #538 snapshot entry. */
+    /** One transport from the app's verified-transport snapshot. */
     static final class VerifiedTransport {
         final Type type;
         /** {@code null} for {@link Type#USB}, which has no network endpoint of its own. */
@@ -189,23 +161,15 @@ final class KeepADBRegisterPayload {
     }
 
     /**
-     * Builds the single WLAN event for an already-formatted {@code host:port} endpoint -- the path
-     * the current register client uses. Kept separate from {@link #buildEvents} so the existing
-     * WLAN reporting keeps working unchanged while the multi-transport path is introduced.
+     * Builds the WLAN event from the confirmed host:port value supplied by the register client.
      */
     static Event wlanEvent(String endpoint, long verifiedAtMs) {
         return activeEvent(Type.WLAN_LAN, emptyToNull(endpoint), verifiedAtMs);
     }
 
     /**
-     * Builds the deactivation event for one transport. It names its {@code method} explicitly, so
-     * it can only ever clear its own slot -- the server rejects a deactivation whose slot would
-     * have to be inherited from the legacy projection.
-     *
-     * <p>Contract-v2 API reserve (#676): no production code calls this today -- deactivations
-     * currently go out as HTTP DELETE, not as an {@code active:false} event. It is kept as the
-     * contract-conformant builder for that event form and is pinned by {@code
-     * KeepADBRegisterPayloadTest}, so it is deliberately not removed as dead code.
+     * Builds an inactive event for contract tests. The production client currently unregisters
+     * with HTTP DELETE instead; receiver-side semantics are outside this app-source contract.
      */
     static Event inactiveEvent(Type type, long observedAtMs) {
         String method = type.method;
@@ -239,10 +203,8 @@ final class KeepADBRegisterPayload {
     }
 
     /**
-     * Derives the idempotency key from the reported state only. Two reports of the same transport
-     * state share an id and the second one is a no-op on the server; any change of endpoint or of
-     * the active flag produces a different id and is applied. The digest keeps the id a bounded,
-     * opaque token instead of embedding the endpoint in a second place on the wire.
+     * Derives a deterministic, bounded identifier from the method, endpoint and active state.
+     * Repeating the same reported state therefore produces the same identifier.
      */
     static String eventIdFor(String method, String endpoint, boolean active) {
         String state = method + "|" + (endpoint == null ? "" : endpoint) + "|" + active;
@@ -272,7 +234,7 @@ final class KeepADBRegisterPayload {
         return hex.toString();
     }
 
-    /** ISO-8601 in UTC, the {@code observed_at} format the register server parses. */
+    /** Formats the observed-at timestamp as ISO-8601 in UTC. */
     static String isoUtc(long epochMillis) {
         return Instant.ofEpochMilli(epochMillis).toString();
     }

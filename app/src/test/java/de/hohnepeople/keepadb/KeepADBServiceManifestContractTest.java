@@ -18,11 +18,13 @@ import org.junit.Test;
  * its while-in-use-only location footprint. C2 relies on the service qualifying for the
  * {@code location} foreground-service type while holding {@code ACCESS_FINE_LOCATION}; since #616
  * {@code ACCESS_BACKGROUND_LOCATION} is additionally declared as an optional, user-set grant for
- * the background-start path C2 cannot cover (see {@code docs/trusted-networks-measurement.md}).
+ * the background-start path C2 cannot cover (see
+ * {@code docs/archive/trusted-networks-measurements-2026-09.md}).
  *
  * <p>#626 also found that C2's protection is conditional on the service having been started
- * while the app was in the foreground at least once (see {@code docs/trusted-networks-measurement.md},
- * "Nachtrag 3"): without ACCESS_BACKGROUND_LOCATION, a background-originated service record
+ * while the app was in the foreground at least once (see
+ * {@code docs/archive/trusted-networks-measurements-2026-09.md}, "Nachtrag 3"): without
+ * ACCESS_BACKGROUND_LOCATION, a background-originated service record
  * cannot rely on the declared location type alone for while-in-use access. A missing while-in-use
  * location permission also prevents access; the optional background grant with the required
  * location permission can exempt this while-in-use restriction. Other background-FGS start rules

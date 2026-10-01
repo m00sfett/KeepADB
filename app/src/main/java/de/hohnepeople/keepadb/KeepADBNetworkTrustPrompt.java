@@ -62,9 +62,9 @@ import java.util.Locale;
  * false -- under C2 (#606), {@link KeepADBService} unmasks BSSID only once its foreground
  * promotion actually originated from the foreground, so this indicates missing/revoked location
  * permissions, location services turned off, no association, or -- measured for #626/#628/#629 on
- * API 33 and 34+, see {@code docs/trusted-networks-measurement.md} -- a Keep-Alive service that
- * was started from the background and never received a While-in-Use location grant for its
- * foreground-service record)
+ * API 33 and 34+ (see {@code docs/archive/trusted-networks-measurements-2026-09.md}) -- a
+ * Keep-Alive service that was started from the background and never received a While-in-Use
+ * location grant for its foreground-service record)
  * used to return here silently, leaving the user with no idea why Keep-Alive was blocked. It now
  * raises its own notification instead, throttled the same way under a fixed sentinel key rather
  * than a BSSID, and its content intent points directly at the likely fix.
@@ -480,7 +480,8 @@ final class KeepADBNetworkTrustPrompt {
      * granted permission with location services turned off opens the system location toggle.
      *
      * <p>#628: if permission and location are both fine, the remaining cause is the one measured
-     * for #626 (see {@code docs/trusted-networks-measurement.md}, "Nachtrag 3"): on API 33 the
+     * for #626 (see {@code docs/archive/trusted-networks-measurements-2026-09.md},
+     * "Nachtrag 3"): on API 33 the
      * Keep-Alive service was started from the background (boot, a sticky restart after the
      * service originally started from the background, or a background {@code sync()}) and never
      * received a While-in-Use location grant for its foreground-service record -- Android ties

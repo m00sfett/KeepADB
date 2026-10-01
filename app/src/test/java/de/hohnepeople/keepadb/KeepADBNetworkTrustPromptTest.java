@@ -427,7 +427,8 @@ public class KeepADBNetworkTrustPromptTest {
     }
 
     /**
-     * #628: measured for #626 (see {@code docs/trusted-networks-measurement.md}, "Nachtrag 3") --
+     * #628: measured for #626 (see {@code docs/archive/trusted-networks-measurements-2026-09.md},
+     * "Nachtrag 3") --
      * on API 33, when both permission and location service are fine and the identity is still
      * unavailable, the actual cause is a Keep-Alive service that was started from the background
      * (boot, a sticky restart, or a background {@code sync()}) and never received a While-in-Use
