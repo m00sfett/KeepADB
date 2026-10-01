@@ -27,7 +27,7 @@ Die beobachteten Plattformfälle und ihre offenen Grenzen stehen im
 [Netzwerk-Leitfaden](docs/trusted-networks.md) und in der
 [Messzusammenfassung](docs/trusted-networks-measurement.md).
 
-Der Schalter „Auch nach WLAN-Namen (SSID) erlauben“ ist eine separate, standardmäßig ausgeschaltete
+Der Schalter „Auch nach Netzwerkname (SSID) freigeben“ ist eine separate, standardmäßig ausgeschaltete
 Erweiterung. Weil beliebige Zugangspunkte denselben frei gewählten Namen senden können, ist diese
 Regel schwächer als die Freigabe einer einzelnen BSSID. KeepADB zeigt den Hinweis direkt an der
 Option.

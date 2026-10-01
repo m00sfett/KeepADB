@@ -6,11 +6,11 @@ die du freigibst. Die Regel schützt automatische Aktionen vor einem unerwartete
 
 ## Modi und Übereinstimmung
 
-- **Alle WLANs** ist der Standard einer Neuinstallation. Bestehende Installationen, die vor dem
+- **In allen WLANs** ist der Standard einer Neuinstallation. Bestehende Installationen, die vor dem
   Wechsel des Standards bereits eine Freigabeliste verwendeten, behalten diesen Modus beim Upgrade.
-- **Nur zugelassene Zugangspunkte** schaltet automatische Wiederherstellung nur dann frei, wenn
+- **Nur freigegebene Access Points** schaltet automatische Wiederherstellung nur dann frei, wenn
   die aktuelle WLAN-Identität bekannt ist und ihre BSSID genau in der Liste steht.
-- Die optionale zusätzliche Freigabe **Auch nach WLAN-Namen (SSID) erlauben** ist standardmäßig
+- Die optionale zusätzliche Freigabe **Auch nach Netzwerkname (SSID) freigeben** ist standardmäßig
   aus. Ist sie eingeschaltet, kann ein exakt und groß-/kleinschreibungssensitiv passender SSID-Name
   ebenfalls freigeben. SSIDs sind frei wählbar und können kopiert werden; eine SSID-Freigabe ist
   deshalb schwächer als eine BSSID-Freigabe. Die SSID-Liste wirkt nur im Freigabelistenmodus.

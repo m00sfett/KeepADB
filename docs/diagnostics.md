@@ -6,7 +6,7 @@ kurzes Detailfeld.
 
 ## Anzeigen und Teilen
 
-In **Einstellungen → Diagnose → Diagnose exportieren** öffnet Androids Teilen-Menü einen
+In **Einstellungen → Diagnose & Wartung → Diagnose exportieren** öffnet Androids Teilen-Menü einen
 Text-Export. KeepADB lädt Diagnosen nicht automatisch hoch. Ein Export verlässt die App erst, wenn
 du selbst ein Ziel auswählst. Für einen flüchtigen Live-Auszug kann Androids Logcat verwendet
 werden:
@@ -16,9 +16,9 @@ adb logcat -s KeepADBDiag
 ~~~
 
 Release-Builds halten höchstens 128 Ereignisse in einem privaten Ringpuffer; ältere Einträge
-werden überschrieben. Debug-Builds verwenden stattdessen ein Journal mit einem 48-Stunden-Fenster
-und zusätzlichen periodischen Zustandsständen. Android-Cloud-Backup und Geräteübertragung sind
-deaktiviert.
+werden überschrieben. Debug-Builds verwenden stattdessen ein Journal mit einer 50-Stunden-
+Altersgrenze, zusätzlichen Größenbegrenzungen und periodischen Zustandsständen. Android-Cloud-
+Backup und Geräteübertragung sind deaktiviert.
 
 ## Maskierung und enthaltene Daten
 
@@ -28,9 +28,9 @@ weil dieser Gegenstand der Diagnose ist.
 
 Beim Export bleibt von einer gültigen BSSID nur der erste Dreierblock (OUI, Herstellerkennung)
 sichtbar; die restlichen drei Blöcke werden maskiert. Ungültige BSSID-Werte und SSIDs werden
-vollständig maskiert. Ein Fehlerbericht aus **Einstellungen → Problem melden** maskiert zusätzlich
-Host und Port sowie BSSID und SSID vollständig, bevor die Diagnosen in den editierbaren
-Berichtsentwurf eingefügt werden.
+vollständig maskiert. Über **Einstellungen → Diagnose & Wartung → Fehler oder Übersetzung melden**
+öffnet sich ein editierbarer Berichtsentwurf. Werden Diagnosen darin eingefügt, maskiert der
+Bericht zusätzlich Host und Port sowie BSSID und SSID vollständig.
 
 Logcat hat Androids eigene Aufbewahrungsdauer. Ein Diagnoseexport kann weiterhin private
 Netzwerkadressen enthalten. Prüfe die Vorschau und entferne vertrauliche Angaben, bevor du den

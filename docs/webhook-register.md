@@ -43,11 +43,15 @@ Der Sender nimmt keine SSID, BSSID, USB-Profile, Pairing-Codes oder Zugangstoken
 Nachrichtenkörper auf. Der bestätigte Endpunkt kann trotzdem eine private LAN- oder VPN-Adresse
 enthalten.
 
-Die Registrierung verwendet HTTP POST an die gespeicherte URL. Bei Entfernen oder Wechsel der
-Konfiguration sendet der Produktionscode HTTP DELETE an die dafür gespeicherte Ziel-URL. Der
-separate Builder für ein Ereignis mit active=false wird vom Produktionspfad derzeit nicht
-aufgerufen. Dieses Repository beschreibt damit die ausgehenden Methoden und Inhalte, nicht die
-Semantik, die ein Empfänger einem POST oder DELETE gibt.
+Die Registrierung verwendet HTTP POST an die gespeicherte URL. Der Produktionscode versucht
+außerdem HTTP DELETE, wenn die Synchronisierung ausgeschaltet wird, ein zuvor gemeldeter
+WLAN-ADB-Endpunkt nicht mehr verfügbar ist oder eine bereits genutzte Ziel-URL gewechselt wird.
+Dabei verwendet er die zuletzt lokal gemeldete URL, soweit bekannt; beim Ausschalten ohne einen
+solchen Bericht kann die aktuell gespeicherte URL Ziel sein. Fehlgeschlagene Bereinigungen werden
+lokal vorgemerkt und bei späterer Senderaktivität nach internen Wiederholungsregeln erneut
+versucht. Der separate Builder für ein Ereignis mit active=false wird vom Produktionspfad derzeit
+nicht aufgerufen. Dieses Repository beschreibt damit die ausgehenden Methoden und Inhalte, nicht
+die Semantik, die ein Empfänger einem POST oder DELETE gibt.
 
 Der HTTP-Client folgt Weiterleitungen nicht. Ein HTTP-Status von 200 bis 299 gilt lokal als
 erfolgreicher Request. Das beweist weder, dass ein Empfänger die Daten fachlich akzeptiert hat,

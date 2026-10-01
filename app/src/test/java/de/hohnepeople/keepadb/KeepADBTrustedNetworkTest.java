@@ -90,7 +90,7 @@ public class KeepADBTrustedNetworkTest {
         FakeContext context = new FakeContext();
         // #492 reversed #260's default: a fresh install (no stored mode, no entries) is not
         // restricted. Allowlist mode can only confirm a network while the platform exposes its
-        // identity, which needs location access (see docs/trusted-networks-measurement.md) --
+        // identity, which needs location access (see docs/trusted-networks.md) --
         // silently shipping it as the default broke Keep-Alive for everyone without it.
         assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
         assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
