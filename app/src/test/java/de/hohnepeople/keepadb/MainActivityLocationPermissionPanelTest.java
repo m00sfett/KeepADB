@@ -103,7 +103,7 @@ public class MainActivityLocationPermissionPanelTest {
         assertEquals(android.Manifest.permission.ACCESS_FINE_LOCATION, request.requestedPermissions[0]);
 
         // After denial, in-context button switches to settings fallback
-        activity.onRequestPermissionsResult(SettingsActivity.WIFI_APS_LOCATION_PERMISSION_REQUEST,
+        activity.onRequestPermissionsResult(KeepADBNetworkCard.WIFI_APS_LOCATION_PERMISSION_REQUEST,
                 new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
                         android.Manifest.permission.ACCESS_COARSE_LOCATION},
                 new int[]{PackageManager.PERMISSION_DENIED, PackageManager.PERMISSION_DENIED});

@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.widget.TextView;
 
 import java.util.List;
@@ -300,6 +301,94 @@ public class SettingsActivityTrustConfirmationTest {
 
         assertOnlyTrusted(BSSID);
         controller.pause().stop().destroy();
+    }
+
+    /**
+     * #697: the restore is bound to the recorded access point, not to what the saved state says
+     * alone. Once the record of A is gone (evicted, or A was trusted elsewhere meanwhile) the
+     * restored instance offers no trust choice -- not for A, and not for the other access point
+     * the device roamed to and recorded in the meantime -- and only the recently-blocked list
+     * opens, where nothing is trusted without its own click.
+     */
+    @Test
+    public void aRestoredConfirmationWhoseRecordIsGoneOffersNoTrustChoice() {
+        Intent tap = promptTapIntentFor("Cafe-WLAN", BSSID);
+        ActivityController<SettingsActivity> controller = open(tap);
+        assertNotNull(controller.get().getActiveTrustConfirmationDialog());
+        Bundle state = new Bundle();
+        controller.saveInstanceState(state);
+        assertEquals(BSSID, state.getString(KeepADBNetworkCard.STATE_TRUST_CONFIRMATION_BSSID));
+        controller.pause().stop().destroy();
+        ShadowLooper.idleMainLooper();
+
+        KeepADBBlockedNetworkHistory.remove(context, BSSID);
+        connectTo("Other-WLAN", OTHER_BSSID);
+        KeepADBBlockedNetworkHistory.record(context,
+                new KeepADBNetworkIdentity("\"Other-WLAN\"", OTHER_BSSID), 3L);
+        ActivityController<SettingsActivity> restored =
+                Robolectric.buildActivity(SettingsActivity.class).setup(state);
+        ShadowLooper.idleMainLooper();
+
+        assertNull("No record, no trust choice", restored.get().getActiveTrustConfirmationDialog());
+        Intent fallback = shadowOf(restored.get()).getNextStartedActivity();
+        assertNotNull("The recently-prevented view opens instead", fallback);
+        assertEquals(NetworkListActivity.VIEW_PREVENTED,
+                fallback.getStringExtra(NetworkListActivity.EXTRA_VIEW));
+        assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
+        restored.pause().stop().destroy();
+    }
+
+    /**
+     * The saved BSSID is only a selector: a state naming an access point the app never recorded,
+     * or a placeholder, restores no dialog and trusts nothing.
+     */
+    @Test
+    public void aSavedStateCannotIntroduceAnAccessPointTheAppNeverRecorded() {
+        KeepADBBlockedNetworkHistory.record(context,
+                new KeepADBNetworkIdentity("\"Cafe-WLAN\"", BSSID), 1L);
+        for (String forged : new String[] {"aa:bb:cc:dd:ee:99", "", KeepADBNetworkIdentity.REDACTED_BSSID,
+                KeepADBNetworkIdentity.UNSET_BSSID}) {
+            Bundle state = new Bundle();
+            state.putString(KeepADBNetworkCard.STATE_TRUST_CONFIRMATION_BSSID, forged);
+
+            ActivityController<SettingsActivity> restored =
+                    Robolectric.buildActivity(SettingsActivity.class).setup(state);
+            ShadowLooper.idleMainLooper();
+
+            assertNull("No dialog for '" + forged + "'",
+                    restored.get().getActiveTrustConfirmationDialog());
+            restored.pause().stop().destroy();
+        }
+        assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
+    }
+
+    /**
+     * The other side of the two tests above: the record is still there, but the dialog had been
+     * answered or dismissed before the save, so nothing is saved and nothing comes back.
+     */
+    @Test
+    public void aDismissedConfirmationIsNeitherSavedNorRestored() {
+        Intent tap = promptTapIntentFor("Cafe-WLAN", BSSID);
+        ActivityController<SettingsActivity> controller = open(tap);
+        controller.get().getActiveTrustConfirmationDialog().dismiss();
+        ShadowLooper.idleMainLooper();
+        assertNull(controller.get().getActiveTrustConfirmationDialog());
+
+        Bundle state = new Bundle();
+        controller.saveInstanceState(state);
+        assertFalse("A dialog that is gone leaves no binding behind",
+                state.containsKey(KeepADBNetworkCard.STATE_TRUST_CONFIRMATION_BSSID));
+        controller.pause().stop().destroy();
+        ShadowLooper.idleMainLooper();
+
+        ActivityController<SettingsActivity> restored =
+                Robolectric.buildActivity(SettingsActivity.class).setup(state);
+        ShadowLooper.idleMainLooper();
+        assertNull(restored.get().getActiveTrustConfirmationDialog());
+        assertNull("Not even the fallback list opens",
+                shadowOf(restored.get()).getNextStartedActivity());
+        assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
+        restored.pause().stop().destroy();
     }
 
     @Test

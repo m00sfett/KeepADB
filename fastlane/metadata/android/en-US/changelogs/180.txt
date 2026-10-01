@@ -1,0 +1,1 @@
+No change to the app itself: this patch only reorganizes the code behind the Network card in Settings, so future fixes there are safer. Your settings and allowed networks stay as they are.

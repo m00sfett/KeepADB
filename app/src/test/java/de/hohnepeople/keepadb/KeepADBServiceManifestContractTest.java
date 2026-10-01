@@ -71,8 +71,11 @@ public class KeepADBServiceManifestContractTest {
                 "android.permission.ACCESS_BACKGROUND_LOCATION must be declared (#616)",
                 manifest.contains(
                         "<uses-permission android:name=\"android.permission.ACCESS_BACKGROUND_LOCATION\""));
+        // #697: the Network card controller (KeepADBNetworkCard) now holds the requestPermissions
+        // calls that used to live in SettingsActivity; the guard covers both files.
         for (String source : new String[]{"MainActivity.java", "SettingsActivity.java",
-                "KeepADBBackgroundLocation.java", "KeepADBNetworkTrustPrompt.java"}) {
+                "KeepADBNetworkCard.java", "KeepADBBackgroundLocation.java",
+                "KeepADBNetworkTrustPrompt.java"}) {
             String code = read("app/src/main/java/de/hohnepeople/keepadb/" + source);
             Matcher request = Pattern.compile("requestPermissions\\([^;]*ACCESS_BACKGROUND_LOCATION",
                     Pattern.DOTALL).matcher(code);

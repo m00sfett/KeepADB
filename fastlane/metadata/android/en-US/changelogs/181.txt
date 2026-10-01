@@ -1,0 +1,1 @@
+No change to the app itself: this patch only reorganizes the code behind the diagnostics export and the problem report in Settings, so future fixes there are safer. Diagnostics are still shared only when you choose to, and your settings stay as they are.
