@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLog;
 
 /**
  * #701: the persisted retry record of one pending register cleanup, tested on its own against real
@@ -360,6 +361,32 @@ public class PendingCleanupRetryRepositoryTest {
         assertEquals(0, PendingCleanupRetryRepository.removeOrphans(context, new String[] {ENTRY}));
 
         assertEquals("1,31000,86401000", prefs.getString(RECORD_KEY_PREFIX + ENTRY, null));
+    }
+
+    /**
+     * The key of a record is the raw stored entry, so for a legacy entry it holds its userinfo and
+     * token. The sweep reports how many records went and nothing else: no entry, no key, no part of
+     * either (the discard path has the same rule, see KeepADBRegisterClientTest).
+     */
+    @Test
+    public void theSweepLogsHowManyRecordsWentAndNeverWhichEntryOrKey() {
+        String legacy = "http://admin:secret@legacy.example/register?token=abc#frag";
+        PendingCleanupRetryRepository.recordFailure(context, legacy, 1_000L);
+        PendingCleanupRetryRepository.recordFailure(context, ENTRY, 1_000L);
+        ShadowLog.clear();
+
+        assertEquals(2, PendingCleanupRetryRepository.removeOrphans(context, new String[0]));
+
+        int sweepLines = 0;
+        for (ShadowLog.LogItem item : ShadowLog.getLogs()) {
+            String line = String.valueOf(item.msg);
+            sweepLines++;
+            for (String leak : new String[] {"admin", "secret", "token", "abc", "frag", "legacy",
+                    "old.example", "http", "retry_state", "register_webhook"}) {
+                assertFalse("the sweep log line leaks '" + leak + "': " + line, line.contains(leak));
+            }
+        }
+        assertTrue("the sweep reports that it removed records", sweepLines > 0);
     }
 
     private static void assertFresh(PendingCleanupRetryRepository.RetryState state, long now) {
