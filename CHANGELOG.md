@@ -33,6 +33,7 @@ are retrospective issue-version records and were never published as separate rel
 - #689: Keep-Alive click comment in `MainActivity` names the guard actually used since #680.
 
 ### Testing
+- #693: Restored automatic full CI on pushes to `master` and pull requests. CI runs `bin/verify`, including both APK builds and their brand-label checks; standard GitHub-hosted runners are free for this public repository.
 - #690: `KeepADBDebugBrandLabelTest` checks the `(DBG)` label in all 19 locales (debug variant); `bin/check-i18n` no longer needs allowlist entries for the three brand strings, and `KeepADBResourceContractTest` now requires those brand keys to exist in `values/` only.
 - #690: Automatic debug/release label guard: `KeepADBVariantLabelContractTest` (the `(DBG)` marker may only come from `src/debug`) and `bin/check-variant-labels`, a new step 5/5 of `bin/verify` that inspects the built APKs (debug: `(DBG) KeepADB` in all locale buckets and the manifest; release: no `DBG` anywhere, plain `KeepADB`).
 
@@ -2316,7 +2317,7 @@ fixes accumulated across 1.5.64/1.5.65.
 ## [1.5.14] - 2026-09-08
 
 ### Changed
-- Unified CI and release workflows: restricted documentation triggers to conserve Actions minutes, added `check-i18n` gate parity, unified release build to JDK 17, and added tag and changelog consistency checks (issue #327).
+- Unified CI and release workflows: restricted documentation triggers, added `check-i18n` gate parity, unified release build to JDK 17, and added tag and changelog consistency checks (issue #327).
 
 ## [1.5.13] - 2026-09-08
 
