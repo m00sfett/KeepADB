@@ -286,10 +286,9 @@ final class KeepADBRegisterClient {
     }
 
     /**
-     * A successful registration or cleanup overwrites/clears the shared register record for its
-     * URL. Drop obsolete cleanups, including legacy entries whose stored
-     * URL still contains userinfo or a fragment. The stored raw entry is still removed exactly;
-     * only the resource comparison is canonicalized for server route identity.
+     * Drops queued cleanup requests for the same canonical URL after a later request succeeds.
+     * Legacy stored URLs may contain userinfo or fragments, so compare sanitized resource keys
+     * while removing the exact stored entry.
      */
     private static void removePendingCleanupsForResource(Context context, String targetUrl) {
         if (context == null || targetUrl == null) return;
@@ -426,20 +425,13 @@ final class KeepADBRegisterClient {
             oldEndpoint = lastRegisteredEndpoint;
         }
 
-        // If URL changed and an old URL was registered, DELETE from old URL first
+        // If URL changed and a prior local report exists, try DELETE at the old URL first
         String unfinishedCleanupUrl = null;
         if (oldUrl != null && !oldUrl.equals(targetUrl) && oldEndpoint != null) {
             if (deleteEndpoint(oldUrl)) {
-                // #576 (NET-01): record that the old resource is now confirmed gone from the
-                // server unconditionally, even if this transaction turns out to be superseded by
-                // the opGen check below. The register EXECUTOR is single-threaded, so no other
-                // transaction can be running -- or have touched this field -- while this one is
-                // between its DELETE and here; a later transaction is still queued and cannot
-                // start until this method returns (same invariant awaitIdleForTesting relies on).
-                // Without this, a superseded migration leaves lastRegisteredUrl pointing at the
-                // already-deleted old resource, and the next transaction re-issues the exact same
-                // DELETE against it (device observation in #576 part C: duplicate successful
-                // DELETEs milliseconds apart for one event).
+                // Clear the matching local report snapshot after the DELETE request reports
+                // success. The single-threaded executor prevents a later transaction from
+                // overlapping this update.
                 synchronized (KeepADBRegisterClient.class) {
                     if (oldUrl.equals(lastRegisteredUrl)) {
                         lastRegisteredUrl = null;
@@ -467,32 +459,24 @@ final class KeepADBRegisterClient {
             // the stale branch of the synchronized block below: no state, preference or listener
             // side effects (the newer operation owns those).
             if (opGen != currentOpGeneration) return;
-            // #539: the same trigger now also reports every OTHER currently verified transport,
-            // each into its own register slot. Deliberately after the WLAN POST and outside this
-            // transaction's success accounting: the transaction is about `targetEndpoint`, whose
-            // value must keep driving lastRegisteredEndpoint and the stored report snapshot
-            // exactly as before. The additional transports are best-effort extra slots, never a
-            // reason to mark the WLAN report failed.
+            // Consider other verified transport candidates only after the WLAN POST. The local
+            // sender allowlist currently holds these candidates back; WLAN success accounting and
+            // the stored report snapshot remain owned by this transaction.
             reportAdditionalVerifiedTransports(context, targetUrl);
             synchronized (KeepADBRegisterClient.class) {
                 if (opGen == currentOpGeneration) {
-                    // #317: write-ahead. The retry entry is persisted BEFORE the in-memory and
-                    // stored state move on to the new URL, so a crash in between can only cause a
-                    // redundant cleanup of a still-registered URL -- never a forgotten one. If the
-                    // POST below had failed instead, the old URL would still be the registered one
-                    // and the next transaction retries the migration on its own.
+                    // Persist pending cleanup before changing the local report snapshot, so a
+                    // crash cannot forget the old URL. If the replacement POST failed, the local
+                    // snapshot stays with the old target for a later retry.
                     if (cleanupToRemember != null) {
                         KeepADBPreferences.addPendingWebhookCleanupUrl(context, cleanupToRemember);
                     }
-                    // A queued DELETE for the URL we just registered with is obsolete: the POST
-                    // above replaced the very record it was meant to retire. A DELETE at this URL
-                    // can be raised by a failing cleanup (an already-absent record answers 404,
-                    // which counts as a failure) while the POST that follows succeeds; flushing it
-                    // later would silently erase the live registration.
+                    // A cleanup queued before this successful POST is stale local work. Drop it
+                    // so it cannot issue an outdated DELETE after the newer registration attempt.
                     removePendingCleanupsForResource(context, targetUrl);
                     wlanUpdateInFlight = false;
-                    // #562: a confirmed live registration supersedes any pending "unavailable"
-                    // cleanup retry that was still waiting out its backoff for the old resource.
+                    // A successful WLAN report supersedes any pending unavailable retry for the
+                    // previous local report.
                     resetMarkUnavailableRetryLocked();
                     lastRegisteredUrl = targetUrl;
                     lastRegisteredEndpoint = targetEndpoint;
@@ -534,10 +518,8 @@ final class KeepADBRegisterClient {
 
         boolean cleanupCompleted = deleteEndpoint(urlToDelete);
         if (cleanupCompleted) {
-            // #576 (NET-01 sibling): same reasoning as performUpdateTransaction -- record the
-            // confirmed deletion unconditionally so a transaction superseded between this DELETE
-            // and the opGen check below does not leave lastRegisteredUrl pointing at an
-            // already-deleted resource for the next transaction to redundantly delete again.
+            // Record the successful DELETE response before the generation check, so a newer
+            // operation does not leave the local report snapshot pointing at the old URL.
             synchronized (KeepADBRegisterClient.class) {
                 if (urlToDelete.equals(lastRegisteredUrl)) {
                     lastRegisteredUrl = null;
@@ -583,7 +565,7 @@ final class KeepADBRegisterClient {
     /**
      * #562: user-approved staffing -- 5s, 10s, 15s, 30s, 1min, 3min after the first through sixth
      * consecutive failure, then a flat 5min ceiling for every failure after that. No age-based
-     * cutoff: retries continue until the DELETE succeeds or a newer registration supersedes it.
+     * cutoff: retries continue until DELETE returns a successful status or a newer report supersedes it.
      */
     private static long markUnavailableBackoffMs(int consecutiveFailures) {
         if (consecutiveFailures <= 0) return 0L;
@@ -812,10 +794,8 @@ final class KeepADBRegisterClient {
     }
 
     /**
-     * #539: reports the WLAN transport as a contract-v2 event. The payload keeps {@code method}
-     * and {@code endpoint} exactly where the pre-v2 contract had them, so the register's legacy
-     * projection and every existing {@code GET /register/<alias>} consumer keep the same view;
-     * {@code contract_version}, {@code observed_at} and {@code event_id} are additive.
+     * Sends the locally generated WLAN event as a JSON POST. A successful return reports only the
+     * HTTP response class; processing and storage by an external receiver are not observed here.
      */
     static boolean postEndpoint(String targetUrl, String endpoint) {
         KeepADBRegisterPayload.Event event =
@@ -824,15 +804,9 @@ final class KeepADBRegisterClient {
     }
 
     /**
-     * #539: reports every currently verified transport as its own contract-v2 event, so the
-     * register keeps one independent slot per transport and a WLAN report can never clear the
-     * Tailscale or USB slot. Events whose method the deployed register does not accept yet are
-     * held back instead of being sent into a guaranteed HTTP 400; see
-     * {@link KeepADBRegisterPayload#SERVER_SUPPORTED_METHODS}.
-     *
-     * @return {@code true} when every event that was actually sent succeeded. An empty transport
-     *     list is a no-op returning {@code true}: "nothing verified right now" must not be turned
-     *     into a clearing request here -- deactivation is an explicit, per-method event.
+     * Attempts locally enabled events and skips candidates excluded by the sender allowlist.
+     * An empty list is a no-op. HTTP success reports request status only; receiver-side
+     * persistence and reachability semantics are outside this client.
      */
     static boolean postTransports(String targetUrl,
             java.util.List<KeepADBRegisterPayload.VerifiedTransport> verified) {
@@ -850,21 +824,9 @@ final class KeepADBRegisterClient {
     }
 
     /**
-     * #539: the production entry into {@link #postTransports}. Called from
-     * {@link #performUpdateTransaction} -- so it inherits that path's opt-in exactly: it is only
-     * ever reached after {@link #updateEndpointAsync} confirmed
-     * {@link KeepADBPreferences#isRegisterWebhookEnabled} and a non-empty webhook URL, and it
-     * posts to that same user-entered URL. No new destination, no new trigger, no traffic for a
-     * user who has not enabled the webhook.
-     *
-     * <p>The WLAN/LAN transport is filtered out here because the surrounding transaction already
-     * reported it from its own authoritative {@code targetEndpoint}; re-deriving it from the
-     * snapshot could publish a different (possibly newer or staler) value under the same slot and
-     * desynchronise it from the stored report snapshot.
-     *
-     * <p>Runs on the register executor, which is where the blocking work belongs:
-     * {@link KeepADBTransportOverview#current} may perform a socket connect while verifying a
-     * Tailscale route.
+     * Collects other verified transports after the WLAN update, using the same explicit webhook
+     * opt-in and user-entered URL. The local sender filter currently holds these candidates back.
+     * WLAN reporting remains owned by the surrounding transaction.
      */
     private static void reportAdditionalVerifiedTransports(Context context, String targetUrl) {
         if (context == null || targetUrl == null || targetUrl.trim().isEmpty()) return;

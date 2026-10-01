@@ -5,20 +5,12 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
 /**
- * Identifies the currently connected Wi-Fi network for the trusted-network allowlist (#245).
+ * Reads the currently connected Wi-Fi identity used by trusted-network checks.
  *
- * <p>BSSID is the match key (identifies one physical access point; SSID is a user-chosen,
- * freely reused string, so two unrelated networks can share the same name). SSID is kept only
- * as a human-readable label. Reading either field unmasked requires {@link
- * android.Manifest.permission#ACCESS_FINE_LOCATION} on Android, and location services must be
- * enabled. Outside an active UI window, Android also requires an active while-in-use location
- * context, which {@link KeepADBService} provides via its {@code connectedDevice|location}
- * foreground service type (#606, C2). If location permission is missing, location is off, or no
- * while-in-use context exists, the platform returns placeholder values {@link
- * WifiManager#UNKNOWN_SSID} and {@link #REDACTED_BSSID} ("02:00:00:00:00:00") instead of
- * throwing. Therefore {@link #isKnown()} must be checked before treating the identity as a real,
- * matchable value -- using placeholders as-is would make unrecognized or disconnected networks
- * compare equal (fail-open).
+ * <p>The BSSID is the match key; the SSID is a display label and an optional, weaker match. Android
+ * may return masked placeholder values unless precise location permission, enabled location
+ * services, and an eligible foreground-service context are present. Treat placeholders as unknown
+ * so an unreadable identity cannot satisfy the allowlist. See docs/trusted-networks.md.
  */
 final class KeepADBNetworkIdentity {
     static final String REDACTED_BSSID = "02:00:00:00:00:00";
@@ -64,15 +56,9 @@ final class KeepADBNetworkIdentity {
     }
 
     /**
-     * Human-readable SSID with the surrounding quotes WifiInfo#getSSID() adds, if present.
-     * Returns null for {@link WifiManager#UNKNOWN_SSID} (BSSID known, SSID unreadable at the
-     * moment of the query -- issue #269): treating that placeholder as a real SSID would file
-     * BSSID-history observations and mesh-add labels under the literal placeholder string
-     * instead of correctly falling back to "no SSID known". This is a defensive measure, not a
-     * reaction to an observed platform behavior: every masking measurement so far (see
-     * {@code docs/trusted-networks-measurement.md}) found SSID and BSSID masked together or both
-     * available, never one without the other. The check stays because nothing guarantees that
-     * split state cannot occur on an untested OEM Wi-Fi stack or a future Android version.
+     * Returns a readable SSID without WifiInfo's surrounding quotes, or null for an unknown value.
+     * The allowlist keeps checking BSSID separately and never stores an Android placeholder as a
+     * name. See docs/trusted-networks.md.
      */
     String displaySsid() {
         if (ssid == null || WifiManager.UNKNOWN_SSID.equals(ssid)) return null;

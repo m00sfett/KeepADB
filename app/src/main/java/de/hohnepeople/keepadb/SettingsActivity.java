@@ -159,33 +159,14 @@ public class SettingsActivity extends Activity {
 
     static final String WEBSITE_URL = "https://hohnepeople.de";
 
-    // #471: settings cards start collapsed and are toggled independently of each other. The
-    // symbols are plain literals (matching the existing static "▼" selector arrows elsewhere in
-    // this layout) rather than string resources -- they carry no natural-language content, so
-    // there is nothing for check-i18n/lint to translate.
-    /** #492: request code for the Location grant the trusted-network opt-in needs. */
+    /** Permission request code for enabling trusted-network mode. */
     private static final int TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST = 3001;
     private static final String CARD_COLLAPSED_SYMBOL = "+";
     private static final String CARD_EXPANDED_SYMBOL = "−";
 
-    // #471: header/body/arrow id triples for every collapsible settings card. Each body starts
-    // visibility="gone" in activity_settings.xml (collapsed by default); the expand state lives
-    // only in the live View tree (View#setVisibility), never in SharedPreferences or
-    // onSaveInstanceState, so a freshly created SettingsActivity instance -- i.e. every time the
-    // settings page is opened -- is always collapsed again, per the #471 acceptance criteria.
-    // The permission-warning panel is deliberately excluded: it is a conditional safety notice,
-    // not a configurable option card, and stays fully visible whenever it is shown at all.
-    // #478: the version card (last) is excluded here too -- it is a permanently visible,
-    // non-collapsible entry pinned directly on the background, with neither an arrow nor a click
-    // listener on its header. #518: the former language card was removed from the content
-    // entirely and replaced by the compact toolbar button, so it no longer appears in this table.
-    // #510: order below now matches the on-screen order -- Notification/Display/Advice-Banner/
-    // Battery-Optimization sit together under the "Sonstiges" heading. #519: the former
-    // #519 introduced the outer "Network" card (settings_network_beta_header/body/arrow below),
-    // and #618 removes the two inner expand levels: Trusted Networks and Wi-Fi & access points
-    // are now direct sections inside the network body (matching #529's USB-ADB and #521's
-    // Sonstiges structure). Only the outer network card is in this table; the advanced Wi-Fi-name
-    // section inside it (#655) is one more collapsed-by-default toggle, bound in bindNetworkCard().
+    // Card expansion lives only in the view tree; opening Settings starts cards collapsed.
+    // The permission notice remains visible when applicable, while the version entry is static.
+    // Wi-Fi-name matching has its own nested section and does not persist its expansion state.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
             {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body, R.id.settings_usb_adb_arrow},
@@ -750,22 +731,10 @@ public class SettingsActivity extends Activity {
     }
 
     /**
-     * #492: the global opt-in, now the second option of the mode choice (#654). Moved back here
-     * from MainActivity's home card because turning it on is a security decision taken with the
-     * background-access facts in view. Under Variante C2 (#606), granting ACCESS_FINE_LOCATION
-     * enables {@link KeepADBService} to run with {@code FOREGROUND_SERVICE_TYPE_LOCATION}, which
-     * keeps Wi-Fi identity unmasked during keep-alive when the service's foreground promotion
-     * originated from the foreground, or from the background with the optional #616 {@code
-     * ACCESS_BACKGROUND_LOCATION} grant ("Allow all the time"). Without that grant, a
-     * background-originated promotion stays masked until a later foreground-originated restart,
-     * and on API 34+ it falls back to {@code connectedDevice} alone (#629/#630; see {@code
-     * docs/trusted-networks-measurement.md}, "Nachtrag 5").
-     *
-     * <p>Turning it *on* requires ACCESS_FINE_LOCATION, because without it the platform hands the
-     * app a masked identity (and the foreground service cannot adopt the location type), causing
-     * allowlist mode to fail closed on every check. Choosing "all Wi-Fi networks" again never asks
-     * for anything. Clicking the option that is already selected does nothing, so it can never
-     * re-open a dialog.
+     * Enables the explicit network allowlist only after the required precise-location grant.
+     * Android may mask Wi-Fi identity after a background service start; the optional background
+     * grant is set by the user on the system permission page and the app remains fail-closed
+     * without a readable identity. See docs/trusted-networks.md.
      */
     private void onAllowlistOptionClicked() {
         if (KeepADBTrustedNetwork.isAllowlistMode(this)) {

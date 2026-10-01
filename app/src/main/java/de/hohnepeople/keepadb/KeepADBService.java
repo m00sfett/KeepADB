@@ -23,23 +23,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Foreground service that monitors Wi-Fi connectivity and wireless debugging state
- * to automatically re-enable Wireless Debugging and push new endpoints to the register.
+ * Monitors Wi-Fi connectivity and Wireless Debugging state to perform allowed automatic recovery
+ * and to report verified WLAN endpoints when the user enabled the webhook.
  *
- * <p>Under Variante C2 (#606), this service dynamically requests foreground service type
- * {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE} augmented with
- * {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_LOCATION} whenever {@link
- * Manifest.permission#ACCESS_FINE_LOCATION} is granted. This satisfies Android's while-in-use
- * location requirement, allowing SSID and BSSID to be resolved unmasked across screen-off events
- * and network reconnects without requiring background location permissions -- but only once the
- * service's foreground promotion actually originated from the foreground. A promotion that starts
- * from the background (boot, {@code MY_PACKAGE_REPLACED}, a background sync) depends on the
- * optional #616 {@link Manifest.permission#ACCESS_BACKGROUND_LOCATION} grant ("Allow all the
- * time"): with it, the {@code location} type is accepted on every supported API level and the
- * Wi-Fi identity is readable right away; without it, API 34+ rejects the {@code location} type
- * and the service falls back to {@code connectedDevice} alone (#629), and on every API level the
- * identity stays masked until a later foreground-originated start re-promotes the service (#630).
- * Measured on API 30 to 36.1, see {@code docs/trusted-networks-measurement.md}, "Nachtrag 5".
+ * <p>The service always uses the connected-device foreground type and adds the location type
+ * when precise location permission is granted. A background start can lack the eligibility needed
+ * for that type, especially on Android 14 and newer; the service retries with connected-device
+ * only and trusted-network checks remain fail-closed while Wi-Fi identity is masked. The optional
+ * background-location permission can make identity available after a background start. Current
+ * rules and the limits of the historical measurements are in docs/trusted-networks.md.
  */
 public class KeepADBService extends Service {
     private static final String TAG = "KeepADBService";
@@ -195,24 +187,10 @@ public class KeepADBService extends Service {
     }
 
     /**
-     * Determines the foreground service type to request when entering foreground mode (#606, C2).
-     *
-     * <p>Always includes {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE}.
-     * If {@link Manifest.permission#ACCESS_FINE_LOCATION} is granted,
-     * {@link ServiceInfo#FOREGROUND_SERVICE_TYPE_LOCATION} is also requested so that Android
-     * treats this service as while-in-use for Wi-Fi identity verification, which unmasks
-     * SSID/BSSID only when the resulting {@code startForeground()} call succeeds. With the
-     * optional {@link Manifest.permission#ACCESS_BACKGROUND_LOCATION} grant (#616), a
-     * background-originated promotion keeps the {@code location} type on every supported API
-     * level and the identity is readable. Without it, on API 34+ a background-originated
-     * promotion throws {@link SecurityException} for the {@code location} type, and {@link
-     * #onStartCommand} retries once with {@code connectedDevice} alone rather than tearing the
-     * service down (#629); the identity then stays masked for that instance until a
-     * foreground-originated restart (#630). See {@code docs/trusted-networks-measurement.md},
-     * "Nachtrag 5". If the
-     * location permission is not granted at all (e.g. in default {@code all_wifi} mode without
-     * trusted-network allowlist), {@code location} is omitted dynamically up front, which never
-     * throws.
+     * Requests the connected-device type and, when precise location is granted, the location
+     * type needed for Wi-Fi identity checks. Android may reject location promotion from a
+     * background start; on that path onStartCommand retries with connected-device only. See
+     * docs/trusted-networks.md for the user-visible permission and fail-closed behavior.
      */
     static int determineForegroundServiceType(Context context) {
         int type = ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE;
@@ -224,11 +202,8 @@ public class KeepADBService extends Service {
     }
 
     /**
-     * Thin, overridable wrapper around the (final) {@link Service#startForeground(int,
-     * android.app.Notification, int)} so tests can simulate the platform's #629 background/
-     * location {@link SecurityException} without a mocking framework, by subclassing this service
-     * and overriding this single method to throw for a chosen type. Production behavior is
-     * unchanged.
+     * Wrapper around startForeground so tests can exercise both the requested type and a denied
+     * location-type promotion without mocking the Android service API.
      */
     void promoteToForeground(int serviceType) {
         startForeground(KeepADBNotification.NOTIFICATION_ID,
@@ -245,18 +220,9 @@ public class KeepADBService extends Service {
         try {
             promoteToForeground(serviceType);
         } catch (SecurityException locationDenied) {
-            // #629: on API 34+, a background start (boot, MY_PACKAGE_REPLACED, or a background
-            // sync()) with ACCESS_FINE_LOCATION granted requests type location together with
-            // connectedDevice, and startForeground() throws SecurityException here because the
-            // process is not in an "eligible" foreground state at the moment of the call. With
-            // the optional ACCESS_BACKGROUND_LOCATION grant (#616) the platform accepts the
-            // location type instead and this branch is not reached (measured on API 34 to 36.1,
-            // docs/trusted-networks-measurement.md "Nachtrag 5"). Bound
-            // decision (2026-09-28): retry once with connectedDevice alone instead of letting
-            // failForegroundStart() below tear the whole service down. Trust stays fail-closed --
-            // the Wi-Fi identity remains masked without the location type -- until a later
-            // foreground-originated start (e.g. MainActivity opened, see #630/#628) promotes the
-            // service with location again.
+            // Android can reject location promotion when this service starts from the background.
+            // Keep the service available with its connected-device type, but do not treat a masked
+            // Wi-Fi identity as trusted until a later eligible start can read it.
             if ((serviceType & ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION) == 0) {
                 // No location bit was requested in the first place, so this is not the known
                 // background/location restriction -- behave exactly as before.

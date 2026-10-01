@@ -7,35 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Persisted trusted-network allowlist policy for automatic Keep-Alive re-enable (#245).
+ * Persists the Wi-Fi trust rule used by automatic re-enable call sites.
  *
- * <p>#492 reversed #260's default: {@link #MODE_ALL_WIFI} is now the default for a new or
- * never-initialized installation, and {@link #MODE_ALLOWLIST} is an explicit opt-in.
- * Historically, under #492 when the foreground service held only the {@code connectedDevice}
- * type, Android masked SSID and BSSID together outside a visible activity (see {@code
- * docs/trusted-networks-measurement.md}), preventing background allowlist confirmation. Under
- * Variante C2 (#606), {@link KeepADBService} dynamically requests {@code connectedDevice|location}
- * with {@link android.Manifest.permission#ACCESS_FINE_LOCATION}; a service started from the
- * foreground qualifies as while-in-use and keeps SSID and BSSID unmasked during background
- * keep-alive. A service started from the background (boot, app update, sticky restart of such a
- * service) does not and stays masked until the app is opened (#626, #630), unless the user also
- * granted {@code ACCESS_BACKGROUND_LOCATION} ("Allow all the time"): with it the identity is
- * readable after a background start on API 30 to 36.1 (#643, "Nachtrag 5" in the measurement
- * doc). Without that grant this class fails closed like for any other unknown identity. {@link #MODE_ALLOWLIST} remains
- * an explicit opt-in as a deliberate comfort-versus-security trade-off: it requires location
- * permissions and strictly bounds automatic re-enable to explicitly approved access points.
+ * <p>New installations default to all Wi-Fi networks. Allowlist mode is an explicit choice and
+ * fails closed when the current BSSID cannot be read or is not listed. Optional SSID matching is
+ * a separate default-off widening rule; manual controls do not consult this policy.
  *
- * <p>Existing installations are not widened by that flip. {@link #ensureModeInitialized} persists
- * {@link #MODE_ALLOWLIST} for any installation that never wrote a mode but does hold allowlist
- * entries: under the pre-#492 build such an installation was running in allowlist mode (that was
- * the default), and a user who had explicitly left allowlist mode already has {@link
- * #MODE_ALL_WIFI} written, so the "has entries" proxy is exact for upgrades and vacuous for fresh
- * installs.
- *
- * <p>Once in allowlist mode, an unlisted or unrecognizable network is never trusted (fail closed)
- * -- this policy only ever gates *automatic* re-enable call sites; manual toggling is never
- * affected, by design of where callers apply {@link #isCurrentNetworkTrusted(Context)}, not by
- * anything in this class.
+ * <p>Upgrade initialization preserves an older implicit allowlist when entries already exist.
+ * See docs/trusted-networks.md for the current product rule and permission behavior.
  */
 final class KeepADBTrustedNetwork {
     private static final String PREFS_NAME = "keepadb_prefs";
@@ -169,13 +148,8 @@ final class KeepADBTrustedNetwork {
     }
 
     /**
-     * Adds the currently connected network's SSID. Returns null when the identity is not fully
-     * readable -- an {@link KeepADBNetworkIdentity#isKnown()} check is deliberately required on
-     * top of a non-null SSID even though only the SSID is stored: when identity is masked by the
-     * platform (e.g. without location permissions or active location services), SSID and BSSID
-     * are masked together (see {@code docs/trusted-networks-measurement.md}), so a readable SSID
-     * paired with a masked BSSID is not a state Android produces, and treating it as addable would
-     * only open a path to storing a placeholder.
+     * Adds the current readable SSID only when the associated identity has a real BSSID.
+     * This prevents storing platform placeholders when identity access is unavailable.
      */
     static SsidEntry addCurrentSsid(Context context) {
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
@@ -324,23 +298,9 @@ final class KeepADBTrustedNetwork {
     }
 
     /**
-     * The policy gate for automatic re-enable call sites. In {@link #MODE_ALLOWLIST} (explicit
-     * opt-in since #492; the default from #260 until then), the current network's identity must
-     * be known and either match a listed BSSID or, with the opt-in SSID matching enabled (#492),
-     * match a listed SSID exactly -- an unavailable identity or a network matching neither list is
-     * never trusted. In {@link #MODE_ALL_WIFI} (default since #492), every network is trusted,
-     * matching pre-#245 behavior.
-     *
-     * <p>#348: this method alone is never sufficient to permit an automatic re-enable. It
-     * answers "is whatever network we're on acceptable", never "is a Wi-Fi transport actually
-     * connected right now" -- {@link #MODE_ALL_WIFI} in particular trusts unconditionally without
-     * that question ever being asked. Every automatic re-enable call site (currently {@link
-     * KeepADBService#isAutoEnableStillPermitted}, {@link KeepADBService}'s content-observer and
-     * {@code recheckAndEnable()} paths, {@link KeepADBUsbHandover#isAutoHandoverStillPermitted}/
-     * {@link KeepADBUsbHandover#onRawUsbBroadcast}, and {@link
-     * KeepADBEndpoint#maybeSendRecoveryPulse}) must independently require {@link
-     * KeepADBService#isWifiConnected(Context)} in addition to this method, never this method by
-     * itself.
+     * Automatic re-enable is allowed in all-Wi-Fi mode, or in allowlist mode only when the
+     * current identity matches a listed BSSID or an enabled exact SSID entry. The caller must
+     * independently confirm that Wi-Fi is connected. Manual controls do not use this gate.
      */
     static boolean isCurrentNetworkTrusted(Context context) {
         if (!isAllowlistMode(context)) return true;
@@ -357,18 +317,9 @@ final class KeepADBTrustedNetwork {
     }
 
     /**
-     * The trust decision shared by {@link #isCurrentNetworkTrusted} and {@link #getBlockReason},
-     * so callers that already resolved a {@link KeepADBNetworkIdentity} don't trigger a second
-     * synchronous WifiManager lookup just to re-derive the same identity.
-     *
-     * <p>#625: a pure function of {@code identity} and the persisted allowlist -- it neither reads
-     * nor writes any process-wide state. A network is trusted if and only if its identity is {@link
-     * KeepADBNetworkIdentity#isKnown() known} <em>and</em> its BSSID is listed or, with the
-     * opt-in SSID matching enabled (#492), its SSID is listed exactly. Every other reading --
-     * unknown, disconnected or platform-masked ({@link KeepADBNetworkIdentity#REDACTED_BSSID}),
-     * with or without a readable SSID -- is never trusted, regardless of what an earlier call
-     * verified. The former in-process SSID continuity cache (#270/#354/#620) was removed because
-     * AOSP masks SSID and BSSID together, so it could only ever widen trust (audit #624).
+     * Pure trust evaluation for an identity already read by the caller. Unknown or masked BSSID
+     * values never match. A known BSSID must be listed, unless the separate optional SSID rule
+     * matches the exact readable SSID.
      */
     private static boolean isTrusted(Context context, KeepADBNetworkIdentity identity) {
         if (!identity.isKnown()) return false;
@@ -383,22 +334,8 @@ final class KeepADBTrustedNetwork {
     }
 
     /**
-     * The optional SSID match (#492), reached only from the {@code identity.isKnown()} branch of
-     * {@link #isTrusted} -- i.e. only when the platform handed us a real, unmasked BSSID for this
-     * very reading. That precondition keeps this from becoming an SSID-only fallback for masked
-     * readings: it never rescues a masked reading, so it cannot be satisfied by a rogue access
-     * point whose BSSID was never visible.
-     *
-     * <p>What it does accept is a *readable* access point whose BSSID is not listed but whose SSID
-     * is. That is a genuinely weaker security model and the whole point of the separate opt-in: an
-     * SSID is a user-chosen string, so any access point that broadcasts the listed name -- a
-     * further mesh node, a different radio band of the same router, or an impersonator -- is
-     * trusted without its own BSSID ever having been approved. The UI states this at the switch.
-     *
-     * <p>Matching is exact: equal after the quote-stripping {@link
-     * KeepADBNetworkIdentity#displaySsid()} does, with no case folding, trimming, prefix or
-     * substring rule, and never against a null/placeholder SSID. A silent normalization here would
-     * widen the allowance beyond the name the user actually approved.
+     * Applies the default-off SSID extension only when enabled and the current identity is known.
+     * Matching is exact and case-sensitive; a name cannot rescue a masked BSSID.
      */
     private static boolean matchesSsidAllowlist(Context context, KeepADBNetworkIdentity identity) {
         if (!isSsidMatchingEnabled(context)) return false;
