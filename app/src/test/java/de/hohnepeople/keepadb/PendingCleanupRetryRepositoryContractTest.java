@@ -182,8 +182,11 @@ public class PendingCleanupRetryRepositoryContractTest {
                 count(client, "PendingCleanupRetryRepository.read("));
         assertEquals("the client books a failure in exactly one place", 1,
                 count(client, "PendingCleanupRetryRepository.recordFailure("));
-        assertEquals("the client removes a record when it discards or drops an entry", 2,
+        assertEquals("the client removes a record when it discards or drops an entry, and (#707) "
+                + "in the commit block for the entry a full backlog evicted", 3,
                 count(client, "PendingCleanupRetryRepository.remove("));
+        assertEquals("the client sweeps the records of dead entries in exactly one place (#707)", 1,
+                count(client, "PendingCleanupRetryRepository.removeOrphans("));
 
         String persistedClock = bodyOf(client, "private static long pendingCleanupNow()");
         assertTrue(persistedClock.contains("System.currentTimeMillis()"));
@@ -249,7 +252,8 @@ public class PendingCleanupRetryRepositoryContractTest {
             for (String transport : new String[] {"deleteEndpoint(", "postEndpoint(",
                     "postTransports(", "sendJsonPost(", "httpTransport", ".postJson(", ".delete(",
                     "reportAdditionalVerifiedTransports(", "flushPendingCleanups(",
-                    "PendingCleanupRetryRepository.read(", "PendingCleanupRetryRepository.recordFailure("}) {
+                    "PendingCleanupRetryRepository.read(", "PendingCleanupRetryRepository.recordFailure(",
+                    "PendingCleanupRetryRepository.removeOrphans("}) {
                 assertFalse("no request or retry decision may run inside the class monitor: '"
                         + transport + "' in {" + body.replaceAll("\\s+", " ").trim() + "}",
                         body.contains(transport));
@@ -286,6 +290,108 @@ public class PendingCleanupRetryRepositoryContractTest {
         assertTrue("before the obsolete cleanups of the new URL are dropped", drop > remember);
         assertTrue("before the in-memory report state moves on", stateMove > remember);
         assertTrue("and before the stored report snapshot moves on", snapshot > remember);
+
+        // #707: the retry record of the entry that remembering evicted goes in the same commit
+        // block, right behind the write that evicted it and before anything else moves on.
+        int evictedRecord = update.indexOf(
+                "PendingCleanupRetryRepository.remove(context, evictedCleanup)", commit);
+        assertTrue("the record of the evicted entry is removed in the commit block, after the "
+                + "eviction", evictedRecord > remember);
+        assertTrue("before the obsolete cleanups of the new URL are dropped", evictedRecord < drop);
+        assertTrue("before the in-memory report state moves on", evictedRecord < stateMove);
+        assertTrue("and before the stored report snapshot moves on", evictedRecord < snapshot);
+        assertTrue("the entry to forget is the one the eviction reported, nothing else",
+                Pattern.compile("String\\s+evictedCleanup\\s*=\\s*"
+                        + "KeepADBPreferences\\.addPendingWebhookCleanupUrl\\(context, cleanupToRemember\\);")
+                        .matcher(update).find());
+        assertTrue("and only when there was one",
+                Pattern.compile("if\\s*\\(\\s*evictedCleanup\\s*!=\\s*null\\s*\\)\\s*\\{\\s*"
+                        + "PendingCleanupRetryRepository\\.remove\\(context, evictedCleanup\\);")
+                        .matcher(update).find());
+    }
+
+    /**
+     * #707: the sweep of dead records is bookkeeping on the preferences file, run where the cleanup
+     * flush already runs: in {@code flushPendingCleanups}, which the two transactions call first,
+     * before they take the monitor, and which only the register executor runs. It has one call
+     * site, none inside a synchronized block or method (the guard above), no helper that could be
+     * called from elsewhere, and the repository holds neither scheduling nor state for it (the
+     * guards above), so no worker, timer, cache, lock or generation can have been added for it.
+     */
+    @Test
+    public void theOrphanSweepHasOneCallSiteInTheFlushThatOnlyTheExecutorTransactionsRun()
+            throws IOException {
+        String client = withoutComments(read(SOURCE_DIRECTORY + CLIENT));
+
+        String flush = bodyOf(client, "private static void flushPendingCleanups(");
+        assertEquals(1, count(flush, "PendingCleanupRetryRepository.removeOrphans("));
+        assertTrue("the sweep is the first thing the flush does, before it decides about any entry",
+                flush.indexOf("PendingCleanupRetryRepository.removeOrphans(")
+                        < flush.indexOf("for (String url :"));
+        assertTrue("it is handed the entries the backlog holds now, read through the preferences "
+                + "(which also migrates a legacy set), and nothing else",
+                Pattern.compile("removeOrphans\\(context,\\s*KeepADBPreferences"
+                        + "\\.getPendingWebhookCleanupUrls\\(context\\)\\.toArray\\(new String\\[0\\]\\)\\);")
+                        .matcher(flush).find());
+
+        // The flush is reached from the two transactions and the test hook only.
+        assertEquals("declaration, update transaction, delete transaction and the test hook", 4,
+                count(client, "flushPendingCleanups("));
+        for (String transaction : new String[] {"private static void performUpdateTransaction(",
+                "private static void performDeleteTransaction("}) {
+            String body = bodyOf(client, transaction);
+            int call = body.indexOf("flushPendingCleanups(context);");
+            assertTrue("the transaction flushes first: " + transaction,
+                    call > 0 && body.substring(1, call).trim().isEmpty());
+            assertTrue("and before it takes the monitor: " + transaction,
+                    call < body.indexOf("synchronized (KeepADBRegisterClient.class)"));
+        }
+
+        // The two transactions run on the register executor only: every call sits in a task of it.
+        int inExecutorTasks = 0;
+        Matcher task = Pattern.compile("EXECUTOR\\.execute\\(\\(\\)\\s*->\\s*\\{").matcher(client);
+        while (task.find()) {
+            String body = matchBraces(client, task.end() - 1);
+            inExecutorTasks += count(body, "performUpdateTransaction(")
+                    + count(body, "performDeleteTransaction(");
+        }
+        int calls = count(client, "performUpdateTransaction(") - 1
+                + count(client, "performDeleteTransaction(") - 1;
+        assertEquals("one call of the update and two of the delete transaction", 3, calls);
+        assertEquals("every call of a transaction is made inside a register executor task", calls,
+                inExecutorTasks);
+    }
+
+    /**
+     * #707: the repository is the only owner of the record key, so the scan over the stored keys
+     * lives there; no other class spells the key or its prefix, and {@link KeepADBPreferences},
+     * which keeps the entries, knows neither the key nor the repository (the other direction is
+     * guarded by {@code onlyTheClientUsesTheRepositoryAndOwnsGenerationExecutorAndHttp}).
+     */
+    @Test
+    public void onlyTheRepositoryKnowsTheRecordKey() throws IOException {
+        List<String> spellers = new ArrayList<>();
+        try (Stream<Path> files = Files.list(projectPath(SOURCE_DIRECTORY))) {
+            for (Path file : files.filter(path -> path.getFileName().toString().endsWith(".java"))
+                    .collect(Collectors.toList())) {
+                String code = withoutComments(
+                        new String(Files.readAllBytes(file), StandardCharsets.UTF_8));
+                if (code.contains("pending_cleanup_retry_state")) {
+                    spellers.add(file.getFileName().toString());
+                }
+            }
+        }
+        assertEquals("Only the repository may know the record key: " + spellers,
+                List.of(REPOSITORY), spellers);
+
+        String preferences = withoutComments(read(SOURCE_DIRECTORY + "KeepADBPreferences.java"));
+        assertTrue("the entries it keeps are still there",
+                preferences.contains("register_webhook_pending_cleanup\""));
+        for (String foreign : new String[] {"retry_state", "RetryState", "PendingCleanupRetry",
+                "removeOrphans"}) {
+            assertFalse("KeepADBPreferences must not know the retry record: '" + foreign + "'",
+                    preferences.contains(foreign));
+        }
     }
 
     // ---- helpers ----

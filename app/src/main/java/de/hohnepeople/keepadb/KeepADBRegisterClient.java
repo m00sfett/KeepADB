@@ -213,9 +213,16 @@ final class KeepADBRegisterClient {
      * executor before the transaction that triggered it, so a lost cleanup is retried at the next
      * register activity (endpoint change, deregistration) rather than being forgotten.
      * The backlog is capped by {@link KeepADBPreferences#MAX_PENDING_CLEANUPS}.
+     *
+     * <p>#707: first sweeps the retry records whose entry is no longer pending (left behind by an
+     * eviction of an earlier build, or by a crash between removing an entry and its record). That is
+     * local bookkeeping on the preferences file: it runs here, on the register executor and outside
+     * the class monitor, sends nothing and changes no entry.
      */
     private static void flushPendingCleanups(Context context) {
         if (context == null) return;
+        PendingCleanupRetryRepository.removeOrphans(context,
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).toArray(new String[0]));
         for (String url : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
             String sanitizedUrl = sanitizePendingCleanupUrl(url);
             if (hasLiveRegistrationAtUrl(sanitizedUrl)) {
@@ -387,7 +394,14 @@ final class KeepADBRegisterClient {
                     // crash cannot forget the old URL. If the replacement POST failed, the local
                     // snapshot stays with the old target for a later retry.
                     if (cleanupToRemember != null) {
-                        KeepADBPreferences.addPendingWebhookCleanupUrl(context, cleanupToRemember);
+                        String evictedCleanup =
+                                KeepADBPreferences.addPendingWebhookCleanupUrl(context, cleanupToRemember);
+                        // #707: a full backlog evicted its oldest entry for this one. That entry
+                        // is gone for good, so its retry record goes with it; left behind, it
+                        // would leak and be inherited if the same entry is queued again.
+                        if (evictedCleanup != null) {
+                            PendingCleanupRetryRepository.remove(context, evictedCleanup);
+                        }
                     }
                     // A cleanup queued before this successful POST is stale local work. Drop it
                     // so it cannot issue an outdated DELETE after the newer registration attempt.

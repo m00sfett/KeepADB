@@ -32,6 +32,13 @@ import android.util.Log;
  * {@link KeepADBPreferences}. In production every call happens on the register executor, either
  * outside the client's monitor or inside one of its commit blocks; none of them touches the
  * network.
+ *
+ * <p>#707: a record belongs to a stored entry and must not outlive it. It could: a full FIFO evicts
+ * its oldest entry for a newer one, and a crash can land between removing an entry and removing its
+ * record. The client removes the record of an entry it saw evicted, and {@link #removeOrphans}
+ * sweeps what an earlier build or such a crash left behind. This class owns the record key, so the
+ * scan over the stored keys lives here; which entries are still pending is the caller's knowledge
+ * and handed in.
  */
 final class PendingCleanupRetryRepository {
     // Deliberately the client's tag: the register log lines of this record stay under one tag.
@@ -121,6 +128,45 @@ final class PendingCleanupRetryRepository {
         String key = key(entry);
         if (prefs.getString(key, null) == null) return;
         prefs.edit().remove(key).apply();
+    }
+
+    /**
+     * #707: removes the stored retry record of every entry that is not in {@code activeEntries}
+     * and returns how many records went. Only keys of this record are looked at (the key prefix
+     * including its colon); the stored entries, the FIFO keys and every other preference stay
+     * untouched. An entry counts as active only when it equals one of {@code activeEntries}
+     * exactly: a record belongs to the raw stored entry, so another spelling of the same resource
+     * is no match. The value of a record is not looked at, so a malformed one of a dead entry goes
+     * too, while the record of an active entry stays as it is. Nothing is removed when the caller
+     * does not know its entries ({@code null}). Writes once, and only when something is removed.
+     * No network and no decision about any transaction; the caller calls it on the register
+     * executor, outside its monitor.
+     */
+    static int removeOrphans(Context context, String[] activeEntries) {
+        if (context == null || activeEntries == null) return 0;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String prefix = key("");
+        SharedPreferences.Editor editor = null;
+        int removed = 0;
+        for (String stored : prefs.getAll().keySet()) {
+            if (!stored.startsWith(prefix)) continue;
+            if (isActive(stored.substring(prefix.length()), activeEntries)) continue;
+            if (editor == null) editor = prefs.edit();
+            editor.remove(stored);
+            removed++;
+        }
+        if (editor != null) editor.apply();
+        if (removed > 0) {
+            Log.i(TAG, "Removed " + removed + " orphaned pending cleanup retry record(s)");
+        }
+        return removed;
+    }
+
+    private static boolean isActive(String entry, String[] activeEntries) {
+        for (String active : activeEntries) {
+            if (entry.equals(active)) return true;
+        }
+        return false;
     }
 
     private static void write(Context context, String entry, RetryState state) {

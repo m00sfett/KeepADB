@@ -204,6 +204,164 @@ public class PendingCleanupRetryRepositoryTest {
         }
     }
 
+    // ---- #707: sweeping the records of entries that are no longer pending. ----
+
+    @Test
+    public void sweepingRemovesTheRecordsOfDeadEntriesAndKeepsThoseOfActiveOnes() {
+        String activeA = "http://a.example/register";
+        String activeB = "http://b.example/register";
+        String deadC = "http://c.example/register";
+        String deadD = "http://d.example/register";
+        for (String entry : new String[] {activeA, activeB, deadC, deadD}) {
+            PendingCleanupRetryRepository.recordFailure(context, entry, 1_000L);
+        }
+        PendingCleanupRetryRepository.recordFailure(context, activeB, 31_000L);
+
+        int removed = PendingCleanupRetryRepository.removeOrphans(context,
+                new String[] {activeA, activeB});
+
+        assertEquals("exactly the two records of dead entries go", 2, removed);
+        assertNull(prefs.getString(RECORD_KEY_PREFIX + deadC, null));
+        assertNull(prefs.getString(RECORD_KEY_PREFIX + deadD, null));
+        assertEquals("an active entry keeps its record untouched", "1,31000,86401000",
+                prefs.getString(RECORD_KEY_PREFIX + activeA, null));
+        assertEquals("including the attempts it has already used", "2,91000,86401000",
+                prefs.getString(RECORD_KEY_PREFIX + activeB, null));
+    }
+
+    @Test
+    public void sweepingOnlyLooksAtTheKeysOfTheRecord() {
+        String active = "http://a.example/register";
+        PendingCleanupRetryRepository.recordFailure(context, active, 1_000L);
+        // The FIFO of stored entries and its shadow key sit next to the record keys, and others
+        // start with the same words: none of them is a record, none may be touched.
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, active);
+        String[] foreignKeys = {"register_webhook_pending_cleanup",
+                "register_webhook_pending_cleanup_order",
+                "register_webhook_pending_cleanup_retry_state",
+                "register_webhook_pending_cleanup_retry_state_extra",
+                "register_webhook_pending_cleanup_retry_stat:" + active,
+                "x_register_webhook_pending_cleanup_retry_state:http://dead.example/register",
+                "register_webhook_url", "register_webhook_last_url"};
+        for (String foreign : foreignKeys) {
+            if (!prefs.contains(foreign)) prefs.edit().putString(foreign, "keep:" + foreign).commit();
+        }
+        java.util.Map<String, Object> before = new java.util.TreeMap<>(prefs.getAll());
+
+        // Nothing is active, so every record would go; the other keys must not.
+        assertEquals(1, PendingCleanupRetryRepository.removeOrphans(context, new String[0]));
+
+        java.util.Map<String, Object> expected = new java.util.TreeMap<>(before);
+        expected.remove(RECORD_KEY_PREFIX + active);
+        assertEquals("only the one record key is gone", expected,
+                new java.util.TreeMap<>(prefs.getAll()));
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(active));
+    }
+
+    @Test
+    public void theRecordOfADeadEntryGoesWhateverItsValueIs() {
+        String dead = "http://dead.example/register";
+        prefs.edit()
+                .putString(RECORD_KEY_PREFIX + dead, "1,2,3")
+                .putString(RECORD_KEY_PREFIX + dead + "/malformed", "not,a,record")
+                .putString(RECORD_KEY_PREFIX + dead + "/empty", "")
+                .putString(RECORD_KEY_PREFIX + dead + "/short", "1,2")
+                .putInt(RECORD_KEY_PREFIX + dead + "/int", 7)
+                .putBoolean(RECORD_KEY_PREFIX + dead + "/boolean", true)
+                .putString(RECORD_KEY_PREFIX, "no entry at all")
+                .commit();
+
+        assertEquals(7, PendingCleanupRetryRepository.removeOrphans(context, new String[0]));
+
+        for (String key : prefs.getAll().keySet()) {
+            assertFalse("no record of a dead entry may stay: " + key, key.startsWith(RECORD_KEY_PREFIX));
+        }
+    }
+
+    @Test
+    public void theRecordOfAnActiveEntryStaysEvenWhenItIsMalformed() {
+        String active = "http://a.example/register";
+        prefs.edit().putString(RECORD_KEY_PREFIX + active, "garbage").commit();
+
+        assertEquals(0, PendingCleanupRetryRepository.removeOrphans(context, new String[] {active}));
+
+        assertEquals("reading it falls back to a fresh record, the sweep does not judge values",
+                "garbage", prefs.getString(RECORD_KEY_PREFIX + active, null));
+    }
+
+    @Test
+    public void anEntryIsActiveOnlyByExactStringEquality() {
+        String active = "http://admin:secret@legacy.example/register?token=abc";
+        String[] otherSpellings = {"HTTP://admin:secret@legacy.example/register?token=abc",
+                "http://admin:secret@Legacy.example/register?token=abc",
+                "http://admin:secret@legacy.example/register?token=abc/",
+                "http://admin:secret@legacy.example:80/register?token=abc",
+                "http://legacy.example/register?token=abc",
+                "http://admin:secret@legacy.example/register?token=abc ",
+                " http://admin:secret@legacy.example/register?token=abc",
+                "http://admin:secret@legacy.example/register?token=ABC"};
+        PendingCleanupRetryRepository.recordFailure(context, active, 1_000L);
+        for (String spelling : otherSpellings) {
+            PendingCleanupRetryRepository.recordFailure(context, spelling, 1_000L);
+        }
+
+        int removed = PendingCleanupRetryRepository.removeOrphans(context, new String[] {active});
+
+        assertEquals("every other spelling is another entry, whatever resource it names",
+                otherSpellings.length, removed);
+        assertEquals("1,31000,86401000", prefs.getString(RECORD_KEY_PREFIX + active, null));
+        for (String spelling : otherSpellings) {
+            assertNull("the record of '" + spelling + "' is dead",
+                    prefs.getString(RECORD_KEY_PREFIX + spelling, null));
+        }
+    }
+
+    @Test
+    public void anEntryThatContainsTheKeySeparatorIsStillMatchedExactly() {
+        String entry = "http://host.example:8080/a:b:c";
+        PendingCleanupRetryRepository.recordFailure(context, entry, 1_000L);
+        PendingCleanupRetryRepository.recordFailure(context, "http://host.example:8080/a", 1_000L);
+
+        assertEquals(1, PendingCleanupRetryRepository.removeOrphans(context, new String[] {entry}));
+
+        assertEquals("1,31000,86401000", prefs.getString(RECORD_KEY_PREFIX + entry, null));
+        assertNull(prefs.getString(RECORD_KEY_PREFIX + "http://host.example:8080/a", null));
+    }
+
+    @Test
+    public void noActiveEntryAtAllMeansEveryRecordIsDead() {
+        PendingCleanupRetryRepository.recordFailure(context, "http://a.example/register", 1_000L);
+        PendingCleanupRetryRepository.recordFailure(context, "http://b.example/register", 1_000L);
+
+        assertEquals(2, PendingCleanupRetryRepository.removeOrphans(context, new String[0]));
+
+        for (String key : prefs.getAll().keySet()) {
+            assertFalse(key, key.startsWith(RECORD_KEY_PREFIX));
+        }
+    }
+
+    @Test
+    public void sweepingDoesNothingWhenTheCallerDoesNotKnowItsEntries() {
+        PendingCleanupRetryRepository.recordFailure(context, ENTRY, 1_000L);
+
+        assertEquals("unknown entries are not 'no entries': nothing may be deleted", 0,
+                PendingCleanupRetryRepository.removeOrphans(context, null));
+        assertEquals(0, PendingCleanupRetryRepository.removeOrphans(null, new String[0]));
+
+        assertEquals("1,31000,86401000", prefs.getString(RECORD_KEY_PREFIX + ENTRY, null));
+    }
+
+    @Test
+    public void sweepingTwiceRemovesNothingTheSecondTimeAndNeverTouchesWhatIsGone() {
+        PendingCleanupRetryRepository.recordFailure(context, ENTRY, 1_000L);
+        PendingCleanupRetryRepository.recordFailure(context, "http://dead.example/register", 1_000L);
+
+        assertEquals(1, PendingCleanupRetryRepository.removeOrphans(context, new String[] {ENTRY}));
+        assertEquals(0, PendingCleanupRetryRepository.removeOrphans(context, new String[] {ENTRY}));
+
+        assertEquals("1,31000,86401000", prefs.getString(RECORD_KEY_PREFIX + ENTRY, null));
+    }
+
     private static void assertFresh(PendingCleanupRetryRepository.RetryState state, long now) {
         assertEquals(0, state.attempts);
         assertEquals("a fresh record is due immediately", now, state.nextAttemptAt);
