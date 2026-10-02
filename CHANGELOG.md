@@ -17,11 +17,19 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18` and `1.9.19` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19` and `1.9.20` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.20] - Unreleased
+
+### Changed
+- #722: Row text of the allowed, observed and prevented access point lists is the same in every language: line 1 is the network name, line 2 the BSSID with its band in brackets (unchanged). The stable entry number no longer leads the title as `#<id> · `; it follows the name in brackets (`Office (2)`) and only where the same network name is carried by several known access points (`meshCount > 1`, the same rule as the mesh label). A name carried by one access point has no number; rows that are no stored entry have none either. With the privacy mode on the title is `Name hidden #n` (n per network name, unchanged) with the entry number behind it (`Name hidden #1 (2)`), so a row has exactly one `#`. Origin of the old prefix: it was hard-coded in `NetworkListActivity.buildAccessPointRow` (`"#" + entry.id + " · " + title`, #714), not in `KeepADBNetworkDisplay`; the new bracket format is composed by `KeepADBNetworkDisplay.withApNumber`. No string resources changed, so no locale file differs; the privacy mode, trust decisions and the BSSID/band line are untouched. The "Current" badge in front of the current row (`Current · title`) is unchanged.
+
+### Testing
+- #722: `NetworkListActivityTest` gains two tests (normal and privacy mode, several access points of one name plus a single one: number behind the name, never in front, no ` · `, at most one `#`) and 17 existing assertions were adjusted to the new row text. Without the production change the two new tests are red.
 
 ## [1.9.19] - Unreleased
 

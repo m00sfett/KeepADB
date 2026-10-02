@@ -1,0 +1,1 @@
+The list of allowed access points now reads the same in every language: the network name comes first, with the number of the access point in brackets behind it when several share that name, and the address with its band below. With the privacy mode on, hidden names keep their "#" number and the access point number follows in brackets. Which networks are allowed does not change.
