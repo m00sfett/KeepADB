@@ -198,33 +198,48 @@ public class KeepADBNetworkRobustnessBehaviorTest {
      * ConcurrentHashMap's unspecified iteration order.
      */
     @Test
-    public void getWifiIpv4AddressIsDeterministicRegardlessOfDeliveryOrder() throws Exception {
-        Network lowerHandleNetwork = ShadowNetwork.newInstance(5001);
-        Network higherHandleNetwork = ShadowNetwork.newInstance(5002);
+    public void getWifiIpv4AddressPrefersTheLowerHandleWhenTheHigherArrivesFirst() throws Exception {
+        assertLowestHandleAddressIsSelected(true);
+    }
+
+    @Test
+    public void getWifiIpv4AddressPrefersTheLowerHandleWhenTheLowerArrivesFirst() throws Exception {
+        assertLowestHandleAddressIsSelected(false);
+    }
+
+    private void assertLowestHandleAddressIsSelected(boolean deliverHigherHandleFirst) throws Exception {
+        // These handles deliberately occupy opposite ends of the initial ConcurrentHashMap
+        // table: without the production sort, the higher handle is visited first.
+        Network lowerHandleNetwork = ShadowNetwork.newInstance(5009);
+        Network higherHandleNetwork = ShadowNetwork.newInstance(5024);
+        assertTrue("Fixture must have distinct handles in ascending order",
+                lowerHandleNetwork.getNetworkHandle() < higherHandleNetwork.getNetworkHandle());
+
         NetworkCapabilities wifiCaps = eligibleWifiCapabilities();
         LinkProperties propsLower = linkPropertiesWithIpv4("10.0.0.11");
         LinkProperties propsHigher = linkPropertiesWithIpv4("10.0.0.22");
-
-        // Deliver the higher-handle network first, then the lower-handle one, to prove the
-        // result does not depend on arrival order.
         KeepADBNetwork network = KeepADBNetwork.get(context);
         ConnectivityManager connectivityManager = context.getSystemService(ConnectivityManager.class);
         ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
 
+        Network firstNetwork = deliverHigherHandleFirst ? higherHandleNetwork : lowerHandleNetwork;
+        LinkProperties firstProperties = deliverHigherHandleFirst ? propsHigher : propsLower;
+        Network secondNetwork = deliverHigherHandleFirst ? lowerHandleNetwork : higherHandleNetwork;
+        LinkProperties secondProperties = deliverHigherHandleFirst ? propsLower : propsHigher;
         deliverToAllCallbacks(shadowConnectivityManager,
-                callback -> callback.onCapabilitiesChanged(higherHandleNetwork, wifiCaps));
+                callback -> callback.onCapabilitiesChanged(firstNetwork, wifiCaps));
         deliverToAllCallbacks(shadowConnectivityManager,
-                callback -> callback.onLinkPropertiesChanged(higherHandleNetwork, propsHigher));
+                callback -> callback.onLinkPropertiesChanged(firstNetwork, firstProperties));
         deliverToAllCallbacks(shadowConnectivityManager,
-                callback -> callback.onCapabilitiesChanged(lowerHandleNetwork, wifiCaps));
+                callback -> callback.onCapabilitiesChanged(secondNetwork, wifiCaps));
         deliverToAllCallbacks(shadowConnectivityManager,
-                callback -> callback.onLinkPropertiesChanged(lowerHandleNetwork, propsLower));
+                callback -> callback.onLinkPropertiesChanged(secondNetwork, secondProperties));
 
         String first = network.getWifiIpv4Address();
         String second = network.getWifiIpv4Address();
 
         assertEquals("Repeated calls against the same tracked state must agree", first, second);
-        assertEquals("The lower Network#getNetworkHandle() candidate must be picked deterministically",
+        assertEquals("The lower Network#getNetworkHandle() candidate must win regardless of delivery order",
                 "10.0.0.11", first);
     }
 
