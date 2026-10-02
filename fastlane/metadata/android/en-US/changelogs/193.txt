@@ -1,0 +1,1 @@
+With "Observe access points" turned on, an access point that is out of range still shows the Wi-Fi band it was last seen on, for example 5 GHz. If no band is known, nothing is shown next to the address anymore. Turning the option off deletes the saved bands.

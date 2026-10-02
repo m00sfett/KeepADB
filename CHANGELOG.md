@@ -17,11 +17,33 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19` and `1.9.20` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20` and `1.9.21` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.21] - Unreleased
+
+### Added
+- #721: While "Observe access points" is on, the last Wi-Fi band seen for a BSSID is stored with the observation history, so an access point that is out of the scan cache keeps showing where it was last seen, e.g. `AA:BB:CC:DD:EE:01 (5 GHz)`. Storage is an additive field of `KeepADBBssidHistory` in the same `keepadb_prefs` (`bssid_history_<id>_bands`, `BSSID=band` pairs): only the latest band per BSSID, overwritten by a newer reading, no band history and no timestamp. The bounds of the history carry over (8 BSSIDs per SSID, 50 SSIDs; an evicted BSSID or SSID takes its band along), and it disappears on uninstall like the rest. Data written by earlier versions has no such field and simply shows no stored band. The band is recorded from the connection's live reading together with the observation of the current access point (`KeepADBNetworkCard.refresh`); a reading without a usable frequency changes nothing. No new setting, receiver, permission or scan trigger.
+- #721: Display priority in all three lists (allowed, observed, prevented): the live band (cached scan or current connection) wins, the stored band fills the gap, and with neither known nothing is shown (`KeepADBAccessPointBand.displayBand`).
+
+### Changed
+- #721: With no known band the BSSID line now shows the bare address: no brackets and no placeholder text. The string `network_band_unknown` ("Band unknown") is removed from all 19 locales; `network_bssid_with_band` stays for the known-band case.
+- #721: `network_observation_hint` (the explanation under "Observe access points") now mentions the band in all 19 locales.
+
+### Removed
+- #721: The `network_band_unknown` string in every locale and the "(Band unknown)" suffix.
+
+### Security
+- #721 (privacy): Turning "Observe access points" off deletes every stored band (`KeepADBPreferences.setWifiApsFeatureEnabled(false)` calls `KeepADBBssidHistory.clearBands`), including orphaned band fields of SSIDs that are no longer listed. Turning it on again does not bring them back, and while the option is off the stored bands are not read either, so only the live band shows. Note: the BSSID history itself is retained when the option is turned off (#654, pinned by `turningObservationOffStopsSettingsRefreshAndKeepsHistory`); only the bands are deleted. The band stays display only and never enters a trust decision; the privacy mode still masks the address only, not the band.
+
+### Testing
+- #721: `KeepADBBssidHistoryTest` (+9: store, overwrite, unknown keeps the earlier band, no band without SSID/BSSID, 8-per-SSID and 50-SSID eviction taking bands along, clearing incl. orphans while the history stays, data without a bands field, malformed stored values), `KeepADBAccessPointBandTest` (display priority, garbage values, stored bands read only with the option on, no `network_band_unknown` in any locale, contract list of band users extended by the history and the Network card), `KeepADBPreferencesTest` (+1: off deletes the bands and keeps the history, on deletes nothing), `SettingsNetworkCardTest` (+3: recorded and overwritten with the observation, nothing stored with the option off, switching off in Settings deletes), `NetworkListActivityTest` (+6, 10 assertions adjusted to the bare address: no brackets or placeholder, stored band shown, live beats stored, allowed and prevented view, privacy mask, off shows only live and the setter deletes), `KeepADBNetworkDisplayTest` (adjusted). Thirteen production mutations in a disposable copy (live/stored swapped, setter not clearing, clearing on enable instead of disable, card storing without the option, stored bands read with the option off, unknown band overwriting, no pruning on BSSID and on SSID eviction, empty brackets for an unknown band, a known BSSID ignoring a new band, clearing that misses orphans, clearing that also removes the history, stored bands only in one view) each turn at least one test red. Not checked on a device.
+
+### Documentation
+- #721: `docs/trusted-networks.md` describes the stored band, its limits, its deletion and that nothing is shown without a band.
 
 ## [1.9.20] - Unreleased
 
