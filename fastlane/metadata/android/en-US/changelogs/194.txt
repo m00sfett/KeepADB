@@ -1,0 +1,1 @@
+The dialog for naming an access point now shows its number in brackets, like the access point list, for example "Name for access point (2)". The wording is adjusted in all languages.

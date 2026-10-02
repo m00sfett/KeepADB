@@ -886,6 +886,8 @@ public class NetworkListActivityTest {
         assertTrue(dialog.isShowing());
         assertEquals(context.getString(R.string.network_ap_rename_title, 1),
                 String.valueOf(shadowOf(dialog).getTitle()));
+        assertFalse("Dialog title shows the entry number in brackets, not as #n",
+                String.valueOf(shadowOf(dialog).getTitle()).contains("#"));
         EditText field = nameField(dialog);
         assertEquals("No own name yet: the field starts empty", "", field.getText().toString());
         assertEquals(context.getString(R.string.network_ap_rename_hint), field.getHint().toString());

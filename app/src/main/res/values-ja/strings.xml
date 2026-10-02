@@ -372,7 +372,7 @@
     <string name="network_view_prevented_reason">理由：アクセスポイントが許可リストにありませんでした。</string>
     <string name="network_ap_allowed_toast">アクセスポイント「%1$s」を許可しました</string>
     <string name="network_ap_removed_toast">アクセスポイント「%1$s」を許可リストから削除しました</string>
-    <string name="network_ap_rename_title">アクセスポイント #%1$d の名前</string>
+    <string name="network_ap_rename_title">アクセスポイントの名前 (%1$d)</string>
     <string name="network_ap_rename_message">独自の名前を付けられます。この名前はこれらの一覧に表示され、この端末にのみ保存されます。ネットワーク名や許可したアクセスポイントは変わりません。</string>
     <string name="network_ap_rename_hint">独自の名前</string>
     <string name="network_ap_rename_reset">リセット</string>

@@ -372,7 +372,7 @@
     <string name="network_view_prevented_reason">Motivo: o ponto de acesso não estava na lista de permitidos.</string>
     <string name="network_ap_allowed_toast">Ponto de acesso “%1$s” permitido</string>
     <string name="network_ap_removed_toast">Ponto de acesso “%1$s” removido da lista de permitidos</string>
-    <string name="network_ap_rename_title">Nome do ponto de acesso #%1$d</string>
+    <string name="network_ap_rename_title">Nome do ponto de acesso (%1$d)</string>
     <string name="network_ap_rename_message">Escolha um nome próprio. Ele aparece nestas listas, fica guardado só neste dispositivo e não altera o nome da rede nem os pontos de acesso permitidos.</string>
     <string name="network_ap_rename_hint">Nome próprio</string>
     <string name="network_ap_rename_reset">Redefinir</string>
