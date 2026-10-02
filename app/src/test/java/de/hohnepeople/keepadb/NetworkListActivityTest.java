@@ -151,7 +151,7 @@ public class NetworkListActivityTest {
                 findButton(current).getText().toString());
 
         List<String> listed = allText(activity.findViewById(R.id.wifi_aps_list));
-        assertTrue(joined(listed), listed.contains("#1 \u00b7 Office"));
+        assertTrue(joined(listed), listed.contains("Office"));
         assertEquals("Only the explicitly allowed access point follows the current one", 1,
                 ((LinearLayout) activity.findViewById(R.id.wifi_aps_list)).getChildCount());
     }
@@ -312,7 +312,7 @@ public class NetworkListActivityTest {
 
         LinearLayout list = activity.findViewById(R.id.wifi_aps_list);
         List<String> rendered = allText(list);
-        assertTrue(rendered.toString(), rendered.contains("#1 \u00b7 MyOfficeNetwork"));
+        assertTrue(rendered.toString(), rendered.contains("MyOfficeNetwork"));
         assertTrue(rendered.toString(), rendered.contains(
                 "AA:BB:CC:DD:EE:FF (" + context.getString(R.string.network_band_unknown) + ")"));
         List<Button> buttons = findButtons(list);
@@ -336,7 +336,7 @@ public class NetworkListActivityTest {
         NetworkListActivity allowed = open(NetworkListActivity.VIEW_ALLOWED);
         List<String> allowedTexts = allText(allowed.findViewById(R.id.wifi_aps_list));
         assertFalse(joined(allowedTexts), allowedTexts.contains("OfficeMesh"));
-        assertTrue(joined(allowedTexts), allowedTexts.contains("#1 \u00b7 Cafe"));
+        assertTrue(joined(allowedTexts), allowedTexts.contains("Cafe"));
 
         NetworkListActivity observed = open(NetworkListActivity.VIEW_OBSERVED);
         List<String> observedTexts = allText(observed.findViewById(R.id.wifi_aps_list));
@@ -374,7 +374,7 @@ public class NetworkListActivityTest {
                         context.getString(R.string.network_mode_option_aps)),
                 hint.getText().toString());
         assertTrue("The saved entry stays reachable",
-                allText(allWifi.findViewById(R.id.wifi_aps_list)).contains("#1 \u00b7 Cafe"));
+                allText(allWifi.findViewById(R.id.wifi_aps_list)).contains("Cafe"));
 
         // #654 visual acceptance: with the name matching on, the second option of the mode choice
         // reads "Allowed access points and Wi-Fi names", and the hint must say exactly that.
@@ -713,12 +713,64 @@ public class NetworkListActivityTest {
         NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
 
         List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
-        assertTrue(joined(texts), texts.contains("#1" + DOT + "HomeMesh"));
-        assertTrue(joined(texts), texts.contains("#2" + DOT + "HomeMesh"));
-        assertTrue(joined(texts), texts.contains("#3" + DOT + "HomeMesh"));
+        assertTrue(joined(texts), texts.contains("HomeMesh (1)"));
+        assertTrue(joined(texts), texts.contains("HomeMesh (2)"));
+        assertTrue(joined(texts), texts.contains("HomeMesh (3)"));
         for (int i = 1; i <= 3; i++) {
             assertTrue(joined(texts), texts.contains("AA:AA:AA:AA:AA:0" + i + " (" + bandUnknown() + ")"));
         }
+    }
+
+    /**
+     * #722: line 1 is the network name with the access point number in brackets behind it, line 2
+     * the address with the band; no row starts with a "#n" entry number or contains a " · " dot.
+     * A name carried by one access point only has no number at all.
+     */
+    @Test
+    public void rowTitlesCarryTheNumberBehindTheNameAndNeverInFront() {
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:01", "HomeMesh");
+        KeepADBTrustedNetwork.addBssid(context, "cc:cc:cc:cc:cc:01", "Cafe");
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:02", "HomeMesh");
+
+        NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
+
+        List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
+        assertTrue(joined(texts), texts.contains("HomeMesh (1)"));
+        assertTrue(joined(texts), texts.contains("HomeMesh (3)"));
+        assertTrue("A single access point of a name has no number: " + joined(texts),
+                texts.contains("Cafe"));
+        assertTrue(joined(texts), texts.contains("AA:AA:AA:AA:AA:02 (" + bandUnknown() + ")"));
+        for (String text : texts) {
+            assertFalse("No leading entry number: " + text, text.startsWith("#"));
+            assertFalse("No dot separator: " + text, text.contains(DOT));
+        }
+    }
+
+    /**
+     * #722: with the privacy mode on, the only "#" of a row is the one of the hidden name; the
+     * access point number follows it in brackets and the same name keeps the same "#n".
+     */
+    @Test
+    public void hiddenRowTitlesHaveExactlyOneHashAndTheApNumberInBrackets() {
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:01", "HomeMesh");
+        KeepADBTrustedNetwork.addBssid(context, "cc:cc:cc:cc:cc:01", "Cafe");
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:02", "HomeMesh");
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+
+        NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
+
+        String hidden = context.getString(R.string.network_privacy_name_hidden);
+        List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
+        assertTrue(joined(texts), texts.contains(hidden + " #1 (1)"));
+        assertTrue(joined(texts), texts.contains(hidden + " #1 (3)"));
+        assertTrue(joined(texts), texts.contains(hidden + " #2"));
+        for (String text : texts) {
+            assertFalse("No leading entry number: " + text, text.startsWith("#"));
+            assertFalse("No dot separator: " + text, text.contains(DOT));
+            assertTrue("At most one hash per text: " + text,
+                    text.indexOf('#') == text.lastIndexOf('#'));
+        }
+        assertFalse(joined(texts), joined(texts).contains("HomeMesh"));
     }
 
     @Test
@@ -738,33 +790,34 @@ public class NetworkListActivityTest {
         ShadowLooper.idleMainLooper();
 
         List<String> afterRemoval = allText(list);
-        assertTrue(joined(afterRemoval), afterRemoval.contains("#1" + DOT + "HomeMesh"));
+        assertTrue(joined(afterRemoval), afterRemoval.contains("HomeMesh (1)"));
         assertTrue("The row behind the gap keeps its number: " + joined(afterRemoval),
-                afterRemoval.contains("#3" + DOT + "HomeMesh"));
-        assertFalse(joined(afterRemoval), afterRemoval.contains("#2" + DOT + "HomeMesh"));
+                afterRemoval.contains("HomeMesh (3)"));
+        assertFalse(joined(afterRemoval), afterRemoval.contains("HomeMesh (2)"));
         assertEquals(2, list.getChildCount());
 
         KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:04", "HomeMesh");
         controller.pause().resume();
 
         List<String> afterAdding = allText(list);
-        assertTrue(joined(afterAdding), afterAdding.contains("#1" + DOT + "HomeMesh"));
-        assertTrue(joined(afterAdding), afterAdding.contains("#3" + DOT + "HomeMesh"));
+        assertTrue(joined(afterAdding), afterAdding.contains("HomeMesh (1)"));
+        assertTrue(joined(afterAdding), afterAdding.contains("HomeMesh (3)"));
         assertTrue("A new entry never takes the number of a removed one: " + joined(afterAdding),
-                afterAdding.contains("#4" + DOT + "HomeMesh"));
-        assertFalse(joined(afterAdding), afterAdding.contains("#2" + DOT + "HomeMesh"));
+                afterAdding.contains("HomeMesh (4)"));
+        assertFalse(joined(afterAdding), afterAdding.contains("HomeMesh (2)"));
     }
 
     @Test
     public void theCurrentRowNamesTheBadgeBeforeTheNumber() {
         connectTo("HomeMesh", "aa:aa:aa:aa:aa:01");
         KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:01", "HomeMesh");
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:02", "HomeMesh");
 
         NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
 
         List<String> texts = allText(activity.findViewById(R.id.wifi_aps_current_row));
         assertTrue(joined(texts), texts.contains(
-                context.getString(R.string.wifi_aps_current_badge) + DOT + "#1" + DOT + "HomeMesh"));
+                context.getString(R.string.wifi_aps_current_badge) + DOT + "HomeMesh (1)"));
     }
 
     /** Only a stored entry has a number and a name to edit; an observation is neither. */
@@ -799,7 +852,7 @@ public class NetworkListActivityTest {
 
         List<String> texts = allText(observed.findViewById(R.id.wifi_aps_list));
         assertTrue("Entry 2 is the observed one: " + joined(texts),
-                texts.contains("#2" + DOT + "OfficeMesh"));
+                texts.contains("OfficeMesh"));
     }
 
     @Test
@@ -813,7 +866,7 @@ public class NetworkListActivityTest {
         ViewGroup titleRow = (ViewGroup) pencil.getParent();
         TextView name = null;
         for (TextView candidate : findViews(titleRow, TextView.class)) {
-            if (candidate.getText().toString().equals("#1" + DOT + "Cafe")) name = candidate;
+            if (candidate.getText().toString().equals("Cafe")) name = candidate;
         }
         assertNotNull("The name is in the same row as the pencil", name);
         assertEquals("The pencil is the very next view after the name",
@@ -862,7 +915,7 @@ public class NetworkListActivityTest {
 
         assertEquals("Kitchen", KeepADBTrustedNetwork.getEntries(context).get(0).customName);
         List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
-        assertTrue(joined(texts), texts.contains("#1" + DOT + "Kitchen"));
+        assertTrue(joined(texts), texts.contains("Kitchen (1)"));
         assertTrue("The unchanged SSID stays in the row: " + joined(texts), texts.contains("Cafe"));
         assertTrue(joined(texts), texts.contains("CC:CC:CC:CC:CC:01 (" + bandUnknown() + ")"));
         // Trust and the action are exactly what they were.
@@ -890,7 +943,7 @@ public class NetworkListActivityTest {
         change.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
         ShadowLooper.idleMainLooper();
         assertEquals("Garage", KeepADBTrustedNetwork.getEntries(context).get(0).customName);
-        assertTrue(allText(activity.findViewById(R.id.wifi_aps_list)).contains("#1" + DOT + "Garage"));
+        assertTrue(allText(activity.findViewById(R.id.wifi_aps_list)).contains("Garage"));
 
         AlertDialog reset = openNameDialog(activity);
         assertEquals(context.getString(R.string.network_ap_rename_reset),
@@ -900,10 +953,9 @@ public class NetworkListActivityTest {
 
         assertNull(KeepADBTrustedNetwork.getEntries(context).get(0).customName);
         List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
-        assertTrue("Back to the default display: " + joined(texts), texts.contains("#1" + DOT + "Cafe"));
+        assertTrue("Back to the default display: " + joined(texts), texts.contains("Cafe"));
         assertFalse(joined(texts), texts.contains("Garage"));
-        assertEquals("The SSID is no longer repeated as a second line", 1, count(texts, "Cafe") + count(
-                texts, "#1" + DOT + "Cafe"));
+        assertEquals("The SSID is no longer repeated as a second line", 1, count(texts, "Cafe"));
     }
 
     @Test
@@ -926,7 +978,7 @@ public class NetworkListActivityTest {
         assertEquals("Dismissing keeps the saved name", "Kitchen",
                 KeepADBTrustedNetwork.getEntries(context).get(0).customName);
         assertTrue(allText(open(NetworkListActivity.VIEW_ALLOWED).findViewById(R.id.wifi_aps_list))
-                .contains("#1" + DOT + "Kitchen"));
+                .contains("Kitchen"));
     }
 
     @Test
@@ -956,8 +1008,8 @@ public class NetworkListActivityTest {
         ShadowLooper.idleMainLooper();
 
         List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
-        assertTrue(joined(texts), texts.contains("#1" + DOT + "HomeMesh"));
-        assertTrue(joined(texts), texts.contains("#2" + DOT + "Upstairs"));
+        assertTrue(joined(texts), texts.contains("HomeMesh (1)"));
+        assertTrue(joined(texts), texts.contains("Upstairs (2)"));
         assertNull(KeepADBTrustedNetwork.getEntries(context).get(0).customName);
     }
 
@@ -1055,7 +1107,7 @@ public class NetworkListActivityTest {
         NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
 
         List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
-        assertTrue(joined(texts), texts.contains("#1" + DOT + "AA:AA:AA:AA:AA:01 (2.4 GHz)"));
+        assertTrue(joined(texts), texts.contains("AA:AA:AA:AA:AA:01 (2.4 GHz)"));
         assertEquals("The address is not repeated in a second line", 1,
                 texts.stream().filter(text -> text.contains("AA:AA:AA:AA:AA:01")).count());
     }
@@ -1069,7 +1121,7 @@ public class NetworkListActivityTest {
         NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
 
         List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
-        assertTrue(joined(texts), texts.contains("#1" + DOT + "Hallway"));
+        assertTrue(joined(texts), texts.contains("Hallway"));
         assertTrue(joined(texts), texts.contains("AA:AA:AA:AA:AA:01 (" + bandUnknown() + ")"));
     }
 
@@ -1161,8 +1213,8 @@ public class NetworkListActivityTest {
 
         String hidden = context.getString(R.string.network_privacy_name_hidden);
         List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
-        assertTrue(joined(texts), texts.contains("#1 \u00b7 " + hidden + " #1"));
-        assertTrue(joined(texts), texts.contains("#2 \u00b7 " + hidden + " #2"));
+        assertTrue(joined(texts), texts.contains(hidden + " #1"));
+        assertTrue(joined(texts), texts.contains(hidden + " #2"));
         for (Button button : findButtons(activity.findViewById(R.id.wifi_aps_list))) {
             String description = button.getContentDescription().toString();
             assertTrue("Buttons stay distinguishable for TalkBack: " + description,
@@ -1191,9 +1243,10 @@ public class NetworkListActivityTest {
         Map<String, String> names = namesByMaskedAddress(activity);
         assertEquals(names.toString(), 5, names.size());
         assertEquals("The current access point", hidden + " #1", names.get("a1:*:*:*:*:a1"));
-        assertEquals("Same name as the current one", hidden + " #1", names.get("b2:*:*:*:*:b2"));
+        assertEquals("Same name as the current one, behind it the entry number", hidden + " #1 (1)",
+                names.get("b2:*:*:*:*:b2"));
         assertEquals("Another name", hidden + " #2", names.get("c3:*:*:*:*:c3"));
-        assertEquals("A second access point of the current name", hidden + " #1",
+        assertEquals("A second access point of the current name", hidden + " #1 (3)",
                 names.get("d4:*:*:*:*:d4"));
         assertEquals("A third name", hidden + " #3", names.get("e5:*:*:*:*:e5"));
         // The row action names its target with the same number, so TalkBack reads what is shown.

@@ -84,6 +84,15 @@ final class KeepADBNetworkDisplay {
         return hidden(context) ? placeholder(context, 0) : customName;
     }
 
+    /**
+     * #722: a row title with the access point's own number behind it in brackets, e.g.
+     * {@code Office (2)} or {@code Name hidden #1 (2)}. The only "#" in a row is the one of the
+     * hidden name; the access point number never leads the row.
+     */
+    static String withApNumber(String title, int apNumber) {
+        return title + " (" + apNumber + ")";
+    }
+
     /** The name if one is known, otherwise the BSSID -- each hidden or masked as required. */
     static String label(Context context, String ssid, String bssid, Numbering numbering) {
         if (ssid == null || ssid.isEmpty()) return bssid(context, bssid);

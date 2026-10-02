@@ -281,9 +281,12 @@ public class NetworkListActivity extends Activity {
         } else {
             title = bssidLine;
         }
-        // The entry number is the stable one of the stored entry (#714); rows that are no stored
-        // entry (observed, not allowed) have none.
-        if (entry != null) title = "#" + entry.id + " · " + title;
+        // #722: the stable number of the stored entry (#714) follows the name in brackets, and
+        // only where the same network name is shared by several access points. Rows that are no
+        // stored entry (observed, not allowed) have none.
+        if (entry != null && ssidKnown && item.meshCount > 1) {
+            title = KeepADBNetworkDisplay.withApNumber(title, entry.id);
+        }
         String primary = highlightCurrent
                 ? getString(R.string.wifi_aps_current_badge) + " · " + title : title;
         boolean allowlist = KeepADBTrustedNetwork.isAllowlistMode(this);
