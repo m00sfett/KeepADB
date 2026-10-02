@@ -30,6 +30,10 @@ are retrospective issue-version records and were never published as separate rel
 
 ### Testing
 - #710: Two behavior tests in `KeepADBRegisterCleanupLifecycleTest`: the stale second spelling causes no second DELETE and leaves no retry record; later entries of other resources are still flushed (and a failing one keeps its entry and record).
+- #711: A behavior test through the client commit path guards that queueing a pending cleanup again, without evicting a FIFO entry, keeps its spent retry record (`attempts`, `nextAttemptAt`, `expiresAt`). The commit block of `KeepADBRegisterClient` previously had this guarded only by a source-shape pin (review #707, O2). Test-only; no production change.
+
+### Candidate history
+- #710 and #711 independently bumped separate branches from 1.9.16 / versionCode 188 to 1.9.17 / 189. Both bumps were merged into one candidate (Stage A integration), so the entries are consolidated here under a single 1.9.17 / versionCode 189 and one `189.txt`. No further bump was needed and no 1.9.17 was published.
 
 ## [1.9.16] - Unreleased
 
