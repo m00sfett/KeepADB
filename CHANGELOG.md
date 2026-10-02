@@ -17,11 +17,16 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17` and `1.9.18` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18` and `1.9.19` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.19] - Unreleased
+
+### Testing
+- #718: `KeepADBRegisterCleanupLifecycleTest.aFailedReplacementPostLeavesTheQueuedCleanupAndItsSpentRetryRecordAlone` guards the POST-failure branch of the client commit path (follow-up to #711). When the replacement POST fails, an already queued cleanup keeps its FIFO position and its spent retry record (`attempts`, `nextAttemptAt`, `expiresAt`); nothing is removed, reset or queued again. The state is built with the same request-callback fixture as #711. Proof by mutation in a throwaway copy: removing the record of `cleanupToRemember` in the failure branch, and re-queueing plus removing it, turn the test red. Test-only; no production change, no change to FIFO, retry policy or persistence format.
 
 ## [1.9.18] - Unreleased
 
@@ -48,7 +53,7 @@ are retrospective issue-version records and were never published as separate rel
 
 ### Testing
 - #710: Two behavior tests in `KeepADBRegisterCleanupLifecycleTest`: the stale second spelling causes no second DELETE and leaves no retry record; later entries of other resources are still flushed (and a failing one keeps its entry and record).
-- #711: A behavior test through the client commit path guards that queueing a pending cleanup again, without evicting a FIFO entry, keeps its spent retry record (`attempts`, `nextAttemptAt`, `expiresAt`). The commit block of `KeepADBRegisterClient` previously had this guarded only by a source-shape pin (review #707, O2). Test-only; no production change.
+- #711: A behavior test through the client commit path guards that queueing a pending cleanup again, without evicting a FIFO entry, keeps its spent retry record (`attempts`, `nextAttemptAt`, `expiresAt`). The commit block of `KeepADBRegisterClient` previously had this guarded only by a source-shape pin (review #707, O2). Test-only; no production change. The test builds its state through a request-callback fixture (the old URL becomes the live registration and is queued with a spent record during the flush), because an ordinary transaction cannot reach it: the flush in front of the commit block drops a pending entry whose URL is the live registration (`hasLiveRegistrationAtUrl`). The guard is therefore defensive, not observable product behavior.
 
 ### Candidate history
 - #710 and #711 independently bumped separate branches from 1.9.16 / versionCode 188 to 1.9.17 / 189. Both bumps were merged into one candidate (Stage A integration), so the entries are consolidated here under a single 1.9.17 / versionCode 189 and one `189.txt`. No further bump was needed and no 1.9.17 was published.
