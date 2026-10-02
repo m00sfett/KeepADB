@@ -1,0 +1,1 @@
+A repeated network trust prompt no longer stacks a second dialog, and dismissed network or issue dialogs release their old references. A network stays untrusted until you confirm the existing allow prompt.
