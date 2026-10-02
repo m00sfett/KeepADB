@@ -354,7 +354,7 @@
     <string name="network_row_prevented">Pengaktifan ulang yang baru dicegah</string>
     <string name="network_row_observed">Lihat titik akses yang diamati</string>
     <string name="network_observation_title">Pengamatan Wi-Fi</string>
-    <string name="network_observation_hint">Menampilkan titik akses yang pernah terhubung dengan ponsel ini. Titik akses yang diizinkan dan pemeriksaan Keep-Alive bekerja terlepas dari opsi ini.</string>
+    <string name="network_observation_hint">Menampilkan titik akses yang pernah terhubung dengan ponsel ini, masing-masing dengan band terakhir yang terlihat. Titik akses yang diizinkan dan pemeriksaan Keep-Alive bekerja terlepas dari opsi ini.</string>
     <string name="network_ssid_title">Lanjutan: izinkan berdasarkan nama Wi-Fi</string>
     <string name="network_ssid_state_off">Mati</string>
     <string name="network_ssid_state_on">Aktif · Nama: %1$d</string>

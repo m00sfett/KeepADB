@@ -354,7 +354,7 @@
     <string name="network_row_prevented">Lần bật lại bị ngăn gần đây</string>
     <string name="network_row_observed">Xem điểm truy cập đã quan sát</string>
     <string name="network_observation_title">Quan sát Wi-Fi</string>
-    <string name="network_observation_hint">Liệt kê các điểm truy cập mà điện thoại này đã kết nối. Điểm truy cập được phép và việc kiểm tra của Keep-Alive hoạt động độc lập với tùy chọn này.</string>
+    <string name="network_observation_hint">Liệt kê các điểm truy cập mà điện thoại này đã kết nối, kèm băng tần nhìn thấy lần cuối của từng điểm. Điểm truy cập được phép và việc kiểm tra của Keep-Alive hoạt động độc lập với tùy chọn này.</string>
     <string name="network_ssid_title">Nâng cao: cho phép theo tên Wi-Fi</string>
     <string name="network_ssid_state_off">Tắt</string>
     <string name="network_ssid_state_on">Bật · Tên: %1$d</string>

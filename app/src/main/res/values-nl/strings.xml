@@ -354,7 +354,7 @@
     <string name="network_row_prevented">Onlangs voorkomen opnieuw inschakelen</string>
     <string name="network_row_observed">Waargenomen access points bekijken</string>
     <string name="network_observation_title">Wifi-observatie</string>
-    <string name="network_observation_hint">Toont de access points waarmee deze telefoon verbonden is geweest. Toegestane access points en de Keep-Alive-controle werken onafhankelijk van deze optie.</string>
+    <string name="network_observation_hint">Toont de access points waarmee deze telefoon verbonden is geweest, elk met de laatst geziene band. Toegestane access points en de Keep-Alive-controle werken onafhankelijk van deze optie.</string>
     <string name="network_ssid_title">Geavanceerd: toestaan via wifi-naam</string>
     <string name="network_ssid_state_off">Uit</string>
     <string name="network_ssid_state_on">Aan · Namen: %1$d</string>

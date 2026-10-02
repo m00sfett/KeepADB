@@ -354,7 +354,7 @@
     <string name="network_row_prevented">최근 방지된 재활성화</string>
     <string name="network_row_observed">관찰된 액세스 포인트 보기</string>
     <string name="network_observation_title">Wi-Fi 관찰</string>
-    <string name="network_observation_hint">이 휴대전화가 연결했던 액세스 포인트를 나열합니다. 허용된 액세스 포인트와 Keep-Alive 확인은 이 옵션과 관계없이 작동합니다.</string>
+    <string name="network_observation_hint">이 휴대전화가 연결했던 액세스 포인트를 마지막으로 확인된 대역과 함께 나열합니다. 허용된 액세스 포인트와 Keep-Alive 확인은 이 옵션과 관계없이 작동합니다.</string>
     <string name="network_ssid_title">고급: Wi-Fi 이름으로 허용</string>
     <string name="network_ssid_state_off">꺼짐</string>
     <string name="network_ssid_state_on">켜짐 · 이름: %1$d개</string>

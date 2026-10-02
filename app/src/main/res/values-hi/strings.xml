@@ -354,7 +354,7 @@
     <string name="network_row_prevented">हाल में रोका गया पुनः-सक्षमन</string>
     <string name="network_row_observed">देखे गए ऐक्सेस पॉइंट देखें</string>
     <string name="network_observation_title">Wi-Fi निगरानी</string>
-    <string name="network_observation_hint">उन ऐक्सेस पॉइंट की सूची दिखाता है जिनसे यह फ़ोन जुड़ा है। अनुमति प्राप्त ऐक्सेस पॉइंट और Keep-Alive की जाँच इस विकल्प से स्वतंत्र रूप से काम करते हैं।</string>
+    <string name="network_observation_hint">उन ऐक्सेस पॉइंट की सूची दिखाता है जिनसे यह फ़ोन जुड़ा है, हर एक के साथ आख़िरी बार दिखा बैंड। अनुमति प्राप्त ऐक्सेस पॉइंट और Keep-Alive की जाँच इस विकल्प से स्वतंत्र रूप से काम करते हैं।</string>
     <string name="network_ssid_title">उन्नत: Wi-Fi नाम से अनुमति</string>
     <string name="network_ssid_state_off">बंद</string>
     <string name="network_ssid_state_on">चालू · नाम: %1$d</string>

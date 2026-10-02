@@ -354,7 +354,7 @@
     <string name="network_row_prevented">Zuletzt verhindertes Wiedereinschalten</string>
     <string name="network_row_observed">Beobachtete Access Points ansehen</string>
     <string name="network_observation_title">WLAN-Beobachtung</string>
-    <string name="network_observation_hint">Führt die Access Points auf, mit denen dieses Handy verbunden war. Freigegebene Access Points und die Keep-Alive-Prüfung funktionieren unabhängig von dieser Option.</string>
+    <string name="network_observation_hint">Führt die Access Points auf, mit denen dieses Handy verbunden war, jeweils mit dem zuletzt gesehenen Band. Freigegebene Access Points und die Keep-Alive-Prüfung funktionieren unabhängig von dieser Option.</string>
     <string name="network_ssid_title">Erweitert: Freigabe nach WLAN-Namen</string>
     <string name="network_ssid_state_off">Aus</string>
     <string name="network_ssid_state_on">An · Namen: %1$d</string>

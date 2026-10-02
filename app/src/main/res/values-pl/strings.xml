@@ -354,7 +354,7 @@
     <string name="network_row_prevented">Ostatnio zapobiegnięte ponowne włączenia</string>
     <string name="network_row_observed">Pokaż zaobserwowane punkty dostępowe</string>
     <string name="network_observation_title">Obserwacja Wi-Fi</string>
-    <string name="network_observation_hint">Wyświetla punkty dostępowe, z którymi łączył się ten telefon. Dozwolone punkty dostępowe i sprawdzanie Keep-Alive działają niezależnie od tej opcji.</string>
+    <string name="network_observation_hint">Wyświetla punkty dostępowe, z którymi łączył się ten telefon, każdy z ostatnio widzianym pasmem. Dozwolone punkty dostępowe i sprawdzanie Keep-Alive działają niezależnie od tej opcji.</string>
     <string name="network_ssid_title">Zaawansowane: zezwalanie według nazwy Wi-Fi</string>
     <string name="network_ssid_state_off">Wyłączone</string>
     <string name="network_ssid_state_on">Włączone · Nazwy: %1$d</string>

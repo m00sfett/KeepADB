@@ -354,7 +354,7 @@
     <string name="network_row_prevented">最近防いだ再有効化</string>
     <string name="network_row_observed">検出したアクセスポイントを表示</string>
     <string name="network_observation_title">Wi-Fi の観測</string>
-    <string name="network_observation_hint">この端末が接続したアクセスポイントを一覧表示します。許可したアクセスポイントと Keep-Alive の確認は、このオプションとは無関係に動作します。</string>
+    <string name="network_observation_hint">この端末が接続したアクセスポイントを、最後に確認したバンドとともに一覧表示します。許可したアクセスポイントと Keep-Alive の確認は、このオプションとは無関係に動作します。</string>
     <string name="network_ssid_title">詳細設定：Wi-Fi 名で許可</string>
     <string name="network_ssid_state_off">オフ</string>
     <string name="network_ssid_state_on">オン · 名前：%1$d件</string>

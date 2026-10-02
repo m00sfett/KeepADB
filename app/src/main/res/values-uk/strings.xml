@@ -354,7 +354,7 @@
     <string name="network_row_prevented">Нещодавно запобігнуті повторні ввімкнення</string>
     <string name="network_row_observed">Показати помічені точки доступу</string>
     <string name="network_observation_title">Спостереження за Wi-Fi</string>
-    <string name="network_observation_hint">Показує точки доступу, до яких підключався цей телефон. Дозволені точки доступу та перевірка Keep-Alive працюють незалежно від цього параметра.</string>
+    <string name="network_observation_hint">Показує точки доступу, до яких підключався цей телефон, кожну з останнім побаченим діапазоном. Дозволені точки доступу та перевірка Keep-Alive працюють незалежно від цього параметра.</string>
     <string name="network_ssid_title">Додатково: дозвіл за назвою Wi-Fi</string>
     <string name="network_ssid_state_off">Вимк.</string>
     <string name="network_ssid_state_on">Увімк. · Назв: %1$d</string>

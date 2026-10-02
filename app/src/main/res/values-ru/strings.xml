@@ -354,7 +354,7 @@
     <string name="network_row_prevented">Недавно предотвращённые повторные включения</string>
     <string name="network_row_observed">Показать замеченные точки доступа</string>
     <string name="network_observation_title">Наблюдение за Wi-Fi</string>
-    <string name="network_observation_hint">Показывает точки доступа, к которым подключался этот телефон. Разрешённые точки доступа и проверка Keep-Alive работают независимо от этой опции.</string>
+    <string name="network_observation_hint">Показывает точки доступа, к которым подключался этот телефон, каждую с последним увиденным диапазоном. Разрешённые точки доступа и проверка Keep-Alive работают независимо от этой опции.</string>
     <string name="network_ssid_title">Дополнительно: разрешение по имени Wi-Fi</string>
     <string name="network_ssid_state_off">Выкл.</string>
     <string name="network_ssid_state_on">Вкл. · Имён: %1$d</string>

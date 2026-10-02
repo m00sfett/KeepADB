@@ -361,7 +361,7 @@
     <string name="network_row_prevented">Recently prevented re-enabling</string>
     <string name="network_row_observed">View observed access points</string>
     <string name="network_observation_title">Wi-Fi observation</string>
-    <string name="network_observation_hint">Lists the access points this phone has connected to. Allowed access points and the Keep-Alive check work independently of this option.</string>
+    <string name="network_observation_hint">Lists the access points this phone has connected to, each with the last band seen. Allowed access points and the Keep-Alive check work independently of this option.</string>
     <string name="network_ssid_title">Advanced: allow by Wi-Fi name</string>
     <string name="network_ssid_state_off">Off</string>
     <string name="network_ssid_state_on">On · Names: %1$d</string>

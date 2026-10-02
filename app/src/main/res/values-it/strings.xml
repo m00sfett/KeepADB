@@ -354,7 +354,7 @@
     <string name="network_row_prevented">Riattivazioni impedite di recente</string>
     <string name="network_row_observed">Mostra i punti di accesso osservati</string>
     <string name="network_observation_title">Osservazione Wi-Fi</string>
-    <string name="network_observation_hint">Elenca i punti di accesso a cui questo telefono si è connesso. I punti di accesso consentiti e il controllo di Keep-Alive funzionano indipendentemente da questa opzione.</string>
+    <string name="network_observation_hint">Elenca i punti di accesso a cui questo telefono si è connesso, ciascuno con l’ultima banda rilevata. I punti di accesso consentiti e il controllo di Keep-Alive funzionano indipendentemente da questa opzione.</string>
     <string name="network_ssid_title">Avanzate: consenti tramite nome Wi-Fi</string>
     <string name="network_ssid_state_off">Disattivato</string>
     <string name="network_ssid_state_on">Attivo · Nomi: %1$d</string>

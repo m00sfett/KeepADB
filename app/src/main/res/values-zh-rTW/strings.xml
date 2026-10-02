@@ -354,7 +354,7 @@
     <string name="network_row_prevented">最近阻止的重新啟用</string>
     <string name="network_row_observed">檢視已觀察到的存取點</string>
     <string name="network_observation_title">Wi-Fi 觀察</string>
-    <string name="network_observation_hint">列出此手機連接過的存取點。已允許的存取點與 Keep-Alive 的檢查不依賴此選項。</string>
+    <string name="network_observation_hint">列出此手機連接過的存取點，並附上各自最後一次看到的頻段。已允許的存取點與 Keep-Alive 的檢查不依賴此選項。</string>
     <string name="network_ssid_title">進階：依 Wi-Fi 名稱允許</string>
     <string name="network_ssid_state_off">關閉</string>
     <string name="network_ssid_state_on">開啟 · 名稱：%1$d</string>

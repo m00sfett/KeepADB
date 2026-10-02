@@ -354,7 +354,7 @@
     <string name="network_row_prevented">Son engellenen yeniden etkinleştirmeler</string>
     <string name="network_row_observed">Gözlemlenen erişim noktalarını göster</string>
     <string name="network_observation_title">Wi-Fi gözlemi</string>
-    <string name="network_observation_hint">Bu telefonun bağlandığı erişim noktalarını listeler. İzin verilen erişim noktaları ve Keep-Alive denetimi bu seçenekten bağımsız çalışır.</string>
+    <string name="network_observation_hint">Bu telefonun bağlandığı erişim noktalarını, her birinin son görülen bandıyla birlikte listeler. İzin verilen erişim noktaları ve Keep-Alive denetimi bu seçenekten bağımsız çalışır.</string>
     <string name="network_ssid_title">Gelişmiş: Wi-Fi adıyla izin ver</string>
     <string name="network_ssid_state_off">Kapalı</string>
     <string name="network_ssid_state_on">Açık · Adlar: %1$d</string>

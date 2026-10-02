@@ -354,7 +354,7 @@
     <string name="network_row_prevented">إعادة التفعيل التي مُنعت مؤخرًا</string>
     <string name="network_row_observed">عرض نقاط الوصول المرصودة</string>
     <string name="network_observation_title">رصد Wi-Fi</string>
-    <string name="network_observation_hint">يعرض نقاط الوصول التي اتصل بها هذا الهاتف. تعمل نقاط الوصول المسموح بها وفحص Keep-Alive بشكل مستقل عن هذا الخيار.</string>
+    <string name="network_observation_hint">يعرض نقاط الوصول التي اتصل بها هذا الهاتف، مع آخر نطاق شوهد لكل منها. تعمل نقاط الوصول المسموح بها وفحص Keep-Alive بشكل مستقل عن هذا الخيار.</string>
     <string name="network_ssid_title">متقدم: السماح بحسب اسم Wi-Fi</string>
     <string name="network_ssid_state_off">متوقف</string>
     <string name="network_ssid_state_on">مفعّل · الأسماء: %1$d</string>
