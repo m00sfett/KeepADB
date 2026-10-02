@@ -96,382 +96,6 @@
                 android:textSize="13sp" />
         </LinearLayout>
 
-        <!-- Webhook Section -->
-        <LinearLayout
-            android:id="@+id/settings_webhook_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/settings_webhook_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_webhook_title"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/settings_webhook_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="+"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/settings_webhook_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <Switch
-                    android:id="@+id/settings_webhook_toggle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_webhook_toggle"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="17sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="12dp"
-                    android:fontFamily="sans-serif"
-                    android:text="@string/settings_webhook_subtext"
-                    android:textColor="@color/night_muted"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_webhook_url_label"
-                    android:textColor="@color/night_text"
-                    android:textSize="15sp" />
-
-                <EditText
-                    android:id="@+id/settings_webhook_url"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:background="@drawable/bg_input"
-                    android:fontFamily="monospace"
-                    android:hint="@string/settings_webhook_url_hint"
-                    android:inputType="textUri"
-                    android:minHeight="48dp"
-                    android:padding="12dp"
-                    android:textColor="@color/night_text"
-                    android:textColorHint="@color/night_muted"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/settings_webhook_error"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:accessibilityLiveRegion="polite"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/link_red"
-                    android:textSize="13sp"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/settings_webhook_cleartext_warning"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:accessibilityLiveRegion="polite"
-                    android:fontFamily="sans-serif"
-                    android:text="@string/settings_webhook_cleartext_warning"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="13sp"
-                    android:visibility="gone" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:gravity="end"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/settings_webhook_clear"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:background="@drawable/bg_btn_secondary"
-                        android:fontFamily="sans-serif-condensed"
-                        android:minHeight="48dp"
-                        android:paddingStart="16dp"
-                        android:paddingTop="8dp"
-                        android:paddingEnd="16dp"
-                        android:paddingBottom="8dp"
-                        android:text="@string/settings_webhook_btn_clear"
-                        android:textColor="@color/text_yellow"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <Button
-                        android:id="@+id/settings_webhook_save"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_btn_primary"
-                        android:fontFamily="sans-serif-condensed"
-                        android:minHeight="48dp"
-                        android:paddingStart="16dp"
-                        android:paddingTop="8dp"
-                        android:paddingEnd="16dp"
-                        android:paddingBottom="8dp"
-                        android:text="@string/settings_webhook_btn_save"
-                        android:textColor="@color/title_yellow"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- #520/#529: "USB-ADB" is the only collapsible level for these settings. Collapsed,
-             only the outer title is visible; expanding it reveals the notification and USB ->
-             Wifi-ADB handover sections directly, with no nested header/body/arrow controls. -->
-        <LinearLayout
-            android:id="@+id/settings_usb_adb_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_panel"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/settings_usb_adb_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <!-- #514: decorative card icon, kept out of the accessibility tree since
-                     the adjacent title text already names the section (same pattern as
-                     ic_warning/ic_keepadb elsewhere in the app). -->
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginEnd="8dp"
-                    android:importantForAccessibility="no"
-                    android:src="@drawable/ic_usb" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_section_usb_adb"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/settings_usb_adb_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:importantForAccessibility="no"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="+"
-                    android:textColor="@color/title_yellow"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/settings_usb_adb_body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-        <!-- USB-ADB Notification Section (#529: directly visible inside the outer body) -->
-        <LinearLayout
-            android:id="@+id/settings_usb_notification_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/settings_usb_notification_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:accessibilityHeading="true"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_usb_notification"
-                android:textColor="@color/title_yellow"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-                <Switch
-                    android:id="@+id/settings_usb_notification_toggle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:minHeight="48dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_usb_notification_toggle"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="17sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif"
-                    android:text="@string/settings_usb_notification_subtext"
-                    android:textColor="@color/night_muted"
-                    android:textSize="13sp" />
-
-                <Switch
-                    android:id="@+id/settings_usb_profile_notification_toggle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:minHeight="48dp"
-                    android:fontFamily="sans-serif-condensed"
-                    android:text="@string/settings_usb_profile_notification_toggle"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="17sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif"
-                    android:text="@string/settings_usb_profile_notification_subtext"
-                    android:textColor="@color/night_muted"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/settings_usb_profile_summary"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:fontFamily="sans-serif"
-                    android:textColor="@color/night_text"
-                    android:textSize="14sp" />
-
-                <Button
-                    android:id="@+id/settings_usb_profile_action"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_btn_secondary"
-                    android:fontFamily="sans-serif-condensed"
-                    android:minHeight="48dp"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:text="@string/usb_profile_create_button"
-                    android:textColor="@color/text_yellow"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="@color/border_red" />
-
-        <!-- USB -> Wifi-ADB Handover Section (#168/#529: directly visible inside the outer body) -->
-        <LinearLayout
-            android:id="@+id/settings_usb_handover_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/settings_usb_handover_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:accessibilityHeading="true"
-                android:fontFamily="sans-serif-condensed"
-                android:text="@string/settings_section_usb_handover"
-                android:textColor="@color/title_yellow"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="sans-serif"
-                    android:text="@string/settings_usb_handover_subtext"
-                    android:textColor="@color/night_muted"
-                    android:textSize="13sp" />
-
-                <LinearLayout
-                    android:id="@+id/settings_usb_handover_selector"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:background="@drawable/bg_card_clickable"
-                    android:clickable="true"
-                    android:contentDescription="@string/settings_usb_handover_label"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:minHeight="48dp"
-                    android:orientation="horizontal"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:id="@+id/settings_usb_handover_selected_text"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:fontFamily="sans-serif-condensed"
-                        android:text="@string/settings_usb_handover_mode_off"
-                        android:textColor="@color/text_yellow"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-condensed"
-                        android:text="▼"
-                        android:textColor="@color/title_yellow"
-                        android:textSize="14sp" />
-                </LinearLayout>
-        </LinearLayout>
-
-            </LinearLayout>
-        </LinearLayout>
-
         <!-- #519/#618/#654: "Network" is a collapsible outer card. Collapsed, only the title and
              the active mode are visible; expanded, the body reads top to bottom as: the current
              connection with its cause and fitting action, the mode choice, the background-access
@@ -483,7 +107,7 @@
             android:id="@+id/settings_network_beta_panel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:background="@drawable/bg_panel"
             android:orientation="vertical">
 
@@ -1116,6 +740,382 @@
                             android:visibility="gone" />
                     </LinearLayout>
                 </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Webhook Section -->
+        <LinearLayout
+            android:id="@+id/settings_webhook_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/settings_webhook_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_webhook_title"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_webhook_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_webhook_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <Switch
+                    android:id="@+id/settings_webhook_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_webhook_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_webhook_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_webhook_url_label"
+                    android:textColor="@color/night_text"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:id="@+id/settings_webhook_url"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input"
+                    android:fontFamily="monospace"
+                    android:hint="@string/settings_webhook_url_hint"
+                    android:inputType="textUri"
+                    android:minHeight="48dp"
+                    android:padding="12dp"
+                    android:textColor="@color/night_text"
+                    android:textColorHint="@color/night_muted"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/settings_webhook_error"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/link_red"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/settings_webhook_cleartext_warning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:accessibilityLiveRegion="polite"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_webhook_cleartext_warning"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:gravity="end"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/settings_webhook_clear"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/bg_btn_secondary"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:paddingStart="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="8dp"
+                        android:text="@string/settings_webhook_btn_clear"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/settings_webhook_save"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_btn_primary"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:paddingStart="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingEnd="16dp"
+                        android:paddingBottom="8dp"
+                        android:text="@string/settings_webhook_btn_save"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- #520/#529: "USB-ADB" is the only collapsible level for these settings. Collapsed,
+             only the outer title is visible; expanding it reveals the notification and USB ->
+             Wifi-ADB handover sections directly, with no nested header/body/arrow controls. -->
+        <LinearLayout
+            android:id="@+id/settings_usb_adb_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/settings_usb_adb_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:orientation="horizontal">
+
+                <!-- #514: decorative card icon, kept out of the accessibility tree since
+                     the adjacent title text already names the section (same pattern as
+                     ic_warning/ic_keepadb elsewhere in the app). -->
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_usb" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_section_usb_adb"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_usb_adb_arrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="+"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/settings_usb_adb_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+        <!-- USB-ADB Notification Section (#529: directly visible inside the outer body) -->
+        <LinearLayout
+            android:id="@+id/settings_usb_notification_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/settings_usb_notification_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_section_usb_notification"
+                android:textColor="@color/title_yellow"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+                <Switch
+                    android:id="@+id/settings_usb_notification_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_usb_notification_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_usb_notification_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <Switch
+                    android:id="@+id/settings_usb_profile_notification_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_usb_profile_notification_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_usb_profile_notification_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/settings_usb_profile_summary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/night_text"
+                    android:textSize="14sp" />
+
+                <Button
+                    android:id="@+id/settings_usb_profile_action"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_btn_secondary"
+                    android:fontFamily="sans-serif-condensed"
+                    android:minHeight="48dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="@string/usb_profile_create_button"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@color/border_red" />
+
+        <!-- USB -> Wifi-ADB Handover Section (#168/#529: directly visible inside the outer body) -->
+        <LinearLayout
+            android:id="@+id/settings_usb_handover_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/settings_usb_handover_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/settings_section_usb_handover"
+                android:textColor="@color/title_yellow"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_usb_handover_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:id="@+id/settings_usb_handover_selector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_card_clickable"
+                    android:clickable="true"
+                    android:contentDescription="@string/settings_usb_handover_label"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:id="@+id/settings_usb_handover_selected_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_usb_handover_mode_off"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="▼"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="14sp" />
+                </LinearLayout>
+        </LinearLayout>
+
             </LinearLayout>
         </LinearLayout>
 
