@@ -372,4 +372,14 @@
     <string name="network_view_prevented_reason">Motif : le point d’accès ne figurait pas dans la liste d’autorisés.</string>
     <string name="network_ap_allowed_toast">Point d’accès « %1$s » autorisé</string>
     <string name="network_ap_removed_toast">Point d’accès « %1$s » retiré de la liste d’autorisés</string>
+    <string name="network_ap_rename_title">Nom du point d’accès #%1$d</string>
+    <string name="network_ap_rename_message">Choisissez un nom personnel. Il s’affiche dans ces listes, n’est enregistré que sur cet appareil et ne modifie ni le nom du réseau ni les points d’accès autorisés.</string>
+    <string name="network_ap_rename_hint">Nom personnalisé</string>
+    <string name="network_ap_rename_reset">Réinitialiser</string>
+    <string name="network_ap_rename_accessibility">Renommer le point d’accès « %1$s »</string>
+    <string name="network_band_24">2,4 GHz</string>
+    <string name="network_band_5">5 GHz</string>
+    <string name="network_band_6">6 GHz</string>
+    <string name="network_band_unknown">Bande inconnue</string>
+    <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

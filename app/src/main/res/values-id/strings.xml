@@ -372,4 +372,14 @@
     <string name="network_view_prevented_reason">Alasan: titik akses tidak ada dalam daftar yang diizinkan.</string>
     <string name="network_ap_allowed_toast">Titik akses “%1$s” diizinkan</string>
     <string name="network_ap_removed_toast">Titik akses “%1$s” dihapus dari daftar yang diizinkan</string>
+    <string name="network_ap_rename_title">Nama untuk titik akses #%1$d</string>
+    <string name="network_ap_rename_message">Pilih nama Anda sendiri. Nama ini tampil di daftar ini, hanya disimpan di perangkat ini, dan tidak mengubah nama jaringan maupun titik akses yang diizinkan.</string>
+    <string name="network_ap_rename_hint">Nama sendiri</string>
+    <string name="network_ap_rename_reset">Setel ulang</string>
+    <string name="network_ap_rename_accessibility">Ganti nama titik akses “%1$s”</string>
+    <string name="network_band_24">2,4 GHz</string>
+    <string name="network_band_5">5 GHz</string>
+    <string name="network_band_6">6 GHz</string>
+    <string name="network_band_unknown">Band tidak diketahui</string>
+    <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

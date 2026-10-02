@@ -372,4 +372,14 @@
     <string name="network_view_prevented_reason">Reden: het access point stond niet op de lijst met toegestane access points.</string>
     <string name="network_ap_allowed_toast">Access point ‘%1$s’ toegestaan</string>
     <string name="network_ap_removed_toast">Access point ‘%1$s’ van de lijst met toegestane access points verwijderd</string>
+    <string name="network_ap_rename_title">Naam voor access point #%1$d</string>
+    <string name="network_ap_rename_message">Kies een eigen naam. Die verschijnt in deze lijsten, wordt alleen op dit apparaat opgeslagen en verandert niets aan de netwerknaam of aan de toegestane access points.</string>
+    <string name="network_ap_rename_hint">Eigen naam</string>
+    <string name="network_ap_rename_reset">Resetten</string>
+    <string name="network_ap_rename_accessibility">Access point ‘%1$s’ hernoemen</string>
+    <string name="network_band_24">2,4 GHz</string>
+    <string name="network_band_5">5 GHz</string>
+    <string name="network_band_6">6 GHz</string>
+    <string name="network_band_unknown">Band onbekend</string>
+    <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

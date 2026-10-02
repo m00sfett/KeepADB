@@ -372,4 +372,14 @@
     <string name="network_view_prevented_reason">Motivo: il punto di accesso non era nella lista dei consentiti.</string>
     <string name="network_ap_allowed_toast">Punto di accesso «%1$s» consentito</string>
     <string name="network_ap_removed_toast">Punto di accesso «%1$s» rimosso dalla lista dei consentiti</string>
+    <string name="network_ap_rename_title">Nome del punto di accesso #%1$d</string>
+    <string name="network_ap_rename_message">Scegli un nome tutto tuo. Viene mostrato in questi elenchi, è salvato solo su questo dispositivo e non modifica né il nome della rete né i punti di accesso consentiti.</string>
+    <string name="network_ap_rename_hint">Nome personalizzato</string>
+    <string name="network_ap_rename_reset">Ripristina</string>
+    <string name="network_ap_rename_accessibility">Rinomina il punto di accesso «%1$s»</string>
+    <string name="network_band_24">2,4 GHz</string>
+    <string name="network_band_5">5 GHz</string>
+    <string name="network_band_6">6 GHz</string>
+    <string name="network_band_unknown">Banda sconosciuta</string>
+    <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>
