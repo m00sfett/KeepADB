@@ -17,11 +17,19 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15` and `1.9.16` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16` and `1.9.17` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.17] - Unreleased
+
+### Fixed
+- #710: `KeepADBRegisterClient.flushPendingCleanups` now skips a snapshot entry that is no longer in the current pending FIFO. When two spellings of the same legacy URL (e.g. different userinfo) were queued, the first successful DELETE already removed both entries, but the loop still processed the stale second one: a redundant DELETE and, if that failed, an orphan retry record until the next flush's orphan sweep. Retry keys, FIFO cap, retry policy, locks and the orphan sweep are unchanged.
+
+### Testing
+- #710: Two behavior tests in `KeepADBRegisterCleanupLifecycleTest`: the stale second spelling causes no second DELETE and leaves no retry record; later entries of other resources are still flushed (and a failing one keeps its entry and record).
 
 ## [1.9.16] - Unreleased
 
