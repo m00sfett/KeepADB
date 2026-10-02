@@ -871,7 +871,8 @@ public class KeepADBRegisterCleanupLifecycleTest {
      * The failure side of the commit path (#718, follow-up to #711): when the replacement POST
      * fails, the commit block does not run, so an entry that is pending already keeps its queue
      * position and its spent retry record ({@code attempts}, {@code nextAttemptAt}, {@code expiresAt}), and the old
-     * URL's cleanup ({@code cleanupToRemember}) is neither queued, nor removed, nor reset.
+     * URL's cleanup ({@code cleanupToRemember}) is neither removed nor reset. The fixture has
+     * queued that entry already, so a bare re-queueing is a no-op here (see below).
      *
      * <p>The state is built the same way as in the success test above, through the request
      * callback during the flush, because a normal transaction cannot reach it
@@ -880,8 +881,11 @@ public class KeepADBRegisterCleanupLifecycleTest {
      * <p>Which violation would stay green: one that only touches the success branch (that is
      * the test above), and one that changes an entry other than the queued-again old URL and
      * the untouched neighbour, or that changes the retry record only after this test's last
-     * assertion (e.g. a later flush). A removal of the record or a fresh queueing of
-     * {@code cleanupToRemember} in the failure branch turns this test red.
+     * assertion (e.g. a later flush). Removing the record of {@code cleanupToRemember} in the
+     * failure branch turns this test red, and so does queueing it again combined with removing
+     * the record. A bare {@code addPendingWebhookCleanupUrl(cleanupToRemember)} stays green: the
+     * entry is already queued, so the add is idempotent. Its harmful case (entry not queued,
+     * backlog full, oldest entry evicted) is not reachable through this fixture.
      */
     @Test
     public void aFailedReplacementPostLeavesTheQueuedCleanupAndItsSpentRetryRecordAlone()
