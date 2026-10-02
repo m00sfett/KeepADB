@@ -1,0 +1,1 @@
+Saving a valid webhook URL in the settings now also switches on webhook sync if it was off. You no longer have to tap the switch separately afterwards.

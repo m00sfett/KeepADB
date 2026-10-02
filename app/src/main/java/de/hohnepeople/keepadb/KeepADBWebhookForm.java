@@ -142,6 +142,19 @@ final class KeepADBWebhookForm {
         return inputUrl;
     }
 
+    /**
+     * The one enable path shared by the toggle and "save URL" (#733): persists the already valid,
+     * normalized URL, turns the webhook on, re-renders the toggle and kicks the coordinator.
+     */
+    private void activateWebhook(String validUrl) {
+        error.setVisibility(View.GONE);
+        KeepADBPreferences.setRegisterWebhookUrl(activity, validUrl);
+        KeepADBPreferences.setRegisterWebhookEnabled(activity, true);
+        toggle.setChecked(true);
+        KeepADBEndpointCoordinator.refresh(activity);
+        Toast.makeText(activity, R.string.settings_webhook_enabled_toast, Toast.LENGTH_SHORT).show();
+    }
+
     private void onToggleClicked() {
         boolean wantEnabled = toggle.isChecked();
         if (wantEnabled) {
@@ -153,11 +166,7 @@ final class KeepADBWebhookForm {
                 urlInput.requestFocus();
                 return;
             }
-            error.setVisibility(View.GONE);
-            KeepADBPreferences.setRegisterWebhookUrl(activity, inputUrl);
-            KeepADBPreferences.setRegisterWebhookEnabled(activity, true);
-            KeepADBEndpointCoordinator.refresh(activity);
-            Toast.makeText(activity, R.string.settings_webhook_enabled_toast, Toast.LENGTH_SHORT).show();
+            activateWebhook(inputUrl);
         } else {
             error.setVisibility(View.GONE);
             KeepADBRegisterClient.unregisterAndDisableAsync(activity);
@@ -186,11 +195,15 @@ final class KeepADBWebhookForm {
             error.setVisibility(View.VISIBLE);
             return;
         }
+        if (!KeepADBPreferences.isRegisterWebhookEnabled(activity)) {
+            // #733: saving a valid URL also switches the webhook on; its toast replaces "saved".
+            activateWebhook(inputUrl);
+            onChange.run();
+            return;
+        }
         error.setVisibility(View.GONE);
         KeepADBPreferences.setRegisterWebhookUrl(activity, inputUrl);
-        if (KeepADBPreferences.isRegisterWebhookEnabled(activity)) {
-            KeepADBEndpointCoordinator.refresh(activity);
-        }
+        KeepADBEndpointCoordinator.refresh(activity);
         Toast.makeText(activity, R.string.settings_webhook_saved_toast, Toast.LENGTH_SHORT).show();
         onChange.run();
     }
