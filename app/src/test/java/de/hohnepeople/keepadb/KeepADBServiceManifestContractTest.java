@@ -8,8 +8,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 
@@ -71,16 +74,24 @@ public class KeepADBServiceManifestContractTest {
                 "android.permission.ACCESS_BACKGROUND_LOCATION must be declared (#616)",
                 manifest.contains(
                         "<uses-permission android:name=\"android.permission.ACCESS_BACKGROUND_LOCATION\""));
-        // #697: the Network card controller (KeepADBNetworkCard) now holds the requestPermissions
-        // calls that used to live in SettingsActivity; the guard covers both files.
-        for (String source : new String[]{"MainActivity.java", "SettingsActivity.java",
-                "KeepADBNetworkCard.java", "KeepADBBackgroundLocation.java",
-                "KeepADBNetworkTrustPrompt.java"}) {
-            String code = read("app/src/main/java/de/hohnepeople/keepadb/" + source);
-            Matcher request = Pattern.compile("requestPermissions\\([^;]*ACCESS_BACKGROUND_LOCATION",
-                    Pattern.DOTALL).matcher(code);
-            assertFalse(source + " must never request ACCESS_BACKGROUND_LOCATION at runtime (#616)",
-                    request.find());
+        Path root = projectRoot();
+        Path mainSources = root.resolve("app/src/main");
+        try (Stream<Path> paths = Files.walk(mainSources)) {
+            List<Path> javaSources = paths
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().endsWith(".java"))
+                    .sorted()
+                    .collect(Collectors.toList());
+            assertFalse("No Java sources found under app/src/main", javaSources.isEmpty());
+            for (Path source : javaSources) {
+                String sourcePath = root.relativize(source).toString();
+                String code = new String(Files.readAllBytes(source), StandardCharsets.UTF_8);
+                Matcher request = Pattern.compile("requestPermissions\\([^;]*ACCESS_BACKGROUND_LOCATION",
+                        Pattern.DOTALL).matcher(code);
+                assertFalse(sourcePath
+                                + " must never request ACCESS_BACKGROUND_LOCATION at runtime (#616)",
+                        request.find());
+            }
         }
     }
 
