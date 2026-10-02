@@ -314,6 +314,10 @@
     <string name="widget_text_pending">Беспроводная отладка: переключение…</string>
     <string name="toggle_failed_toast">Не удалось переключить беспроводную отладку. Повторите попытку.</string>
     <string name="settings_wifi_aps_feature_toggle">Наблюдать за точками доступа</string>
+    <string name="settings_wifi_aps_off_title">Удалить историю точек доступа?</string>
+    <string name="settings_wifi_aps_off_message">Наблюдение отключено. В истории перечислены точки доступа, замеченные до сих пор под каждым именем сети. Удалить её сейчас или оставить на случай повторного включения наблюдения?</string>
+    <string name="settings_wifi_aps_off_delete">Да, удалить</string>
+    <string name="settings_wifi_aps_off_keep">Нет, оставить</string>
     <string name="settings_section_network">Сеть</string>
     <string name="network_head_mode">Автоматическое повторное включение: %1$s</string>
     <string name="network_mode_option_all_wifi">Во всех сетях Wi-Fi</string>

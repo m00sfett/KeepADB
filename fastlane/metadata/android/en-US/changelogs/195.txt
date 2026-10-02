@@ -1,0 +1,1 @@
+When you turn off "Observe access points", KeepADB now asks whether it should also delete the list of access points it has seen so far. Choose "Yes, delete" to remove it, or "No, keep" to keep it for later. Closing the question without an answer keeps the list.

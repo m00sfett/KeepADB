@@ -314,6 +314,10 @@
     <string name="widget_text_pending">Бездротове налагодження: перемикання…</string>
     <string name="toggle_failed_toast">Не вдалося перемкнути бездротове налагодження. Спробуйте ще раз.</string>
     <string name="settings_wifi_aps_feature_toggle">Спостерігати за точками доступу</string>
+    <string name="settings_wifi_aps_off_title">Видалити історію точок доступу?</string>
+    <string name="settings_wifi_aps_off_message">Спостереження вимкнено. В історії перелічено точки доступу, помічені досі під кожною назвою мережі. Видалити її зараз чи залишити на випадок повторного ввімкнення спостереження?</string>
+    <string name="settings_wifi_aps_off_delete">Так, видалити</string>
+    <string name="settings_wifi_aps_off_keep">Ні, залишити</string>
     <string name="settings_section_network">Мережа</string>
     <string name="network_head_mode">Автоматичне повторне ввімкнення: %1$s</string>
     <string name="network_mode_option_all_wifi">У всіх мережах Wi-Fi</string>

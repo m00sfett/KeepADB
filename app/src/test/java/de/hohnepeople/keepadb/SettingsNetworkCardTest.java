@@ -610,34 +610,132 @@ public class SettingsNetworkCardTest {
         assertEquals(trustBefore, trustSettings());
     }
 
-    @Test
-    public void turningObservationOffStopsSettingsRefreshAndKeepsHistory() {
+    /** Turns observation off in a freshly opened Settings and returns the question that follows. */
+    private AlertDialog turnObservationOffWithHistory(
+            ActivityController<SettingsActivity> controller) {
         KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
-        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:bb:cc:dd:ee:01");
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:bb:cc:dd:ee:01", 5200);
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:02");
-
-        SettingsActivity activity = open();
+        SettingsActivity activity = controller.get();
+        activity.refresh();
+        activity.findViewById(R.id.settings_network_beta_header).performClick();
+        ShadowLooper.idleMainLooper();
         assertEquals(java.util.Arrays.asList("aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"),
                 KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
-
         Switch observe = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
         assertTrue(observe.isChecked());
         observe.performClick();
-        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
+        ShadowLooper.idleMainLooper();
+        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
+        assertNotNull("Turning it off asks about the history", dialog);
+        assertTrue(dialog.isShowing());
+        assertFalse("Recording stops before the answer",
+                KeepADBPreferences.isWifiApsFeatureEnabled(context));
+        assertTrue("The stored bands are gone before the answer",
+                KeepADBBssidHistory.getStoredBands(context).isEmpty());
+        return dialog;
+    }
 
+    private void assertHistoryKeptAndNothingRecorded() {
+        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:03");
         activity.refresh();
-        assertEquals("Turning observation off retains prior entries and records no new one",
+        assertEquals("The history is retained and no new entry is recorded",
                 java.util.Arrays.asList("aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"),
                 KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
-
-        connectTo("HomeMesh", "aa:bb:cc:dd:ee:04");
-        SettingsActivity reopened = open();
-        assertFalse(((Switch) reopened.findViewById(R.id.settings_wifi_aps_feature_toggle))
+        assertFalse(((Switch) activity.findViewById(R.id.settings_wifi_aps_feature_toggle))
                 .isChecked());
-        assertEquals("Opening Settings while observation is off does not record either",
-                java.util.Arrays.asList("aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"),
-                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
+    }
+
+    @Test
+    public void answeringNoKeepsTheHistoryAndStopsRecording() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        AlertDialog dialog = turnObservationOffWithHistory(controller);
+        assertEquals(context.getString(R.string.settings_wifi_aps_off_title),
+                shadowOf(dialog).getTitle().toString());
+
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertFalse(dialog.isShowing());
+        assertHistoryKeptAndNothingRecorded();
+    }
+
+    @Test
+    public void answeringYesDeletesTheHistoryAndStopsRecording() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        AlertDialog dialog = turnObservationOffWithHistory(controller);
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertFalse(dialog.isShowing());
+        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
+        assertTrue(KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").isEmpty());
+        assertTrue(KeepADBBssidHistory.getRecentObservations(context).isEmpty());
+        assertTrue(KeepADBBssidHistory.getStoredBands(context).isEmpty());
+        assertTrue(prefs().getAll().keySet().stream().noneMatch(k -> k.startsWith("bssid_history_")));
+
+        SettingsActivity reopened = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:03");
+        reopened.refresh();
+        assertTrue("Nothing is recorded while it is off",
+                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").isEmpty());
+    }
+
+    @Test
+    public void cancellingTheQuestionCountsAsNo() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        AlertDialog dialog = turnObservationOffWithHistory(controller);
+
+        dialog.cancel();
+
+        assertFalse(dialog.isShowing());
+        assertHistoryKeptAndNothingRecorded();
+    }
+
+    @Test
+    public void rotatingSettingsDuringTheQuestionCountsAsNo() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        AlertDialog dialog = turnObservationOffWithHistory(controller);
+
+        controller.recreate();
+        ShadowLooper.idleMainLooper();
+
+        assertFalse("The question is dismissed with the activity", dialog.isShowing());
+        assertHistoryKeptAndNothingRecorded();
+        AlertDialog latest = ShadowAlertDialog.getLatestAlertDialog();
+        assertTrue("The question is not shown again", latest == null || !latest.isShowing());
+    }
+
+    @Test
+    public void destroyingSettingsDuringTheQuestionCountsAsNo() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        AlertDialog dialog = turnObservationOffWithHistory(controller);
+
+        controller.destroy();
+
+        assertFalse(dialog.isShowing());
+        assertHistoryKeptAndNothingRecorded();
+    }
+
+    @Test
+    public void turningObservationOnShowsNoQuestion() {
+        SettingsActivity activity = open();
+        ShadowDialog.reset();
+
+        ((Switch) activity.findViewById(R.id.settings_wifi_aps_feature_toggle)).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertTrue(KeepADBPreferences.isWifiApsFeatureEnabled(context));
+        AlertDialog latest = ShadowAlertDialog.getLatestAlertDialog();
+        assertTrue(latest == null || !latest.isShowing());
     }
 
     // --- last band seen (#721) ---------------------------------------------------------------

@@ -314,6 +314,10 @@
     <string name="widget_text_pending">Drahtloses Debugging: wird umgeschaltet …</string>
     <string name="toggle_failed_toast">Drahtloses Debugging konnte nicht umgeschaltet werden. Bitte erneut versuchen.</string>
     <string name="settings_wifi_aps_feature_toggle">Access Points beobachten</string>
+    <string name="settings_wifi_aps_off_title">Verlauf der Access Points löschen?</string>
+    <string name="settings_wifi_aps_off_message">Die Beobachtung ist jetzt aus. Der Verlauf listet die bisher unter jedem Netzwerknamen gesehenen Access Points auf. Jetzt löschen oder behalten, falls die Beobachtung wieder eingeschaltet wird?</string>
+    <string name="settings_wifi_aps_off_delete">Ja, löschen</string>
+    <string name="settings_wifi_aps_off_keep">Nein, behalten</string>
     <string name="settings_section_network">Netzwerk</string>
     <string name="network_head_mode">Automatisches Wiedereinschalten: %1$s</string>
     <string name="network_mode_option_all_wifi">In allen WLANs</string>

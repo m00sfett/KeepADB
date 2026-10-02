@@ -314,6 +314,10 @@
     <string name="widget_text_pending">Draadloze foutopsporing: omschakelen…</string>
     <string name="toggle_failed_toast">Draadloze foutopsporing kon niet worden omgeschakeld. Probeer het opnieuw.</string>
     <string name="settings_wifi_aps_feature_toggle">Access points waarnemen</string>
+    <string name="settings_wifi_aps_off_title">Geschiedenis van access points wissen?</string>
+    <string name="settings_wifi_aps_off_message">Waarnemen staat nu uit. De geschiedenis toont de access points die tot nu toe onder elke netwerknaam zijn gezien. Nu wissen, of bewaren voor het geval waarnemen weer wordt ingeschakeld?</string>
+    <string name="settings_wifi_aps_off_delete">Ja, wissen</string>
+    <string name="settings_wifi_aps_off_keep">Nee, bewaren</string>
     <string name="settings_section_network">Netwerk</string>
     <string name="network_head_mode">Automatisch opnieuw inschakelen: %1$s</string>
     <string name="network_mode_option_all_wifi">In alle wifi-netwerken</string>

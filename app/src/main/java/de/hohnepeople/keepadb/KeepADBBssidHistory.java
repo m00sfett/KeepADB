@@ -144,6 +144,23 @@ final class KeepADBBssidHistory {
         if (editor != null) editor.apply();
     }
 
+    /**
+     * Deletes the whole observation history (#731): every SSID, its BSSIDs and its stored bands.
+     * Only called after an explicit "Yes" in the dialog shown when "Observe access points" is
+     * turned off; nothing else clears the history.
+     */
+    static void clearHistory(Context context) {
+        SharedPreferences preferences = prefs(context);
+        SharedPreferences.Editor editor = null;
+        for (String key : preferences.getAll().keySet()) {
+            if (key != null && key.startsWith(PREFIX)) {
+                if (editor == null) editor = preferences.edit();
+                editor.remove(key);
+            }
+        }
+        if (editor != null) editor.apply();
+    }
+
     /** BSSIDs observed under {@code ssid} so far, oldest first. Empty if unknown/unseen. */
     static List<String> getKnownBssids(Context context, String ssid) {
         String cleanSsid = clean(ssid);
