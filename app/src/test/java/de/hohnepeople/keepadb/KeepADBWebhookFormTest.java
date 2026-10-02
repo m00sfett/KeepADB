@@ -48,6 +48,8 @@ public class KeepADBWebhookFormTest {
                 .getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE)
                 .edit().clear().commit();
         KeepADBRegisterClient.resetHttpTransport();
+        KeepADB.resetForTesting();
+        KeepADBEndpointCoordinator.resetForTesting();
     }
 
     private Activity newActivityWithSettingsLayout() {
@@ -177,6 +179,8 @@ public class KeepADBWebhookFormTest {
         assertNull("An empty save while disabled must clear the persisted URL",
                 KeepADBPreferences.getRegisterWebhookUrl(activity));
         assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertFalse("An empty save must not switch the toggle on",
+                ((Switch) activity.findViewById(R.id.settings_webhook_toggle)).isChecked());
         assertEquals(View.GONE, error.getVisibility());
         assertEquals(1, changeCount[0]);
     }
@@ -233,5 +237,94 @@ public class KeepADBWebhookFormTest {
         assertEquals(activity.getString(R.string.settings_webhook_error_missing_url),
                 error.getText().toString());
         assertEquals(0, changeCount[0]);
+    }
+
+    /** Counts coordinator refreshes that reach the endpoint listener (cached endpoint seeded). */
+    private int[] observeCoordinatorRefreshes() throws Exception {
+        android.app.Application app = RuntimeEnvironment.getApplication();
+        org.robolectric.Shadows.shadowOf(app)
+                .grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        java.lang.reflect.Field host = KeepADBEndpointCoordinator.class.getDeclaredField("currentHost");
+        host.setAccessible(true);
+        host.set(null, "192.168.1.50");
+        java.lang.reflect.Field port = KeepADBEndpointCoordinator.class.getDeclaredField("currentPort");
+        port.setAccessible(true);
+        port.set(null, 39123);
+        int[] refreshes = {0};
+        KeepADBEndpointCoordinator.setEndpointListener(new KeepADBEndpointCoordinator.EndpointListener() {
+            @Override public void onEndpoint(String h, int p) { refreshes[0]++; }
+            @Override public void onUnavailable() { }
+        });
+        refreshes[0] = 0;
+        return refreshes;
+    }
+
+    @Test
+    public void savingAValidUrlWhileDisabledAlsoActivatesTheWebhook() throws Exception {
+        Activity activity = newActivityWithSettingsLayout();
+        KeepADBRegisterClient.setHttpTransport(new KeepADBFakeHttpTransport());
+        int[] refreshes = observeCoordinatorRefreshes();
+        int[] changeCount = {0};
+        KeepADBWebhookForm form = new KeepADBWebhookForm(activity, () -> changeCount[0]++);
+
+        EditText input = activity.findViewById(R.id.settings_webhook_url);
+        Switch toggle = activity.findViewById(R.id.settings_webhook_toggle);
+        TextView error = activity.findViewById(R.id.settings_webhook_error);
+        input.setText("http://user:pw@100.111.111.21:50829/register/s20");
+        activity.findViewById(R.id.settings_webhook_save).performClick();
+
+        assertEquals("http://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.getRegisterWebhookUrl(activity));
+        assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertTrue("The toggle must show 'on'", toggle.isChecked());
+        assertEquals(View.GONE, error.getVisibility());
+        assertEquals("The coordinator must be refreshed exactly once", 1, refreshes[0]);
+        assertEquals(1, changeCount[0]);
+        assertEquals("Only the enabled toast, not a second 'saved' toast",
+                activity.getString(R.string.settings_webhook_enabled_toast),
+                org.robolectric.shadows.ShadowToast.getTextOfLatestToast());
+        assertEquals(1, org.robolectric.shadows.ShadowToast.shownToastCount());
+    }
+
+    @Test
+    public void savingAValidUrlWhileAlreadyEnabledKeepsTheSavedToastAndRefreshes() throws Exception {
+        Activity activity = newActivityWithSettingsLayout();
+        KeepADBRegisterClient.setHttpTransport(new KeepADBFakeHttpTransport());
+        KeepADBPreferences.setRegisterWebhookUrl(activity, "https://old.example/register/a");
+        KeepADBPreferences.setRegisterWebhookEnabled(activity, true);
+        int[] refreshes = observeCoordinatorRefreshes();
+        KeepADBWebhookForm form = new KeepADBWebhookForm(activity, () -> { });
+
+        EditText input = activity.findViewById(R.id.settings_webhook_url);
+        input.setText("https://new.example/register/a");
+        activity.findViewById(R.id.settings_webhook_save).performClick();
+
+        assertEquals("https://new.example/register/a", KeepADBPreferences.getRegisterWebhookUrl(activity));
+        assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertEquals(1, refreshes[0]);
+        assertEquals(activity.getString(R.string.settings_webhook_saved_toast),
+                org.robolectric.shadows.ShadowToast.getTextOfLatestToast());
+    }
+
+    @Test
+    public void savingAnInvalidUrlWhileDisabledActivatesNothing() throws Exception {
+        Activity activity = newActivityWithSettingsLayout();
+        int[] refreshes = observeCoordinatorRefreshes();
+        KeepADBWebhookForm form = new KeepADBWebhookForm(activity, () -> { });
+
+        EditText input = activity.findViewById(R.id.settings_webhook_url);
+        Switch toggle = activity.findViewById(R.id.settings_webhook_toggle);
+        TextView error = activity.findViewById(R.id.settings_webhook_error);
+        input.setText("not a url");
+        activity.findViewById(R.id.settings_webhook_save).performClick();
+
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertNull(KeepADBPreferences.getRegisterWebhookUrl(activity));
+        assertFalse(toggle.isChecked());
+        assertEquals(View.VISIBLE, error.getVisibility());
+        assertEquals(activity.getString(R.string.settings_webhook_error_invalid_url),
+                error.getText().toString());
+        assertEquals(0, refreshes[0]);
     }
 }

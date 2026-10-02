@@ -17,11 +17,19 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21` and `1.9.22` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22` and `1.9.23` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.23] - Unreleased
+
+### Changed
+- #733: "Save URL" in the webhook settings now also activates the webhook when the switch is off and the URL is valid and normalized: one shared enable path (`KeepADBWebhookForm.activateWebhook`, also used by the switch) persists the URL, sets `register_webhook_enabled`, shows the switch as on, calls `KeepADBEndpointCoordinator.refresh` and shows only the "Webhook sync enabled" toast. With the switch already on, saving behaves as before (save, refresh, "saved" toast). An invalid URL still shows the error and activates nothing; an empty field with the switch off still removes the URL without activating; an empty field with the switch on still shows the error. No new strings.
+
+### Testing
+- #733: `KeepADBWebhookFormTest` covers save-while-disabled (switch on, preference set, one coordinator refresh, single toast), save-while-enabled, invalid URL while disabled, and the empty-save case asserting the switch stays off.
 
 ## [1.9.22] - Unreleased
 
