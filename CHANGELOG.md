@@ -27,6 +27,7 @@ are retrospective issue-version records and were never published as separate rel
 
 ### Testing
 - #720: `KeepADBTrustedNetworkNamingTest.theNameLimitIsFortyCharacters` pins the optional AP-name limit of 40 as a literal (the existing tests only measured with `MAX_CUSTOM_NAME_LENGTH`). Proof by mutation in a throwaway copy: `MAX_CUSTOM_NAME_LENGTH` 40 to 41 turns the test red, restored it is green. No change to rename behavior or trust logic.
+- #724: `KeepADBRegisterCleanupLifecycleTest.aFailedReplacementPostDoesNotEvictFromAFullBacklogForAnUnqueuedCleanup` closes the remaining gap M3 of #718. With a full backlog of four foreign entries, a failed cleanup of the old URL (not queued) and a failed replacement POST, the pending order and all four spent retry records stay untouched. No callback fixture is needed: the state is the plain transaction state (old URL as local report, full backlog). Proof by mutation in a throwaway copy: `addPendingWebhookCleanupUrl(cleanupToRemember)` in the failure branch evicts the oldest entry and the test turns red (it was green for M3 before, in the #718 test). Test-only; no production change.
 
 ### Removed
 - #720: Unused string resource `wifi_aps_mesh_label` removed from all `values*/strings.xml` and from the resource contract test. It was no longer referenced by any code or layout. No user-visible change.

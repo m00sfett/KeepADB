@@ -884,8 +884,8 @@ public class KeepADBRegisterCleanupLifecycleTest {
      * assertion (e.g. a later flush). Removing the record of {@code cleanupToRemember} in the
      * failure branch turns this test red, and so does queueing it again combined with removing
      * the record. A bare {@code addPendingWebhookCleanupUrl(cleanupToRemember)} stays green: the
-     * entry is already queued, so the add is idempotent. Its harmful case (entry not queued,
-     * backlog full, oldest entry evicted) is not reachable through this fixture.
+     * entry is already queued, so the add is idempotent. The unqueued case is covered by
+     * {@code aFailedReplacementPostDoesNotEvictFromAFullBacklogForAnUnqueuedCleanup} (#724).
      */
     @Test
     public void aFailedReplacementPostLeavesTheQueuedCleanupAndItsSpentRetryRecordAlone()
@@ -927,6 +927,45 @@ public class KeepADBRegisterCleanupLifecycleTest {
                 SPENT_TWICE, retryRecord(OLD_URL));
         assertEquals("a neighbour keeps its record as well", SPENT_TWICE,
                 retryRecord(FULL_FIFO[0]));
+    }
+
+    /**
+     * The failure side with an entry that is NOT queued (#724, remaining gap M3 of #718): the
+     * backlog holds four foreign entries, the old URL's cleanup fails, then the replacement POST
+     * fails. The failure branch must not queue the old URL: that would evict the oldest foreign
+     * entry and leave its retry record behind. No callback fixture is needed, this is the normal
+     * state of a transaction (same setup as the superseded-update test below).
+     *
+     * <p>Which violation would stay green: one that only changes the success branch, and one that
+     * touches the pending set or the records only after this test's last assertion.
+     */
+    @Test
+    public void aFailedReplacementPostDoesNotEvictFromAFullBacklogForAnUnqueuedCleanup()
+            throws Exception {
+        configureWebhook(NEW_URL);
+        fillTheBacklogWithSpentRecords();
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
+        KeepADBRegisterClient.setWlanStateForTesting(OLD_URL, "192.168.1.50:41234");
+        transport.setDeleteSuccess(false);
+        transport.setPostSuccess(false);
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals("the replacement POST was attempted and failed",
+                KeepADBPreferences.WEBHOOK_STATUS_FAILED,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertEquals("the old URL's own cleanup failed in the transaction", 1,
+                countDeletes(OLD_URL));
+        assertEquals("nothing was queued, so nothing was evicted, the order is unchanged",
+                Arrays.asList(FULL_FIFO),
+                new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+        for (String entry : FULL_FIFO) {
+            assertEquals("no record of a pending entry was touched", SPENT_TWICE,
+                    retryRecord(entry));
+        }
     }
 
     /**
