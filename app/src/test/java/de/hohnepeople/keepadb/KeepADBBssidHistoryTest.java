@@ -1,16 +1,21 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
 /**
  * Unit tests for the mesh-BSSID observation history (#266): size-bounded per-SSID history,
- * oldest-entry eviction, and the no-entry-without-a-known-SSID rule.
+ * oldest-entry eviction, and the no-entry-without-a-known-SSID rule. #721 adds the last band seen
+ * per BSSID: stored, overwritten, bounded together with the history, deleted on request and
+ * absent (not broken) in data written before it existed.
  */
 public class KeepADBBssidHistoryTest {
 
@@ -163,6 +168,180 @@ public class KeepADBBssidHistoryTest {
     public void recentObservationsIsEmptyWithoutAnyRecordedHistory() {
         FakeContext context = new FakeContext();
         assertTrue(KeepADBBssidHistory.getRecentObservations(context).isEmpty());
+    }
+
+    // --- last band seen per BSSID (#721) ------------------------------------------------------
+
+    private static final int B24 = KeepADBAccessPointBand.GHZ_2_4;
+    private static final int B5 = KeepADBAccessPointBand.GHZ_5;
+    private static final int B6 = KeepADBAccessPointBand.GHZ_6;
+
+    @Test
+    public void storesTheBandSeenWithAnObservationPerBssid() {
+        FakeContext context = new FakeContext();
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01", B24);
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:02", B5);
+        KeepADBBssidHistory.recordObservation(context, "OfficeMesh", "bb:bb:bb:bb:bb:01", B6);
+
+        Map<String, Integer> bands = KeepADBBssidHistory.getStoredBands(context);
+
+        assertEquals(3, bands.size());
+        assertEquals(B24, (int) bands.get("AA:AA:AA:AA:AA:01"));
+        assertEquals(B5, (int) bands.get("AA:AA:AA:AA:AA:02"));
+        assertEquals(B6, (int) bands.get("BB:BB:BB:BB:BB:01"));
+        assertEquals("The BSSIDs themselves are stored as before",
+                java.util.Arrays.asList("aa:aa:aa:aa:aa:01", "aa:aa:aa:aa:aa:02"),
+                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
+    }
+
+    @Test
+    public void aNewObservationOverwritesTheBandAndKeepsNoHistoryOfBands() {
+        FakeContext context = new FakeContext();
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01", B24);
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "AA:AA:AA:AA:AA:01", B5);
+
+        Map<String, Integer> bands = KeepADBBssidHistory.getStoredBands(context);
+
+        assertEquals("Only the latest band is kept", 1, bands.size());
+        assertEquals(B5, (int) bands.get("AA:AA:AA:AA:AA:01"));
+        assertEquals("The BSSID is not duplicated by re-observing it", 1,
+                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").size());
+        String stored = ((String) context.getSharedPreferences("keepadb_prefs", 0)
+                .getAll().get("bssid_history_1_bands"));
+        assertEquals("No second pair, no timestamp", "AA:AA:AA:AA:AA:01=" + B5, stored);
+    }
+
+    @Test
+    public void anObservationWithoutAKnownBandStoresNothingAndKeepsTheEarlierBand() {
+        FakeContext context = new FakeContext();
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01");
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:02",
+                KeepADBAccessPointBand.UNKNOWN);
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:03", 7);
+        assertTrue("No band known, none stored", KeepADBBssidHistory.getStoredBands(context).isEmpty());
+        assertFalse(context.getSharedPreferences("keepadb_prefs", 0).getAll()
+                .containsKey("bssid_history_1_bands"));
+
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01", B6);
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01");
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01",
+                KeepADBAccessPointBand.UNKNOWN);
+
+        assertEquals("An unmeasured reading is no change of band", B6,
+                (int) KeepADBBssidHistory.getStoredBands(context).get("AA:AA:AA:AA:AA:01"));
+    }
+
+    @Test
+    public void aBandIsNeverStoredWithoutAKnownSsidOrBssid() {
+        FakeContext context = new FakeContext();
+        KeepADBBssidHistory.recordObservation(context, null, "aa:aa:aa:aa:aa:01", B5);
+        KeepADBBssidHistory.recordObservation(context, "  ", "aa:aa:aa:aa:aa:02", B5);
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", null, B5);
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "", B5);
+
+        assertTrue(KeepADBBssidHistory.getStoredBands(context).isEmpty());
+    }
+
+    @Test
+    public void anEvictedBssidTakesItsBandAlongAtThePerSsidLimit() {
+        FakeContext context = new FakeContext();
+        int total = KeepADBBssidHistory.MAX_BSSIDS_PER_SSID + 2;
+        for (int i = 1; i <= total; i++) {
+            KeepADBBssidHistory.recordObservation(context, "HomeMesh", bssid(i), B5);
+        }
+
+        Map<String, Integer> bands = KeepADBBssidHistory.getStoredBands(context);
+
+        assertEquals("Bands obey the same bound as the BSSIDs", KeepADBBssidHistory.MAX_BSSIDS_PER_SSID,
+                bands.size());
+        assertNull("The oldest BSSID's band is gone with it", bands.get(bssid(1).toUpperCase()));
+        assertNull(bands.get(bssid(2).toUpperCase()));
+        assertEquals(B5, (int) bands.get(bssid(3).toUpperCase()));
+        assertEquals(B5, (int) bands.get(bssid(total).toUpperCase()));
+    }
+
+    @Test
+    public void anEvictedSsidTakesTheBandsOfAllItsBssidsAlongAtTheSsidLimit() {
+        FakeContext context = new FakeContext();
+        for (int i = 1; i <= KeepADBBssidHistory.MAX_SSIDS + 2; i++) {
+            KeepADBBssidHistory.recordObservation(context, ssid(i), "aa:aa:aa:aa:aa:01", B24);
+            KeepADBBssidHistory.recordObservation(context, ssid(i), "aa:aa:aa:aa:aa:02", B5);
+        }
+
+        Map<String, Integer> bands = KeepADBBssidHistory.getStoredBands(context);
+        java.util.Map<String, ?> raw = context.getSharedPreferences("keepadb_prefs", 0).getAll();
+        long bandKeys = raw.keySet().stream().filter(k -> k.endsWith("_bands")).count();
+
+        assertEquals("One bands field per surviving SSID, none for the evicted ones",
+                KeepADBBssidHistory.MAX_SSIDS, bandKeys);
+        assertFalse("Evicted SSIDs 1 and 2 leave no band key", raw.containsKey("bssid_history_1_bands")
+                || raw.containsKey("bssid_history_2_bands"));
+        assertEquals("Both BSSIDs of an SSID share the two addresses, so they collapse to two keys",
+                2, bands.size());
+        assertEquals(B24, (int) bands.get("AA:AA:AA:AA:AA:01"));
+        assertEquals(B5, (int) bands.get("AA:AA:AA:AA:AA:02"));
+    }
+
+    @Test
+    public void clearingTheBandsRemovesEveryBandAndLeavesTheHistoryAlone() {
+        FakeContext context = new FakeContext();
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01", B24);
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:02", B5);
+        KeepADBBssidHistory.recordObservation(context, "OfficeMesh", "bb:bb:bb:bb:bb:01", B6);
+        // An orphan left by an id that is no longer listed must go too.
+        context.getSharedPreferences("keepadb_prefs", 0).edit()
+                .putString("bssid_history_99_bands", "CC:CC:CC:CC:CC:01=2").apply();
+        assertEquals(3, KeepADBBssidHistory.getStoredBands(context).size());
+
+        KeepADBBssidHistory.clearBands(context);
+
+        assertTrue(KeepADBBssidHistory.getStoredBands(context).isEmpty());
+        assertFalse(context.getSharedPreferences("keepadb_prefs", 0).getAll().keySet().stream()
+                .anyMatch(k -> k.endsWith("_bands")));
+        assertEquals(java.util.Arrays.asList("aa:aa:aa:aa:aa:01", "aa:aa:aa:aa:aa:02"),
+                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
+        assertEquals(3, KeepADBBssidHistory.getRecentObservations(context).size());
+
+        KeepADBBssidHistory.clearBands(context);
+        assertTrue("Clearing twice is harmless", KeepADBBssidHistory.getStoredBands(context).isEmpty());
+    }
+
+    /** Data written before #721 has no bands field: it reads as "no band" and keeps working. */
+    @Test
+    public void historyWrittenBeforeBandsExistedReadsAsWithoutBandsAndStaysUsable() {
+        FakeContext context = new FakeContext();
+        context.getSharedPreferences("keepadb_prefs", 0).edit()
+                .putInt("bssid_history_next_id", 2)
+                .putString("bssid_history_ssid_ids", "1")
+                .putString("bssid_history_1_ssid", "HomeMesh")
+                .putString("bssid_history_1_bssids", "aa:aa:aa:aa:aa:01,aa:aa:aa:aa:aa:02")
+                .apply();
+
+        assertTrue(KeepADBBssidHistory.getStoredBands(context).isEmpty());
+        assertEquals(2, KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").size());
+        assertEquals(2, KeepADBBssidHistory.getRecentObservations(context).size());
+
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:02", B5);
+
+        assertEquals("The old BSSIDs survive the first band write",
+                java.util.Arrays.asList("aa:aa:aa:aa:aa:01", "aa:aa:aa:aa:aa:02"),
+                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
+        assertEquals(B5, (int) KeepADBBssidHistory.getStoredBands(context).get("AA:AA:AA:AA:AA:02"));
+    }
+
+    @Test
+    public void malformedStoredBandValuesAreIgnoredNotFatal() {
+        FakeContext context = new FakeContext();
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01");
+        context.getSharedPreferences("keepadb_prefs", 0).edit()
+                .putString("bssid_history_1_bands",
+                        ",garbage,=2,AA:AA:AA:AA:AA:01=x,AA:AA:AA:AA:AA:02=9,AA:AA:AA:AA:AA:03=1")
+                .apply();
+
+        Map<String, Integer> bands = KeepADBBssidHistory.getStoredBands(context);
+
+        assertEquals(1, bands.size());
+        assertEquals(B24, (int) bands.get("AA:AA:AA:AA:AA:03"));
     }
 
     private static String ssid(int index) {

@@ -353,7 +353,7 @@
     <string name="network_row_prevented">Pengaktifan ulang yang baru dicegah</string>
     <string name="network_row_observed">Lihat titik akses yang diamati</string>
     <string name="network_observation_title">Pengamatan Wi-Fi</string>
-    <string name="network_observation_hint">Menampilkan titik akses yang pernah terhubung dengan ponsel ini. Titik akses yang diizinkan dan pemeriksaan Keep-Alive bekerja terlepas dari opsi ini.</string>
+    <string name="network_observation_hint">Menampilkan titik akses yang pernah terhubung dengan ponsel ini, masing-masing dengan band terakhir yang terlihat. Titik akses yang diizinkan dan pemeriksaan Keep-Alive bekerja terlepas dari opsi ini.</string>
     <string name="network_ssid_title">Lanjutan: izinkan berdasarkan nama Wi-Fi</string>
     <string name="network_ssid_state_off">Mati</string>
     <string name="network_ssid_state_on">Aktif · Nama: %1$d</string>
@@ -362,7 +362,8 @@
     <string name="network_ssid_effect_on">Aktif: titik akses yang terbaca dengan salah satu nama di bawah diterima, meskipun tanpa entri sendiri. Yang tidak terbaca tidak pernah diterima.</string>
     <string name="card_state_expanded">Terbuka</string>
     <string name="card_state_collapsed">Tertutup</string>
-    <string name="network_view_observed_title">Titik akses yang diamati</string>
+    <string name="network_view_allowed_title">AP yang diizinkan</string>
+    <string name="network_view_observed_title">AP yang diamati</string>
     <string name="network_view_allowed_intro">Titik akses yang sedang Anda pakai ada di paling atas, lalu setiap titik akses yang Anda izinkan sendiri. Tidak ada yang diizinkan hanya karena namanya sama.</string>
     <string name="network_view_prevented_intro">Riwayat otomatis titik akses tempat Keep-Alive tidak mengaktifkan ulang Debugging Nirkabel. Ini bukan daftar blokir dan Anda tidak dapat menambahkan entri sendiri.</string>
     <string name="network_view_observed_intro">Titik akses yang terlihat saat ponsel ini terhubung. Masuk dalam daftar tidak mengizinkan apa pun.</string>
@@ -379,6 +380,5 @@
     <string name="network_band_24">2,4 GHz</string>
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
-    <string name="network_band_unknown">Band tidak diketahui</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

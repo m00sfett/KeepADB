@@ -66,13 +66,15 @@ final class KeepADBNetworkDisplay {
 
     /**
      * The BSSID with its band directly behind it in brackets, e.g. {@code AA:BB:... (5 GHz)}
-     * (#714). {@code band} is a {@link KeepADBAccessPointBand} value; an unmeasured access point
-     * reads "Band unknown". The band is no secret, so only the address part follows the privacy
-     * mode.
+     * (#714). {@code band} is a {@link KeepADBAccessPointBand} value; with no known band (#721)
+     * only the BSSID is returned -- no brackets, no placeholder text. The band is no secret, so
+     * only the address part follows the privacy mode.
      */
     static String bssidWithBand(Context context, String bssid, int band) {
+        int label = KeepADBAccessPointBand.labelRes(band);
+        if (label == 0) return bssid(context, bssid);
         return context.getString(R.string.network_bssid_with_band, bssid(context, bssid),
-                context.getString(KeepADBAccessPointBand.labelRes(band)));
+                context.getString(label));
     }
 
     /**
@@ -82,6 +84,15 @@ final class KeepADBNetworkDisplay {
      */
     static String customName(Context context, String customName) {
         return hidden(context) ? placeholder(context, 0) : customName;
+    }
+
+    /**
+     * #722: a row title with the access point's own number behind it in brackets, e.g.
+     * {@code Office (2)} or {@code Name hidden #1 (2)}. The only "#" in a row is the one of the
+     * hidden name; the access point number never leads the row.
+     */
+    static String withApNumber(String title, int apNumber) {
+        return title + " (" + apNumber + ")";
     }
 
     /** The name if one is known, otherwise the BSSID -- each hidden or masked as required. */

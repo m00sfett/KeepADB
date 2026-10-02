@@ -353,7 +353,7 @@
     <string name="network_row_prevented">Riattivazioni impedite di recente</string>
     <string name="network_row_observed">Mostra i punti di accesso osservati</string>
     <string name="network_observation_title">Osservazione Wi-Fi</string>
-    <string name="network_observation_hint">Elenca i punti di accesso a cui questo telefono si è connesso. I punti di accesso consentiti e il controllo di Keep-Alive funzionano indipendentemente da questa opzione.</string>
+    <string name="network_observation_hint">Elenca i punti di accesso a cui questo telefono si è connesso, ciascuno con l’ultima banda rilevata. I punti di accesso consentiti e il controllo di Keep-Alive funzionano indipendentemente da questa opzione.</string>
     <string name="network_ssid_title">Avanzate: consenti tramite nome Wi-Fi</string>
     <string name="network_ssid_state_off">Disattivato</string>
     <string name="network_ssid_state_on">Attivo · Nomi: %1$d</string>
@@ -362,7 +362,8 @@
     <string name="network_ssid_effect_on">Attivo: vengono accettati i punti di accesso leggibili con uno dei nomi qui sotto, anche senza una voce propria. Quelli non leggibili mai.</string>
     <string name="card_state_expanded">Espanso</string>
     <string name="card_state_collapsed">Compresso</string>
-    <string name="network_view_observed_title">Punti di accesso osservati</string>
+    <string name="network_view_allowed_title">AP consentiti</string>
+    <string name="network_view_observed_title">AP osservati</string>
     <string name="network_view_allowed_intro">Prima il punto di accesso a cui sei connesso, poi ogni punto di accesso che hai consentito tu stesso. Nulla viene consentito solo perché condivide un nome.</string>
     <string name="network_view_prevented_intro">Cronologia automatica dei punti di accesso in cui Keep-Alive non ha riattivato il debug wireless. Non è una lista di blocco e non puoi aggiungere voci a mano.</string>
     <string name="network_view_observed_intro">Punti di accesso visti mentre questo telefono era connesso. Essere in elenco non consente nulla.</string>
@@ -379,6 +380,5 @@
     <string name="network_band_24">2,4 GHz</string>
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
-    <string name="network_band_unknown">Banda sconosciuta</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

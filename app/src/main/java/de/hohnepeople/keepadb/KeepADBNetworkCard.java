@@ -262,8 +262,12 @@ final class KeepADBNetworkCard {
         // observation option gates every write, including reads caused by opening Settings.
         KeepADBNetworkIdentity currentIdentity = KeepADBNetworkIdentity.current(activity);
         if (currentIdentity.isKnown() && KeepADBPreferences.isWifiApsFeatureEnabled(activity)) {
+            // #721: the band is stored together with the observation -- it is the one the
+            // connection reports right now, and only while the option is on.
+            int band = KeepADBAccessPointBand.bandOf(
+                    KeepADBAccessPointBand.read(activity), currentIdentity.bssid);
             KeepADBBssidHistory.recordObservation(
-                    activity, currentIdentity.displaySsid(), currentIdentity.bssid);
+                    activity, currentIdentity.displaySsid(), currentIdentity.bssid, band);
         }
 
         render(currentIdentity);

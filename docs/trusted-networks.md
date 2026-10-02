@@ -70,14 +70,25 @@ unverändert sichtbar, und der Name wirkt auf keine Freigabeentscheidung: Maßge
 BSSID. Bei eingeschaltetem Datenschutzmodus wird der Name wie der Netzwerkname ausgeblendet und das
 Stift-Symbol nicht angeboten.
 
-Hinter jeder BSSID steht in Klammern das Band, etwa `AA:BB:CC:DD:EE:01 (5 GHz)`, oder
-`(Band unbekannt)`. KeepADB löst dafür **keinen** WLAN-Scan aus und plant keinen. Gelesen werden
-beim Öffnen der Liste nur Daten, die Android bereits hält: die Frequenz der aktuellen Verbindung und
-die zwischengespeicherten Scanergebnisse des Systems, je BSSID. Zwei BSSIDs desselben Netzes, etwa die
-2,4- und die 5-GHz-Funkeinheit eines Routers, bleiben getrennte Einträge mit eigenem Band. Android
-gibt Scanergebnisse nur bei präzisem Standortzugriff und eingeschalteten Standortdiensten heraus und
-kann sie zeitweise veraltet halten; ohne verfügbare Frequenz bleibt es bei „Band unbekannt“, bis
-Android sie beim nächsten Öffnen der Liste liefert. Das Band wird nicht gespeichert.
+Hinter jeder BSSID steht in Klammern das Band, etwa `AA:BB:CC:DD:EE:01 (5 GHz)`. Ist kein Band
+bekannt, steht dort gar nichts: keine Klammern und kein Ersatztext. KeepADB löst dafür **keinen**
+WLAN-Scan aus und plant keinen. Gelesen werden beim Öffnen der Liste nur Daten, die Android bereits
+hält: die Frequenz der aktuellen Verbindung und die zwischengespeicherten Scanergebnisse des
+Systems, je BSSID. Zwei BSSIDs desselben Netzes, etwa die 2,4- und die 5-GHz-Funkeinheit eines
+Routers, bleiben getrennte Einträge mit eigenem Band. Android gibt Scanergebnisse nur bei präzisem
+Standortzugriff und eingeschalteten Standortdiensten heraus und kann sie zeitweise veraltet halten;
+ohne verfügbare Frequenz erscheint kein Band, bis Android sie beim nächsten Öffnen der Liste
+liefert.
+
+Nur wenn die Option **WLAN-Beobachtung** („Observe access points“) eingeschaltet ist, speichert
+KeepADB zusätzlich das zuletzt gesehene Band je BSSID in der Beobachtungshistorie
+(`keepadb_prefs`, Feld `bssid_history_<id>_bands`): nur das letzte Band, bei einer neuen
+Beobachtung überschrieben, ohne Verlauf und ohne Zeitstempel, mit denselben Grenzen wie die
+Historie (8 BSSIDs je Netzwerkname, 50 Netzwerknamen) und gelöscht bei Deinstallation. Es erscheint
+nur dort, wo Android das Band gerade nicht liefert; das aktuelle Band hat immer Vorrang. Beim
+Ausschalten der Option werden alle gespeicherten Bänder gelöscht; die Historie der BSSIDs bleibt
+bestehen. Ohne eingeschaltete Beobachtung wird nichts gespeichert und nur das aktuelle Band
+angezeigt. Das Band ist reine Anzeige und fließt nie in eine Freigabeentscheidung ein.
 
 ## Messgrenzen
 
