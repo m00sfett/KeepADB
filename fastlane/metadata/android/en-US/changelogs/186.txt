@@ -1,0 +1,1 @@
+Tightens an internal safety check for background location permissions. There is no visible change to app behavior.
