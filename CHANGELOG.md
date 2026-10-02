@@ -35,6 +35,9 @@ are retrospective issue-version records and were never published as separate rel
 - #729: `NetworkListActivityTest` covers a name repeated only outside the list (no number) and a name repeated inside the list (numbers kept).
 - #730: `KeepADBResourceContractTest.renameTitleShowsTheNumberInBracketsWithoutHashInEveryLocale` checks the compiled value of every locale bucket plus the default for no `#` and the `(%1$d)` form; `NetworkListActivityTest` asserts the dialog title has no `#`.
 
+### Documentation
+- #728: `docs/trusted-networks.md` describes the new display rule for access point entry numbers: format `Name (Nr.)`, number shown only when the same network name occurs at least twice in the currently displayed list, and privacy mode `Name hidden #n (Nr.)` (German `Name verborgen #n (Nr.)`) with one counter per entry. This section also covers the doc fix for #728 inside the merged `1.9.22` entry: #729, #730 and #728 ship as one candidate.
+
 ## [1.9.21] - Unreleased
 
 ### Added
