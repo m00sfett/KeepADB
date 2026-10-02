@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Pattern;
 
 import org.junit.Test;
 
@@ -36,6 +37,10 @@ import org.junit.Test;
  *       decision logic directly, never through {@link KeepADBEndpoint}'s production entry points.
  *       {@link KeepADBEndpointNetworkDelegationBehaviorTest} (#596, new) closes that gap.</li>
  * </ul>
+ * The {@code registerDefaultNetworkCallback()} contract checks executable source after stripping
+ * comments, so its explanatory comment cannot stand in for the actual registration call. The
+ * {@link KeepADBWifiAddressPolicyWiringTest#decidingAddsNoCallbackAndKeepsTheSingleTracker()}
+ * behavior test separately verifies that the tracker registers exactly three callbacks.
  * The remaining {@code getAllNetworks} absence check and {@link
  * #networkTrackingAvoidsTheApi31OnlyClearCapabilitiesCall()} stay intentionally static: both are
  * bans on specific deprecated/API-31-only platform methods for a minSdk-30 app, not assertions
@@ -78,7 +83,10 @@ public class KeepADBNetworkContractTest {
         // class javadoc legitimately mentions the method name itself to explain why it's
         // avoided (via a "Builder#clearCapabilities()" javadoc {@code} link, not a "."-call).
         assertFalse(network.contains(".clearCapabilities("));
-        assertTrue(network.contains("registerDefaultNetworkCallback"));
+        String code = stripComments(network);
+        assertTrue("The default-network callback must be registered by executable code",
+                Pattern.compile("\\bconnectivityManager\\s*\\.\\s*registerDefaultNetworkCallback\\s*\\(")
+                        .matcher(code).find());
         assertTrue(network.contains("addTransportType(NetworkCapabilities.TRANSPORT_WIFI)"));
         assertTrue(network.contains("hasTransport(NetworkCapabilities.TRANSPORT_WIFI)"));
         assertTrue(network.contains("!capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)"));
@@ -94,5 +102,10 @@ public class KeepADBNetworkContractTest {
             throw new IllegalStateException("Could not locate project root");
         }
         return new String(Files.readAllBytes(directory.resolve(relativePath)), StandardCharsets.UTF_8);
+    }
+
+    private static String stripComments(String source) {
+        return source.replaceAll("(?s)/\\*.*?\\*/", " ")
+                .replaceAll("(?m)//.*$", "");
     }
 }
