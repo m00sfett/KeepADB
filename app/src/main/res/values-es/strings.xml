@@ -314,6 +314,10 @@
     <string name="widget_text_pending">Depuración inalámbrica: cambiando…</string>
     <string name="toggle_failed_toast">No se pudo cambiar la depuración inalámbrica. Inténtalo de nuevo.</string>
     <string name="settings_wifi_aps_feature_toggle">Observar puntos de acceso</string>
+    <string name="settings_wifi_aps_off_title">¿Borrar el historial de puntos de acceso?</string>
+    <string name="settings_wifi_aps_off_message">La observación está desactivada. El historial enumera los puntos de acceso vistos hasta ahora bajo cada nombre de red. ¿Borrarlo ahora o conservarlo por si se vuelve a activar la observación?</string>
+    <string name="settings_wifi_aps_off_delete">Sí, borrar</string>
+    <string name="settings_wifi_aps_off_keep">No, conservar</string>
     <string name="settings_section_network">Red</string>
     <string name="network_head_mode">Reactivación automática: %1$s</string>
     <string name="network_mode_option_all_wifi">En todas las redes Wi-Fi</string>

@@ -314,6 +314,10 @@
     <string name="widget_text_pending">Débogage sans fil : changement en cours…</string>
     <string name="toggle_failed_toast">Impossible de changer le débogage sans fil. Veuillez réessayer.</string>
     <string name="settings_wifi_aps_feature_toggle">Observer les points d’accès</string>
+    <string name="settings_wifi_aps_off_title">Supprimer l’historique des points d’accès ?</string>
+    <string name="settings_wifi_aps_off_message">L’observation est désormais désactivée. L’historique répertorie les points d’accès vus jusqu’ici sous chaque nom de réseau. Le supprimer maintenant ou le conserver au cas où l’observation serait réactivée ?</string>
+    <string name="settings_wifi_aps_off_delete">Oui, supprimer</string>
+    <string name="settings_wifi_aps_off_keep">Non, conserver</string>
     <string name="settings_section_network">Réseau</string>
     <string name="network_head_mode">Réactivation automatique : %1$s</string>
     <string name="network_mode_option_all_wifi">Dans tous les réseaux Wi-Fi</string>

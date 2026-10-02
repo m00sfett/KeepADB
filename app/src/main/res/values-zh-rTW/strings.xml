@@ -314,6 +314,10 @@
     <string name="widget_text_pending">無線偵錯：正在切換…</string>
     <string name="toggle_failed_toast">無法切換無線偵錯，請重試。</string>
     <string name="settings_wifi_aps_feature_toggle">觀察存取點</string>
+    <string name="settings_wifi_aps_off_title">刪除存取點歷史記錄？</string>
+    <string name="settings_wifi_aps_off_message">觀察已關閉。歷史記錄列出了目前為止在每個網路名稱下發現的存取點。現在刪除，還是保留以備再次開啟觀察？</string>
+    <string name="settings_wifi_aps_off_delete">是，刪除</string>
+    <string name="settings_wifi_aps_off_keep">否，保留</string>
     <string name="settings_section_network">網路</string>
     <string name="network_head_mode">自動重新啟用：%1$s</string>
     <string name="network_mode_option_all_wifi">在所有 Wi-Fi 網路中</string>

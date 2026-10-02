@@ -314,6 +314,10 @@
     <string name="widget_text_pending">वायरलेस डीबगिंग: बदला जा रहा है…</string>
     <string name="toggle_failed_toast">वायरलेस डीबगिंग नहीं बदली जा सकी। कृपया फिर से प्रयास करें।</string>
     <string name="settings_wifi_aps_feature_toggle">ऐक्सेस पॉइंट की निगरानी करें</string>
+    <string name="settings_wifi_aps_off_title">ऐक्सेस पॉइंट का इतिहास हटाएँ?</string>
+    <string name="settings_wifi_aps_off_message">निगरानी अब बंद है। इतिहास में हर नेटवर्क नाम के तहत अब तक देखे गए ऐक्सेस पॉइंट दर्ज हैं। क्या इसे अभी हटाएँ, या निगरानी दोबारा चालू होने की स्थिति के लिए रखें?</string>
+    <string name="settings_wifi_aps_off_delete">हाँ, हटाएँ</string>
+    <string name="settings_wifi_aps_off_keep">नहीं, रखें</string>
     <string name="settings_section_network">नेटवर्क</string>
     <string name="network_head_mode">स्वचालित पुनः-सक्षमन: %1$s</string>
     <string name="network_mode_option_all_wifi">सभी Wi-Fi नेटवर्क में</string>

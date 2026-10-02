@@ -232,6 +232,10 @@
     <string name="settings_usb_handover_mode_manual">Manual (show action in USB notification)</string>
     <string name="settings_usb_handover_mode_automatic">Automatic (enable on new USB connection)</string>
     <string name="settings_wifi_aps_feature_toggle">Observe access points</string>
+    <string name="settings_wifi_aps_off_title">Delete access point history?</string>
+    <string name="settings_wifi_aps_off_message">Observation is now off. The history lists the access points seen so far under each network name. Delete it now, or keep it in case observation is turned on again?</string>
+    <string name="settings_wifi_aps_off_delete">Yes, delete</string>
+    <string name="settings_wifi_aps_off_keep">No, keep</string>
     <string name="settings_section_network">Network</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Could not enable Wifi-ADB. Check permission.</string>

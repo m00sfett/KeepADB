@@ -314,6 +314,10 @@
     <string name="widget_text_pending">无线调试：正在切换…</string>
     <string name="toggle_failed_toast">无法切换无线调试，请重试。</string>
     <string name="settings_wifi_aps_feature_toggle">观察接入点</string>
+    <string name="settings_wifi_aps_off_title">删除接入点历史记录？</string>
+    <string name="settings_wifi_aps_off_message">观察已关闭。历史记录列出了迄今在每个网络名称下发现的接入点。现在删除，还是保留以备再次开启观察？</string>
+    <string name="settings_wifi_aps_off_delete">是，删除</string>
+    <string name="settings_wifi_aps_off_keep">否，保留</string>
     <string name="settings_section_network">网络</string>
     <string name="network_head_mode">自动重新启用：%1$s</string>
     <string name="network_mode_option_all_wifi">在所有 Wi-Fi 网络中</string>

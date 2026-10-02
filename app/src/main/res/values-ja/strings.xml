@@ -314,6 +314,10 @@
     <string name="widget_text_pending">ワイヤレスデバッグ: 切り替え中…</string>
     <string name="toggle_failed_toast">ワイヤレスデバッグを切り替えられませんでした。もう一度お試しください。</string>
     <string name="settings_wifi_aps_feature_toggle">アクセスポイントを観測</string>
+    <string name="settings_wifi_aps_off_title">アクセスポイントの履歴を削除しますか？</string>
+    <string name="settings_wifi_aps_off_message">観測をオフにしました。履歴には、ネットワーク名ごとにこれまで確認したアクセスポイントが記録されています。今すぐ削除しますか？それとも、観測を再びオンにする場合に備えて残しますか？</string>
+    <string name="settings_wifi_aps_off_delete">はい、削除</string>
+    <string name="settings_wifi_aps_off_keep">いいえ、残す</string>
     <string name="settings_section_network">ネットワーク</string>
     <string name="network_head_mode">自動再有効化：%1$s</string>
     <string name="network_mode_option_all_wifi">すべての Wi-Fi ネットワークで</string>

@@ -314,6 +314,10 @@
     <string name="widget_text_pending">تصحيح لاسلكي: جارٍ التبديل…</string>
     <string name="toggle_failed_toast">تعذّر تبديل تصحيح الأخطاء اللاسلكي. يرجى المحاولة مرة أخرى.</string>
     <string name="settings_wifi_aps_feature_toggle">رصد نقاط الوصول</string>
+    <string name="settings_wifi_aps_off_title">حذف سجل نقاط الوصول؟</string>
+    <string name="settings_wifi_aps_off_message">تم إيقاف الرصد الآن. يسرد السجل نقاط الوصول التي رُصدت حتى الآن تحت كل اسم شبكة. هل تريد حذفه الآن أم الاحتفاظ به في حال إعادة تشغيل الرصد؟</string>
+    <string name="settings_wifi_aps_off_delete">نعم، احذف</string>
+    <string name="settings_wifi_aps_off_keep">لا، احتفظ</string>
     <string name="settings_section_network">الشبكة</string>
     <string name="network_head_mode">إعادة التفعيل التلقائي: %1$s</string>
     <string name="network_mode_option_all_wifi">في جميع شبكات Wi-Fi</string>
