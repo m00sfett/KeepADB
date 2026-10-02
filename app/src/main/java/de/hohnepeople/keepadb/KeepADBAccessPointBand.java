@@ -26,6 +26,11 @@ import java.util.function.Supplier;
  * <p>A frequency belongs to exactly one BSSID. Two BSSIDs of one mesh or one router (its 2.4 and
  * its 5 GHz radio) are never merged here. Display only: nothing in this class is consulted by the
  * trust decision, which keys on the BSSID alone.
+ *
+ * <p>#721: while "Observe access points" is on, the last band seen for a BSSID is also kept in
+ * {@link KeepADBBssidHistory} (see {@link #readStored}), so an access point out of the scan cache
+ * still shows where it was last seen. The live reading always wins over the stored one, and an
+ * access point with neither shows no band at all -- there is no placeholder text.
  */
 final class KeepADBAccessPointBand {
     static final int UNKNOWN = 0;
@@ -53,6 +58,30 @@ final class KeepADBAccessPointBand {
         return frequency == null ? UNKNOWN : bandOf(frequency);
     }
 
+    /**
+     * The band to show for a BSSID (#721): the live reading from {@code frequencies} (as built by
+     * {@link #read}) wins; only when it has none, the last band seen and stored while observing
+     * ({@code storedBands}, see {@link #readStored}) is used. {@link #UNKNOWN} when neither knows
+     * the BSSID -- callers then show no band at all. {@code bssid} may be in any letter case.
+     */
+    static int displayBand(Map<String, Integer> frequencies, Map<String, Integer> storedBands,
+                           String bssid) {
+        int live = bandOf(frequencies, bssid);
+        if (live != UNKNOWN) return live;
+        if (storedBands == null || bssid == null) return UNKNOWN;
+        Integer stored = storedBands.get(bssid.toUpperCase(Locale.ROOT));
+        return stored != null && isKnown(stored) ? stored : UNKNOWN;
+    }
+
+    /** Whether {@code band} is one of the three real bands (not {@link #UNKNOWN}, not garbage). */
+    static boolean isKnown(int band) {
+        return band == GHZ_2_4 || band == GHZ_5 || band == GHZ_6;
+    }
+
+    /**
+     * The label of a known band, or 0 for {@link #UNKNOWN}: an unknown band has no text (#721),
+     * so there is nothing to show behind the BSSID.
+     */
     static int labelRes(int band) {
         switch (band) {
             case GHZ_2_4:
@@ -63,8 +92,20 @@ final class KeepADBAccessPointBand {
                 return R.string.network_band_6;
             case UNKNOWN:
             default:
-                return R.string.network_band_unknown;
+                return 0;
         }
+    }
+
+    /**
+     * The bands stored while "Observe access points" is on, by upper-case BSSID (#721). Empty
+     * while the option is off, so the off state shows the live band only even if a stored value
+     * were ever left behind. Never scans and never throws.
+     */
+    static Map<String, Integer> readStored(Context context) {
+        if (context == null || !KeepADBPreferences.isWifiApsFeatureEnabled(context)) {
+            return new HashMap<>();
+        }
+        return KeepADBBssidHistory.getStoredBands(context);
     }
 
     /**

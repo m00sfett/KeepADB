@@ -70,16 +70,18 @@ public class KeepADBAccessPointBandTest {
     }
 
     @Test
-    public void everyBandHasItsOwnLabelAndUnknownReadsAsSuch() {
+    public void everyKnownBandHasItsOwnLabelAndUnknownHasNone() {
         int[] bands = {KeepADBAccessPointBand.GHZ_2_4, KeepADBAccessPointBand.GHZ_5,
-                KeepADBAccessPointBand.GHZ_6, KeepADBAccessPointBand.UNKNOWN};
+                KeepADBAccessPointBand.GHZ_6};
         java.util.Set<Integer> labels = new java.util.HashSet<>();
         for (int band : bands) labels.add(KeepADBAccessPointBand.labelRes(band));
-        assertEquals("Four bands, four different labels", 4, labels.size());
-        assertEquals("Band unknown",
-                context.getString(KeepADBAccessPointBand.labelRes(KeepADBAccessPointBand.UNKNOWN)));
+        assertEquals("Three bands, three different labels", 3, labels.size());
+        assertFalse("A label is a real resource", labels.contains(0));
         assertEquals("2.4 GHz",
                 context.getString(KeepADBAccessPointBand.labelRes(KeepADBAccessPointBand.GHZ_2_4)));
+        // #721: an unknown band has no text -- no placeholder resource exists any more.
+        assertEquals(0, KeepADBAccessPointBand.labelRes(KeepADBAccessPointBand.UNKNOWN));
+        assertEquals(0, KeepADBAccessPointBand.labelRes(99));
     }
 
     /** Two radios of one router share the SSID but are two BSSIDs, each with its own band. */
@@ -195,9 +197,13 @@ public class KeepADBAccessPointBandTest {
             assertFalse(source + " must not listen for scan results",
                     code.contains("SCAN_RESULTS_AVAILABLE_ACTION"));
             String name = source.getFileName().toString();
+            // #721 adds the two places that keep the last band seen: the history that stores it
+            // and the Network card that records it with the observation. Neither is a trust path.
             boolean allowedUser = name.equals("KeepADBAccessPointBand.java")
                     || name.equals("KeepADBNetworkDisplay.java")
-                    || name.equals("NetworkListActivity.java");
+                    || name.equals("NetworkListActivity.java")
+                    || name.equals("KeepADBBssidHistory.java")
+                    || name.equals("KeepADBNetworkCard.java");
             if (!allowedUser) {
                 assertFalse(name + " must not use the display-only band data",
                         code.contains("KeepADBAccessPointBand"));
@@ -206,6 +212,74 @@ public class KeepADBAccessPointBandTest {
         assertNotEquals("Sanity: the scan includes the band class itself", 0,
                 sources.stream().filter(p -> p.getFileName().toString()
                         .equals("KeepADBAccessPointBand.java")).count());
+    }
+
+    // --- last band seen (#721) ----------------------------------------------------------------
+
+    @Test
+    public void theLiveBandWinsOverTheStoredOneAndTheStoredOneFillsTheGap() {
+        Map<String, Integer> live = new java.util.HashMap<>();
+        live.put("AA:AA:AA:AA:AA:01", 5180);
+        Map<String, Integer> stored = new java.util.HashMap<>();
+        stored.put("AA:AA:AA:AA:AA:01", KeepADBAccessPointBand.GHZ_2_4);
+        stored.put("AA:AA:AA:AA:AA:02", KeepADBAccessPointBand.GHZ_6);
+
+        assertEquals("Live beats stored", KeepADBAccessPointBand.GHZ_5,
+                KeepADBAccessPointBand.displayBand(live, stored, "aa:aa:aa:aa:aa:01"));
+        assertEquals("Stored is used where nothing is live", KeepADBAccessPointBand.GHZ_6,
+                KeepADBAccessPointBand.displayBand(live, stored, "aa:aa:aa:aa:aa:02"));
+        assertEquals("Neither knows it: no band", KeepADBAccessPointBand.UNKNOWN,
+                KeepADBAccessPointBand.displayBand(live, stored, "AA:AA:AA:AA:AA:03"));
+    }
+
+    @Test
+    public void displayBandIsUnknownForMissingMapsAndForGarbageStoredValues() {
+        Map<String, Integer> stored = new java.util.HashMap<>();
+        stored.put("AA:AA:AA:AA:AA:01", 7);
+        stored.put("AA:AA:AA:AA:AA:02", KeepADBAccessPointBand.UNKNOWN);
+
+        assertEquals(KeepADBAccessPointBand.UNKNOWN,
+                KeepADBAccessPointBand.displayBand(null, null, "AA:AA:AA:AA:AA:01"));
+        assertEquals(KeepADBAccessPointBand.UNKNOWN,
+                KeepADBAccessPointBand.displayBand(null, stored, null));
+        assertEquals(KeepADBAccessPointBand.UNKNOWN,
+                KeepADBAccessPointBand.displayBand(null, stored, "AA:AA:AA:AA:AA:01"));
+        assertEquals(KeepADBAccessPointBand.UNKNOWN,
+                KeepADBAccessPointBand.displayBand(null, stored, "AA:AA:AA:AA:AA:02"));
+    }
+
+    /** The stored bands are only read while the observation option is on, and never without it. */
+    @Test
+    public void storedBandsAreReadOnlyWhileTheObservationOptionIsOn() {
+        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
+        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:aa:aa:aa:aa:01",
+                KeepADBAccessPointBand.GHZ_5);
+
+        assertEquals(KeepADBAccessPointBand.GHZ_5,
+                (int) KeepADBAccessPointBand.readStored(context).get("AA:AA:AA:AA:AA:01"));
+
+        // A band left behind in the store (here: the option flipped without the setter) is
+        // still not read while the option is off.
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
+                .putBoolean(KeepADBPreferences.KEY_WIFI_APS_FEATURE_ENABLED, false).commit();
+        assertTrue(KeepADBAccessPointBand.readStored(context).isEmpty());
+        assertTrue(KeepADBAccessPointBand.readStored(null).isEmpty());
+    }
+
+    /** No language keeps a placeholder text for an unknown band: the resource is gone. */
+    @Test
+    public void noLanguageKeepsAnUnknownBandPlaceholderString() throws IOException {
+        Path res = projectRoot().resolve("app/src/main/res");
+        int checked = 0;
+        try (Stream<Path> files = Files.walk(res)) {
+            for (Path file : (Iterable<Path>) files
+                    .filter(p -> p.getFileName().toString().equals("strings.xml"))::iterator) {
+                assertFalse(file + " must not define network_band_unknown",
+                        read(file).contains("network_band_unknown"));
+                checked++;
+            }
+        }
+        assertEquals("English plus 18 translations", 19, checked);
     }
 
     private WifiManager wifiManager() {
@@ -228,14 +302,18 @@ public class KeepADBAccessPointBandTest {
         shadowOf(wifiManager).setConnectionInfo(info(ssid, bssid, frequency));
     }
 
-    private static List<Path> mainSources() throws IOException {
+    private static Path projectRoot() {
         Path directory = Paths.get("").toAbsolutePath();
         while (directory != null && !Files.exists(directory.resolve("settings.gradle"))) {
             directory = directory.getParent();
         }
         if (directory == null) throw new IllegalStateException("Could not locate project root");
+        return directory;
+    }
+
+    private static List<Path> mainSources() throws IOException {
         try (Stream<Path> files = Files.walk(
-                directory.resolve("app/src/main/java/de/hohnepeople/keepadb"))) {
+                projectRoot().resolve("app/src/main/java/de/hohnepeople/keepadb"))) {
             List<Path> result = new ArrayList<>();
             files.filter(p -> p.toString().endsWith(".java")).forEach(result::add);
             return result;

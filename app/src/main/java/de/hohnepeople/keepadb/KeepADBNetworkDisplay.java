@@ -66,13 +66,15 @@ final class KeepADBNetworkDisplay {
 
     /**
      * The BSSID with its band directly behind it in brackets, e.g. {@code AA:BB:... (5 GHz)}
-     * (#714). {@code band} is a {@link KeepADBAccessPointBand} value; an unmeasured access point
-     * reads "Band unknown". The band is no secret, so only the address part follows the privacy
-     * mode.
+     * (#714). {@code band} is a {@link KeepADBAccessPointBand} value; with no known band (#721)
+     * only the BSSID is returned -- no brackets, no placeholder text. The band is no secret, so
+     * only the address part follows the privacy mode.
      */
     static String bssidWithBand(Context context, String bssid, int band) {
+        int label = KeepADBAccessPointBand.labelRes(band);
+        if (label == 0) return bssid(context, bssid);
         return context.getString(R.string.network_bssid_with_band, bssid(context, bssid),
-                context.getString(KeepADBAccessPointBand.labelRes(band)));
+                context.getString(label));
     }
 
     /**
