@@ -13,6 +13,8 @@ final class KeepADBPreferences {
     private static final String KEY_WEBHOOK_LAST_ENDPOINT = "register_webhook_last_endpoint";
     private static final String KEY_WEBHOOK_LAST_URL = "register_webhook_last_url";
     private static final String KEY_WEBHOOK_LAST_STATUS = "register_webhook_last_status";
+    /** #734: epoch-millis of the last SUCCESSFUL report only; never touched by failures or deregistration. */
+    private static final String KEY_WEBHOOK_LAST_SUCCESS_AT = "register_webhook_last_success_at";
     private static final String KEY_WEBHOOK_PENDING_CLEANUP = "register_webhook_pending_cleanup";
     private static final String KEY_APP_LANGUAGE = "app_language";
     private static final String KEY_SERVICE_LAST_HEARTBEAT = "service_last_heartbeat";
@@ -187,6 +189,24 @@ final class KeepADBPreferences {
         return prefs.getLong(KEY_WEBHOOK_LAST_REPORTED, 0L);
     }
 
+    /**
+     * #734: when the last report was actually accepted by the webhook, or 0 if none ever was.
+     * {@link #getWebhookLastReportedAt} cannot answer this: a deregistration also moves it. Older
+     * installations without the dedicated key fall back to that timestamp only while a reported
+     * endpoint is still stored, which is exactly the "last report was a success" state.
+     */
+    static long getWebhookLastSuccessAt(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        if (prefs.contains(KEY_WEBHOOK_LAST_SUCCESS_AT)) {
+            return prefs.getLong(KEY_WEBHOOK_LAST_SUCCESS_AT, 0L);
+        }
+        String endpoint = prefs.getString(KEY_WEBHOOK_LAST_ENDPOINT, null);
+        if (endpoint != null && !endpoint.trim().isEmpty()) {
+            return prefs.getLong(KEY_WEBHOOK_LAST_REPORTED, 0L);
+        }
+        return 0L;
+    }
+
     static void setWebhookLastReportedAtNow(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putLong(KEY_WEBHOOK_LAST_REPORTED, System.currentTimeMillis()).apply();
@@ -294,7 +314,11 @@ final class KeepADBPreferences {
             }
         }
         if (touchTimestamp) {
-            editor.putLong(KEY_WEBHOOK_LAST_REPORTED, System.currentTimeMillis());
+            long now = System.currentTimeMillis();
+            editor.putLong(KEY_WEBHOOK_LAST_REPORTED, now);
+            if (WEBHOOK_STATUS_SUCCESS.equals(status)) {
+                editor.putLong(KEY_WEBHOOK_LAST_SUCCESS_AT, now);
+            }
         }
         editor.apply();
     }

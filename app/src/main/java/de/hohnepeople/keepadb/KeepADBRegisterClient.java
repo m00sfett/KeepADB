@@ -54,10 +54,18 @@ final class KeepADBRegisterClient {
         registerStateListener = null;
     }
 
-    private static void notifyRegisterStateListener() {
+    private static void notifyRegisterStateListener(Context context) {
         RegisterStateListener listener = registerStateListener;
         if (listener != null) {
             mainHandler().post(listener::onRegisterStateChanged);
+        }
+        // #734: the listener only exists while MainActivity is visible; the persistent
+        // notification must follow the result regardless. Posted to the main handler so it runs
+        // outside the class monitor this is called under (the notification path takes the
+        // coordinator monitor, which already calls into this class).
+        if (context != null) {
+            final Context appContext = context.getApplicationContext();
+            mainHandler().post(() -> KeepADBNotification.refreshIfActive(appContext));
         }
     }
 
@@ -421,7 +429,7 @@ final class KeepADBRegisterClient {
                     // by a crash and leave a URL without its endpoint.
                     KeepADBPreferences.setWebhookReportSnapshot(context, targetUrl, targetEndpoint,
                             KeepADBPreferences.WEBHOOK_STATUS_SUCCESS, true);
-                    notifyRegisterStateListener();
+                    notifyRegisterStateListener(context);
                 }
             }
         } else {
@@ -430,7 +438,7 @@ final class KeepADBRegisterClient {
                     wlanUpdateInFlight = false;
                     KeepADBPreferences.setWebhookLastReportStatus(
                             context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
-                    notifyRegisterStateListener();
+                    notifyRegisterStateListener(context);
                 }
             }
         }
@@ -448,7 +456,7 @@ final class KeepADBRegisterClient {
                 lastRegisteredEndpoint = null;
                 resetMarkUnavailableRetryLocked();
                 KeepADBPreferences.setWebhookReportSnapshot(context, null, null, null, false);
-                notifyRegisterStateListener();
+                notifyRegisterStateListener(context);
                 return;
             }
         }
@@ -470,7 +478,7 @@ final class KeepADBRegisterClient {
                     resetMarkUnavailableRetryLocked();
                     KeepADBPreferences.setWebhookReportSnapshot(context, null, null,
                             KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED, true);
-                    notifyRegisterStateListener();
+                    notifyRegisterStateListener(context);
                 }
             }
         } else {
@@ -480,7 +488,7 @@ final class KeepADBRegisterClient {
                     recordMarkUnavailableRetryFailureLocked();
                     KeepADBPreferences.setWebhookLastReportStatus(
                             context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
-                    notifyRegisterStateListener();
+                    notifyRegisterStateListener(context);
                 }
             }
         }

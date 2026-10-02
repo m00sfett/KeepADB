@@ -10,9 +10,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Bundle;
+import android.service.notification.StatusBarNotification;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.style.StyleSpan;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Renders the Wireless Debugging endpoint notification.
@@ -25,6 +31,8 @@ import android.text.style.StyleSpan;
 final class KeepADBNotification {
     static final String CHANNEL_ID = "keepadb_endpoint";
     static final int NOTIFICATION_ID = 1;
+    /** #734: marks the endpoint card, the only notification {@link #refreshIfActive} may redraw. */
+    private static final String EXTRA_ENDPOINT_CARD = "de.hohnepeople.keepadb.EXTRA_ENDPOINT_CARD";
 
     private KeepADBNotification() {}
 
@@ -94,6 +102,39 @@ final class KeepADBNotification {
         showPlaceholder(appContext, manager,
                 appContext.getString(R.string.notification_title_disabled, appContext.getString(R.string.app_name)),
                 appContext.getString(R.string.notification_text_disabled_keepalive_waiting));
+    }
+
+    /**
+     * #734: redraws the endpoint card after a webhook result, straight through this renderer with
+     * the same notification id -- no service, no Activity. Does nothing unless the endpoint card
+     * is currently posted, so it never creates a notification, resurrects one the user or the
+     * service removed, or replaces a placeholder; also a no-op without POST_NOTIFICATIONS.
+     */
+    static void refreshIfActive(Context context) {
+        if (context == null) return;
+        Context appContext = KeepADBLocaleHelper.wrapContext(context.getApplicationContext());
+        NotificationManager manager = appContext.getSystemService(NotificationManager.class);
+        if (manager == null || !hasNotificationPermission(appContext)) return;
+        synchronized (KeepADBEndpointCoordinator.class) {
+            if (!isEndpointCardActive(manager)) return;
+            KeepADBEndpointCoordinator.Snapshot snapshot = KeepADBEndpointCoordinator.snapshot();
+            if (!snapshot.hasEndpoint()) return;
+            manager.notify(NOTIFICATION_ID, buildNotification(appContext, snapshot.host, snapshot.port));
+        }
+    }
+
+    private static boolean isEndpointCardActive(NotificationManager manager) {
+        try {
+            for (StatusBarNotification active : manager.getActiveNotifications()) {
+                if (active.getId() == NOTIFICATION_ID && active.getNotification() != null
+                        && active.getNotification().extras != null
+                        && active.getNotification().extras.getBoolean(EXTRA_ENDPOINT_CARD, false)) {
+                    return true;
+                }
+            }
+        } catch (RuntimeException ignored) {
+        }
+        return false;
     }
 
     /** Removes the endpoint notification. */
@@ -174,13 +215,17 @@ final class KeepADBNotification {
                 0,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        Bundle marker = new Bundle();
+        marker.putBoolean(EXTRA_ENDPOINT_CARD, true);
         return new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(title)
                 .setContentText(content)
-                .setStyle(new Notification.BigTextStyle().bigText(content))
+                .setStyle(new Notification.BigTextStyle().bigText(expandedText(context, content)))
                 .setContentIntent(pendingIntent)
                 .addAction(disableAction(context))
+                .addAction(keepAliveAction(context))
+                .addExtras(marker)
                 .setOngoing(true)
                 .setShowWhen(false)
                 // #597: publicVersion never carries the endpoint, regardless of the details
@@ -190,6 +235,63 @@ final class KeepADBNotification {
                 // above) is shown instead.
                 .setPublicVersion(publicVersion(context, title))
                 .build();
+    }
+
+    /**
+     * #734: the expanded text = the compact line (details-gated, unchanged), the Keep-Alive status
+     * and, only while webhook sync is on, the webhook lines. The additions carry no endpoint, host
+     * or URL, so they need no extra privacy gate; they live in the private card only, never in
+     * {@link #publicVersion}.
+     */
+    private static CharSequence expandedText(Context context, CharSequence compact) {
+        List<CharSequence> lines = new ArrayList<>();
+        lines.add(compact);
+        lines.add(context.getString(KeepADBPreferences.isKeepAliveEnabled(context)
+                ? R.string.notification_text_keepalive_on : R.string.notification_text_keepalive_off));
+        lines.addAll(webhookLines(context));
+        CharSequence result = lines.get(0);
+        for (int i = 1; i < lines.size(); i++) {
+            result = TextUtils.concat(result, "\n", lines.get(i));
+        }
+        return result;
+    }
+
+    /**
+     * #734: webhook status lines from the stored report data. Empty while sync is off or no URL is
+     * set. The newest result decides: a success shows its time; a failure is stated as a failure
+     * and an older success is only ever named as such ("last successful"), never as the failed
+     * attempt's time; without any success none is claimed.
+     */
+    static List<String> webhookLines(Context context) {
+        List<String> lines = new ArrayList<>();
+        String url = KeepADBPreferences.getRegisterWebhookUrl(context);
+        if (!KeepADBPreferences.isRegisterWebhookEnabled(context) || url == null || url.trim().isEmpty()) {
+            return lines;
+        }
+        String status = KeepADBPreferences.getWebhookLastReportStatus(context);
+        long successAt = KeepADBPreferences.getWebhookLastSuccessAt(context);
+        boolean failed = KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(status);
+        if (failed) {
+            lines.add(context.getString(R.string.notification_text_webhook_failed));
+        }
+        if (successAt <= 0L) {
+            if (!failed) {
+                lines.add(context.getString(R.string.notification_text_webhook_none_yet));
+            }
+        } else if (KeepADBPreferences.WEBHOOK_STATUS_SUCCESS.equals(status)) {
+            lines.add(context.getString(R.string.notification_text_webhook_synced, formatSeconds(context, successAt)));
+        } else {
+            lines.add(context.getString(R.string.notification_text_webhook_last_success,
+                    formatSeconds(context, successAt)));
+        }
+        return lines;
+    }
+
+    private static String formatSeconds(Context context, long epochMillis) {
+        java.text.DateFormat format = java.text.DateFormat.getDateTimeInstance(
+                java.text.DateFormat.MEDIUM, java.text.DateFormat.MEDIUM,
+                context.getResources().getConfiguration().getLocales().get(0));
+        return format.format(new Date(epochMillis));
     }
 
     private static CharSequence styledEndpointText(Context context, String host, int port) {
@@ -247,6 +349,22 @@ final class KeepADBNotification {
             builder.addAction(disableAction(context));
         }
         return builder.build();
+    }
+
+    /** #734: toggles Keep-Alive; labelled with what it will do, the status line states what is. */
+    static Notification.Action keepAliveAction(Context context) {
+        Intent intent = new Intent(context, KeepADBReceiver.class)
+                .setAction(KeepADBReceiver.ACTION_TOGGLE_KEEP_ALIVE);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                1,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        return new Notification.Action.Builder(
+                null,
+                context.getString(KeepADBPreferences.isKeepAliveEnabled(context)
+                        ? R.string.notification_action_keepalive_off : R.string.notification_action_keepalive_on),
+                pendingIntent).build();
     }
 
     static Notification.Action disableAction(Context context) {

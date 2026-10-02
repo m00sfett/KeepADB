@@ -428,6 +428,8 @@ public class KeepADBResourceContractTest {
         result.put("notification_title_active", new Object[] {stringWitness});
         result.put("notification_title_disabled", new Object[] {stringWitness});
         result.put("notification_title_searching", new Object[] {stringWitness});
+        result.put("notification_text_webhook_synced", new Object[] {stringWitness});
+        result.put("notification_text_webhook_last_success", new Object[] {stringWitness});
         result.put("notification_permission_missing_title", new Object[] {stringWitness});
         result.put("widget_text_permission_missing", new Object[] {stringWitness});
         result.put("tile_permission_error", new Object[] {stringWitness});

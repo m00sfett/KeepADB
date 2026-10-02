@@ -17,11 +17,24 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22` and `1.9.23` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23` and `1.9.24` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.24] - Unreleased
+
+### Added
+- #734: The persistent notification now shows a short, localized status in the compact state (`%1$s: Wifi-ADB on` / `off`, replacing the long "Wireless Debugging ENABLED/DISABLED" titles in all 19 locales). The compact port/IP line is unchanged and stays behind the "Show connection details in notifications" setting. The expanded text adds a Keep-Alive status line and, only while webhook sync is on with a URL set, the webhook result: a success shows its time to the second (`DateFormat` MEDIUM/MEDIUM); a failed latest attempt is stated as "sync failed" and an older success appears only as "last successful sync <time>", never as the failed attempt; without any success "no successful sync yet" is shown and no success or time is claimed. The new Keep-Alive action ("Turn on/off Keep-Alive", `KeepADBReceiver.ACTION_TOGGLE_KEEP_ALIVE`) flips the real setting, syncs the service and widgets and redraws the card; it never writes Wireless Debugging itself, the service's normal guarded path decides. The existing "Turn off Wifi-ADB" action is unchanged.
+- #734: Webhook results now refresh an existing endpoint card even while the app UI is not visible. `KeepADBRegisterClient` posts `KeepADBNotification.refreshIfActive` next to the `RegisterStateListener` call; it re-renders through the existing renderer with the same notification id, only when the endpoint card (marked by an extra) is currently posted, without a new service, without opening `MainActivity` and without POST_NOTIFICATIONS it does nothing. Placeholders (searching, waiting, permission missing) are never replaced and nothing is created from nothing.
+- #734: `KeepADBPreferences.getWebhookLastSuccessAt` stores the time of the last accepted report in its own key (`register_webhook_last_success_at`, written only on success). `register_webhook_last_reported` also moves on deregistration and so cannot be shown as "last successful". Older installations fall back to it only while a reported endpoint is stored. No change to the webhook endpoint, payload or register server contract.
+
+### Privacy
+- #734: The webhook and Keep-Alive lines contain no host, port, IP or URL, so they are not tied to the connection-details setting; the lock-screen copy (`publicVersion`) is unchanged and carries neither them nor actions.
+
+### Testing
+- #734: `KeepADBNotificationWebhookStatusTest` covers success time with seconds, failure after success, failure without success (also after only a deregistration), enabled without any attempt, webhook off, the callback refresh without a listener or Activity (and that it creates or replaces nothing), the details-off privacy case incl. `publicVersion`, and the Keep-Alive action flipping the real setting and the card. `KeepADBResourceContractTest` knows the two new format strings.
 
 ## [1.9.23] - Unreleased
 
