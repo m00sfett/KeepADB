@@ -27,6 +27,7 @@ are retrospective issue-version records and were never published as separate rel
 
 ### Changed
 - #735: The "Network" card is now the first card on the settings page, before the webhook card and all others (only the conditional permission warning may still appear above it). This replaces the order from #470, which placed it after language and webhook. Contents, expand/collapse behaviour and the order inside the card are unchanged; the other cards keep their relative order. The layout move in `activity_settings.xml` also swaps the two top margins so the spacing stays the same; `KeepADBAccessibilityContractTest` guards the new order.
+- #736: Settings cards now carry matching decorative header icons. New `ic_settings_sync` (exchange arrows) for "Webhook & Endpoint Sync" and `ic_settings_diagnostics` (pulse line) for "Diagnostics & Maintenance" fill the two headers that had no icon. The Network card uses the new node glyph `ic_settings_network` (the Wi-Fi glyph `ic_wifi` is untouched because the main screen still uses it); `ic_usb` (only used by the USB-ADB card) was redrawn as the trident USB symbol. Icons stay `importantForAccessibility="no"` without `contentDescription`; titles and card contents are unchanged. `KeepADBSettingsHeaderIconContractTest` guards the four headers.
 
 ## [1.9.22] - Unreleased
 

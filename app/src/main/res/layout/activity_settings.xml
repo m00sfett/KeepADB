@@ -129,7 +129,7 @@
                     android:layout_height="20dp"
                     android:layout_marginEnd="8dp"
                     android:importantForAccessibility="no"
-                    android:src="@drawable/ic_wifi" />
+                    android:src="@drawable/ic_settings_network" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -763,6 +763,15 @@
                 android:minHeight="48dp"
                 android:orientation="horizontal">
 
+                <!-- #736: decorative card icon, kept out of the accessibility tree since
+                     the adjacent title text already names the section. -->
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_settings_sync" />
+
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -1352,6 +1361,15 @@
                 android:gravity="center_vertical"
                 android:minHeight="48dp"
                 android:orientation="horizontal">
+
+                <!-- #736: decorative card icon, kept out of the accessibility tree since
+                     the adjacent title text already names the section. -->
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_settings_diagnostics" />
 
                 <TextView
                     android:layout_width="0dp"

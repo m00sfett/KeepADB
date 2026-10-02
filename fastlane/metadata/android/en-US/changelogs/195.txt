@@ -1,1 +1,2 @@
 The Network card is now the first card in Settings, above the webhook and the other cards, so the most important options are right at the top. Nothing inside the cards changed.
+All settings cards now have a fitting icon, including Webhook & Endpoint Sync and Diagnostics & Maintenance, and the Network and USB icons look clearer.
