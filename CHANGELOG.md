@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.9.25] - Unreleased
+
+### Testing
+- #738: `NetworkListActivityTest` guards the AP number rule at its edges per drawn list: an allowed current access point counts towards a repeated name (and gets no number with a different name), and the observed view numbers a stored entry next to an observed-only one of the same name but ignores a same-named entry that is not observed. `docs/trusted-networks.md` now states that the current row counts when it is allowed. No production change.
+
 ## [1.9.24] - Unreleased
 
 This single section covers the two integrated packages #734 and #742 (one candidate, versionCode 196).
