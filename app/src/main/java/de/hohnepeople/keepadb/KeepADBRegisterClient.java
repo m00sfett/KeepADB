@@ -224,6 +224,11 @@ final class KeepADBRegisterClient {
         PendingCleanupRetryRepository.removeOrphans(context,
                 KeepADBPreferences.getPendingWebhookCleanupUrls(context).toArray(new String[0]));
         for (String url : KeepADBPreferences.getPendingWebhookCleanupUrls(context)) {
+            // #710: an earlier iteration may already have removed this snapshot entry (another
+            // spelling of the same resource); skip it so no redundant DELETE or orphan record.
+            if (!KeepADBPreferences.getPendingWebhookCleanupUrls(context).contains(url)) {
+                continue;
+            }
             String sanitizedUrl = sanitizePendingCleanupUrl(url);
             if (hasLiveRegistrationAtUrl(sanitizedUrl)) {
                 removePendingCleanupsForResource(context, sanitizedUrl);

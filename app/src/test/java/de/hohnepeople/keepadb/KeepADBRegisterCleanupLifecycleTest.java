@@ -363,6 +363,50 @@ public class KeepADBRegisterCleanupLifecycleTest {
                 KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
     }
 
+    // ---- #710: the flush loop must not process snapshot entries that were already cleaned. ----
+
+    @Test
+    public void flushSkipsSnapshotEntryAlreadyRemovedByAnotherSpellingOfTheSameResource() {
+        String first = "http://a:one@legacy.example/register";
+        String second = "http://b:two@legacy.example/register";
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, first);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, second);
+        // The first DELETE succeeds; any further DELETE would fail.
+        transport.setRequestCallback(request -> {
+            if (transport.getRequestCount() >= 2) transport.setDeleteSuccess(false);
+        });
+
+        flushAt(1_000L);
+
+        assertEquals("the second spelling was cleaned with the first, no second DELETE", 1,
+                transport.getRequestCount());
+        assertTrue(KeepADBPreferences.getPendingWebhookCleanupUrls(context).isEmpty());
+        assertTrue("no orphan retry record may remain", retryKeys().isEmpty());
+    }
+
+    @Test
+    public void flushStillProcessesLaterEntriesOfOtherResources() {
+        String sameA = "http://a:one@legacy.example/register";
+        String other = "http://other.example/register";
+        String sameB = "http://b:two@legacy.example/register";
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, sameA);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, other);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, sameB);
+        transport.setFailingUrl(other);
+
+        flushAt(1_000L);
+
+        assertEquals("one DELETE for the shared resource plus one for the other resource", 2,
+                transport.getRequestCount());
+        assertEquals("http://legacy.example/register", transport.recordedRequests.get(0).url);
+        assertEquals(other, transport.recordedRequests.get(1).url);
+        assertEquals("only the failed, still pending entry remains",
+                java.util.Collections.singleton(other),
+                new java.util.HashSet<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+        assertEquals("1,31000,86401000", retryRecord(other));
+        assertEquals(1, retryKeys().size());
+    }
+
     // ---- #701: the persisted retry record, driven through the client with literal numbers. ----
 
     private static final String RETRY_KEY_PREFIX = "register_webhook_pending_cleanup_retry_state:";
