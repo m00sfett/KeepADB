@@ -64,6 +64,26 @@ final class KeepADBNetworkDisplay {
         return hidden(context) ? KeepADBAddressMask.maskBssid(displayBssid) : displayBssid;
     }
 
+    /**
+     * The BSSID with its band directly behind it in brackets, e.g. {@code AA:BB:... (5 GHz)}
+     * (#714). {@code band} is a {@link KeepADBAccessPointBand} value; an unmeasured access point
+     * reads "Band unknown". The band is no secret, so only the address part follows the privacy
+     * mode.
+     */
+    static String bssidWithBand(Context context, String bssid, int band) {
+        return context.getString(R.string.network_bssid_with_band, bssid(context, bssid),
+                context.getString(KeepADBAccessPointBand.labelRes(band)));
+    }
+
+    /**
+     * The name a user gave an access point (#714), for display. While the privacy mode is on it is
+     * replaced by the same placeholder a network name gets, because a name chosen by the user
+     * ("Bedroom", "Office") says as much about the place as the network name does.
+     */
+    static String customName(Context context, String customName) {
+        return hidden(context) ? placeholder(context, 0) : customName;
+    }
+
     /** The name if one is known, otherwise the BSSID -- each hidden or masked as required. */
     static String label(Context context, String ssid, String bssid, Numbering numbering) {
         if (ssid == null || ssid.isEmpty()) return bssid(context, bssid);
