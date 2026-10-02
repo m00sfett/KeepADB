@@ -2,6 +2,7 @@ package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -863,6 +864,64 @@ public class KeepADBRegisterCleanupLifecycleTest {
         assertEquals("attempts, nextAttemptAt and expiresAt of the queued-again entry are kept",
                 SPENT_TWICE, retryRecord(OLD_URL));
         assertEquals("a neighbour that was not touched keeps its record as well", SPENT_TWICE,
+                retryRecord(FULL_FIFO[0]));
+    }
+
+    /**
+     * The failure side of the commit path (#718, follow-up to #711): when the replacement POST
+     * fails, the commit block does not run, so an entry that is pending already keeps its queue
+     * position and its spent retry record ({@code attempts}, {@code nextAttemptAt}, {@code expiresAt}), and the old
+     * URL's cleanup ({@code cleanupToRemember}) is neither queued, nor removed, nor reset.
+     *
+     * <p>The state is built the same way as in the success test above, through the request
+     * callback during the flush, because a normal transaction cannot reach it
+     * ({@code hasLiveRegistrationAtUrl} in the flush drops such an entry first).
+     *
+     * <p>Which violation would stay green: one that only touches the success branch (that is
+     * the test above), and one that changes an entry other than the queued-again old URL and
+     * the untouched neighbour, or that changes the retry record only after this test's last
+     * assertion (e.g. a later flush). A removal of the record or a fresh queueing of
+     * {@code cleanupToRemember} in the failure branch turns this test red.
+     */
+    @Test
+    public void aFailedReplacementPostLeavesTheQueuedCleanupAndItsSpentRetryRecordAlone()
+            throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, FULL_FIFO[0]);
+        plantRecord(FULL_FIFO[0], SPENT_TWICE);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, FULL_FIFO[1]);
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
+        transport.setDeleteSuccess(false);
+        transport.setPostSuccess(false);
+        AtomicInteger stateChanges = new AtomicInteger();
+        transport.setRequestCallback(req -> {
+            if ("DELETE".equals(req.method) && FULL_FIFO[1].equals(req.url)
+                    && stateChanges.getAndIncrement() == 0) {
+                KeepADBRegisterClient.setWlanStateForTesting(OLD_URL, "192.168.1.50:41234");
+                KeepADBPreferences.addPendingWebhookCleanupUrl(context, OLD_URL);
+                plantRecord(OLD_URL, SPENT_TWICE);
+            }
+        });
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+        waitUntil(() -> KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context)), 3000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals("the fixture ran", 1, stateChanges.get());
+        assertEquals("the replacement POST was attempted and failed",
+                KeepADBPreferences.WEBHOOK_STATUS_FAILED,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+        assertNotEquals("the commit block did not run", "192.168.1.51:41235",
+                KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        assertEquals("the old URL's own cleanup failed in the transaction", 1,
+                countDeletes(OLD_URL));
+        assertEquals("nothing was queued again or removed, the order is unchanged",
+                Arrays.asList(FULL_FIFO[0], FULL_FIFO[1], OLD_URL),
+                new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+        assertEquals("attempts, nextAttemptAt and expiresAt of the queued entry are kept",
+                SPENT_TWICE, retryRecord(OLD_URL));
+        assertEquals("a neighbour keeps its record as well", SPENT_TWICE,
                 retryRecord(FULL_FIFO[0]));
     }
 
