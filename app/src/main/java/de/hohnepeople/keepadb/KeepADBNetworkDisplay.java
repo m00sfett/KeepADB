@@ -3,8 +3,11 @@ package de.hohnepeople.keepadb;
 import android.content.Context;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * #654/#655: how the Network card and its list views show network names and addresses. One place
@@ -93,6 +96,20 @@ final class KeepADBNetworkDisplay {
      */
     static String withApNumber(String title, int apNumber) {
         return title + " (" + apNumber + ")";
+    }
+
+    /**
+     * #729: the network names that occur at least twice in the given list (null and empty names
+     * are ignored). Only these get an access point number behind them in that list.
+     */
+    static Set<String> repeatedNames(List<String> names) {
+        Set<String> seen = new HashSet<>();
+        Set<String> repeated = new HashSet<>();
+        for (String name : names) {
+            if (name == null || name.isEmpty()) continue;
+            if (!seen.add(name)) repeated.add(name);
+        }
+        return repeated;
     }
 
     /** The name if one is known, otherwise the BSSID -- each hidden or masked as required. */

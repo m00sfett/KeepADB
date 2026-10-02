@@ -1,0 +1,1 @@
+An allowed access point only shows a number behind its name when the same name appears at least twice in that list. A single "Office" is no longer numbered just because another "Office" was seen elsewhere.

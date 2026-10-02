@@ -70,6 +70,8 @@ public class NetworkListActivity extends Activity {
     private AlertDialog activeNameDialog;
     /** The allowed entries by upper-case BSSID and the cached band data; replaced on every render. */
     private Map<String, KeepADBTrustedNetwork.Entry> entriesByBssid = new HashMap<>();
+    /** #729: names that occur at least twice in the list being drawn; only they get a number. */
+    private Set<String> repeatedNames = new HashSet<>();
     private Map<String, Integer> frequencies = new HashMap<>();
     /** #721: the last band seen per upper-case BSSID while observing; replaced on every render. */
     private Map<String, Integer> storedBands = new HashMap<>();
@@ -237,6 +239,13 @@ public class NetworkListActivity extends Activity {
                 rows.others.add(item);
             }
         }
+        // #729: the number is decided per drawn list. Only the rows of this list count: the
+        // current access point when it is an allowed entry, plus the listed ones. Names that
+        // occur elsewhere (another list, an observation, the live connection alone) do not.
+        List<String> shown = new ArrayList<>();
+        if (rows.current != null && rows.current.trusted) shown.add(rows.current.ssid);
+        for (KeepADBAccessPointOverview.ApItem item : rows.others) shown.add(item.ssid);
+        repeatedNames = KeepADBNetworkDisplay.repeatedNames(shown);
         return rows;
     }
 
@@ -297,9 +306,9 @@ public class NetworkListActivity extends Activity {
             title = bssidLine;
         }
         // #722: the stable number of the stored entry (#714) follows the name in brackets, and
-        // only where the same network name is shared by several access points. Rows that are no
+        // only where the same network name occurs at least twice in the drawn list (#729). Rows that are no
         // stored entry (observed, not allowed) have none.
-        if (entry != null && ssidKnown && item.meshCount > 1) {
+        if (entry != null && ssidKnown && repeatedNames.contains(item.ssid)) {
             title = KeepADBNetworkDisplay.withApNumber(title, entry.id);
         }
         String primary = highlightCurrent
