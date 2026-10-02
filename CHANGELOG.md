@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.9.25] - Unreleased
+
+### Testing
+- #741: The "Yes" test for clearing the BSSID history (#731) now also sets an unrelated preference in the same preferences file before the dialog answer and asserts it survives, so a `clearHistory` that wipes all preferences instead of only the `bssid_history_` keys fails the test.
+
 ## [1.9.24] - Unreleased
 
 This single section covers the two integrated packages #734 and #742 (one candidate, versionCode 196).

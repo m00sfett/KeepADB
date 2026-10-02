@@ -668,11 +668,14 @@ public class SettingsNetworkCardTest {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         AlertDialog dialog = turnObservationOffWithHistory(controller);
+        prefs().edit().putString("unrelated_setting_741", "keep-me").commit();
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
         ShadowLooper.idleMainLooper();
 
         assertFalse(dialog.isShowing());
+        assertEquals("Clearing the history must not touch unrelated preferences",
+                "keep-me", prefs().getString("unrelated_setting_741", null));
         assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
         assertTrue(KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").isEmpty());
         assertTrue(KeepADBBssidHistory.getRecentObservations(context).isEmpty());
