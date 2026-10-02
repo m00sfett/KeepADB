@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.9.22] - Unreleased
+
+### Documentation
+- #728: `docs/trusted-networks.md` describes the new display rule for access point entry numbers: format `Name (Nr.)`, number shown only when the same network name is carried by multiple known access points in the currently displayed list, and privacy mode `Name hidden #n (Nr.)` with one counter per entry.
+
 ## [1.9.21] - Unreleased
 
 ### Added

@@ -56,11 +56,15 @@ der [Sicherheitsrichtlinie](../SECURITY.md).
 
 ## Nummer, eigener Name und Band in der Access-Point-Liste
 
-Jeder freigegebene Access Point trägt in der Liste **Freigegebene Access Points** eine eigene
-Eintragsnummer wie `#1`. Die Nummer wird beim Freigeben einmal vergeben, nie wiederverwendet und
-ändert sich nicht, wenn andere Einträge hinzukommen oder entfallen; fehlt ein `#2`, bleibt die Lücke.
-Access Points, die nur beobachtet oder verhindert wurden, sind kein gespeicherter Eintrag und haben
-weder Nummer noch eigenen Namen.
+Jeder freigegebene Access Point steht in der Liste **Freigegebene APs** mit einem Eintrag.
+Der Eintrag zeigt den Namen in der Form `Name (Nr.)`, wenn derselbe Name mindestens zweimal
+in der gerade angezeigten Liste vorkommt. Die Nummer wird jeder Eintrag einmal beim Freigeben
+vergeben, nie wiederverwendet und ändert sich nicht, wenn andere Einträge hinzukommen oder
+entfallen; fehlt eine Nummer in der Reihe, bleibt die Lücke. Access Points, die nur beobachtet
+oder verhindert wurden, sind kein gespeicherter Eintrag und haben weder Nummer noch eigenen Namen.
+
+Im Datenschutzmodus wird der Name ausgeblendet und als `Name verborgen #n (Nr.)` angezeigt,
+wobei `#n` die Zählung für den verborgenen Namen ist — genau eine Zählung pro Eintrag.
 
 Das kleine Stift-Symbol neben dem Namen öffnet ein einfaches Eingabefenster mit **OK**, **Abbrechen**
 und, sobald ein Name gesetzt ist, **Zurücksetzen**. Ein leeres Feld mit **OK** setzt ebenfalls
