@@ -28,7 +28,10 @@ are retrospective issue-version records and were never published as separate rel
 ### Documentation
 - #703: Document the ownership and lifecycle delegation of the network-card and diagnostics controllers in the architecture index.
 
-## [1.9.14] - Unreleased
+### Candidate history
+- #702 and #704 independently bumped separate branches from 1.9.13 / versionCode 185 to 1.9.14 / 186. #702's bump reached master before #704 was integrated, so the duplicated bump was consolidated: the full #702 and #704 entries remain under the superseded candidate below, while the combined #702/#704/#703 candidate uses 1.9.15 / versionCode 187. No 1.9.14 release was published.
+
+## [1.9.14] - Superseded, unreleased
 
 ### Testing
 - #702: The background-location runtime-request contract scans every Java source under `app/src/main`, so a request added in a newly extracted source file is detected.
