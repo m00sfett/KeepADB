@@ -105,7 +105,6 @@
     <string name="wifi_aps_current_badge">Hiện tại</string>
     <string name="wifi_aps_trusted_status">Đáng tin cậy</string>
     <string name="wifi_aps_untrusted_status">Không đáng tin cậy</string>
-    <string name="wifi_aps_mesh_label">AP %1$d/%2$d</string>
     <string name="wifi_aps_ssid_unknown">Tên mạng không xác định</string>
     <string name="wifi_aps_current_unknown">Không thể xác định mạng Wi-Fi hiện tại (kiểm tra quyền vị trí).</string>
     <string name="wifi_aps_empty">Chưa ghi nhận điểm truy cập nào khác.</string>

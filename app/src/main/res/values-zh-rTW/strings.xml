@@ -105,7 +105,6 @@
     <string name="wifi_aps_current_badge">目前</string>
     <string name="wifi_aps_trusted_status">受信任</string>
     <string name="wifi_aps_untrusted_status">不受信任</string>
-    <string name="wifi_aps_mesh_label">AP %1$d/%2$d</string>
     <string name="wifi_aps_ssid_unknown">未知網路名稱</string>
     <string name="wifi_aps_current_unknown">無法判斷目前的 Wi-Fi 網路（請檢查位置權限）。</string>
     <string name="wifi_aps_empty">尚未記錄其他存取點。</string>

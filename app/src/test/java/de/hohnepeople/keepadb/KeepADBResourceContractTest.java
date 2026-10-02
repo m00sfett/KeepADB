@@ -438,7 +438,6 @@ public class KeepADBResourceContractTest {
         result.put("network_ap_rename_title", new Object[] {integerWitness});
         result.put("network_ap_rename_accessibility", new Object[] {stringWitness});
         result.put("network_bssid_with_band", new Object[] {stringWitness, stringWitness});
-        result.put("wifi_aps_mesh_label", new Object[] {integerWitness, integerWitness});
         result.put("wifi_aps_show_more_button", new Object[] {integerWitness});
         result.put("webhook_status_hint", new Object[] {
                 stringWitness, stringWitness, stringWitness});

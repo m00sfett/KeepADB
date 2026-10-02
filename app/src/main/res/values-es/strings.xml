@@ -105,7 +105,6 @@
     <string name="wifi_aps_current_badge">Actual</string>
     <string name="wifi_aps_trusted_status">De confianza</string>
     <string name="wifi_aps_untrusted_status">No es de confianza</string>
-    <string name="wifi_aps_mesh_label">AP %1$d de %2$d</string>
     <string name="wifi_aps_ssid_unknown">Nombre de red desconocido</string>
     <string name="wifi_aps_current_unknown">No se puede identificar la red Wi-Fi actual (comprueba el permiso de ubicación).</string>
     <string name="wifi_aps_empty">Aún no se han registrado más puntos de acceso.</string>
