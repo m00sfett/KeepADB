@@ -353,7 +353,7 @@
     <string name="network_row_prevented">إعادة التفعيل التي مُنعت مؤخرًا</string>
     <string name="network_row_observed">عرض نقاط الوصول المرصودة</string>
     <string name="network_observation_title">رصد Wi-Fi</string>
-    <string name="network_observation_hint">يعرض نقاط الوصول التي اتصل بها هذا الهاتف. تعمل نقاط الوصول المسموح بها وفحص Keep-Alive بشكل مستقل عن هذا الخيار.</string>
+    <string name="network_observation_hint">يعرض نقاط الوصول التي اتصل بها هذا الهاتف، مع آخر نطاق شوهد لكل منها. تعمل نقاط الوصول المسموح بها وفحص Keep-Alive بشكل مستقل عن هذا الخيار.</string>
     <string name="network_ssid_title">متقدم: السماح بحسب اسم Wi-Fi</string>
     <string name="network_ssid_state_off">متوقف</string>
     <string name="network_ssid_state_on">مفعّل · الأسماء: %1$d</string>
@@ -362,7 +362,8 @@
     <string name="network_ssid_effect_on">مفعّل: تُقبل نقاط الوصول القابلة للقراءة التي تحمل أحد الأسماء أدناه حتى بدون إدخال خاص بها. أما غير القابلة للقراءة فلا تُقبل أبدًا.</string>
     <string name="card_state_expanded">موسّع</string>
     <string name="card_state_collapsed">مطوي</string>
-    <string name="network_view_observed_title">نقاط الوصول المرصودة</string>
+    <string name="network_view_allowed_title">AP المسموح بها</string>
+    <string name="network_view_observed_title">AP المرصودة</string>
     <string name="network_view_allowed_intro">تظهر أولًا نقطة الوصول المتصل بها، ثم كل نقطة وصول سمحت بها بنفسك. لا يُسمح بشيء لمجرد تشابه الاسم.</string>
     <string name="network_view_prevented_intro">سجل تلقائي لنقاط الوصول التي لم يعد Keep-Alive فيها تفعيل تصحيح الأخطاء اللاسلكي. ليست قائمة حظر ولا يمكنك إضافة إدخالات بنفسك.</string>
     <string name="network_view_observed_intro">نقاط الوصول التي شوهدت أثناء اتصال هذا الهاتف. الظهور في القائمة لا يسمح بأي شيء.</string>
@@ -379,6 +380,5 @@
     <string name="network_band_24">2.4 جيجاهرتز</string>
     <string name="network_band_5">5 جيجاهرتز</string>
     <string name="network_band_6">6 جيجاهرتز</string>
-    <string name="network_band_unknown">النطاق غير معروف</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

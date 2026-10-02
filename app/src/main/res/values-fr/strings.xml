@@ -353,7 +353,7 @@
     <string name="network_row_prevented">Réactivations récemment empêchées</string>
     <string name="network_row_observed">Afficher les points d’accès observés</string>
     <string name="network_observation_title">Observation Wi-Fi</string>
-    <string name="network_observation_hint">Liste les points d’accès auxquels ce téléphone s’est connecté. Les points d’accès autorisés et la vérification de Keep-Alive fonctionnent indépendamment de cette option.</string>
+    <string name="network_observation_hint">Liste les points d’accès auxquels ce téléphone s’est connecté, chacun avec la dernière bande vue. Les points d’accès autorisés et la vérification de Keep-Alive fonctionnent indépendamment de cette option.</string>
     <string name="network_ssid_title">Avancé : autoriser par nom Wi-Fi</string>
     <string name="network_ssid_state_off">Désactivé</string>
     <string name="network_ssid_state_on">Activé · Noms : %1$d</string>
@@ -362,7 +362,8 @@
     <string name="network_ssid_effect_on">Activé : les points d’accès lisibles portant l’un des noms ci-dessous sont acceptés, même sans entrée propre. Les points d’accès illisibles ne le sont jamais.</string>
     <string name="card_state_expanded">Déplié</string>
     <string name="card_state_collapsed">Replié</string>
-    <string name="network_view_observed_title">Points d’accès observés</string>
+    <string name="network_view_allowed_title">AP autorisés</string>
+    <string name="network_view_observed_title">AP observés</string>
     <string name="network_view_allowed_intro">Le point d’accès auquel vous êtes connecté vient en premier, puis chaque point d’accès que vous avez autorisé vous-même. Rien n’est autorisé du simple fait de partager un nom.</string>
     <string name="network_view_prevented_intro">Historique automatique des points d’accès sur lesquels Keep-Alive n’a pas réactivé le débogage sans fil. Ce n’est pas une liste de blocage et vous ne pouvez pas y ajouter d’entrées vous-même.</string>
     <string name="network_view_observed_intro">Points d’accès vus pendant que ce téléphone était connecté. Figurer ici n’autorise rien.</string>
@@ -379,6 +380,5 @@
     <string name="network_band_24">2,4 GHz</string>
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
-    <string name="network_band_unknown">Bande inconnue</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

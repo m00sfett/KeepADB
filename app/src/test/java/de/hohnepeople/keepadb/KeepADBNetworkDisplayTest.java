@@ -118,7 +118,7 @@ public class KeepADBNetworkDisplayTest {
     // --- band and own name (#714) -------------------------------------------------------------
 
     @Test
-    public void theBandStandsInBracketsDirectlyBehindTheBssidAndUnknownSaysSo() {
+    public void theBandStandsInBracketsDirectlyBehindTheBssidAndUnknownShowsNone() {
         KeepADBPreferences.setPrivacyModeEnabled(context, false);
         assertEquals("AA:BB:CC:DD:EE:01 (2.4 GHz)", KeepADBNetworkDisplay.bssidWithBand(
                 context, "aa:bb:cc:dd:ee:01", KeepADBAccessPointBand.GHZ_2_4));
@@ -126,8 +126,9 @@ public class KeepADBNetworkDisplayTest {
                 context, "AA:BB:CC:DD:EE:01", KeepADBAccessPointBand.GHZ_5));
         assertEquals("AA:BB:CC:DD:EE:01 (6 GHz)", KeepADBNetworkDisplay.bssidWithBand(
                 context, "AA:BB:CC:DD:EE:01", KeepADBAccessPointBand.GHZ_6));
-        assertEquals("AA:BB:CC:DD:EE:01 (Band unknown)", KeepADBNetworkDisplay.bssidWithBand(
-                context, "AA:BB:CC:DD:EE:01", KeepADBAccessPointBand.UNKNOWN));
+        // #721: no known band means no text at all -- no brackets, no placeholder.
+        assertEquals("AA:BB:CC:DD:EE:01", KeepADBNetworkDisplay.bssidWithBand(
+                context, "aa:bb:cc:dd:ee:01", KeepADBAccessPointBand.UNKNOWN));
     }
 
     @Test
@@ -135,8 +136,9 @@ public class KeepADBNetworkDisplayTest {
         KeepADBPreferences.setPrivacyModeEnabled(context, true);
         assertEquals("AA:*:*:*:*:01 (5 GHz)", KeepADBNetworkDisplay.bssidWithBand(
                 context, "AA:BB:CC:DD:EE:01", KeepADBAccessPointBand.GHZ_5));
-        assertFalse(KeepADBNetworkDisplay.bssidWithBand(context, "AA:BB:CC:DD:EE:01",
-                KeepADBAccessPointBand.UNKNOWN).contains("BB:CC"));
+        assertEquals("The masked address stands alone without a band", "AA:*:*:*:*:01",
+                KeepADBNetworkDisplay.bssidWithBand(context, "AA:BB:CC:DD:EE:01",
+                        KeepADBAccessPointBand.UNKNOWN));
     }
 
     @Test

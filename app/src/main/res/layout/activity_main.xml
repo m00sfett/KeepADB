@@ -36,15 +36,11 @@
             android:textSize="26sp"
             android:textStyle="bold" />
 
-        <ImageButton
-            android:id="@+id/btn_toggle_privacy_mode"
+        <include
+            layout="@layout/view_privacy_toggle"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginEnd="4dp"
-            android:background="@drawable/bg_btn_header"
-            android:contentDescription="@string/privacy_toggle_enable_accessibility"
-            android:padding="8dp"
-            android:src="@drawable/ic_privacy_eye" />
+            android:layout_marginEnd="4dp" />
 
         <ImageButton
             android:id="@+id/btn_open_settings"

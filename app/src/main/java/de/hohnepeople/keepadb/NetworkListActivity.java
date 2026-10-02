@@ -40,6 +40,9 @@ import java.util.Set;
  * can be given a name of its own through the pencil next to its name; the band of every shown
  * BSSID is added behind it in brackets, from data Android already holds ({@link
  * KeepADBAccessPointBand}). Number, name and band are display only: trust still keys on the BSSID.
+ *
+ * <p>#721: where Android holds no band right now, the last band seen while "Observe access
+ * points" is on is shown instead; with neither, the BSSID stands alone, without brackets.
  */
 public class NetworkListActivity extends Activity {
     /** Intent extra naming the view to show; one of the {@code VIEW_*} values. */
@@ -68,6 +71,8 @@ public class NetworkListActivity extends Activity {
     /** The allowed entries by upper-case BSSID and the cached band data; replaced on every render. */
     private Map<String, KeepADBTrustedNetwork.Entry> entriesByBssid = new HashMap<>();
     private Map<String, Integer> frequencies = new HashMap<>();
+    /** #721: the last band seen per upper-case BSSID while observing; replaced on every render. */
+    private Map<String, Integer> storedBands = new HashMap<>();
     /** Numbers the hidden names of the view being shown; replaced on every render (#654). */
     private KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
 
@@ -122,6 +127,8 @@ public class NetworkListActivity extends Activity {
         emptyView = findViewById(R.id.wifi_aps_empty);
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+        // #725: same eye as on the main view; redraws the masked list at once.
+        KeepADBPrivacyToggle.bind(this, this::render);
         showMore.setOnClickListener(v -> {
             expanded = !expanded;
             render();
@@ -131,6 +138,7 @@ public class NetworkListActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        KeepADBPrivacyToggle.update(this);
         render();
     }
 
@@ -146,6 +154,8 @@ public class NetworkListActivity extends Activity {
         }
         // Read once per drawing from what Android already holds; never starts a scan (#714).
         frequencies = KeepADBAccessPointBand.read(this);
+        // #721: the last band seen while observing, used only where the live reading has none.
+        storedBands = KeepADBAccessPointBand.readStored(this);
         currentRow.removeAllViews();
         list.removeAllViews();
         showMore.setVisibility(View.GONE);
@@ -167,7 +177,7 @@ public class NetworkListActivity extends Activity {
                 break;
             case VIEW_ALLOWED:
             default:
-                titleView.setText(R.string.network_row_allowed);
+                titleView.setText(R.string.network_view_allowed_title);
                 introView.setText(R.string.network_view_allowed_intro);
                 // The list stays reachable in "all networks" mode but does not count there.
                 inactiveHint.setText(KeepADBNetworkCardText.inactiveListHint(this,
@@ -230,6 +240,11 @@ public class NetworkListActivity extends Activity {
         return rows;
     }
 
+    /** #721: the live band of {@code bssid}, else the stored one, else none ({@code UNKNOWN}). */
+    private int bandOf(String bssid) {
+        return KeepADBAccessPointBand.displayBand(frequencies, storedBands, bssid);
+    }
+
     private void showCurrent(KeepADBAccessPointOverview.ApItem current) {
         currentRow.setVisibility(View.VISIBLE);
         if (current == null) {
@@ -268,7 +283,7 @@ public class NetworkListActivity extends Activity {
         String name = named
                 ? KeepADBNetworkDisplay.customName(this, entry.customName) : networkName;
         String bssidLine = KeepADBNetworkDisplay.bssidWithBand(this, item.bssid,
-                KeepADBAccessPointBand.bandOf(frequencies, item.bssid));
+                bandOf(item.bssid));
 
         // Lines below the title: the unchanged network name behind an own name, then the BSSID
         // with its band. Without a name and without a network name the BSSID is the title itself,
@@ -281,9 +296,12 @@ public class NetworkListActivity extends Activity {
         } else {
             title = bssidLine;
         }
-        // The entry number is the stable one of the stored entry (#714); rows that are no stored
-        // entry (observed, not allowed) have none.
-        if (entry != null) title = "#" + entry.id + " · " + title;
+        // #722: the stable number of the stored entry (#714) follows the name in brackets, and
+        // only where the same network name is shared by several access points. Rows that are no
+        // stored entry (observed, not allowed) have none.
+        if (entry != null && ssidKnown && item.meshCount > 1) {
+            title = KeepADBNetworkDisplay.withApNumber(title, entry.id);
+        }
         String primary = highlightCurrent
                 ? getString(R.string.wifi_aps_current_badge) + " · " + title : title;
         boolean allowlist = KeepADBTrustedNetwork.isAllowlistMode(this);
@@ -363,7 +381,7 @@ public class NetworkListActivity extends Activity {
             String name = KeepADBNetworkDisplay.label(this, entry.ssid, entry.bssid, numbering);
             boolean nameIsBssid = entry.ssid == null || entry.ssid.isEmpty();
             String bssidLine = KeepADBNetworkDisplay.bssidWithBand(this, entry.bssid,
-                    KeepADBAccessPointBand.bandOf(frequencies, entry.bssid));
+                    bandOf(entry.bssid));
             String title = name;
             String detail = getString(R.string.settings_trusted_network_blocked_detail, bssidLine,
                     DateUtils.getRelativeTimeSpanString(entry.lastSeenAt, System.currentTimeMillis(),

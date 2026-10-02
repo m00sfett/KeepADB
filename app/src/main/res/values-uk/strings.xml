@@ -353,7 +353,7 @@
     <string name="network_row_prevented">Нещодавно запобігнуті повторні ввімкнення</string>
     <string name="network_row_observed">Показати помічені точки доступу</string>
     <string name="network_observation_title">Спостереження за Wi-Fi</string>
-    <string name="network_observation_hint">Показує точки доступу, до яких підключався цей телефон. Дозволені точки доступу та перевірка Keep-Alive працюють незалежно від цього параметра.</string>
+    <string name="network_observation_hint">Показує точки доступу, до яких підключався цей телефон, кожну з останнім побаченим діапазоном. Дозволені точки доступу та перевірка Keep-Alive працюють незалежно від цього параметра.</string>
     <string name="network_ssid_title">Додатково: дозвіл за назвою Wi-Fi</string>
     <string name="network_ssid_state_off">Вимк.</string>
     <string name="network_ssid_state_on">Увімк. · Назв: %1$d</string>
@@ -362,7 +362,8 @@
     <string name="network_ssid_effect_on">Увімк.: читабельні точки доступу з однією з назв нижче приймаються, навіть без власного запису. Нечитабельні — ніколи.</string>
     <string name="card_state_expanded">Розгорнуто</string>
     <string name="card_state_collapsed">Згорнуто</string>
-    <string name="network_view_observed_title">Помічені точки доступу</string>
+    <string name="network_view_allowed_title">Дозволені AP</string>
+    <string name="network_view_observed_title">Помічені AP</string>
     <string name="network_view_allowed_intro">Спочатку точка доступу, до якої ви підключені, потім кожна точка доступу, яку ви дозволили самі. Нічого не дозволяється лише тому, що збігається назва.</string>
     <string name="network_view_prevented_intro">Автоматична історія точок доступу, де Keep-Alive не ввімкнув бездротове налагодження повторно. Це не список блокування, і додавати записи вручну не можна.</string>
     <string name="network_view_observed_intro">Точки доступу, помічені, поки телефон був підключений. Наявність у списку нічого не дозволяє.</string>
@@ -379,6 +380,5 @@
     <string name="network_band_24">2,4 ГГц</string>
     <string name="network_band_5">5 ГГц</string>
     <string name="network_band_6">6 ГГц</string>
-    <string name="network_band_unknown">Діапазон невідомий</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

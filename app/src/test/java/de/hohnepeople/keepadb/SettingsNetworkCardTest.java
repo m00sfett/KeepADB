@@ -640,6 +640,66 @@ public class SettingsNetworkCardTest {
                 KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
     }
 
+    // --- last band seen (#721) ---------------------------------------------------------------
+
+    @Test
+    public void observingStoresTheBandOfTheCurrentConnectionAndOverwritesItOnTheNextReading() {
+        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01", 2437);
+        SettingsActivity activity = open();
+        assertEquals(KeepADBAccessPointBand.GHZ_2_4,
+                (int) KeepADBBssidHistory.getStoredBands(context).get("AA:BB:CC:DD:EE:01"));
+
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01", 5200);
+        activity.refresh();
+
+        assertEquals("The newest reading replaces the stored band", 1,
+                KeepADBBssidHistory.getStoredBands(context).size());
+        assertEquals(KeepADBAccessPointBand.GHZ_5,
+                (int) KeepADBBssidHistory.getStoredBands(context).get("AA:BB:CC:DD:EE:01"));
+
+        // A reading without a band (frequency unusable) changes nothing.
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01", 0);
+        activity.refresh();
+        assertEquals(KeepADBAccessPointBand.GHZ_5,
+                (int) KeepADBBssidHistory.getStoredBands(context).get("AA:BB:CC:DD:EE:01"));
+    }
+
+    /** Gegenprobe: without the opt-in no band -- and no BSSID -- is stored at all. */
+    @Test
+    public void withTheObservationOffNoBandIsStored() {
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01", 5200);
+
+        SettingsActivity activity = open();
+        activity.refresh();
+
+        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
+        assertTrue(KeepADBBssidHistory.getStoredBands(context).isEmpty());
+        assertFalse(prefs().getAll().keySet().stream().anyMatch(k -> k.endsWith("_bands")));
+        assertTrue(KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").isEmpty());
+    }
+
+    @Test
+    public void switchingTheObservationOffInSettingsDeletesTheStoredBandsAndKeepsTheHistory() {
+        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01", 5200);
+        SettingsActivity activity = open();
+        assertEquals(1, KeepADBBssidHistory.getStoredBands(context).size());
+
+        ((Switch) activity.findViewById(R.id.settings_wifi_aps_feature_toggle)).performClick();
+
+        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
+        assertTrue(KeepADBBssidHistory.getStoredBands(context).isEmpty());
+        assertEquals(java.util.Collections.singletonList("aa:bb:cc:dd:ee:01"),
+                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
+
+        // Switching it on again records the live band afresh, from the current connection only.
+        ((Switch) activity.findViewById(R.id.settings_wifi_aps_feature_toggle)).performClick();
+        activity.refresh();
+        assertEquals(KeepADBAccessPointBand.GHZ_5,
+                (int) KeepADBBssidHistory.getStoredBands(context).get("AA:BB:CC:DD:EE:01"));
+    }
+
     @Test
     public void theInactiveListHintAppearsOnlyInAllNetworksModeWithSavedEntries() {
         View hint;
@@ -1164,6 +1224,15 @@ public class SettingsNetworkCardTest {
         WifiInfo info = ShadowWifiInfo.newInstance();
         shadowOf(info).setSSID(ssid);
         shadowOf(info).setBSSID(bssid);
+        shadowOf(wifiManager).setConnectionInfo(info);
+    }
+
+    private void connectTo(String ssid, String bssid, int frequency) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = ShadowWifiInfo.newInstance();
+        shadowOf(info).setSSID(ssid);
+        shadowOf(info).setBSSID(bssid);
+        shadowOf(info).setFrequency(frequency);
         shadowOf(wifiManager).setConnectionInfo(info);
     }
 

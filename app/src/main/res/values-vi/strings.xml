@@ -353,7 +353,7 @@
     <string name="network_row_prevented">Lần bật lại bị ngăn gần đây</string>
     <string name="network_row_observed">Xem điểm truy cập đã quan sát</string>
     <string name="network_observation_title">Quan sát Wi-Fi</string>
-    <string name="network_observation_hint">Liệt kê các điểm truy cập mà điện thoại này đã kết nối. Điểm truy cập được phép và việc kiểm tra của Keep-Alive hoạt động độc lập với tùy chọn này.</string>
+    <string name="network_observation_hint">Liệt kê các điểm truy cập mà điện thoại này đã kết nối, kèm băng tần nhìn thấy lần cuối của từng điểm. Điểm truy cập được phép và việc kiểm tra của Keep-Alive hoạt động độc lập với tùy chọn này.</string>
     <string name="network_ssid_title">Nâng cao: cho phép theo tên Wi-Fi</string>
     <string name="network_ssid_state_off">Tắt</string>
     <string name="network_ssid_state_on">Bật · Tên: %1$d</string>
@@ -362,7 +362,8 @@
     <string name="network_ssid_effect_on">Bật: các điểm truy cập đọc được có một trong các tên bên dưới đều được chấp nhận, kể cả khi chưa có mục riêng. Điểm truy cập không đọc được thì không bao giờ.</string>
     <string name="card_state_expanded">Đã mở rộng</string>
     <string name="card_state_collapsed">Đã thu gọn</string>
-    <string name="network_view_observed_title">Điểm truy cập đã quan sát</string>
+    <string name="network_view_allowed_title">AP được phép</string>
+    <string name="network_view_observed_title">AP đã quan sát</string>
     <string name="network_view_allowed_intro">Điểm truy cập bạn đang kết nối hiện lên đầu, sau đó là từng điểm truy cập do chính bạn cho phép. Không gì được phép chỉ vì trùng tên.</string>
     <string name="network_view_prevented_intro">Lịch sử tự động của các điểm truy cập mà Keep-Alive không bật lại gỡ lỗi không dây. Đây không phải danh sách chặn và bạn không thể tự thêm mục.</string>
     <string name="network_view_observed_intro">Các điểm truy cập đã thấy khi điện thoại này được kết nối. Có mặt trong danh sách không cho phép điều gì.</string>
@@ -379,6 +380,5 @@
     <string name="network_band_24">2,4 GHz</string>
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
-    <string name="network_band_unknown">Băng tần không xác định</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

@@ -1,0 +1,3 @@
+With "Observe access points" on, an access point that is out of range still shows the Wi-Fi band it was last seen on, for example 5 GHz. If no band is known, nothing is shown anymore instead of "Band unknown". Turning the option off deletes the saved bands.
+
+The privacy eye is now also in the title bar of Settings and of the access point lists. Allowed access points read "Name (No.)", with the number behind the name.

@@ -638,9 +638,15 @@ final class KeepADBPreferences {
         return prefs.getBoolean(KEY_WIFI_APS_FEATURE_ENABLED, false);
     }
 
+    /**
+     * Turning the option off also deletes the bands stored with the observation history (#721),
+     * so nothing but the live band is shown or kept while it is off; the history itself is
+     * retained (#654).
+     */
     static void setWifiApsFeatureEnabled(Context context, boolean enabled) {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_WIFI_APS_FEATURE_ENABLED, enabled).apply();
+        if (!enabled) KeepADBBssidHistory.clearBands(context);
     }
 }

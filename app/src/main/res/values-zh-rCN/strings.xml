@@ -353,7 +353,7 @@
     <string name="network_row_prevented">最近阻止的重新启用</string>
     <string name="network_row_observed">查看已观察到的接入点</string>
     <string name="network_observation_title">Wi-Fi 观察</string>
-    <string name="network_observation_hint">列出此手机连接过的接入点。已允许的接入点和 Keep-Alive 的检查不依赖此选项。</string>
+    <string name="network_observation_hint">列出此手机连接过的接入点，并附上各自最后一次看到的频段。已允许的接入点和 Keep-Alive 的检查不依赖此选项。</string>
     <string name="network_ssid_title">高级：按 Wi-Fi 名称允许</string>
     <string name="network_ssid_state_off">关闭</string>
     <string name="network_ssid_state_on">开启 · 名称：%1$d</string>
@@ -362,7 +362,8 @@
     <string name="network_ssid_effect_on">开启：任何使用下列名称之一且可读取的接入点都会被接受，即使没有单独的条目。无法读取的接入点则永远不会被接受。</string>
     <string name="card_state_expanded">已展开</string>
     <string name="card_state_collapsed">已折叠</string>
-    <string name="network_view_observed_title">已观察到的接入点</string>
+    <string name="network_view_allowed_title">已允许的 AP</string>
+    <string name="network_view_observed_title">已观察到的 AP</string>
     <string name="network_view_allowed_intro">首先是你当前连接的接入点，然后是你亲自允许的每个接入点。不会仅因名称相同而允许任何接入点。</string>
     <string name="network_view_prevented_intro">Keep-Alive 未重新开启无线调试的接入点的自动记录。这不是屏蔽列表，你也无法手动添加条目。</string>
     <string name="network_view_observed_intro">此手机连接期间看到的接入点。出现在列表中并不代表被允许。</string>
@@ -379,6 +380,5 @@
     <string name="network_band_24">2.4 GHz</string>
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
-    <string name="network_band_unknown">频段未知</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

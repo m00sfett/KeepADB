@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #725: the privacy-mode eye button shared by every red title bar. Included, never copied,
+     so icon, size and look stay identical; behavior lives in KeepADBPrivacyToggle. -->
+<ImageButton xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/btn_toggle_privacy_mode"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:background="@drawable/bg_btn_header"
+    android:contentDescription="@string/privacy_toggle_enable_accessibility"
+    android:padding="8dp"
+    android:src="@drawable/ic_privacy_eye" />

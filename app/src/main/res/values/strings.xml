@@ -360,7 +360,7 @@
     <string name="network_row_prevented">Recently prevented re-enabling</string>
     <string name="network_row_observed">View observed access points</string>
     <string name="network_observation_title">Wi-Fi observation</string>
-    <string name="network_observation_hint">Lists the access points this phone has connected to. Allowed access points and the Keep-Alive check work independently of this option.</string>
+    <string name="network_observation_hint">Lists the access points this phone has connected to, each with the last band seen. Allowed access points and the Keep-Alive check work independently of this option.</string>
     <string name="network_ssid_title">Advanced: allow by Wi-Fi name</string>
     <string name="network_ssid_state_off">Off</string>
     <string name="network_ssid_state_on">On · Names: %1$d</string>
@@ -369,7 +369,8 @@
     <string name="network_ssid_effect_on">On: readable access points with one of the names below are accepted, even without their own entry. Unreadable ones never are.</string>
     <string name="card_state_expanded">Expanded</string>
     <string name="card_state_collapsed">Collapsed</string>
-    <string name="network_view_observed_title">Observed access points</string>
+    <string name="network_view_allowed_title">Allowed APs</string>
+    <string name="network_view_observed_title">Observed APs</string>
     <string name="network_view_allowed_intro">The access point you’re connected to comes first, then every access point you allowed yourself. Nothing is allowed just because it shares a name.</string>
     <string name="network_view_prevented_intro">Automatic history of access points where Keep-Alive didn’t re-enable Wireless Debugging. It is not a block list and you can’t add entries yourself.</string>
     <string name="network_view_observed_intro">Access points seen while this phone was connected. Being listed doesn’t allow anything.</string>
@@ -386,6 +387,5 @@
     <string name="network_band_24">2.4 GHz</string>
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
-    <string name="network_band_unknown">Band unknown</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

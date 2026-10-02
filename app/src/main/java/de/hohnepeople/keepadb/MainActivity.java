@@ -10,7 +10,6 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,7 +18,6 @@ public class MainActivity extends Activity {
     private static final int NOTIFICATION_PERMISSION_REQUEST = 10;
     private static final String NOTIFICATION_PERMISSION_REQUESTED =
             "notification_permission_requested";
-    private ImageButton privacyModeToggle;
     private Switch toggle;
     private Switch keepAliveToggle;
     private Switch hideNotificationToggle;
@@ -61,18 +59,11 @@ public class MainActivity extends Activity {
         // #324: keep header and content clear of the system bars under forced edge-to-edge.
         KeepADBWindowInsets.apply(
                 getWindow(), findViewById(R.id.header_bar), findViewById(R.id.content_scroll));
-        privacyModeToggle = findViewById(R.id.btn_toggle_privacy_mode);
-        privacyModeToggle.setOnClickListener(v -> {
-            boolean want = !KeepADBPreferences.isPrivacyModeEnabled(this);
-            KeepADBDiagnostics.event(this, "user_action", "app", want ? "enable" : "disable",
-                    "privacy_mode_toggle");
-            KeepADBPreferences.setPrivacyModeEnabled(this, want);
-            updatePrivacyModeToggle();
+        // #725: the shared eye button; the page-specific part is only the re-render below.
+        KeepADBPrivacyToggle.bind(this, () -> {
             // #483: re-render the masked surfaces at once, without waiting for a discovery tick.
             renderEndpoint();
             refreshWebhookStatus();
-            KeepADBEndpointCoordinator.refresh(this);
-            KeepADBTileService.requestRefresh(this);
         });
         toggle = findViewById(R.id.toggle);
         keepAliveToggle = findViewById(R.id.keep_alive_toggle);
@@ -400,7 +391,7 @@ public class MainActivity extends Activity {
                 : R.string.settings_hide_notification_subtext);
         refreshWebhookStatus();
         renderTailscaleStatus();
-        updatePrivacyModeToggle();
+        KeepADBPrivacyToggle.update(this);
         renderTransportOverview();
     }
 
@@ -437,22 +428,6 @@ public class MainActivity extends Activity {
         tailscaleStatus.setText(textRes);
         tailscaleStatus.setVisibility(View.VISIBLE);
     }
-
-    /** #482: reflects {@link KeepADBPreferences#isPrivacyModeEnabled} as an eye / crossed-out-eye
-     * icon with a content description naming the action the next tap performs (matching the
-     * existing trust/untrust content description pattern), so both toggle states stay
-     * distinguishable for sighted and screen-reader users alike. Display-only -- toggling this
-     * never touches the real ADB transport or any persisted original value; the actual masking
-     * of displayed network addresses is #483's job, reading the same preference. */
-    private void updatePrivacyModeToggle() {
-        boolean enabled = KeepADBPreferences.isPrivacyModeEnabled(this);
-        privacyModeToggle.setImageResource(enabled ? R.drawable.ic_privacy_eye_off : R.drawable.ic_privacy_eye);
-        privacyModeToggle.setContentDescription(getString(enabled
-                ? R.string.privacy_toggle_disable_accessibility
-                : R.string.privacy_toggle_enable_accessibility));
-    }
-
-
 
     /**
      * #458: why {@link KeepADB.State#OFF_KEEP_ALIVE_WAITING} currently applies, for the status

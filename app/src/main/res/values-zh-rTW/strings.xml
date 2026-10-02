@@ -353,7 +353,7 @@
     <string name="network_row_prevented">最近阻止的重新啟用</string>
     <string name="network_row_observed">檢視已觀察到的存取點</string>
     <string name="network_observation_title">Wi-Fi 觀察</string>
-    <string name="network_observation_hint">列出此手機連接過的存取點。已允許的存取點與 Keep-Alive 的檢查不依賴此選項。</string>
+    <string name="network_observation_hint">列出此手機連接過的存取點，並附上各自最後一次看到的頻段。已允許的存取點與 Keep-Alive 的檢查不依賴此選項。</string>
     <string name="network_ssid_title">進階：依 Wi-Fi 名稱允許</string>
     <string name="network_ssid_state_off">關閉</string>
     <string name="network_ssid_state_on">開啟 · 名稱：%1$d</string>
@@ -362,7 +362,8 @@
     <string name="network_ssid_effect_on">開啟：任何使用下列名稱之一且可讀取的存取點都會被接受，即使沒有單獨的項目。無法讀取的存取點則永遠不會被接受。</string>
     <string name="card_state_expanded">已展開</string>
     <string name="card_state_collapsed">已收合</string>
-    <string name="network_view_observed_title">已觀察到的存取點</string>
+    <string name="network_view_allowed_title">已允許的 AP</string>
+    <string name="network_view_observed_title">已觀察到的 AP</string>
     <string name="network_view_allowed_intro">首先是你目前連接的存取點，然後是你親自允許的每個存取點。不會僅因名稱相同而允許任何存取點。</string>
     <string name="network_view_prevented_intro">Keep-Alive 未重新開啟無線偵錯的存取點的自動紀錄。這不是封鎖清單，你也無法手動新增項目。</string>
     <string name="network_view_observed_intro">此手機連接期間看到的存取點。出現在清單中並不代表被允許。</string>
@@ -379,6 +380,5 @@
     <string name="network_band_24">2.4 GHz</string>
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
-    <string name="network_band_unknown">頻段未知</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>
