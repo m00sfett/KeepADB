@@ -1,3 +1,3 @@
 The notification now shows a short status such as "Wifi-ADB on" and, when expanded, the Keep-Alive state with a button to switch it.
-With webhook sync on, it shows the time of the last successful sync to the second. A failed sync is shown as failed and never as a success. It updates even when the app is closed.
-Port and IP stay hidden unless you allow them.
+With webhook sync on, it shows the time of the last successful sync; a failed sync is never shown as success. It updates even when the app is closed.
+Fixed the "USB-ADB" card title in Settings for right-to-left languages such as Arabic.

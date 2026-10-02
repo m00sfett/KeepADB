@@ -70,6 +70,34 @@ public class KeepADBSettingsHeaderIconContractTest {
                 HEADERS[0][2].equals("ic_wifi"));
     }
 
+    @Test
+    public void usbTitleFollowsLayoutDirectionLikeOtherTitles() throws Exception {
+        // #742: "USB-ADB" is a Latin proper name; without explicit alignment it is left-aligned
+        // in RTL. Titles with a localized string must keep their (absent) alignment untouched.
+        Document layout = layout();
+        Element usbTitle = titleOf(headerOf(layout, "settings_usb_adb_header"), "@string/settings_section_usb_adb");
+        assertEquals("viewStart", usbTitle.getAttributeNS(ANDROID_NS, "textAlignment"));
+        for (String[] header : HEADERS) {
+            if ("settings_usb_adb_header".equals(header[0])) {
+                continue;
+            }
+            Element other = titleOf(headerOf(layout, header[0]), "@string/" + header[1]);
+            assertFalse(header[0] + " title alignment must stay unchanged",
+                    other.hasAttributeNS(ANDROID_NS, "textAlignment"));
+        }
+    }
+
+    private static Element titleOf(Element header, String stringRef) {
+        NodeList texts = header.getElementsByTagName("TextView");
+        for (int i = 0; i < texts.getLength(); i++) {
+            Element text = (Element) texts.item(i);
+            if (stringRef.equals(text.getAttributeNS(ANDROID_NS, "text"))) {
+                return text;
+            }
+        }
+        throw new AssertionError("Title not found: " + stringRef);
+    }
+
     private static Element headerOf(Document layout, String id) {
         NodeList all = layout.getElementsByTagName("*");
         for (int i = 0; i < all.getLength(); i++) {
