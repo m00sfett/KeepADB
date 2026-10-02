@@ -40,26 +40,12 @@ final class KeepADBAccessPointOverview {
         final String ssid;
         final boolean current;
         final boolean trusted;
-        /** 1-based position among the items sharing this item's SSID, in display order, or 0
-         * when this SSID has only this one known access point (nothing to distinguish). */
-        final int meshPosition;
-        /** Total number of distinct access points known for this item's SSID. */
-        final int meshCount;
 
-        ApItem(String bssid, String ssid, boolean current, boolean trusted,
-               int meshPosition, int meshCount) {
+        ApItem(String bssid, String ssid, boolean current, boolean trusted) {
             this.bssid = bssid;
             this.ssid = ssid;
             this.current = current;
             this.trusted = trusted;
-            this.meshPosition = meshPosition;
-            this.meshCount = meshCount;
-        }
-
-        /** Whether several distinct access points share this item's SSID (acceptance criterion
-         * 4 of #461: a mesh/repeater setup, several BSSIDs broadcasting one SSID). */
-        boolean isMeshMember() {
-            return meshCount > 1;
         }
 
         /** SSID if known, otherwise the BSSID -- what the UI shows as the primary label. */
@@ -81,7 +67,7 @@ final class KeepADBAccessPointOverview {
 
     /**
      * Pure variant of {@link #buildItems(Context)}: independent of any live Android API beyond
-     * the plain data already read out of it, so the ordering, mesh-grouping and trust-matching
+     * the plain data already read out of it, so the ordering and trust-matching
      * logic is unit-testable without Robolectric or a real {@code WifiManager}.
      */
     static List<ApItem> buildItems(KeepADBNetworkIdentity current,
@@ -119,15 +105,6 @@ final class KeepADBAccessPointOverview {
             }
         }
 
-        // Group by SSID across the whole set so mesh labels are correct regardless of where in
-        // the (now unlimited) list a same-SSID sibling ends up.
-        Map<String, List<String>> bssidsBySsid = new LinkedHashMap<>();
-        for (Map.Entry<String, String> entry : ssidByBssid.entrySet()) {
-            String ssid = entry.getValue();
-            if (ssid == null || ssid.isEmpty()) continue;
-            bssidsBySsid.computeIfAbsent(ssid, unused -> new ArrayList<>()).add(entry.getKey());
-        }
-
         List<String> trustedBssids = new ArrayList<>();
         if (trustedEntries != null) {
             for (KeepADBTrustedNetwork.Entry entry : trustedEntries) {
@@ -143,16 +120,7 @@ final class KeepADBAccessPointOverview {
             String ssid = entry.getValue();
             boolean trusted = trustedBssids.contains(bssid);
             boolean isCurrent = bssid.equals(currentBssid);
-            int meshPosition = 0;
-            int meshCount = 1;
-            if (ssid != null && !ssid.isEmpty()) {
-                List<String> siblings = bssidsBySsid.get(ssid);
-                meshCount = siblings.size();
-                if (meshCount > 1) {
-                    meshPosition = siblings.indexOf(bssid) + 1;
-                }
-            }
-            items.add(new ApItem(bssid, ssid, isCurrent, trusted, meshPosition, meshCount));
+            items.add(new ApItem(bssid, ssid, isCurrent, trusted));
         }
         return items;
     }
