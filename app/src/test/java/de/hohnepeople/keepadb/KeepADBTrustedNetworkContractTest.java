@@ -102,6 +102,28 @@ public class KeepADBTrustedNetworkContractTest {
         return source.substring(methodStart, methodEnd + 1);
     }
 
+    /**
+     * #714: the number, the own name and the band of an access point are display only. The trust
+     * decision reads the stored BSSID (and the optional exact network name) and nothing else, so
+     * none of the methods that decide may mention the own name.
+     */
+    @Test
+    public void trustDecisionsNeverReadTheOwnNameOfAnEntry() throws IOException {
+        String trusted = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBTrustedNetwork.java");
+        String[] decisions = {
+                "static boolean isCurrentNetworkTrusted(Context context) {",
+                "static BlockReason getBlockReason(Context context) {",
+                "private static boolean isTrusted(Context context, KeepADBNetworkIdentity identity) {",
+                "private static boolean matchesAllowlist(Context context, String bssid) {",
+                "private static boolean matchesSsidAllowlist(Context context, KeepADBNetworkIdentity identity) {",
+        };
+        for (String signature : decisions) {
+            String body = methodBody(trusted, signature);
+            assertFalse(signature + " must not read the own name", body.contains("customName"));
+            assertFalse(signature + " must not read the own name", body.contains("_name"));
+        }
+    }
+
     @Test
     public void keepAdbFacadeNeverReferencesTheAllowlist() throws IOException {
         // KeepADB.setEnabled()/applyNow() must keep unconditionally honoring an explicit

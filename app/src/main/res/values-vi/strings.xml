@@ -372,4 +372,14 @@
     <string name="network_view_prevented_reason">Lý do: điểm truy cập không có trong danh sách được phép.</string>
     <string name="network_ap_allowed_toast">Đã cho phép điểm truy cập “%1$s”</string>
     <string name="network_ap_removed_toast">Đã xóa điểm truy cập “%1$s” khỏi danh sách được phép</string>
+    <string name="network_ap_rename_title">Tên cho điểm truy cập #%1$d</string>
+    <string name="network_ap_rename_message">Hãy chọn một tên riêng. Tên này hiển thị trong các danh sách này, chỉ được lưu trên thiết bị này và không thay đổi tên mạng hay các điểm truy cập được phép.</string>
+    <string name="network_ap_rename_hint">Tên riêng</string>
+    <string name="network_ap_rename_reset">Đặt lại</string>
+    <string name="network_ap_rename_accessibility">Đổi tên điểm truy cập “%1$s”</string>
+    <string name="network_band_24">2,4 GHz</string>
+    <string name="network_band_5">5 GHz</string>
+    <string name="network_band_6">6 GHz</string>
+    <string name="network_band_unknown">Băng tần không xác định</string>
+    <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

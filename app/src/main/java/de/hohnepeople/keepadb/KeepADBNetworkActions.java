@@ -5,6 +5,10 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.provider.Settings;
+import android.text.InputFilter;
+import android.text.InputType;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -100,6 +104,54 @@ final class KeepADBNetworkActions {
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
+    }
+
+    /**
+     * #714: the small popup in which the user names one allowed access point, or resets the name.
+     * OK stores the typed name (an empty field means "no own name", like Reset), Cancel and
+     * dismissing change nothing. Only the display name of the entry is written; its address, its
+     * label and the allowance stay as they are.
+     *
+     * @param entry the entry as shown; its number titles the popup and its current name, if any,
+     *     pre-fills the field and enables Reset.
+     * @return the dialog; the caller must show it, drop its reference on dismissal and dismiss it
+     *     when its activity is destroyed (like the mesh question, #686).
+     */
+    static AlertDialog editAccessPointName(Activity activity, KeepADBTrustedNetwork.Entry entry,
+                                           Runnable onChanged) {
+        EditText input = new EditText(activity);
+        input.setSingleLine(true);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        input.setFilters(new InputFilter[] {
+                new InputFilter.LengthFilter(KeepADBTrustedNetwork.MAX_CUSTOM_NAME_LENGTH)});
+        input.setHint(R.string.network_ap_rename_hint);
+        if (entry.customName != null) {
+            input.setText(entry.customName);
+            input.setSelection(input.getText().length());
+        }
+        int padding = (int) (20 * activity.getResources().getDisplayMetrics().density);
+        FrameLayout content = new FrameLayout(activity);
+        content.setPadding(padding, 0, padding, 0);
+        content.addView(input, new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
+                .setTitle(activity.getString(R.string.network_ap_rename_title, entry.id))
+                .setMessage(R.string.network_ap_rename_message)
+                .setView(content)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                    KeepADBTrustedNetwork.setCustomName(activity, entry.id,
+                            input.getText().toString());
+                    if (onChanged != null) onChanged.run();
+                })
+                .setNegativeButton(android.R.string.cancel, null);
+        if (entry.customName != null) {
+            builder.setNeutralButton(R.string.network_ap_rename_reset, (dialog, which) -> {
+                KeepADBTrustedNetwork.setCustomName(activity, entry.id, null);
+                if (onChanged != null) onChanged.run();
+            });
+        }
+        return builder.create();
     }
 
     static void openLocationSettings(Activity activity) {

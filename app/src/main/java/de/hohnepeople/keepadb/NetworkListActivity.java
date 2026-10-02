@@ -10,13 +10,17 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,6 +35,11 @@ import java.util.Set;
  * never switches Wireless Debugging on ({@link KeepADBNetworkActions#allowAccessPoint}).
  *
  * <p>Names and addresses follow the privacy mode through {@link KeepADBNetworkDisplay}.
+ *
+ * <p>#714: every allowed access point is shown with its stable entry number ({@code #id}) and
+ * can be given a name of its own through the pencil next to its name; the band of every shown
+ * BSSID is added behind it in brackets, from data Android already holds ({@link
+ * KeepADBAccessPointBand}). Number, name and band are display only: trust still keys on the BSSID.
  */
 public class NetworkListActivity extends Activity {
     /** Intent extra naming the view to show; one of the {@code VIEW_*} values. */
@@ -54,6 +63,11 @@ public class NetworkListActivity extends Activity {
     private boolean expanded;
     /** #686: the mesh question after allowing an access point; dismissed in onDestroy. */
     private AlertDialog activeMeshDialog;
+    /** #714: the popup naming one access point; dismissed in onDestroy like the mesh question. */
+    private AlertDialog activeNameDialog;
+    /** The allowed entries by upper-case BSSID and the cached band data; replaced on every render. */
+    private Map<String, KeepADBTrustedNetwork.Entry> entriesByBssid = new HashMap<>();
+    private Map<String, Integer> frequencies = new HashMap<>();
     /** Numbers the hidden names of the view being shown; replaced on every render (#654). */
     private KeepADBNetworkDisplay.Numbering numbering = new KeepADBNetworkDisplay.Numbering();
 
@@ -74,6 +88,12 @@ public class NetworkListActivity extends Activity {
                 activeMeshDialog.dismiss();
             }
             activeMeshDialog = null;
+        }
+        if (activeNameDialog != null) {
+            if (activeNameDialog.isShowing()) {
+                activeNameDialog.dismiss();
+            }
+            activeNameDialog = null;
         }
         super.onDestroy();
     }
@@ -120,6 +140,12 @@ public class NetworkListActivity extends Activity {
 
     private void render() {
         numbering = new KeepADBNetworkDisplay.Numbering();
+        entriesByBssid = new HashMap<>();
+        for (KeepADBTrustedNetwork.Entry entry : KeepADBTrustedNetwork.getEntries(this)) {
+            entriesByBssid.put(entry.bssid.toUpperCase(Locale.ROOT), entry);
+        }
+        // Read once per drawing from what Android already holds; never starts a scan (#714).
+        frequencies = KeepADBAccessPointBand.read(this);
         currentRow.removeAllViews();
         list.removeAllViews();
         showMore.setVisibility(View.GONE);
@@ -233,9 +259,33 @@ public class NetworkListActivity extends Activity {
 
     private View buildAccessPointRow(KeepADBAccessPointOverview.ApItem item,
                                      boolean highlightCurrent) {
-        String name = KeepADBNetworkDisplay.label(this, item.ssid, item.bssid, numbering);
+        // The numbering is always asked for the network name, so hidden-name numbers do not
+        // depend on whether an own name is shown instead.
+        String networkName = KeepADBNetworkDisplay.label(this, item.ssid, item.bssid, numbering);
+        KeepADBTrustedNetwork.Entry entry = entriesByBssid.get(item.bssid);
+        boolean ssidKnown = item.ssid != null && !item.ssid.isEmpty();
+        boolean named = entry != null && entry.customName != null;
+        String name = named
+                ? KeepADBNetworkDisplay.customName(this, entry.customName) : networkName;
+        String bssidLine = KeepADBNetworkDisplay.bssidWithBand(this, item.bssid,
+                KeepADBAccessPointBand.bandOf(frequencies, item.bssid));
+
+        // Lines below the title: the unchanged network name behind an own name, then the BSSID
+        // with its band. Without a name and without a network name the BSSID is the title itself,
+        // so the band follows it there instead of in a second line.
+        List<String> details = new ArrayList<>();
+        String title = name;
+        if (named && ssidKnown) details.add(networkName);
+        if (ssidKnown || named) {
+            details.add(bssidLine);
+        } else {
+            title = bssidLine;
+        }
+        // The entry number is the stable one of the stored entry (#714); rows that are no stored
+        // entry (observed, not allowed) have none.
+        if (entry != null) title = "#" + entry.id + " · " + title;
         String primary = highlightCurrent
-                ? getString(R.string.wifi_aps_current_badge) + " · " + name : name;
+                ? getString(R.string.wifi_aps_current_badge) + " · " + title : title;
         boolean allowlist = KeepADBTrustedNetwork.isAllowlistMode(this);
         KeepADBNetworkCardState.Connection state = item.trusted
                 ? KeepADBNetworkCardState.Connection.ALLOWED_AP
@@ -243,9 +293,11 @@ public class NetworkListActivity extends Activity {
         KeepADBNetworkCardState.Mode mode = allowlist
                 ? KeepADBNetworkCardState.Mode.ALLOWED_APS : KeepADBNetworkCardState.Mode.ALL_WIFI;
 
-        // The secondary line is the BSSID; it is dropped when the name already is the BSSID.
-        boolean nameIsBssid = item.ssid == null || item.ssid.isEmpty();
-        String secondary = nameIsBssid ? null : KeepADBNetworkDisplay.bssid(this, item.bssid);
+        // The pencil edits the name of a stored entry. While the privacy mode is on it is not
+        // offered: the popup would show the current name and a blank field would read as "reset".
+        Runnable edit = entry != null && !KeepADBNetworkDisplay.hidden(this)
+                ? () -> showNameDialog(item.bssid) : null;
+        String editDescription = getString(R.string.network_ap_rename_accessibility, name);
 
         String actionLabel = getString(item.trusted ? R.string.wifi_ssids_remove_button
                 : R.string.wifi_ssids_add_button);
@@ -268,10 +320,30 @@ public class NetworkListActivity extends Activity {
                 }
             }
         };
-        return buildRow(primary, secondary,
+        return buildRow(primary, details,
                 getString(KeepADBNetworkCardText.connectionLabel(state)),
                 getColor(KeepADBNetworkCardText.connectionColor(state, mode)),
-                null, actionLabel, actionDescription, !item.trusted, action, highlightCurrent);
+                null, actionLabel, actionDescription, !item.trusted, action, highlightCurrent,
+                edit, editDescription);
+    }
+
+    /** #714: opens the popup naming the allowed access point {@code bssid}, if it still is one. */
+    private void showNameDialog(String bssid) {
+        for (KeepADBTrustedNetwork.Entry entry : KeepADBTrustedNetwork.getEntries(this)) {
+            if (!entry.bssid.equalsIgnoreCase(bssid)) continue;
+            if (activeNameDialog != null) {
+                activeNameDialog.dismiss();
+            }
+            AlertDialog dialog = KeepADBNetworkActions.editAccessPointName(this, entry, this::render);
+            activeNameDialog = dialog;
+            dialog.setOnDismissListener(d -> {
+                if (activeNameDialog == d) {
+                    activeNameDialog = null;
+                }
+            });
+            dialog.show();
+            return;
+        }
     }
 
     // --- Recently prevented re-enabling ------------------------------------------------------
@@ -290,34 +362,40 @@ public class NetworkListActivity extends Activity {
             KeepADBBlockedNetworkHistory.Entry entry = entries.get(i);
             String name = KeepADBNetworkDisplay.label(this, entry.ssid, entry.bssid, numbering);
             boolean nameIsBssid = entry.ssid == null || entry.ssid.isEmpty();
-            String detail = getString(R.string.settings_trusted_network_blocked_detail,
-                    KeepADBNetworkDisplay.bssid(this, entry.bssid),
+            String bssidLine = KeepADBNetworkDisplay.bssidWithBand(this, entry.bssid,
+                    KeepADBAccessPointBand.bandOf(frequencies, entry.bssid));
+            String title = name;
+            String detail = getString(R.string.settings_trusted_network_blocked_detail, bssidLine,
                     DateUtils.getRelativeTimeSpanString(entry.lastSeenAt, System.currentTimeMillis(),
                             DateUtils.MINUTE_IN_MILLIS).toString());
             if (nameIsBssid) {
-                // The BSSID already is the title; only the age is left to say.
+                // The BSSID already is the title, with its band behind it; only the age is left
+                // to say.
+                title = bssidLine;
                 detail = DateUtils.getRelativeTimeSpanString(entry.lastSeenAt,
                         System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString();
             }
-            list.addView(buildRow(name, detail, null, 0,
+            list.addView(buildRow(title, Collections.singletonList(detail), null, 0,
                     getString(R.string.network_view_prevented_reason),
                     getString(R.string.wifi_ssids_add_button),
                     getString(R.string.network_action_allow_ap_accessibility, name), true,
                     () -> KeepADBNetworkActions.allowAccessPoint(this, entry.bssid, entry.label(),
                             false, this::render),
-                    false));
+                    false, null, null));
         }
     }
 
     // --- Row building ------------------------------------------------------------------------
 
     /**
-     * One row as a vertical stack -- name, detail, status, reason, then the action button -- so a
-     * large font or a narrow display never squeezes the text against the button.
+     * One row as a vertical stack -- name (with the pencil, if any), details, status, reason, then
+     * the action button -- so a large font or a narrow display never squeezes the text against the
+     * button.
      */
-    private View buildRow(String primary, String secondary, String status, int statusColor,
+    private View buildRow(String primary, List<String> details, String status, int statusColor,
                           String reason, String actionLabel, String actionDescription,
-                          boolean primaryAction, Runnable action, boolean highlighted) {
+                          boolean primaryAction, Runnable action, boolean highlighted,
+                          Runnable edit, String editDescription) {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.VERTICAL);
         if (!highlighted) {
@@ -331,10 +409,29 @@ public class NetworkListActivity extends Activity {
         }
 
         TextView primaryView = textView(primary, 15, R.color.night_text);
-        row.addView(primaryView);
-        if (secondary != null && !secondary.isEmpty()) {
-            TextView secondaryView = textView(secondary, 12, R.color.night_muted);
-            row.addView(secondaryView);
+        if (edit == null) {
+            row.addView(primaryView);
+        } else {
+            // #714: the pencil sits directly next to the name; its touch target stays 48dp.
+            LinearLayout titleRow = new LinearLayout(this);
+            titleRow.setOrientation(LinearLayout.HORIZONTAL);
+            titleRow.setGravity(Gravity.CENTER_VERTICAL);
+            titleRow.addView(primaryView, new LinearLayout.LayoutParams(
+                    0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+            ImageButton pencil = new ImageButton(this);
+            pencil.setImageResource(R.drawable.ic_edit);
+            pencil.setBackgroundResource(R.drawable.bg_btn_header);
+            pencil.setScaleType(android.widget.ImageView.ScaleType.CENTER_INSIDE);
+            pencil.setPadding(dp(12), dp(12), dp(12), dp(12));
+            pencil.setContentDescription(editDescription);
+            pencil.setOnClickListener(v -> edit.run());
+            titleRow.addView(pencil, new LinearLayout.LayoutParams(dp(48), dp(48)));
+            row.addView(titleRow);
+        }
+        for (String detail : details) {
+            if (detail != null && !detail.isEmpty()) {
+                row.addView(textView(detail, 12, R.color.night_muted));
+            }
         }
         if (status != null) {
             TextView statusView = textView(status, 13, R.color.night_text);

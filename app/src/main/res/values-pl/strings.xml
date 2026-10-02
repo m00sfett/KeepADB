@@ -372,4 +372,14 @@
     <string name="network_view_prevented_reason">Powód: punktu dostępowego nie było na liście dozwolonych.</string>
     <string name="network_ap_allowed_toast">Zezwolono na punkt dostępowy „%1$s”</string>
     <string name="network_ap_removed_toast">Usunięto punkt dostępowy „%1$s” z listy dozwolonych</string>
+    <string name="network_ap_rename_title">Nazwa punktu dostępowego #%1$d</string>
+    <string name="network_ap_rename_message">Wybierz własną nazwę. Jest wyświetlana na tych listach, zapisywana tylko na tym urządzeniu i nie zmienia ani nazwy sieci, ani dozwolonych punktów dostępowych.</string>
+    <string name="network_ap_rename_hint">Własna nazwa</string>
+    <string name="network_ap_rename_reset">Zresetuj</string>
+    <string name="network_ap_rename_accessibility">Zmień nazwę punktu dostępowego „%1$s”</string>
+    <string name="network_band_24">2,4 GHz</string>
+    <string name="network_band_5">5 GHz</string>
+    <string name="network_band_6">6 GHz</string>
+    <string name="network_band_unknown">Pasmo nieznane</string>
+    <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

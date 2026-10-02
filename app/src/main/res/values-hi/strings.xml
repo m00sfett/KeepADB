@@ -372,4 +372,14 @@
     <string name="network_view_prevented_reason">कारण: ऐक्सेस पॉइंट अनुमति सूची में नहीं था।</string>
     <string name="network_ap_allowed_toast">ऐक्सेस पॉइंट “%1$s” को अनुमति दी गई</string>
     <string name="network_ap_removed_toast">ऐक्सेस पॉइंट “%1$s” अनुमति सूची से हटाया गया</string>
+    <string name="network_ap_rename_title">ऐक्सेस पॉइंट #%1$d का नाम</string>
+    <string name="network_ap_rename_message">अपना नाम चुनें। यह इन सूचियों में दिखता है, सिर्फ़ इसी डिवाइस पर सहेजा जाता है, और न नेटवर्क का नाम बदलता है, न अनुमति प्राप्त ऐक्सेस पॉइंट।</string>
+    <string name="network_ap_rename_hint">अपना नाम</string>
+    <string name="network_ap_rename_reset">रीसेट करें</string>
+    <string name="network_ap_rename_accessibility">ऐक्सेस पॉइंट “%1$s” का नाम बदलें</string>
+    <string name="network_band_24">2.4 GHz</string>
+    <string name="network_band_5">5 GHz</string>
+    <string name="network_band_6">6 GHz</string>
+    <string name="network_band_unknown">बैंड अज्ञात</string>
+    <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

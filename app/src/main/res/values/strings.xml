@@ -379,4 +379,14 @@
     <string name="network_view_prevented_reason">Reason: the access point wasn’t on the allowed list.</string>
     <string name="network_ap_allowed_toast">Allowed access point “%1$s”</string>
     <string name="network_ap_removed_toast">Removed access point “%1$s” from the allowed list</string>
+    <string name="network_ap_rename_title">Name for access point #%1$d</string>
+    <string name="network_ap_rename_message">Choose a name of your own. It is shown in these lists, saved only on this device, and changes neither the network name nor which access points are allowed.</string>
+    <string name="network_ap_rename_hint">Own name</string>
+    <string name="network_ap_rename_reset">Reset</string>
+    <string name="network_ap_rename_accessibility">Rename access point “%1$s”</string>
+    <string name="network_band_24">2.4 GHz</string>
+    <string name="network_band_5">5 GHz</string>
+    <string name="network_band_6">6 GHz</string>
+    <string name="network_band_unknown">Band unknown</string>
+    <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>
