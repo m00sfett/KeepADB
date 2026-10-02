@@ -771,6 +771,58 @@ public class KeepADBRegisterCleanupLifecycleTest {
     }
 
     /**
+     * The other side of the two tests above (#711, review of #707, O2): queueing a cleanup that is
+     * pending already evicts nothing, so the commit block of the client must leave its retry record
+     * alone. The backlog is not full and the old URL is queued again by the commit block.
+     *
+     * <p>The flush in front of every transaction drops a pending entry whose URL is the live
+     * registration, so a transaction does not meet this state by itself. The test creates it the
+     * only way the single register executor allows: during the flush (a DELETE of another entry),
+     * the old URL becomes the live registration and is queued with a spent record, which is the
+     * state a transaction would see if the preferences were changed between its flush and its
+     * commit.
+     */
+    @Test
+    public void aCleanupQueuedAgainWithoutAnEvictionKeepsItsSpentRetryRecord() throws Exception {
+        configureWebhook(NEW_URL);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, FULL_FIFO[0]);
+        plantRecord(FULL_FIFO[0], SPENT_TWICE);
+        KeepADBPreferences.addPendingWebhookCleanupUrl(context, FULL_FIFO[1]);
+        KeepADBRegisterClient.setPendingCleanupNowForTesting(1_000L);
+        transport.setDeleteSuccess(false);
+        AtomicInteger stateChanges = new AtomicInteger();
+        transport.setRequestCallback(req -> {
+            if ("DELETE".equals(req.method) && FULL_FIFO[1].equals(req.url)
+                    && stateChanges.getAndIncrement() == 0) {
+                KeepADBRegisterClient.setWlanStateForTesting(OLD_URL, "192.168.1.50:41234");
+                KeepADBPreferences.addPendingWebhookCleanupUrl(context, OLD_URL);
+                plantRecord(OLD_URL, SPENT_TWICE);
+            }
+        });
+
+        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.1.51", 41235);
+        waitUntil(() -> NEW_URL.equals(KeepADBPreferences.getWebhookLastReportedUrl(context)), 3000);
+        KeepADBRegisterClient.awaitIdleForTesting(3000);
+
+        assertEquals("the fixture ran: the flush attempted the entry that was due", 1,
+                stateChanges.get());
+        assertEquals("the commit block ran", "192.168.1.51:41235",
+                KeepADBPreferences.getWebhookLastReportedEndpoint(context));
+        assertEquals("the old URL's own cleanup failed in the transaction, not in the flush", 1,
+                countDeletes(OLD_URL));
+        assertEquals("queued again, nothing evicted, the order is unchanged",
+                Arrays.asList(FULL_FIFO[0], FULL_FIFO[1], OLD_URL),
+                new ArrayList<>(KeepADBPreferences.getPendingWebhookCleanupUrls(context)));
+        assertTrue("the backlog had room, so there was nothing to evict",
+                KeepADBPreferences.getPendingWebhookCleanupUrls(context).size()
+                        < KeepADBPreferences.MAX_PENDING_CLEANUPS);
+        assertEquals("attempts, nextAttemptAt and expiresAt of the queued-again entry are kept",
+                SPENT_TWICE, retryRecord(OLD_URL));
+        assertEquals("a neighbour that was not touched keeps its record as well", SPENT_TWICE,
+                retryRecord(FULL_FIFO[0]));
+    }
+
+    /**
      * The generation guard of the commit block covers the eviction as well: a superseded update
      * neither queues its cleanup nor evicts anything (that is {@code
      * KeepADBRegisterClientTest#testUpdateSupersededDuringItsSecondaryTransportsDoesNotEvictOrQueue}
