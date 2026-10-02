@@ -218,6 +218,15 @@ public class KeepADBTrustedNetworkNamingTest {
     }
 
     @Test
+    public void theNameLimitIsFortyCharacters() {
+        // Literal on purpose: the other tests measure with the constant itself.
+        assertEquals(40, KeepADBTrustedNetwork.MAX_CUSTOM_NAME_LENGTH);
+        String forty = repeat('x', 40);
+        assertEquals(forty, KeepADBTrustedNetwork.normalizeCustomName(forty));
+        assertEquals(forty, KeepADBTrustedNetwork.normalizeCustomName(forty + "y"));
+    }
+
+    @Test
     public void cuttingNeverSplitsASurrogatePair() {
         String emoji = new String(Character.toChars(0x1F4F6));
         String name = repeat('x', KeepADBTrustedNetwork.MAX_CUSTOM_NAME_LENGTH - 1) + emoji;
