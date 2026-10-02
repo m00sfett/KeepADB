@@ -28,8 +28,12 @@ are retrospective issue-version records and were never published as separate rel
 ### Fixed
 - #729: The access point number behind a name (#722) is now decided per drawn list. It appears only when the same network name occurs at least twice in that list (the current access point counts when it is an allowed entry). Before, `meshCount` counted every known access point of the name, so a single allowed `Office` showed as `Office (3)` just because another `Office` was only observed or connected. The stable entry number (`entry.id`), trust and the privacy mode are unchanged; the decision lives in `KeepADBNetworkDisplay.repeatedNames` and `NetworkListActivity.accessPointRows`.
 
+### Changed
+- #730: The title of the access point rename dialog (`network_ap_rename_title`) shows the entry number in brackets behind the wording, without a leading `#`, like the access point list since #722 (`Name for access point (2)`, German `Name für Access Point (2)`). All 19 locales were reworded with the number placement adapted to each language (e.g. Turkish, Korean, Japanese, Chinese, Hindi); the format argument `%1$d` is unchanged. No change to renaming itself, the name limit (40) or trust.
+
 ### Testing
 - #729: `NetworkListActivityTest` covers a name repeated only outside the list (no number) and a name repeated inside the list (numbers kept).
+- #730: `KeepADBResourceContractTest.renameTitleShowsTheNumberInBracketsWithoutHashInEveryLocale` checks the compiled value of every locale bucket plus the default for no `#` and the `(%1$d)` form; `NetworkListActivityTest` asserts the dialog title has no `#`.
 
 ## [1.9.21] - Unreleased
 
