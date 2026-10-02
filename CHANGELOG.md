@@ -25,6 +25,8 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.9.23] - Unreleased
 
+This single section covers the four integrated packages #733, #731, #735 and #736 (one candidate, versionCode 195).
+
 ### Changed
 - #733: "Save URL" in the webhook settings now also activates the webhook when the switch is off and the URL is valid and normalized: one shared enable path (`KeepADBWebhookForm.activateWebhook`, also used by the switch) persists the URL, sets `register_webhook_enabled`, shows the switch as on, calls `KeepADBEndpointCoordinator.refresh` and shows only the "Webhook sync enabled" toast. With the switch already on, saving behaves as before (save, refresh, "saved" toast). An invalid URL still shows the error and activates nothing; an empty field with the switch off still removes the URL without activating; an empty field with the switch on still shows the error. No new strings.
 - #731: Turning off "Observe access points" in Settings now asks whether the observation history should be deleted as well (title, short explanation, "Yes, delete" / "No, keep"; localized in all 19 languages). Turning it off itself always applies at once: recording stops and the stored bands are deleted, as since #721. Only an explicit "Yes" deletes the BSSID history (`KeepADBBssidHistory.clearHistory`); "No", Cancel, back, touch outside, rotation and process death keep it (#654 behavior). The question lives in `KeepADBNetworkCard` (dismissed in `destroy()`, never restored); `KeepADBPreferences.setWifiApsFeatureEnabled` stays dialog-free. No question when turning the option on.
