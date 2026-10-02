@@ -372,4 +372,14 @@
     <string name="network_view_prevented_reason">Причина: точки доступу не було в списку дозволених.</string>
     <string name="network_ap_allowed_toast">Точку доступу «%1$s» дозволено</string>
     <string name="network_ap_removed_toast">Точку доступу «%1$s» видалено зі списку дозволених</string>
+    <string name="network_ap_rename_title">Назва точки доступу #%1$d</string>
+    <string name="network_ap_rename_message">Виберіть власну назву. Вона показується в цих списках, зберігається лише на цьому пристрої й не змінює ні назву мережі, ні список дозволених точок доступу.</string>
+    <string name="network_ap_rename_hint">Власна назва</string>
+    <string name="network_ap_rename_reset">Скинути</string>
+    <string name="network_ap_rename_accessibility">Перейменувати точку доступу «%1$s»</string>
+    <string name="network_band_24">2,4 ГГц</string>
+    <string name="network_band_5">5 ГГц</string>
+    <string name="network_band_6">6 ГГц</string>
+    <string name="network_band_unknown">Діапазон невідомий</string>
+    <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

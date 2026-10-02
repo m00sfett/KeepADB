@@ -33,15 +33,30 @@ final class KeepADBTrustedNetwork {
 
     enum BlockReason { NONE, UNTRUSTED_NETWORK, IDENTITY_UNAVAILABLE }
 
+    /** Upper bound of an access point's own name (#714); longer input is cut, not rejected. */
+    static final int MAX_CUSTOM_NAME_LENGTH = 40;
+
+    /**
+     * One allowlisted access point. {@code id} is the stable entry number shown as {@code #id}
+     * (#714): it is handed out once, never reused and never changes when other entries come or go.
+     * {@code customName} is the optional name the user gave this entry, or null; it is display
+     * only and is never read by any trust decision, which keys on {@code bssid} alone.
+     */
     static final class Entry {
         final int id;
         final String label;
         final String bssid;
+        final String customName;
 
         Entry(int id, String label, String bssid) {
+            this(id, label, bssid, null);
+        }
+
+        Entry(int id, String label, String bssid, String customName) {
             this.id = id;
             this.label = label;
             this.bssid = bssid;
+            this.customName = customName;
         }
     }
 
@@ -282,7 +297,8 @@ final class KeepADBTrustedNetwork {
         if (!removed) return false;
         SharedPreferences.Editor editor = preferences.edit()
                 .remove(PREFIX + id + "_label")
-                .remove(PREFIX + id + "_bssid");
+                .remove(PREFIX + id + "_bssid")
+                .remove(PREFIX + id + "_name");
         if (entries.isEmpty()) {
             editor.remove(KEY_IDS);
         } else {
@@ -295,6 +311,51 @@ final class KeepADBTrustedNetwork {
         }
         editor.apply();
         return true;
+    }
+
+    /**
+     * Gives the entry {@code id} its own display name, or resets it to the default display when
+     * {@code name} is null or blank (#714). Returns false when no such entry exists, so a stale
+     * dialog can never resurrect a name for an entry that was removed meanwhile. Display only:
+     * the BSSID, the stored label and every trust decision stay exactly as they were.
+     */
+    static boolean setCustomName(Context context, int id, String name) {
+        boolean exists = false;
+        for (Entry entry : getEntries(context)) {
+            if (entry.id == id) {
+                exists = true;
+                break;
+            }
+        }
+        if (!exists) return false;
+        String cleanName = normalizeCustomName(name);
+        SharedPreferences.Editor editor = prefs(context).edit();
+        if (cleanName.isEmpty()) {
+            editor.remove(PREFIX + id + "_name");
+        } else {
+            editor.putString(PREFIX + id + "_name", cleanName);
+        }
+        editor.apply();
+        return true;
+    }
+
+    /**
+     * Trims, turns control characters such as line breaks into spaces (a name is one line) and cuts
+     * at {@link #MAX_CUSTOM_NAME_LENGTH} without splitting a surrogate pair. Returns "" for no
+     * usable name.
+     */
+    static String normalizeCustomName(String name) {
+        if (name == null) return "";
+        StringBuilder cleaned = new StringBuilder();
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            cleaned.append(Character.isISOControl(c) ? ' ' : c);
+        }
+        String trimmed = cleaned.toString().trim();
+        if (trimmed.length() <= MAX_CUSTOM_NAME_LENGTH) return trimmed;
+        int end = MAX_CUSTOM_NAME_LENGTH;
+        if (Character.isHighSurrogate(trimmed.charAt(end - 1))) end--;
+        return trimmed.substring(0, end).trim();
     }
 
     /**
@@ -361,7 +422,9 @@ final class KeepADBTrustedNetwork {
         String bssid = preferences.getString(PREFIX + id + "_bssid", null);
         if (bssid == null) return null;
         String label = preferences.getString(PREFIX + id + "_label", bssid);
-        return new Entry(id, label, bssid);
+        String customName = preferences.getString(PREFIX + id + "_name", null);
+        if (customName != null && customName.isEmpty()) customName = null;
+        return new Entry(id, label, bssid, customName);
     }
 
     private static void write(SharedPreferences preferences, Entry entry) {

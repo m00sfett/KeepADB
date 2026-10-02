@@ -104,6 +104,21 @@ ALLOWLIST = {
     "settings_section_notification": {"fr"},    # "Notification" is the correct French word
     "usb_profile_hostname_hint": {"de"},        # "Hostname (optional)" is correct German (cf. nl "Hostnaam (optioneel)")
     "network_manage_title": {"nl"},             # "Access points" is the Dutch loanword used throughout the nl strings (#654)
+
+    # -- Band labels (#714): the unit "GHz" and the digits are written the same way in most --
+    # languages; ru, uk and ar write the unit in their own script and are therefore not listed
+    # for the 5 and 6 GHz labels. The 2.4 GHz label additionally differs by decimal separator
+    # (comma in most European languages), so only the languages that keep the point are listed.
+    "network_bssid_with_band": ALL_LANGUAGES,    # pure format string "%1$s (%2$s)"
+    "network_band_5": {
+        "de", "es", "fr", "hi", "id", "it", "ja", "ko", "nl",
+        "pl", "pt", "tr", "vi", "zh-rCN", "zh-rTW",
+    },
+    "network_band_6": {
+        "de", "es", "fr", "hi", "id", "it", "ja", "ko", "nl",
+        "pl", "pt", "tr", "vi", "zh-rCN", "zh-rTW",
+    },
+    "network_band_24": {"hi", "ja", "ko", "zh-rCN", "zh-rTW"},  # these keep the decimal point
 }
 
 STRING_RE = re.compile(r'<string\b([^>]*)>(.*?)</string>', re.S)

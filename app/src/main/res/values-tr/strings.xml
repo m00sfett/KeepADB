@@ -372,4 +372,14 @@
     <string name="network_view_prevented_reason">Neden: erişim noktası izin verilenler listesinde değildi.</string>
     <string name="network_ap_allowed_toast">“%1$s” erişim noktasına izin verildi</string>
     <string name="network_ap_removed_toast">“%1$s” erişim noktası izin verilenler listesinden kaldırıldı</string>
+    <string name="network_ap_rename_title">#%1$d numaralı erişim noktasının adı</string>
+    <string name="network_ap_rename_message">Kendi adını seç. Bu listelerde gösterilir, yalnızca bu cihazda saklanır; ağ adını da izin verilen erişim noktalarını da değiştirmez.</string>
+    <string name="network_ap_rename_hint">Özel ad</string>
+    <string name="network_ap_rename_reset">Sıfırla</string>
+    <string name="network_ap_rename_accessibility">“%1$s” erişim noktasını yeniden adlandır</string>
+    <string name="network_band_24">2,4 GHz</string>
+    <string name="network_band_5">5 GHz</string>
+    <string name="network_band_6">6 GHz</string>
+    <string name="network_band_unknown">Bant bilinmiyor</string>
+    <string name="network_bssid_with_band">%1$s (%2$s)</string>
 </resources>

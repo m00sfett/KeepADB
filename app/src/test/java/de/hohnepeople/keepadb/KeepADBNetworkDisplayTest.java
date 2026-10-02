@@ -115,6 +115,38 @@ public class KeepADBNetworkDisplayTest {
         assertEquals("The stored BSSID remains in its original case", "aa:bb:cc:dd:ee:01", bssid);
     }
 
+    // --- band and own name (#714) -------------------------------------------------------------
+
+    @Test
+    public void theBandStandsInBracketsDirectlyBehindTheBssidAndUnknownSaysSo() {
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        assertEquals("AA:BB:CC:DD:EE:01 (2.4 GHz)", KeepADBNetworkDisplay.bssidWithBand(
+                context, "aa:bb:cc:dd:ee:01", KeepADBAccessPointBand.GHZ_2_4));
+        assertEquals("AA:BB:CC:DD:EE:01 (5 GHz)", KeepADBNetworkDisplay.bssidWithBand(
+                context, "AA:BB:CC:DD:EE:01", KeepADBAccessPointBand.GHZ_5));
+        assertEquals("AA:BB:CC:DD:EE:01 (6 GHz)", KeepADBNetworkDisplay.bssidWithBand(
+                context, "AA:BB:CC:DD:EE:01", KeepADBAccessPointBand.GHZ_6));
+        assertEquals("AA:BB:CC:DD:EE:01 (Band unknown)", KeepADBNetworkDisplay.bssidWithBand(
+                context, "AA:BB:CC:DD:EE:01", KeepADBAccessPointBand.UNKNOWN));
+    }
+
+    @Test
+    public void thePrivacyModeMasksTheAddressBehindTheBandButNotTheBand() {
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        assertEquals("AA:*:*:*:*:01 (5 GHz)", KeepADBNetworkDisplay.bssidWithBand(
+                context, "AA:BB:CC:DD:EE:01", KeepADBAccessPointBand.GHZ_5));
+        assertFalse(KeepADBNetworkDisplay.bssidWithBand(context, "AA:BB:CC:DD:EE:01",
+                KeepADBAccessPointBand.UNKNOWN).contains("BB:CC"));
+    }
+
+    @Test
+    public void anOwnNameIsShownAsTypedAndHiddenByThePrivacyMode() {
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        assertEquals("Kitchen", KeepADBNetworkDisplay.customName(context, "Kitchen"));
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        assertEquals(hiddenName(), KeepADBNetworkDisplay.customName(context, "Kitchen"));
+    }
+
     // --- numbering of hidden names (#654) -----------------------------------------------------
 
     private String shown(KeepADBNetworkDisplay.Numbering numbering, String ssid) {

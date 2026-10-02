@@ -54,6 +54,31 @@ Die Vertrauensregel gilt für automatische Wiederherstellung. Manuelles Umschalt
 Freigabeliste gesperrt. Sperrbildschirmregeln für Kachel und Benachrichtigungsaktionen stehen in
 der [Sicherheitsrichtlinie](../SECURITY.md).
 
+## Nummer, eigener Name und Band in der Access-Point-Liste
+
+Jeder freigegebene Access Point trägt in der Liste **Freigegebene Access Points** eine eigene
+Eintragsnummer wie `#1`. Die Nummer wird beim Freigeben einmal vergeben, nie wiederverwendet und
+ändert sich nicht, wenn andere Einträge hinzukommen oder entfallen; fehlt ein `#2`, bleibt die Lücke.
+Access Points, die nur beobachtet oder verhindert wurden, sind kein gespeicherter Eintrag und haben
+weder Nummer noch eigenen Namen.
+
+Das kleine Stift-Symbol neben dem Namen öffnet ein einfaches Eingabefenster mit **OK**, **Abbrechen**
+und, sobald ein Name gesetzt ist, **Zurücksetzen**. Ein leeres Feld mit **OK** setzt ebenfalls
+zurück. Der eigene Name ist höchstens 40 Zeichen lang, steht in der Zeile anstelle des
+Netzwerknamens und liegt nur lokal in den App-Einstellungen. Der Netzwerkname (SSID) bleibt
+unverändert sichtbar, und der Name wirkt auf keine Freigabeentscheidung: Maßgeblich bleibt allein die
+BSSID. Bei eingeschaltetem Datenschutzmodus wird der Name wie der Netzwerkname ausgeblendet und das
+Stift-Symbol nicht angeboten.
+
+Hinter jeder BSSID steht in Klammern das Band, etwa `AA:BB:CC:DD:EE:01 (5 GHz)`, oder
+`(Band unbekannt)`. KeepADB löst dafür **keinen** WLAN-Scan aus und plant keinen. Gelesen werden
+beim Öffnen der Liste nur Daten, die Android bereits hält: die Frequenz der aktuellen Verbindung und
+die zwischengespeicherten Scanergebnisse des Systems, je BSSID. Zwei BSSIDs desselben Netzes, etwa die
+2,4- und die 5-GHz-Funkeinheit eines Routers, bleiben getrennte Einträge mit eigenem Band. Android
+gibt Scanergebnisse nur bei präzisem Standortzugriff und eingeschalteten Standortdiensten heraus und
+kann sie zeitweise veraltet halten; ohne verfügbare Frequenz bleibt es bei „Band unbekannt“, bis
+Android sie beim nächsten Öffnen der Liste liefert. Das Band wird nicht gespeichert.
+
 ## Messgrenzen
 
 Die Messungen auf AOSP-Emulatoren und dem Galaxy S20 FE belegen die oben beschriebenen Fälle für
