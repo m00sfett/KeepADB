@@ -363,7 +363,8 @@
     <string name="network_ssid_effect_on">Увімк.: читабельні точки доступу з однією з назв нижче приймаються, навіть без власного запису. Нечитабельні — ніколи.</string>
     <string name="card_state_expanded">Розгорнуто</string>
     <string name="card_state_collapsed">Згорнуто</string>
-    <string name="network_view_observed_title">Помічені точки доступу</string>
+    <string name="network_view_allowed_title">Дозволені AP</string>
+    <string name="network_view_observed_title">Помічені AP</string>
     <string name="network_view_allowed_intro">Спочатку точка доступу, до якої ви підключені, потім кожна точка доступу, яку ви дозволили самі. Нічого не дозволяється лише тому, що збігається назва.</string>
     <string name="network_view_prevented_intro">Автоматична історія точок доступу, де Keep-Alive не ввімкнув бездротове налагодження повторно. Це не список блокування, і додавати записи вручну не можна.</string>
     <string name="network_view_observed_intro">Точки доступу, помічені, поки телефон був підключений. Наявність у списку нічого не дозволяє.</string>

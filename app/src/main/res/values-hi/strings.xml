@@ -363,7 +363,8 @@
     <string name="network_ssid_effect_on">चालू: नीचे दिए किसी भी नाम वाले पढ़े जा सकने वाले ऐक्सेस पॉइंट स्वीकार किए जाते हैं, भले ही उनकी अपनी प्रविष्टि न हो। न पढ़े जा सकने वाले कभी नहीं।</string>
     <string name="card_state_expanded">फैला हुआ</string>
     <string name="card_state_collapsed">सिमटा हुआ</string>
-    <string name="network_view_observed_title">देखे गए ऐक्सेस पॉइंट</string>
+    <string name="network_view_allowed_title">अनुमति प्राप्त AP</string>
+    <string name="network_view_observed_title">देखे गए AP</string>
     <string name="network_view_allowed_intro">सबसे ऊपर वह ऐक्सेस पॉइंट जिससे आप जुड़े हैं, फिर हर वह ऐक्सेस पॉइंट जिसे आपने खुद अनुमति दी है। केवल नाम एक जैसा होने से कुछ भी अनुमत नहीं होता।</string>
     <string name="network_view_prevented_intro">उन ऐक्सेस पॉइंट का स्वचालित इतिहास जहाँ Keep-Alive ने वायरलेस डीबगिंग फिर से चालू नहीं की। यह ब्लॉक सूची नहीं है और आप खुद प्रविष्टियाँ नहीं जोड़ सकते।</string>
     <string name="network_view_observed_intro">वे ऐक्सेस पॉइंट जो इस फ़ोन के जुड़े रहने के दौरान दिखे। सूची में होने से किसी चीज़ की अनुमति नहीं मिलती।</string>

@@ -363,7 +363,8 @@
     <string name="network_ssid_effect_on">Włączone: czytelne punkty dostępowe o jednej z poniższych nazw są akceptowane, nawet bez własnego wpisu. Nieczytelne – nigdy.</string>
     <string name="card_state_expanded">Rozwinięte</string>
     <string name="card_state_collapsed">Zwinięte</string>
-    <string name="network_view_observed_title">Zaobserwowane punkty dostępowe</string>
+    <string name="network_view_allowed_title">Dozwolone AP</string>
+    <string name="network_view_observed_title">Zaobserwowane AP</string>
     <string name="network_view_allowed_intro">Najpierw punkt dostępowy, z którym jesteś połączony, potem każdy punkt dostępowy, na który sam zezwoliłeś. Nic nie jest dozwolone tylko dlatego, że ma tę samą nazwę.</string>
     <string name="network_view_prevented_intro">Automatyczna historia punktów dostępowych, w których Keep-Alive nie włączył ponownie debugowania bezprzewodowego. To nie jest lista blokad i nie możesz sam dodawać wpisów.</string>
     <string name="network_view_observed_intro">Punkty dostępowe widziane, gdy ten telefon był połączony. Sama obecność na liście niczego nie dopuszcza.</string>

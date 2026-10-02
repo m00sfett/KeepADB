@@ -127,6 +127,8 @@ public class NetworkListActivity extends Activity {
         emptyView = findViewById(R.id.wifi_aps_empty);
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+        // #725: same eye as on the main view; redraws the masked list at once.
+        KeepADBPrivacyToggle.bind(this, this::render);
         showMore.setOnClickListener(v -> {
             expanded = !expanded;
             render();
@@ -136,6 +138,7 @@ public class NetworkListActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        KeepADBPrivacyToggle.update(this);
         render();
     }
 
@@ -174,7 +177,7 @@ public class NetworkListActivity extends Activity {
                 break;
             case VIEW_ALLOWED:
             default:
-                titleView.setText(R.string.network_row_allowed);
+                titleView.setText(R.string.network_view_allowed_title);
                 introView.setText(R.string.network_view_allowed_intro);
                 // The list stays reachable in "all networks" mode but does not count there.
                 inactiveHint.setText(KeepADBNetworkCardText.inactiveListHint(this,

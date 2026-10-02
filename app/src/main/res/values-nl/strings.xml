@@ -363,7 +363,8 @@
     <string name="network_ssid_effect_on">Aan: leesbare access points met een van de onderstaande namen worden geaccepteerd, ook zonder eigen vermelding. Onleesbare nooit.</string>
     <string name="card_state_expanded">Uitgevouwen</string>
     <string name="card_state_collapsed">Ingeklapt</string>
-    <string name="network_view_observed_title">Waargenomen access points</string>
+    <string name="network_view_allowed_title">Toegestane APs</string>
+    <string name="network_view_observed_title">Waargenomen APs</string>
     <string name="network_view_allowed_intro">Eerst het access point waarmee je verbonden bent, daarna elk access point dat je zelf hebt toegestaan. Niets wordt toegestaan alleen omdat het dezelfde naam heeft.</string>
     <string name="network_view_prevented_intro">Automatische geschiedenis van access points waarop Keep-Alive Draadloze foutopsporing niet opnieuw heeft ingeschakeld. Dit is geen blokkeerlijst en je kunt zelf geen items toevoegen.</string>
     <string name="network_view_observed_intro">Access points die zijn gezien terwijl deze telefoon verbonden was. Vermelding hier staat niets toe.</string>

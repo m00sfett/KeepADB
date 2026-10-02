@@ -363,7 +363,8 @@
     <string name="network_ssid_effect_on">Açık: aşağıdaki adlardan birine sahip okunabilen erişim noktaları, kendi kaydı olmasa bile kabul edilir. Okunamayanlar asla kabul edilmez.</string>
     <string name="card_state_expanded">Genişletildi</string>
     <string name="card_state_collapsed">Daraltıldı</string>
-    <string name="network_view_observed_title">Gözlemlenen erişim noktaları</string>
+    <string name="network_view_allowed_title">İzin verilen AP’ler</string>
+    <string name="network_view_observed_title">Gözlemlenen AP’ler</string>
     <string name="network_view_allowed_intro">Önce bağlı olduğun erişim noktası, sonra kendi izin verdiğin her erişim noktası gelir. Yalnızca aynı adı taşıdığı için hiçbir şeye izin verilmez.</string>
     <string name="network_view_prevented_intro">Keep-Alive’ın Kablosuz Hata Ayıklamayı yeniden açmadığı erişim noktalarının otomatik geçmişi. Bu bir engelleme listesi değildir ve kendin kayıt ekleyemezsin.</string>
     <string name="network_view_observed_intro">Bu telefon bağlıyken görülen erişim noktaları. Listede olmak hiçbir şeye izin vermez.</string>

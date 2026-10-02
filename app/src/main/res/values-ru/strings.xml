@@ -363,7 +363,8 @@
     <string name="network_ssid_effect_on">Вкл.: читаемые точки доступа с одним из имён ниже принимаются, даже без собственной записи. Нечитаемые — никогда.</string>
     <string name="card_state_expanded">Развёрнуто</string>
     <string name="card_state_collapsed">Свёрнуто</string>
-    <string name="network_view_observed_title">Замеченные точки доступа</string>
+    <string name="network_view_allowed_title">Разрешённые AP</string>
+    <string name="network_view_observed_title">Замеченные AP</string>
     <string name="network_view_allowed_intro">Сначала точка доступа, к которой вы подключены, затем каждая точка доступа, которую вы разрешили сами. Ничего не разрешается только потому, что имя совпадает.</string>
     <string name="network_view_prevented_intro">Автоматическая история точек доступа, где Keep-Alive не включил беспроводную отладку повторно. Это не список блокировки, и добавлять записи вручную нельзя.</string>
     <string name="network_view_observed_intro">Точки доступа, замеченные, пока телефон был подключён. Наличие в списке ничего не разрешает.</string>

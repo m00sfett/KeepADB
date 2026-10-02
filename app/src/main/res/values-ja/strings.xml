@@ -363,7 +363,8 @@
     <string name="network_ssid_effect_on">オン：下のいずれかの名前を持つ読み取れるアクセスポイントは、個別の登録がなくても受け入れられます。読み取れないものは受け入れられません。</string>
     <string name="card_state_expanded">展開済み</string>
     <string name="card_state_collapsed">折りたたみ済み</string>
-    <string name="network_view_observed_title">検出したアクセスポイント</string>
+    <string name="network_view_allowed_title">許可したAP</string>
+    <string name="network_view_observed_title">検出したAP</string>
     <string name="network_view_allowed_intro">最初に接続中のアクセスポイント、続いて自分で許可したアクセスポイントが表示されます。名前が同じというだけでは何も許可されません。</string>
     <string name="network_view_prevented_intro">Keep-Alive がワイヤレスデバッグを再有効化しなかったアクセスポイントの自動履歴です。ブロックリストではなく、手動で項目を追加することはできません。</string>
     <string name="network_view_observed_intro">この端末が接続していたときに見つかったアクセスポイントです。一覧にあるだけでは何も許可されません。</string>

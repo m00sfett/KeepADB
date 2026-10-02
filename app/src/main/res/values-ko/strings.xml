@@ -363,7 +363,8 @@
     <string name="network_ssid_effect_on">켜짐: 아래 이름 중 하나를 가진 읽을 수 있는 액세스 포인트는 별도 항목 없이도 허용됩니다. 읽을 수 없는 액세스 포인트는 허용되지 않습니다.</string>
     <string name="card_state_expanded">펼쳐짐</string>
     <string name="card_state_collapsed">접힘</string>
-    <string name="network_view_observed_title">관찰된 액세스 포인트</string>
+    <string name="network_view_allowed_title">허용된 AP</string>
+    <string name="network_view_observed_title">관찰된 AP</string>
     <string name="network_view_allowed_intro">먼저 현재 연결된 액세스 포인트가 나오고, 그다음 직접 허용한 액세스 포인트가 나옵니다. 이름이 같다는 이유만으로 허용되는 것은 없습니다.</string>
     <string name="network_view_prevented_intro">Keep-Alive가 무선 디버깅을 다시 켜지 않은 액세스 포인트의 자동 기록입니다. 차단 목록이 아니며 항목을 직접 추가할 수 없습니다.</string>
     <string name="network_view_observed_intro">이 휴대전화가 연결된 동안 확인된 액세스 포인트입니다. 목록에 있다고 해서 무엇도 허용되지 않습니다.</string>

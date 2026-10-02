@@ -99,7 +99,7 @@ public class NetworkListActivityTest {
 
         NetworkListActivity garbage = open("does-not-exist");
         assertEquals(NetworkListActivity.VIEW_ALLOWED, garbage.getListView());
-        assertEquals(context.getString(R.string.network_row_allowed),
+        assertEquals(context.getString(R.string.network_view_allowed_title),
                 ((TextView) garbage.findViewById(R.id.network_list_title)).getText().toString());
     }
 
@@ -107,7 +107,7 @@ public class NetworkListActivityTest {
     public void eachViewHasItsOwnHeadingTitleAndIntro() {
         String[] views = {NetworkListActivity.VIEW_ALLOWED, NetworkListActivity.VIEW_PREVENTED,
                 NetworkListActivity.VIEW_OBSERVED};
-        int[] titles = {R.string.network_row_allowed, R.string.network_row_prevented,
+        int[] titles = {R.string.network_view_allowed_title, R.string.network_row_prevented,
                 R.string.network_view_observed_title};
         int[] intros = {R.string.network_view_allowed_intro, R.string.network_view_prevented_intro,
                 R.string.network_view_observed_intro};

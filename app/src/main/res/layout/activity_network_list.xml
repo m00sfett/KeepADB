@@ -36,6 +36,12 @@
             android:textColor="@color/title_yellow"
             android:textSize="22sp"
             android:textStyle="bold" />
+
+        <!-- #725: privacy-mode eye, same button and state as on the main view. -->
+        <include
+            layout="@layout/view_privacy_toggle"
+            android:layout_width="48dp"
+            android:layout_height="48dp" />
     </LinearLayout>
 
     <ScrollView

@@ -35,6 +35,13 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
+        <!-- #725: privacy-mode eye, same button and state as on the main view. -->
+        <include
+            layout="@layout/view_privacy_toggle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="4dp" />
+
         <!-- #518: compact language/translation entry point, replacing the former large
              in-content language section. Opens the same language selection dialog. -->
         <ImageButton

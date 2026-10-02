@@ -119,6 +119,8 @@ public class SettingsActivity extends Activity {
         websiteLinkText.setOnClickListener(v -> openWebLink(WEBSITE_URL));
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+        // #725: same eye as on the main view; refresh() redraws the masked card and webhook.
+        KeepADBPrivacyToggle.bind(this, this::refresh);
         scrollView = findViewById(R.id.settings_scroll_view);
         webhookPanel = findViewById(R.id.settings_webhook_panel);
         networkPanel = findViewById(R.id.settings_network_beta_panel);
@@ -235,6 +237,7 @@ public class SettingsActivity extends Activity {
     protected void onResume() {
         super.onResume();
         webhookForm.ensureDraftInitialized();
+        KeepADBPrivacyToggle.update(this);
         refresh();
 
         if (getIntent().hasExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION)) {

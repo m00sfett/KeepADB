@@ -363,7 +363,8 @@
     <string name="network_ssid_effect_on">An: Lesbare Access Points mit einem der Namen unten werden akzeptiert, auch ohne eigenen Eintrag. Nicht lesbare nie.</string>
     <string name="card_state_expanded">Aufgeklappt</string>
     <string name="card_state_collapsed">Eingeklappt</string>
-    <string name="network_view_observed_title">Beobachtete Access Points</string>
+    <string name="network_view_allowed_title">Freigegebene APs</string>
+    <string name="network_view_observed_title">Beobachtete APs</string>
     <string name="network_view_allowed_intro">Zuerst der Access Point, mit dem du verbunden bist, danach jeder Access Point, den du selbst freigegeben hast. Nichts wird freigegeben, nur weil es denselben Namen trägt.</string>
     <string name="network_view_prevented_intro">Automatischer Verlauf von Access Points, an denen Keep-Alive Drahtloses Debugging nicht wieder eingeschaltet hat. Das ist keine Sperrliste, und Einträge lassen sich nicht selbst hinzufügen.</string>
     <string name="network_view_observed_intro">Access Points, die gesehen wurden, während dieses Handy verbunden war. Ein Eintrag hier erlaubt nichts.</string>

@@ -363,7 +363,8 @@
     <string name="network_ssid_effect_on">Aktif: titik akses yang terbaca dengan salah satu nama di bawah diterima, meskipun tanpa entri sendiri. Yang tidak terbaca tidak pernah diterima.</string>
     <string name="card_state_expanded">Terbuka</string>
     <string name="card_state_collapsed">Tertutup</string>
-    <string name="network_view_observed_title">Titik akses yang diamati</string>
+    <string name="network_view_allowed_title">AP yang diizinkan</string>
+    <string name="network_view_observed_title">AP yang diamati</string>
     <string name="network_view_allowed_intro">Titik akses yang sedang Anda pakai ada di paling atas, lalu setiap titik akses yang Anda izinkan sendiri. Tidak ada yang diizinkan hanya karena namanya sama.</string>
     <string name="network_view_prevented_intro">Riwayat otomatis titik akses tempat Keep-Alive tidak mengaktifkan ulang Debugging Nirkabel. Ini bukan daftar blokir dan Anda tidak dapat menambahkan entri sendiri.</string>
     <string name="network_view_observed_intro">Titik akses yang terlihat saat ponsel ini terhubung. Masuk dalam daftar tidak mengizinkan apa pun.</string>

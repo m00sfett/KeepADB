@@ -363,7 +363,8 @@
     <string name="network_ssid_effect_on">Ativado: pontos de acesso legíveis com um dos nomes abaixo são aceitos, mesmo sem entrada própria. Os ilegíveis nunca são.</string>
     <string name="card_state_expanded">Expandido</string>
     <string name="card_state_collapsed">Recolhido</string>
-    <string name="network_view_observed_title">Pontos de acesso observados</string>
+    <string name="network_view_allowed_title">APs permitidos</string>
+    <string name="network_view_observed_title">APs observados</string>
     <string name="network_view_allowed_intro">Primeiro o ponto de acesso ao qual você está conectado, depois cada ponto de acesso que você mesmo permitiu. Nada é permitido só por compartilhar um nome.</string>
     <string name="network_view_prevented_intro">Histórico automático de pontos de acesso em que o Keep-Alive não reativou a depuração sem fio. Não é uma lista de bloqueio e você não pode adicionar entradas manualmente.</string>
     <string name="network_view_observed_intro">Pontos de acesso vistos enquanto este telefone estava conectado. Estar na lista não permite nada.</string>
