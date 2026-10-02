@@ -17,11 +17,19 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20` and `1.9.21` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21` and `1.9.22` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.22] - Unreleased
+
+### Fixed
+- #729: The access point number behind a name (#722) is now decided per drawn list. It appears only when the same network name occurs at least twice in that list (the current access point counts when it is an allowed entry). Before, `meshCount` counted every known access point of the name, so a single allowed `Office` showed as `Office (3)` just because another `Office` was only observed or connected. The stable entry number (`entry.id`), trust and the privacy mode are unchanged; the decision lives in `KeepADBNetworkDisplay.repeatedNames` and `NetworkListActivity.accessPointRows`.
+
+### Testing
+- #729: `NetworkListActivityTest` covers a name repeated only outside the list (no number) and a name repeated inside the list (numbers kept).
 
 ## [1.9.21] - Unreleased
 
