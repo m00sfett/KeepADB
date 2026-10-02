@@ -1,0 +1,1 @@
+The privacy eye is now in the title bar of Settings and of the access point lists too, so you can hide names and addresses right where they are shown, for example before a screenshot. It works exactly like the one on the main screen and shares its state. The titles "Allowed APs" and "Observed APs" are shortened in all languages to make room.

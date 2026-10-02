@@ -17,11 +17,21 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20` and `1.9.21` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21` and `1.9.22` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.22] - Unreleased
+
+### Added
+- #725: The privacy-mode eye now sits in every red title bar, not only on the main view: Settings and the three network list views (allowed, prevented, observed access points). The button is one shared layout (`view_privacy_toggle.xml`, included by each bar) with one behavior class (`KeepADBPrivacyToggle`: flips the single `KeepADBPreferences` privacy setting, updates icon and content description, redraws the page, then refreshes the endpoint coordinator and the tile). Same icon, same effect, same state everywhere; there is no second setting. The page redraws at once on tap (main view as before, Settings through `refresh()`, lists through `render()`), and the icon is re-synced on resume so a change made on another page shows when returning.
+- #725: Test `PrivacyToggleTitleBarsTest` (presence per page, a guard that every layout with a red `header_bar` includes the toggle, shared state between pages in both directions, immediate masking and unmasking in the list view and in Settings).
+
+### Changed
+- #725: Title of the allowed and observed access point lists shortened to make room for the eye: "Allowed APs" / "Observed APs" with a fitting abbreviation in every language (own string `network_view_allowed_title`; the Settings row `network_row_allowed` keeps its full wording). What the privacy mode hides is unchanged; no change to trust.
+- `MainActivity` no longer carries its own copy of the toggle logic; it uses `KeepADBPrivacyToggle` and only adds its page-specific re-render.
 
 ## [1.9.21] - Unreleased
 
