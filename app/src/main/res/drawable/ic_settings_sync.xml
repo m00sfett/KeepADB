@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Two opposing arrows (exchange/sync) for the "Webhook & Endpoint Sync" settings card
+     icon (#736), drawn as plain stroked vector paths. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:strokeColor="@color/title_yellow"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M4,8H19M15,4L19,8L15,12M20,16H5M9,12L5,16L9,20" />
+</vector>
