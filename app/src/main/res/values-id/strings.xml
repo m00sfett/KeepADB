@@ -105,7 +105,6 @@
     <string name="wifi_aps_current_badge">Saat ini</string>
     <string name="wifi_aps_trusted_status">Tepercaya</string>
     <string name="wifi_aps_untrusted_status">Tidak tepercaya</string>
-    <string name="wifi_aps_mesh_label">AP %1$d dari %2$d</string>
     <string name="wifi_aps_ssid_unknown">Nama jaringan tidak diketahui</string>
     <string name="wifi_aps_current_unknown">Jaringan Wi-Fi saat ini tidak dapat ditentukan (periksa izin lokasi).</string>
     <string name="wifi_aps_empty">Belum ada titik akses lain yang tercatat.</string>

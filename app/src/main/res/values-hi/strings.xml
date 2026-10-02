@@ -105,7 +105,6 @@
     <string name="wifi_aps_current_badge">वर्तमान</string>
     <string name="wifi_aps_trusted_status">विश्वसनीय</string>
     <string name="wifi_aps_untrusted_status">अविश्वसनीय</string>
-    <string name="wifi_aps_mesh_label">AP %1$d/%2$d</string>
     <string name="wifi_aps_ssid_unknown">अज्ञात नेटवर्क नाम</string>
     <string name="wifi_aps_current_unknown">वर्तमान Wi-Fi नेटवर्क की पहचान नहीं हो पा रही (स्थान अनुमति जांचें)।</string>
     <string name="wifi_aps_empty">अभी तक कोई अन्य एक्सेस पॉइंट दर्ज नहीं हुआ।</string>

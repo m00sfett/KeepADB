@@ -139,7 +139,6 @@
     <string name="wifi_aps_current_badge">Aktuell</string>
     <string name="wifi_aps_trusted_status">Vertrauenswürdig</string>
     <string name="wifi_aps_untrusted_status">Nicht vertraut</string>
-    <string name="wifi_aps_mesh_label">AP %1$d von %2$d</string>
     <string name="wifi_aps_ssid_unknown">Unbekannter Netzwerkname</string>
     <string name="wifi_aps_current_unknown">Aktuelles WLAN kann nicht ermittelt werden (Standortberechtigung prüfen).</string>
     <string name="wifi_aps_empty">Noch keine weiteren Access Points erfasst.</string>

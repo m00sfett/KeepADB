@@ -105,7 +105,6 @@
     <string name="wifi_aps_current_badge">Actuel</string>
     <string name="wifi_aps_trusted_status">De confiance</string>
     <string name="wifi_aps_untrusted_status">Non approuvé</string>
-    <string name="wifi_aps_mesh_label">AP %1$d sur %2$d</string>
     <string name="wifi_aps_ssid_unknown">Nom de réseau inconnu</string>
     <string name="wifi_aps_current_unknown">Le réseau Wi-Fi actuel est indéterminable (vérifiez l’autorisation de localisation).</string>
     <string name="wifi_aps_empty">Aucun autre point d’accès enregistré pour le moment.</string>
