@@ -199,9 +199,11 @@ final class KeepADBDiagnosticsController {
         activeIssueReportPreview = preview;
         activeIssueReportDiagnostics = diagnostics;
         dialog.setOnDismissListener(d -> {
-            activeIssueReportDialog = null;
-            activeIssueReportPreview = null;
-            activeIssueReportDiagnostics = null;
+            if (activeIssueReportDialog == d) {
+                activeIssueReportDialog = null;
+                activeIssueReportPreview = null;
+                activeIssueReportDiagnostics = null;
+            }
         });
         dialog.setOnShowListener(ignored -> {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {

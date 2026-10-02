@@ -610,6 +610,14 @@ final class KeepADBNetworkCard {
                     // Grants exactly the access point the card showed; never switches anything on.
                     activeMeshDialog = KeepADBNetworkActions.allowAccessPoint(activity,
                             networkActionBssid, networkActionLabel, true, onChange);
+                    if (activeMeshDialog != null) {
+                        activeMeshDialog.setOnDismissListener(dialog -> {
+                            if (activeMeshDialog == dialog) {
+                                activeMeshDialog = null;
+                            }
+                        });
+                        activeMeshDialog.show();
+                    }
                 }
                 break;
             case GRANT_LOCATION:
@@ -800,6 +808,9 @@ final class KeepADBNetworkCard {
      * needs its own explicit click.
      */
     void showTrustConfirmationDialog(String bssid) {
+        if (isShowing(activeTrustConfirmationDialog)) {
+            return;
+        }
         KeepADBBlockedNetworkHistory.Entry entry =
                 KeepADBNetworkTrustPrompt.pendingConfirmation(activity, bssid);
         if (entry == null) {

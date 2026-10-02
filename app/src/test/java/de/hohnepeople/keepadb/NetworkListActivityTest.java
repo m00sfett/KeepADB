@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -22,6 +23,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -236,6 +238,37 @@ public class NetworkListActivityTest {
         controller.destroy();
 
         assertFalse("Destroying the activity dismisses the mesh question", mesh.isShowing());
+    }
+
+    @Test
+    public void dismissingTheMeshQuestionDropsTheListActivityReference() throws Exception {
+        ActivityController<NetworkListActivity> controller = openWithMeshQuestion();
+        NetworkListActivity activity = controller.get();
+        AlertDialog mesh = getField(activity, "activeMeshDialog");
+        assertNotNull(mesh);
+
+        mesh.dismiss();
+        ShadowLooper.idleMainLooper();
+
+        assertNull("Dismissal drops the list activity's reference",
+                getField(activity, "activeMeshDialog"));
+        controller.destroy();
+    }
+
+    @Test
+    public void aStaleMeshDismissDoesNotClearAReplacementReference() throws Exception {
+        ActivityController<NetworkListActivity> controller = openWithMeshQuestion();
+        NetworkListActivity activity = controller.get();
+        AlertDialog original = getField(activity, "activeMeshDialog");
+        AlertDialog replacement = new AlertDialog.Builder(activity).create();
+        setField(activity, "activeMeshDialog", replacement);
+
+        original.dismiss();
+        ShadowLooper.idleMainLooper();
+
+        assertSame("An older dialog's dismissal must not clear the newer reference", replacement,
+                getField(activity, "activeMeshDialog"));
+        controller.destroy();
     }
 
     @Test
@@ -952,6 +985,35 @@ public class NetworkListActivityTest {
                 NetworkListActivity.class, NetworkListActivity.intent(context, view)).setup();
         ShadowLooper.idleMainLooper();
         return controller.get();
+    }
+
+    private ActivityController<NetworkListActivity> openWithMeshQuestion() {
+        preparedForAnAutomaticEnable("MeshHome", "aa:bb:cc:dd:ee:03");
+        KeepADBBssidHistory.recordObservation(context, "MeshHome", "aa:bb:cc:dd:ee:04");
+        ActivityController<NetworkListActivity> controller = Robolectric.buildActivity(
+                NetworkListActivity.class, NetworkListActivity.intent(context,
+                        NetworkListActivity.VIEW_ALLOWED)).setup();
+        ShadowLooper.idleMainLooper();
+        findButton(controller.get().findViewById(R.id.wifi_aps_current_row)).performClick();
+        ShadowLooper.idleMainLooper();
+        AlertDialog mesh = ShadowAlertDialog.getLatestAlertDialog();
+        assertNotNull(mesh);
+        assertTrue(mesh.isShowing());
+        return controller;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T getField(Object target, String name) throws ReflectiveOperationException {
+        Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        return (T) field.get(target);
+    }
+
+    private static void setField(Object target, String name, Object value)
+            throws ReflectiveOperationException {
+        Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        field.set(target, value);
     }
 
     private NetworkListActivity openWithPrivacy(boolean privacy) {

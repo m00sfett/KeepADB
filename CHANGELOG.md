@@ -17,16 +17,30 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13` and `1.9.14` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14` and `1.9.15` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
-## [1.9.14] - Unreleased
+## [1.9.15] - Unreleased
+
+### Documentation
+- #703: Document the ownership and lifecycle delegation of the network-card and diagnostics controllers in the architecture index.
+
+### Candidate history
+- #702 and #704 independently bumped separate branches from 1.9.13 / versionCode 185 to 1.9.14 / 186. #702's bump reached master before #704 was integrated, so the duplicated bump was consolidated: the full #702 and #704 entries remain under the superseded candidate below, while the combined #702/#704/#703 candidate uses 1.9.15 / versionCode 187. No 1.9.14 release was published.
+
+## [1.9.14] - Superseded, unreleased
 
 ### Testing
 - #702: The background-location runtime-request contract scans every Java source under `app/src/main`, so a request added in a newly extracted source file is detected.
+
+### Fixed
+- #704: Repeated details-off trust prompts no longer stack a second confirmation. Mesh and issue dialogs clear their references on dismissal only while they are still the active dialog. Trust still requires the explicit allow action and preserves the existing locked-device gate.
+
+### Testing
+- #704: Regression coverage checks duplicate trust prompts, dismissed mesh references in both callers, and stale mesh/issue dismissals that must leave a newer reference intact.
 
 ## [1.9.13] - Unreleased
 
