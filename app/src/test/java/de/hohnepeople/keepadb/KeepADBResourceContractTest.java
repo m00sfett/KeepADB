@@ -245,6 +245,23 @@ public class KeepADBResourceContractTest {
         }
     }
 
+    /**
+     * #730: the rename dialog title shows the entry number in brackets like the access point
+     * list, never as "#n". Read from the compiled table so every locale bucket is checked.
+     */
+    @Test
+    public void renameTitleShowsTheNumberInBracketsWithoutHashInEveryLocale() throws Exception {
+        List<String> locales = new ArrayList<>(SUPPORTED_LOCALES.values());
+        locales.add("");
+        for (String locale : locales) {
+            String value = compiledValue("network_ap_rename_title", locale);
+            assertFalse("Rename title of '" + locale + "' still contains a hash: " + value,
+                    value.contains("#"));
+            assertTrue("Rename title of '" + locale + "' lacks the bracketed number: " + value,
+                    value.contains("(%1$d)"));
+        }
+    }
+
     @Test
     public void translatedContractStringsDoNotSilentlyFallBackToEnglishWhereRuntimeCanSelectThem()
             throws Exception {

@@ -372,7 +372,7 @@
     <string name="network_view_prevented_reason">原因：該存取點不在允許清單中。</string>
     <string name="network_ap_allowed_toast">已允許存取點「%1$s」</string>
     <string name="network_ap_removed_toast">已將存取點「%1$s」從允許清單中移除</string>
-    <string name="network_ap_rename_title">存取點 #%1$d 的名稱</string>
+    <string name="network_ap_rename_title">存取點的名稱 (%1$d)</string>
     <string name="network_ap_rename_message">為它取一個自己的名稱。此名稱會顯示在這些清單中，只儲存在這部裝置上，不會變更網路名稱，也不會變更已允許的存取點。</string>
     <string name="network_ap_rename_hint">自訂名稱</string>
     <string name="network_ap_rename_reset">重設</string>

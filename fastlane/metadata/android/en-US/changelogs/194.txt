@@ -1,0 +1,2 @@
+An allowed access point only shows a number behind its name when the same name appears at least twice in that list. A single "Office" is no longer numbered just because another "Office" was seen elsewhere.
+The dialog for naming an access point now shows its number in brackets, like the access point list, for example "Name for access point (2)". The wording is adjusted in all languages.

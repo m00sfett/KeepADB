@@ -743,6 +743,40 @@ public class NetworkListActivityTest {
     }
 
     /**
+     * #729: a name that is shared only with an access point outside the drawn list gets no number.
+     * The second "Office" is merely observed (not allowed), so the allowed list holds one.
+     */
+    @Test
+    public void aNameRepeatedOnlyOutsideTheListGetsNoNumber() {
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:01", "Office");
+        KeepADBBssidHistory.recordObservation(context, "Office", "aa:aa:aa:aa:aa:02");
+        connectTo("Office", "aa:aa:aa:aa:aa:03");
+
+        NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
+
+        List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
+        assertTrue(joined(texts), texts.contains("Office"));
+        for (String text : texts) {
+            assertFalse("No number for a single entry: " + text, text.startsWith("Office ("));
+        }
+    }
+
+    /** #729: the same name twice in the drawn list keeps the stable numbers behind it. */
+    @Test
+    public void aNameRepeatedInsideTheListKeepsItsNumbers() {
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:01", "Office");
+        KeepADBTrustedNetwork.addBssid(context, "cc:cc:cc:cc:cc:01", "Cafe");
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:02", "Office");
+
+        NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
+
+        List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
+        assertTrue(joined(texts), texts.contains("Office (1)"));
+        assertTrue(joined(texts), texts.contains("Office (3)"));
+        assertTrue(joined(texts), texts.contains("Cafe"));
+    }
+
+    /**
      * #722: with the privacy mode on, the only "#" of a row is the one of the hidden name; the
      * access point number follows it in brackets and the same name keeps the same "#n".
      */
@@ -886,6 +920,8 @@ public class NetworkListActivityTest {
         assertTrue(dialog.isShowing());
         assertEquals(context.getString(R.string.network_ap_rename_title, 1),
                 String.valueOf(shadowOf(dialog).getTitle()));
+        assertFalse("Dialog title shows the entry number in brackets, not as #n",
+                String.valueOf(shadowOf(dialog).getTitle()).contains("#"));
         EditText field = nameField(dialog);
         assertEquals("No own name yet: the field starts empty", "", field.getText().toString());
         assertEquals(context.getString(R.string.network_ap_rename_hint), field.getHint().toString());
@@ -911,7 +947,8 @@ public class NetworkListActivityTest {
 
         assertEquals("Kitchen", KeepADBTrustedNetwork.getEntries(context).get(0).customName);
         List<String> texts = allText(activity.findViewById(R.id.wifi_aps_list));
-        assertTrue(joined(texts), texts.contains("Kitchen (1)"));
+        // #729: "Cafe" occurs once in this list (the connected one is not allowed), so no number.
+        assertTrue(joined(texts), texts.contains("Kitchen"));
         assertTrue("The unchanged SSID stays in the row: " + joined(texts), texts.contains("Cafe"));
         assertTrue(joined(texts), texts.contains("CC:CC:CC:CC:CC:01"));
         // Trust and the action are exactly what they were.
