@@ -17,11 +17,16 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18` and `1.9.19` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19` and `1.9.20` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.20] - Unreleased
+
+### Testing
+- #724: `KeepADBRegisterCleanupLifecycleTest.aFailedReplacementPostDoesNotEvictFromAFullBacklogForAnUnqueuedCleanup` closes the remaining gap M3 of #718. With a full backlog of four foreign entries, a failed cleanup of the old URL (not queued) and a failed replacement POST, the pending order and all four spent retry records stay untouched. No callback fixture is needed: the state is the plain transaction state (old URL as local report, full backlog). Proof by mutation in a throwaway copy: `addPendingWebhookCleanupUrl(cleanupToRemember)` in the failure branch evicts the oldest entry and the test turns red (it was green for M3 before, in the #718 test). Test-only; no production change.
 
 ## [1.9.19] - Unreleased
 
