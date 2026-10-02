@@ -28,6 +28,12 @@ are retrospective issue-version records and were never published as separate rel
 ### Testing
 - #702: The background-location runtime-request contract scans every Java source under `app/src/main`, so a request added in a newly extracted source file is detected.
 
+### Fixed
+- #704: Repeated details-off trust prompts no longer stack a second confirmation. Mesh and issue dialogs clear their references on dismissal only while they are still the active dialog. Trust still requires the explicit allow action and preserves the existing locked-device gate.
+
+### Testing
+- #704: Regression coverage checks duplicate trust prompts, dismissed mesh references in both callers, and stale mesh/issue dismissals that must leave a newer reference intact.
+
 ## [1.9.13] - Unreleased
 
 ### Fixed

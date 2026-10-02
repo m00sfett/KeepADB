@@ -27,8 +27,8 @@ final class KeepADBNetworkActions {
      * separate, explicit question; nothing beyond {@code bssid} is ever allowed implicitly.
      *
      * @param onChanged run after every change so the caller can re-render; may be null.
-     * @return the mesh question if it was shown, else null; the caller owns it and must dismiss it
-     *     in {@code onDestroy}, otherwise a rotation leaks its window (#686).
+     * @return the mesh question if one is available, else null; the caller owns it, must show it
+     *     after attaching its dismiss listener, and must dismiss it in {@code onDestroy} (#686).
      */
     static AlertDialog allowAccessPoint(Activity activity, String bssid, String label, boolean offerMesh,
                                  Runnable onChanged) {
@@ -68,8 +68,8 @@ final class KeepADBNetworkActions {
      * shown for a readable identity with a known name and at least one access point that is not
      * allowed yet; accepting allows exactly those, via the grant-only path.
      *
-     * @return the shown dialog, or null when nothing was offered; the caller must dismiss it when
-     *     its activity is destroyed (#686).
+     * @return the dialog to show, or null when nothing was offered; the caller must dismiss it
+     *     when its activity is destroyed (#686).
      */
     static AlertDialog offerAdditionalMeshBssids(Activity activity, Runnable onChanged) {
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(activity);
@@ -99,7 +99,7 @@ final class KeepADBNetworkActions {
                     if (onChanged != null) onChanged.run();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
     }
 
     static void openLocationSettings(Activity activity) {

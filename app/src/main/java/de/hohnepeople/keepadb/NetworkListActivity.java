@@ -258,6 +258,14 @@ public class NetworkListActivity extends Activity {
             } else {
                 activeMeshDialog = KeepADBNetworkActions.allowAccessPoint(this, item.bssid,
                         item.label(), item.current, this::render);
+                if (activeMeshDialog != null) {
+                    activeMeshDialog.setOnDismissListener(dialog -> {
+                        if (activeMeshDialog == dialog) {
+                            activeMeshDialog = null;
+                        }
+                    });
+                    activeMeshDialog.show();
+                }
             }
         };
         return buildRow(primary, secondary,
