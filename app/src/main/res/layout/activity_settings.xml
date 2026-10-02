@@ -949,6 +949,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-condensed"
                     android:text="@string/settings_section_usb_adb"
+                    android:textAlignment="viewStart"
                     android:textColor="@color/title_yellow"
                     android:textSize="18sp"
                     android:textStyle="bold" />

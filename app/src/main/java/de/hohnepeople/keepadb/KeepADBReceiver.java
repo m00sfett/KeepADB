@@ -11,6 +11,8 @@ import android.widget.Toast;
  */
 public final class KeepADBReceiver extends BroadcastReceiver {
     static final String ACTION_DISABLE = "de.hohnepeople.keepadb.ACTION_DISABLE";
+    /** #734: the notification's Keep-Alive on/off action. */
+    static final String ACTION_TOGGLE_KEEP_ALIVE = "de.hohnepeople.keepadb.ACTION_TOGGLE_KEEP_ALIVE";
     /** #446: the user allowed the access point the trust prompt named. */
     static final String ACTION_TRUST_NETWORK = "de.hohnepeople.keepadb.ACTION_TRUST_NETWORK";
     /** #446: the user declined; only the prompt goes away, nothing is trusted. */
@@ -23,6 +25,8 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         if (ACTION_DISABLE.equals(action)) {
             handleDisableAction(context);
+        } else if (ACTION_TOGGLE_KEEP_ALIVE.equals(action)) {
+            handleToggleKeepAliveAction(context);
         } else if (ACTION_TRUST_NETWORK.equals(action)) {
             handleTrustNetworkAction(context,
                     intent.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID),
@@ -48,6 +52,23 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         KeepADBEndpointCoordinator.refresh(context);
         KeepADBWidget.refreshAll(context);
         return success;
+    }
+
+    /**
+     * #734: flips the real Keep-Alive setting, lets the service/widgets follow and redraws the card
+     * so its status line and the action label match the new state. Turning Keep-Alive on only
+     * lets the service's normal guarded path (Wi-Fi, trust, backoff) act; nothing is written to
+     * Wireless Debugging here.
+     */
+    static boolean handleToggleKeepAliveAction(Context context) {
+        boolean want = !KeepADBPreferences.isKeepAliveEnabled(context);
+        KeepADBDiagnostics.event(context, "user_action", "notification",
+                want ? "enable" : "disable", "keep_alive_action");
+        KeepADBPreferences.setKeepAliveEnabled(context, want);
+        KeepADBService.sync(context);
+        KeepADBEndpointCoordinator.refresh(context);
+        KeepADBWidget.refreshAll(context);
+        return want;
     }
 
     /**
