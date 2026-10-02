@@ -17,7 +17,7 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16` and `1.9.18` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17` and `1.9.18` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
@@ -39,7 +39,19 @@ are retrospective issue-version records and were never published as separate rel
 - #714: The new assertions were checked against ten targeted production mutations in a disposable copy (entry number derived from the list size, name left behind after removal, a band boundary moved, a name granting trust, a list position instead of the entry id, band lookup ignoring the BSSID, Cancel saving, a `startScan` call, the pencil offered in privacy mode, the own name not hidden in privacy mode); each turned red and the unmodified copy is green. Not checked on a device or emulator: the layout of the pencil row, the popup's look, keyboard behavior, TalkBack reading and what Android's scan cache really holds on a phone are covered only by Robolectric view-tree tests.
 
 ### Candidate history
-- 1.9.17 / versionCode 189 is not used on this branch; the 1.9.18 / 190 numbers were assigned by the orchestrator, which resolves any collision with a parallel branch at merge time.
+- 1.9.18 / versionCode 190 follows 1.9.17 / 189 (#710/#711, merged as PR #717): this branch was merged with `master` after that merge, and the version and changelog entries were reconciled in that merge.
+
+## [1.9.17] - Unreleased
+
+### Fixed
+- #710: `KeepADBRegisterClient.flushPendingCleanups` now skips a snapshot entry that is no longer in the current pending FIFO. When two spellings of the same legacy URL (e.g. different userinfo) were queued, the first successful DELETE already removed both entries, but the loop still processed the stale second one: a redundant DELETE and, if that failed, an orphan retry record until the next flush's orphan sweep. Retry keys, FIFO cap, retry policy, locks and the orphan sweep are unchanged.
+
+### Testing
+- #710: Two behavior tests in `KeepADBRegisterCleanupLifecycleTest`: the stale second spelling causes no second DELETE and leaves no retry record; later entries of other resources are still flushed (and a failing one keeps its entry and record).
+- #711: A behavior test through the client commit path guards that queueing a pending cleanup again, without evicting a FIFO entry, keeps its spent retry record (`attempts`, `nextAttemptAt`, `expiresAt`). The commit block of `KeepADBRegisterClient` previously had this guarded only by a source-shape pin (review #707, O2). Test-only; no production change.
+
+### Candidate history
+- #710 and #711 independently bumped separate branches from 1.9.16 / versionCode 188 to 1.9.17 / 189. Both bumps were merged into one candidate (Stage A integration), so the entries are consolidated here under a single 1.9.17 / versionCode 189 and one `189.txt`. No further bump was needed and no 1.9.17 was published.
 
 ## [1.9.16] - Unreleased
 
