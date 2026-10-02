@@ -416,11 +416,30 @@ public class KeepADBAccessibilityContractTest {
     }
 
     @Test
+    public void settingsNetworkCardIsTheFirstCardAfterTheConditionalPermissionWarning() {
+        // #735: the network card is the first card on the settings page, before webhook and all
+        // others; only the hidden-by-default permission warning may precede it. #470 had placed
+        // it after the webhook and USB-ADB cards.
+        View settings = runtimeView(R.layout.activity_settings);
+        ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
+                settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
+        View permission = content.findViewById(R.id.settings_permission_panel);
+        View network = content.findViewById(R.id.settings_network_beta_panel);
+        assertNotNull(permission);
+        assertNotNull(network);
+        assertTrue("Only the permission warning may precede the network card",
+                content.indexOfChild(network) <= content.indexOfChild(permission) + 1);
+        assertTrue(content.indexOfChild(network) < content.indexOfChild(
+                content.findViewById(R.id.settings_webhook_panel)));
+    }
+
+    @Test
     public void settingsPanelsFollowProductOrderInTheInflatedHierarchy() {
         View settings = runtimeView(R.layout.activity_settings);
         ViewGroup content = (ViewGroup) ((android.widget.ScrollView)
                 settings.findViewById(R.id.settings_scroll_view)).getChildAt(0);
-        // #510/#519/#520/#521/#529: the core, everyday ADB settings start with the webhook card,
+        // #735 (replaces #470's order): the "Network" card now comes first, as the most important
+        // settings area. The remaining cards keep their relative order: the webhook card,
         // then the "USB-ADB" card, with notification and USB -> Wifi-ADB handover shown as direct
         // sections after the sole outer expand step.
         // Below that sits the "Network" card -- itself collapsible since #519, with its sections
@@ -430,9 +449,9 @@ public class KeepADBAccessibilityContractTest {
         // #518: the language panel no longer exists in this content column at all -- it moved to
         // the compact toolbar button in the header -- so it is no longer part of this table.
         int[] panels = {
+                R.id.settings_network_beta_panel,
                 R.id.settings_webhook_panel,
                 R.id.settings_usb_adb_panel,
-                R.id.settings_network_beta_panel,
                 R.id.settings_misc_panel,
                 R.id.settings_diagnostics_panel,
                 R.id.settings_version_panel

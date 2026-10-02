@@ -129,6 +129,8 @@ final class KeepADBNetworkCard {
     private String activeTrustConfirmationBssid;
     /** #686: the mesh question after allowing an access point; not restored, see {@link #destroy}. */
     private AlertDialog activeMeshDialog;
+    /** #731: the "delete the history?" question after turning the observation off; not restored. */
+    private AlertDialog activeObservationOffDialog;
 
     /** #661: refreshes the visible Network card while a Wi-Fi network changes. */
     private ConnectivityManager.NetworkCallback wifiStatusCallback;
@@ -200,8 +202,14 @@ final class KeepADBNetworkCard {
 
         // The observation option only controls the observation and its list (#654).
         wifiApsFeatureToggle.setOnClickListener(v -> {
-            KeepADBPreferences.setWifiApsFeatureEnabled(activity, wifiApsFeatureToggle.isChecked());
+            boolean enabled = wifiApsFeatureToggle.isChecked();
+            // Turning it off always applies right away (recording stops, bands are deleted);
+            // the history is only deleted after an explicit "Yes" (#731).
+            KeepADBPreferences.setWifiApsFeatureEnabled(activity, enabled);
             onChange.run();
+            if (!enabled) {
+                showObservationOffDialog();
+            }
         });
 
         networkSsidHeader.setOnClickListener(v ->
@@ -299,6 +307,10 @@ final class KeepADBNetworkCard {
         // #686: derived from live data and only offered right after an allow; not restored.
         dismissIfShowing(activeMeshDialog);
         activeMeshDialog = null;
+
+        // #731: an interrupted question counts as "No"; the history stays and nothing is restored.
+        dismissIfShowing(activeObservationOffDialog);
+        activeObservationOffDialog = null;
     }
 
     /**
@@ -410,6 +422,33 @@ final class KeepADBNetworkCard {
             return;
         }
         showAllowlistPermissionDialog();
+    }
+
+    /**
+     * #731: asks whether the BSSID observation history should be deleted now that the observation
+     * is off. Only "Yes" deletes; Cancel, back, touch outside, rotation and process death all
+     * count as "No" (the history stays). Not restored after a recreate, see {@link #destroy}.
+     */
+    private void showObservationOffDialog() {
+        if (isShowing(activeObservationOffDialog)) {
+            return;
+        }
+        AlertDialog dialog = new AlertDialog.Builder(activity)
+                .setTitle(R.string.settings_wifi_aps_off_title)
+                .setMessage(R.string.settings_wifi_aps_off_message)
+                .setPositiveButton(R.string.settings_wifi_aps_off_delete, (d, which) -> {
+                    KeepADBBssidHistory.clearHistory(activity);
+                    onChange.run();
+                })
+                .setNegativeButton(R.string.settings_wifi_aps_off_keep, null)
+                .create();
+        activeObservationOffDialog = dialog;
+        dialog.setOnDismissListener(d -> {
+            if (activeObservationOffDialog == d) {
+                activeObservationOffDialog = null;
+            }
+        });
+        dialog.show();
     }
 
     /** #682: the rationale shown before ACCESS_FINE_LOCATION is requested for allowlist mode. */

@@ -763,6 +763,13 @@ public class SettingsActivityTest {
         assertEquals("http://100.111.111.21:50829/register/s20",
                 KeepADBPreferences.getRegisterWebhookUrl(activity));
 
+        // #733: a valid save also activates the webhook, so switch it off again before
+        // exercising the toggle's own enable path.
+        assertTrue(toggle.isChecked());
+        toggle.performClick();
+        ShadowLooper.idleMainLooper();
+        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+
         // Test toggle button sanitization
         input.setText("http://admin:pass@100.111.111.21:50829/register/s20");
         toggle.performClick();

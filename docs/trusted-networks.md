@@ -91,7 +91,8 @@ Beobachtung überschrieben, ohne Verlauf und ohne Zeitstempel, mit denselben Gre
 Historie (8 BSSIDs je Netzwerkname, 50 Netzwerknamen) und gelöscht bei Deinstallation. Es erscheint
 nur dort, wo Android das Band gerade nicht liefert; das aktuelle Band hat immer Vorrang. Beim
 Ausschalten der Option werden alle gespeicherten Bänder gelöscht; die Historie der BSSIDs bleibt
-bestehen. Ohne eingeschaltete Beobachtung wird nichts gespeichert und nur das aktuelle Band
+bestehen, es sei denn, die anschließende Rückfrage „Verlauf löschen?“ wird ausdrücklich mit „Ja“
+beantwortet (Abbrechen, Zurück, Drehen oder Prozessende zählen als „Nein“). Ohne eingeschaltete Beobachtung wird nichts gespeichert und nur das aktuelle Band
 angezeigt. Das Band ist reine Anzeige und fließt nie in eine Freigabeentscheidung ein.
 
 ## Messgrenzen

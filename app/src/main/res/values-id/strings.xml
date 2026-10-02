@@ -314,6 +314,10 @@
     <string name="widget_text_pending">Debugging Nirkabel: mengalihkan…</string>
     <string name="toggle_failed_toast">Debugging Nirkabel tidak dapat dialihkan. Silakan coba lagi.</string>
     <string name="settings_wifi_aps_feature_toggle">Amati titik akses</string>
+    <string name="settings_wifi_aps_off_title">Hapus riwayat titik akses?</string>
+    <string name="settings_wifi_aps_off_message">Pengamatan kini dimatikan. Riwayat berisi titik akses yang sudah terlihat di bawah setiap nama jaringan. Hapus sekarang, atau simpan seandainya pengamatan dinyalakan lagi?</string>
+    <string name="settings_wifi_aps_off_delete">Ya, hapus</string>
+    <string name="settings_wifi_aps_off_keep">Tidak, simpan</string>
     <string name="settings_section_network">Jaringan</string>
     <string name="network_head_mode">Pengaktifan ulang otomatis: %1$s</string>
     <string name="network_mode_option_all_wifi">Di semua jaringan Wi-Fi</string>

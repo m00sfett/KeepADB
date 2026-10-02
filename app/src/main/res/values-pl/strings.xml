@@ -314,6 +314,10 @@
     <string name="widget_text_pending">Debugowanie bezprzewodowe: przełączanie…</string>
     <string name="toggle_failed_toast">Nie udało się przełączyć debugowania bezprzewodowego. Spróbuj ponownie.</string>
     <string name="settings_wifi_aps_feature_toggle">Obserwuj punkty dostępowe</string>
+    <string name="settings_wifi_aps_off_title">Usunąć historię punktów dostępowych?</string>
+    <string name="settings_wifi_aps_off_message">Obserwowanie jest teraz wyłączone. Historia zawiera punkty dostępowe widziane dotąd pod każdą nazwą sieci. Usunąć ją teraz czy zachować na wypadek ponownego włączenia obserwowania?</string>
+    <string name="settings_wifi_aps_off_delete">Tak, usuń</string>
+    <string name="settings_wifi_aps_off_keep">Nie, zachowaj</string>
     <string name="settings_section_network">Sieć</string>
     <string name="network_head_mode">Automatyczne ponowne włączanie: %1$s</string>
     <string name="network_mode_option_all_wifi">We wszystkich sieciach Wi-Fi</string>

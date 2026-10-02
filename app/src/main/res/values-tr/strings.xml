@@ -314,6 +314,10 @@
     <string name="widget_text_pending">Kablosuz Hata Ayıklama: değiştiriliyor…</string>
     <string name="toggle_failed_toast">Kablosuz Hata Ayıklama değiştirilemedi. Lütfen tekrar deneyin.</string>
     <string name="settings_wifi_aps_feature_toggle">Erişim noktalarını gözlemle</string>
+    <string name="settings_wifi_aps_off_title">Erişim noktası geçmişi silinsin mi?</string>
+    <string name="settings_wifi_aps_off_message">Gözlem artık kapalı. Geçmiş, her ağ adı altında şimdiye kadar görülen erişim noktalarını listeler. Şimdi silinsin mi, yoksa gözlem yeniden açılırsa diye saklansın mı?</string>
+    <string name="settings_wifi_aps_off_delete">Evet, sil</string>
+    <string name="settings_wifi_aps_off_keep">Hayır, sakla</string>
     <string name="settings_section_network">Ağ</string>
     <string name="network_head_mode">Otomatik yeniden etkinleştirme: %1$s</string>
     <string name="network_mode_option_all_wifi">Tüm Wi-Fi ağlarında</string>

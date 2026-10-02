@@ -17,11 +17,24 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21` and `1.9.22` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22` and `1.9.23` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.23] - Unreleased
+
+This single section covers the four integrated packages #733, #731, #735 and #736 (one candidate, versionCode 195).
+
+### Changed
+- #733: "Save URL" in the webhook settings now also activates the webhook when the switch is off and the URL is valid and normalized: one shared enable path (`KeepADBWebhookForm.activateWebhook`, also used by the switch) persists the URL, sets `register_webhook_enabled`, shows the switch as on, calls `KeepADBEndpointCoordinator.refresh` and shows only the "Webhook sync enabled" toast. With the switch already on, saving behaves as before (save, refresh, "saved" toast). An invalid URL still shows the error and activates nothing; an empty field with the switch off still removes the URL without activating; an empty field with the switch on still shows the error. No new strings.
+- #731: Turning off "Observe access points" in Settings now asks whether the observation history should be deleted as well (title, short explanation, "Yes, delete" / "No, keep"; localized in all 19 languages). Turning it off itself always applies at once: recording stops and the stored bands are deleted, as since #721. Only an explicit "Yes" deletes the BSSID history (`KeepADBBssidHistory.clearHistory`); "No", Cancel, back, touch outside, rotation and process death keep it (#654 behavior). The question lives in `KeepADBNetworkCard` (dismissed in `destroy()`, never restored); `KeepADBPreferences.setWifiApsFeatureEnabled` stays dialog-free. No question when turning the option on.
+- #735: The "Network" card is now the first card on the settings page, before the webhook card and all others (only the conditional permission warning may still appear above it). This replaces the order from #470, which placed it after language and webhook. Contents, expand/collapse behaviour and the order inside the card are unchanged; the other cards keep their relative order. The layout move in `activity_settings.xml` also swaps the two top margins so the spacing stays the same; `KeepADBAccessibilityContractTest` guards the new order.
+- #736: Settings cards now carry matching decorative header icons. New `ic_settings_sync` (exchange arrows) for "Webhook & Endpoint Sync" and `ic_settings_diagnostics` (pulse line) for "Diagnostics & Maintenance" fill the two headers that had no icon. The Network card uses the new node glyph `ic_settings_network` (the Wi-Fi glyph `ic_wifi` is untouched because the main screen still uses it); `ic_usb` (only used by the USB-ADB card) was redrawn as the trident USB symbol. Icons stay `importantForAccessibility="no"` without `contentDescription`; titles and card contents are unchanged. `KeepADBSettingsHeaderIconContractTest` guards the four headers.
+
+### Testing
+- #733: `KeepADBWebhookFormTest` covers save-while-disabled (switch on, preference set, one coordinator refresh, single toast), save-while-enabled, invalid URL while disabled, and the empty-save case asserting the switch stays off.
 
 ## [1.9.22] - Unreleased
 

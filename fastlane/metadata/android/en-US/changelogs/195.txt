@@ -1,0 +1,4 @@
+Saving a valid webhook URL now also switches webhook sync on.
+Turning off "Observe access points" asks whether to delete the list of seen access points; closing the question keeps it.
+The Network card is now the first card in Settings.
+All settings cards have a fitting icon, and the Network and USB icons look clearer.

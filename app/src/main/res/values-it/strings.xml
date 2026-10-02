@@ -314,6 +314,10 @@
     <string name="widget_text_pending">Debug wireless: cambio in corso…</string>
     <string name="toggle_failed_toast">Impossibile cambiare il debug wireless. Riprova.</string>
     <string name="settings_wifi_aps_feature_toggle">Osserva i punti di accesso</string>
+    <string name="settings_wifi_aps_off_title">Eliminare la cronologia dei punti di accesso?</string>
+    <string name="settings_wifi_aps_off_message">L’osservazione è ora disattivata. La cronologia elenca i punti di accesso visti finora sotto ogni nome di rete. Eliminarla adesso o conservarla nel caso l’osservazione venga riattivata?</string>
+    <string name="settings_wifi_aps_off_delete">Sì, elimina</string>
+    <string name="settings_wifi_aps_off_keep">No, conserva</string>
     <string name="settings_section_network">Rete</string>
     <string name="network_head_mode">Riattivazione automatica: %1$s</string>
     <string name="network_mode_option_all_wifi">In tutte le reti Wi-Fi</string>

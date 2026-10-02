@@ -314,6 +314,10 @@
     <string name="widget_text_pending">Depuração sem fio: alternando…</string>
     <string name="toggle_failed_toast">Não foi possível alternar a depuração sem fio. Tente novamente.</string>
     <string name="settings_wifi_aps_feature_toggle">Observar pontos de acesso</string>
+    <string name="settings_wifi_aps_off_title">Excluir o histórico de pontos de acesso?</string>
+    <string name="settings_wifi_aps_off_message">A observação foi desativada. O histórico lista os pontos de acesso vistos até agora em cada nome de rede. Excluir agora ou manter caso a observação seja ativada novamente?</string>
+    <string name="settings_wifi_aps_off_delete">Sim, excluir</string>
+    <string name="settings_wifi_aps_off_keep">Não, manter</string>
     <string name="settings_section_network">Rede</string>
     <string name="network_head_mode">Reativação automática: %1$s</string>
     <string name="network_mode_option_all_wifi">Em todas as redes Wi-Fi</string>

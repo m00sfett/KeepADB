@@ -314,6 +314,10 @@
     <string name="widget_text_pending">Gỡ lỗi không dây: đang chuyển…</string>
     <string name="toggle_failed_toast">Không thể chuyển gỡ lỗi không dây. Vui lòng thử lại.</string>
     <string name="settings_wifi_aps_feature_toggle">Quan sát điểm truy cập</string>
+    <string name="settings_wifi_aps_off_title">Xóa lịch sử điểm truy cập?</string>
+    <string name="settings_wifi_aps_off_message">Tính năng quan sát đã tắt. Lịch sử liệt kê các điểm truy cập đã thấy cho đến nay dưới mỗi tên mạng. Xóa ngay bây giờ, hay giữ lại phòng khi bật lại quan sát?</string>
+    <string name="settings_wifi_aps_off_delete">Có, xóa</string>
+    <string name="settings_wifi_aps_off_keep">Không, giữ lại</string>
     <string name="settings_section_network">Mạng</string>
     <string name="network_head_mode">Tự động bật lại: %1$s</string>
     <string name="network_mode_option_all_wifi">Trong mọi mạng Wi-Fi</string>
