@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -517,6 +518,31 @@ public class SettingsIssueReportDialogTest {
         assertNull("...and drops the reference", activity.getActiveIssueReportDialog());
     }
 
+    @Test
+    public void aStaleDismissDoesNotClearTheCurrentIssueDialogOrItsViews()
+            throws ReflectiveOperationException {
+        ActivityController<SettingsActivity> controller = start();
+        SettingsActivity activity = controller.get();
+        AlertDialog original = openIssueDialog(activity);
+        KeepADBDiagnosticsController diagnosticsController =
+                getField(activity, "diagnosticsController");
+        EditText originalPreview = preview(original);
+        CheckBox originalDiagnostics = checkBox(original);
+        AlertDialog replacement = new AlertDialog.Builder(activity).create();
+        setField(diagnosticsController, "activeIssueReportDialog", replacement);
+
+        original.dismiss();
+        ShadowLooper.idleMainLooper();
+
+        assertSame("A stale dismissal must leave the newer dialog reference", replacement,
+                activity.getActiveIssueReportDialog());
+        assertSame(originalPreview,
+                getField(diagnosticsController, "activeIssueReportPreview"));
+        assertSame(originalDiagnostics,
+                getField(diagnosticsController, "activeIssueReportDiagnostics"));
+        controller.pause().stop().destroy();
+    }
+
     // --- Bundle keys ------------------------------------------------------------------------
 
     @Test
@@ -587,6 +613,20 @@ public class SettingsIssueReportDialogTest {
 
     private static ActivityController<SettingsActivity> start() {
         return Robolectric.buildActivity(SettingsActivity.class).setup();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T getField(Object target, String name) throws ReflectiveOperationException {
+        Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        return (T) field.get(target);
+    }
+
+    private static void setField(Object target, String name, Object value)
+            throws ReflectiveOperationException {
+        Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        field.set(target, value);
     }
 
     /** Taps the real "report a problem" button and lets the dialog's show listener run. */

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -98,6 +99,32 @@ public class SettingsActivityTrustConfirmationTest {
         assertEquals("Cafe-WLAN", entries.get(0).label);
         assertNull("The answered prompt must go away", postedPrompt());
         assertTrue(KeepADBBlockedNetworkHistory.getEntries(context).isEmpty());
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void anOpenConfirmationIsNotStackedAndTrustStillNeedsItsExplicitTap()
+            throws ReflectiveOperationException {
+        KeepADBBlockedNetworkHistory.record(context,
+                new KeepADBNetworkIdentity("\"Cafe-WLAN\"", BSSID), 1L);
+        ActivityController<SettingsActivity> controller = open(
+                KeepADBNetworkTrustPrompt.confirmInAppIntent(context, BSSID));
+        SettingsActivity activity = controller.get();
+        AlertDialog original = activity.getActiveTrustConfirmationDialog();
+        assertNotNull(original);
+
+        KeepADBNetworkCard card = getField(activity, "networkCard");
+        card.showTrustConfirmationDialog(BSSID);
+
+        assertSame("A second prompt must not replace or stack the open confirmation", original,
+                activity.getActiveTrustConfirmationDialog());
+        assertTrue(original.isShowing());
+        assertTrue("Opening or repeating the prompt must not trust the network",
+                KeepADBTrustedNetwork.getEntries(context).isEmpty());
+
+        original.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        ShadowLooper.idleMainLooper();
+        assertOnlyTrusted(BSSID);
         controller.pause().stop().destroy();
     }
 
@@ -458,6 +485,13 @@ public class SettingsActivityTrustConfirmationTest {
         List<KeepADBTrustedNetwork.Entry> entries = KeepADBTrustedNetwork.getEntries(context);
         assertEquals(1, entries.size());
         assertEquals(bssid, entries.get(0).bssid);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T getField(Object target, String name) throws ReflectiveOperationException {
+        java.lang.reflect.Field field = target.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        return (T) field.get(target);
     }
 
     private static String messageOf(AlertDialog dialog) {
