@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">Signaler un problème ou une traduction</string>
     <string name="settings_issue_report_accessibility">Ouvrir un retour sur un problème ou une traduction</string>
     <string name="settings_issue_report_dialog_title">Vérifier le rapport</string>
-    <string name="settings_issue_report_dialog_message">Vérifiez et complétez ce brouillon. Rien n’est envoyé automatiquement. Ouvrez la page de retour dans votre navigateur ou partagez ce rapport vous-même. Les diagnostics facultatifs contiennent des événements locaux de cycle de vie expurgés ; les adresses réseau, secrets, données de webhook et données privées sont exclus.</string>
+    <string name="settings_issue_report_dialog_message">Vérifie et complète ce brouillon. Ouvrir la page le copie dans le presse-papiers : colle-le dans le champ du message. La requête du navigateur transmet le type choisi, la version de l’application et les détails de l’appareil/Android au site. Le rapport est envoyé uniquement lorsque tu envoies le formulaire. Les diagnostics facultatifs sont expurgés ; vérifie-les avant de les inclure.</string>
     <string name="settings_issue_report_include_diagnostics">Inclure les données de diagnostic expurgées</string>
     <string name="settings_issue_report_preview">Aperçu du rapport</string>
     <string name="settings_issue_report_preview_hint">Vérifier et ajouter des détails</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">Avis général</string>
+    <string name="feedback_type">Type de retour</string>
+    <string name="feedback_type_bug">Erreur</string>
+    <string name="feedback_type_translation">Traduction</string>
+    <string name="feedback_type_suggestion">Proposition</string>
+    <string name="feedback_type_other">Autre</string>
+    <string name="feedback_report_body">## Avis général\n\nDécris ta suggestion ou ton avis.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## Remarques supplémentaires\n</string>
+    <string name="feedback_draft_copied">Brouillon copié. Colle-le dans le champ du message sur la page de retour, vérifie-le et envoie le formulaire.</string>
+    <string name="feedback_copy_failed">Impossible de copier le brouillon. Ton texte est toujours ici ; réessaie ou partage-le.</string>
 </resources>

@@ -10,6 +10,10 @@ import static org.robolectric.Shadows.shadowOf;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.ClipboardManager;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.net.Uri;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -17,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -32,6 +37,9 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
+import org.robolectric.annotation.Implementation;
+import org.robolectric.annotation.Implements;
+import org.robolectric.shadows.ShadowClipboardManager;
 import org.robolectric.shadows.ShadowDialog;
 import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowToast;
@@ -311,19 +319,23 @@ public class SettingsIssueReportDialogTest {
 
         assertEquals(0, count(preview.getText().toString(), sectionTitle()));
         assertFalse(preview.getText().toString().contains("SAVED_SECTION_MARKER"));
-        assertFalse(dialog.isShowing());
+        assertTrue(dialog.isShowing());
+        assertEquals(preview.getText().toString(), clipboard(activity).getPrimaryClip()
+                .getItemAt(0).getText().toString());
         controller.pause().stop().destroy();
     }
 
     // --- the feedback button ----------------------------------------------------------------
 
     @Test
-    public void theFeedbackButtonDismissesAndOpensOnlyTheStaticPageEvenWithOptIn() {
+    public void theFeedbackButtonCopiesEditedOptedInDraftAndOpensOnlyApprovedMetadata() {
         ActivityController<SettingsActivity> controller = start();
         SettingsActivity activity = controller.get();
         AlertDialog dialog = openIssueDialog(activity);
         checkBox(dialog).performClick();
-        assertTrue(preview(dialog).getText().toString().contains(CANARY));
+        preview(dialog).append(" " + HAND_TEXT + " token=USER_SECRET host=192.0.2.4");
+        String edited = preview(dialog).getText().toString();
+        assertTrue(edited.contains(CANARY));
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
         ShadowLooper.idleMainLooper();
@@ -331,31 +343,43 @@ public class SettingsIssueReportDialogTest {
         Intent opened = shadowOf(activity).getNextStartedActivity();
         assertNotNull(opened);
         assertEquals(Intent.ACTION_VIEW, opened.getAction());
-        assertEquals("Only the static feedback page, never the draft in the URL",
-                KeepADBIssueReporter.FEEDBACK_URL, opened.getDataString());
+        assertEquals(KeepADBIssueReporter.buildFeedbackUrl(activity, "bug"), opened.getDataString());
+        assertEquals(java.util.Set.of("issueType", "appVersion", "deviceInfo"),
+                opened.getData().getQueryParameterNames());
+        assertFalse(opened.getDataString().contains(CANARY));
+        assertFalse(opened.getDataString().contains(HAND_TEXT));
+        assertFalse(opened.getDataString().contains("USER_SECRET"));
+        assertFalse(opened.getDataString().contains("192.0.2.4"));
+        ClipData clip = clipboard(activity).getPrimaryClip();
+        assertNotNull(clip);
+        assertEquals(edited, clip.getItemAt(0).getText().toString());
+        assertTrue(clip.getDescription().getExtras().getBoolean(ClipDescription.EXTRA_IS_SENSITIVE));
         assertNull("Nothing from the draft rides along", opened.getExtras());
         assertNull(shadowOf(activity).getNextStartedActivity());
-        assertFalse("The feedback button dismisses the dialog as before", dialog.isShowing());
-        assertNull(activity.getActiveIssueReportDialog());
+        assertTrue("The editable draft stays available on returning", dialog.isShowing());
+        assertSame(dialog, activity.getActiveIssueReportDialog());
         assertNull(ShadowToast.getLatestToast());
         controller.pause().stop().destroy();
     }
 
     @Test
-    public void aMissingBrowserOnTheFeedbackButtonIsCaughtThroughTheSharedPathAndStillDismisses() {
+    public void aMissingBrowserKeepsTheDraftAndClipboardAfterTheSharedPathCatchesIt() {
         shadowOf(RuntimeEnvironment.getApplication()).checkActivities(true);
         ActivityController<SettingsActivity> controller = start();
         SettingsActivity activity = controller.get();
         AlertDialog dialog = openIssueDialog(activity);
 
+        preview(dialog).setText(HAND_TEXT);
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
         ShadowLooper.idleMainLooper();
 
         assertEquals(activity.getString(R.string.settings_no_browser_found),
                 ShadowToast.getTextOfLatestToast());
         assertNull(shadowOf(activity).getNextStartedActivity());
-        assertFalse(dialog.isShowing());
-        assertNull(activity.getActiveIssueReportDialog());
+        assertTrue(dialog.isShowing());
+        assertSame(dialog, activity.getActiveIssueReportDialog());
+        assertEquals(HAND_TEXT, preview(dialog).getText().toString());
+        assertEquals(HAND_TEXT, clipboard(activity).getPrimaryClip().getItemAt(0).getText().toString());
         controller.pause().stop().destroy();
     }
 
@@ -607,6 +631,128 @@ public class SettingsIssueReportDialogTest {
                 .getStringExtra(Intent.EXTRA_TEXT);
         assertEquals("One event per request", 2, count(second, EXPORT_EVENT));
         controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void theBrowserCallbackSeesTheClipboardAlreadyContainingTheEditedDraft() {
+        ActivityController<SettingsActivity> controller = start();
+        SettingsActivity activity = controller.get();
+        boolean[] opened = {false};
+        KeepADBDiagnosticsController diagnostics = new KeepADBDiagnosticsController(activity, url -> {
+            assertEquals(HAND_TEXT, clipboard(activity).getPrimaryClip().getItemAt(0)
+                    .getText().toString());
+            opened[0] = true;
+        });
+        activity.findViewById(R.id.settings_issue_report).performClick();
+        ShadowLooper.idleMainLooper();
+        AlertDialog dialog = diagnostics.getActiveIssueReportDialog();
+        preview(dialog).setText(HAND_TEXT);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        assertTrue(opened[0]);
+        diagnostics.destroy();
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void allFourTypesReachTheBrowserWithoutReplacingUserEdits() {
+        ActivityController<SettingsActivity> controller = start();
+        AlertDialog dialog = openIssueDialog(controller.get());
+        preview(dialog).setText(HAND_TEXT);
+        String[] types = {"bug", "translation", "suggestion", "other"};
+        for (int index = 0; index < types.length; index++) {
+            first(dialog.getWindow().getDecorView(), Spinner.class).setSelection(index);
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+            Uri uri = shadowOf(controller.get()).getNextStartedActivity().getData();
+            assertEquals(types[index], uri.getQueryParameter("issueType"));
+            assertEquals(HAND_TEXT, preview(dialog).getText().toString());
+            assertEquals(HAND_TEXT, clipboard(controller.get()).getPrimaryClip()
+                    .getItemAt(0).getText().toString());
+        }
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void generalFeedbackStartsWithSuggestionAndItsOwnEditableDraftAndSurvivesRotation() {
+        ActivityController<SettingsActivity> controller = start();
+        controller.get().findViewById(R.id.settings_general_feedback).performClick();
+        AlertDialog dialog = controller.get().getActiveIssueReportDialog();
+        assertNotNull(dialog);
+        assertEquals(2, first(dialog.getWindow().getDecorView(), Spinner.class)
+                .getSelectedItemPosition());
+        assertTrue(preview(dialog).getText().toString().contains("Describe your suggestion or feedback."));
+        assertFalse(preview(dialog).getText().toString().contains("Describe what happened."));
+        first(dialog.getWindow().getDecorView(), Spinner.class).setSelection(3);
+        preview(dialog).append(HAND_TEXT);
+        String edited = preview(dialog).getText().toString();
+        controller = rotate(controller);
+        dialog = controller.get().getActiveIssueReportDialog();
+        assertEquals(3, first(dialog.getWindow().getDecorView(), Spinner.class)
+                .getSelectedItemPosition());
+        assertEquals(edited, preview(dialog).getText().toString());
+        checkBox(dialog).performClick();
+        assertTrue(preview(dialog).getText().toString().contains(CANARY));
+        checkBox(dialog).performClick();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        assertEquals("other", shadowOf(controller.get()).getNextStartedActivity().getData()
+                .getQueryParameter("issueType"));
+        assertEquals(edited, clipboard(controller.get()).getPrimaryClip().getItemAt(0).getText().toString());
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    public void openingWithoutOptInCopiesEditsButNeverDiagnostics() {
+        ActivityController<SettingsActivity> controller = start();
+        AlertDialog dialog = openIssueDialog(controller.get());
+        preview(dialog).append(HAND_TEXT);
+        checkBox(dialog).performClick();
+        assertTrue(preview(dialog).getText().toString().contains(CANARY));
+        checkBox(dialog).performClick();
+        String edited = preview(dialog).getText().toString();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        String copied = clipboard(controller.get()).getPrimaryClip().getItemAt(0).getText().toString();
+        assertEquals(edited, copied);
+        assertTrue(copied.contains(HAND_TEXT));
+        assertFalse(copied.contains(CANARY));
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    @Config(sdk = 30)
+    public void android11GetsCopyAndPasteFeedback() {
+        ActivityController<SettingsActivity> controller = start();
+        AlertDialog dialog = openIssueDialog(controller.get());
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        assertEquals(controller.get().getString(R.string.feedback_draft_copied),
+                ShadowToast.getTextOfLatestToast());
+        assertNotNull(clipboard(controller.get()).getPrimaryClip());
+        controller.pause().stop().destroy();
+    }
+
+    @Test
+    @Config(shadows = BrokenClipboard.class)
+    public void aClipboardFailureKeepsTheDraftAndDoesNotOpenTheBrowser() {
+        ActivityController<SettingsActivity> controller = start();
+        AlertDialog dialog = openIssueDialog(controller.get());
+        preview(dialog).setText(HAND_TEXT);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        assertTrue(dialog.isShowing());
+        assertEquals(HAND_TEXT, preview(dialog).getText().toString());
+        assertNull(shadowOf(controller.get()).getNextStartedActivity());
+        assertEquals(controller.get().getString(R.string.feedback_copy_failed),
+                ShadowToast.getTextOfLatestToast());
+        controller.pause().stop().destroy();
+    }
+
+    @Implements(ClipboardManager.class)
+    public static class BrokenClipboard extends ShadowClipboardManager {
+        @Implementation
+        public void setPrimaryClip(ClipData clip) {
+            throw new SecurityException("Clipboard unavailable in this test");
+        }
+    }
+
+    private static ClipboardManager clipboard(Context context) {
+        return context.getSystemService(ClipboardManager.class);
     }
 
     // --- helpers ----------------------------------------------------------------------------

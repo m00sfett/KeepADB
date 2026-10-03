@@ -3,9 +3,17 @@ package de.hohnepeople.keepadb;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
 import android.os.Bundle;
+import android.os.Build;
+import android.os.PersistableBundle;
 import android.text.InputType;
 import android.widget.CheckBox;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.Toast;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -44,6 +52,8 @@ final class KeepADBDiagnosticsController {
     // Bundle keys of the issue report dialog (#698: owned here; value unchanged).
     static final String STATE_ISSUE_REPORT_SHOWING = "settings_issue_report_showing";
     static final String STATE_ISSUE_REPORT_DRAFT = "settings_issue_report_draft";
+    static final String STATE_ISSUE_REPORT_TYPE = "settings_issue_report_type";
+    private static final String[] ISSUE_TYPES = {"bug", "translation", "suggestion", "other"};
     static final String STATE_ISSUE_REPORT_DIAGNOSTICS = "settings_issue_report_diagnostics";
 
     private final Activity activity;
@@ -52,6 +62,7 @@ final class KeepADBDiagnosticsController {
     private AlertDialog activeIssueReportDialog;
     private EditText activeIssueReportPreview;
     private CheckBox activeIssueReportDiagnostics;
+    private Spinner activeIssueReportType;
 
     /**
      * Binds the export and the feedback report buttons; call from {@code SettingsActivity#onCreate}.
@@ -67,6 +78,8 @@ final class KeepADBDiagnosticsController {
                 .setOnClickListener(v -> shareDiagnostics());
         activity.findViewById(R.id.settings_issue_report)
                 .setOnClickListener(v -> showIssueReportDialog());
+        activity.findViewById(R.id.settings_general_feedback)
+                .setOnClickListener(v -> showIssueReportDialog(null, false, "suggestion", true));
     }
 
     /** Call from {@code SettingsActivity#onCreate} with the incoming (possibly null) state. */
@@ -78,7 +91,8 @@ final class KeepADBDiagnosticsController {
         String draftBody = savedInstanceState.getString(STATE_ISSUE_REPORT_DRAFT);
         boolean includeDiagnostics = savedInstanceState.getBoolean(
                 STATE_ISSUE_REPORT_DIAGNOSTICS, false);
-        showIssueReportDialog(draftBody, includeDiagnostics);
+        showIssueReportDialog(draftBody, includeDiagnostics,
+                savedInstanceState.getString(STATE_ISSUE_REPORT_TYPE, "bug"), false);
     }
 
     /** Call from {@code SettingsActivity#onSaveInstanceState}. */
@@ -88,6 +102,7 @@ final class KeepADBDiagnosticsController {
             outState.putString(STATE_ISSUE_REPORT_DRAFT,
                     activeIssueReportPreview != null && activeIssueReportPreview.getText() != null
                             ? activeIssueReportPreview.getText().toString() : "");
+            outState.putString(STATE_ISSUE_REPORT_TYPE, selectedIssueType());
             outState.putBoolean(STATE_ISSUE_REPORT_DIAGNOSTICS,
                     activeIssueReportDiagnostics != null && activeIssueReportDiagnostics.isChecked());
         }
@@ -103,6 +118,7 @@ final class KeepADBDiagnosticsController {
         }
         activeIssueReportPreview = null;
         activeIssueReportDiagnostics = null;
+        activeIssueReportType = null;
     }
 
     AlertDialog getActiveIssueReportDialog() {
@@ -121,11 +137,38 @@ final class KeepADBDiagnosticsController {
                 activity.getString(R.string.settings_diagnostics_export)));
     }
 
-    private void showIssueReportDialog() {
-        showIssueReportDialog(null, false);
+    private String selectedIssueType() {
+        int position = activeIssueReportType == null ? 0
+                : activeIssueReportType.getSelectedItemPosition();
+        return position >= 0 && position < ISSUE_TYPES.length ? ISSUE_TYPES[position] : "other";
     }
 
-    private void showIssueReportDialog(String draftBody, boolean includeDiagnostics) {
+    private boolean copyDraft(String body) {
+        try {
+            ClipboardManager clipboard = activity.getSystemService(ClipboardManager.class);
+            if (clipboard == null) throw new IllegalStateException("Clipboard unavailable");
+            ClipData clip = ClipData.newPlainText(activity.getString(R.string.issue_report_title), body);
+            // Free text may contain private details: hide Android's clipboard preview.
+            PersistableBundle extras = new PersistableBundle();
+            extras.putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true);
+            clip.getDescription().setExtras(extras);
+            clipboard.setPrimaryClip(clip);
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+                Toast.makeText(activity, R.string.feedback_draft_copied, Toast.LENGTH_LONG).show();
+            }
+            return true;
+        } catch (RuntimeException exception) {
+            Toast.makeText(activity, R.string.feedback_copy_failed, Toast.LENGTH_LONG).show();
+            return false;
+        }
+    }
+
+    private void showIssueReportDialog() {
+        showIssueReportDialog(null, false, "bug", false);
+    }
+
+    private void showIssueReportDialog(String draftBody, boolean includeDiagnostics,
+            String issueType, boolean generalFeedback) {
         LinearLayout content = new LinearLayout(activity);
         content.setOrientation(LinearLayout.VERTICAL);
         int padding = (int) (20 * activity.getResources().getDisplayMetrics().density);
@@ -135,6 +178,24 @@ final class KeepADBDiagnosticsController {
         intro.setText(R.string.settings_issue_report_dialog_message);
         intro.setTextSize(13);
         content.addView(intro);
+
+        TextView typeLabel = new TextView(activity);
+        typeLabel.setText(R.string.feedback_type);
+        content.addView(typeLabel);
+        Spinner type = new Spinner(activity);
+        type.setContentDescription(activity.getString(R.string.feedback_type));
+        String[] labels = {activity.getString(R.string.feedback_type_bug),
+                activity.getString(R.string.feedback_type_translation),
+                activity.getString(R.string.feedback_type_suggestion),
+                activity.getString(R.string.feedback_type_other)};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
+                android.R.layout.simple_spinner_item, labels);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        type.setAdapter(adapter);
+        for (int index = 0; index < ISSUE_TYPES.length; index++) {
+            if (ISSUE_TYPES[index].equals(issueType)) type.setSelection(index);
+        }
+        content.addView(type);
 
         CheckBox diagnostics = new CheckBox(activity);
         diagnostics.setText(R.string.settings_issue_report_include_diagnostics);
@@ -163,7 +224,7 @@ final class KeepADBDiagnosticsController {
         previewScroll.addView(preview);
         content.addView(previewScroll);
 
-        String withoutDiagnostics = KeepADBIssueReporter.buildBody(activity, false);
+        String withoutDiagnostics = KeepADBIssueReporter.buildBody(activity, false, generalFeedback);
         final String[] diagnosticsSection = {null};
         String diagnosticsTitle = activity.getString(R.string.issue_report_diagnostics_section);
         preview.setText(withoutDiagnostics);
@@ -198,11 +259,13 @@ final class KeepADBDiagnosticsController {
         activeIssueReportDialog = dialog;
         activeIssueReportPreview = preview;
         activeIssueReportDiagnostics = diagnostics;
+        activeIssueReportType = type;
         dialog.setOnDismissListener(d -> {
             if (activeIssueReportDialog == d) {
                 activeIssueReportDialog = null;
                 activeIssueReportPreview = null;
                 activeIssueReportDiagnostics = null;
+                activeIssueReportType = null;
             }
         });
         dialog.setOnShowListener(ignored -> {
@@ -211,8 +274,11 @@ final class KeepADBDiagnosticsController {
                     preview.setText(KeepADBIssueReporter.removeDiagnosticsSection(
                             preview.getText().toString(), diagnosticsTitle));
                 }
-                openWebLink.accept(KeepADBIssueReporter.FEEDBACK_URL);
-                dialog.dismiss();
+                if (!copyDraft(preview.getText().toString())) return;
+                // Keep the editable draft available after returning, including browser failures.
+                intro.setText(R.string.feedback_draft_copied);
+                openWebLink.accept(KeepADBIssueReporter.buildFeedbackUrl(activity,
+                        selectedIssueType()));
             });
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> {
                 String body = preview.getText().toString();

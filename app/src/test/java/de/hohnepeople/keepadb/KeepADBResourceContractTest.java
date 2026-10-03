@@ -468,6 +468,8 @@ public class KeepADBResourceContractTest {
         result.put("settings_usb_handover_accessibility", new Object[] {stringWitness});
         result.put("settings_version_value", new Object[] {stringWitness});
         result.put("settings_version_code_value", new Object[] {longWitness});
+        result.put("feedback_report_body", new Object[] {
+                "1.9.27", "199", "13", "33", "SM-G780G"});
         result.put("issue_report_body", new Object[] {
                 stringWitness, stringWitness, stringWitness, stringWitness, stringWitness,
                 stringWitness, stringWitness, stringWitness, stringWitness, stringWitness,

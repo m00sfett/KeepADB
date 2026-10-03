@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">Sorun veya çeviri bildir</string>
     <string name="settings_issue_report_accessibility">Bir sorun veya çeviri hakkında geri bildirim açın</string>
     <string name="settings_issue_report_dialog_title">Bildirim raporunu incele</string>
-    <string name="settings_issue_report_dialog_message">Bu taslağı inceleyip tamamlayın. Hiçbir şey otomatik olarak gönderilmez. Geri bildirim sayfasını tarayıcınızda açın veya bu raporu kendiniz paylaşın. İsteğe bağlı tanılama verileri, redakte edilmiş yerel yaşam döngüsü olaylarını içerir; ağ adresleri, gizli bilgiler, Webhook verileri ve özel veriler hariç tutulur.</string>
+    <string name="settings_issue_report_dialog_message">Bu taslağı incele ve tamamla. Sayfa açılırken panoya kopyalanır: mesaj alanına yapıştır. Tarayıcı isteği seçilen türü, uygulama sürümünü ve cihaz/Android bilgilerini web sitesine gönderir. Rapor yalnızca formu kendin gönderdiğinde iletilir. İsteğe bağlı tanılama verileri maskelenmiştir; eklemeden önce incele.</string>
     <string name="settings_issue_report_include_diagnostics">Redakte edilmiş tanılama verilerini ekle</string>
     <string name="settings_issue_report_preview">Bildirim önizlemesi</string>
     <string name="settings_issue_report_preview_hint">İncele ve ayrıntı ekle</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">Genel geri bildirim</string>
+    <string name="feedback_type">Geri bildirim türü</string>
+    <string name="feedback_type_bug">Hata</string>
+    <string name="feedback_type_translation">Çeviri</string>
+    <string name="feedback_type_suggestion">Öneri</string>
+    <string name="feedback_type_other">Diğer</string>
+    <string name="feedback_report_body">## Genel geri bildirim\n\nÖnerini veya geri bildirimini açıkla.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## Ek notlar\n</string>
+    <string name="feedback_draft_copied">Taslak kopyalandı. Geri bildirim sayfasındaki mesaj alanına yapıştır, incele ve formu kendin gönder.</string>
+    <string name="feedback_copy_failed">Taslak kopyalanamadı. Metnin hâlâ burada; tekrar dene veya paylaş.</string>
 </resources>

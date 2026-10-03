@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">报告问题或翻译错误</string>
     <string name="settings_issue_report_accessibility">打开关于问题或翻译的反馈</string>
     <string name="settings_issue_report_dialog_title">查看问题报告</string>
-    <string name="settings_issue_report_dialog_message">请查看并完成此草稿。不会自动发送任何内容。请在浏览器中打开反馈页面，或自行分享此报告。可选诊断数据包含已脱敏的本地生命周期事件；网络地址、机密、Webhook 数据和私人数据均会排除。</string>
+    <string name="settings_issue_report_dialog_message">请检查并补充草稿。打开页面时，草稿会复制到剪贴板，请将其粘贴到消息栏。浏览器请求会将所选类型、应用版本和设备/Android 信息发送到网站。只有你自行提交表单后，报告才会发送。可选诊断数据已隐去私人信息，请在添加前检查。</string>
     <string name="settings_issue_report_include_diagnostics">包含已脱敏的诊断数据</string>
     <string name="settings_issue_report_preview">问题报告预览</string>
     <string name="settings_issue_report_preview_hint">查看并添加详细信息</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">一般反馈</string>
+    <string name="feedback_type">反馈类型</string>
+    <string name="feedback_type_bug">错误</string>
+    <string name="feedback_type_translation">翻译</string>
+    <string name="feedback_type_suggestion">建议</string>
+    <string name="feedback_type_other">其他</string>
+    <string name="feedback_report_body">## 一般反馈\n\n请描述你的建议或反馈。\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## 补充说明\n</string>
+    <string name="feedback_draft_copied">草稿已复制。请粘贴到反馈页面的消息栏，检查后自行提交表单。</string>
+    <string name="feedback_copy_failed">无法复制草稿。你的文字仍保留在这里，请重试或分享。</string>
 </resources>

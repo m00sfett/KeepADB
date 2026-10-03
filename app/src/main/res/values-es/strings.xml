@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">Informar de un problema o traducción</string>
     <string name="settings_issue_report_accessibility">Abrir comentarios sobre un problema o una traducción</string>
     <string name="settings_issue_report_dialog_title">Revisar informe</string>
-    <string name="settings_issue_report_dialog_message">Revisa y completa este borrador. No se envía nada automáticamente. Abre la página de comentarios en tu navegador o comparte este informe tú mismo. Los diagnósticos opcionales contienen eventos locales del ciclo de vida redactados; se excluyen las direcciones de red, los secretos, los datos de Webhook y los datos privados.</string>
+    <string name="settings_issue_report_dialog_message">Revisa y completa este borrador. Al abrir la página se copia al portapapeles: pégalo en el campo del mensaje. La solicitud del navegador envía el tipo elegido, la versión de la app y los datos del dispositivo/Android al sitio web. El informe solo se envía cuando envías el formulario. Los diagnósticos opcionales están censurados; revísalos antes de incluirlos.</string>
     <string name="settings_issue_report_include_diagnostics">Incluir datos de diagnóstico redactados</string>
     <string name="settings_issue_report_preview">Vista previa del informe</string>
     <string name="settings_issue_report_preview_hint">Revisar y añadir detalles</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">Comentarios generales</string>
+    <string name="feedback_type">Tipo de comentario</string>
+    <string name="feedback_type_bug">Error</string>
+    <string name="feedback_type_translation">Traducción</string>
+    <string name="feedback_type_suggestion">Sugerencia</string>
+    <string name="feedback_type_other">Otro</string>
+    <string name="feedback_report_body">## Comentarios generales\n\nDescribe tu sugerencia o comentario.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## Notas adicionales\n</string>
+    <string name="feedback_draft_copied">Borrador copiado. Pégalo en el campo del mensaje de la página de comentarios, revísalo y envía el formulario.</string>
+    <string name="feedback_copy_failed">No se pudo copiar el borrador. Tu texto sigue aquí; inténtalo de nuevo o compártelo.</string>
 </resources>

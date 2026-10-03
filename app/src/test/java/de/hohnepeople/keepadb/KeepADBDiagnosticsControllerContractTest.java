@@ -39,7 +39,7 @@ public class KeepADBDiagnosticsControllerContractTest {
         String[] ownedByTheController = {
                 "activeIssueReportDialog", "activeIssueReportPreview", "activeIssueReportDiagnostics",
                 "STATE_ISSUE_REPORT_SHOWING", "STATE_ISSUE_REPORT_DRAFT",
-                "STATE_ISSUE_REPORT_DIAGNOSTICS", "KeepADBIssueReporter", "KeepADBDiagnostics.",
+                "STATE_ISSUE_REPORT_DIAGNOSTICS", "STATE_ISSUE_REPORT_TYPE", "KeepADBIssueReporter", "KeepADBDiagnostics.",
                 "CheckBox", "setOnCheckedChangeListener", "Intent.ACTION_SEND", "Intent.createChooser",
                 "diagnostics_export", "settings_diagnostics_export", "settings_issue_report",
                 "showIssueReportDialog", "shareDiagnostics"};
@@ -50,7 +50,7 @@ public class KeepADBDiagnosticsControllerContractTest {
         for (String name : new String[] {"activeIssueReportDialog", "activeIssueReportPreview",
                 "activeIssueReportDiagnostics", "STATE_ISSUE_REPORT_SHOWING",
                 "STATE_ISSUE_REPORT_DRAFT", "STATE_ISSUE_REPORT_DIAGNOSTICS",
-                "KeepADBIssueReporter.buildBody(activity, false)",
+                "KeepADBIssueReporter.buildBody(activity, false, generalFeedback)",
                 "KeepADBIssueReporter.buildDiagnosticsSection(activity)",
                 "KeepADBDiagnostics.event(activity, \"diagnostics_export\"",
                 "KeepADBDiagnostics.export(activity)", "R.id.settings_diagnostics_export",

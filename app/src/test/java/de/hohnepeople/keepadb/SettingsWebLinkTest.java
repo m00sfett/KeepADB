@@ -2,11 +2,13 @@ package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
 import android.content.Intent;
 import android.view.View;
+import android.net.Uri;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +25,33 @@ import org.robolectric.shadows.ShadowToast;
 public class SettingsWebLinkTest {
 
     private static final String NO_BROWSER = "No app found to open this link.";
+
+    @Test
+    public void feedbackMetadataIsEncodedBoundedAndNeverAddsUnexpectedParameters() {
+        String version = "1.9 & +/#?=é";
+        String model = "Model & +/#?=端末 / Android 13";
+        Uri uri = Uri.parse(KeepADBIssueReporter.buildFeedbackUrl("translation", version, model));
+        assertEquals("https", uri.getScheme());
+        assertEquals("hohnepeople.de", uri.getHost());
+        assertEquals("/keepadb/feedback", uri.getPath());
+        assertNull(uri.getFragment());
+        assertEquals(java.util.Set.of("issueType", "appVersion", "deviceInfo"),
+                uri.getQueryParameterNames());
+        assertEquals("translation", uri.getQueryParameter("issueType"));
+        assertEquals(version, uri.getQueryParameter("appVersion"));
+        assertEquals(model, uri.getQueryParameter("deviceInfo"));
+        uri = Uri.parse(KeepADBIssueReporter.buildFeedbackUrl("unexpected&text=secret",
+                "😀".repeat(101), "端".repeat(201) + "\n\u0000"));
+        assertEquals("other", uri.getQueryParameter("issueType"));
+        String boundedVersion = uri.getQueryParameter("appVersion");
+        assertEquals(100, boundedVersion.codePointCount(0, boundedVersion.length()));
+        assertEquals(200, uri.getQueryParameter("deviceInfo").length());
+        uri = Uri.parse(KeepADBIssueReporter.buildFeedbackUrl(null, null, "\n\u0000\ud800"));
+        assertEquals(java.util.Set.of("issueType"), uri.getQueryParameterNames());
+        uri = Uri.parse(KeepADBIssueReporter.buildFeedbackUrl("bug", "v\t1", "a\r\nb"));
+        assertEquals("v1", uri.getQueryParameter("appVersion"));
+        assertEquals("ab", uri.getQueryParameter("deviceInfo"));
+    }
 
     @Test
     public void websiteLinkWithoutHandlerShowsToastInsteadOfCrashing() {

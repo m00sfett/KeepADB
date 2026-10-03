@@ -256,7 +256,7 @@
     <string name="settings_issue_report_button">Report a problem or translation</string>
     <string name="settings_issue_report_accessibility">Open feedback about a problem or a translation</string>
     <string name="settings_issue_report_dialog_title">Review issue report</string>
-    <string name="settings_issue_report_dialog_message">Review and complete this draft. Nothing is sent automatically. Open the feedback page in your browser or share this report yourself. Optional diagnostics contain redacted local lifecycle events; network addresses, secrets, webhook data, and private data are excluded.</string>
+    <string name="settings_issue_report_dialog_message">Review and complete this draft. Opening the page copies it to the clipboard: paste it into the message field. The browser request sends the selected type, app version and device/Android details to the website. The report is submitted only when you send the form yourself. Optional diagnostics are redacted; review them before including them.</string>
     <string name="settings_issue_report_include_diagnostics">Include redacted diagnostic data</string>
     <string name="settings_issue_report_preview">Issue report preview</string>
     <string name="settings_issue_report_preview_hint">Review and add details</string>
@@ -400,4 +400,13 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">General feedback</string>
+    <string name="feedback_type">Feedback type</string>
+    <string name="feedback_type_bug">Bug</string>
+    <string name="feedback_type_translation">Translation</string>
+    <string name="feedback_type_suggestion">Suggestion</string>
+    <string name="feedback_type_other">Other</string>
+    <string name="feedback_report_body">## General feedback\n\nDescribe your suggestion or feedback.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## Additional notes\n</string>
+    <string name="feedback_draft_copied">Draft copied. Paste it into the message field on the feedback page, review it and submit the form yourself.</string>
+    <string name="feedback_copy_failed">Could not copy the draft. Your text is still here; try again or share it.</string>
 </resources>

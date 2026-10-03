@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">Laporkan masalah atau terjemahan</string>
     <string name="settings_issue_report_accessibility">Buka umpan balik tentang masalah atau terjemahan</string>
     <string name="settings_issue_report_dialog_title">Tinjau laporan</string>
-    <string name="settings_issue_report_dialog_message">Tinjau dan lengkapi draf ini. Tidak ada yang dikirim otomatis. Buka halaman umpan balik di browser Anda atau bagikan laporan ini sendiri. Diagnostik opsional berisi peristiwa siklus hidup lokal yang telah disamarkan; alamat jaringan, rahasia, data webhook, dan data pribadi tidak disertakan.</string>
+    <string name="settings_issue_report_dialog_message">Periksa dan lengkapi draf ini. Membuka halaman menyalinnya ke papan klip: tempelkan di kolom pesan. Permintaan browser mengirim jenis yang dipilih, versi aplikasi, dan informasi perangkat/Android ke situs web. Laporan hanya dikirim saat kamu mengirim formulir sendiri. Data diagnostik opsional disamarkan; periksa sebelum menyertakannya.</string>
     <string name="settings_issue_report_include_diagnostics">Sertakan data diagnostik yang telah disamarkan</string>
     <string name="settings_issue_report_preview">Pratinjau laporan</string>
     <string name="settings_issue_report_preview_hint">Tinjau dan tambahkan detail</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">Masukan umum</string>
+    <string name="feedback_type">Jenis masukan</string>
+    <string name="feedback_type_bug">Kesalahan</string>
+    <string name="feedback_type_translation">Terjemahan</string>
+    <string name="feedback_type_suggestion">Saran</string>
+    <string name="feedback_type_other">Lainnya</string>
+    <string name="feedback_report_body">## Masukan umum\n\nJelaskan saran atau masukanmu.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## Catatan tambahan\n</string>
+    <string name="feedback_draft_copied">Draf disalin. Tempelkan di kolom pesan pada halaman masukan, periksa, lalu kirim formulir sendiri.</string>
+    <string name="feedback_copy_failed">Draf tidak dapat disalin. Teksmu masih di sini; coba lagi atau bagikan.</string>
 </resources>

@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">الإبلاغ عن مشكلة أو ترجمة</string>
     <string name="settings_issue_report_accessibility">فتح ملاحظات حول مشكلة أو ترجمة</string>
     <string name="settings_issue_report_dialog_title">مراجعة تقرير المشكلة</string>
-    <string name="settings_issue_report_dialog_message">راجع هذه المسودة وأكملها. لن يُرسل أي شيء تلقائيًا. افتح صفحة الملاحظات في المتصفح أو شارك هذا التقرير بنفسك. تتضمن بيانات التشخيص الاختيارية أحداثًا محلية منقّحة لدورة حياة التطبيق؛ وتُستبعد عناوين الشبكة والأسرار وبيانات Webhook والبيانات الخاصة.</string>
+    <string name="settings_issue_report_dialog_message">راجع هذه المسودة وأكملها. عند فتح الصفحة تُنسخ إلى الحافظة: ألصقها في حقل الرسالة. يرسل طلب المتصفح النوع المحدد وإصدار التطبيق وتفاصيل الجهاز/Android إلى الموقع. لا يُرسل التقرير إلا عندما ترسل النموذج بنفسك. بيانات التشخيص الاختيارية منقّحة؛ راجعها قبل إضافتها.</string>
     <string name="settings_issue_report_include_diagnostics">تضمين بيانات التشخيص المنقّحة</string>
     <string name="settings_issue_report_preview">معاينة تقرير المشكلة</string>
     <string name="settings_issue_report_preview_hint">المراجعة وإضافة التفاصيل</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 جيجاهرتز</string>
     <string name="network_band_6">6 جيجاهرتز</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">ملاحظات عامة</string>
+    <string name="feedback_type">نوع الملاحظات</string>
+    <string name="feedback_type_bug">خطأ</string>
+    <string name="feedback_type_translation">ترجمة</string>
+    <string name="feedback_type_suggestion">اقتراح</string>
+    <string name="feedback_type_other">أخرى</string>
+    <string name="feedback_report_body">## ملاحظات عامة\n\nصف اقتراحك أو ملاحظاتك.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## ملاحظات إضافية\n</string>
+    <string name="feedback_draft_copied">نُسخت المسودة. ألصقها في حقل الرسالة على صفحة الملاحظات، ثم راجعها وأرسل النموذج بنفسك.</string>
+    <string name="feedback_copy_failed">تعذّر نسخ المسودة. ما زال نصك هنا؛ حاول مجددًا أو شاركه.</string>
 </resources>
