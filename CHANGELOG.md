@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.9.25] - Unreleased
+
+### Testing
+- #745: `KeepADBNotificationWebhookStatusTest` now covers the positive fallback of `getWebhookLastSuccessAt` for existing installs (no `register_webhook_last_success_at`, endpoint stored, status success): the legacy reported time is returned and shown in the notification.
+
 ## [1.9.24] - Unreleased
 
 This single section covers the two integrated packages #734 and #742 (one candidate, versionCode 196).

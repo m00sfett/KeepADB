@@ -99,6 +99,24 @@ public class KeepADBNotificationWebhookStatusTest {
     }
 
     @Test
+    public void existingInstallWithoutSuccessKeyFallsBackToReportedTimeWhenEndpointStored() {
+        enableWebhook();
+        long legacyAt = 1_700_000_000_000L;
+        // Legacy state: no register_webhook_last_success_at, only the old shared timestamp.
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
+                .putLong("register_webhook_last_reported", legacyAt).commit();
+        assertFalse(context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
+                .contains("register_webhook_last_success_at"));
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, HOST + ":" + PORT);
+        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_SUCCESS);
+
+        assertEquals(legacyAt, KeepADBPreferences.getWebhookLastSuccessAt(context));
+        String text = bigText(postCard());
+        assertTrue(text, text.contains(context.getString(
+                R.string.notification_text_webhook_synced, format(legacyAt))));
+    }
+
+    @Test
     public void failureWithoutAnySuccessClaimsNoSuccessAndNoTime() {
         enableWebhook();
         KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
