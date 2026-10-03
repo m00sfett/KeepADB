@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">問題または翻訳を報告</string>
     <string name="settings_issue_report_accessibility">問題や翻訳についてのフィードバックを開く</string>
     <string name="settings_issue_report_dialog_title">Issue レポートを確認</string>
-    <string name="settings_issue_report_dialog_message">この下書きを確認して完成させてください。自動送信は行われません。ブラウザでフィードバックページを開くか、この報告を自分で共有してください。任意の診断データには、編集済みのローカルなライフサイクルイベントが含まれます。ネットワークアドレス、秘密情報、Webhook データ、個人データは除外されます。</string>
+    <string name="settings_issue_report_dialog_message">下書きを確認して追記してください。ページを開くとクリップボードにコピーされます。メッセージ欄に貼り付けてください。ブラウザのリクエストで、選択した種類、アプリのバージョン、端末・Androidの情報がウェブサイトに送信されます。報告は自分でフォームを送信するまで送られません。任意の診断データは個人情報を伏せてあります。追加する前に確認してください。</string>
     <string name="settings_issue_report_include_diagnostics">編集済みの診断データを含める</string>
     <string name="settings_issue_report_preview">Issue レポートのプレビュー</string>
     <string name="settings_issue_report_preview_hint">確認して詳細を追加</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">一般的なフィードバック</string>
+    <string name="feedback_type">フィードバックの種類</string>
+    <string name="feedback_type_bug">不具合</string>
+    <string name="feedback_type_translation">翻訳</string>
+    <string name="feedback_type_suggestion">提案</string>
+    <string name="feedback_type_other">その他</string>
+    <string name="feedback_report_body">## 一般的なフィードバック\n\n提案や感想を入力してください。\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## 追加のメモ\n</string>
+    <string name="feedback_draft_copied">下書きをコピーしました。フィードバックページのメッセージ欄に貼り付け、確認してから自分でフォームを送信してください。</string>
+    <string name="feedback_copy_failed">下書きをコピーできませんでした。入力した文章はここに残っています。再試行するか共有してください。</string>
 </resources>

@@ -3,6 +3,7 @@ package de.hohnepeople.keepadb;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.os.Build;
+import android.net.Uri;
 
 import java.util.regex.Pattern;
 
@@ -22,12 +23,16 @@ final class KeepADBIssueReporter {
     private KeepADBIssueReporter() {}
 
     static String buildBody(Context context, boolean includeDiagnostics) {
-        String body = buildBaseBody(context);
+        return buildBody(context, includeDiagnostics, false);
+    }
+
+    static String buildBody(Context context, boolean includeDiagnostics, boolean generalFeedback) {
+        String body = buildBaseBody(context, generalFeedback);
         return includeDiagnostics
                 ? addDiagnosticsSection(body, buildDiagnosticsSection(context)) : body;
     }
 
-    private static String buildBaseBody(Context context) {
+    private static String buildBaseBody(Context context, boolean generalFeedback) {
         String unavailable = context.getString(R.string.issue_report_unavailable);
         String version = unavailable;
         String versionCode = unavailable;
@@ -48,6 +53,11 @@ final class KeepADBIssueReporter {
                 ? unavailable : Build.VERSION.RELEASE;
         String model = Build.MODEL == null || Build.MODEL.isEmpty() ? unavailable : Build.MODEL;
 
+        if (generalFeedback) {
+            return context.getString(R.string.feedback_report_body, version, versionCode,
+                    androidVersion, Integer.toString(Build.VERSION.SDK_INT), model);
+        }
+
         String body = context.getString(R.string.issue_report_body,
                 context.getString(R.string.issue_report_placeholder_problem_type), locale,
                 context.getString(R.string.issue_report_placeholder_expected),
@@ -58,6 +68,37 @@ final class KeepADBIssueReporter {
                 context.getString(R.string.issue_report_placeholder_screenshots),
                 context.getString(R.string.issue_report_placeholder_notes));
         return body.replaceAll("\\s+##\\s+", "\n## ");
+    }
+
+    static String buildFeedbackUrl(Context context, String issueType) {
+        String version = "";
+        try {
+            version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0)
+                    .versionName;
+        } catch (Exception ignored) {
+            // Omit unavailable metadata; the user can still complete the form.
+        }
+        String device = Build.MODEL + " / Android " + Build.VERSION.RELEASE
+                + " (SDK " + Build.VERSION.SDK_INT + ")";
+        return buildFeedbackUrl(issueType, version, device);
+    }
+
+    static String buildFeedbackUrl(String issueType, String appVersion, String deviceInfo) {
+        String type = "bug".equals(issueType) || "translation".equals(issueType)
+                || "suggestion".equals(issueType) ? issueType : "other";
+        Uri.Builder url = Uri.parse(FEEDBACK_URL).buildUpon().appendQueryParameter("issueType", type);
+        appendMetadata(url, "appVersion", appVersion, 100);
+        appendMetadata(url, "deviceInfo", deviceInfo, 200);
+        return url.build().toString();
+    }
+
+    private static void appendMetadata(Uri.Builder url, String key, String value, int limit) {
+        if (value == null) return;
+        // The website accepts valid UTF-8 without control characters, counted in code points.
+        StringBuilder safe = new StringBuilder();
+        value.codePoints().filter(c -> !Character.isISOControl(c)
+                && (c < 0xd800 || c > 0xdfff)).limit(limit).forEach(safe::appendCodePoint);
+        if (safe.length() > 0) url.appendQueryParameter(key, safe.toString());
     }
 
     static String buildDiagnosticsSection(Context context) {

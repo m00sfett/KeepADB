@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">Probleem of vertaling melden</string>
     <string name="settings_issue_report_accessibility">Feedback over een probleem of vertaling openen</string>
     <string name="settings_issue_report_dialog_title">Issue-rapport controleren</string>
-    <string name="settings_issue_report_dialog_message">Controleer en vul dit concept aan. Er wordt niets automatisch verzonden. Open de feedbackpagina in je browser of deel dit rapport zelf. Optionele diagnostische gegevens bevatten geredigeerde lokale levenscyclusgebeurtenissen; netwerkadressen, geheimen, webhookgegevens en privégegevens worden uitgesloten.</string>
+    <string name="settings_issue_report_dialog_message">Controleer en vul dit concept aan. Bij het openen van de pagina wordt het naar het klembord gekopieerd: plak het in het berichtveld. Het browserverzoek stuurt het gekozen type, de appversie en apparaat-/Androidgegevens naar de website. Het rapport wordt pas verzonden wanneer je het formulier zelf verstuurt. Optionele diagnosegegevens zijn afgeschermd; controleer ze voordat je ze toevoegt.</string>
     <string name="settings_issue_report_include_diagnostics">Geredigeerde diagnostische gegevens opnemen</string>
     <string name="settings_issue_report_preview">Voorbeeld van issue-rapport</string>
     <string name="settings_issue_report_preview_hint">Controleren en details toevoegen</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">Algemene feedback</string>
+    <string name="feedback_type">Soort feedback</string>
+    <string name="feedback_type_bug">Fout</string>
+    <string name="feedback_type_translation">Vertaling</string>
+    <string name="feedback_type_suggestion">Suggestie</string>
+    <string name="feedback_type_other">Overig</string>
+    <string name="feedback_report_body">## Algemene feedback\n\nBeschrijf je suggestie of feedback.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## Aanvullende opmerkingen\n</string>
+    <string name="feedback_draft_copied">Concept gekopieerd. Plak het in het berichtveld op de feedbackpagina, controleer het en verstuur het formulier zelf.</string>
+    <string name="feedback_copy_failed">Het concept kon niet worden gekopieerd. Je tekst staat nog hier; probeer opnieuw of deel hem.</string>
 </resources>

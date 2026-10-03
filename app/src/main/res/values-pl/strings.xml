@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">Zgłoś problem lub błąd tłumaczenia</string>
     <string name="settings_issue_report_accessibility">Otwórz opinię o problemie lub tłumaczeniu</string>
     <string name="settings_issue_report_dialog_title">Sprawdź zgłoszenie</string>
-    <string name="settings_issue_report_dialog_message">Sprawdź i uzupełnij ten szkic. Nic nie zostanie wysłane automatycznie. Otwórz stronę opinii w przeglądarce lub udostępnij ten raport samodzielnie. Opcjonalne dane diagnostyczne zawierają zredagowane lokalne zdarzenia cyklu życia; adresy sieciowe, sekrety, dane webhooka i dane prywatne są wykluczane.</string>
+    <string name="settings_issue_report_dialog_message">Sprawdź i uzupełnij szkic. Otwarcie strony kopiuje go do schowka: wklej go w pole wiadomości. Żądanie przeglądarki wysyła wybrany typ, wersję aplikacji i dane urządzenia/Androida do witryny. Raport jest wysyłany dopiero po samodzielnym wysłaniu formularza. Opcjonalne dane diagnostyczne są zanonimizowane; sprawdź je przed dołączeniem.</string>
     <string name="settings_issue_report_include_diagnostics">Dołącz zredagowane dane diagnostyczne</string>
     <string name="settings_issue_report_preview">Podgląd zgłoszenia</string>
     <string name="settings_issue_report_preview_hint">Sprawdź i dodaj szczegóły</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">Ogólna opinia</string>
+    <string name="feedback_type">Rodzaj opinii</string>
+    <string name="feedback_type_bug">Błąd</string>
+    <string name="feedback_type_translation">Tłumaczenie</string>
+    <string name="feedback_type_suggestion">Sugestia</string>
+    <string name="feedback_type_other">Inne</string>
+    <string name="feedback_report_body">## Ogólna opinia\n\nOpisz swoją sugestię lub opinię.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## Dodatkowe uwagi\n</string>
+    <string name="feedback_draft_copied">Szkic skopiowany. Wklej go w pole wiadomości na stronie opinii, sprawdź i wyślij formularz.</string>
+    <string name="feedback_copy_failed">Nie udało się skopiować szkicu. Twój tekst nadal tu jest; spróbuj ponownie lub go udostępnij.</string>
 </resources>

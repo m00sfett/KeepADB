@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">Relatar um problema ou tradução</string>
     <string name="settings_issue_report_accessibility">Abrir feedback sobre um problema ou uma tradução</string>
     <string name="settings_issue_report_dialog_title">Rever relatório</string>
-    <string name="settings_issue_report_dialog_message">Reveja e complete este rascunho. Nada é enviado automaticamente. Abra a página de feedback no navegador ou partilhe este relatório você mesmo. Os diagnósticos opcionais contêm eventos locais do ciclo de vida com dados sensíveis removidos; endereços de rede, segredos, dados de webhook e dados privados são excluídos.</string>
+    <string name="settings_issue_report_dialog_message">Revê e completa este rascunho. Ao abrir a página, é copiado para a área de transferência: cola-o no campo da mensagem. O pedido do navegador envia o tipo escolhido, a versão da aplicação e os dados do dispositivo/Android ao site. O relatório só é enviado quando envias o formulário. Os diagnósticos opcionais são ocultados; revê-os antes de os incluir.</string>
     <string name="settings_issue_report_include_diagnostics">Incluir dados de diagnóstico redigidos</string>
     <string name="settings_issue_report_preview">Pré-visualização do relatório</string>
     <string name="settings_issue_report_preview_hint">Rever e adicionar detalhes</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">Comentários gerais</string>
+    <string name="feedback_type">Tipo de comentário</string>
+    <string name="feedback_type_bug">Erro</string>
+    <string name="feedback_type_translation">Tradução</string>
+    <string name="feedback_type_suggestion">Sugestão</string>
+    <string name="feedback_type_other">Outro</string>
+    <string name="feedback_report_body">## Comentários gerais\n\nDescreve a tua sugestão ou comentário.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## Notas adicionais\n</string>
+    <string name="feedback_draft_copied">Rascunho copiado. Cola-o no campo da mensagem na página de comentários, revê-o e envia o formulário.</string>
+    <string name="feedback_copy_failed">Não foi possível copiar o rascunho. O texto continua aqui; tenta novamente ou partilha-o.</string>
 </resources>

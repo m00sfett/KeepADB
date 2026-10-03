@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">Fehler oder Übersetzung melden</string>
     <string name="settings_issue_report_accessibility">Feedback zu einem Problem oder einer Übersetzung öffnen</string>
     <string name="settings_issue_report_dialog_title">Issue-Bericht prüfen</string>
-    <string name="settings_issue_report_dialog_message">Prüfe und vervollständige diesen Entwurf. Es wird nichts automatisch gesendet. Öffne die Feedback-Seite im Browser oder teile diesen Bericht selbst. Die optionalen Diagnosedaten enthalten redigierte lokale Lebenszyklusereignisse; Netzwerkadressen, Geheimnisse, Webhook-Daten und private Daten werden ausgeschlossen.</string>
+    <string name="settings_issue_report_dialog_message">Prüfe und ergänze den Entwurf. Beim Öffnen der Seite wird er in die Zwischenablage kopiert: Füge ihn in das Nachrichtenfeld ein. Der Browseraufruf überträgt den gewählten Typ, die App-Version und Angaben zu Gerät/Android an die Webseite. Der Bericht wird erst abgeschickt, wenn du das Formular selbst absendest. Optionale Diagnosedaten sind redigiert; prüfe sie vor dem Hinzufügen.</string>
     <string name="settings_issue_report_include_diagnostics">Redigierte Diagnosedaten einfügen</string>
     <string name="settings_issue_report_preview">Vorschau des Issue-Berichts</string>
     <string name="settings_issue_report_preview_hint">Prüfen und Details ergänzen</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">Allgemeines Feedback</string>
+    <string name="feedback_type">Art des Feedbacks</string>
+    <string name="feedback_type_bug">Fehler</string>
+    <string name="feedback_type_translation">Übersetzung</string>
+    <string name="feedback_type_suggestion">Vorschlag</string>
+    <string name="feedback_type_other">Sonstiges</string>
+    <string name="feedback_report_body">## Allgemeines Feedback\n\nBeschreibe deinen Vorschlag oder dein Feedback.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## Weitere Hinweise\n</string>
+    <string name="feedback_draft_copied">Entwurf kopiert. Füge ihn auf der Feedbackseite in das Nachrichtenfeld ein, prüfe ihn und sende das Formular selbst ab.</string>
+    <string name="feedback_copy_failed">Der Entwurf konnte nicht kopiert werden. Dein Text ist noch hier; versuche es erneut oder teile ihn.</string>
 </resources>

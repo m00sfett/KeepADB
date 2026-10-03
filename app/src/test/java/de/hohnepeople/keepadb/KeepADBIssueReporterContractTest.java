@@ -29,7 +29,7 @@ public class KeepADBIssueReporterContractTest {
             "app/src/main/java/de/hohnepeople/keepadb/KeepADBDiagnosticsController.java";
 
     @Test
-    public void builderTargetsTheStaticFeedbackPageInsteadOfGitHub() throws IOException {
+    public void builderTargetsTheFeedbackPageInsteadOfGitHub() throws IOException {
         String reporter = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBIssueReporter.java");
         String activity = read(ACTIVITY_SOURCE);
         String controller = read(CONTROLLER_SOURCE);
@@ -37,7 +37,7 @@ public class KeepADBIssueReporterContractTest {
         assertFalse(reporter.contains("github.com"));
         assertFalse(reporter.contains("issues/new"));
         assertTrue(reporter.contains("KeepADBDiagnostics.exportForIssueReport(context)"));
-        assertTrue(controller.contains("KeepADBIssueReporter.FEEDBACK_URL"));
+        assertTrue(controller.contains("KeepADBIssueReporter.buildFeedbackUrl(activity,"));
         for (String source : new String[] {activity, controller}) {
             assertFalse(source.contains("github.com"));
             assertFalse(source.contains("issues/new"));
@@ -46,7 +46,7 @@ public class KeepADBIssueReporterContractTest {
         assertTrue(controller.contains("setText(withoutDiagnostics)"));
         // The feedback page is opened through the activity's shared browser path, which owns the
         // ACTION_VIEW intent and the missing-browser handling (#673).
-        assertTrue(controller.contains("openWebLink.accept(KeepADBIssueReporter.FEEDBACK_URL)"));
+        assertTrue(controller.contains("openWebLink.accept(KeepADBIssueReporter.buildFeedbackUrl(activity,"));
         assertFalse(controller.contains("Intent.ACTION_VIEW"));
         assertTrue(activity.contains("Intent.ACTION_VIEW"));
         assertTrue(activity.contains("catch (ActivityNotFoundException | SecurityException"));
@@ -76,7 +76,7 @@ public class KeepADBIssueReporterContractTest {
         assertTrue(controller.indexOf("buildDiagnosticsSection(activity)")
                 > controller.indexOf("if (checked &&"));
         assertTrue(read("app/src/main/res/values/strings.xml")
-                .contains("Nothing is sent automatically"));
+                .contains("The browser request sends"));
     }
 
     @Test
@@ -162,7 +162,10 @@ public class KeepADBIssueReporterContractTest {
                 "settings_issue_report_dialog_title", "settings_issue_report_dialog_message",
                 "settings_issue_report_include_diagnostics", "settings_issue_report_preview",
                 "settings_issue_report_preview_hint", "settings_issue_report_open_feedback",
-                "settings_issue_report_share",
+                "settings_issue_report_share", "settings_general_feedback", "feedback_type",
+                "feedback_type_bug", "feedback_type_translation", "feedback_type_suggestion",
+                "feedback_type_other", "feedback_report_body", "feedback_draft_copied",
+                "feedback_copy_failed",
                 "issue_report_title", "issue_report_unavailable", "issue_report_body",
                 "issue_report_placeholder_problem_type", "issue_report_placeholder_expected",
                 "issue_report_placeholder_actual", "issue_report_placeholder_steps",

@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">Повідомити про проблему або переклад</string>
     <string name="settings_issue_report_accessibility">Відкрити відгук про проблему або переклад</string>
     <string name="settings_issue_report_dialog_title">Переглянути звіт</string>
-    <string name="settings_issue_report_dialog_message">Перегляньте й доповніть цей чернетковий звіт. Нічого не надсилається автоматично. Відкрийте сторінку відгуків у браузері або поділіться цим звітом самостійно. Додаткові діагностичні дані містять відредаговані локальні події життєвого циклу; мережеві адреси, секрети, дані вебхука та приватні дані виключаються.</string>
+    <string name="settings_issue_report_dialog_message">Перевір і доповни чернетку. Під час відкриття сторінки вона копіюється до буфера обміну: встав її в поле повідомлення. Запит браузера передає сайту вибраний тип, версію застосунку та відомості про пристрій/Android. Звіт надсилається лише після самостійного надсилання форми. Необов’язкові діагностичні дані знеособлено; перевір їх перед додаванням.</string>
     <string name="settings_issue_report_include_diagnostics">Додати відредаговані діагностичні дані</string>
     <string name="settings_issue_report_preview">Попередній перегляд звіту</string>
     <string name="settings_issue_report_preview_hint">Переглянути й додати деталі</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 ГГц</string>
     <string name="network_band_6">6 ГГц</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">Загальний відгук</string>
+    <string name="feedback_type">Тип відгуку</string>
+    <string name="feedback_type_bug">Помилка</string>
+    <string name="feedback_type_translation">Переклад</string>
+    <string name="feedback_type_suggestion">Пропозиція</string>
+    <string name="feedback_type_other">Інше</string>
+    <string name="feedback_report_body">## Загальний відгук\n\nОпиши свою пропозицію або відгук.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## Додаткові примітки\n</string>
+    <string name="feedback_draft_copied">Чернетку скопійовано. Встав її в поле повідомлення на сторінці відгуків, перевір і надішли форму самостійно.</string>
+    <string name="feedback_copy_failed">Не вдалося скопіювати чернетку. Твій текст залишився тут; спробуй знову або поділися ним.</string>
 </resources>

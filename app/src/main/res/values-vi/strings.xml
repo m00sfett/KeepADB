@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">Báo cáo lỗi hoặc bản dịch</string>
     <string name="settings_issue_report_accessibility">Mở phản hồi về sự cố hoặc bản dịch</string>
     <string name="settings_issue_report_dialog_title">Xem lại báo cáo</string>
-    <string name="settings_issue_report_dialog_message">Hãy xem lại và hoàn thiện bản nháp này. Không có dữ liệu nào được tự động gửi. Hãy mở trang phản hồi trong trình duyệt hoặc tự chia sẻ báo cáo này. Dữ liệu chẩn đoán tùy chọn chỉ chứa các sự kiện vòng đời cục bộ đã loại bỏ thông tin nhạy cảm; địa chỉ mạng, bí mật, dữ liệu webhook và dữ liệu riêng tư đều bị loại trừ.</string>
+    <string name="settings_issue_report_dialog_message">Kiểm tra và hoàn thiện bản nháp. Khi mở trang, bản nháp được sao chép vào bộ nhớ tạm: dán vào ô tin nhắn. Yêu cầu của trình duyệt gửi loại đã chọn, phiên bản ứng dụng và thông tin thiết bị/Android đến trang web. Báo cáo chỉ được gửi khi bạn tự gửi biểu mẫu. Dữ liệu chẩn đoán tùy chọn đã được che; kiểm tra trước khi thêm.</string>
     <string name="settings_issue_report_include_diagnostics">Bao gồm dữ liệu chẩn đoán đã loại bỏ thông tin riêng tư</string>
     <string name="settings_issue_report_preview">Xem trước báo cáo</string>
     <string name="settings_issue_report_preview_hint">Xem lại và thêm chi tiết</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">Phản hồi chung</string>
+    <string name="feedback_type">Loại phản hồi</string>
+    <string name="feedback_type_bug">Lỗi</string>
+    <string name="feedback_type_translation">Bản dịch</string>
+    <string name="feedback_type_suggestion">Đề xuất</string>
+    <string name="feedback_type_other">Khác</string>
+    <string name="feedback_report_body">## Phản hồi chung\n\nMô tả đề xuất hoặc phản hồi của bạn.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## Ghi chú thêm\n</string>
+    <string name="feedback_draft_copied">Đã sao chép bản nháp. Dán vào ô tin nhắn trên trang phản hồi, kiểm tra và tự gửi biểu mẫu.</string>
+    <string name="feedback_copy_failed">Không thể sao chép bản nháp. Văn bản vẫn còn ở đây; thử lại hoặc chia sẻ.</string>
 </resources>

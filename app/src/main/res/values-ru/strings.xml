@@ -243,7 +243,7 @@
     <string name="settings_issue_report_button">Сообщить о проблеме или переводе</string>
     <string name="settings_issue_report_accessibility">Открыть отзыв о проблеме или переводе</string>
     <string name="settings_issue_report_dialog_title">Проверить отчёт</string>
-    <string name="settings_issue_report_dialog_message">Проверьте и дополните этот черновик. Ничего не отправляется автоматически. Откройте страницу отзывов в браузере или поделитесь этим отчётом самостоятельно. Дополнительная диагностика содержит отредактированные локальные события жизненного цикла; сетевые адреса, секреты, данные вебхука и личные данные исключаются.</string>
+    <string name="settings_issue_report_dialog_message">Проверь и дополни черновик. При открытии страницы он копируется в буфер обмена: вставь его в поле сообщения. Запрос браузера передаёт сайту выбранный тип, версию приложения и сведения об устройстве/Android. Отчёт отправляется только после отправки формы тобой. Необязательные диагностические данные обезличены; проверь их перед добавлением.</string>
     <string name="settings_issue_report_include_diagnostics">Включить отредактированные диагностические данные</string>
     <string name="settings_issue_report_preview">Предпросмотр отчёта</string>
     <string name="settings_issue_report_preview_hint">Проверить и добавить сведения</string>
@@ -393,4 +393,13 @@
     <string name="network_band_5">5 ГГц</string>
     <string name="network_band_6">6 ГГц</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <string name="settings_general_feedback">Общий отзыв</string>
+    <string name="feedback_type">Тип отзыва</string>
+    <string name="feedback_type_bug">Ошибка</string>
+    <string name="feedback_type_translation">Перевод</string>
+    <string name="feedback_type_suggestion">Предложение</string>
+    <string name="feedback_type_other">Другое</string>
+    <string name="feedback_report_body">## Общий отзыв\n\nОпиши своё предложение или отзыв.\n\n## KeepADB\n%1$s (%2$s)\nAndroid %3$s (SDK %4$s)\n%5$s\n\n## Дополнительные заметки\n</string>
+    <string name="feedback_draft_copied">Черновик скопирован. Вставь его в поле сообщения на странице отзывов, проверь и отправь форму самостоятельно.</string>
+    <string name="feedback_copy_failed">Не удалось скопировать черновик. Твой текст остался здесь; попробуй снова или поделись им.</string>
 </resources>
