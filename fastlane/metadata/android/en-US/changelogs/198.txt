@@ -1,0 +1,1 @@
+A store release note was shortened to fit the F-Droid length limit. No change to how the app behaves.
