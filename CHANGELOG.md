@@ -31,6 +31,8 @@ are retrospective issue-version records and were never published as separate rel
 - #738: `NetworkListActivityTest` guards the AP number rule at its edges per drawn list: an allowed current access point counts towards a repeated name (and gets no number with a different name), and the observed view numbers a stored entry next to an observed-only one of the same name but ignores a same-named entry that is not observed. `docs/trusted-networks.md` now states that the current row counts when it is allowed. No production change.
 ### Testing
 - #740: `KeepADBFastlaneChangelogContractTest` now also enforces the F-Droid limit of 500 characters (Unicode code points of the UTF-8 file, line breaks included) for the Fastlane changelog of the current versionCode only; historical files are not checked.
+### Testing
+- #741: The "Yes" test for clearing the BSSID history (#731) now also sets an unrelated preference in the same preferences file before the dialog answer and asserts it survives, so a `clearHistory` that wipes all preferences instead of only the `bssid_history_` keys fails the test.
 
 ## [1.9.24] - Unreleased
 
