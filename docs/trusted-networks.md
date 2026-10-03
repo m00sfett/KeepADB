@@ -60,7 +60,9 @@ Jeder freigegebene Access Point steht in der Liste **Freigegebene APs** mit eine
 Der Eintrag zeigt den Namen in der Form `Name (Nr.)`, wenn derselbe Name mindestens zweimal
 in der gerade angezeigten Liste vorkommt. Jeder Eintrag erhält die Nummer einmal beim Freigeben;
 sie wird nie wiederverwendet und ändert sich nicht, wenn andere Einträge hinzukommen oder
-entfallen; fehlt eine Nummer in der Reihe, bleibt die Lücke. Access Points, die nur beobachtet
+entfallen; fehlt eine Nummer in der Reihe, bleibt die Lücke. Die Zeile des aktuellen Access Points
+zählt mit, wenn er freigegeben ist: Teilt er seinen Namen mit einem aufgelisteten Eintrag, tragen beide
+eine Nummer; ist er nicht freigegeben, zählt er nicht mit. Access Points, die nur beobachtet
 oder verhindert wurden, sind kein gespeicherter Eintrag und haben weder Nummer noch eigenen Namen.
 
 Im Datenschutzmodus wird der Name ausgeblendet und als `Name verborgen #n (Nr.)` angezeigt,

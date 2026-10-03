@@ -1,0 +1,2 @@
+Internal maintenance: removed unused code and added more automated tests for access point numbering, the notification and Keep-Alive.
+A short note in the trusted networks documentation was clarified. No change to how the app behaves.

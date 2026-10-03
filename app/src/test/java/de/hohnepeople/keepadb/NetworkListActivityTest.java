@@ -777,6 +777,71 @@ public class NetworkListActivityTest {
     }
 
     /**
+     * #738: an allowed current access point counts as a row of the allowed list. With a listed
+     * entry of the same name both get their stable number; the current row is not skipped.
+     */
+    @Test
+    public void anAllowedCurrentApCountsTowardsTheRepeatedName() {
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:01", "Office");
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:02", "Office");
+        connectTo("Office", "aa:aa:aa:aa:aa:01");
+
+        NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
+
+        String current = joined(allText(activity.findViewById(R.id.wifi_aps_current_row)));
+        List<String> listed = allText(activity.findViewById(R.id.wifi_aps_list));
+        assertTrue(current, current.contains("Office (1)"));
+        assertTrue(joined(listed), listed.contains("Office (2)"));
+    }
+
+    /** #738 other side: an allowed current AP with a different name than the listed one has no number. */
+    @Test
+    public void anAllowedCurrentApWithADifferentNameGetsNoNumber() {
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:01", "Office");
+        KeepADBTrustedNetwork.addBssid(context, "cc:cc:cc:cc:cc:01", "Cafe");
+        connectTo("Office", "aa:aa:aa:aa:aa:01");
+
+        NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
+
+        String current = joined(allText(activity.findViewById(R.id.wifi_aps_current_row)));
+        List<String> listed = allText(activity.findViewById(R.id.wifi_aps_list));
+        assertTrue(current, current.contains("Office"));
+        assertFalse(current, current.contains("Office ("));
+        assertTrue(joined(listed), listed.contains("Cafe"));
+    }
+
+    /**
+     * #738: in the observed view a stored entry and an observed-only access point of the same
+     * name make the name repeated; only the stored entry (it has a number) shows it.
+     */
+    @Test
+    public void observedViewNumbersAStoredEntryNextToAnObservedOnlySameName() {
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:01", "Office");
+        KeepADBBssidHistory.recordObservation(context, "Office", "aa:aa:aa:aa:aa:01");
+        KeepADBBssidHistory.recordObservation(context, "Office", "bb:bb:bb:bb:bb:02");
+
+        List<String> texts = observedTexts();
+
+        assertTrue(joined(texts), texts.contains("Office (1)"));
+        assertTrue(joined(texts), texts.contains("Office"));
+    }
+
+    /** #738 other side: a same-named stored entry that is not observed is not in the observed list. */
+    @Test
+    public void observedViewIgnoresASameNamedEntryThatIsNotObserved() {
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:01", "Office");
+        KeepADBTrustedNetwork.addBssid(context, "aa:aa:aa:aa:aa:02", "Office");
+        KeepADBBssidHistory.recordObservation(context, "Office", "aa:aa:aa:aa:aa:01");
+
+        List<String> texts = observedTexts();
+
+        assertTrue(joined(texts), texts.contains("Office"));
+        for (String text : texts) {
+            assertFalse("No number, the twin is not in this list: " + text, text.startsWith("Office ("));
+        }
+    }
+
+    /**
      * #722: with the privacy mode on, the only "#" of a row is the one of the hidden name; the
      * access point number follows it in brackets and the same name keeps the same "#n".
      */

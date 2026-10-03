@@ -1,8 +1,10 @@
 package de.hohnepeople.keepadb;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,6 +30,53 @@ public class KeepADBFastlaneChangelogContractTest {
         assertTrue(
                 "Fastlane changelog for versionCode " + versionCode + " is empty",
                 Files.size(changelog) > 0);
+    }
+
+    @Test
+    public void currentFastlaneChangelogStaysWithinFdroidLimit() throws IOException {
+        String versionCode = currentVersionCode();
+        Path changelog = projectPath(
+                "fastlane/metadata/android/en-US/changelogs/" + versionCode + ".txt");
+        String text = new String(Files.readAllBytes(changelog), StandardCharsets.UTF_8);
+        int length = characterCount(text);
+        assertTrue(
+                "Fastlane changelog for versionCode " + versionCode + " has " + length
+                        + " characters, limit is " + MAX_CHANGELOG_CHARACTERS,
+                isWithinLimit(text));
+    }
+
+    @Test
+    public void limitBoundaryIsInclusive() {
+        assertTrue(isWithinLimit(repeat("a", MAX_CHANGELOG_CHARACTERS)));
+        assertFalse(isWithinLimit(repeat("a", MAX_CHANGELOG_CHARACTERS + 1)));
+        // Supplementary code points count once, not as two UTF-16 units.
+        assertTrue(isWithinLimit(repeat("\uD83D\uDE00", MAX_CHANGELOG_CHARACTERS)));
+        assertFalse(isWithinLimit(repeat("\uD83D\uDE00", MAX_CHANGELOG_CHARACTERS + 1)));
+    }
+
+    private static final int MAX_CHANGELOG_CHARACTERS = 500;
+
+    static int characterCount(String text) {
+        return text.codePointCount(0, text.length());
+    }
+
+    static boolean isWithinLimit(String text) {
+        return characterCount(text) <= MAX_CHANGELOG_CHARACTERS;
+    }
+
+    private static String repeat(String unit, int times) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < times; i++) {
+            builder.append(unit);
+        }
+        return builder.toString();
+    }
+
+    private static String currentVersionCode() throws IOException {
+        Matcher matcher = Pattern.compile("versionCode\\s+(\\d+)")
+                .matcher(read("app/build.gradle"));
+        assertTrue("Could not find versionCode in app/build.gradle", matcher.find());
+        return matcher.group(1);
     }
 
     private static Path projectPath(String relativePath) {

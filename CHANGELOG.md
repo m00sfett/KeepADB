@@ -17,11 +17,25 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23` and `1.9.24` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24` and `1.9.25` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.25] - Unreleased
+
+This single section covers the six integrated packages #737, #738, #740, #741, #744 and #745 (one candidate, versionCode 197). Internal cleanup and tests only; no behavior change.
+
+### Removed
+- #737: Unused `ApItem.meshCount`, `meshPosition` and `isMeshMember()` (and their computation in `KeepADBAccessPointOverview.buildItems`) removed; since #729 `KeepADBNetworkDisplay.repeatedNames` decides per displayed list. Only the Overview tests read them. No behavior change.
+
+### Testing
+- #738: `NetworkListActivityTest` guards the AP number rule at its edges per drawn list: an allowed current access point counts towards a repeated name (and gets no number with a different name), and the observed view numbers a stored entry next to an observed-only one of the same name but ignores a same-named entry that is not observed. `docs/trusted-networks.md` now states that the current row counts when it is allowed. No production change.
+- #740: `KeepADBFastlaneChangelogContractTest` now also enforces the F-Droid limit of 500 characters (Unicode code points of the UTF-8 file, line breaks included) for the Fastlane changelog of the current versionCode only; historical files are not checked.
+- #741: The "Yes" test for clearing the BSSID history (#731) now also sets an unrelated preference in the same preferences file before the dialog answer and asserts it survives, so a `clearHistory` that wipes all preferences instead of only the `bssid_history_` keys fails the test.
+- #744: `KeepADBKeepAliveReceiverContractTest` guards the #734 Keep-Alive toggle: the manifest keeps `KeepADBReceiver` at `android:exported="false"` and owns `ACTION_TOGGLE_KEEP_ALIVE`, and the real PendingIntent of `KeepADBNotification.keepAliveAction` (Robolectric) stays an explicit, `FLAG_IMMUTABLE` broadcast to that receiver. No production change.
+- #745: `KeepADBNotificationWebhookStatusTest` now covers the positive fallback of `getWebhookLastSuccessAt` for existing installs (no `register_webhook_last_success_at`, endpoint stored, status success): the legacy reported time is returned and shown in the notification.
 
 ## [1.9.24] - Unreleased
 
