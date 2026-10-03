@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.9.25] - Unreleased
+
+### Removed
+- #737: Unused `ApItem.meshCount`, `meshPosition` and `isMeshMember()` (and their computation in `KeepADBAccessPointOverview.buildItems`) removed; since #729 `KeepADBNetworkDisplay.repeatedNames` decides per displayed list. Only the Overview tests read them. No behavior change.
+
 ## [1.9.24] - Unreleased
 
 This single section covers the two integrated packages #734 and #742 (one candidate, versionCode 196).

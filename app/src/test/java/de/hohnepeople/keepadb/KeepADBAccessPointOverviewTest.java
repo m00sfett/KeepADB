@@ -88,7 +88,7 @@ public class KeepADBAccessPointOverviewTest {
     }
 
     @Test
-    public void twoAccessPointsSharingAnSsidAreLabeledAsAMeshGroup() {
+    public void twoAccessPointsSharingAnSsidAreBothListedWithTheirOwnBssid() {
         KeepADBNetworkIdentity current = new KeepADBNetworkIdentity("\"HomeMesh\"", "aa:aa:aa:aa:aa:01");
         List<KeepADBBssidHistory.Observation> history = Collections.singletonList(
                 new KeepADBBssidHistory.Observation("HomeMesh", "aa:aa:aa:aa:aa:02"));
@@ -97,38 +97,9 @@ public class KeepADBAccessPointOverviewTest {
                 current, history, Collections.emptyList());
 
         assertEquals(2, items.size());
-        for (KeepADBAccessPointOverview.ApItem item : items) {
-            assertTrue(item.isMeshMember());
-            assertEquals(2, item.meshCount);
-            assertTrue(item.meshPosition >= 1 && item.meshPosition <= 2);
-        }
-        assertTrue(items.get(0).meshPosition != items.get(1).meshPosition);
-    }
-
-    @Test
-    public void aSingleAccessPointForItsSsidIsNotAMeshMember() {
-        KeepADBNetworkIdentity current = new KeepADBNetworkIdentity("\"HomeMesh\"", "aa:aa:aa:aa:aa:01");
-
-        List<KeepADBAccessPointOverview.ApItem> items = KeepADBAccessPointOverview.buildItems(
-                current, Collections.emptyList(), Collections.emptyList());
-
-        assertFalse(items.get(0).isMeshMember());
-        assertEquals(0, items.get(0).meshPosition);
-        assertEquals(1, items.get(0).meshCount);
-    }
-
-    @Test
-    public void differentSsidsAreNeverGroupedIntoTheSameMesh() {
-        KeepADBNetworkIdentity current = new KeepADBNetworkIdentity("\"HomeMesh\"", "aa:aa:aa:aa:aa:01");
-        List<KeepADBBssidHistory.Observation> history = Collections.singletonList(
-                new KeepADBBssidHistory.Observation("OfficeMesh", "bb:bb:bb:bb:bb:01"));
-
-        List<KeepADBAccessPointOverview.ApItem> items = KeepADBAccessPointOverview.buildItems(
-                current, history, Collections.emptyList());
-
-        for (KeepADBAccessPointOverview.ApItem item : items) {
-            assertFalse(item.isMeshMember());
-        }
+        assertEquals("AA:AA:AA:AA:AA:01", items.get(0).bssid);
+        assertEquals("AA:AA:AA:AA:AA:02", items.get(1).bssid);
+        assertEquals(items.get(0).ssid, items.get(1).ssid);
     }
 
     @Test
