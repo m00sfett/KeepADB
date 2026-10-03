@@ -33,6 +33,8 @@ are retrospective issue-version records and were never published as separate rel
 - #740: `KeepADBFastlaneChangelogContractTest` now also enforces the F-Droid limit of 500 characters (Unicode code points of the UTF-8 file, line breaks included) for the Fastlane changelog of the current versionCode only; historical files are not checked.
 ### Testing
 - #741: The "Yes" test for clearing the BSSID history (#731) now also sets an unrelated preference in the same preferences file before the dialog answer and asserts it survives, so a `clearHistory` that wipes all preferences instead of only the `bssid_history_` keys fails the test.
+### Testing
+- #744: `KeepADBKeepAliveReceiverContractTest` guards the #734 Keep-Alive toggle: the manifest keeps `KeepADBReceiver` at `android:exported="false"` and owns `ACTION_TOGGLE_KEEP_ALIVE`, and the real PendingIntent of `KeepADBNotification.keepAliveAction` (Robolectric) stays an explicit, `FLAG_IMMUTABLE` broadcast to that receiver. No production change.
 
 ## [1.9.24] - Unreleased
 
