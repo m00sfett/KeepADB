@@ -35,6 +35,8 @@ are retrospective issue-version records and were never published as separate rel
 - #741: The "Yes" test for clearing the BSSID history (#731) now also sets an unrelated preference in the same preferences file before the dialog answer and asserts it survives, so a `clearHistory` that wipes all preferences instead of only the `bssid_history_` keys fails the test.
 ### Testing
 - #744: `KeepADBKeepAliveReceiverContractTest` guards the #734 Keep-Alive toggle: the manifest keeps `KeepADBReceiver` at `android:exported="false"` and owns `ACTION_TOGGLE_KEEP_ALIVE`, and the real PendingIntent of `KeepADBNotification.keepAliveAction` (Robolectric) stays an explicit, `FLAG_IMMUTABLE` broadcast to that receiver. No production change.
+### Testing
+- #745: `KeepADBNotificationWebhookStatusTest` now covers the positive fallback of `getWebhookLastSuccessAt` for existing installs (no `register_webhook_last_success_at`, endpoint stored, status success): the legacy reported time is returned and shown in the notification.
 
 ## [1.9.24] - Unreleased
 
