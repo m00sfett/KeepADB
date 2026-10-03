@@ -29,6 +29,8 @@ are retrospective issue-version records and were never published as separate rel
 - #737: Unused `ApItem.meshCount`, `meshPosition` and `isMeshMember()` (and their computation in `KeepADBAccessPointOverview.buildItems`) removed; since #729 `KeepADBNetworkDisplay.repeatedNames` decides per displayed list. Only the Overview tests read them. No behavior change.
 ### Testing
 - #738: `NetworkListActivityTest` guards the AP number rule at its edges per drawn list: an allowed current access point counts towards a repeated name (and gets no number with a different name), and the observed view numbers a stored entry next to an observed-only one of the same name but ignores a same-named entry that is not observed. `docs/trusted-networks.md` now states that the current row counts when it is allowed. No production change.
+### Testing
+- #740: `KeepADBFastlaneChangelogContractTest` now also enforces the F-Droid limit of 500 characters (Unicode code points of the UTF-8 file, line breaks included) for the Fastlane changelog of the current versionCode only; historical files are not checked.
 
 ## [1.9.24] - Unreleased
 
