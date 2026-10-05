@@ -1,0 +1,1 @@
+The website link and the feedback page now open the new KeepADB site at keepadb.roteson.de. Feedback works as before: type, app version and device details travel in the page URL, and you submit the report yourself.

@@ -32,8 +32,8 @@ public class SettingsWebLinkTest {
         String model = "Model & +/#?=端末 / Android 13";
         Uri uri = Uri.parse(KeepADBIssueReporter.buildFeedbackUrl("translation", version, model));
         assertEquals("https", uri.getScheme());
-        assertEquals("hohnepeople.de", uri.getHost());
-        assertEquals("/keepadb/feedback", uri.getPath());
+        assertEquals("keepadb.roteson.de", uri.getHost());
+        assertEquals("/feedback", uri.getPath());
         assertNull(uri.getFragment());
         assertEquals(java.util.Set.of("issueType", "appVersion", "deviceInfo"),
                 uri.getQueryParameterNames());

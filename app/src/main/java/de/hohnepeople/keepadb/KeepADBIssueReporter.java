@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 /** Builds a user-editable, privacy-safe feedback report draft. */
 final class KeepADBIssueReporter {
-    static final String FEEDBACK_URL = "https://hohnepeople.de/keepadb/feedback";
+    static final String FEEDBACK_URL = "https://keepadb.roteson.de/feedback";
     private static final Pattern NETWORK_HOST = Pattern.compile("(?i)\\bhost=[^\\s]+");
     private static final Pattern NETWORK_PORT = Pattern.compile("(?i)\\bport=\\d+");
     // #574: the feedback report draft masks bssid=/ssid= fully, stricter than the OUI-preserving
