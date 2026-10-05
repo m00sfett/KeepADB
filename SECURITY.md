@@ -81,7 +81,7 @@ separaten Langzeitpflege-Zweig.
 Bitte veröffentliche keine Sicherheitslücke als öffentliches GitHub-Issue. Verwende die
 [private GitHub-Sicherheitsmeldung](https://github.com/m00sfett/KeepADB/security/advisories/new).
 Falls du GitHub nicht verwenden kannst, nutze das Feedback-Formular in den Einstellungen oder
-[hohnepeople.de/keepadb/feedback](https://hohnepeople.de/keepadb/feedback) und markiere den Bericht
+[keepadb.roteson.de/feedback](https://keepadb.roteson.de/feedback) und markiere den Bericht
 als sicherheitsrelevant.
 
 Nenne KeepADB-Version, Android-Version/API-Level, Schritte zur Reproduktion und nötige

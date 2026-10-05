@@ -33,7 +33,7 @@ public class KeepADBIssueReporterContractTest {
         String reporter = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBIssueReporter.java");
         String activity = read(ACTIVITY_SOURCE);
         String controller = read(CONTROLLER_SOURCE);
-        assertTrue(reporter.contains("https://hohnepeople.de/keepadb/feedback"));
+        assertTrue(reporter.contains("https://keepadb.roteson.de/feedback"));
         assertFalse(reporter.contains("github.com"));
         assertFalse(reporter.contains("issues/new"));
         assertTrue(reporter.contains("KeepADBDiagnostics.exportForIssueReport(context)"));

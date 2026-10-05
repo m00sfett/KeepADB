@@ -76,7 +76,7 @@ public class SettingsActivity extends Activity {
 
     private KeepADBUsbProfileEditor usbProfileEditor;
 
-    static final String WEBSITE_URL = "https://hohnepeople.de";
+    static final String WEBSITE_URL = "https://keepadb.roteson.de";
 
     private static final String CARD_COLLAPSED_SYMBOL = "+";
     private static final String CARD_EXPANDED_SYMBOL = "−";
