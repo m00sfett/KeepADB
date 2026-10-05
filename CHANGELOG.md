@@ -17,11 +17,41 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28` and `1.9.29` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29` and `1.9.30` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.30] - Unreleased
+
+Etappe patch candidate (versionCode 202), Etappe E2 of #758; no release. This section covers #765; the parallel work on #763 and #766 ships under the same version and the integrator merges the sections.
+
+### Changed
+- #765: Defaults audit of a new installation. Every setting was checked against the code that reads it: all settings with a security meaning already start on the safest value, so **no default value changes**. The one deviation, the network policy (`all_wifi`, "all Wi-Fi networks"), was fixed by #760; the claim in #765 that the default is still `MODE_ALL_WIFI` described the state before #760. The two settings that do not start on the strict side, `usb_profile_notification_enabled` (on) and `last_desired_on` (on, runtime state), are kept and justified in `docs/defaults.md`: neither enables anything or shares data by itself, and changing a fallback in a getter would silently move every installation that never stored the key.
+- #765: Existing installations are untouched: a stored value, looser or stricter than the default, stays exactly as stored, and reading a default never writes it back (the one-time network policy flag of #760 excepted).
+- #765: Keep-Alive stays "off" on a new installation (decision F2 of #758); the setup assistant (#761) will preselect "off" as well.
+
+Defaults of a new installation (full table with keys and reasons in `docs/defaults.md`):
+
+| Setting | Default | Security meaning |
+|---|---|---|
+| Keep-Alive | off | no automatic re-enable, nothing started at boot or update |
+| Network rule | trusted access points only (BSSID) | unreadable identity pauses, unknown network asks |
+| Also trust by Wi-Fi name / legacy name list | off | a copied name is not trust |
+| USB handover | off | nothing is enabled or offered on plugging in |
+| Webhook | off, no URL | no outgoing traffic, no built-in target |
+| Details in notifications | off | no network name, BSSID or USB profile on the lock screen |
+| Wi-Fi and access point discovery | off | no observation list |
+| Privacy mode | off | kept by decision (#758): optional, not part of onboarding |
+| Hide notification, keep display on, USB notification | off | opt-in conveniences |
+| Profile row in the USB notification | on | layout only; content stays behind "details in notifications" |
+
+### Documentation
+- #765: New `docs/defaults.md` with the audit table (setting, key, default, effect, assessment), the rule for new versus existing installations, and how a default may be changed later (a persisted default as in #760, never a bare fallback swap). Linked from `docs/README.md`.
+
+### Testing
+- #765: New `KeepADBDefaultsAuditTest` makes the table executable. Defaults: every setting reads its audited default on an empty store, reading writes nothing but the #760 network policy flag, and the acting paths behave on the defaults (unknown and unreadable networks never re-enable, same-named access point is not trusted, no service at boot or package replacement, no USB handover planned), each with a control that does act once the opt-in is stored. Existing installations: for every setting a stored value that differs from the default stays, in both directions (looser than a security default, stricter than a convenience default), individually and combined; an explicitly stored default stays; the stored side is written with literal key strings so a key rename fails. Completeness: a preference key constant in the sources that the audit does not classify, or an audited key that vanished from the sources, fails the build, and `docs/defaults.md` must name every setting key. Mutation checks (flipped defaults, a renamed key, a new unclassified key, a default written on read, a stored value ignored) each turn the suite red.
 
 ## [1.9.29] - Unreleased
 

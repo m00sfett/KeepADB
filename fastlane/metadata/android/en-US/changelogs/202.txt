@@ -1,0 +1,1 @@
+Checked every setting of a fresh install: all start on the safest value (Keep-Alive, USB handover, webhook and lock-screen details off; Wi-Fi trust only for access points you approve). Nothing changes for existing installs: whatever you stored stays exactly as it is.
