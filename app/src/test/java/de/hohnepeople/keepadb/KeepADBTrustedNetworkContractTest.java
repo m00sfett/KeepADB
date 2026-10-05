@@ -104,8 +104,9 @@ public class KeepADBTrustedNetworkContractTest {
 
     /**
      * #714: the number, the own name and the band of an access point are display only. The trust
-     * decision reads the stored BSSID (and the optional exact network name) and nothing else, so
-     * none of the methods that decide may mention the own name.
+     * decision reads the stored BSSID (and the optional exact network names) and nothing else, so
+     * none of the methods that decide may mention the own name. #760: the derived names come from
+     * the entry's trust label, never from the own name.
      */
     @Test
     public void trustDecisionsNeverReadTheOwnNameOfAnEntry() throws IOException {
@@ -113,9 +114,13 @@ public class KeepADBTrustedNetworkContractTest {
         String[] decisions = {
                 "static boolean isCurrentNetworkTrusted(Context context) {",
                 "static BlockReason getBlockReason(Context context) {",
-                "private static boolean isTrusted(Context context, KeepADBNetworkIdentity identity) {",
+                "static Decision evaluateCurrent(Context context) {",
+                "static Decision evaluate(Context context, KeepADBNetworkIdentity identity) {",
+                "private static Decision evaluateLists(Context context, KeepADBNetworkIdentity identity) {",
                 "private static boolean matchesAllowlist(Context context, String bssid) {",
-                "private static boolean matchesSsidAllowlist(Context context, KeepADBNetworkIdentity identity) {",
+                "private static boolean matchesTrustedName(Context context, String ssid) {",
+                "private static boolean matchesDerivedName(Context context, String ssid) {",
+                "private static boolean matchesLegacyNameGrant(Context context, String ssid) {",
         };
         for (String signature : decisions) {
             String body = methodBody(trusted, signature);

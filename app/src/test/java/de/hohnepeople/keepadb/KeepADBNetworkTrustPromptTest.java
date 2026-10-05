@@ -92,12 +92,12 @@ public class KeepADBNetworkTrustPromptTest {
         assertTrue("Prompt text must name the SSID: " + text, text.contains("Cafe-WLAN"));
         assertTrue("Prompt text must name the BSSID: " + text,
                 text.contains(BSSID.toUpperCase(java.util.Locale.ROOT)));
-        // #598: with details on, the content intent stays the plain Settings entry it always was
-        // -- the in-app confirmation is only the details-off replacement for the allow action.
+        // #759: with details on, the content tap opens the in-app confirmation for this access
+        // point (it used to open the top of SettingsActivity).
         Intent content = shadowOf(notification.contentIntent).getSavedIntent();
         assertEquals(SettingsActivity.class.getName(), content.getComponent().getClassName());
-        assertNull(content.getAction());
-        assertFalse(content.hasExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
+        assertEquals(KeepADBNetworkTrustPrompt.ACTION_CONFIRM_IN_APP, content.getAction());
+        assertEquals(BSSID, content.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
     }
 
     @Test

@@ -1,0 +1,1 @@
+New installations start in the safest network setting: Keep-Alive re-enables Wireless Debugging only at access points you trust. Existing installations keep their current setting. Tapping the new Wi-Fi notification opens the trust question for that network, and the USB notification opens the USB-ADB settings card.

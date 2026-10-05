@@ -49,8 +49,9 @@ import java.util.Locale;
  * <p>The suppression deliberately expires after {@link #PROMPT_REPEAT_INTERVAL_MS}: a permanent
  * "don't ask again" that no user action can clear would be a silently switched-off alarm, and the
  * block it hides is exactly the failure the issue is about. Declining therefore only suppresses
- * the next prompts, it never creates a persistent blocklist entry -- there is no such concept, and
- * none is needed: an access point that is not on the allowlist is already blocked.
+ * the next prompts, it never creates a persistent block. Blocks (#760, {@link
+ * KeepADBNetworkBlocklist}) are the user's explicit "never" and the opposite case: a blocked
+ * network is never asked about at all, see {@link #onBlockedByUntrustedNetwork} and {@link #show}.
  *
  * <h2>#460: already active, and an unreadable identity</h2>
  * Two gaps remained after #446/#450. First, {@link KeepADBService} only ever called {@link
@@ -101,12 +102,10 @@ final class KeepADBNetworkTrustPrompt {
     private static final int REQUEST_CODE_TRUST = 10;
     private static final int REQUEST_CODE_DISMISS = 11;
     private static final int REQUEST_CODE_CONFIRM_IN_APP = 12;
-    // #603: distinct request codes for the two remaining extras-free SettingsActivity
-    // getActivity PendingIntents in this class -- PendingIntent#filterEquals ignores extras, so
-    // without these both would otherwise share an identity with each other and with
-    // KeepADBUsbNotification's own extras-free SettingsActivity PendingIntent, letting
-    // FLAG_UPDATE_CURRENT silently overwrite one with the other.
-    private static final int REQUEST_CODE_DETAILS_ON_CONTENT = 13;
+    // #603: distinct request code for the remaining extras-free getActivity PendingIntent in this
+    // class -- PendingIntent#filterEquals ignores extras, so it must not share an identity with
+    // KeepADBUsbNotification's SettingsActivity PendingIntent, or FLAG_UPDATE_CURRENT would let
+    // one silently overwrite the other. #759: 13 is retired (details-on prompt now reuses 12).
     private static final int REQUEST_CODE_IDENTITY_UNAVAILABLE = 14;
 
     /**
@@ -140,6 +139,14 @@ final class KeepADBNetworkTrustPrompt {
         if (context == null) return false;
         Context appContext = context.getApplicationContext();
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(appContext);
+        // #760: a blocked network is the user's answer already -- never ask, never record it as
+        // "recently prevented". Checked before the unreadable-identity branch because a block on
+        // the name also holds when only the SSID could be read.
+        if (KeepADBTrustedNetwork.evaluate(appContext, identity).isBlocked()) {
+            KeepADBDiagnostics.event(appContext, "network_trust_prompt", "trusted_network",
+                    "skipped", "network_blocked");
+            return false;
+        }
         // An unreadable identity is not actionable as a trust choice: there is no BSSID the user
         // could allow, so the allow/block prompt below would offer a choice that cannot be
         // carried out. #460: that used to be the end of it -- the block stayed silent, and
@@ -320,6 +327,13 @@ final class KeepADBNetworkTrustPrompt {
     }
 
     private static boolean show(Context context, String bssid, String label) {
+        // #760: the one place every prompt is posted through -- including #578's re-show after a
+        // locked-device tap -- so a network blocked in the meantime can never be asked about.
+        if (isBlocked(context, bssid, label)) {
+            KeepADBDiagnostics.event(context, "network_trust_prompt", "trusted_network",
+                    "skipped", "network_blocked");
+            return false;
+        }
         Context localized = KeepADBLocaleHelper.wrapContext(context);
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         if (manager == null || !hasNotificationPermission(context)) {
@@ -340,15 +354,12 @@ final class KeepADBNetworkTrustPrompt {
         String text = details
                 ? localized.getString(R.string.network_prompt_text, displayLabel, displayBssid)
                 : localized.getString(R.string.network_prompt_confirm_in_app_text);
-        PendingIntent contentIntent = details
-                ? PendingIntent.getActivity(context, REQUEST_CODE_DETAILS_ON_CONTENT,
-                        new Intent(context, SettingsActivity.class)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                                        | Intent.FLAG_ACTIVITY_CLEAR_TOP),
-                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)
-                : PendingIntent.getActivity(context, REQUEST_CODE_CONFIRM_IN_APP,
-                        confirmInAppIntent(context, bssid),
-                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        // #759: both forms open the in-app confirmation for exactly this access point. With details
+        // on, the user already saw the name in the notification and gets the same confirmation
+        // dialog instead of the top of SettingsActivity.
+        PendingIntent contentIntent = PendingIntent.getActivity(context,
+                REQUEST_CODE_CONFIRM_IN_APP, confirmInAppIntent(context, bssid),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         // #578: the lock screen shows this notification (default VISIBILITY_PRIVATE, redacted by
         // the platform unless the user opted into showing private content there -- which the
         // device tested against had). publicVersion carries neither the label nor the BSSID. #592:
@@ -415,6 +426,8 @@ final class KeepADBNetworkTrustPrompt {
      * label of its own.
      */
     static KeepADBBlockedNetworkHistory.Entry pendingConfirmation(Context context, String bssid) {
+        // #760: a stale prompt must not open a "trust this network?" question for a network that is
+        // blocked by now; the entry's recorded name is checked below as well.
         String cleanBssid = bssid == null ? "" : bssid.trim();
         if (cleanBssid.isEmpty()
                 || KeepADBNetworkIdentity.REDACTED_BSSID.equalsIgnoreCase(cleanBssid)
@@ -423,9 +436,21 @@ final class KeepADBNetworkTrustPrompt {
         }
         for (KeepADBBlockedNetworkHistory.Entry entry
                 : KeepADBBlockedNetworkHistory.getEntries(context)) {
-            if (entry.bssid.equalsIgnoreCase(cleanBssid)) return entry;
+            if (entry.bssid.equalsIgnoreCase(cleanBssid)) {
+                return KeepADBNetworkBlocklist.isBlocked(context, entry.bssid, entry.ssid)
+                        ? null : entry;
+            }
         }
         return null;
+    }
+
+    /**
+     * #760: whether the network a prompt is about is blocked. A prompt carries the BSSID and a
+     * label that is the SSID or, without one, the BSSID itself.
+     */
+    private static boolean isBlocked(Context context, String bssid, String label) {
+        return KeepADBNetworkBlocklist.isBlocked(context, bssid,
+                KeepADBTrustedNetwork.ssidFromLabel(label, bssid));
     }
 
     /**

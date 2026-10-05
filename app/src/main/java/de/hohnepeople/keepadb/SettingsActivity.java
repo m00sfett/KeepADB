@@ -25,6 +25,8 @@ public class SettingsActivity extends Activity {
     public static final String EXTRA_FOCUS_WEBHOOK = "focus_webhook";
     /** #619: Intent extra requesting that the network section be expanded and scrolled into view. */
     public static final String EXTRA_FOCUS_NETWORK = "focus_network";
+    /** #759: Intent extra requesting that the USB-ADB card be expanded and scrolled into view. */
+    public static final String EXTRA_FOCUS_USB = "focus_usb";
     /**
      * #672: flags for the reset-app, USB handover mode and language dialogs showing at the time of
      * a {@code recreate()} (rotation). Pure "was showing" markers; a restored reset-app dialog is
@@ -255,6 +257,11 @@ public class SettingsActivity extends Activity {
             getIntent().removeExtra(EXTRA_FOCUS_NETWORK);
         }
 
+        if (getIntent().hasExtra(EXTRA_FOCUS_USB)) {
+            focusUsbPanel();
+            getIntent().removeExtra(EXTRA_FOCUS_USB);
+        }
+
         // #598: the details-off trust prompt's content intent. Consumed like the extras above so a
         // later resume does not ask again.
         if (KeepADBNetworkTrustPrompt.ACTION_CONFIRM_IN_APP.equals(getIntent().getAction())) {
@@ -355,6 +362,17 @@ public class SettingsActivity extends Activity {
                 findViewById(R.id.settings_network_beta_arrow), true);
         if (networkPanel != null && scrollView != null) {
             scrollView.post(() -> scrollView.smoothScrollTo(0, networkPanel.getTop()));
+        }
+    }
+
+    private void focusUsbPanel() {
+        // #759: expand the USB-ADB card and scroll it into view.
+        setCardExpanded(this, findViewById(R.id.settings_usb_adb_header),
+                findViewById(R.id.settings_usb_adb_body),
+                findViewById(R.id.settings_usb_adb_arrow), true);
+        View usbPanel = findViewById(R.id.settings_usb_adb_panel);
+        if (usbPanel != null && scrollView != null) {
+            scrollView.post(() -> scrollView.smoothScrollTo(0, usbPanel.getTop()));
         }
     }
 

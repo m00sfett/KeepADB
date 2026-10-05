@@ -12,34 +12,35 @@ import org.junit.Test;
 public class KeepADBTrustedNetworkTest {
 
     /**
-     * #492: only the exact string {@code allowlist} turns the restriction on. Anything else --
-     * including a corrupted or differently-cased value -- is not an opt-in and therefore leaves
-     * the app unrestricted. This deliberately reverses the pre-#492 reading, where an
-     * unrecognized value fell back to allowlist mode: with the restriction now being an explicit
-     * user decision taken against a warning, a value nobody chose must not stand in for it.
+     * #492 reversed by #760: only the exact string {@code all_wifi} -- an explicit, persisted choice
+     * -- selects the legacy open policy. Anything else, including a corrupted or differently-cased
+     * value or a removed key, is the allowlist: a value nobody chose must not stand in for the wide
+     * policy. (#492 had it the other way round, when the wide policy was the default.)
      *
      * <p>Note what this does *not* weaken: it changes which networks may trigger an *automatic*
-     * re-enable, not how a restricted installation evaluates one. An installation that really is
-     * in allowlist mode still fails closed on every unlisted or unreadable identity, which the
-     * tests below pin.
+     * re-enable only towards the safe side; an installation that really is on the allowlist still
+     * fails closed on every unlisted or unreadable identity, which the tests below pin.
      */
     @Test
-    public void onlyTheExactAllowlistValueEnablesTheRestriction() {
-        for (String mode : new String[] { null, "", "unknown", "ALLOWLIST", "all_wifi" }) {
+    public void onlyTheExactAllWifiValueSelectsTheLegacyOpenPolicy() {
+        for (String mode : new String[] { null, "", "unknown", "ALLOWLIST", "ALL_WIFI", "all_wifi ",
+                "allowlist" }) {
             FakeContext context = new FakeContext();
             context.getSharedPreferences("keepadb_prefs", 0).edit()
                     .putString("trusted_network_mode", mode).apply();
-            assertEquals("Must not read '" + mode + "' as an opt-in",
-                    KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
-            assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
+            assertEquals("Must not read '" + mode + "' as the legacy open policy",
+                    KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
+            assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
+            assertFalse(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
+            assertEquals(KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE,
+                    KeepADBTrustedNetwork.getBlockReason(context));
         }
         FakeContext context = new FakeContext();
         context.getSharedPreferences("keepadb_prefs", 0).edit()
-                .putString("trusted_network_mode", KeepADBTrustedNetwork.MODE_ALLOWLIST).apply();
-        assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
-        assertFalse(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
-        assertEquals(KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE,
-                KeepADBTrustedNetwork.getBlockReason(context));
+                .putString("trusted_network_mode", KeepADBTrustedNetwork.MODE_ALL_WIFI).apply();
+        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
+        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
+        assertTrue(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
     }
 
     /**
@@ -86,16 +87,22 @@ public class KeepADBTrustedNetworkTest {
     }
 
     @Test
-    public void freshInstallDefaultsToAllWifiSoTheRestrictionIsOptIn() {
+    public void freshInstallDefaultsToTheAllowlistAndPersistsIt() {
         FakeContext context = new FakeContext();
-        // #492 reversed #260's default: a fresh install (no stored mode, no entries) is not
-        // restricted. Allowlist mode can only confirm a network while the platform exposes its
-        // identity, which needs location access (see docs/trusted-networks.md) --
-        // silently shipping it as the default broke Keep-Alive for everyone without it.
-        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
-        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(context));
+        // #760 reversed #492's default: a new installation (no stored mode) trusts access points
+        // the user listed and nothing else. It is persisted on the first read, like every
+        // decision of this migration, so a later change of the default cannot move it.
+        assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
+        assertTrue(KeepADBTrustedNetwork.isAllowlistMode(context));
+        assertEquals(KeepADBTrustedNetwork.ProtectionLevel.MAXIMUM_SECURITY,
+                KeepADBTrustedNetwork.getProtectionLevel(context));
+        assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST,
+                context.getSharedPreferences("keepadb_prefs", 0)
+                        .getString("trusted_network_mode", null));
         assertFalse("The SSID alternative is a second, separate opt-in",
                 KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
+        assertFalse("The derived name switch starts off",
+                KeepADBTrustedNetwork.isTrustByNameEnabled(context));
     }
 
     @Test
@@ -110,10 +117,9 @@ public class KeepADBTrustedNetworkTest {
     }
 
     /**
-     * #492: the default flip must not widen an existing installation. One that never wrote a mode
-     * but does hold allowlist entries was running restricted under the old default, so the
-     * migration writes that mode down explicitly instead of letting it fall through to the new,
-     * broader default.
+     * #492, still true under #760: an installation that never wrote a mode but does hold allowlist
+     * entries was running restricted under the pre-#492 reading, and stays restricted. The decision
+     * is written down explicitly, so a later change of the default cannot move it.
      */
     @Test
     public void upgradeWithExistingEntriesKeepsAllowlistModeAndPersistsIt() {
@@ -129,8 +135,8 @@ public class KeepADBTrustedNetworkTest {
                 context.getSharedPreferences("keepadb_prefs", 0)
                         .getString("trusted_network_mode", null));
 
-        // And it must stay put once the user empties the list again -- recomputing the proxy would
-        // silently flip them to the broader default here.
+        // And it must stay put once the user empties the list again -- nothing is recomputed from
+        // the entries afterwards.
         KeepADBTrustedNetwork.remove(context,
                 KeepADBTrustedNetwork.getEntries(context).get(0).id);
         assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
@@ -149,16 +155,35 @@ public class KeepADBTrustedNetworkTest {
         assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
     }
 
-    /** #492: an unset mode with no entries is the fresh-install case even after the flag was
-     * written once -- the migration is idempotent and must not keep rewriting. */
+    /**
+     * #492/#760: the persisted default is written once and never recomputed. Adding an entry or
+     * reading again must not change it, and an explicit switch to the legacy open policy is never
+     * migrated back by anything that happens afterwards.
+     */
     @Test
     public void modeMigrationIsIdempotent() {
         FakeContext context = new FakeContext();
-        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
-        // Adding an entry afterwards must not retroactively turn this install into an upgrade.
+        assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
+        java.util.Map<String, ?> afterFirstRead =
+                context.getSharedPreferences("keepadb_prefs", 0).getAll();
+        assertEquals("The default is persisted together with its initialized flag", 2,
+                afterFirstRead.size());
+
+        // Reading again rewrites nothing ...
+        assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
+        assertEquals(afterFirstRead, context.getSharedPreferences("keepadb_prefs", 0).getAll());
+        // ... and entries coming and going afterwards must not turn this into an upgrade.
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:ff", "Home");
-        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
-        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
+        assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
+        KeepADBTrustedNetwork.remove(context, KeepADBTrustedNetwork.getEntries(context).get(0).id);
+        assertEquals(KeepADBTrustedNetwork.MODE_ALLOWLIST, KeepADBTrustedNetwork.getMode(context));
+
+        FakeContext legacy = new FakeContext();
+        KeepADBTrustedNetwork.setMode(legacy, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBTrustedNetwork.addBssid(legacy, "aa:bb:cc:dd:ee:ff", "Home");
+        for (int i = 0; i < 3; i++) {
+            assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(legacy));
+        }
     }
 
     /**

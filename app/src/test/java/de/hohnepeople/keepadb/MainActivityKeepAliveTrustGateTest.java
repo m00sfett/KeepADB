@@ -114,14 +114,14 @@ public class MainActivityKeepAliveTrustGateTest {
     }
 
     /**
-     * Counter-proof #2 (acceptance criterion 3): on a trusted network (or with the allowlist
-     * inactive, i.e. the default MODE_ALL_WIFI), Keep-Alive ON must keep enabling immediately --
-     * this change must not regress the common case.
+     * Counter-proof #2 (acceptance criterion 3): on a trusted network, Keep-Alive ON must keep
+     * enabling immediately -- this change must not regress the common case.
      */
     @Test
     public void keepAliveToggleStillEnablesOnTrustedNetwork() {
         Context context = grantAutoEnableInfrastructure();
-        // Default mode (MODE_ALL_WIFI): trusted unconditionally, i.e. "allowlist not active".
+        // #760: the default is the allowlist, so "trusted" now means a listed access point.
+        KeepADBTrustedNetwork.addBssid(context, BSSID, SSID);
         connectTo(SSID, BSSID);
 
         ActivityController<MainActivity> controller =
@@ -148,6 +148,8 @@ public class MainActivityKeepAliveTrustGateTest {
         engageRecoveryBackoff(context);
         KeepADBPreferences.setKeepAliveEnabled(context, false);
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        // #760: the default is the allowlist, so a trusted network is a listed access point.
+        KeepADBTrustedNetwork.addBssid(context, BSSID, SSID);
         connectTo(SSID, BSSID);
 
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
@@ -182,6 +184,30 @@ public class MainActivityKeepAliveTrustGateTest {
                 KeepADB.isEnabled(activity));
         assertTrue("The trust prompt path must still be taken",
                 promptPosted(context));
+    }
+
+    /**
+     * #760: a block beats trust here too -- turning Keep-Alive on while connected to a trusted but
+     * blocked access point must neither enable nor ask. The control is the test above, where the
+     * same click on an unknown network does take the prompt path.
+     */
+    @Test
+    public void keepAliveToggleNeitherEnablesNorAsksOnATrustedButBlockedAccessPoint() {
+        Context context = grantAutoEnableInfrastructure();
+        KeepADBTrustedNetwork.addBssid(context, BSSID, SSID);
+        KeepADBNetworkBlocklist.blockBssid(context, BSSID);
+        connectTo(SSID, BSSID);
+
+        MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
+        Switch keepAliveToggle = activity.findViewById(R.id.keep_alive_toggle);
+        assertFalse("Precondition: Keep-Alive starts off", keepAliveToggle.isChecked());
+
+        keepAliveToggle.performClick();
+
+        assertTrue(KeepADBPreferences.isKeepAliveEnabled(activity));
+        assertFalse("A blocked network must not be enabled on, trusted or not",
+                KeepADB.isEnabled(activity));
+        assertFalse("A blocked network is never asked about", promptPosted(context));
     }
 
     private boolean promptPosted(Context context) {

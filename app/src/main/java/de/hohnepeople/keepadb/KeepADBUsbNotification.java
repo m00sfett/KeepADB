@@ -134,7 +134,10 @@ final class KeepADBUsbNotification {
             contentText = (handoverActionVisible && lastHandoverActionFailed)
                     ? context.getString(R.string.usb_notification_handover_error)
                     : context.getString(R.string.usb_notification_title);
+            // #759: the profile notification is off, so the tap goes to the USB-ADB card itself
+            // (expanded and in view) instead of the top of the settings screen.
             Intent intent = new Intent(context, SettingsActivity.class)
+                    .putExtra(SettingsActivity.EXTRA_FOCUS_USB, true)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             contentIntent = PendingIntent.getActivity(context, NO_PROFILE_CONTENT_REQUEST_CODE, intent,
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
