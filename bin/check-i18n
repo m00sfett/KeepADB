@@ -104,6 +104,7 @@ ALLOWLIST = {
     "settings_section_notification": {"fr"},    # "Notification" is the correct French word
     "usb_profile_hostname_hint": {"de"},        # "Hostname (optional)" is correct German (cf. nl "Hostnaam (optioneel)")
     "network_manage_title": {"nl"},             # "Access points" is the Dutch loanword used throughout the nl strings (#654)
+    "network_decision_ap_label": {"nl"},        # "Access point (BSSID)": same loanword in nl (#766)
 
     # -- Band labels (#714): the unit "GHz" and the digits are written the same way in most --
     # languages; ru, uk and ar write the unit in their own script and are therefore not listed
