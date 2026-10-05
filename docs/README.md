@@ -10,6 +10,7 @@
   Empfängeraussagen dieses Repository nicht belegt.
 - [Diagnoseexport](diagnostics.md): lokaler Ereignispuffer, Debug-Journal, Maskierung und manuelles
   Teilen.
+- [Paketname](package-id.md): warum `de.hohnepeople.keepadb` trotz Website-Umzug bleibt.
 - [Sicherheitsrichtlinie](../SECURITY.md): Bedrohungsmodell und private Meldung einer Schwachstelle.
 
 ## Code- und Quelldateiübersicht
