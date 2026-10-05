@@ -393,6 +393,53 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Force-Modus</string>
+    <string name="force_section_hint">Schaltet Drahtloses Debugging für eine gewählte Zeit in jedem Netzwerk wieder ein. Sperren und vertraute Netzwerke gelten in dieser Zeit nicht.</string>
+    <string name="force_status_off">Aus</string>
+    <string name="force_status_until">Aktiv bis %1$s</string>
+    <string name="force_status_unlimited">Aktiv, ohne Ablaufzeit</string>
+    <string name="force_action_activate">Force-Modus aktivieren …</string>
+    <string name="force_action_end">Force-Modus beenden</string>
+    <string name="force_action_change">Dauer ändern …</string>
+    <string name="force_dialog_title">Force-Modus aktivieren?</string>
+    <string name="force_dialog_intro">Keep-Alive schaltet Drahtloses Debugging dann in jedem Netzwerk wieder ein: auch in fremden, blockierten und nicht lesbaren.</string>
+    <string name="force_dialog_duration_label">Wie lange?</string>
+    <string name="force_duration_1h">1 Stunde</string>
+    <string name="force_duration_24h">24 Stunden</string>
+    <string name="force_duration_7d">7 Tage</string>
+    <string name="force_duration_30d">30 Tage</string>
+    <string name="force_duration_unlimited">Ohne Ablaufzeit</string>
+    <string name="force_warning_all">Drahtloses Debugging öffnet einen Port im Netzwerk. Computer, die du früher gekoppelt hast, haben darüber vollen ADB-Zugriff: Apps installieren, Daten lesen, den Bildschirm aufzeichnen. In fremden Netzwerken weißt du nicht, wer es versucht.
+
+Deine Sperren und vertrauten Netzwerke gelten in dieser Zeit nicht.
+
+Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</string>
+    <string name="force_warning_days">Über mehrere Tage kommst du in Netzwerke, an die du jetzt nicht denkst: Hotel, Zug, Café, Arbeit. Debugging geht dort an, ohne dass du gefragt wirst.</string>
+    <string name="force_warning_unlimited">Ohne Ablaufzeit bleibt der Force-Modus an, bis du ihn selbst beendest, auch nach Neustarts und App-Updates.</string>
+    <string name="force_unlimited_ack">Ich weiß, dass Drahtloses Debugging dann in jedem Netzwerk angeht.</string>
+    <string name="force_keepalive_hint">Der Force-Modus wirkt nur mit Keep-Alive. Keep-Alive wird mit eingeschaltet.</string>
+    <string name="force_confirm_1h">Für 1 Stunde aktivieren</string>
+    <string name="force_confirm_24h">Für 24 Stunden aktivieren</string>
+    <string name="force_confirm_7d">Für 7 Tage aktivieren</string>
+    <string name="force_confirm_30d">Für 30 Tage aktivieren</string>
+    <string name="force_confirm_unlimited">Ohne Ablaufzeit aktivieren</string>
+    <string name="force_card_title">Force-Modus aktiv</string>
+    <string name="force_card_text_until">Drahtloses Debugging wird in jedem Netzwerk wieder eingeschaltet. Aktiv bis %1$s.</string>
+    <string name="force_card_text_unlimited">Drahtloses Debugging wird in jedem Netzwerk wieder eingeschaltet. Ohne Ablaufzeit.</string>
+    <string name="force_ended_toast">Force-Modus beendet. Schutzstufe wieder: %1$s.</string>
+    <string name="force_notification_until">Force-Modus aktiv bis %1$s</string>
+    <string name="force_notification_unlimited">Force-Modus aktiv, ohne Ablaufzeit</string>
+    <string name="force_channel_name">Sicherheitshinweise</string>
+    <string name="force_channel_desc">Einmalige Hinweise zur Schutzstufe, etwa wenn der Force-Modus endet.</string>
+    <string name="force_expired_title">Force-Modus beendet</string>
+    <string name="force_expired_text">Die gewählte Zeit ist abgelaufen. Schutzstufe wieder: %1$s. Keep-Alive schaltet nur noch dort ein, wo die Schutzstufe es erlaubt.</string>
+    <string name="force_expired_still_on">Drahtloses Debugging ist gerade noch an.</string>
+    <string name="force_expired_action_off">Jetzt ausschalten</string>
+    <string name="force_level_maximum">Maximal sicher</string>
+    <string name="force_level_balanced">Ausgewogen</string>
+    <string name="force_level_legacy_all">In allen WLANs (bisherige Einstellung)</string>
+    <string name="force_level_legacy_names">WLAN-Namensliste (bisherige Einstellung)</string>
     <string name="settings_general_feedback">Allgemeines Feedback</string>
     <string name="feedback_type">Art des Feedbacks</string>
     <string name="feedback_type_bug">Fehler</string>

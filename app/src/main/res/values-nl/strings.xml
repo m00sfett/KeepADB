@@ -393,6 +393,53 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Geforceerde modus</string>
+    <string name="force_section_hint">Schakelt draadloze foutopsporing in elk netwerk weer in, voor een tijd die je kiest. Blokkades en vertrouwde netwerken gelden in die tijd niet.</string>
+    <string name="force_status_off">Uit</string>
+    <string name="force_status_until">Actief tot %1$s</string>
+    <string name="force_status_unlimited">Actief, zonder einde</string>
+    <string name="force_action_activate">Geforceerde modus inschakelen…</string>
+    <string name="force_action_end">Geforceerde modus beëindigen</string>
+    <string name="force_action_change">Duur wijzigen…</string>
+    <string name="force_dialog_title">Geforceerde modus inschakelen?</string>
+    <string name="force_dialog_intro">Keep-Alive schakelt draadloze foutopsporing dan in elk netwerk weer in: ook in onbekende, geblokkeerde en onleesbare netwerken.</string>
+    <string name="force_dialog_duration_label">Hoe lang?</string>
+    <string name="force_duration_1h">1 uur</string>
+    <string name="force_duration_24h">24 uur</string>
+    <string name="force_duration_7d">7 dagen</string>
+    <string name="force_duration_30d">30 dagen</string>
+    <string name="force_duration_unlimited">Zonder einde</string>
+    <string name="force_warning_all">Draadloze foutopsporing opent een poort op het netwerk. Computers die je eerder hebt gekoppeld krijgen daarmee volledige ADB-toegang: apps installeren, gegevens lezen, het scherm opnemen. In onbekende netwerken weet je niet wie het probeert.
+
+Je blokkades en vertrouwde netwerken gelden in deze tijd niet.
+
+Je kunt het op elk moment beëindigen via het startscherm of de melding.</string>
+    <string name="force_warning_days">Over meerdere dagen kom je in netwerken waar je nu niet aan denkt: hotel, trein, café, werk. Foutopsporing gaat daar aan zonder dat het je vraagt.</string>
+    <string name="force_warning_unlimited">Zonder einde blijft de geforceerde modus aan tot je hem zelf beëindigt, ook na herstarts en app-updates.</string>
+    <string name="force_unlimited_ack">Ik begrijp dat draadloze foutopsporing dan in elk netwerk aangaat.</string>
+    <string name="force_keepalive_hint">De geforceerde modus werkt alleen met Keep-Alive. Keep-Alive wordt mee ingeschakeld.</string>
+    <string name="force_confirm_1h">Inschakelen voor 1 uur</string>
+    <string name="force_confirm_24h">Inschakelen voor 24 uur</string>
+    <string name="force_confirm_7d">Inschakelen voor 7 dagen</string>
+    <string name="force_confirm_30d">Inschakelen voor 30 dagen</string>
+    <string name="force_confirm_unlimited">Inschakelen zonder einde</string>
+    <string name="force_card_title">Geforceerde modus actief</string>
+    <string name="force_card_text_until">Draadloze foutopsporing wordt in elk netwerk weer ingeschakeld. Actief tot %1$s.</string>
+    <string name="force_card_text_unlimited">Draadloze foutopsporing wordt in elk netwerk weer ingeschakeld. Zonder einde.</string>
+    <string name="force_ended_toast">Geforceerde modus beëindigd. Beveiligingsniveau weer: %1$s.</string>
+    <string name="force_notification_until">Geforceerde modus actief tot %1$s</string>
+    <string name="force_notification_unlimited">Geforceerde modus actief, zonder einde</string>
+    <string name="force_channel_name">Beveiligingsmeldingen</string>
+    <string name="force_channel_desc">Eenmalige meldingen over het beveiligingsniveau, bijvoorbeeld wanneer de geforceerde modus eindigt.</string>
+    <string name="force_expired_title">Geforceerde modus beëindigd</string>
+    <string name="force_expired_text">De gekozen tijd is om. Beveiligingsniveau weer: %1$s. Keep-Alive schakelt nu alleen nog in waar het beveiligingsniveau dat toestaat.</string>
+    <string name="force_expired_still_on">Draadloze foutopsporing staat op dit moment nog aan.</string>
+    <string name="force_expired_action_off">Nu uitschakelen</string>
+    <string name="force_level_maximum">Maximale beveiliging</string>
+    <string name="force_level_balanced">Gebalanceerd</string>
+    <string name="force_level_legacy_all">In alle wifi-netwerken (vorige instelling)</string>
+    <string name="force_level_legacy_names">Lijst met wifi-namen (vorige instelling)</string>
     <string name="settings_general_feedback">Algemene feedback</string>
     <string name="feedback_type">Soort feedback</string>
     <string name="feedback_type_bug">Fout</string>

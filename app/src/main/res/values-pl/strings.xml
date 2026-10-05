@@ -393,6 +393,53 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Tryb wymuszony</string>
+    <string name="force_section_hint">Ponownie włącza debugowanie bezprzewodowe w każdej sieci na wybrany czas. Blokady i zaufane sieci nie obowiązują w tym czasie.</string>
+    <string name="force_status_off">Wyłączony</string>
+    <string name="force_status_until">Aktywny do %1$s</string>
+    <string name="force_status_unlimited">Aktywny, bez czasu zakończenia</string>
+    <string name="force_action_activate">Włącz tryb wymuszony…</string>
+    <string name="force_action_end">Zakończ tryb wymuszony</string>
+    <string name="force_action_change">Zmień czas trwania…</string>
+    <string name="force_dialog_title">Włączyć tryb wymuszony?</string>
+    <string name="force_dialog_intro">Keep-Alive będzie wtedy ponownie włączać debugowanie bezprzewodowe w każdej sieci: także w nieznanych, zablokowanych i nieczytelnych.</string>
+    <string name="force_dialog_duration_label">Na jak długo?</string>
+    <string name="force_duration_1h">1 godzina</string>
+    <string name="force_duration_24h">24 godziny</string>
+    <string name="force_duration_7d">7 dni</string>
+    <string name="force_duration_30d">30 dni</string>
+    <string name="force_duration_unlimited">Bez czasu zakończenia</string>
+    <string name="force_warning_all">Debugowanie bezprzewodowe otwiera port w sieci. Komputery sparowane wcześniej uzyskują przez niego pełny dostęp ADB: instalowanie aplikacji, odczyt danych, nagrywanie ekranu. W nieznanych sieciach nie wiesz, kto próbuje się połączyć.
+
+Twoje blokady i zaufane sieci nie obowiązują w tym czasie.
+
+Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomienia.</string>
+    <string name="force_warning_days">W ciągu kilku dni połączysz się z sieciami, o których teraz nie myślisz: hotel, pociąg, kawiarnia, praca. Debugowanie włączy się tam bez pytania.</string>
+    <string name="force_warning_unlimited">Bez czasu zakończenia tryb wymuszony pozostaje włączony, dopóki sam go nie zakończysz, także po restartach i aktualizacjach aplikacji.</string>
+    <string name="force_unlimited_ack">Rozumiem, że debugowanie bezprzewodowe włączy się wtedy w każdej sieci.</string>
+    <string name="force_keepalive_hint">Tryb wymuszony działa tylko z Keep-Alive. Keep-Alive zostanie włączone razem z nim.</string>
+    <string name="force_confirm_1h">Włącz na 1 godzinę</string>
+    <string name="force_confirm_24h">Włącz na 24 godziny</string>
+    <string name="force_confirm_7d">Włącz na 7 dni</string>
+    <string name="force_confirm_30d">Włącz na 30 dni</string>
+    <string name="force_confirm_unlimited">Włącz bez czasu zakończenia</string>
+    <string name="force_card_title">Tryb wymuszony włączony</string>
+    <string name="force_card_text_until">Debugowanie bezprzewodowe jest ponownie włączane w każdej sieci. Aktywny do %1$s.</string>
+    <string name="force_card_text_unlimited">Debugowanie bezprzewodowe jest ponownie włączane w każdej sieci. Bez czasu zakończenia.</string>
+    <string name="force_ended_toast">Tryb wymuszony zakończony. Poziom ochrony znów: %1$s.</string>
+    <string name="force_notification_until">Tryb wymuszony włączony do %1$s</string>
+    <string name="force_notification_unlimited">Tryb wymuszony włączony, bez czasu zakończenia</string>
+    <string name="force_channel_name">Powiadomienia o bezpieczeństwie</string>
+    <string name="force_channel_desc">Jednorazowe powiadomienia o poziomie ochrony, na przykład gdy kończy się tryb wymuszony.</string>
+    <string name="force_expired_title">Tryb wymuszony zakończony</string>
+    <string name="force_expired_text">Wybrany czas minął. Poziom ochrony znów: %1$s. Keep-Alive włącza się teraz tylko tam, gdzie pozwala na to poziom ochrony.</string>
+    <string name="force_expired_still_on">Debugowanie bezprzewodowe jest teraz nadal włączone.</string>
+    <string name="force_expired_action_off">Wyłącz teraz</string>
+    <string name="force_level_maximum">Maksymalne bezpieczeństwo</string>
+    <string name="force_level_balanced">Zrównoważony</string>
+    <string name="force_level_legacy_all">We wszystkich sieciach Wi-Fi (poprzednie ustawienie)</string>
+    <string name="force_level_legacy_names">Lista nazw Wi-Fi (poprzednie ustawienie)</string>
     <string name="settings_general_feedback">Ogólna opinia</string>
     <string name="feedback_type">Rodzaj opinii</string>
     <string name="feedback_type_bug">Błąd</string>

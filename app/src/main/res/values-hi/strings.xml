@@ -393,6 +393,53 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">फ़ोर्स मोड</string>
+    <string name="force_section_hint">चुनी हुई अवधि के लिए वायरलेस डीबगिंग को हर नेटवर्क में फिर से चालू करता है। इस दौरान ब्लॉक और विश्वसनीय नेटवर्क लागू नहीं होते।</string>
+    <string name="force_status_off">बंद</string>
+    <string name="force_status_until">%1$s तक चालू</string>
+    <string name="force_status_unlimited">चालू, कोई समाप्ति समय नहीं</string>
+    <string name="force_action_activate">फ़ोर्स मोड चालू करें…</string>
+    <string name="force_action_end">फ़ोर्स मोड समाप्त करें</string>
+    <string name="force_action_change">अवधि बदलें…</string>
+    <string name="force_dialog_title">फ़ोर्स मोड चालू करें?</string>
+    <string name="force_dialog_intro">तब Keep-Alive वायरलेस डीबगिंग को हर नेटवर्क में फिर से चालू करेगा: अनजान, ब्लॉक किए गए और न पढ़े जा सकने वाले नेटवर्क में भी।</string>
+    <string name="force_dialog_duration_label">कितनी देर के लिए?</string>
+    <string name="force_duration_1h">1 घंटा</string>
+    <string name="force_duration_24h">24 घंटे</string>
+    <string name="force_duration_7d">7 दिन</string>
+    <string name="force_duration_30d">30 दिन</string>
+    <string name="force_duration_unlimited">कोई समाप्ति समय नहीं</string>
+    <string name="force_warning_all">वायरलेस डीबगिंग नेटवर्क पर एक पोर्ट खोलती है। जिन कंप्यूटरों को आपने पहले पेयर किया था, उन्हें इसके ज़रिए पूरा ADB एक्सेस मिलता है: ऐप इंस्टॉल करना, डेटा पढ़ना, स्क्रीन रिकॉर्ड करना। अनजान नेटवर्क में आपको पता नहीं होता कि कौन कोशिश कर रहा है।
+
+इस दौरान आपके ब्लॉक और विश्वसनीय नेटवर्क लागू नहीं होते।
+
+आप इसे कभी भी होम स्क्रीन या सूचना से समाप्त कर सकते हैं।</string>
+    <string name="force_warning_days">कई दिनों में आप ऐसे नेटवर्क में जाएँगे जिनके बारे में अभी नहीं सोच रहे: होटल, ट्रेन, कैफ़े, ऑफ़िस। वहाँ डीबगिंग आपसे पूछे बिना चालू हो जाएगी।</string>
+    <string name="force_warning_unlimited">समाप्ति समय के बिना फ़ोर्स मोड तब तक चालू रहता है जब तक आप उसे खुद समाप्त न करें, रीस्टार्ट और ऐप अपडेट के बाद भी।</string>
+    <string name="force_unlimited_ack">मुझे पता है कि तब वायरलेस डीबगिंग हर नेटवर्क में चालू हो जाएगी।</string>
+    <string name="force_keepalive_hint">फ़ोर्स मोड केवल Keep-Alive के साथ काम करता है। Keep-Alive इसके साथ चालू हो जाता है।</string>
+    <string name="force_confirm_1h">1 घंटे के लिए चालू करें</string>
+    <string name="force_confirm_24h">24 घंटे के लिए चालू करें</string>
+    <string name="force_confirm_7d">7 दिन के लिए चालू करें</string>
+    <string name="force_confirm_30d">30 दिन के लिए चालू करें</string>
+    <string name="force_confirm_unlimited">बिना समाप्ति समय के चालू करें</string>
+    <string name="force_card_title">फ़ोर्स मोड चालू है</string>
+    <string name="force_card_text_until">वायरलेस डीबगिंग हर नेटवर्क में फिर से चालू की जाती है। %1$s तक चालू।</string>
+    <string name="force_card_text_unlimited">वायरलेस डीबगिंग हर नेटवर्क में फिर से चालू की जाती है। कोई समाप्ति समय नहीं।</string>
+    <string name="force_ended_toast">फ़ोर्स मोड समाप्त हुआ। सुरक्षा स्तर फिर से: %1$s।</string>
+    <string name="force_notification_until">फ़ोर्स मोड %1$s तक चालू</string>
+    <string name="force_notification_unlimited">फ़ोर्स मोड चालू, कोई समाप्ति समय नहीं</string>
+    <string name="force_channel_name">सुरक्षा सूचनाएँ</string>
+    <string name="force_channel_desc">सुरक्षा स्तर के बारे में एक बार की सूचनाएँ, जैसे फ़ोर्स मोड समाप्त होने पर।</string>
+    <string name="force_expired_title">फ़ोर्स मोड समाप्त हुआ</string>
+    <string name="force_expired_text">चुना हुआ समय पूरा हो गया। सुरक्षा स्तर फिर से: %1$s। Keep-Alive अब केवल वहीं चालू करता है जहाँ सुरक्षा स्तर अनुमति देता है।</string>
+    <string name="force_expired_still_on">वायरलेस डीबगिंग अभी भी चालू है।</string>
+    <string name="force_expired_action_off">अभी बंद करें</string>
+    <string name="force_level_maximum">अधिकतम सुरक्षा</string>
+    <string name="force_level_balanced">संतुलित</string>
+    <string name="force_level_legacy_all">सभी Wi-Fi नेटवर्क में (पिछली सेटिंग)</string>
+    <string name="force_level_legacy_names">Wi-Fi नामों की सूची (पिछली सेटिंग)</string>
     <string name="settings_general_feedback">सामान्य प्रतिक्रिया</string>
     <string name="feedback_type">प्रतिक्रिया का प्रकार</string>
     <string name="feedback_type_bug">त्रुटि</string>

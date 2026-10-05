@@ -393,6 +393,53 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Modo forzado</string>
+    <string name="force_section_hint">Vuelve a activar la depuración inalámbrica en cualquier red durante el tiempo que elijas. Los bloqueos y las redes de confianza no se aplican mientras tanto.</string>
+    <string name="force_status_off">Desactivado</string>
+    <string name="force_status_until">Activo hasta %1$s</string>
+    <string name="force_status_unlimited">Activo, sin hora de fin</string>
+    <string name="force_action_activate">Activar modo forzado…</string>
+    <string name="force_action_end">Terminar modo forzado</string>
+    <string name="force_action_change">Cambiar duración…</string>
+    <string name="force_dialog_title">¿Activar el modo forzado?</string>
+    <string name="force_dialog_intro">Keep-Alive volverá a activar la depuración inalámbrica en cualquier red: también en redes desconocidas, bloqueadas y no legibles.</string>
+    <string name="force_dialog_duration_label">¿Cuánto tiempo?</string>
+    <string name="force_duration_1h">1 hora</string>
+    <string name="force_duration_24h">24 horas</string>
+    <string name="force_duration_7d">7 días</string>
+    <string name="force_duration_30d">30 días</string>
+    <string name="force_duration_unlimited">Sin hora de fin</string>
+    <string name="force_warning_all">La depuración inalámbrica abre un puerto en la red. Los ordenadores que emparejaste antes obtienen a través de él acceso ADB completo: instalar apps, leer datos, grabar la pantalla. En redes desconocidas no sabes quién lo intenta.
+
+Tus bloqueos y redes de confianza no se aplican durante este tiempo.
+
+Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notificación.</string>
+    <string name="force_warning_days">A lo largo de varios días te conectarás a redes en las que ahora no piensas: hotel, tren, cafetería, trabajo. La depuración se activará allí sin preguntarte.</string>
+    <string name="force_warning_unlimited">Sin hora de fin, el modo forzado sigue activo hasta que lo termines tú, también tras reinicios y actualizaciones de la app.</string>
+    <string name="force_unlimited_ack">Entiendo que la depuración inalámbrica se activará entonces en cualquier red.</string>
+    <string name="force_keepalive_hint">El modo forzado solo funciona con Keep-Alive. Keep-Alive se activa con él.</string>
+    <string name="force_confirm_1h">Activar durante 1 hora</string>
+    <string name="force_confirm_24h">Activar durante 24 horas</string>
+    <string name="force_confirm_7d">Activar durante 7 días</string>
+    <string name="force_confirm_30d">Activar durante 30 días</string>
+    <string name="force_confirm_unlimited">Activar sin hora de fin</string>
+    <string name="force_card_title">Modo forzado activo</string>
+    <string name="force_card_text_until">La depuración inalámbrica se vuelve a activar en cualquier red. Activo hasta %1$s.</string>
+    <string name="force_card_text_unlimited">La depuración inalámbrica se vuelve a activar en cualquier red. Sin hora de fin.</string>
+    <string name="force_ended_toast">Modo forzado terminado. Nivel de protección de nuevo: %1$s.</string>
+    <string name="force_notification_until">Modo forzado activo hasta %1$s</string>
+    <string name="force_notification_unlimited">Modo forzado activo, sin hora de fin</string>
+    <string name="force_channel_name">Avisos de seguridad</string>
+    <string name="force_channel_desc">Avisos únicos sobre el nivel de protección, por ejemplo cuando termina el modo forzado.</string>
+    <string name="force_expired_title">Modo forzado terminado</string>
+    <string name="force_expired_text">Ha terminado el tiempo elegido. Nivel de protección de nuevo: %1$s. Keep-Alive ahora solo se activa donde el nivel de protección lo permite.</string>
+    <string name="force_expired_still_on">La depuración inalámbrica sigue activada ahora mismo.</string>
+    <string name="force_expired_action_off">Desactivar ahora</string>
+    <string name="force_level_maximum">Máxima seguridad</string>
+    <string name="force_level_balanced">Equilibrado</string>
+    <string name="force_level_legacy_all">En todas las redes Wi-Fi (ajuste anterior)</string>
+    <string name="force_level_legacy_names">Lista de nombres Wi-Fi (ajuste anterior)</string>
     <string name="settings_general_feedback">Comentarios generales</string>
     <string name="feedback_type">Tipo de comentario</string>
     <string name="feedback_type_bug">Error</string>

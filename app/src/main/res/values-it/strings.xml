@@ -393,6 +393,53 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Modalità forzata</string>
+    <string name="force_section_hint">Riattiva il debug wireless in qualsiasi rete per il tempo scelto. Blocchi e reti attendibili non valgono in questo periodo.</string>
+    <string name="force_status_off">Disattivata</string>
+    <string name="force_status_until">Attiva fino a %1$s</string>
+    <string name="force_status_unlimited">Attiva, senza scadenza</string>
+    <string name="force_action_activate">Attiva modalità forzata…</string>
+    <string name="force_action_end">Termina modalità forzata</string>
+    <string name="force_action_change">Cambia durata…</string>
+    <string name="force_dialog_title">Attivare la modalità forzata?</string>
+    <string name="force_dialog_intro">Keep-Alive riattiverà quindi il debug wireless in qualsiasi rete: anche in quelle sconosciute, bloccate e non leggibili.</string>
+    <string name="force_dialog_duration_label">Per quanto tempo?</string>
+    <string name="force_duration_1h">1 ora</string>
+    <string name="force_duration_24h">24 ore</string>
+    <string name="force_duration_7d">7 giorni</string>
+    <string name="force_duration_30d">30 giorni</string>
+    <string name="force_duration_unlimited">Senza scadenza</string>
+    <string name="force_warning_all">Il debug wireless apre una porta sulla rete. I computer che hai associato in precedenza ottengono tramite essa accesso ADB completo: installare app, leggere dati, registrare lo schermo. Nelle reti sconosciute non sai chi ci prova.
+
+I tuoi blocchi e le reti attendibili non valgono in questo periodo.
+
+Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.</string>
+    <string name="force_warning_days">Nel corso di più giorni entrerai in reti a cui ora non pensi: hotel, treno, bar, lavoro. Il debug vi si attiva senza chiederti nulla.</string>
+    <string name="force_warning_unlimited">Senza scadenza la modalità forzata resta attiva finché non la termini tu, anche dopo riavvii e aggiornamenti dell\'app.</string>
+    <string name="force_unlimited_ack">Capisco che il debug wireless si attiverà quindi in qualsiasi rete.</string>
+    <string name="force_keepalive_hint">La modalità forzata funziona solo con Keep-Alive. Keep-Alive viene attivato insieme.</string>
+    <string name="force_confirm_1h">Attiva per 1 ora</string>
+    <string name="force_confirm_24h">Attiva per 24 ore</string>
+    <string name="force_confirm_7d">Attiva per 7 giorni</string>
+    <string name="force_confirm_30d">Attiva per 30 giorni</string>
+    <string name="force_confirm_unlimited">Attiva senza scadenza</string>
+    <string name="force_card_title">Modalità forzata attiva</string>
+    <string name="force_card_text_until">Il debug wireless viene riattivato in qualsiasi rete. Attiva fino a %1$s.</string>
+    <string name="force_card_text_unlimited">Il debug wireless viene riattivato in qualsiasi rete. Senza scadenza.</string>
+    <string name="force_ended_toast">Modalità forzata terminata. Livello di protezione di nuovo: %1$s.</string>
+    <string name="force_notification_until">Modalità forzata attiva fino a %1$s</string>
+    <string name="force_notification_unlimited">Modalità forzata attiva, senza scadenza</string>
+    <string name="force_channel_name">Avvisi di sicurezza</string>
+    <string name="force_channel_desc">Avvisi singoli sul livello di protezione, ad esempio quando termina la modalità forzata.</string>
+    <string name="force_expired_title">Modalità forzata terminata</string>
+    <string name="force_expired_text">Il tempo scelto è scaduto. Livello di protezione di nuovo: %1$s. Keep-Alive ora si attiva solo dove il livello di protezione lo consente.</string>
+    <string name="force_expired_still_on">Il debug wireless è ancora attivo in questo momento.</string>
+    <string name="force_expired_action_off">Disattiva ora</string>
+    <string name="force_level_maximum">Massima sicurezza</string>
+    <string name="force_level_balanced">Bilanciato</string>
+    <string name="force_level_legacy_all">In tutte le reti Wi-Fi (impostazione precedente)</string>
+    <string name="force_level_legacy_names">Elenco nomi Wi-Fi (impostazione precedente)</string>
     <string name="settings_general_feedback">Commenti generali</string>
     <string name="feedback_type">Tipo di commento</string>
     <string name="feedback_type_bug">Errore</string>

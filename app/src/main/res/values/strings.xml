@@ -400,6 +400,53 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Force mode</string>
+    <string name="force_section_hint">Turns wireless debugging back on in every network for a time you choose. Blocks and trusted networks don\'t apply meanwhile.</string>
+    <string name="force_status_off">Off</string>
+    <string name="force_status_until">Active until %1$s</string>
+    <string name="force_status_unlimited">Active, no end time</string>
+    <string name="force_action_activate">Turn on force mode…</string>
+    <string name="force_action_end">End force mode</string>
+    <string name="force_action_change">Change duration…</string>
+    <string name="force_dialog_title">Turn on force mode?</string>
+    <string name="force_dialog_intro">Keep-Alive will then turn wireless debugging back on in every network: including unknown, blocked and unreadable ones.</string>
+    <string name="force_dialog_duration_label">How long?</string>
+    <string name="force_duration_1h">1 hour</string>
+    <string name="force_duration_24h">24 hours</string>
+    <string name="force_duration_7d">7 days</string>
+    <string name="force_duration_30d">30 days</string>
+    <string name="force_duration_unlimited">No end time</string>
+    <string name="force_warning_all">Wireless debugging opens a port on the network. Computers you paired earlier get full ADB access through it: installing apps, reading data, recording the screen. On unknown networks you don\'t know who is trying.
+
+Your blocks and trusted networks don\'t apply during this time.
+
+You can end it at any time from the home screen or the notification.</string>
+    <string name="force_warning_days">Over several days you\'ll join networks you\'re not thinking of now: hotel, train, café, work. Debugging turns on there without asking you.</string>
+    <string name="force_warning_unlimited">Without an end time, force mode stays on until you end it yourself, including after restarts and app updates.</string>
+    <string name="force_unlimited_ack">I understand that wireless debugging will then turn on in every network.</string>
+    <string name="force_keepalive_hint">Force mode only works with Keep-Alive. Keep-Alive is turned on with it.</string>
+    <string name="force_confirm_1h">Turn on for 1 hour</string>
+    <string name="force_confirm_24h">Turn on for 24 hours</string>
+    <string name="force_confirm_7d">Turn on for 7 days</string>
+    <string name="force_confirm_30d">Turn on for 30 days</string>
+    <string name="force_confirm_unlimited">Turn on without end time</string>
+    <string name="force_card_title">Force mode on</string>
+    <string name="force_card_text_until">Wireless debugging is turned back on in every network. Active until %1$s.</string>
+    <string name="force_card_text_unlimited">Wireless debugging is turned back on in every network. No end time.</string>
+    <string name="force_ended_toast">Force mode ended. Protection level back to: %1$s.</string>
+    <string name="force_notification_until">Force mode on until %1$s</string>
+    <string name="force_notification_unlimited">Force mode on, no end time</string>
+    <string name="force_channel_name">Security notices</string>
+    <string name="force_channel_desc">One-time notices about the protection level, for example when force mode ends.</string>
+    <string name="force_expired_title">Force mode ended</string>
+    <string name="force_expired_text">The selected time is up. Protection level back to: %1$s. Keep-Alive now only turns on where the protection level allows.</string>
+    <string name="force_expired_still_on">Wireless debugging is still on right now.</string>
+    <string name="force_expired_action_off">Turn off now</string>
+    <string name="force_level_maximum">Maximum security</string>
+    <string name="force_level_balanced">Balanced</string>
+    <string name="force_level_legacy_all">All Wi-Fi networks (previous setting)</string>
+    <string name="force_level_legacy_names">Wi-Fi name list (previous setting)</string>
     <string name="settings_general_feedback">General feedback</string>
     <string name="feedback_type">Feedback type</string>
     <string name="feedback_type_bug">Bug</string>

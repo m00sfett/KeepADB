@@ -393,6 +393,53 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">強制模式</string>
+    <string name="force_section_hint">在你選擇的時間內，於任何網路中重新開啟無線偵錯。此期間封鎖規則與信任的網路不會生效。</string>
+    <string name="force_status_off">已關閉</string>
+    <string name="force_status_until">開啟至 %1$s</string>
+    <string name="force_status_unlimited">已開啟，無結束時間</string>
+    <string name="force_action_activate">開啟強制模式…</string>
+    <string name="force_action_end">結束強制模式</string>
+    <string name="force_action_change">變更時間長度…</string>
+    <string name="force_dialog_title">要開啟強制模式嗎？</string>
+    <string name="force_dialog_intro">屆時 Keep-Alive 會在任何網路中重新開啟無線偵錯，包括陌生、已封鎖及無法讀取的網路。</string>
+    <string name="force_dialog_duration_label">要持續多久？</string>
+    <string name="force_duration_1h">1 小時</string>
+    <string name="force_duration_24h">24 小時</string>
+    <string name="force_duration_7d">7 天</string>
+    <string name="force_duration_30d">30 天</string>
+    <string name="force_duration_unlimited">無結束時間</string>
+    <string name="force_warning_all">無線偵錯會在網路上開放一個連接埠。你之前配對過的電腦可透過它取得完整的 ADB 存取權：安裝應用程式、讀取資料、錄製螢幕。在陌生網路中，你無法得知是誰在嘗試連線。
+
+此期間你的封鎖規則與信任的網路不會生效。
+
+你可以隨時從主畫面或通知結束。</string>
+    <string name="force_warning_days">在幾天之內，你會連上現在想不到的網路：飯店、火車、咖啡館、公司。無線偵錯會在那裡不經詢問就開啟。</string>
+    <string name="force_warning_unlimited">沒有結束時間時，強制模式會一直開啟，直到你自行結束，重新啟動和應用程式更新後也一樣。</string>
+    <string name="force_unlimited_ack">我了解，屆時無線偵錯會在任何網路中開啟。</string>
+    <string name="force_keepalive_hint">強制模式僅在開啟 Keep-Alive 時有效。Keep-Alive 會一併開啟。</string>
+    <string name="force_confirm_1h">開啟 1 小時</string>
+    <string name="force_confirm_24h">開啟 24 小時</string>
+    <string name="force_confirm_7d">開啟 7 天</string>
+    <string name="force_confirm_30d">開啟 30 天</string>
+    <string name="force_confirm_unlimited">開啟，無結束時間</string>
+    <string name="force_card_title">強制模式已開啟</string>
+    <string name="force_card_text_until">無線偵錯會在任何網路中重新開啟。開啟至 %1$s。</string>
+    <string name="force_card_text_unlimited">無線偵錯會在任何網路中重新開啟。無結束時間。</string>
+    <string name="force_ended_toast">強制模式已結束。保護等級恢復為：%1$s。</string>
+    <string name="force_notification_until">強制模式開啟至 %1$s</string>
+    <string name="force_notification_unlimited">強制模式已開啟，無結束時間</string>
+    <string name="force_channel_name">安全性通知</string>
+    <string name="force_channel_desc">關於保護等級的一次性通知，例如強制模式結束時。</string>
+    <string name="force_expired_title">強制模式已結束</string>
+    <string name="force_expired_text">所選時間已到。保護等級恢復為：%1$s。Keep-Alive 現在只會在保護等級允許的網路中開啟。</string>
+    <string name="force_expired_still_on">無線偵錯目前仍處於開啟狀態。</string>
+    <string name="force_expired_action_off">立即關閉</string>
+    <string name="force_level_maximum">最高安全性</string>
+    <string name="force_level_balanced">平衡</string>
+    <string name="force_level_legacy_all">在所有 Wi-Fi 網路中（先前的設定）</string>
+    <string name="force_level_legacy_names">Wi-Fi 名稱清單（先前的設定）</string>
     <string name="settings_general_feedback">一般意見回饋</string>
     <string name="feedback_type">回饋類型</string>
     <string name="feedback_type_bug">錯誤</string>
