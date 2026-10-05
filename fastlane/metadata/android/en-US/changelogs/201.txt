@@ -1,0 +1,1 @@
+New installations now start in the safest network setting: Keep-Alive switches Wireless Debugging back on only at access points you trust. Existing installations keep their current setting unchanged. KeepADB can now also remember networks that must never switch it on automatically and never asks about them; the controls for this follow in a later update.
