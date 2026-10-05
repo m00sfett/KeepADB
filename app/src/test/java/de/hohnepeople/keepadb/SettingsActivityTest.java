@@ -976,6 +976,27 @@ public class SettingsActivityTest {
     }
 
     @Test
+    public void focusUsbExtraExpandsTheUsbCardAndIsConsumed() {
+        Intent intent = new Intent(RuntimeEnvironment.getApplication(), SettingsActivity.class)
+                .putExtra(SettingsActivity.EXTRA_FOCUS_USB, true);
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class, intent).setup();
+        SettingsActivity activity = controller.get();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(View.VISIBLE, activity.findViewById(R.id.settings_usb_adb_body).getVisibility());
+        TextView arrow = activity.findViewById(R.id.settings_usb_adb_arrow);
+        assertEquals("−", arrow.getText().toString());
+        assertFalse(activity.getIntent().hasExtra(SettingsActivity.EXTRA_FOCUS_USB));
+    }
+
+    @Test
+    public void usbCardStaysCollapsedWithoutTheFocusExtra() {
+        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        assertEquals(View.GONE, activity.findViewById(R.id.settings_usb_adb_body).getVisibility());
+    }
+
+    @Test
     public void resetAppButtonShowsConfirmationDialogWithCorrectContentAndWiring() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
