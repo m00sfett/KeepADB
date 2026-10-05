@@ -51,9 +51,10 @@ In den Einstellungen findest du außerdem lokale USB-Hostprofile, die optionale 
 Der Datenschutzmodus blendet Netzwerkadressen in der Oberfläche aus; er verändert nicht den
 Endpunkt, den ein aktivierter Webhook erhält.
 
-Auf einer Neuinstallation lässt die Netzwerkregel automatische Wiederherstellung zunächst in allen
-WLANs zu. Unter **Einstellungen → Netzwerk** kann auf zugelassene Zugangspunkte eingeschränkt
-werden. Diese Regel steuert automatische Aktionen; ein manuelles Einschalten bleibt eine eigene
+Auf einer Neuinstallation lässt die Netzwerkregel automatische Wiederherstellung zunächst nur an
+zugelassenen Zugangspunkten zu. Bestehende Installationen behalten ihre bisherige Einstellung,
+auch „In allen WLANs“; unter **Einstellungen → Netzwerk** lässt sich die Regel ändern. Diese Regel
+steuert automatische Aktionen; ein manuelles Einschalten bleibt eine eigene
 Benutzeraktion. Die vollständige Erklärung zu BSSID, optionaler SSID-Freigabe, Standortrechten,
 Hintergrundstarts und Messgrenzen steht im [Netzwerk-Leitfaden](docs/trusted-networks.md).
 
