@@ -31,8 +31,9 @@ import java.util.List;
  * <ol>
  *   <li>A block on the BSSID, then a block on the SSID: never, in every policy, no prompt. A block
  *       beats trust of the same BSSID; the trust entry stays stored and applies again once the block
- *       is lifted explicitly. Only the force mode (#763) will be allowed to override a block; it is
- *       an overlay above this order and not part of this class yet.</li>
+ *       is lifted explicitly. Only the force mode (#763) overrides a block; it is an overlay above
+ *       this order, applied once in {@link #evaluateCurrent} and stored in {@link
+ *       KeepADBForceMode}, so activating or ending it never touches anything this class stores.</li>
  *   <li>Legacy "all networks" policy: trusted, including an unreadable identity (as before).</li>
  *   <li>Trusted access point (BSSID, ignoring case).</li>
  *   <li>Trusted name: derived (comfort switch) or legacy name grant, exact and case-sensitive.</li>
@@ -40,6 +41,16 @@ import java.util.List;
  *       (fail-closed).</li>
  * </ol>
  * Manual controls never consult this model. Adding trust never lifts a block.
+ *
+ * <h2>The force mode overlay (#763)</h2>
+ * While {@link KeepADBForceMode#isActive} is true, {@link #evaluateCurrent} answers {@link
+ * Decision#FORCE_MODE} without reading the Wi-Fi identity: every automatic re-enable goes ahead
+ * whatever the network is, blocked or unreadable included (they still need Keep-Alive and a Wi-Fi
+ * transport, which the call sites check themselves). The overlay is deliberately <em>not</em> part
+ * of {@link #evaluate}: that method also answers "is this prompt's network blocked?" for the trust
+ * actions, and a force mode must never let trust be added to a blocked network or a stale prompt be
+ * answered as if the block were gone. The read is pure (no lock, no write), so it is safe where the
+ * callers hold {@code KeepADB}'s monitor and expires exactly at the deadline without any timer.
  *
  * <h2>Persistence and migration</h2>
  * The model reads the pre-#760 keys in place and never rewrites them: the migration of an existing
@@ -81,6 +92,8 @@ final class KeepADBTrustedNetwork {
         TRUSTED_NAME(true),
         /** Allowed only because the legacy "all networks" policy is active. */
         LEGACY_ALL_WIFI(true),
+        /** Allowed because the force mode is on (#763): it overrides blocks and trust. */
+        FORCE_MODE(true),
         BLOCKED_ACCESS_POINT(false),
         BLOCKED_NAME(false),
         /** Readable identity that is neither trusted nor blocked: the user is asked. */
@@ -517,11 +530,15 @@ final class KeepADBTrustedNetwork {
     }
 
     /**
-     * The evaluation for the network the device is connected to right now. In the legacy "all
+     * The evaluation for the network the device is connected to right now. A running force mode
+     * (#763) overrides everything below and does not read the identity. In the legacy "all
      * networks" policy without any block nothing can change the outcome, so the Wi-Fi identity is
      * not even read -- exactly as before the unified model (#760).
      */
     static Decision evaluateCurrent(Context context) {
+        if (KeepADBForceMode.isActive(context)) {
+            return Decision.FORCE_MODE;
+        }
         if (!isAllowlistMode(context) && KeepADBNetworkBlocklist.isEmpty(context)) {
             return Decision.LEGACY_ALL_WIFI;
         }
@@ -532,7 +549,8 @@ final class KeepADBTrustedNetwork {
      * The unified trust evaluation (#760) for an identity already read by the caller; the one place
      * where the precedence is implemented. A block ends the evaluation first, so no policy, no
      * trusted entry and no name rule can allow a blocked network. Only then does the legacy
-     * "all networks" policy apply, and it never allows a blocked one.
+     * "all networks" policy apply, and it never allows a blocked one. The force mode is not
+     * consulted here, see the class javadoc.
      */
     static Decision evaluate(Context context, KeepADBNetworkIdentity identity) {
         Decision decision = evaluateLists(context, identity);
