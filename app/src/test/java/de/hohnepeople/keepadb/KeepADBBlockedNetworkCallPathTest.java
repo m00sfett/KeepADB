@@ -412,6 +412,10 @@ public class KeepADBBlockedNetworkCallPathTest {
         assertTrue("Trust must not be recorded under a block", KeepADBTrustedNetwork.getEntries(context).isEmpty());
         assertTrue(gateway.writes.isEmpty());
         assertTrue("The block must still be there", KeepADBNetworkBlocklist.isBssidBlocked(context, BSSID));
+        // The refusal is reported as such, never as an allowed trust decision.
+        assertTrue(diagnostics(), diagnostics()
+                .contains("source=network_trust_prompt outcome=blocked detail=network_blocked"));
+        assertFalse(diagnostics(), diagnostics().contains("source=network_trust_prompt outcome=allowed"));
     }
 
     @Test
@@ -444,6 +448,10 @@ public class KeepADBBlockedNetworkCallPathTest {
         assertNull("A mesh offer for a blocked name is refused too",
                 KeepADBReceiver.allowBssidOnly(context, "bb:bb:bb:bb:bb:01", "Gast"));
         assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
+        assertTrue(diagnostics(), diagnostics()
+                .contains("source=network_allow outcome=blocked detail=network_blocked"));
+        assertFalse("A refused grant must not be logged as allowed: " + diagnostics(),
+                diagnostics().contains("source=network_allow outcome=allowed"));
 
         assertNotNull("A different access point is granted as before",
                 KeepADBReceiver.allowBssidOnly(context, OTHER_BSSID, SSID));
