@@ -1,0 +1,1 @@
+Tapping the new Wi-Fi notification opens a clear question, "Trust this network?", with Trust and Block. Block really blocks: KeepADB never turns Wireless Debugging on there by itself and does not ask again. Swiping the notification away decides nothing, and the same network is asked again only after 24 hours. A locked screen never shows the network name.
