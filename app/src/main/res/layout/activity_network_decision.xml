@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #766: host of the decision dialog; the window background and padding come from the
+     Theme.KeepADB.Dialog window (bg_panel). -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="false">
+
+    <de.hohnepeople.keepadb.NetworkDecisionView
+        android:id="@+id/network_decision"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</ScrollView>
