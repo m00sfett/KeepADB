@@ -58,6 +58,9 @@ public class SettingsBackgroundLocationDialogTest {
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
+        // #760: a new installation now starts on the allowlist. These flows are the way an existing
+        // installation on the former default ("all Wi-Fi networks") moves to the allowlist.
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         shadowOf((Application) context).denyPermissions(Manifest.permission.ACCESS_BACKGROUND_LOCATION);
         shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
         ShadowDialog.reset();

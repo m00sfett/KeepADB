@@ -113,6 +113,14 @@ public final class KeepADBReceiver extends BroadcastReceiver {
                     "invalid_bssid");
             return false;
         }
+        // #760: trusting never lifts a block -- only an explicit unblock does. A prompt raised
+        // before the block (or an in-app confirmation opened from it) may still be tapped; it
+        // then changes nothing.
+        if (isBlockedTarget(context, cleanBssid, label)) {
+            KeepADBDiagnostics.event(context, "user_action", "network_trust_prompt", "blocked",
+                    "network_blocked");
+            return false;
+        }
         KeepADBDiagnostics.event(context, "user_action", "network_trust_prompt", "allowed",
                 "bssid=" + cleanBssid);
         return trustBssidAndAttemptConnect(context, cleanBssid, label);
@@ -173,14 +181,35 @@ public final class KeepADBReceiver extends BroadcastReceiver {
      */
     static KeepADBTrustedNetwork.Entry allowBssidOnly(Context context, String bssid, String label) {
         KeepADBTrustedNetwork.Entry entry = recordTrust(context, bssid, label);
-        KeepADBDiagnostics.event(context, "user_action", "network_allow", "allowed", "grant_only");
+        // #760: a refused (blocked) grant has already been reported as such by recordTrust.
+        if (!isBlockedTarget(context, bssid, label)) {
+            KeepADBDiagnostics.event(context, "user_action", "network_allow", "allowed", "grant_only");
+        }
         KeepADBService.sync(context);
         KeepADBEndpointCoordinator.refresh(context);
         KeepADBWidget.refreshAll(context);
         return entry;
     }
 
+    /**
+     * #760: whether {@code bssid} or the Wi-Fi name carried by {@code label} (the SSID or, without
+     * one, the BSSID itself) is blocked.
+     */
+    private static boolean isBlockedTarget(Context context, String bssid, String label) {
+        return KeepADBNetworkBlocklist.isBlocked(context, bssid,
+                KeepADBTrustedNetwork.ssidFromLabel(label, bssid));
+    }
+
     private static KeepADBTrustedNetwork.Entry recordTrust(Context context, String bssid, String label) {
+        // #760: the choke point of every trust write that goes through this class (notification
+        // action, in-app confirmation, list and card actions, mesh offer). A block wins over trust
+        // and is lifted only explicitly -- never as a side effect of trusting the same network --
+        // so nothing is stored here; the caller sees the same null as for a blank BSSID.
+        if (isBlockedTarget(context, bssid, label)) {
+            KeepADBDiagnostics.event(context, "user_action", "network_allow", "blocked",
+                    "network_blocked");
+            return null;
+        }
         KeepADBTrustedNetwork.Entry entry = KeepADBTrustedNetwork.addBssid(context, bssid, label);
         KeepADBBlockedNetworkHistory.remove(context, bssid);
         KeepADBNetworkTrustPrompt.cancel(context);

@@ -1084,13 +1084,14 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #492/#654: the mode choice and the Wi-Fi-name switch are the only surfaces the security
-     * decision is taken on, so the wiring itself needs pinning, not just the persisted semantics in
-     * {@link KeepADBTrustedNetworkTest}. Asserts the properties the issue names for them: both start
-     * off on a fresh install, the mode choice actually persists the mode, and the name switch is
-     * inoperable until the restriction it widens is on (and becomes operable in the same refresh,
-     * not only after re-entering Settings). Going back to all networks never touches the saved
-     * name setting -- the UI never turns it on or off by itself.
+     * #492/#654, as amended by #760: the mode choice and the Wi-Fi-name switch are the only
+     * surfaces the security decision is taken on, so the wiring itself needs pinning, not just the
+     * persisted semantics in {@link KeepADBTrustedNetworkTest}. Asserts the properties the issue
+     * names for them: a new installation starts on the allowlist with the name switch off, the mode
+     * choice actually persists the mode, and the name switch is inoperable while the restriction it
+     * widens is off (and becomes operable in the same refresh, not only after re-entering
+     * Settings). Switching the mode never touches the saved name setting -- the UI never turns it on
+     * or off by itself.
      */
     @Test
     public void bothPolicyControlsStartOffAndTheSsidOneIsGatedOnTheRestriction() {
@@ -1104,14 +1105,23 @@ public class SettingsActivityTest {
         android.widget.RadioButton allowlist = activity.findViewById(R.id.network_mode_allowlist);
         Switch ssid = activity.findViewById(R.id.settings_trusted_ssid_toggle);
 
-        assertTrue("All networks is the default on a fresh install", allWifi.isChecked());
-        assertFalse("The restriction is opt-in and off on a fresh install", allowlist.isChecked());
+        assertTrue("The restriction is the default of a new installation (#760)",
+                allowlist.isChecked());
+        assertFalse(allWifi.isChecked());
         assertFalse("The SSID alternative is a second, separate opt-in", ssid.isChecked());
-        assertFalse("A switch that widens nothing must not be operable", ssid.isEnabled());
-        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(activity));
+        assertTrue("The name switch widens the active restriction, so it is operable",
+                ssid.isEnabled());
+        assertTrue(KeepADBTrustedNetwork.isAllowlistMode(activity));
 
         // A RadioButton checks itself inside performClick() before the listener runs, so the
         // click alone is the user gesture -- no setChecked() priming.
+        allWifi.performClick();
+        assertFalse("The choice must persist the mode, not just render it",
+                KeepADBTrustedNetwork.isAllowlistMode(activity));
+        assertTrue(allWifi.isChecked());
+        assertFalse(allowlist.isChecked());
+        assertFalse("A switch that widens nothing must not be operable", ssid.isEnabled());
+
         allowlist.performClick();
         assertTrue("The choice must persist the mode, not just render it",
                 KeepADBTrustedNetwork.isAllowlistMode(activity));
@@ -1401,9 +1411,10 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #510 acceptance criterion 7 / #618: a fresh install must leave both network features
-     * (Trusted Networks and Wi-Fi &amp; access points) disabled -- the visual regrouping must
-     * not change either feature's default preference value.
+     * #510 acceptance criterion 7 / #618, as amended by #760: a fresh install leaves the
+     * Wi-Fi &amp; access points feature disabled -- the visual regrouping must not change that
+     * default -- and starts on the secure network default, the allowlist (trusted access points
+     * only), with the name switch off.
      */
     @Test
     public void bothNetworkFeaturesAreDisabledOnFreshInstall() {
@@ -1411,16 +1422,18 @@ public class SettingsActivityTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        assertFalse("Trusted-network allowlist mode must default to off",
+        assertTrue("A new installation must start on the allowlist (#760)",
                 KeepADBTrustedNetwork.isAllowlistMode(activity));
+        assertFalse("The name alternative must default to off",
+                KeepADBTrustedNetwork.isSsidMatchingEnabled(activity));
         assertFalse("Wi-Fi & access points feature must default to off",
                 KeepADBPreferences.isWifiApsFeatureEnabled(activity));
 
         activity.findViewById(R.id.settings_network_beta_header).performClick();
 
-        assertTrue(((android.widget.RadioButton) activity.findViewById(R.id.network_mode_all_wifi))
+        assertTrue(((android.widget.RadioButton) activity.findViewById(R.id.network_mode_allowlist))
                 .isChecked());
-        assertFalse(((android.widget.RadioButton) activity.findViewById(R.id.network_mode_allowlist))
+        assertFalse(((android.widget.RadioButton) activity.findViewById(R.id.network_mode_all_wifi))
                 .isChecked());
 
         Switch wifiApsToggle = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
@@ -1534,6 +1547,9 @@ public class SettingsActivityTest {
 
     @Test
     public void allowlistPermissionDialogSurvivesRotationWithoutRequestingOrSwitching() {
+        // #760: the flow starts from an existing installation on the former default.
+        KeepADBTrustedNetwork.setMode(RuntimeEnvironment.getApplication(),
+                KeepADBTrustedNetwork.MODE_ALL_WIFI);
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         controller.get().findViewById(R.id.network_mode_allowlist).performClick();
@@ -1561,6 +1577,9 @@ public class SettingsActivityTest {
 
     @Test
     public void allowlistPermissionDialogIsNotRestoredAfterDismissAndClosedOnDestroy() {
+        // #760: the flow starts from an existing installation on the former default.
+        KeepADBTrustedNetwork.setMode(RuntimeEnvironment.getApplication(),
+                KeepADBTrustedNetwork.MODE_ALL_WIFI);
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         controller.get().findViewById(R.id.network_mode_allowlist).performClick();
