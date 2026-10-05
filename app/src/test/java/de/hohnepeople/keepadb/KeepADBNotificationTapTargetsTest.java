@@ -37,7 +37,10 @@ import org.robolectric.shadows.ShadowWifiInfo;
 /**
  * #759: tap-target table (notification, state, content-tap target intent) from the UX concept
  * 3.1, one test per row that this phase owns. Rows 8 to 10 (identity unavailable) are pinned in
- * {@link KeepADBNetworkTrustPromptTest}; row 11 and 14 are unchanged and not asserted here.
+ * {@link KeepADBNetworkTrustPromptTest}; the end-to-end tap of rows 6 and 7 into the dialog is
+ * pinned in {@link SettingsActivityDetailsOnPromptTapTest} and {@link
+ * SettingsActivityTrustConfirmationTest}. Row 14 (widget, tile) are toggles without a content tap,
+ * rows 5 and 13 belong to the force mode (#763) and do not exist yet.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -115,6 +118,31 @@ public class KeepADBNotificationTapTargetsTest {
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
         assertConfirmationTarget(posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID));
+    }
+
+    // --- Row 11: USB with profile notification opens the profile dialog ----------------------
+
+    @Test
+    public void row11UsbWithProfileNotificationOpensTheProfileDialogAndDoesNotFocusTheUsbCard() {
+        KeepADBUsbProfile.setNotificationEnabled(context, true);
+        KeepADBUsbProfile.setProfileNotificationEnabled(context, true);
+
+        // Without a profile the tap offers to create one ...
+        KeepADBUsbNotification.refresh(context, true);
+        Intent create = savedIntent(posted(KeepADBUsbNotification.NOTIFICATION_ID));
+        assertEquals(SettingsActivity.class.getName(), create.getComponent().getClassName());
+        assertEquals(KeepADBUsbNotification.ACTION_CREATE,
+                create.getStringExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION));
+        assertFalse(create.hasExtra(SettingsActivity.EXTRA_FOCUS_USB));
+
+        // ... with one it opens the switcher.
+        KeepADBUsbProfile.add(context, "ThinkPad", "192.168.1.50", "thinkpad.local", "");
+        KeepADBUsbNotification.refresh(context, true);
+        Intent select = savedIntent(posted(KeepADBUsbNotification.NOTIFICATION_ID));
+        assertEquals(SettingsActivity.class.getName(), select.getComponent().getClassName());
+        assertEquals(KeepADBUsbNotification.ACTION_SWITCH,
+                select.getStringExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION));
+        assertFalse(select.hasExtra(SettingsActivity.EXTRA_FOCUS_USB));
     }
 
     // --- Row 12: USB without profile notification focuses the USB card -----------------------

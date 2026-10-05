@@ -50,7 +50,7 @@ Etappe patch candidate (versionCode 201), integration of Etappe E1 of #758: the 
 
 ### Testing
 - #760: `KeepADBTrustPrecedenceTest` (precedence over policy, trust, name and block combinations with an independent oracle, both directions), `KeepADBTrustMigrationTest` (decision equal to 1.9.28 for every stored legacy state, no legacy key rewritten, idempotent, downgrade reader), `KeepADBNetworkBlocklistTest`, `KeepADBBlockedNetworkCallPathTest` (real service heartbeat, content observer, Wi-Fi callback, recovery pulse, USB and write-time guards, prompt, in-app confirmation, trust actions, each with a no-block control) and an extended `KeepADBNetworkCardStateTrustAgreementTest`. Tests that assumed "all Wi-Fi networks" as the fresh-install default now state the legacy mode explicitly or assert the new default.
-- #759: New `KeepADBNotificationTapTargetsTest` pins the content-tap target (component, action, extras) of notification rows 1-4, 6, 7 and 12, PendingIntent distinctness, neutral public versions and the manifest contract; `SettingsActivityTest` covers `EXTRA_FOCUS_USB`.
+- #759: New `KeepADBNotificationTapTargetsTest` pins the content-tap target (component, action, extras) of notification rows 1-4, 6, 7, 11 and 12, PendingIntent distinctness, neutral public versions and the manifest contract; `SettingsActivityTest` covers `EXTRA_FOCUS_USB`.
 
 ## [1.9.28] - Unreleased
 
