@@ -25,7 +25,7 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.9.29] - Unreleased
 
-Etappe patch candidate (versionCode 201) for the network trust and block model (#760, part of #758); no release. The target version is shared with the parallel work on #759; the integrator merges the sections.
+Etappe patch candidate (versionCode 201), integration of Etappe E1 of #758: the network trust and block model (#760) and the notification deep links (#759); no release. Both changes ship under this one version.
 
 ### Added
 - #760: Unified network trust model. One evaluation (`KeepADBTrustedNetwork.evaluate`) decides every automatic re-enable (service observer and heartbeat, recovery pulse, USB handover, Keep-Alive switch): a block on the BSSID, then a block on the Wi-Fi name (SSID), beats everything; then the legacy "all Wi-Fi networks" setting; then a trusted access point; then a trusted name; otherwise a readable network is unknown (KeepADB asks) and an unreadable one pauses. A block also beats the trust of the same BSSID, which stays stored and applies again once the block is lifted explicitly. Adding trust never lifts a block.
@@ -38,6 +38,8 @@ Etappe patch candidate (versionCode 201) for the network trust and block model (
 - #760: Existing installations keep their behavior unchanged. A stored mode is kept verbatim, the pre-#760 name allowlist stays in force exactly as stored (so no name is silently dropped or added), and nothing stored is rewritten: the migration is idempotent and the only one-time write is the initialized flag of an installation that never had one. The legacy setting "all Wi-Fi networks" is presented as "current setting", not as Force and not as a preset; blocks apply to it, only the force mode (#763) will override a block.
 - #760: A blocked network never raises the trust prompt (not even the re-post after a locked-device tap or the in-app confirmation of a stale prompt) and is not recorded as "recently prevented". A stale prompt tapped after the block stores nothing.
 - #760: The Settings card's explanation (`KeepADBNetworkCardState`) takes blocks and derived names into account so it cannot show "allowed" for a network the policy denies. No Settings text or layout changed.
+- #759 (Phase 1 of #758): Notification taps lead straight to the decision or problem. Tapping the "new Wi-Fi" prompt with connection details on now opens the in-app trust confirmation for exactly that access point (same dialog the details-off prompt already used) instead of the top of Settings. Tapping the USB-ADB notification while the profile notification is off opens Settings with the USB-ADB card expanded and scrolled into view (`SettingsActivity.EXTRA_FOCUS_USB`). All other targets are unchanged: the main notification states and the missing-permission notice open `MainActivity` (whose `onResume` calls `KeepADBService.sync()`, also for the "network not readable" fix path, #628), the identity-unavailable notification still opens the app permission page, the location toggle or `MainActivity`.
+- #759: The retired request code 13 is no longer used; the details-on prompt reuses request code 12 with its own action, so its PendingIntent stays distinct from the USB notification's (#603). Lock-screen public versions are untouched (no name, BSSID, actions or intents), and no activity declares `showWhenLocked`/`turnScreenOn`.
 
 ### Security
 - #760: Block precedence is enforced at the one place all automatic call sites already consult, plus at the trust write path and the prompt, so a block holds on every acting path (asserted end to end with controls). Known limit: under the legacy "all Wi-Fi networks" setting a network whose identity cannot be read stays trusted as before, because a block cannot recognize it; the allowlist pauses on it.
@@ -48,6 +50,7 @@ Etappe patch candidate (versionCode 201) for the network trust and block model (
 
 ### Testing
 - #760: `KeepADBTrustPrecedenceTest` (precedence over policy, trust, name and block combinations with an independent oracle, both directions), `KeepADBTrustMigrationTest` (decision equal to 1.9.28 for every stored legacy state, no legacy key rewritten, idempotent, downgrade reader), `KeepADBNetworkBlocklistTest`, `KeepADBBlockedNetworkCallPathTest` (real service heartbeat, content observer, Wi-Fi callback, recovery pulse, USB and write-time guards, prompt, in-app confirmation, trust actions, each with a no-block control) and an extended `KeepADBNetworkCardStateTrustAgreementTest`. Tests that assumed "all Wi-Fi networks" as the fresh-install default now state the legacy mode explicitly or assert the new default.
+- #759: New `KeepADBNotificationTapTargetsTest` pins the content-tap target (component, action, extras) of notification rows 1-4, 6, 7 and 12, PendingIntent distinctness, neutral public versions and the manifest contract; `SettingsActivityTest` covers `EXTRA_FOCUS_USB`.
 
 ## [1.9.28] - Unreleased
 

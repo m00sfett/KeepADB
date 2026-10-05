@@ -102,12 +102,10 @@ final class KeepADBNetworkTrustPrompt {
     private static final int REQUEST_CODE_TRUST = 10;
     private static final int REQUEST_CODE_DISMISS = 11;
     private static final int REQUEST_CODE_CONFIRM_IN_APP = 12;
-    // #603: distinct request codes for the two remaining extras-free SettingsActivity
-    // getActivity PendingIntents in this class -- PendingIntent#filterEquals ignores extras, so
-    // without these both would otherwise share an identity with each other and with
-    // KeepADBUsbNotification's own extras-free SettingsActivity PendingIntent, letting
-    // FLAG_UPDATE_CURRENT silently overwrite one with the other.
-    private static final int REQUEST_CODE_DETAILS_ON_CONTENT = 13;
+    // #603: distinct request code for the remaining extras-free getActivity PendingIntent in this
+    // class -- PendingIntent#filterEquals ignores extras, so it must not share an identity with
+    // KeepADBUsbNotification's SettingsActivity PendingIntent, or FLAG_UPDATE_CURRENT would let
+    // one silently overwrite the other. #759: 13 is retired (details-on prompt now reuses 12).
     private static final int REQUEST_CODE_IDENTITY_UNAVAILABLE = 14;
 
     /**
@@ -356,15 +354,12 @@ final class KeepADBNetworkTrustPrompt {
         String text = details
                 ? localized.getString(R.string.network_prompt_text, displayLabel, displayBssid)
                 : localized.getString(R.string.network_prompt_confirm_in_app_text);
-        PendingIntent contentIntent = details
-                ? PendingIntent.getActivity(context, REQUEST_CODE_DETAILS_ON_CONTENT,
-                        new Intent(context, SettingsActivity.class)
-                                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                                        | Intent.FLAG_ACTIVITY_CLEAR_TOP),
-                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)
-                : PendingIntent.getActivity(context, REQUEST_CODE_CONFIRM_IN_APP,
-                        confirmInAppIntent(context, bssid),
-                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        // #759: both forms open the in-app confirmation for exactly this access point. With details
+        // on, the user already saw the name in the notification and gets the same confirmation
+        // dialog instead of the top of SettingsActivity.
+        PendingIntent contentIntent = PendingIntent.getActivity(context,
+                REQUEST_CODE_CONFIRM_IN_APP, confirmInAppIntent(context, bssid),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         // #578: the lock screen shows this notification (default VISIBILITY_PRIVATE, redacted by
         // the platform unless the user opted into showing private content there -- which the
         // device tested against had). publicVersion carries neither the label nor the BSSID. #592:
