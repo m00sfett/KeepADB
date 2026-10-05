@@ -9,9 +9,10 @@ import android.content.Context;
  *
  * <p>This class only <em>describes</em>. It never decides trust and holds no state: whether an
  * automatic re-enable is allowed stays exclusively with {@link KeepADBTrustedNetwork} (known
- * identity required, then a listed BSSID or, with the opt-in name matching, an exactly listed
- * name). {@link #derive} mirrors that rule on plain booleans so the card can explain it, and
- * {@code KeepADBNetworkCardStateTrustAgreementTest} pins that both never disagree.
+ * identity required, a block beats everything, then a listed BSSID or, with a name rule switched
+ * on, an exactly matching name). {@link #derive} mirrors that rule on plain booleans so the card
+ * can explain it, and {@code KeepADBNetworkCardStateTrustAgreementTest} pins that both never
+ * disagree.
  *
  * <p>The facts the card shows are kept apart on purpose:
  * <ul>
@@ -84,11 +85,22 @@ final class KeepADBNetworkCardState {
         final boolean fineLocationGranted;
         final boolean locationServicesOn;
         final boolean backgroundGranted;
+        /** #760: the access point or its name is blocked; a block beats every kind of trust. */
+        final boolean blocked;
 
         Inputs(boolean allowlistMode, boolean ssidMatching, boolean wifiConnected,
                boolean identityKnown, boolean bssidListed, boolean ssidListed,
                boolean fineLocationGranted, boolean locationServicesOn,
                boolean backgroundGranted) {
+            this(allowlistMode, ssidMatching, wifiConnected, identityKnown, bssidListed, ssidListed,
+                    fineLocationGranted, locationServicesOn, backgroundGranted, false);
+        }
+
+        Inputs(boolean allowlistMode, boolean ssidMatching, boolean wifiConnected,
+               boolean identityKnown, boolean bssidListed, boolean ssidListed,
+               boolean fineLocationGranted, boolean locationServicesOn,
+               boolean backgroundGranted, boolean blocked) {
+            this.blocked = blocked;
             this.allowlistMode = allowlistMode;
             this.ssidMatching = ssidMatching;
             this.wifiConnected = wifiConnected;
@@ -138,6 +150,9 @@ final class KeepADBNetworkCardState {
         boolean known = identity != null && identity.isKnown();
         boolean bssidListed = false;
         boolean ssidListed = false;
+        // #760: the same block store the policy consults, with the same matching.
+        boolean blocked = known && KeepADBNetworkBlocklist.isBlocked(
+                context, identity.bssid, identity.displaySsid());
         if (known) {
             for (KeepADBTrustedNetwork.Entry entry : KeepADBTrustedNetwork.getEntries(context)) {
                 if (entry.bssid.equalsIgnoreCase(identity.bssid)) {
@@ -145,21 +160,16 @@ final class KeepADBNetworkCardState {
                     break;
                 }
             }
-            String ssid = identity.displaySsid();
-            if (ssid != null && !ssid.isEmpty()) {
-                for (KeepADBTrustedNetwork.SsidEntry entry
-                        : KeepADBTrustedNetwork.getSsidEntries(context)) {
-                    if (entry.ssid.equals(ssid)) {
-                        ssidListed = true;
-                        break;
-                    }
-                }
-            }
+            // #760: the name rules (derived comfort switch, legacy name list) as the policy
+            // applies them, each only while its own switch is on.
+            ssidListed = KeepADBTrustedNetwork.isNameTrusted(context, identity.displaySsid());
         }
         return new Inputs(KeepADBTrustedNetwork.isAllowlistMode(context),
-                KeepADBTrustedNetwork.isSsidMatchingEnabled(context), wifiConnected, known,
+                KeepADBTrustedNetwork.isSsidMatchingEnabled(context)
+                        || KeepADBTrustedNetwork.isTrustByNameEnabled(context),
+                wifiConnected, known,
                 bssidListed, ssidListed, fineLocationGranted, locationServicesOn,
-                backgroundGranted);
+                backgroundGranted, blocked);
     }
 
     static Mode mode(boolean allowlistMode, boolean ssidMatching) {
@@ -179,9 +189,12 @@ final class KeepADBNetworkCardState {
         Connection connection;
         if (in.identityKnown) {
             // A readable, unmasked BSSID means an association exists, so the transport flag is
-            // not consulted here. Mirrors KeepADBTrustedNetwork#isTrusted: a listed BSSID, or --
-            // only while name matching is really active -- an exactly listed name.
-            if (in.bssidListed) {
+            // not consulted here. Mirrors KeepADBTrustedNetwork#evaluate: a block first (#760),
+            // then a listed BSSID, or -- only while name matching is really active -- an exactly
+            // listed name.
+            if (in.blocked) {
+                connection = Connection.NOT_ALLOWED;
+            } else if (in.bssidListed) {
                 connection = Connection.ALLOWED_AP;
             } else if (nameMatching == NameMatching.ACTIVE && in.ssidListed) {
                 connection = Connection.ALLOWED_NAME;
@@ -223,7 +236,8 @@ final class KeepADBNetworkCardState {
                 break;
             }
             case NOT_ALLOWED:
-                cause = in.allowlistMode ? Cause.NOT_ALLOWED : Cause.ALL_WIFI;
+                // A blocked network is not allowed even while "all Wi-Fi networks" is active.
+                cause = (in.allowlistMode || in.blocked) ? Cause.NOT_ALLOWED : Cause.ALL_WIFI;
                 action = Action.ALLOW_ACCESS_POINT;
                 break;
             case ALLOWED_NAME:
