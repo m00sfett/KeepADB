@@ -4,21 +4,102 @@ KeepADB kann automatische Wiederherstellung von Drahtlosem Debugging auf die WLA
 die du freigibst. Die Regel schützt automatische Aktionen vor einem unerwarteten Zugangspunkt; sie
 ändert nicht die manuelle Ein-/Ausschaltfläche.
 
-## Modi und Übereinstimmung
+## Modell: Vertrauen, Sperren und Vorrang
 
-- **In allen WLANs** ist der Standard einer Neuinstallation. Bestehende Installationen, die vor dem
-  Wechsel des Standards bereits eine Freigabeliste verwendeten, behalten diesen Modus beim Upgrade.
-- **Nur freigegebene Access Points** schaltet automatische Wiederherstellung nur dann frei, wenn
-  die aktuelle WLAN-Identität bekannt ist und ihre BSSID genau in der Liste steht.
-- Die optionale zusätzliche Freigabe **Auch nach Netzwerkname (SSID) freigeben** ist standardmäßig
-  aus. Ist sie eingeschaltet, kann ein exakt und groß-/kleinschreibungssensitiv passender SSID-Name
-  ebenfalls freigeben. SSIDs sind frei wählbar und können kopiert werden; eine SSID-Freigabe ist
-  deshalb schwächer als eine BSSID-Freigabe. Die SSID-Liste wirkt nur im Freigabelistenmodus.
+Ein einheitliches Modell (#760) entscheidet über jede automatische Wiederherstellung: Dienst
+(Beobachter und 60-Sekunden-Prüfung), Wiederbelebungsimpuls, USB-Übergabe und der Keep-Alive-
+Schalter fragen alle dieselbe Stelle. Die Oberfläche sagt dazu noch „freigegeben“ und
+„Freigabeliste“; gemeint ist „vertraut“. Die Umbenennung folgt mit der Netzwerkliste (#762).
 
-Eine unbekannte Verbindung, ein fehlender Eintrag oder eine von Android maskierte Identität wird
-im Freigabelistenmodus als nicht vertrauenswürdig behandelt. KeepADB speichert kein WLAN als
-freigegeben, wenn die aktuelle Identität nicht lesbar ist. Das Hinzufügen eines WLANs schaltet
-Drahtloses Debugging nicht selbst ein.
+**Bausteine**
+
+- **Vertraut pro Access Point (BSSID).** Eine Neuinstallation startet im Freigabelistenmodus:
+  automatische Wiederherstellung nur, wenn die aktuelle WLAN-Identität bekannt ist und ihre BSSID
+  genau in der Liste steht.
+- **Sperre pro BSSID und pro WLAN-Name (SSID „niemals“).** Die Adresse wird ohne Beachtung der
+  Groß-/Kleinschreibung verglichen, der Name genau, so wie Android gespeicherte Netze abgleicht.
+  Platzhalter (maskierte oder leere BSSID, unbekannter Name) lassen sich nicht sperren, weil eine
+  solche Sperre jedes nicht lesbare Netz träfe.
+- **Komfortschalter „Auch nach WLAN-Name vertrauen“** (`trust_by_name`, standardmäßig aus):
+  Access Points, die den Namen eines vertrauten Access Points tragen, gelten ebenfalls als
+  vertraut. Die Namen werden aus den vertrauten Access Points abgeleitet; es gibt keine zweite
+  Namensliste. Ein gesperrter Access Point trägt seinen Namen nicht bei. Ein Name lässt sich
+  nachahmen, deshalb bleibt der Schalter aus.
+- **Bisherige Einstellung „In allen WLANs“** (gespeicherter Wert `all_wifi`): jedes Netz gilt als
+  vertraut, auch eines mit nicht lesbarer Identität, **außer es ist gesperrt**. Die Einstellung
+  bleibt für bestehende Installationen unverändert; sie ist weder Force noch eine der
+  Schutzstufen (siehe Migration).
+- **Namensfreigabe (Altbestand):** die bisherige SSID-Liste mit ihrem Schalter „Auch nach
+  Netzwerkname (SSID) freigeben“. Sie bleibt in Kraft, wie gespeichert, und wirkt nur im
+  Freigabelistenmodus; SSIDs sind frei wählbar und können kopiert werden, die Freigabe ist deshalb
+  schwächer als eine BSSID-Freigabe.
+
+**Vorrang** (von oben nach unten, das erste Zutreffende entscheidet; umgesetzt an einer Stelle,
+`KeepADBTrustedNetwork.evaluate`):
+
+1. Sperre über die BSSID.
+2. Sperre über den WLAN-Namen (gilt auch, wenn nur der Name lesbar ist).
+3. Bisherige Einstellung „In allen WLANs“: vertraut.
+4. Vertrauter Access Point.
+5. Vertrauter Name: abgeleitet (Komfortschalter) oder Namensfreigabe (Altbestand), genau und mit
+   Beachtung der Groß-/Kleinschreibung.
+6. Sonst: Identität lesbar = unbekannt, KeepADB fragt nach; nicht lesbar = pausieren.
+
+Eine Sperre gewinnt gegen jedes Vertrauen, auch gegen das derselben BSSID. Das Vertrauen bleibt
+gespeichert und gilt wieder, sobald die Sperre ausdrücklich aufgehoben wurde. Vertrauen hinzuzufügen
+hebt nie eine Sperre auf, weder über die Benachrichtigung noch über Liste, Karte oder Mesh-Angebot;
+es wird dann nichts gespeichert. Gesperrte Netze lösen keine Nachfrage aus, werden nicht als „zuletzt
+verhindert“ vermerkt und schalten nie automatisch ein. Nur der Force-Modus (#763, noch nicht
+umgesetzt) darf eine Sperre übergehen; er kommt als Überlagerung oberhalb dieser Reihenfolge.
+
+Bekannte Grenze: Unter „In allen WLANs“ bleibt ein Netz mit nicht lesbarer Identität vertraut, wie
+vor #760. Eine Sperre kann es nicht erkennen, weil ihr die Identität fehlt. Im Freigabelistenmodus
+pausiert dasselbe Netz.
+
+## Migration und Rückweg
+
+Die Migration schreibt nichts um: das Modell liest die bisherigen Schlüssel an Ort und Stelle.
+Damit ist sie idempotent, verliert nichts und verschärft oder lockert nichts still.
+
+| Gespeicherter Stand | Lesart im Modell (`getProtectionLevel`) | Verhalten |
+|---|---|---|
+| Modus `all_wifi` | Bisherige Einstellung „In allen WLANs“ | unverändert; Sperren gelten zusätzlich |
+| Freigabelistenmodus, Namensfreigabe aus oder leer | Maximal sicher | unverändert |
+| Freigabelistenmodus, Namensfreigabe an mit Einträgen | Bisherige Namensliste | unverändert; die Namensliste bleibt in Kraft |
+| Freigabelistenmodus, Komfortschalter (neu) an | Ausgewogen | Namen vertrauter Access Points |
+| nichts gespeichert (Neuinstallation) | Maximal sicher | nur vertraute BSSIDs |
+
+Die zwei „bisherigen“ Stände sind Einstellungen, die keine der Schutzstufen genau abbildet. Sie
+werden deshalb als solche gezeigt, nicht auf eine Stufe umgelegt: „In allen WLANs“ auf
+„Maximal sicher“ oder „Ausgewogen“ zu legen würde still verschärfen, die Namensliste auf den
+abgeleiteten Komfortschalter zu legen würde zugleich Namen verlieren (nur über die Liste freigegebene
+Namen ohne vertrauten Access Point) und neue freigeben (die Namen aller vertrauten Access Points).
+Abgelöst werden sie erst durch die ausdrückliche Wahl im Assistenten (#761) bzw. in der Liste (#762).
+
+Der Modus wird beim ersten Lesen einmal festgeschrieben, damit ein späterer Wechsel des Standards
+keine Installation verschiebt. Ein gespeicherter Modus bleibt wörtlich erhalten; nur der exakte Wert
+`all_wifi` bedeutet die bisherige Einstellung, jeder andere (fehlende oder beschädigte) Wert gilt
+als Freigabelistenmodus. Eine Installation ganz ohne gespeicherten Modus (Neuinstallation, oder eine
+sehr alte, die die Regel seit 1.8.9 nie ausgewertet hat) startet im Freigabelistenmodus.
+
+Der Verlauf „zuletzt verhindert“ und die Beobachtungsliste haben nie über Vertrauen entschieden und
+gehen nicht in das Modell ein. Ihre Speicher bleiben in diesem Stand unangetastet, weil die
+bestehende Oberfläche und die In-App-Bestätigung sie noch lesen; ihre Entfernung gehört zu #762 und
+#766.
+
+**Rückweg.** Neu sind nur zusätzliche Schlüssel in `keepadb_prefs` (`blocked_bssids`,
+`blocked_ssids`, `trust_by_name`); alle bisherigen Schlüssel behalten Format und Bedeutung. Eine
+ältere App-Version liest daher dieselben Freigaben, Namensfreigaben und denselben Modus, ignoriert
+die neuen Schlüssel und beachtet Sperren nicht. Beim Zurückgehen auf eine ältere Version gehen also
+nur die Wirkung der Sperren verloren, keine Daten. Backup und Gerätewechsel nehmen `keepadb_prefs`
+nicht mit (`allowBackup="false"` und `data_extraction_rules.xml`).
+
+Belege im Code: `KeepADBTrustPrecedenceTest` (Vorrang, beidseitig), `KeepADBTrustMigrationTest`
+(gleiche Entscheidung wie 1.9.28 für jeden gespeicherten Stand, nichts umgeschrieben, Rückweg),
+`KeepADBBlockedNetworkCallPathTest` (die Sperre hält auf den tatsächlich handelnden Wegen).
+
+Eine Neuinstallation und jeder Wechsel in den Freigabelistenmodus brauchen die Standortfreigabe aus
+dem folgenden Abschnitt; ohne lesbare Identität pausiert KeepADB und weist darauf hin.
 
 ## Berechtigungen und Hintergrundverhalten
 

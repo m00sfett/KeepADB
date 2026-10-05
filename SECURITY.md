@@ -13,11 +13,17 @@ als vertrauenswürdig zugelassen wurde.
 
 ## Automatische Wiederherstellung und Netzwerkvertrauen
 
-Bei einer Neuinstallation ist die Einschränkung auf zugelassene Zugangspunkte ausgeschaltet.
-**Einstellungen → Netzwerk** bietet die Wahl zwischen allen WLANs und einer Freigabeliste.
-Im Freigabelistenmodus wird automatisch nur dann wieder eingeschaltet, wenn KeepADB die aktuelle
-WLAN-Identität lesen und einem zugelassenen BSSID zuordnen kann. Eine unbekannte oder vom System
-maskierte Identität bleibt gesperrt.
+Eine Neuinstallation startet im Freigabelistenmodus: Automatisch wird nur dann wieder
+eingeschaltet, wenn KeepADB die aktuelle WLAN-Identität lesen und einem zugelassenen BSSID
+zuordnen kann. Eine unbekannte oder vom System maskierte Identität bleibt gesperrt.
+Bestehende Installationen behalten ihre bisherige Einstellung unverändert, auch „In allen WLANs“;
+**Einstellungen → Netzwerk** bietet weiterhin die Wahl zwischen allen WLANs und der Freigabeliste.
+
+Das Datenmodell kennt außerdem Sperren pro BSSID und pro WLAN-Name. Eine Sperre gewinnt in jedem
+Modus gegen Vertrauen, löst keine Nachfrage aus und schaltet nie automatisch ein; nur ein
+ausdrückliches Aufheben nimmt sie zurück, nie das Hinzufügen von Vertrauen. Eine Bedienoberfläche
+zum Sperren folgt mit der Netzwerkliste. Vorrang, Migration und Rückweg stehen im
+[Netzwerk-Leitfaden](docs/trusted-networks.md).
 
 Die Identität dient ausschließlich zur Wiedererkennung des WLANs; KeepADB ermittelt oder speichert
 keinen Gerätestandort. Dafür benötigt Android den präzisen Standortzugriff. Der optionale Zugriff
