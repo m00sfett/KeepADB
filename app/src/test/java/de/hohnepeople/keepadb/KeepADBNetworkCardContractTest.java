@@ -25,8 +25,9 @@ public class KeepADBNetworkCardContractTest {
 
     /**
      * The activity keeps the screen composition and the Android lifecycle; everything the card
-     * owns -- rendered action snapshot, Wi-Fi callback, its four dialogs, its request codes and
-     * the preference flag of the grant request -- lives in the card only. A second owner would
+     * owns -- rendered action snapshot, Wi-Fi callback, its three dialogs, its request codes and
+     * the preference flag of the grant request -- lives in the card only. (The trust confirmation
+     * dialog moved out to {@link NetworkDecisionActivity} in #766, see {@link NetworkDecisionContractTest}.) A second owner would
      * bring back the split state the extraction removed.
      */
     @Test
@@ -37,21 +38,17 @@ public class KeepADBNetworkCardContractTest {
         String[] ownedByTheCard = {
                 "NetworkCallback", "registerNetworkCallback", "wifiStatusCallback",
                 "networkStatusActionKind", "networkActionBssid", "networkActionLabel",
-                "activeTrustConfirmationDialog", "activeTrustConfirmationBssid",
                 "activeBackgroundLocationDialog", "activeAllowlistPermissionDialog",
                 "activeMeshDialog", "TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST",
                 "WIFI_APS_LOCATION_PERMISSION_REQUEST", "LOCATION_PERMISSION_REQUESTED",
-                "requestPermissions(", "KeepADBNetworkActions.allowAccessPoint",
-                "handleTrustNetworkAction", "pendingConfirmation"};
+                "requestPermissions(", "KeepADBNetworkActions.allowAccessPoint"};
         for (String name : ownedByTheCard) {
             assertFalse("SettingsActivity must not own '" + name + "' any more (#697)",
                     activity.contains(name));
         }
         for (String name : new String[] {"wifiStatusCallback", "networkStatusActionKind",
-                "networkActionBssid", "activeTrustConfirmationDialog",
-                "activeBackgroundLocationDialog", "activeAllowlistPermissionDialog",
-                "activeMeshDialog", "requestPermissions(", "handleTrustNetworkAction",
-                "pendingConfirmation"}) {
+                "networkActionBssid", "activeBackgroundLocationDialog",
+                "activeAllowlistPermissionDialog", "activeMeshDialog", "requestPermissions("}) {
             assertTrue("KeepADBNetworkCard must own '" + name + "'", card.contains(name));
         }
 
@@ -59,8 +56,7 @@ public class KeepADBNetworkCardContractTest {
         for (String hook : new String[] {"new KeepADBNetworkCard(this, this::refresh)",
                 "networkCard.restore(", "networkCard.start()", "networkCard.refresh()",
                 "networkCard.stop()", "networkCard.saveState(", "networkCard.destroy()",
-                "networkCard.onRequestPermissionsResult(requestCode)",
-                "networkCard.showTrustConfirmationDialog("}) {
+                "networkCard.onRequestPermissionsResult(requestCode)"}) {
             assertEquals("SettingsActivity must call '" + hook + "' exactly once", 1,
                     count(activity, hook));
         }

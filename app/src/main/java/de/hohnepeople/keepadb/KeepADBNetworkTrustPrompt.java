@@ -29,11 +29,11 @@ import java.util.Locale;
  * KeepADBBlockedNetworkHistory} so it stays reviewable in Settings afterwards.
  *
  * <p><strong>Never fails open.</strong> Nothing here trusts a network on its own; only the user's
- * explicit tap on the allow action -- or, with connection details off (#598), on "allow" in the
- * in-app confirmation the notification opens -- reaches {@link KeepADBTrustedNetwork#addBssid},
- * which is the same entry point the manual "add current network" button and the mesh convenience
- * already use. Showing, updating, throttling, tapping or cancelling the prompt has no effect on the
- * allowlist.
+ * explicit tap on the allow action -- or on "Trust" in the decision dialog the notification opens
+ * (#766, {@link NetworkDecisionActivity}) -- reaches {@link KeepADBTrustedNetwork#addBssid}, which
+ * is the same entry point the manual "add current network" button and the mesh convenience already
+ * use. Showing, updating, throttling, tapping, swiping away or cancelling the prompt has no effect
+ * on the allowlist and none on the blocklist: only the explicit "block" choices write there.
  *
  * <h2>Throttling</h2>
  * Both block sites in {@link KeepADBService} are reached repeatedly -- the content observer on
@@ -46,12 +46,15 @@ import java.util.Locale;
  * #MAX_PROMPTED_BSSIDS}) so roaming/flapping between two untrusted access points does not cause
  * repeated notification alerts on every switch.
  *
- * <p>The suppression deliberately expires after {@link #PROMPT_REPEAT_INTERVAL_MS}: a permanent
- * "don't ask again" that no user action can clear would be a silently switched-off alarm, and the
- * block it hides is exactly the failure the issue is about. Declining therefore only suppresses
- * the next prompts, it never creates a persistent block. Blocks (#760, {@link
- * KeepADBNetworkBlocklist}) are the user's explicit "never" and the opposite case: a blocked
- * network is never asked about at all, see {@link #onBlockedByUntrustedNetwork} and {@link #show}.
+ * <p>The suppression deliberately expires after {@link #PROMPT_REPEAT_INTERVAL_MS} (24 hours, #766;
+ * it was 6): a permanent "don't ask again" that no user action can clear would be a silently
+ * switched-off alarm, and the block it hides is exactly the failure the issue is about. Swiping the
+ * notification away or choosing "decide later" therefore decides nothing and only keeps the
+ * question quiet until the interval has passed; it never creates a persistent block. Blocks (#760,
+ * {@link KeepADBNetworkBlocklist}) are the user's explicit "never" and the opposite case: a
+ * blocked network is never asked about at all, see {@link #onBlockedByUntrustedNetwork} and {@link
+ * #show}. The block choices of the notification and the dialog ({@link KeepADBNetworkDecision})
+ * are what write them.
  *
  * <h2>#460: already active, and an unreadable identity</h2>
  * Two gaps remained after #446/#450. First, {@link KeepADBService} only ever called {@link
@@ -85,28 +88,31 @@ final class KeepADBNetworkTrustPrompt {
     /** Maximum number of recently prompted BSSIDs remembered to prevent flapping (#450). */
     static final int MAX_PROMPTED_BSSIDS = 8;
 
-    /** How long a raised prompt suppresses further prompts for the same access point. */
-    static final long PROMPT_REPEAT_INTERVAL_MS = 6L * 60L * 60L * 1000L;
+    /**
+     * How long a raised prompt suppresses further prompts for the same access point: 24 hours
+     * (#766, decision of #758; it was 6 hours before).
+     */
+    static final long PROMPT_REPEAT_INTERVAL_MS = 24L * 60L * 60L * 1000L;
 
     /**
-     * #598: action of the content intent that opens {@link SettingsActivity}'s in-app trust
-     * confirmation while connection details are off. Setting an action (and a request code of its
-     * own) keeps this PendingIntent distinct from every other SettingsActivity PendingIntent --
-     * {@link KeepADBUsbNotification} uses request code 0 with {@code FLAG_UPDATE_CURRENT} as well,
-     * and PendingIntent matching ignores extras, so without it either notification could overwrite
-     * the other's extras.
+     * #598/#766: action of the content intent that opens {@link NetworkDecisionActivity}, the
+     * "Trust this network?" decision for exactly the prompted access point. #766 moved it from
+     * {@link SettingsActivity} (where #598/#759 hosted an in-app confirmation) to the activity of
+     * its own, with its own action and request code.
      */
-    static final String ACTION_CONFIRM_IN_APP =
-            "de.hohnepeople.keepadb.action.CONFIRM_NETWORK_TRUST";
+    static final String ACTION_DECIDE = "de.hohnepeople.keepadb.action.DECIDE_NETWORK_TRUST";
 
     private static final int REQUEST_CODE_TRUST = 10;
-    private static final int REQUEST_CODE_DISMISS = 11;
-    private static final int REQUEST_CODE_CONFIRM_IN_APP = 12;
     // #603: distinct request code for the remaining extras-free getActivity PendingIntent in this
     // class -- PendingIntent#filterEquals ignores extras, so it must not share an identity with
     // KeepADBUsbNotification's SettingsActivity PendingIntent, or FLAG_UPDATE_CURRENT would let
-    // one silently overwrite the other. #759: 13 is retired (details-on prompt now reuses 12).
+    // one silently overwrite the other.
     private static final int REQUEST_CODE_IDENTITY_UNAVAILABLE = 14;
+    // #766 (N6): the decision dialog and the block action get request codes of their own. 11
+    // (declined), 12 (in-app confirmation, #598/#759) and 13 are retired and must not be reused:
+    // a PendingIntent that outlived an update under such a code could otherwise match.
+    private static final int REQUEST_CODE_DECISION = 15;
+    private static final int REQUEST_CODE_BLOCK = 16;
 
     /**
      * Throttle key for the identity-unavailable notification (#460). It shares {@link
@@ -343,10 +349,10 @@ final class KeepADBNetworkTrustPrompt {
         }
         ensureChannel(localized, manager);
         // #592: network name and BSSID only go into the notification when the user opted in.
-        // #598: without the opt-in the user could not see which network an allow action would
-        // trust, so that mode has no allow action at all: the neutral text points to the app, and
-        // tapping the notification opens SettingsActivity's confirmation dialog, which names the
-        // network before anything can be trusted (see confirmInAppIntent/pendingConfirmation).
+        // #598/#766: without the opt-in the user could not see which network an action would
+        // affect, so that mode has no action buttons at all (F3 of #758): the neutral text points
+        // to the app, and tapping the notification opens the decision dialog, which names the
+        // network before anything can be trusted or blocked (see decisionIntent).
         boolean details = KeepADBPreferences.isNotificationDetailsEnabled(context);
         String displayBssid = bssid.toUpperCase(Locale.ROOT);
         String displayLabel = label != null && label.equalsIgnoreCase(bssid)
@@ -354,11 +360,10 @@ final class KeepADBNetworkTrustPrompt {
         String text = details
                 ? localized.getString(R.string.network_prompt_text, displayLabel, displayBssid)
                 : localized.getString(R.string.network_prompt_confirm_in_app_text);
-        // #759: both forms open the in-app confirmation for exactly this access point. With details
-        // on, the user already saw the name in the notification and gets the same confirmation
-        // dialog instead of the top of SettingsActivity.
+        // #759/#766: both forms open the decision dialog for exactly this access point. With
+        // details on, the user already saw the name in the notification.
         PendingIntent contentIntent = PendingIntent.getActivity(context,
-                REQUEST_CODE_CONFIRM_IN_APP, confirmInAppIntent(context, bssid),
+                REQUEST_CODE_DECISION, decisionIntent(context, bssid),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         // #578: the lock screen shows this notification (default VISIBILITY_PRIVATE, redacted by
         // the platform unless the user opted into showing private content there -- which the
@@ -383,65 +388,35 @@ final class KeepADBNetworkTrustPrompt {
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
                 .setPublicVersion(publicVersion);
+        // #766: no delete intent on purpose -- swiping the notification away decides nothing; the
+        // question comes back after PROMPT_REPEAT_INTERVAL_MS. The block action really blocks the
+        // access point (it used to only close the notification, N1).
         if (details) {
             builder.addAction(action(context, localized.getString(R.string.network_prompt_allow),
                     KeepADBReceiver.ACTION_TRUST_NETWORK, REQUEST_CODE_TRUST, bssid, label,
                     true));
+            builder.addAction(action(context, localized.getString(R.string.network_prompt_block),
+                    KeepADBReceiver.ACTION_BLOCK_NETWORK, REQUEST_CODE_BLOCK, bssid, label,
+                    false));
         }
-        builder.addAction(action(context, localized.getString(R.string.network_prompt_block),
-                KeepADBReceiver.ACTION_DISMISS_NETWORK_PROMPT, REQUEST_CODE_DISMISS,
-                bssid, label, false));
         manager.notify(NOTIFICATION_ID, builder.build());
         return true;
     }
 
     /**
-     * #598: the content intent of the details-off prompt. It carries only the BSSID the prompt was
-     * raised for -- never a label -- and only as a selector: {@link #pendingConfirmation} resolves
-     * it against the app's own blocked-network record, which supplies the name the dialog shows.
-     * SettingsActivity is not exported and the PendingIntent is IMMUTABLE, so no other app can
-     * start the dialog with a substituted BSSID.
+     * #598/#766: the content intent of the prompt (both forms). It carries only the BSSID the
+     * prompt was raised for -- never a label -- and only as a selector: {@link KeepADBNetworkDecision#resolve}
+     * resolves it against the app's own blocked-network record, which supplies the name the dialog
+     * shows. {@link NetworkDecisionActivity} is not exported and the PendingIntent is IMMUTABLE, so
+     * no other app can start the dialog with a substituted BSSID. The activity does not show over
+     * the lock screen, so Android asks for the unlock before it opens (see the manifest contract
+     * test), and it re-checks the keyguard itself before it shows a name.
      */
-    static Intent confirmInAppIntent(Context context, String bssid) {
-        return new Intent(context, SettingsActivity.class)
-                .setAction(ACTION_CONFIRM_IN_APP)
+    static Intent decisionIntent(Context context, String bssid) {
+        return new Intent(context, NetworkDecisionActivity.class)
+                .setAction(ACTION_DECIDE)
                 .putExtra(EXTRA_BSSID, bssid)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-    }
-
-    /**
-     * #598: the access point an in-app confirmation for {@code bssid} may offer to trust, or null
-     * if there is none. The dialog binds to the returned entry -- its BSSID and its recorded
-     * label -- not to the current Wi-Fi connection: what the user confirms is the access point the
-     * prompt was raised for, and exactly that BSSID is trusted even if the device has roamed to a
-     * different access point between the notification, the tap and the click (whether Wireless
-     * Debugging is then switched on is decided by {@link KeepADBService#isAutoEnableStillPermitted}
-     * in {@link KeepADBReceiver#trustBssidAndAttemptConnect}, as for every other trust path).
-     *
-     * <p>Returns null -- no dialog, nothing to trust -- for a placeholder or blank BSSID and for a
-     * BSSID the app has no current blocked-network record of: already trusted in the meantime,
-     * evicted from the bounded record, or never seen by this app at all. The record is written only
-     * by {@link #onBlockedByUntrustedNetwork} from the real connection info, so an intent can at
-     * most select a network the app itself saw and blocked; it can never introduce a new BSSID or a
-     * label of its own.
-     */
-    static KeepADBBlockedNetworkHistory.Entry pendingConfirmation(Context context, String bssid) {
-        // #760: a stale prompt must not open a "trust this network?" question for a network that is
-        // blocked by now; the entry's recorded name is checked below as well.
-        String cleanBssid = bssid == null ? "" : bssid.trim();
-        if (cleanBssid.isEmpty()
-                || KeepADBNetworkIdentity.REDACTED_BSSID.equalsIgnoreCase(cleanBssid)
-                || KeepADBNetworkIdentity.UNSET_BSSID.equalsIgnoreCase(cleanBssid)) {
-            return null;
-        }
-        for (KeepADBBlockedNetworkHistory.Entry entry
-                : KeepADBBlockedNetworkHistory.getEntries(context)) {
-            if (entry.bssid.equalsIgnoreCase(cleanBssid)) {
-                return KeepADBNetworkBlocklist.isBlocked(context, entry.bssid, entry.ssid)
-                        ? null : entry;
-            }
-        }
-        return null;
     }
 
     /**
