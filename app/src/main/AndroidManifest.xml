@@ -96,6 +96,8 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <!-- #763: a clock set moves the effective deadline of the force mode. -->
+                <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
         </receiver>
 
@@ -116,6 +118,8 @@
                 <action android:name="de.hohnepeople.keepadb.ACTION_TOGGLE_KEEP_ALIVE" />
                 <action android:name="de.hohnepeople.keepadb.ACTION_TRUST_NETWORK" />
                 <action android:name="de.hohnepeople.keepadb.ACTION_DISMISS_NETWORK_PROMPT" />
+                <action android:name="de.hohnepeople.keepadb.ACTION_FORCE_END" />
+                <action android:name="de.hohnepeople.keepadb.ACTION_FORCE_EXPIRE" />
             </intent-filter>
         </receiver>
     </application>

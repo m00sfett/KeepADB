@@ -27,6 +27,8 @@ public class SettingsActivity extends Activity {
     public static final String EXTRA_FOCUS_NETWORK = "focus_network";
     /** #759: Intent extra requesting that the USB-ADB card be expanded and scrolled into view. */
     public static final String EXTRA_FOCUS_USB = "focus_usb";
+    /** #763: Intent extra requesting that the force-mode row be expanded and scrolled into view. */
+    public static final String EXTRA_FOCUS_FORCE = "focus_force";
     /**
      * #672: flags for the reset-app, USB handover mode and language dialogs showing at the time of
      * a {@code recreate()} (rotation). Pure "was showing" markers; a restored reset-app dialog is

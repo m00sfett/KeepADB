@@ -18,6 +18,10 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     /** #446: the user declined; only the prompt goes away, nothing is trusted. */
     static final String ACTION_DISMISS_NETWORK_PROMPT =
             "de.hohnepeople.keepadb.ACTION_DISMISS_NETWORK_PROMPT";
+    /** #763: the notification's "End force mode" action. The safe direction, no question asked. */
+    static final String ACTION_FORCE_END = "de.hohnepeople.keepadb.ACTION_FORCE_END";
+    /** #763: the expiry alarm. Only re-evaluates; it cannot start or extend the force mode. */
+    static final String ACTION_FORCE_EXPIRE = "de.hohnepeople.keepadb.ACTION_FORCE_EXPIRE";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -33,7 +37,23 @@ public final class KeepADBReceiver extends BroadcastReceiver {
                     intent.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_LABEL));
         } else if (ACTION_DISMISS_NETWORK_PROMPT.equals(action)) {
             handleDismissNetworkPromptAction(context);
+        } else if (ACTION_FORCE_END.equals(action)) {
+            handleForceEndAction(context);
+        } else if (ACTION_FORCE_EXPIRE.equals(action)) {
+            KeepADBForceMode.restore(context);
         }
+    }
+
+    /**
+     * #763: "End force mode" from the notification. {@link KeepADBForceMode#endNow} reports false
+     * when there was nothing to end (already over, or it just ran out), in which case no "ended by
+     * you" toast is shown.
+     */
+    static boolean handleForceEndAction(Context context) {
+        KeepADBDiagnostics.event(context, "user_action", "notification", "force_end", "action_button");
+        boolean ended = KeepADBForceMode.endNow(context);
+        if (ended) KeepADBForceNotice.showEndedToast(context);
+        return ended;
     }
 
     static boolean handleDisableAction(Context context) {
