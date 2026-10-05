@@ -56,6 +56,48 @@ Bekannte Grenze: Unter „In allen WLANs“ bleibt ein Netz mit nicht lesbarer I
 vor #760. Eine Sperre kann es nicht erkennen, weil ihr die Identität fehlt. Im Freigabelistenmodus
 pausiert dasselbe Netz.
 
+## Nachfrage und Entscheidungsdialog
+
+Trifft KeepADB beim automatischen Einschalten auf einen lesbaren Access Point, der weder vertraut
+noch gesperrt ist, erscheint der Hinweis „Neues WLAN / neuer Access Point erkannt“ (#446, #766). Er hat zwei Formen und
+ein Tipp-Ziel.
+
+- **Mit Benachrichtigungsdetails:** Name und BSSID stehen im Text, dazu zwei Knöpfe: „Ja, zulassen“
+  (verlangt Entsperrung bzw. Authentifizierung) und „Nein, blockieren“. Der zweite sperrt den
+  Access Point tatsächlich, nur die BSSID, nicht den Namen; vorher schloss er nur den Hinweis.
+- **Ohne Details (Standard):** Der Hinweis nennt nichts und hat keine Knöpfe; das Tippen führt in
+  die App. Die öffentliche Fassung für den Sperrbildschirm bleibt in beiden Formen ohne Name,
+  Adresse, Aktion und Ziel.
+- **Tippen** öffnet den Dialog „Diesem Netzwerk vertrauen?“ (`NetworkDecisionActivity`, Dialog-Design,
+  nicht in der Liste der zuletzt benutzten Apps, ohne Anzeige über dem Sperrbildschirm). Er zeigt
+  WLAN-Name und Access Point (BSSID), bewusst auch im Privatsphäre-Modus, und bietet: Vertrauen,
+  „Nur diesen Access Point blockieren“, „WLAN-Namen … immer blockieren“ (entfällt bei verborgenem
+  oder nicht lesbarem Namen) und „Später entscheiden“. Ist der Komfortschalter an, nennt ein Hinweis,
+  dass dann auch andere Access Points mit diesem Namen akzeptiert werden. Der Dialog ist als
+  eigene, einbettbare Ansicht gebaut (`NetworkDecisionView`), die Netzwerkliste (#762), der Assistent
+  (#761) und die Startseite (#764) können sie übernehmen.
+
+**Was nichts entscheidet.** „Später entscheiden“, Zurück, ein Tippen neben den Dialog, Drehen des
+Geräts und das Wegwischen des Hinweises ändern keinen Status. Derselbe Access Point wird frühestens
+nach 24 Stunden erneut gefragt (zuvor 6 Stunden), ein gesperrter nie.
+
+**Gesperrtes Gerät.** Der Hinweis bleibt neutral (kein Name, #578/#592/#598). Der Dialog erscheint
+erst nach dem Entsperren: Die Activity trägt weder `showWhenLocked` noch `turnScreenOn`, sodass
+Android vor dem Öffnen die Entsperrung verlangt, und sie prüft die Displaysperre zusätzlich selbst.
+Solange sie besteht, bindet sie weder Name noch Adresse; beim Anhalten (Display aus, andere App)
+werden beide wieder aus der Ansicht entfernt.
+
+**Bindung.** Der Dialog gilt dem Access Point, für den die Anfrage entstand, nicht dem aktuellen
+WLAN; der Name kommt aus der eigenen Aufzeichnung, nie aus dem Intent. Ist die Anfrage inzwischen
+beantwortet (vertraut oder gesperrt, etwa über die Netzwerkliste) oder gibt es keine Aufzeichnung
+mehr (verdrängt, unbekannt, Platzhalter-BSSID), öffnet sich kein Dialog, sondern eine kurze Meldung.
+Wird in einem Dialog, der vor einer Sperre geöffnet wurde, auf „Vertrauen“ getippt, verweigert
+KeepADB das (die Sperre gewinnt, #760), speichert nichts und sagt das auch.
+
+Bekannte Grenze dieses Stands: Eine Sperre aus Hinweis oder Dialog lässt sich in der App noch nicht
+aufheben; die Aufhebung folgt mit der Netzwerkliste (#762). Das gespeicherte Vertrauen bleibt
+dabei erhalten und gilt nach dem Aufheben wieder.
+
 ## Migration und Rückweg
 
 Die Migration schreibt nichts um: das Modell liest die bisherigen Schlüssel an Ort und Stelle.
@@ -84,8 +126,9 @@ sehr alte, die die Regel seit 1.8.9 nie ausgewertet hat) startet im Freigabelist
 
 Der Verlauf „zuletzt verhindert“ und die Beobachtungsliste haben nie über Vertrauen entschieden und
 gehen nicht in das Modell ein. Ihre Speicher bleiben in diesem Stand unangetastet, weil die
-bestehende Oberfläche und die In-App-Bestätigung sie noch lesen; ihre Entfernung gehört zu #762 und
-#766.
+bestehende Oberfläche sie noch liest; ihre Entfernung gehört zu #762. Der Entscheidungsdialog (#766)
+nutzt den Verlaufseintrag als Aufzeichnung der Anfrage (Name und BSSID) und löscht ihn, sobald die
+Anfrage beantwortet ist.
 
 **Rückweg.** Neu sind nur zusätzliche Schlüssel in `keepadb_prefs` (`blocked_bssids`,
 `blocked_ssids`, `trust_by_name`); alle bisherigen Schlüssel behalten Format und Bedeutung. Eine

@@ -17,11 +17,40 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28` and `1.9.29` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29` and `1.9.30` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.30] - Unreleased
+
+Etappe patch candidate (versionCode 202) for the "Trust this network?" decision (#766, part of #758); no release. The target version is shared with the parallel work of the same stage (#763, #765); the integrator merges the sections.
+
+### Added
+- #766: New dialog "Trust this network?" (`NetworkDecisionActivity`, dialog theme `Theme.KeepADB.Dialog`, not exported, excluded from recents) for exactly the access point a "new Wi-Fi" prompt was raised for. It shows the Wi-Fi name and the access point (BSSID) and offers Trust, "Block only this access point", "Always block Wi-Fi name ..." (not offered for a hidden or unreadable name) and "Decide later". When the comfort switch "also trust by Wi-Fi name" is on, a note says that other access points of that name are accepted too.
+- #766: The dialog is a reusable component, `NetworkDecisionView` with its own layout, plus `KeepADBNetworkDecision` for the logic (what a prompt still is: pending, already decided or expired; trust and both block answers). The network list (#762), the setup assistant (#761) and the home screen (#764) can embed it; it performs the answers itself and reports the outcome to its host.
+- #766: Strings for the dialog and its messages (`network_decision_*`) in all 19 locales; one new `bin/check-i18n` allowlist entry for the Dutch loanword "Access point (BSSID)".
+
+### Changed
+- #766 (N1): The prompt's "No, block" action now really blocks the access point it names (`KeepADBReceiver.ACTION_BLOCK_NETWORK`, `KeepADBNetworkDecision.blockAccessPoint`). Before, it only closed the notification while its label promised a block; the former action `ACTION_DISMISS_NETWORK_PROMPT` is gone. Only the access point is blocked, not its Wi-Fi name; the answered question disappears (prompt, "recently prevented" entry) and a blocked network is never asked about again (#760). Blocking is not gated on the lock state, because it only takes automatic actions away and the lock-screen version of the notification has no actions.
+- #766 (F3 of #758): Without connection details (the default) the "new Wi-Fi" prompt has no action buttons at all (it used to carry the block button); a tap opens the dialog. With details it keeps "Yes, allow" (authentication required) and "No, block".
+- #766: Tapping the prompt, with or without details, opens the decision dialog instead of the in-app confirmation inside `SettingsActivity` (#598/#759). That confirmation, its saved-state key and its `NetworkListActivity` fallback are removed; an answered or expired question shows a short message instead.
+- #766 (N4): The prompt repeat interval is 24 hours instead of 6 (`PROMPT_REPEAT_INTERVAL_MS`). Swiping the notification away, "Decide later", Back, a tap outside the dialog and rotating change no status; the same access point is asked again only after the interval.
+- #766 (N6): Own PendingIntent request codes: 15 for the decision dialog, 16 for the block action. 11, 12 and 13 are retired.
+- #766: Trusting from the dialog that was opened before a block (or a name block) is refused with its own message ("This network is blocked, so it was not trusted.") instead of a generic one, and nothing is stored (#760).
+
+### Security
+- #766: The dialog never shows the Wi-Fi name or address on a locked display. The activity declares neither `showWhenLocked` nor `turnScreenOn`, so Android asks for the unlock before the notification can open it, and the activity checks the keyguard itself: while it is up nothing is bound, and the name is removed from the view hierarchy again when the activity stops. The lock-screen versions of the notification are unchanged (no name, address, action or intent).
+- #766: Deliberate exception to the privacy mode, as decided in #758: the dialog shows the Wi-Fi name and the address even while the privacy mode is on, because the user has to see whom they trust. Lists, status lines and the toast after the answer stay masked.
+- #766: The dialog is bound to the access point of the prompt, taken from the app's own record by BSSID, not from the intent label and not from the current connection; a roam in between changes nothing. The blocklist has exactly one writer (`KeepADBNetworkDecision`), pinned by a contract test.
+- #766: Known limit of this stage: a block made from the notification or the dialog cannot be lifted in the app yet; the network list (#762) brings that. Trust that was stored before the block stays stored and applies again after an explicit unblock (#760).
+
+### Documentation
+- #766: `docs/trusted-networks.md` describes the prompt, the dialog, what decides nothing, the lock-screen rules and the binding; `SECURITY.md` states that blocking is available from the prompt and that the dialog never shows a name on a locked display.
+
+### Testing
+- #766: `NetworkDecisionActivityTest` drives the real posted prompt into the dialog and through its buttons (trust, both blocks, later, Back, outside tap, rotation, roam before and during the dialog, forged label, unrecorded and placeholder BSSID, answered meanwhile, block after the dialog opened, locked device at the click, privacy mode, keyguard, stop and restart), each with its control. `KeepADBNetworkDecisionTest` pins the precedence in every order (trust then block, block then trust, name block, placeholders, comfort switch, legacy all-networks mode). `NetworkDecisionContractTest` pins the single blocklist writer, the missing lock-screen flags and delete intent, the keyguard check and the reusable view. `KeepADBNetworkTrustPromptTest` covers the real block action, the action-free details-off prompt, the swipe and the 24 hours; `KeepADBNotificationTapTargetsTest` the new target and manifest entry. The tests of the removed `SettingsActivity` confirmation (`SettingsActivityTrustConfirmationTest`, `SettingsActivityDetailsOnPromptTapTest` and parts of `SettingsNetworkCardLifecycleTest`) moved into the new tests.
 
 ## [1.9.29] - Unreleased
 
