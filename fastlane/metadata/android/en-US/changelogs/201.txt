@@ -1,0 +1,1 @@
+Tapping the new Wi-Fi notification now opens the trust question for that network directly, and the USB notification opens the USB-ADB settings card instead of the top of Settings.

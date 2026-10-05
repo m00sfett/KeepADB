@@ -17,11 +17,22 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27` and `1.9.28` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28` and `1.9.29` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.29] - Unreleased
+
+User-authorized patch candidate (versionCode 201); no release.
+
+### Changed
+- #759 (Phase 1 of #758): Notification taps lead straight to the decision or problem. Tapping the "new Wi-Fi" prompt with connection details on now opens the in-app trust confirmation for exactly that access point (same dialog the details-off prompt already used) instead of the top of Settings. Tapping the USB-ADB notification while the profile notification is off opens Settings with the USB-ADB card expanded and scrolled into view (`SettingsActivity.EXTRA_FOCUS_USB`). All other targets are unchanged: the main notification states and the missing-permission notice open `MainActivity` (whose `onResume` calls `KeepADBService.sync()`, also for the "network not readable" fix path, #628), the identity-unavailable notification still opens the app permission page, the location toggle or `MainActivity`.
+- #759: The retired request code 13 is no longer used; the details-on prompt reuses request code 12 with its own action, so its PendingIntent stays distinct from the USB notification's (#603). Lock-screen public versions are untouched (no name, BSSID, actions or intents), and no activity declares `showWhenLocked`/`turnScreenOn`.
+
+### Testing
+- #759: New `KeepADBNotificationTapTargetsTest` pins the content-tap target (component, action, extras) of notification rows 1-4, 6, 7 and 12, PendingIntent distinctness, neutral public versions and the manifest contract; `SettingsActivityTest` covers `EXTRA_FOCUS_USB`.
 
 ## [1.9.28] - Unreleased
 
