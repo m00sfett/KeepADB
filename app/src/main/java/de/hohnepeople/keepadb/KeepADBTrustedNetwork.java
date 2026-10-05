@@ -7,14 +7,48 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Persists the Wi-Fi trust rule used by automatic re-enable call sites.
+ * The unified network trust model used by every automatic re-enable call site (#760).
  *
- * <p>New installations default to all Wi-Fi networks. Allowlist mode is an explicit choice and
- * fails closed when the current BSSID cannot be read or is not listed. Optional SSID matching is
- * a separate default-off widening rule; manual controls do not consult this policy.
+ * <h2>Inputs</h2>
+ * <ul>
+ *   <li><b>Trusted access points</b> (BSSID entries, {@link Entry}). Trust is per access point.</li>
+ *   <li><b>Blocks</b> per BSSID and per Wi-Fi name (SSID, "never"), see {@link
+ *       KeepADBNetworkBlocklist}.</li>
+ *   <li><b>Comfort switch</b> ({@link #isTrustByNameEnabled}): additionally trust any access point
+ *       broadcasting the name of a trusted access point. The names are <em>derived</em> from the
+ *       trusted entries ({@link Entry#ssid()}); there is no second name list (#758, F5). Access
+ *       points that are blocked do not contribute their name.</li>
+ *   <li><b>Policy</b> ({@link #getMode}): {@link #MODE_ALLOWLIST} (trusted access points only, the
+ *       default of a new installation) or {@link #MODE_ALL_WIFI}, which is the former default kept
+ *       for existing installations as the <em>legacy "all networks" setting</em>: every network
+ *       counts as trusted unless it is blocked.</li>
+ *   <li><b>Legacy name grants</b> ({@link #isSsidMatchingEnabled} plus {@link #getSsidEntries}):
+ *       the pre-#760 name allowlist. Existing installations keep exactly the behavior it gave
+ *       them until they decide otherwise; nothing new writes to it from the model.</li>
+ * </ul>
  *
- * <p>Upgrade initialization preserves an older implicit allowlist when entries already exist.
- * See docs/trusted-networks.md for the current product rule and permission behavior.
+ * <h2>Precedence (single implementation: {@link #evaluate})</h2>
+ * <ol>
+ *   <li>A block on the BSSID, then a block on the SSID: never, in every policy, no prompt. A block
+ *       beats trust of the same BSSID; the trust entry stays stored and applies again once the block
+ *       is lifted explicitly. Only the force mode (#763) will be allowed to override a block; it is
+ *       an overlay above this order and not part of this class yet.</li>
+ *   <li>Legacy "all networks" policy: trusted, including an unreadable identity (as before).</li>
+ *   <li>Trusted access point (BSSID, ignoring case).</li>
+ *   <li>Trusted name: derived (comfort switch) or legacy name grant, exact and case-sensitive.</li>
+ *   <li>Otherwise a readable identity is unknown (the user is asked), an unreadable one pauses
+ *       (fail-closed).</li>
+ * </ol>
+ * Manual controls never consult this model. Adding trust never lifts a block.
+ *
+ * <h2>Persistence and migration</h2>
+ * The model reads the pre-#760 keys in place and never rewrites them: the migration of an existing
+ * installation is "interpret what is stored" ({@link #getProtectionLevel} names the result), so it
+ * is idempotent by construction and an older app version keeps reading the same data. The only
+ * stateful step is the one-time persisted default of the policy ({@link #ensureModeInitialized}):
+ * a stored mode is kept verbatim, an installation without one gets {@link #MODE_ALLOWLIST}. New
+ * keys ({@link KeepADBNetworkBlocklist}, {@link #KEY_TRUST_BY_NAME}) are additive. See
+ * docs/trusted-networks.md for the user-facing rule and the permission behavior.
  */
 final class KeepADBTrustedNetwork {
     private static final String PREFS_NAME = "keepadb_prefs";
@@ -27,11 +61,61 @@ final class KeepADBTrustedNetwork {
     private static final String KEY_SSID_NEXT_ID = "trusted_ssid_next_id";
     private static final String KEY_SSID_IDS = "trusted_ssid_ids";
     private static final String SSID_PREFIX = "trusted_ssid_";
+    /** #760: the derived comfort switch ("also trust by Wi-Fi name"), default off. */
+    static final String KEY_TRUST_BY_NAME = "trust_by_name";
 
     static final String MODE_ALL_WIFI = "all_wifi";
     static final String MODE_ALLOWLIST = "allowlist";
 
+    /** Why the UI reports automatic re-enable as blocked; a blocked network reads as untrusted. */
     enum BlockReason { NONE, UNTRUSTED_NETWORK, IDENTITY_UNAVAILABLE }
+
+    /**
+     * The outcome of the unified trust evaluation for one network identity (#760). Only the
+     * three {@code allowsAutomaticEnable} values let an automatic re-enable go ahead; a blocked
+     * network is the one case that must additionally never raise a prompt.
+     */
+    enum Decision {
+        TRUSTED_ACCESS_POINT(true),
+        /** Allowed through a trusted Wi-Fi name (derived comfort switch or legacy name grant). */
+        TRUSTED_NAME(true),
+        /** Allowed only because the legacy "all networks" policy is active. */
+        LEGACY_ALL_WIFI(true),
+        BLOCKED_ACCESS_POINT(false),
+        BLOCKED_NAME(false),
+        /** Readable identity that is neither trusted nor blocked: the user is asked. */
+        UNKNOWN_NETWORK(false),
+        /** The identity cannot be read: pause rather than guess. */
+        IDENTITY_UNAVAILABLE(false);
+
+        final boolean allowsAutomaticEnable;
+
+        Decision(boolean allowsAutomaticEnable) {
+            this.allowsAutomaticEnable = allowsAutomaticEnable;
+        }
+
+        boolean isBlocked() {
+            return this == BLOCKED_ACCESS_POINT || this == BLOCKED_NAME;
+        }
+    }
+
+    /**
+     * How the stored policy reads in the vocabulary of the protection presets (#758). The mapping
+     * from the pre-#760 data is the migration: it never changes what is stored. The two legacy
+     * levels are settings no preset reproduces exactly; showing them as such (instead of mapping
+     * them onto a preset) is what keeps an existing installation from being silently tightened or
+     * loosened until its user decides.
+     */
+    enum ProtectionLevel {
+        /** Trusted access points only. */
+        MAXIMUM_SECURITY,
+        /** Trusted access points plus access points carrying a trusted access point's name. */
+        BALANCED,
+        /** The former default "in all Wi-Fi networks": everything not blocked is trusted. */
+        LEGACY_ALL_WIFI,
+        /** Trusted access points plus the pre-#760 name allowlist, which stays in force as stored. */
+        LEGACY_NAME_LIST
+    }
 
     /** Upper bound of an access point's own name (#714); longer input is cut, not rejected. */
     static final int MAX_CUSTOM_NAME_LENGTH = 40;
@@ -40,7 +124,8 @@ final class KeepADBTrustedNetwork {
      * One allowlisted access point. {@code id} is the stable entry number shown as {@code #id}
      * (#714): it is handed out once, never reused and never changes when other entries come or go.
      * {@code customName} is the optional name the user gave this entry, or null; it is display
-     * only and is never read by any trust decision, which keys on {@code bssid} alone.
+     * only and is never read by any trust decision. A trust decision keys on {@code bssid} and, for
+     * the derived comfort switch, on the Wi-Fi name in {@link #ssid()}.
      */
     static final class Entry {
         final int id;
@@ -58,6 +143,27 @@ final class KeepADBTrustedNetwork {
             this.bssid = bssid;
             this.customName = customName;
         }
+
+        /**
+         * The Wi-Fi name this access point was trusted under, or null when only its address was
+         * known. Every writer stores the label as the identity's readable SSID or, when there was
+         * none, as the BSSID itself (see {@link #addBssid}), so a label that is not the BSSID is
+         * the name. This is what the derived comfort switch trusts; the custom name is display
+         * only and never counts.
+         */
+        String ssid() {
+            return ssidFromLabel(label, bssid);
+        }
+    }
+
+    /**
+     * The Wi-Fi name carried by a trust label, or null when the label is absent or is just the BSSID
+     * fallback. Shared by {@link Entry#ssid()} and the callers that hold only a BSSID and a label
+     * (notification actions), so both read a label the same way.
+     */
+    static String ssidFromLabel(String label, String bssid) {
+        if (label == null || label.isEmpty() || label.equalsIgnoreCase(bssid)) return null;
+        return label;
     }
 
     /** One entry of the optional SSID allowlist (#492). */
@@ -73,41 +179,74 @@ final class KeepADBTrustedNetwork {
 
     private KeepADBTrustedNetwork() {}
 
+    /**
+     * The stored policy. Only the exact value {@link #MODE_ALL_WIFI} reads as the legacy open
+     * policy -- an explicit, persisted choice. Everything else, including a missing or damaged
+     * value, is {@link #MODE_ALLOWLIST}: a policy nobody chose must never stand in for the wide one
+     * (#760, secure default).
+     */
     static String getMode(Context context) {
         ensureModeInitialized(context);
-        String mode = prefs(context).getString(KEY_MODE, MODE_ALL_WIFI);
-        return MODE_ALLOWLIST.equals(mode) ? MODE_ALLOWLIST : MODE_ALL_WIFI;
+        String mode = prefs(context).getString(KEY_MODE, MODE_ALLOWLIST);
+        return MODE_ALL_WIFI.equals(mode) ? MODE_ALL_WIFI : MODE_ALLOWLIST;
     }
 
     /**
-     * One-time, idempotent migration of the #492 default flip (see class javadoc). Runs before
-     * every mode read, writes at most once per installation, and is deliberately a *persisted*
-     * decision rather than a computed fallback: the "does this installation hold allowlist
-     * entries" proxy is only valid at the moment of the upgrade. Once the user starts removing
-     * entries -- or adds one while in {@link #MODE_ALL_WIFI}, which the per-access-point trust
-     * buttons and the notification allow action permit in either mode -- recomputing it would
-     * flip the policy underneath them.
+     * One-time, idempotent persistence of the policy default (#492, reworked by #760). Runs before
+     * every mode read and writes at most once per installation.
      *
-     * <p>Idempotence is keyed on {@link #KEY_MODE_INITIALIZED} rather than on {@link #KEY_MODE}'s
-     * presence, so a later explicit switch to {@link #MODE_ALL_WIFI} can never be re-migrated
-     * back into {@link #MODE_ALLOWLIST} by a subsequent entry being added.
+     * <p>A stored mode is an explicit decision and is kept verbatim: every installation that
+     * evaluated the rule since the #492 default flip (1.8.9) holds one, so an existing
+     * "all networks" installation stays on the legacy open policy and an allowlist installation on
+     * the allowlist. Only an installation that has no stored mode yet receives the default, which
+     * is now {@link #MODE_ALLOWLIST} (trusted access points only). That covers new installations
+     * and an installation that predates the flip and never evaluated the rule since -- which, under
+     * the pre-#492 reading, ran an allowlist anyway.
+     *
+     * <p>The default is a *persisted* decision rather than a computed fallback so a later change of
+     * the default can never move an installation underneath its user. Idempotence is keyed on
+     * {@link #KEY_MODE_INITIALIZED} rather than on {@link #KEY_MODE}'s presence, so a later explicit
+     * switch can never be re-migrated.
      */
     private static void ensureModeInitialized(Context context) {
         SharedPreferences preferences = prefs(context);
         if (preferences.getBoolean(KEY_MODE_INITIALIZED, false)) return;
         if (preferences.contains(KEY_MODE)) {
-            // An explicit user decision already exists; record it as initialized and keep it.
+            // An explicit decision already exists; record it as initialized and keep it.
             preferences.edit().putBoolean(KEY_MODE_INITIALIZED, true).apply();
             return;
         }
-        // No mode was ever written. Under the pre-#492 build this installation therefore ran in
-        // MODE_ALLOWLIST. Preserve that for anyone who acted on it (has entries) and only apply
-        // the new opt-in default to installations that never did.
-        boolean hadImplicitAllowlist = !getEntries(context).isEmpty();
         preferences.edit()
-                .putString(KEY_MODE, hadImplicitAllowlist ? MODE_ALLOWLIST : MODE_ALL_WIFI)
+                .putString(KEY_MODE, MODE_ALLOWLIST)
                 .putBoolean(KEY_MODE_INITIALIZED, true)
                 .apply();
+    }
+
+    /**
+     * The comfort switch of the unified model (#760): additionally trust access points that carry
+     * the name of a trusted access point. Default off; the names are derived from the trusted
+     * entries ({@link Entry#ssid()}) and are never stored separately. Without effect in the legacy
+     * "all networks" policy, where every unblocked network is trusted anyway.
+     */
+    static boolean isTrustByNameEnabled(Context context) {
+        return prefs(context).getBoolean(KEY_TRUST_BY_NAME, false);
+    }
+
+    static void setTrustByNameEnabled(Context context, boolean enabled) {
+        prefs(context).edit().putBoolean(KEY_TRUST_BY_NAME, enabled).apply();
+    }
+
+    /** Whether the pre-#760 name allowlist is in force: its opt-in is on and it holds entries. */
+    static boolean hasActiveLegacyNameGrants(Context context) {
+        return isSsidMatchingEnabled(context) && !getSsidEntries(context).isEmpty();
+    }
+
+    /** The stored policy in the vocabulary of the protection presets; see {@link ProtectionLevel}. */
+    static ProtectionLevel getProtectionLevel(Context context) {
+        if (!isAllowlistMode(context)) return ProtectionLevel.LEGACY_ALL_WIFI;
+        if (isTrustByNameEnabled(context)) return ProtectionLevel.BALANCED;
+        if (hasActiveLegacyNameGrants(context)) return ProtectionLevel.LEGACY_NAME_LIST;
+        return ProtectionLevel.MAXIMUM_SECURITY;
     }
 
     /**
@@ -359,32 +498,76 @@ final class KeepADBTrustedNetwork {
     }
 
     /**
-     * Automatic re-enable is allowed in all-Wi-Fi mode, or in allowlist mode only when the
-     * current identity matches a listed BSSID or an enabled exact SSID entry. The caller must
-     * independently confirm that Wi-Fi is connected. Manual controls do not use this gate.
+     * Whether an automatic re-enable may go ahead on the current network: the single question every
+     * automatic call site asks (service observer and heartbeat, recovery pulse, USB handover,
+     * Keep-Alive switch). The caller must independently confirm that Wi-Fi is connected. Manual
+     * controls do not use this gate. See the class javadoc for the precedence.
      */
     static boolean isCurrentNetworkTrusted(Context context) {
-        if (!isAllowlistMode(context)) return true;
-        return isTrusted(context, KeepADBNetworkIdentity.current(context));
+        return evaluateCurrent(context).allowsAutomaticEnable;
     }
 
     /** Why automatic re-enable is currently blocked, for Settings UI messaging. */
     static BlockReason getBlockReason(Context context) {
-        if (!isAllowlistMode(context)) return BlockReason.NONE;
-        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
-        if (isTrusted(context, identity)) return BlockReason.NONE;
-        // Not trusted: distinguish "readable but unlisted" from "identity unknown or masked".
-        return identity.isKnown() ? BlockReason.UNTRUSTED_NETWORK : BlockReason.IDENTITY_UNAVAILABLE;
+        Decision decision = evaluateCurrent(context);
+        if (decision.allowsAutomaticEnable) return BlockReason.NONE;
+        // Not allowed: distinguish "readable but not trusted (or blocked)" from "identity unknown".
+        return decision == Decision.IDENTITY_UNAVAILABLE
+                ? BlockReason.IDENTITY_UNAVAILABLE : BlockReason.UNTRUSTED_NETWORK;
     }
 
     /**
-     * Pure trust evaluation for an identity already read by the caller. Unknown or masked BSSID
-     * values never match. A known BSSID must be listed, unless the separate optional SSID rule
-     * matches the exact readable SSID.
+     * The evaluation for the network the device is connected to right now. In the legacy "all
+     * networks" policy without any block nothing can change the outcome, so the Wi-Fi identity is
+     * not even read -- exactly as before the unified model (#760).
      */
-    private static boolean isTrusted(Context context, KeepADBNetworkIdentity identity) {
-        if (!identity.isKnown()) return false;
-        return matchesAllowlist(context, identity.bssid) || matchesSsidAllowlist(context, identity);
+    static Decision evaluateCurrent(Context context) {
+        if (!isAllowlistMode(context) && KeepADBNetworkBlocklist.isEmpty(context)) {
+            return Decision.LEGACY_ALL_WIFI;
+        }
+        return evaluate(context, KeepADBNetworkIdentity.current(context));
+    }
+
+    /**
+     * The unified trust evaluation (#760) for an identity already read by the caller; the one place
+     * where the precedence is implemented. A block ends the evaluation first, so no policy, no
+     * trusted entry and no name rule can allow a blocked network. Only then does the legacy
+     * "all networks" policy apply, and it never allows a blocked one.
+     */
+    static Decision evaluate(Context context, KeepADBNetworkIdentity identity) {
+        Decision decision = evaluateLists(context, identity);
+        if (decision.isBlocked() || decision.allowsAutomaticEnable) return decision;
+        return isAllowlistMode(context) ? decision : Decision.LEGACY_ALL_WIFI;
+    }
+
+    /**
+     * Everything except the policy default: blocks, then trusted access point, then trusted name,
+     * else unknown or unreadable. Unknown or masked BSSID values never match a trust entry and a
+     * name cannot rescue them; a block, in contrast, also applies on a readable SSID alone, because
+     * "never" must hold whenever there is evidence of the network.
+     */
+    private static Decision evaluateLists(Context context, KeepADBNetworkIdentity identity) {
+        boolean known = identity != null && identity.isKnown();
+        String ssid = identity == null ? null : identity.displaySsid();
+        if (known && KeepADBNetworkBlocklist.isBssidBlocked(context, identity.bssid)) {
+            return Decision.BLOCKED_ACCESS_POINT;
+        }
+        if (KeepADBNetworkBlocklist.isSsidBlocked(context, ssid)) {
+            return Decision.BLOCKED_NAME;
+        }
+        if (!known) return Decision.IDENTITY_UNAVAILABLE;
+        if (matchesAllowlist(context, identity.bssid)) return Decision.TRUSTED_ACCESS_POINT;
+        if (matchesTrustedName(context, ssid)) return Decision.TRUSTED_NAME;
+        return Decision.UNKNOWN_NETWORK;
+    }
+
+    /**
+     * Whether {@code ssid} is trusted by name right now: the derived comfort switch or the legacy
+     * name allowlist, each only while its own switch is on. For the Settings card, which explains
+     * the decision and must not reimplement it.
+     */
+    static boolean isNameTrusted(Context context, String ssid) {
+        return matchesTrustedName(context, ssid);
     }
 
     private static boolean matchesAllowlist(Context context, String bssid) {
@@ -395,26 +578,47 @@ final class KeepADBTrustedNetwork {
     }
 
     /**
-     * Applies the default-off SSID extension only when enabled and the current identity is known.
+     * The name rules, both default off and both only ever for a known identity (the caller has
+     * already established that): the derived comfort switch and the pre-#760 name allowlist.
      * Matching is exact and case-sensitive; a name cannot rescue a masked BSSID.
      */
-    private static boolean matchesSsidAllowlist(Context context, KeepADBNetworkIdentity identity) {
-        if (!isSsidMatchingEnabled(context)) return false;
-        String ssid = identity.displaySsid();
+    private static boolean matchesTrustedName(Context context, String ssid) {
         if (ssid == null || ssid.isEmpty()) return false;
+        return matchesDerivedName(context, ssid) || matchesLegacyNameGrant(context, ssid);
+    }
+
+    /**
+     * #760/F5: the name of a trusted access point, but only of one that is not blocked itself -- a
+     * block on the access point overrides its trust together with everything derived from it.
+     */
+    private static boolean matchesDerivedName(Context context, String ssid) {
+        if (!isTrustByNameEnabled(context)) return false;
+        for (Entry entry : getEntries(context)) {
+            if (ssid.equals(entry.ssid())
+                    && !KeepADBNetworkBlocklist.isBssidBlocked(context, entry.bssid)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean matchesLegacyNameGrant(Context context, String ssid) {
+        if (!isSsidMatchingEnabled(context)) return false;
         for (SsidEntry entry : getSsidEntries(context)) {
             if (entry.ssid.equals(ssid)) return true;
         }
         return false;
     }
 
-    /** Test-only seam: exercises the same trust decision as {@link #isCurrentNetworkTrusted}
-     * against an explicit identity, since a plain JVM unit test can't make {@link
-     * KeepADBNetworkIdentity#current} return anything but an unknown identity (no real
-     * WifiManager). Production call sites always go through {@link #isCurrentNetworkTrusted}
-     * or {@link #getBlockReason}, never this method directly. */
+    /**
+     * Test-only seam: exercises the trust lists (blocks, trusted access points, names) against an
+     * explicit identity, independent of the policy default, since a plain JVM unit test can't make
+     * {@link KeepADBNetworkIdentity#current} return anything but an unknown identity (no real
+     * WifiManager). Production call sites always go through {@link #isCurrentNetworkTrusted} or
+     * {@link #getBlockReason}, never this method directly.
+     */
     static boolean isTrustedForTesting(Context context, KeepADBNetworkIdentity identity) {
-        return isTrusted(context, identity);
+        return evaluateLists(context, identity).allowsAutomaticEnable;
     }
 
     private static Entry read(Context context, int id) {

@@ -114,14 +114,14 @@ public class MainActivityKeepAliveTrustGateTest {
     }
 
     /**
-     * Counter-proof #2 (acceptance criterion 3): on a trusted network (or with the allowlist
-     * inactive, i.e. the default MODE_ALL_WIFI), Keep-Alive ON must keep enabling immediately --
-     * this change must not regress the common case.
+     * Counter-proof #2 (acceptance criterion 3): on a trusted network, Keep-Alive ON must keep
+     * enabling immediately -- this change must not regress the common case.
      */
     @Test
     public void keepAliveToggleStillEnablesOnTrustedNetwork() {
         Context context = grantAutoEnableInfrastructure();
-        // Default mode (MODE_ALL_WIFI): trusted unconditionally, i.e. "allowlist not active".
+        // #760: the default is the allowlist, so "trusted" now means a listed access point.
+        KeepADBTrustedNetwork.addBssid(context, BSSID, SSID);
         connectTo(SSID, BSSID);
 
         ActivityController<MainActivity> controller =
@@ -148,6 +148,8 @@ public class MainActivityKeepAliveTrustGateTest {
         engageRecoveryBackoff(context);
         KeepADBPreferences.setKeepAliveEnabled(context, false);
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        // #760: the default is the allowlist, so a trusted network is a listed access point.
+        KeepADBTrustedNetwork.addBssid(context, BSSID, SSID);
         connectTo(SSID, BSSID);
 
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();

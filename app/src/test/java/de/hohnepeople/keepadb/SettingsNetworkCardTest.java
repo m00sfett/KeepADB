@@ -123,6 +123,8 @@ public class SettingsNetworkCardTest {
     @Test
     public void theHeadFollowsAModeChangeMadeInTheCard() {
         shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
+        // #760: a change away from the former default; a new installation already is on the allowlist.
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         SettingsActivity activity = open();
         TextView head = activity.findViewById(R.id.settings_network_beta_subtitle);
         String before = head.getText().toString();

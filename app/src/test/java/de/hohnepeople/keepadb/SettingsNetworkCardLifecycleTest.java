@@ -371,6 +371,9 @@ public class SettingsNetworkCardLifecycleTest {
      */
     @Test
     public void aRestoredBackgroundRationaleGrantsAndRequestsNothingAndADismissedOneStaysGone() {
+        // #760: starts from an existing installation on the former default ("all Wi-Fi networks"),
+        // so that "restoring does not touch the mode" is observable.
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         controller.get().findViewById(R.id.settings_background_location_button).performClick();
@@ -462,6 +465,9 @@ public class SettingsNetworkCardLifecycleTest {
 
     @Test
     public void restoringTheDialogsWritesNoPreferenceEither() {
+        // #760: the allowlist rationale only exists for an installation still on the former
+        // default ("all Wi-Fi networks"); a new installation starts on the allowlist.
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         // The two rationales: allowlist permission (FINE denied) and background location.
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
