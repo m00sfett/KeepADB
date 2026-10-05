@@ -49,12 +49,13 @@ Eine Sperre gewinnt gegen jedes Vertrauen, auch gegen das derselben BSSID. Das V
 gespeichert und gilt wieder, sobald die Sperre ausdrücklich aufgehoben wurde. Vertrauen hinzuzufügen
 hebt nie eine Sperre auf, weder über die Benachrichtigung noch über Liste, Karte oder Mesh-Angebot;
 es wird dann nichts gespeichert. Gesperrte Netze lösen keine Nachfrage aus, werden nicht als „zuletzt
-verhindert“ vermerkt und schalten nie automatisch ein. Nur der Force-Modus (#763, noch nicht
-umgesetzt) darf eine Sperre übergehen; er kommt als Überlagerung oberhalb dieser Reihenfolge.
+verhindert“ vermerkt und schalten nie automatisch ein. Nur der Force-Modus ([siehe unten](#force-modus))
+übergeht eine Sperre; er ist eine Überlagerung oberhalb dieser Reihenfolge.
 
 Bekannte Grenze: Unter „In allen WLANs“ bleibt ein Netz mit nicht lesbarer Identität vertraut, wie
 vor #760. Eine Sperre kann es nicht erkennen, weil ihr die Identität fehlt. Im Freigabelistenmodus
-pausiert dasselbe Netz.
+pausiert dasselbe Netz. Der Force-Modus ändert daran nichts: Er übergeht Sperren und Vertrauen,
+solange er läuft, und lässt danach exakt die gespeicherte Einstellung wieder gelten.
 
 ## Migration und Rückweg
 
@@ -100,6 +101,69 @@ Belege im Code: `KeepADBTrustPrecedenceTest` (Vorrang, beidseitig), `KeepADBTrus
 
 Eine Neuinstallation und jeder Wechsel in den Freigabelistenmodus brauchen die Standortfreigabe aus
 dem folgenden Abschnitt; ohne lesbare Identität pausiert KeepADB und weist darauf hin.
+
+## Force-Modus
+
+Der Force-Modus (#763) ist die einzige Ausnahme vom Vorrang oben: Für eine gewählte Zeit schaltet
+Keep-Alive Drahtloses Debugging in **jedem** WLAN wieder ein, in fremden, gesperrten und nicht
+lesbaren. Er ist eine Überlagerung, kein Modus des Modells. Aktivieren und Beenden lesen und
+schreiben nichts, was das Modell speichert (vertraute Access Points, Sperren, Komfortschalter,
+bisherige Einstellung). „Zurück auf die vorherige Schutzstufe“ heißt deshalb nur: die Überlagerung
+fällt weg. Die Überlagerung wirkt an der einen Stelle, die jeder automatische Pfad befragt
+(`KeepADBTrustedNetwork.evaluateCurrent`), also im Dienst (Beobachter und Minutentakt), im
+Wiederbelebungsimpuls, in der USB-Übergabe und in den Schutzprüfungen unmittelbar vor dem
+Schreiben. Was sie nicht ersetzt: Keep-Alive und eine WLAN-Verbindung, und ein manuelles
+„Drahtloses Debugging aus“ bleibt bestehen. Das Hinzufügen von Vertrauen zu einem gesperrten Netz
+bleibt auch im Force-Modus unmöglich; er verändert weder Sperren noch Vertrauen.
+
+**Starten und Beenden.** Starten kann ihn nur der Bestätigungsdialog (Einstellungen → Netzwerk →
+Force-Modus), und zwar mit Pflicht-Zeitlimit: 1 Stunde (Vorauswahl), 24 Stunden, 7 Tage, 30 Tage oder
+„Ohne Ablaufzeit“. Der Dialog warnt gestaffelt (allgemein, ab 7 Tagen zusätzlich über die
+Netzwerke unterwegs, ohne Ablauf zusätzlich über das Fortbestehen nach Neustarts und Updates); „Ohne
+Ablaufzeit“ lässt sich nur mit gesetztem Kästchen bestätigen. Keep-Alive wird mit eingeschaltet, wenn
+es aus ist (der Dialog sagt das). Eine andere Dauer ist ein neuer, voller Start durch denselben
+Dialog; es gibt keine stille Verlängerung. Beenden kann der Nutzer jederzeit ohne Rückfrage: Karte
+auf der Startseite, Zeile in den Einstellungen, erste Aktion der Benachrichtigung.
+
+**Ablauf.** Die Zeit endet an der Frist selbst: Die Prüfung ist eine reine Lesung und liefert vom
+ersten Moment nach der Frist „aus“, auch bevor irgendein Zeitgeber lief. Den sichtbaren Übergang
+(Zustand löschen, Oberflächen aktualisieren, einmalige Meldung) erledigt der Minutentakt des
+Dienstes, ein ungenauer Wecker (er läuft auch ohne Prozess), die Empfänger für Neustart, App-Update
+und gestellte Uhr sowie das Öffnen der Startseite oder der Einstellungen. Die Meldung erscheint
+genau einmal, auch wenn der Ablauf in einen Neustart oder ein Update fiel; sie hat einen eigenen
+Kanal „Sicherheitshinweise“, bietet keine Wiederaufnahme an und benennt die wiederhergestellte
+Schutzstufe. Läuft Drahtloses Debugging dann noch in einem WLAN, dem die Schutzstufe nicht
+vertraut, meldet sie das und bietet „Jetzt ausschalten“ an; ausgeschaltet wird nichts von selbst.
+
+**Zeitregeln.** Gespeichert wird ein einzelner Wert in `keepadb_prefs` (`force_state`, mit
+`commit()` geschrieben): Dauer, Wanduhr, monotone Uhr und Boot-Zähler beim Start. Die Restzeit ist
+das **Kleinere** aus zwei Maßen, sodass jede Uhrenabweichung den Modus nur früher beenden, nie
+verlängern kann: der Wanduhr (`Start + Dauer − jetzt`, epochenbasiert, daher unberührt von Zeitzone
+und Sommerzeit) und, solange der Boot-Zähler gleich ist, der monotonen Uhr (`SystemClock.
+elapsedRealtime`, zählt Tiefschlaf mit). Eine rückwärts gestellte Wanduhr verlängert ihn deshalb
+innerhalb eines Boots nicht, eine vorwärts gestellte beendet ihn früher. Nach einem Neustart gilt nur
+die Wanduhr; liegt sie vor dem Start (zurückgesetzte Uhr), lässt sich die Restzeit nicht bestimmen
+und der Modus endet (fail-closed). Bekannter Rest: Ein Neustart gefolgt von einem manuellen
+Zurückstellen der Uhr, das hinter dem Start bleibt, verlängert um die Sprunggröße; das braucht ein
+entsperrtes Gerät und passiert weder durch Netzwerkzeit noch durch Zeitzone oder Sommerzeit. Ist der
+Boot-Zähler des Systems nicht lesbar, zählt nur die Wanduhr. „Ohne Ablaufzeit“ hat keine Frist und
+bleibt bis zum Beenden, auch über Neustarts und Updates.
+
+**Sperrbildschirm.** Warnzeile und Beenden-Aktion stehen nur in der privaten Fassung der
+Benachrichtigung; deren öffentliche Fassung bleibt neutral, und auch die Ablaufmeldung zeigt dort
+nur die Kanalbezeichnung. Wie bei allen privaten Benachrichtigungsinhalten gilt: Wer in Android
+sensible Inhalte auf dem Sperrbildschirm erlaubt, sieht dort die private Fassung.
+
+**Rückweg.** Neu sind nur zwei zusätzliche Schlüssel in `keepadb_prefs` (`force_state`,
+`force_expired_notice_pending`). Eine ältere App-Version ignoriert sie; ein Zurückgehen beendet den
+Modus (der engere Zustand) und verliert keine Daten. Beide Schlüssel verlassen das Gerät nicht
+(Backup und Gerätewechsel sind ausgeschlossen).
+
+Belege im Code: `KeepADBForceModeTest` (Zeitregeln von beiden Seiten, Neustart, Update, gestellte Uhr,
+Zeitzone, genau eine Meldung, Wecker), `KeepADBForceModeCallPathTest` (Vorrang auf jedem handelnden
+Pfad, mit Gegenproben und Ablauf), `KeepADBForceNotificationTest`, `KeepADBForceDialogTest`,
+`MainActivityForceCardTest` und `KeepADBForceContractTest` (nur der Dialog startet; Gate und
+Darstellung lesen nur).
 
 ## Berechtigungen und Hintergrundverhalten
 
