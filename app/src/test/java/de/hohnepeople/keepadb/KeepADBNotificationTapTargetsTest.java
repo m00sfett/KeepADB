@@ -40,7 +40,8 @@ import org.robolectric.shadows.ShadowWifiInfo;
  * {@link KeepADBNetworkTrustPromptTest}; the end-to-end tap of rows 6 and 7 into the dialog is
  * pinned in {@link SettingsActivityDetailsOnPromptTapTest} and {@link
  * SettingsActivityTrustConfirmationTest}. Row 14 (widget, tile) are toggles without a content tap,
- * rows 5 and 13 belong to the force mode (#763) and do not exist yet.
+ * rows 5 and 13 belong to the force mode (#763) and are pinned in {@link KeepADBForceNotificationTest}
+ * (row 5, the home screen) and {@link KeepADBForceModeTest} (row 13, the force row in Settings).
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
