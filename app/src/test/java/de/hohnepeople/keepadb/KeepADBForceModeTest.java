@@ -479,6 +479,34 @@ public class KeepADBForceModeTest {
     }
 
     @Test
+    public void activatingStartsTheKeepAliveServiceButEndingAndExpiryNeverStartAForegroundService() {
+        org.robolectric.shadows.ShadowApplication shadowApp = shadowOf((Application) context);
+        drainStartedServices(shadowApp);
+
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        Intent started = shadowApp.getNextStartedService();
+        assertNotNull("Keep-Alive was switched on, so its service is started", started);
+        assertEquals(KeepADBService.class.getName(), started.getComponent().getClassName());
+
+        drainStartedServices(shadowApp);
+        clock.advance(HOUR);
+        assertTrue(KeepADBForceMode.finishIfExpired(context));
+        assertNull("Expiry (a broadcast, possibly from the background) leaves the service alone",
+                shadowApp.getNextStartedService());
+
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        drainStartedServices(shadowApp);
+        assertTrue(KeepADBForceMode.endNow(context));
+        assertNull("Ending leaves it alone as well", shadowApp.getNextStartedService());
+    }
+
+    private static void drainStartedServices(org.robolectric.shadows.ShadowApplication shadowApp) {
+        while (shadowApp.getNextStartedService() != null) {
+            // discard
+        }
+    }
+
+    @Test
     public void startingANewSpanThroughTheDialogPathReplacesTheOldOneWithAFullNewStart() {
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.DAYS_7, false));
         clock.advance(2 * DAY);

@@ -164,6 +164,22 @@ public class KeepADBForceNotificationTest {
     }
 
     @Test
+    public void theTransitionsRedrawThePostedNotificationWithoutAnyoneRenderingItByHand() {
+        // Keep-Alive on, Wireless Debugging off: the coordinator shows its "waiting" placeholder.
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        assertForceCard(posted(context, KeepADBNotification.NOTIFICATION_ID));
+
+        assertTrue(KeepADBForceMode.endNow(context));
+        assertNoForce(posted(context, KeepADBNotification.NOTIFICATION_ID));
+
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        assertForceCard(posted(context, KeepADBNotification.NOTIFICATION_ID));
+        clock.advance(HOUR);
+        assertTrue(KeepADBForceMode.finishIfExpired(context));
+        assertNoForce(posted(context, KeepADBNotification.NOTIFICATION_ID));
+    }
+
+    @Test
     public void theEndActionOfTheRealPostedNotificationEndsTheMode() {
         startForce(KeepADBForceMode.Span.DAYS_7);
         KeepADBNotification.renderEndpoint(context, "192.0.2.1", 40000);
