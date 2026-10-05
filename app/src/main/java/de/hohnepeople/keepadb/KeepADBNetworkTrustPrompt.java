@@ -49,8 +49,9 @@ import java.util.Locale;
  * <p>The suppression deliberately expires after {@link #PROMPT_REPEAT_INTERVAL_MS}: a permanent
  * "don't ask again" that no user action can clear would be a silently switched-off alarm, and the
  * block it hides is exactly the failure the issue is about. Declining therefore only suppresses
- * the next prompts, it never creates a persistent blocklist entry -- there is no such concept, and
- * none is needed: an access point that is not on the allowlist is already blocked.
+ * the next prompts, it never creates a persistent block. Blocks (#760, {@link
+ * KeepADBNetworkBlocklist}) are the user's explicit "never" and the opposite case: a blocked
+ * network is never asked about at all, see {@link #onBlockedByUntrustedNetwork} and {@link #show}.
  *
  * <h2>#460: already active, and an unreadable identity</h2>
  * Two gaps remained after #446/#450. First, {@link KeepADBService} only ever called {@link
@@ -140,6 +141,14 @@ final class KeepADBNetworkTrustPrompt {
         if (context == null) return false;
         Context appContext = context.getApplicationContext();
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(appContext);
+        // #760: a blocked network is the user's answer already -- never ask, never record it as
+        // "recently prevented". Checked before the unreadable-identity branch because a block on
+        // the name also holds when only the SSID could be read.
+        if (KeepADBTrustedNetwork.evaluate(appContext, identity).isBlocked()) {
+            KeepADBDiagnostics.event(appContext, "network_trust_prompt", "trusted_network",
+                    "skipped", "network_blocked");
+            return false;
+        }
         // An unreadable identity is not actionable as a trust choice: there is no BSSID the user
         // could allow, so the allow/block prompt below would offer a choice that cannot be
         // carried out. #460: that used to be the end of it -- the block stayed silent, and
@@ -320,6 +329,13 @@ final class KeepADBNetworkTrustPrompt {
     }
 
     private static boolean show(Context context, String bssid, String label) {
+        // #760: the one place every prompt is posted through -- including #578's re-show after a
+        // locked-device tap -- so a network blocked in the meantime can never be asked about.
+        if (isBlocked(context, bssid, label)) {
+            KeepADBDiagnostics.event(context, "network_trust_prompt", "trusted_network",
+                    "skipped", "network_blocked");
+            return false;
+        }
         Context localized = KeepADBLocaleHelper.wrapContext(context);
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         if (manager == null || !hasNotificationPermission(context)) {
@@ -415,6 +431,8 @@ final class KeepADBNetworkTrustPrompt {
      * label of its own.
      */
     static KeepADBBlockedNetworkHistory.Entry pendingConfirmation(Context context, String bssid) {
+        // #760: a stale prompt must not open a "trust this network?" question for a network that is
+        // blocked by now; the entry's recorded name is checked below as well.
         String cleanBssid = bssid == null ? "" : bssid.trim();
         if (cleanBssid.isEmpty()
                 || KeepADBNetworkIdentity.REDACTED_BSSID.equalsIgnoreCase(cleanBssid)
@@ -423,9 +441,21 @@ final class KeepADBNetworkTrustPrompt {
         }
         for (KeepADBBlockedNetworkHistory.Entry entry
                 : KeepADBBlockedNetworkHistory.getEntries(context)) {
-            if (entry.bssid.equalsIgnoreCase(cleanBssid)) return entry;
+            if (entry.bssid.equalsIgnoreCase(cleanBssid)) {
+                return KeepADBNetworkBlocklist.isBlocked(context, entry.bssid, entry.ssid)
+                        ? null : entry;
+            }
         }
         return null;
+    }
+
+    /**
+     * #760: whether the network a prompt is about is blocked. A prompt carries the BSSID and a
+     * label that is the SSID or, without one, the BSSID itself.
+     */
+    private static boolean isBlocked(Context context, String bssid, String label) {
+        return KeepADBNetworkBlocklist.isBlocked(context, bssid,
+                KeepADBTrustedNetwork.ssidFromLabel(label, bssid));
     }
 
     /**
