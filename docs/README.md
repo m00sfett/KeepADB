@@ -6,6 +6,8 @@
   Hinweise.
 - [Vertrauenswürdige WLANs](trusted-networks.md): heutige Regeln für BSSID/SSID, Berechtigungen,
   Hintergrundstarts, Boot und sichere Sperrentscheidungen.
+- [Standardwerte einer Neuinstallation](defaults.md): Audit aller Einstellungen, ihre sicheren
+  Standardwerte und was für bestehende Installationen gilt.
 - [Webhook-Vertrag](webhook-register.md): was der Android-Sender tatsächlich überträgt und welche
   Empfängeraussagen dieses Repository nicht belegt.
 - [Diagnoseexport](diagnostics.md): lokaler Ereignispuffer, Debug-Journal, Maskierung und manuelles
