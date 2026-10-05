@@ -472,6 +472,10 @@ final class KeepADBForceMode {
         clock = testClock == null ? SYSTEM_CLOCK : testClock;
     }
 
+    static boolean hasStateListenerForTesting() {
+        return stateListener != null;
+    }
+
     static void resetForTesting() {
         clock = SYSTEM_CLOCK;
         stateListener = null;
