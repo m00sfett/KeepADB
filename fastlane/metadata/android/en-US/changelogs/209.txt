@@ -1,0 +1,1 @@
+Internal cleanup: removed unused settings shortcuts. No visible change.
