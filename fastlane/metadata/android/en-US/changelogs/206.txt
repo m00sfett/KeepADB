@@ -1,0 +1,1 @@
+KeepADB now keeps your last on/off choice when two automatic enables overlap and the second one is cancelled. A cancelled enable no longer turns an off choice back into on.
