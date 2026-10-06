@@ -692,6 +692,90 @@ public class KeepADBServiceLifecycleRobolectricTest {
         }
     }
 
+    /**
+     * #780: KeepADB.setEnabled() refuses an automatic request while a manual intent is pending and
+     * reports that with {@code false}, the same value the call sites read as "permission missing".
+     * A skipped request must not raise the permission notification.
+     */
+    @Test
+    public void recheckAndEnableSkippedForAPendingManualIntentRaisesNoPermissionNotification() {
+        KeepADBFakeScheduler scheduler = armPendingManualReEnable();
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            // The start itself may plan an automatic enable; the tap below replaces it.
+            KeepADB.setEnabled(context, false, "app");
+            KeepADB.setEnabled(context, true, "app");
+            assertTrue(KeepADB.isManualIntentPending());
+            android.os.SystemClock.sleep(400);
+
+            controller.get().recheckAndEnable();
+            ShadowLooper.idleMainLooper();
+
+            assertTrue("the recheck must have been refused because of the pending tap",
+                    KeepADBDiagnostics.export(context).contains("reason=manual_intent_pending"));
+            assertFalse("a skipped automatic request is not a missing permission",
+                    permissionMissingPosted());
+            scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS);
+            assertTrue("the manual intent must still be applied", KeepADB.isEnabled(context));
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    @Test
+    public void contentObserverSkippedForAPendingManualIntentRaisesNoPermissionNotification() {
+        KeepADBFakeScheduler scheduler = armPendingManualReEnable();
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            KeepADB.setEnabled(context, false, "app");
+            KeepADB.setEnabled(context, true, "app");
+            assertTrue(KeepADB.isManualIntentPending());
+
+            controller.get().getAdbContentObserverForTesting()
+                    .onChange(false, Settings.Global.getUriFor(KeepADB.KEY));
+            ShadowLooper.idleMainLooper();
+
+            assertTrue("the observer's re-enable must have been refused because of the pending tap",
+                    KeepADBDiagnostics.export(context).contains("reason=manual_intent_pending"));
+            assertFalse("a skipped automatic request is not a missing permission",
+                    permissionMissingPosted());
+            scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS);
+            assertTrue("the manual intent must still be applied", KeepADB.isEnabled(context));
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    private KeepADBFakeScheduler armPendingManualReEnable() {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        return scheduler;
+    }
+
+    private boolean permissionMissingPosted() {
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        Notification notification =
+                shadowOf(manager).getNotification(KeepADBNotification.NOTIFICATION_ID);
+        if (notification == null) return false;
+        String title = notification.extras.getString(Notification.EXTRA_TITLE);
+        return context.getString(R.string.notification_permission_missing_title,
+                context.getString(R.string.app_name)).equals(title);
+    }
+
     private void setWifiConnection(String ssid, String bssid) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = ShadowWifiInfo.newInstance();

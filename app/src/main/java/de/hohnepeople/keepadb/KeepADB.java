@@ -68,6 +68,10 @@ final class KeepADB {
     // predecessor's own never-applied intent that setEnabled() has already persisted.
     private static boolean pendingToggleBaselineLastDesiredOn;
     private static long pendingToggleBaselineToken;
+    // #780: whether the pending runnable carries a direct user action (always a re-enable tap in
+    // the MANUAL_REENABLE_GAP_MS window; a manual disable is never pending). Set together with
+    // the runnable and the baseline token, read only under the same lock.
+    private static boolean pendingToggleManual;
     // #500: the delayed "did the accepted write actually stick?" check for the automatic enable
     // path. Deliberately separate from pendingToggleRunnable, which drives the debounce window and
     // the surfaces' "switching…" indicator; this one changes no state a surface renders.
@@ -309,6 +313,18 @@ final class KeepADB {
         return pendingToggleRunnable != null;
     }
 
+    /**
+     * True while a user action (manual source) is waiting in its debounce window and is still the
+     * newest intent (#780). An automatic intent must not be planned over it, see {@link
+     * #setEnabled(Context, boolean, String, EnableGuard)}. A manual intent already superseded by
+     * a recovery pulse does not count: its runnable will only cancel itself. Automatic call sites
+     * use this to tell that skip apart from a permission failure, both return {@code false}.
+     */
+    static synchronized boolean isManualIntentPending() {
+        return pendingToggleRunnable != null && pendingToggleManual
+                && state.isCurrentIntent(pendingToggleBaselineToken);
+    }
+
     static boolean hasPermission(Context ctx) {
         if (ctx == null) return false;
         return ctx.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
@@ -365,6 +381,11 @@ final class KeepADB {
      * immediately before the write -- after any debounce delay -- and aborts the toggle if the
      * conditions that justified it no longer hold. It is only consulted for {@code on == true};
      * a disable is never blocked by it.
+     *
+     * <p>#780: an <em>automatic</em> call (either direction) made while a manual intent is still
+     * waiting in its debounce window ({@link #isManualIntentPending()}) is not planned at all: it
+     * returns {@code false}, logs {@code reason=manual_intent_pending} and displaces nothing. The
+     * opposite direction is unchanged -- a manual call always supersedes a pending intent.
      */
     static boolean setEnabled(Context ctx, boolean on, String source, EnableGuard guard) {
         Context appContext = ctx.getApplicationContext();
@@ -385,6 +406,17 @@ final class KeepADB {
         final long networkGeneration;
         final boolean previousLastDesiredOn;
         synchronized (KeepADB.class) {
+            if (!isManualSource(source) && isManualIntentPending()) {
+                // #780: a pending user tap (the re-enable inside its 100 ms teardown gap) must
+                // not be displaced by an automatic intent. Taking the intent token would make the
+                // tap's applyNow() cancel as newer_intent, and the automatic enable's own guard
+                // may then abort as well -- nothing would be written and the tap would be lost.
+                // The automatic request is dropped instead; the next automatic trigger decides
+                // anew once the tap has been applied, so this never leaves a lasting block.
+                KeepADBDiagnostics.event(appContext, eventName, source, "skipped",
+                        "desired=" + on + " observed=" + observed + " reason=manual_intent_pending");
+                return false;
+            }
             if (isManualSource(source)) {
                 // #496: a direct user action is the sanctioned way to re-open a blocked
                 // automatic path ("manuelle Nutzeraktionen ... können einen blockierten
@@ -415,6 +447,7 @@ final class KeepADB {
             if (!decision.isImmediate()) {
                 pendingToggleBaselineLastDesiredOn = previousLastDesiredOn;
                 pendingToggleBaselineToken = token;
+                pendingToggleManual = isManualSource(source);
                 pendingToggleRunnable =
                         () -> applyNow(appContext, on, source, token, networkGeneration, guard,
                                 previousLastDesiredOn);
@@ -443,6 +476,15 @@ final class KeepADB {
         if (!state.isCurrentIntent(token)) {
             KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
                     "intentId=" + token + " reason=newer_intent");
+            // #780: a superseded runnable that is still registered is the one this very intent
+            // left behind (a recovery pulse issues a newer token without touching it) -- drop it,
+            // or isTogglePending() stays true and the surfaces keep showing "switching..." for
+            // good. A runnable registered by a newer setEnabled() carries that intent's own
+            // token and must stay: it is still waiting for its window.
+            if (pendingToggleRunnable != null && pendingToggleBaselineToken == token) {
+                pendingToggleRunnable = null;
+                surfaces.refreshAll(appContext);
+            }
             return false; // Superseded by a newer toggle intent
         }
         pendingToggleRunnable = null;
@@ -776,6 +818,7 @@ final class KeepADB {
             scheduler.removeCallbacks(pendingToggleRunnable);
             pendingToggleRunnable = null;
         }
+        pendingToggleManual = false;
         if (pendingBackoffConfirmationRunnable != null) {
             scheduler.removeCallbacks(pendingBackoffConfirmationRunnable);
             pendingBackoffConfirmationRunnable = null;

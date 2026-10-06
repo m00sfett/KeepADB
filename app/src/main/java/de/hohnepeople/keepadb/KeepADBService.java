@@ -433,9 +433,13 @@ public class KeepADBService extends Service {
                                 Log.i(TAG, "Wireless Debugging dropped while Wi-Fi connected; re-enabling...");
                                 if (!KeepADB.setEnabled(KeepADBService.this, true, "content_observer",
                                         KeepADBService::isAutoEnableStillPermitted)) {
-                                    Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
-                                    KeepADBNotification.showPermissionMissing(KeepADBService.this);
-                                    return;
+                                    // #780: a skipped request is no permission failure.
+                                    if (!KeepADB.isManualIntentPending()) {
+                                        Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
+                                        KeepADBNotification.showPermissionMissing(KeepADBService.this);
+                                        return;
+                                    }
+                                    Log.i(TAG, "Automatic re-enable skipped: a manual intent is pending (#780)");
                                 }
                             }
                         } else if (Boolean.FALSE.equals(adbEnabledOrNull)) {
@@ -669,9 +673,13 @@ public class KeepADBService extends Service {
                     Log.i(TAG, "Auto-enabling Wireless Debugging (Wi-Fi connected)");
                     if (!KeepADB.setEnabled(this, true, "keep_alive_check",
                             KeepADBService::isAutoEnableStillPermitted)) {
-                        Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
-                        KeepADBNotification.showPermissionMissing(this);
-                        return;
+                        // #780: a skipped request is no permission failure.
+                        if (!KeepADB.isManualIntentPending()) {
+                            Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
+                            KeepADBNotification.showPermissionMissing(this);
+                            return;
+                        }
+                        Log.i(TAG, "Automatic re-enable skipped: a manual intent is pending (#780)");
                     }
                 }
             } else {
