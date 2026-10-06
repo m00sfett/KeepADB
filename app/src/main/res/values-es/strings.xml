@@ -533,4 +533,10 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="onboarding_network_question">¿Debe KeepADB confiar en el Wi-Fi al que estás conectado ahora mismo?</string>
     <string name="onboarding_network_privacy_note">En el modo de privacidad, el nombre solo se muestra aquí y al confiar en una red.</string>
     <string name="onboarding_network_open_list">Cambiar en la lista Redes</string>
+    <string name="onboarding_webhook_question">Opcional. Informa de la dirección actual de la depuración inalámbrica a un servidor propio, por ejemplo en tu tailnet. La mayoría no lo necesita. No se guarda nada hasta que pulses «Guardar URL».</string>
+    <string name="onboarding_protection_force_title">Máxima comodidad (modo forzado)</string>
+    <string name="onboarding_protection_force_body">En cualquier red, también en las desconocidas, durante el tiempo que elijas. Antes tienes que confirmarlo.</string>
+    <string name="onboarding_protection_force_keep_alive">El modo forzado solo funciona con «Mantener activo». «Mantener activo» se activa con él.</string>
+    <string name="onboarding_badge_not_recommended">No recomendado</string>
+    <string name="onboarding_protection_force_comfort_note">Se aplica cuando termina el modo forzado.</string>
 </resources>

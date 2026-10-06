@@ -533,4 +533,10 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_network_question">KeepADB có nên tin cậy mạng Wi-Fi bạn đang kết nối không?</string>
     <string name="onboarding_network_privacy_note">Ở chế độ riêng tư, tên chỉ hiện ở đây và khi bạn tin cậy một mạng.</string>
     <string name="onboarding_network_open_list">Đổi trong danh sách Mạng</string>
+    <string name="onboarding_webhook_question">Tùy chọn. Báo địa chỉ hiện tại của Gỡ lỗi không dây tới máy chủ riêng của bạn, ví dụ trong tailnet của bạn. Hầu hết mọi người không cần. Sẽ không lưu gì cho đến khi bạn chạm “Lưu URL”.</string>
+    <string name="onboarding_protection_force_title">Tiện nhất (chế độ cưỡng chế)</string>
+    <string name="onboarding_protection_force_body">Trong mọi mạng, kể cả mạng lạ, trong khoảng thời gian bạn chọn. Bạn cần xác nhận trước.</string>
+    <string name="onboarding_protection_force_keep_alive">Chế độ cưỡng chế chỉ hoạt động cùng Keep-Alive. Keep-Alive được bật cùng.</string>
+    <string name="onboarding_badge_not_recommended">Không khuyến nghị</string>
+    <string name="onboarding_protection_force_comfort_note">Áp dụng sau khi chế độ cưỡng chế kết thúc.</string>
 </resources>

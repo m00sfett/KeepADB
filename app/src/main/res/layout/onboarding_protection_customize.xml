@@ -48,5 +48,26 @@
             android:text="@string/networks_comfort_hint"
             android:textColor="@color/night_muted"
             android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/onboarding_force_comfort_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/onboarding_protection_force_comfort_note"
+            android:textColor="@color/text_yellow"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <!-- #768: the same force row as in the Settings, driven by KeepADBForceSection. -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="@color/border_red" />
+
+        <include layout="@layout/view_force_panel" />
     </LinearLayout>
 </LinearLayout>

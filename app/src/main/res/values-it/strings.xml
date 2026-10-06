@@ -533,4 +533,10 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="onboarding_network_question">KeepADB deve considerare attendibile il Wi-Fi a cui sei collegato in questo momento?</string>
     <string name="onboarding_network_privacy_note">In modalità privacy il nome viene mostrato solo qui e quando consideri attendibile una rete.</string>
     <string name="onboarding_network_open_list">Modifica nell’elenco Reti</string>
+    <string name="onboarding_webhook_question">Facoltativo. Comunica l’indirizzo attuale del debug wireless a un tuo server, per esempio nella tua tailnet. La maggior parte delle persone non ne ha bisogno. Non viene salvato nulla finché non tocchi «Salva URL».</string>
+    <string name="onboarding_protection_force_title">Massimo comfort (modalità forzata)</string>
+    <string name="onboarding_protection_force_body">In ogni rete, anche sconosciuta, per un tempo che scegli tu. Prima ti viene chiesta una conferma.</string>
+    <string name="onboarding_protection_force_keep_alive">La modalità forzata funziona solo con Keep-Alive. Keep-Alive viene attivato insieme.</string>
+    <string name="onboarding_badge_not_recommended">Sconsigliato</string>
+    <string name="onboarding_protection_force_comfort_note">Vale dopo la fine della modalità forzata.</string>
 </resources>

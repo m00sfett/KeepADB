@@ -533,4 +533,10 @@
     <string name="onboarding_network_question">هل يثق KeepADB بشبكة Wi-Fi المتصل بها الآن؟</string>
     <string name="onboarding_network_privacy_note">في وضع الخصوصية يُعرض الاسم هنا وعند الوثوق بشبكة فقط.</string>
     <string name="onboarding_network_open_list">التغيير في قائمة الشبكات</string>
+    <string name="onboarding_webhook_question">اختياري. يُبلغ عن العنوان الحالي للتصحيح اللاسلكي إلى خادم خاص بك، مثلًا في tailnet الخاص بك. معظم الناس لا يحتاجون إليه. لا يُحفظ شيء حتى تضغط «حفظ الرابط».</string>
+    <string name="onboarding_protection_force_title">أقصى راحة (الوضع الإجباري)</string>
+    <string name="onboarding_protection_force_body">في كل شبكة، بما فيها المجهولة، للمدة التي تختارها. يُطلب منك التأكيد أولًا.</string>
+    <string name="onboarding_protection_force_keep_alive">يعمل الوضع الإجباري مع Keep-Alive فقط. يُفعَّل Keep-Alive معه.</string>
+    <string name="onboarding_badge_not_recommended">غير موصى به</string>
+    <string name="onboarding_protection_force_comfort_note">يسري بعد انتهاء الوضع الإجباري.</string>
 </resources>

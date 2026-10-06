@@ -91,6 +91,9 @@ public class SettingsCleanupMigrationTest {
             KeepADBTrustedNetwork.ProtectionLevel levelBefore =
                     KeepADBTrustedNetwork.getProtectionLevel(context);
             assertFalse("The seed must hold every old key", before.isEmpty());
+            assertTrue("The seed holds the name block", before.containsKey(KeepADBNetworkBlocklist.KEY_SSIDS));
+            assertTrue("The seed holds an own name", before.keySet().stream()
+                    .anyMatch(key -> key.startsWith("trusted_network_") && key.endsWith("_name")));
 
             ActivityController<SettingsActivity> settings =
                     Robolectric.buildActivity(SettingsActivity.class).setup();
@@ -167,6 +170,10 @@ public class SettingsCleanupMigrationTest {
         KeepADBTrustedNetwork.addBssid(context, HOME_AP, "Home");
         KeepADBTrustedNetwork.setTrustByNameEnabled(context, !wide);
         KeepADBNetworkBlocklist.blockBssid(context, BLOCKED_AP);
+        KeepADBNetworkBlocklist.blockSsid(context, "Gastnetz");
+        // The own name of a saved access point (trusted_network_<id>_name) is stored data too.
+        assertTrue(KeepADBTrustedNetwork.setCustomName(context,
+                KeepADBTrustedNetwork.getEntries(context).get(0).id, "Kueche"));
         KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
         KeepADBBssidHistory.recordObservation(context, MESH, MESH_AP, 5200);
         KeepADBBlockedNetworkHistory.record(context,

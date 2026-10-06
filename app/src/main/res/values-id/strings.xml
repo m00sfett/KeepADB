@@ -533,4 +533,10 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_network_question">Apakah KeepADB perlu mempercayai Wi-Fi yang sedang tersambung saat ini?</string>
     <string name="onboarding_network_privacy_note">Dalam mode privasi, nama hanya ditampilkan di sini dan saat Anda mempercayai jaringan.</string>
     <string name="onboarding_network_open_list">Ubah di daftar Jaringan</string>
+    <string name="onboarding_webhook_question">Opsional. Melaporkan alamat Debugging Nirkabel saat ini ke server milikmu sendiri, misalnya di tailnet-mu. Kebanyakan orang tidak memerlukannya. Tidak ada yang disimpan sampai kamu mengetuk “Simpan URL”.</string>
+    <string name="onboarding_protection_force_title">Paling nyaman (mode paksa)</string>
+    <string name="onboarding_protection_force_body">Di setiap jaringan, termasuk yang tidak dikenal, selama waktu yang kamu pilih. Kamu diminta mengonfirmasi dulu.</string>
+    <string name="onboarding_protection_force_keep_alive">Mode paksa hanya bekerja dengan Keep-Alive. Keep-Alive ikut dinyalakan.</string>
+    <string name="onboarding_badge_not_recommended">Tidak disarankan</string>
+    <string name="onboarding_protection_force_comfort_note">Berlaku setelah mode paksa berakhir.</string>
 </resources>

@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 /**
  * One step of the setup assistant (#761). The assistant ({@link OnboardingActivity}) owns the
  * header, the navigation and the single-step mode; a step owns its content and what it may write.
- * A further step (webhook in #768) is one more subclass and one more line in {@link
+ * A further step is one more subclass and one more line in {@link
  * OnboardingActivity#buildSteps}.
  *
  * <p>The contract that carries the whole assistant: {@link #commit} writes only what the user
@@ -56,6 +56,9 @@ abstract class OnboardingStep {
      * ignores it.
      */
     void setFocusItem(String item) {}
+
+    /** The assistant is going away: a step that shows a dialog of its own closes it here. */
+    void onDestroy() {}
 
     /** The pending, not yet committed selection, so a rotation does not lose it. */
     void saveState(Bundle out) {}

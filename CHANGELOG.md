@@ -17,11 +17,32 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32` and `1.9.33` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33` and `1.9.34` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.34] - Unreleased
+
+Etappe E5 patch candidate (versionCode 206), part c of the setup assistant of #761 (UX concept #758, sections 1.3 step 6 and 4), unified with the independent packages #776 and #779 of the same stage by the integrator; no release. The version 1.9.33 is not part of this entry.
+
+### Added
+- #768: Step "Webhook" (`OnboardingWebhookStep`, `EXTRA_STEP` `webhook`, sixth and last step, with "Skip"): the form of the Settings, inflated from the new shared `view_webhook_form.xml` and driven by `KeepADBWebhookForm` (new constructor over a root view), so the URL check (http/https with a host), the plaintext warning and the save, enable and clear paths are the code of the Settings, not a copy. No URL is preset (#64). Its buttons write at once; "Next" and "Skip" write nothing, a half-typed URL included. A "Less secure" mark shows only while the webhook is on and its URL starts with `http://`. The unsaved draft survives a rotation.
+- #768: Third card in the protection step, "Maximum convenience (force)" with the mark "Not recommended" (`OnboardingChoiceCard.Badge.NOT_RECOMMENDED`). A tap does not select it: it opens the force dialog of #763 (`KeepADBForceDialog`, duration list, warnings, acknowledgment for no end time); only its confirmation starts the mode, and cancelling leaves the earlier card chosen. Once active, the card is selected, marked "Less secure" and shows "Active until ...". The card and the dialog say that Keep-Alive is switched on with the mode when it is off (F7, done by `KeepADBForceMode.activate`).
+- #768: "Customize" in the protection step also holds the force row of the Settings (`view_force_panel.xml`, extracted, `KeepADBForceSection`: start, change duration, end). While the force card is chosen, the comfort switch is disabled with "Applies after force mode ends."
+- #768: Six strings (`onboarding_webhook_question`, `onboarding_protection_force_*`, `onboarding_badge_not_recommended`) in all 19 locales.
+
+### Changed
+- #768: "Next" on the protection step with the force card still chosen writes nothing; choosing a level card after the mode was started ends it and then writes the level (the safe direction). The closing summary names the force preset while it runs. `OnboardingStep.onDestroy()` lets a step close a dialog of its own.
+- #768: `activity_settings.xml` includes the extracted `view_webhook_form.xml` and `view_force_panel.xml`; view ids and behavior of the Settings are unchanged.
+
+### Fixed
+- #776: `KeepADB.setEnabled` captured the rollback value (`previousLastDesiredOn`) from the persisted last intent. While an earlier, still pending (debounced) intent existed, that value was the predecessor's never applied intent, so a guard abort (`preconditions_changed`, `network_changed`) or a rejected write (`write_rejected`, `SecurityException`) of the successor restored the pending state instead of the one actually in force: an applied off could turn into an "on" intent that no write ever carried, which the USB handover and Keep-Alive guards then read. `setEnabled` now inherits the baseline captured when the pending chain started (`pendingToggleBaselineLastDesiredOn`, tied to the newest chain token via `pendingToggleBaselineToken`); without a pending predecessor nothing changes. A newer intent of another path is still never overwritten (`applyNow` checks `isCurrentIntent` before any rollback).
+
+### Testing
+- #776: Five behavior tests in `KeepADBToggleSchedulingTest`: guard abort and network change over a pending predecessor restore the applied off, a rejected write over a pending predecessor restores the applied on, a newer manual intent is not rolled back by a superseded guarded enable, and the baseline of a resolved chain does not leak into a later abort.
+- #779: Three gaps from the independent E3 mutation run are closed, each proven by a mutation that was green before and is red now. `KeepADBNetworkListTest`: the other side of the name block, a blocked access point whose Wi-Fi name is trusted (by the comfort switch or by the legacy name list) stays "Blocked" with the address as reason, in the rows and in the current network. `SettingsCleanupMigrationTest`: the legacy seed now also holds a blocked Wi-Fi name (`blocked_ssids`) and the own name of a saved access point (`trusted_network_<id>_name`), so deleting or rewriting either on opening Settings turns it red. `NetworkListNetworksViewTest`: the band is shown behind the address in the current card and in the saved rows, and nothing is shown for an access point whose band is unknown.
 
 ## [1.9.33] - Unreleased
 

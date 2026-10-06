@@ -533,4 +533,10 @@
     <string name="onboarding_network_question">क्या KeepADB को उस Wi-Fi पर भरोसा करना चाहिए जिससे आप अभी जुड़े हैं?</string>
     <string name="onboarding_network_privacy_note">गोपनीयता मोड में नाम केवल यहीं और भरोसा करते समय दिखता है।</string>
     <string name="onboarding_network_open_list">नेटवर्क सूची में बदलें</string>
+    <string name="onboarding_webhook_question">वैकल्पिक। वायरलेस डीबगिंग का मौजूदा पता आपके अपने सर्वर को भेजता है, जैसे आपके टेलनेट में। ज़्यादातर लोगों को इसकी ज़रूरत नहीं होती। “URL सहेजें” दबाने तक कुछ सहेजा नहीं जाता।</string>
+    <string name="onboarding_protection_force_title">अधिकतम सुविधा (फ़ोर्स मोड)</string>
+    <string name="onboarding_protection_force_body">हर नेटवर्क में, अनजान नेटवर्क में भी, आपके चुने समय तक। पहले आपको पुष्टि करनी होगी।</string>
+    <string name="onboarding_protection_force_keep_alive">फ़ोर्स मोड केवल Keep-Alive के साथ काम करता है। Keep-Alive इसके साथ चालू हो जाता है।</string>
+    <string name="onboarding_badge_not_recommended">अनुशंसित नहीं</string>
+    <string name="onboarding_protection_force_comfort_note">फ़ोर्स मोड खत्म होने के बाद लागू होता है।</string>
 </resources>
