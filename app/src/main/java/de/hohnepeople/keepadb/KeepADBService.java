@@ -322,6 +322,9 @@ public class KeepADBService extends Service {
     private void heartbeatNow() {
         KeepADBPreferences.setServiceLastHeartbeatNow(this);
         if (!foregroundReady) return;
+        // #763: the minute tick finishes an expired force mode (state cleared, notice delivered).
+        // The trust gate never waits for this: it reads the pure deadline itself.
+        KeepADBForceMode.finishIfExpired(this);
         // #566: read-only, debug-build-only minute snapshot; a no-op in release builds.
         KeepADBDiagnostics.snapshot(this);
         // #582: an unreadable value is not treated as "on" -- it falls through to

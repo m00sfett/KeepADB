@@ -393,6 +393,53 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">强制模式</string>
+    <string name="force_section_hint">在你选择的时间内，在任何网络中重新开启无线调试。此期间屏蔽规则和信任的网络不生效。</string>
+    <string name="force_status_off">已关闭</string>
+    <string name="force_status_until">开启至 %1$s</string>
+    <string name="force_status_unlimited">已开启，无结束时间</string>
+    <string name="force_action_activate">开启强制模式…</string>
+    <string name="force_action_end">结束强制模式</string>
+    <string name="force_action_change">更改时长…</string>
+    <string name="force_dialog_title">开启强制模式？</string>
+    <string name="force_dialog_intro">届时 Keep-Alive 会在任何网络中重新开启无线调试，包括陌生、已屏蔽和无法读取的网络。</string>
+    <string name="force_dialog_duration_label">持续多久？</string>
+    <string name="force_duration_1h">1 小时</string>
+    <string name="force_duration_24h">24 小时</string>
+    <string name="force_duration_7d">7 天</string>
+    <string name="force_duration_30d">30 天</string>
+    <string name="force_duration_unlimited">无结束时间</string>
+    <string name="force_warning_all">无线调试会在网络上开放一个端口。你之前配对过的电脑可通过它获得完整的 ADB 访问权限：安装应用、读取数据、录制屏幕。在陌生网络中，你不知道是谁在尝试连接。
+
+此期间你的屏蔽规则和信任的网络不生效。
+
+你可以随时从主屏幕或通知中结束。</string>
+    <string name="force_warning_days">在几天之内，你会连上现在想不到的网络：酒店、火车、咖啡馆、公司。无线调试会在那里不经询问就开启。</string>
+    <string name="force_warning_unlimited">没有结束时间时，强制模式会一直开启，直到你自己结束，重启和应用更新后也是如此。</string>
+    <string name="force_unlimited_ack">我明白，届时无线调试会在任何网络中开启。</string>
+    <string name="force_keepalive_hint">强制模式只在开启 Keep-Alive 时有效。Keep-Alive 会一并开启。</string>
+    <string name="force_confirm_1h">开启 1 小时</string>
+    <string name="force_confirm_24h">开启 24 小时</string>
+    <string name="force_confirm_7d">开启 7 天</string>
+    <string name="force_confirm_30d">开启 30 天</string>
+    <string name="force_confirm_unlimited">开启，无结束时间</string>
+    <string name="force_card_title">强制模式已开启</string>
+    <string name="force_card_text_until">无线调试会在任何网络中重新开启。开启至 %1$s。</string>
+    <string name="force_card_text_unlimited">无线调试会在任何网络中重新开启。无结束时间。</string>
+    <string name="force_ended_toast">强制模式已结束。保护级别恢复为：%1$s。</string>
+    <string name="force_notification_until">强制模式开启至 %1$s</string>
+    <string name="force_notification_unlimited">强制模式已开启，无结束时间</string>
+    <string name="force_channel_name">安全提示</string>
+    <string name="force_channel_desc">关于保护级别的一次性提示，例如强制模式结束时。</string>
+    <string name="force_expired_title">强制模式已结束</string>
+    <string name="force_expired_text">所选时间已到。保护级别恢复为：%1$s。Keep-Alive 现在只会在保护级别允许的网络中开启。</string>
+    <string name="force_expired_still_on">无线调试目前仍处于开启状态。</string>
+    <string name="force_expired_action_off">立即关闭</string>
+    <string name="force_level_maximum">最高安全</string>
+    <string name="force_level_balanced">均衡</string>
+    <string name="force_level_legacy_all">在所有 Wi-Fi 网络中（此前的设置）</string>
+    <string name="force_level_legacy_names">Wi-Fi 名称列表（此前的设置）</string>
     <string name="settings_general_feedback">一般反馈</string>
     <string name="feedback_type">反馈类型</string>
     <string name="feedback_type_bug">错误</string>

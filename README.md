@@ -55,8 +55,12 @@ Auf einer Neuinstallation lässt die Netzwerkregel automatische Wiederherstellun
 zugelassenen Zugangspunkten zu. Bestehende Installationen behalten ihre bisherige Einstellung,
 auch „In allen WLANs“; unter **Einstellungen → Netzwerk** lässt sich die Regel ändern. Diese Regel
 steuert automatische Aktionen; ein manuelles Einschalten bleibt eine eigene
-Benutzeraktion. Die vollständige Erklärung zu BSSID, optionaler SSID-Freigabe, Standortrechten,
-Hintergrundstarts und Messgrenzen steht im [Netzwerk-Leitfaden](docs/trusted-networks.md).
+Benutzeraktion. Wer es bewusst bequemer will, kann unter **Einstellungen → Netzwerk** den
+**Force-Modus** für 1 Stunde bis 30 Tage (oder ohne Ablaufzeit) einschalten: Dann schaltet Keep-Alive
+in jedem WLAN wieder ein, auch in gesperrten und nicht lesbaren, mit Warnung auf der Startseite und in
+der Benachrichtigung und einem Tap zum Beenden. Die vollständige Erklärung zu BSSID, optionaler
+SSID-Freigabe, Standortrechten, Force-Modus, Hintergrundstarts und Messgrenzen steht im
+[Netzwerk-Leitfaden](docs/trusted-networks.md).
 
 ## Webhook
 

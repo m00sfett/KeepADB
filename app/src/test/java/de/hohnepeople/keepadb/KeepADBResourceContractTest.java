@@ -476,6 +476,12 @@ public class KeepADBResourceContractTest {
                 stringWitness, stringWitness, stringWitness});
         result.put("transport_row_format", new Object[] {stringWitness, stringWitness, stringWitness});
         result.put("transport_primary_accessibility_format", new Object[] {stringWitness});
+        // #763: the force mode texts, one string each (an end time or a protection level name).
+        result.put("force_status_until", new Object[] {stringWitness});
+        result.put("force_card_text_until", new Object[] {stringWitness});
+        result.put("force_ended_toast", new Object[] {stringWitness});
+        result.put("force_notification_until", new Object[] {stringWitness});
+        result.put("force_expired_text", new Object[] {stringWitness});
         return result;
     }
 

@@ -393,6 +393,53 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Zorunlu mod</string>
+    <string name="force_section_hint">Kablosuz hata ayıklamayı seçtiğiniz süre boyunca her ağda yeniden açar. Engellemeler ve güvenilir ağlar bu sürede geçerli değildir.</string>
+    <string name="force_status_off">Kapalı</string>
+    <string name="force_status_until">Şu zamana kadar açık: %1$s</string>
+    <string name="force_status_unlimited">Açık, bitiş zamanı yok</string>
+    <string name="force_action_activate">Zorunlu modu aç…</string>
+    <string name="force_action_end">Zorunlu modu bitir</string>
+    <string name="force_action_change">Süreyi değiştir…</string>
+    <string name="force_dialog_title">Zorunlu mod açılsın mı?</string>
+    <string name="force_dialog_intro">Keep-Alive bu durumda kablosuz hata ayıklamayı her ağda yeniden açar: bilinmeyen, engellenmiş ve okunamayan ağlar dahil.</string>
+    <string name="force_dialog_duration_label">Ne kadar süreyle?</string>
+    <string name="force_duration_1h">1 saat</string>
+    <string name="force_duration_24h">24 saat</string>
+    <string name="force_duration_7d">7 gün</string>
+    <string name="force_duration_30d">30 gün</string>
+    <string name="force_duration_unlimited">Bitiş zamanı yok</string>
+    <string name="force_warning_all">Kablosuz hata ayıklama ağda bir bağlantı noktası açar. Daha önce eşleştirdiğiniz bilgisayarlar bunun üzerinden tam ADB erişimi alır: uygulama yükleme, veri okuma, ekran kaydı. Bilinmeyen ağlarda kimin denediğini bilemezsiniz.
+
+Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
+
+İstediğiniz zaman ana ekrandan veya bildirimden bitirebilirsiniz.</string>
+    <string name="force_warning_days">Birkaç gün içinde şu an aklınıza gelmeyen ağlara bağlanacaksınız: otel, tren, kafe, iş yeri. Hata ayıklama oralarda size sorulmadan açılır.</string>
+    <string name="force_warning_unlimited">Bitiş zamanı olmadan zorunlu mod, siz bitirene kadar açık kalır; yeniden başlatmalardan ve uygulama güncellemelerinden sonra da.</string>
+    <string name="force_unlimited_ack">Kablosuz hata ayıklamanın o zaman her ağda açılacağını anlıyorum.</string>
+    <string name="force_keepalive_hint">Zorunlu mod yalnızca Keep-Alive ile çalışır. Keep-Alive birlikte açılır.</string>
+    <string name="force_confirm_1h">1 saatliğine aç</string>
+    <string name="force_confirm_24h">24 saatliğine aç</string>
+    <string name="force_confirm_7d">7 günlüğüne aç</string>
+    <string name="force_confirm_30d">30 günlüğüne aç</string>
+    <string name="force_confirm_unlimited">Bitiş zamanı olmadan aç</string>
+    <string name="force_card_title">Zorunlu mod açık</string>
+    <string name="force_card_text_until">Kablosuz hata ayıklama her ağda yeniden açılır. Şu zamana kadar açık: %1$s.</string>
+    <string name="force_card_text_unlimited">Kablosuz hata ayıklama her ağda yeniden açılır. Bitiş zamanı yok.</string>
+    <string name="force_ended_toast">Zorunlu mod bitti. Koruma düzeyi yeniden: %1$s.</string>
+    <string name="force_notification_until">Zorunlu mod şu zamana kadar açık: %1$s</string>
+    <string name="force_notification_unlimited">Zorunlu mod açık, bitiş zamanı yok</string>
+    <string name="force_channel_name">Güvenlik bildirimleri</string>
+    <string name="force_channel_desc">Koruma düzeyi hakkında tek seferlik bildirimler, örneğin zorunlu mod bittiğinde.</string>
+    <string name="force_expired_title">Zorunlu mod bitti</string>
+    <string name="force_expired_text">Seçilen süre doldu. Koruma düzeyi yeniden: %1$s. Keep-Alive artık yalnızca koruma düzeyinin izin verdiği yerlerde açar.</string>
+    <string name="force_expired_still_on">Kablosuz hata ayıklama şu anda hâlâ açık.</string>
+    <string name="force_expired_action_off">Şimdi kapat</string>
+    <string name="force_level_maximum">Azami güvenlik</string>
+    <string name="force_level_balanced">Dengeli</string>
+    <string name="force_level_legacy_all">Tüm Wi-Fi ağlarında (önceki ayar)</string>
+    <string name="force_level_legacy_names">Wi-Fi adı listesi (önceki ayar)</string>
     <string name="settings_general_feedback">Genel geri bildirim</string>
     <string name="feedback_type">Geri bildirim türü</string>
     <string name="feedback_type_bug">Hata</string>

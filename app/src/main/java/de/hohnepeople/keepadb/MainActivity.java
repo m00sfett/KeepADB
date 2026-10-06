@@ -41,6 +41,9 @@ public class MainActivity extends Activity {
     private View networkOnboardingPanel;
     private View backgroundLocationPanel;
     private View adviceBanner;
+    // #763: permanent warning card while the force mode is on.
+    private View forceWarningPanel;
+    private TextView forceWarningText;
     private long endpointListenerGeneration;
     private boolean endpointSurfaceActive;
     // #483: last discovered endpoint, unmasked. Display text is derived from it on every render.
@@ -116,6 +119,17 @@ public class MainActivity extends Activity {
             refresh();
         });
         adviceBanner = findViewById(R.id.advice_banner);
+        forceWarningPanel = findViewById(R.id.force_warning_panel);
+        forceWarningText = findViewById(R.id.force_warning_text);
+        findViewById(R.id.btn_force_end).setOnClickListener(v -> {
+            if (KeepADBForceMode.endNow(this)) KeepADBForceNotice.showEndedToast(this);
+            refresh();
+        });
+        findViewById(R.id.btn_force_settings).setOnClickListener(v -> {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra(SettingsActivity.EXTRA_FOCUS_FORCE, true);
+            startActivity(intent);
+        });
         findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
@@ -260,6 +274,9 @@ public class MainActivity extends Activity {
         // #226: re-read the preference on every resume, since it may have changed in
         // SettingsActivity while this activity was paused.
         updateAdviceBannerVisibility();
+        // #763: finish an expired force mode before drawing, and redraw when it starts or ends.
+        KeepADBForceMode.finishIfExpired(this);
+        KeepADBForceMode.setStateListener(this::refresh);
         refresh();
         KeepADBEndpointCoordinator.refresh(this);
         KeepADBUsbReceiver.refresh(this);
@@ -271,6 +288,7 @@ public class MainActivity extends Activity {
         // per the acceptance requirement that the flag is reliably released on leaving the app.
         getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         endpointSurfaceActive = false;
+        KeepADBForceMode.clearStateListener();
         endpointListenerGeneration++;
         // #538: invalidates any in-flight renderTransportOverview() async result so a snapshot
         // computed for a now-paused screen never applies after the fact (mirrors the
@@ -297,7 +315,22 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * #763: the warning card while the force mode is on, with its end ("until 14:30" within today,
+     * otherwise with the date) or "no end time". Read from the pure state, so it is gone at the
+     * deadline even before the expiry transition ran.
+     */
+    private void renderForceWarning() {
+        KeepADBForceMode.Status force = KeepADBForceMode.status(this);
+        forceWarningPanel.setVisibility(force == null ? View.GONE : View.VISIBLE);
+        if (force == null) return;
+        forceWarningText.setText(force.isUnlimited()
+                ? getString(R.string.force_card_text_unlimited)
+                : getString(R.string.force_card_text_until, KeepADBForceMode.formatEnd(this, force)));
+    }
+
     private void refresh() {
+        renderForceWarning();
         KeepADB.State appState = KeepADB.getState(this);
         boolean configured = (appState != KeepADB.State.PERMISSION_MISSING);
         // #318 (acceptance criterion 1): the main switch mirrors Settings.Global.adb_wifi_enabled

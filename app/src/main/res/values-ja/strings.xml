@@ -393,6 +393,53 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">強制モード</string>
+    <string name="force_section_hint">選択した時間のあいだ、どのネットワークでもワイヤレスデバッグを再び有効にします。この間、ブロックと信頼済みネットワークは適用されません。</string>
+    <string name="force_status_off">オフ</string>
+    <string name="force_status_until">%1$sまで有効</string>
+    <string name="force_status_unlimited">有効（終了時刻なし）</string>
+    <string name="force_action_activate">強制モードを有効にする…</string>
+    <string name="force_action_end">強制モードを終了</string>
+    <string name="force_action_change">期間を変更…</string>
+    <string name="force_dialog_title">強制モードを有効にしますか？</string>
+    <string name="force_dialog_intro">Keep-Alive は、未知・ブロック済み・判別できないネットワークを含め、どのネットワークでもワイヤレスデバッグを再び有効にします。</string>
+    <string name="force_dialog_duration_label">どのくらいの間？</string>
+    <string name="force_duration_1h">1 時間</string>
+    <string name="force_duration_24h">24 時間</string>
+    <string name="force_duration_7d">7 日間</string>
+    <string name="force_duration_30d">30 日間</string>
+    <string name="force_duration_unlimited">終了時刻なし</string>
+    <string name="force_warning_all">ワイヤレスデバッグはネットワーク上でポートを開きます。以前にペアリングしたコンピューターは、これを通じて完全な ADB アクセスを得られます（アプリのインストール、データの読み取り、画面の録画）。知らないネットワークでは、誰が接続を試みているかわかりません。
+
+この間、ブロックと信頼済みネットワークは適用されません。
+
+ホーム画面または通知からいつでも終了できます。</string>
+    <string name="force_warning_days">数日のあいだには、今は思い浮かばないネットワーク（ホテル、電車、カフェ、職場など）に接続します。そこでデバッグは確認なしで有効になります。</string>
+    <string name="force_warning_unlimited">終了時刻がない場合、強制モードは自分で終了するまで、再起動やアプリの更新後も有効なままです。</string>
+    <string name="force_unlimited_ack">ワイヤレスデバッグがどのネットワークでも有効になることを理解しました。</string>
+    <string name="force_keepalive_hint">強制モードは Keep-Alive と併用した場合にのみ機能します。Keep-Alive も一緒にオンになります。</string>
+    <string name="force_confirm_1h">1 時間オンにする</string>
+    <string name="force_confirm_24h">24 時間オンにする</string>
+    <string name="force_confirm_7d">7 日間オンにする</string>
+    <string name="force_confirm_30d">30 日間オンにする</string>
+    <string name="force_confirm_unlimited">終了時刻なしでオンにする</string>
+    <string name="force_card_title">強制モードがオン</string>
+    <string name="force_card_text_until">ワイヤレスデバッグはどのネットワークでも再び有効になります。%1$sまで有効。</string>
+    <string name="force_card_text_unlimited">ワイヤレスデバッグはどのネットワークでも再び有効になります。終了時刻なし。</string>
+    <string name="force_ended_toast">強制モードを終了しました。保護レベルは元の「%1$s」に戻りました。</string>
+    <string name="force_notification_until">強制モードは%1$sまでオン</string>
+    <string name="force_notification_unlimited">強制モードがオン（終了時刻なし）</string>
+    <string name="force_channel_name">セキュリティのお知らせ</string>
+    <string name="force_channel_desc">強制モードの終了など、保護レベルに関する一度きりのお知らせ。</string>
+    <string name="force_expired_title">強制モードを終了しました</string>
+    <string name="force_expired_text">選択した時間が経過しました。保護レベルは元の「%1$s」に戻りました。Keep-Alive は、保護レベルが許可する場所でのみ有効にします。</string>
+    <string name="force_expired_still_on">ワイヤレスデバッグは現在もオンです。</string>
+    <string name="force_expired_action_off">今すぐオフにする</string>
+    <string name="force_level_maximum">最大セキュリティ</string>
+    <string name="force_level_balanced">バランス</string>
+    <string name="force_level_legacy_all">すべての Wi-Fi ネットワークで（以前の設定）</string>
+    <string name="force_level_legacy_names">Wi-Fi 名リスト（以前の設定）</string>
     <string name="settings_general_feedback">一般的なフィードバック</string>
     <string name="feedback_type">フィードバックの種類</string>
     <string name="feedback_type_bug">不具合</string>

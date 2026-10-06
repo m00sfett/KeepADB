@@ -25,6 +25,17 @@ ausdrückliches Aufheben nimmt sie zurück, nie das Hinzufügen von Vertrauen. E
 zum Sperren folgt mit der Netzwerkliste. Vorrang, Migration und Rückweg stehen im
 [Netzwerk-Leitfaden](docs/trusted-networks.md).
 
+Der optionale **Force-Modus** (Einstellungen → Netzwerk) hebt diesen Schutz bewusst auf: Für eine
+gewählte Zeit (1 Stunde, 24 Stunden, 7 Tage, 30 Tage oder ohne Ablaufzeit) schaltet Keep-Alive
+Drahtloses Debugging in jedem WLAN wieder ein und übergeht Sperren und Vertrauen. Er braucht eine
+Bestätigung mit gestaffelten Warnungen, ist auf der Startseite und in der Benachrichtigung
+dauerhaft sichtbar und lässt sich dort mit einem Tap beenden. Nach Ablauf gilt wieder genau die
+gespeicherte Einstellung; die Frist übersteht Neustart, App-Update und Zeit- oder Zeitzonenwechsel
+(eine gestellte Uhr kann den Modus nur verkürzen, nicht verlängern), eine einmalige Meldung nennt
+das Ende. Er ist nie ein Standard und wird von keinem Assistenten, Update oder Import ohne den
+Dialog gestartet. Einzelheiten und Grenzen stehen im
+[Netzwerk-Leitfaden](docs/trusted-networks.md#force-modus).
+
 Die Identität dient ausschließlich zur Wiedererkennung des WLANs; KeepADB ermittelt oder speichert
 keinen Gerätestandort. Dafür benötigt Android den präzisen Standortzugriff. Der optionale Zugriff
 „Immer zulassen“ wird nicht von KeepADB angefordert: Die App führt zu den Android-App-Einstellungen,

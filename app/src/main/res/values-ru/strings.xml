@@ -393,6 +393,53 @@
     <string name="network_band_5">5 ГГц</string>
     <string name="network_band_6">6 ГГц</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Принудительный режим</string>
+    <string name="force_section_hint">Снова включает беспроводную отладку в любой сети на выбранное время. Блокировки и доверенные сети в этот период не действуют.</string>
+    <string name="force_status_off">Выключен</string>
+    <string name="force_status_until">Включён до %1$s</string>
+    <string name="force_status_unlimited">Включён, без времени окончания</string>
+    <string name="force_action_activate">Включить принудительный режим…</string>
+    <string name="force_action_end">Завершить принудительный режим</string>
+    <string name="force_action_change">Изменить срок…</string>
+    <string name="force_dialog_title">Включить принудительный режим?</string>
+    <string name="force_dialog_intro">Keep-Alive будет снова включать беспроводную отладку в любой сети: в том числе в незнакомых, заблокированных и нечитаемых.</string>
+    <string name="force_dialog_duration_label">Как долго?</string>
+    <string name="force_duration_1h">1 час</string>
+    <string name="force_duration_24h">24 часа</string>
+    <string name="force_duration_7d">7 дней</string>
+    <string name="force_duration_30d">30 дней</string>
+    <string name="force_duration_unlimited">Без времени окончания</string>
+    <string name="force_warning_all">Беспроводная отладка открывает порт в сети. Компьютеры, которые вы сопрягли раньше, получают через него полный доступ по ADB: установка приложений, чтение данных, запись экрана. В незнакомых сетях вы не знаете, кто пытается подключиться.
+
+Ваши блокировки и доверенные сети в это время не действуют.
+
+Завершить режим можно в любой момент с главного экрана или из уведомления.</string>
+    <string name="force_warning_days">За несколько дней вы окажетесь в сетях, о которых сейчас не думаете: отель, поезд, кафе, работа. Отладка включится там без вопросов.</string>
+    <string name="force_warning_unlimited">Без времени окончания принудительный режим остаётся включённым, пока вы сами его не завершите, в том числе после перезагрузок и обновлений приложения.</string>
+    <string name="force_unlimited_ack">Я понимаю, что тогда беспроводная отладка будет включаться в любой сети.</string>
+    <string name="force_keepalive_hint">Принудительный режим работает только с Keep-Alive. Keep-Alive включается вместе с ним.</string>
+    <string name="force_confirm_1h">Включить на 1 час</string>
+    <string name="force_confirm_24h">Включить на 24 часа</string>
+    <string name="force_confirm_7d">Включить на 7 дней</string>
+    <string name="force_confirm_30d">Включить на 30 дней</string>
+    <string name="force_confirm_unlimited">Включить без времени окончания</string>
+    <string name="force_card_title">Принудительный режим включён</string>
+    <string name="force_card_text_until">Беспроводная отладка снова включается в любой сети. Действует до %1$s.</string>
+    <string name="force_card_text_unlimited">Беспроводная отладка снова включается в любой сети. Без времени окончания.</string>
+    <string name="force_ended_toast">Принудительный режим завершён. Уровень защиты снова: %1$s.</string>
+    <string name="force_notification_until">Принудительный режим включён до %1$s</string>
+    <string name="force_notification_unlimited">Принудительный режим включён, без времени окончания</string>
+    <string name="force_channel_name">Уведомления о безопасности</string>
+    <string name="force_channel_desc">Разовые уведомления об уровне защиты, например об окончании принудительного режима.</string>
+    <string name="force_expired_title">Принудительный режим завершён</string>
+    <string name="force_expired_text">Выбранное время истекло. Уровень защиты снова: %1$s. Теперь Keep-Alive включается только там, где это разрешает уровень защиты.</string>
+    <string name="force_expired_still_on">Беспроводная отладка сейчас всё ещё включена.</string>
+    <string name="force_expired_action_off">Выключить сейчас</string>
+    <string name="force_level_maximum">Максимальная безопасность</string>
+    <string name="force_level_balanced">Сбалансированный</string>
+    <string name="force_level_legacy_all">Во всех сетях Wi-Fi (прежняя настройка)</string>
+    <string name="force_level_legacy_names">Список имён Wi-Fi (прежняя настройка)</string>
     <string name="settings_general_feedback">Общий отзыв</string>
     <string name="feedback_type">Тип отзыва</string>
     <string name="feedback_type_bug">Ошибка</string>

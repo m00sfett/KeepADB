@@ -393,6 +393,53 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Mode paksa</string>
+    <string name="force_section_hint">Mengaktifkan kembali Debugging Nirkabel di jaringan mana pun selama waktu yang Anda pilih. Pemblokiran dan jaringan tepercaya tidak berlaku selama itu.</string>
+    <string name="force_status_off">Nonaktif</string>
+    <string name="force_status_until">Aktif hingga %1$s</string>
+    <string name="force_status_unlimited">Aktif, tanpa waktu berakhir</string>
+    <string name="force_action_activate">Aktifkan mode paksa…</string>
+    <string name="force_action_end">Akhiri mode paksa</string>
+    <string name="force_action_change">Ubah durasi…</string>
+    <string name="force_dialog_title">Aktifkan mode paksa?</string>
+    <string name="force_dialog_intro">Keep-Alive kemudian akan mengaktifkan kembali Debugging Nirkabel di jaringan mana pun: termasuk jaringan asing, terblokir, dan tidak terbaca.</string>
+    <string name="force_dialog_duration_label">Berapa lama?</string>
+    <string name="force_duration_1h">1 jam</string>
+    <string name="force_duration_24h">24 jam</string>
+    <string name="force_duration_7d">7 hari</string>
+    <string name="force_duration_30d">30 hari</string>
+    <string name="force_duration_unlimited">Tanpa waktu berakhir</string>
+    <string name="force_warning_all">Debugging Nirkabel membuka sebuah port di jaringan. Komputer yang sebelumnya Anda pasangkan mendapat akses ADB penuh lewat port itu: memasang aplikasi, membaca data, merekam layar. Di jaringan asing Anda tidak tahu siapa yang mencoba.
+
+Pemblokiran dan jaringan tepercaya Anda tidak berlaku selama waktu ini.
+
+Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
+    <string name="force_warning_days">Selama beberapa hari Anda akan masuk ke jaringan yang sekarang tidak terpikirkan: hotel, kereta, kafe, tempat kerja. Debugging akan aktif di sana tanpa bertanya kepada Anda.</string>
+    <string name="force_warning_unlimited">Tanpa waktu berakhir, mode paksa tetap aktif sampai Anda sendiri mengakhirinya, termasuk setelah mulai ulang dan pembaruan aplikasi.</string>
+    <string name="force_unlimited_ack">Saya memahami bahwa Debugging Nirkabel kemudian akan aktif di jaringan mana pun.</string>
+    <string name="force_keepalive_hint">Mode paksa hanya berfungsi dengan Keep-Alive. Keep-Alive ikut diaktifkan.</string>
+    <string name="force_confirm_1h">Aktifkan selama 1 jam</string>
+    <string name="force_confirm_24h">Aktifkan selama 24 jam</string>
+    <string name="force_confirm_7d">Aktifkan selama 7 hari</string>
+    <string name="force_confirm_30d">Aktifkan selama 30 hari</string>
+    <string name="force_confirm_unlimited">Aktifkan tanpa waktu berakhir</string>
+    <string name="force_card_title">Mode paksa aktif</string>
+    <string name="force_card_text_until">Debugging Nirkabel diaktifkan kembali di jaringan mana pun. Aktif hingga %1$s.</string>
+    <string name="force_card_text_unlimited">Debugging Nirkabel diaktifkan kembali di jaringan mana pun. Tanpa waktu berakhir.</string>
+    <string name="force_ended_toast">Mode paksa berakhir. Tingkat perlindungan kembali: %1$s.</string>
+    <string name="force_notification_until">Mode paksa aktif hingga %1$s</string>
+    <string name="force_notification_unlimited">Mode paksa aktif, tanpa waktu berakhir</string>
+    <string name="force_channel_name">Pemberitahuan keamanan</string>
+    <string name="force_channel_desc">Pemberitahuan sekali tentang tingkat perlindungan, misalnya saat mode paksa berakhir.</string>
+    <string name="force_expired_title">Mode paksa berakhir</string>
+    <string name="force_expired_text">Waktu yang dipilih telah habis. Tingkat perlindungan kembali: %1$s. Keep-Alive kini hanya mengaktifkan di tempat yang diizinkan tingkat perlindungan.</string>
+    <string name="force_expired_still_on">Debugging Nirkabel saat ini masih aktif.</string>
+    <string name="force_expired_action_off">Nonaktifkan sekarang</string>
+    <string name="force_level_maximum">Keamanan maksimum</string>
+    <string name="force_level_balanced">Seimbang</string>
+    <string name="force_level_legacy_all">Di semua jaringan Wi-Fi (pengaturan sebelumnya)</string>
+    <string name="force_level_legacy_names">Daftar nama Wi-Fi (pengaturan sebelumnya)</string>
     <string name="settings_general_feedback">Masukan umum</string>
     <string name="feedback_type">Jenis masukan</string>
     <string name="feedback_type_bug">Kesalahan</string>
