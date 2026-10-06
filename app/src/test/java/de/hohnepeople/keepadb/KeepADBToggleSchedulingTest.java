@@ -203,6 +203,62 @@ public class KeepADBToggleSchedulingTest {
     }
 
     @Test
+    public void aGuardAbortOverAThreeLinkChainRestoresTheAppliedOffIntent() {
+        // #784: the two-link tests cannot tell whether a chain member renews the baseline token
+        // it hands on. With three links the third one only inherits the baseline if the second
+        // link re-registered its own (still current) token; a token that stays at the first
+        // link's value is already superseded, so the third link would fall back to the persisted
+        // value -- the second link's never-applied on. Applied state is "off".
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertTrue(KeepADB.isTogglePending());
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+
+        assertEquals("none of the three pending enables may reach the gateway",
+                Arrays.asList(false), gateway.writes);
+        assertTrue("the applied off-intent must survive the aborted three-link chain",
+                KeepADB.wasLastExplicitIntentOff(ctx));
+        assertFalse(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertTrue(KeepADB.isUserDisabled());
+        assertFalse(KeepADB.isTogglePending());
+    }
+
+    @Test
+    public void aPulseSupersededPredecessorBaselineIsNotInheritedByALaterGuardAbort() {
+        // #784 (documents today's behaviour, does not anticipate #780): a recovery pulse issues
+        // a newer intent token while the pending automatic enable (A) is still queued, and
+        // applyNow() would later discard A without clearing the runnable. A's captured baseline
+        // (off) must then be ignored by the next guarded enable (B): B is not a continuation of
+        // A, so it falls back to the persisted intent (on, written by A) instead of A's stale
+        // off baseline.
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertFalse(KeepADBPreferences.getLastDesiredOn(ctx));
+        // Wireless debugging is back on behind the app's back (as after an external re-enable).
+        gateway.write(ctx, true);
+
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue("A must be pending with the off baseline captured", KeepADB.isTogglePending());
+        assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
+
+        scheduler.setDeferAsync(true);
+        KeepADB.performRecoveryPulse(ctx);
+        assertEquals("the queued pulse body must not have written anything yet",
+                Arrays.asList(true, false, true), gateway.writes);
+
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+
+        assertFalse("the stale off baseline of the pulse-superseded A must not be restored",
+                KeepADB.wasLastExplicitIntentOff(ctx));
+        assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
+    }
+
+    @Test
     public void aNetworkChangeAbortOverAPendingPredecessorRestoresTheAppliedOffIntent() {
         assertTrue(KeepADB.setEnabled(ctx, false, "app"));
 

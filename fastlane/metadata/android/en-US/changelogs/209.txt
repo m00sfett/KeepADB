@@ -1,0 +1,1 @@
+Internal quality update: more automated tests guard the Keep-Alive switching logic. No change for you.
