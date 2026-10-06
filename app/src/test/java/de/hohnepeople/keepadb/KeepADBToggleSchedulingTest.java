@@ -179,6 +179,100 @@ public class KeepADBToggleSchedulingTest {
     }
 
     @Test
+    public void aGuardAbortOverAPendingPredecessorRestoresTheAppliedOffIntentNotThePendingOne() {
+        // #776: applied state is "off". A pending automatic enable (A) is superseded by a second
+        // one (B) whose guard fails. B must roll back to the applied off, not to A's pending on
+        // that setEnabled() had already persisted -- otherwise nothing was ever switched on, yet
+        // the user-visible intent (and every later guard reading it) says "on".
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertTrue(KeepADB.isTogglePending());
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+
+        assertEquals("neither pending enable may reach the gateway",
+                Arrays.asList(false), gateway.writes);
+        assertTrue("the applied off-intent must survive the aborted chain",
+                KeepADB.wasLastExplicitIntentOff(ctx));
+        assertFalse("the persisted intent must be the applied one",
+                KeepADBPreferences.getLastDesiredOn(ctx));
+        assertTrue(KeepADB.isUserDisabled());
+        assertFalse(KeepADB.isTogglePending());
+    }
+
+    @Test
+    public void aNetworkChangeAbortOverAPendingPredecessorRestoresTheAppliedOffIntent() {
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true));
+        KeepADB.noteNetworkChanged();
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+
+        assertEquals(Arrays.asList(false), gateway.writes);
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+        assertFalse(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertTrue(KeepADB.isUserDisabled());
+    }
+
+    @Test
+    public void aRejectedWriteOverAPendingPredecessorRestoresTheAppliedOnIntent() {
+        // #776, write_rejected path with an immediate successor: applied state is "on", a pending
+        // automatic off (A) is superseded by a manual off (B) whose write is rejected. The
+        // rollback must restore the applied on, not A's pending off.
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.isTogglePending());
+        gateway.setWriteSuccess(false);
+
+        assertFalse("a rejected write must be reported as failed",
+                KeepADB.setEnabled(ctx, false, "app"));
+
+        assertFalse("the applied on-intent must be restored",
+                KeepADB.wasLastExplicitIntentOff(ctx));
+        assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertFalse(KeepADB.isUserDisabled());
+    }
+
+    @Test
+    public void aGuardAbortNeverRollsBackOverANewerIntentOfAnotherPath() {
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+
+        // A manual on tap lands while the guarded enable is still pending: the newer intent wins
+        // and the superseded guarded one must neither write nor roll anything back.
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+
+        assertTrue(gateway.isEnabled(ctx));
+        assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
+        assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
+    }
+
+    @Test
+    public void theBaselineOfAResolvedChainDoesNotLeakIntoALaterGuardAbort() {
+        // First chain aborts over an applied off ...
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+
+        // ... then the user switches on for real; a later, unchained aborted enable must restore
+        // *that* applied on, not the stale off baseline of the first chain.
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(gateway.isEnabled(ctx));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+
+        assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
+        assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
+    }
+
+    @Test
     public void recoveryPulseRestoresWhenUninterrupted() {
         gateway = new KeepADBFakeSettingsGateway(true);
         KeepADB.setGatewayForTesting(gateway);
