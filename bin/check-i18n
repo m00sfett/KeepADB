@@ -100,6 +100,7 @@ ALLOWLIST = {
     "settings_webhook_url_label": {"ja"},   # "Webhook URL" is the idiomatic Japanese form
     "settings_section_version": {"de", "fr"},   # "Version" is the correct German and French word
     "background_location_dialog_later": {"nl"},  # "Later" is the correct Dutch word (#644)
+    "onboarding_later": {"nl"},                  # "Later" is the correct Dutch word (#761)
     "settings_section_general": {"es"},         # "General" is the correct Spanish word
     "settings_section_notification": {"fr"},    # "Notification" is the correct French word
     "usb_profile_hostname_hint": {"de"},        # "Hostname (optional)" is correct German (cf. nl "Hostnaam (optioneel)")
