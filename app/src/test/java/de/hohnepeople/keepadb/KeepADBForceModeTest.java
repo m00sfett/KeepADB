@@ -226,18 +226,213 @@ public class KeepADBForceModeTest {
     }
 
     @Test
-    public void whenTheBootCountCannotBeReadOnlyTheWallClockCountsAndAnEarlierClockEndsTheMode() {
-        clock.bootCountReadable = false;
+    public void afterARebootAWallClockBeforeTheReboundBaseCannotBeMeasuredEitherAndEndsTheMode() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.DAYS_7, false));
+        clock.advance(2 * HOUR);
+        clock.reboot(30 * MINUTE, 5 * MINUTE);
+        bootCompleted();
+        long reboundBase = clock.wall;
+        clock.advance(10 * MINUTE);
+
+        // The second restart finds a wall clock that is after the activation but before the base
+        // the budget was bound to: counting forward from the base is impossible, so it ends. Without
+        // the rebinding this value would still be a measurable instant after the start.
+        clock.reboot(5 * MINUTE, 1 * MINUTE);
+        clock.setWallClock(reboundBase - MINUTE);
+
+        assertFalse("The wall clock only counts forward from the rebound base",
+                KeepADBForceMode.isActive(context));
+    }
+
+    // --- The budget is bound to the new boot after a restart (#763, review P1) -------------------------------
+
+    @Test
+    public void aClockSetBackwardAfterARebootStillCannotExtendTheRemainingBudget() {
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
-        long start = clock.wall;
+        clock.advance(2 * HOUR);
+        clock.reboot(30 * MINUTE, 5 * MINUTE);
+        bootCompleted();
+        assertEquals("The restart keeps the mode: 24 hours minus 2 hours before it, minus 35 minutes since",
+                21 * HOUR + 25 * MINUTE, KeepADBForceMode.status(context).remainingMs);
+
+        // An hour into the new boot a wrong date is corrected by half an hour (NTP, or by hand).
+        clock.advance(HOUR);
+        clock.setWallClock(clock.wall - 30 * MINUTE);
+        timeChanged();
+
+        assertEquals("One real hour has passed since the restart: 20 h 25 min are left, not 20 h 55 min",
+                20 * HOUR + 25 * MINUTE, KeepADBForceMode.status(context).remainingMs);
+        assertEquals("The re-armed alarm follows the same budget, not the extended wall measure",
+                clock.elapsed + 20 * HOUR + 25 * MINUTE, alarms().peekNextScheduledAlarm().getTriggerAtMs());
+    }
+
+    @Test
+    public void aClockSetForwardAfterARebootStillEndsTheModeEarlierNeverLate() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        clock.advance(2 * HOUR);
+        clock.reboot(30 * MINUTE, 5 * MINUTE);
+        bootCompleted();
 
         clock.advance(HOUR);
-        assertTrue("Without a boot count the wall clock alone still measures", KeepADBForceMode.isActive(context));
-        assertEquals(23 * HOUR, KeepADBForceMode.status(context).remainingMs);
+        clock.setWallClock(clock.wall + 3 * HOUR); // set forward: the wall measure is the smaller one
+        timeChanged();
 
-        clock.setWallClock(start - 5 * MINUTE);
-        assertFalse("... and a clock set before the start cannot be told from a restart",
+        assertEquals("The narrower measure wins: 21 h 25 min minus 1 h real and 3 h set forward",
+                17 * HOUR + 25 * MINUTE, KeepADBForceMode.status(context).remainingMs);
+
+        clock.setWallClock(clock.wall + DAY);
+        timeChanged();
+        assertFalse("A clock set far forward ends it", KeepADBForceMode.isActive(context));
+        assertNotNull("... and reports it once", posted(context, KeepADBForceNotice.NOTIFICATION_ID));
+    }
+
+    @Test
+    public void theBudgetBoundToTheNewBootSurvivesProcessDeathWhicheverDriverRunsFirst() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        String atStart = prefs().getString(KeepADBForceMode.KEY_STATE, null);
+        clock.advance(2 * HOUR);
+        clock.reboot(30 * MINUTE, 5 * MINUTE);
+
+        // Not the boot receiver: a screen opening or the heartbeat may come first.
+        assertFalse(KeepADBForceMode.finishIfExpired(context));
+        String bound = prefs().getString(KeepADBForceMode.KEY_STATE, null);
+        assertNotNull(bound);
+        assertFalse("The remaining budget was stored for the new boot", bound.equals(atStart));
+
+        // A new process has nothing of the mode but preferences and the clock itself.
+        KeepADBForceMode.resetForTesting();
+        KeepADBForceMode.setClockForTesting(clock);
+        clock.advance(HOUR);
+        clock.setWallClock(clock.wall - 30 * MINUTE);
+
+        assertEquals("No driver ran after the correction: the pure read alone must not be extended",
+                20 * HOUR + 25 * MINUTE, KeepADBForceMode.status(context).remainingMs);
+    }
+
+    @Test
+    public void aSecondRebootCountsFromTheReboundBudgetAndBindsItAgain() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        clock.advance(2 * HOUR);
+        clock.reboot(30 * MINUTE, 5 * MINUTE);
+        bootCompleted();                               // 21 h 25 min left, bound to boot 2
+        clock.advance(HOUR);
+
+        clock.reboot(10 * MINUTE, 2 * MINUTE);
+        bootCompleted();
+
+        assertEquals("21 h 25 min minus the hour and the 12 minutes since the first rebinding",
+                20 * HOUR + 13 * MINUTE, KeepADBForceMode.status(context).remainingMs);
+
+        clock.advance(HOUR);
+        clock.setWallClock(clock.wall - 30 * MINUTE);
+        timeChanged();
+
+        assertEquals("Bound to boot 3 now: the correction extends nothing",
+                19 * HOUR + 13 * MINUTE, KeepADBForceMode.status(context).remainingMs);
+
+        clock.advance(19 * HOUR + 13 * MINUTE - 1);
+        assertTrue(KeepADBForceMode.isActive(context));
+        clock.advance(1);
+        assertFalse("... and it ends exactly when the real time since the activation is 24 hours",
                 KeepADBForceMode.isActive(context));
+    }
+
+    @Test
+    public void aRebootDoesNotEndTheModeAndAnUnchangedBootDoesNotRewriteTheState() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.DAYS_7, false));
+        clock.advance(HOUR);
+        clock.reboot(10 * MINUTE, 2 * MINUTE);
+        bootCompleted();
+        assertTrue("A restart alone never ends the mode", KeepADBForceMode.isActive(context));
+        String bound = prefs().getString(KeepADBForceMode.KEY_STATE, null);
+
+        clock.advance(20 * MINUTE);
+        KeepADBForceMode.restore(context);
+        KeepADBForceMode.finishIfExpired(context);
+        timeChanged();
+
+        assertEquals("Within the bound boot nothing moves the stored base", bound,
+                prefs().getString(KeepADBForceMode.KEY_STATE, null));
+    }
+
+    // --- An unreadable boot counter ends the mode (#763, review P1) ------------------------------------------
+
+    @Test
+    public void whenTheBootCountCannotBeReadAtTheStartALimitedModeIsRefusedAndNothingIsTouched() {
+        clock.bootCountReadable = false;
+
+        for (KeepADBForceMode.Span span : KeepADBForceMode.Span.values()) {
+            if (span.isUnlimited()) continue;
+            assertFalse(span.token, KeepADBForceMode.activate(context, span, false));
+        }
+
+        assertFalse(KeepADBForceMode.isActive(context));
+        assertFalse("Refused: nothing stored", prefs().contains(KeepADBForceMode.KEY_STATE));
+        assertFalse("... Keep-Alive is not switched on for a mode that cannot run",
+                KeepADBPreferences.isKeepAliveEnabled(context));
+        assertNull("... and no alarm armed", alarms().peekNextScheduledAlarm());
+        assertNull("... and nothing to report", posted(context, KeepADBForceNotice.NOTIFICATION_ID));
+
+        clock.bootCountReadable = true;
+        assertTrue("The refusal is not permanent: readable again, it can be started",
+                KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+    }
+
+    @Test
+    public void whenTheBootCountBecomesUnreadableTheModeEndsAtOnceWithTheOneNoticeAndStaysEnded() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        clock.advance(2 * HOUR);
+        clock.reboot(30 * MINUTE, 5 * MINUTE);
+        clock.bootCountReadable = false;
+
+        assertFalse("The gate does not wait for any transition: off at once",
+                KeepADBForceMode.isActive(context));
+        bootCompleted();
+
+        assertFalse(prefs().contains(KeepADBForceMode.KEY_STATE));
+        assertNotNull("The existing one-time notice reports it", posted(context, KeepADBForceNotice.NOTIFICATION_ID));
+        assertTrue("... without a way back into the mode",
+                posted(context, KeepADBForceNotice.NOTIFICATION_ID).actions == null
+                        || posted(context, KeepADBForceNotice.NOTIFICATION_ID).actions.length == 0);
+        context.getSystemService(NotificationManager.class).cancel(KeepADBForceNotice.NOTIFICATION_ID);
+
+        // The trigger goes away: the mode is over and does not come back, and nothing repeats the notice.
+        clock.bootCountReadable = true;
+        KeepADBForceMode.restore(context);
+        bootCompleted();
+        timeChanged();
+        assertFalse("It healed by ending: no lasting block, no revival", KeepADBForceMode.isActive(context));
+        assertNull("Exactly once", posted(context, KeepADBForceNotice.NOTIFICATION_ID));
+        assertTrue("The user can start it again once the counter is readable",
+                KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+    }
+
+    @Test
+    public void aBootCountThatTurnsUnreadableWithinTheBootEndsTheModeToo() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        clock.advance(HOUR);
+        assertTrue(KeepADBForceMode.isActive(context));
+
+        clock.bootCountReadable = false;
+
+        assertFalse("Not telling a restart from none, the monotonic clock cannot be trusted: end",
+                KeepADBForceMode.isActive(context));
+        assertTrue(KeepADBForceMode.finishIfExpired(context));
+        assertNotNull(posted(context, KeepADBForceNotice.NOTIFICATION_ID));
+    }
+
+    @Test
+    public void theUnlimitedModeHasNoTimeBudgetAndDoesNotNeedTheBootCount() {
+        clock.bootCountReadable = false;
+
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.UNLIMITED, true));
+        clock.advance(40 * DAY);
+        KeepADBForceMode.restore(context);
+        bootCompleted();
+
+        assertTrue("Nothing to measure, nothing to end", KeepADBForceMode.isActive(context));
+        assertNull(posted(context, KeepADBForceNotice.NOTIFICATION_ID));
+        assertTrue(KeepADBForceMode.endNow(context));
     }
 
     @Test
@@ -533,6 +728,28 @@ public class KeepADBForceModeTest {
         assertTrue(KeepADBForceMode.isActive(context));
     }
 
+    @Test
+    public void aStoredBudgetThatIsNotPositiveOrExceedsItsSpanReadsAsOffAndNeverAsExtended() {
+        String base = ";" + clock.wall + ";" + clock.elapsed + ";" + clock.boot;
+        String[] damaged = {
+                "2;1h;3600001" + base,      // more than the span: an extension
+                "2;1h;0" + base, "2;1h;-5" + base, "2;1h;x" + base,
+                "2;unlimited;1" + base,     // an unlimited mode has no budget
+                "2;1h;1800000;0;5;7", "2;1h;1800000;1800000000000;-1;7",
+                "2;1h;1800000" + base + ";9", "2;1h" + base};
+        for (String value : damaged) {
+            prefs().edit().putString(KeepADBForceMode.KEY_STATE, value).commit();
+            assertFalse("'" + value + "' must read as off", KeepADBForceMode.isActive(context));
+        }
+
+        prefs().edit().putString(KeepADBForceMode.KEY_STATE, "2;1h;1800000" + base).commit();
+        assertEquals("A good value in the same slot is on, with exactly its stored budget",
+                30 * MINUTE, KeepADBForceMode.status(context).remainingMs);
+        prefs().edit().putString(KeepADBForceMode.KEY_STATE, "2;1h;3600000" + base).commit();
+        assertEquals("... and a budget equal to the span is the whole span",
+                HOUR, KeepADBForceMode.status(context).remainingMs);
+    }
+
     // --- Ending it by hand -------------------------------------------------------------------------------------------
 
     @Test
@@ -759,6 +976,14 @@ public class KeepADBForceModeTest {
     }
 
     // --- Helpers ------------------------------------------------------------------------------------------------------------
+
+    private void bootCompleted() {
+        new BootReceiver().onReceive(context, new Intent(Intent.ACTION_BOOT_COMPLETED));
+    }
+
+    private void timeChanged() {
+        new BootReceiver().onReceive(context, new Intent(Intent.ACTION_TIME_CHANGED));
+    }
 
     private SharedPreferences prefs() {
         return context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE);

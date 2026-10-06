@@ -44,22 +44,43 @@ import java.util.Locale;
  *
  * <h2>Time rules</h2>
  * The state is one string in {@code keepadb_prefs} ({@link #KEY_STATE}), written with {@code
- * commit()} so a process kill right after the dialog cannot lose it: span, wall clock at start,
- * monotonic clock at start and the boot count at start. The remaining time is the <em>smaller</em>
- * of two measures, so every clock anomaly can only end the mode early, never extend it:
+ * commit()} so a process kill right after the dialog cannot lose it: the span, the budget that is
+ * left and the base that budget counts from (wall clock, monotonic clock and boot count at that
+ * moment). At the start the budget is the whole span and the base is the start. The remaining time
+ * is the <em>smaller</em> of two measures, so every clock anomaly can only end the mode early,
+ * never extend it:
  * <ul>
- *   <li>wall clock: {@code start + span - now} (epoch based, so time zones and daylight saving
- *       time are irrelevant). A clock set <em>forward</em> ends it early. It is also the only
- *       measure across a reboot.</li>
+ *   <li>wall clock: {@code base + budget - now} (epoch based, so time zones and daylight saving
+ *       time are irrelevant). A clock set <em>forward</em> ends it early. It is the only measure
+ *       until the budget has been rebound after a restart.</li>
  *   <li>monotonic clock ({@link SystemClock#elapsedRealtime}, includes deep sleep), used only
- *       while the boot count is unchanged: a clock set <em>backward</em> cannot extend it within
- *       a boot.</li>
+ *       while the boot count is the one of the base: a clock set <em>backward</em> cannot extend
+ *       it within that boot.</li>
  * </ul>
- * After a reboot (boot count changed, or unreadable) a wall clock earlier than the start cannot be
- * measured and ends the mode (fail closed). Known residual: a reboot followed by a manual clock
- * change backward that stays after the start extends the mode by the size of the jump; that needs
- * an unlocked device and does not happen through NTP, time zone or daylight saving changes. An
- * unlimited span has no deadline and survives restarts and app updates until it is ended.
+ * <b>Rebinding.</b> The monotonic clock starts over with every boot, so after a restart the base
+ * is useless and only the wall clock can measure what is left. The first driver that runs in the
+ * new boot ({@link #finishIfExpired}, which every driver calls) therefore turns what is left into
+ * a new base of that boot (remaining budget, wall clock, monotonic clock and boot count now) and
+ * stores it. From then on a clock set backward cannot extend the mode in that boot either, and a
+ * further restart repeats this from the new base. A restart alone never ends the mode and never
+ * credits time: the budget only shrinks. Until the rebinding the wall clock counts only forward
+ * from the base: a wall clock before it (reset RTC, clock set back) cannot be measured and ends
+ * the mode (fail closed), so never more is credited than was left.
+ *
+ * <p><b>Unreadable boot count.</b> Without it a restart cannot be told from none, so the monotonic
+ * clock cannot be trusted and there is nothing to bind the budget to: a limited mode ends at once
+ * (the gate is off from the first read, {@link #finishIfExpired} then delivers the one expiry
+ * notice) and a limited mode is not started at all. The trigger may disappear (the counter is
+ * readable again): nothing stays locked, the ended mode simply does not come back and can be
+ * started again from its dialog. An unlimited mode has no budget and does not need the counter.
+ *
+ * <p>Known residual: a clock set backward in one boot that stays after the base, followed by a
+ * restart, or a clock set backward after a restart but before the first driver ran (a short
+ * window: the boot broadcast arrives after the unlock), is only visible to the wall clock and
+ * extends the mode by the size of the jump. It needs a manual change on an unlocked device or a
+ * backward correction landing in that window, and does not happen through time zone or daylight
+ * saving changes. An unlimited span has no deadline and survives restarts and app updates until it
+ * is ended.
  *
  * <h2>Persistence, rollback</h2>
  * Two additive keys ({@link #KEY_STATE}, {@link #KEY_NOTICE_PENDING}). An older app version ignores
@@ -75,11 +96,16 @@ import java.util.Locale;
  */
 final class KeepADBForceMode {
     private static final String PREFS_NAME = "keepadb_prefs";
-    /** {@code 1;<span token>;<wall ms>;<elapsed ms>;<boot count>}, one value so reads are atomic. */
+    /**
+     * {@code 2;<span token>;<budget ms>;<base wall ms>;<base elapsed ms>;<base boot count>}, one
+     * value so reads are atomic. The earlier {@code 1;<span>;<wall>;<elapsed>;<boot>} (budget =
+     * the whole span) is still read.
+     */
     static final String KEY_STATE = "force_state";
     /** The expiry happened and its notice has not been delivered (or not been confirmed) yet. */
     static final String KEY_NOTICE_PENDING = "force_expired_notice_pending";
-    private static final String STATE_VERSION = "1";
+    private static final String STATE_VERSION = "2";
+    private static final String LEGACY_STATE_VERSION = "1";
 
     /** Request codes of the PendingIntents of the force mode (N6): one block, no overlap. */
     static final int REQUEST_CODE_END = 20;
@@ -156,15 +182,22 @@ final class KeepADBForceMode {
         }
     };
 
-    /** What is stored while the mode is on. */
+    /**
+     * What is stored while the mode is on: the budget that is left and the base it counts from.
+     * The base is the start of the mode, or after a restart the moment the budget was rebound to
+     * the new boot; the {@code started...} fields and {@code bootCount} describe that base.
+     */
     static final class State {
         final Span span;
+        /** Milliseconds of the budget left at the base; the whole span at the start, 0 if unlimited. */
+        final long budgetMs;
         final long startedWallMs;
         final long startedElapsedMs;
         final int bootCount;
 
-        State(Span span, long startedWallMs, long startedElapsedMs, int bootCount) {
+        State(Span span, long budgetMs, long startedWallMs, long startedElapsedMs, int bootCount) {
             this.span = span;
+            this.budgetMs = budgetMs;
             this.startedWallMs = startedWallMs;
             this.startedElapsedMs = startedElapsedMs;
             this.bootCount = bootCount;
@@ -222,21 +255,28 @@ final class KeepADBForceMode {
 
     /**
      * The remaining time of a limited state, the smaller of the wall clock and the monotonic
-     * measure (see the class javadoc); zero or less means expired.
+     * measure (see the class javadoc); zero or less means expired. An unreadable boot count
+     * ({@code bootNow < 0}) ends a limited state: without it the monotonic clock cannot be trusted.
      */
     static long remainingMs(State state, long wallNow, long elapsedNow, int bootNow) {
         if (state.span.isUnlimited()) return Long.MAX_VALUE;
-        long total = state.span.millis;
+        if (bootNow < 0) return 0L;
+        long total = state.budgetMs;
         long remaining = state.startedWallMs + total - wallNow;
-        boolean sameBoot = state.bootCount >= 0 && bootNow == state.bootCount
-                && elapsedNow >= state.startedElapsedMs;
+        boolean sameBoot = isSameBoot(state, elapsedNow, bootNow);
         if (sameBoot) {
             return Math.min(remaining, state.startedElapsedMs + total - elapsedNow);
         }
-        // Another boot, or the boot cannot be told: only the wall clock is left, and a wall clock
-        // before the start (reset RTC, clock set back) cannot be measured -- fail closed.
+        // Another boot: only the wall clock is left, and a wall clock before the base (reset RTC,
+        // clock set back) cannot be measured -- fail closed. Counted from the base it can only
+        // shrink the budget, never credit more than was left.
         if (wallNow < state.startedWallMs) return 0L;
         return remaining;
+    }
+
+    /** Whether the monotonic clock of the state's base is the one running now. */
+    private static boolean isSameBoot(State state, long elapsedNow, int bootNow) {
+        return bootNow >= 0 && bootNow == state.bootCount && elapsedNow >= state.startedElapsedMs;
     }
 
     /** The end as text for the surfaces: a time of day within today, otherwise weekday, date and time. */
@@ -257,8 +297,9 @@ final class KeepADBForceMode {
     /**
      * Turns the force mode on for {@code span}, replacing a running one (a new full start, never
      * an extension). Only {@link KeepADBForceDialog} calls this, after the warnings. An unlimited
-     * span is refused without {@code unlimitedAcknowledged}; a state that could not be stored is
-     * refused too, so a failed write can never leave the user believing it is on.
+     * span is refused without {@code unlimitedAcknowledged}; a limited one while the boot count is
+     * unreadable (it would end at once); a state that could not be stored is refused too, so a
+     * failed write can never leave the user believing it is on.
      *
      * <p>Keep-Alive is switched on with it (F7) when it is off; when it already is on, nothing
      * about it is touched, so an earlier manual "off" of Wireless Debugging itself stays respected.
@@ -273,7 +314,13 @@ final class KeepADBForceMode {
             return false;
         }
         Clock now = clock;
-        State state = new State(span, now.wallMs(), now.elapsedMs(), now.bootCount(app));
+        int boot = now.bootCount(app);
+        if (!span.isUnlimited() && boot < 0) {
+            // Nothing to bind the budget to and no way to tell a restart: it would end at once.
+            KeepADBDiagnostics.event(app, "force_mode", "app", "refused", "boot_count_unreadable");
+            return false;
+        }
+        State state = new State(span, span.millis, now.wallMs(), now.elapsedMs(), boot);
         boolean stored;
         synchronized (LOCK) {
             stored = prefs(app).edit()
@@ -326,24 +373,45 @@ final class KeepADBForceMode {
      * drivers, any number of times: the state is cleared in one atomic write, so exactly one caller
      * performs the transition, and the notice is delivered once.
      *
+     * <p>A mode that is still running but was last measured in another boot is rebound here, by
+     * whichever driver comes first after the restart: what is left becomes the stored base of the
+     * new boot, so the monotonic clock covers it from then on (class javadoc, "Rebinding"). In the
+     * boot of the stored base nothing is written.
+     *
      * @return true if this call performed the expiry transition.
      */
     static boolean finishIfExpired(Context context) {
         if (context == null) return false;
         Context app = context.getApplicationContext();
         boolean transitioned = false;
+        boolean rebound = false;
+        boolean reboundFailed = false;
         synchronized (LOCK) {
             State state = readState(app);
             if (state != null && !state.span.isUnlimited()) {
                 Clock now = clock;
-                long remaining = remainingMs(state, now.wallMs(), now.elapsedMs(), now.bootCount(app));
+                long wall = now.wallMs();
+                long elapsed = now.elapsedMs();
+                int boot = now.bootCount(app);
+                long remaining = remainingMs(state, wall, elapsed, boot);
                 if (remaining <= 0) {
                     transitioned = prefs(app).edit()
                             .remove(KEY_STATE)
                             .putBoolean(KEY_NOTICE_PENDING, true)
                             .commit();
+                } else if (!isSameBoot(state, elapsed, boot)) {
+                    // Running (so the boot count is readable) but measured in another boot.
+                    State bound = new State(state.span, remaining, wall, elapsed, boot);
+                    rebound = prefs(app).edit().putString(KEY_STATE, encode(bound)).commit();
+                    reboundFailed = !rebound;
                 }
             }
+        }
+        if (rebound) {
+            KeepADBDiagnostics.event(app, "force_mode", "timer", "rebound", "new_boot");
+        } else if (reboundFailed) {
+            // The next driver tries again; until then the wall clock alone measures, as it did.
+            KeepADBDiagnostics.event(app, "force_mode", "timer", "failed", "rebound_not_stored");
         }
         if (transitioned) {
             cancelExpiryAlarm(app);
@@ -440,23 +508,32 @@ final class KeepADBForceMode {
     }
 
     static String encode(State state) {
-        return STATE_VERSION + ";" + state.span.token + ";" + state.startedWallMs + ";"
-                + state.startedElapsedMs + ";" + state.bootCount;
+        return STATE_VERSION + ";" + state.span.token + ";" + state.budgetMs + ";"
+                + state.startedWallMs + ";" + state.startedElapsedMs + ";" + state.bootCount;
     }
 
-    /** Null for anything that is not a complete, plausible state: a damaged value reads as "off". */
+    /**
+     * Null for anything that is not a complete, plausible state: a damaged value reads as "off".
+     * A budget above its span would be an extension and is damaged too.
+     */
     static State decode(String raw) {
         if (raw == null) return null;
         String[] parts = raw.split(";", -1);
-        if (parts.length != 5 || !STATE_VERSION.equals(parts[0])) return null;
+        boolean legacy = parts.length == 5 && LEGACY_STATE_VERSION.equals(parts[0]);
+        boolean current = parts.length == 6 && STATE_VERSION.equals(parts[0]);
+        if (!legacy && !current) return null;
         Span span = Span.fromToken(parts[1]);
         if (span == null) return null;
         try {
-            long wall = Long.parseLong(parts[2]);
-            long elapsed = Long.parseLong(parts[3]);
-            int boot = Integer.parseInt(parts[4]);
+            int at = legacy ? 2 : 3;
+            long budget = legacy ? span.millis : Long.parseLong(parts[2]);
+            long wall = Long.parseLong(parts[at]);
+            long elapsed = Long.parseLong(parts[at + 1]);
+            int boot = Integer.parseInt(parts[at + 2]);
             if (wall <= 0 || elapsed < 0) return null;
-            return new State(span, wall, elapsed, boot);
+            boolean plausibleBudget = span.isUnlimited() ? budget == 0 : budget > 0 && budget <= span.millis;
+            if (!plausibleBudget) return null;
+            return new State(span, budget, wall, elapsed, boot);
         } catch (NumberFormatException damaged) {
             return null;
         }
