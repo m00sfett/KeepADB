@@ -62,6 +62,12 @@ final class KeepADB {
     }
 
     private static Runnable pendingToggleRunnable;
+    // #776: the last-intent value that was actually in force before the pending (debounced)
+    // intent chain started, and the token of the newest intent in that chain. A newer setEnabled()
+    // that supersedes a still-pending predecessor must roll back to this value, not to the
+    // predecessor's own never-applied intent that setEnabled() has already persisted.
+    private static boolean pendingToggleBaselineLastDesiredOn;
+    private static long pendingToggleBaselineToken;
     // #500: the delayed "did the accepted write actually stick?" check for the automatic enable
     // path. Deliberately separate from pendingToggleRunnable, which drives the debounce window and
     // the surfaces' "switching…" indicator; this one changes no state a surface renders.
@@ -387,7 +393,13 @@ final class KeepADB {
                 // as an explicit on.
                 recoveryBackoff.reset();
             }
-            previousLastDesiredOn = !wasLastExplicitIntentOff(appContext);
+            // #776: with a pending predecessor still the newest intent, the persisted/in-memory
+            // last intent is that predecessor's (never applied) value -- inherit the baseline it
+            // captured instead. A predecessor already superseded by a pulse is not a chain.
+            previousLastDesiredOn = pendingToggleRunnable != null
+                    && state.isCurrentIntent(pendingToggleBaselineToken)
+                    ? pendingToggleBaselineLastDesiredOn
+                    : !wasLastExplicitIntentOff(appContext);
             KeepADBToggleState.ToggleDecision decision = state.requestToggle(
                     on, scheduler.elapsedRealtimeMs(), !isManualSource(source));
             token = decision.token;
@@ -401,7 +413,9 @@ final class KeepADB {
                 pendingToggleRunnable = null;
             }
             if (!decision.isImmediate()) {
-                        pendingToggleRunnable =
+                pendingToggleBaselineLastDesiredOn = previousLastDesiredOn;
+                pendingToggleBaselineToken = token;
+                pendingToggleRunnable =
                         () -> applyNow(appContext, on, source, token, networkGeneration, guard,
                                 previousLastDesiredOn);
                 scheduler.postDelayed(pendingToggleRunnable, delayMs);
