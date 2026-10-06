@@ -1,0 +1,1 @@
+Internal quality update: more automated tests guard the Keep-Alive switching logic, webhook status tests are more stable, and unused code was removed from Settings. No change for you.

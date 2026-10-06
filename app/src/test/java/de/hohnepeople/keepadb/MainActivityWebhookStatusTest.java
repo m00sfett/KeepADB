@@ -27,6 +27,11 @@ public class MainActivityWebhookStatusTest {
     @Rule
     public final KeepADBNetworkResetRule keepADBNetworkResetRule = new KeepADBNetworkResetRule();
 
+    /** #785: MainActivity.onResume may dispatch a register DELETE; start from clean static state. */
+    @Rule
+    public final KeepADBRegisterClientResetRule registerClientResetRule =
+            new KeepADBRegisterClientResetRule();
+
     @Before
     public void setUp() {
         RuntimeEnvironment.getApplication()
@@ -185,5 +190,59 @@ public class MainActivityWebhookStatusTest {
         assertTrue("Expected the no-endpoint-yet text: " + text,
                 text.contains(context.getString(R.string.webhook_status_no_endpoint)));
         controller.pause().close();
+    }
+
+    /**
+     * #785: pins the reset rule. Leftover registered state from an earlier test class (poisoned
+     * here with a registration and a succeeding fake transport) makes {@code onResume} dispatch a
+     * DELETE that flips the persisted {@code failed} report to {@code deregistered}. After the
+     * rule's reset the same sequence must keep rendering the failed-report text.
+     */
+    @Test
+    public void failedReportSurvivesLeftoverRegisterStateOnceTheResetRuleRan() {
+        Context context = RuntimeEnvironment.getApplication();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.111.111.21:50829/register/s20");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+
+        // Poison: what a previous test class may leave behind.
+        KeepADBRegisterClient.setHttpTransport(new KeepADBFakeHttpTransport(true));
+        KeepADBRegisterClient.setWlanStateForTesting(
+                "http://100.111.111.21:50829/register/s20", "192.168.0.2:40000");
+        // The rule's reset (what @Rule runs before each test) must neutralise the poison.
+        KeepADBRegisterClientResetRule.reset();
+        assertEquals(null, KeepADBRegisterClient.getLastRegisteredUrlForTesting());
+        // Install a succeeding fake again so a surviving DELETE would visibly flip the status.
+        KeepADBRegisterClient.setHttpTransport(new KeepADBFakeHttpTransport(true));
+
+        ActivityController<MainActivity> controller =
+                Robolectric.buildActivity(MainActivity.class).setup();
+        KeepADBRegisterClient.awaitIdleForTesting(2000);
+        org.robolectric.shadows.ShadowLooper.idleMainLooper();
+        TextView webhookStatus = controller.get().findViewById(R.id.webhook_status);
+        assertNotNull(webhookStatus);
+        String text = webhookStatus.getText().toString();
+
+        assertTrue("Expected the failed-report text: " + text,
+                text.contains(context.getString(R.string.webhook_status_failed)));
+        assertEquals(KeepADBPreferences.WEBHOOK_STATUS_FAILED,
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+        controller.pause().close();
+    }
+
+    /**
+     * #785: the pin test above calls the reset itself, so it stays green if the {@code @Rule}
+     * field is deleted. This pins that the rule is really applied to the class.
+     */
+    @Test
+    public void theRegisterClientResetRuleIsAppliedToThisClass() {
+        boolean applied = false;
+        for (java.lang.reflect.Field field : MainActivityWebhookStatusTest.class.getFields()) {
+            if (field.getType() == KeepADBRegisterClientResetRule.class
+                    && field.isAnnotationPresent(Rule.class)) {
+                applied = true;
+            }
+        }
+        assertTrue("KeepADBRegisterClientResetRule must be a public @Rule field", applied);
     }
 }

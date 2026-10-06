@@ -17,11 +17,24 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35` and `1.9.36` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36` and `1.9.37` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.37] - Unreleased
+
+Etappe E8 patch candidate (versionCode 209), packages #784, #785 and #786 on top of 1.9.36; no release. The version 1.9.36 stays as it is.
+
+### Testing
+- #784: `KeepADBToggleSchedulingTest.aGuardAbortOverAThreeLinkChainRestoresTheAppliedOffIntent` pins a chain of three pending automatic enables: the third link only inherits the applied baseline if the second one renewed the baseline token. Mutation "token not renewed on chain continuation" turns it red; the five two-link #776 tests stayed green under it.
+- #784: `KeepADBToggleSchedulingTest.aPulseSupersededPredecessorBaselineIsNotInheritedByALaterGuardAbort` pins the token check after a recovery pulse superseded a pending enable: the stale baseline of the superseded predecessor is ignored and the persisted intent is the fallback. Mutation "token check omitted" turns it red. It documents today's behaviour and does not anticipate #780 (`applyNow` still leaves the pending runnable of a superseded intent in place).
+- #785: `MainActivityWebhookStatusTest` (notably `webhookStatusRendersTheFailedReportText`) no longer depends on the static `KeepADBRegisterClient` state of earlier test classes. `MainActivity.onResume` reaches `markUnavailableAsync`; with leftover registration state from an earlier class an asynchronous DELETE flipped the persisted report status from `failed` to `deregistered` (seen once in a filtered partial run). New `KeepADBRegisterClientResetRule` drains the register executor and calls `KeepADBRegisterClient.resetForTesting()` before and after each test; the class applies it. A reflection test pins that the rule field is really applied to the class (the poison test calls the reset itself and would stay green if the `@Rule` were deleted). A new test poisons the state (registration plus a succeeding fake transport) and pins that the failed report text survives; with the reset removed it fails. Likely sources of the leftover state: `KeepADBWebhookFormTest` and `SettingsActivityTest`, which drive webhook saves but only reset the transport (not proven by bisect). No production code changed.
+- #786: The two tests that only exercised the removed extras are deleted.
+
+### Removed
+- #786: The settings intent extras `SettingsActivity.EXTRA_FOCUS_WEBHOOK` and `EXTRA_FOCUS_NETWORK` are removed together with their handling, `focusWebhookPanel`, `focusNetworkPanel`, `KeepADBWebhookForm.requestUrlFocus` and two unused view fields. They had no sender since #764 removed the home screen cards (no code, manifest, widget, tile, notification or documented external caller). `EXTRA_FOCUS_USB` and `EXTRA_FOCUS_FORCE` are unchanged. No user-visible change.
 
 ## [1.9.36] - Unreleased
 
