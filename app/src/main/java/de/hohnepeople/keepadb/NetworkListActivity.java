@@ -43,6 +43,11 @@ import java.util.Set;
  *
  * <p>#721: where Android holds no band right now, the last band seen while "Observe access
  * points" is on is shown instead; with neither, the BSSID stands alone, without brackets.
+ *
+ * <p>#762: {@link #VIEW_NETWORKS} is the single list that is to replace the three views above
+ * (their removal, with the old settings, is #769): the current network on top and the saved ones
+ * grouped by Wi-Fi name, each with one status, drawn by {@link NetworkListRenderer} from {@link
+ * KeepADBNetworkList}. The three older views are kept unchanged until then.
  */
 public class NetworkListActivity extends Activity {
     /** Intent extra naming the view to show; one of the {@code VIEW_*} values. */
@@ -50,6 +55,8 @@ public class NetworkListActivity extends Activity {
     static final String VIEW_ALLOWED = "allowed";
     static final String VIEW_PREVENTED = "prevented";
     static final String VIEW_OBSERVED = "observed";
+    /** #762: the single list of trusted and blocked networks. */
+    static final String VIEW_NETWORKS = "networks";
 
     /** Longer lists collapse behind a "show more" entry so the screen opens quickly (#468). */
     static final int COLLAPSED_ROWS = 20;
@@ -60,6 +67,8 @@ public class NetworkListActivity extends Activity {
     private TextView inactiveHint;
     private TextView privacyHint;
     private LinearLayout currentRow;
+    private LinearLayout networksRoot;
+    private NetworkListRenderer networks;
     private LinearLayout list;
     private TextView showMore;
     private TextView emptyView;
@@ -102,6 +111,9 @@ public class NetworkListActivity extends Activity {
             }
             activeNameDialog = null;
         }
+        if (networks != null) {
+            networks.dismissDialog();
+        }
         super.onDestroy();
     }
 
@@ -115,7 +127,8 @@ public class NetworkListActivity extends Activity {
                 findViewById(R.id.network_list_scroll));
 
         String requested = getIntent().getStringExtra(EXTRA_VIEW);
-        if (VIEW_PREVENTED.equals(requested) || VIEW_OBSERVED.equals(requested)) {
+        if (VIEW_PREVENTED.equals(requested) || VIEW_OBSERVED.equals(requested)
+                || VIEW_NETWORKS.equals(requested)) {
             listView = requested;
         }
 
@@ -124,6 +137,8 @@ public class NetworkListActivity extends Activity {
         inactiveHint = findViewById(R.id.network_list_inactive_hint);
         privacyHint = findViewById(R.id.network_list_privacy_hint);
         currentRow = findViewById(R.id.wifi_aps_current_row);
+        networksRoot = findViewById(R.id.networks_root);
+        networks = new NetworkListRenderer(this, networksRoot, this::render);
         list = findViewById(R.id.wifi_aps_list);
         showMore = findViewById(R.id.wifi_aps_toggle);
         emptyView = findViewById(R.id.wifi_aps_empty);
@@ -142,6 +157,16 @@ public class NetworkListActivity extends Activity {
         super.onResume();
         KeepADBPrivacyToggle.update(this);
         render();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NetworkListRenderer.REQUEST_LOCATION) {
+            // Re-read from the platform; the result arrays are not trusted (they can be empty).
+            render();
+        }
     }
 
     String getListView() {
@@ -163,10 +188,18 @@ public class NetworkListActivity extends Activity {
         showMore.setVisibility(View.GONE);
         emptyView.setVisibility(View.GONE);
         currentRow.setVisibility(View.GONE);
+        networksRoot.setVisibility(View.GONE);
         privacyHint.setVisibility(KeepADBNetworkDisplay.hidden(this) ? View.VISIBLE : View.GONE);
         inactiveHint.setVisibility(View.GONE);
 
         switch (listView) {
+            case VIEW_NETWORKS:
+                titleView.setText(R.string.networks_title);
+                introView.setText(R.string.networks_intro);
+                // The list says it itself when the privacy mode hides it.
+                privacyHint.setVisibility(View.GONE);
+                networks.render();
+                break;
             case VIEW_PREVENTED:
                 titleView.setText(R.string.network_row_prevented);
                 introView.setText(R.string.network_view_prevented_intro);

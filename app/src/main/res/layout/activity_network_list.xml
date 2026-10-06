@@ -6,7 +6,8 @@
     android:orientation="vertical">
 
     <!-- #654: one management view (allowed access points, recently prevented re-enabling or
-         observed access points) opened from the Network card in Settings. -->
+         observed access points) opened from the Network card in Settings. #762: plus the single
+         "Networks" view, which replaces them once #769 has removed the old settings. -->
     <LinearLayout
         android:id="@+id/header_bar"
         android:layout_width="match_parent"
@@ -55,7 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="16dp">
 
             <TextView
                 android:id="@+id/network_list_intro"
@@ -87,6 +88,15 @@
                 android:text="@string/network_privacy_hint"
                 android:textColor="@color/night_muted"
                 android:textSize="12sp"
+                android:visibility="gone" />
+
+            <!-- #762: the single "Networks" view is built into this column; the three older
+                 views above and below stay until the old settings are removed (#769). -->
+            <LinearLayout
+                android:id="@+id/networks_root"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:visibility="gone" />
 
             <LinearLayout
