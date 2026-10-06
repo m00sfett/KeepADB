@@ -352,7 +352,10 @@ final class NetworkListRenderer {
                 && current.ssid != null)) {
             card.addView(text(activity.getString(R.string.networks_tap_to_change), 12,
                     R.color.night_muted));
+            // The clickable background has no padding of its own (the panel's 16 dp are lost when
+            // it replaces the panel background), so give the content the same inset back (#791).
             card.setBackgroundResource(R.drawable.bg_card_clickable);
+            card.setPadding(dp(16), dp(16), dp(16), dp(16));
             card.setClickable(true);
             card.setFocusable(true);
             card.setOnClickListener(v -> {
