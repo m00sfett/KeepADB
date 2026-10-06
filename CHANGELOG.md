@@ -17,11 +17,26 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34` and `1.9.35` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35` and `1.9.36` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.36] - Unreleased
+
+Etappe E6 patch candidate (versionCode 208), package #778 (UX concept #758) on top of 1.9.35; no release. The version 1.9.35 stays as it is.
+
+### Removed
+- #778: The old observation history of Wi-Fi access points (`KeepADBBssidHistory`: every `bssid_history_*` key, i.e. SSID ids, BSSIDs and stored bands) is discarded once on update (user decision 2026-10-06, option A). Nothing has written it since #769. `KeepADBBssidHistory.discardLegacyOnce` runs from the boot/update receiver and the home screen, deletes only keys with the `bssid_history_` prefix and writes the additive marker `observation_history_discarded` in the same commit, so it runs exactly once. No other key is touched (mode, name list, trust, blocks, own names, block history, `wifi_aps_feature_enabled`, `onboarding_*`). There is no way to delete the history in the UI and none is needed.
+- #778: The marker is written on every installation, also a fresh one; `KeepADBOnboarding.isExistingInstall` ignores it, so a fresh installation is not taken for an existing one.
+
+### Changed
+- #778: The three readers of the history now find nothing and degrade without a crash: the mesh offer (#686, `offerAdditionalMeshBssids`) offers nothing, `KeepADBAccessPointBand.readStored` returns no bands, and `KeepADBNetworkList.observedNames` names no access point, so a blocked access point without a trust entry appears in the group "Wi-Fi name unknown". The readers themselves stay for now (removal: #788).
+- #778: `docs/trusted-networks.md` (the contradiction between the cleanup paragraph and the band paragraph) and `docs/defaults.md` describe the discard and the degradation consistently.
+
+### Testing
+- #778: `KeepADBBssidHistoryDiscardTest`: history before and gone after with every other key equal value for value, exactly once, fresh versus existing installation (discard before and after the check), both triggers, the three readers after the discard and the named list without it.
 
 ## [1.9.35] - Unreleased
 
