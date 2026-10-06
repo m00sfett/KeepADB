@@ -101,6 +101,7 @@ ALLOWLIST = {
     "settings_section_version": {"de", "fr"},   # "Version" is the correct German and French word
     "background_location_dialog_later": {"nl"},  # "Later" is the correct Dutch word (#644)
     "onboarding_later": {"nl"},                  # "Later" is the correct Dutch word (#761)
+    "onboarding_badge_optional": {"de"},         # "Optional" is the correct German word (#767)
     "settings_section_general": {"es"},         # "General" is the correct Spanish word
     "settings_section_notification": {"fr"},    # "Notification" is the correct French word
     "usb_profile_hostname_hint": {"de"},        # "Hostname (optional)" is correct German (cf. nl "Hostnaam (optioneel)")
