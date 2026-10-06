@@ -3,15 +3,10 @@ package de.hohnepeople.keepadb;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.location.LocationManager;
-import android.net.Uri;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -49,7 +44,6 @@ import java.util.Set;
 final class NetworkListRenderer {
 
     static final int REQUEST_LOCATION = 762;
-    private static final String PREF_LOCATION_REQUESTED = "networks_location_requested";
 
     /** A group with more access points than this folds to {@link #COLLAPSED_ROWS} rows. */
     static final int COLLAPSE_ABOVE = 5;
@@ -61,6 +55,8 @@ final class NetworkListRenderer {
     private final LinearLayout root;
     private final Runnable onChanged;
     private final Set<String> expandedGroups = new HashSet<>();
+    /** #767: the current-network card drawn for the setup assistant, see {@link #renderCurrentForAssistant}. */
+    private boolean assistantMode;
     private boolean glossaryOpen;
     private AlertDialog dialog;
 
@@ -101,6 +97,29 @@ final class NetworkListRenderer {
                 KeepADBNetworkList.build(activity, identity, wifiConnected);
         addCurrent(snapshot.current, identity);
         addSaved(snapshot);
+    }
+
+    /**
+     * #767: the current-network card alone, for the setup assistant's "Trusted Wi-Fi" step. It is
+     * the same card and the same embedded decision (#766) as in the list, with three differences:
+     * no section heading (the step has its title), no tap-to-change on a decided network (the
+     * assistant answers a question, it does not edit the list; a blocked network offers the way to
+     * the list instead), and a "check again" button where the state depends on the user acting
+     * elsewhere (no Wi-Fi, not readable). The name and the address are shown even while the
+     * privacy mode is on: the step is the deliberate exception of #758, like the decision itself.
+     */
+    void renderCurrentForAssistant() {
+        assistantMode = true;
+        dismissDialog();
+        root.removeAllViews();
+        root.setVisibility(View.VISIBLE);
+        frequencies = KeepADBAccessPointBand.read(activity);
+        storedBands = KeepADBAccessPointBand.readStored(activity);
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(activity);
+        boolean wifiConnected = identity.isKnown() || KeepADBService.isWifiConnected(activity);
+        KeepADBNetworkList.Snapshot snapshot =
+                KeepADBNetworkList.build(activity, identity, wifiConnected);
+        addCurrent(snapshot.current, identity);
     }
 
     // --- Glossary, protection, force ---------------------------------------------------------
@@ -204,7 +223,7 @@ final class NetworkListRenderer {
     // --- Current network ---------------------------------------------------------------------
 
     private void addCurrent(KeepADBNetworkList.Current current, KeepADBNetworkIdentity identity) {
-        root.addView(sectionHeading(R.string.networks_section_current, 16));
+        if (!assistantMode) root.addView(sectionHeading(R.string.networks_section_current, 16));
         LinearLayout card = panel(R.drawable.bg_panel);
         setTopMargin(card, 8);
 
@@ -229,6 +248,13 @@ final class NetworkListRenderer {
         card.addView(text(activity.getString(R.string.network_cause_no_wifi), 13, R.color.night_muted));
         card.addView(stackedButton(activity.getString(R.string.network_action_wifi_settings), false,
                 v -> KeepADBNetworkActions.openWifiSettings(activity)));
+        if (assistantMode) addRecheck(card);
+    }
+
+    /** #767: the state changes outside this screen, so the assistant offers to read it again. */
+    private void addRecheck(LinearLayout card) {
+        card.addView(stackedButton(activity.getString(R.string.onboarding_recheck), false,
+                v -> onChanged.run()));
     }
 
     private void addUnreadable(LinearLayout card, KeepADBNetworkIdentity identity) {
@@ -253,10 +279,20 @@ final class NetworkListRenderer {
                         KeepADBNetworkCardText.action(state.action)), true,
                         v -> KeepADBNetworkActions.openLocationSettings(activity)));
                 break;
+            case SET_UP_BACKGROUND:
+                if (assistantMode) {
+                    // The identity is masked although everything is allowed: the lasting fix is
+                    // the background grant, which only the app's system page can give.
+                    card.addView(stackedButton(activity.getString(
+                            KeepADBNetworkCardText.action(state.action)), true,
+                            v -> KeepADBBackgroundLocation.openSettings(activity)));
+                }
+                break;
             default:
                 // The background grant is set up in the Settings card; the cause text names it.
                 break;
         }
+        if (assistantMode) addRecheck(card);
     }
 
     private void addReadableCurrent(LinearLayout card, KeepADBNetworkList.Current current) {
@@ -310,6 +346,11 @@ final class NetworkListRenderer {
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
             params.topMargin = dp(12);
             card.addView(decision, params);
+        } else if (assistantMode) {
+            if (current.status == KeepADBNetworkList.Status.BLOCKED) {
+                card.addView(stackedButton(activity.getString(R.string.onboarding_network_open_list),
+                        false, v -> activity.startActivity(NetworkListActivity.intent(activity))));
+            }
         } else if (row != null || (current.status == KeepADBNetworkList.Status.BLOCKED
                 && current.ssid != null)) {
             card.addView(text(activity.getString(R.string.networks_tap_to_change), 12,
@@ -650,19 +691,7 @@ final class NetworkListRenderer {
     // --- Location ----------------------------------------------------------------------------
 
     private void requestLocation() {
-        SharedPreferences prefs = activity.getPreferences(Context.MODE_PRIVATE);
-        boolean requestedBefore = prefs.getBoolean(PREF_LOCATION_REQUESTED, false);
-        if (requestedBefore && !activity.shouldShowRequestPermissionRationale(
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
-            // Asked before and no longer asked again by the system: only the app page can grant it.
-            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            intent.setData(Uri.fromParts("package", activity.getPackageName(), null));
-            activity.startActivity(intent);
-            return;
-        }
-        prefs.edit().putBoolean(PREF_LOCATION_REQUESTED, true).apply();
-        activity.requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+        OnboardingPermissions.requestLocation(activity, REQUEST_LOCATION);
     }
 
     // --- Texts and badges --------------------------------------------------------------------
@@ -737,7 +766,8 @@ final class NetworkListRenderer {
         view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
         view.setTypeface(Typeface.create("sans-serif-condensed", Typeface.BOLD));
         view.setPadding(dp(6), dp(2), dp(6), dp(2));
-        view.setSingleLine(true);
+        // The assistant must not cut a word at a large font size (#761, #767).
+        if (!assistantMode) view.setSingleLine(true);
         int background;
         int color;
         switch (kind) {
@@ -779,8 +809,10 @@ final class NetworkListRenderer {
             titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
             titleView.setTextColor(activity.getColor(R.color.night_text));
         }
-        titleView.setMaxLines(2);
-        titleView.setEllipsize(TextUtils.TruncateAt.END);
+        if (!assistantMode) {
+            titleView.setMaxLines(2);
+            titleView.setEllipsize(TextUtils.TruncateAt.END);
+        }
         Configuration config = activity.getResources().getConfiguration();
         boolean stacked = config.fontScale >= 1.3f || config.screenWidthDp < 360;
         LinearLayout line = new LinearLayout(activity);

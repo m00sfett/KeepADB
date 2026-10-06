@@ -46,6 +46,7 @@ public class SettingsActivity extends Activity {
     private View networkPanel;
     private View permissionPanel;
     private View languageToolbarButton;
+    private TextView onboardingSummary;
 
     private Switch hideNotificationToggle;
     private TextView hideNotificationSubtext;
@@ -204,6 +205,14 @@ public class SettingsActivity extends Activity {
         usbHandoverSelectedText = findViewById(R.id.settings_usb_handover_selected_text);
         usbHandoverSelector = findViewById(R.id.settings_usb_handover_selector);
         usbHandoverSelector.setOnClickListener(v -> showUsbHandoverModeDialog());
+
+        // #761: the setup assistant, whole from the top row, the protection step from its level line.
+        onboardingSummary = findViewById(R.id.settings_onboarding_summary);
+        findViewById(R.id.settings_onboarding_row).setOnClickListener(v ->
+                startActivity(OnboardingActivity.fullIntent(this)));
+        findViewById(R.id.network_level_line).setOnClickListener(v ->
+                startActivity(OnboardingActivity.stepIntent(this,
+                        KeepADBOnboarding.Step.PROTECTION)));
 
         networkCard = new KeepADBNetworkCard(this, this::refresh);
         forceSection = new KeepADBForceSection(this, this::refresh);
@@ -621,6 +630,11 @@ public class SettingsActivity extends Activity {
         usbHandoverSelectedText.setText(handoverModeLabel);
         usbHandoverSelector.setContentDescription(
                 getString(R.string.settings_usb_handover_accessibility, getString(handoverModeLabel)));
+
+        onboardingSummary.setText(getString(R.string.onboarding_settings_summary,
+                KeepADBForceNotice.levelLabel(this),
+                getString(keepAliveActive ? R.string.onboarding_value_on
+                        : R.string.onboarding_value_off)));
 
         networkCard.refresh();
         forceSection.refresh();

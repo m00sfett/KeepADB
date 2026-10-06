@@ -488,12 +488,13 @@ final class KeepADBNetworkTrustPrompt {
      * that grant to how the *service record* was created, not to whether the app currently holds
      * the permission. Such a service keeps running -- masked, but otherwise functional -- and no
      * amount of re-checking permission or location fixes it; only promoting the service through a
-     * foreground start does, and only {@link MainActivity#onResume()} does that (it
-     * unconditionally calls {@link KeepADBService#sync}). {@link SettingsActivity} does not call
-     * {@code sync()} on resume, so it cannot re-promote the service. So this branch now opens
-     * {@link MainActivity} instead of falling back to {@link SettingsActivity}, which used to
-     * describe the state via {@code settings_trusted_network_status_identity_unavailable} without
-     * offering a working fix. (On API 34+ this background-start case still applies: a background
+     * foreground start does, and only {@link MainActivity#onResume()} (it unconditionally calls
+     * {@link KeepADBService#sync}) and, since #759 phase 2, the permissions step of the setup
+     * assistant ({@link OnboardingActionSteps.Permissions#onResume}, the same call) do that.
+     * {@link SettingsActivity} does not call {@code sync()} on resume, so it cannot re-promote the
+     * service. So this branch opens the assistant's step instead of falling back to {@link
+     * SettingsActivity}, which used to describe the state via {@code
+     * settings_trusted_network_status_identity_unavailable} without offering a working fix. (On API 34+ this background-start case still applies: a background
      * start with a location-typed foreground service throws {@code SecurityException}, but since
      * #629 {@link KeepADBService#onStartCommand} catches it and retries with {@code
      * connectedDevice} alone instead of stopping the service, so the masked-but-running state
@@ -502,10 +503,10 @@ final class KeepADBNetworkTrustPrompt {
      * <p>#643: the permanent alternative is the background location grant ({@code
      * ACCESS_BACKGROUND_LOCATION}, "Allow all the time"): with it the identity is readable after a
      * background start too (measurement "Nachtrag 5", API 30 to 36.1), so this notification only
-     * appears without it. The tap target for the "permission and location fine" case stays {@link
-     * MainActivity}: it re-promotes the service at once, and in allowlist mode without that grant
-     * it also shows the {@code background_location_panel} card leading to "Allow all the time".
-     * The notification text names that option as the lasting fix.
+     * appears without it. The tap target for the "permission and location fine" case is the
+     * assistant's permissions step at the background-detection row (#759 phase 2): it re-promotes
+     * the service at once and leads to "Allow all the time". The notification text names that
+     * option as the lasting fix.
      */
     private static Intent identityUnavailableFixIntent(Context context) {
         if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -525,8 +526,11 @@ final class KeepADBNetworkTrustPrompt {
             return new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
-        return new Intent(context, MainActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        // #759 phase 2: the assistant's permissions step at the background-detection row. Like
+        // MainActivity it re-promotes the service through sync() whenever it resumes (#628), and
+        // the row leads to "Allow all the time" instead of a card the user has to find.
+        return OnboardingActivity.notificationIntent(context, KeepADBOnboarding.Step.PERMISSIONS,
+                OnboardingActionSteps.Permissions.ITEM_BACKGROUND_LOCATION);
     }
 
     private static Notification.Action action(Context context, String title, String action,

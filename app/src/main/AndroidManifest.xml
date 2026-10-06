@@ -56,6 +56,13 @@
             android:name=".SettingsActivity"
             android:exported="false" />
 
+        <!-- #761: the setup assistant. Not exported: the home screen hands over to it the first
+             time, the Settings open it (all of it, or one step). The intent carries only the step
+             to show, never a value. -->
+        <activity
+            android:name=".OnboardingActivity"
+            android:exported="false" />
+
         <!-- #654: allowed / recently prevented / observed access points, opened from Settings. -->
         <activity
             android:name=".NetworkListActivity"

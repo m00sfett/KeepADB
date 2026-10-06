@@ -421,6 +421,13 @@ public class KeepADBResourceContractTest {
         int integerWitness = context.getApplicationInfo().uid;
         long longWitness = integerWitness;
         result.put("endpoint_format", new Object[] {stringWitness, integerWitness});
+        result.put("onboarding_step_counter", new Object[] {integerWitness, integerWitness});
+        result.put("onboarding_pane_title", new Object[] {integerWitness, integerWitness, stringWitness});
+        result.put("onboarding_intro_title_new", new Object[] {integerWitness});
+        result.put("onboarding_intro_less_secure", new Object[] {integerWitness});
+        result.put("onboarding_settings_summary", new Object[] {stringWitness, stringWitness});
+        result.put("onboarding_keep_alive_notification_hint", new Object[] {integerWitness});
+        result.put("onboarding_permissions_summary_missing", new Object[] {integerWitness});
         result.put("widget_text_connected_format", new Object[] {integerWitness});
         result.put("tile_state_connected_format", new Object[] {stringWitness, integerWitness});
         result.put("permission_error_toast", new Object[] {stringWitness});

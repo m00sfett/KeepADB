@@ -31,6 +31,8 @@ import java.util.List;
 final class KeepADBNotification {
     static final String CHANNEL_ID = "keepadb_endpoint";
     static final int NOTIFICATION_ID = 1;
+    /** #759: the content tap of the "permission missing" card; its own code, see #603. */
+    private static final int REQUEST_CODE_PERMISSION_STEP = 30;
     /** #734: marks the endpoint card, the only notification {@link #refreshIfActive} may redraw. */
     private static final String EXTRA_ENDPOINT_CARD = "de.hohnepeople.keepadb.EXTRA_ENDPOINT_CARD";
 
@@ -60,9 +62,15 @@ final class KeepADBNotification {
             NotificationManager manager = appContext.getSystemService(NotificationManager.class);
             if (manager == null) return;
             ensureChannel(appContext, manager);
+            // #759 phase 2: the tap leads to the permissions step of the assistant, at the row that
+            // shows the command to run, not to the home screen's setup card.
             showPlaceholder(appContext, manager,
                     appContext.getString(R.string.notification_permission_missing_title, appContext.getString(R.string.app_name)),
-                    appContext.getString(R.string.notification_permission_missing_text));
+                    appContext.getString(R.string.notification_permission_missing_text),
+                    OnboardingActivity.notificationIntent(appContext,
+                            KeepADBOnboarding.Step.PERMISSIONS,
+                            OnboardingActionSteps.Permissions.ITEM_SYSTEM),
+                    REQUEST_CODE_PERMISSION_STEP);
         }
     }
 
@@ -92,7 +100,8 @@ final class KeepADBNotification {
         if (manager == null) return;
         showPlaceholder(appContext, manager,
                 appContext.getString(R.string.notification_title_searching, appContext.getString(R.string.app_name)),
-                appContext.getString(R.string.notification_text_searching));
+                appContext.getString(R.string.notification_text_searching),
+                homeIntent(appContext), 0);
     }
 
     /** #445: renders "Wireless Debugging off, Keep-Alive waiting for it to come back". */
@@ -101,7 +110,8 @@ final class KeepADBNotification {
         if (manager == null) return;
         showPlaceholder(appContext, manager,
                 appContext.getString(R.string.notification_title_disabled, appContext.getString(R.string.app_name)),
-                appContext.getString(R.string.notification_text_disabled_keepalive_waiting));
+                appContext.getString(R.string.notification_text_disabled_keepalive_waiting),
+                homeIntent(appContext), 0);
     }
 
     /**
@@ -183,7 +193,8 @@ final class KeepADBNotification {
         manager.notify(NOTIFICATION_ID, notification);
     }
 
-    private static void showPlaceholder(Context context, NotificationManager manager, String title, String text) {
+    private static void showPlaceholder(Context context, NotificationManager manager, String title,
+                                        String text, Intent target, int requestCode) {
         if (!hasNotificationPermission(context)) {
             return;
         }
@@ -191,14 +202,16 @@ final class KeepADBNotification {
             // #445: see the matching comment in show() -- shouldRun() is the correct gate here
             // too, for the same reason. #763: and so is the force mode exception.
             if (KeepADBService.shouldRun(context)) {
-                Notification notification = buildPlaceholderNotification(context, title, text);
+                Notification notification = buildPlaceholderNotification(context, title, text,
+                        target, requestCode);
                 manager.notify(NOTIFICATION_ID, notification);
                 return;
             }
             manager.cancel(NOTIFICATION_ID);
             return;
         }
-        Notification notification = buildPlaceholderNotification(context, title, text);
+        Notification notification = buildPlaceholderNotification(context, title, text, target,
+                requestCode);
         manager.notify(NOTIFICATION_ID, notification);
     }
 
@@ -343,10 +356,20 @@ final class KeepADBNotification {
     }
 
     private static Notification buildPlaceholderNotification(Context context, String title, String text) {
-        Intent intent = new Intent(context, MainActivity.class);
+        return buildPlaceholderNotification(context, title, text, homeIntent(context), 0);
+    }
+
+    /** The content tap of every card except "permission missing": the home screen (#759 table 3.1). */
+    private static Intent homeIntent(Context context) {
+        return new Intent(context, MainActivity.class);
+    }
+
+    private static Notification buildPlaceholderNotification(Context context, String title,
+                                                             String text, Intent intent,
+                                                             int requestCode) {
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,
-                0,
+                requestCode,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         // #763: same force warning as on the endpoint card, so it is there whatever the state.

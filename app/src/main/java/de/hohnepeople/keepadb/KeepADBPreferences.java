@@ -52,6 +52,13 @@ final class KeepADBPreferences {
     // the lock screen is to not put them into the notification at all.
     static final String KEY_NOTIFICATION_DETAILS_ENABLED = "notification_details_enabled";
 
+    // #761: the setup assistant. The completed version is the number of the assistant that was
+    // last closed ("Later" or "Done"); a higher CURRENT_VERSION shows the assistant once more. The
+    // install kind is decided once, before anything else writes, and kept so that the intro stays
+    // the same after a process death in the middle of the assistant.
+    static final String KEY_ONBOARDING_COMPLETED_VERSION = "onboarding_completed_version";
+    static final String KEY_ONBOARDING_EXISTING_INSTALL = "onboarding_existing_install";
+
     // #168: optional USB-ADB -> Wifi-ADB handover offered from the USB notification.
     static final String USB_WLAN_HANDOVER_MODE_OFF = "off";
     static final String USB_WLAN_HANDOVER_MODE_MANUAL = "manual";
@@ -570,6 +577,19 @@ final class KeepADBPreferences {
         } else {
             prefs.edit().putString(KEY_APP_LANGUAGE, languageTag.trim()).apply();
         }
+    }
+
+    /** #761: version of the setup assistant the user last closed; 0 when it never was. */
+    static int getOnboardingCompletedVersion(Context context) {
+        if (context == null) return 0;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getInt(KEY_ONBOARDING_COMPLETED_VERSION, 0);
+    }
+
+    static void setOnboardingCompletedVersion(Context context, int version) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putInt(KEY_ONBOARDING_COMPLETED_VERSION, version).apply();
     }
 
     /** #225: advice banner visibility. Default ON (true). */

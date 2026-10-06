@@ -90,6 +90,9 @@ public class PrivacyToggleTitleBarsTest {
         try (Stream<Path> files = Files.list(layouts)) {
             for (Path file : (Iterable<Path>) files::iterator) {
                 String xml = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
+                // #761: the setup assistant shows no network name or address (its steps are choices
+                // between stored settings), so it has nothing for the eye to hide.
+                if (file.getFileName().toString().equals("activity_onboarding.xml")) continue;
                 if (xml.contains("@color/banner_red") && xml.contains("@+id/header_bar")) {
                     redBars++;
                     assertTrue(file.getFileName() + " has a red header bar and needs the eye",

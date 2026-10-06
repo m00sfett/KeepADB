@@ -17,11 +17,48 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31` and `1.9.32` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32` and `1.9.33` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.33] - Unreleased
+
+Etappe patch candidate (versionCode 205), part a of the setup assistant of #761 (UX concept #758, section 1); no release. The permission and trusted-Wi-Fi steps (#767, part b, below) are added to this same version without another bump. The version 1.9.32 is not part of this entry.
+
+### Added
+- #761: New `OnboardingActivity` (not exported) with intro, steps, a closing summary and a step counter with progress segments. Steps are `OnboardingStep` subclasses (`OnboardingSteps`), so #767 and #768 only add a class and a line in `OnboardingActivity.buildSteps`. This package ships the steps Keep-Alive, protection level and lock screen (`notification_details_enabled`).
+- #761: One rule for "Next" without input: a step writes a value only when the choice differs from what it loaded (`KeepADBOnboarding.commit*`). On a new installation "Next" on every step therefore stores the same as "Later" on the intro; on an existing installation it never moves a stored setting, not even a marked one (decision F1). Keep-Alive is preselected "Off" on a new installation (F2).
+- #761: The home screen hands over to the assistant while `onboarding_completed_version` is below `KeepADBOnboarding.CURRENT_VERSION`; Later, the close button, Back on the intro and Done all store it. New installation or existing one is decided once (`onboarding_existing_install`: the preferences held a setting before the assistant was first considered) and kept. Existing installations get the intro "New security settings" with the count of settings marked "Less secure".
+- #761: "Less secure" marks exactly the four values of concept 1.5: the previous "in all Wi-Fi networks" level, an active force mode, details in notifications, a webhook over `http://` (`KeepADBOnboarding.lessSecure`). "Balanced" and the previous name list carry the neutral "Note".
+- #761: The protection step is the way back from the previous settings (#769): a stored "in all Wi-Fi networks" level or name list is shown first, preselected and marked, and stays chosen until a preset is picked. Moving away keeps every stored list and entry (the name list is switched off, not emptied). "Customize" shows the comfort switch, which is the same fact as the "Balanced" card.
+- #761: Single-step mode (`EXTRA_STEP`: `keep_alive`, `protection`, `details`): only that step with "Done"; Back leaves without taking the choice over; the assistant is not marked closed. Settings: a new first row "Setup assistant" (whole assistant, with the level and Keep-Alive as summary) and the protection level line, which opens the protection step on its own.
+- #761: System Back goes one step back and on the intro acts as "Later". The bottom bar stacks (Next on top) below 360dp width or from font scale 1.3. Choice cards are one radio-button node each for TalkBack; pages announce "Step 2 of 3: ..." as pane title.
+- #761: Strings `onboarding_*` and `settings_onboarding_title` in all 19 locales; `bin/check-i18n` allowlist entry for Dutch "Later".
+
+### Changed
+- #761: `MainActivity` hands over to the assistant before it builds its views (`handedOverToAssistant`); `KeepADBNetworkResetRule` (applied by every Robolectric test) switches the hand-over off so the home screen's own tests are unchanged.
+
+### Part b: permissions and trusted Wi-Fi (#767)
+
+#### Added
+- #767: Step "Permissions" (`OnboardingActionSteps.Permissions`, `EXTRA_STEP` `permissions`): one row per permission with a status word (Done, Missing, Recommended, Optional) and, while open, its one action: the system permission (`WRITE_SECURE_SETTINGS`, the command for the computer, "Check permission", and the several-devices / offline / unauthorized help folded behind "Several devices or problems?"; the texts are the `setup_*` strings of the home screen card), notifications (API 33 and later only), location to read the Wi-Fi, "Allow all the time" for the background (waits for location, says so) and the battery exemption. With Keep-Alive off, the background and battery rows read "Optional / Only needed for Keep-Alive" and offer nothing; while the force mode is on the location and background rows say they are needed again afterwards.
+- #767: Permission cases (`OnboardingPermissions`): not asked or denied once asks the system again; denied for good (asked before and no rationale left, the dialog would not appear) opens the notification settings or the app page instead of a dead button, and a result is never read from the callback's arrays but from the platform. Below API 33 there is no notification row and the permission is not counted. The location request is the networks list's, now shared (`OnboardingPermissions.requestLocation`, same preference key).
+- #767: The permissions step calls `KeepADBService.sync()` whenever the assistant resumes on it (full or single-step), like `MainActivity.onResume` (#628, N2): only a foreground start re-promotes a Keep-Alive service that started in the background. No other page does. A row whose status word changed after a return from a system page is announced.
+- #767: Step "Trusted Wi-Fi" (`OnboardingActionSteps.Network`, `network`): the current-network card of the Networks list (`NetworkListRenderer.renderCurrentForAssistant`) with the embedded `NetworkDecisionView` of #766 (no dialog and no decision logic of its own; "Decide later" is hidden). The name and address are shown while the privacy mode is on, with a note that says so (concept 1.3 step 4). A trusted network shows no tap-to-change; a blocked one offers "Change in the Networks list"; no Wi-Fi and not readable offer the fix (Wi-Fi settings, grant location, location settings, background grant) and "Check again". The "trusted Wi-Fi name" of the balanced level stays derived from the trusted access points (F5): no second list.
+- #767: While the force mode is on, the Wi-Fi step says that trust and blocks apply again afterwards (`networks_force_note`).
+- #767: "Skip" on the two action steps (`OnboardingStep.hasSkip`): goes on without writing anything and does not close the assistant. `EXTRA_FOCUS_ITEM` brings one row of a step into view and gives it the focus (permissions: `system`, `notifications`, `location`, `background_location`, `battery`). The summary shows "All set" or "Missing: N" and the trusted/blocked counts.
+- #767: Keep-Alive step: with "On" chosen and the notification permission missing (API 33 and later), a hint names the step where Android asks for it ("... in step 3", the number comes from the step list); not shown in the single-step mode.
+- #767: Deep links of #759 phase 2 point at the assistant: "Permission missing" opens `permissions` at the `system` row, and "Network not readable" with permission and location in order opens `permissions` at the `background_location` row (`OnboardingActivity.notificationIntent`: own request codes, leaving opens the home screen, the assistant is not marked closed).
+- #767: Strings `onboarding_skip`, `onboarding_recheck`, `onboarding_badge_*`, `onboarding_permissions_*`, `onboarding_perm_*`, `onboarding_network_*` and `onboarding_keep_alive_notification_hint` in all 19 locales; `bin/check-i18n` allowlist entry for German "Optional".
+
+#### Changed
+- #767: The assistant has five steps (Keep-Alive, protection level, permissions, trusted Wi-Fi, lock screen); the intro counts them from the step list. `NetworkListRenderer` draws the current card without ellipsis and wraps its badge in the assistant (large fonts); the list itself is unchanged.
+- #767: The `setup_panel` and the notification, battery and background-location cards of the home screen are not removed here; they go with the home screen cards (#764).
+
+### Not part of this entry
+- Webhook step and force preset (#768), home screen cards (#764) and wording (#770).
 
 ## [1.9.32] - Unreleased
 

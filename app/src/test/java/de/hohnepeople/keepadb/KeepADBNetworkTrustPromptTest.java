@@ -432,16 +432,17 @@ public class KeepADBNetworkTrustPromptTest {
      * "Nachtrag 3") --
      * on API 33, when both permission and location service are fine and the identity is still
      * unavailable, the actual cause is a Keep-Alive service that was started from the background
-     * (boot, a sticky restart, or a background {@code sync()}) and never received a While-in-Use
-     * location grant for its foreground-service record. Neither the app-permission page nor the
-     * location toggle fixes that -- only promoting the service through a foreground start does,
-     * and only {@link MainActivity#onResume()} does that (it unconditionally calls {@link
-     * KeepADBService#sync}). {@link SettingsActivity} does not call {@code sync()} on resume and
-     * therefore cannot re-promote the service. So the click path must open {@link MainActivity},
-     * not fall back to {@link SettingsActivity} as it used to.
+     * and never received a While-in-Use location grant for its foreground-service record. Neither
+     * the app-permission page nor the location toggle fixes that -- only promoting the service
+     * through a foreground start does ({@link KeepADBService#sync} on resume). {@link
+     * SettingsActivity} does not call it and cannot re-promote the service.
+     *
+     * <p>#767 (phase 2 of #759): the target is now the permissions step of the setup assistant, at
+     * the background-detection row. The step calls {@code sync()} on every resume, which {@link
+     * OnboardingActivityPermissionsTest} pins by opening exactly this intent.
      */
     @Test
-    public void theIdentityUnavailableNotificationOpensMainActivityWhenPermissionAndLocationAreBothFine() {
+    public void theIdentityUnavailableNotificationOpensThePermissionsStepWhenPermissionAndLocationAreBothFine() {
         connectTo("Cafe-WLAN", KeepADBNetworkIdentity.REDACTED_BSSID);
         shadowOf((Application) context).grantPermissions(
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
@@ -453,10 +454,14 @@ public class KeepADBNetworkTrustPromptTest {
 
         Notification notification = postedPrompt();
         Intent target = shadowOf(notification.contentIntent).getSavedIntent();
-        assertEquals("The fix path must open MainActivity, whose onResume() promotes the "
+        assertEquals("The fix path must open the assistant, whose permissions step promotes the "
                         + "service back to foreground via sync() -- SettingsActivity does not "
                         + "call sync() and cannot re-promote the service",
-                MainActivity.class.getName(), target.getComponent().getClassName());
+                OnboardingActivity.class.getName(), target.getComponent().getClassName());
+        assertEquals(KeepADBOnboarding.Step.PERMISSIONS.id,
+                target.getStringExtra(OnboardingActivity.EXTRA_STEP));
+        assertEquals(OnboardingActionSteps.Permissions.ITEM_BACKGROUND_LOCATION,
+                target.getStringExtra(OnboardingActivity.EXTRA_FOCUS_ITEM));
     }
 
     @Test
