@@ -38,7 +38,7 @@ public class KeepADBNetworkCardContractTest {
         String[] ownedByTheCard = {
                 "NetworkCallback", "registerNetworkCallback", "wifiStatusCallback",
                 "networkStatusActionKind", "networkActionBssid", "networkActionLabel",
-                "activeBackgroundLocationDialog", "activeMeshDialog",
+                "activeBackgroundLocationDialog",
                 "WIFI_APS_LOCATION_PERMISSION_REQUEST", "LOCATION_PERMISSION_REQUESTED",
                 "requestPermissions(", "KeepADBNetworkActions.allowAccessPoint"};
         for (String name : ownedByTheCard) {
@@ -47,7 +47,7 @@ public class KeepADBNetworkCardContractTest {
         }
         for (String name : new String[] {"wifiStatusCallback", "networkStatusActionKind",
                 "networkActionBssid", "activeBackgroundLocationDialog",
-                "activeMeshDialog", "requestPermissions("}) {
+                "requestPermissions("}) {
             assertTrue("KeepADBNetworkCard must own '" + name + "'", card.contains(name));
         }
 

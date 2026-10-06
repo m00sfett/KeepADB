@@ -263,29 +263,6 @@ public class SettingsNetworkCardTest {
                 text(off, R.id.network_status_label));
     }
 
-    /** #686: the mesh question must not outlive the activity (rotation would leak its window). */
-    @Test
-    public void theMeshQuestionIsDismissedWhenSettingsIsDestroyed() {
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:bb:cc:dd:ee:01");
-        connectTo("HomeMesh", "aa:bb:cc:dd:ee:02");
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
-        ShadowLooper.idleMainLooper();
-
-        activity.findViewById(R.id.network_status_action).performClick();
-        ShadowLooper.idleMainLooper();
-        AlertDialog mesh = ShadowAlertDialog.getLatestAlertDialog();
-        assertNotNull(mesh);
-        assertTrue("The mesh question is on screen", mesh.isShowing());
-
-        controller.destroy();
-
-        assertFalse("Destroying the activity dismisses the mesh question", mesh.isShowing());
-    }
-
     @Test
     public void allNetworksModeSaysTheListsDoNotCountYetStillOffersToAllow() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);

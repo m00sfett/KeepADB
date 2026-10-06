@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: الشبكة الحالية غير قابلة للقراءة. تحقق من إذن/خدمة الموقع، أو أعد فتح التطبيق إذا بدأ Keep-Alive في الخلفية، أو اضبط الموقع على «السماح طوال الوقت» لحل ذلك نهائيًا.</string>
     <string name="settings_trusted_network_add_failed_toast">تعذر تحديد الشبكة الحالية. تحقق من اتصال Wi-Fi وإذن الموقع.</string>
     <string name="settings_trusted_network_added_toast">تمت إضافة \"%1$s\" إلى الشبكات الموثوقة</string>
-    <string name="settings_trusted_network_mesh_title">إضافة نقاط وصول أخرى؟</string>
-    <string name="settings_trusted_network_mesh_message">رصد KeepADB أيضًا %1$d نقطة وصول أخرى تبث \"%2$s\". هل تريد إضافتها جميعًا إلى الشبكات الموثوقة؟</string>
-    <string name="settings_trusted_network_mesh_add_button">إضافة الكل</string>
-    <string name="settings_trusted_network_mesh_added_toast">تمت إضافة %1$d نقطة وصول أخرى إلى الشبكات الموثوقة</string>
     <string name="network_prompt_channel_name">أسئلة حول الشبكات الجديدة</string>
     <string name="network_prompt_channel_desc">يسأل عمّا إذا كانت نقطة وصول Wi-Fi المكتشفة حديثًا موثوقة لخاصية Keep-Alive.</string>
     <string name="network_prompt_title">تم اكتشاف شبكة Wi-Fi أو نقطة وصول جديدة</string>

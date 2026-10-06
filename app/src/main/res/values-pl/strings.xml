@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Automatyczne ponowne włączanie wstrzymane: bieżąca sieć jest nieczytelna. Sprawdź uprawnienie/usługę lokalizacji lub otwórz aplikację ponownie, jeśli Keep-Alive uruchomił się w tle. Trwale pomaga ustawienie lokalizacji na „Zezwalaj zawsze”.</string>
     <string name="settings_trusted_network_add_failed_toast">Nie można określić bieżącej sieci. Sprawdź połączenie Wi-Fi i uprawnienie lokalizacji.</string>
     <string name="settings_trusted_network_added_toast">Dodano „%1$s” do zaufanych sieci</string>
-    <string name="settings_trusted_network_mesh_title">Dodać inne punkty dostępowe?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB wykrył także %1$d innych punktów dostępowych nadających „%2$s”. Dodać je również do zaufanych sieci?</string>
-    <string name="settings_trusted_network_mesh_add_button">Dodaj wszystkie</string>
-    <string name="settings_trusted_network_mesh_added_toast">Dodano %1$d dodatkowych punktów dostępowych do zaufanych sieci</string>
     <string name="network_prompt_channel_name">Pytania o nowe sieci</string>
     <string name="network_prompt_channel_desc">Pyta, czy nowo wykryty punkt dostępowy Wi-Fi ma być zaufany dla Keep-Alive.</string>
     <string name="network_prompt_title">Wykryto nową sieć Wi-Fi lub nowy punkt dostępowy</string>

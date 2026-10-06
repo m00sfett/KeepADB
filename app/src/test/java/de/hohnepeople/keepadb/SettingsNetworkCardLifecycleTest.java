@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -24,7 +23,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -218,91 +216,28 @@ public class SettingsNetworkCardLifecycleTest {
     // --- save before destroy and the restore ---------------------------------------------------
 
     /**
-     * The mesh question is derived from live data and offered only right after an allow: a
-     * rotation closes it and brings nothing back, and the access points it offered stay unallowed.
+     * #788: allowing an access point allows exactly that one and opens no further question, even
+     * when a former observation history is still stored under the same name.
      */
     @Test
-    public void theMeshQuestionIsNeitherSavedNorRestoredAndAllowsNothingImplicitly() {
+    public void allowingAnAccessPointOpensNoFurtherQuestionAndAllowsOnlyThatOne() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        KeepADBBssidHistory.recordObservation(context, "HomeMesh", BSSID_A);
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
+                .putString("bssid_history_ssid_ids", "1").putInt("bssid_history_next_id", 2)
+                .putString("bssid_history_1_ssid", "HomeMesh")
+                .putString("bssid_history_1_bssids", BSSID_A).commit();
         connectTo("HomeMesh", BSSID_B);
+        ShadowDialog.reset();
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         controller.get().findViewById(R.id.settings_network_beta_header).performClick();
         controller.get().findViewById(R.id.network_status_action).performClick();
         ShadowLooper.idleMainLooper();
-        AlertDialog mesh = ShadowAlertDialog.getLatestAlertDialog();
-        assertNotNull(mesh);
-        assertTrue("The mesh question is on screen", mesh.isShowing());
 
-        Bundle state = new Bundle();
-        controller.saveInstanceState(state);
-        for (String key : state.keySet()) {
-            assertFalse("No mesh state may be saved: " + key, key.toLowerCase().contains("mesh"));
-        }
-        controller.pause().stop().destroy();
-        ShadowLooper.idleMainLooper();
-        assertFalse("Destroy closes the question", mesh.isShowing());
-        ActivityController<SettingsActivity> restored =
-                Robolectric.buildActivity(SettingsActivity.class).setup(state);
-        ShadowLooper.idleMainLooper();
-
-        for (android.app.Dialog shown : ShadowDialog.getShownDialogs()) {
-            assertFalse("Nothing is restored after the rotation", shown.isShowing());
-        }
+        assertTrue("No dialog follows the allow", ShadowDialog.getShownDialogs().isEmpty());
         List<KeepADBTrustedNetwork.Entry> entries = KeepADBTrustedNetwork.getEntries(context);
         assertEquals("Only the access point that was allowed explicitly", 1, entries.size());
         assertEquals(BSSID_B, entries.get(0).bssid);
-        restored.pause().stop().destroy();
-    }
-
-    @Test
-    public void dismissingTheMeshQuestionDropsItsCurrentReference() throws Exception {
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        KeepADBBssidHistory.recordObservation(context, "HomeMesh", BSSID_A);
-        connectTo("HomeMesh", BSSID_B);
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
-        activity.findViewById(R.id.network_status_action).performClick();
-        ShadowLooper.idleMainLooper();
-
-        KeepADBNetworkCard card = getField(activity, "networkCard");
-        AlertDialog mesh = getField(card, "activeMeshDialog");
-        assertNotNull(mesh);
-        assertTrue(mesh.isShowing());
-
-        mesh.dismiss();
-        ShadowLooper.idleMainLooper();
-
-        assertNull("Dismissal drops the card's reference", getField(card, "activeMeshDialog"));
-        controller.pause().stop().destroy();
-    }
-
-    @Test
-    public void aStaleMeshDismissDoesNotClearAReplacementReference() throws Exception {
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        KeepADBBssidHistory.recordObservation(context, "HomeMesh", BSSID_A);
-        connectTo("HomeMesh", BSSID_B);
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
-        activity.findViewById(R.id.network_status_action).performClick();
-        ShadowLooper.idleMainLooper();
-
-        KeepADBNetworkCard card = getField(activity, "networkCard");
-        AlertDialog original = getField(card, "activeMeshDialog");
-        assertNotNull(original);
-        AlertDialog replacement = new AlertDialog.Builder(activity).create();
-        setField(card, "activeMeshDialog", replacement);
-
-        original.dismiss();
-        ShadowLooper.idleMainLooper();
-
-        assertSame("An older dialog's dismissal must not clear the newer reference", replacement,
-                getField(card, "activeMeshDialog"));
         controller.pause().stop().destroy();
     }
 
@@ -608,19 +543,5 @@ public class SettingsNetworkCardLifecycleTest {
 
     private static String text(SettingsActivity activity, int id) {
         return ((TextView) activity.findViewById(id)).getText().toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T getField(Object target, String name) throws ReflectiveOperationException {
-        Field field = target.getClass().getDeclaredField(name);
-        field.setAccessible(true);
-        return (T) field.get(target);
-    }
-
-    private static void setField(Object target, String name, Object value)
-            throws ReflectiveOperationException {
-        Field field = target.getClass().getDeclaredField(name);
-        field.setAccessible(true);
-        field.set(target, value);
     }
 }

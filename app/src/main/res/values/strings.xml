@@ -114,10 +114,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Keep-Alive auto re-enable is paused: the current network is unreadable. Check the location permission/service, or reopen the app if Keep-Alive started in the background. For a permanent fix, set Location to “Allow all the time”.</string>
     <string name="settings_trusted_network_add_failed_toast">Couldn\'t determine the current network. Check that Wi-Fi is connected and Location permission is granted.</string>
     <string name="settings_trusted_network_added_toast">Added \"%1$s\" to trusted networks</string>
-    <string name="settings_trusted_network_mesh_title">Add other access points?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB has also seen %1$d other access points broadcasting \"%2$s\". Add them to your trusted list too?</string>
-    <string name="settings_trusted_network_mesh_add_button">Add all</string>
-    <string name="settings_trusted_network_mesh_added_toast">Added %1$d more access points to trusted networks</string>
     <string name="network_prompt_channel_name">New network prompts</string>
     <string name="network_prompt_channel_desc">Asks whether a newly detected Wi-Fi access point should be trusted for Keep-Alive.</string>
     <string name="network_prompt_title">New Wi-Fi / access point detected</string>

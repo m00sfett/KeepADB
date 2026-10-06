@@ -140,8 +140,6 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBPreferences.getRegisterWebhookUrl(c)),
             new Setting("notification_details_enabled", Kind.SECURITY, false, true,
                     c -> KeepADBPreferences.isNotificationDetailsEnabled(c)),
-            new Setting("wifi_aps_feature_enabled", Kind.SECURITY, false, true,
-                    c -> KeepADBPreferences.isWifiApsFeatureEnabled(c)),
             // Presentation and convenience
             new Setting("privacy_mode_enabled", Kind.CONVENIENCE, false, true,
                     c -> KeepADBPreferences.isPrivacyModeEnabled(c)),
@@ -175,7 +173,7 @@ public class KeepADBDefaultsAuditTest {
             "trusted_ssid_next_id", "trusted_ssid_ids", "blocked_bssids", "blocked_ssids",
             "usb_profile_next_id", "usb_profile_selected_id", "usb_profile_ids",
             "network_prompt_bssid", "network_prompt_at", "network_prompt_history",
-            "bssid_history_next_id", "bssid_history_ssid_ids", "blocked_network_entries",
+            "wifi_aps_feature_enabled", "blocked_network_entries",
             "events", "location_permission_requested", "notification_permission_requested",
             "force_state", "force_expired_notice_pending", "force_expired_reason", "observation_history_discarded",
             "onboarding_completed_version", "onboarding_existing_install")));
@@ -219,7 +217,6 @@ public class KeepADBDefaultsAuditTest {
         assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(app));
         assertNull(KeepADBPreferences.getRegisterWebhookUrl(app));
         assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(app));
-        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(app));
         // ...and the lists a trust decision reads start empty.
         assertTrue(KeepADBTrustedNetwork.getEntries(app).isEmpty());
         assertTrue(KeepADBTrustedNetwork.getSsidEntries(app).isEmpty());

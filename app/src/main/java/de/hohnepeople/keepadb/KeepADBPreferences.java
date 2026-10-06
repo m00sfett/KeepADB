@@ -38,7 +38,8 @@ final class KeepADBPreferences {
     // WRITE_SECURE_SETTINGS state and never the real ADB transport. The actual masking logic
     // (#483) reads this via isPrivacyModeEnabled().
     private static final String KEY_PRIVACY_MODE_ENABLED = "privacy_mode_enabled";
-    // #507: opt-in toggle for Wi-Fi & access point discovery in Settings. Defaults to false.
+    // #507: former opt-in toggle for Wi-Fi & access point discovery. Since #769 no UI, since #788
+    // no code reads or writes it; the key stays a name so a stored value is recognised as legacy.
     static final String KEY_WIFI_APS_FEATURE_ENABLED = "wifi_aps_feature_enabled";
     // #592: opt-in for connection details (USB host profile name/IP/host, trust-prompt network
     // name/BSSID) inside notifications. Defaults to false: Android ignores publicVersion when the
@@ -628,24 +629,5 @@ final class KeepADBPreferences {
     static void setPrivacyModeEnabled(Context context, boolean enabled) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_PRIVACY_MODE_ENABLED, enabled).apply();
-    }
-
-    /** #507: opt-in for Wi-Fi & access point discovery in Settings. Default false. */
-    static boolean isWifiApsFeatureEnabled(Context context) {
-        if (context == null) return false;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getBoolean(KEY_WIFI_APS_FEATURE_ENABLED, false);
-    }
-
-    /**
-     * Turning the option off also deletes the bands stored with the observation history (#721),
-     * so nothing but the live band is shown or kept while it is off; the history itself is
-     * retained (#654).
-     */
-    static void setWifiApsFeatureEnabled(Context context, boolean enabled) {
-        if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        prefs.edit().putBoolean(KEY_WIFI_APS_FEATURE_ENABLED, enabled).apply();
-        if (!enabled) KeepADBBssidHistory.clearBands(context);
     }
 }

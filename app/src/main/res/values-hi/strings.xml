@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">स्वचालित पुनः-सक्षमन रोका गया: वर्तमान नेटवर्क पढ़ा नहीं जा सकता। स्थान अनुमति/सेवा जाँचें, या यदि Keep-Alive पृष्ठभूमि में शुरू हुआ था तो ऐप को एक बार फिर से खोलें। स्थायी समाधान के लिए स्थान अनुमति को “हर समय अनुमति दें” पर सेट करें।</string>
     <string name="settings_trusted_network_add_failed_toast">वर्तमान नेटवर्क निर्धारित नहीं किया जा सका। Wi-Fi कनेक्शन और स्थान अनुमति जांचें।</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" को भरोसेमंद नेटवर्क में जोड़ा गया</string>
-    <string name="settings_trusted_network_mesh_title">अन्य ऐक्सेस पॉइंट जोड़ें?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB ने %1$d अन्य ऐक्सेस पॉइंट भी देखे हैं जो \"%2$s\" प्रसारित करते हैं। क्या इन्हें भी भरोसेमंद सूची में जोड़ना है?</string>
-    <string name="settings_trusted_network_mesh_add_button">सभी जोड़ें</string>
-    <string name="settings_trusted_network_mesh_added_toast">%1$d और ऐक्सेस पॉइंट भरोसेमंद नेटवर्क में जोड़े गए</string>
     <string name="network_prompt_channel_name">नए नेटवर्क के लिए पूछताछ</string>
     <string name="network_prompt_channel_desc">पूछता है कि नया मिला Wi-Fi ऐक्सेस पॉइंट Keep-Alive के लिए भरोसेमंद माना जाए या नहीं।</string>
     <string name="network_prompt_title">नया Wi-Fi / नया ऐक्सेस पॉइंट मिला</string>

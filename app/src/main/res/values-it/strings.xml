@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Riattivazione automatica in pausa: la rete attuale non è leggibile. Controlla il permesso/servizio di localizzazione, oppure riapri l\'app se Keep-Alive è stato avviato in background. Per una soluzione permanente imposta la posizione su «Consenti sempre».</string>
     <string name="settings_trusted_network_add_failed_toast">Impossibile determinare la rete attuale. Controlla la connessione Wi-Fi e l\'autorizzazione alla posizione.</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" aggiunta alle reti affidabili</string>
-    <string name="settings_trusted_network_mesh_title">Aggiungere altri punti di accesso?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB ha rilevato anche %1$d altri punti di accesso che trasmettono \"%2$s\". Vuoi aggiungerli anche alla lista affidabile?</string>
-    <string name="settings_trusted_network_mesh_add_button">Aggiungi tutti</string>
-    <string name="settings_trusted_network_mesh_added_toast">Aggiunti %1$d punti di accesso in più alle reti affidabili</string>
     <string name="network_prompt_channel_name">Richieste per reti nuove</string>
     <string name="network_prompt_channel_desc">Chiede se un punto di accesso Wi-Fi appena rilevato debba essere considerato affidabile per Keep-Alive.</string>
     <string name="network_prompt_title">Rilevata nuova rete Wi-Fi o nuovo punto di accesso</string>

@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Pengaktifan ulang otomatis dijeda: jaringan saat ini tidak terbaca. Periksa izin/layanan lokasi, atau buka kembali aplikasi jika Keep-Alive dimulai di latar belakang. Untuk solusi permanen, atur Lokasi ke “Izinkan sepanjang waktu”.</string>
     <string name="settings_trusted_network_add_failed_toast">Tidak dapat menentukan jaringan saat ini. Periksa koneksi Wi-Fi dan izin lokasi.</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" ditambahkan ke jaringan dipercaya</string>
-    <string name="settings_trusted_network_mesh_title">Tambahkan titik akses lain?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB juga mendeteksi %1$d titik akses lain yang menyiarkan \"%2$s\". Tambahkan juga ke daftar dipercaya?</string>
-    <string name="settings_trusted_network_mesh_add_button">Tambahkan semua</string>
-    <string name="settings_trusted_network_mesh_added_toast">%1$d titik akses lain ditambahkan ke jaringan dipercaya</string>
     <string name="network_prompt_channel_name">Tanya soal jaringan baru</string>
     <string name="network_prompt_channel_desc">Menanyakan apakah titik akses Wi-Fi yang baru terdeteksi boleh dipercaya untuk Keep-Alive.</string>
     <string name="network_prompt_title">Wi-Fi / titik akses baru terdeteksi</string>

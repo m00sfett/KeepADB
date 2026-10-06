@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">自動重新啟用已暫停:目前網路無法讀取。請檢查定位權限/服務，如果 Keep-Alive 是在背景啟動的，請重新開啟應用程式；也可將位置存取權設為「一律允許」以永久解決。</string>
     <string name="settings_trusted_network_add_failed_toast">無法判斷目前網路。請檢查 Wi-Fi 連線與位置權限。</string>
     <string name="settings_trusted_network_added_toast">已將「%1$s」新增至已信任的網路</string>
-    <string name="settings_trusted_network_mesh_title">是否新增其他存取點?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB 也偵測到其他 %1$d 個廣播「%2$s」的存取點。要一併新增到信任清單嗎?</string>
-    <string name="settings_trusted_network_mesh_add_button">全部新增</string>
-    <string name="settings_trusted_network_mesh_added_toast">已將另外 %1$d 個存取點新增至已信任的網路</string>
     <string name="network_prompt_channel_name">新網路詢問</string>
     <string name="network_prompt_channel_desc">詢問新偵測到的 Wi-Fi 存取點是否可加入 Keep-Alive 的信任清單。</string>
     <string name="network_prompt_title">偵測到新的 Wi-Fi／存取點</string>

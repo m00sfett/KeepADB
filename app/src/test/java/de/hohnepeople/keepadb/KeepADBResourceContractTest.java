@@ -445,8 +445,6 @@ public class KeepADBResourceContractTest {
         result.put("setup_command_multi", new Object[] {stringWitness});
         result.put("notification_text_active", new Object[] {integerWitness, stringWitness});
         result.put("settings_trusted_network_added_toast", new Object[] {stringWitness});
-        result.put("settings_trusted_network_mesh_message", new Object[] {integerWitness, stringWitness});
-        result.put("settings_trusted_network_mesh_added_toast", new Object[] {integerWitness});
         result.put("network_prompt_text", new Object[] {stringWitness, stringWitness});
         result.put("network_decision_comfort_note", new Object[] {stringWitness});
         result.put("network_decision_block_name", new Object[] {stringWitness});

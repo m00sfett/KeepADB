@@ -107,10 +107,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Automatisches Wiedereinschalten pausiert: Das aktuelle Netzwerk ist nicht lesbar. Standortberechtigung/-dienst prüfen oder die App einmal öffnen, falls Keep-Alive im Hintergrund gestartet wurde. Dauerhaft hilft Standort auf „Immer zulassen“.</string>
     <string name="settings_trusted_network_add_failed_toast">Aktuelles Netzwerk konnte nicht ermittelt werden. WLAN-Verbindung und Standortberechtigung prüfen.</string>
     <string name="settings_trusted_network_added_toast">„%1$s“ zu vertrauten Netzwerken hinzugefügt</string>
-    <string name="settings_trusted_network_mesh_title">Weitere Access Points hinzufügen?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB hat außerdem %1$d weitere Access Points erkannt, die „%2$s“ ausstrahlen. Sollen sie ebenfalls zu den vertrauten Netzwerken hinzugefügt werden?</string>
-    <string name="settings_trusted_network_mesh_add_button">Alle hinzufügen</string>
-    <string name="settings_trusted_network_mesh_added_toast">%1$d weitere Access Points zu vertrauten Netzwerken hinzugefügt</string>
     <string name="network_prompt_channel_name">Nachfragen zu neuen Netzwerken</string>
     <string name="network_prompt_channel_desc">Fragt nach, ob ein neu erkannter Access Point für Keep-Alive vertraut werden soll.</string>
     <string name="network_prompt_title">Neues WLAN / neuer Access Point erkannt</string>

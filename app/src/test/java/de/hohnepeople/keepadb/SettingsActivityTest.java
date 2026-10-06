@@ -1351,8 +1351,6 @@ public class SettingsActivityTest {
                 KeepADBTrustedNetwork.isAllowlistMode(activity));
         assertFalse("The name alternative must default to off",
                 KeepADBTrustedNetwork.isSsidMatchingEnabled(activity));
-        assertFalse("Wi-Fi & access points feature must default to off",
-                KeepADBPreferences.isWifiApsFeatureEnabled(activity));
 
         activity.findViewById(R.id.settings_network_beta_header).performClick();
 

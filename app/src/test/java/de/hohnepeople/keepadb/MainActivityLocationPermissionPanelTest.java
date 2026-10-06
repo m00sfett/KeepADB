@@ -144,8 +144,6 @@ public class MainActivityLocationPermissionPanelTest {
      */
     @Test
     public void locationGrantButtonDoesNotDependOnTheObservationOption() {
-        KeepADBPreferences.setWifiApsFeatureEnabled(context, false);
-
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
