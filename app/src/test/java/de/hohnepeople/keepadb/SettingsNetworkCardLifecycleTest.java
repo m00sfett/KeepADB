@@ -50,7 +50,7 @@ import org.robolectric.shadows.ShadowNetwork;
 import org.robolectric.shadows.ShadowWifiInfo;
 
 /**
- * #697: the lifecycle and state-ownership transitions of the Network card after it moved from
+ * #697 (#769: without the allowlist rationale and the Wi-Fi-name section): the lifecycle and state-ownership transitions of the Network card after it moved from
  * {@link SettingsActivity} into {@link KeepADBNetworkCard}: who registers and removes the Wi-Fi
  * callback, which access point the action acts on, what a save before a destroy keeps, what a
  * rotation brings back (and what it must not), and that rendering never writes a preference.
@@ -387,7 +387,6 @@ public class SettingsNetworkCardLifecycleTest {
                                     Robolectric.buildActivity(SettingsActivity.class).setup();
                             SettingsActivity activity = controller.get();
                             activity.findViewById(R.id.settings_network_beta_header).performClick();
-                            activity.findViewById(R.id.network_ssid_header).performClick();
                             deliverWifiChange();
                             controller.pause().resume();
                             activity.refresh();
@@ -406,41 +405,31 @@ public class SettingsNetworkCardLifecycleTest {
     }
 
     @Test
-    public void restoringTheDialogsWritesNoPreferenceEither() {
-        // #760: the allowlist rationale only exists for an installation still on the former
-        // default ("all Wi-Fi networks"); a new installation starts on the allowlist.
+    public void restoringTheBackgroundRationaleWritesNoPreferenceEither() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        // The two rationales: allowlist permission (FINE denied) and background location.
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
-        controller.get().findViewById(R.id.network_mode_allowlist).performClick();
+        controller.get().findViewById(R.id.settings_background_location_button).performClick();
         Map<String, ?> before = everyPreference();
         controller = rotate(controller);
-        assertNotNull(controller.get().getActiveAllowlistPermissionDialog());
-        assertEquals(before, everyPreference());
-        controller.get().getActiveAllowlistPermissionDialog().dismiss();
-        controller.get().findViewById(R.id.settings_background_location_button).performClick();
-        before = everyPreference();
-        controller = rotate(controller);
+        assertNotNull(ShadowAlertDialog.getLatestAlertDialog());
         assertEquals(before, everyPreference());
         controller.pause().stop().destroy();
     }
 
     /**
-     * Wi-Fi-name matching stays off on a fresh install and nothing the card shows turns it on, and
-     * the card (and its Wi-Fi-name section) opens collapsed again after a rotation -- the expansion
-     * lives only in the view tree.
+     * Nothing the card shows turns the comfort switch or the legacy name setting on, and the card
+     * opens collapsed again after a rotation -- the expansion lives only in the view tree.
      */
     @Test
-    public void nameMatchingStaysOffAndTheCardReopensCollapsedAfterARotation() {
+    public void theComfortSwitchStaysOffAndTheCardReopensCollapsedAfterARotation() {
         assertFalse(KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
+        assertFalse(KeepADBTrustedNetwork.isTrustByNameEnabled(context));
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity before = controller.get();
         before.findViewById(R.id.settings_network_beta_header).performClick();
-        before.findViewById(R.id.network_ssid_header).performClick();
         assertEquals(View.VISIBLE, before.findViewById(R.id.settings_network_beta_body).getVisibility());
-        assertEquals(View.VISIBLE, before.findViewById(R.id.network_ssid_body).getVisibility());
 
         ActivityController<SettingsActivity> restored = rotate(controller);
         SettingsActivity after = restored.get();
@@ -448,10 +437,9 @@ public class SettingsNetworkCardLifecycleTest {
         // Own visibility, not isShown(): a collapsed card would hide its section anyway.
         assertEquals("The card is collapsed again", View.GONE,
                 after.findViewById(R.id.settings_network_beta_body).getVisibility());
-        assertEquals("The Wi-Fi-name section is collapsed again", View.GONE,
-                after.findViewById(R.id.network_ssid_body).getVisibility());
         assertFalse(KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
-        assertFalse(((android.widget.Switch) after.findViewById(R.id.settings_trusted_ssid_toggle))
+        assertFalse(KeepADBTrustedNetwork.isTrustByNameEnabled(context));
+        assertFalse(((android.widget.Switch) after.findViewById(R.id.settings_trust_by_name_toggle))
                 .isChecked());
         restored.pause().stop().destroy();
     }
@@ -481,9 +469,6 @@ public class SettingsNetworkCardLifecycleTest {
     public void bundleKeysAndRequestCodesAreUnchanged() {
         assertEquals("settings_background_location_showing",
                 KeepADBNetworkCard.STATE_BACKGROUND_LOCATION_SHOWING);
-        assertEquals("settings_allowlist_permission_showing",
-                KeepADBNetworkCard.STATE_ALLOWLIST_PERMISSION_SHOWING);
-        assertEquals(3001, KeepADBNetworkCard.TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST);
         assertEquals(3002, KeepADBNetworkCard.WIFI_APS_LOCATION_PERMISSION_REQUEST);
     }
 

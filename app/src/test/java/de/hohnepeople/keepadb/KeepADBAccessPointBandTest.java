@@ -202,6 +202,7 @@ public class KeepADBAccessPointBandTest {
             boolean allowedUser = name.equals("KeepADBAccessPointBand.java")
                     || name.equals("KeepADBNetworkDisplay.java")
                     || name.equals("NetworkListActivity.java")
+                    || name.equals("NetworkListRenderer.java")
                     || name.equals("KeepADBBssidHistory.java")
                     || name.equals("KeepADBNetworkCard.java");
             if (!allowedUser) {

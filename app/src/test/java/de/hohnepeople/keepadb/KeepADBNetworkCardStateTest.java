@@ -36,7 +36,9 @@ public class KeepADBNetworkCardStateTest {
         boolean fine = true;
         boolean locationOn = true;
         boolean background = false;
+        boolean blocked = false;
 
+        Scenario blocked() { blocked = true; return this; }
         Scenario allWifi() { allowlist = false; return this; }
         Scenario names(boolean on) { ssidMatching = on; return this; }
         Scenario noWifi() { wifiConnected = false; identityKnown = false; return this; }
@@ -50,7 +52,7 @@ public class KeepADBNetworkCardStateTest {
         Snapshot derive() {
             return KeepADBNetworkCardState.derive(new KeepADBNetworkCardState.Inputs(
                     allowlist, ssidMatching, wifiConnected, identityKnown, bssidListed,
-                    ssidListed, fine, locationOn, background));
+                    ssidListed, fine, locationOn, background, blocked));
         }
     }
 
@@ -198,6 +200,43 @@ public class KeepADBNetworkCardStateTest {
         Snapshot notRestricted = new Scenario().allWifi().derive();
         assertEquals("Nothing is paused in all-networks mode", Cause.ALL_WIFI, notRestricted.cause);
         assertEquals(Action.ALLOW_ACCESS_POINT, notRestricted.action);
+    }
+
+    /**
+     * #762: a block is shown as "blocked" and offers no allow action (trusting a blocked network is
+     * refused, #760), whatever else is true of the network. Both sides: the same situation without
+     * the block keeps its own state and its action, so the block is what changes it.
+     */
+    @Test
+    public void aBlockedNetworkIsShownAsBlockedWithoutAnAllowActionWhateverElseHolds() {
+        for (boolean allowlist : new boolean[] {true, false}) {
+            for (boolean listed : new boolean[] {true, false}) {
+                Scenario blocked = new Scenario().names(true).blocked();
+                blocked.allowlist = allowlist;
+                blocked.bssidListed = listed;
+                blocked.ssidListed = listed;
+                Snapshot state = blocked.derive();
+                String label = "allowlist=" + allowlist + " listed=" + listed;
+                assertEquals(label, Connection.BLOCKED, state.connection);
+                assertEquals(label, Cause.BLOCKED, state.cause);
+                assertEquals("No ineffective allow action: " + label, Action.NONE, state.action);
+            }
+        }
+        // Control: without the block the same listed situation is allowed, the unlisted one offers
+        // to allow it.
+        assertEquals(Connection.ALLOWED_AP, new Scenario().bssidListed().derive().connection);
+        assertEquals(Action.ALLOW_ACCESS_POINT, new Scenario().derive().action);
+    }
+
+    @Test
+    public void aBlockOnAReadableNameStaysBlockedWhenTheAddressIsMasked() {
+        // The readable-name-and-masked-address case of the E1 review: the policy blocks it, so the
+        // card must not call it "not readable".
+        Snapshot state = new Scenario().unreadable().blocked().derive();
+        assertEquals(Connection.BLOCKED, state.connection);
+        assertEquals(Action.NONE, state.action);
+        assertEquals("Control: unreadable without a block stays unreadable",
+                Connection.UNREADABLE, new Scenario().unreadable().derive().connection);
     }
 
     @Test

@@ -268,6 +268,27 @@ public class KeepADBTrustMigrationTest {
         assertEquals(ProtectionLevel.LEGACY_ALL_WIFI, KeepADBTrustedNetwork.getProtectionLevel(context));
     }
 
+    /**
+     * #762: both name rules on is the widest grant (derived names plus the stored list); it must
+     * read as the legacy name list, not as the narrower balanced preset. Each rule alone keeps its
+     * own level, so the order of the two checks cannot be swapped back unnoticed.
+     */
+    @Test
+    public void bothNameRulesOnReadAsTheWiderLegacyNameListNotAsBalanced() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
+        KeepADBTrustedNetwork.addSsid(context, "Mesh");
+        KeepADBTrustedNetwork.setTrustByNameEnabled(context, true);
+        assertEquals(ProtectionLevel.LEGACY_NAME_LIST, KeepADBTrustedNetwork.getProtectionLevel(context));
+
+        // The other sides: the switch alone is balanced, the list alone is the legacy list.
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, false);
+        assertEquals(ProtectionLevel.BALANCED, KeepADBTrustedNetwork.getProtectionLevel(context));
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
+        KeepADBTrustedNetwork.setTrustByNameEnabled(context, false);
+        assertEquals(ProtectionLevel.LEGACY_NAME_LIST, KeepADBTrustedNetwork.getProtectionLevel(context));
+    }
+
     // --- Nothing lost, idempotent -----------------------------------------------------------------------
 
     @Test

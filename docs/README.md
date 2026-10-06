@@ -35,7 +35,8 @@
   Nutzeraktionen und app-lokale Optionen. `SettingsActivity` bleibt der Screen- und
   Android-Lifecycle-Eigentümer und delegiert klar abgegrenzte Bereiche an Controller:
 - [KeepADBNetworkCard](../app/src/main/java/de/hohnepeople/keepadb/KeepADBNetworkCard.java):
-  besitzt die Netzwerk-Kartenansicht, ihre Aktionen und Dialoge sowie die WLAN-Beobachtung.
+  besitzt die Netzwerk-Kartenansicht (aktuelles Netzwerk, Schutzstufe, Komfortschalter, Force,
+  Einstieg „Netzwerke“, Hintergrundzugriff), ihre Aktionen und Dialoge.
   `SettingsActivity` delegiert Wiederherstellung, Start/Stop, Aktualisierung, Zustandsicherung,
   Zerstörung und die Ergebnisbehandlung der Berechtigungsanfragen.
 - [KeepADBDiagnosticsController](../app/src/main/java/de/hohnepeople/keepadb/KeepADBDiagnosticsController.java):

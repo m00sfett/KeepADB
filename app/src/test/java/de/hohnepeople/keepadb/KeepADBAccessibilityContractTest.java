@@ -130,15 +130,10 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_usb_notification_toggle,
                 R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
-                R.id.settings_wifi_aps_feature_toggle,
                 R.id.network_status_action,
-                R.id.network_mode_all_wifi,
-                R.id.network_mode_allowlist,
+                R.id.settings_trust_by_name_toggle,
+                R.id.network_networks_row,
                 R.id.settings_background_location_button,
-                R.id.network_allowed_row,
-                R.id.network_prevented_row,
-                R.id.network_ssid_header,
-                R.id.settings_trusted_ssid_toggle,
                 R.id.settings_misc_header,
                 R.id.settings_hide_notification_toggle,
                 R.id.settings_keep_display_on_toggle,
@@ -151,22 +146,6 @@ public class KeepADBAccessibilityContractTest {
         };
         for (int id : settingsControls) assertMinSize(settings.findViewById(id));
         assertMinSize(widget.findViewById(R.id.widget_label));
-    }
-
-    /** #507/#654: verifies touch targets inside the observation content. */
-    @Test
-    public void settingsWifiApsContentInteractiveViewsKeep48DpTouchTargets() {
-        View settings = runtimeView(R.layout.activity_settings);
-        expandAllSettingsCards(settings);
-        settings.findViewById(R.id.settings_wifi_aps_content).setVisibility(View.VISIBLE);
-        measureAndLayout(settings, 360, 2400);
-
-        int[] wifiApsControls = {
-                R.id.network_observed_row
-        };
-        for (int id : wifiApsControls) {
-            assertMinSize(settings.findViewById(id));
-        }
     }
 
     /** #471: clicks every collapsible settings card's header so its body (and everything inside)
@@ -187,8 +166,6 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_diagnostics_header
         };
         for (int id : headers) settings.findViewById(id).performClick();
-        // #655: the advanced Wi-Fi-name section is the one nested, collapsed sub-section.
-        settings.findViewById(R.id.network_ssid_header).performClick();
     }
 
     @Test
@@ -246,12 +223,8 @@ public class KeepADBAccessibilityContractTest {
                 R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_notification_toggle, R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
-                R.id.settings_wifi_aps_feature_toggle,
-                R.id.network_status_action, R.id.network_mode_all_wifi,
-                R.id.network_mode_allowlist, R.id.settings_background_location_button,
-                R.id.network_allowed_row, R.id.network_prevented_row,
-                R.id.network_observed_row, R.id.network_ssid_header,
-                R.id.settings_trusted_ssid_toggle,
+                R.id.network_status_action, R.id.settings_trust_by_name_toggle,
+                R.id.network_networks_row, R.id.settings_background_location_button,
                 R.id.settings_hide_notification_toggle,
                 R.id.settings_keep_display_on_toggle, R.id.settings_advice_banner_toggle,
                 R.id.settings_battery_optimization_panel_toggle,
@@ -325,9 +298,8 @@ public class KeepADBAccessibilityContractTest {
         assertFalse(usbNotificationTitle.isFocusable());
         assertFalse(usbHandoverTitle.isFocusable());
         // #654: every Network section starts with a non-interactive accessibility heading.
-        for (int id : new int[] {R.id.network_status_heading, R.id.network_mode_heading,
-                R.id.network_background_heading, R.id.network_manage_heading,
-                R.id.network_observation_heading}) {
+        for (int id : new int[] {R.id.network_status_heading,
+                R.id.network_background_heading, R.id.network_manage_heading}) {
             TextView heading = settings.findViewById(id);
             assertTrue(heading.isAccessibilityHeading());
             assertFalse(heading.isClickable());
@@ -481,15 +453,14 @@ public class KeepADBAccessibilityContractTest {
         // order is checked there instead of in the settings content column.
         ViewGroup networkBetaBody = content.findViewById(R.id.settings_network_beta_body);
         assertNotNull(networkBetaBody);
-        // #654/#655: the Network sections read current connection, mode, background access,
-        // access-point entries, observation -- and the advanced Wi-Fi-name section is last.
+        // #654/#769: the Network sections read current connection, protection level and comfort
+        // switch, force, the Networks entry -- and the background access is last.
         int[] networkSections = {
                 R.id.settings_network_status_panel,
-                R.id.settings_network_mode_panel,
-                R.id.settings_network_background_panel,
+                R.id.settings_network_level_panel,
+                R.id.settings_force_panel,
                 R.id.settings_network_manage_panel,
-                R.id.settings_wifi_aps_panel,
-                R.id.settings_network_ssid_panel
+                R.id.settings_network_background_panel
         };
         int previousSection = -1;
         for (int sectionId : networkSections) {
@@ -500,8 +471,8 @@ public class KeepADBAccessibilityContractTest {
             previousSection = index;
         }
         View lastNetworkChild = networkBetaBody.getChildAt(networkBetaBody.getChildCount() - 1);
-        assertEquals("The Wi-Fi-name section is the last content of the Network card",
-                R.id.settings_network_ssid_panel, lastNetworkChild.getId());
+        assertEquals("The background access is the last content of the Network card",
+                R.id.settings_network_background_panel, lastNetworkChild.getId());
 
         // #521: persistent notification, keep-display-on, advice-banner and battery-optimization
         // are no longer direct children of the settings content column either -- they sit

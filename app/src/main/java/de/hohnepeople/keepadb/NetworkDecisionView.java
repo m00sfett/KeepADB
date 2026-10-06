@@ -95,6 +95,15 @@ public final class NetworkDecisionView extends LinearLayout {
     }
 
     /**
+     * Shows or hides "decide later". A host that embeds the question in a page (the network list,
+     * #762) has nothing to close, so there the answer would do nothing: it hides the button and
+     * the user simply leaves the question unanswered. The dialog host keeps it.
+     */
+    void setDecideLaterVisible(boolean visible) {
+        findViewById(R.id.decision_later).setVisibility(visible ? VISIBLE : GONE);
+    }
+
+    /**
      * Removes the access point and every text derived from it, so nothing is left in the view
      * hierarchy. The answers do nothing until {@link #bind} is called again.
      */

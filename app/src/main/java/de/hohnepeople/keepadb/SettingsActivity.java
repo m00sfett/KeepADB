@@ -33,7 +33,7 @@ public class SettingsActivity extends Activity {
      * #672: flags for the reset-app, USB handover mode and language dialogs showing at the time of
      * a {@code recreate()} (rotation). Pure "was showing" markers; a restored reset-app dialog is
      * only re-shown and still needs the user's own confirm tap. The Bundle keys of the Network
-     * card's dialogs (background location, allowlist permission) are owned by
+     * card's dialog (background location) is owned by
      * {@link KeepADBNetworkCard} (#697), those of the feedback report dialog by {@link
      * KeepADBDiagnosticsController} (#698).
      */
@@ -90,7 +90,6 @@ public class SettingsActivity extends Activity {
 
     // Card expansion lives only in the view tree; opening Settings starts cards collapsed.
     // The permission notice remains visible when applicable, while the version entry is static.
-    // Wi-Fi-name matching has its own nested section and does not persist its expansion state.
     private static final int[][] COLLAPSIBLE_CARDS = {
             {R.id.settings_webhook_header, R.id.settings_webhook_body, R.id.settings_webhook_arrow},
             {R.id.settings_usb_adb_header, R.id.settings_usb_adb_body, R.id.settings_usb_adb_arrow},
@@ -422,8 +421,8 @@ public class SettingsActivity extends Activity {
     }
 
     /**
-     * Shared by the cards wired here and the Network card's nested Wi-Fi-name section (#697), so
-     * every collapsible header announces and renders its state alike.
+     * Renders one collapsible card header, body and arrow so every card announces and shows its
+     * state alike.
      */
     static void setCardExpanded(Activity activity, View header, View body, TextView arrow,
                                 boolean expanded) {
@@ -555,10 +554,6 @@ public class SettingsActivity extends Activity {
             }
         });
         dialog.show();
-    }
-
-    AlertDialog getActiveAllowlistPermissionDialog() {
-        return networkCard.getActiveAllowlistPermissionDialog();
     }
 
     AlertDialog getActiveResetAppDialog() {

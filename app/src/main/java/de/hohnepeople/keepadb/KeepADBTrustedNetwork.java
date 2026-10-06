@@ -257,8 +257,11 @@ final class KeepADBTrustedNetwork {
     /** The stored policy in the vocabulary of the protection presets; see {@link ProtectionLevel}. */
     static ProtectionLevel getProtectionLevel(Context context) {
         if (!isAllowlistMode(context)) return ProtectionLevel.LEGACY_ALL_WIFI;
-        if (isTrustByNameEnabled(context)) return ProtectionLevel.BALANCED;
+        // #762: the legacy name list is asked before the comfort switch. With both name rules on,
+        // the effective grant is the wider one (derived names plus the stored list), which no
+        // preset reproduces; reading it as BALANCED would show a narrower grant than is in force.
         if (hasActiveLegacyNameGrants(context)) return ProtectionLevel.LEGACY_NAME_LIST;
+        if (isTrustByNameEnabled(context)) return ProtectionLevel.BALANCED;
         return ProtectionLevel.MAXIMUM_SECURITY;
     }
 

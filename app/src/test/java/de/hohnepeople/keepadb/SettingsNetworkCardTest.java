@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -121,52 +120,11 @@ public class SettingsNetworkCardTest {
     }
 
     @Test
-    public void theHeadFollowsAModeChangeMadeInTheCard() {
-        shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
-        // #760: a change away from the former default; a new installation already is on the allowlist.
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        SettingsActivity activity = open();
-        TextView head = activity.findViewById(R.id.settings_network_beta_subtitle);
-        String before = head.getText().toString();
-
-        activity.findViewById(R.id.network_mode_allowlist).performClick();
-        ShadowDialog.reset();
-
-        assertNotEquals(before, head.getText().toString());
-        assertEquals(context.getString(R.string.network_head_mode,
-                context.getString(R.string.network_mode_option_aps)), head.getText().toString());
-    }
-
-    @Test
-    public void theSecondOptionNamesWifiNamesWhileTheMatchingSettingIsOn() {
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
-        SettingsActivity active = open();
-        RadioButton allowlist = active.findViewById(R.id.network_mode_allowlist);
-        assertTrue(allowlist.isChecked());
-        assertEquals(context.getString(R.string.network_mode_option_aps_names),
-                allowlist.getText().toString());
-
-        // All networks stays the active mode; the second option still says what it would mean.
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        SettingsActivity allWifi = open();
-        assertTrue(((RadioButton) allWifi.findViewById(R.id.network_mode_all_wifi)).isChecked());
-        assertFalse(((RadioButton) allWifi.findViewById(R.id.network_mode_allowlist)).isChecked());
-        assertEquals(context.getString(R.string.network_mode_option_aps_names),
-                ((RadioButton) allWifi.findViewById(R.id.network_mode_allowlist)).getText().toString());
-
-        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, false);
-        SettingsActivity off = open();
-        assertEquals(context.getString(R.string.network_mode_option_aps),
-                ((RadioButton) off.findViewById(R.id.network_mode_allowlist)).getText().toString());
-    }
-
-    @Test
-    public void theCurrentConnectionComesBeforeTheModeChoice() {
+    public void theCurrentConnectionComesBeforeTheLevelAndTheSwitches() {
         SettingsActivity activity = open();
         ViewGroup body = activity.findViewById(R.id.settings_network_beta_body);
         assertTrue(body.indexOfChild(activity.findViewById(R.id.settings_network_status_panel))
-                < body.indexOfChild(activity.findViewById(R.id.settings_network_mode_panel)));
+                < body.indexOfChild(activity.findViewById(R.id.settings_network_level_panel)));
     }
 
     // --- the current connection -------------------------------------------------------------
@@ -216,6 +174,34 @@ public class SettingsNetworkCardTest {
                 text(activity, R.id.network_status_label));
         assertEquals(View.GONE, action.getVisibility());
         assertTrue(gateway.writes.isEmpty());
+    }
+
+    /**
+     * #762 (E1 review): a blocked network read "Not allowed" with an allow action that is refused.
+     * It now reads "Blocked", gives the reason and offers no action; the same network without the
+     * block keeps the old text and the action, so the block is what changed it.
+     */
+    @Test
+    public void aBlockedNetworkReadsBlockedAndOffersNoActionThatCannotWork() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "HomeMesh");
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
+        KeepADBNetworkBlocklist.blockSsid(context, "HomeMesh");
+
+        SettingsActivity activity = open();
+
+        assertEquals(context.getString(R.string.network_badge_blocked),
+                text(activity, R.id.network_status_label));
+        assertEquals(context.getColor(R.color.link_red),
+                ((TextView) activity.findViewById(R.id.network_status_label)).getCurrentTextColor());
+        assertEquals(context.getString(R.string.network_cause_blocked),
+                text(activity, R.id.network_status_cause));
+        assertEquals(View.GONE, activity.findViewById(R.id.network_status_action).getVisibility());
+
+        KeepADBNetworkBlocklist.unblockSsid(context, "HomeMesh");
+        SettingsActivity unblocked = open();
+        assertEquals(context.getString(R.string.network_status_allowed_ap),
+                text(unblocked, R.id.network_status_label));
     }
 
     /**
@@ -499,43 +485,38 @@ public class SettingsNetworkCardTest {
                         .getCurrentTextColor());
     }
 
-    // --- management entries and observation --------------------------------------------------
+    // --- the one Networks entry ---------------------------------------------------------------
 
     @Test
-    public void managementEntriesShowTheirCountsAndOpenTheirOwnViews() {
+    public void theNetworksEntryShowsTheCountsAndOpensTheOneList() {
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "A");
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:02", "B");
-        KeepADBBlockedNetworkHistory.record(context,
-                new KeepADBNetworkIdentity("C", "aa:bb:cc:dd:ee:03"), 1_000L);
-        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
+        KeepADBNetworkBlocklist.blockBssid(context, "aa:bb:cc:dd:ee:03");
         SettingsActivity activity = open();
 
-        assertEquals("2", text(activity, R.id.network_allowed_count));
-        assertEquals("1", text(activity, R.id.network_prevented_count));
+        assertEquals(context.getString(R.string.networks_count, 2, 1),
+                text(activity, R.id.network_networks_count));
 
-        String[] views = {NetworkListActivity.VIEW_ALLOWED, NetworkListActivity.VIEW_PREVENTED,
-                NetworkListActivity.VIEW_OBSERVED};
-        int[] rows = {R.id.network_allowed_row, R.id.network_prevented_row, R.id.network_observed_row};
-        for (int i = 0; i < rows.length; i++) {
-            activity.findViewById(rows[i]).performClick();
-            Intent opened = shadowOf(activity).getNextStartedActivity();
-            assertNotNull(opened);
-            assertEquals(NetworkListActivity.class.getName(), opened.getComponent().getClassName());
-            assertEquals(views[i], opened.getStringExtra(NetworkListActivity.EXTRA_VIEW));
-        }
+        activity.findViewById(R.id.network_networks_row).performClick();
+        Intent opened = shadowOf(activity).getNextStartedActivity();
+        assertNotNull(opened);
+        assertEquals(NetworkListActivity.class.getName(), opened.getComponent().getClassName());
+        assertNull("There is one list, so no view is named", opened.getExtras());
     }
 
     @Test
-    public void theCountsFollowChangesMadeInTheViewsOnReturn() {
+    public void theCountsFollowChangesMadeInTheListOnReturn() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
-        assertEquals("0", text(activity, R.id.network_allowed_count));
+        assertEquals(context.getString(R.string.networks_count, 0, 0),
+                text(activity, R.id.network_networks_count));
 
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "A");
         controller.pause().resume();
 
-        assertEquals("1", text(activity, R.id.network_allowed_count));
+        assertEquals(context.getString(R.string.networks_count, 1, 0),
+                text(activity, R.id.network_networks_count));
     }
 
     @Test
@@ -577,528 +558,6 @@ public class SettingsNetworkCardTest {
         controller.destroy();
     }
 
-    /**
-     * #654: the observation option controls only the observation and its list. Allowed and
-     * prevented entries, the state and the advanced section stay reachable with it off, and
-     * flipping it changes no allowlist, mode or name setting.
-     */
-    @Test
-    public void theObservationOptionControlsOnlyTheObservedList() {
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "A");
-        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
-        KeepADBTrustedNetwork.addSsid(context, "Mesh");
-        Map<String, ?> trustBefore = trustSettings();
-        SettingsActivity activity = open();
-        Switch observe = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
-
-        assertFalse("Observation is opt-in", observe.isChecked());
-        assertFalse(activity.findViewById(R.id.network_observed_row).isShown());
-        for (int id : new int[] {R.id.network_status_label, R.id.network_mode_allowlist,
-                R.id.network_allowed_row, R.id.network_prevented_row, R.id.network_ssid_header}) {
-            assertTrue("Reachable with observation off: " + id, activity.findViewById(id).isShown());
-        }
-
-        observe.performClick();
-        assertTrue(KeepADBPreferences.isWifiApsFeatureEnabled(context));
-        assertTrue(activity.findViewById(R.id.network_observed_row).isShown());
-        assertEquals("Observation changes no allowlist, mode or name setting", trustBefore,
-                trustSettings());
-
-        observe.performClick();
-        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
-        assertFalse(activity.findViewById(R.id.network_observed_row).isShown());
-        assertTrue(activity.findViewById(R.id.network_allowed_row).isShown());
-        assertEquals(trustBefore, trustSettings());
-    }
-
-    /** Turns observation off in a freshly opened Settings and returns the question that follows. */
-    private AlertDialog turnObservationOffWithHistory(
-            ActivityController<SettingsActivity> controller) {
-        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
-        KeepADBBssidHistory.recordObservation(context, "HomeMesh", "aa:bb:cc:dd:ee:01", 5200);
-        connectTo("HomeMesh", "aa:bb:cc:dd:ee:02");
-        SettingsActivity activity = controller.get();
-        activity.refresh();
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
-        ShadowLooper.idleMainLooper();
-        assertEquals(java.util.Arrays.asList("aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"),
-                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
-        Switch observe = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
-        assertTrue(observe.isChecked());
-        observe.performClick();
-        ShadowLooper.idleMainLooper();
-        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
-        assertNotNull("Turning it off asks about the history", dialog);
-        assertTrue(dialog.isShowing());
-        assertFalse("Recording stops before the answer",
-                KeepADBPreferences.isWifiApsFeatureEnabled(context));
-        assertTrue("The stored bands are gone before the answer",
-                KeepADBBssidHistory.getStoredBands(context).isEmpty());
-        return dialog;
-    }
-
-    private void assertHistoryKeptAndNothingRecorded() {
-        SettingsActivity activity = Robolectric.buildActivity(SettingsActivity.class).setup().get();
-        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
-        connectTo("HomeMesh", "aa:bb:cc:dd:ee:03");
-        activity.refresh();
-        assertEquals("The history is retained and no new entry is recorded",
-                java.util.Arrays.asList("aa:bb:cc:dd:ee:01", "aa:bb:cc:dd:ee:02"),
-                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
-        assertFalse(((Switch) activity.findViewById(R.id.settings_wifi_aps_feature_toggle))
-                .isChecked());
-    }
-
-    @Test
-    public void answeringNoKeepsTheHistoryAndStopsRecording() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        AlertDialog dialog = turnObservationOffWithHistory(controller);
-        assertEquals(context.getString(R.string.settings_wifi_aps_off_title),
-                shadowOf(dialog).getTitle().toString());
-
-        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertFalse(dialog.isShowing());
-        assertHistoryKeptAndNothingRecorded();
-    }
-
-    @Test
-    public void answeringYesDeletesTheHistoryAndStopsRecording() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        AlertDialog dialog = turnObservationOffWithHistory(controller);
-        prefs().edit().putString("unrelated_setting_741", "keep-me").commit();
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertFalse(dialog.isShowing());
-        assertEquals("Clearing the history must not touch unrelated preferences",
-                "keep-me", prefs().getString("unrelated_setting_741", null));
-        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
-        assertTrue(KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").isEmpty());
-        assertTrue(KeepADBBssidHistory.getRecentObservations(context).isEmpty());
-        assertTrue(KeepADBBssidHistory.getStoredBands(context).isEmpty());
-        assertTrue(prefs().getAll().keySet().stream().noneMatch(k -> k.startsWith("bssid_history_")));
-
-        SettingsActivity reopened = Robolectric.buildActivity(SettingsActivity.class).setup().get();
-        connectTo("HomeMesh", "aa:bb:cc:dd:ee:03");
-        reopened.refresh();
-        assertTrue("Nothing is recorded while it is off",
-                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").isEmpty());
-    }
-
-    @Test
-    public void cancellingTheQuestionCountsAsNo() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        AlertDialog dialog = turnObservationOffWithHistory(controller);
-
-        dialog.cancel();
-
-        assertFalse(dialog.isShowing());
-        assertHistoryKeptAndNothingRecorded();
-    }
-
-    @Test
-    public void rotatingSettingsDuringTheQuestionCountsAsNo() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        AlertDialog dialog = turnObservationOffWithHistory(controller);
-
-        controller.recreate();
-        ShadowLooper.idleMainLooper();
-
-        assertFalse("The question is dismissed with the activity", dialog.isShowing());
-        assertHistoryKeptAndNothingRecorded();
-        AlertDialog latest = ShadowAlertDialog.getLatestAlertDialog();
-        assertTrue("The question is not shown again", latest == null || !latest.isShowing());
-    }
-
-    @Test
-    public void destroyingSettingsDuringTheQuestionCountsAsNo() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        AlertDialog dialog = turnObservationOffWithHistory(controller);
-
-        controller.destroy();
-
-        assertFalse(dialog.isShowing());
-        assertHistoryKeptAndNothingRecorded();
-    }
-
-    @Test
-    public void turningObservationOnShowsNoQuestion() {
-        SettingsActivity activity = open();
-        ShadowDialog.reset();
-
-        ((Switch) activity.findViewById(R.id.settings_wifi_aps_feature_toggle)).performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertTrue(KeepADBPreferences.isWifiApsFeatureEnabled(context));
-        AlertDialog latest = ShadowAlertDialog.getLatestAlertDialog();
-        assertTrue(latest == null || !latest.isShowing());
-    }
-
-    // --- last band seen (#721) ---------------------------------------------------------------
-
-    @Test
-    public void observingStoresTheBandOfTheCurrentConnectionAndOverwritesItOnTheNextReading() {
-        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
-        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01", 2437);
-        SettingsActivity activity = open();
-        assertEquals(KeepADBAccessPointBand.GHZ_2_4,
-                (int) KeepADBBssidHistory.getStoredBands(context).get("AA:BB:CC:DD:EE:01"));
-
-        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01", 5200);
-        activity.refresh();
-
-        assertEquals("The newest reading replaces the stored band", 1,
-                KeepADBBssidHistory.getStoredBands(context).size());
-        assertEquals(KeepADBAccessPointBand.GHZ_5,
-                (int) KeepADBBssidHistory.getStoredBands(context).get("AA:BB:CC:DD:EE:01"));
-
-        // A reading without a band (frequency unusable) changes nothing.
-        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01", 0);
-        activity.refresh();
-        assertEquals(KeepADBAccessPointBand.GHZ_5,
-                (int) KeepADBBssidHistory.getStoredBands(context).get("AA:BB:CC:DD:EE:01"));
-    }
-
-    /** Gegenprobe: without the opt-in no band -- and no BSSID -- is stored at all. */
-    @Test
-    public void withTheObservationOffNoBandIsStored() {
-        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01", 5200);
-
-        SettingsActivity activity = open();
-        activity.refresh();
-
-        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
-        assertTrue(KeepADBBssidHistory.getStoredBands(context).isEmpty());
-        assertFalse(prefs().getAll().keySet().stream().anyMatch(k -> k.endsWith("_bands")));
-        assertTrue(KeepADBBssidHistory.getKnownBssids(context, "HomeMesh").isEmpty());
-    }
-
-    @Test
-    public void switchingTheObservationOffInSettingsDeletesTheStoredBandsAndKeepsTheHistory() {
-        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
-        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01", 5200);
-        SettingsActivity activity = open();
-        assertEquals(1, KeepADBBssidHistory.getStoredBands(context).size());
-
-        ((Switch) activity.findViewById(R.id.settings_wifi_aps_feature_toggle)).performClick();
-
-        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(context));
-        assertTrue(KeepADBBssidHistory.getStoredBands(context).isEmpty());
-        assertEquals(java.util.Collections.singletonList("aa:bb:cc:dd:ee:01"),
-                KeepADBBssidHistory.getKnownBssids(context, "HomeMesh"));
-
-        // Switching it on again records the live band afresh, from the current connection only.
-        ((Switch) activity.findViewById(R.id.settings_wifi_aps_feature_toggle)).performClick();
-        activity.refresh();
-        assertEquals(KeepADBAccessPointBand.GHZ_5,
-                (int) KeepADBBssidHistory.getStoredBands(context).get("AA:BB:CC:DD:EE:01"));
-    }
-
-    @Test
-    public void theInactiveListHintAppearsOnlyInAllNetworksModeWithSavedEntries() {
-        View hint;
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        hint = open().findViewById(R.id.network_lists_inactive_hint);
-        assertEquals("Nothing saved, nothing to explain", View.GONE, hint.getVisibility());
-
-        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "A");
-        SettingsActivity allWifi = open();
-        hint = allWifi.findViewById(R.id.network_lists_inactive_hint);
-        assertEquals(View.VISIBLE, hint.getVisibility());
-        assertEquals(context.getString(R.string.network_list_inactive_hint,
-                        context.getString(R.string.network_mode_option_aps)),
-                ((TextView) hint).getText().toString());
-        assertEquals("The saved list stays reachable", "1", text(allWifi, R.id.network_allowed_count));
-
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        assertEquals(View.GONE, open().findViewById(R.id.network_lists_inactive_hint).getVisibility());
-    }
-
-    /**
-     * #654 visual acceptance: the hint named the mode as "Only allowed ..." while the choice read
-     * "Allowed access points and Wi-Fi names" once the name matching was on. In every state the
-     * hint now names the label the second option shows at that moment, everywhere it appears: the
-     * card entry and, with the matching saved but without effect, the line of the advanced section.
-     */
-    @Test
-    public void theInactiveListHintNamesTheSecondOptionExactlyAsTheChoiceShowsItInEveryState() {
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "A");
-        String[] seenOptions = new String[2];
-        for (boolean names : new boolean[] {false, true}) {
-            KeepADBTrustedNetwork.setSsidMatchingEnabled(context, names);
-            SettingsActivity activity = open();
-            activity.findViewById(R.id.network_ssid_header).performClick();
-            String option = ((RadioButton) activity.findViewById(R.id.network_mode_allowlist))
-                    .getText().toString();
-            seenOptions[names ? 1 : 0] = option;
-            assertEquals("The fixture shows the label of the matching state",
-                    context.getString(names ? R.string.network_mode_option_aps_names
-                            : R.string.network_mode_option_aps), option);
-
-            TextView cardHint = activity.findViewById(R.id.network_lists_inactive_hint);
-            assertEquals(View.VISIBLE, cardHint.getVisibility());
-            assertTrue("names=" + names + ": the card hint names the visible option '" + option
-                    + "': " + cardHint.getText(), cardHint.getText().toString().contains(option));
-            assertFalse("No truncated mode name: " + cardHint.getText(),
-                    cardHint.getText().toString().contains("\u2026"));
-
-            if (names) {
-                String effect = text(activity, R.id.network_ssid_effect);
-                assertTrue("The advanced section names the visible option '" + option + "': "
-                        + effect, effect.contains(option));
-                assertFalse("No truncated mode name: " + effect, effect.contains("\u2026"));
-                assertEquals("The same sentence in both places", cardHint.getText().toString(), effect);
-            }
-        }
-        assertNotEquals("The two states really show different labels", seenOptions[0], seenOptions[1]);
-    }
-
-    // --- the advanced Wi-Fi-name section -----------------------------------------------------
-
-    @Test
-    public void theAdvancedSectionIsTheLastContentOfTheCardAndStartsCollapsed() {
-        SettingsActivity activity = open();
-        ViewGroup body = activity.findViewById(R.id.settings_network_beta_body);
-
-        View last = body.getChildAt(body.getChildCount() - 1);
-        assertEquals(R.id.settings_network_ssid_panel, last.getId());
-        assertEquals(View.GONE, activity.findViewById(R.id.network_ssid_body).getVisibility());
-        assertEquals("+", text(activity, R.id.network_ssid_arrow));
-        assertEquals(context.getString(R.string.card_state_collapsed),
-                activity.findViewById(R.id.network_ssid_header).getStateDescription().toString());
-        assertTrue("The header is an operable 48dp target",
-                activity.findViewById(R.id.network_ssid_header).hasOnClickListeners());
-    }
-
-    @Test
-    public void theClosedHeaderStatesOffActiveOrWithoutEffectAndTheNumberOfNames() {
-        // Off, no names.
-        assertEquals(context.getString(R.string.network_ssid_state_off),
-                text(open(), R.id.network_ssid_state));
-
-        // On and active: allowlist mode.
-        KeepADBTrustedNetwork.addSsid(context, "Home");
-        KeepADBTrustedNetwork.addSsid(context, "Mesh");
-        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        assertEquals(context.getString(R.string.network_ssid_state_on, 2),
-                text(open(), R.id.network_ssid_state));
-
-        // Saved but without effect: all networks allowed.
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        assertEquals(context.getString(R.string.network_ssid_state_no_effect, 2),
-                text(open(), R.id.network_ssid_state));
-
-        // Off again with saved names: still off -- names alone never switch it on.
-        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, false);
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        assertEquals(context.getString(R.string.network_ssid_state_off),
-                text(open(), R.id.network_ssid_state));
-    }
-
-    @Test
-    public void theClosedHeaderNeverRevealsANetworkName() {
-        KeepADBTrustedNetwork.addSsid(context, "SecretHome");
-        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        KeepADBPreferences.setPrivacyModeEnabled(context, false);
-
-        SettingsActivity activity = open();
-
-        assertFalse("Collapsed, no name is on screen: " + shownText(activity),
-                shownText(activity).contains("SecretHome"));
-        activity.findViewById(R.id.network_ssid_header).performClick();
-        assertTrue("Expanded, the user can see and manage the names",
-                shownText(activity).contains("SecretHome"));
-    }
-
-    @Test
-    public void expandingTheSectionShowsStateWarningSwitchAndNamesTogetherInThatOrder() {
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        KeepADBTrustedNetwork.addSsid(context, "Home");
-        SettingsActivity activity = open();
-        View header = activity.findViewById(R.id.network_ssid_header);
-
-        header.performClick();
-
-        ViewGroup body = activity.findViewById(R.id.network_ssid_body);
-        assertEquals(View.VISIBLE, body.getVisibility());
-        assertEquals("−", text(activity, R.id.network_ssid_arrow));
-        assertEquals(context.getString(R.string.card_state_expanded),
-                header.getStateDescription().toString());
-        View effect = activity.findViewById(R.id.network_ssid_effect);
-        View toggle = activity.findViewById(R.id.settings_trusted_ssid_toggle);
-        View current = activity.findViewById(R.id.wifi_ssids_current_row);
-        View names = activity.findViewById(R.id.wifi_ssids_list);
-        assertTrue(body.indexOfChild(effect) < body.indexOfChild(toggle));
-        assertTrue("The switch is followed directly by the name list",
-                body.indexOfChild(toggle) < body.indexOfChild(current)
-                        && body.indexOfChild(current) < body.indexOfChild(names));
-        // The risk warning sits between the state line and the switch.
-        List<String> bodyTexts = textsOf(body);
-        assertTrue(bodyTexts.contains(context.getString(R.string.settings_trusted_ssid_warning)));
-        assertTrue("Every access point with the same name is accepted, stated in the warning",
-                context.getString(R.string.settings_trusted_ssid_warning).length() > 0);
-        assertTrue(effect.isShown() && toggle.isShown() && names.isShown());
-
-        header.performClick();
-        assertEquals(View.GONE, body.getVisibility());
-        assertEquals(context.getString(R.string.card_state_collapsed),
-                header.getStateDescription().toString());
-    }
-
-    @Test
-    public void theEffectLineDistinguishesOffActiveAndWithoutEffect() {
-        SettingsActivity off = open();
-        assertEquals(context.getString(R.string.network_ssid_effect_off),
-                text(off, R.id.network_ssid_effect));
-
-        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        SettingsActivity active = open();
-        assertEquals(context.getString(R.string.network_ssid_effect_on),
-                text(active, R.id.network_ssid_effect));
-
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        SettingsActivity noEffect = open();
-        assertEquals("Saved matching names the option as it reads while the matching is on",
-                context.getString(R.string.network_list_inactive_hint,
-                        context.getString(R.string.network_mode_option_aps_names)),
-                text(noEffect, R.id.network_ssid_effect));
-    }
-
-    @Test
-    public void savedNamesStayReachableAndRemovableInAllNetworksModeWithTheSwitchInoperable() {
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
-        KeepADBTrustedNetwork.addSsid(context, "Mesh");
-        SettingsActivity activity = open();
-        activity.findViewById(R.id.network_ssid_header).performClick();
-
-        Switch toggle = activity.findViewById(R.id.settings_trusted_ssid_toggle);
-        assertTrue("The saved setting is shown as it is", toggle.isChecked());
-        assertFalse("Nothing to widen while all networks are allowed", toggle.isEnabled());
-        LinearLayoutHolder list = new LinearLayoutHolder(activity.findViewById(R.id.wifi_ssids_list));
-        assertEquals("Mesh", list.texts().get(0));
-
-        Button remove = list.buttons().get(0);
-        remove.performClick();
-        assertTrue(KeepADBTrustedNetwork.getSsidEntries(context).isEmpty());
-        assertEquals("Saved name setting untouched by removing a name", true,
-                KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
-    }
-
-    @Test
-    public void theCurrentNameCanBeAllowedAndRemovedAgainFromTheAdvancedSection() {
-        connectTo("MeshHome", "aa:bb:cc:dd:ee:06");
-        SettingsActivity activity = open();
-        activity.findViewById(R.id.network_ssid_header).performClick();
-
-        List<Button> add = buttonsOf(activity.findViewById(R.id.wifi_ssids_current_row));
-        assertEquals(1, add.size());
-        assertEquals(context.getString(R.string.wifi_ssids_add_accessibility, "MeshHome"),
-                add.get(0).getContentDescription().toString());
-        add.get(0).performClick();
-
-        List<KeepADBTrustedNetwork.SsidEntry> listed = KeepADBTrustedNetwork.getSsidEntries(context);
-        assertEquals(1, listed.size());
-        assertEquals("MeshHome", listed.get(0).ssid);
-        assertFalse("Adding a name never switches the matching on",
-                KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
-        assertTrue("Already listed: no duplicate add",
-                buttonsOf(activity.findViewById(R.id.wifi_ssids_current_row)).isEmpty());
-
-        List<Button> remove = buttonsOf(activity.findViewById(R.id.wifi_ssids_list));
-        assertEquals(1, remove.size());
-        assertEquals(context.getString(R.string.wifi_ssids_remove_accessibility, "MeshHome"),
-                remove.get(0).getContentDescription().toString());
-        remove.get(0).performClick();
-        assertTrue(KeepADBTrustedNetwork.getSsidEntries(context).isEmpty());
-    }
-
-    /**
-     * #655 visual acceptance: at font scale 2.0 the Allow and Remove actions of this section were
-     * only as tall as their label and the label touched both button edges, because the Material
-     * default button has no horizontal padding. Every action of the section now keeps its own
-     * padding, a 48dp minimum that holds in the measured layout at the largest font, its place
-     * below the name in a vertical row, and a label that may wrap but is never cut.
-     */
-    @Test
-    public void theWifiNameActionsKeepPaddingAndA48dpTargetAtTheLargestFont() {
-        RuntimeEnvironment.setFontScale(2.0f);
-        connectTo("MeshHome", "aa:bb:cc:dd:ee:06");
-        KeepADBTrustedNetwork.addSsid(context, "Mesh");
-        SettingsActivity activity = open();
-        activity.findViewById(R.id.network_ssid_header).performClick();
-        View root = activity.getWindow().getDecorView();
-        int width = dp(360);
-        root.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
-                View.MeasureSpec.makeMeasureSpec(dp(4000), View.MeasureSpec.EXACTLY));
-        root.layout(0, 0, root.getMeasuredWidth(), root.getMeasuredHeight());
-
-        List<Button> actions = new ArrayList<>(
-                buttonsOf(activity.findViewById(R.id.wifi_ssids_current_row)));
-        actions.addAll(buttonsOf(activity.findViewById(R.id.wifi_ssids_list)));
-        assertEquals("Allow for the current name, Remove for the saved one", 2, actions.size());
-        for (Button action : actions) {
-            String name = action.getText().toString();
-            assertEquals("The fixture runs at the largest font scale", 2.0f,
-                    activity.getResources().getConfiguration().fontScale, 0.001f);
-            assertTrue(name + ": at least 48dp high once measured at font scale 2.0",
-                    action.getMeasuredHeight() >= dp(48));
-            assertTrue(name + ": the 48dp minimum is declared, not only reached by the font size",
-                    action.getMinHeight() >= dp(48));
-            assertTrue(name + ": the label keeps air to both edges",
-                    action.getPaddingLeft() >= dp(16) && action.getPaddingRight() >= dp(16));
-            assertTrue(name + ": the label keeps air above and below",
-                    action.getPaddingTop() >= dp(8) && action.getPaddingBottom() >= dp(8));
-            assertNull(name + ": a long label must wrap, not be cut with an ellipsis",
-                    action.getEllipsize());
-            assertEquals(name + ": a long label must wrap, not be limited to one line",
-                    Integer.MAX_VALUE, action.getMaxLines());
-            assertTrue(name + ": the action sits below its name in a vertical row",
-                    action.getParent() instanceof LinearLayout
-                            && ((LinearLayout) action.getParent()).getOrientation()
-                                    == LinearLayout.VERTICAL
-                            && ((ViewGroup) action.getParent()).indexOfChild(action) > 0);
-            assertTrue(name + ": never wider than the row it sits in",
-                    action.getMeasuredWidth() <= ((View) action.getParent()).getMeasuredWidth());
-        }
-    }
-
-    @Test
-    public void anUnreadableIdentityOffersNoNameAddAction() {
-        connectTo(WifiManager.UNKNOWN_SSID, KeepADBNetworkIdentity.REDACTED_BSSID);
-        SettingsActivity activity = open();
-        activity.findViewById(R.id.network_ssid_header).performClick();
-
-        assertTrue(buttonsOf(activity.findViewById(R.id.wifi_ssids_current_row)).isEmpty());
-        assertTrue(textsOf(activity.findViewById(R.id.wifi_ssids_current_row))
-                .contains(context.getString(R.string.wifi_ssids_current_unknown)));
-        assertNull(KeepADBTrustedNetwork.addCurrentSsid(context));
-    }
-
-    @Test
-    public void theEmptyNameListSaysSo() {
-        SettingsActivity activity = open();
-        activity.findViewById(R.id.network_ssid_header).performClick();
-        assertEquals(View.VISIBLE, activity.findViewById(R.id.wifi_ssids_empty).getVisibility());
-
-        KeepADBTrustedNetwork.addSsid(context, "Home");
-        SettingsActivity filled = open();
-        assertEquals(View.GONE, filled.findViewById(R.id.wifi_ssids_empty).getVisibility());
-    }
-
     // --- nothing is ever switched by opening the screen ---------------------------------------
 
     /**
@@ -1112,7 +571,7 @@ public class SettingsNetworkCardTest {
         assertFalse("Fresh install: matching is off", KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
         SettingsActivity fresh = open();
         assertFalse(KeepADBTrustedNetwork.isSsidMatchingEnabled(context));
-        assertFalse(((Switch) fresh.findViewById(R.id.settings_trusted_ssid_toggle)).isChecked());
+        assertFalse(((Switch) fresh.findViewById(R.id.settings_trust_by_name_toggle)).isChecked());
 
         for (boolean allowlist : new boolean[] {false, true}) {
             for (boolean names : new boolean[] {false, true}) {
@@ -1129,32 +588,11 @@ public class SettingsNetworkCardTest {
                         Robolectric.buildActivity(SettingsActivity.class).setup();
                 SettingsActivity activity = controller.get();
                 activity.findViewById(R.id.settings_network_beta_header).performClick();
-                activity.findViewById(R.id.network_ssid_header).performClick();
                 controller.pause().resume();
 
                 assertEquals("allowlist=" + allowlist + " names=" + names, before, trustSettings());
             }
         }
-    }
-
-    @Test
-    public void theModeChoiceWritesOnlyTheModeAndLeavesEveryListUntouched() {
-        shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
-        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
-        KeepADBTrustedNetwork.addSsid(context, "Mesh");
-        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "Home");
-        SettingsActivity activity = open();
-        Map<String, ?> before = trustSettings();
-
-        activity.findViewById(R.id.network_mode_allowlist).performClick();
-        ShadowDialog.reset();
-        activity.findViewById(R.id.network_mode_all_wifi).performClick();
-
-        Map<String, Object> after = new TreeMap<>(trustSettings());
-        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, after.remove("trusted_network_mode"));
-        Map<String, Object> expected = new TreeMap<>(before);
-        expected.remove("trusted_network_mode");
-        assertEquals("Only the mode may differ", expected, after);
     }
 
     // --- privacy ------------------------------------------------------------------------------
@@ -1166,23 +604,19 @@ public class SettingsNetworkCardTest {
     @Test
     public void privacyModeHidesNamesAndAddressesOnTheWholeCard() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        KeepADBTrustedNetwork.addSsid(context, "SavedName");
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
-        String[] secrets = {"HomeMesh", "SavedName", "aa:bb:cc:dd:ee:01", "AA:BB:CC:DD:EE:01",
+        String[] secrets = {"HomeMesh", "aa:bb:cc:dd:ee:01", "AA:BB:CC:DD:EE:01",
                 "ee:01", "EE:01"};
 
         KeepADBPreferences.setPrivacyModeEnabled(context, false);
         SettingsActivity shown = open();
-        shown.findViewById(R.id.network_ssid_header).performClick();
         String visible = everything(shown);
         assertTrue(visible, visible.contains("HomeMesh"));
-        assertTrue(visible, visible.contains("SavedName"));
         assertTrue(visible, visible.contains("AA:BB:CC:DD:EE:01"));
         assertEquals(View.GONE, shown.findViewById(R.id.network_privacy_hint).getVisibility());
 
         KeepADBPreferences.setPrivacyModeEnabled(context, true);
         SettingsActivity hidden = open();
-        hidden.findViewById(R.id.network_ssid_header).performClick();
         String concealed = everything(hidden);
         for (String secret : secrets) {
             assertFalse("Privacy mode must hide '" + secret + "': " + concealed,
@@ -1191,41 +625,6 @@ public class SettingsNetworkCardTest {
         assertEquals(View.VISIBLE, hidden.findViewById(R.id.network_privacy_hint).getVisibility());
         assertTrue("The action still names its target for TalkBack, without the real name",
                 concealed.contains(context.getString(R.string.network_privacy_name_hidden)));
-    }
-
-    /**
-     * #654 (user decision of 2026-09-30): in the Wi-Fi-name section the current name and the list
-     * share one count of hidden names -- the same name reads alike in both places and a listed
-     * name never takes the number of a different current name.
-     */
-    @Test
-    public void hiddenWifiNamesAreNumberedPerNameAcrossTheCurrentRowAndTheList() {
-        KeepADBTrustedNetwork.addSsid(context, "Cafe-WLAN");
-        KeepADBTrustedNetwork.addSsid(context, "HomeMesh");
-        KeepADBTrustedNetwork.addSsid(context, "Hotel-WLAN");
-        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
-        SettingsActivity activity = open();
-        activity.findViewById(R.id.network_ssid_header).performClick();
-
-        String hidden = context.getString(R.string.network_privacy_name_hidden);
-        String badge = context.getString(R.string.wifi_aps_current_badge) + " \u00b7 ";
-        assertTrue(textsOf(activity.findViewById(R.id.wifi_ssids_current_row)).toString(),
-                textsOf(activity.findViewById(R.id.wifi_ssids_current_row))
-                        .contains(badge + hidden + " #1"));
-        List<String> listed = new ArrayList<>();
-        for (String text : textsOf(activity.findViewById(R.id.wifi_ssids_list))) {
-            if (text.startsWith(hidden)) listed.add(text);
-        }
-        assertEquals("Cafe-WLAN, HomeMesh (the current name), Hotel-WLAN, in list order",
-                java.util.Arrays.asList(hidden + " #2", hidden + " #1", hidden + " #3"), listed);
-        // The remove action of the current name's entry is described with that same number.
-        boolean described = false;
-        for (Button button : buttonsOf(activity.findViewById(R.id.wifi_ssids_list))) {
-            described |= context.getString(R.string.wifi_ssids_remove_accessibility, hidden + " #1")
-                    .contentEquals(button.getContentDescription());
-        }
-        assertTrue("The action names its target with the shown number", described);
     }
 
     /** #654: the current BSSID in the card reads first and last octet while hidden, all when not. */
@@ -1247,29 +646,6 @@ public class SettingsNetworkCardTest {
         }
     }
 
-    @Test
-    public void theConfirmationForAllowingTheCurrentNameUsesTheHiddenPlaceholderToo() {
-        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
-        KeepADBPreferences.setPrivacyModeEnabled(context, true);
-        SettingsActivity activity = open();
-        activity.findViewById(R.id.network_ssid_header).performClick();
-
-        Button add = buttonsOf(activity.findViewById(R.id.wifi_ssids_current_row)).get(0);
-        assertFalse(add.getContentDescription().toString().contains("HomeMesh"));
-        org.robolectric.shadows.ShadowToast.reset();
-        add.performClick();
-
-        assertEquals("The name is stored as it is; only the display is hidden", "HomeMesh",
-                KeepADBTrustedNetwork.getSsidEntries(context).get(0).ssid);
-        assertFalse("The toast must not quote a hidden name",
-                org.robolectric.shadows.ShadowToast.getTextOfLatestToast().contains("HomeMesh"));
-
-        // Removing it again is announced just as discreetly.
-        org.robolectric.shadows.ShadowToast.reset();
-        buttonsOf(activity.findViewById(R.id.wifi_ssids_list)).get(0).performClick();
-        assertFalse(org.robolectric.shadows.ShadowToast.getTextOfLatestToast().contains("HomeMesh"));
-    }
-
     /**
      * #654: a hidden name that stands alone -- the description of the status action, the toast
      * after allowing it -- reads "Name hidden" without a number. The number belongs to the rows
@@ -1289,11 +665,6 @@ public class SettingsNetworkCardTest {
         assertEquals(context.getString(R.string.network_action_allow_ap_accessibility, hidden),
                 action.getContentDescription().toString());
 
-        activity.findViewById(R.id.network_ssid_header).performClick();
-        org.robolectric.shadows.ShadowToast.reset();
-        buttonsOf(activity.findViewById(R.id.wifi_ssids_current_row)).get(0).performClick();
-        assertEquals(context.getString(R.string.wifi_ssids_added_toast, hidden),
-                org.robolectric.shadows.ShadowToast.getTextOfLatestToast());
     }
 
     // --- helpers ------------------------------------------------------------------------------
@@ -1352,7 +723,8 @@ public class SettingsNetworkCardTest {
         Map<String, Object> result = new TreeMap<>();
         for (Map.Entry<String, ?> entry : prefs().getAll().entrySet()) {
             String key = entry.getKey();
-            if (key.startsWith("trusted_network_") || key.startsWith("trusted_ssid_")) {
+            if (key.startsWith("trusted_network_") || key.startsWith("trusted_ssid_")
+                    || key.equals("trust_by_name")) {
                 result.put(key, entry.getValue());
             }
         }
