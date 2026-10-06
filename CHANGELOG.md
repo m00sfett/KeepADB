@@ -17,11 +17,34 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36`, `1.9.37` and `1.9.38` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36`, `1.9.37`, `1.9.38` and `1.9.39` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.39] - Unreleased
+
+Etappe E10 patch candidate (versionCode 211), packages #788, #790 and #782 on top of 1.9.38; no release. The version 1.9.38 stays as it is.
+
+### Removed
+- #788: The dead readers of the BSSID history are removed. Since the one-time discard of #778 nothing wrote the history and the three readers only found empty data: `KeepADBNetworkActions.offerAdditionalMeshBssids` (the mesh offer of #686; `allowAccessPoint` lost its `offerMesh` parameter and no longer returns a dialog, so allowing an access point allows exactly that one), `KeepADBNetworkList.observedNames`, and `KeepADBAccessPointBand.readStored` with `displayBand` (the band shown is the live reading only). `KeepADBBssidHistory` keeps only `discardLegacyOnce` and its marker; `recordObservation`, the getters, `clearBands` and `clearHistory` are gone, as are `KeepADBPreferences.isWifiApsFeatureEnabled` and `setWifiApsFeatureEnabled` (the key constant stays as the name of the legacy value, and no key is deleted or rewritten). The four `settings_trusted_network_mesh_*` strings are removed from all 19 locales and the mesh dialog bookkeeping from `KeepADBNetworkCard`. Behavior of a new installation is unchanged; an updating installation behaves as after #778.
+- #788: `docs/trusted-networks.md` and `docs/defaults.md` describe the state after the removal. Known limit: a trust entry whose label is only the BSSID and whose Wi-Fi name was never stored has no name in the list "Networks", so a name block on that network is not shown for it (the row reads "Trusted"); the decision on connecting uses the live name and still blocks. Entries with the name in their label show "Blocked" (pinned by `NetworkListNetworksViewTest.aTrustedAccessPointUnderABlockedNameShowsBlockedWithTheReasonAndNeverTrusted`).
+
+### Fixed
+- #790: The home status line of a network the user blocked (access point or name) no longer says "not trusted. Tap to decide" but "blocked. Tap to open the network list" (new strings `status_off_keep_alive_blocked_by_user` and `status_tap_to_open_list` in all 19 locales). Its tap reads the decision when it happens: blocked, or trusted in the meantime, opens the Networks list (its top card is the current network; the list has no per-row entry point, so no row is scrolled to) instead of the decision dialog that could only answer with the toast "You have already decided about this network."; an undecided network still opens the decision dialog. `NetworkDecisionActivity` and the decision component are unchanged.
+
+### Changed
+- #782: The neutral button "Trust all Wi-Fi networks instead" of the background-location dialog (`KeepADBNetworkCard`) no longer sets `MODE_ALL_WIFI` itself; it opens the protection step of the setup assistant (`OnboardingActivity.stepIntent`, `Step.PROTECTION`), where the level is explained and chosen. The label is unchanged.
+- #782: A single assistant step opened from a notification no longer turns into the full assistant: `OnboardingActivity.leave` starts the home screen with `MainActivity.EXTRA_SKIP_ASSISTANT_ONCE`, and that start does not hand over. The assistant is still not marked closed, so the next plain start hands over once, as before; every way out of the full assistant closes it, so there is no loop. The existing/new decision is already stored by the single step.
+
+### Documentation
+- #782: The changelog of 1.9.32 (part a of #761) named three steps and the old `EXTRA_STEP` list; it now says that part a ships three steps and what the finished assistant has (six steps, `EXTRA_STEP` also `permissions`, `network` and `webhook`). Point 4 of the issue (intro counts of webhook/force before #768, location marker per activity) was not examined.
+
+### Testing
+- #788: `KeepADBBssidHistoryDiscardTest` seeds the old keys directly and pins that a leftover history names nothing in the list (mutation: a reader of the raw keys re-added in `KeepADBNetworkList`, red); tests that seeded the history through the removed writer now name the access point through the current connection or seed raw keys; `KeepADBDefaultsAuditTest` classifies `wifi_aps_feature_enabled` as a record key and drops the two removed key constants; the tests of the removed readers and the mesh dialog are deleted.
+- #790: `MainActivityWarningsTest`: blocked access point and blocked name show the "blocked" line and open the Networks list; a network trusted after the line was drawn opens the list; the existing test for an undecided network still opens the decision dialog. Mutations (disposable copy, all red): tap always to the decision dialog, tap always to the list, old text kept for blocked networks, trusted-in-the-meantime not treated as decided.
+- #782: `SettingsBackgroundLocationDialogTest` (the button leaves the mode unchanged and opens the protection step) and `OnboardingActivityTest.aNotificationTargetBeforeTheFirstCloseDoesNotHandOverAfterTheStepAndNoLoop` (no hand-over after the step, one hand-over on the next plain start, no loop). Mutations (disposable copy, all red): button also sets the mode, extra not set, skip closes the assistant for good.
 
 ## [1.9.38] - Unreleased
 
