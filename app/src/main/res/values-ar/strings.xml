@@ -109,6 +109,21 @@
     <string name="network_prompt_confirm_in_app_text">تم اكتشاف شبكة Wi-Fi جديدة — انقر لتأكيدها في التطبيق.</string>
     <string name="network_prompt_identity_unavailable_title">تعذّر التعرف على شبكة الواي فاي الحالية</string>
     <string name="network_prompt_identity_unavailable_text">تم إيقاف إعادة التفعيل التلقائي لـ Keep-Alive مؤقتًا لأنه لا يمكن قراءة هوية الشبكة. عادةً ما يكون السبب هو عدم منح إذن الموقع أو تعطيل خدمة الموقع، لكن قد يحدث ذلك أيضًا إذا بدأت خدمة Keep-Alive في الخلفية؛ ويحل ذلك نهائيًا ضبط الموقع على «السماح طوال الوقت». اضغط للإصلاح.</string>
+    <string name="network_decision_title">هل تثق بهذه الشبكة؟</string>
+    <string name="network_decision_name_label">اسم شبكة Wi-Fi (SSID)</string>
+    <string name="network_decision_ap_label">نقطة الوصول (BSSID)</string>
+    <string name="network_decision_text">إذا وثقت بنقطة الوصول هذه، يمكن لـ Keep-Alive إعادة تشغيل تصحيح الأخطاء اللاسلكي هنا تلقائيًا. التشغيل اليدوي يعمل دائمًا.</string>
+    <string name="network_decision_comfort_note">وضع الراحة مفعّل: ستُقبل أيضًا نقاط الوصول الأخرى التي تحمل الاسم «%1$s».</string>
+    <string name="network_decision_trust">ثق</string>
+    <string name="network_decision_block_ap">احظر نقطة الوصول هذه فقط</string>
+    <string name="network_decision_block_name">احظر اسم شبكة Wi-Fi «%1$s» دائمًا</string>
+    <string name="network_decision_later">القرار لاحقًا</string>
+    <string name="network_decision_name_hidden">(شبكة Wi-Fi مخفية)</string>
+    <string name="network_decision_blocked_toast">لن يسأل KeepADB عن هذه الشبكة مجددًا ولن يُشغّل التصحيح هنا تلقائيًا أبدًا.</string>
+    <string name="network_decision_already_decided_toast">لقد قررت بالفعل بشأن هذه الشبكة.</string>
+    <string name="network_decision_expired_toast">انتهت صلاحية هذا الطلب.</string>
+    <string name="network_decision_trust_refused_toast">هذه الشبكة محظورة، لذا لم يتم الوثوق بها.</string>
+    <string name="network_decision_failed_toast">لم يتغير شيء. افتح قفل جهازك وحاول مرة أخرى.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · شوهدت %2$s</string>
     <string name="wifi_aps_current_badge">الحالية</string>
     <string name="wifi_aps_trusted_status">موثوقة</string>
@@ -393,6 +408,54 @@
     <string name="network_band_5">5 جيجاهرتز</string>
     <string name="network_band_6">6 جيجاهرتز</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">الوضع الإجباري</string>
+    <string name="force_section_hint">يعيد تفعيل تصحيح الأخطاء اللاسلكي في أي شبكة للمدة التي تختارها. لا تسري الحظرات والشبكات الموثوقة خلال هذه المدة.</string>
+    <string name="force_status_off">معطّل</string>
+    <string name="force_status_until">نشط حتى %1$s</string>
+    <string name="force_status_unlimited">نشط، بلا وقت انتهاء</string>
+    <string name="force_action_activate">تفعيل الوضع الإجباري…</string>
+    <string name="force_action_end">إنهاء الوضع الإجباري</string>
+    <string name="force_action_change">تغيير المدة…</string>
+    <string name="force_dialog_title">تفعيل الوضع الإجباري؟</string>
+    <string name="force_dialog_intro">سيعيد Keep-Alive حينها تفعيل تصحيح الأخطاء اللاسلكي في أي شبكة: بما في ذلك الشبكات غير المعروفة والمحظورة وغير المقروءة.</string>
+    <string name="force_dialog_duration_label">كم المدة؟</string>
+    <string name="force_duration_1h">ساعة واحدة</string>
+    <string name="force_duration_24h">24 ساعة</string>
+    <string name="force_duration_7d">7 أيام</string>
+    <string name="force_duration_30d">30 يومًا</string>
+    <string name="force_duration_unlimited">بلا وقت انتهاء</string>
+    <string name="force_warning_all">يفتح تصحيح الأخطاء اللاسلكي منفذًا على الشبكة. تحصل الحواسيب التي اقترنت بها سابقًا من خلاله على وصول ADB كامل: تثبيت التطبيقات وقراءة البيانات وتسجيل الشاشة. في الشبكات غير المعروفة لا تعرف من يحاول الاتصال.
+
+لا تسري الحظرات والشبكات الموثوقة لديك خلال هذه المدة.
+
+يمكنك إنهاؤه في أي وقت من الشاشة الرئيسية أو من الإشعار.</string>
+    <string name="force_warning_days">على مدى عدة أيام ستتصل بشبكات لا تفكر فيها الآن: فندق، قطار، مقهى، عمل. سيتفعّل التصحيح هناك دون أن يسألك.</string>
+    <string name="force_warning_unlimited">من دون وقت انتهاء يبقى الوضع الإجباري مفعّلًا حتى تنهيه بنفسك، بما في ذلك بعد إعادة التشغيل وتحديثات التطبيق.</string>
+    <string name="force_unlimited_ack">أدرك أن تصحيح الأخطاء اللاسلكي سيتفعّل حينها في أي شبكة.</string>
+    <string name="force_keepalive_hint">لا يعمل الوضع الإجباري إلا مع Keep-Alive. يتم تفعيل Keep-Alive معه.</string>
+    <string name="force_not_started_toast">لم يتم تشغيل الوضع الإجباري: لا يمكن الالتزام بحد زمني بشكل موثوق على هذا الجهاز حاليًا. لم يتغير شيء.</string>
+    <string name="force_confirm_1h">التفعيل لمدة ساعة واحدة</string>
+    <string name="force_confirm_24h">التفعيل لمدة 24 ساعة</string>
+    <string name="force_confirm_7d">التفعيل لمدة 7 أيام</string>
+    <string name="force_confirm_30d">التفعيل لمدة 30 يومًا</string>
+    <string name="force_confirm_unlimited">التفعيل بلا وقت انتهاء</string>
+    <string name="force_card_title">الوضع الإجباري مفعّل</string>
+    <string name="force_card_text_until">يُعاد تفعيل تصحيح الأخطاء اللاسلكي في أي شبكة. نشط حتى %1$s.</string>
+    <string name="force_card_text_unlimited">يُعاد تفعيل تصحيح الأخطاء اللاسلكي في أي شبكة. بلا وقت انتهاء.</string>
+    <string name="force_ended_toast">انتهى الوضع الإجباري. مستوى الحماية عاد إلى: %1$s.</string>
+    <string name="force_notification_until">الوضع الإجباري مفعّل حتى %1$s</string>
+    <string name="force_notification_unlimited">الوضع الإجباري مفعّل، بلا وقت انتهاء</string>
+    <string name="force_channel_name">تنبيهات الأمان</string>
+    <string name="force_channel_desc">تنبيهات لمرة واحدة حول مستوى الحماية، مثل انتهاء الوضع الإجباري.</string>
+    <string name="force_expired_title">انتهى الوضع الإجباري</string>
+    <string name="force_expired_text">انتهت المدة المحددة. مستوى الحماية عاد إلى: %1$s. لن يعمل Keep-Alive الآن إلا حيث يسمح مستوى الحماية.</string>
+    <string name="force_expired_still_on">تصحيح الأخطاء اللاسلكي لا يزال مفعّلًا الآن.</string>
+    <string name="force_expired_action_off">إيقاف الآن</string>
+    <string name="force_level_maximum">أقصى أمان</string>
+    <string name="force_level_balanced">متوازن</string>
+    <string name="force_level_legacy_all">في جميع شبكات Wi-Fi (الإعداد السابق)</string>
+    <string name="force_level_legacy_names">قائمة أسماء Wi-Fi (الإعداد السابق)</string>
     <string name="settings_general_feedback">ملاحظات عامة</string>
     <string name="feedback_type">نوع الملاحظات</string>
     <string name="feedback_type_bug">خطأ</string>

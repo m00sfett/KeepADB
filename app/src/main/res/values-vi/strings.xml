@@ -109,6 +109,21 @@
     <string name="network_prompt_confirm_in_app_text">Đã phát hiện mạng Wi-Fi mới — nhấn để xác nhận trong ứng dụng.</string>
     <string name="network_prompt_identity_unavailable_title">Không thể nhận dạng mạng Wi-Fi hiện tại</string>
     <string name="network_prompt_identity_unavailable_text">Tự động bật lại Keep-Alive đã tạm dừng vì không thể đọc danh tính của mạng. Thường là do thiếu quyền vị trí hoặc dịch vụ vị trí đang tắt, nhưng cũng có thể xảy ra nếu Keep-Alive được khởi động ở chế độ nền; đặt Vị trí thành “Luôn cho phép” sẽ khắc phục vĩnh viễn. Nhấn để khắc phục.</string>
+    <string name="network_decision_title">Tin cậy mạng này?</string>
+    <string name="network_decision_name_label">Tên Wi-Fi (SSID)</string>
+    <string name="network_decision_ap_label">Điểm truy cập (BSSID)</string>
+    <string name="network_decision_text">Nếu bạn tin cậy điểm truy cập này, Keep-Alive có thể tự động bật lại Gỡ lỗi không dây tại đây. Bật thủ công luôn hoạt động.</string>
+    <string name="network_decision_comfort_note">Chế độ tiện lợi đang bật: các điểm truy cập khác có tên “%1$s” cũng sẽ được chấp nhận.</string>
+    <string name="network_decision_trust">Tin cậy</string>
+    <string name="network_decision_block_ap">Chỉ chặn điểm truy cập này</string>
+    <string name="network_decision_block_name">Luôn chặn tên Wi-Fi “%1$s”</string>
+    <string name="network_decision_later">Quyết định sau</string>
+    <string name="network_decision_name_hidden">(Wi-Fi ẩn)</string>
+    <string name="network_decision_blocked_toast">KeepADB sẽ không hỏi lại ở đây và sẽ không bao giờ tự động bật ở đây.</string>
+    <string name="network_decision_already_decided_toast">Bạn đã quyết định về mạng này rồi.</string>
+    <string name="network_decision_expired_toast">Yêu cầu này đã hết hạn.</string>
+    <string name="network_decision_trust_refused_toast">Mạng này đang bị chặn nên chưa được tin cậy.</string>
+    <string name="network_decision_failed_toast">Chưa có gì thay đổi. Hãy mở khóa thiết bị và thử lại.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · thấy %2$s</string>
     <string name="wifi_aps_current_badge">Hiện tại</string>
     <string name="wifi_aps_trusted_status">Đáng tin cậy</string>
@@ -393,6 +408,54 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Chế độ cưỡng chế</string>
+    <string name="force_section_hint">Bật lại gỡ lỗi không dây ở mọi mạng trong khoảng thời gian bạn chọn. Trong thời gian này, các mạng bị chặn và mạng đáng tin cậy không có hiệu lực.</string>
+    <string name="force_status_off">Tắt</string>
+    <string name="force_status_until">Bật đến %1$s</string>
+    <string name="force_status_unlimited">Đang bật, không có thời điểm kết thúc</string>
+    <string name="force_action_activate">Bật chế độ cưỡng chế…</string>
+    <string name="force_action_end">Kết thúc chế độ cưỡng chế</string>
+    <string name="force_action_change">Đổi thời lượng…</string>
+    <string name="force_dialog_title">Bật chế độ cưỡng chế?</string>
+    <string name="force_dialog_intro">Khi đó Keep-Alive sẽ bật lại gỡ lỗi không dây ở mọi mạng: kể cả mạng lạ, mạng bị chặn và mạng không đọc được.</string>
+    <string name="force_dialog_duration_label">Trong bao lâu?</string>
+    <string name="force_duration_1h">1 giờ</string>
+    <string name="force_duration_24h">24 giờ</string>
+    <string name="force_duration_7d">7 ngày</string>
+    <string name="force_duration_30d">30 ngày</string>
+    <string name="force_duration_unlimited">Không có thời điểm kết thúc</string>
+    <string name="force_warning_all">Gỡ lỗi không dây mở một cổng trên mạng. Các máy tính bạn đã ghép đôi trước đây có toàn quyền truy cập ADB qua cổng đó: cài ứng dụng, đọc dữ liệu, quay màn hình. Ở mạng lạ, bạn không biết ai đang thử kết nối.
+
+Trong thời gian này, các mạng bị chặn và mạng đáng tin cậy của bạn không có hiệu lực.
+
+Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc thông báo.</string>
+    <string name="force_warning_days">Trong nhiều ngày, bạn sẽ vào những mạng mà bây giờ chưa nghĩ tới: khách sạn, tàu, quán cà phê, chỗ làm. Gỡ lỗi sẽ bật ở đó mà không hỏi bạn.</string>
+    <string name="force_warning_unlimited">Nếu không có thời điểm kết thúc, chế độ cưỡng chế vẫn bật cho đến khi chính bạn kết thúc, kể cả sau khi khởi động lại và cập nhật ứng dụng.</string>
+    <string name="force_unlimited_ack">Tôi hiểu rằng khi đó gỡ lỗi không dây sẽ bật ở mọi mạng.</string>
+    <string name="force_keepalive_hint">Chế độ cưỡng chế chỉ hoạt động cùng Keep-Alive. Keep-Alive sẽ được bật cùng.</string>
+    <string name="force_not_started_toast">Chế độ cưỡng chế chưa được bật: hiện thiết bị này không thể giữ giới hạn thời gian một cách đáng tin cậy. Không có gì bị thay đổi.</string>
+    <string name="force_confirm_1h">Bật trong 1 giờ</string>
+    <string name="force_confirm_24h">Bật trong 24 giờ</string>
+    <string name="force_confirm_7d">Bật trong 7 ngày</string>
+    <string name="force_confirm_30d">Bật trong 30 ngày</string>
+    <string name="force_confirm_unlimited">Bật không có thời điểm kết thúc</string>
+    <string name="force_card_title">Chế độ cưỡng chế đang bật</string>
+    <string name="force_card_text_until">Gỡ lỗi không dây được bật lại ở mọi mạng. Bật đến %1$s.</string>
+    <string name="force_card_text_unlimited">Gỡ lỗi không dây được bật lại ở mọi mạng. Không có thời điểm kết thúc.</string>
+    <string name="force_ended_toast">Chế độ cưỡng chế đã kết thúc. Mức bảo vệ trở lại: %1$s.</string>
+    <string name="force_notification_until">Chế độ cưỡng chế bật đến %1$s</string>
+    <string name="force_notification_unlimited">Chế độ cưỡng chế đang bật, không có thời điểm kết thúc</string>
+    <string name="force_channel_name">Thông báo bảo mật</string>
+    <string name="force_channel_desc">Thông báo một lần về mức bảo vệ, ví dụ khi chế độ cưỡng chế kết thúc.</string>
+    <string name="force_expired_title">Chế độ cưỡng chế đã kết thúc</string>
+    <string name="force_expired_text">Đã hết thời gian đã chọn. Mức bảo vệ trở lại: %1$s. Giờ đây Keep-Alive chỉ bật ở nơi mức bảo vệ cho phép.</string>
+    <string name="force_expired_still_on">Gỡ lỗi không dây hiện vẫn đang bật.</string>
+    <string name="force_expired_action_off">Tắt ngay</string>
+    <string name="force_level_maximum">Bảo mật tối đa</string>
+    <string name="force_level_balanced">Cân bằng</string>
+    <string name="force_level_legacy_all">Ở mọi mạng Wi-Fi (cài đặt trước đây)</string>
+    <string name="force_level_legacy_names">Danh sách tên Wi-Fi (cài đặt trước đây)</string>
     <string name="settings_general_feedback">Phản hồi chung</string>
     <string name="feedback_type">Loại phản hồi</string>
     <string name="feedback_type_bug">Lỗi</string>

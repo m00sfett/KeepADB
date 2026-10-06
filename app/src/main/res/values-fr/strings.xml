@@ -109,6 +109,21 @@
     <string name="network_prompt_confirm_in_app_text">Nouveau réseau Wi-Fi détecté — touchez pour le confirmer dans l\'app.</string>
     <string name="network_prompt_identity_unavailable_title">Impossible d\'identifier le réseau Wi-Fi actuel</string>
     <string name="network_prompt_identity_unavailable_text">La réactivation automatique de Keep-Alive est en pause car l\'identité du réseau est illisible. Il manque généralement l\'autorisation de localisation ou le service de localisation est désactivé, mais cela peut aussi arriver si Keep-Alive a démarré en arrière-plan ; régler la localisation sur « Toujours autoriser » le corrige durablement. Appuyez pour corriger.</string>
+    <string name="network_decision_title">Faire confiance à ce réseau ?</string>
+    <string name="network_decision_name_label">Nom du réseau Wi-Fi (SSID)</string>
+    <string name="network_decision_ap_label">Point d’accès (BSSID)</string>
+    <string name="network_decision_text">Si vous faites confiance à ce point d’accès, Keep-Alive pourra réactiver automatiquement le débogage sans fil ici. L’activation manuelle fonctionne toujours.</string>
+    <string name="network_decision_comfort_note">Le mode confort est activé : les autres points d’accès nommés « %1$s » seront aussi acceptés.</string>
+    <string name="network_decision_trust">Faire confiance</string>
+    <string name="network_decision_block_ap">Bloquer uniquement ce point d’accès</string>
+    <string name="network_decision_block_name">Toujours bloquer le nom Wi-Fi « %1$s »</string>
+    <string name="network_decision_later">Décider plus tard</string>
+    <string name="network_decision_name_hidden">(Wi-Fi masqué)</string>
+    <string name="network_decision_blocked_toast">KeepADB ne redemandera plus ici et n’activera jamais automatiquement ici.</string>
+    <string name="network_decision_already_decided_toast">Vous avez déjà décidé pour ce réseau.</string>
+    <string name="network_decision_expired_toast">Cette demande a expiré.</string>
+    <string name="network_decision_trust_refused_toast">Ce réseau est bloqué, il n’a donc pas été approuvé.</string>
+    <string name="network_decision_failed_toast">Rien n’a été modifié. Déverrouillez l’appareil et réessayez.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · vu %2$s</string>
     <string name="wifi_aps_current_badge">Actuel</string>
     <string name="wifi_aps_trusted_status">De confiance</string>
@@ -393,6 +408,54 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Mode forcé</string>
+    <string name="force_section_hint">Réactive le débogage sans fil dans tous les réseaux pendant la durée choisie. Les blocages et les réseaux approuvés ne s\'appliquent pas pendant ce temps.</string>
+    <string name="force_status_off">Désactivé</string>
+    <string name="force_status_until">Actif jusqu\'à %1$s</string>
+    <string name="force_status_unlimited">Actif, sans heure de fin</string>
+    <string name="force_action_activate">Activer le mode forcé…</string>
+    <string name="force_action_end">Arrêter le mode forcé</string>
+    <string name="force_action_change">Modifier la durée…</string>
+    <string name="force_dialog_title">Activer le mode forcé ?</string>
+    <string name="force_dialog_intro">Keep-Alive réactivera alors le débogage sans fil dans tous les réseaux : y compris les réseaux inconnus, bloqués et illisibles.</string>
+    <string name="force_dialog_duration_label">Pendant combien de temps ?</string>
+    <string name="force_duration_1h">1 heure</string>
+    <string name="force_duration_24h">24 heures</string>
+    <string name="force_duration_7d">7 jours</string>
+    <string name="force_duration_30d">30 jours</string>
+    <string name="force_duration_unlimited">Sans heure de fin</string>
+    <string name="force_warning_all">Le débogage sans fil ouvre un port sur le réseau. Les ordinateurs que vous avez appairés auparavant obtiennent par là un accès ADB complet : installer des applis, lire des données, enregistrer l\'écran. Sur des réseaux inconnus, vous ne savez pas qui essaie.
+
+Vos blocages et vos réseaux approuvés ne s\'appliquent pas pendant ce temps.
+
+Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notification.</string>
+    <string name="force_warning_days">Sur plusieurs jours, vous rejoindrez des réseaux auxquels vous ne pensez pas maintenant : hôtel, train, café, travail. Le débogage s\'y active sans vous demander.</string>
+    <string name="force_warning_unlimited">Sans heure de fin, le mode forcé reste actif jusqu\'à ce que vous l\'arrêtiez vous-même, y compris après des redémarrages et des mises à jour de l\'appli.</string>
+    <string name="force_unlimited_ack">Je comprends que le débogage sans fil s\'activera alors dans tous les réseaux.</string>
+    <string name="force_keepalive_hint">Le mode forcé ne fonctionne qu\'avec Keep-Alive. Keep-Alive est activé en même temps.</string>
+    <string name="force_not_started_toast">Le mode forcé n\'a pas été activé : cet appareil ne peut pas respecter une limite de durée de façon fiable pour le moment. Rien n\'a été modifié.</string>
+    <string name="force_confirm_1h">Activer pour 1 heure</string>
+    <string name="force_confirm_24h">Activer pour 24 heures</string>
+    <string name="force_confirm_7d">Activer pour 7 jours</string>
+    <string name="force_confirm_30d">Activer pour 30 jours</string>
+    <string name="force_confirm_unlimited">Activer sans heure de fin</string>
+    <string name="force_card_title">Mode forcé actif</string>
+    <string name="force_card_text_until">Le débogage sans fil est réactivé dans tous les réseaux. Actif jusqu\'à %1$s.</string>
+    <string name="force_card_text_unlimited">Le débogage sans fil est réactivé dans tous les réseaux. Sans heure de fin.</string>
+    <string name="force_ended_toast">Mode forcé terminé. Niveau de protection de nouveau : %1$s.</string>
+    <string name="force_notification_until">Mode forcé actif jusqu\'à %1$s</string>
+    <string name="force_notification_unlimited">Mode forcé actif, sans heure de fin</string>
+    <string name="force_channel_name">Avis de sécurité</string>
+    <string name="force_channel_desc">Avis uniques sur le niveau de protection, par exemple à la fin du mode forcé.</string>
+    <string name="force_expired_title">Mode forcé terminé</string>
+    <string name="force_expired_text">Le temps choisi est écoulé. Niveau de protection de nouveau : %1$s. Keep-Alive ne s\'active plus que là où le niveau de protection l\'autorise.</string>
+    <string name="force_expired_still_on">Le débogage sans fil est encore activé en ce moment.</string>
+    <string name="force_expired_action_off">Désactiver maintenant</string>
+    <string name="force_level_maximum">Sécurité maximale</string>
+    <string name="force_level_balanced">Équilibré</string>
+    <string name="force_level_legacy_all">Dans tous les réseaux Wi-Fi (ancien réglage)</string>
+    <string name="force_level_legacy_names">Liste de noms Wi-Fi (ancien réglage)</string>
     <string name="settings_general_feedback">Avis général</string>
     <string name="feedback_type">Type de retour</string>
     <string name="feedback_type_bug">Erreur</string>

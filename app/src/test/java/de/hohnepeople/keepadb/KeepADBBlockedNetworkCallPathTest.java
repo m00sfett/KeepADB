@@ -382,22 +382,27 @@ public class KeepADBBlockedNetworkCallPathTest {
     }
 
     @Test
-    public void theInAppConfirmationOpensNothingForABlockedNetworkAndStillDoesForOthers() {
+    public void theDecisionOffersNothingForABlockedNetworkAndStillDoesForOthers() {
         KeepADBBlockedNetworkHistory.record(context, new KeepADBNetworkIdentity(SSID, BSSID), 1L);
         KeepADBBlockedNetworkHistory.record(context, new KeepADBNetworkIdentity("Other", OTHER_BSSID), 2L);
-        assertNotNull(KeepADBNetworkTrustPrompt.pendingConfirmation(context, BSSID));
+        assertEquals(KeepADBNetworkDecision.Status.PENDING,
+                KeepADBNetworkDecision.resolve(context, BSSID).status);
 
         KeepADBNetworkBlocklist.blockBssid(context, BSSID);
-        assertNull("A stale prompt must not open a trust question for a blocked address",
-                KeepADBNetworkTrustPrompt.pendingConfirmation(context, BSSID));
-        assertNotNull("... and the other recorded network is unaffected",
-                KeepADBNetworkTrustPrompt.pendingConfirmation(context, OTHER_BSSID));
+        assertEquals("A stale prompt must not open a trust question for a blocked address",
+                KeepADBNetworkDecision.Status.ALREADY_DECIDED,
+                KeepADBNetworkDecision.resolve(context, BSSID).status);
+        assertEquals("... and the other recorded network is unaffected",
+                KeepADBNetworkDecision.Status.PENDING,
+                KeepADBNetworkDecision.resolve(context, OTHER_BSSID).status);
 
         KeepADBNetworkBlocklist.unblockBssid(context, BSSID);
         KeepADBNetworkBlocklist.blockSsid(context, SSID);
-        assertNull("... nor for a blocked name, taken from the recorded entry",
-                KeepADBNetworkTrustPrompt.pendingConfirmation(context, BSSID));
-        assertNotNull(KeepADBNetworkTrustPrompt.pendingConfirmation(context, OTHER_BSSID));
+        assertEquals("... nor for a blocked name, taken from the recorded entry",
+                KeepADBNetworkDecision.Status.ALREADY_DECIDED,
+                KeepADBNetworkDecision.resolve(context, BSSID).status);
+        assertEquals(KeepADBNetworkDecision.Status.PENDING,
+                KeepADBNetworkDecision.resolve(context, OTHER_BSSID).status);
     }
 
     // --- Trust actions never lift a block -----------------------------------------------------------------------------

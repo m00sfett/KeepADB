@@ -202,25 +202,6 @@ public class SettingsNetworkCardLifecycleTest {
     // --- destroy ------------------------------------------------------------------------------------
 
     @Test
-    public void destroyDismissesTheTrustConfirmationDialog() {
-        KeepADBBlockedNetworkHistory.record(context,
-                new KeepADBNetworkIdentity("\"Cafe-WLAN\"", BSSID_A), 1L);
-        ActivityController<SettingsActivity> controller = Robolectric.buildActivity(
-                SettingsActivity.class,
-                KeepADBNetworkTrustPrompt.confirmInAppIntent(context, BSSID_A)).setup();
-        AlertDialog dialog = controller.get().getActiveTrustConfirmationDialog();
-        assertNotNull(dialog);
-        assertTrue(dialog.isShowing());
-
-        controller.pause().stop().destroy();
-
-        assertFalse("Destroy closes the confirmation (no window leak)", dialog.isShowing());
-        assertNull(controller.get().getActiveTrustConfirmationDialog());
-        assertTrue("Closing it by destroy decides nothing",
-                KeepADBTrustedNetwork.getEntries(context).isEmpty());
-    }
-
-    @Test
     public void destroyDismissesTheBackgroundLocationRationale() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
@@ -235,45 +216,6 @@ public class SettingsNetworkCardLifecycleTest {
     }
 
     // --- save before destroy and the restore ---------------------------------------------------
-
-    /**
-     * The binding of the saved confirmation is written before destroy dismisses the dialog, and
-     * the restored one stays bound to that recorded access point: a roam to B (which the history
-     * also knows) in between changes neither what it names nor what it trusts.
-     */
-    @Test
-    public void aSaveBeforeDestroyKeepsTheBindingAndTheRestoreIgnoresTheRoam() {
-        KeepADBBlockedNetworkHistory.record(context,
-                new KeepADBNetworkIdentity("\"Cafe-WLAN\"", BSSID_A), 1L);
-        ActivityController<SettingsActivity> controller = Robolectric.buildActivity(
-                SettingsActivity.class,
-                KeepADBNetworkTrustPrompt.confirmInAppIntent(context, BSSID_A)).setup();
-        Bundle state = new Bundle();
-        controller.saveInstanceState(state);
-        assertEquals(BSSID_A, state.getString(KeepADBNetworkCard.STATE_TRUST_CONFIRMATION_BSSID));
-        controller.pause().stop().destroy();
-        ShadowLooper.idleMainLooper();
-
-        connectTo("Cafe-WLAN", BSSID_B);
-        KeepADBBlockedNetworkHistory.record(context,
-                new KeepADBNetworkIdentity("\"Cafe-WLAN\"", BSSID_B), 2L);
-        ActivityController<SettingsActivity> restored =
-                Robolectric.buildActivity(SettingsActivity.class).setup(state);
-
-        AlertDialog dialog = restored.get().getActiveTrustConfirmationDialog();
-        assertNotNull("The confirmation is back", dialog);
-        String message = String.valueOf(((TextView) dialog.findViewById(android.R.id.message)).getText());
-        assertTrue(message, message.contains(BSSID_A.toUpperCase(java.util.Locale.ROOT)));
-        assertFalse("The roam must not rename it: " + message,
-                message.contains(BSSID_B.toUpperCase(java.util.Locale.ROOT)));
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-        ShadowLooper.idleMainLooper();
-
-        List<KeepADBTrustedNetwork.Entry> entries = KeepADBTrustedNetwork.getEntries(context);
-        assertEquals(1, entries.size());
-        assertEquals(BSSID_A, entries.get(0).bssid);
-        restored.pause().stop().destroy();
-    }
 
     /**
      * The mesh question is derived from live data and offered only right after an allow: a
@@ -482,17 +424,6 @@ public class SettingsNetworkCardLifecycleTest {
         controller = rotate(controller);
         assertEquals(before, everyPreference());
         controller.pause().stop().destroy();
-
-        // The confirmation, restored from the recorded access point.
-        KeepADBBlockedNetworkHistory.record(context,
-                new KeepADBNetworkIdentity("\"Cafe-WLAN\"", BSSID_A), 1L);
-        controller = Robolectric.buildActivity(SettingsActivity.class,
-                KeepADBNetworkTrustPrompt.confirmInAppIntent(context, BSSID_A)).setup();
-        before = everyPreference();
-        controller = rotate(controller);
-        assertNotNull(controller.get().getActiveTrustConfirmationDialog());
-        assertEquals(before, everyPreference());
-        controller.pause().stop().destroy();
     }
 
     /**
@@ -548,8 +479,6 @@ public class SettingsNetworkCardLifecycleTest {
 
     @Test
     public void bundleKeysAndRequestCodesAreUnchanged() {
-        assertEquals("settings_trust_confirmation_bssid",
-                KeepADBNetworkCard.STATE_TRUST_CONFIRMATION_BSSID);
         assertEquals("settings_background_location_showing",
                 KeepADBNetworkCard.STATE_BACKGROUND_LOCATION_SHOWING);
         assertEquals("settings_allowlist_permission_showing",

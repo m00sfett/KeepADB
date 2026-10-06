@@ -12,4 +12,17 @@
         <item name="android:textColorPrimary">@color/night_text</item>
         <item name="android:textColorSecondary">@color/night_muted</item>
     </style>
+
+    <!-- #766: the decision dialog of NetworkDecisionActivity. Floating dialog window in the app's
+         own colors; the panel drawable supplies the background and the padding. -->
+    <style name="Theme.KeepADB.Dialog" parent="android:style/Theme.Material.Dialog">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:windowBackground">@drawable/bg_panel</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:colorAccent">@color/title_yellow</item>
+        <item name="android:colorControlActivated">@color/title_yellow</item>
+        <item name="android:colorControlHighlight">@color/border_red</item>
+        <item name="android:textColorPrimary">@color/night_text</item>
+        <item name="android:textColorSecondary">@color/night_muted</item>
+    </style>
 </resources>

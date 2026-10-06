@@ -27,11 +27,13 @@ public class SettingsActivity extends Activity {
     public static final String EXTRA_FOCUS_NETWORK = "focus_network";
     /** #759: Intent extra requesting that the USB-ADB card be expanded and scrolled into view. */
     public static final String EXTRA_FOCUS_USB = "focus_usb";
+    /** #763: Intent extra requesting that the force-mode row be expanded and scrolled into view. */
+    public static final String EXTRA_FOCUS_FORCE = "focus_force";
     /**
      * #672: flags for the reset-app, USB handover mode and language dialogs showing at the time of
      * a {@code recreate()} (rotation). Pure "was showing" markers; a restored reset-app dialog is
      * only re-shown and still needs the user's own confirm tap. The Bundle keys of the Network
-     * card's dialogs (trust confirmation, background location, allowlist permission) are owned by
+     * card's dialogs (background location, allowlist permission) are owned by
      * {@link KeepADBNetworkCard} (#697), those of the feedback report dialog by {@link
      * KeepADBDiagnosticsController} (#698).
      */
@@ -61,6 +63,9 @@ public class SettingsActivity extends Activity {
 
     // #697: the Network card (views, rendered action snapshot, Wi-Fi callback and its dialogs).
     private KeepADBNetworkCard networkCard;
+
+    // #763: the force-mode row inside the Network area and its confirmation dialog.
+    private KeepADBForceSection forceSection;
 
     private KeepADBWebhookForm webhookForm;
     private TextView versionNameText;
@@ -202,6 +207,7 @@ public class SettingsActivity extends Activity {
         usbHandoverSelector.setOnClickListener(v -> showUsbHandoverModeDialog());
 
         networkCard = new KeepADBNetworkCard(this, this::refresh);
+        forceSection = new KeepADBForceSection(this, this::refresh);
 
         diagnosticsController = new KeepADBDiagnosticsController(this, this::openWebLink);
         findViewById(R.id.settings_reset_app).setOnClickListener(v -> showResetAppDialog());
@@ -212,9 +218,10 @@ public class SettingsActivity extends Activity {
 
         if (savedInstanceState != null) {
             diagnosticsController.restore(savedInstanceState);
-            // #604/#672/#682 (#697): the Network card re-shows its own trust confirmation,
-            // background-location and allowlist permission dialogs from the same bundle.
+            // #672/#682 (#697): the Network card re-shows its own background-location and
+            // allowlist permission dialogs from the same bundle.
             networkCard.restore(savedInstanceState);
+            forceSection.restore(savedInstanceState);
             // #672: re-show the remaining plain dialogs. The reset-app dialog is only re-shown,
             // its destructive action still runs solely from the user's own confirm tap.
             if (savedInstanceState.getBoolean(STATE_RESET_APP_SHOWING, false)) {
@@ -240,6 +247,9 @@ public class SettingsActivity extends Activity {
         super.onResume();
         webhookForm.ensureDraftInitialized();
         KeepADBPrivacyToggle.update(this);
+        // #763: finish an expired force mode before drawing, and redraw when it starts or ends.
+        KeepADBForceMode.finishIfExpired(this);
+        KeepADBForceMode.setStateListener(this::refresh);
         refresh();
 
         if (getIntent().hasExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION)) {
@@ -262,14 +272,17 @@ public class SettingsActivity extends Activity {
             getIntent().removeExtra(EXTRA_FOCUS_USB);
         }
 
-        // #598: the details-off trust prompt's content intent. Consumed like the extras above so a
-        // later resume does not ask again.
-        if (KeepADBNetworkTrustPrompt.ACTION_CONFIRM_IN_APP.equals(getIntent().getAction())) {
-            String bssid = getIntent().getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID);
-            getIntent().setAction(null);
-            getIntent().removeExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID);
-            networkCard.showTrustConfirmationDialog(bssid);
+        if (getIntent().hasExtra(EXTRA_FOCUS_FORCE)) {
+            focusForcePanel();
+            getIntent().removeExtra(EXTRA_FOCUS_FORCE);
         }
+
+    }
+
+    @Override
+    protected void onPause() {
+        KeepADBForceMode.clearStateListener();
+        super.onPause();
     }
 
     @Override
@@ -295,6 +308,7 @@ public class SettingsActivity extends Activity {
         diagnosticsController.saveState(outState);
         usbProfileEditor.saveState(outState);
         networkCard.saveState(outState);
+        forceSection.saveState(outState);
         outState.putBoolean(STATE_RESET_APP_SHOWING, isShowing(activeResetAppDialog));
         outState.putBoolean(STATE_USB_HANDOVER_MODE_SHOWING, isShowing(activeUsbHandoverModeDialog));
         outState.putBoolean(STATE_LANGUAGE_SELECTION_SHOWING,
@@ -319,6 +333,7 @@ public class SettingsActivity extends Activity {
         usbProfileEditor.destroy();
 
         networkCard.destroy();
+        forceSection.destroy();
 
         if (activeUsbHandoverModeDialog != null) {
             if (activeUsbHandoverModeDialog.isShowing()) {
@@ -362,6 +377,22 @@ public class SettingsActivity extends Activity {
                 findViewById(R.id.settings_network_beta_arrow), true);
         if (networkPanel != null && scrollView != null) {
             scrollView.post(() -> scrollView.smoothScrollTo(0, networkPanel.getTop()));
+        }
+    }
+
+    private void focusForcePanel() {
+        // #763: expand the network card and bring the force row into view.
+        setCardExpanded(this, findViewById(R.id.settings_network_beta_header),
+                findViewById(R.id.settings_network_beta_body),
+                findViewById(R.id.settings_network_beta_arrow), true);
+        View forcePanel = forceSection.getPanel();
+        if (forcePanel != null && scrollView != null) {
+            scrollView.post(() -> {
+                android.graphics.Rect rect = new android.graphics.Rect();
+                forcePanel.getDrawingRect(rect);
+                scrollView.offsetDescendantRectToMyCoords(forcePanel, rect);
+                scrollView.smoothScrollTo(0, rect.top);
+            });
         }
     }
 
@@ -530,10 +561,6 @@ public class SettingsActivity extends Activity {
         return networkCard.getActiveAllowlistPermissionDialog();
     }
 
-    AlertDialog getActiveTrustConfirmationDialog() {
-        return networkCard.getActiveTrustConfirmationDialog();
-    }
-
     AlertDialog getActiveResetAppDialog() {
         return activeResetAppDialog;
     }
@@ -601,6 +628,7 @@ public class SettingsActivity extends Activity {
                 getString(R.string.settings_usb_handover_accessibility, getString(handoverModeLabel)));
 
         networkCard.refresh();
+        forceSection.refresh();
     }
 
     private void bindVersionInfo() {

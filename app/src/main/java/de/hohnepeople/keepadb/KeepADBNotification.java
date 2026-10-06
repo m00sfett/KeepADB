@@ -162,7 +162,9 @@ final class KeepADBNotification {
             KeepADBDiagnostics.event(context, "notification_removed", "notification", "skipped", "permission_missing");
             return;
         }
-        if (KeepADBPreferences.isNotificationHidden(context)) {
+        if (KeepADBPreferences.isNotificationHidden(context) && !KeepADBForceMode.isActive(context)) {
+            // #763: a running force mode keeps its warning visible, so the hide preference does
+            // not apply while it is on.
             // #445: gate on shouldRun(), not isEnabled() -- the foreground service (and thus
             // Android's requirement for a notification) can still be running with Wireless
             // Debugging off (Keep-Alive waiting for it to come back). The old isEnabled()-only
@@ -185,9 +187,9 @@ final class KeepADBNotification {
         if (!hasNotificationPermission(context)) {
             return;
         }
-        if (KeepADBPreferences.isNotificationHidden(context)) {
+        if (KeepADBPreferences.isNotificationHidden(context) && !KeepADBForceMode.isActive(context)) {
             // #445: see the matching comment in show() -- shouldRun() is the correct gate here
-            // too, for the same reason.
+            // too, for the same reason. #763: and so is the force mode exception.
             if (KeepADBService.shouldRun(context)) {
                 Notification notification = buildPlaceholderNotification(context, title, text);
                 manager.notify(NOTIFICATION_ID, notification);
@@ -217,12 +219,21 @@ final class KeepADBNotification {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         Bundle marker = new Bundle();
         marker.putBoolean(EXTRA_ENDPOINT_CARD, true);
-        return new Notification.Builder(context, CHANNEL_ID)
+        // #763: while the force mode is on, its warning leads the long text and the header line and
+        // "End force mode" is the first action (One UI cuts off the last one, #593). Private
+        // content only: publicVersion below stays neutral (F4).
+        String forceLine = KeepADBForceNotice.activeLine(context);
+        Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(title)
                 .setContentText(content)
-                .setStyle(new Notification.BigTextStyle().bigText(expandedText(context, content)))
-                .setContentIntent(pendingIntent)
+                .setStyle(new Notification.BigTextStyle()
+                        .bigText(withForceLine(forceLine, expandedText(context, content))))
+                .setContentIntent(pendingIntent);
+        if (forceLine != null) {
+            builder.setSubText(forceLine).addAction(KeepADBForceNotice.endAction(context));
+        }
+        return builder
                 .addAction(disableAction(context))
                 .addAction(keepAliveAction(context))
                 .addExtras(marker)
@@ -235,6 +246,11 @@ final class KeepADBNotification {
                 // above) is shown instead.
                 .setPublicVersion(publicVersion(context, title))
                 .build();
+    }
+
+    /** #763: the force warning as first line of {@code text}, or {@code text} itself without one. */
+    private static CharSequence withForceLine(String forceLine, CharSequence text) {
+        return forceLine == null ? text : TextUtils.concat(forceLine, "\n", text);
     }
 
     /**
@@ -333,14 +349,19 @@ final class KeepADBNotification {
                 0,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        // #763: same force warning as on the endpoint card, so it is there whatever the state.
+        String forceLine = KeepADBForceNotice.activeLine(context);
         Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
                 .setContentTitle(title)
                 .setContentText(text)
-                .setStyle(new Notification.BigTextStyle().bigText(text))
+                .setStyle(new Notification.BigTextStyle().bigText(withForceLine(forceLine, text)))
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setShowWhen(false);
+        if (forceLine != null) {
+            builder.setSubText(forceLine).addAction(KeepADBForceNotice.endAction(context));
+        }
         // #582: an unreadable value omits the disable action, same as a confirmed "off" would --
         // never offer to disable a state that isn't positively known to be "on".
         Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(context, "notification");

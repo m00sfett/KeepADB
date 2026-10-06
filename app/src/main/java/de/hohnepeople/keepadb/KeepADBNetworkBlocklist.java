@@ -18,7 +18,9 @@ import java.util.Set;
  *
  * <p>This class only stores and matches. The precedence rule -- a block beats every kind of trust,
  * only the force mode (#763) overrides it -- is applied exactly once, in {@link
- * KeepADBTrustedNetwork#evaluate}, which every automatic re-enable call site already consults.
+ * KeepADBTrustedNetwork#evaluate}, which every automatic re-enable call site already consults;
+ * the force mode is the overlay in {@link KeepADBTrustedNetwork#evaluateCurrent} and never changes
+ * what is stored here.
  * Adding trust never touches this store, so a block can only be lifted by an explicit {@code
  * unblock*} call; the trust entries it overruled stay stored and apply again afterwards.
  *
@@ -123,7 +125,8 @@ final class KeepADBNetworkBlocklist {
         return clean.toLowerCase(Locale.ROOT);
     }
 
-    private static boolean isUsableSsid(String ssid) {
+    /** Whether {@code ssid} can be stored as a block: not null, empty or the unknown placeholder. */
+    static boolean isUsableSsid(String ssid) {
         return ssid != null && !ssid.isEmpty() && !WifiManager.UNKNOWN_SSID.equals(ssid);
     }
 

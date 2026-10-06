@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #766: the "Trust this network?" decision, inflated into NetworkDecisionView. It is a plain
+     column without a background or an outer padding, so a host decides where it sits: the dialog
+     activity (window background and padding of bg_panel) or, later, an embedded row of the network
+     list. Network name and access point are shown unmasked on purpose, see NetworkDecisionView. -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/decision_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:accessibilityHeading="true"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/network_decision_title"
+        android:textColor="@color/title_yellow"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/decision_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/network_decision_name_label"
+            android:textColor="@color/night_muted"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/decision_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:textColor="@color/night_text"
+            android:textIsSelectable="false"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/network_decision_ap_label"
+            android:textColor="@color/night_muted"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/decision_bssid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textColor="@color/night_text"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/network_decision_text"
+            android:textColor="@color/night_text"
+            android:textSize="14sp" />
+
+        <!-- Only while the "also trust by Wi-Fi name" comfort switch is on and there is a name. -->
+        <TextView
+            android:id="@+id/decision_comfort_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif"
+            android:textColor="@color/text_yellow"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/decision_trust"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_btn_primary"
+            android:fontFamily="sans-serif-condensed"
+            android:minHeight="48dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="@string/network_decision_trust"
+            android:textColor="@color/title_yellow"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/decision_block_ap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_btn_secondary"
+            android:fontFamily="sans-serif-condensed"
+            android:minHeight="48dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="@string/network_decision_block_ap"
+            android:textColor="@color/text_yellow"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <!-- Gone when the Wi-Fi name is hidden or unreadable: there is nothing to block by name. -->
+        <Button
+            android:id="@+id/decision_block_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_btn_secondary"
+            android:fontFamily="sans-serif-condensed"
+            android:minHeight="48dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="@color/text_yellow"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/decision_later"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif-condensed"
+            android:minHeight="48dp"
+            android:text="@string/network_decision_later"
+            android:textColor="@color/night_muted"
+            android:textSize="15sp" />
+    </LinearLayout>
+</merge>

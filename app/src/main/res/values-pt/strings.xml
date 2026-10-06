@@ -109,6 +109,21 @@
     <string name="network_prompt_confirm_in_app_text">Nova rede Wi-Fi detetada — toque para a confirmar na app.</string>
     <string name="network_prompt_identity_unavailable_title">Não é possível identificar a rede Wi-Fi atual</string>
     <string name="network_prompt_identity_unavailable_text">A reativação automática do Keep-Alive está pausada porque a identidade da rede não pode ser lida. Normalmente falta a permissão de localização ou o serviço de localização está desativado, mas isso também pode acontecer se o Keep-Alive tiver iniciado em segundo plano; definir a localização como “Permitir o tempo todo” resolve isso de forma permanente. Toque para corrigir.</string>
+    <string name="network_decision_title">Confiar nesta rede?</string>
+    <string name="network_decision_name_label">Nome do Wi-Fi (SSID)</string>
+    <string name="network_decision_ap_label">Ponto de acesso (BSSID)</string>
+    <string name="network_decision_text">Se confiar neste ponto de acesso, o Keep-Alive pode voltar a ativar aqui a depuração sem fio automaticamente. Ativar manualmente funciona sempre.</string>
+    <string name="network_decision_comfort_note">O modo cómodo está ativo: também serão aceites outros pontos de acesso com o nome “%1$s”.</string>
+    <string name="network_decision_trust">Confiar</string>
+    <string name="network_decision_block_ap">Bloquear só este ponto de acesso</string>
+    <string name="network_decision_block_name">Bloquear sempre o nome Wi-Fi “%1$s”</string>
+    <string name="network_decision_later">Decidir mais tarde</string>
+    <string name="network_decision_name_hidden">(Wi-Fi oculto)</string>
+    <string name="network_decision_blocked_toast">O KeepADB não voltará a perguntar aqui e nunca ativará automaticamente aqui.</string>
+    <string name="network_decision_already_decided_toast">Já decidiu sobre esta rede.</string>
+    <string name="network_decision_expired_toast">Este pedido expirou.</string>
+    <string name="network_decision_trust_refused_toast">Esta rede está bloqueada, por isso não foi considerada fiável.</string>
+    <string name="network_decision_failed_toast">Nada foi alterado. Desbloqueie o dispositivo e tente novamente.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · visto %2$s</string>
     <string name="wifi_aps_current_badge">Atual</string>
     <string name="wifi_aps_trusted_status">Confiável</string>
@@ -393,6 +408,54 @@
     <string name="network_band_5">5 GHz</string>
     <string name="network_band_6">6 GHz</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Modo forçado</string>
+    <string name="force_section_hint">Volta a ativar a depuração sem fio em qualquer rede durante o tempo que escolher. Os bloqueios e as redes de confiança não se aplicam entretanto.</string>
+    <string name="force_status_off">Desativado</string>
+    <string name="force_status_until">Ativo até %1$s</string>
+    <string name="force_status_unlimited">Ativo, sem hora de fim</string>
+    <string name="force_action_activate">Ativar modo forçado…</string>
+    <string name="force_action_end">Terminar modo forçado</string>
+    <string name="force_action_change">Alterar duração…</string>
+    <string name="force_dialog_title">Ativar o modo forçado?</string>
+    <string name="force_dialog_intro">O Keep-Alive voltará então a ativar a depuração sem fio em qualquer rede: incluindo redes desconhecidas, bloqueadas e ilegíveis.</string>
+    <string name="force_dialog_duration_label">Durante quanto tempo?</string>
+    <string name="force_duration_1h">1 hora</string>
+    <string name="force_duration_24h">24 horas</string>
+    <string name="force_duration_7d">7 dias</string>
+    <string name="force_duration_30d">30 dias</string>
+    <string name="force_duration_unlimited">Sem hora de fim</string>
+    <string name="force_warning_all">A depuração sem fio abre uma porta na rede. Os computadores que emparelhou anteriormente obtêm por aí acesso ADB total: instalar apps, ler dados, gravar o ecrã. Em redes desconhecidas não sabe quem está a tentar.
+
+Os seus bloqueios e redes de confiança não se aplicam durante este tempo.
+
+Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</string>
+    <string name="force_warning_days">Ao longo de vários dias vai ligar-se a redes em que agora não pensa: hotel, comboio, café, trabalho. A depuração ativa-se aí sem lhe perguntar.</string>
+    <string name="force_warning_unlimited">Sem hora de fim, o modo forçado fica ativo até o terminar, também após reinícios e atualizações da app.</string>
+    <string name="force_unlimited_ack">Compreendo que a depuração sem fio será ativada então em qualquer rede.</string>
+    <string name="force_keepalive_hint">O modo forçado só funciona com o Keep-Alive. O Keep-Alive é ativado em conjunto.</string>
+    <string name="force_not_started_toast">O modo forçado não foi ativado: neste momento este dispositivo não consegue cumprir um limite de tempo de forma fiável. Nada foi alterado.</string>
+    <string name="force_confirm_1h">Ativar durante 1 hora</string>
+    <string name="force_confirm_24h">Ativar durante 24 horas</string>
+    <string name="force_confirm_7d">Ativar durante 7 dias</string>
+    <string name="force_confirm_30d">Ativar durante 30 dias</string>
+    <string name="force_confirm_unlimited">Ativar sem hora de fim</string>
+    <string name="force_card_title">Modo forçado ativo</string>
+    <string name="force_card_text_until">A depuração sem fio é reativada em qualquer rede. Ativo até %1$s.</string>
+    <string name="force_card_text_unlimited">A depuração sem fio é reativada em qualquer rede. Sem hora de fim.</string>
+    <string name="force_ended_toast">Modo forçado terminado. Nível de proteção de novo: %1$s.</string>
+    <string name="force_notification_until">Modo forçado ativo até %1$s</string>
+    <string name="force_notification_unlimited">Modo forçado ativo, sem hora de fim</string>
+    <string name="force_channel_name">Avisos de segurança</string>
+    <string name="force_channel_desc">Avisos únicos sobre o nível de proteção, por exemplo quando o modo forçado termina.</string>
+    <string name="force_expired_title">Modo forçado terminado</string>
+    <string name="force_expired_text">O tempo escolhido terminou. Nível de proteção de novo: %1$s. O Keep-Alive só volta a ativar onde o nível de proteção o permite.</string>
+    <string name="force_expired_still_on">A depuração sem fio ainda está ativada neste momento.</string>
+    <string name="force_expired_action_off">Desativar agora</string>
+    <string name="force_level_maximum">Segurança máxima</string>
+    <string name="force_level_balanced">Equilibrado</string>
+    <string name="force_level_legacy_all">Em todas as redes Wi-Fi (definição anterior)</string>
+    <string name="force_level_legacy_names">Lista de nomes Wi-Fi (definição anterior)</string>
     <string name="settings_general_feedback">Comentários gerais</string>
     <string name="feedback_type">Tipo de comentário</string>
     <string name="feedback_type_bug">Erro</string>

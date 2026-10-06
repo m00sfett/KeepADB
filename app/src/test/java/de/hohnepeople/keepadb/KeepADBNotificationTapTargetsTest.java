@@ -38,9 +38,10 @@ import org.robolectric.shadows.ShadowWifiInfo;
  * #759: tap-target table (notification, state, content-tap target intent) from the UX concept
  * 3.1, one test per row that this phase owns. Rows 8 to 10 (identity unavailable) are pinned in
  * {@link KeepADBNetworkTrustPromptTest}; the end-to-end tap of rows 6 and 7 into the dialog is
- * pinned in {@link SettingsActivityDetailsOnPromptTapTest} and {@link
- * SettingsActivityTrustConfirmationTest}. Row 14 (widget, tile) are toggles without a content tap,
- * rows 5 and 13 belong to the force mode (#763) and do not exist yet.
+ * pinned in {@link NetworkDecisionActivityTest} (#766 moved the dialog from {@link
+ * SettingsActivity} to {@link NetworkDecisionActivity}). Row 14 (widget, tile) are toggles without a content tap,
+ * rows 5 and 13 belong to the force mode (#763) and are pinned in {@link KeepADBForceNotificationTest}
+ * (row 5, the home screen) and {@link KeepADBForceModeTest} (row 13, the force row in Settings).
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -100,24 +101,24 @@ public class KeepADBNotificationTapTargetsTest {
         assertOpensMainActivity(posted(KeepADBNotification.NOTIFICATION_ID));
     }
 
-    // --- Rows 6 and 7: new WLAN prompt opens the in-app confirmation for its own BSSID -------
+    // --- Rows 6 and 7: new WLAN prompt opens the decision dialog for its own BSSID ---------
 
     @Test
-    public void row6NewWlanWithDetailsOpensTheConfirmationForThePromptedBssid() {
+    public void row6NewWlanWithDetailsOpensTheDecisionForThePromptedBssid() {
         KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
-        assertConfirmationTarget(posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID));
+        assertDecisionTarget(posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID));
     }
 
     @Test
-    public void row7NewWlanWithoutDetailsOpensTheSameConfirmation() {
+    public void row7NewWlanWithoutDetailsOpensTheSameDecision() {
         KeepADBPreferences.setNotificationDetailsEnabled(context, false);
         connectTo("Cafe-WLAN", BSSID);
         assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
 
-        assertConfirmationTarget(posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID));
+        assertDecisionTarget(posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID));
     }
 
     // --- Row 11: USB with profile notification opens the profile dialog ----------------------
@@ -191,6 +192,28 @@ public class KeepADBNotificationTapTargetsTest {
         assertFalse(text.contains("turnScreenOn"));
     }
 
+    /**
+     * #766: the decision activity is the one new tap target. It is private to the app, stays out
+     * of the recents list (it shows a network name) and does not declare the lock-screen flags
+     * that would let it open over the keyguard; the neighbouring request codes are distinct.
+     */
+    @Test
+    public void theDecisionActivityIsPrivateOutOfRecentsAndNotShownOverTheLockScreen() throws IOException {
+        Path manifest = Paths.get("src/main/AndroidManifest.xml");
+        if (!Files.exists(manifest)) manifest = Paths.get("app/src/main/AndroidManifest.xml");
+        String text = new String(Files.readAllBytes(manifest), StandardCharsets.UTF_8);
+        int start = text.indexOf("android:name=\".NetworkDecisionActivity\"");
+        assertTrue("The activity must be declared", start >= 0);
+        String declaration = text.substring(start, text.indexOf("/>", start));
+        assertTrue(declaration, declaration.contains("android:exported=\"false\""));
+        assertTrue(declaration, declaration.contains("android:excludeFromRecents=\"true\""));
+        assertFalse(declaration, declaration.contains("showWhenLocked"));
+        assertFalse(declaration, declaration.contains("turnScreenOn"));
+        assertFalse(declaration, declaration.contains("intent-filter"));
+        assertFalse("No other app may start it", text.substring(start, text.indexOf("<service", start))
+                .contains("<intent-filter"));
+    }
+
     // --- Public version stays redacted and action-free (lock screen) -------------------------
 
     @Test
@@ -200,6 +223,17 @@ public class KeepADBNotificationTapTargetsTest {
         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context);
         Notification prompt = posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
         assertPublicVersionIsNeutral(prompt);
+
+        // The details-off form (the default) is neutral in both copies and has no action buttons.
+        KeepADBNetworkTrustPrompt.cancel(context);
+        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
+        KeepADBNetworkTrustPrompt.clearPromptState(context);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        Notification neutral = posted(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
+        assertPublicVersionIsNeutral(neutral);
+        KeepADBNotificationTextScan.assertMentionsNone(neutral, "Cafe-WLAN", BSSID);
+        assertTrue(neutral.actions == null || neutral.actions.length == 0);
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
 
         KeepADBUsbProfile.setNotificationEnabled(context, true);
         KeepADBUsbProfile.setProfileNotificationEnabled(context, false);
@@ -217,10 +251,10 @@ public class KeepADBNotificationTapTargetsTest {
         assertFalse(text.toLowerCase(java.util.Locale.ROOT).contains(BSSID));
     }
 
-    private void assertConfirmationTarget(Notification notification) {
+    private void assertDecisionTarget(Notification notification) {
         Intent target = savedIntent(notification);
-        assertEquals(SettingsActivity.class.getName(), target.getComponent().getClassName());
-        assertEquals(KeepADBNetworkTrustPrompt.ACTION_CONFIRM_IN_APP, target.getAction());
+        assertEquals(NetworkDecisionActivity.class.getName(), target.getComponent().getClassName());
+        assertEquals(KeepADBNetworkTrustPrompt.ACTION_DECIDE, target.getAction());
         assertEquals(BSSID, target.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
         assertFalse(target.hasExtra(KeepADBNetworkTrustPrompt.EXTRA_LABEL));
     }

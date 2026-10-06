@@ -109,6 +109,21 @@
     <string name="network_prompt_confirm_in_app_text">Виявлено нову мережу Wi-Fi — торкніться, щоб підтвердити її в застосунку.</string>
     <string name="network_prompt_identity_unavailable_title">Не вдається визначити поточну мережу Wi-Fi</string>
     <string name="network_prompt_identity_unavailable_text">Автоматичне повторне ввімкнення Keep-Alive призупинено, оскільки не вдається прочитати ідентифікатор мережі. Зазвичай бракує дозволу на геолокацію або вимкнено службу геолокації, але це може статися й тоді, коли Keep-Alive запустився у фоновому режимі; встановлення геолокації на «Дозволити завжди» усуває це назавжди. Торкніться, щоб виправити.</string>
+    <string name="network_decision_title">Довіряти цій мережі?</string>
+    <string name="network_decision_name_label">Назва Wi-Fi (SSID)</string>
+    <string name="network_decision_ap_label">Точка доступу (BSSID)</string>
+    <string name="network_decision_text">Якщо ви довіряєте цій точці доступу, Keep-Alive зможе автоматично знову вмикати тут бездротове налагодження. Увімкнути вручну можна завжди.</string>
+    <string name="network_decision_comfort_note">Режим зручності ввімкнено: інші точки доступу з назвою «%1$s» також будуть прийматися.</string>
+    <string name="network_decision_trust">Довіряти</string>
+    <string name="network_decision_block_ap">Заблокувати лише цю точку доступу</string>
+    <string name="network_decision_block_name">Завжди блокувати назву Wi-Fi «%1$s»</string>
+    <string name="network_decision_later">Вирішити пізніше</string>
+    <string name="network_decision_name_hidden">(приховане Wi-Fi)</string>
+    <string name="network_decision_blocked_toast">KeepADB більше не питатиме тут і ніколи не вмикатиме налагодження автоматично.</string>
+    <string name="network_decision_already_decided_toast">Ви вже ухвалили рішення щодо цієї мережі.</string>
+    <string name="network_decision_expired_toast">Термін дії цього запиту минув.</string>
+    <string name="network_decision_trust_refused_toast">Ця мережа заблокована, тому її не визнано довіреною.</string>
+    <string name="network_decision_failed_toast">Нічого не змінено. Розблокуйте пристрій і спробуйте ще раз.</string>
     <string name="settings_trusted_network_blocked_detail">%1$s · помічено %2$s</string>
     <string name="wifi_aps_current_badge">Поточна</string>
     <string name="wifi_aps_trusted_status">Довірена</string>
@@ -393,6 +408,54 @@
     <string name="network_band_5">5 ГГц</string>
     <string name="network_band_6">6 ГГц</string>
     <string name="network_bssid_with_band">%1$s (%2$s)</string>
+    <!-- #763: force mode, a time-limited override of blocks and trust. -->
+    <string name="force_section_title">Примусовий режим</string>
+    <string name="force_section_hint">Знову вмикає бездротове налагодження в будь-якій мережі на обраний час. Блокування та довірені мережі в цей період не діють.</string>
+    <string name="force_status_off">Вимкнено</string>
+    <string name="force_status_until">Активний до %1$s</string>
+    <string name="force_status_unlimited">Активний, без часу завершення</string>
+    <string name="force_action_activate">Увімкнути примусовий режим…</string>
+    <string name="force_action_end">Завершити примусовий режим</string>
+    <string name="force_action_change">Змінити тривалість…</string>
+    <string name="force_dialog_title">Увімкнути примусовий режим?</string>
+    <string name="force_dialog_intro">Keep-Alive знову вмикатиме бездротове налагодження в будь-якій мережі: зокрема в невідомих, заблокованих і нечитабельних.</string>
+    <string name="force_dialog_duration_label">Як довго?</string>
+    <string name="force_duration_1h">1 година</string>
+    <string name="force_duration_24h">24 години</string>
+    <string name="force_duration_7d">7 днів</string>
+    <string name="force_duration_30d">30 днів</string>
+    <string name="force_duration_unlimited">Без часу завершення</string>
+    <string name="force_warning_all">Бездротове налагодження відкриває порт у мережі. Комп\'ютери, які ви раніше з\'єднали, отримують через нього повний доступ ADB: встановлення застосунків, читання даних, запис екрана. У невідомих мережах ви не знаєте, хто намагається підключитися.
+
+Ваші блокування та довірені мережі в цей час не діють.
+
+Завершити режим можна будь-коли з головного екрана або зі сповіщення.</string>
+    <string name="force_warning_days">За кілька днів ви опинитеся в мережах, про які зараз не думаєте: готель, потяг, кафе, робота. Налагодження ввімкнеться там без запитань.</string>
+    <string name="force_warning_unlimited">Без часу завершення примусовий режим лишається ввімкненим, доки ви самі його не завершите, зокрема після перезавантажень і оновлень застосунку.</string>
+    <string name="force_unlimited_ack">Я розумію, що тоді бездротове налагодження вмикатиметься в будь-якій мережі.</string>
+    <string name="force_keepalive_hint">Примусовий режим працює лише з Keep-Alive. Keep-Alive вмикається разом із ним.</string>
+    <string name="force_not_started_toast">Примусовий режим не ввімкнено: цей пристрій зараз не може надійно дотримуватися обмеження за часом. Нічого не змінено.</string>
+    <string name="force_confirm_1h">Увімкнути на 1 годину</string>
+    <string name="force_confirm_24h">Увімкнути на 24 години</string>
+    <string name="force_confirm_7d">Увімкнути на 7 днів</string>
+    <string name="force_confirm_30d">Увімкнути на 30 днів</string>
+    <string name="force_confirm_unlimited">Увімкнути без часу завершення</string>
+    <string name="force_card_title">Примусовий режим увімкнено</string>
+    <string name="force_card_text_until">Бездротове налагодження знову вмикається в будь-якій мережі. Діє до %1$s.</string>
+    <string name="force_card_text_unlimited">Бездротове налагодження знову вмикається в будь-якій мережі. Без часу завершення.</string>
+    <string name="force_ended_toast">Примусовий режим завершено. Рівень захисту знову: %1$s.</string>
+    <string name="force_notification_until">Примусовий режим діє до %1$s</string>
+    <string name="force_notification_unlimited">Примусовий режим діє, без часу завершення</string>
+    <string name="force_channel_name">Сповіщення про безпеку</string>
+    <string name="force_channel_desc">Одноразові сповіщення про рівень захисту, наприклад про завершення примусового режиму.</string>
+    <string name="force_expired_title">Примусовий режим завершено</string>
+    <string name="force_expired_text">Обраний час минув. Рівень захисту знову: %1$s. Тепер Keep-Alive вмикається лише там, де це дозволяє рівень захисту.</string>
+    <string name="force_expired_still_on">Бездротове налагодження зараз усе ще ввімкнене.</string>
+    <string name="force_expired_action_off">Вимкнути зараз</string>
+    <string name="force_level_maximum">Максимальна безпека</string>
+    <string name="force_level_balanced">Збалансований</string>
+    <string name="force_level_legacy_all">У всіх мережах Wi-Fi (попереднє налаштування)</string>
+    <string name="force_level_legacy_names">Список імен Wi-Fi (попереднє налаштування)</string>
     <string name="settings_general_feedback">Загальний відгук</string>
     <string name="feedback_type">Тип відгуку</string>
     <string name="feedback_type_bug">Помилка</string>

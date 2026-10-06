@@ -444,6 +444,8 @@ public class KeepADBResourceContractTest {
         result.put("settings_trusted_network_mesh_message", new Object[] {integerWitness, stringWitness});
         result.put("settings_trusted_network_mesh_added_toast", new Object[] {integerWitness});
         result.put("network_prompt_text", new Object[] {stringWitness, stringWitness});
+        result.put("network_decision_comfort_note", new Object[] {stringWitness});
+        result.put("network_decision_block_name", new Object[] {stringWitness});
         result.put("settings_trusted_network_blocked_detail",
                 new Object[] {stringWitness, stringWitness});
         result.put("network_head_mode", new Object[] {stringWitness});
@@ -476,6 +478,12 @@ public class KeepADBResourceContractTest {
                 stringWitness, stringWitness, stringWitness});
         result.put("transport_row_format", new Object[] {stringWitness, stringWitness, stringWitness});
         result.put("transport_primary_accessibility_format", new Object[] {stringWitness});
+        // #763: the force mode texts, one string each (an end time or a protection level name).
+        result.put("force_status_until", new Object[] {stringWitness});
+        result.put("force_card_text_until", new Object[] {stringWitness});
+        result.put("force_ended_toast", new Object[] {stringWitness});
+        result.put("force_notification_until", new Object[] {stringWitness});
+        result.put("force_expired_text", new Object[] {stringWitness});
         return result;
     }
 

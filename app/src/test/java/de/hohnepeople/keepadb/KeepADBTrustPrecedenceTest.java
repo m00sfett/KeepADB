@@ -478,7 +478,13 @@ public class KeepADBTrustPrecedenceTest {
         for (Decision decision : Decision.values()) {
             if (decision.allowsAutomaticEnable) allowing++;
         }
-        assertEquals("Only the three trusting outcomes may allow an automatic enable", 3, allowing);
+        // #763: the force mode is the one further outcome that allows, and only evaluateCurrent
+        // answers it, while the mode runs (KeepADBForceModeCallPathTest); every assertDecision above
+        // ran without it.
+        assertTrue(Decision.FORCE_MODE.allowsAutomaticEnable);
+        assertFalse(Decision.FORCE_MODE.isBlocked());
+        assertEquals("Only the three trusting outcomes and the force mode may allow an automatic enable",
+                4, allowing);
         for (Decision decision : Decision.values()) {
             assertTrue("A blocked outcome never allows",
                     !decision.isBlocked() || !decision.allowsAutomaticEnable);
