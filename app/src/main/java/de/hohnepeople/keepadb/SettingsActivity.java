@@ -21,10 +21,6 @@ import android.widget.Toast;
 
 /** Central settings screen for KeepADB options (Keep-Alive, Language, Webhook, etc.). */
 public class SettingsActivity extends Activity {
-    /** Intent extra requesting that the webhook section be scrolled into view and focused. */
-    public static final String EXTRA_FOCUS_WEBHOOK = "focus_webhook";
-    /** #619: Intent extra requesting that the network section be expanded and scrolled into view. */
-    public static final String EXTRA_FOCUS_NETWORK = "focus_network";
     /** #759: Intent extra requesting that the USB-ADB card be expanded and scrolled into view. */
     public static final String EXTRA_FOCUS_USB = "focus_usb";
     /** #763: Intent extra requesting that the force-mode row be expanded and scrolled into view. */
@@ -42,8 +38,6 @@ public class SettingsActivity extends Activity {
     static final String STATE_LANGUAGE_SELECTION_SHOWING = "settings_language_selection_showing";
 
     private ScrollView scrollView;
-    private View webhookPanel;
-    private View networkPanel;
     private View permissionPanel;
     private View languageToolbarButton;
     private TextView onboardingSummary;
@@ -128,8 +122,6 @@ public class SettingsActivity extends Activity {
         // #725: same eye as on the main view; refresh() redraws the masked card and webhook.
         KeepADBPrivacyToggle.bind(this, this::refresh);
         scrollView = findViewById(R.id.settings_scroll_view);
-        webhookPanel = findViewById(R.id.settings_webhook_panel);
-        networkPanel = findViewById(R.id.settings_network_beta_panel);
         permissionPanel = findViewById(R.id.settings_permission_panel);
 
         // #471: wire every card's header to toggle its own body, independently of the others.
@@ -259,16 +251,6 @@ public class SettingsActivity extends Activity {
             getIntent().removeExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION);
         }
 
-        if (getIntent().hasExtra(EXTRA_FOCUS_WEBHOOK)) {
-            focusWebhookPanel();
-            getIntent().removeExtra(EXTRA_FOCUS_WEBHOOK);
-        }
-
-        if (getIntent().hasExtra(EXTRA_FOCUS_NETWORK)) {
-            focusNetworkPanel();
-            getIntent().removeExtra(EXTRA_FOCUS_NETWORK);
-        }
-
         if (getIntent().hasExtra(EXTRA_FOCUS_USB)) {
             focusUsbPanel();
             getIntent().removeExtra(EXTRA_FOCUS_USB);
@@ -359,27 +341,6 @@ public class SettingsActivity extends Activity {
             return currentDraft == null ? "" : currentDraft;
         }
         return savedUrl == null ? "" : savedUrl;
-    }
-
-    private void focusWebhookPanel() {
-        // #471: the webhook card is collapsed by default like every other card; a caller asking
-        // to focus its URL field (e.g. MainActivity's webhook setup shortcut) needs the body
-        // actually expanded first, or requestFocus() below would silently no-op on a GONE view.
-        setCardExpanded(this, findViewById(R.id.settings_webhook_header),
-                findViewById(R.id.settings_webhook_body),
-                findViewById(R.id.settings_webhook_arrow), true);
-        scrollView.post(() -> scrollView.smoothScrollTo(0, webhookPanel.getTop()));
-        webhookForm.requestUrlFocus();
-    }
-
-    private void focusNetworkPanel() {
-        // #619: expand the network card and scroll it into view.
-        setCardExpanded(this, findViewById(R.id.settings_network_beta_header),
-                findViewById(R.id.settings_network_beta_body),
-                findViewById(R.id.settings_network_beta_arrow), true);
-        if (networkPanel != null && scrollView != null) {
-            scrollView.post(() -> scrollView.smoothScrollTo(0, networkPanel.getTop()));
-        }
     }
 
     private void focusForcePanel() {

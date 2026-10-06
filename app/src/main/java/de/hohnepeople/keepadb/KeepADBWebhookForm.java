@@ -130,11 +130,6 @@ final class KeepADBWebhookForm {
         cleartextWarning.setVisibility(showCleartextWarning ? View.VISIBLE : View.GONE);
     }
 
-    /** Call from {@code SettingsActivity#focusWebhookPanel()} once the card body is expanded. */
-    void requestUrlFocus() {
-        urlInput.requestFocus();
-    }
-
     /**
      * Trims the field, runs {@link KeepADBPreferences#sanitizeWebhookUrl}, and writes the
      * sanitized value back into the field when it differs -- the one normalization step the enable

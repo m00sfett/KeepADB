@@ -947,35 +947,6 @@ public class SettingsActivityTest {
     }
 
     @Test
-    public void focusWebhookExtraExpandsTheWebhookCardBeforeFocusingTheUrlField() {
-        Intent intent = new Intent(RuntimeEnvironment.getApplication(), SettingsActivity.class)
-                .putExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, true);
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class, intent).setup();
-        SettingsActivity activity = controller.get();
-        ShadowLooper.idleMainLooper();
-
-        // A GONE view cannot take focus, so this also guards against a silent requestFocus()
-        // no-op if the webhook card were ever left collapsed on this deep-link path.
-        assertEquals(View.VISIBLE, activity.findViewById(R.id.settings_webhook_body).getVisibility());
-        assertTrue(activity.findViewById(R.id.settings_webhook_url).isFocused());
-    }
-
-    @Test
-    public void focusNetworkExtraExpandsTheNetworkCard() {
-        Intent intent = new Intent(RuntimeEnvironment.getApplication(), SettingsActivity.class)
-                .putExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, true);
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class, intent).setup();
-        SettingsActivity activity = controller.get();
-        ShadowLooper.idleMainLooper();
-
-        assertEquals(View.VISIBLE, activity.findViewById(R.id.settings_network_beta_body).getVisibility());
-        TextView arrow = activity.findViewById(R.id.settings_network_beta_arrow);
-        assertEquals("−", arrow.getText().toString());
-    }
-
-    @Test
     public void focusUsbExtraExpandsTheUsbCardAndIsConsumed() {
         Intent intent = new Intent(RuntimeEnvironment.getApplication(), SettingsActivity.class)
                 .putExtra(SettingsActivity.EXTRA_FOCUS_USB, true);
