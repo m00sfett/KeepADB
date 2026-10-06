@@ -67,6 +67,55 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+        <!-- #761: re-opens the setup assistant (all of it); the summary shows the two settings
+             it sets most. -->
+        <LinearLayout
+            android:id="@+id/settings_onboarding_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_clickable"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="72dp"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="8dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_onboarding_title"
+                    android:textColor="@color/title_yellow"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/settings_onboarding_summary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_chevron_right" />
+        </LinearLayout>
+
         <!-- Permission Warning (if missing) -->
         <LinearLayout
             android:id="@+id/settings_permission_panel"
@@ -272,13 +321,19 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
+                    <!-- #761: opens the assistant's protection step on its own; this is the way
+                         back from the previous settings ("in all Wi-Fi networks", name list). -->
                     <TextView
                         android:id="@+id/network_level_line"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:drawableEnd="@drawable/ic_chevron_right"
+                        android:focusable="true"
                         android:fontFamily="sans-serif-condensed"
-                        android:minHeight="48dp"
                         android:gravity="center_vertical"
+                        android:minHeight="48dp"
                         android:textColor="@color/night_text"
                         android:textSize="15sp" />
 
