@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Reactivación automática pausada: la red actual no se puede leer. Revisa el permiso o servicio de ubicación, o vuelve a abrir la app si Keep-Alive se inició en segundo plano. Para una solución permanente, configura la ubicación en «Permitir todo el tiempo».</string>
     <string name="settings_trusted_network_add_failed_toast">No se pudo determinar la red actual. Comprueba la conexión Wi-Fi y el permiso de ubicación.</string>
     <string name="settings_trusted_network_added_toast">Se añadió \"%1$s\" a las redes de confianza</string>
-    <string name="settings_trusted_network_mesh_title">¿Añadir otros puntos de acceso?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB también ha detectado %1$d puntos de acceso adicionales que emiten \"%2$s\". ¿Quieres añadirlos también a tu lista de confianza?</string>
-    <string name="settings_trusted_network_mesh_add_button">Añadir todos</string>
-    <string name="settings_trusted_network_mesh_added_toast">Se añadieron %1$d puntos de acceso más a las redes de confianza</string>
     <string name="network_prompt_channel_name">Avisos de redes nuevas</string>
     <string name="network_prompt_channel_desc">Pregunta si un punto de acceso Wi-Fi recién detectado debe ser de confianza para Keep-Alive.</string>
     <string name="network_prompt_title">Nueva red Wi-Fi o punto de acceso detectado</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">No se encontró ninguna aplicación para abrir este enlace.</string>
     <string name="status_off_keep_alive_waiting">Depuración inalámbrica DESACTIVADA: Keep-Alive espera a la red</string>
     <string name="status_off_keep_alive_blocked_untrusted">Depuración inalámbrica DESACTIVADA – Keep-Alive en pausa: esta red Wi-Fi no es de confianza</string>
+    <string name="status_off_keep_alive_blocked_by_user">Depuración inalámbrica DESACTIVADA – Keep-Alive en pausa: esta red Wi-Fi está bloqueada</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Depuración inalámbrica DESACTIVADA – Keep-Alive en pausa: red no legible, revisa el permiso de ubicación («Permitir todo el tiempo») o vuelve a abrir la app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Depuración inalámbrica DESACTIVADA – Keep-Alive en pausa: confirma el diálogo de red de depuración inalámbrica de Android y luego toca el interruptor para reintentar</string>
     <string name="status_pending">Cambiando…</string>
@@ -542,4 +539,5 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="home_warning_limited_title">Keep-Alive limitado</string>
     <string name="home_warning_limited_text">Ajustes que faltan para un Keep-Alive fiable: %1$d</string>
     <string name="status_tap_to_decide">Toca para decidir</string>
+    <string name="status_tap_to_open_list">Toca para abrir la lista de redes</string>
 </resources>

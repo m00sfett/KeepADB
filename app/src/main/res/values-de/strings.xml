@@ -107,10 +107,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Automatisches Wiedereinschalten pausiert: Das aktuelle Netzwerk ist nicht lesbar. Standortberechtigung/-dienst prüfen oder die App einmal öffnen, falls Keep-Alive im Hintergrund gestartet wurde. Dauerhaft hilft Standort auf „Immer zulassen“.</string>
     <string name="settings_trusted_network_add_failed_toast">Aktuelles Netzwerk konnte nicht ermittelt werden. WLAN-Verbindung und Standortberechtigung prüfen.</string>
     <string name="settings_trusted_network_added_toast">„%1$s“ zu vertrauten Netzwerken hinzugefügt</string>
-    <string name="settings_trusted_network_mesh_title">Weitere Access Points hinzufügen?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB hat außerdem %1$d weitere Access Points erkannt, die „%2$s“ ausstrahlen. Sollen sie ebenfalls zu den vertrauten Netzwerken hinzugefügt werden?</string>
-    <string name="settings_trusted_network_mesh_add_button">Alle hinzufügen</string>
-    <string name="settings_trusted_network_mesh_added_toast">%1$d weitere Access Points zu vertrauten Netzwerken hinzugefügt</string>
     <string name="network_prompt_channel_name">Nachfragen zu neuen Netzwerken</string>
     <string name="network_prompt_channel_desc">Fragt nach, ob ein neu erkannter Access Point für Keep-Alive vertraut werden soll.</string>
     <string name="network_prompt_title">Neues WLAN / neuer Access Point erkannt</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">Keine App zum Öffnen dieses Links gefunden.</string>
     <string name="status_off_keep_alive_waiting">Drahtloses Debugging ist AUS – Keep-Alive wartet auf das Netzwerk</string>
     <string name="status_off_keep_alive_blocked_untrusted">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Dieses WLAN ist nicht vertraut</string>
+    <string name="status_off_keep_alive_blocked_by_user">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Dieses WLAN ist blockiert</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Netzwerk nicht lesbar, Standortberechtigung („Immer zulassen“) prüfen oder App neu öffnen</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Androids Systemdialog für Drahtloses Debugging bestätigen, dann zum erneuten Versuch antippen</string>
     <string name="status_pending">Wird umgeschaltet …</string>
@@ -542,4 +539,5 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="home_warning_limited_title">Keep-Alive ist eingeschränkt</string>
     <string name="home_warning_limited_text">Fehlende Einstellungen für zuverlässiges Keep-Alive: %1$d</string>
     <string name="status_tap_to_decide">Tippen, um zu entscheiden</string>
+    <string name="status_tap_to_open_list">Tippen, um die Netzwerkliste zu öffnen</string>
 </resources>

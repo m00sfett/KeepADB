@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Reativação automática pausada: a rede atual não é legível. Verifique a permissão/serviço de localização, ou reabra o aplicativo se o Keep-Alive tiver iniciado em segundo plano. Para uma solução permanente, defina a localização como “Permitir o tempo todo”.</string>
     <string name="settings_trusted_network_add_failed_toast">Não foi possível determinar a rede atual. Verifique a conexão Wi-Fi e a permissão de localização.</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" adicionada às redes fiáveis</string>
-    <string name="settings_trusted_network_mesh_title">Adicionar outros pontos de acesso?</string>
-    <string name="settings_trusted_network_mesh_message">O KeepADB também detectou %1$d outros pontos de acesso transmitindo \"%2$s\". Deseja adicioná-los também à lista de confiança?</string>
-    <string name="settings_trusted_network_mesh_add_button">Adicionar todos</string>
-    <string name="settings_trusted_network_mesh_added_toast">Adicionados %1$d pontos de acesso a mais às redes fiáveis</string>
     <string name="network_prompt_channel_name">Perguntas sobre redes novas</string>
     <string name="network_prompt_channel_desc">Pergunta se um ponto de acesso Wi-Fi recém-detetado deve ser fiável para o Keep-Alive.</string>
     <string name="network_prompt_title">Nova rede Wi-Fi ou ponto de acesso detetado</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">Nenhum app encontrado para abrir este link.</string>
     <string name="status_off_keep_alive_waiting">Depuração sem fio DESATIVADA – Keep-Alive aguarda a rede</string>
     <string name="status_off_keep_alive_blocked_untrusted">Depuração sem fio DESATIVADA – Keep-Alive em pausa: esta rede Wi-Fi não é fiável</string>
+    <string name="status_off_keep_alive_blocked_by_user">Depuração sem fio DESATIVADA – Keep-Alive em pausa: esta rede Wi-Fi está bloqueada</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Depuração sem fio DESATIVADA – Keep-Alive em pausa: rede ilegível, verifique a permissão de localização (“Permitir o tempo todo”) ou reabra o aplicativo</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Depuração sem fio DESATIVADA – Keep-Alive em pausa: confirme a caixa de diálogo de rede da depuração sem fio do Android e depois toque no interruptor para tentar novamente</string>
     <string name="status_pending">Alternando…</string>
@@ -542,4 +539,5 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="home_warning_limited_title">Keep-Alive limitado</string>
     <string name="home_warning_limited_text">Configurações ausentes para um Keep-Alive fiável: %1$d</string>
     <string name="status_tap_to_decide">Toque para decidir</string>
+    <string name="status_tap_to_open_list">Toque para abrir a lista de redes</string>
 </resources>

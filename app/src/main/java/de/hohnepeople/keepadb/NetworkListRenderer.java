@@ -61,7 +61,6 @@ final class NetworkListRenderer {
     private AlertDialog dialog;
 
     private Map<String, Integer> frequencies;
-    private Map<String, Integer> storedBands;
 
     NetworkListRenderer(Activity activity, LinearLayout root, Runnable onChanged) {
         this.activity = activity;
@@ -82,7 +81,6 @@ final class NetworkListRenderer {
         root.removeAllViews();
         root.setVisibility(View.VISIBLE);
         frequencies = KeepADBAccessPointBand.read(activity);
-        storedBands = KeepADBAccessPointBand.readStored(activity);
 
         addGlossary();
         addProtection();
@@ -114,7 +112,6 @@ final class NetworkListRenderer {
         root.removeAllViews();
         root.setVisibility(View.VISIBLE);
         frequencies = KeepADBAccessPointBand.read(activity);
-        storedBands = KeepADBAccessPointBand.readStored(activity);
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(activity);
         boolean wifiConnected = identity.isKnown() || KeepADBService.isWifiConnected(activity);
         KeepADBNetworkList.Snapshot snapshot =
@@ -299,7 +296,7 @@ final class NetworkListRenderer {
         String name = current.ssid == null
                 ? activity.getString(R.string.wifi_aps_ssid_unknown) : current.ssid;
         KeepADBNetworkList.Row row = current.row;
-        int band = KeepADBAccessPointBand.displayBand(frequencies, storedBands, current.bssid);
+        int band = KeepADBAccessPointBand.bandOf(frequencies, current.bssid);
         String bssidLine = KeepADBNetworkDisplay.bssidWithBand(activity, current.bssid, band);
 
         card.addView(titleLine(name, false, statusBadge(current.status), 18));
@@ -484,7 +481,7 @@ final class NetworkListRenderer {
 
         String custom = row.entry == null || row.entry.customName == null ? null
                 : KeepADBNetworkDisplay.customName(activity, row.entry.customName);
-        int band = KeepADBAccessPointBand.displayBand(frequencies, storedBands, row.bssid);
+        int band = KeepADBAccessPointBand.bandOf(frequencies, row.bssid);
         String bssidLine = KeepADBNetworkDisplay.bssidWithBand(activity, row.bssid, band);
         String title = custom != null ? custom : bssidLine;
         view.addView(titleLine(title, custom == null, statusBadge(row.status), 15));
@@ -511,7 +508,7 @@ final class NetworkListRenderer {
     /** What a tap on a saved access point offers: only what changes something in its state. */
     private void showAccessPointDialog(KeepADBNetworkList.Row row) {
         LinearLayout content = dialogContent();
-        int band = KeepADBAccessPointBand.displayBand(frequencies, storedBands, row.bssid);
+        int band = KeepADBAccessPointBand.bandOf(frequencies, row.bssid);
         String bssidLine = KeepADBNetworkDisplay.bssidWithBand(activity, row.bssid, band);
         String custom = row.entry == null || row.entry.customName == null ? null
                 : KeepADBNetworkDisplay.customName(activity, row.entry.customName);

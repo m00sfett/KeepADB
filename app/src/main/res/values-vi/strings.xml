@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Tự động bật lại đã tạm dừng: mạng hiện tại không đọc được. Kiểm tra quyền/dịch vụ vị trí, hoặc mở lại ứng dụng nếu Keep-Alive đã khởi động ở chế độ nền. Để khắc phục vĩnh viễn, đặt Vị trí thành “Luôn cho phép”.</string>
     <string name="settings_trusted_network_add_failed_toast">Không thể xác định mạng hiện tại. Kiểm tra kết nối Wi-Fi và quyền vị trí.</string>
     <string name="settings_trusted_network_added_toast">Đã thêm \"%1$s\" vào mạng tin cậy</string>
-    <string name="settings_trusted_network_mesh_title">Thêm các điểm truy cập khác?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB cũng đã phát hiện %1$d điểm truy cập khác phát tín hiệu \"%2$s\". Bạn có muốn thêm chúng vào danh sách tin cậy không?</string>
-    <string name="settings_trusted_network_mesh_add_button">Thêm tất cả</string>
-    <string name="settings_trusted_network_mesh_added_toast">Đã thêm %1$d điểm truy cập khác vào mạng tin cậy</string>
     <string name="network_prompt_channel_name">Hỏi về mạng mới</string>
     <string name="network_prompt_channel_desc">Hỏi xem điểm truy cập Wi-Fi vừa phát hiện có được tin cậy cho Keep-Alive hay không.</string>
     <string name="network_prompt_title">Đã phát hiện Wi-Fi / điểm truy cập mới</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">Không tìm thấy ứng dụng để mở liên kết này.</string>
     <string name="status_off_keep_alive_waiting">Gỡ lỗi không dây đang TẮT – Keep-Alive đang chờ mạng</string>
     <string name="status_off_keep_alive_blocked_untrusted">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: mạng Wi-Fi này không tin cậy</string>
+    <string name="status_off_keep_alive_blocked_by_user">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: mạng Wi-Fi này đã bị chặn</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: mạng không đọc được, hãy kiểm tra quyền Vị trí (“Luôn cho phép”) hoặc mở lại ứng dụng</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: hãy xác nhận hộp thoại mạng Gỡ lỗi không dây của Android, sau đó nhấn vào công tắc để thử lại</string>
     <string name="status_pending">Đang chuyển…</string>
@@ -542,4 +539,5 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="home_warning_limited_title">Keep-Alive bị hạn chế</string>
     <string name="home_warning_limited_text">Cài đặt còn thiếu để Keep-Alive hoạt động ổn định: %1$d</string>
     <string name="status_tap_to_decide">Chạm để quyết định</string>
+    <string name="status_tap_to_open_list">Chạm để mở danh sách mạng</string>
 </resources>

@@ -133,14 +133,13 @@ public class KeepADBNetworkListTest {
     public void aBlockedAccessPointStaysBlockedWithTheAddressAsReasonWhileItsNameIsTrusted() {
         KeepADBTrustedNetwork.addBssid(context, HOME_KITCHEN, HOME);
         KeepADBTrustedNetwork.setTrustByNameEnabled(context, true);
-        KeepADBBssidHistory.recordObservation(context, HOME, HOME_HALL, 5200);
         assertEquals("Control: the name trusts the sibling access point",
                 Status.TRUSTED_BY_NAME, KeepADBNetworkList.statusOf(context, HOME, HOME_HALL));
 
         KeepADBNetworkBlocklist.blockBssid(context, HOME_HALL);
 
         assertEquals(Status.BLOCKED, KeepADBNetworkList.statusOf(context, HOME, HOME_HALL));
-        Group home = build(null).groups.get(0);
+        Group home = build(new KeepADBNetworkIdentity(HOME, HOME_HALL)).groups.get(0);
         assertEquals(2, home.rows.size());
         assertEquals(HOME_KITCHEN, home.rows.get(0).bssid);
         assertEquals(Status.TRUSTED, home.rows.get(0).status);
@@ -156,13 +155,12 @@ public class KeepADBNetworkListTest {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         KeepADBTrustedNetwork.addSsid(context, HOME);
         KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
-        KeepADBBssidHistory.recordObservation(context, HOME, HOME_HALL, 5200);
         assertEquals("Control: the name list trusts the access point",
                 Status.TRUSTED_BY_NAME, KeepADBNetworkList.statusOf(context, HOME, HOME_HALL));
 
         KeepADBNetworkBlocklist.blockBssid(context, HOME_HALL);
 
-        Row blocked = onlyRow(build(null));
+        Row blocked = onlyRow(build(new KeepADBNetworkIdentity(HOME, HOME_HALL)));
         assertEquals(Status.BLOCKED, blocked.status);
         assertEquals(Reason.ACCESS_POINT, blocked.reason);
     }
@@ -294,9 +292,8 @@ public class KeepADBNetworkListTest {
         KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP);
         KeepADBNetworkBlocklist.blockSsid(context, "Gast");
         KeepADBNetworkBlocklist.blockSsid(context, CAFE);
-        KeepADBBssidHistory.recordObservation(context, CAFE, CAFE_AP);
 
-        Snapshot snapshot = build(null);
+        Snapshot snapshot = build(new KeepADBNetworkIdentity(CAFE, CAFE_AP));
 
         List<String> names = new ArrayList<>();
         for (Group group : snapshot.groups) names.add(group.ssid);
@@ -305,7 +302,7 @@ public class KeepADBNetworkListTest {
         assertEquals(2, snapshot.groups.get(0).rows.size());
         assertEquals("The access point with an own name sorts by it", HOME_KITCHEN,
                 snapshot.groups.get(0).rows.get(0).bssid);
-        assertEquals("The name of a blocked address comes from the observation",
+        assertEquals("The name of a blocked address comes from the current connection",
                 CAFE, snapshot.groups.get(1).rows.get(0).ssid);
         assertEquals(Reason.ACCESS_POINT, snapshot.groups.get(1).rows.get(0).reason);
         assertTrue(snapshot.groups.get(2).rows.isEmpty());

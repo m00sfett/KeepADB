@@ -2,11 +2,9 @@ package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
@@ -32,8 +30,8 @@ import de.hohnepeople.keepadb.KeepADBNetworkList.Group;
 import de.hohnepeople.keepadb.KeepADBNetworkList.Snapshot;
 
 /**
- * #778: the old observation history is discarded once on update, nothing else is touched, and the
- * three readers that still look at it degrade to "nothing known" without a crash.
+ * #778: the old observation history is discarded once on update and nothing else is touched.
+ * #788: the readers of that history are gone, so a leftover history changes nothing that is shown.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -66,19 +64,16 @@ public class KeepADBBssidHistoryDiscardTest {
     @Test
     public void theHistoryIsGoneAfterTheDiscardAndEveryOtherKeyIsExactlyAsBefore() {
         seedInstallation();
-        assertFalse(KeepADBBssidHistory.getRecentObservations(context).isEmpty());
-        assertFalse(KeepADBBssidHistory.getStoredBands(context).isEmpty());
         Map<String, Object> before = everyPreference();
         Map<String, Object> expected = new TreeMap<>(before);
         expected.keySet().removeIf(key -> key.startsWith("bssid_history_"));
         assertTrue("The seed holds history keys", before.size() > expected.size());
         assertTrue(before.containsKey(KeepADBPreferences.KEY_WIFI_APS_FEATURE_ENABLED));
 
+        assertFalse(historyKeys().isEmpty());
         assertTrue(KeepADBBssidHistory.discardLegacyOnce(context));
 
-        assertTrue(KeepADBBssidHistory.getRecentObservations(context).isEmpty());
-        assertTrue(KeepADBBssidHistory.getKnownBssids(context, MESH).isEmpty());
-        assertTrue(KeepADBBssidHistory.getStoredBands(context).isEmpty());
+        assertTrue("No history key is left", historyKeys().isEmpty());
         Map<String, Object> after = everyPreference();
         assertEquals(Boolean.TRUE, after.remove(KeepADBBssidHistory.KEY_LEGACY_DISCARDED));
         assertEquals("Every key that is not history is untouched, value for value", expected, after);
@@ -90,10 +85,10 @@ public class KeepADBBssidHistoryDiscardTest {
         assertTrue(KeepADBBssidHistory.discardLegacyOnce(context));
 
         // Something recorded later is no legacy data: the second run must leave it alone.
-        KeepADBBssidHistory.recordObservation(context, MESH, MESH_AP, KeepADBAccessPointBand.GHZ_5);
+        prefs().edit().putString("bssid_history_9_ssid", MESH).commit();
         assertFalse(KeepADBBssidHistory.discardLegacyOnce(context));
 
-        assertEquals(1, KeepADBBssidHistory.getRecentObservations(context).size());
+        assertEquals(MESH, prefs().getString("bssid_history_9_ssid", null));
     }
 
     @Test
@@ -125,32 +120,23 @@ public class KeepADBBssidHistoryDiscardTest {
         seedInstallation();
         new BootReceiver().onReceive(context, new Intent(Intent.ACTION_MY_PACKAGE_REPLACED));
         assertTrue(prefs().getBoolean(KeepADBBssidHistory.KEY_LEGACY_DISCARDED, false));
-        assertTrue(KeepADBBssidHistory.getRecentObservations(context).isEmpty());
+        assertTrue(historyKeys().isEmpty());
 
         prefs().edit().clear().commit();
         seedInstallation();
         KeepADBOnboarding.setAutoStartEnabledForTesting(false);
         Robolectric.buildActivity(MainActivity.class).setup().pause().stop().destroy();
         assertTrue(prefs().getBoolean(KeepADBBssidHistory.KEY_LEGACY_DISCARDED, false));
-        assertTrue(KeepADBBssidHistory.getRecentObservations(context).isEmpty());
+        assertTrue(historyKeys().isEmpty());
     }
 
     @Test
-    public void theReadersDegradeToNothingKnownAfterTheDiscard() {
+    public void theBlockedAccessPointHasNoNameAfterTheDiscard() {
         seedInstallation();
         KeepADBBssidHistory.discardLegacyOnce(context);
         connectTo(MESH, MESH_AP);
 
-        // Mesh offer (#686): nothing to offer, no crash.
-        Activity activity = Robolectric.buildActivity(NetworkListActivity.class,
-                new Intent(context, NetworkListActivity.class)).setup().get();
-        assertNull(KeepADBNetworkActions.offerAdditionalMeshBssids(activity, null));
-
-        // Stored bands: empty although the option is still on.
-        assertTrue(KeepADBPreferences.isWifiApsFeatureEnabled(context));
-        assertTrue(KeepADBAccessPointBand.readStored(context).isEmpty());
-
-        // List: the blocked access point without a trust entry has no name any more.
+        // The blocked access point without a trust entry has no name any more.
         Snapshot snapshot = KeepADBNetworkList.build(context,
                 new KeepADBNetworkIdentity(MESH, MESH_AP), true);
         Group unnamed = null;
@@ -163,18 +149,20 @@ public class KeepADBBssidHistoryDiscardTest {
     }
 
     @Test
-    public void withoutTheDiscardTheBlockedAccessPointKeepsItsObservedName() {
+    public void aLeftoverHistoryNamesNothingBecauseNoReaderIsLeft() {
         seedInstallation();
 
         Snapshot snapshot = KeepADBNetworkList.build(context,
                 new KeepADBNetworkIdentity(MESH, MESH_AP), true);
 
-        boolean named = false;
+        Group unnamed = null;
         for (Group group : snapshot.groups) {
-            if ("Cafe".equals(group.ssid)) named = true;
-            assertTrue(group.ssid != null || group.rows.isEmpty());
+            assertFalse("The history must not name the access point", "Cafe".equals(group.ssid));
+            if (group.ssid == null) unnamed = group;
         }
-        assertTrue("Control: the history is what named it", named);
+        assertTrue("The blocked access point stays in the group of unknown names",
+                unnamed != null && unnamed.rows.size() == 1
+                        && BLOCKED_AP.equalsIgnoreCase(unnamed.rows.get(0).bssid));
     }
 
     private void seedInstallation() {
@@ -187,13 +175,30 @@ public class KeepADBBssidHistoryDiscardTest {
         KeepADBNetworkBlocklist.blockSsid(context, "Gastnetz");
         assertTrue(KeepADBTrustedNetwork.setCustomName(context,
                 KeepADBTrustedNetwork.getEntries(context).get(0).id, "Kueche"));
-        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
+        prefs().edit().putBoolean(KeepADBPreferences.KEY_WIFI_APS_FEATURE_ENABLED, true).commit();
         KeepADBPreferences.setOnboardingCompletedVersion(context, 1);
         KeepADBBlockedNetworkHistory.record(context,
                 new KeepADBNetworkIdentity("Cafe", BLOCKED_AP), 1_000L);
         prefs().edit().putBoolean(KeepADBPreferences.KEY_ONBOARDING_EXISTING_INSTALL, true).commit();
-        KeepADBBssidHistory.recordObservation(context, MESH, MESH_AP, KeepADBAccessPointBand.GHZ_5);
-        KeepADBBssidHistory.recordObservation(context, "Cafe", BLOCKED_AP, KeepADBAccessPointBand.GHZ_2_4);
+        // The history as the former writer stored it: ids, one name and address list per id, bands.
+        prefs().edit()
+                .putInt("bssid_history_next_id", 3)
+                .putString("bssid_history_ssid_ids", "1,2")
+                .putString("bssid_history_1_ssid", MESH)
+                .putString("bssid_history_1_bssids", MESH_AP)
+                .putString("bssid_history_1_bands", MESH_AP.toUpperCase() + "=2")
+                .putString("bssid_history_2_ssid", "Cafe")
+                .putString("bssid_history_2_bssids", BLOCKED_AP)
+                .putString("bssid_history_2_bands", BLOCKED_AP.toUpperCase() + "=1")
+                .commit();
+    }
+
+    private java.util.Set<String> historyKeys() {
+        java.util.Set<String> keys = new java.util.TreeSet<>();
+        for (String key : prefs().getAll().keySet()) {
+            if (key.startsWith("bssid_history_")) keys.add(key);
+        }
+        return keys;
     }
 
     private void connectTo(String ssid, String bssid) {

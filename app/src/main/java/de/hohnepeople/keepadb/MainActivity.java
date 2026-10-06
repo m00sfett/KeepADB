@@ -13,6 +13,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
+    /**
+     * #782: set by a single assistant step opened from a notification when it leaves for the home
+     * screen: this start does not hand over to the full assistant (the next plain start does).
+     */
+    static final String EXTRA_SKIP_ASSISTANT_ONCE = "skip_assistant_once";
+
     private Switch toggle;
     private Switch keepAliveToggle;
     private Switch hideNotificationToggle;
@@ -56,7 +62,8 @@ public class MainActivity extends Activity {
         // #761: the first time (and again after a newer assistant version), the setup assistant
         // takes the place of the home screen; it opens the home screen when it is closed. The
         // existing/new decision is stored here, before anything else on this screen writes.
-        if (KeepADBOnboarding.shouldAutoStart(this)) {
+        if (!getIntent().getBooleanExtra(EXTRA_SKIP_ASSISTANT_ONCE, false)
+                && KeepADBOnboarding.shouldAutoStart(this)) {
             KeepADBOnboarding.isExistingInstall(this);
             startActivity(OnboardingActivity.autoStartIntent(this));
             handedOverToAssistant = true;
@@ -324,8 +331,15 @@ public class MainActivity extends Activity {
             // like KeepADB simply failed to notice a live Wi-Fi connection.
             KeepAliveWaitingDetail detail = resolveKeepAliveWaitingDetail(this);
             if (detail == KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK) {
-                status.setText(getString(R.string.status_off_keep_alive_blocked_untrusted)
-                        + "\n" + getString(R.string.status_tap_to_decide));
+                // #790: a network the user blocked is not "not trusted yet": say so, and lead to
+                // the list where the block can be lifted instead of to a question with no answer.
+                boolean blocked = KeepADBTrustedNetwork.evaluate(this,
+                        KeepADBNetworkIdentity.current(this)).isBlocked();
+                status.setText(getString(blocked
+                                ? R.string.status_off_keep_alive_blocked_by_user
+                                : R.string.status_off_keep_alive_blocked_untrusted)
+                        + "\n" + getString(blocked ? R.string.status_tap_to_open_list
+                                : R.string.status_tap_to_decide));
                 makeStatusDecisionEntry();
             } else if (detail == KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE) {
                 status.setText(getString(R.string.status_off_keep_alive_blocked_identity_unavailable));
@@ -449,7 +463,9 @@ public class MainActivity extends Activity {
      * #764 (UX concept 5.3): the status line "this Wi-Fi isn't trusted" is the shortest way from
      * "why does it not switch on?" to the answer, so it opens the trust decision for the access
      * point the device is on. It only carries the BSSID as a selector, like the notification does;
-     * the dialog resolves everything else itself and says so when there is nothing to decide.
+     * the dialog resolves everything else itself. #790: where the network is already decided
+     * (blocked, or trusted in the meantime) there is no question left, so the tap opens the
+     * Networks list instead, whose top card is the current network.
      */
     private void makeStatusDecisionEntry() {
         status.setBackgroundResource(R.drawable.bg_card_clickable);
@@ -458,8 +474,18 @@ public class MainActivity extends Activity {
         status.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
         status.setClickable(true);
         status.setFocusable(true);
-        status.setOnClickListener(v -> startActivity(KeepADBNetworkTrustPrompt.decisionIntent(
-                this, KeepADBNetworkIdentity.current(this).bssid)));
+        status.setOnClickListener(v -> startActivity(statusEntryIntent()));
+    }
+
+    /** Where the tap on the status line leads, read when tapped so a decision in between counts. */
+    private Intent statusEntryIntent() {
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(this);
+        KeepADBTrustedNetwork.Decision decision = KeepADBTrustedNetwork.evaluate(this, identity);
+        boolean decided = decision.isBlocked()
+                || decision == KeepADBTrustedNetwork.Decision.TRUSTED_ACCESS_POINT
+                || decision == KeepADBTrustedNetwork.Decision.TRUSTED_NAME;
+        return decided ? NetworkListActivity.intent(this)
+                : KeepADBNetworkTrustPrompt.decisionIntent(this, identity.bssid);
     }
 
     private void clearStatusDecisionEntry() {

@@ -296,7 +296,7 @@ public class KeepADBTrustMigrationTest {
         Legacy legacy = new Legacy("allowlist", true, true, true);
         legacy.seed(prefs(), true);
         KeepADBBlockedNetworkHistory.record(context, new KeepADBNetworkIdentity("Cafe", "cc:cc:cc:cc:cc:01"), 5L);
-        KeepADBBssidHistory.recordObservation(context, "Mesh", "11:22:33:44:55:66");
+        seedObservationHistory();
         Map<String, ?> before = new HashMap<>(prefs().getAll());
         assertFalse("Precondition: the legacy data is there", before.isEmpty());
 
@@ -311,7 +311,7 @@ public class KeepADBTrustMigrationTest {
         Legacy legacy = new Legacy("all_wifi", true, true, true);
         legacy.seed(prefs(), false);
         KeepADBBlockedNetworkHistory.record(context, new KeepADBNetworkIdentity("Cafe", "cc:cc:cc:cc:cc:01"), 5L);
-        KeepADBBssidHistory.recordObservation(context, "Mesh", "11:22:33:44:55:66");
+        seedObservationHistory();
         Map<String, Object> before = new HashMap<>(prefs().getAll());
 
         exerciseEveryRead();
@@ -326,14 +326,14 @@ public class KeepADBTrustMigrationTest {
     }
 
     @Test
-    public void historyAndObservationStoresKeepWorkingAndAreNotMigratedIntoTheModel() {
+    public void historyAndObservationStoresStayUntouchedAndAreNotMigratedIntoTheModel() {
         KeepADBBlockedNetworkHistory.record(context, new KeepADBNetworkIdentity("Cafe", "cc:cc:cc:cc:cc:01"), 5L);
-        KeepADBBssidHistory.recordObservation(context, "Mesh", "11:22:33:44:55:66");
+        seedObservationHistory();
 
         exerciseEveryRead();
 
         assertEquals(1, KeepADBBlockedNetworkHistory.getEntries(context).size());
-        assertEquals(1, KeepADBBssidHistory.getKnownBssids(context, "Mesh").size());
+        assertEquals("11:22:33:44:55:66", prefs().getString("bssid_history_1_bssids", null));
         // They never had trust meaning and still have none: neither the recorded nor the observed
         // access point is trusted or blocked because of them.
         assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
@@ -342,6 +342,13 @@ public class KeepADBTrustMigrationTest {
         assertFalse(KeepADBTrustedNetwork.isCurrentNetworkTrusted(context));
         assertEquals(KeepADBTrustedNetwork.Decision.UNKNOWN_NETWORK,
                 KeepADBTrustedNetwork.evaluateCurrent(context));
+    }
+
+    /** The observation history as the former writer stored it (#788: nothing writes it any more). */
+    private void seedObservationHistory() {
+        prefs().edit().putString("bssid_history_ssid_ids", "1").putInt("bssid_history_next_id", 2)
+                .putString("bssid_history_1_ssid", "Mesh")
+                .putString("bssid_history_1_bssids", "11:22:33:44:55:66").commit();
     }
 
     // --- Downgrade stays readable ---------------------------------------------------------------------------

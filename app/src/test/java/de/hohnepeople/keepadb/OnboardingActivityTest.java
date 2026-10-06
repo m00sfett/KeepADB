@@ -369,12 +369,13 @@ public class OnboardingActivityTest {
     }
 
     /**
-     * A notification target tapped before the assistant was ever closed: leaving the single step
-     * opens the home screen, which hands over to the full assistant once; every way out of that
-     * (here Back on its intro) marks it closed, so the home screen stays. A detour, not a loop.
+     * A notification target tapped before the assistant was ever closed (#782): leaving the single
+     * step opens the home screen, which stays -- the one answered question does not turn into the
+     * full assistant. Only the next plain start hands over, once; every way out of that (here Back
+     * on its intro) marks it closed. No detour after the step, and no loop.
      */
     @Test
-    public void aNotificationTargetBeforeTheFirstCloseCostsOneDetourAndNoLoop() {
+    public void aNotificationTargetBeforeTheFirstCloseDoesNotHandOverAfterTheStepAndNoLoop() {
         OnboardingActivity single = start(OnboardingActivity.notificationIntent(context,
                 KeepADBOnboarding.Step.PERMISSIONS, OnboardingActionSteps.Permissions.ITEM_SYSTEM));
         click(single, R.id.onboarding_next); // Done
@@ -385,8 +386,16 @@ public class OnboardingActivityTest {
         ActivityController<MainActivity> main =
                 Robolectric.buildActivity(MainActivity.class, home).setup();
         controllers.add(main);
-        Intent handOver = shadowOf(main.get()).getNextStartedActivity();
-        assertTrue(main.get().isFinishing());
+        assertFalse("the home screen stays after the single step", main.get().isFinishing());
+        assertNull(shadowOf(main.get()).peekNextStartedActivity());
+        assertEquals("the assistant is still not closed", 0,
+                KeepADBPreferences.getOnboardingCompletedVersion(context));
+
+        // The next plain start hands over to the full assistant once, as before.
+        ActivityController<MainActivity> plain = Robolectric.buildActivity(MainActivity.class).setup();
+        controllers.add(plain);
+        Intent handOver = shadowOf(plain.get()).getNextStartedActivity();
+        assertTrue(plain.get().isFinishing());
         assertEquals(OnboardingActivity.class.getName(), handOver.getComponent().getClassName());
         assertNull("the hand-over is the full assistant", handOver.getStringExtra(OnboardingActivity.EXTRA_STEP));
 

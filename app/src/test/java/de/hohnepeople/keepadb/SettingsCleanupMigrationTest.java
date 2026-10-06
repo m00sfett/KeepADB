@@ -139,10 +139,10 @@ public class SettingsCleanupMigrationTest {
                 KeepADBTrustedNetwork.evaluate(context, unknownNode));
     }
 
-    /** The card does not feed the observation history any more; the recorder itself still works. */
+    /** The card does not feed the observation history; nothing writes it any more (#788). */
     @Test
     public void theCardRecordsNoObservationWhateverTheStoredOptionSays() {
-        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
+        prefs().edit().putBoolean(KeepADBPreferences.KEY_WIFI_APS_FEATURE_ENABLED, true).commit();
         connectTo(MESH, MESH_AP);
 
         ActivityController<SettingsActivity> settings =
@@ -152,13 +152,11 @@ public class SettingsCleanupMigrationTest {
         settings.get().refresh();
         settings.pause().stop().destroy();
 
-        assertTrue("Opening Settings records nothing", KeepADBBssidHistory
-                .getRecentObservations(context).isEmpty());
-        assertTrue("The stored option itself is kept", KeepADBPreferences.isWifiApsFeatureEnabled(context));
-
-        // The other side: the recorder works, so an empty history above is the card's doing.
-        KeepADBBssidHistory.recordObservation(context, MESH, MESH_AP, 5200);
-        assertEquals(1, KeepADBBssidHistory.getRecentObservations(context).size());
+        for (String key : prefs().getAll().keySet()) {
+            assertFalse("Opening Settings records nothing: " + key, key.startsWith("bssid_history_"));
+        }
+        assertTrue("The stored option itself is kept",
+                prefs().getBoolean(KeepADBPreferences.KEY_WIFI_APS_FEATURE_ENABLED, false));
     }
 
     private void seedLegacyInstallation(boolean wide) {
@@ -174,8 +172,10 @@ public class SettingsCleanupMigrationTest {
         // The own name of a saved access point (trusted_network_<id>_name) is stored data too.
         assertTrue(KeepADBTrustedNetwork.setCustomName(context,
                 KeepADBTrustedNetwork.getEntries(context).get(0).id, "Kueche"));
-        KeepADBPreferences.setWifiApsFeatureEnabled(context, true);
-        KeepADBBssidHistory.recordObservation(context, MESH, MESH_AP, 5200);
+        prefs().edit().putBoolean(KeepADBPreferences.KEY_WIFI_APS_FEATURE_ENABLED, true)
+                .putString("bssid_history_ssid_ids", "1").putInt("bssid_history_next_id", 2)
+                .putString("bssid_history_1_ssid", MESH).putString("bssid_history_1_bssids", MESH_AP)
+                .commit();
         KeepADBBlockedNetworkHistory.record(context,
                 new KeepADBNetworkIdentity("Cafe", BLOCKED_AP), 1_000L);
     }

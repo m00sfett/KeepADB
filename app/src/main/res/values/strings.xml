@@ -114,10 +114,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Keep-Alive auto re-enable is paused: the current network is unreadable. Check the location permission/service, or reopen the app if Keep-Alive started in the background. For a permanent fix, set Location to “Allow all the time”.</string>
     <string name="settings_trusted_network_add_failed_toast">Couldn\'t determine the current network. Check that Wi-Fi is connected and Location permission is granted.</string>
     <string name="settings_trusted_network_added_toast">Added \"%1$s\" to trusted networks</string>
-    <string name="settings_trusted_network_mesh_title">Add other access points?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB has also seen %1$d other access points broadcasting \"%2$s\". Add them to your trusted list too?</string>
-    <string name="settings_trusted_network_mesh_add_button">Add all</string>
-    <string name="settings_trusted_network_mesh_added_toast">Added %1$d more access points to trusted networks</string>
     <string name="network_prompt_channel_name">New network prompts</string>
     <string name="network_prompt_channel_desc">Asks whether a newly detected Wi-Fi access point should be trusted for Keep-Alive.</string>
     <string name="network_prompt_title">New Wi-Fi / access point detected</string>
@@ -306,6 +302,7 @@
     <string name="settings_no_browser_found">No app found to open this link.</string>
     <string name="status_off_keep_alive_waiting">Wireless Debugging is OFF – Keep-Alive is waiting for the network</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wireless Debugging is OFF – Keep-Alive is paused: this Wi-Fi network isn\'t trusted</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wireless Debugging is OFF – Keep-Alive is paused: this Wi-Fi network is blocked</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wireless Debugging is OFF – Keep-Alive is paused: network unreadable, check Location permission (“Allow all the time”) or reopen the app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wireless Debugging is OFF – Keep-Alive is paused: confirm Android\'s Wireless Debugging network dialog, then tap the switch to retry</string>
     <string name="status_pending">Switching…</string>
@@ -551,4 +548,5 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="home_warning_limited_title">Keep-Alive is limited</string>
     <string name="home_warning_limited_text">Settings missing for reliable Keep-Alive: %1$d</string>
     <string name="status_tap_to_decide">Tap to decide</string>
+    <string name="status_tap_to_open_list">Tap to open the network list</string>
 </resources>

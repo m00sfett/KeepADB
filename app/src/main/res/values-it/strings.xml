@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Riattivazione automatica in pausa: la rete attuale non è leggibile. Controlla il permesso/servizio di localizzazione, oppure riapri l\'app se Keep-Alive è stato avviato in background. Per una soluzione permanente imposta la posizione su «Consenti sempre».</string>
     <string name="settings_trusted_network_add_failed_toast">Impossibile determinare la rete attuale. Controlla la connessione Wi-Fi e l\'autorizzazione alla posizione.</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" aggiunta alle reti affidabili</string>
-    <string name="settings_trusted_network_mesh_title">Aggiungere altri punti di accesso?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB ha rilevato anche %1$d altri punti di accesso che trasmettono \"%2$s\". Vuoi aggiungerli anche alla lista affidabile?</string>
-    <string name="settings_trusted_network_mesh_add_button">Aggiungi tutti</string>
-    <string name="settings_trusted_network_mesh_added_toast">Aggiunti %1$d punti di accesso in più alle reti affidabili</string>
     <string name="network_prompt_channel_name">Richieste per reti nuove</string>
     <string name="network_prompt_channel_desc">Chiede se un punto di accesso Wi-Fi appena rilevato debba essere considerato affidabile per Keep-Alive.</string>
     <string name="network_prompt_title">Rilevata nuova rete Wi-Fi o nuovo punto di accesso</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">Nessuna app trovata per aprire questo link.</string>
     <string name="status_off_keep_alive_waiting">Debug wireless DISATTIVO – Keep-Alive attende la rete</string>
     <string name="status_off_keep_alive_blocked_untrusted">Debug wireless DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi non è affidabile</string>
+    <string name="status_off_keep_alive_blocked_by_user">Debug wireless DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi è bloccata</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Debug wireless DISATTIVO – Keep-Alive in pausa: rete non leggibile, controlla il permesso Posizione («Consenti sempre») o riapri l\'app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Debug wireless DISATTIVO – Keep-Alive in pausa: conferma la finestra di dialogo di rete del debug wireless di Android, poi tocca l\'interruttore per riprovare</string>
     <string name="status_pending">Cambio in corso…</string>
@@ -542,4 +539,5 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="home_warning_limited_title">Keep-Alive limitato</string>
     <string name="home_warning_limited_text">Impostazioni mancanti per un Keep-Alive affidabile: %1$d</string>
     <string name="status_tap_to_decide">Tocca per decidere</string>
+    <string name="status_tap_to_open_list">Tocca per aprire l\'elenco delle reti</string>
 </resources>

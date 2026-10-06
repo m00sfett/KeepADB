@@ -31,8 +31,7 @@ import java.util.TreeSet;
  *
  * <p>Rows are the trusted entries and the blocked access points; a blocked Wi-Fi name without a
  * saved access point is a group of its own. The Wi-Fi name of a row is the one its trust was
- * given under, else the current connection's, else the one last observed for that address.
- * Observation history is read here only to put a name on an address; it adds no row.
+ * given under, else the current connection's; an address with neither is listed without a name.
  */
 final class KeepADBNetworkList {
 
@@ -156,7 +155,6 @@ final class KeepADBNetworkList {
         String currentBssid = live.isKnown() ? upper(live.bssid) : null;
         String currentSsid = live.displaySsid();
 
-        Map<String, String> observedNames = observedNames(context);
         Set<String> blockedSsids = new TreeSet<>(KeepADBNetworkBlocklist.getBlockedSsids(context));
 
         // One row per access point: trusted entries first, then the ones that are only blocked.
@@ -178,7 +176,6 @@ final class KeepADBNetworkList {
             KeepADBTrustedNetwork.Entry entry = entries.get(key);
             String ssid = entry == null ? null : entry.ssid();
             if (ssid == null && key.equals(currentBssid)) ssid = currentSsid;
-            if (ssid == null) ssid = observedNames.get(key);
             rows.add(row(context, address.getValue(), ssid, entry, key.equals(currentBssid)));
         }
 
@@ -333,20 +330,6 @@ final class KeepADBNetworkList {
 
     private static String ownName(Row row) {
         return row.entry != null && row.entry.customName != null ? row.entry.customName : "";
-    }
-
-    /** The Wi-Fi name last observed per address (upper case), newest first. */
-    private static Map<String, String> observedNames(Context context) {
-        Map<String, String> names = new HashMap<>();
-        for (KeepADBBssidHistory.Observation observation
-                : KeepADBBssidHistory.getRecentObservations(context)) {
-            if (observation.bssid == null || observation.ssid == null
-                    || observation.ssid.isEmpty()) {
-                continue;
-            }
-            names.putIfAbsent(upper(observation.bssid), observation.ssid);
-        }
-        return names;
     }
 
     private static String upper(String bssid) {

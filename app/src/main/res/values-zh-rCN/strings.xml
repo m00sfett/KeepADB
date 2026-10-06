@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">自动重新启用已暂停:当前网络无法读取。请检查定位权限/服务，如果 Keep-Alive 是在后台启动的，请重新打开应用；也可将位置信息权限设为“始终允许”以永久解决。</string>
     <string name="settings_trusted_network_add_failed_toast">无法确定当前网络。请检查 Wi-Fi 连接和位置权限。</string>
     <string name="settings_trusted_network_added_toast">已将"%1$s"添加到已信任的网络</string>
-    <string name="settings_trusted_network_mesh_title">是否添加其他接入点?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB 还检测到 %1$d 个广播\"%2$s\"的其他接入点。是否也将它们添加到已信任列表?</string>
-    <string name="settings_trusted_network_mesh_add_button">全部添加</string>
-    <string name="settings_trusted_network_mesh_added_toast">已将另外 %1$d 个接入点添加到已信任的网络</string>
     <string name="network_prompt_channel_name">新网络询问</string>
     <string name="network_prompt_channel_desc">询问新发现的 Wi-Fi 接入点是否可用于 Keep-Alive 的信任列表。</string>
     <string name="network_prompt_title">发现新的 Wi-Fi / 接入点</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">未找到可打开此链接的应用。</string>
     <string name="status_off_keep_alive_waiting">无线调试已关闭 – Keep-Alive 正在等待网络</string>
     <string name="status_off_keep_alive_blocked_untrusted">无线调试已关闭 – Keep-Alive 已暂停:此 Wi-Fi 网络未信任</string>
+    <string name="status_off_keep_alive_blocked_by_user">无线调试已关闭 – Keep-Alive 已暂停:此 Wi-Fi 网络已被拦截</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">无线调试已关闭 – Keep-Alive 已暂停:网络无法读取,请检查位置权限（“始终允许”）或重新打开应用</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">无线调试已关闭 – Keep-Alive 已暂停:请确认 Android 的无线调试网络对话框,然后点按开关重试</string>
     <string name="status_pending">正在切换…</string>
@@ -542,4 +539,5 @@
     <string name="home_warning_limited_title">Keep-Alive 受限</string>
     <string name="home_warning_limited_text">要让 Keep-Alive 稳定运行，还缺少的设置：%1$d</string>
     <string name="status_tap_to_decide">点按以决定</string>
+    <string name="status_tap_to_open_list">点按以打开网络列表</string>
 </resources>

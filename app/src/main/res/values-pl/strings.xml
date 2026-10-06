@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Automatyczne ponowne włączanie wstrzymane: bieżąca sieć jest nieczytelna. Sprawdź uprawnienie/usługę lokalizacji lub otwórz aplikację ponownie, jeśli Keep-Alive uruchomił się w tle. Trwale pomaga ustawienie lokalizacji na „Zezwalaj zawsze”.</string>
     <string name="settings_trusted_network_add_failed_toast">Nie można określić bieżącej sieci. Sprawdź połączenie Wi-Fi i uprawnienie lokalizacji.</string>
     <string name="settings_trusted_network_added_toast">Dodano „%1$s” do zaufanych sieci</string>
-    <string name="settings_trusted_network_mesh_title">Dodać inne punkty dostępowe?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB wykrył także %1$d innych punktów dostępowych nadających „%2$s”. Dodać je również do zaufanych sieci?</string>
-    <string name="settings_trusted_network_mesh_add_button">Dodaj wszystkie</string>
-    <string name="settings_trusted_network_mesh_added_toast">Dodano %1$d dodatkowych punktów dostępowych do zaufanych sieci</string>
     <string name="network_prompt_channel_name">Pytania o nowe sieci</string>
     <string name="network_prompt_channel_desc">Pyta, czy nowo wykryty punkt dostępowy Wi-Fi ma być zaufany dla Keep-Alive.</string>
     <string name="network_prompt_title">Wykryto nową sieć Wi-Fi lub nowy punkt dostępowy</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">Nie znaleziono aplikacji do otwarcia tego linku.</string>
     <string name="status_off_keep_alive_waiting">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive czeka na sieć</string>
     <string name="status_off_keep_alive_blocked_untrusted">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: ta sieć Wi-Fi nie jest zaufana</string>
+    <string name="status_off_keep_alive_blocked_by_user">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: ta sieć Wi-Fi jest zablokowana</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: sieć jest nieczytelna, sprawdź uprawnienie lokalizacji („Zezwalaj zawsze”) lub otwórz aplikację ponownie</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Debugowanie bezprzewodowe: WYŁĄCZONE – Keep-Alive wstrzymane: potwierdź okno dialogowe sieci debugowania bezprzewodowego Androida, a następnie dotknij przełącznika, aby spróbować ponownie</string>
     <string name="status_pending">Przełączanie…</string>
@@ -542,4 +539,5 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="home_warning_limited_title">Keep-Alive ograniczone</string>
     <string name="home_warning_limited_text">Brakujące ustawienia dla niezawodnego Keep-Alive: %1$d</string>
     <string name="status_tap_to_decide">Dotknij, aby zdecydować</string>
+    <string name="status_tap_to_open_list">Dotknij, aby otworzyć listę sieci</string>
 </resources>

@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">自動再有効化は一時停止中です:現在のネットワークを読み取れません。位置情報の権限/サービスを確認するか、Keep-Aliveがバックグラウンドで起動した場合はアプリを開き直すか、位置情報を「常に許可」にして恒久的に解決してください。</string>
     <string name="settings_trusted_network_add_failed_toast">現在のネットワークを判別できませんでした。Wi-Fi接続と位置情報の権限を確認してください。</string>
     <string name="settings_trusted_network_added_toast">「%1$s」を信頼済みネットワークに追加しました</string>
-    <string name="settings_trusted_network_mesh_title">他のアクセスポイントも追加しますか?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADBは他に%1$d件のアクセスポイントが「%2$s」を発信しているのを検出しました。信頼済みネットワークに追加しますか?</string>
-    <string name="settings_trusted_network_mesh_add_button">すべて追加</string>
-    <string name="settings_trusted_network_mesh_added_toast">%1$d件のアクセスポイントを信頼済みネットワークに追加しました</string>
     <string name="network_prompt_channel_name">新しいネットワークの確認</string>
     <string name="network_prompt_channel_desc">新しく検出された Wi-Fi アクセスポイントを Keep-Alive で信頼するかどうかを確認します。</string>
     <string name="network_prompt_title">新しい Wi-Fi / アクセスポイントを検出しました</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">このリンクを開けるアプリが見つかりません。</string>
     <string name="status_off_keep_alive_waiting">ワイヤレスデバッグは OFF です – Keep-Alive がネットワークを待機中</string>
     <string name="status_off_keep_alive_blocked_untrusted">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークは信頼されていません</string>
+    <string name="status_off_keep_alive_blocked_by_user">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークはブロックされています</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:ネットワークを読み取れません。位置情報の権限（「常に許可」）を確認するか、アプリを開き直してください</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:Android のワイヤレスデバッグ ネットワークダイアログを確認し、スイッチをタップして再試行してください</string>
     <string name="status_pending">切り替え中…</string>
@@ -542,4 +539,5 @@
     <string name="home_warning_limited_title">Keep-Alive が制限されています</string>
     <string name="home_warning_limited_text">Keep-Alive を確実に動かすために足りない設定：%1$d</string>
     <string name="status_tap_to_decide">タップして決定</string>
+    <string name="status_tap_to_open_list">タップしてネットワーク一覧を開く</string>
 </resources>

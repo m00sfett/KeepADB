@@ -47,7 +47,7 @@ Schalter fragen alle dieselbe Stelle. Die Oberfläche sagt dazu noch „freigege
 
 Eine Sperre gewinnt gegen jedes Vertrauen, auch gegen das derselben BSSID. Das Vertrauen bleibt
 gespeichert und gilt wieder, sobald die Sperre ausdrücklich aufgehoben wurde. Vertrauen hinzuzufügen
-hebt nie eine Sperre auf, weder über die Benachrichtigung noch über Liste, Karte oder Mesh-Angebot;
+hebt nie eine Sperre auf, weder über die Benachrichtigung noch über Liste oder Karte;
 es wird dann nichts gespeichert. Gesperrte Netze lösen keine Nachfrage aus, werden nicht als „zuletzt
 verhindert“ vermerkt und schalten nie automatisch ein. Nur der Force-Modus ([siehe unten](#force-modus))
 übergeht eine Sperre; er ist eine Überlagerung oberhalb dieser Reihenfolge.
@@ -186,12 +186,14 @@ Update **einmalig verworfen** (Nutzerentscheidung 2026-10-06): `KeepADBBssidHist
 löscht nur Schlüssel mit diesem Präfix und setzt im selben Schritt den Marker
 `observation_history_discarded`, damit es genau einmal läuft; auf einer Neuinstallation gibt es
 nichts zu löschen, und der Marker zählt dort nicht als Bestand. Alle anderen Schlüssel bleiben
-unverändert. Einen Löschweg in der Oberfläche gibt es nicht und braucht es nicht. Drei Leser laufen
-danach ins Leere und kommen ohne Fehler damit zurecht: das Angebot für Mesh-Knoten (#686) bietet
-nichts an, die gespeicherten Bänder fehlen (dann erscheint nur das aktuelle Band), und ein
-blockierter Access Point ohne Vertrauenseintrag steht in der Liste „Netzwerke“ in der Gruppe „WLAN-Name
-unbekannt“. Die Leser selbst werden separat entfernt (#788). Die zuvor eingeschaltete Option
-`wifi_aps_feature_enabled` bleibt unverändert stehen, ist aber nicht mehr umschaltbar und ohne Wirkung. Ebenso bleibt eine gespeicherte Namensliste (`trusted_ssid_*`, `trusted_network_ssid_matching`)
+unverändert. Einen Löschweg in der Oberfläche gibt es nicht und braucht es nicht. Die drei Leser
+des Verlaufs sind seit #788 entfernt: das Angebot für Mesh-Knoten (#686) gibt es nicht mehr (Erlauben
+erlaubt genau den einen Access Point), die Liste „Netzwerke“ nimmt keinen Namen mehr aus dem Verlauf
+(ein blockierter Access Point ohne Vertrauenseintrag und ohne bekannten Namen steht in der Gruppe
+„WLAN-Name unbekannt“, ebenso ein Vertrauenseintrag, dessen Label nur die BSSID ist), und Bänder werden
+nicht mehr gespeichert (es erscheint nur das aktuelle Band). Die zuvor eingeschaltete Option
+`wifi_aps_feature_enabled` bleibt unverändert stehen, wird aber von keinem Code mehr gelesen oder
+geschrieben. Ebenso bleibt eine gespeicherte Namensliste (`trusted_ssid_*`, `trusted_network_ssid_matching`)
 in Kraft (Stufe „Namensliste (bisherige Einstellung)“); sie lässt sich ohne ihre frühere Oberfläche
 nicht mehr bearbeiten. Den Weg zurück bietet der Schritt „Schutzstufe“ des Einrichtungsassistenten (#761):
 er zeigt die bisherige Einstellung („In allen WLANs“, Namensliste) vorausgewählt und als „Weniger sicher“
@@ -380,8 +382,8 @@ liefert.
 
 Früher (#721) speicherte KeepADB bei eingeschalteter Option **WLAN-Beobachtung** zusätzlich das
 zuletzt gesehene Band je BSSID in der Beobachtungshistorie (`bssid_history_<id>_bands`). Seit #769
-wird nichts davon mehr aufgezeichnet, und seit #778 ist der alte Bestand (Historie und Bänder) beim
-Update verworfen (siehe oben). Die Liste zeigt daher nur noch das aktuelle Band, das Android gerade
+wird nichts davon mehr aufgezeichnet, seit #778 ist der alte Bestand (Historie und Bänder) beim
+Update verworfen (siehe oben), und seit #788 liest ihn auch nichts mehr. Die Liste zeigt daher nur noch das aktuelle Band, das Android gerade
 liefert; fehlt es, steht kein Band da. Das Band ist reine Anzeige und fließt nie in eine
 Freigabeentscheidung ein.
 

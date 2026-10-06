@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">स्वचालित पुनः-सक्षमन रोका गया: वर्तमान नेटवर्क पढ़ा नहीं जा सकता। स्थान अनुमति/सेवा जाँचें, या यदि Keep-Alive पृष्ठभूमि में शुरू हुआ था तो ऐप को एक बार फिर से खोलें। स्थायी समाधान के लिए स्थान अनुमति को “हर समय अनुमति दें” पर सेट करें।</string>
     <string name="settings_trusted_network_add_failed_toast">वर्तमान नेटवर्क निर्धारित नहीं किया जा सका। Wi-Fi कनेक्शन और स्थान अनुमति जांचें।</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" को भरोसेमंद नेटवर्क में जोड़ा गया</string>
-    <string name="settings_trusted_network_mesh_title">अन्य ऐक्सेस पॉइंट जोड़ें?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB ने %1$d अन्य ऐक्सेस पॉइंट भी देखे हैं जो \"%2$s\" प्रसारित करते हैं। क्या इन्हें भी भरोसेमंद सूची में जोड़ना है?</string>
-    <string name="settings_trusted_network_mesh_add_button">सभी जोड़ें</string>
-    <string name="settings_trusted_network_mesh_added_toast">%1$d और ऐक्सेस पॉइंट भरोसेमंद नेटवर्क में जोड़े गए</string>
     <string name="network_prompt_channel_name">नए नेटवर्क के लिए पूछताछ</string>
     <string name="network_prompt_channel_desc">पूछता है कि नया मिला Wi-Fi ऐक्सेस पॉइंट Keep-Alive के लिए भरोसेमंद माना जाए या नहीं।</string>
     <string name="network_prompt_title">नया Wi-Fi / नया ऐक्सेस पॉइंट मिला</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">इस लिंक को खोलने के लिए कोई ऐप नहीं मिला।</string>
     <string name="status_off_keep_alive_waiting">वायरलेस डीबगिंग बंद है – Keep-Alive नेटवर्क की प्रतीक्षा कर रहा है</string>
     <string name="status_off_keep_alive_blocked_untrusted">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क भरोसेमंद नहीं है</string>
+    <string name="status_off_keep_alive_blocked_by_user">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: यह Wi-Fi नेटवर्क रोका गया है</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: नेटवर्क पढ़ा नहीं जा सकता, स्थान अनुमति (“हर समय अनुमति दें”) जाँचें या ऐप फिर से खोलें</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">वायरलेस डीबगिंग बंद है – Keep-Alive रोका गया: Android के वायरलेस डीबगिंग नेटवर्क संवाद की पुष्टि करें, फिर पुनः प्रयास के लिए स्विच पर टैप करें</string>
     <string name="status_pending">बदला जा रहा है…</string>
@@ -542,4 +539,5 @@
     <string name="home_warning_limited_title">Keep-Alive सीमित है</string>
     <string name="home_warning_limited_text">भरोसेमंद Keep-Alive के लिए ज़रूरी सेटिंग अधूरी: %1$d</string>
     <string name="status_tap_to_decide">निर्णय के लिए टैप करें</string>
+    <string name="status_tap_to_open_list">नेटवर्क सूची खोलने के लिए टैप करें</string>
 </resources>

@@ -90,8 +90,6 @@ final class KeepADBNetworkCard {
 
     /** #644: the step-2 rationale dialog for the optional background location grant, if showing. */
     private AlertDialog activeBackgroundLocationDialog;
-    /** #686: the mesh question after allowing an access point; not restored, see {@link #destroy}. */
-    private AlertDialog activeMeshDialog;
 
     /** #661: refreshes the visible Network card while a Wi-Fi network changes. */
     private ConnectivityManager.NetworkCallback wifiStatusCallback;
@@ -191,10 +189,6 @@ final class KeepADBNetworkCard {
     void destroy() {
         dismissIfShowing(activeBackgroundLocationDialog);
         activeBackgroundLocationDialog = null;
-
-        // #686: derived from live data and only offered right after an allow; not restored.
-        dismissIfShowing(activeMeshDialog);
-        activeMeshDialog = null;
     }
 
     /**
@@ -259,7 +253,8 @@ final class KeepADBNetworkCard {
      * app's system permission page, which "Open settings" jumps to.
      *
      * <p>"Trust all Wi-Fi networks instead" is only offered while allowlist mode is on; in
-     * all-Wi-Fi mode it would be a no-op. "Later" keeps whatever mode is set (allowlist then runs
+     * all-Wi-Fi mode it would be a no-op. It opens the protection step of the setup assistant (#782)
+     * and changes nothing itself. "Later" keeps whatever mode is set (allowlist then runs
      * with foreground location only, and the status line keeps showing the missing grant).
      */
     private void showBackgroundLocationDialog() {
@@ -273,10 +268,11 @@ final class KeepADBNetworkCard {
                         KeepADBBackgroundLocation.openSettings(activity))
                 .setNegativeButton(R.string.background_location_dialog_later, null);
         if (KeepADBTrustedNetwork.isAllowlistMode(activity)) {
-            builder.setNeutralButton(R.string.location_permission_panel_fallback_button, (d, which) -> {
-                KeepADBTrustedNetwork.setMode(activity, KeepADBTrustedNetwork.MODE_ALL_WIFI);
-                onChange.run();
-            });
+            // #782: the way to "all Wi-Fi networks" is the protection step of the assistant, where
+            // the user sees what the level means; the button no longer switches the mode itself.
+            builder.setNeutralButton(R.string.location_permission_panel_fallback_button, (d, which) ->
+                    activity.startActivity(OnboardingActivity.stepIntent(activity,
+                            KeepADBOnboarding.Step.PROTECTION)));
         }
         AlertDialog dialog = builder.create();
         activeBackgroundLocationDialog = dialog;
@@ -385,16 +381,8 @@ final class KeepADBNetworkCard {
             case ALLOW_ACCESS_POINT:
                 if (networkActionBssid != null) {
                     // Grants exactly the access point the card showed; never switches anything on.
-                    activeMeshDialog = KeepADBNetworkActions.allowAccessPoint(activity,
-                            networkActionBssid, networkActionLabel, true, onChange);
-                    if (activeMeshDialog != null) {
-                        activeMeshDialog.setOnDismissListener(dialog -> {
-                            if (activeMeshDialog == dialog) {
-                                activeMeshDialog = null;
-                            }
-                        });
-                        activeMeshDialog.show();
-                    }
+                    KeepADBNetworkActions.allowAccessPoint(activity, networkActionBssid,
+                            networkActionLabel, onChange);
                 }
                 break;
             case GRANT_LOCATION:

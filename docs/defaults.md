@@ -33,7 +33,7 @@ Standardwert; #765 belegt sie und sichert sie gegen unbemerkte Änderung ab (sie
 | USB-Übergabe | `usb_wlan_handover_mode` | `off` | beim Anstecken wird nichts eingeschaltet und keine Aktion angeboten; ein unbekannter gespeicherter Wert gilt als `off` | sicher |
 | Webhook | `register_webhook_enabled`, `register_webhook_url` | aus, keine URL | kein ausgehender Verkehr; es gibt keine eingebaute Ziel-URL (Issue #64) | sicher |
 | Details in Benachrichtigungen | `notification_details_enabled` | aus | Netzwerkname, BSSID und USB-Profil stehen nicht in Benachrichtigungen, damit nicht auf dem Sperrbildschirm | sicher (#592) |
-| WLAN- und Access-Point-Beobachtung | `wifi_aps_feature_enabled` | aus | keine Aufzeichnung; seit #769 ohne Oberfläche und ohne neue Aufzeichnung, ein früher gespeicherter Wert bleibt unverändert; der alte Beobachtungsverlauf (`bssid_history_*`) wird seit #778 beim Update einmalig verworfen (Marker `observation_history_discarded`, Buchführung, keine Einstellung) | sicher (#507, #769) |
+| WLAN- und Access-Point-Beobachtung | `wifi_aps_feature_enabled` | aus | keine Aufzeichnung; seit #769 ohne Oberfläche und ohne neue Aufzeichnung, seit #788 liest und schreibt kein Code den Schlüssel mehr, ein früher gespeicherter Wert bleibt unverändert; der alte Beobachtungsverlauf (`bssid_history_*`) wird seit #778 beim Update einmalig verworfen (Marker `observation_history_discarded`, Buchführung, keine Einstellung) | sicher (#507, #769) |
 
 Listen, die eine Entscheidung lesen, beginnen leer: keine vertrauten Access Points, keine
 Namensfreigaben, keine Sperren, keine USB-Profile.

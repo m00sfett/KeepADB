@@ -129,7 +129,7 @@ public class SettingsBackgroundLocationDialogTest {
     }
 
     @Test
-    public void settingsButtonTrustAllAndLaterActionsWork() {
+    public void settingsButtonLaterKeepsTheModeAndTrustAllLeadsToTheProtectionStep() {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         SettingsActivity activity = openSettings().get();
 
@@ -144,10 +144,14 @@ public class SettingsBackgroundLocationDialogTest {
 
         activity.findViewById(R.id.settings_background_location_button).performClick();
         click(latestDialog(), AlertDialog.BUTTON_NEUTRAL);
-        assertEquals(KeepADBTrustedNetwork.MODE_ALL_WIFI, KeepADBTrustedNetwork.getMode(context));
-        assertEquals("refresh() must re-render the card from the new mode",
-                View.VISIBLE, activity.findViewById(R.id.network_comfort_no_effect).getVisibility());
-        assertNull(shadowOf(activity).getNextStartedActivity());
+        // #782: the button leads to the protection step instead of switching the mode itself.
+        assertEquals("The button itself changes nothing", KeepADBTrustedNetwork.MODE_ALLOWLIST,
+                KeepADBTrustedNetwork.getMode(context));
+        Intent assistant = shadowOf(activity).getNextStartedActivity();
+        assertNotNull(assistant);
+        assertEquals(OnboardingActivity.class.getName(), assistant.getComponent().getClassName());
+        assertEquals(KeepADBOnboarding.Step.PROTECTION.id,
+                assistant.getStringExtra(OnboardingActivity.EXTRA_STEP));
     }
 
     @Test

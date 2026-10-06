@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Automatisch opnieuw inschakelen gepauzeerd: het huidige netwerk is niet leesbaar. Controleer de locatietoestemming/-service, of open de app opnieuw als Keep-Alive op de achtergrond is gestart. Blijvende oplossing: zet locatie op ‘Altijd toestaan’.</string>
     <string name="settings_trusted_network_add_failed_toast">Kan het huidige netwerk niet bepalen. Controleer de wifi-verbinding en locatietoestemming.</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" toegevoegd aan vertrouwde netwerken</string>
-    <string name="settings_trusted_network_mesh_title">Andere access points toevoegen?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB heeft ook %1$d andere access points gezien die \"%2$s\" uitzenden. Wil je deze ook toevoegen aan de vertrouwde lijst?</string>
-    <string name="settings_trusted_network_mesh_add_button">Alles toevoegen</string>
-    <string name="settings_trusted_network_mesh_added_toast">%1$d extra access points toegevoegd aan vertrouwde netwerken</string>
     <string name="network_prompt_channel_name">Vragen over nieuwe netwerken</string>
     <string name="network_prompt_channel_desc">Vraagt of een net ontdekt wifi-access point vertrouwd mag worden voor Keep-Alive.</string>
     <string name="network_prompt_title">Nieuw wifi-netwerk / nieuw access point gevonden</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">Geen app gevonden om deze link te openen.</string>
     <string name="status_off_keep_alive_waiting">Draadloze foutopsporing is UIT – Keep-Alive wacht op het netwerk</string>
     <string name="status_off_keep_alive_blocked_untrusted">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: dit wifi-netwerk is niet vertrouwd</string>
+    <string name="status_off_keep_alive_blocked_by_user">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: dit wifi-netwerk is geblokkeerd</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: netwerk onleesbaar, controleer de locatietoestemming (‘Altijd toestaan’) of open de app opnieuw</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: bevestig Android\'s netwerkdialoog voor draadloze foutopsporing en tik daarna op de schakelaar om het opnieuw te proberen</string>
     <string name="status_pending">Bezig met omschakelen…</string>
@@ -542,4 +539,5 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="home_warning_limited_title">Keep-Alive beperkt</string>
     <string name="home_warning_limited_text">Ontbrekende instellingen voor betrouwbare Keep-Alive: %1$d</string>
     <string name="status_tap_to_decide">Tik om te beslissen</string>
+    <string name="status_tap_to_open_list">Tik om de netwerklijst te openen</string>
 </resources>

@@ -11,9 +11,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * #654/#655: the user actions shared by the Network card in {@link SettingsActivity} and the list
  * views in {@link NetworkListActivity}, kept in one place so both behave identically: allowing an
@@ -26,15 +23,12 @@ final class KeepADBNetworkActions {
     private KeepADBNetworkActions() {}
 
     /**
-     * Allows exactly {@code bssid} and nothing else. With {@code offerMesh} the user is then asked
-     * whether other observed access points broadcasting the same name should be allowed too -- a
-     * separate, explicit question; nothing beyond {@code bssid} is ever allowed implicitly.
+     * Allows exactly {@code bssid} and nothing else; no other access point is ever allowed
+     * implicitly (the former offer of further access points of the same name is gone, #788).
      *
      * @param onChanged run after every change so the caller can re-render; may be null.
-     * @return the mesh question if one is available, else null; the caller owns it, must show it
-     *     after attaching its dismiss listener, and must dismiss it in {@code onDestroy} (#686).
      */
-    static AlertDialog allowAccessPoint(Activity activity, String bssid, String label, boolean offerMesh,
+    static void allowAccessPoint(Activity activity, String bssid, String label,
                                  Runnable onChanged) {
         KeepADBTrustedNetwork.Entry added = KeepADBReceiver.allowBssidOnly(activity, bssid, label);
         if (added == null) {
@@ -50,10 +44,6 @@ final class KeepADBNetworkActions {
                     Toast.LENGTH_SHORT).show();
         }
         if (onChanged != null) onChanged.run();
-        if (added != null && offerMesh) {
-            return offerAdditionalMeshBssids(activity, onChanged);
-        }
-        return null;
     }
 
     /** Removes the allowlist entry for {@code bssid}; no other entry is touched. */
@@ -69,54 +59,6 @@ final class KeepADBNetworkActions {
             }
         }
         if (onChanged != null) onChanged.run();
-    }
-
-    /**
-     * Offers the other access points KeepADB has seen under the current network name (#266). Only
-     * shown for a readable identity with a known name and at least one access point that is not
-     * allowed yet; accepting allows exactly those, via the grant-only path.
-     *
-     * @return the dialog to show, or null when nothing was offered; the caller must dismiss it
-     *     when its activity is destroyed (#686).
-     */
-    static AlertDialog offerAdditionalMeshBssids(Activity activity, Runnable onChanged) {
-        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(activity);
-        if (!identity.isKnown()) return null;
-        String ssid = identity.displaySsid();
-        if (ssid == null || ssid.isEmpty()) return null;
-
-        List<String> alreadyListed = new ArrayList<>();
-        for (KeepADBTrustedNetwork.Entry listed : KeepADBTrustedNetwork.getEntries(activity)) {
-            alreadyListed.add(listed.bssid);
-        }
-        // #762: a block on the name blocks every access point of it, and a blocked access point
-        // cannot be trusted; neither is offered, so the offer never promises what is refused.
-        if (KeepADBNetworkBlocklist.isSsidBlocked(activity, ssid)) return null;
-        List<String> additional = new ArrayList<>();
-        for (String bssid : KeepADBBssidHistory.getAdditionalBssids(activity, ssid, alreadyListed)) {
-            if (!KeepADBNetworkBlocklist.isBssidBlocked(activity, bssid)) additional.add(bssid);
-        }
-        if (additional.isEmpty()) return null;
-
-        return new AlertDialog.Builder(activity)
-                .setTitle(R.string.settings_trusted_network_mesh_title)
-                .setMessage(activity.getString(R.string.settings_trusted_network_mesh_message,
-                        additional.size(), KeepADBNetworkDisplay.quoted(activity, ssid)))
-                .setPositiveButton(R.string.settings_trusted_network_mesh_add_button, (dialog, which) -> {
-                    // #762: only what was actually stored counts; a refused one is not "added".
-                    int added = 0;
-                    for (String bssid : additional) {
-                        if (KeepADBReceiver.allowBssidOnly(activity, bssid, ssid) != null) added++;
-                    }
-                    Toast.makeText(activity, added > 0
-                                    ? activity.getString(
-                                            R.string.settings_trusted_network_mesh_added_toast, added)
-                                    : activity.getString(R.string.network_decision_trust_refused_toast),
-                            Toast.LENGTH_SHORT).show();
-                    if (onChanged != null) onChanged.run();
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .create();
     }
 
     /**

@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Otomatik yeniden etkinleştirme duraklatıldı: mevcut ağ okunamıyor. Konum izni/hizmetini kontrol edin veya Keep-Alive arka planda başladıysa uygulamayı yeniden açın. Kalıcı çözüm için konumu “Her zaman izin ver” olarak ayarlayın.</string>
     <string name="settings_trusted_network_add_failed_toast">Mevcut ağ belirlenemedi. Wi-Fi bağlantısını ve konum iznini kontrol edin.</string>
     <string name="settings_trusted_network_added_toast">\"%1$s\" güvenilir ağlara eklendi</string>
-    <string name="settings_trusted_network_mesh_title">Diğer erişim noktaları eklensin mi?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB, %1$d erişim noktasının daha \"%2$s\" yayınladığını tespit etti. Bunlar da güvenilir listeye eklensin mi?</string>
-    <string name="settings_trusted_network_mesh_add_button">Tümünü ekle</string>
-    <string name="settings_trusted_network_mesh_added_toast">%1$d erişim noktası daha güvenilir ağlara eklendi</string>
     <string name="network_prompt_channel_name">Yeni ağ soruları</string>
     <string name="network_prompt_channel_desc">Yeni bulunan bir Wi-Fi erişim noktasının Keep-Alive için güvenilir sayılıp sayılmayacağını sorar.</string>
     <string name="network_prompt_title">Yeni Wi-Fi ağı / erişim noktası bulundu</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">Bu bağlantıyı açacak uygulama bulunamadı.</string>
     <string name="status_off_keep_alive_waiting">Kablosuz Hata Ayıklama KAPALI – Keep-Alive ağı bekliyor</string>
     <string name="status_off_keep_alive_blocked_untrusted">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı güvenilir değil</string>
+    <string name="status_off_keep_alive_blocked_by_user">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: bu Wi-Fi ağı engellendi</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: ağ okunamıyor, Konum iznini (“Her zaman izin ver”) kontrol edin veya uygulamayı yeniden açın</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Kablosuz Hata Ayıklama KAPALI – Keep-Alive duraklatıldı: Android\'ın kablosuz hata ayıklama ağ iletişim kutusunu onaylayın, ardından yeniden denemek için anahtara dokunun</string>
     <string name="status_pending">Değiştiriliyor…</string>
@@ -542,4 +539,5 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="home_warning_limited_title">Keep-Alive sınırlı</string>
     <string name="home_warning_limited_text">Güvenilir Keep-Alive için eksik ayarlar: %1$d</string>
     <string name="status_tap_to_decide">Karar vermek için dokunun</string>
+    <string name="status_tap_to_open_list">Ağ listesini açmak için dokunun</string>
 </resources>

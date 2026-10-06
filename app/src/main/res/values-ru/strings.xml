@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Автоматическое повторное включение приостановлено: текущая сеть не читается. Проверьте разрешение/службу геолокации либо откройте приложение заново, если Keep-Alive запустился в фоновом режиме. Постоянное решение: выберите для геолокации «Разрешить в любом режиме».</string>
     <string name="settings_trusted_network_add_failed_toast">Не удалось определить текущую сеть. Проверьте подключение Wi-Fi и разрешение на геолокацию.</string>
     <string name="settings_trusted_network_added_toast">«%1$s» добавлена в доверенные сети</string>
-    <string name="settings_trusted_network_mesh_title">Добавить другие точки доступа?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB также обнаружил %1$d других точек доступа, транслирующих «%2$s». Добавить их тоже в доверенные сети?</string>
-    <string name="settings_trusted_network_mesh_add_button">Добавить все</string>
-    <string name="settings_trusted_network_mesh_added_toast">Добавлено ещё %1$d точек доступа в доверенные сети</string>
     <string name="network_prompt_channel_name">Запросы о новых сетях</string>
     <string name="network_prompt_channel_desc">Спрашивает, можно ли доверять только что обнаруженной точке доступа Wi-Fi для Keep-Alive.</string>
     <string name="network_prompt_title">Обнаружена новая сеть Wi-Fi или точка доступа</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">Не найдено приложение для открытия этой ссылки.</string>
     <string name="status_off_keep_alive_waiting">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive ждёт сеть</string>
     <string name="status_off_keep_alive_blocked_untrusted">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: эта сеть Wi-Fi не является доверенной</string>
+    <string name="status_off_keep_alive_blocked_by_user">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: эта сеть Wi-Fi заблокирована</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: сеть не читается, проверьте разрешение на геолокацию («Разрешить в любом режиме») или откройте приложение заново</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: подтвердите системный диалог Android о сети для беспроводной отладки, затем нажмите переключатель, чтобы повторить попытку</string>
     <string name="status_pending">Переключение…</string>
@@ -542,4 +539,5 @@
     <string name="home_warning_limited_title">Keep-Alive ограничен</string>
     <string name="home_warning_limited_text">Не хватает настроек для надёжной работы Keep-Alive: %1$d</string>
     <string name="status_tap_to_decide">Нажмите, чтобы решить</string>
+    <string name="status_tap_to_open_list">Нажмите, чтобы открыть список сетей</string>
 </resources>

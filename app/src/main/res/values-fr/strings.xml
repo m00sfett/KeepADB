@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">Réactivation automatique en pause : le réseau actuel est illisible. Vérifiez l\'autorisation/le service de localisation, ou rouvrez l\'application si Keep-Alive a démarré en arrière-plan. Pour un correctif durable, réglez la localisation sur « Toujours autoriser ».</string>
     <string name="settings_trusted_network_add_failed_toast">Impossible de déterminer le réseau actuel. Vérifiez la connexion Wi-Fi et l\'autorisation de localisation.</string>
     <string name="settings_trusted_network_added_toast">« %1$s » ajouté aux réseaux approuvés</string>
-    <string name="settings_trusted_network_mesh_title">Ajouter d\'autres points d\'accès ?</string>
-    <string name="settings_trusted_network_mesh_message">KeepADB a également détecté %1$d autres points d\'accès diffusant « %2$s ». Voulez-vous les ajouter aussi aux points d\'accès approuvés ?</string>
-    <string name="settings_trusted_network_mesh_add_button">Tout ajouter</string>
-    <string name="settings_trusted_network_mesh_added_toast">%1$d points d\'accès supplémentaires ajoutés aux réseaux approuvés</string>
     <string name="network_prompt_channel_name">Demandes pour les nouveaux réseaux</string>
     <string name="network_prompt_channel_desc">Demande si un point d\'accès Wi-Fi nouvellement détecté doit être approuvé pour Keep-Alive.</string>
     <string name="network_prompt_title">Nouveau Wi-Fi / nouveau point d\'accès détecté</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">Aucune application trouvée pour ouvrir ce lien.</string>
     <string name="status_off_keep_alive_waiting">Débogage sans fil DÉSACTIVÉ – Keep-Alive attend le réseau</string>
     <string name="status_off_keep_alive_blocked_untrusted">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : ce réseau Wi-Fi n\'est pas approuvé</string>
+    <string name="status_off_keep_alive_blocked_by_user">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : ce réseau Wi-Fi est bloqué</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : réseau illisible, vérifiez l\'autorisation de localisation (« Toujours autoriser ») ou rouvrez l\'application</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : confirmez la boîte de dialogue réseau du débogage sans fil d\'Android, puis appuyez sur l\'interrupteur pour réessayer</string>
     <string name="status_pending">Changement en cours…</string>
@@ -542,4 +539,5 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="home_warning_limited_title">Keep-Alive limité</string>
     <string name="home_warning_limited_text">Réglages manquants pour un Keep-Alive fiable : %1$d</string>
     <string name="status_tap_to_decide">Touchez pour décider</string>
+    <string name="status_tap_to_open_list">Touchez pour ouvrir la liste des réseaux</string>
 </resources>

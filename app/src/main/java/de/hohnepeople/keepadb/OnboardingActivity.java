@@ -272,7 +272,11 @@ public class OnboardingActivity extends Activity {
 
     private void leave() {
         if (openHome) {
-            startActivity(new Intent(this, MainActivity.class));
+            Intent home = new Intent(this, MainActivity.class);
+            // #782: a notification target answered one question; the home screen it opens must not
+            // turn that into the full assistant once more. The next plain start still hands over.
+            if (single != null) home.putExtra(MainActivity.EXTRA_SKIP_ASSISTANT_ONCE, true);
+            startActivity(home);
         }
         finish();
     }

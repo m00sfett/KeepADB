@@ -294,7 +294,7 @@ public class NetworkListNetworksViewTest {
     @Test
     public void aBlockedAddressTrustsAgainOnlyThroughTheExplicitTrustAnswerAndNotWhileTheNameIsBlocked() {
         KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP);
-        KeepADBBssidHistory.recordObservation(context, CAFE, CAFE_AP);
+        connectTo(CAFE, CAFE_AP);
         NetworkListActivity activity = open();
 
         rowOf(activity, CAFE_AP).performClick();
@@ -304,7 +304,7 @@ public class NetworkListNetworksViewTest {
 
         // With the name blocked, "Trust" is not offered on a blocked address at all.
         KeepADBNetworkBlocklist.blockBssid(context, KITCHEN);
-        KeepADBBssidHistory.recordObservation(context, HOME, KITCHEN);
+        connectTo(HOME, KITCHEN);
         KeepADBNetworkBlocklist.blockSsid(context, HOME);
         rowOf(open(), KITCHEN).performClick();
         AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
@@ -546,8 +546,7 @@ public class NetworkListNetworksViewTest {
                 "Kueche");
         KeepADBNetworkBlocklist.blockSsid(context, "Gast");
         KeepADBNetworkBlocklist.blockBssid(context, "ee:ee:ee:ee:ee:01");
-        KeepADBBssidHistory.recordObservation(context, "Hotel-WLAN", "ee:ee:ee:ee:ee:01");
-        String[] secrets = {CAFE, HOME, "Gast", "Hotel-WLAN", "Kueche",
+        String[] secrets = {CAFE, HOME, "Gast", "Kueche",
                 CAFE_AP, CAFE_AP.toUpperCase(Locale.ROOT), KITCHEN, KITCHEN.toUpperCase(Locale.ROOT),
                 HALL.toUpperCase(Locale.ROOT), "EE:EE:EE:EE:EE:01", "11:22:33", "11:22:44", "78:9A:BC",
                 "ee:ee"};

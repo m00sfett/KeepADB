@@ -78,10 +78,6 @@
     <string name="settings_trusted_network_status_identity_unavailable">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: الشبكة الحالية غير قابلة للقراءة. تحقق من إذن/خدمة الموقع، أو أعد فتح التطبيق إذا بدأ Keep-Alive في الخلفية، أو اضبط الموقع على «السماح طوال الوقت» لحل ذلك نهائيًا.</string>
     <string name="settings_trusted_network_add_failed_toast">تعذر تحديد الشبكة الحالية. تحقق من اتصال Wi-Fi وإذن الموقع.</string>
     <string name="settings_trusted_network_added_toast">تمت إضافة \"%1$s\" إلى الشبكات الموثوقة</string>
-    <string name="settings_trusted_network_mesh_title">إضافة نقاط وصول أخرى؟</string>
-    <string name="settings_trusted_network_mesh_message">رصد KeepADB أيضًا %1$d نقطة وصول أخرى تبث \"%2$s\". هل تريد إضافتها جميعًا إلى الشبكات الموثوقة؟</string>
-    <string name="settings_trusted_network_mesh_add_button">إضافة الكل</string>
-    <string name="settings_trusted_network_mesh_added_toast">تمت إضافة %1$d نقطة وصول أخرى إلى الشبكات الموثوقة</string>
     <string name="network_prompt_channel_name">أسئلة حول الشبكات الجديدة</string>
     <string name="network_prompt_channel_desc">يسأل عمّا إذا كانت نقطة وصول Wi-Fi المكتشفة حديثًا موثوقة لخاصية Keep-Alive.</string>
     <string name="network_prompt_title">تم اكتشاف شبكة Wi-Fi أو نقطة وصول جديدة</string>
@@ -298,6 +294,7 @@
     <string name="settings_no_browser_found">لم يتم العثور على تطبيق لفتح هذا الرابط.</string>
     <string name="status_off_keep_alive_waiting">تصحيح الأخطاء اللاسلكي مُعَطَّل — ينتظر Keep-Alive الشبكة</string>
     <string name="status_off_keep_alive_blocked_untrusted">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: هذه الشبكة غير موثوقة</string>
+    <string name="status_off_keep_alive_blocked_by_user">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: هذه الشبكة محظورة</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: الشبكة غير قابلة للقراءة، تحقق من إذن الموقع («السماح طوال الوقت») أو أعد فتح التطبيق</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">تصحيح الأخطاء اللاسلكي مُعَطَّل — تم إيقاف Keep-Alive مؤقتًا: قم بتأكيد مربع حوار شبكة تصحيح الأخطاء اللاسلكي في Android، ثم اضغط على المفتاح لإعادة المحاولة</string>
     <string name="status_pending">جارٍ التبديل…</string>
@@ -542,4 +539,5 @@
     <string name="home_warning_limited_title">Keep-Alive محدود</string>
     <string name="home_warning_limited_text">إعدادات ناقصة لعمل Keep-Alive بموثوقية: %1$d</string>
     <string name="status_tap_to_decide">المس للقرار</string>
+    <string name="status_tap_to_open_list">المس لفتح قائمة الشبكات</string>
 </resources>
