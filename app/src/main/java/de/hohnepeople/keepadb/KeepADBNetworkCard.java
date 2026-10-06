@@ -86,6 +86,7 @@ final class KeepADBNetworkCard {
     private final TextView backgroundLocationStatus;
     private final TextView networkDetectionNow;
     private final Button backgroundLocationButton;
+    private final TextView networkNetworksCount;
     private final TextView networkAllowedCount;
     private final TextView networkPreventedCount;
     private final TextView networkListsInactiveHint;
@@ -145,6 +146,7 @@ final class KeepADBNetworkCard {
         backgroundLocationStatus = activity.findViewById(R.id.settings_background_location_status);
         networkDetectionNow = activity.findViewById(R.id.network_detection_now);
         backgroundLocationButton = activity.findViewById(R.id.settings_background_location_button);
+        networkNetworksCount = activity.findViewById(R.id.network_networks_count);
         networkAllowedCount = activity.findViewById(R.id.network_allowed_count);
         networkPreventedCount = activity.findViewById(R.id.network_prevented_count);
         networkListsInactiveHint = activity.findViewById(R.id.network_lists_inactive_hint);
@@ -178,6 +180,10 @@ final class KeepADBNetworkCard {
             }
         });
 
+        // #762: the single list of trusted and blocked networks.
+        activity.findViewById(R.id.network_networks_row).setOnClickListener(v ->
+                activity.startActivity(
+                        NetworkListActivity.intent(activity, NetworkListActivity.VIEW_NETWORKS)));
         activity.findViewById(R.id.network_allowed_row).setOnClickListener(v ->
                 activity.startActivity(
                         NetworkListActivity.intent(activity, NetworkListActivity.VIEW_ALLOWED)));
@@ -549,6 +555,15 @@ final class KeepADBNetworkCard {
 
         // Management entries stay reachable in every mode and whatever the observation says.
         int allowedCount = KeepADBTrustedNetwork.getEntries(activity).size();
+        // #762: "3 trusted · 1 blocked"; the privacy mode hides the counts like every list.
+        if (KeepADBNetworkDisplay.hidden(activity)) {
+            networkNetworksCount.setText(R.string.networks_count_hidden);
+        } else {
+            KeepADBNetworkList.Snapshot networks = KeepADBNetworkList.build(activity, identity,
+                    wifiConnected);
+            networkNetworksCount.setText(activity.getString(R.string.networks_count,
+                    networks.trusted, networks.blocked));
+        }
         networkAllowedCount.setText(String.valueOf(allowedCount));
         networkPreventedCount.setText(
                 String.valueOf(KeepADBBlockedNetworkHistory.getEntries(activity).size()));
