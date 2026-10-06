@@ -1,0 +1,1 @@
+The old list of seen Wi-Fi access points is deleted once with this update. It is no longer filled, so nothing you trusted or blocked changes. The offer to also trust other access points of the same network is gone for good. A blocked access point without its own entry now shows under "Wi-Fi name unknown" in the networks list.

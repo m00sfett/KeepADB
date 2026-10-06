@@ -25,6 +25,8 @@ public class BootReceiver extends BroadcastReceiver {
         boolean packageReplaced = Intent.ACTION_MY_PACKAGE_REPLACED.equals(action);
         if (!bootCompleted && !packageReplaced) return;
 
+        // #778: the old observation history is dropped once, on the first update or boot.
+        KeepADBBssidHistory.discardLegacyOnce(context);
         // #763: independent of Keep-Alive and before it, so an expiry that happened while the
         // device was off is reported even when nothing else starts.
         KeepADBForceMode.restore(context);

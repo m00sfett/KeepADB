@@ -51,7 +51,37 @@ final class KeepADBBssidHistory {
      */
     static final int MAX_SSIDS = 50;
 
+    /**
+     * Bookkeeping of the one-time discard (#778). Deliberately not under {@link #PREFIX}, so no
+     * history clearing can remove it.
+     */
+    static final String KEY_LEGACY_DISCARDED = "observation_history_discarded";
+
     private KeepADBBssidHistory() {}
+
+    /**
+     * Discards the old observation history once (#778). Since #769 nothing writes it any more, and
+     * the user decided that what is left is dropped on update: every {@code bssid_history_*} key,
+     * i.e. the SSID ids, the BSSIDs and the stored bands. Nothing else in {@code keepadb_prefs} is
+     * touched. Runs once: the marker is written in the same commit, and a later call returns at
+     * once. A fresh installation has nothing to delete and only gets the marker, which the
+     * existing-install check ignores ({@link KeepADBOnboarding#isExistingInstall}).
+     *
+     * <p>Called from the update/boot receiver and the home screen, never from a reader: tests and
+     * any future writer keep reading what they stored.
+     *
+     * @return true if this call performed the discard.
+     */
+    static boolean discardLegacyOnce(Context context) {
+        if (context == null) return false;
+        SharedPreferences preferences = prefs(context);
+        if (preferences.contains(KEY_LEGACY_DISCARDED)) return false;
+        SharedPreferences.Editor editor = preferences.edit();
+        for (String key : preferences.getAll().keySet()) {
+            if (key != null && key.startsWith(PREFIX)) editor.remove(key);
+        }
+        return editor.putBoolean(KEY_LEGACY_DISCARDED, true).commit();
+    }
 
     /** One observed (SSID, BSSID) pairing, for display purposes only (#461). */
     static final class Observation {
