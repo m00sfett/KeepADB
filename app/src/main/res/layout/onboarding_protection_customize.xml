@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- #761: "Customize" of the protection step: folds out the single value behind the presets. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/onboarding_customize_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_card_clickable"
+        android:clickable="true"
+        android:focusable="true"
+        android:fontFamily="sans-serif-condensed"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:text="@string/onboarding_customize_show"
+        android:textColor="@color/text_yellow"
+        android:textSize="15sp" />
+
+    <LinearLayout
+        android:id="@+id/onboarding_customize_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <Switch
+            android:id="@+id/onboarding_comfort_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed"
+            android:minHeight="48dp"
+            android:text="@string/networks_comfort_title"
+            android:textColor="@color/text_yellow"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:text="@string/networks_comfort_hint"
+            android:textColor="@color/night_muted"
+            android:textSize="13sp" />
+    </LinearLayout>
+</LinearLayout>
