@@ -197,6 +197,13 @@ keine Zeit gut, das Budget wird nur kleiner. Bis zu dieser Bindung zählt die Wa
 vorwärts ab der Basis: Liegt sie davor (zurückgesetzte Uhr), lässt sich die Restzeit nicht
 bestimmen und der Modus endet (fail-closed).
 
+Auch innerhalb eines Boots wird eine rückwärts gestellte Wanduhr festgehalten: Fällt sie gegenüber
+der monotonen Uhr seit der Basis um mehr als fünf Sekunden zurück, macht der Treiber, der es als
+Erster sieht (die Meldung über die gestellte Uhr sofort, der Minutentakt und das Öffnen der App
+spätestens dann), das, was die monotone Uhr als Rest nennt, zur neuen Basis. Ein Neustart danach
+findet so den richtigen Stand und schreibt den Sprung nicht gut. Eine vorwärts gestellte Wanduhr
+wird nie festgehalten: Sie verkürzt nur, und wer sie wieder richtig stellt, verliert nichts.
+
 Ist der Boot-Zähler des Systems nicht lesbar, endet ein befristeter Modus sofort: Die Prüfung
 liefert vom ersten Lesen an „aus“, die einmalige Ablaufmeldung folgt wie sonst, und ein befristeter
 Modus lässt sich in diesem Zustand gar nicht erst starten. Wird der Zähler wieder lesbar, bleibt der
@@ -204,13 +211,13 @@ Modus beendet und kann aus seinem Dialog neu gestartet werden; nichts bleibt ges
 Ablaufzeit“ hat keine Frist, braucht den Zähler nicht und bleibt bis zum Beenden, auch über
 Neustarts und Updates.
 
-Bekannter Rest: Eine Wanduhr, die in einem früheren Boot zurückgestellt wurde und hinter der Basis
-bleibt, oder die nach dem Neustart vor dem ersten Treiber zurückgestellt wird (ein kurzes Fenster,
-die Boot-Meldung kommt nach dem Entsperren), ist nur für die Wanduhr sichtbar. Der Modus verlängert
-sich dann um die Sprunggröße. Das trifft nur bei einer Rückstellung in genau diesem Fenster oder von
-Hand am entsperrten Gerät zu, nicht durch Zeitzone oder Sommerzeit. Nicht auf einem Gerät geprüft
-ist, dass `Settings.Global.boot_count` bei allen Herstellern lesbar ist; wo nicht, lässt sich ein
-befristeter Modus nicht starten.
+Bekannter Rest: Eine Wanduhr, die nach dem Neustart vor dem ersten Treiber zurückgestellt wird (ein
+kurzes Fenster, die Boot-Meldung kommt nach dem Entsperren), ist nur für die Wanduhr sichtbar. Der
+Modus verlängert sich dann um die Sprunggröße. Das Gleiche gilt für eine Rückstellung unter der
+Fünf-Sekunden-Toleranz und für eine, auf die ein Neustart folgt, bevor ein Treiber sie festhalten
+konnte. Alle drei brauchen eine Rückstellung in genau so einem Fenster, nicht durch Zeitzone oder
+Sommerzeit. Nicht auf einem Gerät geprüft ist, dass `Settings.Global.boot_count` bei allen
+Herstellern lesbar ist; wo nicht, lässt sich ein befristeter Modus nicht starten.
 
 **Sperrbildschirm.** Warnzeile und Beenden-Aktion stehen nur in der privaten Fassung der
 Benachrichtigung; deren öffentliche Fassung bleibt neutral, und auch die Ablaufmeldung zeigt dort

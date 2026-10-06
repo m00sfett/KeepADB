@@ -67,6 +67,15 @@ import java.util.Locale;
  * from the base: a wall clock before it (reset RTC, clock set back) cannot be measured and ends
  * the mode (fail closed), so never more is credited than was left.
  *
+ * <p><b>A clock set backward within a boot</b> is kept right by the monotonic clock, but a later
+ * restart only finds what was stored and would credit the jump. The same drivers therefore write
+ * it down as soon as they see it: when the wall clock has fallen behind the monotonic clock by more
+ * than {@link #CLOCK_SET_BACK_TOLERANCE_MS} since the base, what the monotonic clock says is left
+ * becomes the new base (the clock set broadcast is the driver that sees it at once, the minute
+ * heartbeat and the screens at the latest). Only the backward side is written: a clock set forward
+ * is already measured by the smaller measure, and writing it would take time for good that a
+ * correction back to the right time would give back.
+ *
  * <p><b>Unreadable boot count.</b> Without it a restart cannot be told from none, so the monotonic
  * clock cannot be trusted and there is nothing to bind the budget to: a limited mode ends at once
  * (the gate is off from the first read, {@link #finishIfExpired} then delivers the one expiry
@@ -74,13 +83,13 @@ import java.util.Locale;
  * readable again): nothing stays locked, the ended mode simply does not come back and can be
  * started again from its dialog. An unlimited mode has no budget and does not need the counter.
  *
- * <p>Known residual: a clock set backward in one boot that stays after the base, followed by a
- * restart, or a clock set backward after a restart but before the first driver ran (a short
- * window: the boot broadcast arrives after the unlock), is only visible to the wall clock and
- * extends the mode by the size of the jump. It needs a manual change on an unlocked device or a
- * backward correction landing in that window, and does not happen through time zone or daylight
- * saving changes. An unlimited span has no deadline and survives restarts and app updates until it
- * is ended.
+ * <p>Known residual: a clock set backward after a restart but before the first driver ran (a short
+ * window: the boot broadcast arrives after the unlock) is only visible to the wall clock and
+ * extends the mode by the size of the jump. The same holds for a set within the tolerance and for
+ * one that a restart follows before any driver could write it down. Each needs a backward
+ * correction landing in such a window, and none happens through time zone or daylight saving
+ * changes. An unlimited span has no deadline and survives restarts and app updates until it is
+ * ended.
  *
  * <h2>Persistence, rollback</h2>
  * Two additive keys ({@link #KEY_STATE}, {@link #KEY_NOTICE_PENDING}). An older app version ignores
@@ -106,6 +115,14 @@ final class KeepADBForceMode {
     static final String KEY_NOTICE_PENDING = "force_expired_notice_pending";
     private static final String STATE_VERSION = "2";
     private static final String LEGACY_STATE_VERSION = "1";
+
+    /**
+     * How far the wall clock may fall behind the monotonic clock before the set is written down.
+     * Android's network time client by default corrects only a clock that is off by more than about
+     * five seconds, so ordinary operation writes nothing; what stays unwritten can credit at most
+     * this much.
+     */
+    static final long CLOCK_SET_BACK_TOLERANCE_MS = 5_000L;
 
     /** Request codes of the PendingIntents of the force mode (N6): one block, no overlap. */
     static final int REQUEST_CODE_END = 20;
@@ -184,8 +201,9 @@ final class KeepADBForceMode {
 
     /**
      * What is stored while the mode is on: the budget that is left and the base it counts from.
-     * The base is the start of the mode, or after a restart the moment the budget was rebound to
-     * the new boot; the {@code started...} fields and {@code bootCount} describe that base.
+     * The base is the start of the mode, or the moment the budget was last rebound (after a restart
+     * to the new boot, or when the wall clock was set backward); the {@code started...} fields and
+     * {@code bootCount} describe that base.
      */
     static final class State {
         final Span span;
@@ -277,6 +295,18 @@ final class KeepADBForceMode {
     /** Whether the monotonic clock of the state's base is the one running now. */
     private static boolean isSameBoot(State state, long elapsedNow, int bootNow) {
         return bootNow >= 0 && bootNow == state.bootCount && elapsedNow >= state.startedElapsedMs;
+    }
+
+    /**
+     * Whether, in the boot of the state's base, the wall clock has fallen behind the monotonic one
+     * by more than {@link #CLOCK_SET_BACK_TOLERANCE_MS} since the base: it was set backward. Counted
+     * from the base, so a series of small steps adds up. A wall clock ahead of the monotonic one
+     * (set forward) is no reason to write: the smaller measure already ends the mode early.
+     */
+    private static boolean isWallClockSetBack(State state, long wallNow, long elapsedNow) {
+        long realPassed = elapsedNow - state.startedElapsedMs;
+        long wallPassed = wallNow - state.startedWallMs;
+        return realPassed - wallPassed > CLOCK_SET_BACK_TOLERANCE_MS;
     }
 
     /** The end as text for the surfaces: a time of day within today, otherwise weekday, date and time. */
@@ -375,8 +405,9 @@ final class KeepADBForceMode {
      *
      * <p>A mode that is still running but was last measured in another boot is rebound here, by
      * whichever driver comes first after the restart: what is left becomes the stored base of the
-     * new boot, so the monotonic clock covers it from then on (class javadoc, "Rebinding"). In the
-     * boot of the stored base nothing is written.
+     * new boot, so the monotonic clock covers it from then on (class javadoc, "Rebinding"). The
+     * same happens in the boot of the stored base when the wall clock was set backward by more than
+     * the tolerance, so that a later restart cannot credit the jump. Otherwise nothing is written.
      *
      * @return true if this call performed the expiry transition.
      */
@@ -386,6 +417,7 @@ final class KeepADBForceMode {
         boolean transitioned = false;
         boolean rebound = false;
         boolean reboundFailed = false;
+        String reboundReason = null;
         synchronized (LOCK) {
             State state = readState(app);
             if (state != null && !state.span.isUnlimited()) {
@@ -399,16 +431,25 @@ final class KeepADBForceMode {
                             .remove(KEY_STATE)
                             .putBoolean(KEY_NOTICE_PENDING, true)
                             .commit();
-                } else if (!isSameBoot(state, elapsed, boot)) {
-                    // Running (so the boot count is readable) but measured in another boot.
-                    State bound = new State(state.span, remaining, wall, elapsed, boot);
-                    rebound = prefs(app).edit().putString(KEY_STATE, encode(bound)).commit();
-                    reboundFailed = !rebound;
+                } else {
+                    // Running, so the boot count is readable. Either the base was measured in
+                    // another boot, or the wall clock was set backward in this one: in both cases
+                    // what is left becomes the new base.
+                    if (!isSameBoot(state, elapsed, boot)) {
+                        reboundReason = "new_boot";
+                    } else if (isWallClockSetBack(state, wall, elapsed)) {
+                        reboundReason = "clock_set_back";
+                    }
+                    if (reboundReason != null) {
+                        State bound = new State(state.span, remaining, wall, elapsed, boot);
+                        rebound = prefs(app).edit().putString(KEY_STATE, encode(bound)).commit();
+                        reboundFailed = !rebound;
+                    }
                 }
             }
         }
         if (rebound) {
-            KeepADBDiagnostics.event(app, "force_mode", "timer", "rebound", "new_boot");
+            KeepADBDiagnostics.event(app, "force_mode", "timer", "rebound", reboundReason);
         } else if (reboundFailed) {
             // The next driver tries again; until then the wall clock alone measures, as it did.
             KeepADBDiagnostics.event(app, "force_mode", "timer", "failed", "rebound_not_stored");

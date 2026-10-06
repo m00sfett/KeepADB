@@ -32,9 +32,9 @@ Drahtloses Debugging in jedem WLAN wieder ein und übergeht Sperren und Vertraue
 Bestätigung mit gestaffelten Warnungen, ist auf der Startseite und in der Benachrichtigung
 dauerhaft sichtbar und lässt sich dort mit einem Tap beenden. Nach Ablauf gilt wieder genau die
 gespeicherte Einstellung; die Frist übersteht Neustart, App-Update und Zeit- oder Zeitzonenwechsel
-(eine gestellte Uhr kann den Modus nur verkürzen, nicht verlängern), eine einmalige Meldung nennt
-das Ende. Er ist nie ein Standard und wird von keinem Assistenten, Update oder Import ohne den
-Dialog gestartet. Einzelheiten und Grenzen stehen im
+(eine gestellte Uhr verkürzt den Modus und verlängert ihn nur in den kurzen, im Leitfaden
+beschriebenen Fenstern), eine einmalige Meldung nennt das Ende. Er ist nie ein Standard und wird von
+keinem Assistenten, Update oder Import ohne den Dialog gestartet. Einzelheiten und Grenzen stehen im
 [Netzwerk-Leitfaden](docs/trusted-networks.md#force-modus).
 
 Die Identität dient ausschließlich zur Wiedererkennung des WLANs; KeepADB ermittelt oder speichert

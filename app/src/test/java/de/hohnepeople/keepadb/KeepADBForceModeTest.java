@@ -355,6 +355,119 @@ public class KeepADBForceModeTest {
                 prefs().getString(KeepADBForceMode.KEY_STATE, null));
     }
 
+    // --- A clock set backward is written down before a restart can credit it (#763, second review) -------------
+
+    @Test
+    public void aClockSetBackwardInOneBootIsWrittenDownSoTheNextRestartCannotCreditIt() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        clock.advance(2 * HOUR);
+
+        // Within this boot the monotonic clock already keeps the deadline right; what the restart
+        // finds is only what was stored, so the set has to be stored while it is still known.
+        clock.setWallClock(clock.wall - 30 * MINUTE);
+        KeepADBForceMode.finishIfExpired(context); // any driver: heartbeat, screen, alarm, clock set
+        assertEquals("Nothing is credited by the set itself", 22 * HOUR,
+                KeepADBForceMode.status(context).remainingMs);
+
+        clock.advance(HOUR);
+        clock.reboot(30 * MINUTE, 5 * MINUTE);
+        bootCompleted();
+
+        assertEquals("Real time since the activation: 2 h, 1 h and 35 min; not 30 minutes less",
+                24 * HOUR - 3 * HOUR - 35 * MINUTE, KeepADBForceMode.status(context).remainingMs);
+    }
+
+    @Test
+    public void theClockSetBroadcastWritesItDownAtOnceAndSoDoesEveryFurtherSet() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        clock.advance(2 * HOUR);
+        clock.setWallClock(clock.wall - 30 * MINUTE);
+        timeChanged();
+        clock.advance(HOUR);
+        clock.setWallClock(clock.wall - 10 * MINUTE); // a second correction, in the same boot
+        timeChanged();
+        clock.advance(HOUR);
+
+        clock.reboot(30 * MINUTE, 5 * MINUTE);
+        bootCompleted();
+
+        assertEquals("2 h + 1 h + 1 h + 35 min of real time have passed",
+                24 * HOUR - 4 * HOUR - 35 * MINUTE, KeepADBForceMode.status(context).remainingMs);
+    }
+
+    @Test
+    public void aClockSetBackwardAfterARestartIsWrittenDownForTheRestartAfterThat() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        clock.advance(2 * HOUR);
+        clock.reboot(30 * MINUTE, 5 * MINUTE);
+        bootCompleted();
+        clock.advance(HOUR);
+        clock.setWallClock(clock.wall - 30 * MINUTE);
+        timeChanged();
+        clock.advance(HOUR);
+
+        clock.reboot(20 * MINUTE, 2 * MINUTE);
+        bootCompleted();
+
+        assertEquals("2 h, 35 min, 1 h, 1 h and 22 min of real time have passed",
+                24 * HOUR - 2 * HOUR - 35 * MINUTE - 2 * HOUR - 22 * MINUTE,
+                KeepADBForceMode.status(context).remainingMs);
+    }
+
+    @Test
+    public void aSmallDriftOrCorrectionBelowTheToleranceWritesNothingAndTheSumOfSmallOnesDoes() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        String atStart = prefs().getString(KeepADBForceMode.KEY_STATE, null);
+        clock.advance(HOUR);
+
+        clock.setWallClock(clock.wall - 3_000L);
+        KeepADBForceMode.finishIfExpired(context);
+        assertEquals("A few seconds of NTP step are no reason to write", atStart,
+                prefs().getString(KeepADBForceMode.KEY_STATE, null));
+
+        clock.setWallClock(clock.wall - 3_000L); // 6 s behind the monotonic clock in total
+        KeepADBForceMode.finishIfExpired(context);
+        assertFalse("... but what adds up beyond the tolerance is written, measured from the base",
+                atStart.equals(prefs().getString(KeepADBForceMode.KEY_STATE, null)));
+        assertEquals("The budget is exactly what the monotonic clock measures",
+                23 * HOUR, KeepADBForceMode.status(context).remainingMs);
+    }
+
+    @Test
+    public void aClockSetForwardIsNeverWrittenDownSoSettingItRightAgainLosesNothing() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        clock.advance(HOUR);
+        String before = prefs().getString(KeepADBForceMode.KEY_STATE, null);
+
+        clock.setWallClock(clock.wall + 3 * HOUR); // set forward by mistake: the narrower measure wins
+        timeChanged();
+        assertEquals(20 * HOUR, KeepADBForceMode.status(context).remainingMs);
+        assertEquals("Only the backward side is stored", before,
+                prefs().getString(KeepADBForceMode.KEY_STATE, null));
+
+        clock.setWallClock(clock.wall - 3 * HOUR); // and set right again
+        timeChanged();
+        assertEquals("Back on the real time: 23 hours are left, nothing was taken for good",
+                23 * HOUR, KeepADBForceMode.status(context).remainingMs);
+    }
+
+    @Test
+    public void aRestartTheBootCounterMissedIsStillTakenForARestartBecauseTheMonotonicClockWentBack() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        int bootAtStart = clock.boot;
+        clock.advance(2 * HOUR);
+        clock.reboot(30 * MINUTE, 5 * MINUTE);
+        clock.boot = bootAtStart; // a counter that did not move: only elapsed time went back
+        assertEquals(24 * HOUR - 2 * HOUR - 35 * MINUTE, KeepADBForceMode.status(context).remainingMs);
+
+        assertFalse(KeepADBForceMode.finishIfExpired(context));
+        clock.advance(HOUR);
+        clock.setWallClock(clock.wall - 30 * MINUTE);
+
+        assertEquals("The base was rebound to the new run of the monotonic clock: 20 h 25 min",
+                24 * HOUR - 3 * HOUR - 35 * MINUTE, KeepADBForceMode.status(context).remainingMs);
+    }
+
     // --- An unreadable boot counter ends the mode (#763, review P1) ------------------------------------------
 
     @Test
