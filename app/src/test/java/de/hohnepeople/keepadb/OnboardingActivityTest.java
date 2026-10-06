@@ -303,6 +303,15 @@ public class OnboardingActivityTest {
         assertEquals(List.of("Recommended", "Note"), badges(start(
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PROTECTION))));
 
+        // The previous name list is a note as well: its card carries "Note", not "Less secure".
+        prefs().edit().clear().commit();
+        KeepADBTrustedNetwork.addSsid(context, "Garten");
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
+        assertEquals(KeepADBTrustedNetwork.ProtectionLevel.LEGACY_NAME_LIST,
+                KeepADBTrustedNetwork.getProtectionLevel(context));
+        assertEquals(List.of("Note", "Recommended", ""), badges(start(
+                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PROTECTION))));
+
         // Defaults: nothing is marked less secure on any step.
         prefs().edit().clear().commit();
         for (KeepADBOnboarding.Step step : KeepADBOnboarding.Step.values()) {
@@ -357,6 +366,49 @@ public class OnboardingActivityTest {
             assertEquals("the single step never marks the assistant closed", 0,
                     KeepADBPreferences.getOnboardingCompletedVersion(context));
         }
+    }
+
+    /**
+     * A notification target tapped before the assistant was ever closed: leaving the single step
+     * opens the home screen, which hands over to the full assistant once; every way out of that
+     * (here Back on its intro) marks it closed, so the home screen stays. A detour, not a loop.
+     */
+    @Test
+    public void aNotificationTargetBeforeTheFirstCloseCostsOneDetourAndNoLoop() {
+        OnboardingActivity single = start(OnboardingActivity.notificationIntent(context,
+                KeepADBOnboarding.Step.PERMISSIONS, OnboardingActionSteps.Permissions.ITEM_SYSTEM));
+        click(single, R.id.onboarding_next); // Done
+        Intent home = shadowOf(single).getNextStartedActivity();
+        assertEquals(MainActivity.class.getName(), home.getComponent().getClassName());
+        assertEquals(0, KeepADBPreferences.getOnboardingCompletedVersion(context));
+
+        ActivityController<MainActivity> main =
+                Robolectric.buildActivity(MainActivity.class, home).setup();
+        controllers.add(main);
+        Intent handOver = shadowOf(main.get()).getNextStartedActivity();
+        assertTrue(main.get().isFinishing());
+        assertEquals(OnboardingActivity.class.getName(), handOver.getComponent().getClassName());
+        assertNull("the hand-over is the full assistant", handOver.getStringExtra(OnboardingActivity.EXTRA_STEP));
+
+        OnboardingActivity full = start(handOver);
+        full.onBackPressed(); // Back on the intro acts as Later
+        Intent again = shadowOf(full).getNextStartedActivity();
+        assertEquals(MainActivity.class.getName(), again.getComponent().getClassName());
+        ActivityController<MainActivity> second =
+                Robolectric.buildActivity(MainActivity.class, again).setup();
+        controllers.add(second);
+        assertFalse("the home screen stays: no second hand-over", second.get().isFinishing());
+        assertNull(shadowOf(second.get()).peekNextStartedActivity());
+    }
+
+    /** Single-step mode: the close button leaves too, and never marks the assistant closed. */
+    @Test
+    public void theCloseButtonOfASingleStepDoesNotMarkTheAssistantClosed() {
+        OnboardingActivity single = start(
+                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.DETAILS));
+        click(single, R.id.onboarding_close);
+        assertTrue(single.isFinishing());
+        assertEquals(0, KeepADBPreferences.getOnboardingCompletedVersion(context));
     }
 
     @Test

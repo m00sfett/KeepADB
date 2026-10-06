@@ -555,6 +555,43 @@ public class OnboardingActivityPermissionsTest {
         assertServiceStartRequested("the foreground start that re-promotes the service (#628)");
     }
 
+    /**
+     * Two cards open the same activity with different extras. A PendingIntent ignores extras when
+     * it is matched, so a shared request code would let one card overwrite the other's target
+     * (#603).
+     */
+    @Test
+    public void theTwoCardsThatOpenTheStepKeepPendingIntentsOfTheirOwn() {
+        keepAliveRunning();
+        shadowOf((Application) context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+        android.net.wifi.WifiInfo info = org.robolectric.shadows.ShadowWifiInfo.newInstance();
+        shadowOf(info).setSSID("Cafe-WLAN");
+        shadowOf(info).setBSSID(KeepADBNetworkIdentity.REDACTED_BSSID);
+        shadowOf((android.net.wifi.WifiManager) context.getSystemService(Context.WIFI_SERVICE))
+                .setConnectionInfo(info);
+        shadowOf((android.location.LocationManager)
+                context.getSystemService(Context.LOCATION_SERVICE)).setLocationEnabled(true);
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        KeepADBNotification.showPermissionMissing(context);
+
+        android.app.NotificationManager manager =
+                context.getSystemService(android.app.NotificationManager.class);
+        Notification missing = shadowOf(manager).getNotification(KeepADBNotification.NOTIFICATION_ID);
+        Notification unreadable =
+                shadowOf(manager).getNotification(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
+        assertNotNull(missing);
+        assertNotNull(unreadable);
+        assertEquals(OnboardingActionSteps.Permissions.ITEM_SYSTEM, shadowOf(missing.contentIntent)
+                .getSavedIntent().getStringExtra(OnboardingActivity.EXTRA_FOCUS_ITEM));
+        assertEquals(OnboardingActionSteps.Permissions.ITEM_BACKGROUND_LOCATION,
+                shadowOf(unreadable.contentIntent).getSavedIntent()
+                        .getStringExtra(OnboardingActivity.EXTRA_FOCUS_ITEM));
+        assertTrue("each card needs a request code of its own",
+                shadowOf(missing.contentIntent).getRequestCode()
+                        != shadowOf(unreadable.contentIntent).getRequestCode());
+    }
+
     // ---- Summary and the Keep-Alive hint -------------------------------------------------------------
 
     @Test

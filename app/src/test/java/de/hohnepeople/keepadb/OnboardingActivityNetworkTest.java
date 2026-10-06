@@ -184,6 +184,19 @@ public class OnboardingActivityNetworkTest {
         assertTrue(shown.contains(note));
     }
 
+    /** The other side of the exception: a network that needs no question still shows its name. */
+    @Test
+    public void thePrivacyModeShowsTheNameOfATrustedNetworkToo() {
+        connectTo(HOME, KITCHEN);
+        KeepADBTrustedNetwork.addBssid(context, KITCHEN, HOME);
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+
+        OnboardingActivity assistant = open();
+
+        assertNull("a trusted network is not asked about", findDecision(assistant));
+        assertTrue(allText(assistant), allText(assistant).contains(HOME));
+    }
+
     @Test
     public void whileTheForceModeIsOnTheStepSaysTheAnswerAppliesAfterwards() {
         connectTo(HOME, KITCHEN);
