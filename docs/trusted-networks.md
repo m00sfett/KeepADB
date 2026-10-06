@@ -206,7 +206,8 @@ wird nie festgehalten: Sie verkürzt nur, und wer sie wieder richtig stellt, ver
 
 Ist der Boot-Zähler des Systems nicht lesbar, endet ein befristeter Modus sofort: Die Prüfung
 liefert vom ersten Lesen an „aus“, die einmalige Ablaufmeldung folgt wie sonst, und ein befristeter
-Modus lässt sich in diesem Zustand gar nicht erst starten. Wird der Zähler wieder lesbar, bleibt der
+Modus lässt sich in diesem Zustand gar nicht erst starten; der Dialog sagt das in einem Hinweis und
+bleibt offen. Wird der Zähler wieder lesbar, bleibt der
 Modus beendet und kann aus seinem Dialog neu gestartet werden; nichts bleibt gesperrt. „Ohne
 Ablaufzeit“ hat keine Frist, braucht den Zähler nicht und bleibt bis zum Beenden, auch über
 Neustarts und Updates.

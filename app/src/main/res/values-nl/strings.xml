@@ -434,6 +434,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="force_warning_unlimited">Zonder einde blijft de geforceerde modus aan tot je hem zelf beëindigt, ook na herstarts en app-updates.</string>
     <string name="force_unlimited_ack">Ik begrijp dat draadloze foutopsporing dan in elk netwerk aangaat.</string>
     <string name="force_keepalive_hint">De geforceerde modus werkt alleen met Keep-Alive. Keep-Alive wordt mee ingeschakeld.</string>
+    <string name="force_not_started_toast">De geforceerde modus is niet ingeschakeld: een tijdslimiet kan op dit apparaat nu niet betrouwbaar worden bewaakt. Er is niets gewijzigd.</string>
     <string name="force_confirm_1h">Inschakelen voor 1 uur</string>
     <string name="force_confirm_24h">Inschakelen voor 24 uur</string>
     <string name="force_confirm_7d">Inschakelen voor 7 dagen</string>

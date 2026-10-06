@@ -434,6 +434,7 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="force_warning_unlimited">Bez czasu zakończenia tryb wymuszony pozostaje włączony, dopóki sam go nie zakończysz, także po restartach i aktualizacjach aplikacji.</string>
     <string name="force_unlimited_ack">Rozumiem, że debugowanie bezprzewodowe włączy się wtedy w każdej sieci.</string>
     <string name="force_keepalive_hint">Tryb wymuszony działa tylko z Keep-Alive. Keep-Alive zostanie włączone razem z nim.</string>
+    <string name="force_not_started_toast">Tryb wymuszony nie został włączony: to urządzenie nie może teraz niezawodnie dotrzymać limitu czasu. Nic nie zostało zmienione.</string>
     <string name="force_confirm_1h">Włącz na 1 godzinę</string>
     <string name="force_confirm_24h">Włącz na 24 godziny</string>
     <string name="force_confirm_7d">Włącz na 7 dni</string>

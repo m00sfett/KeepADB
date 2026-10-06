@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 /**
  * The confirmation dialog of the force mode (#763), the only place that can turn it on (a static
@@ -116,7 +117,13 @@ final class KeepADBForceDialog {
         // The button is disabled in this case; a direct performClick() or a test must not get
         // around that, and activate() refuses it once more.
         if (span.isUnlimited() && !acknowledged) return;
-        if (!KeepADBForceMode.activate(activity, span, acknowledged)) return;
+        if (!KeepADBForceMode.activate(activity, span, acknowledged)) {
+            // Nothing was started or stored (a limited mode needs the boot counter to keep its
+            // limit, or the state could not be saved). A button that silently does nothing reads
+            // as broken, and the user must not believe the mode is on: say it, keep the dialog.
+            Toast.makeText(activity, R.string.force_not_started_toast, Toast.LENGTH_LONG).show();
+            return;
+        }
         dismiss();
         onChanged.run();
     }

@@ -434,6 +434,7 @@
     <string name="force_warning_unlimited">没有结束时间时，强制模式会一直开启，直到你自己结束，重启和应用更新后也是如此。</string>
     <string name="force_unlimited_ack">我明白，届时无线调试会在任何网络中开启。</string>
     <string name="force_keepalive_hint">强制模式只在开启 Keep-Alive 时有效。Keep-Alive 会一并开启。</string>
+    <string name="force_not_started_toast">未能开启强制模式：此设备目前无法可靠地遵守时间限制。未作任何更改。</string>
     <string name="force_confirm_1h">开启 1 小时</string>
     <string name="force_confirm_24h">开启 24 小时</string>
     <string name="force_confirm_7d">开启 7 天</string>

@@ -434,6 +434,7 @@
     <string name="force_warning_unlimited">Без времени окончания принудительный режим остаётся включённым, пока вы сами его не завершите, в том числе после перезагрузок и обновлений приложения.</string>
     <string name="force_unlimited_ack">Я понимаю, что тогда беспроводная отладка будет включаться в любой сети.</string>
     <string name="force_keepalive_hint">Принудительный режим работает только с Keep-Alive. Keep-Alive включается вместе с ним.</string>
+    <string name="force_not_started_toast">Принудительный режим не включён: сейчас это устройство не может надёжно соблюдать ограничение по времени. Ничего не изменено.</string>
     <string name="force_confirm_1h">Включить на 1 час</string>
     <string name="force_confirm_24h">Включить на 24 часа</string>
     <string name="force_confirm_7d">Включить на 7 дней</string>

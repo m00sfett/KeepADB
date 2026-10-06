@@ -434,6 +434,7 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="force_warning_unlimited">Sem hora de fim, o modo forçado fica ativo até o terminar, também após reinícios e atualizações da app.</string>
     <string name="force_unlimited_ack">Compreendo que a depuração sem fio será ativada então em qualquer rede.</string>
     <string name="force_keepalive_hint">O modo forçado só funciona com o Keep-Alive. O Keep-Alive é ativado em conjunto.</string>
+    <string name="force_not_started_toast">O modo forçado não foi ativado: neste momento este dispositivo não consegue cumprir um limite de tempo de forma fiável. Nada foi alterado.</string>
     <string name="force_confirm_1h">Ativar durante 1 hora</string>
     <string name="force_confirm_24h">Ativar durante 24 horas</string>
     <string name="force_confirm_7d">Ativar durante 7 dias</string>

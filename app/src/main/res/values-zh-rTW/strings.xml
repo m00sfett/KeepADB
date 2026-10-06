@@ -434,6 +434,7 @@
     <string name="force_warning_unlimited">沒有結束時間時，強制模式會一直開啟，直到你自行結束，重新啟動和應用程式更新後也一樣。</string>
     <string name="force_unlimited_ack">我了解，屆時無線偵錯會在任何網路中開啟。</string>
     <string name="force_keepalive_hint">強制模式僅在開啟 Keep-Alive 時有效。Keep-Alive 會一併開啟。</string>
+    <string name="force_not_started_toast">未能開啟強制模式：此裝置目前無法可靠地遵守時間限制。未做任何變更。</string>
     <string name="force_confirm_1h">開啟 1 小時</string>
     <string name="force_confirm_24h">開啟 24 小時</string>
     <string name="force_confirm_7d">開啟 7 天</string>

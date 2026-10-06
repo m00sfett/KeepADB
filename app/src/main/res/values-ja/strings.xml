@@ -434,6 +434,7 @@
     <string name="force_warning_unlimited">終了時刻がない場合、強制モードは自分で終了するまで、再起動やアプリの更新後も有効なままです。</string>
     <string name="force_unlimited_ack">ワイヤレスデバッグがどのネットワークでも有効になることを理解しました。</string>
     <string name="force_keepalive_hint">強制モードは Keep-Alive と併用した場合にのみ機能します。Keep-Alive も一緒にオンになります。</string>
+    <string name="force_not_started_toast">強制モードをオンにできませんでした。この端末では現在、時間制限を確実に守れません。何も変更されていません。</string>
     <string name="force_confirm_1h">1 時間オンにする</string>
     <string name="force_confirm_24h">24 時間オンにする</string>
     <string name="force_confirm_7d">7 日間オンにする</string>

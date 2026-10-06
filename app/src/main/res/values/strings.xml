@@ -441,6 +441,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="force_warning_unlimited">Without an end time, force mode stays on until you end it yourself, including after restarts and app updates.</string>
     <string name="force_unlimited_ack">I understand that wireless debugging will then turn on in every network.</string>
     <string name="force_keepalive_hint">Force mode only works with Keep-Alive. Keep-Alive is turned on with it.</string>
+    <string name="force_not_started_toast">Force mode was not turned on: a time limit can\'t be kept reliably on this device right now. Nothing was changed.</string>
     <string name="force_confirm_1h">Turn on for 1 hour</string>
     <string name="force_confirm_24h">Turn on for 24 hours</string>
     <string name="force_confirm_7d">Turn on for 7 days</string>

@@ -34,6 +34,7 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowToast;
 
 /**
  * #763: the confirmation dialog and the Settings row. The invariants have two sides each: the
@@ -215,6 +216,48 @@ public class KeepADBForceDialogTest {
         assertEquals(View.GONE, activity.findViewById(R.id.settings_force_activate).getVisibility());
         assertEquals(View.VISIBLE, activity.findViewById(R.id.settings_force_end).getVisibility());
         assertEquals(View.VISIBLE, activity.findViewById(R.id.settings_force_change).getVisibility());
+    }
+
+    @Test
+    public void aLimitedModeThatCannotKeepItsLimitIsRefusedWithAHintAndTheDialogStaysOpen() {
+        clock.bootCountReadable = false; // Settings.Global.boot_count cannot be read
+        AlertDialog dialog = openDialog(open());
+
+        dialog.findViewById(R.id.force_dialog_confirm).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertEquals("The user is told instead of facing a button that does nothing",
+                "Force mode was not turned on: a time limit can't be kept reliably on this device right now. "
+                        + "Nothing was changed.",
+                ShadowToast.getTextOfLatestToast());
+        assertTrue("The dialog stays, another choice is still possible", dialog.isShowing());
+        assertFalse(KeepADBForceMode.isActive(context));
+        assertFalse("Refused: nothing stored", context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
+                .contains(KeepADBForceMode.KEY_STATE));
+        assertFalse("... and Keep-Alive is not switched on for a mode that cannot run",
+                KeepADBPreferences.isKeepAliveEnabled(context));
+    }
+
+    @Test
+    public void thereIsNoRefusalHintWhenTheBootCounterIsReadableOrTheChoiceHasNoTimeLimit() {
+        SettingsActivity activity = open();
+        AlertDialog dialog = openDialog(activity);
+        dialog.findViewById(R.id.force_dialog_confirm).performClick();
+        ShadowLooper.idleMainLooper();
+        assertTrue(KeepADBForceMode.isActive(context));
+        assertNull("Readable counter: started, nothing refused", ShadowToast.getLatestToast());
+
+        KeepADBForceMode.endNow(context);
+        ShadowToast.reset();
+        clock.bootCountReadable = false;
+        AlertDialog unlimited = openDialog(activity);
+        ((RadioButton) unlimited.findViewById(R.id.force_span_unlimited)).setChecked(true);
+        ((CheckBox) unlimited.findViewById(R.id.force_dialog_ack)).setChecked(true);
+        unlimited.findViewById(R.id.force_dialog_confirm).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertTrue("An unlimited mode has no budget and needs no counter", KeepADBForceMode.isActive(context));
+        assertNull(ShadowToast.getLatestToast());
     }
 
     @Test

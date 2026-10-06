@@ -434,6 +434,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="force_warning_unlimited">Ohne Ablaufzeit bleibt der Force-Modus an, bis du ihn selbst beendest, auch nach Neustarts und App-Updates.</string>
     <string name="force_unlimited_ack">Ich weiß, dass Drahtloses Debugging dann in jedem Netzwerk angeht.</string>
     <string name="force_keepalive_hint">Der Force-Modus wirkt nur mit Keep-Alive. Keep-Alive wird mit eingeschaltet.</string>
+    <string name="force_not_started_toast">Force-Modus wurde nicht eingeschaltet: Eine Zeitgrenze lässt sich auf diesem Gerät gerade nicht verlässlich einhalten. Es wurde nichts geändert.</string>
     <string name="force_confirm_1h">Für 1 Stunde aktivieren</string>
     <string name="force_confirm_24h">Für 24 Stunden aktivieren</string>
     <string name="force_confirm_7d">Für 7 Tage aktivieren</string>

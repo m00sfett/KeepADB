@@ -434,6 +434,7 @@
     <string name="force_warning_unlimited">من دون وقت انتهاء يبقى الوضع الإجباري مفعّلًا حتى تنهيه بنفسك، بما في ذلك بعد إعادة التشغيل وتحديثات التطبيق.</string>
     <string name="force_unlimited_ack">أدرك أن تصحيح الأخطاء اللاسلكي سيتفعّل حينها في أي شبكة.</string>
     <string name="force_keepalive_hint">لا يعمل الوضع الإجباري إلا مع Keep-Alive. يتم تفعيل Keep-Alive معه.</string>
+    <string name="force_not_started_toast">لم يتم تشغيل الوضع الإجباري: لا يمكن الالتزام بحد زمني بشكل موثوق على هذا الجهاز حاليًا. لم يتغير شيء.</string>
     <string name="force_confirm_1h">التفعيل لمدة ساعة واحدة</string>
     <string name="force_confirm_24h">التفعيل لمدة 24 ساعة</string>
     <string name="force_confirm_7d">التفعيل لمدة 7 أيام</string>

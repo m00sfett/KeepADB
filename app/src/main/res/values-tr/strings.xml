@@ -434,6 +434,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="force_warning_unlimited">Bitiş zamanı olmadan zorunlu mod, siz bitirene kadar açık kalır; yeniden başlatmalardan ve uygulama güncellemelerinden sonra da.</string>
     <string name="force_unlimited_ack">Kablosuz hata ayıklamanın o zaman her ağda açılacağını anlıyorum.</string>
     <string name="force_keepalive_hint">Zorunlu mod yalnızca Keep-Alive ile çalışır. Keep-Alive birlikte açılır.</string>
+    <string name="force_not_started_toast">Zorunlu mod açılmadı: bu cihazda zaman sınırı şu anda güvenilir biçimde uygulanamıyor. Hiçbir şey değiştirilmedi.</string>
     <string name="force_confirm_1h">1 saatliğine aç</string>
     <string name="force_confirm_24h">24 saatliğine aç</string>
     <string name="force_confirm_7d">7 günlüğüne aç</string>

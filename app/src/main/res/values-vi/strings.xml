@@ -434,6 +434,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="force_warning_unlimited">Nếu không có thời điểm kết thúc, chế độ cưỡng chế vẫn bật cho đến khi chính bạn kết thúc, kể cả sau khi khởi động lại và cập nhật ứng dụng.</string>
     <string name="force_unlimited_ack">Tôi hiểu rằng khi đó gỡ lỗi không dây sẽ bật ở mọi mạng.</string>
     <string name="force_keepalive_hint">Chế độ cưỡng chế chỉ hoạt động cùng Keep-Alive. Keep-Alive sẽ được bật cùng.</string>
+    <string name="force_not_started_toast">Chế độ cưỡng chế chưa được bật: hiện thiết bị này không thể giữ giới hạn thời gian một cách đáng tin cậy. Không có gì bị thay đổi.</string>
     <string name="force_confirm_1h">Bật trong 1 giờ</string>
     <string name="force_confirm_24h">Bật trong 24 giờ</string>
     <string name="force_confirm_7d">Bật trong 7 ngày</string>

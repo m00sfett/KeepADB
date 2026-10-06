@@ -434,6 +434,7 @@
     <string name="force_warning_unlimited">Без часу завершення примусовий режим лишається ввімкненим, доки ви самі його не завершите, зокрема після перезавантажень і оновлень застосунку.</string>
     <string name="force_unlimited_ack">Я розумію, що тоді бездротове налагодження вмикатиметься в будь-якій мережі.</string>
     <string name="force_keepalive_hint">Примусовий режим працює лише з Keep-Alive. Keep-Alive вмикається разом із ним.</string>
+    <string name="force_not_started_toast">Примусовий режим не ввімкнено: цей пристрій зараз не може надійно дотримуватися обмеження за часом. Нічого не змінено.</string>
     <string name="force_confirm_1h">Увімкнути на 1 годину</string>
     <string name="force_confirm_24h">Увімкнути на 24 години</string>
     <string name="force_confirm_7d">Увімкнути на 7 днів</string>

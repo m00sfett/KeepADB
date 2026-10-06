@@ -434,6 +434,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="force_warning_unlimited">Tanpa waktu berakhir, mode paksa tetap aktif sampai Anda sendiri mengakhirinya, termasuk setelah mulai ulang dan pembaruan aplikasi.</string>
     <string name="force_unlimited_ack">Saya memahami bahwa Debugging Nirkabel kemudian akan aktif di jaringan mana pun.</string>
     <string name="force_keepalive_hint">Mode paksa hanya berfungsi dengan Keep-Alive. Keep-Alive ikut diaktifkan.</string>
+    <string name="force_not_started_toast">Mode paksa tidak diaktifkan: batas waktu tidak dapat dijaga dengan andal di perangkat ini saat ini. Tidak ada yang diubah.</string>
     <string name="force_confirm_1h">Aktifkan selama 1 jam</string>
     <string name="force_confirm_24h">Aktifkan selama 24 jam</string>
     <string name="force_confirm_7d">Aktifkan selama 7 hari</string>

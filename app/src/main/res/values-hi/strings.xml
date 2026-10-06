@@ -434,6 +434,7 @@
     <string name="force_warning_unlimited">समाप्ति समय के बिना फ़ोर्स मोड तब तक चालू रहता है जब तक आप उसे खुद समाप्त न करें, रीस्टार्ट और ऐप अपडेट के बाद भी।</string>
     <string name="force_unlimited_ack">मुझे पता है कि तब वायरलेस डीबगिंग हर नेटवर्क में चालू हो जाएगी।</string>
     <string name="force_keepalive_hint">फ़ोर्स मोड केवल Keep-Alive के साथ काम करता है। Keep-Alive इसके साथ चालू हो जाता है।</string>
+    <string name="force_not_started_toast">फ़ोर्स मोड चालू नहीं हुआ: इस डिवाइस पर अभी समय सीमा को भरोसेमंद ढंग से नहीं निभाया जा सकता। कुछ भी नहीं बदला गया।</string>
     <string name="force_confirm_1h">1 घंटे के लिए चालू करें</string>
     <string name="force_confirm_24h">24 घंटे के लिए चालू करें</string>
     <string name="force_confirm_7d">7 दिन के लिए चालू करें</string>

@@ -434,6 +434,7 @@
     <string name="force_warning_unlimited">종료 시간이 없으면 직접 종료할 때까지, 재시작과 앱 업데이트 후에도 강제 모드가 켜져 있습니다.</string>
     <string name="force_unlimited_ack">그러면 무선 디버깅이 모든 네트워크에서 켜진다는 것을 이해합니다.</string>
     <string name="force_keepalive_hint">강제 모드는 Keep-Alive와 함께일 때만 작동합니다. Keep-Alive도 함께 켜집니다.</string>
+    <string name="force_not_started_toast">강제 모드를 켜지 못했습니다. 이 기기에서는 지금 시간 제한을 안정적으로 지킬 수 없습니다. 변경된 것은 없습니다.</string>
     <string name="force_confirm_1h">1시간 동안 켜기</string>
     <string name="force_confirm_24h">24시간 동안 켜기</string>
     <string name="force_confirm_7d">7일 동안 켜기</string>

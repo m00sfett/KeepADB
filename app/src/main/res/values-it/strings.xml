@@ -434,6 +434,7 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="force_warning_unlimited">Senza scadenza la modalità forzata resta attiva finché non la termini tu, anche dopo riavvii e aggiornamenti dell\'app.</string>
     <string name="force_unlimited_ack">Capisco che il debug wireless si attiverà quindi in qualsiasi rete.</string>
     <string name="force_keepalive_hint">La modalità forzata funziona solo con Keep-Alive. Keep-Alive viene attivato insieme.</string>
+    <string name="force_not_started_toast">La modalità forzata non è stata attivata: al momento questo dispositivo non può rispettare in modo affidabile un limite di tempo. Non è stato modificato nulla.</string>
     <string name="force_confirm_1h">Attiva per 1 ora</string>
     <string name="force_confirm_24h">Attiva per 24 ore</string>
     <string name="force_confirm_7d">Attiva per 7 giorni</string>

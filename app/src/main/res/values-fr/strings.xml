@@ -434,6 +434,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="force_warning_unlimited">Sans heure de fin, le mode forcé reste actif jusqu\'à ce que vous l\'arrêtiez vous-même, y compris après des redémarrages et des mises à jour de l\'appli.</string>
     <string name="force_unlimited_ack">Je comprends que le débogage sans fil s\'activera alors dans tous les réseaux.</string>
     <string name="force_keepalive_hint">Le mode forcé ne fonctionne qu\'avec Keep-Alive. Keep-Alive est activé en même temps.</string>
+    <string name="force_not_started_toast">Le mode forcé n\'a pas été activé : cet appareil ne peut pas respecter une limite de durée de façon fiable pour le moment. Rien n\'a été modifié.</string>
     <string name="force_confirm_1h">Activer pour 1 heure</string>
     <string name="force_confirm_24h">Activer pour 24 heures</string>
     <string name="force_confirm_7d">Activer pour 7 jours</string>
