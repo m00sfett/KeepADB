@@ -33,12 +33,15 @@ final class KeepADBOnboarding {
 
     /**
      * The steps this build knows, in the order of the concept. The ids are the {@code EXTRA_STEP}
-     * values of the single-step mode (UX concept 1.7). Further steps (permissions and trusted
-     * Wi-Fi: #767, webhook: #768) are added here and to {@link OnboardingActivity#buildSteps}.
+     * values of the single-step mode (UX concept 1.7). A further step (webhook: #768) is added
+     * here and to {@link OnboardingActivity#buildSteps}. The permissions and the trusted Wi-Fi
+     * (#767) come between the protection level and the lock screen, as in the concept.
      */
     enum Step {
         KEEP_ALIVE("keep_alive"),
         PROTECTION("protection"),
+        PERMISSIONS("permissions"),
+        NETWORK("network"),
         DETAILS("details");
 
         final String id;

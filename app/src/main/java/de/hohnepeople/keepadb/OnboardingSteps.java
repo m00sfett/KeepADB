@@ -29,6 +29,7 @@ final class OnboardingSteps {
         private static final int OFF = 0;
         private static final int ON = 1;
         private OnboardingChoiceCard.Group group;
+        private TextView notificationHint;
         private int restored = -1;
 
         KeepAlive() {
@@ -48,8 +49,32 @@ final class OnboardingSteps {
                     host.getString(R.string.onboarding_keep_alive_on_body),
                     OnboardingChoiceCard.Badge.NONE));
             boolean stored = KeepADBPreferences.isKeepAliveEnabled(host);
+
+            // Keep-Alive runs as a foreground service and needs its permanent notification (API 33
+            // and later); the permission is asked in the permissions step, which this hint names.
+            // Alone, without the sequence, the step has no "next" to point at.
+            notificationHint = new TextView(host);
+            notificationHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+            notificationHint.setTextColor(host.getColor(R.color.text_yellow));
+            notificationHint.setText(host.getString(R.string.onboarding_keep_alive_notification_hint,
+                    OnboardingActivity.stepNumber(KeepADBOnboarding.Step.PERMISSIONS)));
+            notificationHint.setVisibility(View.GONE);
+            ViewGroup.MarginLayoutParams hintParams = new ViewGroup.MarginLayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            hintParams.topMargin = (int) (12 * host.getResources().getDisplayMetrics().density);
+            content.addView(notificationHint, hintParams);
+            group.setListener(index -> updateHint(host));
+
             group.selectQuietly(restored >= 0 ? restored : (stored ? ON : OFF));
             restored = -1;
+            updateHint(host);
+        }
+
+        /** Only while "On" is chosen and the notification permission is still missing. */
+        private void updateHint(Context context) {
+            boolean show = !standalone && group != null && group.selectedIndex() == ON
+                    && OnboardingPermissions.isNotificationMissing(context);
+            notificationHint.setVisibility(show ? View.VISIBLE : View.GONE);
         }
 
         @Override

@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 /**
  * One step of the setup assistant (#761). The assistant ({@link OnboardingActivity}) owns the
  * header, the navigation and the single-step mode; a step owns its content and what it may write.
- * A further step (permissions and trusted Wi-Fi in #767, webhook in #768) is one more subclass and
- * one more line in {@link OnboardingActivity#buildSteps}.
+ * A further step (webhook in #768) is one more subclass and one more line in {@link
+ * OnboardingActivity#buildSteps}.
  *
  * <p>The contract that carries the whole assistant: {@link #commit} writes only what the user
  * changed (see {@link KeepADBOnboarding}), so leaving a step with "Next" and no input is a no-op.
@@ -18,6 +18,8 @@ abstract class OnboardingStep {
     final KeepADBOnboarding.Step id;
     final int titleRes;
     final int questionRes;
+    /** Set by the assistant: this step is shown on its own (single-step mode), not in the sequence. */
+    boolean standalone;
 
     OnboardingStep(KeepADBOnboarding.Step id, int titleRes, int questionRes) {
         this.id = id;
@@ -44,6 +46,16 @@ abstract class OnboardingStep {
 
     /** The assistant came back to the front (a step that opens a system page re-reads its state here). */
     void onResume(Context context) {}
+
+    /** The result of a permission dialog this step started: re-read the platform, trust no array. */
+    void onPermissionResult(int requestCode) {}
+
+    /**
+     * The item of this step a deep link points at ({@link OnboardingActivity#EXTRA_FOCUS_ITEM}),
+     * set before the step is built. A step with items brings that one into view; any other
+     * ignores it.
+     */
+    void setFocusItem(String item) {}
 
     /** The pending, not yet committed selection, so a rotation does not lose it. */
     void saveState(Bundle out) {}

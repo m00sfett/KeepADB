@@ -42,6 +42,12 @@ import java.util.List;
 public class OnboardingActivity extends Activity {
     /** Single-step mode: the {@link KeepADBOnboarding.Step#id} of the one step to show. */
     public static final String EXTRA_STEP = "onboarding_step";
+    /**
+     * Single-step mode, optional: the item of that step a deep link points at (a row of the
+     * permissions step, for instance {@link OnboardingActionSteps.Permissions#ITEM_BACKGROUND_LOCATION}).
+     * The step brings it into view; an item the step does not know changes nothing.
+     */
+    public static final String EXTRA_FOCUS_ITEM = "onboarding_focus_item";
     /** Set by the home screen's hand-over: leaving the assistant opens the home screen. */
     static final String EXTRA_OPEN_HOME = "onboarding_open_home";
 
@@ -83,13 +89,37 @@ public class OnboardingActivity extends Activity {
         return new Intent(context, OnboardingActivity.class).putExtra(EXTRA_STEP, step.id);
     }
 
+    /**
+     * The tap target of a notification that points at one step (#759 phase 2): the step on its
+     * own, optionally at one of its items. Leaving it opens the home screen, because the user
+     * came from a notification and not from the app; and it starts in a task of its own like the
+     * targets it replaces.
+     */
+    static Intent notificationIntent(Context context, KeepADBOnboarding.Step step, String item) {
+        Intent intent = stepIntent(context, step).putExtra(EXTRA_OPEN_HOME, true)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        if (item != null) intent.putExtra(EXTRA_FOCUS_ITEM, item);
+        return intent;
+    }
+
     /** The steps this build has, in the order of the concept. */
     static List<OnboardingStep> buildSteps() {
         List<OnboardingStep> list = new ArrayList<>();
         list.add(new OnboardingSteps.KeepAlive());
         list.add(new OnboardingSteps.Protection());
+        list.add(new OnboardingActionSteps.Permissions());
+        list.add(new OnboardingActionSteps.Network());
         list.add(new OnboardingSteps.Details());
         return list;
+    }
+
+    /** The 1-based position of {@code step} in the sequence, for texts like "in step 3". */
+    static int stepNumber(KeepADBOnboarding.Step step) {
+        List<OnboardingStep> list = buildSteps();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).id == step) return i + 1;
+        }
+        return 0;
     }
 
     @Override
@@ -113,6 +143,10 @@ public class OnboardingActivity extends Activity {
                 if (step.id == requested) single = step;
             }
         }
+        if (single != null) {
+            single.standalone = true;
+            single.setFocusItem(intent.getStringExtra(EXTRA_FOCUS_ITEM));
+        }
         openHome = intent.getBooleanExtra(EXTRA_OPEN_HOME, false);
         // Decided before any step writes, and kept: the intro must read the same after a restart.
         existing = KeepADBOnboarding.isExistingInstall(this) || single != null || !openHome;
@@ -131,7 +165,7 @@ public class OnboardingActivity extends Activity {
 
         findViewById(R.id.onboarding_close).setOnClickListener(v -> close());
         backButton.setOnClickListener(v -> goBack());
-        secondaryButton.setOnClickListener(v -> close());
+        secondaryButton.setOnClickListener(v -> onSecondary());
         nextButton.setOnClickListener(v -> goForward());
         arrangeBottomBar();
 
@@ -151,6 +185,15 @@ public class OnboardingActivity extends Activity {
         }
         OnboardingStep current = currentStep();
         if (current != null) current.onResume(this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // The result arrays are not trusted (they can be empty): the step re-reads the platform.
+        OnboardingStep current = currentStep();
+        if (current != null) current.onPermissionResult(requestCode);
     }
 
     @Override
@@ -197,6 +240,16 @@ public class OnboardingActivity extends Activity {
         }
         steps.get(page - 1).commit(this);
         showPage(page + 1);
+    }
+
+    /** The second button: "Later" on the intro, "Skip" on a step with an action. Both write nothing. */
+    private void onSecondary() {
+        if (page == PAGE_INTRO) {
+            close();
+        } else if (single == null && page <= steps.size()) {
+            // Skipping is "Next" without the commit: the step has nothing the user chose.
+            showPage(page + 1);
+        }
     }
 
     private void goBack() {
@@ -292,7 +345,8 @@ public class OnboardingActivity extends Activity {
         step.build(this, pageContent);
         // Back is hidden on the first step; the system gesture still goes back to the intro.
         backButton.setVisibility(page == 1 ? View.GONE : View.VISIBLE);
-        secondaryButton.setVisibility(View.GONE);
+        secondaryButton.setVisibility(step.hasSkip() ? View.VISIBLE : View.GONE);
+        secondaryButton.setText(R.string.onboarding_skip);
         nextButton.setText(R.string.onboarding_next);
         applyBarOrder();
     }

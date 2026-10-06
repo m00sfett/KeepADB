@@ -137,7 +137,7 @@ public class OnboardingActivityTest {
         assertEquals("Off", checkedTitle(assistant)); // F2: Keep-Alive preselected Off
         click(assistant, R.id.onboarding_next); // to protection
         assertEquals(context.getString(R.string.force_level_maximum), checkedTitle(assistant));
-        click(assistant, R.id.onboarding_next); // to lock screen
+        advanceTo(assistant, KeepADBOnboarding.Step.DETAILS); // past permissions and Wi-Fi
         assertEquals("Off", checkedTitle(assistant));
     }
 
@@ -148,7 +148,7 @@ public class OnboardingActivityTest {
         cards(assistant).get(1).performClick(); // Keep-Alive: On
         click(assistant, R.id.onboarding_next);
         cards(assistant).get(1).performClick(); // Balanced
-        click(assistant, R.id.onboarding_next);
+        advanceTo(assistant, KeepADBOnboarding.Step.DETAILS);
         cards(assistant).get(1).performClick(); // details: On
         click(assistant, R.id.onboarding_next);
         click(assistant, R.id.onboarding_next); // Done
@@ -212,7 +212,7 @@ public class OnboardingActivityTest {
         assertEquals(context.getString(R.string.force_level_legacy_all), title(protection.get(0)));
         assertTrue(protection.get(0).isActivated());
         protection.get(1).performClick(); // Maximum security
-        click(assistant, R.id.onboarding_next);
+        advanceTo(assistant, KeepADBOnboarding.Step.DETAILS);
         cards(assistant).get(0).performClick(); // details: Off
         click(assistant, R.id.onboarding_next);
         click(assistant, R.id.onboarding_next);
@@ -348,7 +348,9 @@ public class OnboardingActivityTest {
             assertEquals(View.GONE, assistant.findViewById(R.id.onboarding_secondary).getVisibility());
             assertEquals(context.getString(R.string.onboarding_done),
                     text(assistant, R.id.onboarding_next));
-            assertFalse(cards(assistant).isEmpty());
+            assertTrue("a step shows something: " + step,
+                    ((ViewGroup) assistant.findViewById(R.id.onboarding_page_content))
+                            .getChildCount() > 0);
 
             click(assistant, R.id.onboarding_next);
             assertTrue(assistant.isFinishing());
@@ -535,6 +537,19 @@ public class OnboardingActivityTest {
         Intent handOver = shadowOf(main.get()).peekNextStartedActivity();
         assertNotNull("the home screen did not hand over", handOver);
         return start(handOver);
+    }
+
+    /** Presses "Next" until the page of {@code step} shows (from the intro or from an earlier step). */
+    private void advanceTo(OnboardingActivity assistant, KeepADBOnboarding.Step step) {
+        String wanted = null;
+        for (OnboardingStep candidate : OnboardingActivity.buildSteps()) {
+            if (candidate.id == step) wanted = context.getString(candidate.titleRes);
+        }
+        assertNotNull(step.id, wanted);
+        for (int i = 0; i < 12 && !wanted.equals(pageTitle(assistant)); i++) {
+            click(assistant, R.id.onboarding_next);
+        }
+        assertEquals(wanted, pageTitle(assistant));
     }
 
     private void click(android.app.Activity activity, int id) {
