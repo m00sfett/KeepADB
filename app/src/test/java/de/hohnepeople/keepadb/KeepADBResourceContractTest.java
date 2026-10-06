@@ -446,6 +446,15 @@ public class KeepADBResourceContractTest {
         result.put("network_prompt_text", new Object[] {stringWitness, stringWitness});
         result.put("network_decision_comfort_note", new Object[] {stringWitness});
         result.put("network_decision_block_name", new Object[] {stringWitness});
+        // #762: the Networks list.
+        for (String key : new String[] {"networks_level", "networks_a11y_wifi",
+                "networks_a11y_group_options", "networks_reason_name", "networks_reason_name_trusted",
+                "networks_unblock_name_title", "networks_group_dialog_head",
+                "networks_name_blocked_toast", "networks_name_unblocked_toast"}) {
+            result.put(key, new Object[] {stringWitness});
+        }
+        result.put("networks_group_saved", new Object[] {integerWitness});
+        result.put("networks_count", new Object[] {integerWitness, integerWitness});
         result.put("settings_trusted_network_blocked_detail",
                 new Object[] {stringWitness, stringWitness});
         result.put("network_head_mode", new Object[] {stringWitness});
