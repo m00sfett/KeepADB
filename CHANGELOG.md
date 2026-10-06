@@ -25,7 +25,7 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.9.30] - Unreleased
 
-Etappe patch candidate (versionCode 202) for the force mode (#763, part of #758); no release. The target version is shared with the parallel work on #766 and #765; the integrator merges the sections.
+Etappe patch candidate (versionCode 202), integration of Etappe E2 of #758: force mode (#763), defaults audit (#765), and network trust dialog (#766); no release. All three changes share this version.
 
 ### Added
 - #763: Optional force mode ("maximum comfort"): for a time the user picks, Keep-Alive switches Wireless Debugging back on in every Wi-Fi network, also in blocked, unknown and unreadable ones. It is the one exception to the block precedence of #760 and an overlay, not a mode of the trust model: `KeepADBTrustedNetwork.evaluateCurrent` answers the new decision `FORCE_MODE` before the Wi-Fi identity is read, so the service heartbeat and observer, the recovery pulse, the USB handover and the write-time guards all follow it. Nothing the model stores (trusted access points, blocks, the comfort switch, the legacy setting) is read or written by starting or ending it; "back to the previous protection level" is the overlay going away. It still needs Keep-Alive and a Wi-Fi connection, and a manual "Wireless Debugging off" is not overridden.
@@ -37,6 +37,24 @@ Etappe patch candidate (versionCode 202) for the force mode (#763, part of #758)
 ### Changed
 - #763: `BootReceiver` additionally handles the system clock set (`TIME_SET`) and, on boot and app update, re-evaluates the force mode before anything else (alarms do not survive a reboot or an update). `KeepADBReceiver` has two new internal actions (end, expiry alarm). No exported component and no permission was added; the alarm is inexact on purpose.
 - #763: The decision census test now expects four outcomes that allow an automatic enable (the three trusting ones and `FORCE_MODE`).
+- #765: Defaults audit of a new installation. Every setting was checked against the code that reads it: all settings with a security meaning already start on the safest value, so **no default value changes**. The one deviation, the network policy (`all_wifi`, "all Wi-Fi networks"), was fixed by #760; the claim in #765 that the default is still `MODE_ALL_WIFI` described the state before #760. The two settings that do not start on the strict side, `usb_profile_notification_enabled` (on) and `last_desired_on` (on, runtime state), are kept and justified in `docs/defaults.md`: neither enables anything or shares data by itself, and changing a fallback in a getter would silently move every installation that never stored the key.
+- #765: Existing installations are untouched: a stored value, looser or stricter than the default, stays exactly as stored, and reading a default never writes it back (the one-time network policy flag of #760 excepted).
+- #765: Keep-Alive stays "off" on a new installation (decision F2 of #758); the setup assistant (#761) will preselect "off" as well.
+
+Defaults of a new installation (full table with keys and reasons in `docs/defaults.md`):
+
+| Setting | Default | Security meaning |
+|---|---|---|
+| Keep-Alive | off | no automatic re-enable, nothing started at boot or update |
+| Network rule | trusted access points only (BSSID) | unreadable identity pauses, unknown network asks |
+| Also trust by Wi-Fi name / legacy name list | off | a copied name is not trust |
+| USB handover | off | nothing is enabled or offered on plugging in |
+| Webhook | off, no URL | no outgoing traffic, no built-in target |
+| Details in notifications | off | no network name, BSSID or USB profile on the lock screen |
+| Wi-Fi and access point discovery | off | no observation list |
+| Privacy mode | off | kept by decision (#758): optional, not part of onboarding |
+| Hide notification, keep display on, USB notification | off | opt-in conveniences |
+| Profile row in the USB notification | on | layout only; content stays behind "details in notifications" |
 
 ### Security
 - #763: The force mode lowers the network protection on purpose and is therefore never a default: nothing but its dialog starts it, no intent extra, notification action, receiver, migration or import. It is exact at the deadline without a timer, cannot be extended by a clock set, time zone or daylight saving change within a boot, and ends with a reboot only if the clock cannot be measured. Residual risk, documented: a reboot followed by a manual clock change backward that stays after the start extends the mode by the size of the jump (needs an unlocked device). A user who lets Android show sensitive notification content on the lock screen sees the private version there, as for every private notification content. Not verified on a device: that `Settings.Global.boot_count` is readable on all OEMs (without it only the wall clock counts, which is the fail-closed reading above).
@@ -44,9 +62,11 @@ Etappe patch candidate (versionCode 202) for the force mode (#763, part of #758)
 
 ### Documentation
 - #763: `docs/trusted-networks.md` has a force mode section (overlay, start and end, expiry, time rules and their residual, lock screen, way back); `SECURITY.md` and `README.md` state the option and that only its dialog starts it. The earlier "not implemented yet" remarks were corrected.
+- #765: New `docs/defaults.md` with the audit table (setting, key, default, effect, assessment), the rule for new versus existing installations, and how a default may be changed later (a persisted default as in #760, never a bare fallback swap). Linked from `docs/README.md`.
 
 ### Testing
 - #763: `KeepADBForceModeTest` (time rules from both sides, restart, update, clock set, time zone and daylight saving time, one notice, alarm, no silent extension, damaged state reads as off, notice content and the F6 offer with controls), `KeepADBForceModeCallPathTest` (the overlay on the heartbeat, observer, Wi-Fi callback, recovery pulse, USB handover and write-time guards, each with the same setup without it, after the deadline and after ending it; trust still cannot be added to a blocked network), `KeepADBForceNotificationTest`, `KeepADBForceDialogTest`, `MainActivityForceCardTest` and `KeepADBForceContractTest`. Every safety rule was checked by mutation (the rule broken in the source turned a test red). The five formatted force strings are registered in `KeepADBResourceContractTest`; all 42 new strings exist in the 19 locale files. The Android-device proof (restart and clock behavior on the Galaxy S20 FE) was not run.
+- #765: New `KeepADBDefaultsAuditTest` makes the table executable. Defaults: every setting reads its audited default on an empty store, reading writes nothing but the #760 network policy flag, and the acting paths behave on the defaults (unknown and unreadable networks never re-enable, same-named access point is not trusted, no service at boot or package replacement, no USB handover planned), each with a control that does act once the opt-in is stored. Existing installations: for every setting a stored value that differs from the default stays, in both directions (looser than a security default, stricter than a convenience default), individually and combined; an explicitly stored default stays; the stored side is written with literal key strings so a key rename fails. Completeness: a preference key constant in the sources that the audit does not classify, or an audited key that vanished from the sources, fails the build, and `docs/defaults.md` must name every setting key. Mutation checks (flipped defaults, a renamed key, a new unclassified key, a default written on read, a stored value ignored) each turn the suite red.
 
 ## [1.9.29] - Unreleased
 
