@@ -81,6 +81,7 @@ public class OnboardingActivityNetworkTest {
         }
         prefs().edit().clear().commit();
         KeepADB.resetForTesting();
+        KeepADBForceMode.resetForTesting();
     }
 
     // ---- The question and its answers ----------------------------------------------------------------
@@ -181,6 +182,19 @@ public class OnboardingActivityNetworkTest {
         String shown = allText(hidden);
         assertTrue("the name is shown although the privacy mode is on", shown.contains(HOME));
         assertTrue(shown.contains(note));
+    }
+
+    @Test
+    public void whileTheForceModeIsOnTheStepSaysTheAnswerAppliesAfterwards() {
+        connectTo(HOME, KITCHEN);
+        String note = context.getString(R.string.networks_force_note);
+        assertFalse(allText(open()).contains(note));
+
+        KeepADBForceMode.setClockForTesting(new KeepADBForceTestSupport.TestClock());
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.DEFAULT, true));
+        OnboardingActivity assistant = open();
+        assertTrue(allText(assistant).contains(note));
+        assertNotNull("the question is still asked", findDecision(assistant));
     }
 
     // ---- States without a readable network -----------------------------------------------------------------

@@ -353,6 +353,11 @@ final class OnboardingActionSteps {
                 content.addView(text(host, host.getString(R.string.onboarding_network_privacy_note),
                         13, R.color.night_muted, 0));
             }
+            if (KeepADBForceMode.isActive(host)) {
+                // Trust and blocks do not apply while force mode is on; the answer still counts.
+                content.addView(text(host, host.getString(R.string.networks_force_note), 13,
+                        R.color.text_yellow, 0));
+            }
             card = new LinearLayout(host);
             card.setOrientation(LinearLayout.VERTICAL);
             // The card is replaced when the answer is given; the screen reader reads the new one.
