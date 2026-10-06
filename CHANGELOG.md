@@ -17,11 +17,31 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33` and `1.9.34` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34` and `1.9.35` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.35] - Unreleased
+
+Etappe E6 patch candidate (versionCode 207), stacked packages #764, #770, #773 and #778 (UX concept #758); no release. Later packages of the stage add to this entry. The version 1.9.34 stays as it is.
+
+### Changed
+- #764: The home screen shows the status and only real problems. The setup cards are removed with their views, handlers and strings: first-time setup with the `pm grant` commands (`setup_panel`), notification permission, battery optimization, trusted-network onboarding and background location (`*_panel`), plus the "Set up webhook" button; the webhook status panel stays while the webhook is on. The advice banner "Security & network" moves below the status card (order only).
+- #764: Warning cards instead (`KeepADBHomeWarnings`, `view_home_warning.xml`, at most three at once, none dismissable, each there exactly as long as its cause): W1 system permission missing (above everything, silences W4 and W5) opens the assistant's permissions step at the command row; W2 force mode (existing card, #763); W3 "less secure than recommended" for an existing installation (not counting force) opens the step of the heaviest marked value; W4 Keep-Alive paused because the network cannot be read opens the same fix as the notification (`KeepADBNetworkTrustPrompt.identityUnavailableFixIntent`, now package-private); W5 Keep-Alive limited (missing notifications, background location outside force and the all-networks policy, battery exemption) opens the permissions step at the first missing row. W4 and W5 share one slot, W4 wins.
+- #764: The status line "this Wi-Fi isn't trusted" is tappable ("Tap to decide") and opens the trust decision (`NetworkDecisionActivity`) for the access point the device is on.
+- #764: The returning check after granting the system permission is the home screen's own redraw on resume; the "Check permission" button of the removed card is gone (the assistant's permissions step keeps its own).
+
+### Removed
+- #764: The dismiss flags `notification_permission_panel_visible`, `battery_optimization_panel_visible`, `network_onboarding_panel_visible` and `background_location_panel_visible` are deleted from the preferences on the first start (`KeepADBPreferences.removeObsoleteHomeCardKeys`); the existing/new decision of the assistant is frozen before, so deleting them cannot turn an existing installation into a new one. Their accessors are removed.
+- #764: The Settings switch "Show Battery Optimization Advice" (Sonstiges) goes with its card; its two strings and the strings only the removed cards used (`setup_single_device_label`, `battery_optimization_title`, `network_onboarding_*`, `background_location_setup_button`, `webhook_setup_button`, `action_dismiss`) are removed from all 19 locales.
+
+### Added
+- #764: Eleven strings (`home_warning_*`, `status_tap_to_decide`) in all 19 locales.
+
+### Testing
+- #764: `MainActivityWarningsTest` (W1 to W5 each with its counter-case, the cap of three, deep links, the status tap, the key cleanup, the removed view ids). The tests of the removed cards are removed (`MainActivityNotificationPermissionPanelTest`, `MainActivityNetworkOnboardingTest`); the permission request flow stays covered by the assistant's own tests, and the remaining background-location tests live in `BackgroundLocationGrantTest`.
 
 ## [1.9.34] - Unreleased
 
