@@ -472,7 +472,7 @@
     <string name="onboarding_intro_body_new">大約兩分鐘。每一步都可以略過，略過後會採用最安全的設定。</string>
     <string name="onboarding_intro_title_existing">新的安全設定</string>
     <string name="onboarding_intro_body_existing">KeepADB 現在把主要設定集中到一個精靈中。您目前的值會保留並預先選取。「下一步」不會變更任何內容。比建議設定安全性更低的項目會被標示。</string>
-    <string name="onboarding_intro_less_secure">標示為安全性較低的設定：%1$d</string>
+    <string name="onboarding_intro_less_secure">部分設定的安全性低於建議水準。</string>
     <string name="onboarding_keep_alive_question">重新啟動或連線中斷後，無線偵錯要自動重新開啟嗎？</string>
     <string name="onboarding_keep_alive_off_body">由您自己在應用程式、快速設定圖塊或小工具中開啟無線偵錯。重新啟動後維持關閉。</string>
     <string name="onboarding_keep_alive_on_body">重新啟動或連線中斷後，KeepADB 會重新開啟無線偵錯，但僅限保護等級允許的地方（下一步）。</string>
@@ -509,6 +509,8 @@
     <string name="onboarding_perm_system_title">系統權限</string>
     <string name="onboarding_perm_system_body">沒有它，KeepADB 無法切換無線偵錯。請在電腦上一次性授予：</string>
     <string name="onboarding_perm_system_more">多部裝置或遇到問題？</string>
+    <string name="onboarding_copy_command">複製指令</string>
+    <string name="onboarding_copy_done">指令已複製</string>
     <string name="onboarding_perm_location_title">偵測 Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android 只有在擁有位置存取權時才會顯示 Wi-Fi 名稱和存取點。KeepADB 絕不會讀取你的位置。</string>
     <string name="onboarding_perm_background_title">背景偵測</string>
@@ -537,7 +539,7 @@
     <string name="home_warning_paused_text">KeepADB 無法讀取網路，因此不會自動開啟。</string>
     <string name="home_warning_action_fix">修復</string>
     <string name="home_warning_limited_title">Keep-Alive 受限</string>
-    <string name="home_warning_limited_text">要讓 Keep-Alive 穩定運作，還缺少的設定：%1$d</string>
+    <string name="home_warning_limited_text">缺少讓 Keep-Alive 穩定運作所需的權限。</string>
     <string name="status_tap_to_decide">輕觸以決定</string>
     <string name="status_tap_to_open_list">輕觸以開啟網路清單</string>
 </resources>

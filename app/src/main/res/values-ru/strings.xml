@@ -472,7 +472,7 @@
     <string name="onboarding_intro_body_new">Около двух минут. Любой шаг можно пропустить, тогда действует самая безопасная настройка.</string>
     <string name="onboarding_intro_title_existing">Новые настройки безопасности</string>
     <string name="onboarding_intro_body_existing">KeepADB теперь собирает основные настройки в одном помощнике. Ваши текущие значения сохранены и выбраны заранее. «Далее» ничего не меняет. То, что менее безопасно, чем рекомендуется, отмечено.</string>
-    <string name="onboarding_intro_less_secure">Настроек, отмеченных как менее безопасные: %1$d</string>
+    <string name="onboarding_intro_less_secure">Некоторые настройки менее безопасны, чем рекомендуется.</string>
     <string name="onboarding_keep_alive_question">Должна ли беспроводная отладка сама включаться снова после перезагрузки или обрыва соединения?</string>
     <string name="onboarding_keep_alive_off_body">Вы включаете беспроводную отладку сами: в приложении, плитке или виджете. После перезагрузки она остаётся выключенной.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB снова включает беспроводную отладку после перезагрузки или обрыва соединения, но только там, где это позволяет ваш уровень защиты (следующий шаг).</string>
@@ -509,6 +509,8 @@
     <string name="onboarding_perm_system_title">Системное разрешение</string>
     <string name="onboarding_perm_system_body">Без него KeepADB не сможет переключать беспроводную отладку. Выдайте его один раз с компьютера:</string>
     <string name="onboarding_perm_system_more">Несколько устройств или проблемы?</string>
+    <string name="onboarding_copy_command">Копировать команду</string>
+    <string name="onboarding_copy_done">Команда скопирована</string>
     <string name="onboarding_perm_location_title">Распознавание Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android показывает имя Wi-Fi и точку доступа только при доступе к местоположению. KeepADB никогда не считывает ваше положение.</string>
     <string name="onboarding_perm_background_title">Распознавание в фоне</string>
@@ -537,7 +539,7 @@
     <string name="home_warning_paused_text">KeepADB не может прочитать сеть, поэтому не включает отладку сам.</string>
     <string name="home_warning_action_fix">Исправить</string>
     <string name="home_warning_limited_title">Keep-Alive ограничен</string>
-    <string name="home_warning_limited_text">Не хватает настроек для надёжной работы Keep-Alive: %1$d</string>
+    <string name="home_warning_limited_text">Не хватает разрешений для надёжной работы Keep-Alive.</string>
     <string name="status_tap_to_decide">Нажмите, чтобы решить</string>
     <string name="status_tap_to_open_list">Нажмите, чтобы открыть список сетей</string>
 </resources>

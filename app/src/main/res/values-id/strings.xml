@@ -472,7 +472,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_intro_body_new">Sekitar dua menit. Anda bisa melewati langkah mana pun; pengaturan teraman akan berlaku.</string>
     <string name="onboarding_intro_title_existing">Pengaturan keamanan baru</string>
     <string name="onboarding_intro_body_existing">KeepADB kini menyatukan pengaturan utamanya dalam satu asisten. Nilai Anda saat ini dipertahankan dan sudah dipilih. Lanjut tidak mengubah apa pun. Yang kurang aman dari yang disarankan diberi tanda.</string>
-    <string name="onboarding_intro_less_secure">Pengaturan bertanda kurang aman: %1$d</string>
+    <string name="onboarding_intro_less_secure">Beberapa pengaturan kurang aman dari yang disarankan.</string>
     <string name="onboarding_keep_alive_question">Haruskah Debugging Nirkabel menyala lagi sendiri setelah restart atau koneksi terputus?</string>
     <string name="onboarding_keep_alive_off_body">Anda menyalakan Debugging Nirkabel sendiri, lewat aplikasi, ubin, atau widget. Setelah restart tetap mati.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB menyalakan kembali Debugging Nirkabel setelah restart atau koneksi terputus, tetapi hanya di tempat yang diizinkan tingkat perlindungan Anda (langkah berikutnya).</string>
@@ -509,6 +509,8 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_perm_system_title">Izin sistem</string>
     <string name="onboarding_perm_system_body">Tanpa izin ini, KeepADB tidak dapat menyalakan Debugging Nirkabel. Berikan sekali dari komputer:</string>
     <string name="onboarding_perm_system_more">Beberapa perangkat atau masalah?</string>
+    <string name="onboarding_copy_command">Salin perintah</string>
+    <string name="onboarding_copy_done">Perintah disalin</string>
     <string name="onboarding_perm_location_title">Deteksi Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android hanya menampilkan nama Wi-Fi dan titik akses jika akses lokasi diizinkan. KeepADB tidak pernah membaca posisi Anda.</string>
     <string name="onboarding_perm_background_title">Deteksi di latar belakang</string>
@@ -537,7 +539,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="home_warning_paused_text">KeepADB tidak dapat membaca jaringan, sehingga tidak menyalakan sendiri.</string>
     <string name="home_warning_action_fix">Perbaiki</string>
     <string name="home_warning_limited_title">Keep-Alive terbatas</string>
-    <string name="home_warning_limited_text">Pengaturan yang kurang agar Keep-Alive andal: %1$d</string>
+    <string name="home_warning_limited_text">Izin yang dibutuhkan agar Keep-Alive andal belum lengkap.</string>
     <string name="status_tap_to_decide">Ketuk untuk memutuskan</string>
     <string name="status_tap_to_open_list">Ketuk untuk membuka daftar jaringan</string>
 </resources>

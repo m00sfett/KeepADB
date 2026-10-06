@@ -327,7 +327,7 @@ public class OnboardingActivityTest {
         OnboardingActivity assistant = startHandedOver();
         assertEquals(context.getString(R.string.onboarding_intro_title_existing), pageTitle(assistant));
         assertTrue(allText(assistant).contains(
-                context.getString(R.string.onboarding_intro_less_secure, 3)));
+                context.getString(R.string.onboarding_intro_less_secure)));
 
         prefs().edit().clear().commit();
         KeepADB.resetForTesting();

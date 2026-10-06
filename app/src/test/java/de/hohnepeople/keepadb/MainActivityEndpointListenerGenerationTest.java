@@ -45,6 +45,15 @@ public class MainActivityEndpointListenerGenerationTest {
     @Rule
     public final KeepADBNetworkResetRule keepADBNetworkResetRule = new KeepADBNetworkResetRule();
 
+    @org.junit.Before
+    public void setUp() {
+        // #791: an endpoint is only ever reported once the system permission is there; without it
+        // the screen now clears the address on every refresh.
+        org.robolectric.Shadows.shadowOf((android.app.Application)
+                org.robolectric.RuntimeEnvironment.getApplication()).grantPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS);
+    }
+
     @After
     public void tearDown() {
         KeepADBEndpointCoordinator.resetForTesting();

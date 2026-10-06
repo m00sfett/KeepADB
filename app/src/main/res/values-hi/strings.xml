@@ -472,7 +472,7 @@
     <string name="onboarding_intro_body_new">लगभग दो मिनट। आप कोई भी चरण छोड़ सकते हैं; तब सबसे सुरक्षित सेटिंग लागू रहती है।</string>
     <string name="onboarding_intro_title_existing">नई सुरक्षा सेटिंग</string>
     <string name="onboarding_intro_body_existing">KeepADB अब अपनी मुख्य सेटिंग एक सहायक में एक साथ लाता है। आपके मौजूदा मान बने रहते हैं और पहले से चुने हुए हैं। “आगे” कुछ नहीं बदलता। जो सेटिंग अनुशंसित से कम सुरक्षित है, उस पर निशान है।</string>
-    <string name="onboarding_intro_less_secure">कम सुरक्षित चिह्नित सेटिंग: %1$d</string>
+    <string name="onboarding_intro_less_secure">कुछ सेटिंग सुझाए गए स्तर से कम सुरक्षित हैं।</string>
     <string name="onboarding_keep_alive_question">क्या रीस्टार्ट या कनेक्शन टूटने के बाद वायरलेस डीबगिंग अपने आप फिर चालू होनी चाहिए?</string>
     <string name="onboarding_keep_alive_off_body">आप वायरलेस डीबगिंग खुद चालू करते हैं — ऐप, टाइल या विजेट से। रीस्टार्ट के बाद यह बंद रहती है।</string>
     <string name="onboarding_keep_alive_on_body">KeepADB रीस्टार्ट या कनेक्शन टूटने के बाद वायरलेस डीबगिंग फिर चालू करता है, लेकिन केवल वहीं जहाँ आपका सुरक्षा स्तर इसकी अनुमति दे (अगला चरण)।</string>
@@ -509,6 +509,8 @@
     <string name="onboarding_perm_system_title">सिस्टम अनुमति</string>
     <string name="onboarding_perm_system_body">इसके बिना KeepADB वायरलेस डीबगिंग चालू नहीं कर सकता। इसे एक बार कंप्यूटर से दें:</string>
     <string name="onboarding_perm_system_more">कई डिवाइस या समस्याएँ?</string>
+    <string name="onboarding_copy_command">कमांड कॉपी करें</string>
+    <string name="onboarding_copy_done">कमांड कॉपी हो गया</string>
     <string name="onboarding_perm_location_title">Wi-Fi की पहचान</string>
     <string name="onboarding_perm_location_body">Android Wi-Fi का नाम और ऐक्सेस पॉइंट तभी दिखाता है जब जगह की जानकारी का एक्सेस हो। KeepADB आपकी लोकेशन कभी नहीं पढ़ता।</string>
     <string name="onboarding_perm_background_title">बैकग्राउंड में पहचान</string>
@@ -537,7 +539,7 @@
     <string name="home_warning_paused_text">KeepADB नेटवर्क नहीं पढ़ पा रहा, इसलिए वह अपने-आप चालू नहीं करता।</string>
     <string name="home_warning_action_fix">ठीक करें</string>
     <string name="home_warning_limited_title">Keep-Alive सीमित है</string>
-    <string name="home_warning_limited_text">भरोसेमंद Keep-Alive के लिए ज़रूरी सेटिंग अधूरी: %1$d</string>
+    <string name="home_warning_limited_text">भरोसेमंद Keep-Alive के लिए कुछ अनुमतियाँ अभी बाकी हैं।</string>
     <string name="status_tap_to_decide">निर्णय के लिए टैप करें</string>
     <string name="status_tap_to_open_list">नेटवर्क सूची खोलने के लिए टैप करें</string>
 </resources>

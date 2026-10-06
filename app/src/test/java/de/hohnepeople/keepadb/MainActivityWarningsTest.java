@@ -224,7 +224,7 @@ public class MainActivityWarningsTest {
         MainActivity activity = open();
 
         assertTrue(shown(activity, R.id.warning_less_secure));
-        assertEquals(context.getString(R.string.onboarding_intro_less_secure, 1),
+        assertEquals(context.getString(R.string.onboarding_intro_less_secure),
                 text(activity, R.id.warning_less_secure).getText().toString());
         assertLeadsToStep(activity, R.id.warning_less_secure, KeepADBOnboarding.Step.DETAILS, null);
     }
@@ -235,7 +235,7 @@ public class MainActivityWarningsTest {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         MainActivity activity = open();
 
-        assertEquals(context.getString(R.string.onboarding_intro_less_secure, 2),
+        assertEquals(context.getString(R.string.onboarding_intro_less_secure),
                 text(activity, R.id.warning_less_secure).getText().toString());
         assertLeadsToStep(activity, R.id.warning_less_secure,
                 KeepADBOnboarding.Step.PROTECTION, null);
@@ -302,7 +302,7 @@ public class MainActivityWarningsTest {
         MainActivity activity = open();
 
         assertTrue(shown(activity, R.id.warning_limited));
-        assertEquals(context.getString(R.string.home_warning_limited_text, 1),
+        assertEquals(context.getString(R.string.home_warning_limited_text),
                 text(activity, R.id.warning_limited).getText().toString());
         assertLeadsToStep(activity, R.id.warning_limited, KeepADBOnboarding.Step.PERMISSIONS,
                 OnboardingActionSteps.Permissions.ITEM_BATTERY);
@@ -312,7 +312,7 @@ public class MainActivityWarningsTest {
                 android.Manifest.permission.POST_NOTIFICATIONS,
                 android.Manifest.permission.ACCESS_BACKGROUND_LOCATION);
         MainActivity all = open();
-        assertEquals(context.getString(R.string.home_warning_limited_text, 3),
+        assertEquals(context.getString(R.string.home_warning_limited_text),
                 text(all, R.id.warning_limited).getText().toString());
         assertLeadsToStep(all, R.id.warning_limited, KeepADBOnboarding.Step.PERMISSIONS,
                 OnboardingActionSteps.Permissions.ITEM_NOTIFICATIONS);

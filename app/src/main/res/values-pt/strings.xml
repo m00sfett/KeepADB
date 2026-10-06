@@ -472,7 +472,7 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="onboarding_intro_body_new">Cerca de dois minutos. Pode saltar qualquer passo; aplica-se então a definição mais segura.</string>
     <string name="onboarding_intro_title_existing">Novas definições de segurança</string>
     <string name="onboarding_intro_body_existing">O KeepADB reúne agora as definições principais num assistente. Os seus valores atuais são mantidos e pré-selecionados. Seguinte não altera nada. O que é menos seguro do que o recomendado está assinalado.</string>
-    <string name="onboarding_intro_less_secure">Definições assinaladas como menos seguras: %1$d</string>
+    <string name="onboarding_intro_less_secure">Algumas definições são menos seguras do que o recomendado.</string>
     <string name="onboarding_keep_alive_question">A depuração sem fio deve voltar a ativar-se sozinha após um reinício ou uma ligação perdida?</string>
     <string name="onboarding_keep_alive_off_body">Ativa a depuração sem fio manualmente, na app, no mosaico ou no widget. Após um reinício, fica desativada.</string>
     <string name="onboarding_keep_alive_on_body">O KeepADB volta a ativar a depuração sem fio após um reinício ou uma ligação perdida, mas só onde o seu nível de proteção o permitir (passo seguinte).</string>
@@ -509,6 +509,8 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="onboarding_perm_system_title">Permissão do sistema</string>
     <string name="onboarding_perm_system_body">Sem ela, o KeepADB não consegue alternar a depuração sem fio. Conceda-a uma vez a partir de um computador:</string>
     <string name="onboarding_perm_system_more">Vários dispositivos ou problemas?</string>
+    <string name="onboarding_copy_command">Copiar comando</string>
+    <string name="onboarding_copy_done">Comando copiado</string>
     <string name="onboarding_perm_location_title">Reconhecer o Wi-Fi</string>
     <string name="onboarding_perm_location_body">O Android só mostra o nome do Wi-Fi e o ponto de acesso com acesso à localização. O KeepADB nunca lê a sua posição.</string>
     <string name="onboarding_perm_background_title">Reconhecimento em segundo plano</string>
@@ -537,7 +539,7 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="home_warning_paused_text">O KeepADB não consegue ler a rede e por isso não liga sozinho.</string>
     <string name="home_warning_action_fix">Corrigir</string>
     <string name="home_warning_limited_title">Keep-Alive limitado</string>
-    <string name="home_warning_limited_text">Configurações ausentes para um Keep-Alive fiável: %1$d</string>
+    <string name="home_warning_limited_text">Faltam permissões para um Keep-Alive fiável.</string>
     <string name="status_tap_to_decide">Toque para decidir</string>
     <string name="status_tap_to_open_list">Toque para abrir a lista de redes</string>
 </resources>

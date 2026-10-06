@@ -472,7 +472,7 @@
     <string name="onboarding_intro_body_new">大约两分钟。每一步都可以跳过，跳过后将采用最安全的设置。</string>
     <string name="onboarding_intro_title_existing">新的安全设置</string>
     <string name="onboarding_intro_body_existing">KeepADB 现在把主要设置集中到一个向导中。您当前的值会保留并预先选中。“下一步”不会更改任何内容。比推荐设置安全性更低的项目会被标记。</string>
-    <string name="onboarding_intro_less_secure">标记为安全性较低的设置：%1$d</string>
+    <string name="onboarding_intro_less_secure">部分设置的安全性低于推荐水平。</string>
     <string name="onboarding_keep_alive_question">重启或连接中断后，无线调试要自动重新开启吗？</string>
     <string name="onboarding_keep_alive_off_body">由您自己在应用、快捷图块或小部件中开启无线调试。重启后保持关闭。</string>
     <string name="onboarding_keep_alive_on_body">重启或连接中断后，KeepADB 会重新开启无线调试，但仅限保护级别允许的地方（下一步）。</string>
@@ -509,6 +509,8 @@
     <string name="onboarding_perm_system_title">系统权限</string>
     <string name="onboarding_perm_system_body">没有它，KeepADB 无法切换无线调试。请在电脑上一次性授予：</string>
     <string name="onboarding_perm_system_more">多台设备或遇到问题？</string>
+    <string name="onboarding_copy_command">复制命令</string>
+    <string name="onboarding_copy_done">命令已复制</string>
     <string name="onboarding_perm_location_title">检测 Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android 只有在拥有位置信息权限时才会显示 Wi-Fi 名称和接入点。KeepADB 绝不会读取你的位置。</string>
     <string name="onboarding_perm_background_title">后台检测</string>
@@ -537,7 +539,7 @@
     <string name="home_warning_paused_text">KeepADB 无法读取网络，因此不会自动开启。</string>
     <string name="home_warning_action_fix">修复</string>
     <string name="home_warning_limited_title">Keep-Alive 受限</string>
-    <string name="home_warning_limited_text">要让 Keep-Alive 稳定运行，还缺少的设置：%1$d</string>
+    <string name="home_warning_limited_text">缺少让 Keep-Alive 稳定运行所需的权限。</string>
     <string name="status_tap_to_decide">点按以决定</string>
     <string name="status_tap_to_open_list">点按以打开网络列表</string>
 </resources>

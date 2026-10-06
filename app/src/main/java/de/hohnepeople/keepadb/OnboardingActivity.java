@@ -332,8 +332,7 @@ public class OnboardingActivity extends Activity {
                 ? getString(R.string.onboarding_intro_body_existing)
                 : getString(R.string.onboarding_intro_body_new));
         if (existing && !marked.isEmpty()) {
-            pageContent.addView(adviceRow(getString(R.string.onboarding_intro_less_secure,
-                    marked.size())));
+            pageContent.addView(adviceRow(getString(R.string.onboarding_intro_less_secure)));
         }
         backButton.setVisibility(View.GONE);
         secondaryButton.setVisibility(View.VISIBLE);
