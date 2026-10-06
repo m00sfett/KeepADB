@@ -451,6 +451,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="force_channel_desc">One-time notices about the protection level, for example when force mode ends.</string>
     <string name="force_expired_title">Force mode ended</string>
     <string name="force_expired_text">The selected time is up. Protection level back to: %1$s. Keep-Alive now only turns on where the protection level allows.</string>
+    <string name="force_expired_text_safety">The force mode ended early for safety: the remaining time could not be checked reliably. Protection level back to: %1$s. Keep-Alive now only turns on where the protection level allows.</string>
     <string name="force_expired_still_on">Wireless debugging is still on right now.</string>
     <string name="force_expired_action_off">Turn off now</string>
     <string name="force_level_maximum">Maximum security</string>

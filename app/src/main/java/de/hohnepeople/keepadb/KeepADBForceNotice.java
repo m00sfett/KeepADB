@@ -97,16 +97,20 @@ final class KeepADBForceNotice {
      * restored protection level does not trust, the notice says so and offers "Turn off now" (F6);
      * it never turns anything off by itself.
      *
+     * @param safety the mode ended early for safety (its time could not be measured), not because
+     *     the selected time was up (#773): the text says so.
      * @return true if a notification was posted (false without the notification permission).
      */
-    static boolean postExpired(Context context) {
+    static boolean postExpired(Context context, boolean safety) {
         Context app = context.getApplicationContext();
         NotificationManager manager = app.getSystemService(NotificationManager.class);
         if (manager == null || !hasNotificationPermission(app)) return false;
         Context localized = KeepADBLocaleHelper.wrapContext(app);
         ensureChannel(localized, manager);
 
-        String text = localized.getString(R.string.force_expired_text, levelLabel(localized));
+        String text = localized.getString(
+                safety ? R.string.force_expired_text_safety : R.string.force_expired_text,
+                levelLabel(localized));
         boolean stillExposed = isStillExposed(app);
         CharSequence bigText = stillExposed
                 ? text + "\n" + localized.getString(R.string.force_expired_still_on) : text;

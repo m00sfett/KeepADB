@@ -985,6 +985,110 @@ public class KeepADBForceModeTest {
         assertNull(alarms().peekNextScheduledAlarm());
     }
 
+    // --- The reason of an early end is told apart (#773) ----------------------------------------------------------------
+
+    private String noticeText() {
+        Notification notice = posted(context, KeepADBForceNotice.NOTIFICATION_ID);
+        assertNotNull(notice);
+        return notice.extras.getCharSequence(Notification.EXTRA_TEXT).toString();
+    }
+
+    private static final String TIME_UP_TEXT = "The selected time is up.";
+    private static final String SAFETY_TEXT = "ended early for safety";
+
+    @Test
+    public void aRealExpiryStillSaysTheTimeIsUpAndStoresNoReason() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        clock.advance(HOUR);
+
+        assertTrue(KeepADBForceMode.finishIfExpired(context));
+
+        assertTrue(noticeText(), noticeText().startsWith(TIME_UP_TEXT));
+        assertFalse(noticeText().contains(SAFETY_TEXT));
+        assertFalse("No reason is left behind once delivered", prefs().contains(KeepADBForceMode.KEY_NOTICE_REASON));
+    }
+
+    @Test
+    public void anUnreadableBootCountEndsTheModeWithTheSafetyReasonNotTimeIsUp() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        clock.advance(HOUR);
+        clock.bootCountReadable = false;
+
+        assertTrue(KeepADBForceMode.finishIfExpired(context));
+
+        assertTrue(noticeText(), noticeText().contains(SAFETY_TEXT));
+        assertFalse(noticeText().contains(TIME_UP_TEXT));
+        assertTrue(noticeText().contains("Protection level back to: Maximum security."));
+        assertFalse("Delivered: reason and pending flag are gone",
+                prefs().contains(KeepADBForceMode.KEY_NOTICE_REASON));
+        assertFalse(prefs().getBoolean(KeepADBForceMode.KEY_NOTICE_PENDING, false));
+    }
+
+    @Test
+    public void aWallClockBeforeTheBaseAfterARestartEndsTheModeWithTheSafetyReason() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.DAYS_7, false));
+        long start = clock.wall;
+        clock.advance(HOUR);
+        clock.reboot(10 * MINUTE, 2 * MINUTE);
+        clock.setWallClock(start - DAY);
+
+        assertTrue(KeepADBForceMode.finishIfExpired(context));
+
+        assertTrue(noticeText(), noticeText().contains(SAFETY_TEXT));
+        assertFalse(noticeText().contains(TIME_UP_TEXT));
+    }
+
+    @Test
+    public void aDeadlinePassedAfterARestartStillSaysTheTimeIsUp() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        clock.advance(30 * MINUTE);
+        clock.reboot(40 * MINUTE, 5 * MINUTE);
+
+        assertTrue(KeepADBForceMode.finishIfExpired(context));
+
+        assertTrue(noticeText(), noticeText().startsWith(TIME_UP_TEXT));
+        assertFalse(noticeText().contains(SAFETY_TEXT));
+    }
+
+    @Test
+    public void theReasonIsReportedOnceAndAFollowingExpiryOrActivationDoesNotInheritIt() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        clock.bootCountReadable = false;
+        assertTrue(KeepADBForceMode.finishIfExpired(context));
+        assertTrue(noticeText().contains(SAFETY_TEXT));
+        context.getSystemService(NotificationManager.class).cancel(KeepADBForceNotice.NOTIFICATION_ID);
+        assertFalse(KeepADBForceMode.finishIfExpired(context));
+        KeepADBForceMode.restore(context);
+        assertNull("Exactly once", posted(context, KeepADBForceNotice.NOTIFICATION_ID));
+
+        clock.bootCountReadable = true;
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        clock.advance(HOUR);
+        assertTrue(KeepADBForceMode.finishIfExpired(context));
+        assertTrue("A later real expiry says time is up", noticeText().startsWith(TIME_UP_TEXT));
+    }
+
+    @Test
+    public void aPendingNoticeFromBeforeTheReasonKeyExistedReadsAsAnOrdinaryExpiry() {
+        prefs().edit().putBoolean(KeepADBForceMode.KEY_NOTICE_PENDING, true).commit();
+
+        KeepADBForceMode.restore(context);
+
+        assertTrue(noticeText(), noticeText().startsWith(TIME_UP_TEXT));
+    }
+
+    @Test
+    public void aSafetyReasonNeverSurvivesStartingOrEndingTheMode() {
+        prefs().edit().putBoolean(KeepADBForceMode.KEY_NOTICE_PENDING, true)
+                .putString(KeepADBForceMode.KEY_NOTICE_REASON, KeepADBForceMode.REASON_SAFETY).commit();
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        assertFalse(prefs().contains(KeepADBForceMode.KEY_NOTICE_REASON));
+
+        prefs().edit().putString(KeepADBForceMode.KEY_NOTICE_REASON, KeepADBForceMode.REASON_SAFETY).commit();
+        assertTrue(KeepADBForceMode.endNow(context));
+        assertFalse(prefs().contains(KeepADBForceMode.KEY_NOTICE_REASON));
+    }
+
     // --- The expiry notice ------------------------------------------------------------------------------------------------
 
     @Test

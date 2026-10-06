@@ -442,6 +442,7 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="force_channel_desc">Avvisi singoli sul livello di protezione, ad esempio quando termina la modalità forzata.</string>
     <string name="force_expired_title">Modalità forzata terminata</string>
     <string name="force_expired_text">Il tempo scelto è scaduto. Livello di protezione di nuovo: %1$s. Keep-Alive ora si attiva solo dove il livello di protezione lo consente.</string>
+    <string name="force_expired_text_safety">La modalità forzata è terminata in anticipo per sicurezza: non è stato possibile verificare in modo affidabile il tempo rimasto. Livello di protezione di nuovo: %1$s. Keep-Alive ora si attiva solo dove il livello di protezione lo consente.</string>
     <string name="force_expired_still_on">Il debug wireless è ancora attivo in questo momento.</string>
     <string name="force_expired_action_off">Disattiva ora</string>
     <string name="force_level_maximum">Massima sicurezza</string>

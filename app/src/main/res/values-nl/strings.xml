@@ -442,6 +442,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="force_channel_desc">Eenmalige meldingen over het beveiligingsniveau, bijvoorbeeld wanneer de geforceerde modus eindigt.</string>
     <string name="force_expired_title">Geforceerde modus beëindigd</string>
     <string name="force_expired_text">De gekozen tijd is om. Beveiligingsniveau weer: %1$s. Keep-Alive schakelt nu alleen nog in waar het beveiligingsniveau dat toestaat.</string>
+    <string name="force_expired_text_safety">De geforceerde modus is om veiligheidsredenen eerder beëindigd: de resterende tijd kon niet betrouwbaar worden gecontroleerd. Beveiligingsniveau weer: %1$s. Keep-Alive schakelt nu alleen nog in waar het beveiligingsniveau dat toestaat.</string>
     <string name="force_expired_still_on">Draadloze foutopsporing staat op dit moment nog aan.</string>
     <string name="force_expired_action_off">Nu uitschakelen</string>
     <string name="force_level_maximum">Maximale beveiliging</string>

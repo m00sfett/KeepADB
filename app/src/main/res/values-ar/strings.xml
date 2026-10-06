@@ -442,6 +442,7 @@
     <string name="force_channel_desc">تنبيهات لمرة واحدة حول مستوى الحماية، مثل انتهاء الوضع الإجباري.</string>
     <string name="force_expired_title">انتهى الوضع الإجباري</string>
     <string name="force_expired_text">انتهت المدة المحددة. مستوى الحماية عاد إلى: %1$s. لن يعمل Keep-Alive الآن إلا حيث يسمح مستوى الحماية.</string>
+    <string name="force_expired_text_safety">انتهى الوضع الإجباري مبكرًا لأسباب أمنية: تعذّر التحقق من الوقت المتبقي بشكل موثوق. مستوى الحماية عاد إلى: %1$s. لن يعمل Keep-Alive الآن إلا حيث يسمح مستوى الحماية.</string>
     <string name="force_expired_still_on">تصحيح الأخطاء اللاسلكي لا يزال مفعّلًا الآن.</string>
     <string name="force_expired_action_off">إيقاف الآن</string>
     <string name="force_level_maximum">أقصى أمان</string>

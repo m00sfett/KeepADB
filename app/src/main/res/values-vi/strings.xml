@@ -442,6 +442,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="force_channel_desc">Thông báo một lần về mức bảo vệ, ví dụ khi chế độ cưỡng chế kết thúc.</string>
     <string name="force_expired_title">Chế độ cưỡng chế đã kết thúc</string>
     <string name="force_expired_text">Đã hết thời gian đã chọn. Mức bảo vệ trở lại: %1$s. Giờ đây Keep-Alive chỉ bật ở nơi mức bảo vệ cho phép.</string>
+    <string name="force_expired_text_safety">Chế độ cưỡng chế đã kết thúc sớm vì an toàn: không thể kiểm tra chắc chắn thời gian còn lại. Mức bảo vệ trở lại: %1$s. Giờ đây Keep-Alive chỉ bật ở nơi mức bảo vệ cho phép.</string>
     <string name="force_expired_still_on">Gỡ lỗi không dây hiện vẫn đang bật.</string>
     <string name="force_expired_action_off">Tắt ngay</string>
     <string name="force_level_maximum">Bảo mật tối đa</string>

@@ -442,6 +442,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="force_channel_desc">Avis uniques sur le niveau de protection, par exemple à la fin du mode forcé.</string>
     <string name="force_expired_title">Mode forcé terminé</string>
     <string name="force_expired_text">Le temps choisi est écoulé. Niveau de protection de nouveau : %1$s. Keep-Alive ne s\'active plus que là où le niveau de protection l\'autorise.</string>
+    <string name="force_expired_text_safety">Le mode forcé s\'est terminé plus tôt par sécurité : le temps restant n\'a pas pu être vérifié de façon fiable. Niveau de protection de nouveau : %1$s. Keep-Alive ne s\'active plus que là où le niveau de protection l\'autorise.</string>
     <string name="force_expired_still_on">Le débogage sans fil est encore activé en ce moment.</string>
     <string name="force_expired_action_off">Désactiver maintenant</string>
     <string name="force_level_maximum">Sécurité maximale</string>

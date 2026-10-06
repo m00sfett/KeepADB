@@ -442,6 +442,7 @@
     <string name="force_channel_desc">강제 모드 종료 등 보호 수준에 관한 일회성 알림입니다.</string>
     <string name="force_expired_title">강제 모드 종료됨</string>
     <string name="force_expired_text">선택한 시간이 끝났습니다. 보호 수준이 다시 %1$s(으)로 돌아갔습니다. 이제 Keep-Alive는 보호 수준이 허용하는 곳에서만 켭니다.</string>
+    <string name="force_expired_text_safety">안전을 위해 강제 모드가 일찍 종료되었습니다. 남은 시간을 안정적으로 확인할 수 없었습니다. 보호 수준이 다시 %1$s(으)로 돌아갔습니다. 이제 Keep-Alive는 보호 수준이 허용하는 곳에서만 켭니다.</string>
     <string name="force_expired_still_on">무선 디버깅이 지금도 켜져 있습니다.</string>
     <string name="force_expired_action_off">지금 끄기</string>
     <string name="force_level_maximum">최대 보안</string>

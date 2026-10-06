@@ -490,6 +490,7 @@ public class KeepADBResourceContractTest {
         result.put("force_ended_toast", new Object[] {stringWitness});
         result.put("force_notification_until", new Object[] {stringWitness});
         result.put("force_expired_text", new Object[] {stringWitness});
+        result.put("force_expired_text_safety", new Object[] {stringWitness});
         return result;
     }
 

@@ -442,6 +442,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="force_channel_desc">Einmalige Hinweise zur Schutzstufe, etwa wenn der Force-Modus endet.</string>
     <string name="force_expired_title">Force-Modus beendet</string>
     <string name="force_expired_text">Die gewählte Zeit ist abgelaufen. Schutzstufe wieder: %1$s. Keep-Alive schaltet nur noch dort ein, wo die Schutzstufe es erlaubt.</string>
+    <string name="force_expired_text_safety">Der Force-Modus wurde aus Sicherheitsgründen vorzeitig beendet: Die Restzeit ließ sich nicht verlässlich prüfen. Schutzstufe wieder: %1$s. Keep-Alive schaltet nur noch dort ein, wo die Schutzstufe es erlaubt.</string>
     <string name="force_expired_still_on">Drahtloses Debugging ist gerade noch an.</string>
     <string name="force_expired_action_off">Jetzt ausschalten</string>
     <string name="force_level_maximum">Maximal sicher</string>

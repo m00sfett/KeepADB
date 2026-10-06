@@ -62,8 +62,9 @@ unverändert, jeweils mit Begründung.
 Der Force-Modus (#763) ist auf einer Neuinstallation aus. `force_state` ist ohne eine
 ausdrückliche Bestätigung im Force-Dialog nicht gespeichert; es enthält Laufzeit und Ablauf
 einer solchen Entscheidung. `force_expired_notice_pending` ist ohne einen Ablauf `false`
-und hält ausschließlich die noch zu meldende Ablaufbenachrichtigung fest. Beide Schlüssel
-sind Laufzeitdaten, keine abweichenden Voreinstellungen.
+und hält ausschließlich die noch zu meldende Ablaufbenachrichtigung fest. `force_expired_reason`
+fehlt ohne vorzeitiges Sicherheitsende und hält nur dessen Grund (`safety`, #773) bis zur Zustellung
+der Meldung. Alle drei Schlüssel sind Laufzeitdaten, keine abweichenden Voreinstellungen.
 
 Der Einrichtungsassistent (#761) legt zwei Schlüssel an, beide Buchführung und keine Einstellung:
 `onboarding_completed_version` fehlt, bis der Assistent mit „Später“ oder „Fertig“ geschlossen wurde

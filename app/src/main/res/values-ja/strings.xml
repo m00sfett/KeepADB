@@ -442,6 +442,7 @@
     <string name="force_channel_desc">強制モードの終了など、保護レベルに関する一度きりのお知らせ。</string>
     <string name="force_expired_title">強制モードを終了しました</string>
     <string name="force_expired_text">選択した時間が経過しました。保護レベルは元の「%1$s」に戻りました。Keep-Alive は、保護レベルが許可する場所でのみ有効にします。</string>
+    <string name="force_expired_text_safety">安全のため、強制モードを早めに終了しました。残り時間を確実に確認できませんでした。保護レベルは元の「%1$s」に戻りました。Keep-Alive は、保護レベルが許可する場所でのみ有効にします。</string>
     <string name="force_expired_still_on">ワイヤレスデバッグは現在もオンです。</string>
     <string name="force_expired_action_off">今すぐオフにする</string>
     <string name="force_level_maximum">最大セキュリティ</string>

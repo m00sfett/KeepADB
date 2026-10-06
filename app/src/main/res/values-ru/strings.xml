@@ -442,6 +442,7 @@
     <string name="force_channel_desc">Разовые уведомления об уровне защиты, например об окончании принудительного режима.</string>
     <string name="force_expired_title">Принудительный режим завершён</string>
     <string name="force_expired_text">Выбранное время истекло. Уровень защиты снова: %1$s. Теперь Keep-Alive включается только там, где это разрешает уровень защиты.</string>
+    <string name="force_expired_text_safety">Принудительный режим досрочно завершён из соображений безопасности: оставшееся время не удалось надёжно проверить. Уровень защиты снова: %1$s. Теперь Keep-Alive включается только там, где это разрешает уровень защиты.</string>
     <string name="force_expired_still_on">Беспроводная отладка сейчас всё ещё включена.</string>
     <string name="force_expired_action_off">Выключить сейчас</string>
     <string name="force_level_maximum">Максимальная безопасность</string>

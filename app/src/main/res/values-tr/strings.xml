@@ -442,6 +442,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="force_channel_desc">Koruma düzeyi hakkında tek seferlik bildirimler, örneğin zorunlu mod bittiğinde.</string>
     <string name="force_expired_title">Zorunlu mod bitti</string>
     <string name="force_expired_text">Seçilen süre doldu. Koruma düzeyi yeniden: %1$s. Keep-Alive artık yalnızca koruma düzeyinin izin verdiği yerlerde açar.</string>
+    <string name="force_expired_text_safety">Zorunlu mod güvenlik nedeniyle erken sona erdi: kalan süre güvenilir biçimde denetlenemedi. Koruma düzeyi yeniden: %1$s. Keep-Alive artık yalnızca koruma düzeyinin izin verdiği yerlerde açar.</string>
     <string name="force_expired_still_on">Kablosuz hata ayıklama şu anda hâlâ açık.</string>
     <string name="force_expired_action_off">Şimdi kapat</string>
     <string name="force_level_maximum">Azami güvenlik</string>

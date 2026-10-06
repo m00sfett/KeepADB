@@ -442,6 +442,7 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="force_channel_desc">Avisos únicos sobre el nivel de protección, por ejemplo cuando termina el modo forzado.</string>
     <string name="force_expired_title">Modo forzado terminado</string>
     <string name="force_expired_text">Ha terminado el tiempo elegido. Nivel de protección de nuevo: %1$s. Keep-Alive ahora solo se activa donde el nivel de protección lo permite.</string>
+    <string name="force_expired_text_safety">El modo forzado terminó antes por seguridad: no se pudo comprobar de forma fiable el tiempo restante. Nivel de protección de nuevo: %1$s. Keep-Alive ahora solo se activa donde el nivel de protección lo permite.</string>
     <string name="force_expired_still_on">La depuración inalámbrica sigue activada ahora mismo.</string>
     <string name="force_expired_action_off">Desactivar ahora</string>
     <string name="force_level_maximum">Máxima seguridad</string>

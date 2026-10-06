@@ -442,6 +442,7 @@
     <string name="force_channel_desc">सुरक्षा स्तर के बारे में एक बार की सूचनाएँ, जैसे फ़ोर्स मोड समाप्त होने पर।</string>
     <string name="force_expired_title">फ़ोर्स मोड समाप्त हुआ</string>
     <string name="force_expired_text">चुना हुआ समय पूरा हो गया। सुरक्षा स्तर फिर से: %1$s। Keep-Alive अब केवल वहीं चालू करता है जहाँ सुरक्षा स्तर अनुमति देता है।</string>
+    <string name="force_expired_text_safety">सुरक्षा के लिए फ़ोर्स मोड समय से पहले बंद हो गया: बचे हुए समय की भरोसेमंद जाँच नहीं हो सकी। सुरक्षा स्तर फिर से: %1$s। Keep-Alive अब केवल वहीं चालू करता है जहाँ सुरक्षा स्तर अनुमति देता है।</string>
     <string name="force_expired_still_on">वायरलेस डीबगिंग अभी भी चालू है।</string>
     <string name="force_expired_action_off">अभी बंद करें</string>
     <string name="force_level_maximum">अधिकतम सुरक्षा</string>

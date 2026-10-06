@@ -442,6 +442,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="force_channel_desc">Pemberitahuan sekali tentang tingkat perlindungan, misalnya saat mode paksa berakhir.</string>
     <string name="force_expired_title">Mode paksa berakhir</string>
     <string name="force_expired_text">Waktu yang dipilih telah habis. Tingkat perlindungan kembali: %1$s. Keep-Alive kini hanya mengaktifkan di tempat yang diizinkan tingkat perlindungan.</string>
+    <string name="force_expired_text_safety">Mode paksa berakhir lebih awal demi keamanan: sisa waktu tidak dapat diperiksa dengan andal. Tingkat perlindungan kembali: %1$s. Keep-Alive kini hanya mengaktifkan di tempat yang diizinkan tingkat perlindungan.</string>
     <string name="force_expired_still_on">Debugging Nirkabel saat ini masih aktif.</string>
     <string name="force_expired_action_off">Nonaktifkan sekarang</string>
     <string name="force_level_maximum">Keamanan maksimum</string>

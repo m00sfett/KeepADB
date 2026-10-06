@@ -442,6 +442,7 @@
     <string name="force_channel_desc">關於保護等級的一次性通知，例如強制模式結束時。</string>
     <string name="force_expired_title">強制模式已結束</string>
     <string name="force_expired_text">所選時間已到。保護等級恢復為：%1$s。Keep-Alive 現在只會在保護等級允許的網路中開啟。</string>
+    <string name="force_expired_text_safety">基於安全考量，強制模式已提前結束：無法可靠地檢查剩餘時間。保護等級恢復為：%1$s。Keep-Alive 現在只會在保護等級允許的網路中開啟。</string>
     <string name="force_expired_still_on">無線偵錯目前仍處於開啟狀態。</string>
     <string name="force_expired_action_off">立即關閉</string>
     <string name="force_level_maximum">最高安全性</string>

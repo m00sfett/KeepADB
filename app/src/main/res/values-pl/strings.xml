@@ -442,6 +442,7 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="force_channel_desc">Jednorazowe powiadomienia o poziomie ochrony, na przykład gdy kończy się tryb wymuszony.</string>
     <string name="force_expired_title">Tryb wymuszony zakończony</string>
     <string name="force_expired_text">Wybrany czas minął. Poziom ochrony znów: %1$s. Keep-Alive włącza się teraz tylko tam, gdzie pozwala na to poziom ochrony.</string>
+    <string name="force_expired_text_safety">Tryb wymuszony zakończył się wcześniej ze względów bezpieczeństwa: nie udało się wiarygodnie sprawdzić pozostałego czasu. Poziom ochrony znów: %1$s. Keep-Alive włącza się teraz tylko tam, gdzie pozwala na to poziom ochrony.</string>
     <string name="force_expired_still_on">Debugowanie bezprzewodowe jest teraz nadal włączone.</string>
     <string name="force_expired_action_off">Wyłącz teraz</string>
     <string name="force_level_maximum">Maksymalne bezpieczeństwo</string>

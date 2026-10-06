@@ -270,7 +270,9 @@ und danach wieder vorwärts richtiggestellt, gilt diese Korrektur als vorwärts 
 verkürzt den Modus um die Sprunggröße. Das ist die sichere Seite: früher, nie später.
 
 Ist der Boot-Zähler des Systems nicht lesbar, endet ein befristeter Modus sofort: Die Prüfung
-liefert vom ersten Lesen an „aus“, die einmalige Ablaufmeldung folgt wie sonst, und ein befristeter
+liefert vom ersten Lesen an „aus“, die einmalige Ablaufmeldung folgt (#773: mit eigenem Text, der
+das vorzeitige Ende aus Sicherheitsgründen nennt statt „Die gewählte Zeit ist abgelaufen“; dasselbe
+gilt für eine Wanduhr vor der Zeitbasis nach einem Neustart), und ein befristeter
 Modus lässt sich in diesem Zustand gar nicht erst starten; der Dialog sagt das in einem Hinweis und
 bleibt offen. Wird der Zähler wieder lesbar, bleibt der
 Modus beendet und kann aus seinem Dialog neu gestartet werden; nichts bleibt gesperrt. „Ohne
@@ -290,9 +292,11 @@ Benachrichtigung; deren öffentliche Fassung bleibt neutral, und auch die Ablauf
 nur die Kanalbezeichnung. Wie bei allen privaten Benachrichtigungsinhalten gilt: Wer in Android
 sensible Inhalte auf dem Sperrbildschirm erlaubt, sieht dort die private Fassung.
 
-**Rückweg.** Neu sind nur zwei zusätzliche Schlüssel in `keepadb_prefs` (`force_state`,
-`force_expired_notice_pending`). Eine ältere App-Version ignoriert sie; ein Zurückgehen beendet den
-Modus (der engere Zustand) und verliert keine Daten. Beide Schlüssel verlassen das Gerät nicht
+**Rückweg.** Neu sind nur drei zusätzliche Schlüssel in `keepadb_prefs` (`force_state`,
+`force_expired_notice_pending`, `force_expired_reason`; der dritte hält nur den Grund eines
+vorzeitigen Endes, `safety`, bis die Meldung zugestellt ist). Eine ältere App-Version ignoriert sie;
+ein Zurückgehen beendet den Modus (der engere Zustand), verliert keine Daten und sagt bei jedem Ende
+wie bisher „abgelaufen“. Alle Schlüssel verlassen das Gerät nicht
 (Backup und Gerätewechsel sind ausgeschlossen).
 
 Belege im Code: `KeepADBForceModeTest` (Zeitregeln von beiden Seiten, Neustart, Update, gestellte Uhr,

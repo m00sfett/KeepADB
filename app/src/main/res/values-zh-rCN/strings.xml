@@ -442,6 +442,7 @@
     <string name="force_channel_desc">关于保护级别的一次性提示，例如强制模式结束时。</string>
     <string name="force_expired_title">强制模式已结束</string>
     <string name="force_expired_text">所选时间已到。保护级别恢复为：%1$s。Keep-Alive 现在只会在保护级别允许的网络中开启。</string>
+    <string name="force_expired_text_safety">出于安全考虑，强制模式已提前结束：无法可靠地检查剩余时间。保护级别恢复为：%1$s。Keep-Alive 现在只会在保护级别允许的网络中开启。</string>
     <string name="force_expired_still_on">无线调试目前仍处于开启状态。</string>
     <string name="force_expired_action_off">立即关闭</string>
     <string name="force_level_maximum">最高安全</string>

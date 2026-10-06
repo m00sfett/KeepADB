@@ -39,12 +39,16 @@ Etappe E6 patch candidate (versionCode 207), stacked packages #764, #770, #773 a
 
 - #770: Terms follow the glossary of the UX concept (section 6) in all 19 locales, wording only, no layout or behavior change: "allowed/freigegeben/vertrauenswürdig" become "trusted" per language (the old lists, cards, toasts and the access point action read "trust" instead of "allow"); the card status "Not allowed" reads "Unknown" like the badge; "network name" and "network identity unavailable" become "Wi-Fi name" and "unreadable"; "Background access" becomes "Background detection" (labels, buttons, status); body-text "Wifi-ADB" becomes the system name of Wireless Debugging (the short forms in notification titles and actions stay); German "Zugangspunkt", "AP" and "Endpoint" become "Access Point" and "Endpunkt"; Polish, Dutch, Italian, French, Portuguese, Vietnamese, Indonesian, Hindi, Japanese and Chinese lose their internal splits between two words for the same thing. The translations are written by hand and not checked by a native speaker; `bin/check-i18n` only proves that no value is a copy of the English one.
 
+### Fixed
+- #773: The one-time notice of a force mode that ended early for safety (boot counter unreadable, or the wall clock before the time base after a restart) no longer claims "The selected time is up". `KeepADBForceMode` stores the reason in a third additive key `force_expired_reason` (`safety`) in the same commit that ends the mode and removes the state; the notice reads it once and removes it with the pending flag. A real expiry stores no reason and reads exactly as before; a pending flag without the key (written before this change) reads as a real expiry. The state format stays version 2 and the time rules are untouched (`endedForSafety` only classifies the same inputs). Downgrade as documented: older versions ignore the key and say "time is up" for every end. New string `force_expired_text_safety` in all 19 locales.
+
 ### Added
 - #764: Eleven strings (`home_warning_*`, `status_tap_to_decide`) in all 19 locales.
 
 ### Testing
 - #770: `KeepADBGlossaryContractTest` pins per locale that the retired terms stay out of every string, that "Wifi-ADB" only remains in the four short forms, that "unknown" is one word per locale and that the background-detection settings button names the same capability as the assistant step. `KeepADBResourceContractTest` additionally rejects the new English mode labels as quotes.
 ### Testing
+- #773: `KeepADBForceModeTest` pins both paths (real expiry says time is up, also after a restart; unreadable boot counter and wall clock before the base after a restart say safety), once-only delivery, the reason not leaking into a later expiry, start or user end, and a pending flag without the key.
 - #764: `MainActivityWarningsTest` (W1 to W5 each with its counter-case, the cap of three, deep links, the status tap, the key cleanup, the removed view ids). The tests of the removed cards are removed (`MainActivityNotificationPermissionPanelTest`, `MainActivityNetworkOnboardingTest`); the permission request flow stays covered by the assistant's own tests, and the remaining background-location tests live in `BackgroundLocationGrantTest`.
 
 ## [1.9.34] - Unreleased

@@ -442,6 +442,7 @@
     <string name="force_channel_desc">Одноразові сповіщення про рівень захисту, наприклад про завершення примусового режиму.</string>
     <string name="force_expired_title">Примусовий режим завершено</string>
     <string name="force_expired_text">Обраний час минув. Рівень захисту знову: %1$s. Тепер Keep-Alive вмикається лише там, де це дозволяє рівень захисту.</string>
+    <string name="force_expired_text_safety">Примусовий режим завершено раніше з міркувань безпеки: не вдалося надійно перевірити залишок часу. Рівень захисту знову: %1$s. Тепер Keep-Alive вмикається лише там, де це дозволяє рівень захисту.</string>
     <string name="force_expired_still_on">Бездротове налагодження зараз усе ще ввімкнене.</string>
     <string name="force_expired_action_off">Вимкнути зараз</string>
     <string name="force_level_maximum">Максимальна безпека</string>
