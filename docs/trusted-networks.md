@@ -179,18 +179,38 @@ Schutzstufe. Läuft Drahtloses Debugging dann noch in einem WLAN, dem die Schutz
 vertraut, meldet sie das und bietet „Jetzt ausschalten“ an; ausgeschaltet wird nichts von selbst.
 
 **Zeitregeln.** Gespeichert wird ein einzelner Wert in `keepadb_prefs` (`force_state`, mit
-`commit()` geschrieben): Dauer, Wanduhr, monotone Uhr und Boot-Zähler beim Start. Die Restzeit ist
-das **Kleinere** aus zwei Maßen, sodass jede Uhrenabweichung den Modus nur früher beenden, nie
-verlängern kann: der Wanduhr (`Start + Dauer − jetzt`, epochenbasiert, daher unberührt von Zeitzone
-und Sommerzeit) und, solange der Boot-Zähler gleich ist, der monotonen Uhr (`SystemClock.
-elapsedRealtime`, zählt Tiefschlaf mit). Eine rückwärts gestellte Wanduhr verlängert ihn deshalb
-innerhalb eines Boots nicht, eine vorwärts gestellte beendet ihn früher. Nach einem Neustart gilt nur
-die Wanduhr; liegt sie vor dem Start (zurückgesetzte Uhr), lässt sich die Restzeit nicht bestimmen
-und der Modus endet (fail-closed). Bekannter Rest: Ein Neustart gefolgt von einem manuellen
-Zurückstellen der Uhr, das hinter dem Start bleibt, verlängert um die Sprunggröße; das braucht ein
-entsperrtes Gerät und passiert weder durch Netzwerkzeit noch durch Zeitzone oder Sommerzeit. Ist der
-Boot-Zähler des Systems nicht lesbar, zählt nur die Wanduhr. „Ohne Ablaufzeit“ hat keine Frist und
-bleibt bis zum Beenden, auch über Neustarts und Updates.
+`commit()` geschrieben): Dauer, verbleibendes Zeitbudget und die Messbasis, von der es zählt
+(Wanduhr, monotone Uhr und Boot-Zähler in diesem Moment). Beim Start ist das Budget die ganze
+Dauer. Die Restzeit ist das **Kleinere** aus zwei Maßen, sodass jede Uhrenabweichung den Modus nur
+früher beenden, nie verlängern kann: der Wanduhr (`Basis + Budget − jetzt`, epochenbasiert, daher
+unberührt von Zeitzone und Sommerzeit) und, solange der Boot-Zähler der Basis läuft, der monotonen
+Uhr (`SystemClock.elapsedRealtime`, zählt Tiefschlaf mit). Eine rückwärts gestellte Wanduhr
+verlängert ihn deshalb innerhalb eines Boots nicht, eine vorwärts gestellte beendet ihn früher.
+
+Nach einem Neustart beginnt die monotone Uhr von vorn. Der erste Treiber im neuen Boot (Minutentakt
+des Dienstes, Empfänger für Neustart, Update und gestellte Uhr oder das Öffnen der App, je nachdem,
+was zuerst läuft) bindet deshalb das verbleibende Budget an diesen Boot und speichert es: Wanduhr,
+monotone Uhr und Boot-Zähler dieses Moments sind die neue Basis. Ab dann kann eine rückwärts
+gestellte Wanduhr die Frist auch in diesem Boot nicht mehr verlängern; ein weiterer Neustart
+wiederholt das von der neuen Basis aus. Ein Neustart allein beendet den Modus nicht und schreibt
+keine Zeit gut, das Budget wird nur kleiner. Bis zu dieser Bindung zählt die Wanduhr allein und nur
+vorwärts ab der Basis: Liegt sie davor (zurückgesetzte Uhr), lässt sich die Restzeit nicht
+bestimmen und der Modus endet (fail-closed).
+
+Ist der Boot-Zähler des Systems nicht lesbar, endet ein befristeter Modus sofort: Die Prüfung
+liefert vom ersten Lesen an „aus“, die einmalige Ablaufmeldung folgt wie sonst, und ein befristeter
+Modus lässt sich in diesem Zustand gar nicht erst starten. Wird der Zähler wieder lesbar, bleibt der
+Modus beendet und kann aus seinem Dialog neu gestartet werden; nichts bleibt gesperrt. „Ohne
+Ablaufzeit“ hat keine Frist, braucht den Zähler nicht und bleibt bis zum Beenden, auch über
+Neustarts und Updates.
+
+Bekannter Rest: Eine Wanduhr, die in einem früheren Boot zurückgestellt wurde und hinter der Basis
+bleibt, oder die nach dem Neustart vor dem ersten Treiber zurückgestellt wird (ein kurzes Fenster,
+die Boot-Meldung kommt nach dem Entsperren), ist nur für die Wanduhr sichtbar. Der Modus verlängert
+sich dann um die Sprunggröße. Das trifft nur bei einer Rückstellung in genau diesem Fenster oder von
+Hand am entsperrten Gerät zu, nicht durch Zeitzone oder Sommerzeit. Nicht auf einem Gerät geprüft
+ist, dass `Settings.Global.boot_count` bei allen Herstellern lesbar ist; wo nicht, lässt sich ein
+befristeter Modus nicht starten.
 
 **Sperrbildschirm.** Warnzeile und Beenden-Aktion stehen nur in der privaten Fassung der
 Benachrichtigung; deren öffentliche Fassung bleibt neutral, und auch die Ablaufmeldung zeigt dort
