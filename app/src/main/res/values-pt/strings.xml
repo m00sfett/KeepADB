@@ -294,6 +294,7 @@
     <string name="settings_no_browser_found">Nenhum app encontrado para abrir este link.</string>
     <string name="status_off_keep_alive_waiting">Depuração sem fio DESATIVADA – Keep-Alive aguarda a rede</string>
     <string name="status_off_keep_alive_blocked_untrusted">Depuração sem fio DESATIVADA – Keep-Alive em pausa: esta rede Wi-Fi não é fiável</string>
+    <string name="status_off_keep_alive_blocked_by_user">Depuração sem fio DESATIVADA – Keep-Alive em pausa: esta rede Wi-Fi está bloqueada</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Depuração sem fio DESATIVADA – Keep-Alive em pausa: rede ilegível, verifique a permissão de localização (“Permitir o tempo todo”) ou reabra o aplicativo</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Depuração sem fio DESATIVADA – Keep-Alive em pausa: confirme a caixa de diálogo de rede da depuração sem fio do Android e depois toque no interruptor para tentar novamente</string>
     <string name="status_pending">Alternando…</string>
@@ -538,4 +539,5 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="home_warning_limited_title">Keep-Alive limitado</string>
     <string name="home_warning_limited_text">Configurações ausentes para um Keep-Alive fiável: %1$d</string>
     <string name="status_tap_to_decide">Toque para decidir</string>
+    <string name="status_tap_to_open_list">Toque para abrir a lista de redes</string>
 </resources>

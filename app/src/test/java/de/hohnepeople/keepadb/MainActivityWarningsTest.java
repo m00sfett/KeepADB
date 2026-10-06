@@ -119,6 +119,13 @@ public class MainActivityWarningsTest {
         shadowOf(wifiManager).setConnectionInfo(new WifiInfo.Builder().setBssid(bssid).build());
     }
 
+    private void connectTo(String ssid, String bssid) {
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        shadowOf(wifiManager).setConnectionInfo(
+                new WifiInfo.Builder().setSsid(ssid.getBytes(java.nio.charset.StandardCharsets.UTF_8))
+                        .setBssid(bssid).build());
+    }
+
     /** The assistant intent a card leads to: its step, and the item it points at. */
     private static void assertLeadsToStep(MainActivity activity, int cardId,
             KeepADBOnboarding.Step step, String item) {
@@ -427,6 +434,68 @@ public class MainActivityWarningsTest {
         assertNotNull(intent);
         assertEquals(NetworkDecisionActivity.class.getName(), intent.getComponent().getClassName());
         assertEquals(BSSID, intent.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
+    }
+
+    /**
+     * #790: a blocked access point is no open question. The line says "blocked" instead of "not
+     * trusted" and leads to the Networks list, not to a dialog that can only answer "already
+     * decided". Control: the test above, where nothing is decided, still opens the dialog.
+     */
+    @Test
+    public void theStatusLineOfABlockedAccessPointSaysBlockedAndOpensTheNetworksList() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADB.recordExplicitIntent(context, true);
+        KeepADBNetworkBlocklist.blockBssid(context, BSSID);
+        connectTo(BSSID);
+        MainActivity activity = open();
+        TextView status = activity.findViewById(R.id.status);
+
+        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_by_user) + "\n"
+                + context.getString(R.string.status_tap_to_open_list), status.getText().toString());
+        assertFalse(status.getText().toString().contains(
+                context.getString(R.string.status_off_keep_alive_blocked_untrusted)));
+        assertTrue(status.isClickable());
+        status.performClick();
+        Intent intent = shadowOf(activity).getNextStartedActivity();
+        assertNotNull(intent);
+        assertEquals(NetworkListActivity.class.getName(), intent.getComponent().getClassName());
+    }
+
+    @Test
+    public void theStatusLineOfABlockedNameAlsoOpensTheNetworksList() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADB.recordExplicitIntent(context, true);
+        KeepADBNetworkBlocklist.blockSsid(context, "Cafe");
+        connectTo("Cafe", BSSID);
+        MainActivity activity = open();
+        TextView status = activity.findViewById(R.id.status);
+
+        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_by_user) + "\n"
+                + context.getString(R.string.status_tap_to_open_list), status.getText().toString());
+        status.performClick();
+        assertEquals(NetworkListActivity.class.getName(),
+                shadowOf(activity).getNextStartedActivity().getComponent().getClassName());
+    }
+
+    /** The tap reads the decision when it happens: trusted since the line was drawn, no dialog. */
+    @Test
+    public void aNetworkDecidedWhileTheLineWasShownOpensTheListAndNotTheDialog() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADB.recordExplicitIntent(context, true);
+        connectTo(BSSID);
+        MainActivity activity = open();
+        TextView status = activity.findViewById(R.id.status);
+        assertEquals(context.getString(R.string.status_tap_to_decide),
+                status.getText().toString().split("\n")[1]);
+
+        KeepADBTrustedNetwork.addBssid(context, BSSID, "Home");
+        status.performClick();
+
+        assertEquals(NetworkListActivity.class.getName(),
+                shadowOf(activity).getNextStartedActivity().getComponent().getClassName());
     }
 
     @Test

@@ -294,6 +294,7 @@
     <string name="settings_no_browser_found">Не найдено приложение для открытия этой ссылки.</string>
     <string name="status_off_keep_alive_waiting">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive ждёт сеть</string>
     <string name="status_off_keep_alive_blocked_untrusted">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: эта сеть Wi-Fi не является доверенной</string>
+    <string name="status_off_keep_alive_blocked_by_user">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: эта сеть Wi-Fi заблокирована</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: сеть не читается, проверьте разрешение на геолокацию («Разрешить в любом режиме») или откройте приложение заново</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Беспроводная отладка ВЫКЛЮЧЕНА — Keep-Alive приостановлен: подтвердите системный диалог Android о сети для беспроводной отладки, затем нажмите переключатель, чтобы повторить попытку</string>
     <string name="status_pending">Переключение…</string>
@@ -538,4 +539,5 @@
     <string name="home_warning_limited_title">Keep-Alive ограничен</string>
     <string name="home_warning_limited_text">Не хватает настроек для надёжной работы Keep-Alive: %1$d</string>
     <string name="status_tap_to_decide">Нажмите, чтобы решить</string>
+    <string name="status_tap_to_open_list">Нажмите, чтобы открыть список сетей</string>
 </resources>

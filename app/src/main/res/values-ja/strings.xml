@@ -294,6 +294,7 @@
     <string name="settings_no_browser_found">このリンクを開けるアプリが見つかりません。</string>
     <string name="status_off_keep_alive_waiting">ワイヤレスデバッグは OFF です – Keep-Alive がネットワークを待機中</string>
     <string name="status_off_keep_alive_blocked_untrusted">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークは信頼されていません</string>
+    <string name="status_off_keep_alive_blocked_by_user">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:このWi-Fiネットワークはブロックされています</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:ネットワークを読み取れません。位置情報の権限（「常に許可」）を確認するか、アプリを開き直してください</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">ワイヤレスデバッグは OFF です – Keep-Alive は一時停止中:Android のワイヤレスデバッグ ネットワークダイアログを確認し、スイッチをタップして再試行してください</string>
     <string name="status_pending">切り替え中…</string>
@@ -538,4 +539,5 @@
     <string name="home_warning_limited_title">Keep-Alive が制限されています</string>
     <string name="home_warning_limited_text">Keep-Alive を確実に動かすために足りない設定：%1$d</string>
     <string name="status_tap_to_decide">タップして決定</string>
+    <string name="status_tap_to_open_list">タップしてネットワーク一覧を開く</string>
 </resources>

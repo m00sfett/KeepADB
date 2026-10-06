@@ -294,6 +294,7 @@
     <string name="settings_no_browser_found">Không tìm thấy ứng dụng để mở liên kết này.</string>
     <string name="status_off_keep_alive_waiting">Gỡ lỗi không dây đang TẮT – Keep-Alive đang chờ mạng</string>
     <string name="status_off_keep_alive_blocked_untrusted">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: mạng Wi-Fi này không tin cậy</string>
+    <string name="status_off_keep_alive_blocked_by_user">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: mạng Wi-Fi này đã bị chặn</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: mạng không đọc được, hãy kiểm tra quyền Vị trí (“Luôn cho phép”) hoặc mở lại ứng dụng</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Gỡ lỗi không dây đang TẮT – Keep-Alive đã tạm dừng: hãy xác nhận hộp thoại mạng Gỡ lỗi không dây của Android, sau đó nhấn vào công tắc để thử lại</string>
     <string name="status_pending">Đang chuyển…</string>
@@ -538,4 +539,5 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="home_warning_limited_title">Keep-Alive bị hạn chế</string>
     <string name="home_warning_limited_text">Cài đặt còn thiếu để Keep-Alive hoạt động ổn định: %1$d</string>
     <string name="status_tap_to_decide">Chạm để quyết định</string>
+    <string name="status_tap_to_open_list">Chạm để mở danh sách mạng</string>
 </resources>

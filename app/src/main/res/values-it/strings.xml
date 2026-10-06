@@ -294,6 +294,7 @@
     <string name="settings_no_browser_found">Nessuna app trovata per aprire questo link.</string>
     <string name="status_off_keep_alive_waiting">Debug wireless DISATTIVO – Keep-Alive attende la rete</string>
     <string name="status_off_keep_alive_blocked_untrusted">Debug wireless DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi non è affidabile</string>
+    <string name="status_off_keep_alive_blocked_by_user">Debug wireless DISATTIVO – Keep-Alive in pausa: questa rete Wi-Fi è bloccata</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Debug wireless DISATTIVO – Keep-Alive in pausa: rete non leggibile, controlla il permesso Posizione («Consenti sempre») o riapri l\'app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Debug wireless DISATTIVO – Keep-Alive in pausa: conferma la finestra di dialogo di rete del debug wireless di Android, poi tocca l\'interruttore per riprovare</string>
     <string name="status_pending">Cambio in corso…</string>
@@ -538,4 +539,5 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="home_warning_limited_title">Keep-Alive limitato</string>
     <string name="home_warning_limited_text">Impostazioni mancanti per un Keep-Alive affidabile: %1$d</string>
     <string name="status_tap_to_decide">Tocca per decidere</string>
+    <string name="status_tap_to_open_list">Tocca per aprire l\'elenco delle reti</string>
 </resources>

@@ -294,6 +294,7 @@
     <string name="settings_no_browser_found">未找到可打开此链接的应用。</string>
     <string name="status_off_keep_alive_waiting">无线调试已关闭 – Keep-Alive 正在等待网络</string>
     <string name="status_off_keep_alive_blocked_untrusted">无线调试已关闭 – Keep-Alive 已暂停:此 Wi-Fi 网络未信任</string>
+    <string name="status_off_keep_alive_blocked_by_user">无线调试已关闭 – Keep-Alive 已暂停:此 Wi-Fi 网络已被拦截</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">无线调试已关闭 – Keep-Alive 已暂停:网络无法读取,请检查位置权限（“始终允许”）或重新打开应用</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">无线调试已关闭 – Keep-Alive 已暂停:请确认 Android 的无线调试网络对话框,然后点按开关重试</string>
     <string name="status_pending">正在切换…</string>
@@ -538,4 +539,5 @@
     <string name="home_warning_limited_title">Keep-Alive 受限</string>
     <string name="home_warning_limited_text">要让 Keep-Alive 稳定运行，还缺少的设置：%1$d</string>
     <string name="status_tap_to_decide">点按以决定</string>
+    <string name="status_tap_to_open_list">点按以打开网络列表</string>
 </resources>

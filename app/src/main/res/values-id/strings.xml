@@ -294,6 +294,7 @@
     <string name="settings_no_browser_found">Tidak ada aplikasi untuk membuka tautan ini.</string>
     <string name="status_off_keep_alive_waiting">Debugging Nirkabel NONAKTIF – Keep-Alive menunggu jaringan</string>
     <string name="status_off_keep_alive_blocked_untrusted">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini tidak dipercaya</string>
+    <string name="status_off_keep_alive_blocked_by_user">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: jaringan Wi-Fi ini diblokir</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: jaringan tidak terbaca, periksa izin Lokasi (“Izinkan sepanjang waktu”) atau buka kembali aplikasi</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Debugging Nirkabel NONAKTIF – Keep-Alive dijeda: konfirmasi dialog jaringan Debugging Nirkabel Android, lalu ketuk sakelar untuk mencoba lagi</string>
     <string name="status_pending">Mengalihkan…</string>
@@ -538,4 +539,5 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="home_warning_limited_title">Keep-Alive terbatas</string>
     <string name="home_warning_limited_text">Pengaturan yang kurang agar Keep-Alive andal: %1$d</string>
     <string name="status_tap_to_decide">Ketuk untuk memutuskan</string>
+    <string name="status_tap_to_open_list">Ketuk untuk membuka daftar jaringan</string>
 </resources>

@@ -294,6 +294,7 @@
     <string name="settings_no_browser_found">Geen app gevonden om deze link te openen.</string>
     <string name="status_off_keep_alive_waiting">Draadloze foutopsporing is UIT – Keep-Alive wacht op het netwerk</string>
     <string name="status_off_keep_alive_blocked_untrusted">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: dit wifi-netwerk is niet vertrouwd</string>
+    <string name="status_off_keep_alive_blocked_by_user">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: dit wifi-netwerk is geblokkeerd</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: netwerk onleesbaar, controleer de locatietoestemming (‘Altijd toestaan’) of open de app opnieuw</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Draadloze foutopsporing is UIT – Keep-Alive gepauzeerd: bevestig Android\'s netwerkdialoog voor draadloze foutopsporing en tik daarna op de schakelaar om het opnieuw te proberen</string>
     <string name="status_pending">Bezig met omschakelen…</string>
@@ -538,4 +539,5 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="home_warning_limited_title">Keep-Alive beperkt</string>
     <string name="home_warning_limited_text">Ontbrekende instellingen voor betrouwbare Keep-Alive: %1$d</string>
     <string name="status_tap_to_decide">Tik om te beslissen</string>
+    <string name="status_tap_to_open_list">Tik om de netwerklijst te openen</string>
 </resources>

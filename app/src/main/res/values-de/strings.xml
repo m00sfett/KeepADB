@@ -294,6 +294,7 @@
     <string name="settings_no_browser_found">Keine App zum Öffnen dieses Links gefunden.</string>
     <string name="status_off_keep_alive_waiting">Drahtloses Debugging ist AUS – Keep-Alive wartet auf das Netzwerk</string>
     <string name="status_off_keep_alive_blocked_untrusted">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Dieses WLAN ist nicht vertraut</string>
+    <string name="status_off_keep_alive_blocked_by_user">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Dieses WLAN ist blockiert</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Netzwerk nicht lesbar, Standortberechtigung („Immer zulassen“) prüfen oder App neu öffnen</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Drahtloses Debugging ist AUS – Keep-Alive pausiert: Androids Systemdialog für Drahtloses Debugging bestätigen, dann zum erneuten Versuch antippen</string>
     <string name="status_pending">Wird umgeschaltet …</string>
@@ -538,4 +539,5 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="home_warning_limited_title">Keep-Alive ist eingeschränkt</string>
     <string name="home_warning_limited_text">Fehlende Einstellungen für zuverlässiges Keep-Alive: %1$d</string>
     <string name="status_tap_to_decide">Tippen, um zu entscheiden</string>
+    <string name="status_tap_to_open_list">Tippen, um die Netzwerkliste zu öffnen</string>
 </resources>

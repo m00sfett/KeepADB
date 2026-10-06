@@ -294,6 +294,7 @@
     <string name="settings_no_browser_found">Aucune application trouvée pour ouvrir ce lien.</string>
     <string name="status_off_keep_alive_waiting">Débogage sans fil DÉSACTIVÉ – Keep-Alive attend le réseau</string>
     <string name="status_off_keep_alive_blocked_untrusted">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : ce réseau Wi-Fi n\'est pas approuvé</string>
+    <string name="status_off_keep_alive_blocked_by_user">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : ce réseau Wi-Fi est bloqué</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : réseau illisible, vérifiez l\'autorisation de localisation (« Toujours autoriser ») ou rouvrez l\'application</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Débogage sans fil DÉSACTIVÉ – Keep-Alive en pause : confirmez la boîte de dialogue réseau du débogage sans fil d\'Android, puis appuyez sur l\'interrupteur pour réessayer</string>
     <string name="status_pending">Changement en cours…</string>
@@ -538,4 +539,5 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="home_warning_limited_title">Keep-Alive limité</string>
     <string name="home_warning_limited_text">Réglages manquants pour un Keep-Alive fiable : %1$d</string>
     <string name="status_tap_to_decide">Touchez pour décider</string>
+    <string name="status_tap_to_open_list">Touchez pour ouvrir la liste des réseaux</string>
 </resources>

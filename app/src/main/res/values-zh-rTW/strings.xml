@@ -294,6 +294,7 @@
     <string name="settings_no_browser_found">找不到可開啟此連結的應用程式。</string>
     <string name="status_off_keep_alive_waiting">無線偵錯已關閉 – Keep-Alive 正在等待網路</string>
     <string name="status_off_keep_alive_blocked_untrusted">無線偵錯已關閉 – Keep-Alive 已暫停:此 Wi-Fi 網路未信任</string>
+    <string name="status_off_keep_alive_blocked_by_user">無線偵錯已關閉 – Keep-Alive 已暫停:此 Wi-Fi 網路已被封鎖</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">無線偵錯已關閉 – Keep-Alive 已暫停:網路無法讀取,請檢查位置權限（「一律允許」）或重新開啟應用程式</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">無線偵錯已關閉 – Keep-Alive 已暫停:請確認 Android 的無線偵錯網路對話方塊,然後點選開關重試</string>
     <string name="status_pending">正在切換…</string>
@@ -538,4 +539,5 @@
     <string name="home_warning_limited_title">Keep-Alive 受限</string>
     <string name="home_warning_limited_text">要讓 Keep-Alive 穩定運作，還缺少的設定：%1$d</string>
     <string name="status_tap_to_decide">輕觸以決定</string>
+    <string name="status_tap_to_open_list">輕觸以開啟網路清單</string>
 </resources>

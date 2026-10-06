@@ -302,6 +302,7 @@
     <string name="settings_no_browser_found">No app found to open this link.</string>
     <string name="status_off_keep_alive_waiting">Wireless Debugging is OFF – Keep-Alive is waiting for the network</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wireless Debugging is OFF – Keep-Alive is paused: this Wi-Fi network isn\'t trusted</string>
+    <string name="status_off_keep_alive_blocked_by_user">Wireless Debugging is OFF – Keep-Alive is paused: this Wi-Fi network is blocked</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Wireless Debugging is OFF – Keep-Alive is paused: network unreadable, check Location permission (“Allow all the time”) or reopen the app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wireless Debugging is OFF – Keep-Alive is paused: confirm Android\'s Wireless Debugging network dialog, then tap the switch to retry</string>
     <string name="status_pending">Switching…</string>
@@ -547,4 +548,5 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="home_warning_limited_title">Keep-Alive is limited</string>
     <string name="home_warning_limited_text">Settings missing for reliable Keep-Alive: %1$d</string>
     <string name="status_tap_to_decide">Tap to decide</string>
+    <string name="status_tap_to_open_list">Tap to open the network list</string>
 </resources>

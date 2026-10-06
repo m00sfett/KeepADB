@@ -294,6 +294,7 @@
     <string name="settings_no_browser_found">Не знайдено застосунок для відкриття цього посилання.</string>
     <string name="status_off_keep_alive_waiting">Бездротове налагодження ВИМКНЕНО — Keep-Alive чекає на мережу</string>
     <string name="status_off_keep_alive_blocked_untrusted">Бездротове налагодження ВИМКНЕНО — Keep-Alive призупинено: ця мережа Wi-Fi не є довіреною</string>
+    <string name="status_off_keep_alive_blocked_by_user">Бездротове налагодження ВИМКНЕНО — Keep-Alive призупинено: ця мережа Wi-Fi заблокована</string>
     <string name="status_off_keep_alive_blocked_identity_unavailable">Бездротове налагодження ВИМКНЕНО — Keep-Alive призупинено: мережа не читається, перевірте дозвіл на геолокацію («Дозволити завжди») або відкрийте застосунок знову</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Бездротове налагодження ВИМКНЕНО — Keep-Alive призупинено: підтвердьте системний діалог Android про мережу бездротового налагодження, потім торкніться перемикача, щоб повторити спробу</string>
     <string name="status_pending">Перемикання…</string>
@@ -538,4 +539,5 @@
     <string name="home_warning_limited_title">Keep-Alive обмежено</string>
     <string name="home_warning_limited_text">Бракує налаштувань для надійної роботи Keep-Alive: %1$d</string>
     <string name="status_tap_to_decide">Торкніться, щоб вирішити</string>
+    <string name="status_tap_to_open_list">Торкніться, щоб відкрити список мереж</string>
 </resources>
