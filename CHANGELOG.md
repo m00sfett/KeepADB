@@ -17,12 +17,38 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29` and `1.9.30`, `1.9.31` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31` and `1.9.32` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.9.32] - Unreleased
+
+Etappe patch candidate (versionCode 204), part a of the single network list of #762 (UX concept #758, 2.1 to 2.6); no release. Clearing out the old lists and settings (#769) follows in this same version without another bump. The version 1.9.31 is not part of this entry.
+
+### Added
+- #762: New view "Networks" in `NetworkListActivity` (`VIEW_NETWORKS`, opened from a new first row of the Settings network card that also shows "3 trusted · 1 blocked", or "Hidden" in the privacy mode). The current network is on top; the saved access points follow, grouped by Wi-Fi name (groups with trusted access points first, then mixed ones, then only blocked ones; a blocked name without a saved access point is a group of its own). Every network carries one status badge: Trusted, Blocked, Unknown, Not readable, and "Name trusted" (dashed outline) for the current network when only the comfort switch accepts it. Drawn by the new `NetworkListRenderer`; the derivation is the new pure `KeepADBNetworkList`, the answers are `KeepADBNetworkListActions`. The three older views stay unchanged until #769.
+- #762: One rule, not two: every status comes from `KeepADBTrustedNetwork.evaluate` (#760). A trusted access point whose Wi-Fi name is blocked shows "Blocked" with the reason ("Blocked via the Wi-Fi name ... Trusted again once the name block is lifted."), never "Trusted"; the trusted entry stays stored under the block. Names of blocked addresses come from the trust label, the current connection or the last observation (history is read only to name an address and adds no row).
+- #762: Tap dialogs with stacked 48dp buttons, offering only what changes the row: Block, Stop trusting, Rename, "Always block Wi-Fi name ..." on a trusted row; Trust (not while the name is blocked), Lift block, and "Lift name block..." (with a confirmation) on a blocked one; the group header opens the name dialog. "Stop trusting" and "Lift block" of an access point both end in Unknown, so lifting never turns a blocked network into a trusted one; a trust stored under a blocked address (old data) and the trust of an access point blocked from the list are dropped with it. Lifting a name block leaves everything stored as it is.
+- #762: The undecided current network (also when it is accepted only by the comfort switch or the previous "In all Wi-Fi networks" setting) is asked through the embedded `NetworkDecisionView` of #766, no dialog of the list's own; `NetworkDecisionView.setDecideLaterVisible` lets an embedding host hide "Decide later".
+- #762: One switch strict/convenience ("Also trust by Wi-Fi name", `trust_by_name`) with the protection level next to it; without effect (and said so) under the previous "In all Wi-Fi networks" setting. A note appears while the force mode is on.
+- #762: States: empty list, no Wi-Fi (Wi-Fi settings), unreadable network (cause and fix reused from the settings card: grant location, location settings), privacy placeholder with "Show" (the same as the eye). Long groups fold to three rows with "Show N more" from six access points. Rows speak title, Wi-Fi name, address, status and reason as one line; badges are not focus targets.
+- #762: Strings `networks_*` and `network_badge_blocked`, `network_cause_blocked` in all 19 locales; status badge drawables `bg_badge_*`.
+
+### Changed
+- #762: `NetworkListActivity` uses a 16dp side padding like the other screens (N7 of the concept).
+
+### Fixed
+- #762: `getProtectionLevel` reported `BALANCED` before `LEGACY_NAME_LIST`; with the comfort switch and the stored name list both on, the effective grant was shown too narrow. The legacy list is now asked first (E1 review).
+- #762: A grant refused because of a block showed the generic "could not add" toast; it now says the network is blocked. The mesh offer no longer offers blocked access points (or anything under a blocked name) and its toast counts only what was stored (E1 review).
+- #762: The Settings network card showed a blocked network as "Not allowed" with an "Allow this access point" action the policy refuses, and missed a name block behind a masked address. It now reads "Blocked", gives the reason and offers no action (E1 review).
+
+### Documentation
+- #762: `docs/trusted-networks.md`: section "Die Liste Netzwerke", including the way back (Unknown versus stored trust), the privacy mode and the limit for unreadable networks under the previous setting; the outdated "known limit" about lifting blocks is replaced.
+
+### Testing
+- #762: `KeepADBNetworkListTest` (status from the real policy, order, counts, both ways back), `NetworkListNetworksViewTest` (blocked before trusted on rows and the current card, dialogs, embedded decision, privacy mode on and off, states, folding, comfort switch, force note), `NetworkListSettingsEntryTest`, `KeepADBNetworkActionsRefusalTest`, and additions to the card state and protection level tests. Each invariant is asserted with its control on the other side.
 ## [1.9.31] - Unreleased
 
 User-authorized patch candidate (versionCode 203) for #771; no release.
