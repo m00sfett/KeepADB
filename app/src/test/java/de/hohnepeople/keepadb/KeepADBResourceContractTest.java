@@ -222,7 +222,8 @@ public class KeepADBResourceContractTest {
                 "network_cause_unreadable_all_wifi"};
         String[] modeLabels = {"network_mode_option_aps", "network_mode_option_aps_names"};
         String[] englishModeLabels = {"Only allowed access points",
-                "Allowed access points and Wi-Fi names"};
+                "Allowed access points and Wi-Fi names", "Only trusted access points",
+                "Trusted access points and Wi-Fi names"};
         Map<String, String> locales = new LinkedHashMap<>(SUPPORTED_LOCALES);
         locales.put("default", "");
 
