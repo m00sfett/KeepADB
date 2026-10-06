@@ -36,7 +36,8 @@ import org.robolectric.shadows.ShadowWifiInfo;
 
 /**
  * #759: tap-target table (notification, state, content-tap target intent) from the UX concept
- * 3.1, one test per row that this phase owns. Rows 8 to 10 (identity unavailable) are pinned in
+ * 3.1, one test per row that this phase owns (row 4 and, in {@link KeepADBNetworkTrustPromptTest},
+ * row 10 point at the setup assistant since #767). Rows 8 to 10 (identity unavailable) are pinned in
  * {@link KeepADBNetworkTrustPromptTest}; the end-to-end tap of rows 6 and 7 into the dialog is
  * pinned in {@link NetworkDecisionActivityTest} (#766 moved the dialog from {@link
  * SettingsActivity} to {@link NetworkDecisionActivity}). Row 14 (widget, tile) are toggles without a content tap,
@@ -73,7 +74,7 @@ public class KeepADBNotificationTapTargetsTest {
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(null);
     }
 
-    // --- Rows 1 to 4: main notification states open MainActivity ----------------------------
+    // --- Rows 1 to 3 open MainActivity; row 4 (permission missing) the assistant -------------
 
     @Test
     public void row1EndpointActiveOpensMainActivity() {
@@ -95,9 +96,28 @@ public class KeepADBNotificationTapTargetsTest {
         assertOpensMainActivity(posted(KeepADBNotification.NOTIFICATION_ID));
     }
 
+    /** #767: phase 2 of #759 -- the assistant's permissions step, at the row with the command. */
     @Test
-    public void row4PermissionMissingOpensMainActivityInPhase1() {
+    public void row4PermissionMissingOpensThePermissionsStepOfTheAssistant() {
         KeepADBNotification.showPermissionMissing(context);
+
+        Intent target = savedIntent(posted(KeepADBNotification.NOTIFICATION_ID));
+        assertEquals(OnboardingActivity.class.getName(), target.getComponent().getClassName());
+        assertEquals(KeepADBOnboarding.Step.PERMISSIONS.id,
+                target.getStringExtra(OnboardingActivity.EXTRA_STEP));
+        assertEquals(OnboardingActionSteps.Permissions.ITEM_SYSTEM,
+                target.getStringExtra(OnboardingActivity.EXTRA_FOCUS_ITEM));
+    }
+
+    /** The other side: the states that do not lack a permission keep opening the home screen. */
+    @Test
+    public void onlyThePermissionMissingCardLeavesTheHomeScreenTarget() {
+        KeepADBNotification.renderSearching(context);
+        assertOpensMainActivity(posted(KeepADBNotification.NOTIFICATION_ID));
+        KeepADBNotification.showPermissionMissing(context);
+        assertEquals(OnboardingActivity.class.getName(),
+                savedIntent(posted(KeepADBNotification.NOTIFICATION_ID)).getComponent().getClassName());
+        KeepADBNotification.renderDisabledKeepAliveWaiting(context);
         assertOpensMainActivity(posted(KeepADBNotification.NOTIFICATION_ID));
     }
 
