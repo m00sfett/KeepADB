@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
@@ -60,8 +61,7 @@ public class NetworkListSettingsEntryTest {
         settings.findViewById(R.id.network_networks_row).performClick();
         Intent started = shadowOf(settings).getNextStartedActivity();
         assertEquals(NetworkListActivity.class.getName(), started.getComponent().getClassName());
-        assertEquals(NetworkListActivity.VIEW_NETWORKS,
-                started.getStringExtra(NetworkListActivity.EXTRA_VIEW));
+        assertNull("There is one list, so no view is named", started.getExtras());
 
         KeepADBPreferences.setPrivacyModeEnabled(context, true);
         SettingsActivity hiddenSettings = Robolectric.buildActivity(SettingsActivity.class).setup().get();

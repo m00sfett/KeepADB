@@ -17,7 +17,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 /**
- * #654: the management views follow the language chosen in the app, like every other screen.
+ * #654/#769: the Networks list follows the language chosen in the app, like every other screen.
  * Below Android 13 the app applies the choice itself by wrapping the activity's base context
  * ({@link KeepADBLocaleHelper#wrapContext}), which is the path this pins -- a new activity that
  * forgets it would stay in the system language. On Android 13+ the platform owns the choice.
@@ -44,21 +44,21 @@ public class NetworkListActivityLocaleTest {
 
     private String title() {
         NetworkListActivity activity = Robolectric.buildActivity(NetworkListActivity.class,
-                NetworkListActivity.intent(context, NetworkListActivity.VIEW_PREVENTED)).setup().get();
+                NetworkListActivity.intent(context)).setup().get();
         return ((TextView) activity.findViewById(R.id.network_list_title)).getText().toString();
     }
 
     @Test
     public void theViewFollowsTheAppLanguageAndOtherwiseTheSystemOne() {
         String english = title();
-        assertEquals("Recently prevented re-enabling", english);
+        assertEquals("Networks", english);
 
         KeepADBPreferences.setAppLanguage(context, "de");
         String german = title();
-        assertEquals("Zuletzt verhindertes Wiedereinschalten", german);
+        assertEquals("Netzwerke", german);
         assertNotEquals(english, german);
 
         KeepADBPreferences.setAppLanguage(context, "ja");
-        assertEquals("最近防いだ再有効化", title());
+        assertEquals("ネットワーク", title());
     }
 }

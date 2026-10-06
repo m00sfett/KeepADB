@@ -25,7 +25,7 @@ public class KeepADBNetworkCardContractTest {
 
     /**
      * The activity keeps the screen composition and the Android lifecycle; everything the card
-     * owns -- rendered action snapshot, Wi-Fi callback, its three dialogs, its request codes and
+     * owns -- rendered action snapshot, Wi-Fi callback, its dialogs, its request code and
      * the preference flag of the grant request -- lives in the card only. (The trust confirmation
      * dialog moved out to {@link NetworkDecisionActivity} in #766, see {@link NetworkDecisionContractTest}.) A second owner would
      * bring back the split state the extraction removed.
@@ -38,8 +38,7 @@ public class KeepADBNetworkCardContractTest {
         String[] ownedByTheCard = {
                 "NetworkCallback", "registerNetworkCallback", "wifiStatusCallback",
                 "networkStatusActionKind", "networkActionBssid", "networkActionLabel",
-                "activeBackgroundLocationDialog", "activeAllowlistPermissionDialog",
-                "activeMeshDialog", "TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST",
+                "activeBackgroundLocationDialog", "activeMeshDialog",
                 "WIFI_APS_LOCATION_PERMISSION_REQUEST", "LOCATION_PERMISSION_REQUESTED",
                 "requestPermissions(", "KeepADBNetworkActions.allowAccessPoint"};
         for (String name : ownedByTheCard) {
@@ -48,7 +47,7 @@ public class KeepADBNetworkCardContractTest {
         }
         for (String name : new String[] {"wifiStatusCallback", "networkStatusActionKind",
                 "networkActionBssid", "activeBackgroundLocationDialog",
-                "activeAllowlistPermissionDialog", "activeMeshDialog", "requestPermissions("}) {
+                "activeMeshDialog", "requestPermissions("}) {
             assertTrue("KeepADBNetworkCard must own '" + name + "'", card.contains(name));
         }
 

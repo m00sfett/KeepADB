@@ -100,15 +100,12 @@ public class NetworkListNetworksViewTest {
 
         NetworkListActivity activity = open();
 
-        assertEquals(NetworkListActivity.VIEW_NETWORKS, activity.getListView());
         TextView title = activity.findViewById(R.id.network_list_title);
         assertEquals(context.getString(R.string.networks_title), title.getText().toString());
         assertTrue(title.isAccessibilityHeading());
         assertEquals(context.getString(R.string.networks_intro),
                 ((TextView) activity.findViewById(R.id.network_list_intro)).getText().toString());
         assertEquals(View.VISIBLE, activity.findViewById(R.id.networks_root).getVisibility());
-        assertEquals("The older lists are not drawn in this view",
-                View.GONE, activity.findViewById(R.id.wifi_aps_current_row).getVisibility());
 
         String all = everythingShown(activity);
         int current = all.indexOf(context.getString(R.string.networks_section_current));
@@ -118,11 +115,19 @@ public class NetworkListNetworksViewTest {
                 all.indexOf(KITCHEN.toUpperCase(Locale.ROOT)) < all.indexOf(HALL.toUpperCase(Locale.ROOT)));
     }
 
+    /** #769: the shell closes with the back button and is not reachable from other apps. */
     @Test
-    public void theOtherViewsAreUnchangedAndDoNotDrawTheNewOne() {
-        NetworkListActivity activity = open(NetworkListActivity.VIEW_ALLOWED);
-        assertEquals(View.GONE, activity.findViewById(R.id.networks_root).getVisibility());
-        assertEquals(0, ((ViewGroup) activity.findViewById(R.id.networks_root)).getChildCount());
+    public void theBackButtonClosesTheListAndTheActivityIsNotExported() throws Exception {
+        NetworkListActivity activity = open();
+        assertEquals(context.getString(R.string.back),
+                activity.findViewById(R.id.btn_back).getContentDescription());
+        activity.findViewById(R.id.btn_back).performClick();
+        assertTrue(activity.isFinishing());
+
+        android.content.pm.ActivityInfo info = context.getPackageManager().getActivityInfo(
+                new android.content.ComponentName(context, NetworkListActivity.class), 0);
+        assertFalse("Other apps must not be able to open the list", info.exported);
+        assertTrue(info.enabled);
     }
 
     // --- Blocked before trusted ---------------------------------------------------------------
@@ -547,12 +552,8 @@ public class NetworkListNetworksViewTest {
     // --- Helpers -----------------------------------------------------------------------------
 
     private NetworkListActivity open() {
-        return open(NetworkListActivity.VIEW_NETWORKS);
-    }
-
-    private NetworkListActivity open(String view) {
         NetworkListActivity activity = Robolectric.buildActivity(NetworkListActivity.class,
-                NetworkListActivity.intent(context, view)).setup().get();
+                NetworkListActivity.intent(context)).setup().get();
         ShadowLooper.idleMainLooper();
         return activity;
     }

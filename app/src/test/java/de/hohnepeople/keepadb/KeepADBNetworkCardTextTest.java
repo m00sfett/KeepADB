@@ -56,12 +56,6 @@ public class KeepADBNetworkCardTextTest {
             detections.add(KeepADBNetworkCardText.detection(detection));
         }
         assertAllDistinct("Detection", Detection.values().length, detections);
-
-        Set<Integer> effects = new HashSet<>();
-        for (NameMatching matching : NameMatching.values()) {
-            effects.add(KeepADBNetworkCardText.nameMatchingEffect(matching));
-        }
-        assertAllDistinct("NameMatching", NameMatching.values().length, effects);
     }
 
     @Test

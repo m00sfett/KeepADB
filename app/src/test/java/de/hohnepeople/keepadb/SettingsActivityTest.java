@@ -1105,111 +1105,46 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #492/#654, as amended by #760: the mode choice and the Wi-Fi-name switch are the only
-     * surfaces the security decision is taken on, so the wiring itself needs pinning, not just the
-     * persisted semantics in {@link KeepADBTrustedNetworkTest}. Asserts the properties the issue
-     * names for them: a new installation starts on the allowlist with the name switch off, the mode
-     * choice actually persists the mode, and the name switch is inoperable while the restriction it
-     * widens is off (and becomes operable in the same refresh, not only after re-entering
-     * Settings). Switching the mode never touches the saved name setting -- the UI never turns it on
-     * or off by itself.
+     * #760/#769: the comfort switch is the one security control left in the Network card, so its
+     * wiring is pinned, not just the persisted semantics in {@link KeepADBTrustedNetworkTest}: a
+     * new installation starts on the allowlist with the switch off, a tap persists exactly the
+     * "trust by name" rule, and it touches neither the stored mode nor the legacy name setting.
+     * The note that the switch has no effect appears only while the legacy "all networks" policy
+     * is stored, and the card never writes the policy by itself when it is drawn.
      */
     @Test
-    public void bothPolicyControlsStartOffAndTheSsidOneIsGatedOnTheRestriction() {
-        shadowOf(RuntimeEnvironment.getApplication())
-                .grantPermissions(android.Manifest.permission.ACCESS_FINE_LOCATION);
+    public void theComfortSwitchStartsOffPersistsOnlyItsOwnRuleAndNamesWhenItHasNoEffect() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
-
-        android.widget.RadioButton allWifi = activity.findViewById(R.id.network_mode_all_wifi);
-        android.widget.RadioButton allowlist = activity.findViewById(R.id.network_mode_allowlist);
-        Switch ssid = activity.findViewById(R.id.settings_trusted_ssid_toggle);
+        Switch comfort = activity.findViewById(R.id.settings_trust_by_name_toggle);
+        View noEffect = activity.findViewById(R.id.network_comfort_no_effect);
 
         assertTrue("The restriction is the default of a new installation (#760)",
-                allowlist.isChecked());
-        assertFalse(allWifi.isChecked());
-        assertFalse("The SSID alternative is a second, separate opt-in", ssid.isChecked());
-        assertTrue("The name switch widens the active restriction, so it is operable",
-                ssid.isEnabled());
-        assertTrue(KeepADBTrustedNetwork.isAllowlistMode(activity));
-
-        // A RadioButton checks itself inside performClick() before the listener runs, so the
-        // click alone is the user gesture -- no setChecked() priming.
-        allWifi.performClick();
-        assertFalse("The choice must persist the mode, not just render it",
                 KeepADBTrustedNetwork.isAllowlistMode(activity));
-        assertTrue(allWifi.isChecked());
-        assertFalse(allowlist.isChecked());
-        assertFalse("A switch that widens nothing must not be operable", ssid.isEnabled());
+        assertFalse("The comfort switch is an opt-in", comfort.isChecked());
+        assertFalse(KeepADBTrustedNetwork.isTrustByNameEnabled(activity));
+        assertEquals(View.GONE, noEffect.getVisibility());
 
-        allowlist.performClick();
-        assertTrue("The choice must persist the mode, not just render it",
-                KeepADBTrustedNetwork.isAllowlistMode(activity));
-        assertTrue(allowlist.isChecked());
-        assertFalse(allWifi.isChecked());
-        assertTrue("The SSID switch must become operable in the same refresh", ssid.isEnabled());
-        assertFalse("Enabling the restriction must not enable the SSID alternative with it",
+        comfort.performClick();
+        assertTrue("The tap must persist the rule, not just render it",
+                KeepADBTrustedNetwork.isTrustByNameEnabled(activity));
+        assertTrue(comfort.isChecked());
+        assertTrue("The switch never changes the policy", KeepADBTrustedNetwork.isAllowlistMode(activity));
+        assertFalse("The switch never turns the legacy name list on",
                 KeepADBTrustedNetwork.isSsidMatchingEnabled(activity));
 
-        ssid.performClick();
-        assertTrue(KeepADBTrustedNetwork.isSsidMatchingEnabled(activity));
+        comfort.performClick();
+        assertFalse(KeepADBTrustedNetwork.isTrustByNameEnabled(activity));
+        controller.pause().stop().destroy();
 
-        allWifi.performClick();
-        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(activity));
-        assertTrue(allWifi.isChecked());
-        assertFalse("Opting back out must disarm the widening switch again", ssid.isEnabled());
-        assertTrue("Leaving the restriction must keep the saved name setting untouched",
-                KeepADBTrustedNetwork.isSsidMatchingEnabled(activity));
-    }
-
-    @Test
-    public void wifiApsSectionDisabledByDefault() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
-
-        Switch toggle = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
-        assertNotNull(toggle);
-        assertFalse("Opt-in toggle is off by default", toggle.isChecked());
-        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(activity));
-
-        View content = activity.findViewById(R.id.settings_wifi_aps_content);
-        assertNotNull(content);
-        assertEquals("Content container is GONE when opt-in is disabled", View.GONE, content.getVisibility());
-
-        int betaBadgeId = activity.getResources().getIdentifier(
-                "settings_wifi_aps_beta_badge", "id", activity.getPackageName());
-        assertEquals("Beta badge id must be removed", 0, betaBadgeId);
-    }
-
-    @Test
-    public void togglingWifiApsFeatureEnablesAndShowsContent() {
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        SettingsActivity activity = controller.get();
-
-        activity.findViewById(R.id.settings_network_beta_header).performClick();
-        Switch toggle = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
-        View content = activity.findViewById(R.id.settings_wifi_aps_content);
-
-        // Turn on
-        toggle.performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertTrue(KeepADBPreferences.isWifiApsFeatureEnabled(activity));
-        assertTrue(toggle.isChecked());
-        assertEquals(View.VISIBLE, content.getVisibility());
-
-        // Turn off
-        toggle.performClick();
-        ShadowLooper.idleMainLooper();
-
-        assertFalse(KeepADBPreferences.isWifiApsFeatureEnabled(activity));
-        assertFalse(toggle.isChecked());
-        assertEquals(View.GONE, content.getVisibility());
+        // The other side: under the stored legacy policy the switch is explained as without effect.
+        KeepADBTrustedNetwork.setMode(RuntimeEnvironment.getApplication(),
+                KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        SettingsActivity legacy = Robolectric.buildActivity(SettingsActivity.class).setup().get();
+        assertEquals(View.VISIBLE, legacy.findViewById(R.id.network_comfort_no_effect).getVisibility());
+        assertFalse("Drawing the card must not rewrite the stored policy",
+                KeepADBTrustedNetwork.isAllowlistMode(legacy));
     }
 
     /**
@@ -1318,9 +1253,9 @@ public class SettingsActivityTest {
     }
 
     /**
-     * #618/#654: the Network card is one collapsible card. Opening it must reveal every section
-     * without another expand target, except the advanced Wi-Fi-name section, which is the one
-     * deliberately collapsed sub-section at the very bottom. Beta badges stay removed.
+#618/#654/#769: the Network card is one collapsible card. Opening it must reveal every
+     * section without another expand target. The mode choice, the observation option and the
+     * legacy Wi-Fi-name section are gone for good. Beta badges stay removed.
      */
     @Test
     public void networkCardShowsItsSectionsAfterOneExpandStep() {
@@ -1336,19 +1271,13 @@ public class SettingsActivityTest {
         TextView outerArrow = activity.findViewById(R.id.settings_network_beta_arrow);
         int[] headings = {
                 R.id.network_status_heading,
-                R.id.network_mode_heading,
                 R.id.network_background_heading,
                 R.id.network_manage_heading,
-                R.id.network_observation_heading,
         };
         int[] directControls = {
-                R.id.network_mode_all_wifi,
-                R.id.network_mode_allowlist,
+                R.id.settings_trust_by_name_toggle,
                 R.id.settings_background_location_button,
-                R.id.network_allowed_row,
-                R.id.network_prevented_row,
-                R.id.settings_wifi_aps_feature_toggle,
-                R.id.network_ssid_header,
+                R.id.network_networks_row,
         };
 
         assertEquals(View.GONE, outerBody.getVisibility());
@@ -1381,8 +1310,13 @@ public class SettingsActivityTest {
             assertTrue("Network control must keep its click listener: " + id,
                     control.hasOnClickListeners());
         }
-        assertFalse("The advanced section starts collapsed: its switch is still hidden",
-                activity.findViewById(R.id.settings_trusted_ssid_toggle).isShown());
+        for (String removed : new String[] {"network_mode_group", "network_mode_all_wifi",
+                "network_mode_allowlist", "network_allowed_row", "network_prevented_row",
+                "network_observed_row", "settings_wifi_aps_feature_toggle", "network_ssid_header",
+                "settings_trusted_ssid_toggle", "wifi_ssids_list"}) {
+            assertEquals("The removed control must be gone: " + removed, 0,
+                    activity.getResources().getIdentifier(removed, "id", activity.getPackageName()));
+        }
 
         activity.findViewById(R.id.settings_network_beta_header).performClick();
         assertEquals(View.GONE, outerBody.getVisibility());
@@ -1452,13 +1386,10 @@ public class SettingsActivityTest {
 
         activity.findViewById(R.id.settings_network_beta_header).performClick();
 
-        assertTrue(((android.widget.RadioButton) activity.findViewById(R.id.network_mode_allowlist))
-                .isChecked());
-        assertFalse(((android.widget.RadioButton) activity.findViewById(R.id.network_mode_all_wifi))
-                .isChecked());
-
-        Switch wifiApsToggle = activity.findViewById(R.id.settings_wifi_aps_feature_toggle);
-        assertFalse(wifiApsToggle.isChecked());
+        assertFalse(((Switch) activity.findViewById(R.id.settings_trust_by_name_toggle)).isChecked());
+        assertEquals(activity.getString(R.string.networks_level,
+                        KeepADBForceNotice.levelLabel(activity)),
+                ((TextView) activity.findViewById(R.id.network_level_line)).getText().toString());
     }
 
     @Test
@@ -1564,60 +1495,6 @@ public class SettingsActivityTest {
 
         ShadowAlertDialog.getLatestAlertDialog().dismiss();
         restored.pause().stop().destroy();
-    }
-
-    @Test
-    public void allowlistPermissionDialogSurvivesRotationWithoutRequestingOrSwitching() {
-        // #760: the flow starts from an existing installation on the former default.
-        KeepADBTrustedNetwork.setMode(RuntimeEnvironment.getApplication(),
-                KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        controller.get().findViewById(R.id.network_mode_allowlist).performClick();
-        assertNotNull(controller.get().getActiveAllowlistPermissionDialog());
-        assertDialogShowingWithTitle(R.string.settings_trusted_network_permission_title,
-                controller.get());
-        assertFalse(KeepADBTrustedNetwork.isAllowlistMode(controller.get()));
-
-        ActivityController<SettingsActivity> restored = rotate(controller);
-        SettingsActivity activity = restored.get();
-
-        assertNotNull("Permission rationale must be restored",
-                activity.getActiveAllowlistPermissionDialog());
-        assertDialogShowingWithTitle(R.string.settings_trusted_network_permission_title, activity);
-        assertNull("Restoring must never request the permission",
-                shadowOf(activity).getLastRequestedPermission());
-        assertFalse("Restoring must never switch the mode",
-                KeepADBTrustedNetwork.isAllowlistMode(activity));
-        assertTrue(((android.widget.RadioButton) activity.findViewById(R.id.network_mode_all_wifi))
-                .isChecked());
-
-        activity.getActiveAllowlistPermissionDialog().dismiss();
-        restored.pause().stop().destroy();
-    }
-
-    @Test
-    public void allowlistPermissionDialogIsNotRestoredAfterDismissAndClosedOnDestroy() {
-        // #760: the flow starts from an existing installation on the former default.
-        KeepADBTrustedNetwork.setMode(RuntimeEnvironment.getApplication(),
-                KeepADBTrustedNetwork.MODE_ALL_WIFI);
-        ActivityController<SettingsActivity> controller =
-                Robolectric.buildActivity(SettingsActivity.class).setup();
-        controller.get().findViewById(R.id.network_mode_allowlist).performClick();
-        AlertDialog first = controller.get().getActiveAllowlistPermissionDialog();
-        first.dismiss();
-        ShadowLooper.idleMainLooper();
-        assertNull(controller.get().getActiveAllowlistPermissionDialog());
-
-        ActivityController<SettingsActivity> restored = rotate(controller);
-        assertNull("A dismissed dialog must not come back",
-                restored.get().getActiveAllowlistPermissionDialog());
-
-        restored.get().findViewById(R.id.network_mode_allowlist).performClick();
-        AlertDialog open = restored.get().getActiveAllowlistPermissionDialog();
-        assertNotNull(open);
-        restored.pause().stop().destroy();
-        assertFalse("onDestroy must close the dialog (no window leak)", open.isShowing());
     }
 
     private static Button findButtonWithText(List<Button> buttons, String text) {

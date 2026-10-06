@@ -75,8 +75,7 @@ public class KeepADBWindowInsetsTest {
     public void networkListActivityDispatchesRealInsetsToHeaderAndContent() {
         ActivityController<NetworkListActivity> controller = Robolectric.buildActivity(
                 NetworkListActivity.class,
-                NetworkListActivity.intent(org.robolectric.RuntimeEnvironment.getApplication(),
-                        NetworkListActivity.VIEW_ALLOWED)).setup();
+                NetworkListActivity.intent(org.robolectric.RuntimeEnvironment.getApplication())).setup();
         NetworkListActivity activity = controller.get();
 
         View header = activity.findViewById(R.id.header_bar);

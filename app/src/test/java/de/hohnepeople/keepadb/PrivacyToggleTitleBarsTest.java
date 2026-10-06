@@ -68,10 +68,7 @@ public class PrivacyToggleTitleBarsTest {
         List<Activity> pages = new ArrayList<>();
         pages.add(Robolectric.buildActivity(MainActivity.class).setup().get());
         pages.add(Robolectric.buildActivity(SettingsActivity.class).setup().get());
-        for (String view : new String[] {NetworkListActivity.VIEW_ALLOWED,
-                NetworkListActivity.VIEW_PREVENTED, NetworkListActivity.VIEW_OBSERVED}) {
-            pages.add(openList(view));
-        }
+        pages.add(openList());
         for (Activity page : pages) {
             String name = page.getClass().getSimpleName();
             View header = page.findViewById(R.id.header_bar);
@@ -109,7 +106,7 @@ public class PrivacyToggleTitleBarsTest {
     @Test
     public void switchingInTheListViewIsSeenByTheMainViewAndSettings() {
         assertFalse(KeepADBPreferences.isPrivacyModeEnabled(context));
-        NetworkListActivity list = openList(NetworkListActivity.VIEW_ALLOWED);
+        NetworkListActivity list = openList();
         list.findViewById(R.id.btn_toggle_privacy_mode).performClick();
         assertTrue(KeepADBPreferences.isPrivacyModeEnabled(context));
 
@@ -128,7 +125,7 @@ public class PrivacyToggleTitleBarsTest {
         assertTrue(KeepADBPreferences.isPrivacyModeEnabled(context));
 
         assertEquals(context.getString(R.string.privacy_toggle_disable_accessibility),
-                openList(NetworkListActivity.VIEW_OBSERVED)
+                openList()
                         .findViewById(R.id.btn_toggle_privacy_mode).getContentDescription());
         assertEquals(context.getString(R.string.privacy_toggle_disable_accessibility),
                 Robolectric.buildActivity(SettingsActivity.class).setup().get()
@@ -155,7 +152,7 @@ public class PrivacyToggleTitleBarsTest {
     public void theListViewMasksAndUnmasksAtOnceWithoutReopening() {
         connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
         KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:02", "Cafe-WLAN");
-        NetworkListActivity list = openList(NetworkListActivity.VIEW_ALLOWED);
+        NetworkListActivity list = openList();
         assertTrue(shown(list).contains("Cafe-WLAN"));
 
         list.findViewById(R.id.btn_toggle_privacy_mode).performClick();
@@ -187,9 +184,9 @@ public class PrivacyToggleTitleBarsTest {
 
     // --- helpers -------------------------------------------------------------------------------
 
-    private NetworkListActivity openList(String view) {
+    private NetworkListActivity openList() {
         NetworkListActivity activity = Robolectric.buildActivity(NetworkListActivity.class,
-                NetworkListActivity.intent(context, view)).setup().get();
+                NetworkListActivity.intent(context)).setup().get();
         ShadowLooper.idleMainLooper();
         return activity;
     }

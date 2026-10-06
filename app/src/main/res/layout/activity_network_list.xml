@@ -5,9 +5,7 @@
     android:background="@color/ground"
     android:orientation="vertical">
 
-    <!-- #654: one management view (allowed access points, recently prevented re-enabling or
-         observed access points) opened from the Network card in Settings. #762: plus the single
-         "Networks" view, which replaces them once #769 has removed the old settings. -->
+    <!-- #654/#762/#769: the one Networks list opened from the Network card in Settings. -->
     <LinearLayout
         android:id="@+id/header_bar"
         android:layout_width="match_parent"
@@ -66,83 +64,12 @@
                 android:textColor="@color/night_text"
                 android:textSize="14sp" />
 
-            <!-- Shown only while "all Wi-Fi networks" is active: the saved list stays here but
-                 does not count in that mode. -->
-            <TextView
-                android:id="@+id/network_list_inactive_hint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/text_yellow"
-                android:textSize="13sp"
-                android:visibility="gone" />
-
-            <!-- Shown only while the privacy mode hides names and addresses. -->
-            <TextView
-                android:id="@+id/network_list_privacy_hint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/network_privacy_hint"
-                android:textColor="@color/night_muted"
-                android:textSize="12sp"
-                android:visibility="gone" />
-
-            <!-- #762: the single "Networks" view is built into this column; the three older
-                 views above and below stay until the old settings are removed (#769). -->
+            <!-- The list is built into this column by NetworkListRenderer. -->
             <LinearLayout
                 android:id="@+id/networks_root"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/wifi_aps_current_row"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_card_clickable"
-                android:orientation="vertical"
-                android:padding="12dp"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/wifi_aps_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:orientation="vertical" />
-
-            <TextView
-                android:id="@+id/wifi_aps_toggle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:fontFamily="sans-serif-condensed"
-                android:gravity="center"
-                android:minHeight="48dp"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:textColor="@color/text_yellow"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/wifi_aps_empty"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:fontFamily="sans-serif"
-                android:textColor="@color/night_muted"
-                android:textSize="14sp"
-                android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

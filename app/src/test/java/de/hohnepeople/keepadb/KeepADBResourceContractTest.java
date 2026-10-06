@@ -196,15 +196,14 @@ public class KeepADBResourceContractTest {
     }
 
     /**
-     * #654 visual acceptance: the list-inactive hint and the all-networks cause used to quote a
-     * truncated mode name ("Only allowed ...") that matched no visible label once the Wi-Fi-name
-     * matching renamed the option to "Allowed access points and Wi-Fi names". The hint now takes
-     * the visible label as its argument and the cause names no allowed mode at all; no locale may
-     * quote a truncated mode name again.
+     * #654 visual acceptance: the all-networks cause used to quote a truncated mode name ("Only
+     * allowed ...") that matched no visible label once the Wi-Fi-name matching renamed the option
+     * to "Allowed access points and Wi-Fi names". The cause names no allowed mode at all; no
+     * locale may quote a truncated mode name again. (#769: the list-inactive hint is gone.)
      */
     @Test
     public void modeHintsNeverQuoteATruncatedModeNameInAnyLocale() throws Exception {
-        String[] names = {"network_list_inactive_hint", "network_cause_all_wifi"};
+        String[] names = {"network_cause_all_wifi"};
         Map<String, String> locales = new LinkedHashMap<>(SUPPORTED_LOCALES);
         locales.put("default", "");
         for (Map.Entry<String, String> locale : locales.entrySet()) {
@@ -437,10 +436,6 @@ public class KeepADBResourceContractTest {
         result.put("setup_command_multi", new Object[] {stringWitness});
         result.put("notification_text_active", new Object[] {integerWitness, stringWitness});
         result.put("settings_trusted_network_added_toast", new Object[] {stringWitness});
-        result.put("wifi_ssids_add_accessibility", new Object[] {stringWitness});
-        result.put("wifi_ssids_remove_accessibility", new Object[] {stringWitness});
-        result.put("wifi_ssids_added_toast", new Object[] {stringWitness});
-        result.put("wifi_ssids_removed_toast", new Object[] {stringWitness});
         result.put("settings_trusted_network_mesh_message", new Object[] {integerWitness, stringWitness});
         result.put("settings_trusted_network_mesh_added_toast", new Object[] {integerWitness});
         result.put("network_prompt_text", new Object[] {stringWitness, stringWitness});
@@ -455,18 +450,11 @@ public class KeepADBResourceContractTest {
         }
         result.put("networks_group_saved", new Object[] {integerWitness});
         result.put("networks_count", new Object[] {integerWitness, integerWitness});
-        result.put("settings_trusted_network_blocked_detail",
-                new Object[] {stringWitness, stringWitness});
         result.put("network_head_mode", new Object[] {stringWitness});
-        result.put("network_list_inactive_hint", new Object[] {stringWitness});
         result.put("network_action_allow_ap_accessibility", new Object[] {stringWitness});
-        result.put("network_action_remove_ap_accessibility", new Object[] {stringWitness});
-        result.put("network_ssid_state_on", new Object[] {integerWitness});
-        result.put("network_ssid_state_no_effect", new Object[] {integerWitness});
         result.put("network_ap_allowed_toast", new Object[] {stringWitness});
         result.put("network_ap_removed_toast", new Object[] {stringWitness});
         result.put("network_ap_rename_title", new Object[] {integerWitness});
-        result.put("network_ap_rename_accessibility", new Object[] {stringWitness});
         result.put("network_bssid_with_band", new Object[] {stringWitness, stringWitness});
         result.put("wifi_aps_show_more_button", new Object[] {integerWitness});
         result.put("webhook_status_hint", new Object[] {

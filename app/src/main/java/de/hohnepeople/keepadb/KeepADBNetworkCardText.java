@@ -1,14 +1,11 @@
 package de.hohnepeople.keepadb;
 
-import android.content.Context;
-
 import de.hohnepeople.keepadb.KeepADBNetworkCardState.Action;
 import de.hohnepeople.keepadb.KeepADBNetworkCardState.Background;
 import de.hohnepeople.keepadb.KeepADBNetworkCardState.Cause;
 import de.hohnepeople.keepadb.KeepADBNetworkCardState.Connection;
 import de.hohnepeople.keepadb.KeepADBNetworkCardState.Detection;
 import de.hohnepeople.keepadb.KeepADBNetworkCardState.Mode;
-import de.hohnepeople.keepadb.KeepADBNetworkCardState.NameMatching;
 
 /**
  * #654/#655: the one place that maps {@link KeepADBNetworkCardState} values to string and colour
@@ -148,34 +145,6 @@ final class KeepADBNetworkCardText {
             case NO_WIFI:
             default:
                 return R.string.network_detection_no_wifi;
-        }
-    }
-
-    /**
-     * The hint that a saved list does not count while "all networks" is active. It names the
-     * option the mode choice shows for the allowed mode right now -- the plain one, or the one
-     * naming Wi-Fi names while the matching is on -- taken from the same resource as that option's
-     * own label, so hint and option can never read differently.
-     */
-    static String inactiveListHint(Context context, boolean ssidMatching) {
-        return context.getString(R.string.network_list_inactive_hint,
-                context.getString(modeOption(KeepADBNetworkCardState.mode(true, ssidMatching))));
-    }
-
-    /**
-     * What the Wi-Fi-name switch does right now, as one explanatory sentence. The saved-without-
-     * effect sentence takes the label of the allowed option as argument: render that one through
-     * {@link #inactiveListHint}, not through a plain {@code getString}.
-     */
-    static int nameMatchingEffect(NameMatching nameMatching) {
-        switch (nameMatching) {
-            case ACTIVE:
-                return R.string.network_ssid_effect_on;
-            case NO_EFFECT:
-                return R.string.network_list_inactive_hint;
-            case OFF:
-            default:
-                return R.string.network_ssid_effect_off;
         }
     }
 }

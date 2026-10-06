@@ -149,6 +149,27 @@ public class KeepADBNetworkActionsRefusalTest {
                 lastToast());
     }
 
+    /**
+     * #769: the mesh question was pinned through the removed list views; it is asked by the card
+     * and by the list alike, so it is pinned here. Declining keeps only what was stored before and
+     * writes nothing; accepting allows exactly the offered nodes (see the test above).
+     */
+    @Test
+    public void decliningTheMeshOfferStoresNothingMore() {
+        Activity activity = activity();
+        connectTo(SSID, CURRENT);
+        KeepADBBssidHistory.recordObservation(context, SSID, NODE_A);
+
+        AlertDialog offer = KeepADBNetworkActions.offerAdditionalMeshBssids(activity, null);
+        assertNotNull(offer);
+        offer.show();
+        offer.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertTrue("Declining must not allow any access point",
+                KeepADBTrustedNetwork.getEntries(context).isEmpty());
+    }
+
     private Activity activity() {
         return Robolectric.buildActivity(NetworkListActivity.class,
                 new Intent(context, NetworkListActivity.class)).setup().get();
