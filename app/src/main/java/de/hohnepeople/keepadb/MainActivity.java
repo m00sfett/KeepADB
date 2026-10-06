@@ -25,6 +25,8 @@ public class MainActivity extends Activity {
     private TextView status;
     private TextView endpoint;
     private TextView tailscaleStatus;
+    // #761: set when onCreate handed over to the setup assistant; nothing of the screen exists then.
+    private boolean handedOverToAssistant;
 
     // #538: container for additional verified transports (Tailscale/VPN, USB) beyond the WLAN/LAN
     // endpoint already shown by `endpoint` above; populated dynamically by renderTransportOverview().
@@ -58,6 +60,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // #761: the first time (and again after a newer assistant version), the setup assistant
+        // takes the place of the home screen; it opens the home screen when it is closed. The
+        // existing/new decision is stored here, before anything else on this screen writes.
+        if (KeepADBOnboarding.shouldAutoStart(this)) {
+            KeepADBOnboarding.isExistingInstall(this);
+            startActivity(OnboardingActivity.autoStartIntent(this));
+            handedOverToAssistant = true;
+            finish();
+            return;
+        }
         setContentView(R.layout.activity_main);
         // #324: keep header and content clear of the system bars under forced edge-to-edge.
         KeepADBWindowInsets.apply(
@@ -222,6 +234,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if (handedOverToAssistant) return;
         if (!KeepADBLocaleHelper.isSelectedLanguageApplied(this)) {
             recreate();
             return;
@@ -284,6 +297,10 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onPause() {
+        if (handedOverToAssistant) {
+            super.onPause();
+            return;
+        }
         // #224: explicit clear on top of Android's own release when the window loses visibility,
         // per the acceptance requirement that the flag is reliably released on leaving the app.
         getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
