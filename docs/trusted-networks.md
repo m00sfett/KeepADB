@@ -202,7 +202,10 @@ der monotonen Uhr seit der Basis um mehr als fünf Sekunden zurück, macht der T
 Erster sieht (die Meldung über die gestellte Uhr sofort, der Minutentakt und das Öffnen der App
 spätestens dann), das, was die monotone Uhr als Rest nennt, zur neuen Basis. Ein Neustart danach
 findet so den richtigen Stand und schreibt den Sprung nicht gut. Eine vorwärts gestellte Wanduhr
-wird nie festgehalten: Sie verkürzt nur, und wer sie wieder richtig stellt, verliert nichts.
+wird nie festgehalten: Sie verkürzt nur, und wer sie wieder richtig stellt, verliert nichts. Der
+umgekehrte Weg kostet dagegen etwas: Wurde eine falsch zurückgestellte Uhr von einem Treiber gesehen
+und danach wieder vorwärts richtiggestellt, gilt diese Korrektur als vorwärts gestellte Uhr und
+verkürzt den Modus um die Sprunggröße. Das ist die sichere Seite: früher, nie später.
 
 Ist der Boot-Zähler des Systems nicht lesbar, endet ein befristeter Modus sofort: Die Prüfung
 liefert vom ersten Lesen an „aus“, die einmalige Ablaufmeldung folgt wie sonst, und ein befristeter

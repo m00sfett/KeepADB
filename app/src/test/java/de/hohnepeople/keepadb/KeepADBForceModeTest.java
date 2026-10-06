@@ -452,6 +452,23 @@ public class KeepADBForceModeTest {
     }
 
     @Test
+    public void aClockSetBackwardAndLaterCorrectedForwardCostsTheJumpButNeverCreditsIt() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
+        clock.advance(HOUR);
+        clock.setWallClock(clock.wall - HOUR); // a wrong date, seen by a driver ...
+        timeChanged();
+        clock.advance(10 * MINUTE);
+        clock.setWallClock(clock.wall + HOUR); // ... and put right again afterwards
+        timeChanged();
+
+        long realRemaining = 24 * HOUR - HOUR - 10 * MINUTE;
+        long remaining = KeepADBForceMode.status(context).remainingMs;
+        assertTrue("Never more than the real time that is left", remaining <= realRemaining);
+        assertEquals("The stored base cannot tell the correction from a clock set forward: it "
+                + "shortens by the jump, the safe side", realRemaining - HOUR, remaining);
+    }
+
+    @Test
     public void aRestartTheBootCounterMissedIsStillTakenForARestartBecauseTheMonotonicClockWentBack() {
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOURS_24, false));
         int bootAtStart = clock.boot;
