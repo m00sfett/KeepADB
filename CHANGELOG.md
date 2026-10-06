@@ -32,6 +32,7 @@ Etappe E5 patch candidate (versionCode 206), no release. The version 1.9.33 is n
 
 ### Testing
 - #776: Five behavior tests in `KeepADBToggleSchedulingTest`: guard abort and network change over a pending predecessor restore the applied off, a rejected write over a pending predecessor restores the applied on, a newer manual intent is not rolled back by a superseded guarded enable, and the baseline of a resolved chain does not leak into a later abort.
+- #779: Three gaps from the independent E3 mutation run are closed, each proven by a mutation that was green before and is red now. `KeepADBNetworkListTest`: the other side of the name block, a blocked access point whose Wi-Fi name is trusted (by the comfort switch or by the legacy name list) stays "Blocked" with the address as reason, in the rows and in the current network. `SettingsCleanupMigrationTest`: the legacy seed now also holds a blocked Wi-Fi name (`blocked_ssids`) and the own name of a saved access point (`trusted_network_<id>_name`), so deleting or rewriting either on opening Settings turns it red. `NetworkListNetworksViewTest`: the band is shown behind the address in the current card and in the saved rows, and nothing is shown for an access point whose band is unknown.
 
 ## [1.9.33] - Unreleased
 

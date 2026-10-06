@@ -38,6 +38,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowAlertDialog;
 import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowScanResult;
 import org.robolectric.shadows.ShadowToast;
 import org.robolectric.shadows.ShadowWifiInfo;
 
@@ -113,6 +114,36 @@ public class NetworkListNetworksViewTest {
         assertTrue(all, current >= 0 && saved > current);
         assertTrue("Current network is named above the saved ones",
                 all.indexOf(KITCHEN.toUpperCase(Locale.ROOT)) < all.indexOf(HALL.toUpperCase(Locale.ROOT)));
+    }
+
+    /** #714/#721: the band stands behind the address in the current card and in the saved rows. */
+    @Test
+    public void theBandStandsBehindTheAddressInTheCurrentCardAndInTheRowsAndOnlyWhenKnown() {
+        shadowOf((Application) context).grantPermissions(Manifest.permission.ACCESS_FINE_LOCATION);
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = ShadowWifiInfo.newInstance();
+        shadowOf(info).setSSID(HOME);
+        shadowOf(info).setBSSID(KITCHEN);
+        shadowOf(info).setFrequency(5180);
+        shadowOf(wifiManager).setConnectionInfo(info);
+        shadowOf(wifiManager).setScanResults(java.util.Collections.singletonList(
+                ShadowScanResult.newInstance(HOME, HALL, "[WPA2-PSK-CCMP]", -50, 2412)));
+        KeepADBTrustedNetwork.addBssid(context, KITCHEN, HOME);
+        KeepADBTrustedNetwork.addBssid(context, HALL, HOME);
+        KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP);
+
+        NetworkListActivity activity = open();
+
+        String five = context.getString(R.string.network_band_5);
+        String twoFour = context.getString(R.string.network_band_24);
+        String current = texts(currentCard(activity));
+        assertTrue(current, current.contains(KITCHEN.toUpperCase(Locale.ROOT) + " (" + five + ")"));
+        String hall = texts(rowOf(activity, HALL));
+        assertTrue(hall, hall.contains(HALL.toUpperCase(Locale.ROOT) + " (" + twoFour + ")"));
+        assertFalse("The row of the other access point does not show this band", hall.contains(five));
+        String unmeasured = texts(rowOf(activity, CAFE_AP));
+        assertFalse("No measured band: no brackets, no placeholder: " + unmeasured,
+                unmeasured.contains("GHz") || unmeasured.contains("("));
     }
 
     /** #769: the shell closes with the back button and is not reachable from other apps. */

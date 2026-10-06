@@ -128,6 +128,60 @@ public class KeepADBNetworkListTest {
         assertEquals(Reason.NAME, blocked.reason);
     }
 
+    /** The other side of the name block: the address is blocked while the name is trusted. */
+    @Test
+    public void aBlockedAccessPointStaysBlockedWithTheAddressAsReasonWhileItsNameIsTrusted() {
+        KeepADBTrustedNetwork.addBssid(context, HOME_KITCHEN, HOME);
+        KeepADBTrustedNetwork.setTrustByNameEnabled(context, true);
+        KeepADBBssidHistory.recordObservation(context, HOME, HOME_HALL, 5200);
+        assertEquals("Control: the name trusts the sibling access point",
+                Status.TRUSTED_BY_NAME, KeepADBNetworkList.statusOf(context, HOME, HOME_HALL));
+
+        KeepADBNetworkBlocklist.blockBssid(context, HOME_HALL);
+
+        assertEquals(Status.BLOCKED, KeepADBNetworkList.statusOf(context, HOME, HOME_HALL));
+        Group home = build(null).groups.get(0);
+        assertEquals(2, home.rows.size());
+        assertEquals(HOME_KITCHEN, home.rows.get(0).bssid);
+        assertEquals(Status.TRUSTED, home.rows.get(0).status);
+        Row blocked = home.rows.get(1);
+        assertEquals(HOME_HALL, blocked.bssid);
+        assertEquals("Not 'trusted by name': the address block wins", Status.BLOCKED, blocked.status);
+        assertEquals(Reason.ACCESS_POINT, blocked.reason);
+        assertFalse("The name itself is not blocked", home.nameBlocked);
+    }
+
+    @Test
+    public void aBlockedAccessPointStaysBlockedWhileTheLegacyNameListTrustsItsName() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addSsid(context, HOME);
+        KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
+        KeepADBBssidHistory.recordObservation(context, HOME, HOME_HALL, 5200);
+        assertEquals("Control: the name list trusts the access point",
+                Status.TRUSTED_BY_NAME, KeepADBNetworkList.statusOf(context, HOME, HOME_HALL));
+
+        KeepADBNetworkBlocklist.blockBssid(context, HOME_HALL);
+
+        Row blocked = onlyRow(build(null));
+        assertEquals(Status.BLOCKED, blocked.status);
+        assertEquals(Reason.ACCESS_POINT, blocked.reason);
+    }
+
+    @Test
+    public void theCurrentNetworkIsBlockedByItsAddressWhileItsNameIsTrusted() {
+        KeepADBTrustedNetwork.addBssid(context, HOME_KITCHEN, HOME);
+        KeepADBTrustedNetwork.setTrustByNameEnabled(context, true);
+        KeepADBNetworkIdentity here = new KeepADBNetworkIdentity("\"" + HOME + "\"", HOME_HALL);
+        assertEquals("Control: trusted by its name",
+                Status.TRUSTED_BY_NAME, build(here).current.status);
+
+        KeepADBNetworkBlocklist.blockBssid(context, HOME_HALL);
+
+        KeepADBNetworkList.Current current = build(here).current;
+        assertEquals(Status.BLOCKED, current.status);
+        assertEquals(Reason.ACCESS_POINT, current.reason);
+    }
+
     @Test
     public void aBlockedNameBehindAMaskedAddressIsBlockedNotUnreadable() {
         KeepADBNetworkIdentity masked = new KeepADBNetworkIdentity("\"" + CAFE + "\"",
