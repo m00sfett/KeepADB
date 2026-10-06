@@ -229,9 +229,9 @@ public class KeepADBToggleSchedulingTest {
 
     @Test
     public void aPulseSupersededPredecessorBaselineIsNotInheritedByALaterGuardAbort() {
-        // #784 (documents today's behaviour, does not anticipate #780): a recovery pulse issues
-        // a newer intent token while the pending automatic enable (A) is still queued, and
-        // applyNow() would later discard A without clearing the runnable. A's captured baseline
+        // #784: a recovery pulse issues a newer intent token while the pending automatic enable
+        // (A) is still queued, and applyNow() would later discard A as newer_intent (its pending
+        // state is cleared since #780, see the pulse tests below). A's captured baseline
         // (off) must then be ignored by the next guarded enable (B): B is not a continuation of
         // A, so it falls back to the persisted intent (on, written by A) instead of A's stale
         // off baseline.
@@ -655,6 +655,207 @@ public class KeepADBToggleSchedulingTest {
         assertEquals("the superseded automatic enable must never reach the gateway",
                 Arrays.asList(false, false), gateway.writes);
         assertFalse(gateway.isEnabled(ctx));
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // #780: state reset of a superseded pending intent, and protection of a pending manual one.
+    // ---------------------------------------------------------------------------------------
+
+    @Test
+    public void aPulseSupersededPendingIntentClearsThePendingStateWhenItsRunnableFires() {
+        // #780 point 1: wireless debugging is on, an automatic intent (A) waits in its cooldown
+        // and a recovery pulse issues a newer token without touching A's runnable. When A fires
+        // it is discarded as newer_intent -- and must take the pending state with it, otherwise
+        // isTogglePending() stays true for good and the surfaces keep showing "switching...".
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.isTogglePending());
+
+        scheduler.setDeferAsync(true);
+        KeepADB.performRecoveryPulse(ctx);
+        int refreshesBeforeFire = surfaces.refreshCount;
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+
+        assertEquals("the superseded intent must not write", Arrays.asList(true), gateway.writes);
+        assertFalse("the discarded intent must not leave the pending state behind",
+                KeepADB.isTogglePending());
+        assertEquals("the surfaces must be told that the pending indicator is gone",
+                refreshesBeforeFire + 1, surfaces.refreshCount);
+    }
+
+    @Test
+    public void aStaleRunnableNeverClearsTheRunnableOfANewerPendingIntent() {
+        // #780 point 1, the other side: the discarded runnable may only clear what is its own.
+        // A real Handler cannot recall a runnable that is already waiting on the class lock, so
+        // the older one can still fire after setEnabled() registered its successor. The recording
+        // scheduler models that by ignoring removeCallbacks().
+        final java.util.List<Runnable> queued = new java.util.ArrayList<>();
+        KeepADBFakeScheduler recording = new KeepADBFakeScheduler() {
+            @Override
+            public void postDelayed(Runnable runnable, long delayMs) {
+                queued.add(runnable);
+            }
+
+            @Override
+            public void removeCallbacks(Runnable runnable) {
+                // deliberately ignored, see above
+            }
+        };
+        recording.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(recording);
+
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertEquals("both automatic intents must be registered", 2, queued.size());
+
+        queued.get(0).run();
+        assertTrue("the stale runnable must leave the newer pending intent alone",
+                KeepADB.isTogglePending());
+        assertEquals(Arrays.asList(true), gateway.writes);
+
+        queued.get(1).run();
+        assertFalse(KeepADB.isTogglePending());
+        assertEquals("the newer intent is still the one that gets applied",
+                Arrays.asList(true, true), gateway.writes);
+    }
+
+    @Test
+    public void anAutomaticIntentDoesNotDisplaceAPendingManualReEnable() {
+        // #780 point 2: the user switches off and taps on again inside the 100 ms teardown gap.
+        // The tap waits for the gap. An automatic intent (here: Keep-Alive recheck whose guard
+        // would abort) arriving meanwhile used to take over the token, so the tap was cancelled
+        // as newer_intent and the automatic enable then aborted itself: nothing was written.
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue("the manual re-enable must be waiting for the gap", KeepADB.isTogglePending());
+        assertEquals(Arrays.asList(false), gateway.writes);
+
+        assertFalse("the automatic request must be refused, not scheduled",
+                KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertFalse("an automatic disable is refused as well",
+                KeepADB.setEnabled(ctx, false, AUTO));
+
+        scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS);
+        assertEquals("the manual intent must be applied", Arrays.asList(false, true), gateway.writes);
+        assertTrue(gateway.isEnabled(ctx));
+        assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
+        assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertFalse(KeepADB.isTogglePending());
+        String events = ctx.getSharedPreferences("keepadb_diagnostics", 0).getString("events", "");
+        assertTrue("the refusal must be diagnosable",
+                events.contains("event=recovery_attempt source=keep_alive_check outcome=skipped"));
+        assertTrue(events.contains("reason=manual_intent_pending"));
+
+        // No lasting block: once the tap is applied, the next automatic request is planned again.
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue("the automatic path must be open again", KeepADB.isTogglePending());
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals(Arrays.asList(false, true, true), gateway.writes);
+    }
+
+    @Test
+    public void aPendingManualReEnableStillSupersedesAPendingAutomaticIntent() {
+        // #780, the other side of the invariant: protection runs one way only. An automatic
+        // disable waits in its cooldown; the manual re-enable tap must replace it, not be refused.
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.isTogglePending());
+        assertFalse(KeepADB.isManualIntentPending());
+
+        assertTrue("the manual call must be accepted over the pending automatic one",
+                KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.isManualIntentPending());
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals("the automatic disable must never reach the gateway",
+                Arrays.asList(true, true), gateway.writes);
+        assertTrue(gateway.isEnabled(ctx));
+        assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
+        assertFalse(KeepADB.isTogglePending());
+    }
+
+    @Test
+    public void aNewerManualIntentStillSupersedesAPendingManualOne() {
+        // #780: manual against manual is unchanged, the newer one wins.
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "tile"));
+        assertTrue(KeepADB.isManualIntentPending());
+
+        assertTrue(KeepADB.setEnabled(ctx, false, "widget"));
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals("the older manual re-enable must not be applied",
+                Arrays.asList(false, false), gateway.writes);
+        assertFalse(gateway.isEnabled(ctx));
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+        assertFalse(KeepADB.isTogglePending());
+    }
+
+    @Test
+    public void anAutomaticIntentPlannedAfterAManualOneIsNeverMistakenForAManualOne() {
+        // #780: the manual marker belongs to the pending runnable it was registered with. If it
+        // survived the applied tap, a later automatic intent would count as a pending manual one
+        // and refuse every newer automatic request, i.e. the automatic debounce would be lost.
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.isManualIntentPending());
+        scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS);
+        assertFalse(KeepADB.isTogglePending());
+        assertFalse(KeepADB.isManualIntentPending());
+
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.isTogglePending());
+        assertFalse("an automatic intent is not a manual one",
+                KeepADB.isManualIntentPending());
+        assertTrue("a newer automatic intent still replaces the pending automatic one",
+                KeepADB.setEnabled(ctx, true, AUTO));
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals(Arrays.asList(false, true, true), gateway.writes);
+        assertFalse(KeepADB.isTogglePending());
+    }
+
+    @Test
+    public void aRecoveryPulseIsNotBlockedByAPendingManualReEnableAndReachesTheSameEndState() {
+        // #780 decision: the protection does not extend to recovery pulses. A pulse only starts
+        // while wireless debugging reads "on" and the last intent is "on", which with a pending
+        // manual re-enable can only happen after an external switch-on inside the 100 ms gap --
+        // the tap's goal ("on") is already reached, and the pulse bounces back to on. Refusing
+        // the pulse would only cost the recovery; the superseded tap is discarded cleanly.
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        gateway.write(ctx, true); // switched on behind the app's back
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.isManualIntentPending());
+
+        scheduler.setDeferAsync(true);
+        KeepADB.performRecoveryPulse(ctx);
+        assertFalse("a pulse supersedes the tap, so the tap no longer counts as pending",
+                KeepADB.isManualIntentPending());
+
+        scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS);
+        assertFalse("the discarded tap must not leave the pending state behind",
+                KeepADB.isTogglePending());
+        scheduler.runDeferredAsync();
+
+        assertEquals("the pulse bounces the setting and ends on",
+                Arrays.asList(false, true, false, true), gateway.writes);
+        assertTrue(gateway.isEnabled(ctx));
+        assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
+    }
+
+    @Test
+    public void aManualIntentSupersededByAPulseNoLongerBlocksAutomaticIntents() {
+        // #780: the protection only holds while the manual intent is still the newest one.
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        gateway.write(ctx, true);
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        scheduler.setDeferAsync(true);
+        KeepADB.performRecoveryPulse(ctx);
+
+        assertTrue("a dead manual intent must not refuse automatic ones",
+                KeepADB.setEnabled(ctx, true, AUTO));
     }
 
     private static final class FakeContext extends ContextWrapper {

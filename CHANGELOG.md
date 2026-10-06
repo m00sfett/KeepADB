@@ -17,11 +17,27 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36` and `1.9.37` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36`, `1.9.37` and `1.9.38` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.38] - Unreleased
+
+Etappe E9 patch candidate (versionCode 210), package #780 on top of 1.9.37; no release. The version 1.9.37 stays as it is.
+
+### Fixed
+- #780 (state reset): `KeepADB.applyNow` now drops the pending toggle state when its intent is discarded as `newer_intent` and the registered runnable is still its own (`pendingToggleBaselineToken == token`). A recovery pulse issues a newer token without touching the pending runnable, so until now `isTogglePending()` stayed true for good after a pulse had superseded a pending intent and the surfaces kept showing "switching...". The surfaces are refreshed when the state is cleared. A runnable registered by a newer `setEnabled()` carries that intent's token and is never cleared by a late stale one; the #776/#784 token comparisons (baseline inherited only for the current token) are untouched.
+- #780 (manual intents are protected): while a manual intent is pending (in practice the re-enable tap inside the 100 ms `MANUAL_REENABLE_GAP_MS` window after a manual off), an automatic `setEnabled()` (any direction) is no longer planned. Before, it took the intent token, the tap was cancelled as `newer_intent`, and the automatic enable's own guard could abort as well, so nothing was written and the tap was lost. Now the automatic request returns `false`, takes no token, displaces nothing and logs `outcome=skipped reason=manual_intent_pending`; the manual intent is applied normally. Nothing is blocked afterwards: once the tap is applied, the next automatic request is planned as usual. Manual against manual is unchanged (the newer one wins), and a manual intent still supersedes a pending automatic one.
+
+### Changed
+- #780 (design decision, recovery pulses): the protection does not cover recovery pulses. A pulse only starts while the setting reads "on" and the last intent is "on"; with a pending manual re-enable that is only possible after an external switch-on inside the 100 ms gap, where the tap's goal ("on") is already reached and the pulse ends on "on" again. Refusing the pulse would only cost the recovery. A pending manual intent that a pulse superseded no longer counts as pending, so it does not block automatic requests; its runnable is cleaned up by the state reset above.
+- #780: `KeepADB.isManualIntentPending()` is new (package-private). `KeepADBService.recheckAndEnable` and the content observer used `false` from `setEnabled` as "permission missing" and showed the permission notification; both now skip that notification when the refusal came from a pending manual intent, so the new `false` is not misreported as a permission failure.
+
+### Testing
+- #780: `KeepADBToggleSchedulingTest`: pulse-superseded pending state is cleared (and the surfaces refreshed) when the runnable fires; a stale runnable never clears a newer pending one (recording scheduler that ignores `removeCallbacks`); an automatic intent, both directions, does not displace a pending manual re-enable, is diagnosed, and the automatic path is open again afterwards; a pending manual re-enable still supersedes a pending automatic intent; manual against manual unchanged; a pulse is not blocked by a pending manual re-enable and reaches the same end state; a pulse-superseded manual intent no longer blocks automatic ones; an automatic intent planned after an applied tap is not mistaken for a manual one (the manual marker does not outlive its runnable). `KeepADBServiceLifecycleRobolectricTest`: neither automatic call site raises the permission notification for a refused request (recheck and content observer), the manual intent is still applied, and a really missing permission is still reported by both call sites.
+- #780 mutations (disposable copy, all red): applyNow clear removed, clear without the token check, no refresh after the clear, protection removed, protection also against manual intents, protection by any pending intent, manual flag never set, current-intent check removed, only automatic enables refused, refusal returns true, refusal still schedules, service call sites unchanged, manual marker never reset, permission notification never raised for a refused request.
 
 ## [1.9.37] - Unreleased
 
