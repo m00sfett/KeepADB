@@ -71,6 +71,11 @@ Der Einrichtungsassistent (#761) legt zwei Schlüssel an, beide Buchführung und
 Öffnen schon Einstellungen gespeichert waren (nur dann zeigt das Intro „Neue Sicherheitseinstellungen“).
 Die Schritte des Assistenten schreiben einen Wert nur, wenn der Nutzer ihn geändert hat; „Weiter“ ohne
 Eingabe lässt jeden Schlüssel unverändert, sodass eine Neuinstallation dieselben sicheren Standards behält.
+Das gilt auch für die Schritte „Berechtigungen“ und „Vertrautes WLAN“ (#767): ihre Aktionen (eine Berechtigung
+anfragen, ein Netz vertrauen oder blockieren) wirken sofort und sind ausdrückliche Handlungen, „Weiter“ und
+„Überspringen“ schreiben nichts. Der Merker „diese Berechtigung wurde schon einmal angefragt“, mit dem der
+Schritt „abgelehnt“ von „dauerhaft abgelehnt“ unterscheidet, liegt wie bei den Startseiten- und Netzwerklisten-
+Knöpfen in den Activity-Preferences, nicht in `keepadb_prefs`.
 
 ### Berechtigungen und Systemzustand
 
