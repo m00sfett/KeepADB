@@ -76,7 +76,7 @@
     <string name="background_location_dialog_later">Später</string>
     <string name="background_location_status_granted">Erkennung im Hintergrund: erlaubt. Vertraute Access Points werden auch erkannt, wenn Keep-Alive im Hintergrund startet. KeepADB liest oder speichert niemals die Position deines Geräts.</string>
     <string name="background_location_status_missing">Erkennung im Hintergrund: eingeschränkt. Startet Keep-Alive im Hintergrund, kann Android verbergen, mit welchem Access Point du verbunden bist; KeepADB behandelt das Netzwerk dann als nicht lesbar und schaltet Drahtloses Debugging erst automatisch ein, wenn du die App öffnest.</string>
-    <string name="background_location_status_missing_inactive">Erkennung im Hintergrund: in dieser Konfiguration nicht erforderlich. Er wird benötigt, um Access Points oder WLAN-Namen abzugleichen, wenn Keep-Alive im Hintergrund läuft.</string>
+    <string name="background_location_status_missing_inactive">Erkennung im Hintergrund: in dieser Konfiguration nicht erforderlich. Sie wird benötigt, um Access Points oder WLAN-Namen abzugleichen, wenn Keep-Alive im Hintergrund läuft.</string>
     <string name="location_permission_panel_title">Standortberechtigung für vertraute Netzwerke nötig</string>
     <string name="location_permission_panel_body">Der Modus „Vertraute Netzwerke“ benötigt Standortzugriff, um dein WLAN zu erkennen. Ohne diesen kann Keep-Alive kein vertrautes WLAN bestätigen und schaltet nicht automatisch wieder ein.</string>
     <string name="location_permission_panel_grant_button">Standortberechtigung erteilen</string>
