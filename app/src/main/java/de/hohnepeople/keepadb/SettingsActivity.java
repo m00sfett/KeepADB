@@ -53,7 +53,6 @@ public class SettingsActivity extends Activity {
     private Switch notificationDetailsToggle;
     private Switch keepDisplayOnToggle;
     private Switch adviceBannerToggle;
-    private Switch batteryOptimizationPanelToggle;
     private Switch usbNotificationToggle;
     private Switch usbProfileNotificationToggle;
     private TextView usbProfileSummary;
@@ -174,11 +173,6 @@ public class SettingsActivity extends Activity {
         adviceBannerToggle = findViewById(R.id.settings_advice_banner_toggle);
         adviceBannerToggle.setOnClickListener(v ->
                 KeepADBPreferences.setAdviceBannerVisible(this, adviceBannerToggle.isChecked()));
-
-        batteryOptimizationPanelToggle = findViewById(R.id.settings_battery_optimization_panel_toggle);
-        batteryOptimizationPanelToggle.setOnClickListener(v ->
-                KeepADBPreferences.setBatteryOptimizationPanelVisible(
-                        this, batteryOptimizationPanelToggle.isChecked()));
 
         usbNotificationToggle = findViewById(R.id.settings_usb_notification_toggle);
         usbProfileNotificationToggle = findViewById(R.id.settings_usb_profile_notification_toggle);
@@ -608,9 +602,6 @@ public class SettingsActivity extends Activity {
         keepDisplayOnToggle.setChecked(KeepADBPreferences.isKeepDisplayOnEnabled(this));
 
         adviceBannerToggle.setChecked(KeepADBPreferences.isAdviceBannerVisible(this));
-
-        batteryOptimizationPanelToggle.setChecked(
-                KeepADBPreferences.isBatteryOptimizationPanelVisible(this));
 
         usbNotificationToggle.setChecked(KeepADBUsbProfile.isNotificationEnabled(this));
         usbProfileNotificationToggle.setChecked(KeepADBUsbProfile.isProfileNotificationEnabled(this));

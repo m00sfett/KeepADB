@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -15,9 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
-    private static final int NOTIFICATION_PERMISSION_REQUEST = 10;
-    private static final String NOTIFICATION_PERMISSION_REQUESTED =
-            "notification_permission_requested";
     private Switch toggle;
     private Switch keepAliveToggle;
     private Switch hideNotificationToggle;
@@ -35,14 +30,12 @@ public class MainActivity extends Activity {
     private TextView webhookStatus;
     private TextView webhookTailnetHint;
     private View webhookStatusPanel;
-    private View webhookSetupButton;
-    private View setupPanel;
-    private View notificationPermissionPanel;
-    private Button notificationPermissionActionButton;
-    private View batteryOptimizationPanel;
-    private View networkOnboardingPanel;
-    private View backgroundLocationPanel;
     private View adviceBanner;
+    // #764: the warning cards (W1, W3, W4, W5); the force card (W2) is below.
+    private View warningSystem;
+    private View warningLessSecure;
+    private View warningPaused;
+    private View warningLimited;
     // #763: permanent warning card while the force mode is on.
     private View forceWarningPanel;
     private TextView forceWarningText;
@@ -70,6 +63,9 @@ public class MainActivity extends Activity {
             finish();
             return;
         }
+        // #764: the dismiss flags of the removed home cards are of no use any more. Only after the
+        // hand-over check above (it freezes the existing/new decision these keys would feed).
+        KeepADBPreferences.removeObsoleteHomeCardKeys(this);
         setContentView(R.layout.activity_main);
         // #324: keep header and content clear of the system bars under forced edge-to-edge.
         KeepADBWindowInsets.apply(
@@ -92,44 +88,10 @@ public class MainActivity extends Activity {
         webhookStatus = findViewById(R.id.webhook_status);
         webhookTailnetHint = findViewById(R.id.webhook_tailnet_hint);
         webhookStatusPanel = findViewById(R.id.webhook_status_panel);
-        webhookSetupButton = findViewById(R.id.webhook_setup_button);
-        webhookSetupButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            intent.putExtra(SettingsActivity.EXTRA_FOCUS_WEBHOOK, true);
-            startActivity(intent);
-        });
-        setupPanel = findViewById(R.id.setup_panel);
-        ((TextView) findViewById(R.id.setup_command)).setText(
-                getString(R.string.setup_command, getPackageName()));
-        ((TextView) findViewById(R.id.setup_command_multi)).setText(
-                getString(R.string.setup_command_multi, getPackageName()));
-        notificationPermissionPanel = findViewById(R.id.notification_permission_panel);
-        notificationPermissionActionButton = findViewById(R.id.btn_open_notification_settings);
-        notificationPermissionActionButton.setOnClickListener(v -> onNotificationPermissionActionClick());
-        findViewById(R.id.btn_dismiss_notification_permission_panel).setOnClickListener(v -> {
-            KeepADBPreferences.setNotificationPermissionPanelVisible(this, false);
-            refresh();
-        });
-        batteryOptimizationPanel = findViewById(R.id.battery_optimization_panel);
-        networkOnboardingPanel = findViewById(R.id.network_onboarding_panel);
-        findViewById(R.id.network_onboarding_setup_button).setOnClickListener(v -> {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            intent.putExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, true);
-            startActivity(intent);
-        });
-        findViewById(R.id.network_onboarding_dismiss_button).setOnClickListener(v -> {
-            KeepADBPreferences.setNetworkOnboardingPanelVisible(this, false);
-            refresh();
-        });
-        backgroundLocationPanel = findViewById(R.id.background_location_panel);
-        // #616: only opens the system page; the user picks "Allow all the time" there himself.
-        // onResume() -> refresh() re-reads the grant on return.
-        findViewById(R.id.btn_background_location_setup).setOnClickListener(v ->
-                KeepADBBackgroundLocation.openSettings(this));
-        findViewById(R.id.btn_dismiss_background_location_panel).setOnClickListener(v -> {
-            KeepADBPreferences.setBackgroundLocationPanelVisible(this, false);
-            refresh();
-        });
+        warningSystem = findViewById(R.id.warning_system);
+        warningLessSecure = findViewById(R.id.warning_less_secure);
+        warningPaused = findViewById(R.id.warning_paused);
+        warningLimited = findViewById(R.id.warning_limited);
         adviceBanner = findViewById(R.id.advice_banner);
         forceWarningPanel = findViewById(R.id.force_warning_panel);
         forceWarningText = findViewById(R.id.force_warning_text);
@@ -142,25 +104,18 @@ public class MainActivity extends Activity {
             intent.putExtra(SettingsActivity.EXTRA_FOCUS_FORCE, true);
             startActivity(intent);
         });
-        findViewById(R.id.setup_refresh).setOnClickListener(v -> refreshUiAndComponents());
         findViewById(R.id.btn_open_settings).setOnClickListener(v ->
                 startActivity(new Intent(this, SettingsActivity.class)));
-        findViewById(R.id.btn_open_battery_settings).setOnClickListener(v ->
-                KeepADBBatteryOptimization.openSettings(this));
         findViewById(R.id.btn_dismiss_advice_banner).setOnClickListener(v -> {
             KeepADBPreferences.setAdviceBannerVisible(this, false);
             updateAdviceBannerVisibility();
         });
-        findViewById(R.id.btn_dismiss_battery_optimization_panel).setOnClickListener(v -> {
-            KeepADBPreferences.setBatteryOptimizationPanelVisible(this, false);
-            refresh();
-        });
 
         updateAdviceBannerVisibility();
 
-        // #501: no more cold-start system prompt here -- notificationPermissionPanel explains the
-        // benefit in place and only triggers the request (or the settings fallback) on a deliberate
-        // tap, via onNotificationPermissionActionClick().
+        // #764: no setup cards here any more. What is missing is shown as a warning (see
+        // renderWarnings) and the assistant asks for it, including the notification permission,
+        // on a deliberate tap (#501).
 
         // OnClick fires only for user interaction, unlike OnCheckedChanged during refresh().
         toggle.setOnClickListener(v -> {
@@ -323,15 +278,6 @@ public class MainActivity extends Activity {
         super.onPause();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == NOTIFICATION_PERMISSION_REQUEST) {
-            refresh();
-            KeepADBEndpointCoordinator.refresh(this);
-        }
-    }
-
     /**
      * #763: the warning card while the force mode is on, with its end ("until 14:30" within today,
      * otherwise with the date) or "no end time". Read from the pure state, so it is gone at the
@@ -359,47 +305,10 @@ public class MainActivity extends Activity {
         // this second, independent read needs its own).
         Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(this, "app");
         boolean on = configured && adbEnabledOrNull != null && adbEnabledOrNull;
-        // #501: shown any time POST_NOTIFICATIONS isn't granted yet -- before the first request as
-        // much as after a denial -- so the in-context explanation always precedes the system
-        // prompt instead of only following a prior refusal.
-        boolean notificationPermissionMissing = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED;
-        boolean notificationPermissionPanelVisible = notificationPermissionMissing
-                && KeepADBPreferences.isNotificationPermissionPanelVisible(this);
-        setupPanel.setVisibility(configured ? View.GONE : View.VISIBLE);
-        notificationPermissionPanel.setVisibility(
-                notificationPermissionPanelVisible ? View.VISIBLE : View.GONE);
-        if (notificationPermissionPanelVisible) {
-            updateNotificationPermissionPanel();
-        }
-        // #502: shown only while the system exemption is still missing AND the user has not
-        // dismissed the panel. A granted exemption always wins, regardless of dismiss state --
-        // matches the acceptance criterion that the panel stays hidden once battery optimization
-        // is actually disabled for the app.
-        boolean batteryOptimizationPanelVisible = !KeepADBBatteryOptimization.isExempt(this)
-                && KeepADBPreferences.isBatteryOptimizationPanelVisible(this);
-        batteryOptimizationPanel.setVisibility(
-                batteryOptimizationPanelVisible ? View.VISIBLE : View.GONE);
-        // #619: network onboarding banner shown when Keep-Alive is enabled, network mode is
-        // ALL_WIFI (not restricted to trusted networks yet), and user hasn't dismissed it.
-        boolean networkOnboardingPanelVisible = KeepADBPreferences.isKeepAliveEnabled(this)
-                && KeepADBTrustedNetwork.MODE_ALL_WIFI.equals(KeepADBTrustedNetwork.getMode(this))
-                && KeepADBPreferences.isNetworkOnboardingPanelVisible(this);
-        networkOnboardingPanel.setVisibility(
-                networkOnboardingPanelVisible ? View.VISIBLE : View.GONE);
-        // #616: background-location card, only while trusted-network mode needs the grant and
-        // it is missing. A dismiss hides it until the grant is observed; an observed grant
-        // re-arms the card so a later revocation surfaces the missing state again.
-        if (KeepADBBackgroundLocation.isGranted(this)) {
-            KeepADBPreferences.setBackgroundLocationPanelVisible(this, true);
-        }
-        boolean backgroundLocationPanelVisible = KeepADBBackgroundLocation.isSetupNeeded(this)
-                && KeepADBPreferences.isBackgroundLocationPanelVisible(this);
-        backgroundLocationPanel.setVisibility(
-                backgroundLocationPanelVisible ? View.VISIBLE : View.GONE);
+        renderWarnings();
         toggle.setEnabled(configured);
         toggle.setChecked(on);
+        clearStatusDecisionEntry();
         if (!configured) {
             status.setText(getString(R.string.status_permission_missing));
         } else if (KeepADB.isTogglePending()) {
@@ -413,7 +322,9 @@ public class MainActivity extends Activity {
             // like KeepADB simply failed to notice a live Wi-Fi connection.
             KeepAliveWaitingDetail detail = resolveKeepAliveWaitingDetail(this);
             if (detail == KeepAliveWaitingDetail.BLOCKED_UNTRUSTED_NETWORK) {
-                status.setText(getString(R.string.status_off_keep_alive_blocked_untrusted));
+                status.setText(getString(R.string.status_off_keep_alive_blocked_untrusted)
+                        + "\n" + getString(R.string.status_tap_to_decide));
+                makeStatusDecisionEntry();
             } else if (detail == KeepAliveWaitingDetail.BLOCKED_IDENTITY_UNAVAILABLE) {
                 status.setText(getString(R.string.status_off_keep_alive_blocked_identity_unavailable));
             } else if (detail == KeepAliveWaitingDetail.BLOCKED_RECOVERY_BACKOFF) {
@@ -533,38 +444,66 @@ public class MainActivity extends Activity {
 
 
     /**
-     * #501: the panel's button is context-sensitive. Before the first request (or while the system
-     * would still show its own rationale flow), it triggers {@code requestPermissions} directly --
-     * this panel already is the rationale. Once the system has permanently denied further prompts
-     * ({@code shouldShowRequestPermissionRationale} false after a prior request), it instead opens
-     * the app's notification settings, the only remaining way to grant the permission.
+     * #764 (UX concept 5.3): the status line "this Wi-Fi isn't trusted" is the shortest way from
+     * "why does it not switch on?" to the answer, so it opens the trust decision for the access
+     * point the device is on. It only carries the BSSID as a selector, like the notification does;
+     * the dialog resolves everything else itself and says so when there is nothing to decide.
      */
-    private void onNotificationPermissionActionClick() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return;
-        boolean previouslyRequested = getPreferences(MODE_PRIVATE)
-                .getBoolean(NOTIFICATION_PERMISSION_REQUESTED, false);
-        boolean permanentlyDenied = previouslyRequested
-                && !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS);
-        if (permanentlyDenied) {
-            openNotificationSettings();
-            return;
-        }
-        getPreferences(MODE_PRIVATE).edit()
-                .putBoolean(NOTIFICATION_PERMISSION_REQUESTED, true).apply();
-        requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                NOTIFICATION_PERMISSION_REQUEST);
+    private void makeStatusDecisionEntry() {
+        status.setBackgroundResource(R.drawable.bg_card_clickable);
+        int pad = (int) (12 * getResources().getDisplayMetrics().density);
+        status.setPadding(pad, pad, pad, pad);
+        status.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+        status.setClickable(true);
+        status.setFocusable(true);
+        status.setOnClickListener(v -> startActivity(KeepADBNetworkTrustPrompt.decisionIntent(
+                this, KeepADBNetworkIdentity.current(this).bssid)));
     }
 
-    /** Renders the panel button's label to match {@link #onNotificationPermissionActionClick}'s
-     * decision, so the visible action always matches what a tap will actually do. */
-    private void updateNotificationPermissionPanel() {
-        boolean previouslyRequested = getPreferences(MODE_PRIVATE)
-                .getBoolean(NOTIFICATION_PERMISSION_REQUESTED, false);
-        boolean permanentlyDenied = previouslyRequested
-                && !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS);
-        notificationPermissionActionButton.setText(permanentlyDenied
-                ? R.string.notification_permission_settings_button
-                : R.string.notification_permission_request_button);
+    private void clearStatusDecisionEntry() {
+        status.setOnClickListener(null);
+        status.setClickable(false);
+        status.setFocusable(false);
+        status.setBackground(null);
+        status.setPadding(0, 0, 0, 0);
+        status.setMinHeight(0);
+    }
+
+    /**
+     * #764: the warning cards. The force card (W2) is drawn by {@link #renderForceWarning}; the
+     * others come from {@link KeepADBHomeWarnings}, each leading to the assistant's matching step.
+     */
+    private void renderWarnings() {
+        KeepADBHomeWarnings warnings = KeepADBHomeWarnings.evaluate(this);
+        bindWarning(warningSystem, warnings.systemPermissionMissing,
+                R.string.home_warning_system_title, getString(R.string.home_warning_system_text),
+                R.string.home_warning_action_guide,
+                () -> startActivity(KeepADBHomeWarnings.systemIntent(this)));
+        bindWarning(warningLessSecure, warnings.showLessSecure(),
+                R.string.home_warning_less_secure_title,
+                getString(R.string.onboarding_intro_less_secure, warnings.lessSecureCount),
+                R.string.home_warning_action_review,
+                () -> startActivity(warnings.lessSecureIntent(this)));
+        bindWarning(warningPaused, warnings.keepAlivePaused,
+                R.string.home_warning_paused_title, getString(R.string.home_warning_paused_text),
+                R.string.home_warning_action_fix,
+                () -> startActivity(KeepADBNetworkTrustPrompt.identityUnavailableFixIntent(this)));
+        bindWarning(warningLimited, warnings.showLimited(),
+                R.string.home_warning_limited_title,
+                getString(R.string.home_warning_limited_text, warnings.keepAliveLimitedCount),
+                R.string.home_warning_action_fix,
+                () -> startActivity(warnings.limitedIntent(this)));
+    }
+
+    private void bindWarning(View card, boolean visible, int titleRes, String text, int actionRes,
+            Runnable onAction) {
+        card.setVisibility(visible ? View.VISIBLE : View.GONE);
+        if (!visible) return;
+        ((TextView) card.findViewById(R.id.home_warning_title)).setText(titleRes);
+        ((TextView) card.findViewById(R.id.home_warning_text)).setText(text);
+        Button action = card.findViewById(R.id.home_warning_action);
+        action.setText(actionRes);
+        action.setOnClickListener(v -> onAction.run());
     }
 
     private void refreshWebhookStatus() {
@@ -573,10 +512,8 @@ public class MainActivity extends Activity {
         if (!enabled || url == null || url.trim().isEmpty()) {
             webhookStatusPanel.setVisibility(View.GONE);
             webhookTailnetHint.setVisibility(View.GONE);
-            webhookSetupButton.setVisibility(View.VISIBLE);
             return;
         }
-        webhookSetupButton.setVisibility(View.GONE);
         String reportStatus = KeepADBPreferences.getWebhookLastReportStatus(this);
         long lastReportedAt = KeepADBPreferences.getWebhookLastReportedAt(this);
         String lastReported;
@@ -796,13 +733,6 @@ public class MainActivity extends Activity {
         }
         Toast.makeText(this, getString(R.string.toggle_failed_toast), Toast.LENGTH_LONG).show();
     }
-
-    private void openNotificationSettings() {
-        Intent intent = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
-        intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
-        startActivity(intent);
-    }
-
 
     private void updateAdviceBannerVisibility() {
         boolean visible = KeepADBPreferences.isAdviceBannerVisible(this);

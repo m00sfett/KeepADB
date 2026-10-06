@@ -205,7 +205,7 @@ public class KeepADBUsbNotificationTest {
 
         CharSequence content = notification.extras.getCharSequence(Notification.EXTRA_TEXT);
         assertNotNull(content);
-        assertEquals("Wifi-ADB konnte nicht aktiviert werden. Berechtigung prüfen.", content.toString());
+        assertEquals("Drahtloses Debugging konnte nicht aktiviert werden. Berechtigung prüfen.", content.toString());
 
         // Switch to French and verify the error message is translated
         KeepADBPreferences.setAppLanguage(context, "fr");
@@ -215,7 +215,7 @@ public class KeepADBUsbNotificationTest {
         assertNotNull(notificationFr);
         CharSequence contentFr = notificationFr.extras.getCharSequence(Notification.EXTRA_TEXT);
         assertNotNull(contentFr);
-        assertEquals("Impossible d’activer Wifi-ADB. Vérifiez l’autorisation.", contentFr.toString());
+        assertEquals("Impossible d’activer le débogage sans fil. Vérifiez l’autorisation.", contentFr.toString());
     }
 
     @Test

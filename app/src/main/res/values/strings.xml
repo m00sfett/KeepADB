@@ -4,7 +4,6 @@
     <string name="title_keepadb" translatable="false">KeepADB</string>
     <string name="setup_title">First-time setup</string>
     <string name="setup_body">Connect this device to a computer via USB with USB debugging enabled. First run \"adb devices\" on the computer to list connected devices and emulators, then use the exact serial number shown there.</string>
-    <string name="setup_single_device_label">Only one device listed:</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_label">Several devices listed: target this one explicitly</string>
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
@@ -75,20 +74,15 @@
     <string name="notification_permission_panel_body">With notifications enabled, you can see whether the KeepADB background service and Keep-Alive are running. If the connection drops, KeepADB lets you know right away. Wireless Debugging works fine without this permission too.</string>
     <string name="notification_permission_request_button">Allow notifications</string>
     <string name="notification_permission_settings_button">Open notification settings</string>
-    <string name="battery_optimization_title">Battery optimization may limit Keep-Alive</string>
     <string name="battery_optimization_body">Android may restrict or stop Keep-Alive in the background unless KeepADB is exempt from battery optimization.</string>
     <string name="battery_optimization_button">Open battery settings</string>
-    <string name="network_onboarding_panel_title">Restrict Keep-Alive to trusted networks</string>
-    <string name="network_onboarding_panel_body">Keep-Alive can be restricted to known home or office Wi-Fi networks to block unauthorized debugging connections on foreign networks.</string>
-    <string name="network_onboarding_setup_button">Set up</string>
-    <string name="background_location_panel_title">Background access for trusted networks</string>
-    <string name="background_location_panel_body">To recognize your trusted Wi-Fi (SSID/BSSID) when Keep-Alive starts in the background, KeepADB needs Location access set to “Allow all the time”. KeepADB never determines or stores your device’s position. On the next screen, open Permissions › Location and choose “Allow all the time” yourself; KeepADB cannot grant this for you. Without it, a network whose identity can’t be read is never trusted.</string>
-    <string name="background_location_setup_button">Set up now</string>
-    <string name="background_location_settings_button">Check background access</string>
+    <string name="background_location_panel_title">Background detection for trusted networks</string>
+    <string name="background_location_panel_body">To recognize your trusted Wi-Fi (SSID/BSSID) when Keep-Alive starts in the background, KeepADB needs Location access set to “Allow all the time”. KeepADB never determines or stores your device’s position. On the next screen, open Permissions › Location and choose “Allow all the time” yourself; KeepADB cannot grant this for you. Without it, an unreadable network is never trusted.</string>
+    <string name="background_location_settings_button">Check background detection</string>
     <string name="background_location_dialog_later">Later</string>
-    <string name="background_location_status_granted">Background access: allowed. Allowed access points are recognized even when Keep-Alive starts in the background. KeepADB never reads or stores your device’s position.</string>
-    <string name="background_location_status_missing">Background access: restricted. If Keep-Alive starts in the background, Android may hide the Wi-Fi identity; KeepADB then treats the network as not allowed and doesn’t enable Wireless Debugging automatically until you open the app.</string>
-    <string name="background_location_status_missing_inactive">Background access: not needed in this setup. It is needed to check access points or Wi-Fi names while Keep-Alive runs in the background.</string>
+    <string name="background_location_status_granted">Background detection: allowed. Trusted access points are recognized even when Keep-Alive starts in the background. KeepADB never reads or stores your device’s position.</string>
+    <string name="background_location_status_missing">Background detection: restricted. If Keep-Alive starts in the background, Android may hide which access point you are connected to; KeepADB then treats the network as unreadable and doesn’t enable Wireless Debugging automatically until you open the app.</string>
+    <string name="background_location_status_missing_inactive">Background detection: not needed in this setup. It is needed to check access points or Wi-Fi names while Keep-Alive runs in the background.</string>
     <string name="location_permission_panel_title">Location permission needed for trusted networks</string>
     <string name="location_permission_panel_body">Trusted-network mode needs Location access to identify your Wi-Fi network. Without it, Keep-Alive can’t confirm a trusted network and won’t re-enable automatically.</string>
     <string name="location_permission_panel_grant_button">Grant location permission</string>
@@ -117,7 +111,7 @@
     <string name="settings_webhook_cleartext_warning">This URL uses unencrypted HTTP — data is sent in plain text. Only use this on a trusted LAN or VPN.</string>
     <!-- Pure punctuation marker for the red warning badge; the spoken label is the separate
          *_warning_accessibility string next to it. -->
-    <string name="settings_trusted_network_status_identity_unavailable">Keep-Alive auto re-enable is paused: the current network\'s identity can\'t be determined. Check the location permission/service, or reopen the app if Keep-Alive started in the background. For a permanent fix, set Location to “Allow all the time”.</string>
+    <string name="settings_trusted_network_status_identity_unavailable">Keep-Alive auto re-enable is paused: the current network is unreadable. Check the location permission/service, or reopen the app if Keep-Alive started in the background. For a permanent fix, set Location to “Allow all the time”.</string>
     <string name="settings_trusted_network_add_failed_toast">Couldn\'t determine the current network. Check that Wi-Fi is connected and Location permission is granted.</string>
     <string name="settings_trusted_network_added_toast">Added \"%1$s\" to trusted networks</string>
     <string name="settings_trusted_network_mesh_title">Add other access points?</string>
@@ -132,8 +126,8 @@
     <string name="network_prompt_block">No, block</string>
     <string name="network_prompt_public_text">A network wants to be trusted for Keep-Alive — open KeepADB to decide.</string>
     <string name="network_prompt_confirm_in_app_text">New Wi-Fi network detected — tap to confirm it in the app.</string>
-    <string name="network_prompt_identity_unavailable_title">Can\'t identify the current Wi-Fi network</string>
-    <string name="network_prompt_identity_unavailable_text">Keep-Alive auto re-enable is paused because the network\'s identity can\'t be read. This is usually a missing location permission or a disabled location service, but it can also happen after Keep-Alive started in the background; setting Location to “Allow all the time” fixes that permanently. Tap to fix it.</string>
+    <string name="network_prompt_identity_unavailable_title">Current Wi-Fi network is unreadable</string>
+    <string name="network_prompt_identity_unavailable_text">Keep-Alive auto re-enable is paused because the network is unreadable. This is usually a missing location permission or a disabled location service, but it can also happen after Keep-Alive started in the background; setting Location to “Allow all the time” fixes that permanently. Tap to fix it.</string>
     <string name="network_decision_title">Trust this network?</string>
     <string name="network_decision_name_label">Wi-Fi name (SSID)</string>
     <string name="network_decision_ap_label">Access point (BSSID)</string>
@@ -151,7 +145,7 @@
     <string name="network_decision_failed_toast">Nothing was changed. Unlock your device and try again.</string>
     <string name="wifi_aps_trusted_status">Trusted</string>
     <string name="wifi_aps_untrusted_status">Not trusted</string>
-    <string name="wifi_aps_ssid_unknown">Unknown network name</string>
+    <string name="wifi_aps_ssid_unknown">Unknown Wi-Fi name</string>
     <string name="wifi_aps_show_more_button">Show %1$d more</string>
     <string name="wifi_aps_show_less_button">Show less</string>
     <string name="settings_webhook_saved_toast">Webhook URL saved</string>
@@ -159,7 +153,6 @@
     <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>
     <string name="settings_webhook_disabled_toast">Webhook sync disabled</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_setup_button">Set up webhook</string>
     <string name="webhook_status_hint">URL: %1$s\nLast reported endpoint: %2$s\nLast reported: %3$s</string>
     <string name="webhook_status_never">never</string>
     <string name="webhook_status_no_endpoint">none yet</string>
@@ -226,8 +219,8 @@
     <string name="usb_profile_delete_title">Delete host profile</string>
     <string name="usb_profile_delete_message">Delete host profile "%1$s"?</string>
     <string name="usb_profile_delete_action_accessibility">Delete host profile \"%1$s\"</string>
-    <string name="settings_section_usb_handover">USB → Wifi-ADB Handover</string>
-    <string name="settings_usb_handover_subtext">Optionally offer or automatically enable Wifi-ADB from an active USB-ADB connection. Off by default; a manual OFF is never overridden.</string>
+    <string name="settings_section_usb_handover">USB → Wireless Debugging Handover</string>
+    <string name="settings_usb_handover_subtext">Optionally offer or automatically enable Wireless Debugging from an active USB-ADB connection. Off by default; a manual OFF is never overridden.</string>
     <string name="settings_usb_handover_label">Handover mode</string>
     <string name="settings_usb_handover_accessibility">USB Handover Mode: %1$s</string>
     <string name="settings_usb_handover_dialog_title">Select handover mode</string>
@@ -236,7 +229,7 @@
     <string name="settings_usb_handover_mode_automatic">Automatic (enable on new USB connection)</string>
     <string name="settings_section_network">Network</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
-    <string name="usb_notification_handover_error">Could not enable Wifi-ADB. Check permission.</string>
+    <string name="usb_notification_handover_error">Could not enable Wireless Debugging. Check permission.</string>
     <string name="notification_action_disable">Turn off Wifi-ADB</string>
     <string name="settings_section_version">Version</string>
     <string name="settings_version_value">App version: %1$s</string>
@@ -305,18 +298,15 @@
     <string name="advice_banner_title">Security &amp; network advice</string>
     <string name="advice_banner_text">Wireless Debugging opens an ADB port on your network. Use trusted private Wi-Fi or a VPN (e.g. Tailscale), and turn it off on public hotspots. Never share your endpoint publicly or accept an unexpected pairing prompt.</string>
     <string name="security_notice_dismiss">Dismiss notice</string>
-    <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
-    <string name="settings_battery_optimization_panel_toggle">Show Battery Optimization Advice</string>
-    <string name="settings_battery_optimization_panel_subtext">Display a reminder on the main screen when KeepADB is not exempt from battery optimization.</string>
     <string name="settings_license_line">Licensed under the GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Open HohnePeople.de in your browser</string>
     <string name="settings_no_browser_found">No app found to open this link.</string>
     <string name="status_off_keep_alive_waiting">Wireless Debugging is OFF – Keep-Alive is waiting for the network</string>
     <string name="status_off_keep_alive_blocked_untrusted">Wireless Debugging is OFF – Keep-Alive is paused: this Wi-Fi network isn\'t trusted</string>
-    <string name="status_off_keep_alive_blocked_identity_unavailable">Wireless Debugging is OFF – Keep-Alive is paused: network identity unavailable, check Location permission (“Allow all the time”) or reopen the app</string>
+    <string name="status_off_keep_alive_blocked_identity_unavailable">Wireless Debugging is OFF – Keep-Alive is paused: network unreadable, check Location permission (“Allow all the time”) or reopen the app</string>
     <string name="status_off_keep_alive_blocked_recovery_backoff">Wireless Debugging is OFF – Keep-Alive is paused: confirm Android\'s Wireless Debugging network dialog, then tap the switch to retry</string>
     <string name="status_pending">Switching…</string>
     <string name="state_pending">Switching…</string>
@@ -326,14 +316,14 @@
     <string name="toggle_failed_toast">Wireless Debugging could not be switched. Please try again.</string>
     <string name="network_head_mode">Automatic re-enable: %1$s</string>
     <string name="network_mode_option_all_wifi">In all Wi-Fi networks</string>
-    <string name="network_mode_option_aps">Only allowed access points</string>
-    <string name="network_mode_option_aps_names">Allowed access points and Wi-Fi names</string>
+    <string name="network_mode_option_aps">Only trusted access points</string>
+    <string name="network_mode_option_aps_names">Trusted access points and Wi-Fi names</string>
     <string name="network_current_title">Current connection</string>
     <string name="network_status_no_wifi">No Wi-Fi connection</string>
     <string name="network_status_unreadable">Not readable</string>
-    <string name="network_status_allowed_ap">Allowed access point</string>
-    <string name="network_status_allowed_name">Allowed by Wi-Fi name</string>
-    <string name="network_status_not_allowed">Not allowed</string>
+    <string name="network_status_allowed_ap">Trusted access point</string>
+    <string name="network_status_allowed_name">Trusted by Wi-Fi name</string>
+    <string name="network_status_not_allowed">Unknown</string>
     <!-- #762: a blocked network is shown as such, not as "not allowed". -->
     <string name="network_badge_blocked">Blocked</string>
     <!-- #762: the single list of networks (trusted / blocked) and its dialogs. -->
@@ -390,29 +380,29 @@
     <string name="network_cause_permission_missing">Keep-Alive auto re-enable is paused: without Location access Android hides which access point you’re connected to.</string>
     <string name="network_cause_location_off">Keep-Alive auto re-enable is paused: Location is switched off, so Android hides which access point you’re connected to.</string>
     <string name="network_cause_unreadable_all_wifi">The network can’t be read right now. Automatic re-enabling can continue, but readable network details are needed to check saved access points or Wi-Fi names.</string>
-    <string name="network_cause_not_allowed">Keep-Alive auto re-enable is paused: this access point isn’t on your allowed list.</string>
+    <string name="network_cause_not_allowed">Keep-Alive auto re-enable is paused: this access point isn’t trusted.</string>
     <string name="network_cause_blocked">This network is blocked: Keep-Alive never turns Wireless Debugging on here and does not ask about it. Turning it on manually always works.</string>
     <string name="network_cause_allowed">Keep-Alive may re-enable Wireless Debugging here.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive may re-enable Wireless Debugging here. Any readable access point with this Wi-Fi name is accepted.</string>
-    <string name="network_cause_all_wifi">“In all Wi-Fi networks” is active, so Keep-Alive may re-enable here. Allowed lists don’t count in this mode.</string>
-    <string name="network_action_allow_ap">Allow this access point</string>
+    <string name="network_cause_all_wifi">“In all Wi-Fi networks” is active, so Keep-Alive may re-enable here. Trust lists don’t count in this mode.</string>
+    <string name="network_action_allow_ap">Trust this access point</string>
     <string name="network_action_location_settings">Open location settings</string>
     <string name="network_action_wifi_settings">Open Wi-Fi settings</string>
-    <string name="network_action_allow_ap_accessibility">Allow access point “%1$s”</string>
+    <string name="network_action_allow_ap_accessibility">Trust access point “%1$s”</string>
     <string name="network_privacy_name_hidden">Name hidden</string>
-    <string name="network_privacy_hint">Privacy mode is on: network names and addresses are hidden. Turn it off on the home screen to see them.</string>
+    <string name="network_privacy_hint">Privacy mode is on: Wi-Fi names and addresses are hidden. Turn it off on the home screen to see them.</string>
     <string name="network_background_title">Detection in the background</string>
-    <string name="network_background_setup_button">Set up background access</string>
+    <string name="network_background_setup_button">Set up background detection</string>
     <string name="network_detection_readable">Right now: the network is readable. That doesn’t prove that a Keep-Alive start in the background can read it too.</string>
     <string name="network_detection_unreadable">Right now: the network can’t be read.</string>
     <string name="network_detection_no_wifi">Right now: no Wi-Fi is connected, so there is nothing to read.</string>
     <string name="network_manage_title">Access points</string>
     <string name="card_state_expanded">Expanded</string>
     <string name="card_state_collapsed">Collapsed</string>
-    <string name="network_ap_allowed_toast">Allowed access point “%1$s”</string>
-    <string name="network_ap_removed_toast">Removed access point “%1$s” from the allowed list</string>
+    <string name="network_ap_allowed_toast">Trusted access point “%1$s”</string>
+    <string name="network_ap_removed_toast">Removed access point “%1$s” from the trusted list</string>
     <string name="network_ap_rename_title">Name for access point (%1$d)</string>
-    <string name="network_ap_rename_message">Choose a name of your own. It is shown in these lists, saved only on this device, and changes neither the network name nor which access points are allowed.</string>
+    <string name="network_ap_rename_message">Choose a name of your own. It is shown in these lists, saved only on this device, and changes neither the Wi-Fi name nor which access points are trusted.</string>
     <string name="network_ap_rename_hint">Own name</string>
     <string name="network_ap_rename_reset">Reset</string>
     <string name="network_band_24">2.4 GHz</string>
@@ -461,6 +451,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="force_channel_desc">One-time notices about the protection level, for example when force mode ends.</string>
     <string name="force_expired_title">Force mode ended</string>
     <string name="force_expired_text">The selected time is up. Protection level back to: %1$s. Keep-Alive now only turns on where the protection level allows.</string>
+    <string name="force_expired_text_safety">The force mode ended early for safety: the remaining time could not be checked reliably. Protection level back to: %1$s. Keep-Alive now only turns on where the protection level allows.</string>
     <string name="force_expired_still_on">Wireless debugging is still on right now.</string>
     <string name="force_expired_action_off">Turn off now</string>
     <string name="force_level_maximum">Maximum security</string>
@@ -507,8 +498,8 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="onboarding_customize_show">Customize ▾</string>
     <string name="onboarding_customize_hide">Customize ▴</string>
     <string name="onboarding_details_title">Lock screen</string>
-    <string name="onboarding_details_question">Should notifications show addresses and network names?</string>
-    <string name="onboarding_details_off_body">Notifications show only the state. No addresses, no network names.</string>
+    <string name="onboarding_details_question">Should notifications show addresses and Wi-Fi names?</string>
+    <string name="onboarding_details_off_body">Notifications show only the state. No addresses, no Wi-Fi names.</string>
     <string name="onboarding_details_on_body">Shows the IP address and port, the USB profile and the names of new Wi-Fi networks in notifications. Depending on the Android settings, also on the lock screen.</string>
     <string name="onboarding_details_value_on">Details shown</string>
     <string name="onboarding_details_value_off">No details</string>
@@ -548,4 +539,16 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="onboarding_protection_force_keep_alive">Force only works with Keep-Alive. Keep-Alive is switched on with it.</string>
     <string name="onboarding_badge_not_recommended">Not recommended</string>
     <string name="onboarding_protection_force_comfort_note">Applies after force mode ends.</string>
+    <!-- #764: warning cards of the home screen -->
+    <string name="home_warning_system_title">System permission missing</string>
+    <string name="home_warning_system_text">KeepADB can only switch Wireless Debugging after you grant this permission once from a computer.</string>
+    <string name="home_warning_action_guide">Instructions</string>
+    <string name="home_warning_less_secure_title">Less secure than recommended</string>
+    <string name="home_warning_action_review">Review</string>
+    <string name="home_warning_paused_title">Keep-Alive paused</string>
+    <string name="home_warning_paused_text">KeepADB cannot read the network, so it does not switch on by itself.</string>
+    <string name="home_warning_action_fix">Fix</string>
+    <string name="home_warning_limited_title">Keep-Alive is limited</string>
+    <string name="home_warning_limited_text">Settings missing for reliable Keep-Alive: %1$d</string>
+    <string name="status_tap_to_decide">Tap to decide</string>
 </resources>

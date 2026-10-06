@@ -222,7 +222,8 @@ public class KeepADBResourceContractTest {
                 "network_cause_unreadable_all_wifi"};
         String[] modeLabels = {"network_mode_option_aps", "network_mode_option_aps_names"};
         String[] englishModeLabels = {"Only allowed access points",
-                "Allowed access points and Wi-Fi names"};
+                "Allowed access points and Wi-Fi names", "Only trusted access points",
+                "Trusted access points and Wi-Fi names"};
         Map<String, String> locales = new LinkedHashMap<>(SUPPORTED_LOCALES);
         locales.put("default", "");
 
@@ -425,6 +426,7 @@ public class KeepADBResourceContractTest {
         result.put("onboarding_pane_title", new Object[] {integerWitness, integerWitness, stringWitness});
         result.put("onboarding_intro_title_new", new Object[] {integerWitness});
         result.put("onboarding_intro_less_secure", new Object[] {integerWitness});
+        result.put("home_warning_limited_text", new Object[] {integerWitness});
         result.put("onboarding_settings_summary", new Object[] {stringWitness, stringWitness});
         result.put("onboarding_keep_alive_notification_hint", new Object[] {integerWitness});
         result.put("onboarding_permissions_summary_missing", new Object[] {integerWitness});
@@ -488,6 +490,7 @@ public class KeepADBResourceContractTest {
         result.put("force_ended_toast", new Object[] {stringWitness});
         result.put("force_notification_until", new Object[] {stringWitness});
         result.put("force_expired_text", new Object[] {stringWitness});
+        result.put("force_expired_text_safety", new Object[] {stringWitness});
         return result;
     }
 

@@ -92,8 +92,10 @@ import java.util.Locale;
  * ended.
  *
  * <h2>Persistence, rollback</h2>
- * Two additive keys ({@link #KEY_STATE}, {@link #KEY_NOTICE_PENDING}). An older app version ignores
- * them, so a downgrade ends the mode (the narrower state), loses no data and widens nothing. Like
+ * Three additive keys ({@link #KEY_STATE}, {@link #KEY_NOTICE_PENDING}, {@link #KEY_NOTICE_REASON}).
+ * An older app version ignores them, so a downgrade ends the mode (the narrower state), loses no
+ * data and widens nothing; it also keeps saying "time is up" for every end, as it always did. The
+ * reason is written in the same commit that ends the mode and removed with the pending flag. Like
  * the rest of {@code keepadb_prefs} they are excluded from backup and device transfer.
  *
  * <h2>Locks</h2>
@@ -113,6 +115,13 @@ final class KeepADBForceMode {
     static final String KEY_STATE = "force_state";
     /** The expiry happened and its notice has not been delivered (or not been confirmed) yet. */
     static final String KEY_NOTICE_PENDING = "force_expired_notice_pending";
+    /**
+     * Why the pending notice is pending (#773): {@link #REASON_SAFETY} when the mode ended early
+     * because its time could not be measured, absent for a deadline that really passed (the
+     * pre-#773 shape, so an old pending flag without it reads as an ordinary expiry).
+     */
+    static final String KEY_NOTICE_REASON = "force_expired_reason";
+    static final String REASON_SAFETY = "safety";
     private static final String STATE_VERSION = "2";
     private static final String LEGACY_STATE_VERSION = "1";
 
@@ -292,6 +301,18 @@ final class KeepADBForceMode {
         return remaining;
     }
 
+    /**
+     * Whether an ended limited state ended for safety, not because its time was up: the boot count
+     * is unreadable, or the wall clock is before the base after a restart. Only meaningful when
+     * {@link #remainingMs} is zero or less. It reads the same inputs as {@link #remainingMs} and
+     * changes none of its rules.
+     */
+    static boolean endedForSafety(State state, long wallNow, long elapsedNow, int bootNow) {
+        if (state.span.isUnlimited()) return false;
+        if (bootNow < 0) return true;
+        return !isSameBoot(state, elapsedNow, bootNow) && wallNow < state.startedWallMs;
+    }
+
     /** Whether the monotonic clock of the state's base is the one running now. */
     private static boolean isSameBoot(State state, long elapsedNow, int bootNow) {
         return bootNow >= 0 && bootNow == state.bootCount && elapsedNow >= state.startedElapsedMs;
@@ -356,6 +377,7 @@ final class KeepADBForceMode {
             stored = prefs(app).edit()
                     .putString(KEY_STATE, encode(state))
                     .remove(KEY_NOTICE_PENDING)
+                    .remove(KEY_NOTICE_REASON)
                     .commit();
         }
         if (!stored) {
@@ -385,7 +407,8 @@ final class KeepADBForceMode {
         boolean ended = false;
         synchronized (LOCK) {
             if (readState(app) != null) {
-                ended = prefs(app).edit().remove(KEY_STATE).remove(KEY_NOTICE_PENDING).commit();
+                ended = prefs(app).edit().remove(KEY_STATE).remove(KEY_NOTICE_PENDING)
+                        .remove(KEY_NOTICE_REASON).commit();
             }
         }
         if (!ended) return false;
@@ -427,10 +450,13 @@ final class KeepADBForceMode {
                 int boot = now.bootCount(app);
                 long remaining = remainingMs(state, wall, elapsed, boot);
                 if (remaining <= 0) {
-                    transitioned = prefs(app).edit()
+                    SharedPreferences.Editor ended = prefs(app).edit()
                             .remove(KEY_STATE)
-                            .putBoolean(KEY_NOTICE_PENDING, true)
-                            .commit();
+                            .putBoolean(KEY_NOTICE_PENDING, true);
+                    if (endedForSafety(state, wall, elapsed, boot)) {
+                        ended.putString(KEY_NOTICE_REASON, REASON_SAFETY);
+                    }
+                    transitioned = ended.commit();
                 } else {
                     // Running, so the boot count is readable. Either the base was measured in
                     // another boot, or the wall clock was set backward in this one: in both cases
@@ -480,8 +506,9 @@ final class KeepADBForceMode {
             if (!prefs(app).getBoolean(KEY_NOTICE_PENDING, false)) return;
             // Posted before the flag is cleared: a crash in between repeats the notice (same id,
             // so it replaces itself) rather than losing it.
-            boolean posted = KeepADBForceNotice.postExpired(app);
-            prefs(app).edit().remove(KEY_NOTICE_PENDING).commit();
+            boolean safety = REASON_SAFETY.equals(prefs(app).getString(KEY_NOTICE_REASON, null));
+            boolean posted = KeepADBForceNotice.postExpired(app, safety);
+            prefs(app).edit().remove(KEY_NOTICE_PENDING).remove(KEY_NOTICE_REASON).commit();
             KeepADBDiagnostics.event(app, "force_mode", "timer", "notice",
                     posted ? "posted" : "not_posted");
         }
