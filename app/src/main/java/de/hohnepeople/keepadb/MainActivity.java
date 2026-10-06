@@ -13,6 +13,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
+    /**
+     * #782: set by a single assistant step opened from a notification when it leaves for the home
+     * screen: this start does not hand over to the full assistant (the next plain start does).
+     */
+    static final String EXTRA_SKIP_ASSISTANT_ONCE = "skip_assistant_once";
+
     private Switch toggle;
     private Switch keepAliveToggle;
     private Switch hideNotificationToggle;
@@ -56,7 +62,8 @@ public class MainActivity extends Activity {
         // #761: the first time (and again after a newer assistant version), the setup assistant
         // takes the place of the home screen; it opens the home screen when it is closed. The
         // existing/new decision is stored here, before anything else on this screen writes.
-        if (KeepADBOnboarding.shouldAutoStart(this)) {
+        if (!getIntent().getBooleanExtra(EXTRA_SKIP_ASSISTANT_ONCE, false)
+                && KeepADBOnboarding.shouldAutoStart(this)) {
             KeepADBOnboarding.isExistingInstall(this);
             startActivity(OnboardingActivity.autoStartIntent(this));
             handedOverToAssistant = true;
