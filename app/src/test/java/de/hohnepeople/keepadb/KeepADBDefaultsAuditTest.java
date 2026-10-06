@@ -184,7 +184,8 @@ public class KeepADBDefaultsAuditTest {
             "usb_profile_next_id", "usb_profile_selected_id", "usb_profile_ids",
             "network_prompt_bssid", "network_prompt_at", "network_prompt_history",
             "bssid_history_next_id", "bssid_history_ssid_ids", "blocked_network_entries",
-            "events", "location_permission_requested", "notification_permission_requested")));
+            "events", "location_permission_requested", "notification_permission_requested",
+            "force_state", "force_expired_notice_pending")));
 
     @Before
     public void setUp() {

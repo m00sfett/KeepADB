@@ -268,7 +268,8 @@ public class KeepADBForceNotificationTest {
         force.add(new NamedIntent("notice content", notice.contentIntent));
         force.add(new NamedIntent("notice turn off", notice.actions[0].actionIntent));
 
-        // Every other notification that targets SettingsActivity or KeepADBReceiver.
+        // Every other notification, including the details-on prompt with both actions.
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context);
         Notification prompt = posted(context, KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
         others.add(new NamedIntent("prompt content", prompt.contentIntent));

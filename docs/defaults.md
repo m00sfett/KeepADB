@@ -59,6 +59,12 @@ unverändert, jeweils mit Begründung.
 |---|---|---|
 | `last_desired_on` | an | gespeicherte letzte ausdrückliche Ein-/Aus-Absicht, kein Schalter. Auf einer Neuinstallation löst er von selbst nichts aus: Dienst und Boot-Empfänger verlangen zuerst `keep_alive_enabled`, die USB-Übergabe zuerst ihren Modus (Standard `off`), und Keep-Alive einzuschalten schreibt die Absicht „an". Ein Standard „aus" würde dagegen Bestandsinstallationen treffen, die Keep-Alive vor diesem Schlüssel eingeschaltet haben, und ihre Wiederherstellung still abstellen |
 
+Der Force-Modus (#763) ist auf einer Neuinstallation aus. `force_state` ist ohne eine
+ausdrückliche Bestätigung im Force-Dialog nicht gespeichert; es enthält Laufzeit und Ablauf
+einer solchen Entscheidung. `force_expired_notice_pending` ist ohne einen Ablauf `false`
+und hält ausschließlich die noch zu meldende Ablaufbenachrichtigung fest. Beide Schlüssel
+sind Laufzeitdaten, keine abweichenden Voreinstellungen.
+
 ### Berechtigungen und Systemzustand
 
 Android-Berechtigungen sind keine App-Einstellungen und starten bei einer Neuinstallation alle
