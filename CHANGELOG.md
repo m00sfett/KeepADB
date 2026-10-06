@@ -25,7 +25,7 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.9.32] - Unreleased
 
-Etappe patch candidate (versionCode 204), part a of the single network list of #762 (UX concept #758, 2.1 to 2.6); no release. Clearing out the old lists and settings (#769) follows in this same version without another bump. The version 1.9.31 is not part of this entry.
+Etappe patch candidate (versionCode 204), part a of the single network list of #762 (UX concept #758, 2.1 to 2.6); no release. Clearing out the old lists and settings (#769, below) is part of this same version without another bump. The version 1.9.31 is not part of this entry.
 
 ### Added
 - #762: New view "Networks" in `NetworkListActivity` (`VIEW_NETWORKS`, opened from a new first row of the Settings network card that also shows "3 trusted · 1 blocked", or "Hidden" in the privacy mode). The current network is on top; the saved access points follow, grouped by Wi-Fi name (groups with trusted access points first, then mixed ones, then only blocked ones; a blocked name without a saved access point is a group of its own). Every network carries one status badge: Trusted, Blocked, Unknown, Not readable, and "Name trusted" (dashed outline) for the current network when only the comfort switch accepts it. Drawn by the new `NetworkListRenderer`; the derivation is the new pure `KeepADBNetworkList`, the answers are `KeepADBNetworkListActions`. The three older views stay unchanged until #769.
@@ -38,6 +38,16 @@ Etappe patch candidate (versionCode 204), part a of the single network list of #
 
 ### Changed
 - #762: `NetworkListActivity` uses a 16dp side padding like the other screens (N7 of the concept).
+- #769: The Settings network card is reduced to the state of concept 2.1, in this order: current network with its action, protection level (display only for now; changing it moves to the setup assistant, #761) with the comfort switch "Also trust by Wi-Fi name" (`trust_by_name`; OnClick, never written by drawing), force mode, the "Networks" entry with its counts, and the background access last. The comfort switch is written only by its own tap and records a diagnostics event.
+- #769: `NetworkListActivity` is only the shell of the one Networks list (`NetworkListActivity.intent(context)`, no view extra any more); `activity_network_list.xml` keeps the header, intro and the list column.
+
+### Removed
+- #769: Mode choice (radio group "all networks" / "only allowed"), the observation option with its list entry and its "delete the history?" question, the advanced Wi-Fi-name section with its own name list, the "allowed access points" and "recently prevented re-enabling" entries and the inactive-list hint, together with the allowlist location rationale and its permission request code (`TRUSTED_NETWORK_LOCATION_PERMISSION_REQUEST`, bundle key `settings_allowlist_permission_showing`) that only the mode choice reached. In `NetworkListActivity`: the views `VIEW_ALLOWED`, `VIEW_PREVENTED`, `VIEW_OBSERVED`, `VIEW_NETWORKS` and `EXTRA_VIEW`, the show-more list, the rename pencil rows and the old row builders; `KeepADBAccessPointOverview` is deleted. `KeepADBNetworkCardText.inactiveListHint` and `nameMatchingEffect` are gone.
+- #769: 49 strings (observation, name list, three older views, allowlist rationale, rename and remove descriptions) removed from all 19 locales; `bin/check-i18n` is green.
+- #769: Where the card used to record the observation history on every refresh, it no longer records anything.
+
+### Migration (#769, no key rewritten)
+- #769: No preference key is deleted, renamed or rewritten, so an existing installation loses nothing and an older app version still reads the same data. `trusted_network_mode`, `trusted_network_ssid_matching` with the `trusted_ssid_*` list and the allowed entries stay in force as stored (the level reads "previous Wi-Fi name list" or "previous: all networks"); `wifi_aps_feature_enabled`, the observation history and the prevented history stay as they are because the Networks list (names, bands), the mesh offer (#686) and the decision flow (#766) still read them. Known consequence: the observation is not recorded any more and a stored name list or "all networks" policy can no longer be edited in Settings until the setup assistant (#761) makes the protection level changeable again.
 
 ### Fixed
 - #762: `getProtectionLevel` reported `BALANCED` before `LEGACY_NAME_LIST`; with the comfort switch and the stored name list both on, the effective grant was shown too narrow. The legacy list is now asked first (E1 review).
@@ -45,9 +55,11 @@ Etappe patch candidate (versionCode 204), part a of the single network list of #
 - #762: The Settings network card showed a blocked network as "Not allowed" with an "Allow this access point" action the policy refuses, and missed a name block behind a masked address. It now reads "Blocked", gives the reason and offers no action (E1 review).
 
 ### Documentation
+- #769: `docs/trusted-networks.md` (what the settings network area shows now, what the cleanup kept and why), `docs/defaults.md` (observation option), `docs/README.md`.
 - #762: `docs/trusted-networks.md`: section "Die Liste Netzwerke", including the way back (Unknown versus stored trust), the privacy mode and the limit for unreadable networks under the previous setting; the outdated "known limit" about lifting blocks is replaced.
 
 ### Testing
+- #769: `SettingsCleanupMigrationTest` (a stored legacy installation, wide policy and strict allowlist, is identical in the preferences and in the trust decision after Settings, its Wi-Fi reactions, a rotation and the list; the kept name list still grants while its switch is on and not when off; the card records no observation, while the recorder works). Mutation in a disposable copy (a lossy cleanup in `KeepADBNetworkCard.refresh`) turns all three red. Tests of the removed UI are removed or moved to the surviving surface: `NetworkListActivityTest` (old views) deleted, `SettingsActivityTest`, `SettingsNetworkCardTest`, `SettingsNetworkCardLifecycleTest`, `SettingsBackgroundLocationDialogTest` (now driven by the settings button), accessibility, resource and card contract tests adapted; the mesh decline case moved to `KeepADBNetworkActionsRefusalTest`.
 - #762: `KeepADBNetworkListTest` (status from the real policy, order, counts, both ways back), `NetworkListNetworksViewTest` (blocked before trusted on rows and the current card, dialogs, embedded decision, privacy mode on and off, states, folding, comfort switch, force note), `NetworkListSettingsEntryTest`, `KeepADBNetworkActionsRefusalTest`, and additions to the card state and protection level tests. Each invariant is asserted with its control on the other side.
 ## [1.9.31] - Unreleased
 

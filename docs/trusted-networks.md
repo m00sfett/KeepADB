@@ -102,8 +102,11 @@ Hebt man eine Namenssperre auf, bleibt das gespeicherte Vertrauen erhalten und g
 
 Die Liste (#762, Teil a; Einstellungen → Netzwerk → „Netzwerke“) zeigt Vertrauen und Sperren an
 einer Stelle: oben das aktuelle Netzwerk, darunter die gespeicherten Access Points, gruppiert nach
-WLAN-Name. Das Aufräumen der älteren Listen und Einstellungen folgt mit #769; bis dahin bleiben sie
-unverändert daneben bestehen.
+WLAN-Name. Mit #769 sind die älteren Ansichten („Erlaubte Access Points“, „Zuletzt verhindertes
+Wiedereinschalten“, Beobachtungsliste), die Modus-Auswahl, die Beobachtungsoption und die eigene
+Namensliste aus den Einstellungen entfernt. Der Netzwerkbereich dort zeigt noch: das aktuelle
+Netzwerk mit Aktion, die Schutzstufe (nur Anzeige; die Änderung folgt im Einrichtungsassistenten,
+#761) samt Komfortschalter, den Force-Modus, den Einstieg „Netzwerke“ und den Hintergrundzugriff.
 
 **Eine Marke je Netzwerk.** Der Status stammt aus derselben Auswertung wie das automatische
 Einschalten (`KeepADBTrustedNetwork.evaluate`), die Liste rechnet nichts nach: *Vertraut*,
@@ -174,10 +177,18 @@ als Freigabelistenmodus. Eine Installation ganz ohne gespeicherten Modus (Neuins
 sehr alte, die die Regel seit 1.8.9 nie ausgewertet hat) startet im Freigabelistenmodus.
 
 Der Verlauf „zuletzt verhindert“ und die Beobachtungsliste haben nie über Vertrauen entschieden und
-gehen nicht in das Modell ein. Ihre Speicher bleiben in diesem Stand unangetastet, weil die
-bestehende Oberfläche sie noch liest; ihre Entfernung gehört zu #762. Der Entscheidungsdialog (#766)
-nutzt den Verlaufseintrag als Aufzeichnung der Anfrage (Name und BSSID) und löscht ihn, sobald die
-Anfrage beantwortet ist.
+gehen nicht in das Modell ein. Beim Aufräumen (#769) wurde **kein Schlüssel gelöscht oder
+umgeschrieben**: Ihre Oberfläche ist weg, ihre Speicher bleiben, weil sie noch gelesen werden. Der
+Entscheidungsdialog (#766) nutzt den Verlaufseintrag als Aufzeichnung der Anfrage (Name und BSSID)
+und löscht ihn, sobald die Anfrage beantwortet ist; die Liste „Netzwerke“ nimmt Namen und Bänder aus
+der Beobachtung, und das Angebot für Mesh-Knoten (#686) liest sie. Neu aufgezeichnet wird die
+Beobachtung nicht mehr (die Einstellungen schreiben sie nicht mehr fort); eine zuvor eingeschaltete
+Option `wifi_aps_feature_enabled` bleibt stehen und wird weiter gelesen, ist aber nicht mehr
+umschaltbar. Ebenso bleibt eine gespeicherte Namensliste (`trusted_ssid_*`, `trusted_network_ssid_matching`)
+in Kraft (Stufe „Namensliste (bisherige Einstellung)“); sie lässt sich ohne ihre frühere Oberfläche
+nicht mehr bearbeiten, bis der Assistent (#761) die Schutzstufe wieder änderbar macht.
+`SettingsCleanupMigrationTest` hält das fest: gespeicherter Bestand vorher und nachher gleich,
+gleiche Entscheidung, und die Namensliste greift weiter.
 
 **Rückweg.** Neu sind nur zusätzliche Schlüssel in `keepadb_prefs` (`blocked_bssids`,
 `blocked_ssids`, `trust_by_name`); alle bisherigen Schlüssel behalten Format und Bedeutung. Eine
@@ -190,8 +201,7 @@ Belege im Code: `KeepADBTrustPrecedenceTest` (Vorrang, beidseitig), `KeepADBTrus
 (gleiche Entscheidung wie 1.9.28 für jeden gespeicherten Stand, nichts umgeschrieben, Rückweg),
 `KeepADBBlockedNetworkCallPathTest` (die Sperre hält auf den tatsächlich handelnden Wegen).
 
-Eine Neuinstallation und jeder Wechsel in den Freigabelistenmodus brauchen die Standortfreigabe aus
-dem folgenden Abschnitt; ohne lesbare Identität pausiert KeepADB und weist darauf hin.
+Der Freigabelistenmodus braucht die Standortfreigabe aus dem folgenden Abschnitt; ohne lesbare Identität pausiert KeepADB und weist darauf hin.
 
 ## Force-Modus
 
