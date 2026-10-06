@@ -15,9 +15,11 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     static final String ACTION_TOGGLE_KEEP_ALIVE = "de.hohnepeople.keepadb.ACTION_TOGGLE_KEEP_ALIVE";
     /** #446: the user allowed the access point the trust prompt named. */
     static final String ACTION_TRUST_NETWORK = "de.hohnepeople.keepadb.ACTION_TRUST_NETWORK";
-    /** #446: the user declined; only the prompt goes away, nothing is trusted. */
-    static final String ACTION_DISMISS_NETWORK_PROMPT =
-            "de.hohnepeople.keepadb.ACTION_DISMISS_NETWORK_PROMPT";
+    /**
+     * #766: the user blocked the access point the trust prompt named. It replaces #446's
+     * "dismiss" action, which only closed the notification while its label promised a block (N1).
+     */
+    static final String ACTION_BLOCK_NETWORK = "de.hohnepeople.keepadb.ACTION_BLOCK_NETWORK";
     /** #763: the notification's "End force mode" action. The safe direction, no question asked. */
     static final String ACTION_FORCE_END = "de.hohnepeople.keepadb.ACTION_FORCE_END";
     /** #763: the expiry alarm. Only re-evaluates; it cannot start or extend the force mode. */
@@ -35,8 +37,9 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             handleTrustNetworkAction(context,
                     intent.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID),
                     intent.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_LABEL));
-        } else if (ACTION_DISMISS_NETWORK_PROMPT.equals(action)) {
-            handleDismissNetworkPromptAction(context);
+        } else if (ACTION_BLOCK_NETWORK.equals(action)) {
+            handleBlockNetworkAction(context,
+                    intent.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
         } else if (ACTION_FORCE_END.equals(action)) {
             handleForceEndAction(context);
         } else if (ACTION_FORCE_EXPIRE.equals(action)) {
@@ -242,15 +245,30 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     }
 
     /**
-     * #446: the user declined. Nothing is trusted and nothing is blocklisted -- an access point
-     * that is not on the allowlist is already blocked. The only effect is that the prompt goes
-     * away and is not raised again for this access point until {@link
-     * KeepADBNetworkTrustPrompt#PROMPT_REPEAT_INTERVAL_MS} has passed (the marker was written
-     * when the prompt was raised, so this handler only has to stop showing it).
+     * #766: the user chose "block" on the prompt: the access point it named is blocked, so
+     * KeepADB never switches Wireless Debugging on there by itself and never asks about it again
+     * (#760). Only the access point is blocked, not its Wi-Fi name; the name block is a separate
+     * choice of the decision dialog.
+     *
+     * <p>Blocking is the safe direction -- it only ever takes automatic actions away -- so unlike
+     * the trust action this one is not gated on the lock state. The lock-screen version of the
+     * notification carries no actions at all. A block is lifted only explicitly, never by trusting
+     * (#760); the user interface for that is the network list (#762).
+     *
+     * @return true if the access point is blocked afterwards.
      */
-    static void handleDismissNetworkPromptAction(Context context) {
-        KeepADBDiagnostics.event(context, "user_action", "network_trust_prompt", "declined",
-                "action_button");
-        KeepADBNetworkTrustPrompt.cancel(context);
+    static boolean handleBlockNetworkAction(Context context, String bssid) {
+        KeepADBNetworkDecision.Outcome outcome =
+                KeepADBNetworkDecision.blockAccessPoint(context, bssid);
+        boolean blocked = outcome == KeepADBNetworkDecision.Outcome.BLOCKED_ACCESS_POINT;
+        if (blocked) {
+            try {
+                Toast.makeText(context, KeepADBLocaleHelper.wrapContext(context)
+                        .getString(R.string.network_decision_blocked_toast), Toast.LENGTH_SHORT)
+                        .show();
+            } catch (RuntimeException ignored) {
+            }
+        }
+        return blocked;
     }
 }

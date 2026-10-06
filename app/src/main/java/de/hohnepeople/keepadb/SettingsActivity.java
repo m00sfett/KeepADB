@@ -33,7 +33,7 @@ public class SettingsActivity extends Activity {
      * #672: flags for the reset-app, USB handover mode and language dialogs showing at the time of
      * a {@code recreate()} (rotation). Pure "was showing" markers; a restored reset-app dialog is
      * only re-shown and still needs the user's own confirm tap. The Bundle keys of the Network
-     * card's dialogs (trust confirmation, background location, allowlist permission) are owned by
+     * card's dialogs (background location, allowlist permission) are owned by
      * {@link KeepADBNetworkCard} (#697), those of the feedback report dialog by {@link
      * KeepADBDiagnosticsController} (#698).
      */
@@ -218,8 +218,8 @@ public class SettingsActivity extends Activity {
 
         if (savedInstanceState != null) {
             diagnosticsController.restore(savedInstanceState);
-            // #604/#672/#682 (#697): the Network card re-shows its own trust confirmation,
-            // background-location and allowlist permission dialogs from the same bundle.
+            // #672/#682 (#697): the Network card re-shows its own background-location and
+            // allowlist permission dialogs from the same bundle.
             networkCard.restore(savedInstanceState);
             forceSection.restore(savedInstanceState);
             // #672: re-show the remaining plain dialogs. The reset-app dialog is only re-shown,
@@ -277,14 +277,6 @@ public class SettingsActivity extends Activity {
             getIntent().removeExtra(EXTRA_FOCUS_FORCE);
         }
 
-        // #598: the details-off trust prompt's content intent. Consumed like the extras above so a
-        // later resume does not ask again.
-        if (KeepADBNetworkTrustPrompt.ACTION_CONFIRM_IN_APP.equals(getIntent().getAction())) {
-            String bssid = getIntent().getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID);
-            getIntent().setAction(null);
-            getIntent().removeExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID);
-            networkCard.showTrustConfirmationDialog(bssid);
-        }
     }
 
     @Override
@@ -567,10 +559,6 @@ public class SettingsActivity extends Activity {
 
     AlertDialog getActiveAllowlistPermissionDialog() {
         return networkCard.getActiveAllowlistPermissionDialog();
-    }
-
-    AlertDialog getActiveTrustConfirmationDialog() {
-        return networkCard.getActiveTrustConfirmationDialog();
     }
 
     AlertDialog getActiveResetAppDialog() {

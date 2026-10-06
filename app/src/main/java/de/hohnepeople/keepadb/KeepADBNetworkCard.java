@@ -29,10 +29,10 @@ import java.util.List;
 
 /**
  * Owns the Network card of {@link SettingsActivity} (#654/#655): its views, the access point
- * the card showed last (what its action button acts on), the Wi-Fi status callback and the four
+ * the card showed last (what its action button acts on), the Wi-Fi status callback and the
  * dialogs of the card -- the location-permission rationale for allowlist mode, the background-
- * location rationale, the in-app trust confirmation and the mesh question after allowing an
- * access point.
+ * location rationale and the mesh question after allowing an access point. (The trust confirmation
+ * of the "new Wi-Fi" prompt lived here until #766 moved it to {@link NetworkDecisionActivity}.)
  *
  * <p>Extracted by #697 as a pure refactor: no behavior, preference key, Bundle key, request code
  * or layout id changed. What the card shows still comes exclusively from {@link
@@ -46,8 +46,7 @@ import java.util.List;
  * the views in {@code onCreate}, then {@link #restore} (onCreate), {@link #start} (onStart),
  * {@link #refresh} (from its own {@code refresh()}), {@link #stop} (onStop), {@link #saveState}
  * (onSaveInstanceState), {@link #destroy} (onDestroy) and {@link #onRequestPermissionsResult}
- * (the two request codes below belong to this card). {@link #showTrustConfirmationDialog} is the
- * entry for the details-off trust prompt's content intent. A fresh instance is created on every
+ * (the two request codes below belong to this card). A fresh instance is created on every
  * {@code onCreate}, so no view or dialog reference here survives a real activity recreation.
  *
  * <p>Every switch and choice uses OnClick, not a checked-change listener: {@link #refresh()}
@@ -55,14 +54,6 @@ import java.util.List;
  * programmatic write too (and so could change a stored setting just by opening Settings).
  */
 final class KeepADBNetworkCard {
-    /**
-     * #604: the BSSID the currently showing #598 trust confirmation dialog is bound to, carried
-     * across a {@code recreate()} (rotation). Only ever a BSSID this app already captured from its
-     * own {@link KeepADBBlockedNetworkHistory} record via {@link #showTrustConfirmationDialog} --
-     * never re-read from the intent (already consumed by then) or from the current connection.
-     * (#697: owned by the card; key string unchanged.)
-     */
-    static final String STATE_TRUST_CONFIRMATION_BSSID = "settings_trust_confirmation_bssid";
     /**
      * #672: "was showing" marker of the background-location rationale dialog at the time of a
      * {@code recreate()}; a restored dialog is only re-shown and never grants anything.
@@ -124,9 +115,6 @@ final class KeepADBNetworkCard {
     private AlertDialog activeAllowlistPermissionDialog;
     /** #644: the step-2 rationale dialog for the optional background location grant, if showing. */
     private AlertDialog activeBackgroundLocationDialog;
-    private AlertDialog activeTrustConfirmationDialog;
-    /** #604: the BSSID {@link #activeTrustConfirmationDialog} is bound to, or null if none is showing. */
-    private String activeTrustConfirmationBssid;
     /** #686: the mesh question after allowing an access point; not restored, see {@link #destroy}. */
     private AlertDialog activeMeshDialog;
     /** #731: the "delete the history?" question after turning the observation off; not restored. */
@@ -223,21 +211,11 @@ final class KeepADBNetworkCard {
 
     /**
      * Call from {@code SettingsActivity#onCreate} with the incoming (possibly null) state: re-shows
-     * the trust confirmation, the background-location rationale and the allowlist permission
-     * rationale. The mesh question is never restored (see {@link #destroy}).
+     * the background-location rationale and the allowlist permission rationale. The mesh question is never restored (see {@link #destroy}).
      */
     void restore(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             return;
-        }
-        // #604: re-show the #598 trust confirmation dialog after a rotation. The BSSID is the one
-        // this instance already captured before the recreate -- showTrustConfirmationDialog
-        // re-resolves it against KeepADBBlockedNetworkHistory exactly as it does for a fresh
-        // notification tap, it is never taken from the intent (already consumed) or re-read from
-        // the current connection.
-        String pendingBssid = savedInstanceState.getString(STATE_TRUST_CONFIRMATION_BSSID);
-        if (pendingBssid != null) {
-            showTrustConfirmationDialog(pendingBssid);
         }
         // #672: only re-shown; the rationale grants nothing and requests nothing by itself.
         if (savedInstanceState.getBoolean(STATE_BACKGROUND_LOCATION_SHOWING, false)) {
@@ -283,9 +261,6 @@ final class KeepADBNetworkCard {
 
     /** Call from {@code SettingsActivity#onSaveInstanceState}, before the dialogs are destroyed. */
     void saveState(Bundle outState) {
-        if (isShowing(activeTrustConfirmationDialog) && activeTrustConfirmationBssid != null) {
-            outState.putString(STATE_TRUST_CONFIRMATION_BSSID, activeTrustConfirmationBssid);
-        }
         outState.putBoolean(STATE_BACKGROUND_LOCATION_SHOWING,
                 isShowing(activeBackgroundLocationDialog));
         outState.putBoolean(STATE_ALLOWLIST_PERMISSION_SHOWING,
@@ -294,10 +269,6 @@ final class KeepADBNetworkCard {
 
     /** Call from {@code SettingsActivity#onDestroy} to dismiss every showing dialog and drop refs. */
     void destroy() {
-        dismissIfShowing(activeTrustConfirmationDialog);
-        activeTrustConfirmationDialog = null;
-        activeTrustConfirmationBssid = null;
-
         dismissIfShowing(activeBackgroundLocationDialog);
         activeBackgroundLocationDialog = null;
 
@@ -338,10 +309,6 @@ final class KeepADBNetworkCard {
 
     AlertDialog getActiveAllowlistPermissionDialog() {
         return activeAllowlistPermissionDialog;
-    }
-
-    AlertDialog getActiveTrustConfirmationDialog() {
-        return activeTrustConfirmationDialog;
     }
 
     private void registerWifiStatusCallback() {
@@ -832,95 +799,6 @@ final class KeepADBNetworkCard {
         });
         row.addView(remove);
         return row;
-    }
-
-    /**
-     * #598: the in-app half of the details-off trust prompt. The notification names no network, so
-     * this dialog is where the user sees which one they are deciding on -- label and BSSID of the
-     * access point the prompt was raised for, taken from {@link
-     * KeepADBNetworkTrustPrompt#pendingConfirmation}, never from the intent or from the current
-     * connection. Both buttons act on that captured entry only: allow goes through {@link
-     * KeepADBReceiver#handleTrustNetworkAction} (the notification allow action's own path, with its
-     * locked-device gate and BSSID validation, ending in {@code trustBssidAndAttemptConnect}), and
-     * block through {@link KeepADBReceiver#handleDismissNetworkPromptAction}, exactly like the
-     * notification's block action. Nothing is re-read at click time, so a roam between showing the
-     * dialog and the click cannot swap in a different BSSID.
-     *
-     * <p>If there is no pending entry for {@code bssid} (already trusted, evicted, or unknown), no
-     * trust choice is offered; the recently-blocked list opens instead, where every entry still
-     * needs its own explicit click.
-     */
-    void showTrustConfirmationDialog(String bssid) {
-        if (isShowing(activeTrustConfirmationDialog)) {
-            return;
-        }
-        KeepADBBlockedNetworkHistory.Entry entry =
-                KeepADBNetworkTrustPrompt.pendingConfirmation(activity, bssid);
-        if (entry == null) {
-            KeepADBDiagnostics.event(activity, "user_action", "network_trust_prompt", "skipped",
-                    "confirmation_not_pending");
-            activity.startActivity(
-                    NetworkListActivity.intent(activity, NetworkListActivity.VIEW_PREVENTED));
-            return;
-        }
-        final String confirmedBssid = entry.bssid;
-        final String confirmedLabel = entry.label();
-        final String displayLabel = KeepADBNetworkDisplay.quoted(
-                activity, confirmedLabel, confirmedBssid);
-        final String displayBssid = KeepADBNetworkDisplay.bssid(activity, confirmedBssid);
-        AlertDialog dialog = new AlertDialog.Builder(activity)
-                .setTitle(R.string.network_prompt_title)
-                .setMessage(activity.getString(R.string.network_prompt_text, displayLabel, displayBssid))
-                .setPositiveButton(R.string.network_prompt_allow, (d, which) -> {
-                    boolean enabled = KeepADBReceiver.handleTrustNetworkAction(
-                            activity, confirmedBssid, confirmedLabel);
-                    if (isListedAsTrusted(confirmedBssid)) {
-                        Toast.makeText(activity,
-                                activity.getString(R.string.settings_trusted_network_added_toast,
-                                        KeepADBNetworkDisplay.quoted(activity, confirmedLabel,
-                                                confirmedBssid)),
-                                Toast.LENGTH_SHORT).show();
-                        if (!enabled && !hasSecureSettingsPermission()) {
-                            showToggleErrorToast();
-                        }
-                    }
-                    onChange.run();
-                })
-                .setNegativeButton(R.string.network_prompt_block, (d, which) ->
-                        KeepADBReceiver.handleDismissNetworkPromptAction(activity))
-                .create();
-        activeTrustConfirmationDialog = dialog;
-        activeTrustConfirmationBssid = confirmedBssid;
-        dialog.setOnDismissListener(d -> {
-            if (activeTrustConfirmationDialog == d) {
-                activeTrustConfirmationDialog = null;
-                activeTrustConfirmationBssid = null;
-            }
-        });
-        dialog.show();
-    }
-
-    private boolean isListedAsTrusted(String bssid) {
-        for (KeepADBTrustedNetwork.Entry entry : KeepADBTrustedNetwork.getEntries(activity)) {
-            if (entry.bssid.equalsIgnoreCase(bssid)) return true;
-        }
-        return false;
-    }
-
-    private boolean hasSecureSettingsPermission() {
-        return activity.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void showToggleErrorToast() {
-        if (!hasSecureSettingsPermission()) {
-            Toast.makeText(activity,
-                    activity.getString(R.string.permission_error_toast, activity.getPackageName()),
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
-        Toast.makeText(activity, activity.getString(R.string.toggle_failed_toast),
-                Toast.LENGTH_LONG).show();
     }
 
     private static boolean isShowing(AlertDialog dialog) {

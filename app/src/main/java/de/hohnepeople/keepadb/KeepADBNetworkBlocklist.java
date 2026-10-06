@@ -125,7 +125,8 @@ final class KeepADBNetworkBlocklist {
         return clean.toLowerCase(Locale.ROOT);
     }
 
-    private static boolean isUsableSsid(String ssid) {
+    /** Whether {@code ssid} can be stored as a block: not null, empty or the unknown placeholder. */
+    static boolean isUsableSsid(String ssid) {
         return ssid != null && !ssid.isEmpty() && !WifiManager.UNKNOWN_SSID.equals(ssid);
     }
 

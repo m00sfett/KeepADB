@@ -21,8 +21,9 @@ Bestehende Installationen behalten ihre bisherige Einstellung unverändert, auch
 
 Das Datenmodell kennt außerdem Sperren pro BSSID und pro WLAN-Name. Eine Sperre gewinnt in jedem
 Modus gegen Vertrauen, löst keine Nachfrage aus und schaltet nie automatisch ein; nur ein
-ausdrückliches Aufheben nimmt sie zurück, nie das Hinzufügen von Vertrauen. Eine Bedienoberfläche
-zum Sperren folgt mit der Netzwerkliste. Vorrang, Migration und Rückweg stehen im
+ausdrückliches Aufheben nimmt sie zurück, nie das Hinzufügen von Vertrauen. Gesperrt wird über den
+Hinweis auf ein unbekanntes WLAN und den Dialog „Diesem Netzwerk vertrauen?“; eine Bedienoberfläche
+zum Aufheben folgt mit der Netzwerkliste. Vorrang, Migration und Rückweg stehen im
 [Netzwerk-Leitfaden](docs/trusted-networks.md).
 
 Der optionale **Force-Modus** (Einstellungen → Netzwerk) hebt diesen Schutz bewusst auf: Für eine
@@ -54,8 +55,12 @@ Schaltflächen sind keine Freigabe einer neuen Netzwerkidentität. Zum Einschalt
 Schnelleinstellungskachel oder die USB-Benachrichtigung muss ein gesperrtes Gerät entsperrt werden;
 Ausschalten über die Kachel bleibt vom Sperrbildschirm aus möglich. Eine Netzwerkfreigabe über
 eine Benachrichtigung benötigt ebenfalls ein entsperrtes Gerät. Wenn Benachrichtigungsdetails
-verborgen sind, öffnet der Hinweis KeepADB, damit die Entscheidung dort mit sichtbarem Netzwerknamen
-getroffen wird.
+verborgen sind, hat der Hinweis keine Aktionsknöpfe; ein Tippen öffnet in KeepADB den Dialog
+„Diesem Netzwerk vertrauen?“, der den Netzwerknamen zeigt, damit die Entscheidung mit sichtbarem
+Namen getroffen wird. Der Dialog zeigt den Namen auch im Privatsphäre-Modus, weil man wissen muss,
+wem man vertraut, aber nie auf einem gesperrten Display: Er erscheint erst nach dem Entsperren und
+prüft die Displaysperre zusätzlich selbst. Wegwischen des Hinweises entscheidet nichts; dasselbe
+Netz wird frühestens nach 24 Stunden erneut gefragt.
 
 ## Bedienregeln mit Sicherheitswirkung
 
