@@ -1,0 +1,1 @@
+Tapping Wireless Debugging back on right after switching it off is no longer lost when an automatic Keep-Alive check lands at the same moment. The "switching" indicator also no longer gets stuck after a recovery bounce.
