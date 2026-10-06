@@ -185,7 +185,8 @@ public class KeepADBDefaultsAuditTest {
             "network_prompt_bssid", "network_prompt_at", "network_prompt_history",
             "bssid_history_next_id", "bssid_history_ssid_ids", "blocked_network_entries",
             "events", "location_permission_requested", "notification_permission_requested",
-            "force_state", "force_expired_notice_pending")));
+            "force_state", "force_expired_notice_pending",
+            "onboarding_completed_version", "onboarding_existing_install")));
 
     @Before
     public void setUp() {

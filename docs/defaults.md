@@ -65,6 +65,13 @@ einer solchen Entscheidung. `force_expired_notice_pending` ist ohne einen Ablauf
 und hält ausschließlich die noch zu meldende Ablaufbenachrichtigung fest. Beide Schlüssel
 sind Laufzeitdaten, keine abweichenden Voreinstellungen.
 
+Der Einrichtungsassistent (#761) legt zwei Schlüssel an, beide Buchführung und keine Einstellung:
+`onboarding_completed_version` fehlt, bis der Assistent mit „Später“ oder „Fertig“ geschlossen wurde
+(dann steht dort seine Version); `onboarding_existing_install` hält einmalig fest, ob beim ersten
+Öffnen schon Einstellungen gespeichert waren (nur dann zeigt das Intro „Neue Sicherheitseinstellungen“).
+Die Schritte des Assistenten schreiben einen Wert nur, wenn der Nutzer ihn geändert hat; „Weiter“ ohne
+Eingabe lässt jeden Schlüssel unverändert, sodass eine Neuinstallation dieselben sicheren Standards behält.
+
 ### Berechtigungen und Systemzustand
 
 Android-Berechtigungen sind keine App-Einstellungen und starten bei einer Neuinstallation alle
