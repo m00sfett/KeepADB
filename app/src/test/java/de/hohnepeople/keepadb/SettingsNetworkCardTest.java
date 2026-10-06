@@ -219,6 +219,34 @@ public class SettingsNetworkCardTest {
     }
 
     /**
+     * #762 (E1 review): a blocked network read "Not allowed" with an allow action that is refused.
+     * It now reads "Blocked", gives the reason and offers no action; the same network without the
+     * block keeps the old text and the action, so the block is what changed it.
+     */
+    @Test
+    public void aBlockedNetworkReadsBlockedAndOffersNoActionThatCannotWork() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, "aa:bb:cc:dd:ee:01", "HomeMesh");
+        connectTo("HomeMesh", "aa:bb:cc:dd:ee:01");
+        KeepADBNetworkBlocklist.blockSsid(context, "HomeMesh");
+
+        SettingsActivity activity = open();
+
+        assertEquals(context.getString(R.string.network_badge_blocked),
+                text(activity, R.id.network_status_label));
+        assertEquals(context.getColor(R.color.link_red),
+                ((TextView) activity.findViewById(R.id.network_status_label)).getCurrentTextColor());
+        assertEquals(context.getString(R.string.network_cause_blocked),
+                text(activity, R.id.network_status_cause));
+        assertEquals(View.GONE, activity.findViewById(R.id.network_status_action).getVisibility());
+
+        KeepADBNetworkBlocklist.unblockSsid(context, "HomeMesh");
+        SettingsActivity unblocked = open();
+        assertEquals(context.getString(R.string.network_status_allowed_ap),
+                text(unblocked, R.id.network_status_label));
+    }
+
+    /**
      * #654: allowing an access point afterwards grants exactly that and nothing else. The setup is
      * the one in which the former trust-and-connect path enabled Wireless Debugging at once.
      */

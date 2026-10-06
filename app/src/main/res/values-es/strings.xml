@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">Punto de acceso permitido</string>
     <string name="network_status_allowed_name">Permitido por nombre de Wi-Fi</string>
     <string name="network_status_not_allowed">No permitido</string>
+    <string name="network_badge_blocked">Bloqueado</string>
     <string name="network_cause_no_wifi">Keep-Alive espera a que se conecte una red Wi-Fi.</string>
     <string name="network_cause_permission_missing">Reactivación automática pausada: sin acceso a la ubicación, Android oculta a qué punto de acceso estás conectado.</string>
     <string name="network_cause_location_off">Reactivación automática pausada: la ubicación está desactivada, por lo que Android oculta a qué punto de acceso estás conectado.</string>
     <string name="network_cause_unreadable_all_wifi">Ahora mismo no se puede leer la red. La reactivación automática puede continuar, pero se necesitan datos de red legibles para comprobar los puntos de acceso o nombres de Wi-Fi guardados.</string>
     <string name="network_cause_not_allowed">Reactivación automática pausada: este punto de acceso no está en tu lista de permitidos.</string>
+    <string name="network_cause_blocked">Esta red está bloqueada: Keep-Alive nunca activa aquí la depuración inalámbrica y tampoco pregunta. Activarla manualmente siempre funciona.</string>
     <string name="network_cause_allowed">Keep-Alive puede reactivar aquí la depuración inalámbrica.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive puede reactivar aquí la depuración inalámbrica. Se acepta cualquier punto de acceso legible con este nombre de Wi-Fi.</string>
     <string name="network_cause_all_wifi">«En todas las redes Wi-Fi» está activo, así que Keep-Alive puede reactivar aquí. Las listas de permitidos no cuentan en este modo.</string>

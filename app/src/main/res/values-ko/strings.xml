@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">허용된 액세스 포인트</string>
     <string name="network_status_allowed_name">Wi-Fi 이름으로 허용됨</string>
     <string name="network_status_not_allowed">허용되지 않음</string>
+    <string name="network_badge_blocked">차단됨</string>
     <string name="network_cause_no_wifi">Keep-Alive가 Wi-Fi 네트워크가 연결되기를 기다리고 있습니다.</string>
     <string name="network_cause_permission_missing">자동 재활성화가 일시 중지됨: 위치 액세스가 없으면 Android가 어떤 액세스 포인트에 연결되어 있는지 숨깁니다.</string>
     <string name="network_cause_location_off">자동 재활성화가 일시 중지됨: 위치가 꺼져 있어 Android가 어떤 액세스 포인트에 연결되어 있는지 숨깁니다.</string>
     <string name="network_cause_unreadable_all_wifi">현재 네트워크를 읽을 수 없습니다. 자동 재활성화는 계속할 수 있지만, 저장된 액세스 포인트나 Wi-Fi 이름을 확인하려면 읽을 수 있는 네트워크 정보가 필요합니다.</string>
     <string name="network_cause_not_allowed">자동 재활성화가 일시 중지됨: 이 액세스 포인트는 허용 목록에 없습니다.</string>
+    <string name="network_cause_blocked">이 네트워크는 차단되어 있습니다. Keep-Alive는 여기서 무선 디버깅을 자동으로 켜지 않으며 묻지도 않습니다. 직접 켜는 것은 언제나 가능합니다.</string>
     <string name="network_cause_allowed">Keep-Alive가 여기서 무선 디버깅을 다시 켤 수 있습니다.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive가 여기서 무선 디버깅을 다시 켤 수 있습니다. 이 Wi-Fi 이름을 가진 읽을 수 있는 모든 액세스 포인트가 허용됩니다.</string>
     <string name="network_cause_all_wifi">“모든 Wi-Fi 네트워크에서”가 켜져 있어 Keep-Alive가 여기서 다시 켤 수 있습니다. 이 모드에서는 허용 목록이 적용되지 않습니다.</string>

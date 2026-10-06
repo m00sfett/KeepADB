@@ -146,6 +146,26 @@ public class KeepADBNetworkCardStateTrustAgreementTest {
                 allowedByDerivedName > 0);
     }
 
+    /**
+     * #762: read() must find a block the way the policy does, also for a readable name behind a
+     * masked address; with only the address masked and no block the card stays "not readable".
+     */
+    @Test
+    public void aNameBlockIsFoundForAMaskedAddressAndAbsentWithoutTheBlock() {
+        KeepADBNetworkIdentity masked =
+                new KeepADBNetworkIdentity("\"Mesh\"", KeepADBNetworkIdentity.REDACTED_BSSID);
+        Snapshot before = KeepADBNetworkCardState.derive(KeepADBNetworkCardState.read(
+                context, masked, true, true, true, false));
+        assertEquals(Connection.UNREADABLE, before.connection);
+
+        KeepADBNetworkBlocklist.blockSsid(context, "Mesh");
+        Snapshot blocked = KeepADBNetworkCardState.derive(KeepADBNetworkCardState.read(
+                context, masked, true, true, true, false));
+        assertEquals(Connection.BLOCKED, blocked.connection);
+        assertFalse("The policy agrees that it is not trusted",
+                KeepADBTrustedNetwork.isTrustedForTesting(context, masked));
+    }
+
     /** The trust the lists give an identity without any block, restated from the rules. */
     private static boolean trustedWithoutBlocks(KeepADBNetworkIdentity identity, boolean derived,
                                                 boolean legacyNames) {

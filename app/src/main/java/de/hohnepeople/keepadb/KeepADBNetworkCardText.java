@@ -42,6 +42,8 @@ final class KeepADBNetworkCardText {
                 return R.string.network_status_allowed_ap;
             case ALLOWED_NAME:
                 return R.string.network_status_allowed_name;
+            case BLOCKED:
+                return R.string.network_badge_blocked;
             case NOT_ALLOWED:
             default:
                 return R.string.network_status_not_allowed;
@@ -54,6 +56,8 @@ final class KeepADBNetworkCardText {
             case ALLOWED_AP:
             case ALLOWED_NAME:
                 return R.color.status_ok_green;
+            case BLOCKED:
+                return R.color.link_red;
             case UNREADABLE:
             case NOT_ALLOWED:
                 return mode == Mode.ALL_WIFI ? R.color.night_muted : R.color.text_yellow;
@@ -82,6 +86,8 @@ final class KeepADBNetworkCardText {
                 return R.string.network_cause_allowed;
             case ALLOWED_BY_NAME:
                 return R.string.network_cause_allowed_by_name;
+            case BLOCKED:
+                return R.string.network_cause_blocked;
             case ALL_WIFI:
                 return R.string.network_cause_all_wifi;
             case NOT_ALLOWED:

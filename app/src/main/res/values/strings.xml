@@ -362,11 +362,14 @@
     <string name="network_status_allowed_ap">Allowed access point</string>
     <string name="network_status_allowed_name">Allowed by Wi-Fi name</string>
     <string name="network_status_not_allowed">Not allowed</string>
+    <!-- #762: a blocked network is shown as such, not as "not allowed". -->
+    <string name="network_badge_blocked">Blocked</string>
     <string name="network_cause_no_wifi">Keep-Alive waits until a Wi-Fi network is connected.</string>
     <string name="network_cause_permission_missing">Keep-Alive auto re-enable is paused: without Location access Android hides which access point you’re connected to.</string>
     <string name="network_cause_location_off">Keep-Alive auto re-enable is paused: Location is switched off, so Android hides which access point you’re connected to.</string>
     <string name="network_cause_unreadable_all_wifi">The network can’t be read right now. Automatic re-enabling can continue, but readable network details are needed to check saved access points or Wi-Fi names.</string>
     <string name="network_cause_not_allowed">Keep-Alive auto re-enable is paused: this access point isn’t on your allowed list.</string>
+    <string name="network_cause_blocked">This network is blocked: Keep-Alive never turns Wireless Debugging on here and does not ask about it. Turning it on manually always works.</string>
     <string name="network_cause_allowed">Keep-Alive may re-enable Wireless Debugging here.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive may re-enable Wireless Debugging here. Any readable access point with this Wi-Fi name is accepted.</string>
     <string name="network_cause_all_wifi">“In all Wi-Fi networks” is active, so Keep-Alive may re-enable here. Allowed lists don’t count in this mode.</string>

@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">Разрешённая точка доступа</string>
     <string name="network_status_allowed_name">Разрешено по имени Wi-Fi</string>
     <string name="network_status_not_allowed">Не разрешено</string>
+    <string name="network_badge_blocked">Заблокировано</string>
     <string name="network_cause_no_wifi">Keep-Alive ждёт подключения к сети Wi-Fi.</string>
     <string name="network_cause_permission_missing">Автоматическое повторное включение приостановлено: без доступа к геолокации Android скрывает, к какой точке доступа вы подключены.</string>
     <string name="network_cause_location_off">Автоматическое повторное включение приостановлено: геолокация выключена, поэтому Android скрывает, к какой точке доступа вы подключены.</string>
     <string name="network_cause_unreadable_all_wifi">Сеть сейчас не удаётся прочитать. Автоматическое повторное включение может продолжаться, но для проверки сохранённых точек доступа или имён Wi-Fi нужны доступные данные сети.</string>
     <string name="network_cause_not_allowed">Автоматическое повторное включение приостановлено: этой точки доступа нет в вашем списке разрешённых.</string>
+    <string name="network_cause_blocked">Эта сеть заблокирована: Keep-Alive никогда не включает здесь беспроводную отладку и ничего не спрашивает. Включить вручную можно всегда.</string>
     <string name="network_cause_allowed">Keep-Alive может здесь снова включить беспроводную отладку.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive может здесь снова включить беспроводную отладку. Принимается любая читаемая точка доступа с этим именем Wi-Fi.</string>
     <string name="network_cause_all_wifi">Активен режим «Во всех сетях Wi-Fi», поэтому Keep-Alive может здесь снова включать. В этом режиме списки разрешённых не учитываются.</string>

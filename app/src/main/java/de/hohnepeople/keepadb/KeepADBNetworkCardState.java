@@ -40,7 +40,11 @@ final class KeepADBNetworkCardState {
     }
 
     /** The connection as the card presents it. */
-    enum Connection { NO_WIFI, UNREADABLE, ALLOWED_AP, ALLOWED_NAME, NOT_ALLOWED }
+    enum Connection {
+        NO_WIFI, UNREADABLE, ALLOWED_AP, ALLOWED_NAME, NOT_ALLOWED,
+        /** #762: the access point or its Wi-Fi name is blocked; not the same as "not allowed". */
+        BLOCKED
+    }
 
     /** Why the connection is in its state, for the explanatory line. */
     enum Cause {
@@ -52,6 +56,8 @@ final class KeepADBNetworkCardState {
         /** Unreadable, but "all Wi-Fi networks" is active so nothing is paused. */
         UNREADABLE_NOT_NEEDED,
         NOT_ALLOWED,
+        /** #762: a block holds; nothing the card could offer (allow) would change that. */
+        BLOCKED,
         ALLOWED,
         ALLOWED_BY_NAME,
         /** "All Wi-Fi networks" is active: the lists are not consulted. */
@@ -151,8 +157,10 @@ final class KeepADBNetworkCardState {
         boolean bssidListed = false;
         boolean ssidListed = false;
         // #760: the same block store the policy consults, with the same matching.
-        boolean blocked = known && KeepADBNetworkBlocklist.isBlocked(
-                context, identity.bssid, identity.displaySsid());
+        // #762: a block on a readable Wi-Fi name holds without a readable address too, exactly as
+        // the policy applies it ("never" holds whenever there is evidence of the network).
+        boolean blocked = identity != null && KeepADBNetworkBlocklist.isBlocked(context,
+                known ? identity.bssid : null, identity.displaySsid());
         if (known) {
             for (KeepADBTrustedNetwork.Entry entry : KeepADBTrustedNetwork.getEntries(context)) {
                 if (entry.bssid.equalsIgnoreCase(identity.bssid)) {
@@ -187,14 +195,16 @@ final class KeepADBNetworkCardState {
         NameMatching nameMatching = nameMatching(in.allowlistMode, in.ssidMatching);
 
         Connection connection;
-        if (in.identityKnown) {
+        if (in.blocked) {
+            // #762: a block is stated as such, before anything else is asked: a blocked network
+            // is not "not allowed yet", and no allow action can change it.
+            connection = Connection.BLOCKED;
+        } else if (in.identityKnown) {
             // A readable, unmasked BSSID means an association exists, so the transport flag is
             // not consulted here. Mirrors KeepADBTrustedNetwork#evaluate: a block first (#760),
             // then a listed BSSID, or -- only while name matching is really active -- an exactly
             // listed name.
-            if (in.blocked) {
-                connection = Connection.NOT_ALLOWED;
-            } else if (in.bssidListed) {
+            if (in.bssidListed) {
                 connection = Connection.ALLOWED_AP;
             } else if (nameMatching == NameMatching.ACTIVE && in.ssidListed) {
                 connection = Connection.ALLOWED_NAME;
@@ -235,9 +245,14 @@ final class KeepADBNetworkCardState {
                 action = fix;
                 break;
             }
+            case BLOCKED:
+                // Lifting a block is explicit and lives in the network list, never in a card
+                // action that cannot work: trusting a blocked network is refused (#760).
+                cause = Cause.BLOCKED;
+                action = Action.NONE;
+                break;
             case NOT_ALLOWED:
-                // A blocked network is not allowed even while "all Wi-Fi networks" is active.
-                cause = (in.allowlistMode || in.blocked) ? Cause.NOT_ALLOWED : Cause.ALL_WIFI;
+                cause = in.allowlistMode ? Cause.NOT_ALLOWED : Cause.ALL_WIFI;
                 action = Action.ALLOW_ACCESS_POINT;
                 break;
             case ALLOWED_NAME:

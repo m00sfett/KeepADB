@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">Punto di accesso consentito</string>
     <string name="network_status_allowed_name">Consentito tramite nome Wi-Fi</string>
     <string name="network_status_not_allowed">Non consentito</string>
+    <string name="network_badge_blocked">Bloccato</string>
     <string name="network_cause_no_wifi">Keep-Alive attende che sia connessa una rete Wi-Fi.</string>
     <string name="network_cause_permission_missing">Riattivazione automatica in pausa: senza l’accesso alla posizione Android nasconde a quale punto di accesso sei connesso.</string>
     <string name="network_cause_location_off">Riattivazione automatica in pausa: la posizione è disattivata, quindi Android nasconde a quale punto di accesso sei connesso.</string>
     <string name="network_cause_unreadable_all_wifi">Al momento non è possibile leggere la rete. La riattivazione automatica può continuare, ma servono dati di rete leggibili per verificare i punti di accesso o i nomi Wi-Fi salvati.</string>
     <string name="network_cause_not_allowed">Riattivazione automatica in pausa: questo punto di accesso non è nella tua lista dei consentiti.</string>
+    <string name="network_cause_blocked">Questa rete è bloccata: Keep-Alive non attiva mai qui il debug wireless e non chiede nulla. L’attivazione manuale funziona sempre.</string>
     <string name="network_cause_allowed">Keep-Alive può riattivare qui il debug wireless.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive può riattivare qui il debug wireless. Viene accettato ogni punto di accesso leggibile con questo nome Wi-Fi.</string>
     <string name="network_cause_all_wifi">«In tutte le reti Wi-Fi» è attivo, quindi Keep-Alive può riattivare qui. Le liste dei consentiti non contano in questa modalità.</string>

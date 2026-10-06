@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">Freigegebener Access Point</string>
     <string name="network_status_allowed_name">Über WLAN-Namen freigegeben</string>
     <string name="network_status_not_allowed">Nicht freigegeben</string>
+    <string name="network_badge_blocked">Blockiert</string>
     <string name="network_cause_no_wifi">Keep-Alive wartet, bis ein WLAN verbunden ist.</string>
     <string name="network_cause_permission_missing">Automatisches Wiedereinschalten pausiert: Ohne Standortzugriff verbirgt Android, mit welchem Access Point du verbunden bist.</string>
     <string name="network_cause_location_off">Automatisches Wiedereinschalten pausiert: Der Standort ist ausgeschaltet, daher verbirgt Android, mit welchem Access Point du verbunden bist.</string>
     <string name="network_cause_unreadable_all_wifi">Das Netzwerk ist gerade nicht lesbar. Die automatische Reaktivierung kann fortgesetzt werden; zum Prüfen gespeicherter Access Points oder WLAN-Namen werden lesbare Netzwerkdaten benötigt.</string>
     <string name="network_cause_not_allowed">Automatisches Wiedereinschalten pausiert: Dieser Access Point steht nicht auf deiner Freigabeliste.</string>
+    <string name="network_cause_blocked">Dieses Netzwerk ist blockiert: Keep-Alive schaltet Drahtloses Debugging hier nie ein und fragt auch nicht nach. Manuell einschalten geht immer.</string>
     <string name="network_cause_allowed">Keep-Alive darf Drahtloses Debugging hier wieder einschalten.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive darf Drahtloses Debugging hier wieder einschalten. Jeder lesbare Access Point mit diesem WLAN-Namen wird akzeptiert.</string>
     <string name="network_cause_all_wifi">„In allen WLANs“ ist aktiv, daher darf Keep-Alive hier wieder einschalten. Freigabelisten zählen in diesem Modus nicht.</string>

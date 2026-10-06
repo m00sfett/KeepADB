@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">許可済みのアクセスポイント</string>
     <string name="network_status_allowed_name">Wi-Fi 名で許可</string>
     <string name="network_status_not_allowed">未許可</string>
+    <string name="network_badge_blocked">ブロック中</string>
     <string name="network_cause_no_wifi">Keep-Alive は Wi-Fi ネットワークが接続されるのを待っています。</string>
     <string name="network_cause_permission_missing">自動再有効化は一時停止中：位置情報へのアクセスがないと、Android は接続中のアクセスポイントを隠します。</string>
     <string name="network_cause_location_off">自動再有効化は一時停止中：位置情報がオフのため、Android は接続中のアクセスポイントを隠します。</string>
     <string name="network_cause_unreadable_all_wifi">現在ネットワークを読み取れません。自動再有効化は続行できますが、保存済みのアクセスポイントや Wi-Fi 名を確認するには読み取り可能なネットワーク情報が必要です。</string>
     <string name="network_cause_not_allowed">自動再有効化は一時停止中：このアクセスポイントは許可リストにありません。</string>
+    <string name="network_cause_blocked">このネットワークはブロックされています。Keep-Alive はここでワイヤレスデバッグを自動でオンにせず、確認も行いません。手動でオンにすることは常にできます。</string>
     <string name="network_cause_allowed">Keep-Alive はここでワイヤレスデバッグを再度有効にできます。</string>
     <string name="network_cause_allowed_by_name">Keep-Alive はここでワイヤレスデバッグを再度有効にできます。この Wi-Fi 名を持つ、読み取れるアクセスポイントはすべて受け入れられます。</string>
     <string name="network_cause_all_wifi">「すべての Wi-Fi ネットワークで」が有効なため、Keep-Alive はここで再有効化できます。このモードでは許可リストは使われません。</string>

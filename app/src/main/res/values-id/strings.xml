@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">Titik akses yang diizinkan</string>
     <string name="network_status_allowed_name">Diizinkan berdasarkan nama Wi-Fi</string>
     <string name="network_status_not_allowed">Tidak diizinkan</string>
+    <string name="network_badge_blocked">Diblokir</string>
     <string name="network_cause_no_wifi">Keep-Alive menunggu sampai jaringan Wi-Fi terhubung.</string>
     <string name="network_cause_permission_missing">Pengaktifan ulang otomatis dijeda: tanpa akses Lokasi, Android menyembunyikan titik akses yang terhubung dengan Anda.</string>
     <string name="network_cause_location_off">Pengaktifan ulang otomatis dijeda: Lokasi dimatikan, sehingga Android menyembunyikan titik akses yang terhubung dengan Anda.</string>
     <string name="network_cause_unreadable_all_wifi">Jaringan tidak dapat dibaca saat ini. Pengaktifan ulang otomatis dapat berlanjut, tetapi data jaringan yang dapat dibaca diperlukan untuk memeriksa titik akses atau nama Wi-Fi yang tersimpan.</string>
     <string name="network_cause_not_allowed">Pengaktifan ulang otomatis dijeda: titik akses ini tidak ada dalam daftar yang diizinkan.</string>
+    <string name="network_cause_blocked">Jaringan ini diblokir: Keep-Alive tidak pernah menyalakan Debugging Nirkabel di sini dan tidak bertanya. Menyalakan secara manual selalu bisa.</string>
     <string name="network_cause_allowed">Keep-Alive boleh mengaktifkan ulang Debugging Nirkabel di sini.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive boleh mengaktifkan ulang Debugging Nirkabel di sini. Setiap titik akses yang terbaca dengan nama Wi-Fi ini diterima.</string>
     <string name="network_cause_all_wifi">“Di semua jaringan Wi-Fi” aktif, jadi Keep-Alive boleh mengaktifkan ulang di sini. Daftar yang diizinkan tidak diperhitungkan dalam mode ini.</string>

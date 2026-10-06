@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">Điểm truy cập được phép</string>
     <string name="network_status_allowed_name">Được phép theo tên Wi-Fi</string>
     <string name="network_status_not_allowed">Không được phép</string>
+    <string name="network_badge_blocked">Đã chặn</string>
     <string name="network_cause_no_wifi">Keep-Alive đang chờ mạng Wi-Fi được kết nối.</string>
     <string name="network_cause_permission_missing">Tự động bật lại đã tạm dừng: không có quyền truy cập Vị trí, Android sẽ ẩn điểm truy cập mà bạn đang kết nối.</string>
     <string name="network_cause_location_off">Tự động bật lại đã tạm dừng: Vị trí đang tắt nên Android ẩn điểm truy cập mà bạn đang kết nối.</string>
     <string name="network_cause_unreadable_all_wifi">Hiện không thể đọc mạng. Tính năng tự động bật lại vẫn có thể tiếp tục, nhưng cần đọc được dữ liệu mạng để kiểm tra các điểm truy cập hoặc tên Wi-Fi đã lưu.</string>
     <string name="network_cause_not_allowed">Tự động bật lại đã tạm dừng: điểm truy cập này không có trong danh sách được phép của bạn.</string>
+    <string name="network_cause_blocked">Mạng này đã bị chặn: Keep-Alive không bao giờ bật Gỡ lỗi không dây tại đây và cũng không hỏi. Bật thủ công luôn hoạt động.</string>
     <string name="network_cause_allowed">Keep-Alive được phép bật lại gỡ lỗi không dây tại đây.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive được phép bật lại gỡ lỗi không dây tại đây. Mọi điểm truy cập đọc được có tên Wi-Fi này đều được chấp nhận.</string>
     <string name="network_cause_all_wifi">“Trong mọi mạng Wi-Fi” đang bật nên Keep-Alive được phép bật lại tại đây. Ở chế độ này, danh sách được phép không có tác dụng.</string>

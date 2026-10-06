@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">Point d’accès autorisé</string>
     <string name="network_status_allowed_name">Autorisé par nom Wi-Fi</string>
     <string name="network_status_not_allowed">Non autorisé</string>
+    <string name="network_badge_blocked">Bloqué</string>
     <string name="network_cause_no_wifi">Keep-Alive attend qu’un réseau Wi-Fi soit connecté.</string>
     <string name="network_cause_permission_missing">Réactivation automatique en pause : sans accès à la localisation, Android masque le point d’accès auquel vous êtes connecté.</string>
     <string name="network_cause_location_off">Réactivation automatique en pause : la localisation est désactivée, donc Android masque le point d’accès auquel vous êtes connecté.</string>
     <string name="network_cause_unreadable_all_wifi">Le réseau ne peut pas être lu pour le moment. La réactivation automatique peut continuer, mais des données réseau lisibles sont nécessaires pour vérifier les points d’accès ou les noms Wi-Fi enregistrés.</string>
     <string name="network_cause_not_allowed">Réactivation automatique en pause : ce point d’accès ne figure pas dans votre liste d’autorisés.</string>
+    <string name="network_cause_blocked">Ce réseau est bloqué : Keep-Alive n’active jamais le débogage sans fil ici et ne pose pas de question. L’activation manuelle fonctionne toujours.</string>
     <string name="network_cause_allowed">Keep-Alive peut réactiver ici le débogage sans fil.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive peut réactiver ici le débogage sans fil. Tout point d’accès lisible portant ce nom Wi-Fi est accepté.</string>
     <string name="network_cause_all_wifi">« Dans tous les réseaux Wi-Fi » est actif, donc Keep-Alive peut réactiver ici. Les listes d’autorisés ne comptent pas dans ce mode.</string>

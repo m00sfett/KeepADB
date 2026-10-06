@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">已允許的存取點</string>
     <string name="network_status_allowed_name">依 Wi-Fi 名稱允許</string>
     <string name="network_status_not_allowed">未允許</string>
+    <string name="network_badge_blocked">已封鎖</string>
     <string name="network_cause_no_wifi">Keep-Alive 正在等待連接 Wi-Fi 網路。</string>
     <string name="network_cause_permission_missing">自動重新啟用已暫停：沒有位置權限時，Android 會隱藏你連接的是哪個存取點。</string>
     <string name="network_cause_location_off">自動重新啟用已暫停：位置已關閉，因此 Android 會隱藏你連接的是哪個存取點。</string>
     <string name="network_cause_unreadable_all_wifi">目前無法讀取網路。自動重新啟用仍可繼續，但需要可讀取的網路資訊來檢查已儲存的存取點或 Wi-Fi 名稱。</string>
     <string name="network_cause_not_allowed">自動重新啟用已暫停：此存取點不在你的允許清單中。</string>
+    <string name="network_cause_blocked">這個網路已被封鎖：Keep-Alive 絕不會在此自動開啟無線偵錯，也不會詢問。手動開啟一律可用。</string>
     <string name="network_cause_allowed">Keep-Alive 可以在此重新開啟無線偵錯。</string>
     <string name="network_cause_allowed_by_name">Keep-Alive 可以在此重新開啟無線偵錯。任何使用此 Wi-Fi 名稱且可讀取的存取點都會被接受。</string>
     <string name="network_cause_all_wifi">「在所有 Wi-Fi 網路中」已啟用，因此 Keep-Alive 可以在此重新開啟。在此模式下，允許清單不生效。</string>

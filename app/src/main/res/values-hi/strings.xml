@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">अनुमति प्राप्त ऐक्सेस पॉइंट</string>
     <string name="network_status_allowed_name">Wi-Fi नाम से अनुमति प्राप्त</string>
     <string name="network_status_not_allowed">अनुमति नहीं है</string>
+    <string name="network_badge_blocked">रोका गया</string>
     <string name="network_cause_no_wifi">Keep-Alive किसी Wi-Fi नेटवर्क के जुड़ने की प्रतीक्षा कर रहा है।</string>
     <string name="network_cause_permission_missing">स्वचालित पुनः-सक्षमन रोका गया: स्थान की पहुँच के बिना Android छिपा देता है कि आप किस ऐक्सेस पॉइंट से जुड़े हैं।</string>
     <string name="network_cause_location_off">स्वचालित पुनः-सक्षमन रोका गया: स्थान बंद है, इसलिए Android छिपा देता है कि आप किस ऐक्सेस पॉइंट से जुड़े हैं।</string>
     <string name="network_cause_unreadable_all_wifi">अभी नेटवर्क पढ़ा नहीं जा सकता। ऑटोमैटिक री-एनेबल जारी रह सकता है, लेकिन सहेजे गए एक्सेस पॉइंट या Wi-Fi नाम जाँचने के लिए पढ़ने योग्य नेटवर्क जानकारी चाहिए।</string>
     <string name="network_cause_not_allowed">स्वचालित पुनः-सक्षमन रोका गया: यह ऐक्सेस पॉइंट आपकी अनुमति सूची में नहीं है।</string>
+    <string name="network_cause_blocked">यह नेटवर्क रोका गया है: Keep-Alive यहाँ वायरलेस डीबगिंग कभी चालू नहीं करता और पूछता भी नहीं। हाथ से चालू करना हमेशा काम करता है।</string>
     <string name="network_cause_allowed">Keep-Alive यहाँ वायरलेस डीबगिंग फिर से चालू कर सकता है।</string>
     <string name="network_cause_allowed_by_name">Keep-Alive यहाँ वायरलेस डीबगिंग फिर से चालू कर सकता है। इस Wi-Fi नाम वाला हर पढ़ा जा सकने वाला ऐक्सेस पॉइंट स्वीकार किया जाता है।</string>
     <string name="network_cause_all_wifi">“सभी Wi-Fi नेटवर्क में” सक्रिय है, इसलिए Keep-Alive यहाँ फिर से चालू कर सकता है। इस मोड में अनुमति सूचियाँ नहीं गिनी जातीं।</string>

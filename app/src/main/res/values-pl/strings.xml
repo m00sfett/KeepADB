@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">Dozwolony punkt dostępowy</string>
     <string name="network_status_allowed_name">Dozwolony według nazwy Wi-Fi</string>
     <string name="network_status_not_allowed">Niedozwolony</string>
+    <string name="network_badge_blocked">Zablokowany</string>
     <string name="network_cause_no_wifi">Keep-Alive czeka na połączenie z siecią Wi-Fi.</string>
     <string name="network_cause_permission_missing">Automatyczne ponowne włączanie wstrzymane: bez dostępu do lokalizacji Android ukrywa, z jakim punktem dostępowym jesteś połączony.</string>
     <string name="network_cause_location_off">Automatyczne ponowne włączanie wstrzymane: lokalizacja jest wyłączona, więc Android ukrywa, z jakim punktem dostępowym jesteś połączony.</string>
     <string name="network_cause_unreadable_all_wifi">Nie można teraz odczytać sieci. Automatyczne ponowne włączanie może działać dalej, ale do sprawdzenia zapisanych punktów dostępu lub nazw Wi-Fi potrzebne są czytelne dane sieci.</string>
     <string name="network_cause_not_allowed">Automatyczne ponowne włączanie wstrzymane: tego punktu dostępowego nie ma na liście dozwolonych.</string>
+    <string name="network_cause_blocked">Ta sieć jest zablokowana: Keep-Alive nigdy nie włącza tu debugowania bezprzewodowego i o nic nie pyta. Ręczne włączenie zawsze działa.</string>
     <string name="network_cause_allowed">Keep-Alive może tutaj ponownie włączyć debugowanie bezprzewodowe.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive może tutaj ponownie włączyć debugowanie bezprzewodowe. Akceptowany jest każdy czytelny punkt dostępowy o tej nazwie Wi-Fi.</string>
     <string name="network_cause_all_wifi">Aktywny jest tryb „We wszystkich sieciach Wi-Fi”, więc Keep-Alive może tutaj ponownie włączać. W tym trybie listy dozwolonych się nie liczą.</string>

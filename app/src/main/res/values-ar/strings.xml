@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">نقطة وصول مسموح بها</string>
     <string name="network_status_allowed_name">مسموح به بحسب اسم Wi-Fi</string>
     <string name="network_status_not_allowed">غير مسموح</string>
+    <string name="network_badge_blocked">محظور</string>
     <string name="network_cause_no_wifi">ينتظر Keep-Alive اتصال شبكة Wi-Fi.</string>
     <string name="network_cause_permission_missing">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: بدون إذن الوصول إلى الموقع يخفي Android نقطة الوصول المتصل بها.</string>
     <string name="network_cause_location_off">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: الموقع متوقف، لذا يخفي Android نقطة الوصول المتصل بها.</string>
     <string name="network_cause_unreadable_all_wifi">تتعذر قراءة الشبكة الآن. يمكن أن تستمر إعادة التفعيل التلقائية، لكن يلزم توفر بيانات شبكة قابلة للقراءة للتحقق من نقاط الوصول أو أسماء Wi-Fi المحفوظة.</string>
     <string name="network_cause_not_allowed">تم إيقاف إعادة التفعيل التلقائي مؤقتًا: نقطة الوصول هذه ليست في قائمة المسموح بها.</string>
+    <string name="network_cause_blocked">هذه الشبكة محظورة: لا يُشغّل Keep-Alive تصحيح الأخطاء اللاسلكي هنا أبدًا ولا يسأل عنها. التشغيل اليدوي يعمل دائمًا.</string>
     <string name="network_cause_allowed">يمكن لـ Keep-Alive إعادة تفعيل تصحيح الأخطاء اللاسلكي هنا.</string>
     <string name="network_cause_allowed_by_name">يمكن لـ Keep-Alive إعادة تفعيل تصحيح الأخطاء اللاسلكي هنا. تُقبل أي نقطة وصول قابلة للقراءة بهذا الاسم من Wi-Fi.</string>
     <string name="network_cause_all_wifi">وضع «في جميع شبكات Wi-Fi» نشط، لذا يمكن لـ Keep-Alive إعادة التفعيل هنا. لا تُحتسب قوائم المسموح بها في هذا الوضع.</string>

@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">Toegestaan access point</string>
     <string name="network_status_allowed_name">Toegestaan via wifi-naam</string>
     <string name="network_status_not_allowed">Niet toegestaan</string>
+    <string name="network_badge_blocked">Geblokkeerd</string>
     <string name="network_cause_no_wifi">Keep-Alive wacht tot er een wifi-netwerk is verbonden.</string>
     <string name="network_cause_permission_missing">Automatisch opnieuw inschakelen gepauzeerd: zonder locatietoegang verbergt Android met welk access point je verbonden bent.</string>
     <string name="network_cause_location_off">Automatisch opnieuw inschakelen gepauzeerd: locatie staat uit, dus Android verbergt met welk access point je verbonden bent.</string>
     <string name="network_cause_unreadable_all_wifi">Het netwerk kan nu niet worden gelezen. Automatisch opnieuw inschakelen kan doorgaan, maar leesbare netwerkgegevens zijn nodig om opgeslagen toegangspunten of wifi-namen te controleren.</string>
     <string name="network_cause_not_allowed">Automatisch opnieuw inschakelen gepauzeerd: dit access point staat niet op je lijst met toegestane access points.</string>
+    <string name="network_cause_blocked">Dit netwerk is geblokkeerd: Keep-Alive schakelt Draadloze foutopsporing hier nooit in en vraagt er ook niet naar. Handmatig inschakelen werkt altijd.</string>
     <string name="network_cause_allowed">Keep-Alive mag Draadloze foutopsporing hier weer inschakelen.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive mag Draadloze foutopsporing hier weer inschakelen. Elk leesbaar access point met deze wifi-naam wordt geaccepteerd.</string>
     <string name="network_cause_all_wifi">‘In alle wifi-netwerken’ is actief, dus Keep-Alive mag hier weer inschakelen. Lijsten met toegestane items tellen in deze modus niet mee.</string>

@@ -355,11 +355,13 @@
     <string name="network_status_allowed_ap">İzin verilen erişim noktası</string>
     <string name="network_status_allowed_name">Wi-Fi adıyla izin verildi</string>
     <string name="network_status_not_allowed">İzin verilmedi</string>
+    <string name="network_badge_blocked">Engellendi</string>
     <string name="network_cause_no_wifi">Keep-Alive bir Wi-Fi ağının bağlanmasını bekliyor.</string>
     <string name="network_cause_permission_missing">Otomatik yeniden etkinleştirme duraklatıldı: Konum erişimi olmadan Android hangi erişim noktasına bağlı olduğunu gizler.</string>
     <string name="network_cause_location_off">Otomatik yeniden etkinleştirme duraklatıldı: Konum kapalı olduğu için Android hangi erişim noktasına bağlı olduğunu gizler.</string>
     <string name="network_cause_unreadable_all_wifi">Ağ şu anda okunamıyor. Otomatik yeniden etkinleştirme devam edebilir, ancak kayıtlı erişim noktalarını veya Wi-Fi adlarını denetlemek için okunabilir ağ bilgileri gerekir.</string>
     <string name="network_cause_not_allowed">Otomatik yeniden etkinleştirme duraklatıldı: bu erişim noktası izin verilenler listende değil.</string>
+    <string name="network_cause_blocked">Bu ağ engellendi: Keep-Alive burada Kablosuz Hata Ayıklamayı asla açmaz ve sormaz. Elle açmak her zaman çalışır.</string>
     <string name="network_cause_allowed">Keep-Alive burada Kablosuz Hata Ayıklamayı yeniden açabilir.</string>
     <string name="network_cause_allowed_by_name">Keep-Alive burada Kablosuz Hata Ayıklamayı yeniden açabilir. Bu Wi-Fi adına sahip okunabilen her erişim noktası kabul edilir.</string>
     <string name="network_cause_all_wifi">“Tüm Wi-Fi ağlarında” etkin, bu yüzden Keep-Alive burada yeniden açabilir. Bu modda izin verilenler listeleri dikkate alınmaz.</string>
