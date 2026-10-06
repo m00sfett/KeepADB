@@ -186,7 +186,11 @@ Beobachtung nicht mehr (die Einstellungen schreiben sie nicht mehr fort); eine z
 Option `wifi_aps_feature_enabled` bleibt stehen und wird weiter gelesen, ist aber nicht mehr
 umschaltbar. Ebenso bleibt eine gespeicherte Namensliste (`trusted_ssid_*`, `trusted_network_ssid_matching`)
 in Kraft (Stufe „Namensliste (bisherige Einstellung)“); sie lässt sich ohne ihre frühere Oberfläche
-nicht mehr bearbeiten, bis der Assistent (#761) die Schutzstufe wieder änderbar macht.
+nicht mehr bearbeiten. Den Weg zurück bietet der Schritt „Schutzstufe“ des Einrichtungsassistenten (#761):
+er zeigt die bisherige Einstellung („In allen WLANs“, Namensliste) vorausgewählt und als „Weniger sicher“
+bzw. „Hinweis“ markiert, und ein gewähltes Preset ersetzt sie, ohne gespeicherte Listen zu löschen (die
+Namensliste wird abgeschaltet, nicht geleert). Er öffnet sich einzeln über die Zeile „Schutzstufe“ in den
+Einstellungen, ganz über „Einrichtungsassistent“ ganz oben.
 `SettingsCleanupMigrationTest` hält das fest: gespeicherter Bestand vorher und nachher gleich,
 gleiche Entscheidung, und die Namensliste greift weiter.
 
