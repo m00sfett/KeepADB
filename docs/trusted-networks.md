@@ -178,13 +178,20 @@ sehr alte, die die Regel seit 1.8.9 nie ausgewertet hat) startet im Freigabelist
 
 Der Verlauf „zuletzt verhindert“ und die Beobachtungsliste haben nie über Vertrauen entschieden und
 gehen nicht in das Modell ein. Beim Aufräumen (#769) wurde **kein Schlüssel gelöscht oder
-umgeschrieben**: Ihre Oberfläche ist weg, ihre Speicher bleiben, weil sie noch gelesen werden. Der
+umgeschrieben**; die Oberfläche beider ist weg. Der Verlauf „zuletzt verhindert“ bleibt: Der
 Entscheidungsdialog (#766) nutzt den Verlaufseintrag als Aufzeichnung der Anfrage (Name und BSSID)
-und löscht ihn, sobald die Anfrage beantwortet ist; die Liste „Netzwerke“ nimmt Namen und Bänder aus
-der Beobachtung, und das Angebot für Mesh-Knoten (#686) liest sie. Neu aufgezeichnet wird die
-Beobachtung nicht mehr (die Einstellungen schreiben sie nicht mehr fort); eine zuvor eingeschaltete
-Option `wifi_aps_feature_enabled` bleibt stehen und wird weiter gelesen, ist aber nicht mehr
-umschaltbar. Ebenso bleibt eine gespeicherte Namensliste (`trusted_ssid_*`, `trusted_network_ssid_matching`)
+und löscht ihn, sobald die Anfrage beantwortet ist. Die Beobachtungsliste (BSSID-Verlauf,
+`bssid_history_*`) wird seit #769 nicht mehr fortgeschrieben, und ihr Bestand wird seit #778 beim
+Update **einmalig verworfen** (Nutzerentscheidung 2026-10-06): `KeepADBBssidHistory.discardLegacyOnce`
+löscht nur Schlüssel mit diesem Präfix und setzt im selben Schritt den Marker
+`observation_history_discarded`, damit es genau einmal läuft; auf einer Neuinstallation gibt es
+nichts zu löschen, und der Marker zählt dort nicht als Bestand. Alle anderen Schlüssel bleiben
+unverändert. Einen Löschweg in der Oberfläche gibt es nicht und braucht es nicht. Drei Leser laufen
+danach ins Leere und kommen ohne Fehler damit zurecht: das Angebot für Mesh-Knoten (#686) bietet
+nichts an, die gespeicherten Bänder fehlen (dann erscheint nur das aktuelle Band), und ein
+blockierter Access Point ohne Vertrauenseintrag steht in der Liste „Netzwerke“ in der Gruppe „WLAN-Name
+unbekannt“. Die Leser selbst werden separat entfernt (#788). Die zuvor eingeschaltete Option
+`wifi_aps_feature_enabled` bleibt unverändert stehen, ist aber nicht mehr umschaltbar und ohne Wirkung. Ebenso bleibt eine gespeicherte Namensliste (`trusted_ssid_*`, `trusted_network_ssid_matching`)
 in Kraft (Stufe „Namensliste (bisherige Einstellung)“); sie lässt sich ohne ihre frühere Oberfläche
 nicht mehr bearbeiten. Den Weg zurück bietet der Schritt „Schutzstufe“ des Einrichtungsassistenten (#761):
 er zeigt die bisherige Einstellung („In allen WLANs“, Namensliste) vorausgewählt und als „Weniger sicher“
@@ -371,16 +378,12 @@ Standortzugriff und eingeschalteten Standortdiensten heraus und kann sie zeitwei
 ohne verfügbare Frequenz erscheint kein Band, bis Android sie beim nächsten Öffnen der Liste
 liefert.
 
-Nur wenn die Option **WLAN-Beobachtung** („Observe access points“) eingeschaltet ist, speichert
-KeepADB zusätzlich das zuletzt gesehene Band je BSSID in der Beobachtungshistorie
-(`keepadb_prefs`, Feld `bssid_history_<id>_bands`): nur das letzte Band, bei einer neuen
-Beobachtung überschrieben, ohne Verlauf und ohne Zeitstempel, mit denselben Grenzen wie die
-Historie (8 BSSIDs je Netzwerkname, 50 Netzwerknamen) und gelöscht bei Deinstallation. Es erscheint
-nur dort, wo Android das Band gerade nicht liefert; das aktuelle Band hat immer Vorrang. Beim
-Ausschalten der Option werden alle gespeicherten Bänder gelöscht; die Historie der BSSIDs bleibt
-bestehen, es sei denn, die anschließende Rückfrage „Verlauf löschen?“ wird ausdrücklich mit „Ja“
-beantwortet (Abbrechen, Zurück, Drehen oder Prozessende zählen als „Nein“). Ohne eingeschaltete Beobachtung wird nichts gespeichert und nur das aktuelle Band
-angezeigt. Das Band ist reine Anzeige und fließt nie in eine Freigabeentscheidung ein.
+Früher (#721) speicherte KeepADB bei eingeschalteter Option **WLAN-Beobachtung** zusätzlich das
+zuletzt gesehene Band je BSSID in der Beobachtungshistorie (`bssid_history_<id>_bands`). Seit #769
+wird nichts davon mehr aufgezeichnet, und seit #778 ist der alte Bestand (Historie und Bänder) beim
+Update verworfen (siehe oben). Die Liste zeigt daher nur noch das aktuelle Band, das Android gerade
+liefert; fehlt es, steht kein Band da. Das Band ist reine Anzeige und fließt nie in eine
+Freigabeentscheidung ein.
 
 ## Messgrenzen
 

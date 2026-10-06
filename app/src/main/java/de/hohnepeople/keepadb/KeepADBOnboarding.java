@@ -106,7 +106,9 @@ final class KeepADBOnboarding {
         boolean existing = false;
         for (Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
             String key = entry.getKey();
-            if (!KeepADBPreferences.KEY_ONBOARDING_COMPLETED_VERSION.equals(key)) {
+            // The marker of the one-time history discard (#778) is written on every installation.
+            if (!KeepADBPreferences.KEY_ONBOARDING_COMPLETED_VERSION.equals(key)
+                    && !KeepADBBssidHistory.KEY_LEGACY_DISCARDED.equals(key)) {
                 existing = true;
                 break;
             }

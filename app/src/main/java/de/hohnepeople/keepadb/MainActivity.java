@@ -63,6 +63,8 @@ public class MainActivity extends Activity {
             finish();
             return;
         }
+        // #778: also after the hand-over check (the marker is ignored by it either way).
+        KeepADBBssidHistory.discardLegacyOnce(this);
         // #764: the dismiss flags of the removed home cards are of no use any more. Only after the
         // hand-over check above (it freezes the existing/new decision these keys would feed).
         KeepADBPreferences.removeObsoleteHomeCardKeys(this);
