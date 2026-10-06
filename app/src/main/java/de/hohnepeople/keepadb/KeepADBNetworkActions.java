@@ -38,7 +38,11 @@ final class KeepADBNetworkActions {
                                  Runnable onChanged) {
         KeepADBTrustedNetwork.Entry added = KeepADBReceiver.allowBssidOnly(activity, bssid, label);
         if (added == null) {
-            Toast.makeText(activity, R.string.settings_trusted_network_add_failed_toast,
+            // #762: a refusal because of a block is not a failure of the app; say what holds.
+            boolean blocked = KeepADBNetworkBlocklist.isBlocked(activity, bssid,
+                    KeepADBTrustedNetwork.ssidFromLabel(label, bssid));
+            Toast.makeText(activity, blocked ? R.string.network_decision_trust_refused_toast
+                            : R.string.settings_trusted_network_add_failed_toast,
                     Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(activity, activity.getString(R.string.network_ap_allowed_toast,
@@ -85,7 +89,13 @@ final class KeepADBNetworkActions {
         for (KeepADBTrustedNetwork.Entry listed : KeepADBTrustedNetwork.getEntries(activity)) {
             alreadyListed.add(listed.bssid);
         }
-        List<String> additional = KeepADBBssidHistory.getAdditionalBssids(activity, ssid, alreadyListed);
+        // #762: a block on the name blocks every access point of it, and a blocked access point
+        // cannot be trusted; neither is offered, so the offer never promises what is refused.
+        if (KeepADBNetworkBlocklist.isSsidBlocked(activity, ssid)) return null;
+        List<String> additional = new ArrayList<>();
+        for (String bssid : KeepADBBssidHistory.getAdditionalBssids(activity, ssid, alreadyListed)) {
+            if (!KeepADBNetworkBlocklist.isBssidBlocked(activity, bssid)) additional.add(bssid);
+        }
         if (additional.isEmpty()) return null;
 
         return new AlertDialog.Builder(activity)
@@ -93,12 +103,15 @@ final class KeepADBNetworkActions {
                 .setMessage(activity.getString(R.string.settings_trusted_network_mesh_message,
                         additional.size(), KeepADBNetworkDisplay.quoted(activity, ssid)))
                 .setPositiveButton(R.string.settings_trusted_network_mesh_add_button, (dialog, which) -> {
+                    // #762: only what was actually stored counts; a refused one is not "added".
+                    int added = 0;
                     for (String bssid : additional) {
-                        KeepADBReceiver.allowBssidOnly(activity, bssid, ssid);
+                        if (KeepADBReceiver.allowBssidOnly(activity, bssid, ssid) != null) added++;
                     }
-                    Toast.makeText(activity,
-                            activity.getString(R.string.settings_trusted_network_mesh_added_toast,
-                                    additional.size()),
+                    Toast.makeText(activity, added > 0
+                                    ? activity.getString(
+                                            R.string.settings_trusted_network_mesh_added_toast, added)
+                                    : activity.getString(R.string.network_decision_trust_refused_toast),
                             Toast.LENGTH_SHORT).show();
                     if (onChanged != null) onChanged.run();
                 })
