@@ -1,0 +1,1 @@
+USB-to-Wi-Fi handover now rechecks its network conditions before enabling. If those conditions change while an enable is waiting, KeepADB preserves your previous on/off choice.

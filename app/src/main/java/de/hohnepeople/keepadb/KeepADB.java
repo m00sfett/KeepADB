@@ -105,7 +105,9 @@ final class KeepADB {
      * {@code KeepADB.class} is held, together with the write they authorize.
      */
     interface EnableGuard {
-        /** False aborts the pending enable exactly like a superseded intent: no write at all. */
+        /**
+         * False aborts the pending enable with no write and restores the intent that preceded it.
+         */
         boolean stillApplies(Context appContext);
     }
 
@@ -442,12 +444,16 @@ final class KeepADB {
             if (!state.isCurrentNetworkGeneration(networkGeneration)) {
                 KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
                         "intentId=" + token + " reason=network_changed");
+                state.rollbackIntent(previousLastDesiredOn);
+                KeepADBPreferences.setLastDesiredOn(appContext, previousLastDesiredOn);
                 surfaces.refreshAll(appContext);
                 return false;
             }
             if (!guard.stillApplies(appContext)) {
                 KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
                         "intentId=" + token + " reason=preconditions_changed");
+                state.rollbackIntent(previousLastDesiredOn);
+                KeepADBPreferences.setLastDesiredOn(appContext, previousLastDesiredOn);
                 surfaces.refreshAll(appContext);
                 return false;
             }

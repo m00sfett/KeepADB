@@ -95,6 +95,7 @@ public class KeepADBBlockedNetworkCallPathTest {
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADBEndpoint.resetForTesting();
         KeepADB.resetForTesting();
+        KeepADBUsbHandover.resetForTesting();
         KeepADBRegisterClient.resetForTesting();
         context.getSystemService(NotificationManager.class).cancelAll();
     }
@@ -238,6 +239,41 @@ public class KeepADBBlockedNetworkCallPathTest {
     }
 
     // --- Explicit guards re-evaluated at write time ----------------------------------------------------
+
+    @Test
+    public void usbHandoverIngressBlocksAnUntrustedNetworkBeforeSchedulingAnEnable() {
+        KeepADBPreferences.setUsbWlanHandoverMode(context,
+                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, BSSID, SSID);
+        KeepADBNetworkBlocklist.blockBssid(context, BSSID);
+        connectTo(SSID, BSSID);
+
+        KeepADBUsbHandover.onRawUsbBroadcast(context, true);
+
+        assertTrue("a blocked Wi-Fi network must stop automatic USB handover before write",
+                gateway.writes.isEmpty());
+        assertTrue("the ingress gate must report the untrusted-network decision: " + diagnostics(),
+                diagnostics().contains(
+                        "event=usb_handover source=usb outcome=blocked detail=untrusted_network"));
+    }
+
+    @Test
+    public void usbHandoverIngressStillEnablesOnTheSameTrustedNetwork() {
+        KeepADBPreferences.setUsbWlanHandoverMode(context,
+                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_AUTOMATIC);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBTrustedNetwork.addBssid(context, BSSID, SSID);
+        connectTo(SSID, BSSID);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(scheduler);
+
+        KeepADBUsbHandover.onRawUsbBroadcast(context, true);
+
+        assertTrue("the trusted control network must allow automatic USB handover: " + gateway.writes,
+                gateway.writes.contains(true));
+    }
 
     @Test
     public void theDebouncedWriteGuardsDenyABlockedNetworkAndAllowTheSameNetworkOnceLifted() {

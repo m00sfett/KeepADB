@@ -142,6 +142,43 @@ public class KeepADBToggleSchedulingTest {
     }
 
     @Test
+    public void aGuardAbortedAutomaticEnableRestoresThePreviousOffIntent() {
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertFalse("the pending on-intent is visible until its guard is checked",
+                KeepADB.wasLastExplicitIntentOff(ctx));
+        assertTrue(scheduler.hasAnyPending());
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+
+        assertEquals("the guarded enable must not reach the gateway",
+                Arrays.asList(false), gateway.writes);
+        assertTrue("an aborted enable must not erase the previous off-intent",
+                KeepADB.wasLastExplicitIntentOff(ctx));
+        assertFalse("the persisted intent must match the restored in-memory intent",
+                KeepADBPreferences.getLastDesiredOn(ctx));
+        assertTrue("the rejected automatic intent must restore the user-disabled state",
+                KeepADB.isUserDisabled());
+    }
+
+    @Test
+    public void aNetworkChangeAbortedAutomaticEnableRestoresThePreviousOffIntent() {
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true));
+        KeepADB.noteNetworkChanged();
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+
+        assertEquals("a stale-network enable must not reach the gateway",
+                Arrays.asList(false), gateway.writes);
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+        assertFalse(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertTrue(KeepADB.isUserDisabled());
+    }
+
+    @Test
     public void recoveryPulseRestoresWhenUninterrupted() {
         gateway = new KeepADBFakeSettingsGateway(true);
         KeepADB.setGatewayForTesting(gateway);
