@@ -25,11 +25,12 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.9.37] - Unreleased
 
-Etappe E8 patch candidate (versionCode 209), package #784 on top of 1.9.36; no release. Test-only: no product code changes. The version 1.9.36 stays as it is.
+Etappe E8 patch candidate (versionCode 209), packages #784, #785 and #786 on top of 1.9.36; no release. The version 1.9.36 stays as it is.
 
 ### Testing
 - #784: `KeepADBToggleSchedulingTest.aGuardAbortOverAThreeLinkChainRestoresTheAppliedOffIntent` pins a chain of three pending automatic enables: the third link only inherits the applied baseline if the second one renewed the baseline token. Mutation "token not renewed on chain continuation" turns it red; the five two-link #776 tests stayed green under it.
 - #784: `KeepADBToggleSchedulingTest.aPulseSupersededPredecessorBaselineIsNotInheritedByALaterGuardAbort` pins the token check after a recovery pulse superseded a pending enable: the stale baseline of the superseded predecessor is ignored and the persisted intent is the fallback. Mutation "token check omitted" turns it red. It documents today's behaviour and does not anticipate #780 (`applyNow` still leaves the pending runnable of a superseded intent in place).
+- #785: `MainActivityWebhookStatusTest` (notably `webhookStatusRendersTheFailedReportText`) no longer depends on the static `KeepADBRegisterClient` state of earlier test classes. `MainActivity.onResume` reaches `markUnavailableAsync`; with leftover registration state from an earlier class an asynchronous DELETE flipped the persisted report status from `failed` to `deregistered` (seen once in a filtered partial run). New `KeepADBRegisterClientResetRule` drains the register executor and calls `KeepADBRegisterClient.resetForTesting()` before and after each test; the class applies it. A new test poisons the state (registration plus a succeeding fake transport) and pins that the failed report text survives; with the reset removed it fails. Likely sources of the leftover state: `KeepADBWebhookFormTest` and `SettingsActivityTest`, which drive webhook saves but only reset the transport (not proven by bisect). No production code changed.
 
 ## [1.9.36] - Unreleased
 
