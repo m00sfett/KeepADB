@@ -794,6 +794,30 @@ public class KeepADBToggleSchedulingTest {
     }
 
     @Test
+    public void anAutomaticIntentPlannedAfterAManualOneIsNeverMistakenForAManualOne() {
+        // #780: the manual marker belongs to the pending runnable it was registered with. If it
+        // survived the applied tap, a later automatic intent would count as a pending manual one
+        // and refuse every newer automatic request, i.e. the automatic debounce would be lost.
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.isManualIntentPending());
+        scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS);
+        assertFalse(KeepADB.isTogglePending());
+        assertFalse(KeepADB.isManualIntentPending());
+
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.isTogglePending());
+        assertFalse("an automatic intent is not a manual one",
+                KeepADB.isManualIntentPending());
+        assertTrue("a newer automatic intent still replaces the pending automatic one",
+                KeepADB.setEnabled(ctx, true, AUTO));
+
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+        assertEquals(Arrays.asList(false, true, true), gateway.writes);
+        assertFalse(KeepADB.isTogglePending());
+    }
+
+    @Test
     public void aRecoveryPulseIsNotBlockedByAPendingManualReEnableAndReachesTheSameEndState() {
         // #780 decision: the protection does not extend to recovery pulses. A pulse only starts
         // while wireless debugging reads "on" and the last intent is "on", which with a pending

@@ -754,6 +754,68 @@ public class KeepADBServiceLifecycleRobolectricTest {
         }
     }
 
+    /**
+     * #780, the other side of the two tests above: without a pending manual intent a refused
+     * automatic enable is still read as a missing permission and must still be reported.
+     */
+    @Test
+    public void recheckAndEnableStillRaisesThePermissionNotificationWhenThePermissionIsReallyMissing() {
+        armKeepAliveWithoutPermission();
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            context.getSystemService(NotificationManager.class).cancel(KeepADBNotification.NOTIFICATION_ID);
+            assertFalse(permissionMissingPosted());
+            android.os.SystemClock.sleep(400);
+
+            controller.get().recheckAndEnable();
+            ShadowLooper.idleMainLooper();
+
+            assertFalse(KeepADB.isManualIntentPending());
+            assertTrue("a really missing permission must still be reported by the recheck",
+                    permissionMissingPosted());
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    @Test
+    public void contentObserverStillRaisesThePermissionNotificationWhenThePermissionIsReallyMissing() {
+        armKeepAliveWithoutPermission();
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            context.getSystemService(NotificationManager.class).cancel(KeepADBNotification.NOTIFICATION_ID);
+            assertFalse(permissionMissingPosted());
+
+            controller.get().getAdbContentObserverForTesting()
+                    .onChange(false, Settings.Global.getUriFor(KeepADB.KEY));
+            ShadowLooper.idleMainLooper();
+
+            assertFalse(KeepADB.isManualIntentPending());
+            assertTrue("a really missing permission must still be reported by the observer",
+                    permissionMissingPosted());
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    private void armKeepAliveWithoutPermission() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+    }
+
     private KeepADBFakeScheduler armPendingManualReEnable() {
         shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
