@@ -38,8 +38,11 @@ public class KeepADBNetworkSecurityContractTest {
         assertTrue(webhookForm.contains("cleartextWarning"));
         assertTrue(webhookForm.contains("startsWith(\"http://\")"));
 
-        String layout = read("app/src/main/res/layout/activity_settings.xml");
+        // #768: the form is a layout of its own, included by the Settings and the setup assistant.
+        String layout = read("app/src/main/res/layout/view_webhook_form.xml");
         assertTrue(layout.contains("settings_webhook_cleartext_warning"));
+        assertTrue(read("app/src/main/res/layout/activity_settings.xml")
+                .contains("@layout/view_webhook_form"));
 
         String strings = read("app/src/main/res/values/strings.xml");
         assertTrue(strings.contains("name=\"settings_webhook_cleartext_warning\""));

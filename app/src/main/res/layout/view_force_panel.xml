@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Force mode (#763): a time-limited override of blocks and trust. The status is read from the
+     pure state; the buttons open the dialog with its warnings. Shared by the Settings and the setup
+     assistant (#768), which both drive it through KeepADBForceSection. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/settings_force_panel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:accessibilityHeading="true"
+        android:fontFamily="sans-serif-condensed"
+        android:text="@string/force_section_title"
+        android:textColor="@color/title_yellow"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/settings_force_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:accessibilityLiveRegion="polite"
+        android:fontFamily="sans-serif-condensed"
+        android:textColor="@color/night_text"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/force_section_hint"
+        android:textColor="@color/night_muted"
+        android:textSize="13sp" />
+
+    <Button
+        android:id="@+id/settings_force_activate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_btn_secondary"
+        android:fontFamily="sans-serif-condensed"
+        android:minHeight="48dp"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="@string/force_action_activate"
+        android:textColor="@color/text_yellow"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/settings_force_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_btn_primary"
+        android:fontFamily="sans-serif-condensed"
+        android:minHeight="48dp"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="@string/force_action_end"
+        android:textColor="@color/title_yellow"
+        android:textSize="15sp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/settings_force_change"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_btn_secondary"
+        android:fontFamily="sans-serif-condensed"
+        android:minHeight="48dp"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="@string/force_action_change"
+        android:textColor="@color/text_yellow"
+        android:textSize="15sp"
+        android:visibility="gone" />
+</LinearLayout>
