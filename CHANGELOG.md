@@ -25,7 +25,7 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.9.36] - Unreleased
 
-Etappe E6 patch candidate (versionCode 208), package #778 (UX concept #758) on top of 1.9.35; no release. The version 1.9.35 stays as it is.
+Etappe E7 patch candidate (versionCode 208), package #778 (UX concept #758) on top of 1.9.35; no release. The version 1.9.35 stays as it is.
 
 ### Removed
 - #778: The old observation history of Wi-Fi access points (`KeepADBBssidHistory`: every `bssid_history_*` key, i.e. SSID ids, BSSIDs and stored bands) is discarded once on update (user decision 2026-10-06, option A). Nothing has written it since #769. `KeepADBBssidHistory.discardLegacyOnce` runs from the boot/update receiver and the home screen, deletes only keys with the `bssid_history_` prefix and writes the additive marker `observation_history_discarded` in the same commit, so it runs exactly once. No other key is touched (mode, name list, trust, blocks, own names, block history, `wifi_aps_feature_enabled`, `onboarding_*`). There is no way to delete the history in the UI and none is needed.
