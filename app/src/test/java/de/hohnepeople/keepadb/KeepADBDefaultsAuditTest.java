@@ -155,17 +155,9 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBUsbProfile.isProfileNotificationEnabled(c)),
             new Setting("app_language", Kind.CONVENIENCE, "", "de",
                     c -> KeepADBPreferences.getAppLanguage(c)),
-            // Dismiss flags of the start screen
+            // Dismiss flag of the start screen (#764: the cards of the setup steps are gone)
             new Setting("advice_banner_visible", Kind.DISMISS_STATE, true, false,
                     c -> KeepADBPreferences.isAdviceBannerVisible(c)),
-            new Setting("notification_permission_panel_visible", Kind.DISMISS_STATE, true, false,
-                    c -> KeepADBPreferences.isNotificationPermissionPanelVisible(c)),
-            new Setting("battery_optimization_panel_visible", Kind.DISMISS_STATE, true, false,
-                    c -> KeepADBPreferences.isBatteryOptimizationPanelVisible(c)),
-            new Setting("network_onboarding_panel_visible", Kind.DISMISS_STATE, true, false,
-                    c -> KeepADBPreferences.isNetworkOnboardingPanelVisible(c)),
-            new Setting("background_location_panel_visible", Kind.DISMISS_STATE, true, false,
-                    c -> KeepADBPreferences.isBackgroundLocationPanelVisible(c)),
             // Not a setting: the persisted last explicit on/off intent
             new Setting("last_desired_on", Kind.RUNTIME_STATE, true, false,
                     c -> KeepADBPreferences.getLastDesiredOn(c))));
@@ -249,7 +241,6 @@ public class KeepADBDefaultsAuditTest {
     public void readingTheDefaultsPersistsNothingExceptTheOneTimeNetworkModeFlag() {
         for (Setting setting : SETTINGS) setting.reader.apply(app);
         KeepADBTrustedNetwork.evaluateCurrent(app);
-        KeepADBPreferences.isNetworkOnboardingDismissed(app);
 
         // A default is computed, never written back: otherwise a later change of a default would
         // already have moved every installation that merely opened the app (#760 persists the one
@@ -466,7 +457,8 @@ public class KeepADBDefaultsAuditTest {
         Path root = projectRoot().resolve("app/src/main/java/de/hohnepeople/keepadb");
         Pattern constant = Pattern.compile(
                 "static\\s+final\\s+String\\s+((?:KEY_[A-Z0-9_]+)|LOCATION_PERMISSION_REQUESTED"
-                        + "|NOTIFICATION_PERMISSION_REQUESTED)\\s*=\\s*\"([^\"]+)\"\\s*;");
+                        + "|NOTIFICATION_PERMISSION_REQUESTED|PREF_NOTIFICATION_REQUESTED)"
+                        + "\\s*=\\s*\"([^\"]+)\"\\s*;");
         Map<String, String> found = new LinkedHashMap<>();
         try (Stream<Path> files = Files.list(root)) {
             for (Path file : (Iterable<Path>) files.filter(p -> p.toString().endsWith(".java")).sorted()::iterator) {

@@ -51,7 +51,7 @@ unverändert, jeweils mit Begründung.
 | USB-Benachrichtigung | `usb_notification_enabled` | aus | opt-in; solange sie aus ist, greift der folgende Schalter nicht |
 | Profil in der USB-Benachrichtigung | `usb_profile_notification_enabled` | an | nur die Aufteilung der USB-Benachrichtigung (Profil-Zeile und -Aktionen); der Inhalt bleibt hinter `notification_details_enabled` verborgen („Profil verborgen"). Ein Wechsel auf „aus" würde bei Bestandsinstallationen, die den Schlüssel nie gespeichert haben, still ändern, was ihre USB-Benachrichtigung zeigt, ohne etwas zu schützen |
 | App-Sprache | `app_language` | leer (Systemsprache) | keine Sicherheitswirkung |
-| Hinweis-Karten der Startseite | `advice_banner_visible`, `notification_permission_panel_visible`, `battery_optimization_panel_visible`, `network_onboarding_panel_visible`, `background_location_panel_visible` | sichtbar | „Nicht mehr anzeigen"-Flags, rein Darstellung; die Karten entfallen mit #761/#764 |
+| Hinweis-Karte der Startseite | `advice_banner_visible` | sichtbar | „Nicht mehr anzeigen"-Flag, rein Darstellung. Die Flags der übrigen Karten (`notification_permission_panel_visible`, `battery_optimization_panel_visible`, `network_onboarding_panel_visible`, `background_location_panel_visible`) entfielen mit #764 und werden beim ersten Start gelöscht |
 
 ### Kein Einstellungswert
 

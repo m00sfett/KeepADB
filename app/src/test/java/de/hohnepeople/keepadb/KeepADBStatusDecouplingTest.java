@@ -177,7 +177,9 @@ public class KeepADBStatusDecouplingTest {
         ActivityController<MainActivity> controller =
                 Robolectric.buildActivity(MainActivity.class).setup();
         TextView statusView = controller.get().findViewById(R.id.status);
-        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_untrusted),
+        // #764: the line is also the way into the decision for this access point.
+        assertEquals(context.getString(R.string.status_off_keep_alive_blocked_untrusted) + "\n"
+                + context.getString(R.string.status_tap_to_decide),
                 statusView.getText().toString());
         controller.pause().close();
     }

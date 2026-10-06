@@ -3,7 +3,6 @@
     <string name="setup_title">الإعداد لأول مرة</string>
     <string name="setup_body">صِل هذا الجهاز بكمبيوتر عبر USB مع تفعيل تصحيح أخطاء USB. شغّل أولاً "adb devices" على الكمبيوتر لسرد الأجهزة والمحاكيات المتصلة، ثم استخدم الرقم التسلسلي الدقيق الظاهر هناك.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="setup_single_device_label">إذا ظهر جهاز واحد فقط:</string>
     <string name="setup_multi_device_label">عدة أجهزة مدرجة: حدّد الهدف صراحةً</string>
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">استبدل &lt;device-serial&gt; بالرقم التسلسلي الدقيق الذي أظهره "adb devices" لهذا الجهاز.</string>
@@ -118,7 +117,6 @@
     <string name="settings_webhook_enabled_toast">تم تفعيل مزامنة Webhook</string>
     <string name="settings_webhook_disabled_toast">تم تعطيل مزامنة Webhook</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_setup_button">إعداد Webhook</string>
     <string name="webhook_status_hint">URL: %1$s\nآخر نقطة نهاية تم الإبلاغ عنها: %2$s\nآخر إبلاغ: %3$s</string>
     <string name="webhook_status_never">أبدًا</string>
     <string name="webhook_status_no_endpoint">لا يوجد بعد</string>
@@ -185,15 +183,10 @@
     <string name="settings_reset_app_dialog_title">هل تريد إعادة ضبط التطبيق بالكامل؟</string>
     <string name="settings_reset_app_dialog_message">سيتم حذف جميع الشبكات المحفوظة والإعدادات والأذونات. سيتم إغلاق التطبيق بعد ذلك.</string>
     <string name="settings_reset_app_confirm">إعادة الضبط</string>
-    <string name="battery_optimization_title">قد يحد تحسين البطارية من Keep-Alive</string>
     <string name="battery_optimization_body">قد يقيّد Android أو الشركة المصنّعة تشغيل Keep-Alive في الخلفية أو يوقفه ما لم يكن KeepADB مستثنى من تحسين البطارية.</string>
     <string name="battery_optimization_button">فتح إعدادات البطارية</string>
-    <string name="network_onboarding_panel_title">تقييد Keep-Alive على الشبكات الموثوقة</string>
-    <string name="network_onboarding_panel_body">يمكن تقييد Keep-Alive على شبكات Wi-Fi المنزلية أو المكتبية المعروفة لمنع اتصالات تصحيح الأخطاء غير المصرح بها على الشبكات الخارجية.</string>
-    <string name="network_onboarding_setup_button">إعداد</string>
     <string name="background_location_panel_title">الوصول في الخلفية للشبكات الموثوقة</string>
     <string name="background_location_panel_body">للتعرّف على شبكة Wi-Fi الموثوقة (SSID/BSSID) عند بدء Keep-Alive في الخلفية، يحتاج KeepADB إلى ضبط الوصول إلى الموقع على «السماح طوال الوقت». لا يحدد KeepADB موقع جهازك ولا يحفظه أبدًا. في الشاشة التالية افتح الأذونات › الموقع واختر بنفسك «السماح طوال الوقت»؛ لا يستطيع KeepADB منح هذا الإذن نيابةً عنك. بدونه لا تُعامل الشبكة التي تتعذر قراءة هويتها كشبكة موثوقة أبدًا.</string>
-    <string name="background_location_setup_button">الإعداد الآن</string>
     <string name="background_location_settings_button">التحقق من الوصول في الخلفية</string>
     <string name="background_location_dialog_later">لاحقًا</string>
     <string name="background_location_status_granted">الوصول في الخلفية: مسموح. يتم التعرّف على نقاط الوصول المسموح بها حتى عند بدء Keep-Alive في الخلفية. لا يقرأ KeepADB موقع جهازك ولا يحفظه أبدًا.</string>
@@ -297,11 +290,8 @@
     <string name="advice_banner_title">الأمان والشبكة</string>
     <string name="advice_banner_text">يفتح تصحيح الأخطاء اللاسلكي منفذ ADB على شبكتك. استخدم شبكة Wi-Fi موثوقة أو VPN مثل Tailscale، وأوقفه في نقاط الاتصال العامة. لا تشارك عنوان نقطة النهاية علنًا أبدًا ولا تقبل طلبات اقتران غير متوقعة.</string>
     <string name="security_notice_dismiss">إغلاق الإشعار</string>
-    <string name="action_dismiss">إغلاق</string>
     <string name="settings_advice_banner_toggle">إظهار نصائح الأمان والشبكة</string>
     <string name="settings_advice_banner_subtext">عرض شريط تحذير أمني أعلى الشاشة الرئيسية.</string>
-    <string name="settings_battery_optimization_panel_toggle">إظهار نصائح تحسين البطارية</string>
-    <string name="settings_battery_optimization_panel_subtext">عرض تذكير على الشاشة الرئيسية عند عدم استثناء KeepADB من تحسين البطارية.</string>
     <string name="settings_license_line">مرخّص بموجب رخصة جنو أفيرو العمومية العامة الإصدار 3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">افتح HohnePeople.de في المتصفح</string>
@@ -539,4 +529,16 @@
     <string name="onboarding_protection_force_keep_alive">يعمل الوضع الإجباري مع Keep-Alive فقط. يُفعَّل Keep-Alive معه.</string>
     <string name="onboarding_badge_not_recommended">غير موصى به</string>
     <string name="onboarding_protection_force_comfort_note">يسري بعد انتهاء الوضع الإجباري.</string>
+    <!-- #764: warning cards of the home screen -->
+    <string name="home_warning_system_title">إذن النظام مفقود</string>
+    <string name="home_warning_system_text">لا يستطيع KeepADB تشغيل التصحيح اللاسلكي إلا بعد منح هذا الإذن مرة واحدة من جهاز كمبيوتر.</string>
+    <string name="home_warning_action_guide">التعليمات</string>
+    <string name="home_warning_less_secure_title">أقل أمانًا من الموصى به</string>
+    <string name="home_warning_action_review">مراجعة</string>
+    <string name="home_warning_paused_title">Keep-Alive متوقف مؤقتًا</string>
+    <string name="home_warning_paused_text">لا يستطيع KeepADB قراءة الشبكة، لذلك لا يقوم بالتشغيل تلقائيًا.</string>
+    <string name="home_warning_action_fix">إصلاح</string>
+    <string name="home_warning_limited_title">Keep-Alive محدود</string>
+    <string name="home_warning_limited_text">إعدادات ناقصة لعمل Keep-Alive بموثوقية: %1$d</string>
+    <string name="status_tap_to_decide">المس للقرار</string>
 </resources>

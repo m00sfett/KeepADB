@@ -425,6 +425,7 @@ public class KeepADBResourceContractTest {
         result.put("onboarding_pane_title", new Object[] {integerWitness, integerWitness, stringWitness});
         result.put("onboarding_intro_title_new", new Object[] {integerWitness});
         result.put("onboarding_intro_less_secure", new Object[] {integerWitness});
+        result.put("home_warning_limited_text", new Object[] {integerWitness});
         result.put("onboarding_settings_summary", new Object[] {stringWitness, stringWitness});
         result.put("onboarding_keep_alive_notification_hint", new Object[] {integerWitness});
         result.put("onboarding_permissions_summary_missing", new Object[] {integerWitness});

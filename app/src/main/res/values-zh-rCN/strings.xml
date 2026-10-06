@@ -3,7 +3,6 @@
     <string name="setup_title">首次设置</string>
     <string name="setup_body">请启用 USB 调试并通过 USB 将此设备连接到电脑。先在电脑上运行 "adb devices" 列出已连接的设备和模拟器，然后使用其中显示的准确序列号。</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="setup_single_device_label">仅列出一台设备时：</string>
     <string name="setup_multi_device_label">列出多台设备时：明确指定目标设备</string>
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">将 &lt;device-serial&gt; 替换为 "adb devices" 为此设备显示的准确序列号。</string>
@@ -118,7 +117,6 @@
     <string name="settings_webhook_enabled_toast">Webhook 同步已启用</string>
     <string name="settings_webhook_disabled_toast">Webhook 同步已禁用</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_setup_button">设置 Webhook</string>
     <string name="webhook_status_hint">URL: %1$s\n最后报告的端点: %2$s\n最后报告时间: %3$s</string>
     <string name="webhook_status_never">从未</string>
     <string name="webhook_status_no_endpoint">尚无</string>
@@ -185,15 +183,10 @@
     <string name="settings_reset_app_dialog_title">完全重置应用？</string>
     <string name="settings_reset_app_dialog_message">所有保存的网络、设置和权限都将被删除。随后应用将关闭。</string>
     <string name="settings_reset_app_confirm">重置</string>
-    <string name="battery_optimization_title">电池优化可能限制 Keep-Alive</string>
     <string name="battery_optimization_body">若 KeepADB 未被排除在电池优化之外，Android 可能会限制或停止后台的 Keep-Alive。</string>
     <string name="battery_optimization_button">打开电池设置</string>
-    <string name="network_onboarding_panel_title">将 Keep-Alive 限制为受信任的网络</string>
-    <string name="network_onboarding_panel_body">可将 Keep-Alive 限制为已知的家庭或办公室 Wi-Fi 网络，以阻止在外部网络上进行未授权的调试连接。</string>
-    <string name="network_onboarding_setup_button">设置</string>
     <string name="background_location_panel_title">可信网络的后台访问</string>
     <string name="background_location_panel_body">为了在 Keep-Alive 于后台启动时也能识别你的可信 Wi-Fi（SSID/BSSID），KeepADB 需要将位置信息权限设为“始终允许”。KeepADB 绝不会确定或存储你设备的位置。请在下一个页面中打开“权限 › 位置信息”，并自行选择“始终允许”；KeepADB 无法替你授予此权限。未授予时，无法读取身份的网络永远不会被视为可信。</string>
-    <string name="background_location_setup_button">立即设置</string>
     <string name="background_location_settings_button">检查后台访问</string>
     <string name="background_location_dialog_later">稍后</string>
     <string name="background_location_status_granted">后台访问：已允许。即使 Keep-Alive 在后台启动，也能识别已允许的接入点。KeepADB 绝不会读取或存储你设备的位置。</string>
@@ -297,11 +290,8 @@
     <string name="advice_banner_title">安全与网络</string>
     <string name="advice_banner_text">无线调试会在你的网络上开放一个 ADB 端口。请使用受信任的 Wi-Fi 或 VPN（如 Tailscale），并在公共热点关闭它。切勿公开分享你的端点，也不要接受意外的配对请求。</string>
     <string name="security_notice_dismiss">关闭提示</string>
-    <string name="action_dismiss">关闭</string>
     <string name="settings_advice_banner_toggle">显示安全与网络提示</string>
     <string name="settings_advice_banner_subtext">在主屏幕顶部显示安全警告横幅。</string>
-    <string name="settings_battery_optimization_panel_toggle">显示电池优化提示</string>
-    <string name="settings_battery_optimization_panel_subtext">当 KeepADB 未被排除在电池优化之外时，在主屏幕上显示提醒。</string>
     <string name="settings_license_line">根据 GNU Affero 通用公共许可证 v3（AGPLv3）授权</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">在浏览器中打开 HohnePeople.de</string>
@@ -539,4 +529,16 @@
     <string name="onboarding_protection_force_keep_alive">强制模式只能与保持常驻 (Keep-Alive) 一起工作。保持常驻会随之开启。</string>
     <string name="onboarding_badge_not_recommended">不推荐</string>
     <string name="onboarding_protection_force_comfort_note">在强制模式结束后生效。</string>
+    <!-- #764: warning cards of the home screen -->
+    <string name="home_warning_system_title">缺少系统权限</string>
+    <string name="home_warning_system_text">只有在你从电脑上一次性授予此权限后，KeepADB 才能切换无线调试。</string>
+    <string name="home_warning_action_guide">操作说明</string>
+    <string name="home_warning_less_secure_title">比推荐设置更不安全</string>
+    <string name="home_warning_action_review">查看</string>
+    <string name="home_warning_paused_title">Keep-Alive 已暂停</string>
+    <string name="home_warning_paused_text">KeepADB 无法读取网络，因此不会自动开启。</string>
+    <string name="home_warning_action_fix">修复</string>
+    <string name="home_warning_limited_title">Keep-Alive 受限</string>
+    <string name="home_warning_limited_text">要让 Keep-Alive 稳定运行，还缺少的设置：%1$d</string>
+    <string name="status_tap_to_decide">点按以决定</string>
 </resources>

@@ -508,7 +508,7 @@ final class KeepADBNetworkTrustPrompt {
      * the service at once and leads to "Allow all the time". The notification text names that
      * option as the lasting fix.
      */
-    private static Intent identityUnavailableFixIntent(Context context) {
+    static Intent identityUnavailableFixIntent(Context context) {
         if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             return new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,

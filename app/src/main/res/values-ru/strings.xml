@@ -3,7 +3,6 @@
     <string name="setup_title">Первоначальная настройка</string>
     <string name="setup_body">Подключите это устройство к компьютеру по USB с включённой отладкой по USB. Сначала выполните на компьютере команду "adb devices", чтобы увидеть список подключённых устройств и эмуляторов, затем используйте точный серийный номер, показанный там.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="setup_single_device_label">Если показано только одно устройство:</string>
     <string name="setup_multi_device_label">Показано несколько устройств: укажите цель явно</string>
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Замените &lt;device-serial&gt; точным серийным номером, который команда "adb devices" показала для этого устройства.</string>
@@ -118,7 +117,6 @@
     <string name="settings_webhook_enabled_toast">Синхронизация Webhook включена</string>
     <string name="settings_webhook_disabled_toast">Синхронизация Webhook отключена</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_setup_button">Настроить Webhook</string>
     <string name="webhook_status_hint">URL: %1$s\nПоследний сообщённый эндпоинт: %2$s\nПоследнее сообщение: %3$s</string>
     <string name="webhook_status_never">никогда</string>
     <string name="webhook_status_no_endpoint">пока нет</string>
@@ -185,15 +183,10 @@
     <string name="settings_reset_app_dialog_title">Полностью сбросить приложение?</string>
     <string name="settings_reset_app_dialog_message">Все сохраненные сети, настройки и разрешения будут удалены. После этого приложение закроется.</string>
     <string name="settings_reset_app_confirm">Сбросить</string>
-    <string name="battery_optimization_title">Оптимизация батареи может ограничить Keep-Alive</string>
     <string name="battery_optimization_body">Android может ограничить или остановить Keep-Alive в фоне, если KeepADB не исключён из оптимизации батареи.</string>
     <string name="battery_optimization_button">Открыть настройки батареи</string>
-    <string name="network_onboarding_panel_title">Ограничить Keep-Alive доверенными сетями</string>
-    <string name="network_onboarding_panel_body">Keep-Alive можно ограничить известными домашними или офисными сетями Wi-Fi, чтобы блокировать несанкционированные подключения отладки в чужих сетях.</string>
-    <string name="network_onboarding_setup_button">Настроить</string>
     <string name="background_location_panel_title">Фоновый доступ для доверенных сетей</string>
     <string name="background_location_panel_body">Чтобы распознавать доверенную сеть Wi-Fi (SSID/BSSID), когда Keep-Alive запускается в фоне, KeepADB нужен доступ к местоположению с вариантом «Разрешить в любом режиме». KeepADB никогда не определяет и не сохраняет положение устройства. На следующем экране откройте Разрешения › Местоположение и сами выберите «Разрешить в любом режиме»; KeepADB не может выдать это разрешение за вас. Без него сеть с нечитаемым идентификатором никогда не считается доверенной.</string>
-    <string name="background_location_setup_button">Настроить сейчас</string>
     <string name="background_location_settings_button">Проверить фоновый доступ</string>
     <string name="background_location_dialog_later">Позже</string>
     <string name="background_location_status_granted">Фоновый доступ: разрешён. Разрешённые точки доступа распознаются, даже когда Keep-Alive запускается в фоне. KeepADB никогда не считывает и не сохраняет положение устройства.</string>
@@ -297,11 +290,8 @@
     <string name="advice_banner_title">Безопасность и сеть</string>
     <string name="advice_banner_text">Беспроводная отладка открывает порт ADB в вашей сети. Используйте доверенную сеть Wi-Fi или VPN (например, Tailscale) и отключайте её в публичных точках доступа. Никогда не публикуйте свою конечную точку и не подтверждайте неожиданные запросы сопряжения.</string>
     <string name="security_notice_dismiss">Закрыть уведомление</string>
-    <string name="action_dismiss">Закрыть</string>
     <string name="settings_advice_banner_toggle">Показывать рекомендации по безопасности и сети</string>
     <string name="settings_advice_banner_subtext">Показывает баннер предупреждения о безопасности вверху главного экрана.</string>
-    <string name="settings_battery_optimization_panel_toggle">Показывать совет по оптимизации батареи</string>
-    <string name="settings_battery_optimization_panel_subtext">Показывает напоминание на главном экране, если KeepADB не исключён из оптимизации батареи.</string>
     <string name="settings_license_line">Распространяется по лицензии GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Открыть HohnePeople.de в браузере</string>
@@ -539,4 +529,16 @@
     <string name="onboarding_protection_force_keep_alive">Принудительный режим работает только с Keep-Alive. Keep-Alive включается вместе с ним.</string>
     <string name="onboarding_badge_not_recommended">Не рекомендуется</string>
     <string name="onboarding_protection_force_comfort_note">Действует после окончания принудительного режима.</string>
+    <!-- #764: warning cards of the home screen -->
+    <string name="home_warning_system_title">Нет системного разрешения</string>
+    <string name="home_warning_system_text">KeepADB сможет переключать беспроводную отладку, только когда вы один раз выдадите это разрешение с компьютера.</string>
+    <string name="home_warning_action_guide">Инструкция</string>
+    <string name="home_warning_less_secure_title">Менее безопасно, чем рекомендуется</string>
+    <string name="home_warning_action_review">Проверить</string>
+    <string name="home_warning_paused_title">Keep-Alive приостановлен</string>
+    <string name="home_warning_paused_text">KeepADB не может прочитать сеть, поэтому не включает отладку сам.</string>
+    <string name="home_warning_action_fix">Исправить</string>
+    <string name="home_warning_limited_title">Keep-Alive ограничен</string>
+    <string name="home_warning_limited_text">Не хватает настроек для надёжной работы Keep-Alive: %1$d</string>
+    <string name="status_tap_to_decide">Нажмите, чтобы решить</string>
 </resources>

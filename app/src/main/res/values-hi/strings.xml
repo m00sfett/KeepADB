@@ -3,7 +3,6 @@
     <string name="setup_title">प्रारंभिक सेटअप</string>
     <string name="setup_body">USB डीबगिंग सक्षम करके इस डिवाइस को कंप्यूटर से USB द्वारा कनेक्ट करें। पहले कंप्यूटर पर "adb devices" चलाकर कनेक्ट किए गए डिवाइस और एमुलेटर की सूची देखें, फिर वहाँ दिखाया गया सटीक सीरियल नंबर उपयोग करें।</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="setup_single_device_label">यदि केवल एक डिवाइस सूचीबद्ध है:</string>
     <string name="setup_multi_device_label">कई डिवाइस सूचीबद्ध हैं: लक्ष्य स्पष्ट रूप से चुनें</string>
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">&lt;device-serial&gt; को उस सटीक सीरियल नंबर से बदलें जो "adb devices" ने इस डिवाइस के लिए दिखाया था।</string>
@@ -118,7 +117,6 @@
     <string name="settings_webhook_enabled_toast">वेबहुक सिंक सक्षम किया गया</string>
     <string name="settings_webhook_disabled_toast">वेबहुक सिंक अक्षम किया गया</string>
     <string name="webhook_status_title">वेबहुक</string>
-    <string name="webhook_setup_button">वेबहुक सेट करें</string>
     <string name="webhook_status_hint">URL: %1$s\nअंतिम रिपोर्ट किया गया एंडपॉइंट: %2$s\nअंतिम रिपोर्ट: %3$s</string>
     <string name="webhook_status_never">कभी नहीं</string>
     <string name="webhook_status_no_endpoint">अभी तक कोई नहीं</string>
@@ -185,15 +183,10 @@
     <string name="settings_reset_app_dialog_title">क्या ऐप को पूरी तरह से रीसेट करें?</string>
     <string name="settings_reset_app_dialog_message">सभी सहेजे गए नेटवर्क, सेटिंग्स और अनुमतियां हटा दी जाएंगी। इसके बाद ऐप बंद हो जाएगा।</string>
     <string name="settings_reset_app_confirm">रीसेट करें</string>
-    <string name="battery_optimization_title">बैटरी ऑप्टिमाइज़ेशन Keep-Alive को सीमित कर सकता है</string>
     <string name="battery_optimization_body">यदि KeepADB को बैटरी ऑप्टिमाइज़ेशन से छूट नहीं है, तो Android बैकग्राउंड में Keep-Alive को सीमित या बंद कर सकता है।</string>
     <string name="battery_optimization_button">बैटरी सेटिंग खोलें</string>
-    <string name="network_onboarding_panel_title">Keep-Alive को विश्वसनीय नेटवर्क तक सीमित करें</string>
-    <string name="network_onboarding_panel_body">Keep-Alive को ज्ञात घरेलू या कार्यालयीन वाई-फ़ाई नेटवर्क तक सीमित किया जा सकता है ताकि विदेशी नेटवर्क पर अनधिकृत डिबगिंग कनेक्शन को रोका जा सके।</string>
-    <string name="network_onboarding_setup_button">सेट करें</string>
     <string name="background_location_panel_title">भरोसेमंद नेटवर्क के लिए बैकग्राउंड एक्सेस</string>
     <string name="background_location_panel_body">जब Keep-Alive बैकग्राउंड में शुरू हो, तब आपके भरोसेमंद Wi-Fi (SSID/BSSID) को पहचानने के लिए KeepADB को जगह की जानकारी का एक्सेस “हर समय अनुमति दें” पर चाहिए। KeepADB आपके डिवाइस की लोकेशन कभी पता नहीं करता और न ही सेव करता है। अगली स्क्रीन पर अनुमतियां › जगह की जानकारी खोलें और खुद “हर समय अनुमति दें” चुनें; KeepADB यह अनुमति आपकी जगह नहीं दे सकता। इसके बिना, जिस नेटवर्क की पहचान पढ़ी न जा सके उसे कभी भरोसेमंद नहीं माना जाता।</string>
-    <string name="background_location_setup_button">अभी सेट अप करें</string>
     <string name="background_location_settings_button">बैकग्राउंड एक्सेस जांचें</string>
     <string name="background_location_dialog_later">बाद में</string>
     <string name="background_location_status_granted">बैकग्राउंड एक्सेस: अनुमति है। Keep-Alive बैकग्राउंड में शुरू होने पर भी अनुमति प्राप्त ऐक्सेस पॉइंट पहचाने जाते हैं। KeepADB आपके डिवाइस की लोकेशन कभी नहीं पढ़ता और न सेव करता है।</string>
@@ -297,11 +290,8 @@
     <string name="advice_banner_title">सुरक्षा और नेटवर्क</string>
     <string name="advice_banner_text">वायरलेस डिबगिंग आपके नेटवर्क पर एक ADB पोर्ट खोलती है। भरोसेमंद Wi-Fi या VPN (जैसे Tailscale) का उपयोग करें, और सार्वजनिक हॉटस्पॉट पर इसे बंद करें। अपना एंडपॉइंट कभी सार्वजनिक रूप से साझा न करें और अनपेक्षित पेयरिंग अनुरोध स्वीकार न करें।</string>
     <string name="security_notice_dismiss">सूचना बंद करें</string>
-    <string name="action_dismiss">बंद करें</string>
     <string name="settings_advice_banner_toggle">सुरक्षा और नेटवर्क सलाह दिखाएं</string>
     <string name="settings_advice_banner_subtext">मुख्य स्क्रीन के शीर्ष पर एक सुरक्षा चेतावनी बैनर दिखाता है।</string>
-    <string name="settings_battery_optimization_panel_toggle">बैटरी अनुकूलन सलाह दिखाएं</string>
-    <string name="settings_battery_optimization_panel_subtext">जब KeepADB को बैटरी अनुकूलन से छूट नहीं मिली हो, तो मुख्य स्क्रीन पर एक अनुस्मारक दिखाता है।</string>
     <string name="settings_license_line">GNU एफेरो जनरल पब्लिक लाइसेंस v3 (AGPLv3) के तहत लाइसेंस प्राप्त</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">ब्राउज़र में HohnePeople.de खोलें</string>
@@ -539,4 +529,16 @@
     <string name="onboarding_protection_force_keep_alive">फ़ोर्स मोड केवल Keep-Alive के साथ काम करता है। Keep-Alive इसके साथ चालू हो जाता है।</string>
     <string name="onboarding_badge_not_recommended">अनुशंसित नहीं</string>
     <string name="onboarding_protection_force_comfort_note">फ़ोर्स मोड खत्म होने के बाद लागू होता है।</string>
+    <!-- #764: warning cards of the home screen -->
+    <string name="home_warning_system_title">सिस्टम अनुमति नहीं मिली</string>
+    <string name="home_warning_system_text">KeepADB वायरलेस डीबगिंग तभी चालू कर सकता है जब आप यह अनुमति एक बार कंप्यूटर से दें।</string>
+    <string name="home_warning_action_guide">निर्देश</string>
+    <string name="home_warning_less_secure_title">सुझाव से कम सुरक्षित</string>
+    <string name="home_warning_action_review">जाँचें</string>
+    <string name="home_warning_paused_title">Keep-Alive रोका गया</string>
+    <string name="home_warning_paused_text">KeepADB नेटवर्क नहीं पढ़ पा रहा, इसलिए वह अपने-आप चालू नहीं करता।</string>
+    <string name="home_warning_action_fix">ठीक करें</string>
+    <string name="home_warning_limited_title">Keep-Alive सीमित है</string>
+    <string name="home_warning_limited_text">भरोसेमंद Keep-Alive के लिए ज़रूरी सेटिंग अधूरी: %1$d</string>
+    <string name="status_tap_to_decide">निर्णय के लिए टैप करें</string>
 </resources>

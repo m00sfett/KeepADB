@@ -3,7 +3,6 @@
     <string name="setup_title">Configuration initiale</string>
     <string name="setup_body">Connectez cet appareil à un ordinateur en USB avec le débogage USB activé. Exécutez d\'abord "adb devices" sur l\'ordinateur pour lister les appareils et émulateurs connectés, puis utilisez le numéro de série exact qui y est affiché.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="setup_single_device_label">Un seul appareil listé :</string>
     <string name="setup_multi_device_label">Plusieurs appareils listés : ciblez-en un explicitement</string>
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Remplacez &lt;device-serial&gt; par le numéro de série exact affiché par "adb devices" pour cet appareil.</string>
@@ -118,7 +117,6 @@
     <string name="settings_webhook_enabled_toast">Synchronisation Webhook activée</string>
     <string name="settings_webhook_disabled_toast">Synchronisation Webhook désactivée</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_setup_button">Configurer Webhook</string>
     <string name="webhook_status_hint">URL : %1$s\nDernier point de terminaison signalé : %2$s\nDernier signalement : %3$s</string>
     <string name="webhook_status_never">jamais</string>
     <string name="webhook_status_no_endpoint">aucun pour l’instant</string>
@@ -185,15 +183,10 @@
     <string name="settings_reset_app_dialog_title">Réinitialiser complètement l’application ?</string>
     <string name="settings_reset_app_dialog_message">Tous les réseaux enregistrés, paramètres et autorisations seront supprimés. L’application se fermera ensuite.</string>
     <string name="settings_reset_app_confirm">Réinitialiser</string>
-    <string name="battery_optimization_title">L’optimisation de la batterie peut limiter Keep-Alive</string>
     <string name="battery_optimization_body">Android peut limiter ou arrêter Keep-Alive en arrière-plan si KeepADB n’est pas exempté de l’optimisation de la batterie.</string>
     <string name="battery_optimization_button">Ouvrir les réglages de batterie</string>
-    <string name="network_onboarding_panel_title">Restreindre Keep-Alive aux réseaux de confiance</string>
-    <string name="network_onboarding_panel_body">Keep-Alive peut être restreint aux réseaux Wi-Fi connus du domicile ou du bureau afin de bloquer les connexions de débogage non autorisées sur les réseaux tiers.</string>
-    <string name="network_onboarding_setup_button">Configurer</string>
     <string name="background_location_panel_title">Accès en arrière-plan pour les réseaux de confiance</string>
     <string name="background_location_panel_body">Pour reconnaître votre Wi-Fi de confiance (SSID/BSSID) lorsque Keep-Alive démarre en arrière-plan, KeepADB a besoin de l’accès à la position réglé sur « Toujours autoriser ». KeepADB ne détermine ni n’enregistre jamais la position de votre appareil. Sur l’écran suivant, ouvrez Autorisations › Position et choisissez vous-même « Toujours autoriser » ; KeepADB ne peut pas l’accorder à votre place. Sans cela, un réseau dont l’identité est illisible n’est jamais considéré comme fiable.</string>
-    <string name="background_location_setup_button">Configurer maintenant</string>
     <string name="background_location_settings_button">Vérifier l’accès en arrière-plan</string>
     <string name="background_location_dialog_later">Plus tard</string>
     <string name="background_location_status_granted">Accès en arrière-plan : autorisé. Les points d’accès autorisés sont reconnus même lorsque Keep-Alive démarre en arrière-plan. KeepADB ne lit ni n’enregistre jamais la position de votre appareil.</string>
@@ -297,11 +290,8 @@
     <string name="advice_banner_title">Sécurité et réseau</string>
     <string name="advice_banner_text">Le débogage sans fil ouvre un port ADB sur votre réseau. Utilisez un Wi-Fi de confiance ou un VPN (p. ex. Tailscale), et désactivez-le sur les points d’accès publics. Ne partagez jamais votre point de terminaison publiquement et n’acceptez pas de demande de couplage inattendue.</string>
     <string name="security_notice_dismiss">Fermer l\'avis</string>
-    <string name="action_dismiss">Fermer</string>
     <string name="settings_advice_banner_toggle">Afficher les conseils de sécurité et réseau</string>
     <string name="settings_advice_banner_subtext">Affiche une bannière d’avertissement de sécurité en haut de l’écran principal.</string>
-    <string name="settings_battery_optimization_panel_toggle">Afficher le conseil d’optimisation de la batterie</string>
-    <string name="settings_battery_optimization_panel_subtext">Affiche un rappel sur l’écran principal lorsque KeepADB n’est pas exempté de l’optimisation de la batterie.</string>
     <string name="settings_license_line">Sous licence GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Ouvrir HohnePeople.de dans le navigateur</string>
@@ -539,4 +529,16 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_protection_force_keep_alive">Le mode forcé ne fonctionne qu’avec Keep-Alive. Keep-Alive est activé avec lui.</string>
     <string name="onboarding_badge_not_recommended">Non recommandé</string>
     <string name="onboarding_protection_force_comfort_note">S’applique à la fin du mode forcé.</string>
+    <!-- #764: warning cards of the home screen -->
+    <string name="home_warning_system_title">Autorisation système manquante</string>
+    <string name="home_warning_system_text">KeepADB ne peut activer le débogage sans fil qu’une fois cette autorisation accordée, une seule fois, depuis un ordinateur.</string>
+    <string name="home_warning_action_guide">Mode d’emploi</string>
+    <string name="home_warning_less_secure_title">Moins sûr que recommandé</string>
+    <string name="home_warning_action_review">Vérifier</string>
+    <string name="home_warning_paused_title">Keep-Alive en pause</string>
+    <string name="home_warning_paused_text">KeepADB ne peut pas lire le réseau et ne s’active donc pas de lui-même.</string>
+    <string name="home_warning_action_fix">Corriger</string>
+    <string name="home_warning_limited_title">Keep-Alive limité</string>
+    <string name="home_warning_limited_text">Réglages manquants pour un Keep-Alive fiable : %1$d</string>
+    <string name="status_tap_to_decide">Touchez pour décider</string>
 </resources>

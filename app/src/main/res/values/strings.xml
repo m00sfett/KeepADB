@@ -4,7 +4,6 @@
     <string name="title_keepadb" translatable="false">KeepADB</string>
     <string name="setup_title">First-time setup</string>
     <string name="setup_body">Connect this device to a computer via USB with USB debugging enabled. First run \"adb devices\" on the computer to list connected devices and emulators, then use the exact serial number shown there.</string>
-    <string name="setup_single_device_label">Only one device listed:</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_label">Several devices listed: target this one explicitly</string>
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
@@ -75,15 +74,10 @@
     <string name="notification_permission_panel_body">With notifications enabled, you can see whether the KeepADB background service and Keep-Alive are running. If the connection drops, KeepADB lets you know right away. Wireless Debugging works fine without this permission too.</string>
     <string name="notification_permission_request_button">Allow notifications</string>
     <string name="notification_permission_settings_button">Open notification settings</string>
-    <string name="battery_optimization_title">Battery optimization may limit Keep-Alive</string>
     <string name="battery_optimization_body">Android may restrict or stop Keep-Alive in the background unless KeepADB is exempt from battery optimization.</string>
     <string name="battery_optimization_button">Open battery settings</string>
-    <string name="network_onboarding_panel_title">Restrict Keep-Alive to trusted networks</string>
-    <string name="network_onboarding_panel_body">Keep-Alive can be restricted to known home or office Wi-Fi networks to block unauthorized debugging connections on foreign networks.</string>
-    <string name="network_onboarding_setup_button">Set up</string>
     <string name="background_location_panel_title">Background access for trusted networks</string>
     <string name="background_location_panel_body">To recognize your trusted Wi-Fi (SSID/BSSID) when Keep-Alive starts in the background, KeepADB needs Location access set to “Allow all the time”. KeepADB never determines or stores your device’s position. On the next screen, open Permissions › Location and choose “Allow all the time” yourself; KeepADB cannot grant this for you. Without it, a network whose identity can’t be read is never trusted.</string>
-    <string name="background_location_setup_button">Set up now</string>
     <string name="background_location_settings_button">Check background access</string>
     <string name="background_location_dialog_later">Later</string>
     <string name="background_location_status_granted">Background access: allowed. Allowed access points are recognized even when Keep-Alive starts in the background. KeepADB never reads or stores your device’s position.</string>
@@ -159,7 +153,6 @@
     <string name="settings_webhook_enabled_toast">Webhook sync enabled</string>
     <string name="settings_webhook_disabled_toast">Webhook sync disabled</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_setup_button">Set up webhook</string>
     <string name="webhook_status_hint">URL: %1$s\nLast reported endpoint: %2$s\nLast reported: %3$s</string>
     <string name="webhook_status_never">never</string>
     <string name="webhook_status_no_endpoint">none yet</string>
@@ -305,11 +298,8 @@
     <string name="advice_banner_title">Security &amp; network advice</string>
     <string name="advice_banner_text">Wireless Debugging opens an ADB port on your network. Use trusted private Wi-Fi or a VPN (e.g. Tailscale), and turn it off on public hotspots. Never share your endpoint publicly or accept an unexpected pairing prompt.</string>
     <string name="security_notice_dismiss">Dismiss notice</string>
-    <string name="action_dismiss">Dismiss</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
-    <string name="settings_battery_optimization_panel_toggle">Show Battery Optimization Advice</string>
-    <string name="settings_battery_optimization_panel_subtext">Display a reminder on the main screen when KeepADB is not exempt from battery optimization.</string>
     <string name="settings_license_line">Licensed under the GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Open HohnePeople.de in your browser</string>
@@ -548,4 +538,16 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="onboarding_protection_force_keep_alive">Force only works with Keep-Alive. Keep-Alive is switched on with it.</string>
     <string name="onboarding_badge_not_recommended">Not recommended</string>
     <string name="onboarding_protection_force_comfort_note">Applies after force mode ends.</string>
+    <!-- #764: warning cards of the home screen -->
+    <string name="home_warning_system_title">System permission missing</string>
+    <string name="home_warning_system_text">KeepADB can only switch Wireless Debugging after you grant this permission once from a computer.</string>
+    <string name="home_warning_action_guide">Instructions</string>
+    <string name="home_warning_less_secure_title">Less secure than recommended</string>
+    <string name="home_warning_action_review">Review</string>
+    <string name="home_warning_paused_title">Keep-Alive paused</string>
+    <string name="home_warning_paused_text">KeepADB cannot read the network, so it does not switch on by itself.</string>
+    <string name="home_warning_action_fix">Fix</string>
+    <string name="home_warning_limited_title">Keep-Alive is limited</string>
+    <string name="home_warning_limited_text">Settings missing for reliable Keep-Alive: %1$d</string>
+    <string name="status_tap_to_decide">Tap to decide</string>
 </resources>

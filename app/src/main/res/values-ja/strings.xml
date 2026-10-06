@@ -3,7 +3,6 @@
     <string name="setup_title">初期設定</string>
     <string name="setup_body">USBデバッグを有効にして本機をUSBでPCに接続してください。まずPC上で"adb devices"を実行して接続中のデバイスやエミュレーターを一覧表示し、そこに表示される正確なシリアル番号を使用してください。</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="setup_single_device_label">デバイスが1台のみの場合:</string>
     <string name="setup_multi_device_label">複数のデバイスがある場合: 対象を明示的に指定</string>
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">&lt;device-serial&gt;を、この端末に対して"adb devices"が表示した正確なシリアル番号に置き換えてください。</string>
@@ -118,7 +117,6 @@
     <string name="settings_webhook_enabled_toast">Webhook 同期を有効にしました</string>
     <string name="settings_webhook_disabled_toast">Webhook 同期を無効にしました</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_setup_button">Webhook を設定</string>
     <string name="webhook_status_hint">URL: %1$s\n最後に報告されたエンドポイント: %2$s\n最終報告: %3$s</string>
     <string name="webhook_status_never">なし</string>
     <string name="webhook_status_no_endpoint">まだなし</string>
@@ -185,15 +183,10 @@
     <string name="settings_reset_app_dialog_title">アプリを完全にリセットしますか？</string>
     <string name="settings_reset_app_dialog_message">保存されたすべてのネットワーク、設定、権限が削除されます。その後、アプリは終了します。</string>
     <string name="settings_reset_app_confirm">リセット</string>
-    <string name="battery_optimization_title">バッテリー最適化によりKeep-Aliveが制限される場合があります</string>
     <string name="battery_optimization_body">KeepADBがバッテリー最適化の対象外でない場合、AndroidはバックグラウンドのKeep-Aliveを制限・停止することがあります。</string>
     <string name="battery_optimization_button">バッテリー設定を開く</string>
-    <string name="network_onboarding_panel_title">Keep-Alive を信頼できるネットワークに制限</string>
-    <string name="network_onboarding_panel_body">Keep-Alive を自宅や職場の既知の Wi-Fi ネットワークに制限して、見知らぬネットワークでの不正なデバッグ接続をブロックできます。</string>
-    <string name="network_onboarding_setup_button">設定</string>
     <string name="background_location_panel_title">信頼済みネットワーク用のバックグラウンドアクセス</string>
     <string name="background_location_panel_body">Keep-Alive がバックグラウンドで起動したときにも信頼済み Wi-Fi（SSID/BSSID）を認識するには、位置情報へのアクセスを「常に許可」に設定する必要があります。KeepADB が端末の位置を特定・保存することはありません。次の画面で［権限］›［位置情報］を開き、ご自身で「常に許可」を選んでください。KeepADB がこの権限を代わりに付与することはできません。許可がない場合、識別情報を読み取れないネットワークは信頼済みとして扱われません。</string>
-    <string name="background_location_setup_button">今すぐ設定</string>
     <string name="background_location_settings_button">バックグラウンドアクセスを確認</string>
     <string name="background_location_dialog_later">あとで</string>
     <string name="background_location_status_granted">バックグラウンドアクセス：許可済み。Keep-Alive がバックグラウンドで起動しても、許可したアクセスポイントを認識します。KeepADB が端末の位置を読み取ったり保存したりすることはありません。</string>
@@ -297,11 +290,8 @@
     <string name="advice_banner_title">セキュリティとネットワーク</string>
     <string name="advice_banner_text">ワイヤレスデバッグはネットワーク上にADBポートを開きます。信頼できるWi-Fiまたは VPN（Tailscaleなど）を使用し、公共のホットスポットではオフにしてください。エンドポイントを公開せず、身に覚えのないペアリング要求は許可しないでください。</string>
     <string name="security_notice_dismiss">通知を閉じる</string>
-    <string name="action_dismiss">閉じる</string>
     <string name="settings_advice_banner_toggle">セキュリティとネットワークのアドバイスを表示</string>
     <string name="settings_advice_banner_subtext">メイン画面の上部にセキュリティ警告バナーを表示します。</string>
-    <string name="settings_battery_optimization_panel_toggle">バッテリー最適化のアドバイスを表示</string>
-    <string name="settings_battery_optimization_panel_subtext">KeepADBがバッテリー最適化の対象外になっていない場合に、メイン画面にリマインダーを表示します。</string>
     <string name="settings_license_line">GNU Affero General Public License v3（AGPLv3）の下でライセンスされています</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">ブラウザでHohnePeople.deを開く</string>
@@ -539,4 +529,16 @@
     <string name="onboarding_protection_force_keep_alive">強制モードはKeep-Aliveと一緒にのみ動作します。Keep-Aliveも同時にオンになります。</string>
     <string name="onboarding_badge_not_recommended">非推奨</string>
     <string name="onboarding_protection_force_comfort_note">強制モード終了後に適用されます。</string>
+    <!-- #764: warning cards of the home screen -->
+    <string name="home_warning_system_title">システム権限がありません</string>
+    <string name="home_warning_system_text">パソコンから一度だけこの権限を付与するまで、KeepADB はワイヤレスデバッグを切り替えられません。</string>
+    <string name="home_warning_action_guide">手順</string>
+    <string name="home_warning_less_secure_title">推奨より安全性が低い</string>
+    <string name="home_warning_action_review">確認</string>
+    <string name="home_warning_paused_title">Keep-Alive は一時停止中</string>
+    <string name="home_warning_paused_text">KeepADB はネットワークを読み取れないため、自動では ON にしません。</string>
+    <string name="home_warning_action_fix">修正</string>
+    <string name="home_warning_limited_title">Keep-Alive が制限されています</string>
+    <string name="home_warning_limited_text">Keep-Alive を確実に動かすために足りない設定：%1$d</string>
+    <string name="status_tap_to_decide">タップして決定</string>
 </resources>

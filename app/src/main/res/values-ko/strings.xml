@@ -3,7 +3,6 @@
     <string name="setup_title">초기 설정</string>
     <string name="setup_body">USB 디버깅을 활성화한 상태로 이 기기를 컴퓨터에 USB로 연결하세요. 먼저 컴퓨터에서 "adb devices"를 실행해 연결된 기기와 에뮬레이터 목록을 확인한 다음, 거기 표시된 정확한 시리얼 번호를 사용하세요.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="setup_single_device_label">기기가 하나만 표시되는 경우:</string>
     <string name="setup_multi_device_label">여러 기기가 표시되는 경우: 대상을 명시적으로 지정하세요</string>
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">&lt;device-serial&gt;을 이 기기에 대해 "adb devices"가 표시한 정확한 시리얼 번호로 바꾸세요.</string>
@@ -118,7 +117,6 @@
     <string name="settings_webhook_enabled_toast">웹훅 동기화가 활성화되었습니다</string>
     <string name="settings_webhook_disabled_toast">웹훅 동기화가 비활성화되었습니다</string>
     <string name="webhook_status_title">웹훅</string>
-    <string name="webhook_setup_button">웹훅 설정</string>
     <string name="webhook_status_hint">URL: %1$s\n마지막으로 보고된 엔드포인트: %2$s\n마지막 보고: %3$s</string>
     <string name="webhook_status_never">없음</string>
     <string name="webhook_status_no_endpoint">아직 없음</string>
@@ -185,15 +183,10 @@
     <string name="settings_reset_app_dialog_title">앱을 완전히 초기화할까요?</string>
     <string name="settings_reset_app_dialog_message">저장된 모든 네트워크, 설정 및 권한이 삭제됩니다. 그런 다음 앱이 종료됩니다.</string>
     <string name="settings_reset_app_confirm">초기화</string>
-    <string name="battery_optimization_title">배터리 최적화로 Keep-Alive가 제한될 수 있습니다</string>
     <string name="battery_optimization_body">KeepADB가 배터리 최적화에서 제외되지 않으면 Android가 백그라운드의 Keep-Alive를 제한하거나 중지할 수 있습니다.</string>
     <string name="battery_optimization_button">배터리 설정 열기</string>
-    <string name="network_onboarding_panel_title">Keep-Alive를 신뢰할 수 있는 네트워크로 제한</string>
-    <string name="network_onboarding_panel_body">알 수 없는 네트워크에서 무단 디버깅 연결을 차단하도록 Keep-Alive를 알려진 가정 또는 사무실 Wi-Fi 네트워크로 제한할 수 있습니다.</string>
-    <string name="network_onboarding_setup_button">설정</string>
     <string name="background_location_panel_title">신뢰할 수 있는 네트워크를 위한 백그라운드 액세스</string>
     <string name="background_location_panel_body">Keep-Alive가 백그라운드에서 시작될 때도 신뢰하는 Wi-Fi(SSID/BSSID)를 인식하려면 위치 액세스를 ‘항상 허용’으로 설정해야 합니다. KeepADB는 기기 위치를 확인하거나 저장하지 않습니다. 다음 화면에서 권한 › 위치를 열고 직접 ‘항상 허용’을 선택하세요. KeepADB가 대신 권한을 부여할 수는 없습니다. 허용하지 않으면 식별 정보를 읽을 수 없는 네트워크는 절대 신뢰하지 않습니다.</string>
-    <string name="background_location_setup_button">지금 설정</string>
     <string name="background_location_settings_button">백그라운드 액세스 확인</string>
     <string name="background_location_dialog_later">나중에</string>
     <string name="background_location_status_granted">백그라운드 액세스: 허용됨. Keep-Alive가 백그라운드에서 시작되어도 허용된 액세스 포인트를 인식합니다. KeepADB는 기기 위치를 읽거나 저장하지 않습니다.</string>
@@ -297,11 +290,8 @@
     <string name="advice_banner_title">보안 및 네트워크</string>
     <string name="advice_banner_text">무선 디버깅은 네트워크에 ADB 포트를 엽니다. 신뢰할 수 있는 Wi-Fi나 VPN(예: Tailscale)을 사용하고 공용 핫스팟에서는 꺼두세요. 엔드포인트를 공개적으로 공유하지 말고 예상치 못한 페어링 요청은 수락하지 마세요.</string>
     <string name="security_notice_dismiss">알림 닫기</string>
-    <string name="action_dismiss">닫기</string>
     <string name="settings_advice_banner_toggle">보안 및 네트워크 안내 표시</string>
     <string name="settings_advice_banner_subtext">메인 화면 상단에 보안 경고 배너를 표시합니다.</string>
-    <string name="settings_battery_optimization_panel_toggle">배터리 최적화 안내 표시</string>
-    <string name="settings_battery_optimization_panel_subtext">KeepADB가 배터리 최적화에서 제외되지 않은 경우 메인 화면에 알림을 표시합니다.</string>
     <string name="settings_license_line">GNU Affero General Public License v3(AGPLv3)에 따라 라이선스가 부여됨</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">브라우저에서 HohnePeople.de 열기</string>
@@ -539,4 +529,16 @@
     <string name="onboarding_protection_force_keep_alive">강제 모드는 Keep-Alive와 함께일 때만 동작합니다. Keep-Alive도 함께 켜집니다.</string>
     <string name="onboarding_badge_not_recommended">권장하지 않음</string>
     <string name="onboarding_protection_force_comfort_note">강제 모드가 끝난 뒤에 적용됩니다.</string>
+    <!-- #764: warning cards of the home screen -->
+    <string name="home_warning_system_title">시스템 권한 없음</string>
+    <string name="home_warning_system_text">컴퓨터에서 이 권한을 한 번 부여해야 KeepADB가 무선 디버깅을 전환할 수 있습니다.</string>
+    <string name="home_warning_action_guide">안내</string>
+    <string name="home_warning_less_secure_title">권장보다 보안이 낮음</string>
+    <string name="home_warning_action_review">검토</string>
+    <string name="home_warning_paused_title">Keep-Alive 일시 중지됨</string>
+    <string name="home_warning_paused_text">KeepADB가 네트워크를 읽을 수 없어 자동으로 켜지 않습니다.</string>
+    <string name="home_warning_action_fix">해결</string>
+    <string name="home_warning_limited_title">Keep-Alive 제한됨</string>
+    <string name="home_warning_limited_text">Keep-Alive가 안정적으로 동작하기 위해 부족한 설정: %1$d</string>
+    <string name="status_tap_to_decide">탭하여 결정</string>
 </resources>

@@ -128,21 +128,6 @@ public class SettingsBackgroundLocationStatusTest {
         }
     }
 
-    @Test
-    public void mainCardTitleIsAHeadingAndDismissHasALabel() {
-        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
-        MainActivity main = Robolectric.buildActivity(MainActivity.class).setup().get();
-        View panel = main.findViewById(R.id.background_location_panel);
-        ArrayList<View> found = new ArrayList<>();
-        panel.findViewsWithText(found, context.getString(R.string.background_location_panel_title),
-                View.FIND_VIEWS_WITH_TEXT);
-        assertEquals(1, found.size());
-        assertTrue(found.get(0).isAccessibilityHeading());
-        assertEquals(context.getString(R.string.action_dismiss),
-                main.findViewById(R.id.btn_dismiss_background_location_panel)
-                        .getContentDescription().toString());
-    }
-
     private static double contrast(int a, int b) {
         double la = luminance(a);
         double lb = luminance(b);

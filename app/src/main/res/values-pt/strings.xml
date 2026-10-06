@@ -3,7 +3,6 @@
     <string name="setup_title">Configuração inicial</string>
     <string name="setup_body">Conecte este dispositivo a um computador via USB com a depuração USB ativada. Execute primeiro "adb devices" no computador para listar dispositivos e emuladores conectados, depois use o número de série exato mostrado ali.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="setup_single_device_label">Apenas um dispositivo listado:</string>
     <string name="setup_multi_device_label">Vários dispositivos listados: indique o destino explicitamente</string>
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Substitua &lt;device-serial&gt; pelo número de série exato que "adb devices" mostrou para este dispositivo.</string>
@@ -118,7 +117,6 @@
     <string name="settings_webhook_enabled_toast">Sincronização Webhook ativada</string>
     <string name="settings_webhook_disabled_toast">Sincronização Webhook desativada</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_setup_button">Configurar Webhook</string>
     <string name="webhook_status_hint">URL: %1$s\nÚltimo endpoint reportado: %2$s\nÚltimo relato: %3$s</string>
     <string name="webhook_status_never">nunca</string>
     <string name="webhook_status_no_endpoint">ainda nenhum</string>
@@ -185,15 +183,10 @@
     <string name="settings_reset_app_dialog_title">Redefinir o app completamente?</string>
     <string name="settings_reset_app_dialog_message">Todas as redes salvas, configurações e permissões serão excluídas. O aplicativo será fechado em seguida.</string>
     <string name="settings_reset_app_confirm">Redefinir</string>
-    <string name="battery_optimization_title">A otimização da bateria pode limitar o Keep-Alive</string>
     <string name="battery_optimization_body">O Android pode limitar ou parar o Keep-Alive em segundo plano, a menos que o KeepADB esteja isento da otimização de bateria.</string>
     <string name="battery_optimization_button">Abrir definições da bateria</string>
-    <string name="network_onboarding_panel_title">Restringir Keep-Alive a redes confiáveis</string>
-    <string name="network_onboarding_panel_body">O Keep-Alive pode ser restrito a redes Wi-Fi conhecidas de casa ou do escritório para bloquear conexões de depuração não autorizadas em redes externas.</string>
-    <string name="network_onboarding_setup_button">Configurar</string>
     <string name="background_location_panel_title">Acesso em segundo plano para redes confiáveis</string>
     <string name="background_location_panel_body">Para reconhecer seu Wi-Fi confiável (SSID/BSSID) quando o Keep-Alive inicia em segundo plano, o KeepADB precisa do acesso à localização definido como “Permitir o tempo todo”. O KeepADB nunca determina nem armazena a posição do seu dispositivo. Na próxima tela, abra Permissões › Localização e escolha você mesmo “Permitir o tempo todo”; o KeepADB não pode conceder isso por você. Sem isso, uma rede cuja identidade não pode ser lida nunca é considerada confiável.</string>
-    <string name="background_location_setup_button">Configurar agora</string>
     <string name="background_location_settings_button">Verificar acesso em segundo plano</string>
     <string name="background_location_dialog_later">Mais tarde</string>
     <string name="background_location_status_granted">Acesso em segundo plano: permitido. Os pontos de acesso permitidos são reconhecidos mesmo quando o Keep-Alive inicia em segundo plano. O KeepADB nunca lê nem armazena a posição do seu dispositivo.</string>
@@ -297,11 +290,8 @@
     <string name="advice_banner_title">Segurança e rede</string>
     <string name="advice_banner_text">A depuração sem fio abre uma porta ADB na sua rede. Use uma rede Wi-Fi confiável ou uma VPN (ex.: Tailscale) e desative-a em pontos de acesso públicos. Nunca compartilhe seu endpoint publicamente nem aceite solicitações de emparelhamento inesperadas.</string>
     <string name="security_notice_dismiss">Fechar aviso</string>
-    <string name="action_dismiss">Fechar</string>
     <string name="settings_advice_banner_toggle">Mostrar aviso de segurança e rede</string>
     <string name="settings_advice_banner_subtext">Exibe um banner de aviso de segurança na parte superior da tela principal.</string>
-    <string name="settings_battery_optimization_panel_toggle">Mostrar aviso de otimização de bateria</string>
-    <string name="settings_battery_optimization_panel_subtext">Exibe um lembrete na tela principal quando o KeepADB não está isento da otimização de bateria.</string>
     <string name="settings_license_line">Licenciado sob a GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Abrir HohnePeople.de no navegador</string>
@@ -539,4 +529,16 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="onboarding_protection_force_keep_alive">O modo forçado só funciona com Keep-Alive. O Keep-Alive é ativado em conjunto.</string>
     <string name="onboarding_badge_not_recommended">Não recomendado</string>
     <string name="onboarding_protection_force_comfort_note">Aplica-se depois de o modo forçado terminar.</string>
+    <!-- #764: warning cards of the home screen -->
+    <string name="home_warning_system_title">Falta a permissão do sistema</string>
+    <string name="home_warning_system_text">O KeepADB só consegue alternar a depuração sem fio depois de você conceder esta permissão uma vez a partir de um computador.</string>
+    <string name="home_warning_action_guide">Instruções</string>
+    <string name="home_warning_less_secure_title">Menos seguro do que o recomendado</string>
+    <string name="home_warning_action_review">Revisar</string>
+    <string name="home_warning_paused_title">Keep-Alive em pausa</string>
+    <string name="home_warning_paused_text">O KeepADB não consegue ler a rede e por isso não liga sozinho.</string>
+    <string name="home_warning_action_fix">Corrigir</string>
+    <string name="home_warning_limited_title">Keep-Alive limitado</string>
+    <string name="home_warning_limited_text">Configurações ausentes para um Keep-Alive confiável: %1$d</string>
+    <string name="status_tap_to_decide">Toque para decidir</string>
 </resources>

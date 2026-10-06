@@ -3,7 +3,6 @@
     <string name="setup_title">Thiết lập ban đầu</string>
     <string name="setup_body">Kết nối thiết bị này với máy tính qua USB khi đã bật gỡ lỗi USB. Trước tiên chạy "adb devices" trên máy tính để liệt kê các thiết bị và trình giả lập đang kết nối, sau đó dùng đúng số sê-ri hiển thị ở đó.</string>
     <string name="setup_command">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
-    <string name="setup_single_device_label">Chỉ có một thiết bị được liệt kê:</string>
     <string name="setup_multi_device_label">Nhiều thiết bị được liệt kê: chỉ định rõ mục tiêu</string>
     <string name="setup_command_multi">adb -s &lt;device-serial&gt; shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="setup_multi_device_hint">Thay &lt;device-serial&gt; bằng đúng số sê-ri mà "adb devices" đã hiển thị cho thiết bị này.</string>
@@ -118,7 +117,6 @@
     <string name="settings_webhook_enabled_toast">Đã bật đồng bộ hóa Webhook</string>
     <string name="settings_webhook_disabled_toast">Đã tắt đồng bộ hóa Webhook</string>
     <string name="webhook_status_title">Webhook</string>
-    <string name="webhook_setup_button">Thiết lập Webhook</string>
     <string name="webhook_status_hint">URL: %1$s\nEndpoint được báo cáo gần nhất: %2$s\nBáo cáo gần nhất: %3$s</string>
     <string name="webhook_status_never">chưa bao giờ</string>
     <string name="webhook_status_no_endpoint">chưa có</string>
@@ -185,15 +183,10 @@
     <string name="settings_reset_app_dialog_title">Đặt lại hoàn toàn ứng dụng?</string>
     <string name="settings_reset_app_dialog_message">Tất cả mạng, cài đặt và quyền đã lưu sẽ bị xóa. Ứng dụng sau đó sẽ đóng.</string>
     <string name="settings_reset_app_confirm">Đặt lại</string>
-    <string name="battery_optimization_title">Tối ưu hóa pin có thể giới hạn Keep-Alive</string>
     <string name="battery_optimization_body">Android có thể giới hạn hoặc dừng Keep-Alive trong nền nếu KeepADB không được miễn trừ tối ưu hóa pin.</string>
     <string name="battery_optimization_button">Mở cài đặt pin</string>
-    <string name="network_onboarding_panel_title">Giới hạn Keep-Alive ở các mạng đáng tin cậy</string>
-    <string name="network_onboarding_panel_body">Có thể giới hạn Keep-Alive ở các mạng Wi-Fi gia đình hoặc văn phòng đã biết để chặn kết nối gỡ lỗi trái phép trên các mạng lạ.</string>
-    <string name="network_onboarding_setup_button">Thiết lập</string>
     <string name="background_location_panel_title">Truy cập nền cho mạng tin cậy</string>
     <string name="background_location_panel_body">Để nhận ra Wi-Fi tin cậy của bạn (SSID/BSSID) khi Keep-Alive khởi động trong nền, KeepADB cần quyền truy cập vị trí ở chế độ “Luôn cho phép”. KeepADB không bao giờ xác định hay lưu vị trí thiết bị của bạn. Ở màn hình tiếp theo, mở Quyền › Vị trí và tự chọn “Luôn cho phép”; KeepADB không thể cấp quyền này thay bạn. Nếu không có quyền này, mạng có danh tính không đọc được sẽ không bao giờ được tin cậy.</string>
-    <string name="background_location_setup_button">Thiết lập ngay</string>
     <string name="background_location_settings_button">Kiểm tra truy cập nền</string>
     <string name="background_location_dialog_later">Để sau</string>
     <string name="background_location_status_granted">Truy cập nền: đã cho phép. Điểm truy cập được phép vẫn được nhận ra ngay cả khi Keep-Alive khởi động trong nền. KeepADB không bao giờ đọc hay lưu vị trí thiết bị của bạn.</string>
@@ -297,11 +290,8 @@
     <string name="advice_banner_title">Bảo mật và mạng</string>
     <string name="advice_banner_text">Gỡ lỗi không dây mở một cổng ADB trên mạng của bạn. Hãy dùng Wi-Fi đáng tin cậy hoặc VPN (ví dụ: Tailscale) và tắt khi ở điểm phát sóng công cộng. Đừng chia sẻ endpoint công khai hay chấp nhận yêu cầu ghép nối bất ngờ.</string>
     <string name="security_notice_dismiss">Đóng thông báo</string>
-    <string name="action_dismiss">Đóng</string>
     <string name="settings_advice_banner_toggle">Hiển thị lời khuyên bảo mật &amp; mạng</string>
     <string name="settings_advice_banner_subtext">Hiển thị biểu ngữ cảnh báo bảo mật ở đầu màn hình chính.</string>
-    <string name="settings_battery_optimization_panel_toggle">Hiển thị lời khuyên tối ưu hóa pin</string>
-    <string name="settings_battery_optimization_panel_subtext">Hiển thị lời nhắc trên màn hình chính khi KeepADB chưa được miễn trừ tối ưu hóa pin.</string>
     <string name="settings_license_line">Được cấp phép theo GNU Affero General Public License v3 (AGPLv3)</string>
     <string name="settings_website_link">HohnePeople.de</string>
     <string name="settings_website_link_accessibility">Mở HohnePeople.de trong trình duyệt</string>
@@ -539,4 +529,16 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_protection_force_keep_alive">Chế độ cưỡng chế chỉ hoạt động cùng Keep-Alive. Keep-Alive được bật cùng.</string>
     <string name="onboarding_badge_not_recommended">Không khuyến nghị</string>
     <string name="onboarding_protection_force_comfort_note">Áp dụng sau khi chế độ cưỡng chế kết thúc.</string>
+    <!-- #764: warning cards of the home screen -->
+    <string name="home_warning_system_title">Thiếu quyền hệ thống</string>
+    <string name="home_warning_system_text">KeepADB chỉ có thể bật/tắt Gỡ lỗi không dây sau khi bạn cấp quyền này một lần từ máy tính.</string>
+    <string name="home_warning_action_guide">Hướng dẫn</string>
+    <string name="home_warning_less_secure_title">Kém an toàn hơn khuyến nghị</string>
+    <string name="home_warning_action_review">Xem lại</string>
+    <string name="home_warning_paused_title">Keep-Alive đã tạm dừng</string>
+    <string name="home_warning_paused_text">KeepADB không đọc được mạng nên không tự bật.</string>
+    <string name="home_warning_action_fix">Khắc phục</string>
+    <string name="home_warning_limited_title">Keep-Alive bị hạn chế</string>
+    <string name="home_warning_limited_text">Cài đặt còn thiếu để Keep-Alive hoạt động ổn định: %1$d</string>
+    <string name="status_tap_to_decide">Chạm để quyết định</string>
 </resources>

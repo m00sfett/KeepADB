@@ -1348,7 +1348,6 @@ public class SettingsActivityTest {
                 R.id.settings_hide_notification_toggle,
                 R.id.settings_keep_display_on_toggle,
                 R.id.settings_advice_banner_toggle,
-                R.id.settings_battery_optimization_panel_toggle,
         };
         for (int id : miscSwitches) {
             assertNotNull("Switch must exist before expansion: " + id, activity.findViewById(id));
@@ -1357,7 +1356,7 @@ public class SettingsActivityTest {
         activity.findViewById(R.id.settings_misc_header).performClick();
         assertEquals(View.VISIBLE, outerBody.getVisibility());
 
-        // All four switches must become visible together, with no further click needed -- there
+        // All three switches must become visible together, with no further click needed -- there
         // is exactly one expand step, not one per section (acceptance criterion 2).
         for (int id : miscSwitches) {
             assertTrue("Switch must be shown once the outer card is expanded: " + id,
