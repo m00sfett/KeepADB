@@ -18,6 +18,7 @@ final class OnboardingSteps {
     private OnboardingSteps() {}
 
     private static final String STATE_SELECTION = "selection_";
+    private static final String FORCE_TOKEN = "FORCE";
 
     // ---- Step 1: Keep-Alive -----------------------------------------------------------------------
 
@@ -106,7 +107,13 @@ final class OnboardingSteps {
      * Where Keep-Alive may switch on. Two presets can be chosen; a stored previous setting ("in all
      * Wi-Fi networks", the old name list) is shown first, preselected and marked, and stays chosen
      * unless the user picks a preset: this step is the way back from those settings (#769, #761).
-     * "Customize" shows the one single value behind the presets, the comfort switch.
+     * "Customize" shows the one single value behind the presets, the comfort switch, and the force
+     * row of the Settings.
+     *
+     * <p>The third card, "Maximum convenience (force)" (#768), is no stored level: a tap on it does
+     * not select it but opens the confirmation dialog of the force mode (#763), which alone starts
+     * it. The card is selected only once the force mode runs; cancelling leaves the earlier card
+     * chosen. Moving from the card to a level, then leaving the step, ends the force mode.
      */
     static final class Protection extends OnboardingStep {
         private final List<KeepADBTrustedNetwork.ProtectionLevel> levels = new ArrayList<>();
@@ -114,6 +121,15 @@ final class OnboardingSteps {
         private Switch comfortSwitch;
         private boolean updatingSwitch;
         private String restored;
+        private Bundle restoredForce;
+        private int forceIndex = -1;
+        /** The card the user has settled on: where a cancelled force dialog returns to. */
+        private int settledIndex;
+        private OnboardingChoiceCard forceCard;
+        private KeepADBForceSection forceSection;
+        private View comfortNote;
+        private TextView keepAliveNote;
+        private Activity host;
 
         Protection() {
             super(KeepADBOnboarding.Step.PROTECTION, R.string.onboarding_protection_title,
@@ -122,13 +138,16 @@ final class OnboardingSteps {
 
         @Override
         void build(Activity host, ViewGroup content) {
+            this.host = host;
             levels.clear();
             group = new OnboardingChoiceCard.Group();
             KeepADBTrustedNetwork.ProtectionLevel stored =
                     KeepADBTrustedNetwork.getProtectionLevel(host);
 
+            keepAliveNote = null;
             if (!KeepADBPreferences.isKeepAliveEnabled(host)) {
-                content.addView(note(host, R.string.onboarding_protection_keep_alive_off));
+                keepAliveNote = note(host, R.string.onboarding_protection_keep_alive_off);
+                content.addView(keepAliveNote);
             }
             if (stored == KeepADBTrustedNetwork.ProtectionLevel.LEGACY_ALL_WIFI) {
                 addLevel(host, content, stored, host.getString(R.string.force_level_legacy_all),
@@ -149,12 +168,25 @@ final class OnboardingSteps {
                     stored == KeepADBTrustedNetwork.ProtectionLevel.BALANCED
                             ? OnboardingChoiceCard.Badge.NOTE : OnboardingChoiceCard.Badge.NONE);
 
+            forceIndex = levels.size();
+            forceCard = OnboardingChoiceCard.add(host, content,
+                    host.getString(R.string.onboarding_protection_force_title),
+                    forceBody(), forceBadge());
+            group.register(forceCard);
+
             buildCustomize(host, content);
+            forceSection = new KeepADBForceSection(host, this::onForceChanged);
+            forceSection.refresh();
+            if (restoredForce != null) {
+                forceSection.restore(restoredForce);
+                restoredForce = null;
+            }
 
             KeepADBTrustedNetwork.ProtectionLevel start = stored;
             String pendingName = restored;
             restored = null;
-            if (pendingName != null) {
+            boolean forceStart = KeepADBForceMode.isActive(host) && pendingName == null;
+            if (pendingName != null && !FORCE_TOKEN.equals(pendingName)) {
                 try {
                     KeepADBTrustedNetwork.ProtectionLevel pending =
                             KeepADBTrustedNetwork.ProtectionLevel.valueOf(pendingName);
@@ -163,9 +195,63 @@ final class OnboardingSteps {
                     // An unknown saved value falls back to the stored level.
                 }
             }
-            group.selectQuietly(levels.indexOf(start));
+            boolean forcePending = FORCE_TOKEN.equals(pendingName) && KeepADBForceMode.isActive(host);
+            settledIndex = forceStart || forcePending ? forceIndex : levels.indexOf(start);
+            group.selectQuietly(settledIndex);
             syncSwitch();
-            group.setListener(index -> syncSwitch());
+            group.setListener(this::onCardSelected);
+        }
+
+        private void onCardSelected(int index) {
+            if (index == forceIndex) {
+                // Not a choice yet: only the dialog can start the mode (and set this card).
+                group.selectQuietly(settledIndex);
+                forceSection.getDialog().show();
+            } else {
+                settledIndex = index;
+            }
+            syncSwitch();
+        }
+
+        /** The dialog confirmed, or the force mode was ended from the row: follow the real state. */
+        private void onForceChanged() {
+            if (KeepADBForceMode.isActive(host)) {
+                settledIndex = forceIndex;
+            } else if (settledIndex == forceIndex) {
+                int stored = levels.indexOf(KeepADBTrustedNetwork.getProtectionLevel(host));
+                settledIndex = Math.max(stored, 0);
+            }
+            group.selectQuietly(settledIndex);
+            forceCard.update(host, forceBadge(), forceBody());
+            if (keepAliveNote != null && KeepADBPreferences.isKeepAliveEnabled(host)) {
+                keepAliveNote.setVisibility(View.GONE);
+            }
+            forceSection.refresh();
+            syncSwitch();
+        }
+
+        private String forceBody() {
+            KeepADBForceMode.Status status = KeepADBForceMode.status(host);
+            if (status == null) {
+                String body = host.getString(R.string.onboarding_protection_force_body);
+                if (!KeepADBPreferences.isKeepAliveEnabled(host)) {
+                    body += " " + host.getString(R.string.onboarding_protection_force_keep_alive);
+                }
+                return body;
+            }
+            return status.isUnlimited() ? host.getString(R.string.force_status_unlimited)
+                    : host.getString(R.string.force_status_until,
+                            KeepADBForceMode.formatEnd(host, status));
+        }
+
+        private OnboardingChoiceCard.Badge forceBadge() {
+            return KeepADBForceMode.isActive(host) ? OnboardingChoiceCard.Badge.LESS_SECURE
+                    : OnboardingChoiceCard.Badge.NOT_RECOMMENDED;
+        }
+
+        @Override
+        void onDestroy() {
+            if (forceSection != null) forceSection.destroy();
         }
 
         private void addLevel(Activity host, ViewGroup content,
@@ -183,6 +269,7 @@ final class OnboardingSteps {
             final TextView toggle = customize.findViewById(R.id.onboarding_customize_toggle);
             final View panel = customize.findViewById(R.id.onboarding_customize_panel);
             comfortSwitch = customize.findViewById(R.id.onboarding_comfort_switch);
+            comfortNote = customize.findViewById(R.id.onboarding_force_comfort_note);
             toggle.setOnClickListener(v -> {
                 boolean open = panel.getVisibility() != View.VISIBLE;
                 panel.setVisibility(open ? View.VISIBLE : View.GONE);
@@ -197,16 +284,25 @@ final class OnboardingSteps {
             });
         }
 
-        /** The comfort switch is the same fact as the "Balanced" card, never a third state. */
+        /**
+         * The comfort switch is the same fact as the "Balanced" card, never a third state. While the
+         * force card is chosen it has no effect (the mode overrides trust) and says so.
+         */
         private void syncSwitch() {
+            boolean force = group.selectedIndex() == forceIndex;
+            KeepADBTrustedNetwork.ProtectionLevel level = force
+                    ? KeepADBTrustedNetwork.getProtectionLevel(host) : selectedLevel();
             updatingSwitch = true;
-            comfortSwitch.setChecked(selectedLevel()
-                    == KeepADBTrustedNetwork.ProtectionLevel.BALANCED);
+            comfortSwitch.setChecked(level == KeepADBTrustedNetwork.ProtectionLevel.BALANCED);
             updatingSwitch = false;
+            comfortSwitch.setEnabled(!force);
+            comfortNote.setVisibility(force ? View.VISIBLE : View.GONE);
         }
 
+        /** The chosen level card, or null while the force card is chosen. */
         private KeepADBTrustedNetwork.ProtectionLevel selectedLevel() {
-            return levels.get(group.selectedIndex());
+            int index = group.selectedIndex();
+            return index >= 0 && index < levels.size() ? levels.get(index) : null;
         }
 
         private static TextView note(Activity host, int textRes) {
@@ -220,24 +316,36 @@ final class OnboardingSteps {
         @Override
         void commit(Context context) {
             if (group == null || group.selectedIndex() < 0) return;
-            KeepADBOnboarding.commitProtection(context, selectedLevel());
+            KeepADBTrustedNetwork.ProtectionLevel level = selectedLevel();
+            // The force card is selected only while the mode runs, and the dialog wrote it already.
+            if (level == null) return;
+            // A level chosen after the mode was started takes the choice back: the safe direction.
+            if (KeepADBForceMode.endNow(context)) KeepADBForceNotice.showEndedToast(context);
+            KeepADBOnboarding.commitProtection(context, level);
         }
 
         @Override
         String summary(Context context) {
+            if (KeepADBForceMode.isActive(context)) {
+                return context.getString(R.string.onboarding_protection_force_title);
+            }
             return KeepADBForceNotice.levelLabel(context);
         }
 
         @Override
         void saveState(Bundle out) {
             if (group != null && group.selectedIndex() >= 0) {
-                out.putString(STATE_SELECTION + id.id, selectedLevel().name());
+                KeepADBTrustedNetwork.ProtectionLevel level = selectedLevel();
+                out.putString(STATE_SELECTION + id.id, level == null ? FORCE_TOKEN : level.name());
             }
+            if (forceSection != null) forceSection.saveState(out);
         }
 
         @Override
         void restoreState(Bundle in) {
             restored = in.getString(STATE_SELECTION + id.id);
+            restoredForce = new Bundle();
+            restoredForce.putAll(in);
         }
     }
 

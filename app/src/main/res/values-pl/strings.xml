@@ -533,4 +533,10 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="onboarding_network_question">Czy KeepADB ma ufać sieci Wi-Fi, z którą jesteś teraz połączony?</string>
     <string name="onboarding_network_privacy_note">W trybie prywatności nazwa jest pokazywana tylko tutaj i przy nadawaniu zaufania.</string>
     <string name="onboarding_network_open_list">Zmień na liście Sieci</string>
+    <string name="onboarding_webhook_question">Opcjonalnie. Zgłasza bieżący adres debugowania bezprzewodowego do własnego serwera, na przykład w Twoim tailnecie. Większość osób tego nie potrzebuje. Nic nie zostanie zapisane, dopóki nie dotkniesz „Zapisz URL”.</string>
+    <string name="onboarding_protection_force_title">Maksymalna wygoda (tryb wymuszony)</string>
+    <string name="onboarding_protection_force_body">W każdej sieci, także nieznanej, przez wybrany przez Ciebie czas. Najpierw musisz potwierdzić.</string>
+    <string name="onboarding_protection_force_keep_alive">Tryb wymuszony działa tylko z Keep-Alive. Keep-Alive zostanie włączony razem z nim.</string>
+    <string name="onboarding_badge_not_recommended">Niezalecane</string>
+    <string name="onboarding_protection_force_comfort_note">Obowiązuje po zakończeniu trybu wymuszonego.</string>
 </resources>

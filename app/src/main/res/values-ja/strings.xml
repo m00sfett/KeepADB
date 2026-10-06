@@ -533,4 +533,10 @@
     <string name="onboarding_network_question">現在接続している Wi-Fi を KeepADB で信頼しますか？</string>
     <string name="onboarding_network_privacy_note">プライバシーモードでは、名前はここと信頼するときにのみ表示されます。</string>
     <string name="onboarding_network_open_list">ネットワーク一覧で変更</string>
+    <string name="onboarding_webhook_question">任意です。ワイヤレスデバッグの現在のアドレスを、たとえばtailnet内の自分のサーバーに通知します。多くの方には不要です。「URLを保存」をタップするまで何も保存されません。</string>
+    <string name="onboarding_protection_force_title">最大の利便性(強制モード)</string>
+    <string name="onboarding_protection_force_body">未知のネットワークを含むすべてのネットワークで、選んだ時間だけ有効にします。事前に確認が必要です。</string>
+    <string name="onboarding_protection_force_keep_alive">強制モードはKeep-Aliveと一緒にのみ動作します。Keep-Aliveも同時にオンになります。</string>
+    <string name="onboarding_badge_not_recommended">非推奨</string>
+    <string name="onboarding_protection_force_comfort_note">強制モード終了後に適用されます。</string>
 </resources>

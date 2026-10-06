@@ -533,4 +533,10 @@
     <string name="onboarding_network_question">지금 연결된 Wi-Fi를 KeepADB가 신뢰하도록 할까요?</string>
     <string name="onboarding_network_privacy_note">개인정보 보호 모드에서는 이름이 여기와 신뢰할 때만 표시됩니다.</string>
     <string name="onboarding_network_open_list">네트워크 목록에서 변경</string>
+    <string name="onboarding_webhook_question">선택 사항입니다. 무선 디버깅의 현재 주소를 예를 들어 내 tailnet에 있는 자체 서버로 알립니다. 대부분은 필요하지 않습니다. “URL 저장”을 누르기 전에는 아무것도 저장되지 않습니다.</string>
+    <string name="onboarding_protection_force_title">최대 편의(강제 모드)</string>
+    <string name="onboarding_protection_force_body">낯선 네트워크를 포함한 모든 네트워크에서, 선택한 시간 동안 켭니다. 먼저 확인이 필요합니다.</string>
+    <string name="onboarding_protection_force_keep_alive">강제 모드는 Keep-Alive와 함께일 때만 동작합니다. Keep-Alive도 함께 켜집니다.</string>
+    <string name="onboarding_badge_not_recommended">권장하지 않음</string>
+    <string name="onboarding_protection_force_comfort_note">강제 모드가 끝난 뒤에 적용됩니다.</string>
 </resources>

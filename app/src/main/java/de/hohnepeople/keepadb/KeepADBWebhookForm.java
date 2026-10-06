@@ -46,15 +46,23 @@ final class KeepADBWebhookForm {
 
     /** @param onChange invoked after every action that used to end its click listener in refresh(). */
     KeepADBWebhookForm(Activity activity, Runnable onChange) {
+        this(activity, activity.getWindow().getDecorView(), onChange);
+    }
+
+    /**
+     * The form inside {@code root}: the Settings and the setup assistant (#768) both inflate
+     * {@code view_webhook_form} and get the same validated save, enable and clear paths.
+     */
+    KeepADBWebhookForm(Activity activity, View root, Runnable onChange) {
         this.activity = activity;
         this.onChange = onChange;
 
-        Switch toggle = activity.findViewById(R.id.settings_webhook_toggle);
-        EditText urlInput = activity.findViewById(R.id.settings_webhook_url);
-        TextView error = activity.findViewById(R.id.settings_webhook_error);
-        TextView cleartextWarning = activity.findViewById(R.id.settings_webhook_cleartext_warning);
-        android.widget.Button save = activity.findViewById(R.id.settings_webhook_save);
-        android.widget.Button clear = activity.findViewById(R.id.settings_webhook_clear);
+        Switch toggle = root.findViewById(R.id.settings_webhook_toggle);
+        EditText urlInput = root.findViewById(R.id.settings_webhook_url);
+        TextView error = root.findViewById(R.id.settings_webhook_error);
+        TextView cleartextWarning = root.findViewById(R.id.settings_webhook_cleartext_warning);
+        android.widget.Button save = root.findViewById(R.id.settings_webhook_save);
+        android.widget.Button clear = root.findViewById(R.id.settings_webhook_clear);
         this.toggle = toggle;
         this.urlInput = urlInput;
         this.error = error;

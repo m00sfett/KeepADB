@@ -208,7 +208,7 @@ public class OnboardingActivityTest {
         click(assistant, R.id.onboarding_next);
         click(assistant, R.id.onboarding_next); // protection: legacy card is preselected
         List<View> protection = cards(assistant);
-        assertEquals(3, protection.size());
+        assertEquals(4, protection.size()); // legacy card, two presets, force
         assertEquals(context.getString(R.string.force_level_legacy_all), title(protection.get(0)));
         assertTrue(protection.get(0).isActivated());
         protection.get(1).performClick(); // Maximum security
@@ -292,7 +292,7 @@ public class OnboardingActivityTest {
         KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         OnboardingActivity protection = start(
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PROTECTION));
-        assertEquals(List.of("Less secure", "Recommended", ""), badges(protection));
+        assertEquals(List.of("Less secure", "Recommended", "", "Not recommended"), badges(protection));
         OnboardingActivity details = start(
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.DETAILS));
         assertEquals(List.of("Recommended", "Less secure"), badges(details));
@@ -300,7 +300,7 @@ public class OnboardingActivityTest {
         // Balanced and the name list are a note, never "Less secure".
         prefs().edit().clear().commit();
         KeepADBTrustedNetwork.setTrustByNameEnabled(context, true);
-        assertEquals(List.of("Recommended", "Note"), badges(start(
+        assertEquals(List.of("Recommended", "Note", "Not recommended"), badges(start(
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PROTECTION))));
 
         // The previous name list is a note as well: its card carries "Note", not "Less secure".
@@ -309,7 +309,7 @@ public class OnboardingActivityTest {
         KeepADBTrustedNetwork.setSsidMatchingEnabled(context, true);
         assertEquals(KeepADBTrustedNetwork.ProtectionLevel.LEGACY_NAME_LIST,
                 KeepADBTrustedNetwork.getProtectionLevel(context));
-        assertEquals(List.of("Note", "Recommended", ""), badges(start(
+        assertEquals(List.of("Note", "Recommended", "", "Not recommended"), badges(start(
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.PROTECTION))));
 
         // Defaults: nothing is marked less secure on any step.
@@ -561,7 +561,10 @@ public class OnboardingActivityTest {
         if (view instanceof TextView) {
             TextView text = (TextView) view;
             assertNull(where + ": no ellipsis", text.getEllipsize());
-            assertTrue(where + ": no line cap", text.getMaxLines() >= 100);
+            // An input field is one line on purpose (a URL scrolls sideways); it cuts no text.
+            if (!(view instanceof android.widget.EditText)) {
+                assertTrue(where + ": no line cap", text.getMaxLines() >= 100);
+            }
         }
         if (view instanceof ViewGroup) {
             ViewGroup group = (ViewGroup) view;

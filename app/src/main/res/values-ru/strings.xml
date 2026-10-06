@@ -533,4 +533,10 @@
     <string name="onboarding_network_question">Должен ли KeepADB доверять сети Wi-Fi, к которой вы подключены сейчас?</string>
     <string name="onboarding_network_privacy_note">В режиме конфиденциальности имя показывается только здесь и при выдаче доверия.</string>
     <string name="onboarding_network_open_list">Изменить в списке сетей</string>
+    <string name="onboarding_webhook_question">Необязательно. Сообщает текущий адрес беспроводной отладки вашему собственному серверу, например в вашем tailnet. Большинству это не нужно. Ничего не сохраняется, пока вы не нажмёте «Сохранить URL».</string>
+    <string name="onboarding_protection_force_title">Максимальное удобство (принудительный режим)</string>
+    <string name="onboarding_protection_force_body">В любой сети, в том числе незнакомой, на выбранное вами время. Сначала нужно подтвердить.</string>
+    <string name="onboarding_protection_force_keep_alive">Принудительный режим работает только с Keep-Alive. Keep-Alive включается вместе с ним.</string>
+    <string name="onboarding_badge_not_recommended">Не рекомендуется</string>
+    <string name="onboarding_protection_force_comfort_note">Действует после окончания принудительного режима.</string>
 </resources>

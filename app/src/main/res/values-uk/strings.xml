@@ -533,4 +533,10 @@
     <string name="onboarding_network_question">Чи має KeepADB довіряти мережі Wi-Fi, до якої ви зараз підключені?</string>
     <string name="onboarding_network_privacy_note">У режимі приватності назва показується лише тут і під час надання довіри.</string>
     <string name="onboarding_network_open_list">Змінити в списку мереж</string>
+    <string name="onboarding_webhook_question">Необов’язково. Повідомляє поточну адресу бездротового налагодження вашому власному серверу, наприклад у вашому tailnet. Більшості це не потрібно. Нічого не зберігається, доки ви не торкнетеся «Зберегти URL».</string>
+    <string name="onboarding_protection_force_title">Максимальна зручність (примусовий режим)</string>
+    <string name="onboarding_protection_force_body">У будь-якій мережі, зокрема незнайомій, на обраний вами час. Спершу потрібно підтвердити.</string>
+    <string name="onboarding_protection_force_keep_alive">Примусовий режим працює лише з Keep-Alive. Keep-Alive вмикається разом із ним.</string>
+    <string name="onboarding_badge_not_recommended">Не рекомендовано</string>
+    <string name="onboarding_protection_force_comfort_note">Діє після завершення примусового режиму.</string>
 </resources>

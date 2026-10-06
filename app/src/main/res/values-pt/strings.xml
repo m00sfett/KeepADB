@@ -533,4 +533,10 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="onboarding_network_question">O KeepADB deve confiar no Wi-Fi a que está ligado neste momento?</string>
     <string name="onboarding_network_privacy_note">No modo de privacidade, o nome só é mostrado aqui e ao confiar numa rede.</string>
     <string name="onboarding_network_open_list">Alterar na lista Redes</string>
+    <string name="onboarding_webhook_question">Opcional. Informa o endereço atual da depuração sem fio a um servidor seu, por exemplo na sua tailnet. A maioria não precisa disso. Nada é salvo até você tocar em “Salvar URL”.</string>
+    <string name="onboarding_protection_force_title">Máxima comodidade (modo forçado)</string>
+    <string name="onboarding_protection_force_body">Em qualquer rede, inclusive desconhecidas, pelo tempo que você escolher. Antes você precisa confirmar.</string>
+    <string name="onboarding_protection_force_keep_alive">O modo forçado só funciona com Keep-Alive. O Keep-Alive é ativado em conjunto.</string>
+    <string name="onboarding_badge_not_recommended">Não recomendado</string>
+    <string name="onboarding_protection_force_comfort_note">Aplica-se depois de o modo forçado terminar.</string>
 </resources>

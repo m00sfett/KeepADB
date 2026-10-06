@@ -110,6 +110,7 @@ public class OnboardingActivity extends Activity {
         list.add(new OnboardingActionSteps.Permissions());
         list.add(new OnboardingActionSteps.Network());
         list.add(new OnboardingSteps.Details());
+        list.add(new OnboardingWebhookStep());
         return list;
     }
 
@@ -185,6 +186,12 @@ public class OnboardingActivity extends Activity {
         }
         OnboardingStep current = currentStep();
         if (current != null) current.onResume(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        for (OnboardingStep step : steps) step.onDestroy();
+        super.onDestroy();
     }
 
     @Override

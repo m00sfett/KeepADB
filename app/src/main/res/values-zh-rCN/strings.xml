@@ -533,4 +533,10 @@
     <string name="onboarding_network_question">KeepADB 是否应信任你当前连接的 Wi-Fi？</string>
     <string name="onboarding_network_privacy_note">在隐私模式下，名称仅在此处和信任网络时显示。</string>
     <string name="onboarding_network_open_list">在网络列表中更改</string>
+    <string name="onboarding_webhook_question">可选。把无线调试的当前地址报告给你自己的服务器,例如你的 tailnet 中的服务器。大多数人不需要。点按“保存 URL”之前不会保存任何内容。</string>
+    <string name="onboarding_protection_force_title">最大便利(强制模式)</string>
+    <string name="onboarding_protection_force_body">在所有网络中生效,包括陌生网络,时长由你选择。需要先确认。</string>
+    <string name="onboarding_protection_force_keep_alive">强制模式只能与保持常驻 (Keep-Alive) 一起工作。保持常驻会随之开启。</string>
+    <string name="onboarding_badge_not_recommended">不推荐</string>
+    <string name="onboarding_protection_force_comfort_note">在强制模式结束后生效。</string>
 </resources>
