@@ -17,11 +17,18 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31` and `1.9.32` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32` and `1.9.34` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.34] - Unreleased
+
+Patch candidate (versionCode 206), test hardening only (#779); no product code changes, no release.
+
+### Testing
+- #779: Three gaps from the independent E3 mutation run are closed, each proven by a mutation that was green before and is red now. `KeepADBNetworkListTest`: the other side of the name block, a blocked access point whose Wi-Fi name is trusted (by the comfort switch or by the legacy name list) stays "Blocked" with the address as reason, in the rows and in the current network. `SettingsCleanupMigrationTest`: the legacy seed now also holds a blocked Wi-Fi name (`blocked_ssids`) and the own name of a saved access point (`trusted_network_<id>_name`), so deleting or rewriting either on opening Settings turns it red. `NetworkListNetworksViewTest`: the band is shown behind the address in the current card and in the saved rows, and nothing is shown for an access point whose band is unknown.
 
 ## [1.9.32] - Unreleased
 
