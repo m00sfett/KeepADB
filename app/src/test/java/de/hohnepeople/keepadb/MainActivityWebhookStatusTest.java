@@ -229,4 +229,20 @@ public class MainActivityWebhookStatusTest {
                 KeepADBPreferences.getWebhookLastReportStatus(context));
         controller.pause().close();
     }
+
+    /**
+     * #785: the pin test above calls the reset itself, so it stays green if the {@code @Rule}
+     * field is deleted. This pins that the rule is really applied to the class.
+     */
+    @Test
+    public void theRegisterClientResetRuleIsAppliedToThisClass() {
+        boolean applied = false;
+        for (java.lang.reflect.Field field : MainActivityWebhookStatusTest.class.getFields()) {
+            if (field.getType() == KeepADBRegisterClientResetRule.class
+                    && field.isAnnotationPresent(Rule.class)) {
+                applied = true;
+            }
+        }
+        assertTrue("KeepADBRegisterClientResetRule must be a public @Rule field", applied);
+    }
 }
