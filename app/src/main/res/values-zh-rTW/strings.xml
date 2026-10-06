@@ -533,4 +533,10 @@
     <string name="onboarding_network_question">KeepADB 是否應信任你目前連線的 Wi-Fi？</string>
     <string name="onboarding_network_privacy_note">在隱私模式下，名稱僅在此處和信任網路時顯示。</string>
     <string name="onboarding_network_open_list">在網路清單中變更</string>
+    <string name="onboarding_webhook_question">選用。將無線偵錯的目前位址回報給你自己的伺服器,例如你的 tailnet 中的伺服器。多數人不需要。點選「儲存 URL」之前不會儲存任何內容。</string>
+    <string name="onboarding_protection_force_title">最大便利(強制模式)</string>
+    <string name="onboarding_protection_force_body">在所有網路中生效,包括陌生網路,時長由你選擇。需要先確認。</string>
+    <string name="onboarding_protection_force_keep_alive">強制模式只能與保持常駐 (Keep-Alive) 一起運作。保持常駐會隨之開啟。</string>
+    <string name="onboarding_badge_not_recommended">不建議</string>
+    <string name="onboarding_protection_force_comfort_note">在強制模式結束後生效。</string>
 </resources>

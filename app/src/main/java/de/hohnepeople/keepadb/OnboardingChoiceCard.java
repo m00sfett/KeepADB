@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import android.app.Activity;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,14 +23,14 @@ import java.util.List;
  */
 final class OnboardingChoiceCard {
     /** The word beside a card's title. The word carries the meaning, the colour only reinforces it. */
-    enum Badge { NONE, RECOMMENDED, LESS_SECURE, NOTE }
+    enum Badge { NONE, RECOMMENDED, LESS_SECURE, NOTE, NOT_RECOMMENDED }
 
     final View view;
     final TextView titleView;
     final TextView badgeView;
     final TextView bodyView;
     private final RadioButton indicator;
-    private final Badge badge;
+    private Badge badge;
     private boolean checked;
 
     private OnboardingChoiceCard(View view, Badge badge) {
@@ -47,14 +48,8 @@ final class OnboardingChoiceCard {
         OnboardingChoiceCard result = new OnboardingChoiceCard(card, badge);
         result.titleView.setText(title);
         result.bodyView.setText(body);
-        if (badge != Badge.NONE) {
-            result.badgeView.setText(badgeLabel(badge));
-            result.badgeView.setBackgroundResource(badgeBackground(badge));
-            result.badgeView.setTextColor(host.getColor(badgeColor(badge)));
-            result.badgeView.setVisibility(View.VISIBLE);
-        }
-        CharSequence spoken = result.spokenText();
-        card.setContentDescription(spoken);
+        result.applyBadge(host, badge);
+        card.setContentDescription(result.spokenText());
         card.setAccessibilityDelegate(new View.AccessibilityDelegate() {
             @Override
             public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfo info) {
@@ -66,6 +61,25 @@ final class OnboardingChoiceCard {
         });
         parent.addView(card);
         return result;
+    }
+
+    private void applyBadge(Context context, Badge value) {
+        badge = value;
+        if (value == Badge.NONE) {
+            badgeView.setVisibility(View.GONE);
+            return;
+        }
+        badgeView.setText(badgeLabel(value));
+        badgeView.setBackgroundResource(badgeBackground(value));
+        badgeView.setTextColor(context.getColor(badgeColor(value)));
+        badgeView.setVisibility(View.VISIBLE);
+    }
+
+    /** A card whose state changes while it is shown (the force card): new badge and body, spoken again. */
+    void update(Context context, Badge newBadge, CharSequence newBody) {
+        applyBadge(context, newBadge);
+        bodyView.setText(newBody);
+        view.setContentDescription(spokenText());
     }
 
     boolean isChecked() {
@@ -92,6 +106,8 @@ final class OnboardingChoiceCard {
                 return R.string.onboarding_badge_recommended;
             case LESS_SECURE:
                 return R.string.onboarding_badge_less_secure;
+            case NOT_RECOMMENDED:
+                return R.string.onboarding_badge_not_recommended;
             case NOTE:
             default:
                 return R.string.onboarding_badge_note;
@@ -103,6 +119,7 @@ final class OnboardingChoiceCard {
             case RECOMMENDED:
                 return R.drawable.bg_badge_ok;
             case LESS_SECURE:
+            case NOT_RECOMMENDED:
                 return R.drawable.bg_badge_warn;
             case NOTE:
             default:
@@ -115,6 +132,7 @@ final class OnboardingChoiceCard {
             case RECOMMENDED:
                 return R.color.status_ok_green;
             case LESS_SECURE:
+            case NOT_RECOMMENDED:
                 return R.color.text_yellow;
             case NOTE:
             default:

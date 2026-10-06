@@ -533,4 +533,10 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_network_question">KeepADB şu anda bağlı olduğunuz Wi-Fi ağına güvensin mi?</string>
     <string name="onboarding_network_privacy_note">Gizlilik modunda ad yalnızca burada ve bir ağa güvenirken gösterilir.</string>
     <string name="onboarding_network_open_list">Ağlar listesinde değiştir</string>
+    <string name="onboarding_webhook_question">İsteğe bağlı. Kablosuz hata ayıklamanın geçerli adresini, örneğin tailnet’indeki kendi sunucuna bildirir. Çoğu kişinin buna ihtiyacı yoktur. “URL’yi Kaydet” düğmesine dokunana kadar hiçbir şey kaydedilmez.</string>
+    <string name="onboarding_protection_force_title">En rahat (zorunlu mod)</string>
+    <string name="onboarding_protection_force_body">Bilinmeyenler dahil her ağda, seçtiğin süre boyunca. Önce onaylaman gerekir.</string>
+    <string name="onboarding_protection_force_keep_alive">Zorunlu mod yalnızca Keep-Alive ile çalışır. Keep-Alive onunla birlikte açılır.</string>
+    <string name="onboarding_badge_not_recommended">Önerilmez</string>
+    <string name="onboarding_protection_force_comfort_note">Zorunlu mod bittikten sonra geçerli olur.</string>
 </resources>

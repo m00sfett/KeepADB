@@ -533,4 +533,10 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_network_question">Soll KeepADB dem WLAN vertrauen, mit dem du gerade verbunden bist?</string>
     <string name="onboarding_network_privacy_note">Im Privatsphäre-Modus wird der Name nur hier und beim Vertrauen gezeigt.</string>
     <string name="onboarding_network_open_list">In der Netzwerkliste ändern</string>
+    <string name="onboarding_webhook_question">Optional. Meldet die aktuelle Adresse von Drahtlosem Debugging an einen eigenen Server, zum Beispiel in deinem Tailnet. Die meisten brauchen das nicht. Gespeichert wird erst mit „URL speichern“.</string>
+    <string name="onboarding_protection_force_title">Maximal komfortabel (Force)</string>
+    <string name="onboarding_protection_force_body">In jedem Netzwerk, auch in fremden, für eine Zeit, die du wählst. Vorher musst du bestätigen.</string>
+    <string name="onboarding_protection_force_keep_alive">Force wirkt nur mit Keep-Alive. Keep-Alive wird mit eingeschaltet.</string>
+    <string name="onboarding_badge_not_recommended">Nicht empfohlen</string>
+    <string name="onboarding_protection_force_comfort_note">Gilt nach Ende des Force-Modus.</string>
 </resources>

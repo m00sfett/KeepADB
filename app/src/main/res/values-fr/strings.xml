@@ -533,4 +533,10 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_network_question">KeepADB doit-il faire confiance au Wi-Fi auquel vous êtes connecté en ce moment ?</string>
     <string name="onboarding_network_privacy_note">En mode confidentialité, le nom n’est affiché qu’ici et lorsque vous approuvez un réseau.</string>
     <string name="onboarding_network_open_list">Modifier dans la liste des réseaux</string>
+    <string name="onboarding_webhook_question">Facultatif. Signale l’adresse actuelle du débogage sans fil à un serveur à toi, par exemple dans ton tailnet. La plupart n’en ont pas besoin. Rien n’est enregistré tant que tu n’appuies pas sur « Enregistrer l’URL ».</string>
+    <string name="onboarding_protection_force_title">Confort maximal (mode forcé)</string>
+    <string name="onboarding_protection_force_body">Dans tous les réseaux, y compris inconnus, pendant une durée que tu choisis. Une confirmation est demandée avant.</string>
+    <string name="onboarding_protection_force_keep_alive">Le mode forcé ne fonctionne qu’avec Keep-Alive. Keep-Alive est activé avec lui.</string>
+    <string name="onboarding_badge_not_recommended">Non recommandé</string>
+    <string name="onboarding_protection_force_comfort_note">S’applique à la fin du mode forcé.</string>
 </resources>

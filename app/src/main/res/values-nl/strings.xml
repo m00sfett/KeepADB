@@ -533,4 +533,10 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_network_question">Moet KeepADB het wifi-netwerk vertrouwen waarmee je nu verbonden bent?</string>
     <string name="onboarding_network_privacy_note">In de privacymodus wordt de naam alleen hier en bij het vertrouwen van een netwerk getoond.</string>
     <string name="onboarding_network_open_list">Wijzigen in de lijst Netwerken</string>
+    <string name="onboarding_webhook_question">Optioneel. Meldt het huidige adres van draadloos foutopsporen aan een eigen server, bijvoorbeeld in je tailnet. De meeste mensen hebben dit niet nodig. Er wordt niets opgeslagen tot je op “URL opslaan” tikt.</string>
+    <string name="onboarding_protection_force_title">Maximaal comfortabel (geforceerde modus)</string>
+    <string name="onboarding_protection_force_body">In elk netwerk, ook onbekende, voor een tijd die je kiest. Eerst moet je bevestigen.</string>
+    <string name="onboarding_protection_force_keep_alive">De geforceerde modus werkt alleen met Keep-Alive. Keep-Alive wordt samen ingeschakeld.</string>
+    <string name="onboarding_badge_not_recommended">Niet aanbevolen</string>
+    <string name="onboarding_protection_force_comfort_note">Geldt nadat de geforceerde modus is afgelopen.</string>
 </resources>
