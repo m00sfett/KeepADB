@@ -164,6 +164,21 @@ public class KeepADBToggleSchedulingTest {
     }
 
     @Test
+    public void aNetworkChangeAbortedAutomaticEnableRestoresThePreviousOffIntent() {
+        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true));
+        KeepADB.noteNetworkChanged();
+        scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
+
+        assertEquals("a stale-network enable must not reach the gateway",
+                Arrays.asList(false), gateway.writes);
+        assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
+        assertFalse(KeepADBPreferences.getLastDesiredOn(ctx));
+        assertTrue(KeepADB.isUserDisabled());
+    }
+
+    @Test
     public void recoveryPulseRestoresWhenUninterrupted() {
         gateway = new KeepADBFakeSettingsGateway(true);
         KeepADB.setGatewayForTesting(gateway);

@@ -31,7 +31,7 @@ User-authorized patch candidate (versionCode 203) for #771; no release.
 - #771: A USB handover blocked by a changed trust or transport precondition no longer leaves a stale desired-on intent behind; the previous desired state is restored when the guarded write is cancelled.
 
 ### Testing
-- #771: `KeepADBBlockedNetworkCallPathTest` pins the USB handover ingress trust gate with a trusted control; `KeepADBToggleSchedulingTest` verifies guarded cancellation restores the previous persisted and in-memory off intent.
+- #771: `KeepADBBlockedNetworkCallPathTest` pins the USB handover ingress trust gate with a trusted control; `KeepADBToggleSchedulingTest` verifies guarded cancellation (precondition and network-change aborts) restores the previous persisted and in-memory off intent.
 
 ## [1.9.30] - Unreleased
 
