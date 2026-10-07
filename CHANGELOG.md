@@ -23,6 +23,24 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.9.45] - Unreleased
+
+<!-- W-B begin -->
+Etappe E16 patch candidate, packages #813 and #815 (part 2 and way-back note); no release.
+
+### Fixed
+- **Networks list (#813):** trusting a blocked access point lifts its block first (the trust write refuses a blocked target, #760), so a write that stores nothing used to leave the access point unblocked and its stored names gone. `KeepADBNetworkListActions.trustBlockedAccessPoint` now puts the block back with its stored Wi-Fi name and own name in that case and reports `FAILED`; a successful trust behaves as before.
+
+### Changed
+- **Rename dialog text (#815):** `network_ap_rename_message` says the own name changes neither the Wi-Fi name nor which access points are trusted *or blocked*, in all 19 languages, since the dialog is also used for blocked access points.
+
+### Documentation
+- `docs/trusted-networks.md` (#815): the way-back note for the stored names says that an older version blocking the same address again, without the name keys, can bring old name remnants of that address back in the list (display only).
+
+### Testing
+- #813: `KeepADBStoredNamesTest.listTrustWhoseWriteFailsKeepsTheBlockWithItsNames` fails a trust write through the new `TrustWriter` seam and pins the block, both stored names and the rest of the preferences.
+<!-- W-B end -->
+
 ## [1.9.44] - Unreleased
 
 Etappe E15 patch candidate (versionCode 216), packages #795 (cause-carrying result of `KeepADB.setEnabled`), #797 (point 2, label of the background-location dialog) and #809 (release status sentence) on top of 1.9.43; no release. The version 1.9.43 stays as it is.
