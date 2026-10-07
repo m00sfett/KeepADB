@@ -2,8 +2,6 @@ package de.hohnepeople.keepadb;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -137,9 +135,10 @@ public class MainActivity extends Activity {
             // adb_wifi_enabled value either way.
             boolean want = KeepADB.desiredOnForClick(KeepADB.getState(this));
             KeepADBDiagnostics.event(this, "user_action", "app", want ? "enable" : "disable", "toggle");
-            if (!KeepADB.setEnabled(this, want, "app")) {
+            KeepADB.ToggleResult result = KeepADB.setEnabled(this, want, "app");
+            if (!result.isSuccess()) {
                 toggle.setChecked(!want);
-                showToggleErrorToast();
+                showToggleErrorToast(result);
             }
             KeepADBService.sync(this);
             refreshUiAndComponents();
@@ -168,8 +167,9 @@ public class MainActivity extends Activity {
                 // active #496 recovery backoff (which only throttles automatic retries), like the
                 // trust prompt's "allow" (#670); Keep-Alive, Wi-Fi and trust must still hold.
                 if (KeepADBService.isAutoEnableStillPermittedIgnoringBackoff(this)) {
-                    if (!KeepADB.setEnabled(this, true, "app")) {
-                        showToggleErrorToast();
+                    KeepADB.ToggleResult result = KeepADB.setEnabled(this, true, "app");
+                    if (!result.isSuccess()) {
+                        showToggleErrorToast(result);
                     }
                 } else if (!KeepADBTrustedNetwork.isCurrentNetworkTrusted(this)) {
                     KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(this);
@@ -794,11 +794,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    private boolean hasSecureSettingsPermission() {
-        return checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
     private void refreshUiAndComponents() {
         refresh();
         KeepADBWidget.refreshAll(this);
@@ -812,8 +807,9 @@ public class MainActivity extends Activity {
      * granted and the Settings.Global write itself was rejected (#309). Report the two causes
      * separately so a rejected write is visible instead of being disguised as a setup problem.
      */
-    private void showToggleErrorToast() {
-        if (!hasSecureSettingsPermission()) {
+    private void showToggleErrorToast(KeepADB.ToggleResult result) {
+        // #795: the cause comes from the toggle result instead of a second permission read.
+        if (result == KeepADB.ToggleResult.PERMISSION_MISSING) {
             Toast.makeText(this, getString(R.string.permission_error_toast, getPackageName()),
                     Toast.LENGTH_LONG).show();
             return;

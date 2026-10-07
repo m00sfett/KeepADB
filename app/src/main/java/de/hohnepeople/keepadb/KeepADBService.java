@@ -431,15 +431,18 @@ public class KeepADBService extends Service {
                                         "blocked", "reason=recovery_backoff_active");
                             } else {
                                 Log.i(TAG, "Wireless Debugging dropped while Wi-Fi connected; re-enabling...");
-                                if (!KeepADB.setEnabled(KeepADBService.this, true, "content_observer",
-                                        KeepADBService::isAutoEnableStillPermitted)) {
-                                    // #780: a skipped request is no permission failure.
-                                    if (!KeepADB.isManualIntentPending()) {
-                                        Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
-                                        KeepADBNotification.showPermissionMissing(KeepADBService.this);
-                                        return;
-                                    }
-                                    Log.i(TAG, "Automatic re-enable skipped: a manual intent is pending (#780)");
+                                KeepADB.ToggleResult result = KeepADB.setEnabled(
+                                        KeepADBService.this, true, "content_observer",
+                                        KeepADBService::isAutoEnableStillPermitted);
+                                if (result.isPermissionFailure()) {
+                                    Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
+                                    KeepADBNotification.showPermissionMissing(KeepADBService.this);
+                                    return;
+                                }
+                                // #795: every other failure (manual intent pending #780, guard
+                                // abort, rejected write, superseded) is no permission problem.
+                                if (!result.isSuccess()) {
+                                    Log.i(TAG, "Automatic re-enable not applied: " + result);
                                 }
                             }
                         } else if (Boolean.FALSE.equals(adbEnabledOrNull)) {
@@ -671,15 +674,17 @@ public class KeepADBService extends Service {
                     KeepADBDiagnostics.heartbeatEvent(this, "recheck_result", "keep_alive_check", "service", "due",
                             "reason=recheck_due");
                     Log.i(TAG, "Auto-enabling Wireless Debugging (Wi-Fi connected)");
-                    if (!KeepADB.setEnabled(this, true, "keep_alive_check",
-                            KeepADBService::isAutoEnableStillPermitted)) {
-                        // #780: a skipped request is no permission failure.
-                        if (!KeepADB.isManualIntentPending()) {
-                            Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
-                            KeepADBNotification.showPermissionMissing(this);
-                            return;
-                        }
-                        Log.i(TAG, "Automatic re-enable skipped: a manual intent is pending (#780)");
+                    KeepADB.ToggleResult result = KeepADB.setEnabled(this, true, "keep_alive_check",
+                            KeepADBService::isAutoEnableStillPermitted);
+                    if (result.isPermissionFailure()) {
+                        Log.e(TAG, "Failed to auto-enable Wireless Debugging (WRITE_SECURE_SETTINGS missing?)");
+                        KeepADBNotification.showPermissionMissing(this);
+                        return;
+                    }
+                    // #795: every other failure (manual intent pending #780, guard abort,
+                    // rejected write, superseded) is no permission problem.
+                    if (!result.isSuccess()) {
+                        Log.i(TAG, "Automatic re-enable not applied: " + result);
                     }
                 }
             } else {

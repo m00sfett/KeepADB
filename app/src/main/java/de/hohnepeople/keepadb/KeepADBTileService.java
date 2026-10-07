@@ -134,8 +134,9 @@ public class KeepADBTileService extends TileService {
     }
 
     private void applyToggle(boolean want) {
-        if (!KeepADB.setEnabled(this, want, "tile")) {
-            showToggleErrorToast();
+        KeepADB.ToggleResult result = KeepADB.setEnabled(this, want, "tile");
+        if (!result.isSuccess()) {
+            showToggleErrorToast(result);
         }
         KeepADBService.sync(this);
         updateTile();
@@ -204,11 +205,12 @@ public class KeepADBTileService extends TileService {
      * #318: distinguishes a missing permission from a Settings.Global write that was rejected
      * despite the permission being granted, instead of blaming setup for both.
      */
-    private void showToggleErrorToast() {
+    private void showToggleErrorToast(KeepADB.ToggleResult result) {
         // The brand prefix is passed in (not hardcoded) so debug builds show "(DBG) KeepADB" (#690).
-        Toast.makeText(this, KeepADB.hasPermission(this)
-                        ? getString(R.string.toggle_failed_toast)
-                        : getString(R.string.tile_permission_error, getString(R.string.app_name)),
+        // #795: the cause comes from the toggle result instead of a second permission read.
+        Toast.makeText(this, result == KeepADB.ToggleResult.PERMISSION_MISSING
+                        ? getString(R.string.tile_permission_error, getString(R.string.app_name))
+                        : getString(R.string.toggle_failed_toast),
                 Toast.LENGTH_LONG).show();
     }
 
