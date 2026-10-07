@@ -152,7 +152,7 @@ public final class NetworkDecisionView extends LinearLayout {
     private void blockAccessPoint() {
         KeepADBNetworkDecision.Pending target = pending;
         if (target == null) return;
-        finishBlock(KeepADBNetworkDecision.blockAccessPoint(getContext(), target.bssid));
+        finishBlock(KeepADBNetworkDecision.blockAccessPoint(getContext(), target.bssid, target.ssid));
     }
 
     private void blockName() {

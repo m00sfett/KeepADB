@@ -203,9 +203,21 @@ public final class KeepADBReceiver extends BroadcastReceiver {
      * @return the allowlist entry, or null if {@code bssid} was blank and nothing was stored.
      */
     static KeepADBTrustedNetwork.Entry allowBssidOnly(Context context, String bssid, String label) {
-        KeepADBTrustedNetwork.Entry entry = recordTrust(context, bssid, label);
+        return allowBssidOnly(context, bssid, label, null);
+    }
+
+    /**
+     * #796: {@link #allowBssidOnly(Context, String, String)} for a caller that knows the Wi-Fi name
+     * of the access point from somewhere other than the label (the name stored with an earlier
+     * block of it). {@code knownSsid} is stored with the entry as display data and counts for the
+     * block check, so a trust is refused while that name is blocked; the label, and with it every
+     * trust decision, stays what the caller passed.
+     */
+    static KeepADBTrustedNetwork.Entry allowBssidOnly(Context context, String bssid, String label,
+                                                      String knownSsid) {
+        KeepADBTrustedNetwork.Entry entry = recordTrust(context, bssid, label, knownSsid);
         // #760: a refused (blocked) grant has already been reported as such by recordTrust.
-        if (!isBlockedTarget(context, bssid, label)) {
+        if (!isBlockedTarget(context, bssid, label, knownSsid)) {
             KeepADBDiagnostics.event(context, "user_action", "network_allow", "allowed", "grant_only");
         }
         KeepADBService.sync(context);
@@ -219,21 +231,34 @@ public final class KeepADBReceiver extends BroadcastReceiver {
      * one, the BSSID itself) is blocked.
      */
     private static boolean isBlockedTarget(Context context, String bssid, String label) {
+        return isBlockedTarget(context, bssid, label, null);
+    }
+
+    /** As above; {@code knownSsid} (#796) is a further name the caller knows the access point by. */
+    private static boolean isBlockedTarget(Context context, String bssid, String label,
+                                           String knownSsid) {
         return KeepADBNetworkBlocklist.isBlocked(context, bssid,
-                KeepADBTrustedNetwork.ssidFromLabel(label, bssid));
+                KeepADBTrustedNetwork.ssidFromLabel(label, bssid))
+                || KeepADBNetworkBlocklist.isSsidBlocked(context, knownSsid);
     }
 
     private static KeepADBTrustedNetwork.Entry recordTrust(Context context, String bssid, String label) {
+        return recordTrust(context, bssid, label, null);
+    }
+
+    private static KeepADBTrustedNetwork.Entry recordTrust(Context context, String bssid, String label,
+                                                           String knownSsid) {
         // #760: the choke point of every trust write that goes through this class (notification
         // action, in-app confirmation, list and card actions, mesh offer). A block wins over trust
         // and is lifted only explicitly -- never as a side effect of trusting the same network --
         // so nothing is stored here; the caller sees the same null as for a blank BSSID.
-        if (isBlockedTarget(context, bssid, label)) {
+        if (isBlockedTarget(context, bssid, label, knownSsid)) {
             KeepADBDiagnostics.event(context, "user_action", "network_allow", "blocked",
                     "network_blocked");
             return null;
         }
-        KeepADBTrustedNetwork.Entry entry = KeepADBTrustedNetwork.addBssid(context, bssid, label);
+        KeepADBTrustedNetwork.Entry entry =
+                KeepADBTrustedNetwork.addBssid(context, bssid, label, knownSsid);
         KeepADBBlockedNetworkHistory.remove(context, bssid);
         KeepADBNetworkTrustPrompt.cancel(context);
         // #474: only forget the marker for the access point just trusted -- a global clear would

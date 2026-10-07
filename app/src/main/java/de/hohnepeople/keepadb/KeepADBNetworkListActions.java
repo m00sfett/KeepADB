@@ -42,14 +42,28 @@ final class KeepADBNetworkListActions {
      * "Trust" on a blocked access point: lifts the block of exactly that access point, then trusts
      * it. Refused, with nothing lifted, while its Wi-Fi name is blocked: the name block stays and
      * would hold anyway.
+     *
+     * <p>{@code ssid} is the name the trust label may carry (the live name of the current
+     * connection), as before. The names stored with the block (#796, #802) are carried over
+     * without touching the label: the stored Wi-Fi name becomes the entry's stored name and counts
+     * for the refusal, and the own name the user gave the blocked access point becomes the entry's
+     * own name, so lifting the block does not lose what the user typed.
      */
     static Outcome trustBlockedAccessPoint(Context context, String bssid, String ssid) {
-        if (KeepADBNetworkBlocklist.isSsidBlocked(context, ssid)) {
+        KeepADBNetworkBlocklist.BlockedAccessPoint block =
+                KeepADBNetworkBlocklist.getBlockedAccessPoint(context, bssid);
+        String storedSsid = block == null ? null : block.ssid;
+        if (KeepADBNetworkBlocklist.isSsidBlocked(context, ssid)
+                || KeepADBNetworkBlocklist.isSsidBlocked(context, storedSsid)) {
             return Outcome.TRUST_REFUSED_NAME_BLOCKED;
         }
         KeepADBNetworkBlocklist.unblockBssid(context, bssid);
         String label = ssid == null ? bssid : ssid;
-        KeepADBTrustedNetwork.Entry entry = KeepADBReceiver.allowBssidOnly(context, bssid, label);
+        KeepADBTrustedNetwork.Entry entry = KeepADBReceiver.allowBssidOnly(context, bssid, label,
+                KeepADBNetworkBlocklist.isUsableSsid(ssid) ? ssid : storedSsid);
+        if (entry != null && entry.customName == null && block != null && block.customName != null) {
+            KeepADBTrustedNetwork.setCustomName(context, entry.id, block.customName);
+        }
         return entry == null ? Outcome.FAILED : Outcome.TRUSTED;
     }
 
@@ -65,8 +79,32 @@ final class KeepADBNetworkListActions {
      * it unknown instead of silently trusted again.
      */
     static Outcome blockAccessPoint(Context context, String bssid) {
-        KeepADBNetworkDecision.Outcome outcome = KeepADBNetworkDecision.blockAccessPoint(context, bssid);
+        return blockAccessPoint(context, bssid, null);
+    }
+
+    /**
+     * As {@link #blockAccessPoint(Context, String)}; {@code ssid} is the Wi-Fi name the row is
+     * filed under, stored with the block (#796). The own name the user gave the trust that is
+     * dropped moves to the block (#802), unless the block already has one, so blocking does not
+     * lose a name the user typed.
+     */
+    static Outcome blockAccessPoint(Context context, String bssid, String ssid) {
+        String carried = null;
+        for (KeepADBTrustedNetwork.Entry entry : KeepADBTrustedNetwork.getEntries(context)) {
+            if (entry.bssid.equalsIgnoreCase(bssid) && entry.customName != null) {
+                carried = entry.customName;
+            }
+        }
+        KeepADBNetworkDecision.Outcome outcome =
+                KeepADBNetworkDecision.blockAccessPoint(context, bssid, ssid);
         if (outcome == KeepADBNetworkDecision.Outcome.BLOCK_FAILED) return Outcome.FAILED;
+        if (carried != null) {
+            KeepADBNetworkBlocklist.BlockedAccessPoint block =
+                    KeepADBNetworkBlocklist.getBlockedAccessPoint(context, bssid);
+            if (block != null && block.customName == null) {
+                KeepADBNetworkBlocklist.setBlockedCustomName(context, bssid, carried);
+            }
+        }
         removeTrust(context, bssid);
         refresh(context);
         return Outcome.BLOCKED_ACCESS_POINT;

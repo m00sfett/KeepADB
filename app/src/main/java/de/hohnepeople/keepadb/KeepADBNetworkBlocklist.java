@@ -32,14 +32,50 @@ import java.util.Set;
  * <p>Persisted as two string sets in {@code keepadb_prefs} ({@link #KEY_BSSIDS}, {@link
  * #KEY_SSIDS}). Both keys are additive; older app versions ignore them. Like the rest of
  * {@code keepadb_prefs} they are excluded from backup and device transfer.
+ *
+ * <p><strong>Names on a blocked access point (#796, #802).</strong> A blocked access point can
+ * additionally carry the Wi-Fi name it was known under when it was blocked and an own display name
+ * the user gave it ({@link BlockedAccessPoint}). Both are stored next to the address under
+ * {@code BSSID_SSID_PREFIX} and {@code BSSID_NAME_PREFIX} (lower-case address as the key
+ * suffix), written in the same edit as the block itself and removed together with it. They are
+ * additive and optional: a block without them (every block stored before this change) reads as
+ * "no name", is never rewritten or completed afterwards, and an older app version ignores the keys.
+ * Neither name is ever consulted by {@link #isBssidBlocked}, {@link #isSsidBlocked} or {@link
+ * #isBlocked}: they describe a block for the network list and decide nothing.
  */
 final class KeepADBNetworkBlocklist {
     private static final String PREFS_NAME = "keepadb_prefs";
     static final String KEY_BSSIDS = "blocked_bssids";
     static final String KEY_SSIDS = "blocked_ssids";
+    /**
+     * #796: key prefix of the Wi-Fi name a blocked access point was known under. Like the per-entry
+     * keys of the trusted list, a record family (one key per blocked address), not a setting.
+     */
+    private static final String BSSID_SSID_PREFIX = "blocked_bssid_ssid_";
+    /** #802: key prefix of the own display name the user gave a blocked access point. */
+    private static final String BSSID_NAME_PREFIX = "blocked_bssid_name_";
 
     /** Guards the read-modify-write of both sets; callers come from UI and service threads. */
     private static final Object LOCK = new Object();
+
+    /**
+     * One blocked access point with what is stored about it. {@code ssid} and {@code customName} are
+     * null for a block that was stored without them. Display data only; see the class javadoc.
+     */
+    static final class BlockedAccessPoint {
+        /** Lower-case address, the same form {@link #getBlockedBssids} returns. */
+        final String bssid;
+        /** The Wi-Fi name it was known under when it was blocked, or null. */
+        final String ssid;
+        /** The own name the user gave it, or null. */
+        final String customName;
+
+        BlockedAccessPoint(String bssid, String ssid, String customName) {
+            this.bssid = bssid;
+            this.ssid = ssid;
+            this.customName = customName;
+        }
+    }
 
     private KeepADBNetworkBlocklist() {}
 
@@ -55,16 +91,86 @@ final class KeepADBNetworkBlocklist {
      * blocked or {@code bssid} is not a real, matchable address (blank or a placeholder).
      */
     static boolean blockBssid(Context context, String bssid) {
-        String key = normalizeBssid(bssid);
-        if (key == null) return false;
-        return add(context, KEY_BSSIDS, key);
+        return blockBssid(context, bssid, null, null);
     }
 
-    /** Lifts the block on one access point. Returns true if a block was removed. */
+    /**
+     * Blocks one access point and stores the names it is known under (#796, #802) in the same edit
+     * as the block. {@code ssid} counts only when it is a usable Wi-Fi name; {@code customName} is
+     * normalized like the own name of a trusted access point and counts only when something is left.
+     * Returns true if it was newly blocked. Returns false, and changes nothing at all (the names of
+     * an existing block included), if it was already blocked or {@code bssid} is not a real,
+     * matchable address.
+     */
+    static boolean blockBssid(Context context, String bssid, String ssid, String customName) {
+        String key = normalizeBssid(bssid);
+        if (key == null) return false;
+        synchronized (LOCK) {
+            SharedPreferences preferences = prefs(context);
+            Set<String> values = new HashSet<>(
+                    preferences.getStringSet(KEY_BSSIDS, Collections.emptySet()));
+            if (!values.add(key)) return false;
+            SharedPreferences.Editor editor = preferences.edit().putStringSet(KEY_BSSIDS, values);
+            // Written or cleared either way, so a leftover of an earlier block of this address (an
+            // older app version may have lifted it without knowing the name keys) never resurfaces.
+            putOrRemove(editor, BSSID_SSID_PREFIX + key, isUsableSsid(ssid) ? ssid : null);
+            String name = KeepADBTrustedNetwork.normalizeCustomName(customName);
+            putOrRemove(editor, BSSID_NAME_PREFIX + key, name.isEmpty() ? null : name);
+            editor.apply();
+            return true;
+        }
+    }
+
+    /** Lifts the block on one access point and drops its names. Returns true if a block was removed. */
     static boolean unblockBssid(Context context, String bssid) {
         String key = normalizeBssid(bssid);
         if (key == null) return false;
-        return remove(context, KEY_BSSIDS, key);
+        return remove(context, KEY_BSSIDS, key,
+                BSSID_SSID_PREFIX + key, BSSID_NAME_PREFIX + key);
+    }
+
+    /**
+     * The block on {@code bssid} with the names stored for it, or null when that access point is
+     * not blocked. Names stored under an address that is no longer in the block set are ignored.
+     */
+    static BlockedAccessPoint getBlockedAccessPoint(Context context, String bssid) {
+        String key = normalizeBssid(bssid);
+        if (key == null) return null;
+        SharedPreferences preferences = prefs(context);
+        if (!preferences.getStringSet(KEY_BSSIDS, Collections.emptySet()).contains(key)) return null;
+        return readBlocked(preferences, key);
+    }
+
+    /** Every blocked access point with its names, in the stable order of {@link #getBlockedBssids}. */
+    static List<BlockedAccessPoint> getBlockedAccessPoints(Context context) {
+        SharedPreferences preferences = prefs(context);
+        List<BlockedAccessPoint> result = new ArrayList<>();
+        for (String key : sorted(preferences.getStringSet(KEY_BSSIDS, Collections.emptySet()))) {
+            result.add(readBlocked(preferences, key));
+        }
+        return result;
+    }
+
+    /**
+     * #802: gives a blocked access point its own display name, or resets it when {@code name} is
+     * null or blank. Returns false when the access point is not blocked (so a stale dialog can never
+     * resurrect a name for a block that was lifted meanwhile). Display only: the block itself, the
+     * Wi-Fi name and every decision stay as they are.
+     */
+    static boolean setBlockedCustomName(Context context, String bssid, String name) {
+        String key = normalizeBssid(bssid);
+        if (key == null) return false;
+        synchronized (LOCK) {
+            SharedPreferences preferences = prefs(context);
+            if (!preferences.getStringSet(KEY_BSSIDS, Collections.emptySet()).contains(key)) {
+                return false;
+            }
+            String clean = KeepADBTrustedNetwork.normalizeCustomName(name);
+            SharedPreferences.Editor editor = preferences.edit();
+            putOrRemove(editor, BSSID_NAME_PREFIX + key, clean.isEmpty() ? null : clean);
+            editor.apply();
+            return true;
+        }
     }
 
     static boolean isBssidBlocked(Context context, String bssid) {
@@ -140,12 +246,14 @@ final class KeepADBNetworkBlocklist {
         }
     }
 
-    private static boolean remove(Context context, String key, String value) {
+    /** Removes {@code value} from the set under {@code key}, plus the {@code alsoRemove} keys. */
+    private static boolean remove(Context context, String key, String value, String... alsoRemove) {
         synchronized (LOCK) {
             SharedPreferences preferences = prefs(context);
             Set<String> values = new HashSet<>(preferences.getStringSet(key, Collections.emptySet()));
             if (!values.remove(value)) return false;
             SharedPreferences.Editor editor = preferences.edit();
+            for (String extra : alsoRemove) editor.remove(extra);
             if (values.isEmpty()) {
                 editor.remove(key);
             } else {
@@ -153,6 +261,21 @@ final class KeepADBNetworkBlocklist {
             }
             editor.apply();
             return true;
+        }
+    }
+
+    private static BlockedAccessPoint readBlocked(SharedPreferences preferences, String key) {
+        String ssid = preferences.getString(BSSID_SSID_PREFIX + key, null);
+        String name = preferences.getString(BSSID_NAME_PREFIX + key, null);
+        return new BlockedAccessPoint(key, isUsableSsid(ssid) ? ssid : null,
+                name == null || name.isEmpty() ? null : name);
+    }
+
+    private static void putOrRemove(SharedPreferences.Editor editor, String key, String value) {
+        if (value == null) {
+            editor.remove(key);
+        } else {
+            editor.putString(key, value);
         }
     }
 

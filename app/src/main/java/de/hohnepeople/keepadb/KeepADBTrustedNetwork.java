@@ -60,6 +60,16 @@ import java.util.List;
  * a stored mode is kept verbatim, an installation without one gets {@link #MODE_ALLOWLIST}. New
  * keys ({@link KeepADBNetworkBlocklist}, {@link #KEY_TRUST_BY_NAME}) are additive. See
  * docs/trusted-networks.md for the user-facing rule and the permission behavior.
+ *
+ * <h2>The Wi-Fi name stored with an entry (#796)</h2>
+ * An entry also remembers the Wi-Fi name it was trusted under ({@link Entry#savedSsid}, key {@code
+ * trusted_network_<id>_ssid}), written together with the entry when a usable name was known. It is
+ * <em>display data for the network list only</em>: {@link Entry#listSsid()} lets the list say
+ * "blocked" for an entry whose label is just the BSSID while its remembered name is blocked. It is
+ * neither the trust label nor an input of any decision: {@link Entry#ssid()} (the derived comfort
+ * switch) keeps reading the label alone, and no method of {@link #evaluate} touches the stored name.
+ * An entry stored before this change has no such key and reads as "no name"; nothing completes it
+ * afterwards, and an older app version ignores the key.
  */
 final class KeepADBTrustedNetwork {
     private static final String PREFS_NAME = "keepadb_prefs";
@@ -145,16 +155,27 @@ final class KeepADBTrustedNetwork {
         final String label;
         final String bssid;
         final String customName;
+        /**
+         * #796: the Wi-Fi name known when the entry was trusted, or null (nothing stored: an entry
+         * from before the field, or an access point whose name was not readable). Display only, see
+         * {@link #listSsid()}.
+         */
+        final String savedSsid;
 
         Entry(int id, String label, String bssid) {
             this(id, label, bssid, null);
         }
 
         Entry(int id, String label, String bssid, String customName) {
+            this(id, label, bssid, customName, null);
+        }
+
+        Entry(int id, String label, String bssid, String customName, String savedSsid) {
             this.id = id;
             this.label = label;
             this.bssid = bssid;
             this.customName = customName;
+            this.savedSsid = savedSsid;
         }
 
         /**
@@ -166,6 +187,17 @@ final class KeepADBTrustedNetwork {
          */
         String ssid() {
             return ssidFromLabel(label, bssid);
+        }
+
+        /**
+         * #796: the Wi-Fi name the network list files and evaluates this entry under: the name of
+         * the label when it has one, else the name stored with the entry, else null. For the list
+         * only -- unlike {@link #ssid()} it feeds no trust decision, in particular not the derived
+         * comfort switch, so a stored name never makes another access point trusted.
+         */
+        String listSsid() {
+            String fromLabel = ssid();
+            return fromLabel != null ? fromLabel : savedSsid;
         }
     }
 
@@ -408,6 +440,18 @@ final class KeepADBTrustedNetwork {
      * #addCurrentNetwork}'s dedup behavior.
      */
     static Entry addBssid(Context context, String bssid, String label) {
+        return addBssid(context, bssid, label, null);
+    }
+
+    /**
+     * Like {@link #addBssid(Context, String, String)}, and remembers the Wi-Fi name the access
+     * point is trusted under (#796): {@code ssid} when it is a usable name, else the name the label
+     * carries, else none. The label itself is stored exactly as given, so a caller that knows the
+     * name only from elsewhere (a name stored with an earlier block) leaves the label a plain
+     * BSSID and the derived name rule unchanged. An already-listed BSSID is returned unchanged,
+     * including its (missing) stored name.
+     */
+    static Entry addBssid(Context context, String bssid, String label, String ssid) {
         String cleanBssid = clean(bssid);
         if (cleanBssid.isEmpty()) return null;
         for (Entry entry : getEntries(context)) {
@@ -417,7 +461,10 @@ final class KeepADBTrustedNetwork {
         int id = preferences.getInt(KEY_NEXT_ID, 1);
         String cleanLabel = clean(label);
         if (cleanLabel.isEmpty()) cleanLabel = cleanBssid;
-        Entry entry = new Entry(id, cleanLabel, cleanBssid);
+        String savedSsid = KeepADBNetworkBlocklist.isUsableSsid(ssid) ? ssid
+                : ssidFromLabel(cleanLabel, cleanBssid);
+        if (!KeepADBNetworkBlocklist.isUsableSsid(savedSsid)) savedSsid = null;
+        Entry entry = new Entry(id, cleanLabel, cleanBssid, null, savedSsid);
         write(preferences, entry);
         String ids = preferences.getString(KEY_IDS, "");
         preferences.edit()
@@ -453,7 +500,8 @@ final class KeepADBTrustedNetwork {
         SharedPreferences.Editor editor = preferences.edit()
                 .remove(PREFIX + id + "_label")
                 .remove(PREFIX + id + "_bssid")
-                .remove(PREFIX + id + "_name");
+                .remove(PREFIX + id + "_name")
+                .remove(PREFIX + id + "_ssid");
         if (entries.isEmpty()) {
             editor.remove(KEY_IDS);
         } else {
@@ -649,14 +697,17 @@ final class KeepADBTrustedNetwork {
         String label = preferences.getString(PREFIX + id + "_label", bssid);
         String customName = preferences.getString(PREFIX + id + "_name", null);
         if (customName != null && customName.isEmpty()) customName = null;
-        return new Entry(id, label, bssid, customName);
+        String savedSsid = preferences.getString(PREFIX + id + "_ssid", null);
+        if (!KeepADBNetworkBlocklist.isUsableSsid(savedSsid)) savedSsid = null;
+        return new Entry(id, label, bssid, customName, savedSsid);
     }
 
     private static void write(SharedPreferences preferences, Entry entry) {
-        preferences.edit()
+        SharedPreferences.Editor editor = preferences.edit()
                 .putString(PREFIX + entry.id + "_label", entry.label)
-                .putString(PREFIX + entry.id + "_bssid", entry.bssid)
-                .apply();
+                .putString(PREFIX + entry.id + "_bssid", entry.bssid);
+        if (entry.savedSsid != null) editor.putString(PREFIX + entry.id + "_ssid", entry.savedSsid);
+        editor.apply();
     }
 
     private static SharedPreferences prefs(Context context) {
