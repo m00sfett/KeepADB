@@ -33,8 +33,9 @@ public class KeepADBWidget extends AppWidgetProvider {
             if (!result.isSuccess()) {
                 // #318: separate a missing permission from a rejected write instead of always
                 // pointing at the one-time setup. #795: the cause comes from the toggle result.
+                // #817: every permission cause (also a SecurityException) points at the grant.
                 Toast.makeText(context,
-                        result == KeepADB.ToggleResult.PERMISSION_MISSING
+                        result.isPermissionFailure()
                                 ? localizedContext.getString(R.string.permission_error_toast,
                                         context.getPackageName())
                                 : localizedContext.getString(R.string.toggle_failed_toast),

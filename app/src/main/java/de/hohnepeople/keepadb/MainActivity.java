@@ -809,7 +809,8 @@ public class MainActivity extends Activity {
      */
     private void showToggleErrorToast(KeepADB.ToggleResult result) {
         // #795: the cause comes from the toggle result instead of a second permission read.
-        if (result == KeepADB.ToggleResult.PERMISSION_MISSING) {
+        // #817: every permission cause (also a SecurityException) points at the grant.
+        if (result.isPermissionFailure()) {
             Toast.makeText(this, getString(R.string.permission_error_toast, getPackageName()),
                     Toast.LENGTH_LONG).show();
             return;
