@@ -174,7 +174,7 @@ public class KeepADBDefaultsAuditTest {
             "usb_profile_next_id", "usb_profile_selected_id", "usb_profile_ids",
             "network_prompt_bssid", "network_prompt_at", "network_prompt_history",
             "wifi_aps_feature_enabled", "blocked_network_entries",
-            "events", "location_permission_requested", "notification_permission_requested",
+            "events", "location_permission_requested", "location_asked", "notification_permission_requested",
             "force_state", "force_expired_notice_pending", "force_expired_reason", "observation_history_discarded",
             "onboarding_completed_version", "onboarding_existing_install")));
 
