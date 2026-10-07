@@ -392,6 +392,200 @@ public class NetworkListNetworksViewTest {
                 KeepADBTrustedNetwork.getEntries(context).get(0).ssid());
     }
 
+    // --- Names stored with an entry or a block (#796, #802) ----------------------------------------
+
+    /** #796: the row of an entry whose label is only its address, through the real activity. */
+    @Test
+    public void aTrustedRowWithABssidLabelAndAStoredNameReadsBlockedWhenItsNameIsBlockedAndTrustedWithout() {
+        connectNothing();
+        KeepADBTrustedNetwork.addBssid(context, KITCHEN, KITCHEN, HOME);
+        String trusted = context.getString(R.string.networks_badge_trusted);
+        String blocked = context.getString(R.string.network_badge_blocked);
+
+        View before = rowOf(open(), KITCHEN);
+        assertTrue("Control without a name block: trusted: " + description(before),
+                statusWords(before).contains(trusted));
+        assertFalse(statusWords(before).contains(blocked));
+
+        KeepADBNetworkBlocklist.blockSsid(context, HOME);
+        NetworkListActivity activity = open();
+        View row = rowOf(activity, KITCHEN);
+        String spoken = description(row);
+        assertTrue("Blocked is the status: " + spoken, statusWords(row).contains(blocked));
+        assertFalse("Never 'Trusted' while the name is blocked: " + spoken,
+                statusWords(row).contains(trusted));
+        assertTrue("... with the reason, the stored trust named as kept: " + spoken,
+                spoken.contains(context.getString(R.string.networks_reason_name_trusted, HOME)));
+        assertTrue("The group carries the name and its block",
+                everythingShown(activity).contains(context.getString(R.string.networks_badge_name_blocked)));
+        assertNotNull(groupHeader(activity, HOME));
+    }
+
+    /** #802: "Rename" on a blocked access point, from the dialog to the row and back. */
+    @Test
+    public void aBlockedAccessPointCanBeRenamedAndResetAndTheNameStaysWithTheBlock() {
+        connectNothing();
+        KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP, CAFE, null);
+        NetworkListActivity activity = open();
+        String blocked = context.getString(R.string.network_badge_blocked);
+
+        rowOf(activity, CAFE_AP).performClick();
+        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
+        assertNotNull("Rename is offered on a blocked access point",
+                button(dialog, context.getString(R.string.networks_action_rename)));
+        press(R.string.networks_action_rename);
+        AlertDialog rename = ShadowAlertDialog.getLatestAlertDialog();
+        assertEquals(context.getString(R.string.network_ap_rename_title_blocked),
+                shadowOf(rename).getTitle().toString());
+        android.widget.EditText input = editField(rename);
+        assertEquals("No name yet", "", input.getText().toString());
+        assertEquals("Nothing to reset yet", View.GONE,
+                rename.getButton(AlertDialog.BUTTON_NEUTRAL).getVisibility());
+        input.setText("Ecke");
+        rename.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        ShadowLooper.idleMainLooper();
+
+        View row = rowOf(activity, CAFE_AP);
+        assertTrue(description(row), description(row).startsWith("Ecke"));
+        assertTrue("The address stays visible in the row", texts(row).contains(CAFE_AP.toUpperCase(Locale.ROOT)));
+        assertTrue("Still blocked: " + description(row), statusWords(row).contains(blocked));
+        assertEquals("Ecke", KeepADBNetworkBlocklist.getBlockedAccessPoint(context, CAFE_AP).customName);
+        assertEquals("The Wi-Fi name is not touched", CAFE,
+                KeepADBNetworkBlocklist.getBlockedAccessPoint(context, CAFE_AP).ssid);
+        assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
+
+        // The name is offered again, pre-filled, with Reset.
+        row.performClick();
+        press(R.string.networks_action_rename);
+        AlertDialog again = ShadowAlertDialog.getLatestAlertDialog();
+        assertEquals("Ecke", editField(again).getText().toString());
+        assertEquals("Reset is offered once there is a name", View.VISIBLE,
+                again.getButton(AlertDialog.BUTTON_NEUTRAL).getVisibility());
+        again.getButton(AlertDialog.BUTTON_NEUTRAL).performClick();
+        ShadowLooper.idleMainLooper();
+        assertNull(KeepADBNetworkBlocklist.getBlockedAccessPoint(context, CAFE_AP).customName);
+        assertFalse("Back to the address as the title: " + description(rowOf(activity, CAFE_AP)),
+                description(rowOf(activity, CAFE_AP)).startsWith("Ecke"));
+
+        // Cancel changes nothing.
+        rowOf(activity, CAFE_AP).performClick();
+        press(R.string.networks_action_rename);
+        AlertDialog cancelled = ShadowAlertDialog.getLatestAlertDialog();
+        editField(cancelled).setText("Verworfen");
+        cancelled.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();
+        assertNull(KeepADBNetworkBlocklist.getBlockedAccessPoint(context, CAFE_AP).customName);
+    }
+
+    @Test
+    public void renamingABlockedAccessPointWhoseBlockWasLiftedMeanwhileStoresNothing() {
+        connectNothing();
+        KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP, CAFE, null);
+        NetworkListActivity activity = open();
+        rowOf(activity, CAFE_AP).performClick();
+        press(R.string.networks_action_rename);
+        AlertDialog rename = ShadowAlertDialog.getLatestAlertDialog();
+        editField(rename).setText("Spaet");
+
+        KeepADBNetworkBlocklist.unblockBssid(context, CAFE_AP);
+        rename.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+        ShadowLooper.idleMainLooper();
+
+        assertTrue("No block, so no name to resurrect", context.getSharedPreferences("keepadb_prefs",
+                Context.MODE_PRIVATE).getAll().keySet().stream()
+                .noneMatch(key -> key.startsWith("blocked_bssid_")));
+        assertFalse(KeepADBNetworkBlocklist.isBssidBlocked(context, CAFE_AP));
+    }
+
+    @Test
+    public void trustingARenamedBlockedAccessPointKeepsItsOwnNameAndItsWifiName() {
+        connectNothing();
+        KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP, CAFE, "Ecke");
+        NetworkListActivity activity = open();
+
+        rowOf(activity, CAFE_AP).performClick();
+        press(R.string.network_decision_trust);
+
+        View row = rowOf(activity, CAFE_AP);
+        assertTrue(description(row), description(row).startsWith("Ecke"));
+        assertTrue(statusWords(row).contains(context.getString(R.string.networks_badge_trusted)));
+        KeepADBTrustedNetwork.Entry entry = KeepADBTrustedNetwork.getEntries(context).get(0);
+        assertEquals("Ecke", entry.customName);
+        assertEquals(CAFE, entry.savedSsid);
+        assertEquals(CAFE_AP, entry.label);
+        assertFalse(KeepADBNetworkBlocklist.isBssidBlocked(context, CAFE_AP));
+    }
+
+    /** What the stored Wi-Fi name of a block changes in the dialog: the name actions become reachable. */
+    @Test
+    public void aBlockedRowWithAStoredNameOffersTheNameBlockLiftAndNoTrustWhileItsNameIsBlocked() {
+        connectNothing();
+        KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP, CAFE, null);
+
+        rowOf(open(), CAFE_AP).performClick();
+        AlertDialog plain = ShadowAlertDialog.getLatestAlertDialog();
+        assertNotNull("Control: trust is offered while the name is not blocked",
+                button(plain, context.getString(R.string.network_decision_trust)));
+        assertNull(button(plain, context.getString(R.string.networks_action_unblock_name)));
+
+        KeepADBNetworkBlocklist.blockSsid(context, CAFE);
+        NetworkListActivity activity = open();
+        View row = rowOf(activity, CAFE_AP);
+        assertTrue("The address block stays the reason: " + description(row),
+                description(row).contains(context.getString(R.string.networks_reason_access_point)));
+        row.performClick();
+        AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
+        assertNull("No trust while the name is blocked",
+                button(dialog, context.getString(R.string.network_decision_trust)));
+        assertNotNull(button(dialog, context.getString(R.string.networks_action_unblock_name)));
+        assertNotNull(button(dialog, context.getString(R.string.networks_action_unblock)));
+    }
+
+    @Test
+    public void blockingATrustedRowFromTheListKeepsItsOwnNameAndNameWithTheBlock() {
+        connectNothing();
+        KeepADBTrustedNetwork.Entry entry = KeepADBTrustedNetwork.addBssid(context, KITCHEN, KITCHEN, HOME);
+        KeepADBTrustedNetwork.setCustomName(context, entry.id, "Kueche");
+        NetworkListActivity activity = open();
+
+        rowOf(activity, KITCHEN).performClick();
+        press(R.string.networks_action_block);
+
+        View row = rowOf(activity, KITCHEN);
+        assertTrue(description(row), description(row).startsWith("Kueche"));
+        assertTrue(statusWords(row).contains(context.getString(R.string.network_badge_blocked)));
+        KeepADBNetworkBlocklist.BlockedAccessPoint block = KeepADBNetworkBlocklist.getBlockedAccessPoint(context, KITCHEN);
+        assertEquals("Kueche", block.customName);
+        assertEquals(HOME, block.ssid);
+        assertNotNull("Filed under the name it had", groupHeader(activity, HOME));
+        assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
+    }
+
+    /** The privacy limits stay: no stored name and no own name of a block in any view while it is on. */
+    @Test
+    public void privacyModeHidesTheStoredAndTheOwnNamesOfBlockedAndTrustedRowsAndOffShowsThem() {
+        connectNothing();
+        KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP, CAFE, "Ecke");
+        KeepADBTrustedNetwork.addBssid(context, KITCHEN, KITCHEN, HOME);
+        String[] secrets = {CAFE, HOME, "Ecke", CAFE_AP, CAFE_AP.toUpperCase(Locale.ROOT),
+                KITCHEN.toUpperCase(Locale.ROOT)};
+
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        String visible = everythingShown(open());
+        for (String secret : secrets) {
+            assertTrue("Control: with privacy off '" + secret + "' is shown: " + visible,
+                    visible.toLowerCase(Locale.ROOT).contains(secret.toLowerCase(Locale.ROOT)));
+        }
+
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        NetworkListActivity activity = open();
+        String hidden = everythingShown(activity).toLowerCase(Locale.ROOT);
+        for (String secret : secrets) {
+            assertFalse("Privacy mode must hide '" + secret + "': " + hidden,
+                    hidden.contains(secret.toLowerCase(Locale.ROOT)));
+        }
+        assertNull("No row to tap, so no rename to open", findRow(activity, "ecke"));
+    }
+
     // --- The current network and the embedded decision (#766) --------------------------------------
 
     @Test
@@ -641,6 +835,13 @@ public class NetworkListNetworksViewTest {
         assertNotNull("Button '" + label + "' in " + texts(dialog.getWindow().getDecorView()), button);
         button.performClick();
         ShadowLooper.idleMainLooper();
+    }
+
+    private static android.widget.EditText editField(AlertDialog dialog) {
+        for (View view : allViews(dialog.getWindow().getDecorView())) {
+            if (view instanceof android.widget.EditText) return (android.widget.EditText) view;
+        }
+        throw new AssertionError("No input field in " + texts(dialog.getWindow().getDecorView()));
     }
 
     private static Button button(AlertDialog dialog, String label) {

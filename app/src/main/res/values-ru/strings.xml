@@ -390,6 +390,7 @@
     <string name="network_ap_allowed_toast">Точка доступа «%1$s» теперь доверенная</string>
     <string name="network_ap_removed_toast">Точка доступа «%1$s» удалена из списка доверенных</string>
     <string name="network_ap_rename_title">Название точки доступа (%1$d)</string>
+    <string name="network_ap_rename_title_blocked">Название заблокированной точки доступа</string>
     <string name="network_ap_rename_message">Выберите собственное название. Оно показывается в этих списках, хранится только на этом устройстве и не меняет ни имя Wi-Fi, ни список доверенных точек доступа.</string>
     <string name="network_ap_rename_hint">Своё название</string>
     <string name="network_ap_rename_reset">Сбросить</string>

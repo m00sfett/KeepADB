@@ -355,10 +355,168 @@ public class KeepADBNetworkListTest {
         assertNotEquals(Status.UNREADABLE, KeepADBNetworkList.build(context, null, false).current.status);
     }
 
+    // --- Names stored with an entry or a block (#796, #802) ----------------------------------
+
+    /**
+     * #796: a trusted access point whose label is only its address, trusted while its name was
+     * known elsewhere. The stored name files it and lets the name block reach it; without the name
+     * block it stays trusted.
+     */
+    @Test
+    public void aTrustedEntryWithABssidLabelAndAStoredNameIsBlockedWhenThatNameIsBlocked() {
+        KeepADBTrustedNetwork.addBssid(context, HOME_KITCHEN, HOME_KITCHEN, HOME);
+
+        Row trusted = onlyRow(build(null));
+        assertEquals("Control: the stored name files the row under it", HOME, trusted.ssid);
+        assertTrue(trusted.ssidStored);
+        assertNull("... but the trust label may not gain a name from it", trusted.labelSsid());
+        assertEquals("Control: without a name block it is trusted", Status.TRUSTED, trusted.status);
+        assertEquals(HOME, build(null).groups.get(0).ssid);
+
+        KeepADBNetworkBlocklist.blockSsid(context, HOME);
+
+        Snapshot snapshot = build(null);
+        Row blocked = onlyRow(snapshot);
+        assertEquals(Status.BLOCKED, blocked.status);
+        assertEquals(Reason.NAME, blocked.reason);
+        assertNotNull("The trust stays stored behind the block", blocked.entry);
+        assertEquals(0, snapshot.trusted);
+        assertEquals(1, snapshot.blocked);
+        assertTrue(snapshot.groups.get(0).nameBlocked);
+        assertFalse("Not the current connection: the stored name is all the list has", blocked.current);
+    }
+
+    /**
+     * The other side of the same case, and the limit that stays: an entry stored before the field
+     * has no name to be reached by, so the list still calls it trusted -- the connection decision
+     * does not, because it reads the live name.
+     */
+    @Test
+    public void anEntryStoredBeforeTheFieldStaysTrustedInTheListAndIsStillBlockedWhenItConnects() {
+        context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit()
+                .putString("trusted_network_ids", "1")
+                .putInt("trusted_network_next_id", 2)
+                .putString("trusted_network_1_bssid", HOME_KITCHEN)
+                .putString("trusted_network_1_label", HOME_KITCHEN).commit();
+        KeepADBNetworkBlocklist.blockSsid(context, HOME);
+
+        Row row = rowOf(build(null), HOME_KITCHEN);
+        assertNull(row.ssid);
+        assertEquals("No name known, so the name block cannot reach it in the list",
+                Status.TRUSTED, row.status);
+        assertEquals("... while the decision for the live identity blocks it",
+                KeepADBTrustedNetwork.Decision.BLOCKED_NAME,
+                KeepADBTrustedNetwork.evaluate(context, new KeepADBNetworkIdentity("\"" + HOME + "\"", HOME_KITCHEN)));
+        // As the current network the row has the live name and shows the block (unchanged).
+        Row current = rowOf(build(new KeepADBNetworkIdentity("\"" + HOME + "\"", HOME_KITCHEN)), HOME_KITCHEN);
+        assertEquals(Status.BLOCKED, current.status);
+        assertEquals(HOME, current.ssid);
+        assertFalse("The live name is no stored name", current.ssidStored);
+    }
+
+    /** The whole way of #796 through the real writers: block with a known name, trust, block the name. */
+    @Test
+    public void aNameStoredByTheBlockFilesTheRowAndCarriesThroughTrustingIntoAnAnswerableNameBlock() {
+        KeepADBBlockedNetworkHistory.record(context,
+                new KeepADBNetworkIdentity("\"" + CAFE + "\"", CAFE_AP), 1L);
+        KeepADBNetworkDecision.blockAccessPoint(context, CAFE_AP);
+
+        Snapshot blocked = build(null);
+        assertEquals("A blocked access point is filed under the name it was blocked under",
+                CAFE, blocked.groups.get(0).ssid);
+        Row blockedRow = onlyRow(blocked);
+        assertEquals(Status.BLOCKED, blockedRow.status);
+        assertEquals(Reason.ACCESS_POINT, blockedRow.reason);
+        assertTrue(blockedRow.ssidStored);
+        assertNull("The label may not carry the stored name", blockedRow.labelSsid());
+
+        assertEquals(Outcome.TRUSTED,
+                KeepADBNetworkListActions.trustBlockedAccessPoint(context, CAFE_AP, blockedRow.labelSsid()));
+        Row trusted = onlyRow(build(null));
+        assertEquals(Status.TRUSTED, trusted.status);
+        assertEquals(CAFE, trusted.ssid);
+        assertEquals("The label stays the address", CAFE_AP, trusted.entry.label);
+
+        assertEquals(Outcome.BLOCKED_NAME, KeepADBNetworkListActions.blockName(context, CAFE));
+        Row afterNameBlock = onlyRow(build(null));
+        assertEquals("The entry whose label is only the address now reads blocked by name",
+                Status.BLOCKED, afterNameBlock.status);
+        assertEquals(Reason.NAME, afterNameBlock.reason);
+        assertEquals("The decision for the live identity agrees",
+                KeepADBTrustedNetwork.Decision.BLOCKED_NAME,
+                KeepADBTrustedNetwork.evaluate(context, new KeepADBNetworkIdentity("\"" + CAFE + "\"", CAFE_AP)));
+    }
+
+    @Test
+    public void theLabelNameThenTheLiveNameThenTheStoredNameFilesARow() {
+        KeepADBTrustedNetwork.addBssid(context, HOME_KITCHEN, HOME, "Gespeichert");
+        KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP, "Gespeichert", null);
+
+        Row labelled = rowOf(build(null), HOME_KITCHEN);
+        assertEquals("The label's name wins over the stored one", HOME, labelled.ssid);
+        assertFalse(labelled.ssidStored);
+
+        // The current connection beats the stored name of a blocked access point ...
+        Row live = rowOf(build(new KeepADBNetworkIdentity("\"" + CAFE + "\"", CAFE_AP)), CAFE_AP);
+        assertEquals(CAFE, live.ssid);
+        assertFalse(live.ssidStored);
+        // ... and an unreadable live name falls back to the stored one.
+        Row unreadable = rowOf(build(new KeepADBNetworkIdentity(null, CAFE_AP)), CAFE_AP);
+        assertEquals("Gespeichert", unreadable.ssid);
+        assertTrue(unreadable.ssidStored);
+    }
+
+    /** #802: a blocked access point shows and sorts by its own name; a trusted one keeps its own. */
+    @Test
+    public void aBlockedAccessPointShowsItsOwnNameAndSortsByIt() {
+        KeepADBNetworkBlocklist.blockBssid(context, OTHER_AP, CAFE, null);
+        KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP, CAFE, "Ecke");
+
+        Group group = build(null).groups.get(0);
+
+        assertEquals(CAFE, group.ssid);
+        assertEquals(2, group.rows.size());
+        assertEquals("The one with an own name sorts first", CAFE_AP, group.rows.get(0).bssid);
+        assertEquals("Ecke", group.rows.get(0).customName);
+        assertNull(group.rows.get(1).customName);
+        assertNull("A blocked row has no trusted entry", group.rows.get(0).entry);
+
+        // The name of the trust wins when an old state holds both.
+        KeepADBTrustedNetwork.Entry entry = KeepADBTrustedNetwork.addBssid(context, CAFE_AP, CAFE);
+        KeepADBTrustedNetwork.setCustomName(context, entry.id, "Theke");
+        assertEquals("Theke", rowOf(build(null), CAFE_AP).customName);
+    }
+
+    @Test
+    public void renamingABlockedAccessPointChangesNeitherItsStatusNorItsBlockNorTheGroup() {
+        KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP, CAFE, null);
+        Row before = onlyRow(build(null));
+
+        assertTrue(KeepADBNetworkBlocklist.setBlockedCustomName(context, CAFE_AP, "Ecke"));
+
+        Row after = onlyRow(build(null));
+        assertEquals("Ecke", after.customName);
+        assertEquals(before.status, after.status);
+        assertEquals(before.reason, after.reason);
+        assertEquals(before.ssid, after.ssid);
+        assertTrue(KeepADBNetworkBlocklist.isBssidBlocked(context, CAFE_AP));
+        assertEquals(1, KeepADBNetworkBlocklist.getBlockedBssids(context).size());
+        assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
+    }
+
     // --- Helpers ----------------------------------------------------------------------------
 
     private Snapshot build(KeepADBNetworkIdentity identity) {
         return KeepADBNetworkList.build(context, identity, identity != null);
+    }
+
+    private static Row rowOf(Snapshot snapshot, String bssid) {
+        for (Group group : snapshot.groups) {
+            for (Row row : group.rows) {
+                if (row.bssid.equalsIgnoreCase(bssid)) return row;
+            }
+        }
+        throw new AssertionError("No row for " + bssid);
     }
 
     private static Row onlyRow(Snapshot snapshot) {

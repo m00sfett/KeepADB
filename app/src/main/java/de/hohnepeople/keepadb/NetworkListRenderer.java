@@ -528,8 +528,8 @@ final class NetworkListRenderer {
         view.setMinimumHeight(dp(48));
         setTopMargin(view, 8);
 
-        String custom = row.entry == null || row.entry.customName == null ? null
-                : KeepADBNetworkDisplay.customName(activity, row.entry.customName);
+        String custom = row.customName == null ? null
+                : KeepADBNetworkDisplay.customName(activity, row.customName);
         int band = KeepADBAccessPointBand.bandOf(frequencies, row.bssid);
         String bssidLine = KeepADBNetworkDisplay.bssidWithBand(activity, row.bssid, band);
         String title = custom != null ? custom : bssidLine;
@@ -559,8 +559,8 @@ final class NetworkListRenderer {
         LinearLayout content = dialogContent();
         int band = KeepADBAccessPointBand.bandOf(frequencies, row.bssid);
         String bssidLine = KeepADBNetworkDisplay.bssidWithBand(activity, row.bssid, band);
-        String custom = row.entry == null || row.entry.customName == null ? null
-                : KeepADBNetworkDisplay.customName(activity, row.entry.customName);
+        String custom = row.customName == null ? null
+                : KeepADBNetworkDisplay.customName(activity, row.customName);
 
         TextView title = condensed(custom != null ? custom : bssidLine, 18, R.color.title_yellow);
         title.setAccessibilityHeading(true);
@@ -588,7 +588,7 @@ final class NetworkListRenderer {
             if (!nameBlocked) {
                 addDialogButton(content, activity.getString(R.string.network_decision_trust), true,
                         () -> answer(KeepADBNetworkListActions.trustBlockedAccessPoint(
-                                activity, row.bssid, ssid), ssid));
+                                activity, row.bssid, row.labelSsid()), ssid));
             }
             addDialogButton(content, activity.getString(R.string.networks_action_unblock), nameBlocked,
                     () -> answer(
@@ -600,7 +600,8 @@ final class NetworkListRenderer {
         }
         if (!addressBlocked && !nameBlocked) {
             addDialogButton(content, activity.getString(R.string.networks_action_block), false,
-                    () -> answer(KeepADBNetworkListActions.blockAccessPoint(activity, row.bssid), ssid));
+                    () -> answer(KeepADBNetworkListActions.blockAccessPoint(
+                            activity, row.bssid, ssid), ssid));
             if (row.entry != null) {
                 addDialogButton(content, activity.getString(R.string.networks_action_untrust), false,
                         () -> answer(KeepADBNetworkListActions.stopTrusting(activity, row.bssid), ssid));
@@ -615,6 +616,14 @@ final class NetworkListRenderer {
                     () -> {
                         AlertDialog rename = KeepADBNetworkActions.editAccessPointName(activity,
                                 row.entry, onChanged);
+                        showDialog(rename);
+                    });
+        } else if (addressBlocked) {
+            // #802: a blocked access point without a trusted entry keeps its own name with the block.
+            addDialogButton(content, activity.getString(R.string.networks_action_rename), false,
+                    () -> {
+                        AlertDialog rename = KeepADBNetworkActions.editBlockedAccessPointName(
+                                activity, row.bssid, row.customName, onChanged);
                         showDialog(rename);
                     });
         }
