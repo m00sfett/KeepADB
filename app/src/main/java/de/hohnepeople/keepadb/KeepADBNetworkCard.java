@@ -411,9 +411,9 @@ final class KeepADBNetworkCard {
     private boolean isLocationPermissionPermanentlyDenied() {
         boolean previouslyRequested = activity.getPreferences(Context.MODE_PRIVATE)
                 .getBoolean(LOCATION_PERMISSION_REQUESTED, false);
-        return previouslyRequested
-                && !activity.shouldShowRequestPermissionRationale(
-                        Manifest.permission.ACCESS_FINE_LOCATION);
+        // #797: an asking from the assistant or the networks list counts as well.
+        return OnboardingPermissions.locationAction(activity, previouslyRequested)
+                == OnboardingPermissions.Action.OPEN_SETTINGS;
     }
 
     private void onLocationPermissionActionClick() {
@@ -423,6 +423,7 @@ final class KeepADBNetworkCard {
         }
         activity.getPreferences(Context.MODE_PRIVATE).edit()
                 .putBoolean(LOCATION_PERMISSION_REQUESTED, true).apply();
+        OnboardingPermissions.markLocationAsked(activity);
         activity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION},
                 WIFI_APS_LOCATION_PERMISSION_REQUEST);

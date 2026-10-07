@@ -39,6 +39,16 @@ final class OnboardingPermissions {
     static final String PREF_LOCATION_REQUESTED = "networks_location_requested";
     private static final String PREF_NOTIFICATION_REQUESTED = "notification_permission_requested";
 
+    /**
+     * #797: one app-wide "asked before" marker for the location permission. The per-activity
+     * markers above and in {@link KeepADBNetworkCard} stay as they are (existing installs hold
+     * them); this file only adds what they cannot know, that another screen already asked. It is
+     * not part of {@code keepadb_prefs}, so it never counts as a stored setting of an existing
+     * installation ({@link KeepADBOnboarding#isExistingInstall}).
+     */
+    private static final String SHARED_ASKS_FILE = "keepadb_permission_asks";
+    private static final String KEY_LOCATION_ASKED = "location_asked";
+
     static final int REQUEST_NOTIFICATIONS = 7671;
 
     private OnboardingPermissions() {}
@@ -97,9 +107,23 @@ final class OnboardingPermissions {
     }
 
     static Action locationAction(Activity activity) {
-        return decide(prefs(activity).getBoolean(PREF_LOCATION_REQUESTED, false),
-                activity.shouldShowRequestPermissionRationale(
-                        Manifest.permission.ACCESS_FINE_LOCATION));
+        return locationAction(activity, prefs(activity).getBoolean(PREF_LOCATION_REQUESTED, false));
+    }
+
+    /**
+     * Same decision for a screen that keeps its own marker ({@code askedInOwnFile}); a request made
+     * from any other screen counts as well, so the first tap here is never an idle tap on a
+     * permission the system will not ask for again (#797).
+     */
+    static Action locationAction(Activity activity, boolean askedInOwnFile) {
+        boolean asked = askedInOwnFile || sharedAsks(activity).getBoolean(KEY_LOCATION_ASKED, false);
+        return decide(asked, activity.shouldShowRequestPermissionRationale(
+                Manifest.permission.ACCESS_FINE_LOCATION));
+    }
+
+    /** Records an asking of the location permission for every screen (#797). */
+    static void markLocationAsked(Activity activity) {
+        sharedAsks(activity).edit().putBoolean(KEY_LOCATION_ASKED, true).apply();
     }
 
     /**
@@ -112,6 +136,7 @@ final class OnboardingPermissions {
             return;
         }
         prefs(activity).edit().putBoolean(PREF_LOCATION_REQUESTED, true).apply();
+        markLocationAsked(activity);
         activity.requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION}, requestCode);
     }
@@ -134,6 +159,10 @@ final class OnboardingPermissions {
         if (isNotificationMissing(context)) missing++;
         if (!isLocationGranted(context)) missing++;
         return missing;
+    }
+
+    private static SharedPreferences sharedAsks(Activity activity) {
+        return activity.getSharedPreferences(SHARED_ASKS_FILE, Context.MODE_PRIVATE);
     }
 
     private static SharedPreferences prefs(Activity activity) {

@@ -310,9 +310,20 @@ public class MainActivity extends Activity {
      */
     private void renderKeepAliveSubtext() {
         String base = getString(R.string.keep_alive_subtext);
-        keepAliveSubtext.setText(KeepADBForceMode.isActive(this) ? base
+        boolean force = KeepADBForceMode.isActive(this);
+        keepAliveSubtext.setText(force ? base
                 : base + "\n" + getString(R.string.networks_level,
                         KeepADBForceNotice.levelLabel(this)));
+        // #801: the line that names the level leads to where the level is shown (UX concept 5.3,
+        // point 1). While the force mode is on the line names no level and is no tap target.
+        if (force) {
+            keepAliveSubtext.setOnClickListener(null);
+            keepAliveSubtext.setClickable(false);
+        } else {
+            keepAliveSubtext.setOnClickListener(v -> startActivity(
+                    new Intent(this, SettingsActivity.class)
+                            .putExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, true)));
+        }
     }
 
     private void refresh() {

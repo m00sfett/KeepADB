@@ -25,16 +25,29 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.9.41] - Unreleased
 
-Etappe E12 patch candidate (versionCode 213), packages #793 (register-state test hygiene), #799 and #798 (deep link to a Networks list row) on top of 1.9.40; no release. The version 1.9.40 stays as it is.
+Etappe E12 patch candidate (versionCode 213), packages #793 (register-state test hygiene), #799 and #798 (deep link to a Networks list row), #797 (points 1 and 3) and #801 (Keep-Alive line tap) on top of 1.9.40; no release. The version 1.9.40 stays as it is.
 
 ### Added
 - **Networks list (#799):** `NetworkListActivity` accepts `EXTRA_FOCUS_BSSID`. On a fresh open it marks the row of that access point (selected state with a thicker frame), unfolds a "show more" group if the row is folded away and scrolls the row into view. Without the extra, or without a matching row, the list opens as before. The status line of the home screen (#790) sets the extra for a decided network.
 
+### Changed
+- **Keep-Alive line (#801):** a tap on the line that names the protection level ("Protection level: ...") opens the settings with the network card expanded and its protection level row in view (UX concept 5.3, point 1). New `SettingsActivity.EXTRA_FOCUS_NETWORK`, handled like `EXTRA_FOCUS_FORCE`; it is a new extra with a sender, not the unused one removed in #786. While the force mode is on the line names no level and stays no tap target. No text changed.
+
 ### Fixed
 - **Trust decision (#798):** tapping the "new Wi-Fi" notification for an already decided access point showed only a toast. It now also opens the Networks list on that access point's row; an open question still shows the dialog, an expired request still only the toast.
+- **Location permission marker (#797, point 1):** "the location permission was asked before" was stored per activity (assistant, networks list and Settings card each in their own preferences file). After one screen had asked and the system had stopped asking, the button on another screen still sent one idle request before it led to the app settings. A small app-wide marker (`keepadb_permission_asks`, outside `keepadb_prefs`, so it does not count as a stored setting of an existing installation) is now written next to the old per-activity keys and read by all three screens; the old keys stay as they are.
+
+### Documentation
+- **Release notes 211 (#797, point 3):** the last sentence of `changelogs/211.txt` ("Leftover code ... is gone") was an implementation detail and is dropped; the text belongs to the still unpublished 1.9.39. The 1.9.39 entry of this file is a developer log and stays as it is.
+- **#797, point 1, intro count:** checked and no longer applicable as a defect. Since #768 the assistant can change both the webhook over `http://` (webhook step) and an active force mode (protection step), so the intro of an existing installation counts them correctly; a test now pins that (`OnboardingActivityTest.existingIntroMarksAnHttpWebhookAndAnActiveForceEachOnItsOwn`).
+
+### Not done (open)
+- **#797, point 2:** the label "Trust all Wi-Fi networks instead" still leads into the protection step; a new label is a string in 19 locales and needs a product decision.
+- **#797, point 3, second half:** the `TRUSTED_NAME` branch of the status line (#790) is still covered only by a shared mutation, not by its own test.
 
 ### Testing
 - #793: `KeepADBWebhookFormTest`, `SettingsActivityTest`, `KeepADBNotificationWebhookStatusTest` and `KeepADBServiceLifecycleRobolectricTest` now apply `KeepADBRegisterClientResetRule`, so static `KeepADBRegisterClient` state (registration, op generation, transport, executor) no longer depends on earlier test classes. Each class has a `theRegisterClientResetRuleIsAppliedToThisClass` pin test. No product code changed.
+- New tests `LocationAskedAcrossScreensTest` (assistant to Settings and Settings to assistant, plus the control without an earlier asking) and `MainActivityKeepAliveLineTapTest` (tap target, force-mode counter-check, Settings expands the card only when asked); the intro pin in `OnboardingActivityTest`. Mutations in a disposable copy, all red: old Settings card without the shared marker, shared marker not read, no click listener, listener also in force mode, Settings ignoring the extra.
 
 ## [1.9.40] - Unreleased
 
