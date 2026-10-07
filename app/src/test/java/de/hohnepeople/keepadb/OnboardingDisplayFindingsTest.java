@@ -119,8 +119,10 @@ public class OnboardingDisplayFindingsTest {
         OnboardingActivity assistant = open(
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.WEBHOOK));
         EditText url = assistant.findViewById(R.id.settings_webhook_url);
-        assertTrue("multi-line input lets the hint wrap",
-                (url.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0);
+        assertTrue("the field still wraps (not single-line) so the hint is not cut",
+                url.getMaxLines() > 1
+                        && !(url.getTransformationMethod()
+                                instanceof android.text.method.SingleLineTransformationMethod));
         assertTrue("it stays a URL field",
                 (url.getInputType() & InputType.TYPE_TEXT_VARIATION_URI) != 0);
         url.setText("http://host:80/\nregister/x\r");

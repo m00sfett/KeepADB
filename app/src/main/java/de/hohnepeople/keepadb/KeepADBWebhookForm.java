@@ -81,6 +81,13 @@ final class KeepADBWebhookForm {
                     return null;
                 }});
 
+        // #803: the multi-line input type keeps the field wrapping, but makes the keyboard show an
+        // Enter key that only inserts a (filtered) line break. A raw URI type without the multi-line
+        // flag makes the IME offer Done again; the TextView stays non-single-line, so it still wraps.
+        urlInput.setRawInputType(
+                android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_URI);
+        urlInput.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_DONE);
+
         urlInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
