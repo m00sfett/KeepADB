@@ -472,7 +472,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_intro_body_new">Yaklaşık iki dakika. Her adımı atlayabilirsiniz; bu durumda en güvenli ayar geçerli olur.</string>
     <string name="onboarding_intro_title_existing">Yeni güvenlik ayarları</string>
     <string name="onboarding_intro_body_existing">KeepADB artık ana ayarlarını tek bir sihirbazda topluyor. Mevcut değerleriniz korunur ve önceden seçilidir. İleri hiçbir şeyi değiştirmez. Önerilenden daha az güvenli olanlar işaretlidir.</string>
-    <string name="onboarding_intro_less_secure">Daha az güvenli olarak işaretlenen ayarlar: %1$d</string>
+    <string name="onboarding_intro_less_secure">Bazı ayarlar önerilenden daha az güvenli.</string>
     <string name="onboarding_keep_alive_question">Kablosuz Hata Ayıklama yeniden başlatma veya bağlantı kopmasından sonra kendiliğinden tekrar açılsın mı?</string>
     <string name="onboarding_keep_alive_off_body">Kablosuz Hata Ayıklamayı uygulamadan, karodan veya widget’tan kendiniz açarsınız. Yeniden başlatmadan sonra kapalı kalır.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB, yeniden başlatma veya bağlantı kopmasından sonra Kablosuz Hata Ayıklamayı tekrar açar; ancak yalnızca koruma düzeyinizin izin verdiği yerlerde (sonraki adım).</string>
@@ -509,6 +509,8 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="onboarding_perm_system_title">Sistem izni</string>
     <string name="onboarding_perm_system_body">Bu izin olmadan KeepADB Kablosuz Hata Ayıklama’yı açıp kapatamaz. Bir bilgisayardan yalnızca bir kez verin:</string>
     <string name="onboarding_perm_system_more">Birden çok cihaz veya sorunlar?</string>
+    <string name="onboarding_copy_command">Komutu kopyala</string>
+    <string name="onboarding_copy_done">Komut kopyalandı</string>
     <string name="onboarding_perm_location_title">Wi-Fi algılama</string>
     <string name="onboarding_perm_location_body">Android, Wi-Fi adını ve erişim noktasını yalnızca konum erişimi varsa gösterir. KeepADB konumunuzu hiçbir zaman okumaz.</string>
     <string name="onboarding_perm_background_title">Arka planda algılama</string>
@@ -537,7 +539,7 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="home_warning_paused_text">KeepADB ağı okuyamadığı için kendiliğinden açmaz.</string>
     <string name="home_warning_action_fix">Düzelt</string>
     <string name="home_warning_limited_title">Keep-Alive sınırlı</string>
-    <string name="home_warning_limited_text">Güvenilir Keep-Alive için eksik ayarlar: %1$d</string>
+    <string name="home_warning_limited_text">Güvenilir Keep-Alive için bazı izinler eksik.</string>
     <string name="status_tap_to_decide">Karar vermek için dokunun</string>
     <string name="status_tap_to_open_list">Ağ listesini açmak için dokunun</string>
 </resources>

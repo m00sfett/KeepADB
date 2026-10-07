@@ -68,6 +68,19 @@ final class KeepADBWebhookForm {
         this.error = error;
         this.cleartextWarning = cleartextWarning;
 
+        // The field wraps long text and the hint at large font sizes (#791); a URL never holds a
+        // line break, so Enter must not add one.
+        urlInput.setFilters(new android.text.InputFilter[] {
+                (source, start, end, dest, dstart, dend) -> {
+                    for (int i = start; i < end; i++) {
+                        char c = source.charAt(i);
+                        if (c == '\n' || c == '\r') {
+                            return source.subSequence(start, end).toString().replaceAll("[\\r\\n]", "");
+                        }
+                    }
+                    return null;
+                }});
+
         urlInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

@@ -472,7 +472,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_intro_body_new">Environ deux minutes. Vous pouvez passer chaque étape ; le réglage le plus sûr s’applique alors.</string>
     <string name="onboarding_intro_title_existing">Nouveaux réglages de sécurité</string>
     <string name="onboarding_intro_body_existing">KeepADB réunit désormais ses réglages principaux dans un assistant. Vos valeurs actuelles sont conservées et présélectionnées. Suivant ne change rien. Ce qui est moins sûr que recommandé est signalé.</string>
-    <string name="onboarding_intro_less_secure">Réglages signalés comme moins sûrs : %1$d</string>
+    <string name="onboarding_intro_less_secure">Certains réglages sont moins sûrs que recommandé.</string>
     <string name="onboarding_keep_alive_question">Le débogage sans fil doit-il se réactiver tout seul après un redémarrage ou une connexion perdue ?</string>
     <string name="onboarding_keep_alive_off_body">Vous activez vous-même le débogage sans fil, dans l’appli, la tuile ou le widget. Après un redémarrage, il reste désactivé.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB réactive le débogage sans fil après un redémarrage ou une connexion perdue, mais seulement là où votre niveau de protection l’autorise (étape suivante).</string>
@@ -509,6 +509,8 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_perm_system_title">Autorisation système</string>
     <string name="onboarding_perm_system_body">Sans elle, KeepADB ne peut pas activer le débogage sans fil. À accorder une seule fois depuis un ordinateur :</string>
     <string name="onboarding_perm_system_more">Plusieurs appareils ou des problèmes ?</string>
+    <string name="onboarding_copy_command">Copier la commande</string>
+    <string name="onboarding_copy_done">Commande copiée</string>
     <string name="onboarding_perm_location_title">Détecter le Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android n’affiche le nom du Wi-Fi et le point d’accès qu’avec l’accès à la position. KeepADB ne lit jamais votre position.</string>
     <string name="onboarding_perm_background_title">Détection en arrière-plan</string>
@@ -537,7 +539,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="home_warning_paused_text">KeepADB ne peut pas lire le réseau et ne s’active donc pas de lui-même.</string>
     <string name="home_warning_action_fix">Corriger</string>
     <string name="home_warning_limited_title">Keep-Alive limité</string>
-    <string name="home_warning_limited_text">Réglages manquants pour un Keep-Alive fiable : %1$d</string>
+    <string name="home_warning_limited_text">Il manque des autorisations pour un Keep-Alive fiable.</string>
     <string name="status_tap_to_decide">Touchez pour décider</string>
     <string name="status_tap_to_open_list">Touchez pour ouvrir la liste des réseaux</string>
 </resources>

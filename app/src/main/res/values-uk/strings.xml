@@ -472,7 +472,7 @@
     <string name="onboarding_intro_body_new">Близько двох хвилин. Будь-який крок можна пропустити, тоді діє найбезпечніше налаштування.</string>
     <string name="onboarding_intro_title_existing">Нові налаштування безпеки</string>
     <string name="onboarding_intro_body_existing">KeepADB тепер збирає основні налаштування в одному помічнику. Ваші поточні значення збережено й вибрано наперед. «Далі» нічого не змінює. Те, що менш безпечне, ніж рекомендовано, позначено.</string>
-    <string name="onboarding_intro_less_secure">Налаштувань, позначених як менш безпечні: %1$d</string>
+    <string name="onboarding_intro_less_secure">Деякі налаштування менш безпечні, ніж рекомендовано.</string>
     <string name="onboarding_keep_alive_question">Чи має бездротове налагодження вмикатися саме після перезавантаження або обриву з’єднання?</string>
     <string name="onboarding_keep_alive_off_body">Ви вмикаєте бездротове налагодження самі: у застосунку, плитці чи віджеті. Після перезавантаження воно лишається вимкненим.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB знову вмикає бездротове налагодження після перезавантаження або обриву з’єднання, але лише там, де це дозволяє ваш рівень захисту (наступний крок).</string>
@@ -509,6 +509,8 @@
     <string name="onboarding_perm_system_title">Системний дозвіл</string>
     <string name="onboarding_perm_system_body">Без нього KeepADB не зможе перемикати бездротове налагодження. Надайте його один раз з комп’ютера:</string>
     <string name="onboarding_perm_system_more">Кілька пристроїв або проблеми?</string>
+    <string name="onboarding_copy_command">Копіювати команду</string>
+    <string name="onboarding_copy_done">Команду скопійовано</string>
     <string name="onboarding_perm_location_title">Розпізнавання Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android показує назву Wi-Fi і точку доступу лише за наявності доступу до геоданих. KeepADB ніколи не зчитує ваше розташування.</string>
     <string name="onboarding_perm_background_title">Розпізнавання у фоні</string>
@@ -537,7 +539,7 @@
     <string name="home_warning_paused_text">KeepADB не може прочитати мережу, тому не вмикає налагодження сам.</string>
     <string name="home_warning_action_fix">Виправити</string>
     <string name="home_warning_limited_title">Keep-Alive обмежено</string>
-    <string name="home_warning_limited_text">Бракує налаштувань для надійної роботи Keep-Alive: %1$d</string>
+    <string name="home_warning_limited_text">Бракує дозволів для надійної роботи Keep-Alive.</string>
     <string name="status_tap_to_decide">Торкніться, щоб вирішити</string>
     <string name="status_tap_to_open_list">Торкніться, щоб відкрити список мереж</string>
 </resources>

@@ -80,9 +80,10 @@ final class KeepADBForceDialog {
         render();
 
         AlertDialog created = new AlertDialog.Builder(activity)
-                .setTitle(R.string.force_dialog_title)
                 .setView(content)
                 .create();
+        // The visible title is the first line of the content (#791); this one is for screen readers.
+        created.getWindow().setTitle(activity.getString(R.string.force_dialog_title));
         dialog = created;
         created.setOnDismissListener(d -> {
             if (dialog == d) dialog = null;

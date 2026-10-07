@@ -17,11 +17,35 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36`, `1.9.37`, `1.9.38` and `1.9.39` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36`, `1.9.37`, `1.9.38`, `1.9.39` and `1.9.40` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.40] - Unreleased
+
+Etappe E11 patch candidate (versionCode 212), package #791 (display findings F2 to F9 of the AVD acceptance) on top of 1.9.39; no release. The version 1.9.39 stays as it is.
+
+### Fixed
+- **Networks list (F2, #791):** the tappable "Current network" card (trusted or blocked) lost its inner padding when the clickable background replaced the panel background, so the badge touched the frame; the 16 dp inset is restored.
+- **Force dialog (F4, #791):** the title is now the first line of the scrolled content instead of a fixed title bar that half-covered the "How long?" heading while scrolling.
+- **Setup assistant (F5, #791):** on narrow or large-font displays "Back" and "Skip" share one row below "Next", so the bottom bar takes two rows instead of three (about 32 % to 23 % of the screen at 320 dp and 200 %).
+- **Webhook URL field (F6, #791):** the field accepts wrapped input (line breaks are filtered out of the URL), so the example hint is no longer cut off at 200 % font size.
+- **Setup assistant intro (F8, #791):** the app mark stands above the title instead of below the body text.
+- **Home screen (F9, #791):** without the system permission an endpoint found earlier is no longer shown; the line reads "Endpoint unavailable".
+
+### Changed
+- **Warning texts (F7, #791):** "Settings missing for reliable Keep-Alive: N" and "Settings marked less secure: N" are now sentences without a bare count, in all languages.
+- **Keep-Alive line (F8, #791):** names the protection level ("Protection level: ...") except while the force mode is on.
+- **Setup assistant, permissions step (F8, #791):** the missing system permission offers "Copy command" next to the adb command; two new strings in all languages.
+
+### Not done (open in #791)
+- **F3:** the dialog of a blocked access point has no "Rename". Blocking removes the trust entry, and names are only stored on trust entries; a name for a blocked access point needs a new data model and a product decision.
+- **F8, tap target:** the Keep-Alive line does not yet lead to the network area of the settings (UX concept 5.3, point 1).
+
+### Testing
+- New tests `NetworkListNetworksViewTest` (card padding), `KeepADBForceDialogTest` (title in the scrolled content), `OnboardingDisplayFindingsTest`, `OnboardingCopyCommandTest` and `MainActivityDisplayFindingsTest`; each fails without its fix. Rendering was checked on the AVD (screenshots outside the repository).
 
 ## [1.9.39] - Unreleased
 

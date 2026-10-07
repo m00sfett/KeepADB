@@ -472,7 +472,7 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="onboarding_intro_body_new">Około dwóch minut. Każdy krok możesz pominąć; wtedy obowiązuje najbezpieczniejsze ustawienie.</string>
     <string name="onboarding_intro_title_existing">Nowe ustawienia bezpieczeństwa</string>
     <string name="onboarding_intro_body_existing">KeepADB zbiera teraz najważniejsze ustawienia w jednym kreatorze. Twoje dotychczasowe wartości zostają zachowane i są zaznaczone. Dalej niczego nie zmienia. To, co jest mniej bezpieczne niż zalecane, jest oznaczone.</string>
-    <string name="onboarding_intro_less_secure">Ustawienia oznaczone jako mniej bezpieczne: %1$d</string>
+    <string name="onboarding_intro_less_secure">Niektóre ustawienia są mniej bezpieczne, niż zalecane.</string>
     <string name="onboarding_keep_alive_question">Czy debugowanie bezprzewodowe ma włączać się samo po ponownym uruchomieniu lub utracie połączenia?</string>
     <string name="onboarding_keep_alive_off_body">Debugowanie bezprzewodowe włączasz sam w aplikacji, na kafelku lub w widżecie. Po ponownym uruchomieniu pozostaje wyłączone.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB włącza debugowanie bezprzewodowe ponownie po ponownym uruchomieniu lub utracie połączenia, ale tylko tam, gdzie pozwala na to Twój poziom ochrony (następny krok).</string>
@@ -509,6 +509,8 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="onboarding_perm_system_title">Uprawnienie systemowe</string>
     <string name="onboarding_perm_system_body">Bez niego KeepADB nie może przełączać debugowania bezprzewodowego. Przyznaj je raz z komputera:</string>
     <string name="onboarding_perm_system_more">Kilka urządzeń lub problemy?</string>
+    <string name="onboarding_copy_command">Skopiuj polecenie</string>
+    <string name="onboarding_copy_done">Skopiowano polecenie</string>
     <string name="onboarding_perm_location_title">Wykrywanie Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android pokazuje nazwę Wi-Fi i punkt dostępowy tylko przy dostępie do lokalizacji. KeepADB nigdy nie odczytuje Twojego położenia.</string>
     <string name="onboarding_perm_background_title">Wykrywanie w tle</string>
@@ -537,7 +539,7 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="home_warning_paused_text">KeepADB nie może odczytać sieci, więc nie włącza się samodzielnie.</string>
     <string name="home_warning_action_fix">Napraw</string>
     <string name="home_warning_limited_title">Keep-Alive ograniczone</string>
-    <string name="home_warning_limited_text">Brakujące ustawienia dla niezawodnego Keep-Alive: %1$d</string>
+    <string name="home_warning_limited_text">Brakuje uprawnień potrzebnych do niezawodnego Keep-Alive.</string>
     <string name="status_tap_to_decide">Dotknij, aby zdecydować</string>
     <string name="status_tap_to_open_list">Dotknij, aby otworzyć listę sieci</string>
 </resources>

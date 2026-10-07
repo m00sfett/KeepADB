@@ -472,7 +472,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_intro_body_new">Etwa zwei Minuten. Jeden Schritt kannst du überspringen, dann gilt die sicherste Einstellung.</string>
     <string name="onboarding_intro_title_existing">Neue Sicherheitseinstellungen</string>
     <string name="onboarding_intro_body_existing">KeepADB fasst die wichtigsten Einstellungen jetzt in einem Assistenten zusammen. Deine bisherigen Werte sind übernommen und vorausgewählt. „Weiter“ ändert nichts. Was weniger sicher ist als empfohlen, ist markiert.</string>
-    <string name="onboarding_intro_less_secure">Als weniger sicher markierte Einstellungen: %1$d</string>
+    <string name="onboarding_intro_less_secure">Einige Einstellungen sind weniger sicher als empfohlen.</string>
     <string name="onboarding_keep_alive_question">Soll Drahtloses Debugging nach einem Neustart oder Verbindungsabbruch von selbst wieder angehen?</string>
     <string name="onboarding_keep_alive_off_body">Du schaltest Drahtloses Debugging selbst ein, in der App, per Kachel oder Widget. Nach einem Neustart bleibt es aus.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB schaltet Drahtloses Debugging nach einem Neustart oder Verbindungsabbruch wieder ein, aber nur dort, wo deine Schutzstufe es erlaubt (nächster Schritt).</string>
@@ -509,6 +509,8 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_perm_system_title">Systemberechtigung</string>
     <string name="onboarding_perm_system_body">Ohne sie kann KeepADB Drahtloses Debugging nicht schalten. Einmalig am Computer vergeben:</string>
     <string name="onboarding_perm_system_more">Mehrere Geräte oder Probleme?</string>
+    <string name="onboarding_copy_command">Befehl kopieren</string>
+    <string name="onboarding_copy_done">Befehl kopiert</string>
     <string name="onboarding_perm_location_title">WLAN erkennen</string>
     <string name="onboarding_perm_location_body">Android zeigt WLAN-Name und Access Point nur mit Standortzugriff. KeepADB liest nie deine Position.</string>
     <string name="onboarding_perm_background_title">Erkennung im Hintergrund</string>
@@ -537,7 +539,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="home_warning_paused_text">KeepADB kann das Netzwerk nicht lesen und schaltet deshalb nicht von selbst ein.</string>
     <string name="home_warning_action_fix">Beheben</string>
     <string name="home_warning_limited_title">Keep-Alive ist eingeschränkt</string>
-    <string name="home_warning_limited_text">Fehlende Einstellungen für zuverlässiges Keep-Alive: %1$d</string>
+    <string name="home_warning_limited_text">Für ein zuverlässiges Keep-Alive fehlen noch Berechtigungen.</string>
     <string name="status_tap_to_decide">Tippen, um zu entscheiden</string>
     <string name="status_tap_to_open_list">Tippen, um die Netzwerkliste zu öffnen</string>
 </resources>

@@ -481,7 +481,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="onboarding_intro_body_new">About two minutes. You can skip any step; the safest setting then applies.</string>
     <string name="onboarding_intro_title_existing">New security settings</string>
     <string name="onboarding_intro_body_existing">KeepADB now brings its main settings together in one assistant. Your current values are kept and preselected. Next changes nothing. Anything less secure than recommended is marked.</string>
-    <string name="onboarding_intro_less_secure">Settings marked less secure: %1$d</string>
+    <string name="onboarding_intro_less_secure">Some settings are less secure than recommended.</string>
     <string name="onboarding_keep_alive_question">Should Wireless Debugging switch itself back on after a restart or a lost connection?</string>
     <string name="onboarding_keep_alive_off_body">You switch Wireless Debugging on yourself, in the app, the tile or the widget. After a restart it stays off.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB switches Wireless Debugging back on after a restart or a lost connection, but only where your protection level allows it (next step).</string>
@@ -518,6 +518,8 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="onboarding_perm_system_title">System permission</string>
     <string name="onboarding_perm_system_body">Without it, KeepADB cannot switch Wireless Debugging. Grant it once from a computer:</string>
     <string name="onboarding_perm_system_more">Several devices or problems?</string>
+    <string name="onboarding_copy_command">Copy command</string>
+    <string name="onboarding_copy_done">Command copied</string>
     <string name="onboarding_perm_location_title">Detect Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android only shows the Wi-Fi name and access point with location access. KeepADB never reads your position.</string>
     <string name="onboarding_perm_background_title">Detection in the background</string>
@@ -546,7 +548,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="home_warning_paused_text">KeepADB cannot read the network, so it does not switch on by itself.</string>
     <string name="home_warning_action_fix">Fix</string>
     <string name="home_warning_limited_title">Keep-Alive is limited</string>
-    <string name="home_warning_limited_text">Settings missing for reliable Keep-Alive: %1$d</string>
+    <string name="home_warning_limited_text">Keep-Alive needs more permissions to run reliably.</string>
     <string name="status_tap_to_decide">Tap to decide</string>
     <string name="status_tap_to_open_list">Tap to open the network list</string>
 </resources>

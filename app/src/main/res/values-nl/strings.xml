@@ -472,7 +472,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_intro_body_new">Ongeveer twee minuten. Je kunt elke stap overslaan; dan geldt de veiligste instelling.</string>
     <string name="onboarding_intro_title_existing">Nieuwe beveiligingsinstellingen</string>
     <string name="onboarding_intro_body_existing">KeepADB bundelt de belangrijkste instellingen nu in één assistent. Je huidige waarden blijven behouden en zijn voorgeselecteerd. Volgende wijzigt niets. Wat minder veilig is dan aanbevolen, is gemarkeerd.</string>
-    <string name="onboarding_intro_less_secure">Als minder veilig gemarkeerde instellingen: %1$d</string>
+    <string name="onboarding_intro_less_secure">Sommige instellingen zijn minder veilig dan aanbevolen.</string>
     <string name="onboarding_keep_alive_question">Moet draadloze foutopsporing zichzelf weer inschakelen na een herstart of een verbroken verbinding?</string>
     <string name="onboarding_keep_alive_off_body">Je schakelt draadloze foutopsporing zelf in, in de app, via de tegel of de widget. Na een herstart blijft het uit.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB schakelt draadloze foutopsporing na een herstart of een verbroken verbinding weer in, maar alleen waar je beveiligingsniveau dat toestaat (volgende stap).</string>
@@ -509,6 +509,8 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_perm_system_title">Systeemtoestemming</string>
     <string name="onboarding_perm_system_body">Zonder deze toestemming kan KeepADB draadloze foutopsporing niet schakelen. Verleen haar eenmalig vanaf een computer:</string>
     <string name="onboarding_perm_system_more">Meerdere apparaten of problemen?</string>
+    <string name="onboarding_copy_command">Opdracht kopiëren</string>
+    <string name="onboarding_copy_done">Opdracht gekopieerd</string>
     <string name="onboarding_perm_location_title">Wifi herkennen</string>
     <string name="onboarding_perm_location_body">Android toont de wifi-naam en het access point alleen met locatietoegang. KeepADB leest nooit je positie.</string>
     <string name="onboarding_perm_background_title">Herkenning op de achtergrond</string>
@@ -537,7 +539,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="home_warning_paused_text">KeepADB kan het netwerk niet lezen en schakelt daarom niet zelf in.</string>
     <string name="home_warning_action_fix">Oplossen</string>
     <string name="home_warning_limited_title">Keep-Alive beperkt</string>
-    <string name="home_warning_limited_text">Ontbrekende instellingen voor betrouwbare Keep-Alive: %1$d</string>
+    <string name="home_warning_limited_text">Er ontbreken machtigingen voor een betrouwbare Keep-Alive.</string>
     <string name="status_tap_to_decide">Tik om te beslissen</string>
     <string name="status_tap_to_open_list">Tik om de netwerklijst te openen</string>
 </resources>

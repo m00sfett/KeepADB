@@ -472,7 +472,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_intro_body_new">Khoảng hai phút. Bạn có thể bỏ qua bất kỳ bước nào; khi đó áp dụng thiết lập an toàn nhất.</string>
     <string name="onboarding_intro_title_existing">Cài đặt bảo mật mới</string>
     <string name="onboarding_intro_body_existing">KeepADB nay gom các cài đặt chính vào một trình hướng dẫn. Giá trị hiện tại của bạn được giữ nguyên và chọn sẵn. Nhấn Tiếp không thay đổi gì. Mục kém an toàn hơn khuyến nghị sẽ được đánh dấu.</string>
-    <string name="onboarding_intro_less_secure">Cài đặt được đánh dấu kém an toàn: %1$d</string>
+    <string name="onboarding_intro_less_secure">Một số cài đặt kém an toàn hơn mức khuyến nghị.</string>
     <string name="onboarding_keep_alive_question">Gỡ lỗi không dây có nên tự bật lại sau khi khởi động lại hoặc mất kết nối không?</string>
     <string name="onboarding_keep_alive_off_body">Bạn tự bật Gỡ lỗi không dây trong ứng dụng, ô cài đặt nhanh hoặc widget. Sau khi khởi động lại, nó vẫn tắt.</string>
     <string name="onboarding_keep_alive_on_body">KeepADB bật lại Gỡ lỗi không dây sau khi khởi động lại hoặc mất kết nối, nhưng chỉ ở nơi mức bảo vệ của bạn cho phép (bước tiếp theo).</string>
@@ -509,6 +509,8 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_perm_system_title">Quyền hệ thống</string>
     <string name="onboarding_perm_system_body">Không có quyền này, KeepADB không thể bật/tắt Gỡ lỗi không dây. Hãy cấp một lần từ máy tính:</string>
     <string name="onboarding_perm_system_more">Nhiều thiết bị hoặc có sự cố?</string>
+    <string name="onboarding_copy_command">Sao chép lệnh</string>
+    <string name="onboarding_copy_done">Đã sao chép lệnh</string>
     <string name="onboarding_perm_location_title">Nhận diện Wi-Fi</string>
     <string name="onboarding_perm_location_body">Android chỉ hiện tên Wi-Fi và điểm truy cập khi có quyền truy cập vị trí. KeepADB không bao giờ đọc vị trí của bạn.</string>
     <string name="onboarding_perm_background_title">Nhận diện trong nền</string>
@@ -537,7 +539,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="home_warning_paused_text">KeepADB không đọc được mạng nên không tự bật.</string>
     <string name="home_warning_action_fix">Khắc phục</string>
     <string name="home_warning_limited_title">Keep-Alive bị hạn chế</string>
-    <string name="home_warning_limited_text">Cài đặt còn thiếu để Keep-Alive hoạt động ổn định: %1$d</string>
+    <string name="home_warning_limited_text">Còn thiếu quyền để Keep-Alive hoạt động ổn định.</string>
     <string name="status_tap_to_decide">Chạm để quyết định</string>
     <string name="status_tap_to_open_list">Chạm để mở danh sách mạng</string>
 </resources>

@@ -299,6 +299,7 @@ public class OnboardingActivity extends Activity {
     private void showPage(int target) {
         page = target;
         pageContent.removeAllViews();
+        findViewById(R.id.onboarding_page_icon).setVisibility(View.GONE);
         scroll.scrollTo(0, 0);
         if (single != null) {
             showSingleStep();
@@ -319,10 +320,8 @@ public class OnboardingActivity extends Activity {
         headerTitle.setText(R.string.onboarding_title);
         List<KeepADBOnboarding.LessSecure> marked = KeepADBOnboarding.lessSecure(this);
 
-        ImageView icon = new ImageView(this);
-        icon.setImageResource(R.drawable.ic_keepadb);
-        icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        pageContent.addView(icon, new LinearLayout.LayoutParams(dp(48), dp(48)));
+        // The mark stands above the title (#791), not below the body text.
+        findViewById(R.id.onboarding_page_icon).setVisibility(View.VISIBLE);
 
         pageTitle.setVisibility(View.VISIBLE);
         pageTitle.setText(existing
@@ -333,8 +332,7 @@ public class OnboardingActivity extends Activity {
                 ? getString(R.string.onboarding_intro_body_existing)
                 : getString(R.string.onboarding_intro_body_new));
         if (existing && !marked.isEmpty()) {
-            pageContent.addView(adviceRow(getString(R.string.onboarding_intro_less_secure,
-                    marked.size())));
+            pageContent.addView(adviceRow(getString(R.string.onboarding_intro_less_secure)));
         }
         backButton.setVisibility(View.GONE);
         secondaryButton.setVisibility(View.VISIBLE);
@@ -516,12 +514,38 @@ public class OnboardingActivity extends Activity {
     private void applyBarOrder() {
         LinearLayout bar = findViewById(R.id.onboarding_bottom_bar);
         View spacer = findViewById(R.id.onboarding_bar_spacer);
+        // The buttons may sit in the pair row of an earlier arrangement; free them first.
+        for (Button button : new Button[] {backButton, secondaryButton, nextButton}) {
+            if (button.getParent() instanceof ViewGroup) {
+                ((ViewGroup) button.getParent()).removeView(button);
+            }
+        }
         bar.removeAllViews();
+        int barPadding = stackedBar ? dp(12) : dp(16);
+        bar.setPadding(barPadding, barPadding, barPadding, barPadding);
         if (stackedBar) {
             bar.setOrientation(LinearLayout.VERTICAL);
             addStacked(bar, nextButton, false);
-            addStacked(bar, secondaryButton, true);
-            addStacked(bar, backButton, true);
+            if (secondaryButton.getVisibility() == View.VISIBLE
+                    && backButton.getVisibility() == View.VISIBLE) {
+                // #791: "Skip" and "Back" share one row, so the bar takes two rows, not three
+                // (at 200 % on 320 dp three full-width buttons filled 40 % of the screen).
+                LinearLayout pair = new LinearLayout(this);
+                pair.setOrientation(LinearLayout.HORIZONTAL);
+                pair.addView(backButton, new LinearLayout.LayoutParams(
+                        0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+                LinearLayout.LayoutParams second = new LinearLayout.LayoutParams(
+                        0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+                second.setMarginStart(dp(8));
+                pair.addView(secondaryButton, second);
+                LinearLayout.LayoutParams row = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                row.topMargin = dp(8);
+                bar.addView(pair, row);
+            } else {
+                addStacked(bar, secondaryButton, true);
+                addStacked(bar, backButton, true);
+            }
         } else {
             bar.setOrientation(LinearLayout.HORIZONTAL);
             for (Button button : new Button[] {backButton, secondaryButton, nextButton}) {

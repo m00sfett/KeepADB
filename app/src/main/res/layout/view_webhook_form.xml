@@ -2,6 +2,8 @@
 <!-- The register-webhook form (#768, extracted from the Settings): shared by the Settings and the
      setup assistant, both driven by KeepADBWebhookForm. -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- #791: the URL field may wrap (multi-line input, newlines filtered by KeepADBWebhookForm),
+         so the example hint is not cut off at a large font size. -->
 
     <Switch
         android:id="@+id/settings_webhook_toggle"
@@ -39,7 +41,7 @@
         android:background="@drawable/bg_input"
         android:fontFamily="monospace"
         android:hint="@string/settings_webhook_url_hint"
-        android:inputType="textUri"
+        android:inputType="textUri|textMultiLine"
         android:minHeight="48dp"
         android:padding="12dp"
         android:textColor="@color/night_text"

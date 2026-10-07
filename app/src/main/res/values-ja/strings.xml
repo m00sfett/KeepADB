@@ -472,7 +472,7 @@
     <string name="onboarding_intro_body_new">所要時間は約2分です。どのステップもスキップでき、その場合は最も安全な設定が適用されます。</string>
     <string name="onboarding_intro_title_existing">新しいセキュリティ設定</string>
     <string name="onboarding_intro_body_existing">KeepADBは主な設定を1つのアシスタントにまとめました。現在の値はそのまま引き継がれ、選択済みになっています。「次へ」では何も変わりません。推奨より安全性が低いものには印が付いています。</string>
-    <string name="onboarding_intro_less_secure">安全性が低いと表示された設定：%1$d</string>
+    <string name="onboarding_intro_less_secure">一部の設定が推奨よりも安全性の低い状態です。</string>
     <string name="onboarding_keep_alive_question">再起動や接続切れのあと、ワイヤレスデバッグを自動でオンに戻しますか？</string>
     <string name="onboarding_keep_alive_off_body">ワイヤレスデバッグは、アプリ、タイル、ウィジェットから自分でオンにします。再起動後はオフのままです。</string>
     <string name="onboarding_keep_alive_on_body">KeepADBは、再起動や接続切れのあとにワイヤレスデバッグをオンに戻します。ただし、保護レベルが許可する場所に限ります（次のステップ）。</string>
@@ -509,6 +509,8 @@
     <string name="onboarding_perm_system_title">システム権限</string>
     <string name="onboarding_perm_system_body">これがないと、KeepADB はワイヤレスデバッグを切り替えられません。パソコンから一度だけ付与してください:</string>
     <string name="onboarding_perm_system_more">複数の端末や問題がある場合</string>
+    <string name="onboarding_copy_command">コマンドをコピー</string>
+    <string name="onboarding_copy_done">コマンドをコピーしました</string>
     <string name="onboarding_perm_location_title">Wi-Fi の検出</string>
     <string name="onboarding_perm_location_body">Android は、位置情報へのアクセスがある場合にのみ Wi-Fi 名とアクセスポイントを表示します。KeepADB が位置を読み取ることはありません。</string>
     <string name="onboarding_perm_background_title">バックグラウンドでの検出</string>
@@ -537,7 +539,7 @@
     <string name="home_warning_paused_text">KeepADB はネットワークを読み取れないため、自動では ON にしません。</string>
     <string name="home_warning_action_fix">修正</string>
     <string name="home_warning_limited_title">Keep-Alive が制限されています</string>
-    <string name="home_warning_limited_text">Keep-Alive を確実に動かすために足りない設定：%1$d</string>
+    <string name="home_warning_limited_text">Keep-Alive を確実に動かすために必要な権限が足りません。</string>
     <string name="status_tap_to_decide">タップして決定</string>
     <string name="status_tap_to_open_list">タップしてネットワーク一覧を開く</string>
 </resources>

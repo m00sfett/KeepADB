@@ -101,7 +101,14 @@ public class KeepADBForceDialogTest {
         RadioGroup spans = dialog.findViewById(R.id.force_dialog_spans);
         assertEquals("One hour, the shortest, is preselected", R.id.force_span_1h,
                 spans.getCheckedRadioButtonId());
-        assertEquals("Turn on force mode?", titleOf(dialog));
+        TextView title = dialog.findViewById(R.id.force_dialog_title);
+        assertEquals("Turn on force mode?", title.getText().toString());
+        // #791: the title scrolls with the content; a fixed title bar would half-cover the
+        // "How long?" heading while scrolling.
+        assertTrue("The title is part of the scrolled content", insideScrollView(title));
+        CharSequence fixedTitle = shadowOf(dialog).getTitle();
+        assertTrue("No fixed title bar above the scroll: " + fixedTitle,
+                fixedTitle == null || fixedTitle.length() == 0);
         assertEquals(View.VISIBLE, dialog.findViewById(R.id.force_dialog_warning_all).getVisibility());
         assertEquals(View.GONE, dialog.findViewById(R.id.force_dialog_warning_days).getVisibility());
         assertEquals(View.GONE, dialog.findViewById(R.id.force_dialog_warning_unlimited).getVisibility());
@@ -451,9 +458,14 @@ public class KeepADBForceDialogTest {
         return ((TextView) activity.findViewById(id)).getText().toString();
     }
 
-    private static String titleOf(AlertDialog dialog) {
-        return String.valueOf(shadowOf(dialog).getTitle());
+    private static boolean insideScrollView(android.view.View view) {
+        for (android.view.ViewParent p = view == null ? null : view.getParent(); p != null;
+                p = p.getParent()) {
+            if (p instanceof android.widget.ScrollView) return true;
+        }
+        return false;
     }
+
 
     private static boolean isDescendantOf(View view, View ancestor) {
         for (android.view.ViewParent parent = view.getParent(); parent != null; parent = parent.getParent()) {

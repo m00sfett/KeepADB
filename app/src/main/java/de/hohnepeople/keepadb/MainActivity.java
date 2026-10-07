@@ -21,6 +21,7 @@ public class MainActivity extends Activity {
 
     private Switch toggle;
     private Switch keepAliveToggle;
+    private TextView keepAliveSubtext;
     private Switch hideNotificationToggle;
     private TextView hideNotificationSubtext;
     private TextView status;
@@ -87,6 +88,7 @@ public class MainActivity extends Activity {
         });
         toggle = findViewById(R.id.toggle);
         keepAliveToggle = findViewById(R.id.keep_alive_toggle);
+        keepAliveSubtext = findViewById(R.id.keep_alive_subtext);
         hideNotificationToggle = findViewById(R.id.hide_notification_toggle);
         hideNotificationSubtext = findViewById(R.id.hide_notification_subtext);
         status = findViewById(R.id.status);
@@ -301,6 +303,18 @@ public class MainActivity extends Activity {
                 : getString(R.string.force_card_text_until, KeepADBForceMode.formatEnd(this, force)));
     }
 
+    /**
+     * #791 (UX concept 5.3): the Keep-Alive line names the protection level that decides where it
+     * switches on. While the force mode is on the force card already says "every network", and the
+     * stored level would be misleading, so the line stays as it was.
+     */
+    private void renderKeepAliveSubtext() {
+        String base = getString(R.string.keep_alive_subtext);
+        keepAliveSubtext.setText(KeepADBForceMode.isActive(this) ? base
+                : base + "\n" + getString(R.string.networks_level,
+                        KeepADBForceNotice.levelLabel(this)));
+    }
+
     private void refresh() {
         renderForceWarning();
         KeepADB.State appState = KeepADB.getState(this);
@@ -319,6 +333,10 @@ public class MainActivity extends Activity {
         toggle.setChecked(on);
         clearStatusDecisionEntry();
         if (!configured) {
+            // #791: without the permission nothing is known about the endpoint; an address found
+            // earlier must not stay on the screen.
+            lastEndpointHost = null;
+            renderEndpoint();
             status.setText(getString(R.string.status_permission_missing));
         } else if (KeepADB.isTogglePending()) {
             // #318: a scheduled-but-not-yet-written toggle is its own visible state.
@@ -359,6 +377,7 @@ public class MainActivity extends Activity {
         }
         keepAliveToggle.setEnabled(configured);
         keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
+        renderKeepAliveSubtext();
         hideNotificationToggle.setEnabled(configured);
         // #456: positive framing — checked means the notification stays visible.
         hideNotificationToggle.setChecked(!KeepADBPreferences.isNotificationHidden(this));
@@ -509,7 +528,7 @@ public class MainActivity extends Activity {
                 () -> startActivity(KeepADBHomeWarnings.systemIntent(this)));
         bindWarning(warningLessSecure, warnings.showLessSecure(),
                 R.string.home_warning_less_secure_title,
-                getString(R.string.onboarding_intro_less_secure, warnings.lessSecureCount),
+                getString(R.string.onboarding_intro_less_secure),
                 R.string.home_warning_action_review,
                 () -> startActivity(warnings.lessSecureIntent(this)));
         bindWarning(warningPaused, warnings.keepAlivePaused,
@@ -518,7 +537,7 @@ public class MainActivity extends Activity {
                 () -> startActivity(KeepADBNetworkTrustPrompt.identityUnavailableFixIntent(this)));
         bindWarning(warningLimited, warnings.showLimited(),
                 R.string.home_warning_limited_title,
-                getString(R.string.home_warning_limited_text, warnings.keepAliveLimitedCount),
+                getString(R.string.home_warning_limited_text),
                 R.string.home_warning_action_fix,
                 () -> startActivity(warnings.limitedIntent(this)));
     }
@@ -610,7 +629,10 @@ public class MainActivity extends Activity {
             // "searching" would imply wireless debugging is confirmed on, which an unknown read
             // does not establish.
             Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(MainActivity.this, "app");
-            endpoint.setText(adbEnabledOrNull != null && adbEnabledOrNull
+            // #791: without the system permission nothing is being searched.
+            boolean searching = adbEnabledOrNull != null && adbEnabledOrNull
+                    && KeepADB.getState(MainActivity.this) != KeepADB.State.PERMISSION_MISSING;
+            endpoint.setText(searching
                     ? getString(R.string.endpoint_searching) : getString(R.string.endpoint_unavailable));
             return;
         }

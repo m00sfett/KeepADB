@@ -197,7 +197,12 @@ final class OnboardingActionSteps {
         /** The command for the computer, with the several-devices and problem help folded away. */
         private void addSystemHelp(LinearLayout row) {
             row.addView(body(host.getString(R.string.onboarding_perm_system_body)));
-            row.addView(command(host.getString(R.string.setup_command, host.getPackageName())));
+            String grant = host.getString(R.string.setup_command, host.getPackageName());
+            row.addView(command(grant));
+            // #791: the command is meant to be pasted at a computer; selecting it by long press
+            // is not an obvious way to get it there.
+            row.addView(button(host.getString(R.string.onboarding_copy_command), false,
+                    v -> copyCommand(grant)));
             row.addView(button(host.getString(R.string.setup_refresh), false, v -> {
                 render();
                 KeepADBWidget.refreshAll(host);
@@ -306,6 +311,24 @@ final class OnboardingActionSteps {
 
         private Button button(String label, boolean primary, View.OnClickListener listener) {
             return actionButton(host, label, primary, listener);
+        }
+
+        private void copyCommand(String command) {
+            try {
+                android.content.ClipboardManager clipboard =
+                        host.getSystemService(android.content.ClipboardManager.class);
+                if (clipboard == null) throw new IllegalStateException("Clipboard unavailable");
+                clipboard.setPrimaryClip(android.content.ClipData.newPlainText(
+                        host.getString(R.string.onboarding_perm_system_title), command));
+                // From Android 13 the system confirms a copy itself.
+                if (android.os.Build.VERSION.SDK_INT <= android.os.Build.VERSION_CODES.S_V2) {
+                    android.widget.Toast.makeText(host, R.string.onboarding_copy_done,
+                            android.widget.Toast.LENGTH_SHORT).show();
+                }
+            } catch (RuntimeException exception) {
+                android.widget.Toast.makeText(host, R.string.feedback_copy_failed,
+                        android.widget.Toast.LENGTH_LONG).show();
+            }
         }
 
         private TextView command(String text) {

@@ -146,6 +146,29 @@ public class NetworkListNetworksViewTest {
                 unmeasured.contains("GHz") || unmeasured.contains("("));
     }
 
+    /** #791 (F2): the tappable current card keeps the panel's inset, the badge stays inside it. */
+    @Test
+    public void theTappableCurrentCardKeepsItsInnerPaddingInTheTrustedAndTheBlockedState() {
+        connectTo(HOME, KITCHEN);
+        KeepADBTrustedNetwork.addBssid(context, KITCHEN, HOME);
+        View trusted = currentCard(open());
+        assertTrue("Trusted card is tappable", trusted.isClickable());
+        assertCardInset(trusted);
+
+        KeepADBNetworkBlocklist.blockSsid(context, HOME);
+        View blocked = currentCard(open());
+        assertTrue("Blocked card is tappable", blocked.isClickable());
+        assertCardInset(blocked);
+    }
+
+    private void assertCardInset(View card) {
+        int min = (int) (12 * context.getResources().getDisplayMetrics().density);
+        assertTrue("left padding " + card.getPaddingLeft(), card.getPaddingLeft() >= min);
+        assertTrue("top padding " + card.getPaddingTop(), card.getPaddingTop() >= min);
+        assertTrue("right padding " + card.getPaddingRight(), card.getPaddingRight() >= min);
+        assertTrue("bottom padding " + card.getPaddingBottom(), card.getPaddingBottom() >= min);
+    }
+
     /** #769: the shell closes with the back button and is not reachable from other apps. */
     @Test
     public void theBackButtonClosesTheListAndTheActivityIsNotExported() throws Exception {
