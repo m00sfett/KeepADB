@@ -1,8 +1,6 @@
 package de.hohnepeople.keepadb;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -132,7 +130,8 @@ public final class NetworkDecisionView extends LinearLayout {
                 toast(context.getString(R.string.network_ap_allowed_toast,
                         KeepADBNetworkDisplay.quoted(context, target.ssid == null
                                 ? target.bssid : target.ssid, target.bssid)), Toast.LENGTH_SHORT);
-                if (!result.enabled && !hasSecureSettingsPermission(context)) {
+                // #812: the cause comes from the toggle result, not from a second permission read.
+                if (!result.enabled && result.permissionFailure) {
                     toast(context.getString(R.string.permission_error_toast,
                             context.getPackageName()), Toast.LENGTH_LONG);
                 }
@@ -175,11 +174,6 @@ public final class NetworkDecisionView extends LinearLayout {
         // Answered: a second tap on a button that is still on screen must not answer again.
         pending = null;
         if (listener != null) listener.onDecided(outcome);
-    }
-
-    private static boolean hasSecureSettingsPermission(Context context) {
-        return context.checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
-                == PackageManager.PERMISSION_GRANTED;
     }
 
     private void toast(String text, int duration) {

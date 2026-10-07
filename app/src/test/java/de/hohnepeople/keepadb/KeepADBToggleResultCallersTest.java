@@ -170,10 +170,47 @@ public class KeepADBToggleResultCallersTest {
         rejectingGateway(false);
         NotificationSpyContext spy = new NotificationSpyContext();
 
-        assertFalse(KeepADBReceiver.trustBssidAndAttemptConnect(spy, BSSID, "Cafe-WLAN"));
+        KeepADBReceiver.TrustAttempt attempt =
+                KeepADBReceiver.trustBssidAndAttemptConnect(spy, BSSID, "Cafe-WLAN");
 
+        assertFalse(attempt.enabled);
+        assertFalse("#812: the cause is handed on, a rejected write is no permission failure",
+                attempt.permissionFailure);
         assertFalse("a rejected write with the grant present is not a missing permission",
                 spy.sawPermissionNotification);
+    }
+
+    @Test
+    public void allowingAnAccessPointReportsASecurityExceptionAsAPermissionFailureEvenWithTheGrantPresent() {
+        armTrustPromptEnable();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        gateway.setWriteThrowsSecurityException(true);
+        KeepADB.setGatewayForTesting(gateway);
+        NotificationSpyContext spy = new NotificationSpyContext();
+
+        KeepADBReceiver.TrustAttempt attempt =
+                KeepADBReceiver.trustBssidAndAttemptConnect(spy, BSSID, "Cafe-WLAN");
+
+        assertEquals("the write was attempted", java.util.Arrays.asList(true), gateway.writes);
+        assertFalse(attempt.enabled);
+        assertTrue(attempt.permissionFailure);
+        assertTrue(spy.sawPermissionNotification);
+    }
+
+    @Test
+    public void allowingAnAccessPointThatIsNotPermittedToEnableIsNoFailureAtAll() {
+        // Keep-Alive off: the guard refuses before anything is toggled, so there is no cause.
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setKeepAliveEnabled(context, false);
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+
+        KeepADBReceiver.TrustAttempt attempt =
+                KeepADBReceiver.trustBssidAndAttemptConnect(context, BSSID, "Cafe-WLAN");
+
+        assertTrue("nothing may have been written", gateway.writes.isEmpty());
+        assertFalse(attempt.enabled);
+        assertFalse(attempt.permissionFailure);
     }
 
     @Test
@@ -183,8 +220,11 @@ public class KeepADBToggleResultCallersTest {
         denyGrant();
         NotificationSpyContext spy = new NotificationSpyContext();
 
-        assertFalse(KeepADBReceiver.trustBssidAndAttemptConnect(spy, BSSID, "Cafe-WLAN"));
+        KeepADBReceiver.TrustAttempt attempt =
+                KeepADBReceiver.trustBssidAndAttemptConnect(spy, BSSID, "Cafe-WLAN");
 
+        assertFalse(attempt.enabled);
+        assertTrue(attempt.permissionFailure);
         assertTrue(spy.sawPermissionNotification);
     }
 

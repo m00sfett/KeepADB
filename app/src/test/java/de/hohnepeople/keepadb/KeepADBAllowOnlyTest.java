@@ -72,7 +72,7 @@ public class KeepADBAllowOnlyTest {
     @Test
     public void theSetupIsOneInWhichTheFormerPathReallySwitchesWirelessDebuggingOn() {
         assertTrue("Control: trust-and-connect enables here",
-                KeepADBReceiver.trustBssidAndAttemptConnect(context, BSSID, "Cafe-WLAN"));
+                KeepADBReceiver.trustBssidAndAttemptConnect(context, BSSID, "Cafe-WLAN").enabled);
         assertEquals(1, gateway.writes.size());
         assertTrue(KeepADB.isEnabled(context));
     }
