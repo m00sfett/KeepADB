@@ -1,0 +1,1 @@
+A blocked Wi-Fi access point can now be renamed in the Networks list, like a trusted one, and the name is kept when you trust or block it later. A trusted access point now shows as blocked in the list when its Wi-Fi name is blocked, not only while you are connected to it. The names stay on this device, and entries saved before this update are left as they were.

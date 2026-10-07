@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import java.util.function.Consumer;
+
 /**
  * #654/#655: the user actions shared by the Network card in {@link SettingsActivity} and the list
  * views in {@link NetworkListActivity}, kept in one place so both behave identically: allowing an
@@ -74,14 +76,37 @@ final class KeepADBNetworkActions {
      */
     static AlertDialog editAccessPointName(Activity activity, KeepADBTrustedNetwork.Entry entry,
                                            Runnable onChanged) {
+        return nameDialog(activity,
+                activity.getString(R.string.network_ap_rename_title, entry.id), entry.customName,
+                name -> KeepADBTrustedNetwork.setCustomName(activity, entry.id, name), onChanged);
+    }
+
+    /**
+     * #802: the same popup for a blocked access point, which has no number: the name is stored with
+     * the block ({@link KeepADBNetworkBlocklist#setBlockedCustomName}) and is display only; the
+     * block, its address and the Wi-Fi name stay as they are.
+     *
+     * @param currentName the own name the block has now, or null; pre-fills the field and enables
+     *     Reset.
+     * @return the dialog; the caller shows it and drops its reference on dismissal.
+     */
+    static AlertDialog editBlockedAccessPointName(Activity activity, String bssid,
+                                                  String currentName, Runnable onChanged) {
+        return nameDialog(activity, activity.getString(R.string.network_ap_rename_title_blocked),
+                currentName, name -> KeepADBNetworkBlocklist.setBlockedCustomName(activity, bssid, name),
+                onChanged);
+    }
+
+    private static AlertDialog nameDialog(Activity activity, String title, String currentName,
+                                          Consumer<String> store, Runnable onChanged) {
         EditText input = new EditText(activity);
         input.setSingleLine(true);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
         input.setFilters(new InputFilter[] {
                 new InputFilter.LengthFilter(KeepADBTrustedNetwork.MAX_CUSTOM_NAME_LENGTH)});
         input.setHint(R.string.network_ap_rename_hint);
-        if (entry.customName != null) {
-            input.setText(entry.customName);
+        if (currentName != null) {
+            input.setText(currentName);
             input.setSelection(input.getText().length());
         }
         int padding = (int) (20 * activity.getResources().getDisplayMetrics().density);
@@ -91,18 +116,17 @@ final class KeepADBNetworkActions {
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity)
-                .setTitle(activity.getString(R.string.network_ap_rename_title, entry.id))
+                .setTitle(title)
                 .setMessage(R.string.network_ap_rename_message)
                 .setView(content)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    KeepADBTrustedNetwork.setCustomName(activity, entry.id,
-                            input.getText().toString());
+                    store.accept(input.getText().toString());
                     if (onChanged != null) onChanged.run();
                 })
                 .setNegativeButton(android.R.string.cancel, null);
-        if (entry.customName != null) {
+        if (currentName != null) {
             builder.setNeutralButton(R.string.network_ap_rename_reset, (dialog, which) -> {
-                KeepADBTrustedNetwork.setCustomName(activity, entry.id, null);
+                store.accept(null);
                 if (onChanged != null) onChanged.run();
             });
         }

@@ -31,7 +31,12 @@ import java.util.TreeSet;
  *
  * <p>Rows are the trusted entries and the blocked access points; a blocked Wi-Fi name without a
  * saved access point is a group of its own. The Wi-Fi name of a row is the one its trust was
- * given under, else the current connection's; an address with neither is listed without a name.
+ * given under (the label), else the current connection's, else the name stored with its trusted
+ * entry or its block (#796); an address with none of them is listed without a name. A stored name
+ * is what lets a trusted access point whose label is only its BSSID read "blocked" when its name
+ * is blocked: the status is derived from that name like from any other. It is the name the access
+ * point was known under when it was trusted or blocked, so it can be stale; it is used for this
+ * description only and decides nothing (the connection decision reads the live name).
  */
 final class KeepADBNetworkList {
 
@@ -55,20 +60,39 @@ final class KeepADBNetworkList {
         final String bssid;
         /** The Wi-Fi name it is known under, or null. */
         final String ssid;
+        /**
+         * Whether {@link #ssid} is only the name stored with the entry or the block (#796), not a
+         * name the trust label or the current connection carries.
+         */
+        final boolean ssidStored;
+        /** The own name the user gave it (entry or block, #802), or null. */
+        final String customName;
         /** The trusted entry, or null for an access point that is only blocked. */
         final KeepADBTrustedNetwork.Entry entry;
         final Status status;
         final Reason reason;
         final boolean current;
 
-        Row(String bssid, String ssid, KeepADBTrustedNetwork.Entry entry, Status status,
-            Reason reason, boolean current) {
+        Row(String bssid, String ssid, boolean ssidStored, String customName,
+            KeepADBTrustedNetwork.Entry entry, Status status, Reason reason, boolean current) {
             this.bssid = bssid;
             this.ssid = ssid;
+            this.ssidStored = ssidStored;
+            this.customName = customName;
             this.entry = entry;
             this.status = status;
             this.reason = reason;
             this.current = current;
+        }
+
+        /**
+         * The name a trust label may carry for this row: the name of the label or of the current
+         * connection, never one that is only stored. Keeps a trust given from the list exactly as
+         * it was before names were stored (the label, and with it the derived name rule, does not
+         * gain a name).
+         */
+        String labelSsid() {
+            return ssidStored ? null : ssid;
         }
 
         boolean accessPointBlocked() {
@@ -166,17 +190,32 @@ final class KeepADBNetworkList {
         for (KeepADBTrustedNetwork.Entry entry : entries.values()) {
             addresses.put(upper(entry.bssid), entry.bssid);
         }
-        for (String blocked : KeepADBNetworkBlocklist.getBlockedBssids(context)) {
-            addresses.putIfAbsent(upper(blocked), blocked);
+        Map<String, KeepADBNetworkBlocklist.BlockedAccessPoint> blocks = new HashMap<>();
+        for (KeepADBNetworkBlocklist.BlockedAccessPoint block
+                : KeepADBNetworkBlocklist.getBlockedAccessPoints(context)) {
+            addresses.putIfAbsent(upper(block.bssid), block.bssid);
+            blocks.put(upper(block.bssid), block);
         }
 
         List<Row> rows = new ArrayList<>();
         for (Map.Entry<String, String> address : addresses.entrySet()) {
             String key = address.getKey();
             KeepADBTrustedNetwork.Entry entry = entries.get(key);
+            KeepADBNetworkBlocklist.BlockedAccessPoint block = blocks.get(key);
+            boolean current = key.equals(currentBssid);
+            // The name of the label first, then the live one, then what was stored (#796): the
+            // order keeps every row that had a name as before and only fills the ones without.
             String ssid = entry == null ? null : entry.ssid();
-            if (ssid == null && key.equals(currentBssid)) ssid = currentSsid;
-            rows.add(row(context, address.getValue(), ssid, entry, key.equals(currentBssid)));
+            if (ssid == null && current) ssid = currentSsid;
+            boolean stored = false;
+            if (ssid == null) {
+                ssid = entry != null && entry.savedSsid != null ? entry.savedSsid
+                        : block != null ? block.ssid : null;
+                stored = ssid != null;
+            }
+            String customName = entry != null && entry.customName != null ? entry.customName
+                    : block != null ? block.customName : null;
+            rows.add(row(context, address.getValue(), ssid, stored, customName, entry, current));
         }
 
         Map<String, List<Row>> bySsid = new HashMap<>();
@@ -223,11 +262,11 @@ final class KeepADBNetworkList {
      * either trusted or blocked, so "unknown" is what follows once either is taken away.
      */
     static Status statusOf(Context context, String ssid, String bssid) {
-        return row(context, bssid, ssid, null, false).status;
+        return row(context, bssid, ssid, false, null, null, false).status;
     }
 
-    private static Row row(Context context, String bssid, String ssid,
-                           KeepADBTrustedNetwork.Entry entry, boolean current) {
+    private static Row row(Context context, String bssid, String ssid, boolean ssidStored,
+                           String customName, KeepADBTrustedNetwork.Entry entry, boolean current) {
         KeepADBTrustedNetwork.Decision decision = KeepADBTrustedNetwork.evaluate(context,
                 new KeepADBNetworkIdentity(ssid, bssid));
         Status status;
@@ -253,7 +292,7 @@ final class KeepADBNetworkList {
                 status = Status.UNKNOWN;
                 break;
         }
-        return new Row(bssid, ssid, entry, status, reason, current);
+        return new Row(bssid, ssid, ssidStored, customName, entry, status, reason, current);
     }
 
     private static Current current(Context context, KeepADBNetworkIdentity live,
@@ -329,7 +368,7 @@ final class KeepADBNetworkList {
     }
 
     private static String ownName(Row row) {
-        return row.entry != null && row.entry.customName != null ? row.entry.customName : "";
+        return row.customName != null ? row.customName : "";
     }
 
     private static String upper(String bssid) {

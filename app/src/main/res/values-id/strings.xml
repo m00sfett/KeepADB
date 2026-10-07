@@ -390,6 +390,7 @@
     <string name="network_ap_allowed_toast">Titik akses “%1$s” dipercaya</string>
     <string name="network_ap_removed_toast">Titik akses “%1$s” dihapus dari daftar kepercayaan</string>
     <string name="network_ap_rename_title">Nama untuk titik akses (%1$d)</string>
+    <string name="network_ap_rename_title_blocked">Nama untuk titik akses yang diblokir</string>
     <string name="network_ap_rename_message">Pilih nama Anda sendiri. Nama ini tampil di daftar ini, hanya disimpan di perangkat ini, dan tidak mengubah nama Wi-Fi maupun titik akses yang dipercaya.</string>
     <string name="network_ap_rename_hint">Nama sendiri</string>
     <string name="network_ap_rename_reset">Setel ulang</string>

@@ -390,6 +390,7 @@
     <string name="network_ap_allowed_toast">已信任存取點「%1$s」</string>
     <string name="network_ap_removed_toast">已將存取點「%1$s」從信任清單中移除</string>
     <string name="network_ap_rename_title">存取點的名稱 (%1$d)</string>
+    <string name="network_ap_rename_title_blocked">已封鎖存取點的名稱</string>
     <string name="network_ap_rename_message">為它取一個自己的名稱。此名稱會顯示在這些清單中，只儲存在這部裝置上，不會變更 Wi-Fi 名稱，也不會變更已信任的存取點。</string>
     <string name="network_ap_rename_hint">自訂名稱</string>
     <string name="network_ap_rename_reset">重設</string>

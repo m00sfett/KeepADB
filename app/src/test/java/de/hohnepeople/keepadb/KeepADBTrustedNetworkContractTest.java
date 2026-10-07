@@ -126,6 +126,10 @@ public class KeepADBTrustedNetworkContractTest {
             String body = methodBody(trusted, signature);
             assertFalse(signature + " must not read the own name", body.contains("customName"));
             assertFalse(signature + " must not read the own name", body.contains("_name"));
+            // #796: the Wi-Fi name stored with an entry is display data of the network list; the
+            // derived names come from the label (Entry#ssid) alone.
+            assertFalse(signature + " must not read the stored name", body.contains("savedSsid"));
+            assertFalse(signature + " must not read the stored name", body.contains("listSsid"));
         }
     }
 

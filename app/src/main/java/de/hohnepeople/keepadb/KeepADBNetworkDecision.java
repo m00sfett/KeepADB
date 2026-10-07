@@ -127,7 +127,19 @@ final class KeepADBNetworkDecision {
      * on there by itself and never asks about it again. The Wi-Fi name stays as it is.
      */
     static Outcome blockAccessPoint(Context context, String bssid) {
-        if (!KeepADBNetworkBlocklist.blockBssid(context, bssid)
+        return blockAccessPoint(context, bssid, null);
+    }
+
+    /**
+     * As {@link #blockAccessPoint(Context, String)}, and the Wi-Fi name the access point is known
+     * under is stored with the block (#796, #802) so the network list can file and describe it:
+     * {@code ssid} when the caller has a usable one, else the name of the app's own record of the
+     * access point (read before the block removes it), else the name of its trust entry. The name
+     * is display data; the block, as before, covers the address only.
+     */
+    static Outcome blockAccessPoint(Context context, String bssid, String ssid) {
+        String name = knownName(context, bssid, ssid);
+        if (!KeepADBNetworkBlocklist.blockBssid(context, bssid, name, null)
                 && !KeepADBNetworkBlocklist.isBssidBlocked(context, bssid)) {
             KeepADBDiagnostics.event(context, "user_action", "network_block", "failed",
                     "invalid_bssid");
@@ -177,6 +189,24 @@ final class KeepADBNetworkDecision {
             if (entry.bssid.equalsIgnoreCase(bssid)) return true;
         }
         return false;
+    }
+
+    /**
+     * The best Wi-Fi name known for {@code bssid} (#796): the caller's {@code hint}, else the app's
+     * own record, else the trust entry; null when none is usable.
+     */
+    private static String knownName(Context context, String bssid, String hint) {
+        if (KeepADBNetworkBlocklist.isUsableSsid(hint)) return hint;
+        String clean = bssid == null ? "" : bssid.trim();
+        if (clean.isEmpty()) return null;
+        KeepADBBlockedNetworkHistory.Entry recorded = findRecord(context, clean);
+        if (recorded != null && KeepADBNetworkBlocklist.isUsableSsid(recorded.ssid)) {
+            return recorded.ssid;
+        }
+        for (KeepADBTrustedNetwork.Entry entry : KeepADBTrustedNetwork.getEntries(context)) {
+            if (entry.bssid.equalsIgnoreCase(clean)) return entry.listSsid();
+        }
+        return null;
     }
 
     private static KeepADBBlockedNetworkHistory.Entry findRecord(Context context, String bssid) {
