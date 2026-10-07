@@ -17,7 +17,7 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.44` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.45` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
@@ -25,52 +25,31 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.9.45] - Unreleased
 
-Etappe E16 patch candidate (target version 1.9.45; versionCode and versionName are bumped by the integrator), packages #811, #812 and #817 (callers of `KeepADB.ToggleResult`) on top of 1.9.44; no release. Date of the work: 2026-10-07.
+Etappe E16 patch candidate (versionCode 217), packages #811, #812 and #817 (callers of `KeepADB.ToggleResult`), #813 and #815 (blocked access points, rename dialog text, way-back note), #818 (selected row vs. focus ring) and #810 (unused string) on top of 1.9.44; no release. The version 1.9.44 stays as it is. Date of the work: 2026-10-07.
 
-<!-- W-A (#811, #812, #817) begin -->
 ### Changed
 - **USB notification, manual "Enable Wifi-ADB" tap (#811):** the error text "Check permission" appears only when the tap failed because of the `WRITE_SECURE_SETTINGS` grant (permission missing or SecurityException). Any other failure (write rejected, a newer intent won) now shows a neutral text, "Could not enable Wireless Debugging." (new string `usb_notification_handover_error_generic`, translated in all 19 locales). `KeepADBUsbHandover.handleManualAction` keeps its boolean return value and records the cause in `lastManualActionResult()`; `KeepADBUsbNotification.reportManualActionResult` takes the `ToggleResult`.
 - **Allowing a network in the decision view (#812):** `KeepADBReceiver.trustBssidAndAttemptConnect` returns a `TrustAttempt` (enabled, permissionFailure) and `NetworkDecisionView.trust()` uses the cause instead of reading the permission a second time. One corner differs: if no enable is attempted at all (Keep-Alive off, the guard refuses), the permission hint is no longer shown for a missing grant, because nothing needed it; a SecurityException with the grant still present now shows the hint.
 - **Widget, tile and main switch (#817):** a refused secure-settings write (`SECURITY_EXCEPTION`) now points at the permission like the service, the disable action and the trust prompt do; before, these three showed the generic "toggle failed" text. Only visible when the grant reads present but the platform still refuses the write.
+- **Rename dialog text (#815):** `network_ap_rename_message` says the own name changes neither the Wi-Fi name nor which access points are trusted *or blocked*, in all 19 languages, since the dialog is also used for blocked access points.
+- **Selected row vs. focus ring (#818):** `bg_card_clickable.xml` told the deep-link mark (2dp `title_yellow`) and the keyboard/TalkBack focus ring (1.5dp `title_yellow`) apart only by 0.5dp, and because `focused` came first a row that was both lost its mark. The focus ring is now `bright_yellow` 2dp, the selected row gets the amber-tinted `advice_surface` fill besides its `title_yellow` frame, and a new `selected+focused` item (listed before `focused`) uses the amber fill with a 3dp `bright_yellow` ring. Existing color tokens only; the app has a single dark theme (no night variant). This is a visual change that was verified statically only; the check on the emulator is still open.
+
+### Fixed
+- **Networks list (#813):** trusting a blocked access point lifts its block first (the trust write refuses a blocked target, #760), so a write that stores nothing used to leave the access point unblocked and its stored names gone. `KeepADBNetworkListActions.trustBlockedAccessPoint` now puts the block back with its stored Wi-Fi name and own name in that case and reports `FAILED`; a successful trust behaves as before.
+
+### Removed
+- **Unused string (#810):** removal of unused string key `location_permission_panel_fallback_body` in all 19 locales.
 
 ### Documentation
 - Javadoc of the background-location dialog in `KeepADBNetworkCard` re-wrapped (#817, point 3).
+- `docs/trusted-networks.md` (#815): the way-back note for the stored names says that an older version blocking the same address again, without the name keys, can bring old name remnants of that address back in the list (display only).
 
 ### Testing
 - #811: `KeepADBUsbHandoverUnlockGateTest` drives the real receiver tap per cause (grant missing, SecurityException, rejected write, cause does not stick), `KeepADBUsbNotificationTest` pins the text per `ToggleResult` in German.
 - #812: `NetworkDecisionActivityTest` and `KeepADBToggleResultCallersTest` pin the hint per cause (attempted and failed, rejected, SecurityException, nothing attempted).
 - #817: one test per surface for `SECURITY_EXCEPTION`; `SUPERSEDED` for disable action, widget, main switch, tile, trust answer and USB tap; `GUARD_ABORTED` and `SUPERSEDED` for both service callers (new test helper `KeepADBIntentRaceHook`); `KeepADBToggleSchedulingTest` pins that manual sources are never `MANUAL_INTENT_PENDING`.
-<!-- W-A (#811, #812, #817) end -->
-<!-- W-B begin -->
-Etappe E16 patch candidate, packages #813 and #815 (part 2 and way-back note); no release.
-
-### Fixed
-- **Networks list (#813):** trusting a blocked access point lifts its block first (the trust write refuses a blocked target, #760), so a write that stores nothing used to leave the access point unblocked and its stored names gone. `KeepADBNetworkListActions.trustBlockedAccessPoint` now puts the block back with its stored Wi-Fi name and own name in that case and reports `FAILED`; a successful trust behaves as before.
-
-### Changed
-- **Rename dialog text (#815):** `network_ap_rename_message` says the own name changes neither the Wi-Fi name nor which access points are trusted *or blocked*, in all 19 languages, since the dialog is also used for blocked access points.
-
-### Documentation
-- `docs/trusted-networks.md` (#815): the way-back note for the stored names says that an older version blocking the same address again, without the name keys, can bring old name remnants of that address back in the list (display only).
-
-### Testing
 - #813: `KeepADBStoredNamesTest.listTrustWhoseWriteFailsKeepsTheBlockWithItsNames` fails a trust write through the new `TrustWriter` seam and pins the block, both stored names and the rest of the preferences.
-<!-- W-B end -->
-<!-- W-C begin -->
-Etappe E16 candidate, package #818 on top of 1.9.44; no release. Version bump follows with the integration.
-
-### Changed
-- **Selected row vs. focus ring (#818):** `bg_card_clickable.xml` told the deep-link mark (2dp `title_yellow`) and the keyboard/TalkBack focus ring (1.5dp `title_yellow`) apart only by 0.5dp, and because `focused` came first a row that was both lost its mark. The focus ring is now `bright_yellow` 2dp, the selected row gets the amber-tinted `advice_surface` fill besides its `title_yellow` frame, and a new `selected+focused` item (listed before `focused`) uses the amber fill with a 3dp `bright_yellow` ring. Existing color tokens only; the app has a single dark theme (no night variant). This is a visual change that was verified statically only; the check on the emulator is still open.
-
-### Testing
 - `KeepADBCardSelectorContractTest` pins the selector structure (selected+focused resolves to a look different from focused-only and selected-only; focused and selected differ in fill or color, not only width).
-<!-- W-C end -->
-Etappe E16 candidate, chore package #810 on top of 1.9.44; no release.
-
-### Removed
-<!-- W-D begin -->
-- **Unused string (#810):** removal of unused string key `location_permission_panel_fallback_body` in all 19 locales.
-<!-- W-D end -->
 
 ## [1.9.44] - Unreleased
 
