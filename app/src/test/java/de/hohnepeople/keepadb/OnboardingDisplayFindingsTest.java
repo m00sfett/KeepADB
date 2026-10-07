@@ -1,7 +1,6 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -15,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import org.junit.After;
 import org.junit.Before;
@@ -144,19 +142,5 @@ public class OnboardingDisplayFindingsTest {
 
         assistant.findViewById(R.id.onboarding_next).performClick();
         assertEquals(View.GONE, icon.getVisibility());
-    }
-
-    private static Button find(View root, String label) {
-        if (root instanceof Button && label.contentEquals(((TextView) root).getText())) {
-            return (Button) root;
-        }
-        if (root instanceof ViewGroup) {
-            ViewGroup group = (ViewGroup) root;
-            for (int i = 0; i < group.getChildCount(); i++) {
-                Button hit = find(group.getChildAt(i), label);
-                if (hit != null) return hit;
-            }
-        }
-        return null;
     }
 }
