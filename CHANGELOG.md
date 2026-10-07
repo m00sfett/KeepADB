@@ -23,6 +23,18 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.9.45] - Unreleased
+
+<!-- W-C begin -->
+Etappe E16 candidate, package #818 on top of 1.9.44; no release. Version bump follows with the integration.
+
+### Changed
+- **Selected row vs. focus ring (#818):** `bg_card_clickable.xml` told the deep-link mark (2dp `title_yellow`) and the keyboard/TalkBack focus ring (1.5dp `title_yellow`) apart only by 0.5dp, and because `focused` came first a row that was both lost its mark. The focus ring is now `bright_yellow` 2dp, the selected row gets the amber-tinted `advice_surface` fill besides its `title_yellow` frame, and a new `selected+focused` item (listed before `focused`) uses the amber fill with a 3dp `bright_yellow` ring. Existing color tokens only; the app has a single dark theme (no night variant). This is a visual change that was verified statically only; the check on the emulator is still open.
+
+### Testing
+- `KeepADBCardSelectorContractTest` pins the selector structure (selected+focused resolves to a look different from focused-only and selected-only; focused and selected differ in fill or color, not only width).
+<!-- W-C end -->
+
 ## [1.9.44] - Unreleased
 
 Etappe E15 patch candidate (versionCode 216), packages #795 (cause-carrying result of `KeepADB.setEnabled`), #797 (point 2, label of the background-location dialog) and #809 (release status sentence) on top of 1.9.43; no release. The version 1.9.43 stays as it is.
