@@ -1,7 +1,6 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -15,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import org.junit.After;
 import org.junit.Before;
@@ -119,8 +117,10 @@ public class OnboardingDisplayFindingsTest {
         OnboardingActivity assistant = open(
                 OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.WEBHOOK));
         EditText url = assistant.findViewById(R.id.settings_webhook_url);
-        assertTrue("multi-line input lets the hint wrap",
-                (url.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0);
+        assertTrue("the field still wraps (not single-line) so the hint is not cut",
+                url.getMaxLines() > 1
+                        && !(url.getTransformationMethod()
+                                instanceof android.text.method.SingleLineTransformationMethod));
         assertTrue("it stays a URL field",
                 (url.getInputType() & InputType.TYPE_TEXT_VARIATION_URI) != 0);
         url.setText("http://host:80/\nregister/x\r");
@@ -142,19 +142,5 @@ public class OnboardingDisplayFindingsTest {
 
         assistant.findViewById(R.id.onboarding_next).performClick();
         assertEquals(View.GONE, icon.getVisibility());
-    }
-
-    private static Button find(View root, String label) {
-        if (root instanceof Button && label.contentEquals(((TextView) root).getText())) {
-            return (Button) root;
-        }
-        if (root instanceof ViewGroup) {
-            ViewGroup group = (ViewGroup) root;
-            for (int i = 0; i < group.getChildCount(); i++) {
-                Button hit = find(group.getChildAt(i), label);
-                if (hit != null) return hit;
-            }
-        }
-        return null;
     }
 }
