@@ -130,6 +130,21 @@ public class MainActivityKeepAliveLineTapTest {
         assertNull(line.getBackground());
     }
 
+    /** #805: a screen reader gets the button role on the tappable line, and only on it. */
+    @Test
+    public void theTappableLineIsExposedToScreenReadersAsAButtonOnlyOutsideTheForceMode() {
+        ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class).setup();
+        TextView line = controller.get().findViewById(R.id.keep_alive_subtext);
+        assertEquals(android.widget.Button.class.getName(),
+                line.createAccessibilityNodeInfo().getClassName().toString());
+        assertTrue(line.createAccessibilityNodeInfo().isClickable());
+
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        controller.pause().resume();
+        assertEquals("control: plain text while force is on", TextView.class.getName(),
+                line.createAccessibilityNodeInfo().getClassName().toString());
+    }
+
     @Test
     public void theSettingsOpenWithTheNetworkCardExpandedOnlyWhenAsked() {
         SettingsActivity plain = Robolectric.buildActivity(SettingsActivity.class).setup().get();
