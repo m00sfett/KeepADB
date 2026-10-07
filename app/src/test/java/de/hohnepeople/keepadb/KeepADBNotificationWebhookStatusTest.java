@@ -42,6 +42,10 @@ public class KeepADBNotificationWebhookStatusTest {
 
     private final Context context = org.robolectric.RuntimeEnvironment.getApplication();
 
+    @Rule
+    public final KeepADBRegisterClientResetRule registerClientResetRule =
+            new KeepADBRegisterClientResetRule();
+
     @Before
     public void setUp() throws Exception {
         shadowOf((Application) context).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
@@ -334,5 +338,22 @@ public class KeepADBNotificationWebhookStatusTest {
         Field field = KeepADBEndpointCoordinator.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(null, value);
+    }
+
+    /**
+     * #793: a test that calls the reset itself stays green if the {@code @Rule} field is deleted.
+     * This pins that {@link KeepADBRegisterClientResetRule} is really applied to the class.
+     */
+    @Test
+    public void theRegisterClientResetRuleIsAppliedToThisClass() {
+        boolean applied = false;
+        for (java.lang.reflect.Field field : KeepADBNotificationWebhookStatusTest.class.getFields()) {
+            if (field.getType() == KeepADBRegisterClientResetRule.class
+                    && field.isAnnotationPresent(org.junit.Rule.class)) {
+                applied = true;
+            }
+        }
+        org.junit.Assert.assertTrue(
+                "KeepADBRegisterClientResetRule must be a public @Rule field", applied);
     }
 }
