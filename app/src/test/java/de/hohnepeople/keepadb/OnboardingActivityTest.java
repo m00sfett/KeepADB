@@ -336,6 +336,34 @@ public class OnboardingActivityTest {
                 OnboardingActivity.buildSteps().size()), pageTitle(fresh));
     }
 
+    /**
+     * #797 (point 4 of #782): the intro of an existing installation counts the webhook over
+     * {@code http://} and an active force mode, and since #768 the assistant can change both (the
+     * webhook step, the force row of the protection step). Each marks the intro alone, and a
+     * stored setting without either mark does not.
+     */
+    @Test
+    public void existingIntroMarksAnHttpWebhookAndAnActiveForceEachOnItsOwn() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true); // an existing installation, nothing marked
+        assertFalse("control: nothing less secure", allText(startHandedOver()).contains(
+                context.getString(R.string.onboarding_intro_less_secure)));
+
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://100.64.0.1:5000/register/x");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        assertEquals(List.of(KeepADBOnboarding.LessSecure.WEBHOOK_CLEARTEXT),
+                KeepADBOnboarding.lessSecure(context));
+        assertTrue("webhook alone", allText(startHandedOver()).contains(
+                context.getString(R.string.onboarding_intro_less_secure)));
+
+        KeepADBPreferences.setRegisterWebhookEnabled(context, false);
+        KeepADBForceMode.setClockForTesting(new KeepADBForceTestSupport.TestClock());
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        assertEquals(List.of(KeepADBOnboarding.LessSecure.FORCE_MODE),
+                KeepADBOnboarding.lessSecure(context));
+        assertTrue("force alone", allText(startHandedOver()).contains(
+                context.getString(R.string.onboarding_intro_less_secure)));
+    }
+
     // ---- Single-step mode ---------------------------------------------------------------------------
 
     @Test

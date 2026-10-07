@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -310,9 +311,35 @@ public class MainActivity extends Activity {
      */
     private void renderKeepAliveSubtext() {
         String base = getString(R.string.keep_alive_subtext);
-        keepAliveSubtext.setText(KeepADBForceMode.isActive(this) ? base
+        boolean force = KeepADBForceMode.isActive(this);
+        keepAliveSubtext.setText(force ? base
                 : base + "\n" + getString(R.string.networks_level,
                         KeepADBForceNotice.levelLabel(this)));
+        // #801: the line that names the level leads to where the level is shown (UX concept 5.3,
+        // point 1). While the force mode is on the line names no level and is no tap target.
+        if (force) {
+            keepAliveSubtext.setOnClickListener(null);
+            keepAliveSubtext.setClickable(false);
+            keepAliveSubtext.setFocusable(false);
+            keepAliveSubtext.setMinHeight(0);
+            keepAliveSubtext.setGravity(Gravity.TOP | Gravity.START);
+            keepAliveSubtext.setBackground(null);
+            keepAliveSubtext.setCompoundDrawablesRelative(null, null, null, null);
+        } else {
+            // A tap target of at least 48 dp with press feedback and the chevron of the other
+            // rows that lead on (UX concept 5.3, point 1; touch targets from 48 dp).
+            android.util.TypedValue ripple = new android.util.TypedValue();
+            getTheme().resolveAttribute(android.R.attr.selectableItemBackground, ripple, true);
+            keepAliveSubtext.setBackgroundResource(ripple.resourceId);
+            keepAliveSubtext.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+            keepAliveSubtext.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+            keepAliveSubtext.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0,
+                    R.drawable.ic_chevron_right, 0);
+            keepAliveSubtext.setFocusable(true);
+            keepAliveSubtext.setOnClickListener(v -> startActivity(
+                    new Intent(this, SettingsActivity.class)
+                            .putExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, true)));
+        }
     }
 
     private void refresh() {
@@ -503,7 +530,7 @@ public class MainActivity extends Activity {
         boolean decided = decision.isBlocked()
                 || decision == KeepADBTrustedNetwork.Decision.TRUSTED_ACCESS_POINT
                 || decision == KeepADBTrustedNetwork.Decision.TRUSTED_NAME;
-        return decided ? NetworkListActivity.intent(this)
+        return decided ? NetworkListActivity.intent(this, identity.bssid)
                 : KeepADBNetworkTrustPrompt.decisionIntent(this, identity.bssid);
     }
 

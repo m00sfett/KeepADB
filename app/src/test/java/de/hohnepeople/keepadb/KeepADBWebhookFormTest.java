@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
@@ -34,6 +35,10 @@ import org.robolectric.annotation.Config;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class KeepADBWebhookFormTest {
+
+    @Rule
+    public final KeepADBRegisterClientResetRule registerClientResetRule =
+            new KeepADBRegisterClientResetRule();
 
     @Before
     public void setUp() {
@@ -326,5 +331,22 @@ public class KeepADBWebhookFormTest {
         assertEquals(activity.getString(R.string.settings_webhook_error_invalid_url),
                 error.getText().toString());
         assertEquals(0, refreshes[0]);
+    }
+
+    /**
+     * #793: a test that calls the reset itself stays green if the {@code @Rule} field is deleted.
+     * This pins that {@link KeepADBRegisterClientResetRule} is really applied to the class.
+     */
+    @Test
+    public void theRegisterClientResetRuleIsAppliedToThisClass() {
+        boolean applied = false;
+        for (java.lang.reflect.Field field : KeepADBWebhookFormTest.class.getFields()) {
+            if (field.getType() == KeepADBRegisterClientResetRule.class
+                    && field.isAnnotationPresent(org.junit.Rule.class)) {
+                applied = true;
+            }
+        }
+        org.junit.Assert.assertTrue(
+                "KeepADBRegisterClientResetRule must be a public @Rule field", applied);
     }
 }

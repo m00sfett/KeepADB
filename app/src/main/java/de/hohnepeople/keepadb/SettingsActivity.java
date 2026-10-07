@@ -26,6 +26,12 @@ public class SettingsActivity extends Activity {
     /** #763: Intent extra requesting that the force-mode row be expanded and scrolled into view. */
     public static final String EXTRA_FOCUS_FORCE = "focus_force";
     /**
+     * #801: Intent extra requesting that the network card be expanded and its protection level row
+     * scrolled into view (the Keep-Alive line of the home screen). Not the removed
+     * {@code EXTRA_FOCUS_NETWORK} of #619: that one had no sender, this one has.
+     */
+    public static final String EXTRA_FOCUS_NETWORK = "focus_network";
+    /**
      * #672: flags for the reset-app, USB handover mode and language dialogs showing at the time of
      * a {@code recreate()} (rotation). Pure "was showing" markers; a restored reset-app dialog is
      * only re-shown and still needs the user's own confirm tap. The Bundle keys of the Network
@@ -261,6 +267,11 @@ public class SettingsActivity extends Activity {
             getIntent().removeExtra(EXTRA_FOCUS_FORCE);
         }
 
+        if (getIntent().hasExtra(EXTRA_FOCUS_NETWORK)) {
+            focusNetworkLevel();
+            getIntent().removeExtra(EXTRA_FOCUS_NETWORK);
+        }
+
     }
 
     @Override
@@ -354,6 +365,22 @@ public class SettingsActivity extends Activity {
                 android.graphics.Rect rect = new android.graphics.Rect();
                 forcePanel.getDrawingRect(rect);
                 scrollView.offsetDescendantRectToMyCoords(forcePanel, rect);
+                scrollView.smoothScrollTo(0, rect.top);
+            });
+        }
+    }
+
+    private void focusNetworkLevel() {
+        // #801: expand the network card and bring the protection level row into view.
+        setCardExpanded(this, findViewById(R.id.settings_network_beta_header),
+                findViewById(R.id.settings_network_beta_body),
+                findViewById(R.id.settings_network_beta_arrow), true);
+        View levelPanel = findViewById(R.id.settings_network_level_panel);
+        if (levelPanel != null && scrollView != null) {
+            scrollView.post(() -> {
+                android.graphics.Rect rect = new android.graphics.Rect();
+                levelPanel.getDrawingRect(rect);
+                scrollView.offsetDescendantRectToMyCoords(levelPanel, rect);
                 scrollView.smoothScrollTo(0, rect.top);
             });
         }

@@ -96,6 +96,10 @@ public class NetworkDecisionActivity extends Activity {
                 // The tap is only an entry point to a question; there is none left to ask.
                 KeepADBDiagnostics.event(this, "user_action", "network_trust_prompt", "skipped",
                         "already_decided");
+                // #798: besides the message, show where the decision can be seen and changed:
+                // the Networks list, on the row of this access point (#799).
+                startActivity(NetworkListActivity.intent(this,
+                        getIntent().getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID)));
                 endWith(R.string.network_decision_already_decided_toast);
                 break;
             default:

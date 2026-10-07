@@ -434,6 +434,8 @@ public class MainActivityWarningsTest {
         assertNotNull(intent);
         assertEquals(NetworkDecisionActivity.class.getName(), intent.getComponent().getClassName());
         assertEquals(BSSID, intent.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
+        assertFalse("The decision dialog gets no list focus extra",
+                intent.hasExtra(NetworkListActivity.EXTRA_FOCUS_BSSID));
     }
 
     /**
@@ -460,6 +462,8 @@ public class MainActivityWarningsTest {
         Intent intent = shadowOf(activity).getNextStartedActivity();
         assertNotNull(intent);
         assertEquals(NetworkListActivity.class.getName(), intent.getComponent().getClassName());
+        // #799: the list jumps to the row of the access point the line talks about.
+        assertEquals(BSSID, intent.getStringExtra(NetworkListActivity.EXTRA_FOCUS_BSSID));
     }
 
     @Test
@@ -494,8 +498,34 @@ public class MainActivityWarningsTest {
         KeepADBTrustedNetwork.addBssid(context, BSSID, "Home");
         status.performClick();
 
-        assertEquals(NetworkListActivity.class.getName(),
-                shadowOf(activity).getNextStartedActivity().getComponent().getClassName());
+        Intent opened = shadowOf(activity).getNextStartedActivity();
+        assertEquals(NetworkListActivity.class.getName(), opened.getComponent().getClassName());
+        assertEquals(BSSID, opened.getStringExtra(NetworkListActivity.EXTRA_FOCUS_BSSID));
+    }
+
+    /** #797 (point 3): the name-trusted branch of the same tap, on its own and not only by mutation. */
+    @Test
+    public void aNameTrustedWhileTheLineWasShownOpensTheListOnThatAccessPoint() {
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADB.recordExplicitIntent(context, true);
+        connectTo("Cafe", BSSID);
+        MainActivity activity = open();
+        TextView status = activity.findViewById(R.id.status);
+        assertEquals(context.getString(R.string.status_tap_to_decide),
+                status.getText().toString().split("\n")[1]);
+
+        KeepADBTrustedNetwork.setTrustByNameEnabled(context, true);
+        // Another access point of the same name is trusted; this one is covered by its name only.
+        KeepADBTrustedNetwork.addBssid(context, "11:22:33:44:55:66", "Cafe");
+        assertEquals("control: trusted by name now, not by address",
+                KeepADBTrustedNetwork.Decision.TRUSTED_NAME,
+                KeepADBTrustedNetwork.evaluate(context, KeepADBNetworkIdentity.current(context)));
+        status.performClick();
+
+        Intent opened = shadowOf(activity).getNextStartedActivity();
+        assertEquals(NetworkListActivity.class.getName(), opened.getComponent().getClassName());
+        assertEquals(BSSID, opened.getStringExtra(NetworkListActivity.EXTRA_FOCUS_BSSID));
     }
 
     @Test
