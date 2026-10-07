@@ -349,4 +349,25 @@ public class KeepADBWebhookFormTest {
         org.junit.Assert.assertTrue(
                 "KeepADBRegisterClientResetRule must be a public @Rule field", applied);
     }
+
+    @Test
+    public void enterKeyOfTheUrlFieldIsDoneActionAndStillFiltersLineBreaks() {
+        Activity activity = newActivityWithSettingsLayout();
+        new KeepADBWebhookForm(activity, activity.findViewById(android.R.id.content), () -> {});
+        EditText url = activity.findViewById(R.id.settings_webhook_url);
+
+        android.view.inputmethod.EditorInfo info = new android.view.inputmethod.EditorInfo();
+        url.onCreateInputConnection(info);
+        assertEquals("IME offers Done instead of a newline key",
+                android.view.inputmethod.EditorInfo.IME_ACTION_DONE,
+                info.imeOptions & android.view.inputmethod.EditorInfo.IME_MASK_ACTION);
+        assertEquals("Enter is not suppressed as an action key", 0,
+                info.imeOptions & android.view.inputmethod.EditorInfo.IME_FLAG_NO_ENTER_ACTION);
+
+        url.setText("https://a.example/\nregister");
+        assertEquals("https://a.example/register", url.getText().toString());
+        assertTrue("field still wraps",
+                !(url.getTransformationMethod()
+                        instanceof android.text.method.SingleLineTransformationMethod));
+    }
 }

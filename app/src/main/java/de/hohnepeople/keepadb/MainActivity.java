@@ -325,6 +325,7 @@ public class MainActivity extends Activity {
             keepAliveSubtext.setGravity(Gravity.TOP | Gravity.START);
             keepAliveSubtext.setBackground(null);
             keepAliveSubtext.setCompoundDrawablesRelative(null, null, null, null);
+            keepAliveSubtext.setAccessibilityDelegate(null);
         } else {
             // A tap target of at least 48 dp with press feedback and the chevron of the other
             // rows that lead on (UX concept 5.3, point 1; touch targets from 48 dp).
@@ -336,6 +337,15 @@ public class MainActivity extends Activity {
             keepAliveSubtext.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0,
                     R.drawable.ic_chevron_right, 0);
             keepAliveSubtext.setFocusable(true);
+            // #805: TalkBack announces a button, not a plain text; touch behaviour is unchanged.
+            keepAliveSubtext.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+                @Override
+                public void onInitializeAccessibilityNodeInfo(View host,
+                        android.view.accessibility.AccessibilityNodeInfo info) {
+                    super.onInitializeAccessibilityNodeInfo(host, info);
+                    info.setClassName(android.widget.Button.class.getName());
+                }
+            });
             keepAliveSubtext.setOnClickListener(v -> startActivity(
                     new Intent(this, SettingsActivity.class)
                             .putExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, true)));

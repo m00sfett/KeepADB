@@ -17,6 +17,8 @@ import org.junit.rules.ExternalResource;
  */
 final class KeepADBRegisterClientResetRule extends ExternalResource {
 
+    private static final long DRAIN_TIMEOUT_MS = 2000;
+
     @Override
     protected void before() {
         reset();
@@ -28,7 +30,20 @@ final class KeepADBRegisterClientResetRule extends ExternalResource {
     }
 
     static void reset() {
-        KeepADBRegisterClient.awaitIdleForTesting(2000);
+        reset(DRAIN_TIMEOUT_MS);
+    }
+
+    /**
+     * #806: a drain timeout means a register task is still running and would write into the next
+     * test's state, so it fails loudly instead of being swallowed.
+     */
+    static void reset(long drainTimeoutMs) {
+        boolean drained = KeepADBRegisterClient.awaitIdleForTesting(drainTimeoutMs);
         KeepADBRegisterClient.resetForTesting();
+        if (!drained) {
+            throw new AssertionError("KeepADBRegisterClient executor did not drain within "
+                    + drainTimeoutMs + " ms; a register task is still running and would leak"
+                    + " into the next test");
+        }
     }
 }

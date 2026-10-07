@@ -589,13 +589,14 @@ final class KeepADBRegisterClient {
      * has finished. Deliberately not {@code synchronized} -- the queued tasks take the class
      * monitor themselves, so holding it here would deadlock.
      */
-    static void awaitIdleForTesting(long timeoutMs) {
+    static boolean awaitIdleForTesting(long timeoutMs) {
         java.util.concurrent.CountDownLatch drained = new java.util.concurrent.CountDownLatch(1);
         EXECUTOR.execute(drained::countDown);
         try {
-            drained.await(timeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS);
+            return drained.await(timeoutMs, java.util.concurrent.TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            return false;
         }
     }
 

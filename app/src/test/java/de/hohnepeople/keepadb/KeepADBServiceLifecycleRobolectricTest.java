@@ -84,7 +84,6 @@ public class KeepADBServiceLifecycleRobolectricTest {
         KeepADBEndpointCoordinator.resetForTesting();
         KeepADBNetwork.resetForTesting();
         KeepADB.resetForTesting();
-        KeepADBRegisterClient.resetForTesting();
     }
 
     @Test
