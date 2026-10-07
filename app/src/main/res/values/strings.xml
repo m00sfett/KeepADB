@@ -87,7 +87,7 @@
     <string name="location_permission_panel_body">Trusted-network mode needs Location access to identify your Wi-Fi network. Without it, Keep-Alive can’t confirm a trusted network and won’t re-enable automatically.</string>
     <string name="location_permission_panel_grant_button">Grant location permission</string>
     <string name="location_permission_panel_fallback_body">Prefer not to grant Location access? Trust all Wi-Fi networks instead — Keep-Alive will then re-enable on any connection.</string>
-    <string name="location_permission_panel_fallback_button">Trust all Wi-Fi networks instead</string>
+    <string name="location_permission_panel_protection_button">Choose protection level</string>
     <string name="location_permission_panel_fallback_toast">Switched to \"trust all Wi-Fi networks\" mode.</string>
     <string name="location_permission_panel_title_discovery">Location access needed for Wi-Fi &amp; access points</string>
     <string name="location_permission_panel_body_discovery">Location access is needed to identify the current Wi-Fi network and access points.</string>
