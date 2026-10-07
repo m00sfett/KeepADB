@@ -14,6 +14,13 @@
             <corners android:radius="@dimen/radius_control" />
         </shape>
     </item>
+    <item android:state_selected="true">
+        <shape>
+            <solid android:color="@color/panel_strong" />
+            <stroke android:width="2dp" android:color="@color/title_yellow" />
+            <corners android:radius="@dimen/radius_control" />
+        </shape>
+    </item>
     <item>
         <shape>
             <solid android:color="@color/panel_strong" />

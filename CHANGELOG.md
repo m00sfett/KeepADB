@@ -25,7 +25,13 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.9.41] - Unreleased
 
-Etappe E12 patch candidate (versionCode 213), package #793 (register-state test hygiene) on top of 1.9.40; no release. The version 1.9.40 stays as it is.
+Etappe E12 patch candidate (versionCode 213), packages #793 (register-state test hygiene), #799 and #798 (deep link to a Networks list row) on top of 1.9.40; no release. The version 1.9.40 stays as it is.
+
+### Added
+- **Networks list (#799):** `NetworkListActivity` accepts `EXTRA_FOCUS_BSSID`. On a fresh open it marks the row of that access point (selected state with a thicker frame), unfolds a "show more" group if the row is folded away and scrolls the row into view. Without the extra, or without a matching row, the list opens as before. The status line of the home screen (#790) sets the extra for a decided network.
+
+### Fixed
+- **Trust decision (#798):** tapping the "new Wi-Fi" notification for an already decided access point showed only a toast. It now also opens the Networks list on that access point's row; an open question still shows the dialog, an expired request still only the toast.
 
 ### Testing
 - #793: `KeepADBWebhookFormTest`, `SettingsActivityTest`, `KeepADBNotificationWebhookStatusTest` and `KeepADBServiceLifecycleRobolectricTest` now apply `KeepADBRegisterClientResetRule`, so static `KeepADBRegisterClient` state (registration, op generation, transport, executor) no longer depends on earlier test classes. Each class has a `theRegisterClientResetRuleIsAppliedToThisClass` pin test. No product code changed.
