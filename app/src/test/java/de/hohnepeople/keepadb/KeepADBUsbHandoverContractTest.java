@@ -105,13 +105,15 @@ public class KeepADBUsbHandoverContractTest {
     @Test
     public void manualActionFailureShowsErrorInsteadOfImplyingSuccess() throws IOException {
         String notification = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbNotification.java");
-        assertTrue(notification.contains("static void reportManualActionResult(Context context, boolean success)"));
-        assertTrue(notification.contains("lastHandoverActionFailed = !success;"));
+        assertTrue(notification.contains("static void reportManualActionResult(Context context, KeepADB.ToggleResult result)"));
+        assertTrue(notification.contains("lastHandoverFailureIsPermission = result != null && result.isPermissionFailure();"));
+        assertTrue(notification.contains("lastHandoverActionFailed = result == null || !result.isSuccess();"));
         assertTrue(notification.contains("R.string.usb_notification_handover_error"));
+        assertTrue(notification.contains("R.string.usb_notification_handover_error_generic"));
 
         String receiver = read("app/src/main/java/de/hohnepeople/keepadb/KeepADBUsbReceiver.java");
         assertTrue(receiver.contains("KeepADBUsbHandover.handleManualAction(context)"));
-        assertTrue(receiver.contains("KeepADBUsbNotification.reportManualActionResult(context, success)"));
+        assertTrue(receiver.contains("KeepADBUsbNotification.reportManualActionResult(context, KeepADBUsbHandover.lastManualActionResult())"));
     }
 
     @Test
@@ -178,7 +180,7 @@ public class KeepADBUsbHandoverContractTest {
 
         assertTrue(buildBody.contains("KeepADBUsbProfile.isProfileNotificationEnabled(context)"));
         assertTrue(buildBody.contains("context.getString(R.string.usb_notification_title)"));
-        assertTrue(buildBody.contains("context.getString(R.string.usb_notification_handover_error)"));
+        assertTrue(buildBody.contains("handoverErrorText(context)"));
 
         assertTrue(buildBody.contains("profileIntent(context, profiles.isEmpty() ? ACTION_CREATE : ACTION_SWITCH)"));
         assertTrue(buildBody.contains("R.string.usb_notification_create_profile"));

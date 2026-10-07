@@ -59,7 +59,7 @@ public final class KeepADBUsbReceiver extends BroadcastReceiver {
             return false;
         }
         boolean success = KeepADBUsbHandover.handleManualAction(context);
-        KeepADBUsbNotification.reportManualActionResult(context, success);
+        KeepADBUsbNotification.reportManualActionResult(context, KeepADBUsbHandover.lastManualActionResult());
         return success;
     }
 

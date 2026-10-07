@@ -207,6 +207,7 @@
     <string name="settings_usb_handover_mode_automatic">Автоматически (включать при новом USB-подключении)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Не удалось включить беспроводную отладку. Проверьте разрешение.</string>
+    <string name="usb_notification_handover_error_generic">Не удалось включить беспроводную отладку.</string>
     <string name="notification_action_disable">Выключить Wifi-ADB</string>
     <string name="status_enabled_disconnected">Беспроводная отладка включена (нет подключения)</string>
     <string name="status_permission_missing">Нет системного разрешения</string>

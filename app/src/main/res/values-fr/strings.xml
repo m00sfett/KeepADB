@@ -207,6 +207,7 @@
     <string name="settings_usb_handover_mode_automatic">Automatique (activer lors d’une nouvelle connexion USB)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Impossible d’activer le débogage sans fil. Vérifiez l’autorisation.</string>
+    <string name="usb_notification_handover_error_generic">Impossible d’activer le débogage sans fil.</string>
     <string name="notification_action_disable">Désactiver Wifi-ADB</string>
     <string name="status_enabled_disconnected">Débogage sans fil ACTIVÉ (déconnecté)</string>
     <string name="status_permission_missing">Autorisation système manquante</string>

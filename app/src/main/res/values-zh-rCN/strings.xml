@@ -207,6 +207,7 @@
     <string name="settings_usb_handover_mode_automatic">自动（建立新的 USB 连接时启用）</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">无法启用无线调试。请检查权限。</string>
+    <string name="usb_notification_handover_error_generic">无法启用无线调试。</string>
     <string name="notification_action_disable">关闭 Wifi-ADB</string>
     <string name="status_enabled_disconnected">无线调试已开启（未连接）</string>
     <string name="status_permission_missing">缺少系统权限</string>

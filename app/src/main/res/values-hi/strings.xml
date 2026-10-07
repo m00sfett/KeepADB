@@ -207,6 +207,7 @@
     <string name="settings_usb_handover_mode_automatic">स्वचालित (नए USB कनेक्शन पर सक्षम करें)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">वायरलेस डीबगिंग चालू नहीं हो सकी। अनुमति जाँचें।</string>
+    <string name="usb_notification_handover_error_generic">वायरलेस डीबगिंग चालू नहीं हो सकी।</string>
     <string name="notification_action_disable">Wifi-ADB बंद करें</string>
     <string name="status_enabled_disconnected">वायरलेस डीबगिंग चालू (कनेक्ट नहीं है)</string>
     <string name="status_permission_missing">सिस्टम अनुमति नहीं है</string>

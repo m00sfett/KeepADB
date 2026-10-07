@@ -207,6 +207,7 @@
     <string name="settings_usb_handover_mode_automatic">Automático (activar con una conexión USB nueva)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">No se pudo activar la depuración inalámbrica. Comprueba el permiso.</string>
+    <string name="usb_notification_handover_error_generic">No se pudo activar la depuración inalámbrica.</string>
     <string name="notification_action_disable">Desactivar Wifi-ADB</string>
     <string name="status_enabled_disconnected">Depuración inalámbrica ACTIVADA (desconectada)</string>
     <string name="status_permission_missing">Falta el permiso del sistema</string>
