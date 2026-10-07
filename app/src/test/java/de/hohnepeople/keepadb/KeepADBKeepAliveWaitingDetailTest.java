@@ -111,7 +111,7 @@ public class KeepADBKeepAliveWaitingDetailTest {
         KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
 
         assertTrue("precondition: the accepted-but-ineffective write must engage the backoff",
-                KeepADB.setEnabled(context, true, "keep_alive_check"));
+                KeepADB.setEnabled(context, true, "keep_alive_check").isSuccess());
         // The automatic enable is debounced (#310); let the scheduled write actually land.
         android.os.SystemClock.sleep(1600);
         shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));

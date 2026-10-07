@@ -504,7 +504,7 @@ public class KeepADBServiceLifecycleRobolectricTest {
         KeepADB.setGatewayForTesting(gateway);
 
         // Step 1: User switches ADB manually off via setEnabled("app")
-        assertTrue(KeepADB.setEnabled(context, false, "app"));
+        assertTrue(KeepADB.setEnabled(context, false, "app").isSuccess());
         assertFalse(KeepADB.isEnabled(context));
         assertTrue("wasLastExplicitIntentOff must be true after manual setEnabled(false)",
                 KeepADB.wasLastExplicitIntentOff(context));
@@ -537,7 +537,7 @@ public class KeepADBServiceLifecycleRobolectricTest {
         KeepADB.setGatewayForTesting(gateway);
 
         // 1. Manual OFF
-        assertTrue(KeepADB.setEnabled(context, false, "app"));
+        assertTrue(KeepADB.setEnabled(context, false, "app").isSuccess());
         assertFalse(KeepADB.isEnabled(context));
         assertTrue(KeepADB.wasLastExplicitIntentOff(context));
         assertFalse(KeepADBService.shouldRun(context));
@@ -806,6 +806,143 @@ public class KeepADBServiceLifecycleRobolectricTest {
                     permissionMissingPosted());
         } finally {
             controller.destroy();
+        }
+    }
+
+    /**
+     * #795: KeepADB.setEnabled() used to return the same {@code false} for a rejected write, a
+     * guard abort or a superseded intent as for a missing permission, so the automatic callers
+     * raised the "permission missing" notification for all of them. With the grant present and
+     * the write merely rejected, nothing may point at the permission.
+     */
+    @Test
+    public void recheckAndEnableForARejectedWriteRaisesNoPermissionNotification() {
+        KeepADBFakeSettingsGateway gateway = armKeepAliveWithGrantAnd(new KeepADBFakeSettingsGateway(false));
+        gateway.setWriteSuccess(false);
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            context.getSystemService(NotificationManager.class).cancel(KeepADBNotification.NOTIFICATION_ID);
+            gateway.writes.clear();
+            android.os.SystemClock.sleep(400);
+
+            controller.get().recheckAndEnable();
+            ShadowLooper.idleMainLooper();
+
+            assertEquals("the recheck must really have attempted the write",
+                    java.util.Arrays.asList(true), gateway.writes);
+            assertTrue(KeepADBDiagnostics.export(context).contains("reason=write_rejected"));
+            assertFalse("a rejected write with the grant present is not a missing permission",
+                    permissionMissingPosted());
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    @Test
+    public void contentObserverForARejectedWriteRaisesNoPermissionNotification() {
+        KeepADBFakeSettingsGateway gateway = armKeepAliveWithGrantAnd(new KeepADBFakeSettingsGateway(false));
+        gateway.setWriteSuccess(false);
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            context.getSystemService(NotificationManager.class).cancel(KeepADBNotification.NOTIFICATION_ID);
+            gateway.writes.clear();
+
+            controller.get().getAdbContentObserverForTesting()
+                    .onChange(false, Settings.Global.getUriFor(KeepADB.KEY));
+            ShadowLooper.idleMainLooper();
+
+            assertEquals("the observer must really have attempted the write",
+                    java.util.Arrays.asList(true), gateway.writes);
+            assertTrue(KeepADBDiagnostics.export(context).contains("reason=write_rejected"));
+            assertFalse("a rejected write with the grant present is not a missing permission",
+                    permissionMissingPosted());
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    /**
+     * #795, the other side: a write the platform refuses with a SecurityException is about the
+     * secure-settings grant (it was revoked behind the app's back) and keeps the hint.
+     */
+    @Test
+    public void recheckAndEnableStillRaisesThePermissionNotificationForARevokedGrant() {
+        armKeepAliveWithGrantAnd(new KeepADBSecurityExceptionGateway());
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            context.getSystemService(NotificationManager.class).cancel(KeepADBNotification.NOTIFICATION_ID);
+            assertFalse(permissionMissingPosted());
+            android.os.SystemClock.sleep(400);
+
+            controller.get().recheckAndEnable();
+            ShadowLooper.idleMainLooper();
+
+            assertTrue(KeepADBDiagnostics.export(context).contains("reason=security_exception"));
+            assertTrue("a refused secure-settings write must still be reported by the recheck",
+                    permissionMissingPosted());
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    @Test
+    public void contentObserverStillRaisesThePermissionNotificationForARevokedGrant() {
+        armKeepAliveWithGrantAnd(new KeepADBSecurityExceptionGateway());
+
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            context.getSystemService(NotificationManager.class).cancel(KeepADBNotification.NOTIFICATION_ID);
+            assertFalse(permissionMissingPosted());
+
+            controller.get().getAdbContentObserverForTesting()
+                    .onChange(false, Settings.Global.getUriFor(KeepADB.KEY));
+            ShadowLooper.idleMainLooper();
+
+            assertTrue(KeepADBDiagnostics.export(context).contains("reason=security_exception"));
+            assertTrue("a refused secure-settings write must still be reported by the observer",
+                    permissionMissingPosted());
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    private <G extends KeepADBSettingsGateway> G armKeepAliveWithGrantAnd(G gateway) {
+        shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        scheduler.setClockMs(100_000);
+        KeepADB.setSchedulerForTesting(scheduler);
+        KeepADB.setGatewayForTesting(gateway);
+        return gateway;
+    }
+
+    /** Reads "off" and refuses every write the way a revoked WRITE_SECURE_SETTINGS grant does. */
+    private static final class KeepADBSecurityExceptionGateway implements KeepADBSettingsGateway {
+        @Override
+        public boolean isEnabled(Context context) {
+            return false;
+        }
+
+        @Override
+        public boolean write(Context appContext, boolean on) {
+            throw new SecurityException("WRITE_SECURE_SETTINGS revoked");
         }
     }
 
@@ -1106,7 +1243,7 @@ public class KeepADBServiceLifecycleRobolectricTest {
     public void aFreshServiceInstanceReopensABlockedBackoff() {
         shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
         KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
-        assertTrue(KeepADB.setEnabled(context, true, "keep_alive_check"));
+        assertTrue(KeepADB.setEnabled(context, true, "keep_alive_check").isSuccess());
         // The automatic enable is debounced (#310); let the scheduled write actually land.
         android.os.SystemClock.sleep(1600);
         shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));

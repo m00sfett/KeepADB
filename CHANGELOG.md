@@ -17,11 +17,29 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36`, `1.9.37`, `1.9.38`, `1.9.39`, `1.9.40`, `1.9.41`, `1.9.42` and `1.9.43` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.44` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.44] - Unreleased
+
+Etappe E15 patch candidate (versionCode 216), packages #795 (cause-carrying result of `KeepADB.setEnabled`), #797 (point 2, label of the background-location dialog) and #809 (release status sentence) on top of 1.9.43; no release. The version 1.9.43 stays as it is.
+
+### Changed
+- **`KeepADB.setEnabled` result (#795):** the method returns a `KeepADB.ToggleResult` instead of a boolean. Besides success it names why a request did not go through: permission missing, security exception, write rejected, guard abort, superseded, manual intent pending. `isSuccess()` replaces the old boolean; behavior, scheduling and bookkeeping of the call are unchanged. The Keep-Alive service and the notification and trust actions no longer show the "permission missing" hint for a rejected write, a guard abort or a skipped request; widget, tile and main switch take the cause from the result instead of a second permission read.
+- **Background-location dialog (#797, point 2):** the neutral button is labeled "Choose protection level" instead of "Trust all Wi-Fi networks instead"; the string key is renamed to `location_permission_panel_protection_button` (19 locales). The tap behavior is unchanged (it still opens the protection step of the setup assistant, see #782). With this, all points of #797 are done.
+
+### Fixed
+- **Misleading permission hint (#795):** a keep-alive or notification action whose write was rejected, aborted by a guard or skipped no longer reads as a missing `WRITE_SECURE_SETTINGS` grant.
+
+### Documentation
+- **Release status (#809):** the sentence in "Release status" names the range of unreleased candidates (`1.9.1` through `1.9.44`) instead of listing every version; the version history below is unchanged.
+
+### Testing
+- #795: all existing call sites of `KeepADB.setEnabled` in the tests are adapted to `isSuccess()` without weakening an expectation; `KeepADBToggleSchedulingTest` pins every failure cause and the automatic callers, `KeepADBToggleResultCallersTest` pins the user-facing messages per cause, `KeepADBServiceLifecycleRobolectricTest` covers the service paths.
+- #797, point 2: `SettingsBackgroundLocationDialogTest` pins the button label of the protection step.
 
 ## [1.9.43] - Unreleased
 
@@ -80,7 +98,7 @@ Etappe E12 patch candidate (versionCode 213), packages #793 (register-state test
 - **#797, point 1, intro count:** checked and no longer applicable as a defect. Since #768 the assistant can change both the webhook over `http://` (webhook step) and an active force mode (protection step), so the intro of an existing installation counts them correctly; a test now pins that (`OnboardingActivityTest.existingIntroMarksAnHttpWebhookAndAnActiveForceEachOnItsOwn`).
 
 ### Not done (open)
-- **#797, point 2:** the label "Trust all Wi-Fi networks instead" still leads into the protection step; a new label is a string in 19 locales and needs a product decision.
+- **#797, point 2:** the label "Trust all Wi-Fi networks instead" still leads into the protection step; a new label is a string in 19 locales and needs a product decision. Done in 1.9.44: the button reads "Choose protection level". With that, all points of #797 are done.
 
 ### Testing
 - #793: `KeepADBWebhookFormTest`, `SettingsActivityTest`, `KeepADBNotificationWebhookStatusTest` and `KeepADBServiceLifecycleRobolectricTest` now apply `KeepADBRegisterClientResetRule`, so static `KeepADBRegisterClient` state (registration, op generation, transport, executor) no longer depends on earlier test classes. Each class has a `theRegisterClientResetRuleIsAppliedToThisClass` pin test. No product code changed.

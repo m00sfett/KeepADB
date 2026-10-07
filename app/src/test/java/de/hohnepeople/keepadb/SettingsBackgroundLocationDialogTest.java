@@ -143,6 +143,11 @@ public class SettingsBackgroundLocationDialogTest {
                         .getText().toString());
 
         activity.findViewById(R.id.settings_background_location_button).performClick();
+        // #797: the label names the protection choice it leads to, not a direct "trust all" action.
+        String label = latestDialog().getButton(AlertDialog.BUTTON_NEUTRAL).getText().toString();
+        assertEquals(context.getString(R.string.location_permission_panel_protection_button), label);
+        assertEquals("Choose protection level", label);
+        assertFalse(label.contains("Trust all"));
         click(latestDialog(), AlertDialog.BUTTON_NEUTRAL);
         // #782: the button leads to the protection step instead of switching the mode itself.
         assertEquals("The button itself changes nothing", KeepADBTrustedNetwork.MODE_ALLOWLIST,

@@ -247,7 +247,7 @@ public class KeepADBRegisterClientTest {
 
         // Apply toggle ON: gateway rejects the write. #309: this used to return true -- the
         // rejected write was reported to the caller as a successful toggle; it now fails.
-        boolean applied = KeepADB.setEnabled(context, true, "test");
+        boolean applied = KeepADB.setEnabled(context, true, "test").isSuccess();
         assertFalse(applied);
         assertFalse(KeepADB.isEnabled(context));
         assertEquals(1, gateway.writes.size());

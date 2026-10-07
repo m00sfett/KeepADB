@@ -55,7 +55,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
 
         assertFalse(KeepADB.isAutomaticEnableBackoffBlocked());
         assertTrue("applyNow must still report the write as accepted",
-                KeepADB.setEnabled(ctx, true, AUTO));
+                KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
 
         assertTrue("a mismatched automatic enable must engage the #496 backoff",
                 KeepADB.isAutomaticEnableBackoffBlocked());
@@ -65,7 +65,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
     public void aSuccessfulAutomaticEnableNeverBlocks() {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
 
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         // #500: success is no longer decided by the readback taken right after the write -- that
         // one reads "on" in the broken case too. It is decided by the value still being on when
         // the confirmation window expires, which for a genuinely successful write it is.
@@ -86,7 +86,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
                 new KeepADBRevertingSettingsGateway(scheduler::clockMs, 200);
         KeepADB.setGatewayForTesting(gateway);
 
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue("the readback right after the write must still report 'on' -- that is the "
                         + "whole point of this fake", KeepADB.isEnabled(ctx));
 
@@ -120,7 +120,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
     @Test
     public void anExternallyObservedEnableAfterTheVerdictReopensTheCycle() {
         KeepADB.setGatewayForTesting(new KeepADBRevertingSettingsGateway(scheduler::clockMs, 200));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         scheduler.advanceBy(KeepADBRecoveryBackoff.SUCCESS_CONFIRMATION_MS);
         assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
 
@@ -134,7 +134,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
     @Test
     public void anObservedEnableDuringOurOwnAttemptDoesNotReopenTheCycle() {
         KeepADB.setGatewayForTesting(new KeepADBRevertingSettingsGateway(scheduler::clockMs, 200));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
 
         // This is precisely what the ContentObserver sees when our accepted write momentarily
         // flips the value on before the system reverts it.
@@ -153,7 +153,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
         KeepADB.setGatewayForTesting(gateway);
 
         assertFalse("a rejected write must fail the toggle",
-                KeepADB.setEnabled(ctx, true, AUTO));
+                KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
 
         assertFalse("acceptance criterion: a rejected write is a distinct diagnosis from an "
                         + "accepted-but-ineffective readback and must not engage the backoff",
@@ -174,7 +174,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
             }
         });
 
-        assertFalse(KeepADB.setEnabled(ctx, true, AUTO));
+        assertFalse(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
 
         assertFalse("acceptance criterion: a SecurityException is a distinct diagnosis from an "
                         + "accepted-but-ineffective readback and must not engage the backoff",
@@ -198,12 +198,12 @@ public class KeepADBRecoveryBackoffSchedulingTest {
             }
         });
         String manual = KeepADB.SOURCE_USB_HANDOVER_MANUAL;
-        assertTrue(KeepADB.setEnabled(ctx, false, manual));
+        assertTrue(KeepADB.setEnabled(ctx, false, manual).isSuccess());
         assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
         revoked[0] = true;
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS + 1);
 
-        assertFalse(KeepADB.setEnabled(ctx, true, manual));
+        assertFalse(KeepADB.setEnabled(ctx, true, manual).isSuccess());
 
         assertTrue("the failed enable must not stay recorded as the last intent",
                 KeepADB.wasLastExplicitIntentOff(ctx));
@@ -214,7 +214,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
     @Test
     public void theBlockClearsOnceTheFirstRetryDelayHasElapsed() {
         KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
 
         scheduler.advanceBy(KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS);
@@ -232,14 +232,14 @@ public class KeepADBRecoveryBackoffSchedulingTest {
     @Test
     public void aSecondConsecutiveMismatchBlocksForTheLongerCappedInterval() {
         KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
 
         scheduler.advanceBy(KeepADBRecoveryBackoff.FIRST_RETRY_DELAY_MS);
         assertFalse(KeepADB.isAutomaticEnableBackoffBlocked());
 
         assertTrue("the retry itself must still be reported as accepted",
-                KeepADB.setEnabled(ctx, true, AUTO));
+                KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
 
         scheduler.advanceBy(KeepADBRecoveryBackoff.RETRY_INTERVAL_MS - 1);
@@ -255,14 +255,14 @@ public class KeepADBRecoveryBackoffSchedulingTest {
     @Test
     public void aManualActionReopensABlockedAutomaticPath() {
         KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
 
         // Acceptance criterion: "Manuelle Nutzeraktionen ... können einen blockierten
         // automatischen Pfad bewusst erneut anstoßen." A manual tap, even one that itself ends
         // in the very same mismatch, must reopen the path rather than leave it stuck.
         assertTrue("a manual source's own write must still be reported as accepted",
-                KeepADB.setEnabled(ctx, true, "app"));
+                KeepADB.setEnabled(ctx, true, "app").isSuccess());
 
         assertFalse("a manual action is never gated by the automatic backoff and must reset it",
                 KeepADB.isAutomaticEnableBackoffBlocked());
@@ -271,7 +271,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
     @Test
     public void aManualDisableAlsoReopensABlockedAutomaticPath() {
         KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
 
         KeepADB.setEnabled(ctx, false, "tile");
@@ -284,7 +284,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
     @Test
     public void aNetworkChangeReopensABlockedAutomaticPath() {
         KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
 
         // e.g. KeepADBService's NetworkCallback#onAvailable()/#onLost().
@@ -297,7 +297,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
     @Test
     public void resetAutomaticEnableBackoffReopensABlockedPath() {
         KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
 
         // e.g. KeepADBService#onCreate() (a fresh app/service instance) or the ContentObserver
@@ -310,7 +310,7 @@ public class KeepADBRecoveryBackoffSchedulingTest {
     @Test
     public void resetForTestingClearsAnyLeftoverBackoffBetweenTests() {
         KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
 
         KeepADB.resetForTesting();

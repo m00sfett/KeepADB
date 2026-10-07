@@ -301,7 +301,7 @@ public class KeepADBPermanentReadRestrictionBehaviorTest {
         KeepADBPreferences.setLastDesiredOn(context, true);
 
         // Manual source -> applyNow() runs synchronously, right here, not on a debounce delay.
-        boolean result = KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        boolean result = KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP).isSuccess();
 
         assertFalse("A write that throws SecurityException must be reported as failed", result);
         String diagnostics = KeepADBDiagnostics.export(context);

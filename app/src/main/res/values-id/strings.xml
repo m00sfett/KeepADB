@@ -192,7 +192,7 @@
     <string name="location_permission_panel_body">Mode jaringan dipercaya memerlukan akses lokasi untuk mengenali jaringan Wi-Fi Anda. Tanpa itu, Keep-Alive tidak dapat memastikan jaringan dipercaya dan tidak akan aktif kembali secara otomatis.</string>
     <string name="location_permission_panel_grant_button">Berikan izin lokasi</string>
     <string name="location_permission_panel_fallback_body">Lebih memilih tidak memberikan akses lokasi? Percayai semua jaringan Wi-Fi — Keep-Alive akan aktif kembali pada koneksi apa pun.</string>
-    <string name="location_permission_panel_fallback_button">Percayai semua jaringan Wi-Fi sebagai gantinya</string>
+    <string name="location_permission_panel_protection_button">Pilih tingkat perlindungan</string>
     <string name="location_permission_panel_fallback_toast">Beralih ke mode \"percayai semua jaringan Wi-Fi\".</string>
     <string name="location_permission_panel_title_discovery">Akses lokasi diperlukan untuk Wi-Fi &amp; titik akses</string>
     <string name="location_permission_panel_body_discovery">Akses lokasi diperlukan untuk mengenali jaringan Wi-Fi saat ini dan titik akses.</string>

@@ -29,14 +29,15 @@ public class KeepADBWidget extends AppWidgetProvider {
             KeepADB.State state = KeepADB.getState(context);
             // #318: shared click semantics with MainActivity's switch and the tile.
             boolean want = KeepADB.desiredOnForClick(state);
-            if (!KeepADB.setEnabled(context, want, "widget")) {
+            KeepADB.ToggleResult result = KeepADB.setEnabled(context, want, "widget");
+            if (!result.isSuccess()) {
                 // #318: separate a missing permission from a rejected write instead of always
-                // pointing at the one-time setup.
+                // pointing at the one-time setup. #795: the cause comes from the toggle result.
                 Toast.makeText(context,
-                        KeepADB.hasPermission(context)
-                                ? localizedContext.getString(R.string.toggle_failed_toast)
-                                : localizedContext.getString(R.string.permission_error_toast,
-                                        context.getPackageName()),
+                        result == KeepADB.ToggleResult.PERMISSION_MISSING
+                                ? localizedContext.getString(R.string.permission_error_toast,
+                                        context.getPackageName())
+                                : localizedContext.getString(R.string.toggle_failed_toast),
                         Toast.LENGTH_LONG).show();
             }
             KeepADBService.sync(context);

@@ -62,11 +62,16 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     static boolean handleDisableAction(Context context) {
         KeepADBDiagnostics.event(context, "user_action", "notification", "disable", "action_button");
         Context localizedContext = KeepADBLocaleHelper.wrapContext(context);
-        boolean success = KeepADB.setEnabled(context, false, "notification");
+        KeepADB.ToggleResult result = KeepADB.setEnabled(context, false, "notification");
+        boolean success = result.isSuccess();
         if (!success) {
             try {
+                // #795: only a permission failure points at the one-time grant.
                 Toast.makeText(context,
-                        localizedContext.getString(R.string.permission_error_toast, context.getPackageName()),
+                        result.isPermissionFailure()
+                                ? localizedContext.getString(R.string.permission_error_toast,
+                                        context.getPackageName())
+                                : localizedContext.getString(R.string.toggle_failed_toast),
                         Toast.LENGTH_LONG).show();
             } catch (RuntimeException ignored) {
             }
@@ -177,8 +182,11 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         boolean enabled = false;
         // #670: the explicit tap must not be blocked by the automatic-retry backoff.
         if (KeepADBService.isAutoEnableStillPermittedIgnoringBackoff(context)) {
-            enabled = KeepADB.setEnabled(context, true, KeepADB.SOURCE_NETWORK_TRUST_PROMPT);
-            if (!enabled) {
+            KeepADB.ToggleResult result = KeepADB.setEnabled(context, true,
+                    KeepADB.SOURCE_NETWORK_TRUST_PROMPT);
+            enabled = result.isSuccess();
+            // #795: a rejected or superseded write is no reason to show the permission hint.
+            if (result.isPermissionFailure()) {
                 KeepADBNotification.showPermissionMissing(context);
             }
         } else {

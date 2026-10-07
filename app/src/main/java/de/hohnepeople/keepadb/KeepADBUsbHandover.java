@@ -125,7 +125,7 @@ final class KeepADBUsbHandover {
     }
 
     /**
-     * MANUAL mode notification action. Returns whatever {@link KeepADB#setEnabled} returns, so
+     * MANUAL mode notification action. Returns whether {@link KeepADB#setEnabled} succeeded, so
      * the caller (the USB notification) can show a clear error instead of implying success on a
      * missing-permission failure.
      *
@@ -136,7 +136,7 @@ final class KeepADBUsbHandover {
      */
     static boolean handleManualAction(Context context) {
         return KeepADB.setEnabled(context.getApplicationContext(), true,
-                KeepADB.SOURCE_USB_HANDOVER_MANUAL);
+                KeepADB.SOURCE_USB_HANDOVER_MANUAL).isSuccess();
     }
 
     /** Reset state for unit tests. */
