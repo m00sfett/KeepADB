@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">Точку доступу «%1$s» видалено зі списку довірених</string>
     <string name="network_ap_rename_title">Назва точки доступу (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Назва заблокованої точки доступу</string>
-    <string name="network_ap_rename_message">Виберіть власну назву. Вона показується в цих списках, зберігається лише на цьому пристрої й не змінює ні назву Wi-Fi, ні список довірених точок доступу.</string>
+    <string name="network_ap_rename_message">Виберіть власну назву. Вона показується в цих списках, зберігається лише на цьому пристрої й не змінює ні назву Wi-Fi, ні список довірених чи заблокованих точок доступу.</string>
     <string name="network_ap_rename_hint">Власна назва</string>
     <string name="network_ap_rename_reset">Скинути</string>
     <string name="network_band_24">2,4 ГГц</string>

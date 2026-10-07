@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">Access Point „%1$s“ aus der Liste vertrauter Access Points entfernt</string>
     <string name="network_ap_rename_title">Name für Access Point (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Name für blockierten Access Point</string>
-    <string name="network_ap_rename_message">Wähle einen eigenen Namen. Er erscheint in diesen Listen, wird nur auf diesem Gerät gespeichert und ändert weder den WLAN-Namen noch die vertrauten Access Points.</string>
+    <string name="network_ap_rename_message">Wähle einen eigenen Namen. Er erscheint in diesen Listen, wird nur auf diesem Gerät gespeichert und ändert weder den WLAN-Namen noch die vertrauten oder gesperrten Access Points.</string>
     <string name="network_ap_rename_hint">Eigener Name</string>
     <string name="network_ap_rename_reset">Zurücksetzen</string>
     <string name="network_band_24">2,4 GHz</string>

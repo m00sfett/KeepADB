@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">“%1$s” erişim noktası güvenilenler listesinden kaldırıldı</string>
     <string name="network_ap_rename_title">Erişim noktasının adı (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Engellenen erişim noktasının adı</string>
-    <string name="network_ap_rename_message">Kendi adını seç. Bu listelerde gösterilir, yalnızca bu cihazda saklanır; Wi-Fi adını da güvenilir erişim noktalarını da değiştirmez.</string>
+    <string name="network_ap_rename_message">Kendi adını seç. Bu listelerde gösterilir, yalnızca bu cihazda saklanır; Wi-Fi adını da güvenilir ya da engellenmiş erişim noktalarını da değiştirmez.</string>
     <string name="network_ap_rename_hint">Özel ad</string>
     <string name="network_ap_rename_reset">Sıfırla</string>
     <string name="network_band_24">2,4 GHz</string>

@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">Đã xóa điểm truy cập “%1$s” khỏi danh sách tin cậy</string>
     <string name="network_ap_rename_title">Tên cho điểm truy cập (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Tên cho điểm truy cập đã chặn</string>
-    <string name="network_ap_rename_message">Hãy chọn một tên riêng. Tên này hiển thị trong các danh sách này, chỉ được lưu trên thiết bị này và không thay đổi tên Wi-Fi hay các điểm truy cập tin cậy.</string>
+    <string name="network_ap_rename_message">Hãy chọn một tên riêng. Tên này hiển thị trong các danh sách này, chỉ được lưu trên thiết bị này và không thay đổi tên Wi-Fi hay các điểm truy cập được tin cậy hoặc bị chặn.</string>
     <string name="network_ap_rename_hint">Tên riêng</string>
     <string name="network_ap_rename_reset">Đặt lại</string>
     <string name="network_band_24">2,4 GHz</string>
