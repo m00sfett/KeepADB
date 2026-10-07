@@ -69,7 +69,7 @@ public class KeepADBToggleSchedulingTest {
 
     @Test
     public void firstToggleAppliesImmediatelyWhenNotThrottled() {
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
         assertEquals(Arrays.asList(true), gateway.writes);
         assertTrue(gateway.isEnabled(ctx));
     }
@@ -79,18 +79,18 @@ public class KeepADBToggleSchedulingTest {
         // #310: the debounce is now scoped to *automatic* sources, so this scenario drives one
         // (AUTO) throughout; the manual counterpart is manualTogglesAreNeverDelayed() below.
         // First call applies immediately (clock is far past the cooldown window).
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertEquals(1, gateway.writes.size());
 
         // A second call at the same instant is within the cooldown window and gets scheduled
         // instead of applied immediately.
-        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO).isSuccess());
         assertEquals("the throttled call must not have written yet", 1, gateway.writes.size());
         assertTrue(scheduler.hasAnyPending());
 
         // A third, newer call before the scheduled one fires must supersede it -- the "false"
         // intent in between must never reach the gateway.
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
         assertEquals("the superseded false intent must never reach the gateway",
@@ -100,7 +100,7 @@ public class KeepADBToggleSchedulingTest {
 
     @Test
     public void surfacesAreRefreshedOncePerAppliedWriteAndNeverForASupersededOne() {
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertEquals("an applied write must fan out to the surfaces exactly once",
                 1, surfaces.refreshCount);
 
@@ -108,9 +108,9 @@ public class KeepADBToggleSchedulingTest {
         // the surfaces can show the pending state during the debounce window -- that is a render
         // of "a write is in flight", not a claim that anything was applied (the gateway assertions
         // in throttledTogglesCollapseToTheNewestIntent() pin the applied side).
-        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO).isSuccess());
         assertEquals("scheduling must make the pending state visible", 2, surfaces.refreshCount);
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertEquals(3, surfaces.refreshCount);
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
@@ -125,11 +125,11 @@ public class KeepADBToggleSchedulingTest {
         // could refresh the surfaces -- unlike a supersession, where the newer intent does it. It
         // must therefore fan out itself, or widget, tile and notification keep showing
         // "switching…" until something unrelated happens to refresh them.
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         int afterFirstWrite = surfaces.refreshCount;
 
         assertTrue("the second automatic call must be debounced, not written",
-                KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+                KeepADB.setEnabled(ctx, true, AUTO, appContext -> false).isSuccess());
         assertTrue("the debounce window must be visible while it lasts", KeepADB.isTogglePending());
         assertEquals("scheduling fans out once", afterFirstWrite + 1, surfaces.refreshCount);
 
@@ -143,10 +143,10 @@ public class KeepADBToggleSchedulingTest {
 
     @Test
     public void aGuardAbortedAutomaticEnableRestoresThePreviousOffIntent() {
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
         assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
 
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false).isSuccess());
         assertFalse("the pending on-intent is visible until its guard is checked",
                 KeepADB.wasLastExplicitIntentOff(ctx));
         assertTrue(scheduler.hasAnyPending());
@@ -165,9 +165,9 @@ public class KeepADBToggleSchedulingTest {
 
     @Test
     public void aNetworkChangeAbortedAutomaticEnableRestoresThePreviousOffIntent() {
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
 
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true).isSuccess());
         KeepADB.noteNetworkChanged();
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
 
@@ -184,10 +184,10 @@ public class KeepADBToggleSchedulingTest {
         // one (B) whose guard fails. B must roll back to the applied off, not to A's pending on
         // that setEnabled() had already persisted -- otherwise nothing was ever switched on, yet
         // the user-visible intent (and every later guard reading it) says "on".
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
 
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false).isSuccess());
         assertTrue(KeepADB.isTogglePending());
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
@@ -209,11 +209,11 @@ public class KeepADBToggleSchedulingTest {
         // link re-registered its own (still current) token; a token that stays at the first
         // link's value is already superseded, so the third link would fall back to the persisted
         // value -- the second link's never-applied on. Applied state is "off".
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
 
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false).isSuccess());
         assertTrue(KeepADB.isTogglePending());
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
@@ -235,13 +235,13 @@ public class KeepADBToggleSchedulingTest {
         // (off) must then be ignored by the next guarded enable (B): B is not a continuation of
         // A, so it falls back to the persisted intent (on, written by A) instead of A's stale
         // off baseline.
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
         assertFalse(KeepADBPreferences.getLastDesiredOn(ctx));
         // Wireless debugging is back on behind the app's back (as after an external re-enable).
         gateway.write(ctx, true);
 
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue("A must be pending with the off baseline captured", KeepADB.isTogglePending());
         assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
 
@@ -250,7 +250,7 @@ public class KeepADBToggleSchedulingTest {
         assertEquals("the queued pulse body must not have written anything yet",
                 Arrays.asList(true, false, true), gateway.writes);
 
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false).isSuccess());
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
 
         assertFalse("the stale off baseline of the pulse-superseded A must not be restored",
@@ -260,10 +260,10 @@ public class KeepADBToggleSchedulingTest {
 
     @Test
     public void aNetworkChangeAbortOverAPendingPredecessorRestoresTheAppliedOffIntent() {
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
 
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true).isSuccess());
         KeepADB.noteNetworkChanged();
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
 
@@ -278,13 +278,13 @@ public class KeepADBToggleSchedulingTest {
         // #776, write_rejected path with an immediate successor: applied state is "on", a pending
         // automatic off (A) is superseded by a manual off (B) whose write is rejected. The
         // rollback must restore the applied on, not A's pending off.
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
-        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO).isSuccess());
         assertTrue(KeepADB.isTogglePending());
         gateway.setWriteSuccess(false);
 
         assertFalse("a rejected write must be reported as failed",
-                KeepADB.setEnabled(ctx, false, "app"));
+                KeepADB.setEnabled(ctx, false, "app").isSuccess());
 
         assertFalse("the applied on-intent must be restored",
                 KeepADB.wasLastExplicitIntentOff(ctx));
@@ -294,13 +294,13 @@ public class KeepADBToggleSchedulingTest {
 
     @Test
     public void aGuardAbortNeverRollsBackOverANewerIntentOfAnotherPath() {
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false).isSuccess());
 
         // A manual on tap lands while the guarded enable is still pending: the newer intent wins
         // and the superseded guarded one must neither write nor roll anything back.
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
 
         assertTrue(gateway.isEnabled(ctx));
@@ -311,17 +311,17 @@ public class KeepADBToggleSchedulingTest {
     @Test
     public void theBaselineOfAResolvedChainDoesNotLeakIntoALaterGuardAbort() {
         // First chain aborts over an applied off ...
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false).isSuccess());
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
         assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
 
         // ... then the user switches on for real; a later, unchained aborted enable must restore
         // *that* applied on, not the stale off baseline of the first chain.
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
         assertTrue(gateway.isEnabled(ctx));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> false).isSuccess());
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
 
         assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
@@ -359,7 +359,7 @@ public class KeepADBToggleSchedulingTest {
         // already stale when its *first* (disable) write would happen -- #309: before the fix
         // only the second (restore) stage checked the token, so this off-write went through and
         // switched wireless debugging back off behind the user's back.
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
         assertEquals(Arrays.asList(true), gateway.writes);
 
         scheduler.runDeferredAsync();
@@ -375,7 +375,7 @@ public class KeepADBToggleSchedulingTest {
         // AUTO throughout: after #310 only an automatic source is debounced at all, so only an
         // automatic retry can still observe whether the rejected write moved the debounce anchor.
         assertFalse("a gateway that rejected the write must not report success",
-                KeepADB.setEnabled(ctx, true, AUTO));
+                KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertEquals(Arrays.asList(true), gateway.writes);
         assertFalse(gateway.isEnabled(ctx));
         assertFalse("a rejected enable must not leave a persisted off-intent behind",
@@ -390,7 +390,7 @@ public class KeepADBToggleSchedulingTest {
         // applied, it would have moved the debounce anchor to "now" and this immediate retry
         // would be delayed instead of writing straight away.
         gateway.setWriteSuccess(true);
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertEquals("the retry after a rejected write must not be debounced",
                 Arrays.asList(true, true), gateway.writes);
         assertTrue(gateway.isEnabled(ctx));
@@ -405,7 +405,7 @@ public class KeepADBToggleSchedulingTest {
         KeepADBPreferences.setLastDesiredOn(ctx, false);
         gateway.setWriteSuccess(false);
 
-        assertFalse(KeepADB.setEnabled(ctx, true, "app"));
+        assertFalse(KeepADB.setEnabled(ctx, true, "app").isSuccess());
         assertFalse(KeepADBPreferences.getLastDesiredOn(ctx));
         assertTrue(KeepADB.wasLastExplicitIntentOff(ctx));
     }
@@ -415,10 +415,10 @@ public class KeepADBToggleSchedulingTest {
         KeepADBPreferences.setLastDesiredOn(ctx, true);
         gateway = new KeepADBFakeSettingsGateway(true);
         KeepADB.setGatewayForTesting(gateway);
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
         gateway.setWriteSuccess(false);
 
-        assertFalse(KeepADB.setEnabled(ctx, false, "app"));
+        assertFalse(KeepADB.setEnabled(ctx, false, "app").isSuccess());
         assertTrue(KeepADBPreferences.getLastDesiredOn(ctx));
         assertFalse(KeepADB.wasLastExplicitIntentOff(ctx));
     }
@@ -438,7 +438,7 @@ public class KeepADBToggleSchedulingTest {
         });
 
         assertTrue("an accepted write keeps the existing applyNow return value",
-                KeepADB.setEnabled(ctx, true, "app"));
+                KeepADB.setEnabled(ctx, true, "app").isSuccess());
         String events = ctx.getSharedPreferences("keepadb_diagnostics", 0)
                 .getString("events", "");
         assertTrue("a stale reread must remain a state mismatch",
@@ -503,14 +503,14 @@ public class KeepADBToggleSchedulingTest {
      */
     @Test
     public void manualTogglesAreNeverDelayed() {
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
         assertEquals(1, gateway.writes.size());
 
         // Each of these lands well inside TOGGLE_COOLDOWN_MS of the previous write.
-        assertTrue(KeepADB.setEnabled(ctx, false, "tile"));
-        assertTrue(KeepADB.setEnabled(ctx, true, "widget"));
-        assertTrue(KeepADB.setEnabled(ctx, false, "notification"));
-        assertTrue(KeepADB.setEnabled(ctx, true, KeepADB.SOURCE_USB_HANDOVER_MANUAL));
+        assertTrue(KeepADB.setEnabled(ctx, false, "tile").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, "widget").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, false, "notification").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, KeepADB.SOURCE_USB_HANDOVER_MANUAL).isSuccess());
 
         scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS + 1);
         assertEquals("the short gap must not restore the long user debounce: " + gateway.writes,
@@ -520,7 +520,7 @@ public class KeepADBToggleSchedulingTest {
         // Control: at this very same clock reading an automatic source is still debounced, so
         // the assertions above are about the manual/automatic split, not about a wide-open
         // cooldown window.
-        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO).isSuccess());
         assertEquals(4, gateway.writes.size());
         assertTrue(scheduler.hasAnyPending());
     }
@@ -532,10 +532,10 @@ public class KeepADBToggleSchedulingTest {
      */
     @Test
     public void pendingAutomaticEnableIsDroppedWhenTheNetworkChangedDuringTheCooldown() {
-        assertTrue(KeepADB.setEnabled(ctx, false, AUTO)); // anchors the cooldown window
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO).isSuccess()); // anchors the cooldown window
         assertEquals(1, gateway.writes.size());
 
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true).isSuccess());
         assertTrue("the automatic enable must have been scheduled, not applied",
                 scheduler.hasAnyPending());
 
@@ -549,8 +549,8 @@ public class KeepADBToggleSchedulingTest {
 
     @Test
     public void pendingAutomaticEnableSurvivesWhenTheNetworkDidNotChange() {
-        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true).isSuccess());
         assertTrue(scheduler.hasAnyPending());
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
@@ -571,8 +571,8 @@ public class KeepADBToggleSchedulingTest {
         KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         KeepADBPreferences.setKeepAliveEnabled(ctx, true);
 
-        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, KeepADBService::isAutoEnableStillPermitted));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, KeepADBService::isAutoEnableStillPermitted).isSuccess());
         assertTrue(scheduler.hasAnyPending());
 
         KeepADBPreferences.setKeepAliveEnabled(ctx, false);
@@ -591,8 +591,8 @@ public class KeepADBToggleSchedulingTest {
         // transport -- this positive counter-probe must simulate one being present.
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
 
-        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, KeepADBService::isAutoEnableStillPermitted));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, KeepADBService::isAutoEnableStillPermitted).isSuccess());
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
         assertEquals("the counter-probe: with Keep-Alive left on the enable must be applied",
@@ -612,8 +612,8 @@ public class KeepADBToggleSchedulingTest {
         // Keep the transport guard permissive so only trust withdrawal cancels the enable.
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
 
-        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, KeepADBService::isAutoEnableStillPermitted));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, KeepADBService::isAutoEnableStillPermitted).isSuccess());
         assertTrue(scheduler.hasAnyPending());
 
         KeepADBTrustedNetwork.setMode(ctx, KeepADBTrustedNetwork.MODE_ALLOWLIST);
@@ -630,8 +630,8 @@ public class KeepADBToggleSchedulingTest {
      */
     @Test
     public void anAutomaticDisableIsNeverBlockedByTheGuard() {
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, false, AUTO, appContext -> false));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO, appContext -> false).isSuccess());
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
 
         assertEquals(Arrays.asList(true, false), gateway.writes);
@@ -644,11 +644,11 @@ public class KeepADBToggleSchedulingTest {
      */
     @Test
     public void aManualToggleStillSupersedesAPendingAutomaticEnable() {
-        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true));
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO, appContext -> true).isSuccess());
         assertTrue(scheduler.hasAnyPending());
 
-        assertTrue("the manual off must be applied at once", KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue("the manual off must be applied at once", KeepADB.setEnabled(ctx, false, "app").isSuccess());
         assertEquals(Arrays.asList(false, false), gateway.writes);
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
@@ -667,8 +667,8 @@ public class KeepADBToggleSchedulingTest {
         // and a recovery pulse issues a newer token without touching A's runnable. When A fires
         // it is discarded as newer_intent -- and must take the pending state with it, otherwise
         // isTogglePending() stays true for good and the surfaces keep showing "switching...".
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue(KeepADB.isTogglePending());
 
         scheduler.setDeferAsync(true);
@@ -705,9 +705,9 @@ public class KeepADBToggleSchedulingTest {
         recording.setClockMs(100_000);
         KeepADB.setSchedulerForTesting(recording);
 
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertEquals("both automatic intents must be registered", 2, queued.size());
 
         queued.get(0).run();
@@ -727,15 +727,15 @@ public class KeepADBToggleSchedulingTest {
         // The tap waits for the gap. An automatic intent (here: Keep-Alive recheck whose guard
         // would abort) arriving meanwhile used to take over the token, so the tap was cancelled
         // as newer_intent and the automatic enable then aborted itself: nothing was written.
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
         assertTrue("the manual re-enable must be waiting for the gap", KeepADB.isTogglePending());
         assertEquals(Arrays.asList(false), gateway.writes);
 
         assertFalse("the automatic request must be refused, not scheduled",
-                KeepADB.setEnabled(ctx, true, AUTO, appContext -> false));
+                KeepADB.setEnabled(ctx, true, AUTO, appContext -> false).isSuccess());
         assertFalse("an automatic disable is refused as well",
-                KeepADB.setEnabled(ctx, false, AUTO));
+                KeepADB.setEnabled(ctx, false, AUTO).isSuccess());
 
         scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS);
         assertEquals("the manual intent must be applied", Arrays.asList(false, true), gateway.writes);
@@ -749,7 +749,7 @@ public class KeepADBToggleSchedulingTest {
         assertTrue(events.contains("reason=manual_intent_pending"));
 
         // No lasting block: once the tap is applied, the next automatic request is planned again.
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue("the automatic path must be open again", KeepADB.isTogglePending());
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
         assertEquals(Arrays.asList(false, true, true), gateway.writes);
@@ -759,13 +759,13 @@ public class KeepADBToggleSchedulingTest {
     public void aPendingManualReEnableStillSupersedesAPendingAutomaticIntent() {
         // #780, the other side of the invariant: protection runs one way only. An automatic
         // disable waits in its cooldown; the manual re-enable tap must replace it, not be refused.
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
-        assertTrue(KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, false, AUTO).isSuccess());
         assertTrue(KeepADB.isTogglePending());
         assertFalse(KeepADB.isManualIntentPending());
 
         assertTrue("the manual call must be accepted over the pending automatic one",
-                KeepADB.setEnabled(ctx, true, "app"));
+                KeepADB.setEnabled(ctx, true, "app").isSuccess());
         assertTrue(KeepADB.isManualIntentPending());
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
@@ -779,11 +779,11 @@ public class KeepADBToggleSchedulingTest {
     @Test
     public void aNewerManualIntentStillSupersedesAPendingManualOne() {
         // #780: manual against manual is unchanged, the newer one wins.
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
-        assertTrue(KeepADB.setEnabled(ctx, true, "tile"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, "tile").isSuccess());
         assertTrue(KeepADB.isManualIntentPending());
 
-        assertTrue(KeepADB.setEnabled(ctx, false, "widget"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "widget").isSuccess());
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
         assertEquals("the older manual re-enable must not be applied",
@@ -798,19 +798,19 @@ public class KeepADBToggleSchedulingTest {
         // #780: the manual marker belongs to the pending runnable it was registered with. If it
         // survived the applied tap, a later automatic intent would count as a pending manual one
         // and refuse every newer automatic request, i.e. the automatic debounce would be lost.
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
         assertTrue(KeepADB.isManualIntentPending());
         scheduler.advanceBy(KeepADB.MANUAL_REENABLE_GAP_MS);
         assertFalse(KeepADB.isTogglePending());
         assertFalse(KeepADB.isManualIntentPending());
 
-        assertTrue(KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue(KeepADB.isTogglePending());
         assertFalse("an automatic intent is not a manual one",
                 KeepADB.isManualIntentPending());
         assertTrue("a newer automatic intent still replaces the pending automatic one",
-                KeepADB.setEnabled(ctx, true, AUTO));
+                KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
 
         scheduler.advanceBy(KeepADB.TOGGLE_COOLDOWN_MS);
         assertEquals(Arrays.asList(false, true, true), gateway.writes);
@@ -824,9 +824,9 @@ public class KeepADBToggleSchedulingTest {
         // manual re-enable can only happen after an external switch-on inside the 100 ms gap --
         // the tap's goal ("on") is already reached, and the pulse bounces back to on. Refusing
         // the pulse would only cost the recovery; the superseded tap is discarded cleanly.
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
         gateway.write(ctx, true); // switched on behind the app's back
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
         assertTrue(KeepADB.isManualIntentPending());
 
         scheduler.setDeferAsync(true);
@@ -848,14 +848,14 @@ public class KeepADBToggleSchedulingTest {
     @Test
     public void aManualIntentSupersededByAPulseNoLongerBlocksAutomaticIntents() {
         // #780: the protection only holds while the manual intent is still the newest one.
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
         gateway.write(ctx, true);
-        assertTrue(KeepADB.setEnabled(ctx, true, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, true, "app").isSuccess());
         scheduler.setDeferAsync(true);
         KeepADB.performRecoveryPulse(ctx);
 
         assertTrue("a dead manual intent must not refuse automatic ones",
-                KeepADB.setEnabled(ctx, true, AUTO));
+                KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
     }
 
     private static final class FakeContext extends ContextWrapper {

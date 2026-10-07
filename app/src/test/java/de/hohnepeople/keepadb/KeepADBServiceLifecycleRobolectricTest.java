@@ -504,7 +504,7 @@ public class KeepADBServiceLifecycleRobolectricTest {
         KeepADB.setGatewayForTesting(gateway);
 
         // Step 1: User switches ADB manually off via setEnabled("app")
-        assertTrue(KeepADB.setEnabled(context, false, "app"));
+        assertTrue(KeepADB.setEnabled(context, false, "app").isSuccess());
         assertFalse(KeepADB.isEnabled(context));
         assertTrue("wasLastExplicitIntentOff must be true after manual setEnabled(false)",
                 KeepADB.wasLastExplicitIntentOff(context));
@@ -537,7 +537,7 @@ public class KeepADBServiceLifecycleRobolectricTest {
         KeepADB.setGatewayForTesting(gateway);
 
         // 1. Manual OFF
-        assertTrue(KeepADB.setEnabled(context, false, "app"));
+        assertTrue(KeepADB.setEnabled(context, false, "app").isSuccess());
         assertFalse(KeepADB.isEnabled(context));
         assertTrue(KeepADB.wasLastExplicitIntentOff(context));
         assertFalse(KeepADBService.shouldRun(context));
@@ -1106,7 +1106,7 @@ public class KeepADBServiceLifecycleRobolectricTest {
     public void aFreshServiceInstanceReopensABlockedBackoff() {
         shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
         KeepADB.setGatewayForTesting(new KeepADBStuckOffSettingsGateway());
-        assertTrue(KeepADB.setEnabled(context, true, "keep_alive_check"));
+        assertTrue(KeepADB.setEnabled(context, true, "keep_alive_check").isSuccess());
         // The automatic enable is debounced (#310); let the scheduled write actually land.
         android.os.SystemClock.sleep(1600);
         shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(1600));

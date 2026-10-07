@@ -69,7 +69,7 @@ public class KeepADBRecoveryPulseInterruptionTest {
         // #310: as a manual source it is also applied at once instead of being debounced, which
         // is why a second "false" write appears below -- the pulse's stage-1 write had just moved
         // the debounce anchor, so before #310 the user's tap sat in the cooldown and never landed.
-        assertTrue(KeepADB.setEnabled(ctx, false, "app"));
+        assertTrue(KeepADB.setEnabled(ctx, false, "app").isSuccess());
         assertTrue("an explicit disable must be recorded as the last intent",
                 KeepADB.wasLastExplicitIntentOff(ctx));
 
