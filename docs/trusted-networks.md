@@ -117,9 +117,25 @@ bleibt unter der Namenssperre erhalten. Der Force-Modus ändert die Marken nicht
 Gespeichertes); die Liste weist nur darauf hin, dass Vertrauen und Sperren während seiner Laufzeit
 nicht gelten.
 
+**Gespeicherte Namen (#796, #802).** Beim Vertrauen merkt sich der Eintrag den WLAN-Namen, unter dem
+der Access Point vertraut wurde, auch wenn sein Label nur die BSSID ist (etwa nach „Vertrauen“ auf
+einer Sperre, deren Name bekannt war). Beim Blockieren merkt sich die Sperre den WLAN-Namen und, wenn
+man sie umbenennt, einen eigenen Namen. Die Liste ordnet eine Zeile unter diesem Namen ein, wenn
+weder das Label noch die aktuelle Verbindung einen liefert, und leitet den Status daraus ab: Ein
+vertrauter Access Point, dessen gespeicherter Name gesperrt ist, steht auch dann als *Blockiert*
+(Grund: Name) da, wenn er nicht das aktuelle Netz ist. Der gespeicherte Name stammt vom Zeitpunkt
+des Vertrauens oder Blockierens und kann veraltet sein. Er beschreibt nur die Zeile und entscheidet
+nichts: Beim Verbinden gilt der Name der echten Verbindung, und die abgeleitete Namensfreigabe
+(Komfortschalter) liest weiter nur das Label. Vertrauenseinträge und Sperren, die vor dieser Funktion
+gespeichert wurden, haben keinen Namen und werden nicht nachträglich ergänzt. Ein solcher
+Vertrauenseintrag mit Label nur aus der BSSID steht in der Liste weiter als *Vertraut*, auch wenn
+sein früherer Name gesperrt ist (außer er ist das aktuelle Netz); beim Verbinden greift die Sperre
+trotzdem. Ein neues Vertrauen für diesen Access Point speichert den Namen, sobald er lesbar ist.
+
 **Was ein Tipp ändert.** Auf einem Access Point: Blockieren, „Nicht mehr vertrauen“, Umbenennen,
 „WLAN-Namen immer blockieren“. Auf einem blockierten: „Sperre aufheben“, Vertrauen (hebt nur diese
-eine Adresssperre auf und scheitert, solange der WLAN-Name gesperrt ist) und, bei einer
+eine Adresssperre auf und scheitert, solange der WLAN-Name gesperrt ist), Umbenennen (der eigene
+Name gehört zur Sperre) und, bei einer
 Namenssperre, „Namenssperre aufheben …“ mit Rückfrage. Auf dem Kopf einer Gruppe: den Namen
 sperren oder die Namenssperre aufheben. „Nicht mehr vertrauen“ und „Sperre aufheben“ eines
 Access Points enden beide in *Unbekannt*: KeepADB fragt beim nächsten Verbinden wieder. Damit das
@@ -190,7 +206,8 @@ unverändert. Einen Löschweg in der Oberfläche gibt es nicht und braucht es ni
 des Verlaufs sind seit #788 entfernt: das Angebot für Mesh-Knoten (#686) gibt es nicht mehr (Erlauben
 erlaubt genau den einen Access Point), die Liste „Netzwerke“ nimmt keinen Namen mehr aus dem Verlauf
 (ein blockierter Access Point ohne Vertrauenseintrag und ohne bekannten Namen steht in der Gruppe
-„WLAN-Name unbekannt“, ebenso ein Vertrauenseintrag, dessen Label nur die BSSID ist), und Bänder werden
+„WLAN-Name unbekannt“, ebenso ein Vertrauenseintrag, dessen Label nur die BSSID ist; neue Einträge und
+Sperren speichern ihren Namen selbst mit, siehe „Gespeicherte Namen“ oben), und Bänder werden
 nicht mehr gespeichert (es erscheint nur das aktuelle Band). Die zuvor eingeschaltete Option
 `wifi_aps_feature_enabled` bleibt unverändert stehen, wird aber von keinem Code mehr gelesen oder
 geschrieben. Ebenso bleibt eine gespeicherte Namensliste (`trusted_ssid_*`, `trusted_network_ssid_matching`)
@@ -209,6 +226,16 @@ gleiche Entscheidung, und die Namensliste greift weiter.
 die neuen Schlüssel und beachtet Sperren nicht. Beim Zurückgehen auf eine ältere Version gehen also
 nur die Wirkung der Sperren verloren, keine Daten. Backup und Gerätewechsel nehmen `keepadb_prefs`
 nicht mit (`allowBackup="false"` und `data_extraction_rules.xml`).
+
+Mit #796/#802 kommen weitere, optionale Schlüssel dazu: `trusted_network_<id>_ssid` je Vertrauenseintrag,
+`blocked_bssid_ssid_<bssid>` und `blocked_bssid_name_<bssid>` je gesperrter Adresse (Adresse in
+Kleinschreibung). Sie werden zusammen mit dem Eintrag bzw. der Sperre geschrieben und mit ihnen
+gelöscht; ein Bestand ohne sie liest sich als „kein Name“ und wird nie umgeschrieben oder ergänzt
+(es gibt keine Migration). Eine ältere App-Version ignoriert die Schlüssel: Beim Zurückgehen bleibt
+nur die Wirkung der Namen in der Liste aus, Vertrauen und Sperren sind unberührt. Die Namen verlassen
+das Gerät nicht: sie stehen weder in der Diagnose noch im Webhook und in keiner Benachrichtigung, und
+die Liste zeigt sie nur, solange der Privatsphäre-Modus aus ist (er ersetzt die ganze Liste, auch die
+eigenen Namen der Sperren).
 
 Belege im Code: `KeepADBTrustPrecedenceTest` (Vorrang, beidseitig), `KeepADBTrustMigrationTest`
 (gleiche Entscheidung wie 1.9.28 für jeden gespeicherten Stand, nichts umgeschrieben, Rückweg),
@@ -358,6 +385,11 @@ entfallen; fehlt eine Nummer in der Reihe, bleibt die Lücke. Die Zeile des aktu
 zählt mit, wenn er freigegeben ist: Teilt er seinen Namen mit einem aufgelisteten Eintrag, tragen beide
 eine Nummer; ist er nicht freigegeben, zählt er nicht mit. Access Points, die nur beobachtet
 oder verhindert wurden, sind kein gespeicherter Eintrag und haben weder Nummer noch eigenen Namen.
+Eine Ausnahme ist seit #802 der gesperrte Access Point: In der Netzwerkliste lässt er sich umbenennen.
+Der Name hat keine Nummer, steht in der Zeile über der Adresse, gehört zur Sperre und fällt mit ihr
+weg („Sperre aufheben“). Wird die Sperre über „Vertrauen“ aufgehoben, geht der Name auf den neuen
+Vertrauenseintrag über; wird ein vertrauter Access Point aus der Liste gesperrt, geht sein eigener Name
+auf die Sperre über.
 
 Im Datenschutzmodus wird der Name ausgeblendet und als `Name verborgen #n (Nr.)` angezeigt,
 wobei `#n` die Zählung für den verborgenen Namen ist — genau eine Zählung pro Eintrag.
