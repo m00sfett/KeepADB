@@ -17,11 +17,29 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36`, `1.9.37`, `1.9.38`, `1.9.39`, `1.9.40` and `1.9.41` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36`, `1.9.37`, `1.9.38`, `1.9.39`, `1.9.40`, `1.9.41` and `1.9.42` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.42] - Unreleased
+
+Etappe E13 patch candidate (versionCode 214), packages #803 (Enter in the webhook URL field, test cleanup), #806 (register reset rule hygiene) and #805 (points 1 and 2, screen reader focus and role) on top of 1.9.41; no release. The version 1.9.41 stays as it is.
+
+### Changed
+- **Accessibility (#805, point 2, #801):** the tappable Keep-Alive level line is exposed to TalkBack with the button role via an `AccessibilityDelegate`.
+
+### Fixed
+- **Webhook URL field (#803):** Enter on the keyboard closes it again. The field now uses the raw URI input type with the IME action Done instead of the multi-line flag; the wrapping and the line-break filter from #791 F6 are unchanged.
+- **Accessibility (#805, point 1, #799):** the deep-linked network row receives screen reader focus after the scroll (`performAccessibilityAction(ACTION_ACCESSIBILITY_FOCUS)`); without touch exploration this has no effect.
+
+### Not done (open)
+- **#805, point 3:** look and scroll behaviour on an AVD or device are still open and not verified.
+
+### Testing
+- #803: removed unused imports and a dead helper in `OnboardingCopyCommandTest` and `OnboardingDisplayFindingsTest`.
+- #806: removed duplicate manual `KeepADBRegisterClient` resets from `KeepADBNotificationWebhookStatusTest` and `KeepADBServiceLifecycleRobolectricTest` (the rule already applies them). `KeepADBRegisterClientResetRule` now fails with an `AssertionError` when the register executor does not drain in time instead of ignoring the timeout; the test seam `KeepADBRegisterClient.awaitIdleForTesting` now returns `boolean`. No user effect.
 
 ## [1.9.41] - Unreleased
 

@@ -1,0 +1,1 @@
+Pressing Enter in the webhook URL field now closes the keyboard again. With a screen reader, a network opened from the status line now gets focus on its row, and the Keep-Alive protection level line is announced as a button.
