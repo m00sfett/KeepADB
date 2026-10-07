@@ -23,6 +23,25 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.9.45] - Unreleased
+
+Etappe E16 patch candidate (target version 1.9.45; versionCode and versionName are bumped by the integrator), packages #811, #812 and #817 (callers of `KeepADB.ToggleResult`) on top of 1.9.44; no release. Date of the work: 2026-10-07.
+
+<!-- W-A (#811, #812, #817) begin -->
+### Changed
+- **USB notification, manual "Enable Wifi-ADB" tap (#811):** the error text "Check permission" appears only when the tap failed because of the `WRITE_SECURE_SETTINGS` grant (permission missing or SecurityException). Any other failure (write rejected, a newer intent won) now shows a neutral text, "Could not enable Wireless Debugging." (new string `usb_notification_handover_error_generic`, translated in all 19 locales). `KeepADBUsbHandover.handleManualAction` keeps its boolean return value and records the cause in `lastManualActionResult()`; `KeepADBUsbNotification.reportManualActionResult` takes the `ToggleResult`.
+- **Allowing a network in the decision view (#812):** `KeepADBReceiver.trustBssidAndAttemptConnect` returns a `TrustAttempt` (enabled, permissionFailure) and `NetworkDecisionView.trust()` uses the cause instead of reading the permission a second time. One corner differs: if no enable is attempted at all (Keep-Alive off, the guard refuses), the permission hint is no longer shown for a missing grant, because nothing needed it; a SecurityException with the grant still present now shows the hint.
+- **Widget, tile and main switch (#817):** a refused secure-settings write (`SECURITY_EXCEPTION`) now points at the permission like the service, the disable action and the trust prompt do; before, these three showed the generic "toggle failed" text. Only visible when the grant reads present but the platform still refuses the write.
+
+### Documentation
+- Javadoc of the background-location dialog in `KeepADBNetworkCard` re-wrapped (#817, point 3).
+
+### Testing
+- #811: `KeepADBUsbHandoverUnlockGateTest` drives the real receiver tap per cause (grant missing, SecurityException, rejected write, cause does not stick), `KeepADBUsbNotificationTest` pins the text per `ToggleResult` in German.
+- #812: `NetworkDecisionActivityTest` and `KeepADBToggleResultCallersTest` pin the hint per cause (attempted and failed, rejected, SecurityException, nothing attempted).
+- #817: one test per surface for `SECURITY_EXCEPTION`; `SUPERSEDED` for disable action, widget, main switch, tile, trust answer and USB tap; `GUARD_ABORTED` and `SUPERSEDED` for both service callers (new test helper `KeepADBIntentRaceHook`); `KeepADBToggleSchedulingTest` pins that manual sources are never `MANUAL_INTENT_PENDING`.
+<!-- W-A (#811, #812, #817) end -->
+
 ## [1.9.44] - Unreleased
 
 Etappe E15 patch candidate (versionCode 216), packages #795 (cause-carrying result of `KeepADB.setEnabled`), #797 (point 2, label of the background-location dialog) and #809 (release status sentence) on top of 1.9.43; no release. The version 1.9.43 stays as it is.
