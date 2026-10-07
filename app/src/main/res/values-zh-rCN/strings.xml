@@ -392,7 +392,7 @@
     <string name="network_ap_removed_toast">已将接入点“%1$s”从信任列表中移除</string>
     <string name="network_ap_rename_title">接入点的名称 (%1$d)</string>
     <string name="network_ap_rename_title_blocked">已拦截接入点的名称</string>
-    <string name="network_ap_rename_message">为它取一个自己的名称。该名称会显示在这些列表中，仅保存在本设备上，不会改变 Wi-Fi 名称，也不会改变已信任的接入点。</string>
+    <string name="network_ap_rename_message">为它取一个自己的名称。该名称会显示在这些列表中，仅保存在本设备上，不会改变 Wi-Fi 名称，也不会改变已信任或已屏蔽的接入点。</string>
     <string name="network_ap_rename_hint">自定义名称</string>
     <string name="network_ap_rename_reset">重置</string>
     <string name="network_band_24">2.4 GHz</string>

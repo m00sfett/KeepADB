@@ -392,7 +392,7 @@
     <string name="network_ap_removed_toast">تمت إزالة نقطة الوصول «%1$s» من قائمة الثقة</string>
     <string name="network_ap_rename_title">اسم نقطة الوصول (%1$d)</string>
     <string name="network_ap_rename_title_blocked">اسم نقطة الوصول المحظورة</string>
-    <string name="network_ap_rename_message">اختر اسمًا خاصًا بك. يظهر في هذه القوائم ويُحفظ على هذا الجهاز فقط، ولا يغيّر اسم Wi-Fi ولا نقاط الوصول الموثوقة.</string>
+    <string name="network_ap_rename_message">اختر اسمًا خاصًا بك. يظهر في هذه القوائم ويُحفظ على هذا الجهاز فقط، ولا يغيّر اسم Wi-Fi ولا نقاط الوصول الموثوقة أو المحظورة.</string>
     <string name="network_ap_rename_hint">اسم خاص</string>
     <string name="network_ap_rename_reset">إعادة الضبط</string>
     <string name="network_band_24">2.4 جيجاهرتز</string>

@@ -392,7 +392,7 @@
     <string name="network_ap_removed_toast">Usunięto punkt dostępowy „%1$s” z listy zaufanych</string>
     <string name="network_ap_rename_title">Nazwa punktu dostępowego (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Nazwa zablokowanego punktu dostępowego</string>
-    <string name="network_ap_rename_message">Wybierz własną nazwę. Jest wyświetlana na tych listach, zapisywana tylko na tym urządzeniu i nie zmienia ani nazwy Wi-Fi, ani zaufanych punktów dostępowych.</string>
+    <string name="network_ap_rename_message">Wybierz własną nazwę. Jest wyświetlana na tych listach, zapisywana tylko na tym urządzeniu i nie zmienia ani nazwy Wi-Fi, ani zaufanych ani zablokowanych punktów dostępowych.</string>
     <string name="network_ap_rename_hint">Własna nazwa</string>
     <string name="network_ap_rename_reset">Zresetuj</string>
     <string name="network_band_24">2,4 GHz</string>

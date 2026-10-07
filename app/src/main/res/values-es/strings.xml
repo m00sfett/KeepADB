@@ -392,7 +392,7 @@
     <string name="network_ap_removed_toast">Punto de acceso «%1$s» quitado de la lista de confianza</string>
     <string name="network_ap_rename_title">Nombre del punto de acceso (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Nombre del punto de acceso bloqueado</string>
-    <string name="network_ap_rename_message">Elige un nombre propio. Se muestra en estas listas, se guarda solo en este dispositivo y no cambia ni el nombre de Wi-Fi ni los puntos de acceso de confianza.</string>
+    <string name="network_ap_rename_message">Elige un nombre propio. Se muestra en estas listas, se guarda solo en este dispositivo y no cambia ni el nombre de Wi-Fi ni los puntos de acceso de confianza ni los bloqueados.</string>
     <string name="network_ap_rename_hint">Nombre propio</string>
     <string name="network_ap_rename_reset">Restablecer</string>
     <string name="network_band_24">2,4 GHz</string>

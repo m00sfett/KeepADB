@@ -41,6 +41,21 @@ Etappe E16 patch candidate (target version 1.9.45; versionCode and versionName a
 - #812: `NetworkDecisionActivityTest` and `KeepADBToggleResultCallersTest` pin the hint per cause (attempted and failed, rejected, SecurityException, nothing attempted).
 - #817: one test per surface for `SECURITY_EXCEPTION`; `SUPERSEDED` for disable action, widget, main switch, tile, trust answer and USB tap; `GUARD_ABORTED` and `SUPERSEDED` for both service callers (new test helper `KeepADBIntentRaceHook`); `KeepADBToggleSchedulingTest` pins that manual sources are never `MANUAL_INTENT_PENDING`.
 <!-- W-A (#811, #812, #817) end -->
+<!-- W-B begin -->
+Etappe E16 patch candidate, packages #813 and #815 (part 2 and way-back note); no release.
+
+### Fixed
+- **Networks list (#813):** trusting a blocked access point lifts its block first (the trust write refuses a blocked target, #760), so a write that stores nothing used to leave the access point unblocked and its stored names gone. `KeepADBNetworkListActions.trustBlockedAccessPoint` now puts the block back with its stored Wi-Fi name and own name in that case and reports `FAILED`; a successful trust behaves as before.
+
+### Changed
+- **Rename dialog text (#815):** `network_ap_rename_message` says the own name changes neither the Wi-Fi name nor which access points are trusted *or blocked*, in all 19 languages, since the dialog is also used for blocked access points.
+
+### Documentation
+- `docs/trusted-networks.md` (#815): the way-back note for the stored names says that an older version blocking the same address again, without the name keys, can bring old name remnants of that address back in the list (display only).
+
+### Testing
+- #813: `KeepADBStoredNamesTest.listTrustWhoseWriteFailsKeepsTheBlockWithItsNames` fails a trust write through the new `TrustWriter` seam and pins the block, both stored names and the rest of the preferences.
+<!-- W-B end -->
 
 ## [1.9.44] - Unreleased
 

@@ -392,7 +392,7 @@
     <string name="network_ap_removed_toast">アクセスポイント「%1$s」を信頼リストから削除しました</string>
     <string name="network_ap_rename_title">アクセスポイントの名前 (%1$d)</string>
     <string name="network_ap_rename_title_blocked">ブロック中のアクセスポイントの名前</string>
-    <string name="network_ap_rename_message">独自の名前を付けられます。この名前はこれらの一覧に表示され、この端末にのみ保存されます。Wi-Fi 名や信頼済みのアクセスポイントは変わりません。</string>
+    <string name="network_ap_rename_message">独自の名前を付けられます。この名前はこれらの一覧に表示され、この端末にのみ保存されます。Wi-Fi 名や信頼済みまたはブロック済みのアクセスポイントは変わりません。</string>
     <string name="network_ap_rename_hint">独自の名前</string>
     <string name="network_ap_rename_reset">リセット</string>
     <string name="network_band_24">2.4 GHz</string>

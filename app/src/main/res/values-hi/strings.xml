@@ -392,7 +392,7 @@
     <string name="network_ap_removed_toast">ऐक्सेस पॉइंट “%1$s” भरोसे की सूची से हटाया गया</string>
     <string name="network_ap_rename_title">ऐक्सेस पॉइंट का नाम (%1$d)</string>
     <string name="network_ap_rename_title_blocked">रोके गए ऐक्सेस पॉइंट का नाम</string>
-    <string name="network_ap_rename_message">अपना नाम चुनें। यह इन सूचियों में दिखता है, सिर्फ़ इसी डिवाइस पर सहेजा जाता है, और न Wi-Fi नाम बदलता है, न भरोसेमंद ऐक्सेस पॉइंट।</string>
+    <string name="network_ap_rename_message">अपना नाम चुनें। यह इन सूचियों में दिखता है, सिर्फ़ इसी डिवाइस पर सहेजा जाता है, और न Wi-Fi नाम बदलता है, न भरोसेमंद या ब्लॉक किए गए ऐक्सेस पॉइंट।</string>
     <string name="network_ap_rename_hint">अपना नाम</string>
     <string name="network_ap_rename_reset">रीसेट करें</string>
     <string name="network_band_24">2.4 GHz</string>

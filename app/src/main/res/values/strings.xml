@@ -401,7 +401,7 @@
     <string name="network_ap_removed_toast">Removed access point “%1$s” from the trusted list</string>
     <string name="network_ap_rename_title">Name for access point (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Name for blocked access point</string>
-    <string name="network_ap_rename_message">Choose a name of your own. It is shown in these lists, saved only on this device, and changes neither the Wi-Fi name nor which access points are trusted.</string>
+    <string name="network_ap_rename_message">Choose a name of your own. It is shown in these lists, saved only on this device, and changes neither the Wi-Fi name nor which access points are trusted or blocked.</string>
     <string name="network_ap_rename_hint">Own name</string>
     <string name="network_ap_rename_reset">Reset</string>
     <string name="network_band_24">2.4 GHz</string>
