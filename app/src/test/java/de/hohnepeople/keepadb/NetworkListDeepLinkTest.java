@@ -14,6 +14,8 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.ScrollView;
 
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowAccessibilityManager;
 import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowWifiInfo;
 
@@ -211,6 +214,56 @@ public class NetworkListDeepLinkTest {
     }
 
     // --- Helpers -----------------------------------------------------------------------------
+
+    /** #799: with a screen reader on, accessibility focus lands on the marked row itself. */
+    @Test
+    public void aScreenReaderIsMovedOntoTheMarkedRow() {
+        String target = addNetworks(4);
+        setTouchExploration(true);
+
+        NetworkListActivity activity = open(NetworkListActivity.intent(context, target));
+
+        List<View> marked = selectedViews(activity);
+        assertEquals(1, marked.size());
+        List<AccessibilityEvent> focusEvents = accessibilityFocusEvents();
+        assertEquals("exactly one accessibility-focus event", 1, focusEvents.size());
+        assertEquals("it comes from the marked row", marked.get(0).getContentDescription().toString(),
+                focusEvents.get(0).getContentDescription().toString());
+    }
+
+    /** Control: without a screen reader and without the extra nothing is focused, touch is unchanged. */
+    @Test
+    public void withoutAScreenReaderOrWithoutTheExtraNoRowTakesAccessibilityFocus() {
+        String target = addNetworks(4);
+
+        NetworkListActivity touch = open(NetworkListActivity.intent(context, target));
+        assertTrue(accessibilityFocusEvents().isEmpty());
+        assertFalse("tap handling is not altered: no focusable-in-touch-mode",
+                selectedViews(touch).get(0).isFocusableInTouchMode());
+
+        setTouchExploration(true);
+        NetworkListActivity plain = open(NetworkListActivity.intent(context));
+        assertTrue(accessibilityFocusEvents().isEmpty());
+    }
+
+    private void setTouchExploration(boolean on) {
+        AccessibilityManager manager = (AccessibilityManager)
+                context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        ShadowAccessibilityManager shadow = shadowOf(manager);
+        shadow.setEnabled(on);
+        shadow.setTouchExplorationEnabled(on);
+    }
+
+    private List<AccessibilityEvent> accessibilityFocusEvents() {
+        List<AccessibilityEvent> out = new ArrayList<>();
+        for (AccessibilityEvent event : shadowOf((AccessibilityManager)
+                context.getSystemService(Context.ACCESSIBILITY_SERVICE)).getSentAccessibilityEvents()) {
+            if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED) {
+                out.add(event);
+            }
+        }
+        return out;
+    }
 
     /** Saves {@code count} access points, each under its own name; returns the last one's BSSID. */
     private String addNetworks(int count) {
