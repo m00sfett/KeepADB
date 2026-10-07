@@ -31,6 +31,7 @@ final class KeepADBUsbHandover {
     // same-connection re-refresh (e.g. a profile edit while the cable is still plugged in, long
     // after connecting) from re-triggering AUTOMATIC mode.
     private static volatile boolean connectedEdgeSeen;
+    private static volatile KeepADB.ToggleResult lastManualActionResult;
 
     private KeepADBUsbHandover() {}
 
@@ -135,12 +136,24 @@ final class KeepADBUsbHandover {
      * additionally be revalidated) like an automatic enable.
      */
     static boolean handleManualAction(Context context) {
-        return KeepADB.setEnabled(context.getApplicationContext(), true,
-                KeepADB.SOURCE_USB_HANDOVER_MANUAL).isSuccess();
+        KeepADB.ToggleResult result = KeepADB.setEnabled(context.getApplicationContext(), true,
+                KeepADB.SOURCE_USB_HANDOVER_MANUAL);
+        lastManualActionResult = result;
+        return result.isSuccess();
+    }
+
+    /**
+     * #811: the cause of the most recent {@link #handleManualAction} call, for the caller that
+     * reports it to the user. Kept beside the boolean return value so the method's contract does
+     * not change; {@code null} until the first call. Read right after the call, on the same thread.
+     */
+    static KeepADB.ToggleResult lastManualActionResult() {
+        return lastManualActionResult;
     }
 
     /** Reset state for unit tests. */
     static synchronized void resetForTesting() {
         connectedEdgeSeen = false;
+        lastManualActionResult = null;
     }
 }

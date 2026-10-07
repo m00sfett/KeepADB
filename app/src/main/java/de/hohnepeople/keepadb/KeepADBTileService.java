@@ -208,7 +208,8 @@ public class KeepADBTileService extends TileService {
     private void showToggleErrorToast(KeepADB.ToggleResult result) {
         // The brand prefix is passed in (not hardcoded) so debug builds show "(DBG) KeepADB" (#690).
         // #795: the cause comes from the toggle result instead of a second permission read.
-        Toast.makeText(this, result == KeepADB.ToggleResult.PERMISSION_MISSING
+        // #817: every permission cause (also a SecurityException) points at the grant.
+        Toast.makeText(this, result.isPermissionFailure()
                         ? getString(R.string.tile_permission_error, getString(R.string.app_name))
                         : getString(R.string.toggle_failed_toast),
                 Toast.LENGTH_LONG).show();

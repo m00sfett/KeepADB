@@ -207,6 +207,7 @@
     <string name="settings_usb_handover_mode_automatic">Otomatik (yeni USB bağlantısında etkinleştir)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Kablosuz Hata Ayıklama etkinleştirilemedi. İzni kontrol edin.</string>
+    <string name="usb_notification_handover_error_generic">Kablosuz Hata Ayıklama etkinleştirilemedi.</string>
     <string name="notification_action_disable">Wifi-ADByi kapat</string>
     <string name="status_enabled_disconnected">Kablosuz Hata Ayıklama AÇIK (Bağlı değil)</string>
     <string name="status_permission_missing">Sistem izni eksik</string>

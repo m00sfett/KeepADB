@@ -207,6 +207,7 @@
     <string name="settings_usb_handover_mode_automatic">Tự động (bật khi có kết nối USB mới)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Không thể bật Gỡ lỗi không dây. Hãy kiểm tra quyền.</string>
+    <string name="usb_notification_handover_error_generic">Không thể bật Gỡ lỗi không dây.</string>
     <string name="notification_action_disable">Tắt Wifi-ADB</string>
     <string name="status_enabled_disconnected">Gỡ lỗi không dây ĐANG BẬT (Đã ngắt kết nối)</string>
     <string name="status_permission_missing">Thiếu quyền hệ thống</string>

@@ -71,14 +71,20 @@ final class KeepADBNetworkDecision {
         }
     }
 
-    /** The result of a trust answer; {@code enabled} tells whether Wireless Debugging came on. */
+    /**
+     * The result of a trust answer; {@code enabled} tells whether Wireless Debugging came on,
+     * {@code permissionFailure} whether an enable that did not happen failed because of the
+     * missing {@code WRITE_SECURE_SETTINGS} grant (#812).
+     */
     static final class TrustResult {
         final Outcome outcome;
         final boolean enabled;
+        final boolean permissionFailure;
 
-        TrustResult(Outcome outcome, boolean enabled) {
+        TrustResult(Outcome outcome, boolean enabled, boolean permissionFailure) {
             this.outcome = outcome;
             this.enabled = enabled;
+            this.permissionFailure = permissionFailure;
         }
     }
 
@@ -114,12 +120,13 @@ final class KeepADBNetworkDecision {
      */
     static TrustResult trust(Context context, Pending pending) {
         String label = pending.ssid == null ? pending.bssid : pending.ssid;
-        boolean enabled = KeepADBReceiver.handleTrustNetworkAction(context, pending.bssid, label);
+        KeepADBReceiver.TrustAttempt attempt =
+                KeepADBReceiver.trustNetworkAction(context, pending.bssid, label);
         if (isListedAsTrusted(context, pending.bssid)) {
-            return new TrustResult(Outcome.TRUSTED, enabled);
+            return new TrustResult(Outcome.TRUSTED, attempt.enabled, attempt.permissionFailure);
         }
         return new TrustResult(KeepADBNetworkBlocklist.isBlocked(context, pending.bssid, pending.ssid)
-                ? Outcome.TRUST_REFUSED_BLOCKED : Outcome.TRUST_FAILED, false);
+                ? Outcome.TRUST_REFUSED_BLOCKED : Outcome.TRUST_FAILED, false, false);
     }
 
     /**

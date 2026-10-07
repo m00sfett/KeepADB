@@ -32,6 +32,9 @@ final class KeepADBUsbNotification {
     // (connected, MANUAL mode, Wifi-ADB still off) no longer holds -- disconnect or a successful
     // enable both make the button (and with it the error) disappear together.
     private static volatile boolean lastHandoverActionFailed;
+    // #811: whether that failure was about the WRITE_SECURE_SETTINGS grant. Only then does the
+    // error text point at the permission; every other cause gets the neutral text.
+    private static volatile boolean lastHandoverFailureIsPermission;
 
     private KeepADBUsbNotification() {}
 
@@ -48,6 +51,7 @@ final class KeepADBUsbNotification {
                 && (adbEnabledOrNull == null || !adbEnabledOrNull);
         if (!handoverActionVisible) {
             lastHandoverActionFailed = false;
+            lastHandoverFailureIsPermission = false;
         }
 
         NotificationManager manager = context.getApplicationContext()
@@ -70,8 +74,10 @@ final class KeepADBUsbNotification {
     /** Result callback for the MANUAL "Enable Wifi-ADB" action (#168). USB is still connected at
      * this point (the button that triggered it is only shown while connected), so re-deriving the
      * notification with connected=true is safe and not treated as a fresh connect edge. */
-    static void reportManualActionResult(Context context, boolean success) {
-        lastHandoverActionFailed = !success;
+    static void reportManualActionResult(Context context, KeepADB.ToggleResult result) {
+        // #811: a missing result (should not happen) counts as a neutral failure, not a permission one.
+        lastHandoverActionFailed = result == null || !result.isSuccess();
+        lastHandoverFailureIsPermission = result != null && result.isPermissionFailure();
         refresh(context, true);
     }
 
@@ -119,7 +125,7 @@ final class KeepADBUsbNotification {
                             ? selected.summary()
                             : context.getString(R.string.usb_notification_profile_hidden);
             contentText = (handoverActionVisible && lastHandoverActionFailed)
-                    ? context.getString(R.string.usb_notification_handover_error)
+                    ? handoverErrorText(context)
                     : profileText;
             contentIntent = profileIntent(context, profiles.isEmpty() ? ACTION_CREATE : ACTION_SWITCH);
             builder.setContentText(contentText)
@@ -132,7 +138,7 @@ final class KeepADBUsbNotification {
             }
         } else {
             contentText = (handoverActionVisible && lastHandoverActionFailed)
-                    ? context.getString(R.string.usb_notification_handover_error)
+                    ? handoverErrorText(context)
                     : context.getString(R.string.usb_notification_title);
             // #759: the profile notification is off, so the tap goes to the USB-ADB card itself
             // (expanded and in view) instead of the top of the settings screen.
@@ -188,6 +194,13 @@ final class KeepADBUsbNotification {
         return builder.build();
     }
 
+    /** #811: "Check permission" only for a permission failure, the neutral text otherwise. */
+    private static String handoverErrorText(Context context) {
+        return context.getString(lastHandoverFailureIsPermission
+                ? R.string.usb_notification_handover_error
+                : R.string.usb_notification_handover_error_generic);
+    }
+
     private static PendingIntent profileIntent(Context context, String action) {
         Intent intent = new Intent(context, SettingsActivity.class)
                 .putExtra(EXTRA_PROFILE_ACTION, action)
@@ -199,6 +212,7 @@ final class KeepADBUsbNotification {
     /** Reset state for unit tests. */
     static void resetForTesting() {
         lastHandoverActionFailed = false;
+        lastHandoverFailureIsPermission = false;
     }
 
     private static void ensureChannel(Context context, NotificationManager manager) {

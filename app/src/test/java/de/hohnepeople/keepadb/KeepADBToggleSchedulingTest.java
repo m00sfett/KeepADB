@@ -941,6 +941,29 @@ public class KeepADBToggleSchedulingTest {
         assertFalse(enable.isSuccess());
     }
 
+    /**
+     * #817: why the manual surfaces (widget, tile, main switch, notification actions, USB tap,
+     * trust answer) need no test for {@code MANUAL_INTENT_PENDING}: a manual source is never
+     * dropped behind a pending manual intent, it supersedes it. They pass no guard either, so
+     * {@code GUARD_ABORTED} cannot occur for them.
+     */
+    @Test
+    public void aManualSourceIsNeverReportedAsManualIntentPending() {
+        for (String source : new String[] {KeepADB.SOURCE_APP, KeepADB.SOURCE_TILE,
+                KeepADB.SOURCE_WIDGET, KeepADB.SOURCE_NOTIFICATION,
+                KeepADB.SOURCE_USB_HANDOVER_MANUAL, KeepADB.SOURCE_NETWORK_TRUST_PROMPT}) {
+            assertTrue(source, KeepADB.isManualSource(source));
+            assertEquals(KeepADB.ToggleResult.APPLIED, KeepADB.setEnabled(ctx, false, "app"));
+            assertEquals(KeepADB.ToggleResult.SCHEDULED, KeepADB.setEnabled(ctx, true, "app"));
+            assertTrue(KeepADB.isManualIntentPending());
+
+            KeepADB.ToggleResult result = KeepADB.setEnabled(ctx, true, source);
+
+            assertTrue(source + " -> " + result, result == KeepADB.ToggleResult.SCHEDULED
+                    || result == KeepADB.ToggleResult.APPLIED);
+        }
+    }
+
     @Test
     public void anIntentSupersededBeforeItIsAppliedIsReportedAsSuperseded() {
         // The one window a request can lose its token in the immediate path: after the planning

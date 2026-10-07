@@ -207,6 +207,7 @@
     <string name="settings_usb_handover_mode_automatic">Automatico (abilita alla nuova connessione USB)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Impossibile abilitare il debug wireless. Controlla l’autorizzazione.</string>
+    <string name="usb_notification_handover_error_generic">Impossibile abilitare il debug wireless.</string>
     <string name="notification_action_disable">Disattiva Wifi-ADB</string>
     <string name="status_enabled_disconnected">Debug wireless ATTIVO (Disconnesso)</string>
     <string name="status_permission_missing">Autorizzazione di sistema mancante</string>

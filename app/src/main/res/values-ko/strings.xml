@@ -207,6 +207,7 @@
     <string name="settings_usb_handover_mode_automatic">자동(새 USB 연결 시 활성화)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">무선 디버깅을 활성화할 수 없습니다. 권한을 확인하세요.</string>
+    <string name="usb_notification_handover_error_generic">무선 디버깅을 활성화할 수 없습니다.</string>
     <string name="notification_action_disable">Wifi-ADB 비활성화</string>
     <string name="status_enabled_disconnected">무선 디버깅 켜짐(연결 끊김)</string>
     <string name="status_permission_missing">시스템 권한 없음</string>

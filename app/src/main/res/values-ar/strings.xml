@@ -207,6 +207,7 @@
     <string name="settings_usb_handover_mode_automatic">تلقائي (التفعيل عند اتصال USB جديد)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">تعذر تفعيل تصحيح الأخطاء اللاسلكي. تحقق من الإذن.</string>
+    <string name="usb_notification_handover_error_generic">تعذر تفعيل تصحيح الأخطاء اللاسلكي.</string>
     <string name="notification_action_disable">إيقاف Wifi-ADB</string>
     <string name="status_enabled_disconnected">تصحيح الأخطاء اللاسلكي مفعّل (غير متصل)</string>
     <string name="status_permission_missing">إذن النظام مفقود</string>

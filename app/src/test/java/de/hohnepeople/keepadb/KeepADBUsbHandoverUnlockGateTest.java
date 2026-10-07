@@ -129,7 +129,7 @@ public class KeepADBUsbHandoverUnlockGateTest {
     @Test
     public void aLockedTapLeavesAnEarlierGenuineFailureUntouched() {
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
-        KeepADBUsbNotification.reportManualActionResult(context, false);
+        KeepADBUsbNotification.reportManualActionResult(context, KeepADB.ToggleResult.PERMISSION_MISSING);
         assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
         setDeviceLocked(true);
         sendStickyUsbState(true);
@@ -137,6 +137,67 @@ public class KeepADBUsbHandoverUnlockGateTest {
         new KeepADBUsbReceiver().onReceive(context, handoverIntent());
 
         assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
+    }
+
+    // --- #811: the error text follows the cause of the failed tap ---------------------------
+
+    private String handoverErrorTextAfterTap() {
+        sendStickyUsbState(true);
+        new KeepADBUsbReceiver().onReceive(context, handoverIntent());
+        assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
+        Notification notification = postedNotification();
+        assertNotNull(notification);
+        return String.valueOf(notification.extras.getCharSequence(Notification.EXTRA_TEXT));
+    }
+
+    @Test
+    public void aTapWithoutTheGrantPointsAtThePermission() {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(false));
+        shadowOf((Application) context).denyPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS);
+
+        assertEquals(context.getString(R.string.usb_notification_handover_error),
+                handoverErrorTextAfterTap());
+    }
+
+    @Test
+    public void aTapRefusedWithASecurityExceptionPointsAtThePermission() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        gateway.setWriteThrowsSecurityException(true);
+        KeepADB.setGatewayForTesting(gateway);
+
+        assertEquals(context.getString(R.string.usb_notification_handover_error),
+                handoverErrorTextAfterTap());
+    }
+
+    @Test
+    public void aTapWhoseWriteIsRejectedShowsTheNeutralTextNotCheckPermission() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        gateway.setWriteSuccess(false);
+        KeepADB.setGatewayForTesting(gateway);
+
+        String text = handoverErrorTextAfterTap();
+
+        assertEquals(Collections.singletonList(true), gateway.writes);
+        assertEquals(context.getString(R.string.usb_notification_handover_error_generic), text);
+        assertFalse(text.contains("permission"));
+    }
+
+    @Test
+    public void aLaterSuccessfulTapClearsTheErrorAndAFollowingFailureUsesItsOwnCause() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        shadowOf((Application) context).denyPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        assertEquals(context.getString(R.string.usb_notification_handover_error),
+                handoverErrorTextAfterTap());
+
+        shadowOf((Application) context).grantPermissions(
+                android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        gateway.setWriteSuccess(false);
+        assertEquals("the permission cause of the earlier tap must not stick",
+                context.getString(R.string.usb_notification_handover_error_generic),
+                handoverErrorTextAfterTap());
     }
 
     /**
