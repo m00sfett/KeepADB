@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -319,7 +320,22 @@ public class MainActivity extends Activity {
         if (force) {
             keepAliveSubtext.setOnClickListener(null);
             keepAliveSubtext.setClickable(false);
+            keepAliveSubtext.setFocusable(false);
+            keepAliveSubtext.setMinHeight(0);
+            keepAliveSubtext.setGravity(Gravity.TOP | Gravity.START);
+            keepAliveSubtext.setBackground(null);
+            keepAliveSubtext.setCompoundDrawablesRelative(null, null, null, null);
         } else {
+            // A tap target of at least 48 dp with press feedback and the chevron of the other
+            // rows that lead on (UX concept 5.3, point 1; touch targets from 48 dp).
+            android.util.TypedValue ripple = new android.util.TypedValue();
+            getTheme().resolveAttribute(android.R.attr.selectableItemBackground, ripple, true);
+            keepAliveSubtext.setBackgroundResource(ripple.resourceId);
+            keepAliveSubtext.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+            keepAliveSubtext.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+            keepAliveSubtext.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0,
+                    R.drawable.ic_chevron_right, 0);
+            keepAliveSubtext.setFocusable(true);
             keepAliveSubtext.setOnClickListener(v -> startActivity(
                     new Intent(this, SettingsActivity.class)
                             .putExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, true)));

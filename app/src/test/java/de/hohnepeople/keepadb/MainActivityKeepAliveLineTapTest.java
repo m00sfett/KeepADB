@@ -104,6 +104,32 @@ public class MainActivityKeepAliveLineTapTest {
         assertTrue(opened.getBooleanExtra(SettingsActivity.EXTRA_FOCUS_NETWORK, false));
     }
 
+    /** The line is a real tap target: 48 dp high, a chevron says it leads on, keyboard reachable. */
+    @Test
+    public void theTappableLineIsAtLeast48dpHighShowsAChevronAndTakesFocus() {
+        MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
+        TextView line = activity.findViewById(R.id.keep_alive_subtext);
+        float density = activity.getResources().getDisplayMetrics().density;
+
+        assertTrue("min height " + line.getMinHeight(), line.getMinHeight() >= 48 * density);
+        assertNotNull("a chevron at the end", line.getCompoundDrawablesRelative()[2]);
+        assertTrue(line.isFocusable());
+        assertNotNull("press feedback", line.getBackground());
+    }
+
+    /** Counter-check: the force mode removes tap target, chevron and the extra height again. */
+    @Test
+    public void inTheForceModeThereIsNoChevronNoFocusAndNoExtraHeight() {
+        assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
+        MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
+        TextView line = activity.findViewById(R.id.keep_alive_subtext);
+
+        assertNull(line.getCompoundDrawablesRelative()[2]);
+        assertFalse(line.isFocusable());
+        assertEquals(0, line.getMinHeight());
+        assertNull(line.getBackground());
+    }
+
     @Test
     public void theSettingsOpenWithTheNetworkCardExpandedOnlyWhenAsked() {
         SettingsActivity plain = Robolectric.buildActivity(SettingsActivity.class).setup().get();
