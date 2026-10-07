@@ -100,6 +100,8 @@ public class NetworkDecisionActivityTest {
         assertTrue("Showing the question must not trust anything",
                 KeepADBTrustedNetwork.getEntries(context).isEmpty());
         assertTrue("... nor block anything", KeepADBNetworkBlocklist.isEmpty(context));
+        assertNull("An open question keeps its dialog, no list (#798)",
+                shadowOf(activity).getNextStartedActivity());
 
         click(activity, R.id.decision_trust);
         ShadowLooper.idleMainLooper();
@@ -349,6 +351,7 @@ public class NetworkDecisionActivityTest {
             assertTrue(controller.get().isFinishing());
             assertEquals(context.getString(R.string.network_decision_expired_toast),
                     ShadowToast.getTextOfLatestToast());
+            assertNull("No list for an expired request", shadowOf(controller.get()).getNextStartedActivity());
             controller.pause().stop().destroy();
         }
         assertEquals(before, prefs().getAll());
@@ -368,6 +371,10 @@ public class NetworkDecisionActivityTest {
         assertTrue(trusted.get().isFinishing());
         assertEquals(context.getString(R.string.network_decision_already_decided_toast),
                 ShadowToast.getTextOfLatestToast());
+        // #798: besides the message, the Networks list opens on the row of this access point.
+        Intent listIntent = shadowOf(trusted.get()).getNextStartedActivity();
+        assertEquals(NetworkListActivity.class.getName(), listIntent.getComponent().getClassName());
+        assertEquals(BSSID, listIntent.getStringExtra(NetworkListActivity.EXTRA_FOCUS_BSSID));
         assertEquals("Opening it again changes nothing", 1, KeepADBTrustedNetwork.getEntries(context).size());
         trusted.pause().stop().destroy();
 
@@ -380,6 +387,8 @@ public class NetworkDecisionActivityTest {
         assertTrue(blocked.get().isFinishing());
         assertEquals(context.getString(R.string.network_decision_already_decided_toast),
                 ShadowToast.getTextOfLatestToast());
+        assertEquals(NetworkListActivity.class.getName(), shadowOf(blocked.get())
+                .getNextStartedActivity().getComponent().getClassName());
         assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
         assertTrue("The block is still there", KeepADBNetworkBlocklist.isBssidBlocked(context, BSSID));
         blocked.pause().stop().destroy();
