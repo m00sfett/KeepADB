@@ -192,7 +192,7 @@
     <string name="location_permission_panel_body">De modus vertrouwde netwerken heeft locatietoegang nodig om je wifi-netwerk te herkennen. Zonder deze kan Keep-Alive geen vertrouwd netwerk bevestigen en niet automatisch opnieuw inschakelen.</string>
     <string name="location_permission_panel_grant_button">Locatietoestemming verlenen</string>
     <string name="location_permission_panel_fallback_body">Liever geen locatietoegang verlenen? Vertrouw dan alle wifi-netwerken — Keep-Alive wordt dan bij elke verbinding automatisch opnieuw ingeschakeld.</string>
-    <string name="location_permission_panel_fallback_button">In plaats daarvan alle wifi-netwerken vertrouwen</string>
+    <string name="location_permission_panel_protection_button">Beveiligingsniveau kiezen</string>
     <string name="location_permission_panel_fallback_toast">Overgeschakeld naar modus \"alle wifi-netwerken vertrouwen\".</string>
     <string name="location_permission_panel_title_discovery">Locatietoegang vereist voor wifi en access points</string>
     <string name="location_permission_panel_body_discovery">Locatietoegang is vereist om het huidige wifi-netwerk en de access points te herkennen.</string>

@@ -252,8 +252,8 @@ final class KeepADBNetworkCard {
      * never requests ACCESS_BACKGROUND_LOCATION itself -- since Android 11 the only way is the
      * app's system permission page, which "Open settings" jumps to.
      *
-     * <p>"Trust all Wi-Fi networks instead" is only offered while allowlist mode is on; in
-     * all-Wi-Fi mode it would be a no-op. It opens the protection step of the setup assistant (#782)
+     * <p>"Choose protection level" (#797, formerly "Trust all Wi-Fi networks instead") is only
+     * offered while allowlist mode is on; in all-Wi-Fi mode it would be a no-op. It opens the protection step of the setup assistant (#782)
      * and changes nothing itself. "Later" keeps whatever mode is set (allowlist then runs
      * with foreground location only, and the status line keeps showing the missing grant).
      */
@@ -270,7 +270,7 @@ final class KeepADBNetworkCard {
         if (KeepADBTrustedNetwork.isAllowlistMode(activity)) {
             // #782: the way to "all Wi-Fi networks" is the protection step of the assistant, where
             // the user sees what the level means; the button no longer switches the mode itself.
-            builder.setNeutralButton(R.string.location_permission_panel_fallback_button, (d, which) ->
+            builder.setNeutralButton(R.string.location_permission_panel_protection_button, (d, which) ->
                     activity.startActivity(OnboardingActivity.stepIntent(activity,
                             KeepADBOnboarding.Step.PROTECTION)));
         }

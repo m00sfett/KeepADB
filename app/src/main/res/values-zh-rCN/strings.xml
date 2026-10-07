@@ -192,7 +192,7 @@
     <string name="location_permission_panel_body">已信任网络模式需要位置权限来识别你的 Wi-Fi 网络。没有此权限，Keep-Alive 无法确认已信任网络，也不会自动重新启用。</string>
     <string name="location_permission_panel_grant_button">授予位置权限</string>
     <string name="location_permission_panel_fallback_body">不想授予位置权限？改为信任所有 Wi-Fi 网络——这样 Keep-Alive 会在任意连接下自动重新启用。</string>
-    <string name="location_permission_panel_fallback_button">改为信任所有 Wi-Fi 网络</string>
+    <string name="location_permission_panel_protection_button">选择保护级别</string>
     <string name="location_permission_panel_fallback_toast">已切换到\"信任所有 Wi-Fi 网络\"模式。</string>
     <string name="location_permission_panel_title_discovery">Wi-Fi 与接入点需要位置权限</string>
     <string name="location_permission_panel_body_discovery">需要位置权限来识别当前的 Wi-Fi 网络和接入点。</string>
