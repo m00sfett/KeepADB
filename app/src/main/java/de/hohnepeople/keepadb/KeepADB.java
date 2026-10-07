@@ -122,6 +122,50 @@ final class KeepADB {
     }
 
     /**
+     * Outcome of {@link #setEnabled(Context, boolean, String, EnableGuard)} (#795). It replaces a
+     * bare {@code boolean} whose {@code false} used to mean several different things, which made
+     * the automatic callers read every failure as "permission missing". The values map onto the
+     * {@code reason=} detail of the diagnostics event written at the same point.
+     */
+    enum ToggleResult {
+        /** The write was accepted and recorded. */
+        APPLIED,
+        /** Debounced: the write is planned and will be applied (or cancelled) later. */
+        SCHEDULED,
+        /** {@code WRITE_SECURE_SETTINGS} is not granted; nothing was planned or written. */
+        PERMISSION_MISSING,
+        /** The write was attempted and the platform refused it with a SecurityException. */
+        SECURITY_EXCEPTION,
+        /** The platform did not accept the write (the gateway returned {@code false}). */
+        WRITE_REJECTED,
+        /**
+         * The write-time guard aborted an automatic enable: the network changed or the
+         * preconditions no longer hold. Nothing was written.
+         */
+        GUARD_ABORTED,
+        /** A newer intent superseded this one before it was applied. Nothing was written. */
+        SUPERSEDED,
+        /**
+         * An automatic request was dropped because a manual intent is still pending (#780).
+         * Nothing was planned or written.
+         */
+        MANUAL_INTENT_PENDING;
+
+        /** True if the request went through (applied now, or planned for later). */
+        boolean isSuccess() {
+            return this == APPLIED || this == SCHEDULED;
+        }
+
+        /**
+         * True only for the causes that concern the {@code WRITE_SECURE_SETTINGS} grant, i.e. the
+         * ones that justify the "permission missing" hint.
+         */
+        boolean isPermissionFailure() {
+            return this == PERMISSION_MISSING || this == SECURITY_EXCEPTION;
+        }
+    }
+
+    /**
      * Records that the connected Wi-Fi network changed, invalidating every automatic intent that
      * was planned for the previous one. Returns the new generation for diagnostics.
      */
@@ -317,8 +361,8 @@ final class KeepADB {
      * True while a user action (manual source) is waiting in its debounce window and is still the
      * newest intent (#780). An automatic intent must not be planned over it, see {@link
      * #setEnabled(Context, boolean, String, EnableGuard)}. A manual intent already superseded by
-     * a recovery pulse does not count: its runnable will only cancel itself. Automatic call sites
-     * use this to tell that skip apart from a permission failure, both return {@code false}.
+     * a recovery pulse does not count: its runnable will only cancel itself. The skip is
+     * reported to callers as {@link ToggleResult#MANUAL_INTENT_PENDING} (#795).
      */
     static synchronized boolean isManualIntentPending() {
         return pendingToggleRunnable != null && pendingToggleManual
@@ -368,11 +412,11 @@ final class KeepADB {
      * <em>automatischen</em> Quelle innerhalb TOGGLE_COOLDOWN_MS wird die letzte gewünschte
      * Absicht debounced eingeplant; manuelle Quellen ({@link #isManualSource}) schreiben sofort.
      */
-    static boolean setEnabled(Context ctx, boolean on) {
+    static ToggleResult setEnabled(Context ctx, boolean on) {
         return setEnabled(ctx, on, "app");
     }
 
-    static boolean setEnabled(Context ctx, boolean on, String source) {
+    static ToggleResult setEnabled(Context ctx, boolean on, String source) {
         return setEnabled(ctx, on, source, null);
     }
 
@@ -384,10 +428,14 @@ final class KeepADB {
      *
      * <p>#780: an <em>automatic</em> call (either direction) made while a manual intent is still
      * waiting in its debounce window ({@link #isManualIntentPending()}) is not planned at all: it
-     * returns {@code false}, logs {@code reason=manual_intent_pending} and displaces nothing. The
-     * opposite direction is unchanged -- a manual call always supersedes a pending intent.
+     * returns {@link ToggleResult#MANUAL_INTENT_PENDING}, logs {@code reason=manual_intent_pending}
+     * and displaces nothing. The opposite direction is unchanged -- a manual call always
+     * supersedes a pending intent.
+     *
+     * <p>#795: the result tells the failure causes apart ({@link ToggleResult}); only {@link
+     * ToggleResult#isPermissionFailure()} is a reason to point the user at the permission grant.
      */
-    static boolean setEnabled(Context ctx, boolean on, String source, EnableGuard guard) {
+    static ToggleResult setEnabled(Context ctx, boolean on, String source, EnableGuard guard) {
         Context appContext = ctx.getApplicationContext();
         // #580: this observed value only ever feeds a diagnostics detail string below -- it does
         // not decide anything -- so a failed read is treated as "not enabled" instead of crashing
@@ -398,7 +446,7 @@ final class KeepADB {
         if (!hasPermission(appContext)) {
             KeepADBDiagnostics.event(appContext, eventName, source, "failed",
                     "desired=" + on + " observed=" + observed + " reason=permission_missing");
-            return false;
+            return ToggleResult.PERMISSION_MISSING;
         }
 
         final long token;
@@ -415,7 +463,7 @@ final class KeepADB {
                 // anew once the tap has been applied, so this never leaves a lasting block.
                 KeepADBDiagnostics.event(appContext, eventName, source, "skipped",
                         "desired=" + on + " observed=" + observed + " reason=manual_intent_pending");
-                return false;
+                return ToggleResult.MANUAL_INTENT_PENDING;
             }
             if (isManualSource(source)) {
                 // #496: a direct user action is the sanctioned way to re-open a blocked
@@ -464,13 +512,13 @@ final class KeepADB {
             // already scheduled; isTogglePending() is what they render, and it is true from here
             // until applyNow() clears the pending runnable.
             surfaces.refreshAll(appContext);
-            return true;
+            return ToggleResult.SCHEDULED;
         }
         return applyNow(appContext, on, source, token, networkGeneration, guard,
                 previousLastDesiredOn);
     }
 
-    private static synchronized boolean applyNow(Context appContext, boolean on, String source,
+    private static synchronized ToggleResult applyNow(Context appContext, boolean on, String source,
             long token, long networkGeneration, EnableGuard guard, boolean previousLastDesiredOn) {
         String eventName = diagnosticEventName(source);
         if (!state.isCurrentIntent(token)) {
@@ -485,7 +533,7 @@ final class KeepADB {
                 pendingToggleRunnable = null;
                 surfaces.refreshAll(appContext);
             }
-            return false; // Superseded by a newer toggle intent
+            return ToggleResult.SUPERSEDED; // Superseded by a newer toggle intent
         }
         pendingToggleRunnable = null;
         // #310: an automatic enable was authorized under conditions read at planning time, up to
@@ -503,7 +551,7 @@ final class KeepADB {
                 state.rollbackIntent(previousLastDesiredOn);
                 KeepADBPreferences.setLastDesiredOn(appContext, previousLastDesiredOn);
                 surfaces.refreshAll(appContext);
-                return false;
+                return ToggleResult.GUARD_ABORTED;
             }
             if (!guard.stillApplies(appContext)) {
                 KeepADBDiagnostics.event(appContext, eventName, source, "cancelled",
@@ -511,7 +559,7 @@ final class KeepADB {
                 state.rollbackIntent(previousLastDesiredOn);
                 KeepADBPreferences.setLastDesiredOn(appContext, previousLastDesiredOn);
                 surfaces.refreshAll(appContext);
-                return false;
+                return ToggleResult.GUARD_ABORTED;
             }
         }
         try {
@@ -528,7 +576,7 @@ final class KeepADB {
                 // #318: clear the pending indicator the surfaces are showing; a rejected write
                 // must end in the real state, not in a pending state that never resolves.
                 surfaces.refreshAll(appContext);
-                return false;
+                return ToggleResult.WRITE_REJECTED;
             }
             state.recordApplied(on, scheduler.elapsedRealtimeMs());
             KeepADBPreferences.setLastDesiredOn(appContext, on);
@@ -556,7 +604,7 @@ final class KeepADB {
                 recordAutomaticAttemptAndScheduleConfirmation(appContext, source, token);
             }
             surfaces.refreshAll(appContext);
-            return true;
+            return ToggleResult.APPLIED;
         } catch (SecurityException e) {
             Log.e(TAG, "Missing WRITE_SECURE_SETTINGS when applying toggle", e);
             KeepADBDiagnostics.event(appContext, eventName, source, "failed",
@@ -564,7 +612,7 @@ final class KeepADB {
             state.rollbackIntent(previousLastDesiredOn);
             KeepADBPreferences.setLastDesiredOn(appContext, previousLastDesiredOn);
             surfaces.refreshAll(appContext); // #318: never leave the surfaces stuck in pending.
-            return false;
+            return ToggleResult.SECURITY_EXCEPTION;
         }
     }
 

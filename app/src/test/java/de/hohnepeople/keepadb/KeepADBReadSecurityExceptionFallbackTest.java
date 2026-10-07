@@ -105,7 +105,7 @@ public class KeepADBReadSecurityExceptionFallbackTest {
 
         // Must not throw: the top-of-method observed read used to propagate the SecurityException
         // straight to the caller before even reaching the write.
-        boolean result = KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        boolean result = KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP).isSuccess();
 
         assertTrue("the observed-read failure must not block the write attempt from succeeding",
                 result);
@@ -122,7 +122,7 @@ public class KeepADBReadSecurityExceptionFallbackTest {
         KeepADB.setGatewayForTesting(gateway);
         KeepADB.setSchedulerForTesting(new KeepADBFakeScheduler());
 
-        boolean result = KeepADB.setEnabled(context, false, KeepADB.SOURCE_APP);
+        boolean result = KeepADB.setEnabled(context, false, KeepADB.SOURCE_APP).isSuccess();
 
         assertTrue("a normal disable with a working gateway must still succeed", result);
         assertEquals(Collections.singletonList(false), gateway.writes);
