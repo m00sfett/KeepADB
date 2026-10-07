@@ -104,8 +104,21 @@ public class NetworkListActivity extends Activity {
         networks.render();
         View target = networks.highlightedView();
         if (target != null) {
-            scroll.post(() -> scrollTo(target));
+            scroll.post(() -> {
+                scrollTo(target);
+                moveAccessibilityFocusTo(target);
+            });
         }
+    }
+
+    /**
+     * #799: requestFocus() fails in touch mode and focusableInTouchMode would swallow the first
+     * tap, so a screen reader is moved onto the row directly. A no-op unless touch exploration
+     * (TalkBack) is on, so touch users see no change.
+     */
+    private void moveAccessibilityFocusTo(View target) {
+        target.performAccessibilityAction(
+                android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
     }
 
     /** Brings the highlighted row into view with a little room above it. */
