@@ -921,6 +921,66 @@ public class KeepADBServiceLifecycleRobolectricTest {
         }
     }
 
+    // -- #817: the causes that are no permission problem, once per automatic caller ----------------
+
+    /** What happens to the automatic enable in the window before its write. */
+    private enum Race { NETWORK_CHANGED, NEWER_INTENT }
+
+    private void runAutomaticEnableLosingTo(Race race, boolean viaObserver) {
+        KeepADBFakeSettingsGateway gateway = armKeepAliveWithGrantAnd(new KeepADBFakeSettingsGateway(false));
+        ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
+        try {
+            controller.create();
+            controller.get().onStartCommand(new Intent(context, KeepADBService.class), 0, 1);
+            ShadowLooper.idleMainLooper();
+            context.getSystemService(NotificationManager.class).cancel(KeepADBNotification.NOTIFICATION_ID);
+            gateway.writes.clear();
+            if (!viaObserver) android.os.SystemClock.sleep(400);
+            try (KeepADBIntentRaceHook hook = KeepADBIntentRaceHook.arm(context,
+                    race == Race.NETWORK_CHANGED
+                            ? KeepADB::noteNetworkChanged
+                            : () -> KeepADB.setEnabled(context, false, "app"))) {
+                if (viaObserver) {
+                    controller.get().getAdbContentObserverForTesting()
+                            .onChange(false, Settings.Global.getUriFor(KeepADB.KEY));
+                } else {
+                    controller.get().recheckAndEnable();
+                }
+                ShadowLooper.idleMainLooper();
+                assertTrue("the automatic enable must have passed through the armed window",
+                        hook.fired());
+            }
+            assertTrue(KeepADBDiagnostics.export(context).contains(
+                    race == Race.NETWORK_CHANGED ? "reason=network_changed" : "reason=newer_intent"));
+            assertFalse("the automatic enable itself must not have been written",
+                    gateway.writes.contains(true));
+            assertFalse("a lost automatic enable is not a missing permission",
+                    permissionMissingPosted());
+        } finally {
+            controller.destroy();
+        }
+    }
+
+    @Test
+    public void recheckAndEnableAbortedByAGuardRaisesNoPermissionNotification() {
+        runAutomaticEnableLosingTo(Race.NETWORK_CHANGED, false);
+    }
+
+    @Test
+    public void contentObserverAbortedByAGuardRaisesNoPermissionNotification() {
+        runAutomaticEnableLosingTo(Race.NETWORK_CHANGED, true);
+    }
+
+    @Test
+    public void recheckAndEnableSupersededByANewerIntentRaisesNoPermissionNotification() {
+        runAutomaticEnableLosingTo(Race.NEWER_INTENT, false);
+    }
+
+    @Test
+    public void contentObserverSupersededByANewerIntentRaisesNoPermissionNotification() {
+        runAutomaticEnableLosingTo(Race.NEWER_INTENT, true);
+    }
+
     private <G extends KeepADBSettingsGateway> G armKeepAliveWithGrantAnd(G gateway) {
         shadowOf((Application) context).grantPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
         KeepADBPreferences.setKeepAliveEnabled(context, true);
