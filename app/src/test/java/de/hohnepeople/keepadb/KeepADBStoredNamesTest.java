@@ -400,22 +400,33 @@ public class KeepADBStoredNamesTest {
         assertFalse("The block's keys went with the block", hasKeyContaining("blocked_bssid_"));
     }
 
+    /**
+     * The refusal of a trust from the list reads the name the caller passes (the label or live
+     * name of the row) and nothing stored: the Wi-Fi name stored with a block is display data from
+     * the time of the block and can be stale, so an access point that now broadcasts another name
+     * is not refused for its old one. Both sides: the passed name that is blocked still refuses.
+     */
     @Test
-    public void listTrustOfABlockedAccessPointIsRefusedWhileItsStoredNameIsBlockedEvenWithoutANameFromTheCaller() {
+    public void listTrustOfABlockedAccessPointIsRefusedByTheNameTheCallerPassesNeverByAStaleStoredName() {
         KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP, CAFE, "Ecke");
         KeepADBNetworkBlocklist.blockSsid(context, CAFE);
         Map<String, ?> before = new TreeMap<>(prefs().getAll());
 
-        assertEquals(KeepADBNetworkListActions.Outcome.TRUST_REFUSED_NAME_BLOCKED,
-                KeepADBNetworkListActions.trustBlockedAccessPoint(context, CAFE_AP, null));
-
+        assertEquals("The name the caller passes is blocked: refused, as before",
+                KeepADBNetworkListActions.Outcome.TRUST_REFUSED_NAME_BLOCKED,
+                KeepADBNetworkListActions.trustBlockedAccessPoint(context, CAFE_AP, CAFE));
         assertEquals("Nothing lifted, nothing stored", before, new TreeMap<>(prefs().getAll()));
         assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
 
-        // The other side: the same block, its name not blocked, is trusted.
-        KeepADBNetworkBlocklist.unblockSsid(context, CAFE);
+        // The access point now broadcasts another name; the old one stored with the block is stale
+        // and decides nothing.
         assertEquals(KeepADBNetworkListActions.Outcome.TRUSTED,
-                KeepADBNetworkListActions.trustBlockedAccessPoint(context, CAFE_AP, null));
+                KeepADBNetworkListActions.trustBlockedAccessPoint(context, CAFE_AP, HOME));
+        KeepADBTrustedNetwork.Entry entry = KeepADBTrustedNetwork.getEntries(context).get(0);
+        assertEquals("The live name is the label", HOME, entry.label);
+        assertEquals("... and the stored name of the entry", HOME, entry.savedSsid);
+        assertFalse(KeepADBNetworkBlocklist.isBssidBlocked(context, CAFE_AP));
+        assertTrue("The name block itself is untouched", KeepADBNetworkBlocklist.isSsidBlocked(context, CAFE));
     }
 
     @Test
@@ -432,14 +443,17 @@ public class KeepADBStoredNamesTest {
     }
 
     @Test
-    public void aTrustThatKnowsAnotherNameForTheAccessPointIsRefusedWhileThatNameIsBlocked() {
+    public void aNameKnownFromElsewhereIsOnlyStoredWithTheTrustAndTakesNoPartInTheBlockCheck() {
         KeepADBNetworkBlocklist.blockSsid(context, CAFE);
 
-        assertNull("Label is the BSSID, but the name known for it is blocked",
-                KeepADBReceiver.allowBssidOnly(context, CAFE_AP, CAFE_AP, CAFE));
+        assertNull("The other side: the name the label carries is blocked and refuses, as before",
+                KeepADBReceiver.allowBssidOnly(context, OTHER_AP, CAFE, null));
         assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
-        assertNotNull("The other side: a name that is not blocked is trusted",
-                KeepADBReceiver.allowBssidOnly(context, CAFE_AP, CAFE_AP, HOME));
+
+        KeepADBTrustedNetwork.Entry entry = KeepADBReceiver.allowBssidOnly(context, CAFE_AP, CAFE_AP, CAFE);
+        assertNotNull("A name known only from elsewhere is display data and refuses nothing", entry);
+        assertEquals(CAFE_AP, entry.label);
+        assertEquals(CAFE, entry.savedSsid);
     }
 
     @Test

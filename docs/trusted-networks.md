@@ -126,7 +126,9 @@ vertrauter Access Point, dessen gespeicherter Name gesperrt ist, steht auch dann
 (Grund: Name) da, wenn er nicht das aktuelle Netz ist. Der gespeicherte Name stammt vom Zeitpunkt
 des Vertrauens oder Blockierens und kann veraltet sein. Er beschreibt nur die Zeile und entscheidet
 nichts: Beim Verbinden gilt der Name der echten Verbindung, und die abgeleitete Namensfreigabe
-(Komfortschalter) liest weiter nur das Label. Vertrauenseinträge und Sperren, die vor dieser Funktion
+(Komfortschalter) liest weiter nur das Label. Auf einer so eingeordneten gesperrten Zeile bietet der
+Dialog kein „Vertrauen“ an, solange ihr Name gesperrt ist; die Aktion „Vertrauen“ selbst prüft nur den
+Namen aus Label oder aktueller Verbindung, nie den gespeicherten. Vertrauenseinträge und Sperren, die vor dieser Funktion
 gespeichert wurden, haben keinen Namen und werden nicht nachträglich ergänzt. Ein solcher
 Vertrauenseintrag mit Label nur aus der BSSID steht in der Liste weiter als *Vertraut*, auch wenn
 sein früherer Name gesperrt ist (außer er ist das aktuelle Netz); beim Verbinden greift die Sperre

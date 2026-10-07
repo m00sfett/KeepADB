@@ -44,19 +44,19 @@ final class KeepADBNetworkListActions {
      * would hold anyway.
      *
      * <p>{@code ssid} is the name the trust label may carry (the live name of the current
-     * connection), as before. The names stored with the block (#796, #802) are carried over
-     * without touching the label: the stored Wi-Fi name becomes the entry's stored name and counts
-     * for the refusal, and the own name the user gave the blocked access point becomes the entry's
-     * own name, so lifting the block does not lose what the user typed.
+     * connection), as before, and the only name the refusal reads. The names stored with the block
+     * (#796, #802) are carried over without touching the label or the refusal: the stored Wi-Fi
+     * name becomes the entry's stored name (display data from the time of the block, possibly
+     * stale, so it decides nothing here) and the own name the user gave the blocked access point
+     * becomes the entry's own name, so lifting the block does not lose what the user typed.
      */
     static Outcome trustBlockedAccessPoint(Context context, String bssid, String ssid) {
+        if (KeepADBNetworkBlocklist.isSsidBlocked(context, ssid)) {
+            return Outcome.TRUST_REFUSED_NAME_BLOCKED;
+        }
         KeepADBNetworkBlocklist.BlockedAccessPoint block =
                 KeepADBNetworkBlocklist.getBlockedAccessPoint(context, bssid);
         String storedSsid = block == null ? null : block.ssid;
-        if (KeepADBNetworkBlocklist.isSsidBlocked(context, ssid)
-                || KeepADBNetworkBlocklist.isSsidBlocked(context, storedSsid)) {
-            return Outcome.TRUST_REFUSED_NAME_BLOCKED;
-        }
         KeepADBNetworkBlocklist.unblockBssid(context, bssid);
         String label = ssid == null ? bssid : ssid;
         KeepADBTrustedNetwork.Entry entry = KeepADBReceiver.allowBssidOnly(context, bssid, label,
