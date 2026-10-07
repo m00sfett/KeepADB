@@ -451,7 +451,7 @@ public class KeepADBToggleSchedulingTest {
         // and pin the source-level mutation separately so the old redundant conjunction cannot
         // silently return in a future cleanup.
         String applyNow = methodBody(read("app/src/main/java/de/hohnepeople/keepadb/KeepADB.java"),
-                "private static synchronized boolean applyNow(Context appContext, boolean on, String source,");
+                "private static synchronized ToggleResult applyNow(Context appContext, boolean on, String source,");
         assertFalse("the diagnostic must not restore the dead writeAccepted conjunction",
                 applyNow.contains("writeAccepted && actual == on"));
         assertTrue("the diagnostic must classify from the post-write state reread",
@@ -858,8 +858,124 @@ public class KeepADBToggleSchedulingTest {
                 KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
     }
 
+    // -----------------------------------------------------------------------------------------
+    // #795: setEnabled() reports *why* a request did not go through. Before, one boolean covered
+    // a missing permission, a rejected or refused write, a guard abort, a superseded intent and
+    // (#780) a skipped request, and the automatic callers read every false as "permission missing".
+    // -----------------------------------------------------------------------------------------
+
+    @Test
+    public void anImmediateWriteIsReportedAsApplied() {
+        assertEquals(KeepADB.ToggleResult.APPLIED, KeepADB.setEnabled(ctx, true, "app"));
+    }
+
+    @Test
+    public void aDebouncedAutomaticRequestIsReportedAsScheduled() {
+        assertEquals(KeepADB.ToggleResult.APPLIED, KeepADB.setEnabled(ctx, true, AUTO));
+        assertEquals(KeepADB.ToggleResult.SCHEDULED, KeepADB.setEnabled(ctx, false, AUTO));
+        assertTrue(KeepADB.isTogglePending());
+    }
+
+    @Test
+    public void aMissingGrantIsReportedAsPermissionMissingAndNothingIsPlanned() {
+        ctx.permissionGranted = false;
+
+        assertEquals(KeepADB.ToggleResult.PERMISSION_MISSING, KeepADB.setEnabled(ctx, true, "app"));
+        assertEquals(KeepADB.ToggleResult.PERMISSION_MISSING, KeepADB.setEnabled(ctx, true, AUTO));
+        assertTrue("nothing may be written without the grant", gateway.writes.isEmpty());
+        assertFalse(KeepADB.isTogglePending());
+    }
+
+    @Test
+    public void aRejectedWriteIsReportedAsWriteRejectedNotAsAMissingPermission() {
+        gateway.setWriteSuccess(false);
+
+        KeepADB.ToggleResult result = KeepADB.setEnabled(ctx, true, "app");
+
+        assertEquals(KeepADB.ToggleResult.WRITE_REJECTED, result);
+        assertFalse("the grant is there, so this is no permission problem",
+                result.isPermissionFailure());
+    }
+
+    @Test
+    public void aWriteRefusedWithASecurityExceptionIsReportedAsSecurityException() {
+        KeepADB.setGatewayForTesting(new KeepADBSettingsGateway() {
+            @Override
+            public boolean isEnabled(Context context) {
+                return false;
+            }
+
+            @Override
+            public boolean write(Context appContext, boolean on) {
+                throw new SecurityException("WRITE_SECURE_SETTINGS revoked behind our back");
+            }
+        });
+
+        KeepADB.ToggleResult result = KeepADB.setEnabled(ctx, true, AUTO);
+
+        assertEquals(KeepADB.ToggleResult.SECURITY_EXCEPTION, result);
+        assertTrue("a refused secure-settings write is about the grant", result.isPermissionFailure());
+        assertFalse(KeepADB.isTogglePending());
+    }
+
+    @Test
+    public void aGuardAbortInTheImmediatePathIsReportedAsGuardAbortedAndWritesNothing() {
+        KeepADB.ToggleResult result = KeepADB.setEnabled(ctx, true, AUTO, appContext -> false);
+
+        assertEquals(KeepADB.ToggleResult.GUARD_ABORTED, result);
+        assertFalse(result.isPermissionFailure());
+        assertTrue("an aborted enable must not reach the gateway", gateway.writes.isEmpty());
+    }
+
+    @Test
+    public void anAutomaticRequestBehindAPendingManualIntentIsReportedAsManualIntentPending() {
+        assertEquals(KeepADB.ToggleResult.APPLIED, KeepADB.setEnabled(ctx, false, "app"));
+        assertEquals(KeepADB.ToggleResult.SCHEDULED, KeepADB.setEnabled(ctx, true, "app"));
+
+        KeepADB.ToggleResult enable = KeepADB.setEnabled(ctx, true, AUTO, appContext -> true);
+        KeepADB.ToggleResult disable = KeepADB.setEnabled(ctx, false, AUTO);
+
+        assertEquals(KeepADB.ToggleResult.MANUAL_INTENT_PENDING, enable);
+        assertEquals(KeepADB.ToggleResult.MANUAL_INTENT_PENDING, disable);
+        assertFalse(enable.isPermissionFailure());
+        assertFalse(enable.isSuccess());
+    }
+
+    @Test
+    public void anIntentSupersededBeforeItIsAppliedIsReportedAsSuperseded() {
+        // The one window a request can lose its token in the immediate path: after the planning
+        // lock was released and before applyNow() takes it again, a recovery pulse (own thread in
+        // production) starts. The first diagnostics write of the call is that window here.
+        KeepADBFakeSettingsGateway on = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(on);
+        scheduler.setDeferAsync(true);
+        ctx.onDiagnosticsAccess = () -> KeepADB.performRecoveryPulse(ctx);
+
+        KeepADB.ToggleResult result = KeepADB.setEnabled(ctx, true, AUTO);
+
+        assertEquals(KeepADB.ToggleResult.SUPERSEDED, result);
+        assertFalse(result.isPermissionFailure());
+        assertTrue("the superseded request itself must not have written", on.writes.isEmpty());
+    }
+
+    @Test
+    public void onlyThePermissionCausesCountAsPermissionFailuresAndOnlyAppliedOrScheduledAsSuccess() {
+        for (KeepADB.ToggleResult result : KeepADB.ToggleResult.values()) {
+            boolean permission = result == KeepADB.ToggleResult.PERMISSION_MISSING
+                    || result == KeepADB.ToggleResult.SECURITY_EXCEPTION;
+            boolean success = result == KeepADB.ToggleResult.APPLIED
+                    || result == KeepADB.ToggleResult.SCHEDULED;
+            assertEquals(result + " permission failure", permission, result.isPermissionFailure());
+            assertEquals(result + " success", success, result.isSuccess());
+        }
+    }
+
     private static final class FakeContext extends ContextWrapper {
         private final SharedPreferences preferences = new MemoryPreferences();
+        /** #795: false makes {@code checkSelfPermission} report the secure-settings grant missing. */
+        boolean permissionGranted = true;
+        /** #795: run once, on the first access to the diagnostics store after it is set. */
+        Runnable onDiagnosticsAccess;
 
         FakeContext() {
             super(null);
@@ -872,11 +988,17 @@ public class KeepADBToggleSchedulingTest {
 
         @Override
         public int checkSelfPermission(String permission) {
-            return PackageManager.PERMISSION_GRANTED;
+            return permissionGranted
+                    ? PackageManager.PERMISSION_GRANTED : PackageManager.PERMISSION_DENIED;
         }
 
         @Override
         public SharedPreferences getSharedPreferences(String name, int mode) {
+            if ("keepadb_diagnostics".equals(name) && onDiagnosticsAccess != null) {
+                Runnable hook = onDiagnosticsAccess;
+                onDiagnosticsAccess = null;
+                hook.run();
+            }
             return preferences;
         }
     }
