@@ -959,6 +959,23 @@ public class KeepADBToggleSchedulingTest {
     }
 
     @Test
+    public void aNetworkChangeBeforeTheGuardedWriteIsReportedAsGuardAbortedAndWritesNothing() {
+        // Same window as above, but the Wi-Fi network changes instead: applyNow() must abort on the
+        // network generation (reason=network_changed) before it even asks the guard (#795).
+        KeepADBFakeSettingsGateway on = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(on);
+        ctx.onDiagnosticsAccess = KeepADB::noteNetworkChanged;
+
+        KeepADB.ToggleResult result = KeepADB.setEnabled(ctx, true, AUTO, appContext -> true);
+
+        assertEquals(KeepADB.ToggleResult.GUARD_ABORTED, result);
+        assertFalse(result.isPermissionFailure());
+        assertTrue("an enable planned for the previous network must not be written",
+                on.writes.isEmpty());
+        assertTrue(KeepADBDiagnostics.export(ctx).contains("reason=network_changed"));
+    }
+
+    @Test
     public void onlyThePermissionCausesCountAsPermissionFailuresAndOnlyAppliedOrScheduledAsSuccess() {
         for (KeepADB.ToggleResult result : KeepADB.ToggleResult.values()) {
             boolean permission = result == KeepADB.ToggleResult.PERMISSION_MISSING
