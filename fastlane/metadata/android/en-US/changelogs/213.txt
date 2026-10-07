@@ -1,0 +1,1 @@
+Tapping the Wi-Fi status line, or a new-Wi-Fi notification for a network you already decided about, now opens the Networks list right at that network: its row is highlighted and scrolled into view.
