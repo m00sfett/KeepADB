@@ -1,0 +1,1 @@
+Tapping the Keep-Alive line on the home screen, the one that shows your protection level, now opens the settings right at the network section. The permission button for location no longer wastes a tap when another screen already asked for it.

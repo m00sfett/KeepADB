@@ -17,11 +17,32 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36`, `1.9.37`, `1.9.38`, `1.9.39` and `1.9.40` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36`, `1.9.37`, `1.9.38`, `1.9.39`, `1.9.40` and `1.9.41` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.41] - Unreleased
+
+Etappe E12 patch candidate (versionCode 213), packages #797 (points 1 and 3) and #801 on top of 1.9.40; no release. The version 1.9.40 stays as it is.
+
+### Fixed
+- **Location permission marker (#797, point 1):** "the location permission was asked before" was stored per activity (assistant, networks list and Settings card each in their own preferences file). After one screen had asked and the system had stopped asking, the button on another screen still sent one idle request before it led to the app settings. A small app-wide marker (`keepadb_permission_asks`, outside `keepadb_prefs`, so it does not count as a stored setting of an existing installation) is now written next to the old per-activity keys and read by all three screens; the old keys stay as they are.
+
+### Changed
+- **Keep-Alive line (#801):** a tap on the line that names the protection level ("Protection level: ...") opens the settings with the network card expanded and its protection level row in view (UX concept 5.3, point 1). New `SettingsActivity.EXTRA_FOCUS_NETWORK`, handled like `EXTRA_FOCUS_FORCE`; it is a new extra with a sender, not the unused one removed in #786. While the force mode is on the line names no level and stays no tap target. No text changed.
+
+### Documentation
+- **Release notes 211 (#797, point 3):** the last sentence of `changelogs/211.txt` ("Leftover code ... is gone") was an implementation detail and is dropped; the text belongs to the still unpublished 1.9.39. The 1.9.39 entry of this file is a developer log and stays as it is.
+- **#797, point 1, intro count:** checked and no longer applicable as a defect. Since #768 the assistant can change both the webhook over `http://` (webhook step) and an active force mode (protection step), so the intro of an existing installation counts them correctly; a test now pins that (`OnboardingActivityTest.existingIntroMarksAnHttpWebhookAndAnActiveForceEachOnItsOwn`).
+
+### Not done (open)
+- **#797, point 2:** the label "Trust all Wi-Fi networks instead" still leads into the protection step; a new label is a string in 19 locales and needs a product decision.
+- **#797, point 3, second half:** the `TRUSTED_NAME` branch of the status line (#790) is still covered only by a shared mutation, not by its own test.
+
+### Testing
+- New tests `LocationAskedAcrossScreensTest` (assistant to Settings and Settings to assistant, plus the control without an earlier asking) and `MainActivityKeepAliveLineTapTest` (tap target, force-mode counter-check, Settings expands the card only when asked); the intro pin in `OnboardingActivityTest`. Mutations in a disposable copy, all red: old Settings card without the shared marker, shared marker not read, no click listener, listener also in force mode, Settings ignoring the extra.
 
 ## [1.9.40] - Unreleased
 
