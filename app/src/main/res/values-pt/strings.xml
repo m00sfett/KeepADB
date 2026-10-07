@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Permissão de localização necessária para redes fiáveis</string>
     <string name="location_permission_panel_body">O modo de redes fiáveis precisa de acesso à localização para identificar sua rede Wi-Fi. Sem isso, o Keep-Alive não pode confirmar uma rede fiável e não será reativado automaticamente.</string>
     <string name="location_permission_panel_grant_button">Conceder permissão de localização</string>
-    <string name="location_permission_panel_fallback_body">Prefere não conceder acesso à localização? Confie em todas as redes Wi-Fi — o Keep-Alive será reativado em qualquer conexão.</string>
     <string name="location_permission_panel_protection_button">Escolher nível de proteção</string>
     <string name="location_permission_panel_fallback_toast">Alterado para o modo \"confiar em todas as redes Wi-Fi\".</string>
     <string name="location_permission_panel_title_discovery">Acesso à localização necessário para Wi-Fi e pontos de acesso</string>

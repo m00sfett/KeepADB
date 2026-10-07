@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Cần quyền vị trí cho mạng tin cậy</string>
     <string name="location_permission_panel_body">Chế độ mạng tin cậy cần quyền truy cập vị trí để nhận diện mạng Wi-Fi của bạn. Nếu không có, Keep-Alive không thể xác nhận mạng tin cậy và sẽ không tự động bật lại.</string>
     <string name="location_permission_panel_grant_button">Cấp quyền vị trí</string>
-    <string name="location_permission_panel_fallback_body">Không muốn cấp quyền truy cập vị trí? Hãy tin cậy mọi mạng Wi-Fi — Keep-Alive sẽ tự động bật lại ở bất kỳ kết nối nào.</string>
     <string name="location_permission_panel_protection_button">Chọn mức bảo vệ</string>
     <string name="location_permission_panel_fallback_toast">Đã chuyển sang chế độ \"tin cậy mọi mạng Wi-Fi\".</string>
     <string name="location_permission_panel_title_discovery">Cần quyền truy cập vị trí cho Wi-Fi và điểm truy cập</string>

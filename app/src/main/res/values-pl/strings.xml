@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Wymagane uprawnienie lokalizacji dla zaufanych sieci</string>
     <string name="location_permission_panel_body">Tryb zaufanych sieci wymaga dostępu do lokalizacji, aby rozpoznać Twoją sieć Wi-Fi. Bez tego Keep-Alive nie może potwierdzić zaufanej sieci i nie włączy się automatycznie ponownie.</string>
     <string name="location_permission_panel_grant_button">Przyznaj uprawnienie lokalizacji</string>
-    <string name="location_permission_panel_fallback_body">Wolisz nie przyznawać dostępu do lokalizacji? Zaufaj zamiast tego wszystkim sieciom Wi-Fi — Keep-Alive włączy się wtedy automatycznie przy dowolnym połączeniu.</string>
     <string name="location_permission_panel_protection_button">Wybierz poziom ochrony</string>
     <string name="location_permission_panel_fallback_toast">Przełączono na tryb „ufaj wszystkim sieciom Wi-Fi”.</string>
     <string name="location_permission_panel_title_discovery">Dostęp do lokalizacji wymagany dla Wi-Fi i punktów dostępowych</string>

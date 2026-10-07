@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">भरोसेमंद नेटवर्क के लिए स्थान अनुमति आवश्यक है</string>
     <string name="location_permission_panel_body">भरोसेमंद-नेटवर्क मोड को आपके Wi-Fi नेटवर्क की पहचान के लिए स्थान एक्सेस चाहिए। इसके बिना, Keep-Alive किसी भरोसेमंद नेटवर्क की पुष्टि नहीं कर सकता और स्वचालित रूप से फिर से चालू नहीं होगा।</string>
     <string name="location_permission_panel_grant_button">स्थान अनुमति दें</string>
-    <string name="location_permission_panel_fallback_body">स्थान एक्सेस देना नहीं चाहते? इसके बजाय सभी Wi-Fi नेटवर्क पर भरोसा करें — Keep-Alive तब किसी भी कनेक्शन पर स्वचालित रूप से फिर से चालू हो जाएगा।</string>
     <string name="location_permission_panel_protection_button">सुरक्षा स्तर चुनें</string>
     <string name="location_permission_panel_fallback_toast">\"सभी Wi-Fi नेटवर्क पर भरोसा करें\" मोड पर स्विच किया गया।</string>
     <string name="location_permission_panel_title_discovery">Wi-Fi और ऐक्सेस पॉइंट के लिए स्थान एक्सेस आवश्यक है</string>

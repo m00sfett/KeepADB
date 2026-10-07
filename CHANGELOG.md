@@ -65,6 +65,12 @@ Etappe E16 candidate, package #818 on top of 1.9.44; no release. Version bump fo
 ### Testing
 - `KeepADBCardSelectorContractTest` pins the selector structure (selected+focused resolves to a look different from focused-only and selected-only; focused and selected differ in fill or color, not only width).
 <!-- W-C end -->
+Etappe E16 candidate, chore package #810 on top of 1.9.44; no release.
+
+### Removed
+<!-- W-D begin -->
+- **Unused string (#810):** removal of unused string key `location_permission_panel_fallback_body` in all 19 locales.
+<!-- W-D end -->
 
 ## [1.9.44] - Unreleased
 

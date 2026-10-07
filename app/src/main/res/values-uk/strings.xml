@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Для довірених мереж потрібен дозвіл на геолокацію</string>
     <string name="location_permission_panel_body">Режиму довірених мереж потрібен доступ до геолокації, щоб розпізнати вашу мережу Wi-Fi. Без нього Keep-Alive не може підтвердити довірену мережу і не увімкнеться автоматично.</string>
     <string name="location_permission_panel_grant_button">Надати дозвіл на геолокацію</string>
-    <string name="location_permission_panel_fallback_body">Не хочете надавати доступ до геолокації? Довіряйте натомість усім мережам Wi-Fi — тоді Keep-Alive вмикатиметься при будь-якому підключенні.</string>
     <string name="location_permission_panel_protection_button">Вибрати рівень захисту</string>
     <string name="location_permission_panel_fallback_toast">Перемкнено на режим «довіряти всім мережам Wi-Fi».</string>
     <string name="location_permission_panel_title_discovery">Доступ до геолокації потрібен для Wi-Fi і точок доступу</string>

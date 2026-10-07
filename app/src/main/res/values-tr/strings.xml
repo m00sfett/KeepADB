@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Güvenilir ağlar için konum izni gerekli</string>
     <string name="location_permission_panel_body">Güvenilir ağ modu, Wi-Fi ağınızı tanımak için konum erişimine ihtiyaç duyar. Bu olmadan Keep-Alive güvenilir bir ağı doğrulayamaz ve otomatik olarak yeniden etkinleşmez.</string>
     <string name="location_permission_panel_grant_button">Konum iznini ver</string>
-    <string name="location_permission_panel_fallback_body">Konum erişimi vermek istemiyor musunuz? Bunun yerine tüm Wi-Fi ağlarına güvenin — Keep-Alive böylece her bağlantıda otomatik olarak yeniden etkinleşir.</string>
     <string name="location_permission_panel_protection_button">Koruma düzeyini seç</string>
     <string name="location_permission_panel_fallback_toast">\"Tüm Wi-Fi ağlarına güven\" moduna geçildi.</string>
     <string name="location_permission_panel_title_discovery">Wi-Fi ve erişim noktaları için konum erişimi gerekli</string>
