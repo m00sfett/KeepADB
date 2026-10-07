@@ -50,6 +50,10 @@ public class SettingsActivityTest {
     @Rule
     public final KeepADBNetworkResetRule keepADBNetworkResetRule = new KeepADBNetworkResetRule();
 
+    @Rule
+    public final KeepADBRegisterClientResetRule registerClientResetRule =
+            new KeepADBRegisterClientResetRule();
+
     @Before
     public void setUp() {
         RuntimeEnvironment.getApplication()
@@ -1490,5 +1494,22 @@ public class SettingsActivityTest {
                 findViewsByTypeInternal(group.getChildAt(i), type, result);
             }
         }
+    }
+
+    /**
+     * #793: a test that calls the reset itself stays green if the {@code @Rule} field is deleted.
+     * This pins that {@link KeepADBRegisterClientResetRule} is really applied to the class.
+     */
+    @Test
+    public void theRegisterClientResetRuleIsAppliedToThisClass() {
+        boolean applied = false;
+        for (java.lang.reflect.Field field : SettingsActivityTest.class.getFields()) {
+            if (field.getType() == KeepADBRegisterClientResetRule.class
+                    && field.isAnnotationPresent(org.junit.Rule.class)) {
+                applied = true;
+            }
+        }
+        org.junit.Assert.assertTrue(
+                "KeepADBRegisterClientResetRule must be a public @Rule field", applied);
     }
 }
