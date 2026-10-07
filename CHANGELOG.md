@@ -17,11 +17,31 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36`, `1.9.37`, `1.9.38`, `1.9.39`, `1.9.40`, `1.9.41` and `1.9.42` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1`, `1.9.2`, `1.9.3`, `1.9.4`, `1.9.5`, `1.9.6`, `1.9.7`, `1.9.8`, `1.9.9`, `1.9.10`, `1.9.11`, `1.9.12`, `1.9.13`, `1.9.14`, `1.9.15`, `1.9.16`, `1.9.17`, `1.9.18`, `1.9.19`, `1.9.20`, `1.9.21`, `1.9.22`, `1.9.23`, `1.9.24`, `1.9.25`, `1.9.26`, `1.9.27`, `1.9.28`, `1.9.29`, `1.9.30`, `1.9.31`, `1.9.32`, `1.9.33`, `1.9.34`, `1.9.35`, `1.9.36`, `1.9.37`, `1.9.38`, `1.9.39`, `1.9.40`, `1.9.41`, `1.9.42` and `1.9.43` candidates below (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.43] - Unreleased
+
+Etappe E14 patch candidate (versionCode 215), packages #796 and #802 (names stored with trusted entries and blocked access points, decision of 2026-10-07, option A) on top of 1.9.42; no release. The version 1.9.42 stays as it is.
+
+### Added
+- **Networks list (#802):** the dialog of a blocked access point offers "Rename". The own name is stored with the block (`blocked_bssid_name_<bssid>`), shown in the row above the address like the own name of a trusted access point, and sorts the row. Reset and cancel work as for trusted rows; a rename for a block lifted in the meantime stores nothing. New string `network_ap_rename_title_blocked` in all languages. Trusting a blocked access point from the list carries the name to the new entry, blocking a trusted one moves its own name to the block, "Lift block" drops it.
+
+### Changed
+- **Stored names (#796, #802):** a trusted entry remembers the Wi-Fi name it was trusted under (`trusted_network_<id>_ssid`), a block remembers the Wi-Fi name it was blocked under (`blocked_bssid_ssid_<bssid>`; best known name: the caller's, else the app's own record of the access point, else its trust entry). Both are optional and additive: entries and blocks stored before this version have no name, are never rewritten or completed, and an older app version ignores the keys. The trust label stays what the caller passed, so the derived comfort-switch names (`Entry.ssid()`) are unchanged; the stored name feeds only the list (`Entry.listSsid()`) and no trust or block decision (pinned by `KeepADBStoredNamesTest.everyDecisionIsTheSameWithAndWithoutTheStoredNames` and the contract test of the decision methods).
+- **Trust from the list (#796):** `trustBlockedAccessPoint` is also refused while the Wi-Fi name stored with the block is blocked; `KeepADBReceiver.allowBssidOnly` takes an optional known name for the block check and the stored name.
+
+### Fixed
+- **Networks list (#796):** a trusted access point whose label is only its BSSID read "Trusted" although its Wi-Fi name was blocked (except for the current network). The list now files and evaluates a row under the stored name when neither the label nor the current connection supplies one, so such an entry reads "Blocked" (reason: name) from now on. Display only: the connection decision reads the live name and is unchanged. Entries stored before the field have no name and keep the documented limit: they read "Trusted" in the list until they are trusted again, while the block holds when they connect.
+
+### Documentation
+- `docs/trusted-networks.md`: new section "Gespeicherte Namen" (what is stored, where it is used, the limit for old entries, carry-over, privacy boundaries), the additive keys and the way back, rename of a blocked access point.
+
+### Testing
+- `KeepADBStoredNamesTest` (old state read without a single write, round trip, leftover keys, decisions identical with and without stored names, writers on their real paths, no name in the diagnostics export or the register sync), plus cases in `KeepADBNetworkListTest` and `NetworkListNetworksViewTest` (the #796 case with and without the name block, rename, reset, cancel, stale dialog, carry-over, privacy mode). The contract test of the decision methods now also bars the stored name.
 
 ## [1.9.42] - Unreleased
 
