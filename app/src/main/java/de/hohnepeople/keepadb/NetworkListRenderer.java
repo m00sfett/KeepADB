@@ -61,6 +61,10 @@ final class NetworkListRenderer {
     private AlertDialog dialog;
 
     private Map<String, Integer> frequencies;
+    /** #799: the access point to highlight once, and the view drawn for it by the last render. */
+    private String highlightBssid;
+    private View highlightView;
+    private View currentCard;
 
     NetworkListRenderer(Activity activity, LinearLayout root, Runnable onChanged) {
         this.activity = activity;
@@ -76,8 +80,24 @@ final class NetworkListRenderer {
         }
     }
 
+    /**
+     * #799: marks the row of this access point on the next {@link #render()} (selected state) and
+     * lets the caller scroll to {@link #highlightedView()}. A group folded by "show more" is
+     * unfolded for it. Without a matching row the card of the current network is used when it is
+     * that access point; otherwise nothing is marked.
+     */
+    void highlightOnNextRender(String bssid) {
+        highlightBssid = bssid;
+    }
+
+    /** The view marked by the last render, or null (nothing requested, nothing matched). */
+    View highlightedView() {
+        return highlightView;
+    }
+
     void render() {
         dismissDialog();
+        highlightView = null;
         root.removeAllViews();
         root.setVisibility(View.VISIBLE);
         frequencies = KeepADBAccessPointBand.read(activity);
@@ -86,6 +106,7 @@ final class NetworkListRenderer {
         addProtection();
         addForceNote();
         if (KeepADBNetworkDisplay.hidden(activity)) {
+            highlightBssid = null;
             addHiddenPlaceholder();
             return;
         }
@@ -95,6 +116,22 @@ final class NetworkListRenderer {
                 KeepADBNetworkList.build(activity, identity, wifiConnected);
         addCurrent(snapshot.current, identity);
         addSaved(snapshot);
+        markHighlight(snapshot);
+    }
+
+    private boolean isHighlight(String bssid) {
+        return highlightBssid != null && bssid != null && highlightBssid.equalsIgnoreCase(bssid);
+    }
+
+    /** Falls back to the current-network card when no saved row carries the requested address. */
+    private void markHighlight(KeepADBNetworkList.Snapshot snapshot) {
+        if (highlightBssid == null) return;
+        if (highlightView == null && snapshot.current != null
+                && isHighlight(snapshot.current.bssid)) {
+            highlightView = currentCard;
+            if (highlightView != null) highlightView.setSelected(true);
+        }
+        highlightBssid = null;
     }
 
     /**
@@ -236,6 +273,7 @@ final class NetworkListRenderer {
                 break;
         }
         root.addView(card);
+        currentCard = card;
     }
 
     private void addNoWifi(LinearLayout card) {
@@ -407,11 +445,19 @@ final class NetworkListRenderer {
             root.addView(note);
         }
         String key = group.ssid == null ? "" : group.ssid;
+        for (KeepADBNetworkList.Row row : group.rows) {
+            if (highlightView == null && isHighlight(row.bssid)) expandedGroups.add(key);
+        }
         boolean collapsible = group.rows.size() > COLLAPSE_ABOVE;
         boolean showAll = !collapsible || expandedGroups.contains(key);
         int visible = showAll ? group.rows.size() : COLLAPSED_ROWS;
         for (int i = 0; i < visible; i++) {
-            root.addView(rowView(group.rows.get(i)));
+            View rowView = rowView(group.rows.get(i));
+            if (highlightView == null && isHighlight(group.rows.get(i).bssid)) {
+                highlightView = rowView;
+                rowView.setSelected(true);
+            }
+            root.addView(rowView);
         }
         if (collapsible) {
             TextView toggle = text(showAll

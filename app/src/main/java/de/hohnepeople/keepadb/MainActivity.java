@@ -503,7 +503,7 @@ public class MainActivity extends Activity {
         boolean decided = decision.isBlocked()
                 || decision == KeepADBTrustedNetwork.Decision.TRUSTED_ACCESS_POINT
                 || decision == KeepADBTrustedNetwork.Decision.TRUSTED_NAME;
-        return decided ? NetworkListActivity.intent(this)
+        return decided ? NetworkListActivity.intent(this, identity.bssid)
                 : KeepADBNetworkTrustPrompt.decisionIntent(this, identity.bssid);
     }
 

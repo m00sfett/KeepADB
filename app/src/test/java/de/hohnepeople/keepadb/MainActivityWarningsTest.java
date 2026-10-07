@@ -434,6 +434,8 @@ public class MainActivityWarningsTest {
         assertNotNull(intent);
         assertEquals(NetworkDecisionActivity.class.getName(), intent.getComponent().getClassName());
         assertEquals(BSSID, intent.getStringExtra(KeepADBNetworkTrustPrompt.EXTRA_BSSID));
+        assertFalse("The decision dialog gets no list focus extra",
+                intent.hasExtra(NetworkListActivity.EXTRA_FOCUS_BSSID));
     }
 
     /**
@@ -460,6 +462,8 @@ public class MainActivityWarningsTest {
         Intent intent = shadowOf(activity).getNextStartedActivity();
         assertNotNull(intent);
         assertEquals(NetworkListActivity.class.getName(), intent.getComponent().getClassName());
+        // #799: the list jumps to the row of the access point the line talks about.
+        assertEquals(BSSID, intent.getStringExtra(NetworkListActivity.EXTRA_FOCUS_BSSID));
     }
 
     @Test
@@ -494,8 +498,9 @@ public class MainActivityWarningsTest {
         KeepADBTrustedNetwork.addBssid(context, BSSID, "Home");
         status.performClick();
 
-        assertEquals(NetworkListActivity.class.getName(),
-                shadowOf(activity).getNextStartedActivity().getComponent().getClassName());
+        Intent opened = shadowOf(activity).getNextStartedActivity();
+        assertEquals(NetworkListActivity.class.getName(), opened.getComponent().getClassName());
+        assertEquals(BSSID, opened.getStringExtra(NetworkListActivity.EXTRA_FOCUS_BSSID));
     }
 
     @Test
