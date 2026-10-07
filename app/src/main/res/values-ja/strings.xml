@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">信頼済みネットワークには位置情報の権限が必要です</string>
     <string name="location_permission_panel_body">信頼済みネットワークモードはWi-Fiネットワークを識別するために位置情報アクセスが必要です。これがないと、Keep-Aliveは信頼済みネットワークを確認できず、自動的に再有効化されません。</string>
     <string name="location_permission_panel_grant_button">位置情報の権限を許可</string>
-    <string name="location_permission_panel_fallback_body">位置情報へのアクセスを許可したくない場合は、代わりにすべてのWi-Fiネットワークを信頼するモードに切り替えられます。この場合、どの接続でも自動的に再有効化されます。</string>
     <string name="location_permission_panel_protection_button">保護レベルを選択</string>
     <string name="location_permission_panel_fallback_toast">「すべてのWi-Fiネットワークを信頼する」モードに切り替えました。</string>
     <string name="location_permission_panel_title_discovery">Wi-Fiとアクセスポイントには位置情報へのアクセスが必要です</string>

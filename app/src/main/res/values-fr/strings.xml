@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Autorisation de localisation requise pour les réseaux approuvés</string>
     <string name="location_permission_panel_body">Le mode réseaux approuvés a besoin de la localisation pour identifier votre réseau Wi-Fi. Sans elle, Keep-Alive ne peut pas confirmer un réseau approuvé et ne se réactivera pas automatiquement.</string>
     <string name="location_permission_panel_grant_button">Autoriser la localisation</string>
-    <string name="location_permission_panel_fallback_body">Vous préférez ne pas autoriser la localisation ? Faites confiance à tous les réseaux Wi-Fi — Keep-Alive se réactivera alors sur n’importe quelle connexion.</string>
     <string name="location_permission_panel_protection_button">Choisir le niveau de protection</string>
     <string name="location_permission_panel_fallback_toast">Passage au mode « faire confiance à tous les réseaux Wi-Fi ».</string>
     <string name="location_permission_panel_title_discovery">Accès à la localisation requis pour le Wi-Fi et les points d’accès</string>

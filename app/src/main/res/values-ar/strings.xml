@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">إذن الموقع مطلوب للشبكات الموثوقة</string>
     <string name="location_permission_panel_body">يحتاج وضع الشبكات الموثوقة إلى إذن الموقع للتعرّف على شبكة Wi-Fi الخاصة بك. بدونه، لا يمكن لـ Keep-Alive تأكيد شبكة موثوقة ولن يُعاد تفعيله تلقائيًا.</string>
     <string name="location_permission_panel_grant_button">منح إذن الموقع</string>
-    <string name="location_permission_panel_fallback_body">تفضّل عدم منح إذن الموقع؟ ثِق بجميع شبكات Wi-Fi بدلاً من ذلك — سيُعاد تفعيل Keep-Alive عندها عند أي اتصال.</string>
     <string name="location_permission_panel_protection_button">اختيار مستوى الحماية</string>
     <string name="location_permission_panel_fallback_toast">تم التبديل إلى وضع «الثقة بجميع شبكات Wi-Fi».</string>
     <string name="location_permission_panel_title_discovery">إذن الموقع مطلوب لـ Wi-Fi ونقاط الوصول</string>
