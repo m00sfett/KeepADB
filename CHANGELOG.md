@@ -56,6 +56,15 @@ Etappe E16 patch candidate, packages #813 and #815 (part 2 and way-back note); n
 ### Testing
 - #813: `KeepADBStoredNamesTest.listTrustWhoseWriteFailsKeepsTheBlockWithItsNames` fails a trust write through the new `TrustWriter` seam and pins the block, both stored names and the rest of the preferences.
 <!-- W-B end -->
+<!-- W-C begin -->
+Etappe E16 candidate, package #818 on top of 1.9.44; no release. Version bump follows with the integration.
+
+### Changed
+- **Selected row vs. focus ring (#818):** `bg_card_clickable.xml` told the deep-link mark (2dp `title_yellow`) and the keyboard/TalkBack focus ring (1.5dp `title_yellow`) apart only by 0.5dp, and because `focused` came first a row that was both lost its mark. The focus ring is now `bright_yellow` 2dp, the selected row gets the amber-tinted `advice_surface` fill besides its `title_yellow` frame, and a new `selected+focused` item (listed before `focused`) uses the amber fill with a 3dp `bright_yellow` ring. Existing color tokens only; the app has a single dark theme (no night variant). This is a visual change that was verified statically only; the check on the emulator is still open.
+
+### Testing
+- `KeepADBCardSelectorContractTest` pins the selector structure (selected+focused resolves to a look different from focused-only and selected-only; focused and selected differ in fill or color, not only width).
+<!-- W-C end -->
 
 ## [1.9.44] - Unreleased
 
