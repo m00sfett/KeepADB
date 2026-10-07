@@ -144,6 +144,62 @@ public class NetworkListDeepLinkTest {
         assertTrue(selectedViews(controller.get()).isEmpty());
     }
 
+    /** A rotation recreates the activity with the same intent; the mark is for the opening only. */
+    @Test
+    public void aRotationDoesNotMarkTheRowAgain() {
+        String target = addNetworks(4);
+        org.robolectric.android.controller.ActivityController<NetworkListActivity> controller =
+                Robolectric.buildActivity(NetworkListActivity.class,
+                        NetworkListActivity.intent(context, target)).setup();
+        ShadowLooper.idleMainLooper();
+        assertEquals("control: the opening marks the row", 1, selectedViews(controller.get()).size());
+
+        controller.recreate();
+        ShadowLooper.idleMainLooper();
+
+        assertTrue(selectedViews(controller.get()).isEmpty());
+    }
+
+    /** With the privacy mode on the list is masked; the wish is dropped, not kept for later. */
+    @Test
+    public void thePrivacyModeDropsTheWishInsteadOfKeepingItForLater() {
+        String target = addNetworks(4);
+        KeepADBPreferences.setPrivacyModeEnabled(context, true);
+        org.robolectric.android.controller.ActivityController<NetworkListActivity> controller =
+                Robolectric.buildActivity(NetworkListActivity.class,
+                        NetworkListActivity.intent(context, target)).setup();
+        ShadowLooper.idleMainLooper();
+        assertTrue("hidden list, nothing marked", selectedViews(controller.get()).isEmpty());
+        assertEquals(0, ((ScrollView) controller.get().findViewById(R.id.network_list_scroll)).getScrollY());
+
+        KeepADBPreferences.setPrivacyModeEnabled(context, false);
+        controller.pause().resume();
+        ShadowLooper.idleMainLooper();
+
+        assertTrue("the dropped wish does not come back with the visible list",
+                selectedViews(controller.get()).isEmpty());
+    }
+
+    /**
+     * Fallback: no saved row carries the address, but the device is on that access point and its
+     * name is blocked, so the current-network card (tappable then) is the one marked.
+     */
+    @Test
+    public void withoutASavedRowTheCardOfTheCurrentNetworkIsMarked() {
+        String unsaved = "bb:bb:bb:00:00:99";
+        connect(HOME, unsaved);
+        KeepADBNetworkBlocklist.blockSsid(context, HOME);
+
+        NetworkListActivity activity = open(NetworkListActivity.intent(context, unsaved));
+
+        List<View> marked = selectedViews(activity);
+        assertEquals("exactly the current card is marked", 1, marked.size());
+        String description = marked.get(0).getContentDescription().toString().toLowerCase(Locale.ROOT);
+        assertTrue(description, description.contains(unsaved));
+        assertEquals("Control: no other view names that address", 1,
+                everythingDescribed(activity).split(unsaved, -1).length - 1);
+    }
+
     @Test
     public void theIntentFactoryOmitsTheExtraForNoAddress() {
         assertNull(NetworkListActivity.intent(context, null)
