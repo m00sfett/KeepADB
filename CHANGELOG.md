@@ -23,6 +23,15 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.9.45] - Unreleased
+
+Etappe E16 candidate, chore package #810 on top of 1.9.44; no release.
+
+### Removed
+<!-- W-D begin -->
+- **Unused string (#810):** removal of unused string key `location_permission_panel_fallback_body` in all 19 locales.
+<!-- W-D end -->
+
 ## [1.9.44] - Unreleased
 
 Etappe E15 patch candidate (versionCode 216), packages #795 (cause-carrying result of `KeepADB.setEnabled`), #797 (point 2, label of the background-location dialog) and #809 (release status sentence) on top of 1.9.43; no release. The version 1.9.43 stays as it is.
