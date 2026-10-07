@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Izin lokasi diperlukan untuk jaringan dipercaya</string>
     <string name="location_permission_panel_body">Mode jaringan dipercaya memerlukan akses lokasi untuk mengenali jaringan Wi-Fi Anda. Tanpa itu, Keep-Alive tidak dapat memastikan jaringan dipercaya dan tidak akan aktif kembali secara otomatis.</string>
     <string name="location_permission_panel_grant_button">Berikan izin lokasi</string>
-    <string name="location_permission_panel_fallback_body">Lebih memilih tidak memberikan akses lokasi? Percayai semua jaringan Wi-Fi — Keep-Alive akan aktif kembali pada koneksi apa pun.</string>
     <string name="location_permission_panel_protection_button">Pilih tingkat perlindungan</string>
     <string name="location_permission_panel_fallback_toast">Beralih ke mode \"percayai semua jaringan Wi-Fi\".</string>
     <string name="location_permission_panel_title_discovery">Akses lokasi diperlukan untuk Wi-Fi &amp; titik akses</string>
@@ -207,6 +206,7 @@
     <string name="settings_usb_handover_mode_automatic">Otomatis (aktifkan saat koneksi USB baru)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Debugging Nirkabel tidak dapat diaktifkan. Periksa izin.</string>
+    <string name="usb_notification_handover_error_generic">Debugging Nirkabel tidak dapat diaktifkan.</string>
     <string name="notification_action_disable">Nonaktifkan Wifi-ADB</string>
     <string name="status_enabled_disconnected">Debugging Nirkabel AKTIF (Terputus)</string>
     <string name="status_permission_missing">Izin sistem tidak ada</string>
@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">Titik akses “%1$s” dihapus dari daftar kepercayaan</string>
     <string name="network_ap_rename_title">Nama untuk titik akses (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Nama untuk titik akses yang diblokir</string>
-    <string name="network_ap_rename_message">Pilih nama Anda sendiri. Nama ini tampil di daftar ini, hanya disimpan di perangkat ini, dan tidak mengubah nama Wi-Fi maupun titik akses yang dipercaya.</string>
+    <string name="network_ap_rename_message">Pilih nama Anda sendiri. Nama ini tampil di daftar ini, hanya disimpan di perangkat ini, dan tidak mengubah nama Wi-Fi maupun titik akses yang dipercaya atau diblokir.</string>
     <string name="network_ap_rename_hint">Nama sendiri</string>
     <string name="network_ap_rename_reset">Setel ulang</string>
     <string name="network_band_24">2,4 GHz</string>

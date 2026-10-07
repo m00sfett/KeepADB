@@ -471,9 +471,17 @@ public class NetworkDecisionActivityTest {
         controller.pause().stop().destroy();
     }
 
+    /** The setup in which answering "trust" really attempts to switch Wireless Debugging on. */
+    private void armEnableAttempt() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+    }
+
     /** Trusting an access point still tells the user when Wireless Debugging could not be switched on. */
     @Test
     public void trustWithoutTheSecureSettingsPermissionStillSaysSo() {
+        armEnableAttempt();
         shadowOf((Application) context).denyPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
         Intent tap = promptTap(SSID, BSSID, false);
         ActivityController<NetworkDecisionActivity> controller = open(tap);
@@ -483,6 +491,68 @@ public class NetworkDecisionActivityTest {
 
         assertOnlyTrusted(BSSID);
         assertEquals(context.getString(R.string.permission_error_toast, context.getPackageName()),
+                ShadowToast.getTextOfLatestToast());
+        controller.pause().stop().destroy();
+    }
+
+    /**
+     * #812: the hint follows the cause the toggle reports. A rejected write with the grant present
+     * must not raise it ...
+     */
+    @Test
+    public void trustWithARejectedWriteDoesNotSayThePermissionIsMissing() {
+        armEnableAttempt();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        gateway.setWriteSuccess(false);
+        KeepADB.setGatewayForTesting(gateway);
+        Intent tap = promptTap(SSID, BSSID, false);
+        ActivityController<NetworkDecisionActivity> controller = open(tap);
+
+        click(controller.get(), R.id.decision_trust);
+        ShadowLooper.idleMainLooper();
+
+        assertEquals("the enable must have been attempted", java.util.Arrays.asList(true), gateway.writes);
+        assertOnlyTrusted(BSSID);
+        assertEquals(context.getString(R.string.network_ap_allowed_toast, SSID),
+                ShadowToast.getTextOfLatestToast());
+        controller.pause().stop().destroy();
+    }
+
+    /** ... while a SecurityException is a permission cause even though the grant still reads present. */
+    @Test
+    public void trustWithASecurityExceptionSaysThePermissionIsMissingEvenIfTheGrantReadsPresent() {
+        armEnableAttempt();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        gateway.setWriteThrowsSecurityException(true);
+        KeepADB.setGatewayForTesting(gateway);
+        Intent tap = promptTap(SSID, BSSID, false);
+        ActivityController<NetworkDecisionActivity> controller = open(tap);
+
+        click(controller.get(), R.id.decision_trust);
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(java.util.Arrays.asList(true), gateway.writes);
+        assertOnlyTrusted(BSSID);
+        assertEquals(context.getString(R.string.permission_error_toast, context.getPackageName()),
+                ShadowToast.getTextOfLatestToast());
+        controller.pause().stop().destroy();
+    }
+
+    /**
+     * #812: no enable was attempted (Keep-Alive is off, the guard refuses), so there is no failed
+     * toggle to blame on the permission -- the hint is no longer derived from a second read.
+     */
+    @Test
+    public void trustWithoutAnAttemptedEnableRaisesNoPermissionHintEvenIfTheGrantIsMissing() {
+        shadowOf((Application) context).denyPermissions(android.Manifest.permission.WRITE_SECURE_SETTINGS);
+        Intent tap = promptTap(SSID, BSSID, false);
+        ActivityController<NetworkDecisionActivity> controller = open(tap);
+
+        click(controller.get(), R.id.decision_trust);
+        ShadowLooper.idleMainLooper();
+
+        assertOnlyTrusted(BSSID);
+        assertEquals(context.getString(R.string.network_ap_allowed_toast, SSID),
                 ShadowToast.getTextOfLatestToast());
         controller.pause().stop().destroy();
     }

@@ -253,9 +253,10 @@ final class KeepADBNetworkCard {
      * app's system permission page, which "Open settings" jumps to.
      *
      * <p>"Choose protection level" (#797, formerly "Trust all Wi-Fi networks instead") is only
-     * offered while allowlist mode is on; in all-Wi-Fi mode it would be a no-op. It opens the protection step of the setup assistant (#782)
-     * and changes nothing itself. "Later" keeps whatever mode is set (allowlist then runs
-     * with foreground location only, and the status line keeps showing the missing grant).
+     * offered while allowlist mode is on; in all-Wi-Fi mode it would be a no-op. It opens the
+     * protection step of the setup assistant (#782) and changes nothing itself. "Later" keeps
+     * whatever mode is set (allowlist then runs with foreground location only, and the status
+     * line keeps showing the missing grant).
      */
     private void showBackgroundLocationDialog() {
         if (activeBackgroundLocationDialog != null && activeBackgroundLocationDialog.isShowing()) {

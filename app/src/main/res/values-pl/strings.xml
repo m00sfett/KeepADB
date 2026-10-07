@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Wymagane uprawnienie lokalizacji dla zaufanych sieci</string>
     <string name="location_permission_panel_body">Tryb zaufanych sieci wymaga dostępu do lokalizacji, aby rozpoznać Twoją sieć Wi-Fi. Bez tego Keep-Alive nie może potwierdzić zaufanej sieci i nie włączy się automatycznie ponownie.</string>
     <string name="location_permission_panel_grant_button">Przyznaj uprawnienie lokalizacji</string>
-    <string name="location_permission_panel_fallback_body">Wolisz nie przyznawać dostępu do lokalizacji? Zaufaj zamiast tego wszystkim sieciom Wi-Fi — Keep-Alive włączy się wtedy automatycznie przy dowolnym połączeniu.</string>
     <string name="location_permission_panel_protection_button">Wybierz poziom ochrony</string>
     <string name="location_permission_panel_fallback_toast">Przełączono na tryb „ufaj wszystkim sieciom Wi-Fi”.</string>
     <string name="location_permission_panel_title_discovery">Dostęp do lokalizacji wymagany dla Wi-Fi i punktów dostępowych</string>
@@ -207,6 +206,7 @@
     <string name="settings_usb_handover_mode_automatic">Automatyczny (włącz przy nowym połączeniu USB)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Nie można włączyć debugowania bezprzewodowego. Sprawdź uprawnienia.</string>
+    <string name="usb_notification_handover_error_generic">Nie można włączyć debugowania bezprzewodowego.</string>
     <string name="notification_action_disable">Wyłącz Wifi-ADB</string>
     <string name="status_enabled_disconnected">Debugowanie bezprzewodowe jest WŁĄCZONE (Rozłączone)</string>
     <string name="status_permission_missing">Brak uprawnienia systemowego</string>
@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">Usunięto punkt dostępowy „%1$s” z listy zaufanych</string>
     <string name="network_ap_rename_title">Nazwa punktu dostępowego (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Nazwa zablokowanego punktu dostępowego</string>
-    <string name="network_ap_rename_message">Wybierz własną nazwę. Jest wyświetlana na tych listach, zapisywana tylko na tym urządzeniu i nie zmienia ani nazwy Wi-Fi, ani zaufanych punktów dostępowych.</string>
+    <string name="network_ap_rename_message">Wybierz własną nazwę. Jest wyświetlana na tych listach, zapisywana tylko na tym urządzeniu i nie zmienia ani nazwy Wi-Fi, ani zaufanych ani zablokowanych punktów dostępowych.</string>
     <string name="network_ap_rename_hint">Własna nazwa</string>
     <string name="network_ap_rename_reset">Zresetuj</string>
     <string name="network_band_24">2,4 GHz</string>

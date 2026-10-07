@@ -429,6 +429,25 @@ public class KeepADBStoredNamesTest {
         assertTrue("The name block itself is untouched", KeepADBNetworkBlocklist.isSsidBlocked(context, CAFE));
     }
 
+    /** #813: a trust write that stores nothing leaves the block, with both stored names, as it was. */
+    @Test
+    public void listTrustWhoseWriteFailsKeepsTheBlockWithItsNames() {
+        KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP, CAFE, "Ecke");
+        Map<String, ?> before = new TreeMap<>(prefs().getAll());
+
+        assertEquals(KeepADBNetworkListActions.Outcome.FAILED,
+                KeepADBNetworkListActions.trustBlockedAccessPoint(context, CAFE_AP, null,
+                        (c, bssid, label, knownSsid) -> null));
+
+        assertTrue(KeepADBNetworkBlocklist.isBssidBlocked(context, CAFE_AP));
+        KeepADBNetworkBlocklist.BlockedAccessPoint block =
+                KeepADBNetworkBlocklist.getBlockedAccessPoint(context, CAFE_AP);
+        assertEquals(CAFE, block.ssid);
+        assertEquals("Ecke", block.customName);
+        assertEquals("Nothing else changed", before, new TreeMap<>(prefs().getAll()));
+        assertTrue(KeepADBTrustedNetwork.getEntries(context).isEmpty());
+    }
+
     @Test
     public void listTrustOfALegacyBlockWithoutNamesBehavesAsBefore() {
         KeepADBNetworkBlocklist.blockBssid(context, CAFE_AP);

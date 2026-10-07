@@ -65,7 +65,7 @@ public class KeepADBToggleResultCallersTest {
 
     private void clearPreferences() {
         for (String name : new String[] {"keepadb_prefs", "keepadb_diagnostics",
-                "keepadb_trusted_networks"}) {
+                "keepadb_trusted_networks", "keepadb_usb_profiles"}) {
             context.getSharedPreferences(name, Context.MODE_PRIVATE).edit().clear().commit();
         }
     }
@@ -170,10 +170,47 @@ public class KeepADBToggleResultCallersTest {
         rejectingGateway(false);
         NotificationSpyContext spy = new NotificationSpyContext();
 
-        assertFalse(KeepADBReceiver.trustBssidAndAttemptConnect(spy, BSSID, "Cafe-WLAN"));
+        KeepADBReceiver.TrustAttempt attempt =
+                KeepADBReceiver.trustBssidAndAttemptConnect(spy, BSSID, "Cafe-WLAN");
 
+        assertFalse(attempt.enabled);
+        assertFalse("#812: the cause is handed on, a rejected write is no permission failure",
+                attempt.permissionFailure);
         assertFalse("a rejected write with the grant present is not a missing permission",
                 spy.sawPermissionNotification);
+    }
+
+    @Test
+    public void allowingAnAccessPointReportsASecurityExceptionAsAPermissionFailureEvenWithTheGrantPresent() {
+        armTrustPromptEnable();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        gateway.setWriteThrowsSecurityException(true);
+        KeepADB.setGatewayForTesting(gateway);
+        NotificationSpyContext spy = new NotificationSpyContext();
+
+        KeepADBReceiver.TrustAttempt attempt =
+                KeepADBReceiver.trustBssidAndAttemptConnect(spy, BSSID, "Cafe-WLAN");
+
+        assertEquals("the write was attempted", java.util.Arrays.asList(true), gateway.writes);
+        assertFalse(attempt.enabled);
+        assertTrue(attempt.permissionFailure);
+        assertTrue(spy.sawPermissionNotification);
+    }
+
+    @Test
+    public void allowingAnAccessPointThatIsNotPermittedToEnableIsNoFailureAtAll() {
+        // Keep-Alive off: the guard refuses before anything is toggled, so there is no cause.
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBPreferences.setKeepAliveEnabled(context, false);
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+
+        KeepADBReceiver.TrustAttempt attempt =
+                KeepADBReceiver.trustBssidAndAttemptConnect(context, BSSID, "Cafe-WLAN");
+
+        assertTrue("nothing may have been written", gateway.writes.isEmpty());
+        assertFalse(attempt.enabled);
+        assertFalse(attempt.permissionFailure);
     }
 
     @Test
@@ -183,8 +220,11 @@ public class KeepADBToggleResultCallersTest {
         denyGrant();
         NotificationSpyContext spy = new NotificationSpyContext();
 
-        assertFalse(KeepADBReceiver.trustBssidAndAttemptConnect(spy, BSSID, "Cafe-WLAN"));
+        KeepADBReceiver.TrustAttempt attempt =
+                KeepADBReceiver.trustBssidAndAttemptConnect(spy, BSSID, "Cafe-WLAN");
 
+        assertFalse(attempt.enabled);
+        assertTrue(attempt.permissionFailure);
         assertTrue(spy.sawPermissionNotification);
     }
 
@@ -285,5 +325,161 @@ public class KeepADBToggleResultCallersTest {
         assertEquals(failedToast(), ShadowToast.getTextOfLatestToast());
         assertFalse("no permission hint may be posted for a rejected write",
                 permissionNotificationPosted());
+    }
+
+    // -- #817: SECURITY_EXCEPTION with the grant still reading present ---------------------------
+
+    private KeepADBFakeSettingsGateway securityExceptionGateway(boolean initiallyEnabled) {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(initiallyEnabled);
+        gateway.setWriteThrowsSecurityException(true);
+        KeepADB.setGatewayForTesting(gateway);
+        return gateway;
+    }
+
+    @Test
+    public void theDisableActionTreatsASecurityExceptionAsAPermissionFailure() {
+        KeepADBFakeSettingsGateway gateway = securityExceptionGateway(true);
+
+        assertFalse(KeepADBReceiver.handleDisableAction(context));
+
+        assertEquals(java.util.Arrays.asList(false), gateway.writes);
+        assertEquals(permissionToast(), ShadowToast.getTextOfLatestToast());
+    }
+
+    @Test
+    public void theWidgetTreatsASecurityExceptionAsAPermissionFailure() {
+        KeepADBFakeSettingsGateway gateway = securityExceptionGateway(false);
+
+        tapWidget();
+
+        assertEquals(java.util.Arrays.asList(true), gateway.writes);
+        assertEquals(permissionToast(), ShadowToast.getTextOfLatestToast());
+    }
+
+    @Test
+    public void theMainSwitchTreatsASecurityExceptionAsAPermissionFailure() {
+        KeepADBFakeSettingsGateway gateway = securityExceptionGateway(false);
+
+        Switch toggle = tapMainSwitch();
+
+        assertEquals(java.util.Arrays.asList(true), gateway.writes);
+        assertEquals(permissionToast(), ShadowToast.getTextOfLatestToast());
+        assertFalse("the switch must fall back to the real state", toggle.isChecked());
+    }
+
+    @Test
+    public void theTileTreatsASecurityExceptionAsAPermissionFailure() {
+        KeepADBFakeSettingsGateway gateway = securityExceptionGateway(false);
+
+        tapTile();
+
+        assertEquals(java.util.Arrays.asList(true), gateway.writes);
+        assertEquals(context.getString(R.string.tile_permission_error,
+                context.getString(R.string.app_name)), ShadowToast.getTextOfLatestToast());
+    }
+
+    // -- #817: a request that lost to a newer intent is no permission failure --------------------
+
+    /** Runs {@code tap} with a newer manual intent injected into the window before the write. */
+    private void tapSuperseded(boolean newerIntentOn, Runnable tap) {
+        try (KeepADBIntentRaceHook hook = KeepADBIntentRaceHook.arm(context,
+                () -> KeepADB.setEnabled(context, newerIntentOn, "app"))) {
+            tap.run();
+            assertTrue("the request must have passed through the armed window", hook.fired());
+        }
+    }
+
+    @Test
+    public void aSupersededDisableActionIsNoPermissionFailure() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(gateway);
+        boolean[] result = new boolean[1];
+
+        tapSuperseded(true, () -> result[0] = KeepADBReceiver.handleDisableAction(context));
+
+        assertFalse(result[0]);
+        assertEquals("only the newer intent (enable) may have been written",
+                java.util.Arrays.asList(true), gateway.writes);
+        assertEquals(failedToast(), ShadowToast.getTextOfLatestToast());
+    }
+
+    @Test
+    public void aSupersededWidgetTapIsNoPermissionFailure() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+
+        // The widget wants "on" (gateway is off); the newer intent is "off" and lands first.
+        tapSuperseded(false, this::tapWidget);
+
+        assertEquals("only the newer intent may have been written",
+                java.util.Arrays.asList(false), gateway.writes);
+        assertEquals(failedToast(), ShadowToast.getTextOfLatestToast());
+    }
+
+    @Test
+    public void aSupersededMainSwitchTapIsNoPermissionFailure() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
+        Switch toggle = activity.findViewById(R.id.toggle);
+        ShadowToast.reset();
+
+        tapSuperseded(false, () -> {
+            toggle.performClick();
+            ShadowLooper.idleMainLooper();
+        });
+
+        assertEquals(java.util.Arrays.asList(false), gateway.writes);
+        assertEquals(failedToast(), ShadowToast.getTextOfLatestToast());
+    }
+
+    @Test
+    public void aSupersededTileTapIsNoPermissionFailure() {
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+
+        tapSuperseded(false, this::tapTile);
+
+        assertEquals(java.util.Arrays.asList(false), gateway.writes);
+        assertEquals(failedToast(), ShadowToast.getTextOfLatestToast());
+    }
+
+    @Test
+    public void aSupersededTrustAnswerRaisesNoPermissionNotification() {
+        armTrustPromptEnable();
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        NotificationSpyContext spy = new NotificationSpyContext();
+        KeepADBReceiver.TrustAttempt[] attempt = new KeepADBReceiver.TrustAttempt[1];
+
+        tapSuperseded(false, () ->
+                attempt[0] = KeepADBReceiver.trustBssidAndAttemptConnect(spy, BSSID, "Cafe-WLAN"));
+
+        assertFalse(attempt[0].enabled);
+        assertFalse(attempt[0].permissionFailure);
+        assertFalse(spy.sawPermissionNotification);
+        assertEquals(java.util.Arrays.asList(false), gateway.writes);
+    }
+
+    @Test
+    public void aSupersededUsbHandoverTapShowsTheNeutralTextNotCheckPermission() {
+        KeepADBUsbNotification.resetForTesting();
+        KeepADBPreferences.setUsbWlanHandoverMode(context,
+                KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL);
+        KeepADBUsbProfile.setNotificationEnabled(context, true);
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        KeepADB.setGatewayForTesting(gateway);
+        context.sendStickyBroadcast(new Intent(KeepADBUsbReceiver.ACTION_USB_STATE)
+                .putExtra("connected", true).putExtra("configured", true).putExtra("adb", true));
+
+        tapSuperseded(false, () -> KeepADBUsbReceiver.handleHandoverEnableAction(context));
+
+        assertEquals(KeepADB.ToggleResult.SUPERSEDED, KeepADBUsbHandover.lastManualActionResult());
+        assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        Notification posted = shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID);
+        assertEquals(context.getString(R.string.usb_notification_handover_error_generic),
+                String.valueOf(posted.extras.getCharSequence(Notification.EXTRA_TEXT)));
+        KeepADBUsbNotification.resetForTesting();
     }
 }

@@ -80,7 +80,6 @@
     <string name="location_permission_panel_title">Standortberechtigung für vertraute Netzwerke nötig</string>
     <string name="location_permission_panel_body">Der Modus „Vertraute Netzwerke“ benötigt Standortzugriff, um dein WLAN zu erkennen. Ohne diesen kann Keep-Alive kein vertrautes WLAN bestätigen und schaltet nicht automatisch wieder ein.</string>
     <string name="location_permission_panel_grant_button">Standortberechtigung erteilen</string>
-    <string name="location_permission_panel_fallback_body">Standortzugriff lieber nicht gewähren? Vertraue stattdessen allen WLANs — Keep-Alive schaltet dann bei jeder Verbindung automatisch wieder ein.</string>
     <string name="location_permission_panel_protection_button">Schutzstufe wählen</string>
     <string name="location_permission_panel_fallback_toast">Auf Modus „Alle WLANs vertrauen“ umgestellt.</string>
     <string name="location_permission_panel_title_discovery">Standortberechtigung für WLAN &amp; Access Points erforderlich</string>
@@ -218,6 +217,7 @@
     <string name="settings_usb_handover_mode_automatic">Automatisch (bei neuer USB-Verbindung aktivieren)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Drahtloses Debugging konnte nicht aktiviert werden. Berechtigung prüfen.</string>
+    <string name="usb_notification_handover_error_generic">Drahtloses Debugging konnte nicht aktiviert werden.</string>
     <string name="notification_action_disable">Wifi-ADB ausschalten</string>
     <string name="settings_section_version">Version</string>
     <string name="settings_version_value">App-Version: %1$s</string>
@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">Access Point „%1$s“ aus der Liste vertrauter Access Points entfernt</string>
     <string name="network_ap_rename_title">Name für Access Point (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Name für blockierten Access Point</string>
-    <string name="network_ap_rename_message">Wähle einen eigenen Namen. Er erscheint in diesen Listen, wird nur auf diesem Gerät gespeichert und ändert weder den WLAN-Namen noch die vertrauten Access Points.</string>
+    <string name="network_ap_rename_message">Wähle einen eigenen Namen. Er erscheint in diesen Listen, wird nur auf diesem Gerät gespeichert und ändert weder den WLAN-Namen noch die vertrauten oder gesperrten Access Points.</string>
     <string name="network_ap_rename_hint">Eigener Name</string>
     <string name="network_ap_rename_reset">Zurücksetzen</string>
     <string name="network_band_24">2,4 GHz</string>

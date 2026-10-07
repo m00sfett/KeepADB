@@ -108,6 +108,14 @@ public final class KeepADBReceiver extends BroadcastReceiver {
      * @return true if Wireless Debugging was actually turned on by this call.
      */
     static boolean handleTrustNetworkAction(Context context, String bssid, String label) {
+        return trustNetworkAction(context, bssid, label).enabled;
+    }
+
+    /**
+     * #812: {@link #handleTrustNetworkAction} with the cause of a failed enable, so a caller that
+     * reports it (the in-app decision view) does not have to read the permission a second time.
+     */
+    static TrustAttempt trustNetworkAction(Context context, String bssid, String label) {
         String cleanBssid = bssid == null ? "" : bssid.trim();
         // #578: defense in depth against this action reaching the receiver while the device is
         // locked. Notification.Action#setAuthenticationRequired (API 31+) already asks the
@@ -129,7 +137,7 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             // just disappearing with nothing trusted and no way to retry short of roaming off
             // and back onto the access point.
             KeepADBNetworkTrustPrompt.reshow(context, cleanBssid, label);
-            return false;
+            return TrustAttempt.NOT_ATTEMPTED;
         }
         KeepADBNetworkTrustPrompt.cancel(context);
         // Fail closed on anything that isn't a real, matchable access point identifier: storing a
@@ -139,7 +147,7 @@ public final class KeepADBReceiver extends BroadcastReceiver {
                 || KeepADBNetworkIdentity.UNSET_BSSID.equalsIgnoreCase(cleanBssid)) {
             KeepADBDiagnostics.event(context, "user_action", "network_trust_prompt", "failed",
                     "invalid_bssid");
-            return false;
+            return TrustAttempt.NOT_ATTEMPTED;
         }
         // #760: trusting never lifts a block -- only an explicit unblock does. A prompt raised
         // before the block (or an in-app confirmation opened from it) may still be tapped; it
@@ -147,7 +155,7 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         if (isBlockedTarget(context, cleanBssid, label)) {
             KeepADBDiagnostics.event(context, "user_action", "network_trust_prompt", "blocked",
                     "network_blocked");
-            return false;
+            return TrustAttempt.NOT_ATTEMPTED;
         }
         KeepADBDiagnostics.event(context, "user_action", "network_trust_prompt", "allowed",
                 "bssid=" + cleanBssid);
@@ -174,19 +182,22 @@ public final class KeepADBReceiver extends BroadcastReceiver {
      * saw. If the guard says no, the allowlist entry still stands and the normal Keep-Alive path
      * enables as soon as the device is back on it.
      *
-     * @return true if Wireless Debugging was actually turned on by this call.
+     * @return whether Wireless Debugging was actually turned on by this call and, if the enable
+     *     failed, whether the cause was the missing {@code WRITE_SECURE_SETTINGS} grant (#812).
      */
-    static boolean trustBssidAndAttemptConnect(Context context, String bssid, String label) {
+    static TrustAttempt trustBssidAndAttemptConnect(Context context, String bssid, String label) {
         recordTrust(context, bssid, label);
 
         boolean enabled = false;
+        boolean permissionFailure = false;
         // #670: the explicit tap must not be blocked by the automatic-retry backoff.
         if (KeepADBService.isAutoEnableStillPermittedIgnoringBackoff(context)) {
             KeepADB.ToggleResult result = KeepADB.setEnabled(context, true,
                     KeepADB.SOURCE_NETWORK_TRUST_PROMPT);
             enabled = result.isSuccess();
             // #795: a rejected or superseded write is no reason to show the permission hint.
-            if (result.isPermissionFailure()) {
+            permissionFailure = result.isPermissionFailure();
+            if (permissionFailure) {
                 KeepADBNotification.showPermissionMissing(context);
             }
         } else {
@@ -196,7 +207,25 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         KeepADBService.sync(context);
         KeepADBEndpointCoordinator.refresh(context);
         KeepADBWidget.refreshAll(context);
-        return enabled;
+        return new TrustAttempt(enabled, permissionFailure);
+    }
+
+    /**
+     * #812: outcome of a trust answer that tried to switch Wireless Debugging on. {@code enabled}
+     * is the former boolean; {@code permissionFailure} is true only when the enable failed because
+     * of the {@code WRITE_SECURE_SETTINGS} grant (never for a skipped, rejected or superseded one).
+     */
+    static final class TrustAttempt {
+        /** Nothing was attempted: locked device, invalid or blocked access point. */
+        static final TrustAttempt NOT_ATTEMPTED = new TrustAttempt(false, false);
+
+        final boolean enabled;
+        final boolean permissionFailure;
+
+        TrustAttempt(boolean enabled, boolean permissionFailure) {
+            this.enabled = enabled;
+            this.permissionFailure = permissionFailure;
+        }
     }
 
     /**

@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Permissão de localização necessária para redes fiáveis</string>
     <string name="location_permission_panel_body">O modo de redes fiáveis precisa de acesso à localização para identificar sua rede Wi-Fi. Sem isso, o Keep-Alive não pode confirmar uma rede fiável e não será reativado automaticamente.</string>
     <string name="location_permission_panel_grant_button">Conceder permissão de localização</string>
-    <string name="location_permission_panel_fallback_body">Prefere não conceder acesso à localização? Confie em todas as redes Wi-Fi — o Keep-Alive será reativado em qualquer conexão.</string>
     <string name="location_permission_panel_protection_button">Escolher nível de proteção</string>
     <string name="location_permission_panel_fallback_toast">Alterado para o modo \"confiar em todas as redes Wi-Fi\".</string>
     <string name="location_permission_panel_title_discovery">Acesso à localização necessário para Wi-Fi e pontos de acesso</string>
@@ -207,6 +206,7 @@
     <string name="settings_usb_handover_mode_automatic">Automático (ativar em uma nova conexão USB)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Não foi possível ativar a depuração sem fio. Verifique a permissão.</string>
+    <string name="usb_notification_handover_error_generic">Não foi possível ativar a depuração sem fio.</string>
     <string name="notification_action_disable">Desativar Wifi-ADB</string>
     <string name="status_enabled_disconnected">Depuração sem fio ATIVADA (Desconectada)</string>
     <string name="status_permission_missing">Permissão do sistema ausente</string>
@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">Ponto de acesso “%1$s” removido da lista de confiança</string>
     <string name="network_ap_rename_title">Nome do ponto de acesso (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Nome do ponto de acesso bloqueado</string>
-    <string name="network_ap_rename_message">Escolha um nome próprio. Ele aparece nestas listas, fica guardado só neste dispositivo e não altera o nome do Wi-Fi nem os pontos de acesso fiáveis.</string>
+    <string name="network_ap_rename_message">Escolha um nome próprio. Ele aparece nestas listas, fica guardado só neste dispositivo e não altera o nome do Wi-Fi nem os pontos de acesso fiáveis nem os bloqueados.</string>
     <string name="network_ap_rename_hint">Nome próprio</string>
     <string name="network_ap_rename_reset">Redefinir</string>
     <string name="network_band_24">2,4 GHz</string>

@@ -197,7 +197,7 @@ public class KeepADBUsbNotificationTest {
         KeepADBUsbProfile.setNotificationEnabled(context, true);
         KeepADBPreferences.setUsbWlanHandoverMode(context, KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL);
 
-        KeepADBUsbNotification.reportManualActionResult(context, false);
+        KeepADBUsbNotification.reportManualActionResult(context, KeepADB.ToggleResult.PERMISSION_MISSING);
 
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         Notification notification = shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID);
@@ -299,9 +299,48 @@ public class KeepADBUsbNotificationTest {
                 shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID).publicVersion);
 
         KeepADBPreferences.setUsbWlanHandoverMode(context, KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL);
-        KeepADBUsbNotification.reportManualActionResult(context, false);
+        KeepADBUsbNotification.reportManualActionResult(context, KeepADB.ToggleResult.PERMISSION_MISSING);
         assertNotNull("The handover error text must still carry a publicVersion",
                 shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID).publicVersion);
+    }
+
+    /**
+     * #811: "Check permission" is reserved for the permission causes; every other failure of the
+     * manual action gets the neutral text, in the user's language.
+     */
+    @Test
+    public void theHandoverErrorTextPointsAtThePermissionOnlyForPermissionCauses() {
+        KeepADBPreferences.setAppLanguage(context, "de");
+        KeepADBUsbProfile.setNotificationEnabled(context, true);
+        KeepADBPreferences.setUsbWlanHandoverMode(context, KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL);
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+
+        for (KeepADB.ToggleResult result : KeepADB.ToggleResult.values()) {
+            if (result.isSuccess()) continue;
+            KeepADBUsbNotification.reportManualActionResult(context, result);
+
+            CharSequence content = shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID)
+                    .extras.getCharSequence(Notification.EXTRA_TEXT);
+            assertEquals(result.name(), result.isPermissionFailure()
+                            ? "Drahtloses Debugging konnte nicht aktiviert werden. Berechtigung prüfen."
+                            : "Drahtloses Debugging konnte nicht aktiviert werden.",
+                    String.valueOf(content));
+        }
+    }
+
+    @Test
+    public void theNeutralHandoverErrorAlsoCarriesAPublicVersionWithoutProfileDetails() {
+        KeepADBUsbProfile.setNotificationEnabled(context, true);
+        KeepADBUsbProfile.setProfileNotificationEnabled(context, false);
+        KeepADBPreferences.setUsbWlanHandoverMode(context, KeepADBPreferences.USB_WLAN_HANDOVER_MODE_MANUAL);
+
+        KeepADBUsbNotification.reportManualActionResult(context, KeepADB.ToggleResult.WRITE_REJECTED);
+
+        NotificationManager manager = context.getSystemService(NotificationManager.class);
+        Notification notification = shadowOf(manager).getNotification(KeepADBUsbNotification.NOTIFICATION_ID);
+        assertEquals(context.getString(R.string.usb_notification_handover_error_generic),
+                String.valueOf(notification.extras.getCharSequence(Notification.EXTRA_TEXT)));
+        assertNotNull(notification.publicVersion);
     }
 
     // --- #592: connection details are opt-in -----------------------------------------------

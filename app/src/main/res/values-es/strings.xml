@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Se requiere permiso de ubicación para redes de confianza</string>
     <string name="location_permission_panel_body">El modo de redes de confianza necesita acceso a la ubicación para identificar tu red Wi-Fi. Sin él, Keep-Alive no puede confirmar una red de confianza y no se reactivará automáticamente.</string>
     <string name="location_permission_panel_grant_button">Conceder permiso de ubicación</string>
-    <string name="location_permission_panel_fallback_body">¿Prefieres no conceder acceso a la ubicación? Confía en todas las redes Wi-Fi — Keep-Alive se reactivará entonces en cualquier conexión.</string>
     <string name="location_permission_panel_protection_button">Elegir nivel de protección</string>
     <string name="location_permission_panel_fallback_toast">Se cambió al modo \"confiar en todas las redes Wi-Fi\".</string>
     <string name="location_permission_panel_title_discovery">Se requiere acceso a la ubicación para Wi-Fi y puntos de acceso</string>
@@ -207,6 +206,7 @@
     <string name="settings_usb_handover_mode_automatic">Automático (activar con una conexión USB nueva)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">No se pudo activar la depuración inalámbrica. Comprueba el permiso.</string>
+    <string name="usb_notification_handover_error_generic">No se pudo activar la depuración inalámbrica.</string>
     <string name="notification_action_disable">Desactivar Wifi-ADB</string>
     <string name="status_enabled_disconnected">Depuración inalámbrica ACTIVADA (desconectada)</string>
     <string name="status_permission_missing">Falta el permiso del sistema</string>
@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">Punto de acceso «%1$s» quitado de la lista de confianza</string>
     <string name="network_ap_rename_title">Nombre del punto de acceso (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Nombre del punto de acceso bloqueado</string>
-    <string name="network_ap_rename_message">Elige un nombre propio. Se muestra en estas listas, se guarda solo en este dispositivo y no cambia ni el nombre de Wi-Fi ni los puntos de acceso de confianza.</string>
+    <string name="network_ap_rename_message">Elige un nombre propio. Se muestra en estas listas, se guarda solo en este dispositivo y no cambia ni el nombre de Wi-Fi ni los puntos de acceso de confianza ni los bloqueados.</string>
     <string name="network_ap_rename_hint">Nombre propio</string>
     <string name="network_ap_rename_reset">Restablecer</string>
     <string name="network_band_24">2,4 GHz</string>

@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Autorisation de localisation requise pour les réseaux approuvés</string>
     <string name="location_permission_panel_body">Le mode réseaux approuvés a besoin de la localisation pour identifier votre réseau Wi-Fi. Sans elle, Keep-Alive ne peut pas confirmer un réseau approuvé et ne se réactivera pas automatiquement.</string>
     <string name="location_permission_panel_grant_button">Autoriser la localisation</string>
-    <string name="location_permission_panel_fallback_body">Vous préférez ne pas autoriser la localisation ? Faites confiance à tous les réseaux Wi-Fi — Keep-Alive se réactivera alors sur n’importe quelle connexion.</string>
     <string name="location_permission_panel_protection_button">Choisir le niveau de protection</string>
     <string name="location_permission_panel_fallback_toast">Passage au mode « faire confiance à tous les réseaux Wi-Fi ».</string>
     <string name="location_permission_panel_title_discovery">Accès à la localisation requis pour le Wi-Fi et les points d’accès</string>
@@ -207,6 +206,7 @@
     <string name="settings_usb_handover_mode_automatic">Automatique (activer lors d’une nouvelle connexion USB)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Impossible d’activer le débogage sans fil. Vérifiez l’autorisation.</string>
+    <string name="usb_notification_handover_error_generic">Impossible d’activer le débogage sans fil.</string>
     <string name="notification_action_disable">Désactiver Wifi-ADB</string>
     <string name="status_enabled_disconnected">Débogage sans fil ACTIVÉ (déconnecté)</string>
     <string name="status_permission_missing">Autorisation système manquante</string>
@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">Point d’accès « %1$s » retiré de la liste des approuvés</string>
     <string name="network_ap_rename_title">Nom du point d’accès (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Nom du point d’accès bloqué</string>
-    <string name="network_ap_rename_message">Choisissez un nom personnel. Il s’affiche dans ces listes, n’est enregistré que sur cet appareil et ne modifie ni le nom Wi-Fi ni les points d’accès approuvés.</string>
+    <string name="network_ap_rename_message">Choisissez un nom personnel. Il s’affiche dans ces listes, n’est enregistré que sur cet appareil et ne modifie ni le nom Wi-Fi ni les points d’accès approuvés ou bloqués.</string>
     <string name="network_ap_rename_hint">Nom personnalisé</string>
     <string name="network_ap_rename_reset">Réinitialiser</string>
     <string name="network_band_24">2,4 GHz</string>

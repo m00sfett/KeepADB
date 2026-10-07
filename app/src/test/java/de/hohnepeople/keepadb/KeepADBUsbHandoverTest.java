@@ -357,27 +357,41 @@ public class KeepADBUsbHandoverTest {
     }
 
     @Test
+    public void handleManualActionExposesTheCauseOfTheLastCallWhileStillReturningABoolean() {
+        FakeContext deniedContext = new FakeContext(false);
+        assertFalse(KeepADBUsbHandover.handleManualAction(deniedContext));
+        assertEquals(KeepADB.ToggleResult.PERMISSION_MISSING, KeepADBUsbHandover.lastManualActionResult());
+
+        FakeContext permittedContext = new FakeContext(true);
+        KeepADBFakeSettingsGateway gateway = new KeepADBFakeSettingsGateway(false);
+        gateway.setWriteSuccess(false);
+        KeepADB.setGatewayForTesting(gateway);
+        assertFalse(KeepADBUsbHandover.handleManualAction(permittedContext));
+        assertEquals(KeepADB.ToggleResult.WRITE_REJECTED, KeepADBUsbHandover.lastManualActionResult());
+    }
+
+    @Test
     public void reportManualActionResultAndNotificationStateTransitions() {
         FakeContext ctx = new FakeContext();
         KeepADBPreferences.setUsbWlanHandoverMode(ctx, MANUAL);
 
         // Failure report sets error flag
-        KeepADBUsbNotification.reportManualActionResult(ctx, false);
+        KeepADBUsbNotification.reportManualActionResult(ctx, KeepADB.ToggleResult.PERMISSION_MISSING);
         assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
 
         // Success report clears error flag
-        KeepADBUsbNotification.reportManualActionResult(ctx, true);
+        KeepADBUsbNotification.reportManualActionResult(ctx, KeepADB.ToggleResult.APPLIED);
         assertFalse(KeepADBUsbNotification.isLastHandoverActionFailed());
 
         // Failure followed by disconnect clears error flag
-        KeepADBUsbNotification.reportManualActionResult(ctx, false);
+        KeepADBUsbNotification.reportManualActionResult(ctx, KeepADB.ToggleResult.PERMISSION_MISSING);
         assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
         KeepADBUsbNotification.refresh(ctx, false);
         assertFalse(KeepADBUsbNotification.isLastHandoverActionFailed());
 
         // Failure followed by mode change to AUTOMATIC clears error flag
         KeepADBPreferences.setUsbWlanHandoverMode(ctx, MANUAL);
-        KeepADBUsbNotification.reportManualActionResult(ctx, false);
+        KeepADBUsbNotification.reportManualActionResult(ctx, KeepADB.ToggleResult.PERMISSION_MISSING);
         assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
         KeepADBPreferences.setUsbWlanHandoverMode(ctx, AUTOMATIC);
         KeepADBUsbNotification.refresh(ctx, true);
@@ -385,7 +399,7 @@ public class KeepADBUsbHandoverTest {
 
         // Failure followed by mode change to OFF clears error flag
         KeepADBPreferences.setUsbWlanHandoverMode(ctx, MANUAL);
-        KeepADBUsbNotification.reportManualActionResult(ctx, false);
+        KeepADBUsbNotification.reportManualActionResult(ctx, KeepADB.ToggleResult.PERMISSION_MISSING);
         assertTrue(KeepADBUsbNotification.isLastHandoverActionFailed());
         KeepADBPreferences.setUsbWlanHandoverMode(ctx, OFF);
         KeepADBUsbNotification.refresh(ctx, true);

@@ -51,6 +51,21 @@ final class KeepADBNetworkListActions {
      * becomes the entry's own name, so lifting the block does not lose what the user typed.
      */
     static Outcome trustBlockedAccessPoint(Context context, String bssid, String ssid) {
+        return trustBlockedAccessPoint(context, bssid, ssid, KeepADBReceiver::allowBssidOnly);
+    }
+
+    /** The write of the trust entry, a seam so a failing write can be tested (#813). */
+    interface TrustWriter {
+        KeepADBTrustedNetwork.Entry allow(Context context, String bssid, String label, String knownSsid);
+    }
+
+    /**
+     * #813: the block has to be lifted before the entry is written, because the write refuses a
+     * blocked target (#760). If the write then stores nothing, the block is put back with the
+     * names it had, so a failed trust never leaves the access point unblocked and nameless.
+     */
+    static Outcome trustBlockedAccessPoint(Context context, String bssid, String ssid,
+                                           TrustWriter writer) {
         if (KeepADBNetworkBlocklist.isSsidBlocked(context, ssid)) {
             return Outcome.TRUST_REFUSED_NAME_BLOCKED;
         }
@@ -59,12 +74,21 @@ final class KeepADBNetworkListActions {
         String storedSsid = block == null ? null : block.ssid;
         KeepADBNetworkBlocklist.unblockBssid(context, bssid);
         String label = ssid == null ? bssid : ssid;
-        KeepADBTrustedNetwork.Entry entry = KeepADBReceiver.allowBssidOnly(context, bssid, label,
+        KeepADBTrustedNetwork.Entry entry = writer.allow(context, bssid, label,
                 KeepADBNetworkBlocklist.isUsableSsid(ssid) ? ssid : storedSsid);
-        if (entry != null && entry.customName == null && block != null && block.customName != null) {
+        if (entry == null) {
+            if (block != null) {
+                KeepADBNetworkDecision.blockAccessPoint(context, bssid, block.ssid);
+                if (block.customName != null) {
+                    KeepADBNetworkBlocklist.setBlockedCustomName(context, bssid, block.customName);
+                }
+            }
+            return Outcome.FAILED;
+        }
+        if (entry.customName == null && block != null && block.customName != null) {
             KeepADBTrustedNetwork.setCustomName(context, entry.id, block.customName);
         }
-        return entry == null ? Outcome.FAILED : Outcome.TRUSTED;
+        return Outcome.TRUSTED;
     }
 
     /** "Stop trusting": the access point becomes unknown again. */

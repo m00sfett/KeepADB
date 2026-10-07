@@ -234,7 +234,7 @@ Mit #796/#802 kommen weitere, optionale Schlüssel dazu: `trusted_network_<id>_s
 Kleinschreibung). Sie werden zusammen mit dem Eintrag bzw. der Sperre geschrieben und mit ihnen
 gelöscht; ein Bestand ohne sie liest sich als „kein Name“ und wird nie umgeschrieben oder ergänzt
 (es gibt keine Migration). Eine ältere App-Version ignoriert die Schlüssel: Beim Zurückgehen bleibt
-nur die Wirkung der Namen in der Liste aus, Vertrauen und Sperren sind unberührt. Die Namen verlassen
+nur die Wirkung der Namen in der Liste aus, Vertrauen und Sperren sind unberührt (sperrt eine ältere Version dieselbe Adresse später erneut, ohne die Namensschlüssel zu kennen, können alte Namensreste dieser Adresse wieder in der Liste auftauchen, nur als Anzeige). Die Namen verlassen
 das Gerät nicht: sie stehen weder in der Diagnose noch im Webhook und in keiner Benachrichtigung, und
 die Liste zeigt sie nur, solange der Privatsphäre-Modus aus ist (er ersetzt die ganze Liste, auch die
 eigenen Namen der Sperren).

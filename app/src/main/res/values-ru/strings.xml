@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Для доверенных сетей требуется разрешение на геолокацию</string>
     <string name="location_permission_panel_body">Режиму доверенных сетей нужен доступ к геолокации, чтобы распознать вашу сеть Wi-Fi. Без него Keep-Alive не может подтвердить доверенную сеть и не включится автоматически.</string>
     <string name="location_permission_panel_grant_button">Предоставить разрешение на геолокацию</string>
-    <string name="location_permission_panel_fallback_body">Не хотите предоставлять доступ к геолокации? Доверяйте всем сетям Wi-Fi — тогда Keep-Alive будет включаться при любом подключении.</string>
     <string name="location_permission_panel_protection_button">Выбрать уровень защиты</string>
     <string name="location_permission_panel_fallback_toast">Переключено на режим «доверять всем сетям Wi-Fi».</string>
     <string name="location_permission_panel_title_discovery">Доступ к геолокации требуется для Wi-Fi и точек доступа</string>
@@ -207,6 +206,7 @@
     <string name="settings_usb_handover_mode_automatic">Автоматически (включать при новом USB-подключении)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Не удалось включить беспроводную отладку. Проверьте разрешение.</string>
+    <string name="usb_notification_handover_error_generic">Не удалось включить беспроводную отладку.</string>
     <string name="notification_action_disable">Выключить Wifi-ADB</string>
     <string name="status_enabled_disconnected">Беспроводная отладка включена (нет подключения)</string>
     <string name="status_permission_missing">Нет системного разрешения</string>
@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">Точка доступа «%1$s» удалена из списка доверенных</string>
     <string name="network_ap_rename_title">Название точки доступа (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Название заблокированной точки доступа</string>
-    <string name="network_ap_rename_message">Выберите собственное название. Оно показывается в этих списках, хранится только на этом устройстве и не меняет ни имя Wi-Fi, ни список доверенных точек доступа.</string>
+    <string name="network_ap_rename_message">Выберите собственное название. Оно показывается в этих списках, хранится только на этом устройстве и не меняет ни имя Wi-Fi, ни список доверенных или заблокированных точек доступа.</string>
     <string name="network_ap_rename_hint">Своё название</string>
     <string name="network_ap_rename_reset">Сбросить</string>
     <string name="network_band_24">2,4 ГГц</string>

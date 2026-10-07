@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Güvenilir ağlar için konum izni gerekli</string>
     <string name="location_permission_panel_body">Güvenilir ağ modu, Wi-Fi ağınızı tanımak için konum erişimine ihtiyaç duyar. Bu olmadan Keep-Alive güvenilir bir ağı doğrulayamaz ve otomatik olarak yeniden etkinleşmez.</string>
     <string name="location_permission_panel_grant_button">Konum iznini ver</string>
-    <string name="location_permission_panel_fallback_body">Konum erişimi vermek istemiyor musunuz? Bunun yerine tüm Wi-Fi ağlarına güvenin — Keep-Alive böylece her bağlantıda otomatik olarak yeniden etkinleşir.</string>
     <string name="location_permission_panel_protection_button">Koruma düzeyini seç</string>
     <string name="location_permission_panel_fallback_toast">\"Tüm Wi-Fi ağlarına güven\" moduna geçildi.</string>
     <string name="location_permission_panel_title_discovery">Wi-Fi ve erişim noktaları için konum erişimi gerekli</string>
@@ -207,6 +206,7 @@
     <string name="settings_usb_handover_mode_automatic">Otomatik (yeni USB bağlantısında etkinleştir)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Kablosuz Hata Ayıklama etkinleştirilemedi. İzni kontrol edin.</string>
+    <string name="usb_notification_handover_error_generic">Kablosuz Hata Ayıklama etkinleştirilemedi.</string>
     <string name="notification_action_disable">Wifi-ADByi kapat</string>
     <string name="status_enabled_disconnected">Kablosuz Hata Ayıklama AÇIK (Bağlı değil)</string>
     <string name="status_permission_missing">Sistem izni eksik</string>
@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">“%1$s” erişim noktası güvenilenler listesinden kaldırıldı</string>
     <string name="network_ap_rename_title">Erişim noktasının adı (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Engellenen erişim noktasının adı</string>
-    <string name="network_ap_rename_message">Kendi adını seç. Bu listelerde gösterilir, yalnızca bu cihazda saklanır; Wi-Fi adını da güvenilir erişim noktalarını da değiştirmez.</string>
+    <string name="network_ap_rename_message">Kendi adını seç. Bu listelerde gösterilir, yalnızca bu cihazda saklanır; Wi-Fi adını da güvenilir ya da engellenmiş erişim noktalarını da değiştirmez.</string>
     <string name="network_ap_rename_hint">Özel ad</string>
     <string name="network_ap_rename_reset">Sıfırla</string>
     <string name="network_band_24">2,4 GHz</string>

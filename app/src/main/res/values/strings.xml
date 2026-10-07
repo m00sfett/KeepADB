@@ -86,7 +86,6 @@
     <string name="location_permission_panel_title">Location permission needed for trusted networks</string>
     <string name="location_permission_panel_body">Trusted-network mode needs Location access to identify your Wi-Fi network. Without it, Keep-Alive can’t confirm a trusted network and won’t re-enable automatically.</string>
     <string name="location_permission_panel_grant_button">Grant location permission</string>
-    <string name="location_permission_panel_fallback_body">Prefer not to grant Location access? Trust all Wi-Fi networks instead — Keep-Alive will then re-enable on any connection.</string>
     <string name="location_permission_panel_protection_button">Choose protection level</string>
     <string name="location_permission_panel_fallback_toast">Switched to \"trust all Wi-Fi networks\" mode.</string>
     <string name="location_permission_panel_title_discovery">Location access needed for Wi-Fi &amp; access points</string>
@@ -226,6 +225,7 @@
     <string name="settings_section_network">Network</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Could not enable Wireless Debugging. Check permission.</string>
+    <string name="usb_notification_handover_error_generic">Could not enable Wireless Debugging.</string>
     <string name="notification_action_disable">Turn off Wifi-ADB</string>
     <string name="settings_section_version">Version</string>
     <string name="settings_version_value">App version: %1$s</string>
@@ -400,7 +400,7 @@
     <string name="network_ap_removed_toast">Removed access point “%1$s” from the trusted list</string>
     <string name="network_ap_rename_title">Name for access point (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Name for blocked access point</string>
-    <string name="network_ap_rename_message">Choose a name of your own. It is shown in these lists, saved only on this device, and changes neither the Wi-Fi name nor which access points are trusted.</string>
+    <string name="network_ap_rename_message">Choose a name of your own. It is shown in these lists, saved only on this device, and changes neither the Wi-Fi name nor which access points are trusted or blocked.</string>
     <string name="network_ap_rename_hint">Own name</string>
     <string name="network_ap_rename_reset">Reset</string>
     <string name="network_band_24">2.4 GHz</string>

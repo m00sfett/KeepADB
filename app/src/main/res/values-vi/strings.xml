@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Cần quyền vị trí cho mạng tin cậy</string>
     <string name="location_permission_panel_body">Chế độ mạng tin cậy cần quyền truy cập vị trí để nhận diện mạng Wi-Fi của bạn. Nếu không có, Keep-Alive không thể xác nhận mạng tin cậy và sẽ không tự động bật lại.</string>
     <string name="location_permission_panel_grant_button">Cấp quyền vị trí</string>
-    <string name="location_permission_panel_fallback_body">Không muốn cấp quyền truy cập vị trí? Hãy tin cậy mọi mạng Wi-Fi — Keep-Alive sẽ tự động bật lại ở bất kỳ kết nối nào.</string>
     <string name="location_permission_panel_protection_button">Chọn mức bảo vệ</string>
     <string name="location_permission_panel_fallback_toast">Đã chuyển sang chế độ \"tin cậy mọi mạng Wi-Fi\".</string>
     <string name="location_permission_panel_title_discovery">Cần quyền truy cập vị trí cho Wi-Fi và điểm truy cập</string>
@@ -207,6 +206,7 @@
     <string name="settings_usb_handover_mode_automatic">Tự động (bật khi có kết nối USB mới)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Không thể bật Gỡ lỗi không dây. Hãy kiểm tra quyền.</string>
+    <string name="usb_notification_handover_error_generic">Không thể bật Gỡ lỗi không dây.</string>
     <string name="notification_action_disable">Tắt Wifi-ADB</string>
     <string name="status_enabled_disconnected">Gỡ lỗi không dây ĐANG BẬT (Đã ngắt kết nối)</string>
     <string name="status_permission_missing">Thiếu quyền hệ thống</string>
@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">Đã xóa điểm truy cập “%1$s” khỏi danh sách tin cậy</string>
     <string name="network_ap_rename_title">Tên cho điểm truy cập (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Tên cho điểm truy cập đã chặn</string>
-    <string name="network_ap_rename_message">Hãy chọn một tên riêng. Tên này hiển thị trong các danh sách này, chỉ được lưu trên thiết bị này và không thay đổi tên Wi-Fi hay các điểm truy cập tin cậy.</string>
+    <string name="network_ap_rename_message">Hãy chọn một tên riêng. Tên này hiển thị trong các danh sách này, chỉ được lưu trên thiết bị này và không thay đổi tên Wi-Fi hay các điểm truy cập được tin cậy hoặc bị chặn.</string>
     <string name="network_ap_rename_hint">Tên riêng</string>
     <string name="network_ap_rename_reset">Đặt lại</string>
     <string name="network_band_24">2,4 GHz</string>

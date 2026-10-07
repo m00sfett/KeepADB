@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">Autorizzazione posizione necessaria per le reti affidabili</string>
     <string name="location_permission_panel_body">La modalità reti affidabili richiede l’accesso alla posizione per identificare la tua rete Wi-Fi. Senza di esso, Keep-Alive non può confermare una rete affidabile e non si riattiverà automaticamente.</string>
     <string name="location_permission_panel_grant_button">Concedi l\'autorizzazione posizione</string>
-    <string name="location_permission_panel_fallback_body">Preferisci non concedere l’accesso alla posizione? Considera invece affidabili tutte le reti Wi-Fi — Keep-Alive si riattiverà così su qualsiasi connessione.</string>
     <string name="location_permission_panel_protection_button">Scegli il livello di protezione</string>
     <string name="location_permission_panel_fallback_toast">Passato alla modalità \"tutte le reti Wi-Fi affidabili\".</string>
     <string name="location_permission_panel_title_discovery">Accesso alla posizione necessario per Wi-Fi e punti di accesso</string>
@@ -207,6 +206,7 @@
     <string name="settings_usb_handover_mode_automatic">Automatico (abilita alla nuova connessione USB)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">Impossibile abilitare il debug wireless. Controlla l’autorizzazione.</string>
+    <string name="usb_notification_handover_error_generic">Impossibile abilitare il debug wireless.</string>
     <string name="notification_action_disable">Disattiva Wifi-ADB</string>
     <string name="status_enabled_disconnected">Debug wireless ATTIVO (Disconnesso)</string>
     <string name="status_permission_missing">Autorizzazione di sistema mancante</string>
@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">Punto di accesso «%1$s» rimosso dalla lista di fiducia</string>
     <string name="network_ap_rename_title">Nome del punto di accesso (%1$d)</string>
     <string name="network_ap_rename_title_blocked">Nome del punto di accesso bloccato</string>
-    <string name="network_ap_rename_message">Scegli un nome tutto tuo. Viene mostrato in questi elenchi, è salvato solo su questo dispositivo e non modifica né il nome Wi-Fi né i punti di accesso affidabili.</string>
+    <string name="network_ap_rename_message">Scegli un nome tutto tuo. Viene mostrato in questi elenchi, è salvato solo su questo dispositivo e non modifica né il nome Wi-Fi né i punti di accesso affidabili o bloccati.</string>
     <string name="network_ap_rename_hint">Nome personalizzato</string>
     <string name="network_ap_rename_reset">Ripristina</string>
     <string name="network_band_24">2,4 GHz</string>

@@ -191,7 +191,6 @@
     <string name="location_permission_panel_title">إذن الموقع مطلوب للشبكات الموثوقة</string>
     <string name="location_permission_panel_body">يحتاج وضع الشبكات الموثوقة إلى إذن الموقع للتعرّف على شبكة Wi-Fi الخاصة بك. بدونه، لا يمكن لـ Keep-Alive تأكيد شبكة موثوقة ولن يُعاد تفعيله تلقائيًا.</string>
     <string name="location_permission_panel_grant_button">منح إذن الموقع</string>
-    <string name="location_permission_panel_fallback_body">تفضّل عدم منح إذن الموقع؟ ثِق بجميع شبكات Wi-Fi بدلاً من ذلك — سيُعاد تفعيل Keep-Alive عندها عند أي اتصال.</string>
     <string name="location_permission_panel_protection_button">اختيار مستوى الحماية</string>
     <string name="location_permission_panel_fallback_toast">تم التبديل إلى وضع «الثقة بجميع شبكات Wi-Fi».</string>
     <string name="location_permission_panel_title_discovery">إذن الموقع مطلوب لـ Wi-Fi ونقاط الوصول</string>
@@ -207,6 +206,7 @@
     <string name="settings_usb_handover_mode_automatic">تلقائي (التفعيل عند اتصال USB جديد)</string>
     <string name="usb_notification_enable_wlan_handover">Wifi-ADB</string>
     <string name="usb_notification_handover_error">تعذر تفعيل تصحيح الأخطاء اللاسلكي. تحقق من الإذن.</string>
+    <string name="usb_notification_handover_error_generic">تعذر تفعيل تصحيح الأخطاء اللاسلكي.</string>
     <string name="notification_action_disable">إيقاف Wifi-ADB</string>
     <string name="status_enabled_disconnected">تصحيح الأخطاء اللاسلكي مفعّل (غير متصل)</string>
     <string name="status_permission_missing">إذن النظام مفقود</string>
@@ -391,7 +391,7 @@
     <string name="network_ap_removed_toast">تمت إزالة نقطة الوصول «%1$s» من قائمة الثقة</string>
     <string name="network_ap_rename_title">اسم نقطة الوصول (%1$d)</string>
     <string name="network_ap_rename_title_blocked">اسم نقطة الوصول المحظورة</string>
-    <string name="network_ap_rename_message">اختر اسمًا خاصًا بك. يظهر في هذه القوائم ويُحفظ على هذا الجهاز فقط، ولا يغيّر اسم Wi-Fi ولا نقاط الوصول الموثوقة.</string>
+    <string name="network_ap_rename_message">اختر اسمًا خاصًا بك. يظهر في هذه القوائم ويُحفظ على هذا الجهاز فقط، ولا يغيّر اسم Wi-Fi ولا نقاط الوصول الموثوقة أو المحظورة.</string>
     <string name="network_ap_rename_hint">اسم خاص</string>
     <string name="network_ap_rename_reset">إعادة الضبط</string>
     <string name="network_band_24">2.4 جيجاهرتز</string>
