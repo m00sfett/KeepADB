@@ -93,6 +93,7 @@ public class SettingsEntryPointsTest {
         MainActivity main = controller.get();
         main.showLanguageSelectionDialog();
         AlertDialog dialog = ShadowAlertDialog.getLatestAlertDialog();
+        assertNotNull("Home must show its own picker", dialog);
         assertTrue(dialog.isShowing());
         assertSame(main, dialog.getOwnerActivity());
         assertNull(shadowOf(main).getNextStartedActivity());
@@ -102,7 +103,9 @@ public class SettingsEntryPointsTest {
         }
         dialog.getListView().performItemClick(null, german, german);
         assertEquals("de", KeepADBLocaleHelper.getSelectedLanguageTag(main));
-        assertTrue(shadowOf(main).isRecreateCalled());
+        ShadowLooper.idleMainLooper();
+        assertNotSame("Selecting a language must reload the current page", main, controller.get());
+        assertEquals("de", controller.get().getResources().getConfiguration().getLocales().get(0).getLanguage());
         assertFalse(dialog.isShowing());
         controller.pause().stop().destroy();
     }
