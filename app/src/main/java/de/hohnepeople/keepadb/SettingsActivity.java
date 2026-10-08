@@ -141,6 +141,10 @@ public class SettingsActivity extends Activity {
         hideNotificationToggle = findViewById(R.id.settings_hide_notification_toggle);
         hideNotificationSubtext = findViewById(R.id.settings_hide_notification_subtext);
         hideNotificationToggle.setOnClickListener(v -> {
+            if (KeepADBPreferences.isKeepAliveEnabled(this)) {
+                refresh();
+                return;
+            }
             // #456: the switch shows positive framing ("persistent notification" ON = visible),
             // while the underlying preference and its accessor names stay hide-framed. Invert here.
             boolean wantVisible = hideNotificationToggle.isChecked();
@@ -576,9 +580,10 @@ public class SettingsActivity extends Activity {
         webhookForm.refreshVisual();
 
         boolean notificationHidden = KeepADBPreferences.isNotificationHidden(this);
-        // #456: positive framing — checked means the notification stays visible.
-        hideNotificationToggle.setChecked(!notificationHidden);
         boolean keepAliveActive = KeepADBPreferences.isKeepAliveEnabled(this);
+        // Keep the saved choice while Android requires the foreground-service notification.
+        hideNotificationToggle.setEnabled(!keepAliveActive);
+        hideNotificationToggle.setChecked(keepAliveActive || !notificationHidden);
         if (hideNotificationSubtext != null) {
             hideNotificationSubtext.setText(keepAliveActive
                     ? R.string.settings_hide_notification_subtext_keepalive

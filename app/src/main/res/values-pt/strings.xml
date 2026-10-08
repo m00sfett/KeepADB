@@ -127,8 +127,8 @@
     <string name="settings_section_misc">Outros</string>
     <string name="settings_section_notification">Notificação</string>
     <string name="settings_hide_notification_toggle">Notificação persistente</string>
-    <string name="settings_hide_notification_subtext">Mostra a notificação de estado no painel. Desativá-la não afeta o Keep-Alive nem os widgets.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Necessária enquanto o Keep-Alive está ativo — o Android a exige para o serviço em primeiro plano.</string>
+    <string name="settings_hide_notification_subtext">Mostra o estado da depuração e acesso rápido nas notificações. Desativar oculta apenas este aviso; Keep-Alive, widgets e o bloco de definições rápidas continuam a funcionar. Os detalhes da ligação são configurados separadamente abaixo e podem mostrar endereços e nomes de redes.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Mostra o estado da depuração e acesso rápido nas notificações. Desativar oculta apenas este aviso; Keep-Alive, widgets e o bloco de definições rápidas continuam a funcionar. Os detalhes da ligação são configurados separadamente abaixo e podem mostrar endereços e nomes de redes.\n\nCom Keep-Alive ativo, o Android exige esta notificação para o serviço em primeiro plano. O interruptor fica bloqueado. Ao desativar Keep-Alive, volta a aplicar-se a escolha guardada.</string>
     <string name="settings_notification_details_toggle">Mostrar detalhes da ligação nas notificações</string>
     <string name="settings_notification_details_subtext">Mostra a porta e o endereço IP na notificação de estado persistente, o perfil de host USB (nome, IP, host) e o nome e BSSID das novas redes Wi-Fi nas notificações. Quando ativado, estes detalhes podem também ficar visíveis no ecrã de bloqueio. Quando desativado, só aparecem na app.</string>
     <string name="settings_section_display">Tela</string>

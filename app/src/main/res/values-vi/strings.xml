@@ -127,8 +127,8 @@
     <string name="settings_section_misc">Khác</string>
     <string name="settings_section_notification">Thông báo</string>
     <string name="settings_hide_notification_toggle">Thông báo liên tục</string>
-    <string name="settings_hide_notification_subtext">Hiển thị thông báo trạng thái trên thanh thông báo. Tắt tùy chọn này không ảnh hưởng đến Keep-Alive hay tiện ích.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Bắt buộc khi Keep-Alive đang hoạt động — Android yêu cầu điều này cho dịch vụ nền trước.</string>
+    <string name="settings_hide_notification_subtext">Hiển thị trạng thái gỡ lỗi và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Chi tiết kết nối được đặt riêng bên dưới và có thể hiển thị địa chỉ và tên mạng.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Hiển thị trạng thái gỡ lỗi và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Chi tiết kết nối được đặt riêng bên dưới và có thể hiển thị địa chỉ và tên mạng.\n\nKhi Keep-Alive hoạt động, Android yêu cầu thông báo này cho dịch vụ tiền cảnh. Công tắc bị khóa. Khi tắt Keep-Alive, lựa chọn đã lưu sẽ được áp dụng lại.</string>
     <string name="settings_notification_details_toggle">Hiển thị chi tiết kết nối trong thông báo</string>
     <string name="settings_notification_details_subtext">Hiển thị cổng và địa chỉ IP trong thông báo trạng thái thường trực, hồ sơ máy chủ USB (tên, IP, máy chủ) cùng tên và BSSID của mạng Wi-Fi mới trong thông báo. Khi bật, các chi tiết này cũng có thể hiển thị trên màn hình khóa. Khi tắt, chúng chỉ hiển thị trong ứng dụng.</string>
     <string name="settings_section_display">Màn hình</string>

@@ -3,6 +3,7 @@ package de.hohnepeople.keepadb;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -109,7 +110,7 @@ public class KeepADBAccessibilityContractTest {
 
         int[] mainControls = {
                 R.id.btn_open_settings, R.id.btn_dismiss_advice_banner,
-                R.id.toggle, R.id.keep_alive_toggle, R.id.hide_notification_toggle
+                R.id.toggle, R.id.keep_alive_toggle
         };
         for (int id : mainControls) assertMinSize(main.findViewById(id));
         assertMinSize(systemWarningAction);
@@ -186,7 +187,7 @@ public class KeepADBAccessibilityContractTest {
         assertTrue(main.findViewById(R.id.btn_dismiss_advice_banner).hasOnClickListeners());
         assertTrue(main.findViewById(R.id.toggle).hasOnClickListeners());
         assertTrue(main.findViewById(R.id.keep_alive_toggle).hasOnClickListeners());
-        assertTrue(main.findViewById(R.id.hide_notification_toggle).hasOnClickListeners());
+        assertNull(main.findViewById(R.id.settings_hide_notification_toggle));
 
         ImageView mainIcon = (ImageView) ((ViewGroup) main.findViewById(R.id.header_bar)).getChildAt(0);
         assertNotNull("The main header must render the app icon", mainIcon.getDrawable());

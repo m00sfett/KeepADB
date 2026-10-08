@@ -127,8 +127,8 @@
     <string name="settings_section_misc">Autre</string>
     <string name="settings_section_notification">Notification</string>
     <string name="settings_hide_notification_toggle">Notification persistante</string>
-    <string name="settings_hide_notification_subtext">Affiche la notification d’état dans le volet. La désactiver n’affecte ni le Keep-Alive ni les widgets.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Requise tant que Keep-Alive est actif — Android l’exige pour le service de premier plan.</string>
+    <string name="settings_hide_notification_subtext">Affiche l’état du débogage et un accès rapide dans les notifications. La désactivation masque seulement cet avis ; Keep-Alive, les widgets et la tuile des réglages rapides restent actifs. Les détails de connexion se règlent séparément ci-dessous et peuvent révéler les adresses et noms de réseaux.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Affiche l’état du débogage et un accès rapide dans les notifications. La désactivation masque seulement cet avis ; Keep-Alive, les widgets et la tuile des réglages rapides restent actifs. Les détails de connexion se règlent séparément ci-dessous et peuvent révéler les adresses et noms de réseaux.\n\nQuand Keep-Alive est actif, Android exige cette notification pour le service de premier plan. Le commutateur est verrouillé. Votre choix enregistré s’applique à nouveau après la désactivation de Keep-Alive.</string>
     <string name="settings_notification_details_toggle">Afficher les détails de connexion dans les notifications</string>
     <string name="settings_notification_details_subtext">Affiche le port et l’adresse IP dans la notification d’état persistante, le profil hôte USB (nom, IP, hôte) ainsi que le nom et le BSSID des nouveaux réseaux Wi-Fi dans les notifications. Activé, ces détails peuvent aussi apparaître sur l’écran de verrouillage. Désactivé, ils ne sont visibles que dans l’application.</string>
     <string name="settings_section_display">Écran</string>

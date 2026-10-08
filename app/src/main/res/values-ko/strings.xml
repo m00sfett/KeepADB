@@ -127,8 +127,8 @@
     <string name="settings_section_misc">기타</string>
     <string name="settings_section_notification">알림</string>
     <string name="settings_hide_notification_toggle">고정 알림</string>
-    <string name="settings_hide_notification_subtext">상태 알림을 알림 창에 표시합니다. 끄더라도 Keep-Alive나 위젯에는 영향이 없습니다.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Keep-Alive가 활성화되어 있는 동안 필수입니다 — Android가 포그라운드 서비스를 위해 요구합니다.</string>
+    <string name="settings_hide_notification_subtext">알림창에 디버깅 상태와 빠른 접근을 표시합니다. 끄면 이 상태 알림만 숨겨지며 Keep-Alive, 위젯 및 빠른 설정 타일은 계속 작동합니다. 연결 세부 정보는 아래에서 별도로 설정하며 주소와 네트워크 이름이 표시될 수 있습니다.</string>
+    <string name="settings_hide_notification_subtext_keepalive">알림창에 디버깅 상태와 빠른 접근을 표시합니다. 끄면 이 상태 알림만 숨겨지며 Keep-Alive, 위젯 및 빠른 설정 타일은 계속 작동합니다. 연결 세부 정보는 아래에서 별도로 설정하며 주소와 네트워크 이름이 표시될 수 있습니다.\n\nKeep-Alive가 켜져 있으면 Android는 포그라운드 서비스에 이 알림을 요구하므로 스위치가 잠깁니다. Keep-Alive를 끄면 저장된 선택이 다시 적용됩니다.</string>
     <string name="settings_notification_details_toggle">알림에 연결 세부정보 표시</string>
     <string name="settings_notification_details_subtext">상시 상태 알림의 포트 및 IP 주소, USB 호스트 프로필(이름, IP, 호스트), 새 Wi-Fi 네트워크의 이름 및 BSSID를 알림에 표시합니다. 켜면 이 세부정보가 잠금 화면에도 표시될 수 있습니다. 끄면 앱에서만 표시됩니다.</string>
     <string name="settings_section_display">디스플레이</string>

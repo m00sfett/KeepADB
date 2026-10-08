@@ -127,8 +127,8 @@
     <string name="settings_section_misc">Інше</string>
     <string name="settings_section_notification">Сповіщення</string>
     <string name="settings_hide_notification_toggle">Постійне сповіщення</string>
-    <string name="settings_hide_notification_subtext">Показує сповіщення про стан на панелі. Вимкнення не впливає на Keep-Alive чи віджети.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Потрібне, поки Keep-Alive активний — Android вимагає його для служби переднього плану.</string>
+    <string name="settings_hide_notification_subtext">Показує стан налагодження та швидкий доступ у сповіщеннях. Вимкнення приховує лише це сповіщення; Keep-Alive, віджети та плитка швидких налаштувань працюють далі. Деталі з’єднання налаштовуються окремо нижче й можуть показувати адреси та назви мереж.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Показує стан налагодження та швидкий доступ у сповіщеннях. Вимкнення приховує лише це сповіщення; Keep-Alive, віджети та плитка швидких налаштувань працюють далі. Деталі з’єднання налаштовуються окремо нижче й можуть показувати адреси та назви мереж.\n\nКоли Keep-Alive активний, Android вимагає це сповіщення для служби переднього плану. Перемикач заблоковано. Після вимкнення Keep-Alive знову діє збережений вибір.</string>
     <string name="settings_notification_details_toggle">Показувати відомості про з’єднання у сповіщеннях</string>
     <string name="settings_notification_details_subtext">Показує порт та IP-адресу в постійному сповіщенні про стан, профіль USB-хоста (ім’я, IP, хост), а також назву та BSSID нових мереж Wi-Fi у сповіщеннях. Якщо ввімкнено, ці відомості можуть бути видимі й на екрані блокування. Якщо вимкнено, вони відображаються лише в застосунку.</string>
     <string name="settings_section_display">Екран</string>
