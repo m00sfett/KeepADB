@@ -1,0 +1,1 @@
+Close warning cards without changing your settings. Active security concerns remain available from the warning triangle. Silence individual noncritical warnings and restore them in Settings. New Force activations and newly appearing reasons show their cards again.

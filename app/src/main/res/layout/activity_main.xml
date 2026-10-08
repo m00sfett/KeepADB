@@ -38,6 +38,15 @@
 
 
         <ImageButton
+            android:id="@+id/btn_security_warnings"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_btn_header"
+            android:padding="10dp"
+            android:src="@drawable/ic_warning"
+            android:visibility="gone" />
+        <ImageButton
             android:id="@+id/btn_open_settings"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -74,8 +83,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
                     android:visibility="gone" />
-                <!-- #763: permanent warning while the force mode is on. Not dismissable: it
-                     goes away only with the mode, and "End force mode" is one tap. -->
+                <!-- #826: display dismissal is independent of the force end action. -->
                 <LinearLayout
                     android:id="@+id/force_warning_panel"
                     android:layout_width="match_parent"
@@ -115,7 +123,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:accessibilityLiveRegion="polite"
                             android:fontFamily="sans-serif"
                             android:lineSpacingExtra="3dp"
                             android:textColor="@color/night_text"
@@ -140,6 +147,7 @@
 
                         <Button
                             android:id="@+id/btn_force_settings"
+                            android:nextFocusForward="@id/force_warning_dismiss"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
@@ -154,6 +162,15 @@
                             android:textColor="@color/text_yellow"
                             android:textSize="15sp" />
                     </LinearLayout>
+                    <ImageButton
+                        android:id="@+id/force_warning_dismiss"
+                        android:accessibilityTraversalAfter="@id/btn_force_settings"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="8dp"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_close" />
                 </LinearLayout>
 
                 <include
@@ -180,6 +197,36 @@
                     android:layout_marginBottom="12dp"
                     android:visibility="gone" />
 
+                <LinearLayout
+                    android:id="@+id/warning_feedback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    <TextView
+                        android:id="@+id/warning_feedback_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="true"
+                        android:accessibilityLiveRegion="polite"
+                        android:textColor="@color/night_text"
+                        android:textSize="16sp" />
+                    <Button
+                        android:id="@+id/warning_undo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:minHeight="48dp"
+                        android:text="@string/warnings_undo" />
+                    <Button
+                        android:id="@+id/warning_mute"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:minHeight="48dp"
+                        android:text="@string/warnings_mute" />
+                </LinearLayout>
                 <!-- #820: security & network advice banner placed above switches and below warnings. -->
                 <LinearLayout
                     android:id="@+id/advice_banner"

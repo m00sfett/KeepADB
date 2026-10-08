@@ -547,4 +547,20 @@
     <string name="menu_item_language">Язык</string>
     <string name="menu_item_privacy_mode">Режим конфиденциальности</string>
     <string name="menu_item_all_settings">Все настройки</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">Предупреждения безопасности</string>
+    <string name="warnings_count">Предупреждения безопасности: %1$d активных причин</string>
+    <string name="warnings_close">Закрыть предупреждение: %1$s</string>
+    <string name="warnings_closed">Предупреждение закрыто: %1$s</string>
+    <string name="warnings_undo">Отменить</string>
+    <string name="warnings_mute">Больше не показывать</string>
+    <string name="warnings_mute_selected">Скрыть выбранные причины</string>
+    <string name="warnings_muted">Скрытые предупреждения</string>
+    <string name="warnings_muted_hint">Каждый переключатель скрывает одну причину. Включён — скрыто.</string>
+    <string name="warnings_muted_state">Скрыто</string>
+    <string name="warnings_unmuted_state">Не скрыто</string>
+    <string name="warnings_inactive">Сейчас предупреждения нет</string>
+    <string name="warnings_reset">Сбросить все скрытые предупреждения</string>
+    <string name="warnings_none">Нет активных предупреждений безопасности</string>
 </resources>

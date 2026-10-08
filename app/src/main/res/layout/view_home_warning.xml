@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- #764: one warning card of the home screen. Filled by MainActivity; the card is hidden until
-     its condition holds and has no dismiss button, because it goes away only with its cause. -->
+<!-- #826: content and independent dismiss target; dismiss does not resolve the cause. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -34,10 +33,10 @@
 
         <TextView
             android:id="@+id/home_warning_text"
+            android:accessibilityLiveRegion="polite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:accessibilityLiveRegion="polite"
             android:fontFamily="sans-serif"
             android:lineSpacingExtra="3dp"
             android:textColor="@color/night_text"
@@ -45,6 +44,7 @@
 
         <Button
             android:id="@+id/home_warning_action"
+            android:nextFocusForward="@id/home_warning_dismiss"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -59,4 +59,13 @@
             android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>
+    <ImageButton
+        android:id="@+id/home_warning_dismiss"
+        android:accessibilityTraversalAfter="@id/home_warning_action"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:padding="12dp"
+        android:src="@drawable/ic_close" />
 </LinearLayout>
