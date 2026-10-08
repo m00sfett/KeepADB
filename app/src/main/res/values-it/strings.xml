@@ -543,4 +543,8 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="home_warning_limited_text">Mancano autorizzazioni per un Keep-Alive affidabile.</string>
     <string name="status_tap_to_decide">Tocca per decidere</string>
     <string name="status_tap_to_open_list">Tocca per aprire l\'elenco delle reti</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Lingua</string>
+    <string name="menu_item_privacy_mode">Modalità privacy</string>
+    <string name="menu_item_all_settings">Tutte le impostazioni</string>
 </resources>

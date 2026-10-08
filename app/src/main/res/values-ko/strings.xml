@@ -543,4 +543,8 @@
     <string name="home_warning_limited_text">Keep-Alive가 안정적으로 동작하는 데 필요한 권한이 부족합니다.</string>
     <string name="status_tap_to_decide">탭하여 결정</string>
     <string name="status_tap_to_open_list">탭하여 네트워크 목록 열기</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">언어</string>
+    <string name="menu_item_privacy_mode">개인정보 보호 모드</string>
+    <string name="menu_item_all_settings">모든 설정</string>
 </resources>

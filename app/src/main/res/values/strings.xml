@@ -552,4 +552,8 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="home_warning_limited_text">Keep-Alive needs more permissions to run reliably.</string>
     <string name="status_tap_to_decide">Tap to decide</string>
     <string name="status_tap_to_open_list">Tap to open the network list</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Language</string>
+    <string name="menu_item_privacy_mode">Privacy mode</string>
+    <string name="menu_item_all_settings">All settings</string>
 </resources>

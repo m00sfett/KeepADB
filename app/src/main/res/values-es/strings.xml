@@ -543,4 +543,8 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="home_warning_limited_text">Faltan permisos para que Keep-Alive funcione de forma fiable.</string>
     <string name="status_tap_to_decide">Toca para decidir</string>
     <string name="status_tap_to_open_list">Toca para abrir la lista de redes</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Idioma</string>
+    <string name="menu_item_privacy_mode">Modo de privacidad</string>
+    <string name="menu_item_all_settings">Todos los ajustes</string>
 </resources>

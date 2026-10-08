@@ -543,4 +543,8 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="home_warning_limited_text">Faltam permissões para um Keep-Alive fiável.</string>
     <string name="status_tap_to_decide">Toque para decidir</string>
     <string name="status_tap_to_open_list">Toque para abrir a lista de redes</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Idioma</string>
+    <string name="menu_item_privacy_mode">Modo de privacidade</string>
+    <string name="menu_item_all_settings">Todas as configurações</string>
 </resources>

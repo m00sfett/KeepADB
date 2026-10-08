@@ -543,4 +543,8 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="home_warning_limited_text">Brakuje uprawnień potrzebnych do niezawodnego Keep-Alive.</string>
     <string name="status_tap_to_decide">Dotknij, aby zdecydować</string>
     <string name="status_tap_to_open_list">Dotknij, aby otworzyć listę sieci</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Język</string>
+    <string name="menu_item_privacy_mode">Tryb prywatności</string>
+    <string name="menu_item_all_settings">Wszystkie ustawienia</string>
 </resources>

@@ -543,4 +543,8 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="home_warning_limited_text">Còn thiếu quyền để Keep-Alive hoạt động ổn định.</string>
     <string name="status_tap_to_decide">Chạm để quyết định</string>
     <string name="status_tap_to_open_list">Chạm để mở danh sách mạng</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Ngôn ngữ</string>
+    <string name="menu_item_privacy_mode">Chế độ riêng tư</string>
+    <string name="menu_item_all_settings">Tất cả cài đặt</string>
 </resources>

@@ -20,6 +20,7 @@ final class KeepADBPrivacyToggle {
      */
     static void bind(Activity activity, Runnable redraw) {
         ImageButton button = activity.findViewById(R.id.btn_toggle_privacy_mode);
+        if (button == null) return;
         button.setOnClickListener(v -> {
             boolean want = !KeepADBPreferences.isPrivacyModeEnabled(activity);
             KeepADBDiagnostics.event(activity, "user_action", "app", want ? "enable" : "disable",
@@ -36,6 +37,7 @@ final class KeepADBPrivacyToggle {
     /** Reflects the shared setting as eye / crossed-out eye, naming the action the next tap does. */
     static void update(Activity activity) {
         ImageButton button = activity.findViewById(R.id.btn_toggle_privacy_mode);
+        if (button == null) return;
         boolean enabled = KeepADBPreferences.isPrivacyModeEnabled(activity);
         button.setImageResource(enabled ? R.drawable.ic_privacy_eye_off : R.drawable.ic_privacy_eye);
         button.setContentDescription(activity.getString(enabled
