@@ -31,6 +31,12 @@ public class SettingsActivity extends Activity {
      * {@code EXTRA_FOCUS_NETWORK} of #619: that one had no sender, this one has.
      */
     public static final String EXTRA_FOCUS_NETWORK = "focus_network";
+    public static final String EXTRA_FOCUS_WEBHOOK = "focus_webhook";
+    public static final String EXTRA_FOCUS_MISC = "focus_misc";
+    // The menu opens the card heading; the existing Keep-Alive entry keeps its level-row target.
+    public static final String EXTRA_FOCUS_NETWORK_CARD = "focus_network_card";
+    private static final String STATE_CONSUMED_FOCUS = "settings_consumed_focus";
+    private final java.util.ArrayList<String> consumedFocus = new java.util.ArrayList<>();
     /**
      * #672: flags for the reset-app, USB handover mode and language dialogs showing at the time of
      * a {@code recreate()} (rotation). Pure "was showing" markers; a restored reset-app dialog is
@@ -221,6 +227,9 @@ public class SettingsActivity extends Activity {
         usbProfileEditor.restore(savedInstanceState);
 
         if (savedInstanceState != null) {
+            java.util.ArrayList<String> restoredFocus =
+                    savedInstanceState.getStringArrayList(STATE_CONSUMED_FOCUS);
+            if (restoredFocus != null) consumedFocus.addAll(restoredFocus);
             diagnosticsController.restore(savedInstanceState);
             // #672/#682 (#697): the Network card re-shows its own background-location and
             // allowlist permission dialogs from the same bundle.
@@ -261,19 +270,28 @@ public class SettingsActivity extends Activity {
             getIntent().removeExtra(KeepADBUsbNotification.EXTRA_PROFILE_ACTION);
         }
 
-        if (getIntent().hasExtra(EXTRA_FOCUS_USB)) {
+        if (consumeFocus(EXTRA_FOCUS_USB)) {
             focusUsbPanel();
-            getIntent().removeExtra(EXTRA_FOCUS_USB);
         }
 
-        if (getIntent().hasExtra(EXTRA_FOCUS_FORCE)) {
+        if (consumeFocus(EXTRA_FOCUS_FORCE)) {
             focusForcePanel();
-            getIntent().removeExtra(EXTRA_FOCUS_FORCE);
         }
 
-        if (getIntent().hasExtra(EXTRA_FOCUS_NETWORK)) {
+        if (consumeFocus(EXTRA_FOCUS_NETWORK)) {
             focusNetworkLevel();
-            getIntent().removeExtra(EXTRA_FOCUS_NETWORK);
+        }
+        if (consumeFocus(EXTRA_FOCUS_WEBHOOK)) {
+            focusCard(R.id.settings_webhook_header, R.id.settings_webhook_body,
+                    R.id.settings_webhook_arrow);
+        }
+        if (consumeFocus(EXTRA_FOCUS_MISC)) {
+            focusCard(R.id.settings_misc_header, R.id.settings_misc_body,
+                    R.id.settings_misc_arrow);
+        }
+        if (consumeFocus(EXTRA_FOCUS_NETWORK_CARD)) {
+            focusCard(R.id.settings_network_beta_header, R.id.settings_network_beta_body,
+                    R.id.settings_network_beta_arrow);
         }
 
     }
@@ -303,6 +321,7 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putStringArrayList(STATE_CONSUMED_FOCUS, new java.util.ArrayList<>(consumedFocus));
         webhookForm.saveState(outState);
         diagnosticsController.saveState(outState);
         usbProfileEditor.saveState(outState);
@@ -356,6 +375,26 @@ public class SettingsActivity extends Activity {
             return currentDraft == null ? "" : currentDraft;
         }
         return savedUrl == null ? "" : savedUrl;
+    }
+
+    private boolean consumeFocus(String extra) {
+        if (!getIntent().hasExtra(extra)) return false;
+        getIntent().removeExtra(extra);
+        if (consumedFocus.contains(extra)) return false;
+        consumedFocus.add(extra);
+        return true;
+    }
+
+    private void focusCard(int headerId, int bodyId, int arrowId) {
+        View header = findViewById(headerId);
+        setCardExpanded(this, header, findViewById(bodyId), findViewById(arrowId), true);
+        scrollView.post(() -> {
+            android.graphics.Rect rect = new android.graphics.Rect();
+            header.getDrawingRect(rect);
+            scrollView.offsetDescendantRectToMyCoords(header, rect);
+            scrollView.smoothScrollTo(0, rect.top);
+            header.requestFocus();
+        });
     }
 
     private void focusForcePanel() {
@@ -429,37 +468,8 @@ public class SettingsActivity extends Activity {
     }
 
     private void showLanguageSelectionDialog() {
-        KeepADBLocaleHelper.LanguageItem[] languages = KeepADBLocaleHelper.SUPPORTED_LANGUAGES;
-        String[] displayItems = new String[languages.length];
-        String currentTag = KeepADBLocaleHelper.getSelectedLanguageTag(this);
-        int selectedIndex = 0;
-
-        for (int i = 0; i < languages.length; i++) {
-            if (languages[i].tag.isEmpty()) {
-                displayItems[i] = getString(R.string.settings_language_system_default);
-            } else {
-                displayItems[i] = languages[i].endonym;
-            }
-            if (languages[i].tag.equalsIgnoreCase(currentTag)) {
-                selectedIndex = i;
-            }
-        }
-
-        if (isShowing(activeLanguageSelectionDialog)) {
-            return;
-        }
-        AlertDialog picker = new AlertDialog.Builder(this)
-                .setTitle(R.string.settings_language_dialog_title)
-                .setSingleChoiceItems(displayItems, selectedIndex, (dialog, which) -> {
-                    dialog.dismiss();
-                    String chosenTag = languages[which].tag;
-                    KeepADBLocaleHelper.setAppLanguage(this, chosenTag);
-                    KeepADBWidget.refreshAll(this);
-                    KeepADBEndpointCoordinator.refresh(this);
-                    KeepADBUsbReceiver.refresh(this);
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .create();
+        if (isShowing(activeLanguageSelectionDialog)) return;
+        AlertDialog picker = KeepADBLanguagePicker.create(this);
         activeLanguageSelectionDialog = picker;
         picker.setOnDismissListener(d -> {
             if (activeLanguageSelectionDialog == d) {

@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -17,6 +18,9 @@ public class MainActivity extends Activity {
      * screen: this start does not hand over to the full assistant (the next plain start does).
      */
     static final String EXTRA_SKIP_ASSISTANT_ONCE = "skip_assistant_once";
+
+    private static final String STATE_LANGUAGE_PICKER = "main_language_picker_showing";
+    private AlertDialog activeLanguageSelectionDialog;
 
     private Switch toggle;
     private Switch keepAliveToggle;
@@ -177,6 +181,37 @@ public class MainActivity extends Activity {
             refresh();
         });
 
+        if (savedInstanceState != null && savedInstanceState.getBoolean(STATE_LANGUAGE_PICKER, false)) {
+            showLanguageSelectionDialog();
+        }
+    }
+
+    void showLanguageSelectionDialog() {
+        if (activeLanguageSelectionDialog != null && activeLanguageSelectionDialog.isShowing()) return;
+        AlertDialog picker = KeepADBLanguagePicker.create(this);
+        activeLanguageSelectionDialog = picker;
+        picker.setOnDismissListener(dialog -> {
+            if (activeLanguageSelectionDialog == dialog) activeLanguageSelectionDialog = null;
+        });
+        picker.show();
+    }
+
+    void openSetupAssistant() {
+        startActivity(OnboardingActivity.fullIntent(this));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_LANGUAGE_PICKER,
+                activeLanguageSelectionDialog != null && activeLanguageSelectionDialog.isShowing());
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (activeLanguageSelectionDialog != null) activeLanguageSelectionDialog.dismiss();
+        activeLanguageSelectionDialog = null;
+        super.onDestroy();
     }
 
     private android.database.ContentObserver adbContentObserver;

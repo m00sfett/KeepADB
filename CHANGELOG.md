@@ -27,6 +27,8 @@ are retrospective issue-version records and were never published as separate rel
 
 ### Changed
 - **Persistent notification settings (#822):** Remove the redundant main-page switch. In Other settings, show the enforced notification while Keep-Alive is active, disable changes, retain the saved choice for afterwards, and explain notification purpose and privacy in every supported language.
+- **Direct settings entries (#821):** Add one-shot Webhook and Other card entries, plus a network-heading entry for the menu while preserving the existing protection-row target. Share the language picker between home and settings, restore its lifecycle, and launch the full setup assistant directly from home.
+- **Settings quick-link menu & header cleanup (#823):** Home settings button opens a dropdown menu with quicklinks (Language, inline Privacy mode toggle without dismiss, All settings, Setup assistant, Network, Webhook, USB-ADB, Other). Remove the redundant privacy eye from the main view header.
 
 ## [1.9.45] - Unreleased
 
