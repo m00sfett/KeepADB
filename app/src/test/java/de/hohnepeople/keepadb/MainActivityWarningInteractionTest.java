@@ -212,6 +212,21 @@ public class MainActivityWarningInteractionTest {
             controller.pause().stop().destroy();
         }
     }
+    @Test public void settingsReviewRestoresItsExactRowAfterWindowFocusArrives() {
+        ActivityController<SettingsActivity> controller = Robolectric.buildActivity(SettingsActivity.class,
+                new Intent(context, SettingsActivity.class)
+                        .putExtra(SettingsActivity.EXTRA_FOCUS_DETAILS, true)).setup();
+        SettingsActivity activity = controller.get();
+        controller.windowFocusChanged(false);
+        shadowOf(android.os.Looper.getMainLooper()).idle();
+        View target = activity.findViewById(R.id.settings_notification_details_toggle);
+        target.clearFocus();
+        controller.windowFocusChanged(true);
+        shadowOf(android.os.Looper.getMainLooper()).idle();
+        assertTrue("a late window-focus event must restore the exact review row", target.hasFocus());
+        controller.pause().stop().destroy();
+    }
+
     private int countButtons(ViewGroup parent, String text) {
         int count = 0;
         for (int i = 0; i < parent.getChildCount(); i++) {

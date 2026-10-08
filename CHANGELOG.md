@@ -36,6 +36,8 @@ are retrospective issue-version records and were never published as separate rel
 
 - **First-touch warning controls (#842):** Return keyboard/accessibility focus without making buttons consume the next touch solely for focus acquisition. Native Touch events, rather than only programmatic clicks, cover the triangle path.
 
+- **Late review-row focus (#842):** Reapply the exact Settings review target once when window focus arrives, so an Android 11 window entering touch mode cannot discard the early request.
+
 ## [1.9.47] - 2026-10-08 (unreleased)
 
 ### Changed

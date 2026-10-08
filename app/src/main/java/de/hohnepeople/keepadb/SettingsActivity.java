@@ -449,9 +449,23 @@ public class SettingsActivity extends Activity {
             scrollView.offsetDescendantRectToMyCoords(target, rect);
             scrollView.smoothScrollTo(0, rect.top);
             target.setFocusable(true);
-            target.requestFocusFromTouch();
-            target.performAccessibilityAction(
-                    android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
+            Runnable focusTarget = () -> {
+                target.requestFocusFromTouch();
+                target.performAccessibilityAction(
+                        android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
+            };
+            focusTarget.run();
+            // A window arriving in touch mode can clear an early focus request on Android 11.
+            if (!target.hasWindowFocus()) {
+                target.getViewTreeObserver().addOnWindowFocusChangeListener(
+                        new android.view.ViewTreeObserver.OnWindowFocusChangeListener() {
+                            @Override public void onWindowFocusChanged(boolean hasFocus) {
+                                if (!hasFocus) return;
+                                target.getViewTreeObserver().removeOnWindowFocusChangeListener(this);
+                                focusTarget.run();
+                            }
+                        });
+            }
         });
     }
 
