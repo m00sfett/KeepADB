@@ -3,6 +3,7 @@ package de.hohnepeople.keepadb;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
@@ -64,9 +65,13 @@ public class PrivacyToggleTitleBarsTest {
     // --- presence ------------------------------------------------------------------------------
 
     @Test
-    public void everyRedTitleBarPageHasTheEyeInsideItsHeader() {
+    public void settingsAndNetworkListHaveTheEyeInsideTheirHeaderAndMainViewUsesMenu() {
+        MainActivity main = Robolectric.buildActivity(MainActivity.class).setup().get();
+        // #823: the eye is removed from MainActivity header (at most 2 header buttons: optional warning + settings).
+        assertNull("MainActivity header has no direct privacy eye (#823)",
+                main.findViewById(R.id.btn_toggle_privacy_mode));
+
         List<Activity> pages = new ArrayList<>();
-        pages.add(Robolectric.buildActivity(MainActivity.class).setup().get());
         pages.add(Robolectric.buildActivity(SettingsActivity.class).setup().get());
         pages.add(openList());
         for (Activity page : pages) {
@@ -93,6 +98,8 @@ public class PrivacyToggleTitleBarsTest {
                 // #761: the setup assistant shows no network name or address (its steps are choices
                 // between stored settings), so it has nothing for the eye to hide.
                 if (file.getFileName().toString().equals("activity_onboarding.xml")) continue;
+                // #823: the main view header is limited to at most 2 buttons; privacy toggle lives in the settings menu.
+                if (file.getFileName().toString().equals("activity_main.xml")) continue;
                 if (xml.contains("@color/banner_red") && xml.contains("@+id/header_bar")) {
                     redBars++;
                     assertTrue(file.getFileName() + " has a red header bar and needs the eye",
@@ -100,7 +107,7 @@ public class PrivacyToggleTitleBarsTest {
                 }
             }
         }
-        assertEquals("main, settings, network list", 3, redBars);
+        assertEquals("settings, network list", 2, redBars);
         assertTrue(new File(layouts.toFile(), "view_privacy_toggle.xml").isFile());
     }
 
@@ -114,9 +121,6 @@ public class PrivacyToggleTitleBarsTest {
         assertTrue(KeepADBPreferences.isPrivacyModeEnabled(context));
 
         assertEquals(context.getString(R.string.privacy_toggle_disable_accessibility),
-                Robolectric.buildActivity(MainActivity.class).setup().get()
-                        .findViewById(R.id.btn_toggle_privacy_mode).getContentDescription());
-        assertEquals(context.getString(R.string.privacy_toggle_disable_accessibility),
                 Robolectric.buildActivity(SettingsActivity.class).setup().get()
                         .findViewById(R.id.btn_toggle_privacy_mode).getContentDescription());
     }
@@ -124,7 +128,11 @@ public class PrivacyToggleTitleBarsTest {
     @Test
     public void switchingOnTheMainViewIsSeenByTheListViewAndSettings() {
         MainActivity main = Robolectric.buildActivity(MainActivity.class).setup().get();
-        main.findViewById(R.id.btn_toggle_privacy_mode).performClick();
+        main.findViewById(R.id.btn_open_settings).performClick();
+        KeepADBSettingsMenu menu = main.getSettingsMenu();
+        assertNotNull(menu);
+        menu.onMenuItemClicked(new KeepADBSettingsMenu.MenuItem(
+                KeepADBSettingsMenu.ID_PRIVACY_MODE, R.string.menu_item_privacy_mode, false, true));
         assertTrue(KeepADBPreferences.isPrivacyModeEnabled(context));
 
         assertEquals(context.getString(R.string.privacy_toggle_disable_accessibility),

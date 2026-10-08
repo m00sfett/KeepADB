@@ -21,6 +21,7 @@ public class MainActivity extends Activity {
 
     private static final String STATE_LANGUAGE_PICKER = "main_language_picker_showing";
     private AlertDialog activeLanguageSelectionDialog;
+    private KeepADBSettingsMenu settingsMenu;
 
     private Switch toggle;
     private Switch keepAliveToggle;
@@ -83,12 +84,6 @@ public class MainActivity extends Activity {
         // #324: keep header and content clear of the system bars under forced edge-to-edge.
         KeepADBWindowInsets.apply(
                 getWindow(), findViewById(R.id.header_bar), findViewById(R.id.content_scroll));
-        // #725: the shared eye button; the page-specific part is only the re-render below.
-        KeepADBPrivacyToggle.bind(this, () -> {
-            // #483: re-render the masked surfaces at once, without waiting for a discovery tick.
-            renderEndpoint();
-            refreshWebhookStatus();
-        });
         toggle = findViewById(R.id.toggle);
         keepAliveToggle = findViewById(R.id.keep_alive_toggle);
         keepAliveSubtext = findViewById(R.id.keep_alive_subtext);
@@ -118,8 +113,8 @@ public class MainActivity extends Activity {
             intent.putExtra(SettingsActivity.EXTRA_FOCUS_FORCE, true);
             startActivity(intent);
         });
-        findViewById(R.id.btn_open_settings).setOnClickListener(v ->
-                startActivity(new Intent(this, SettingsActivity.class)));
+        settingsMenu = new KeepADBSettingsMenu(this, findViewById(R.id.btn_open_settings));
+        findViewById(R.id.btn_open_settings).setOnClickListener(v -> settingsMenu.show());
         findViewById(R.id.btn_dismiss_advice_banner).setOnClickListener(v -> {
             KeepADBPreferences.setAdviceBannerVisible(this, false);
             updateAdviceBannerVisibility();
@@ -226,9 +221,17 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        if (settingsMenu != null) {
+            settingsMenu.dismiss();
+            settingsMenu = null;
+        }
         if (activeLanguageSelectionDialog != null) activeLanguageSelectionDialog.dismiss();
         activeLanguageSelectionDialog = null;
         super.onDestroy();
+    }
+
+    KeepADBSettingsMenu getSettingsMenu() {
+        return settingsMenu;
     }
 
     private android.database.ContentObserver adbContentObserver;
@@ -459,7 +462,6 @@ public class MainActivity extends Activity {
                 : R.string.settings_hide_notification_subtext);
         refreshWebhookStatus();
         renderTailscaleStatus();
-        KeepADBPrivacyToggle.update(this);
         renderTransportOverview();
     }
 
@@ -829,7 +831,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void refreshUiAndComponents() {
+    void refreshUiAndComponents() {
         refresh();
         KeepADBWidget.refreshAll(this);
         KeepADBEndpointCoordinator.refresh(this);

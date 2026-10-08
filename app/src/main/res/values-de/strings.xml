@@ -543,4 +543,8 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="home_warning_limited_text">Für ein zuverlässiges Keep-Alive fehlen noch Berechtigungen.</string>
     <string name="status_tap_to_decide">Tippen, um zu entscheiden</string>
     <string name="status_tap_to_open_list">Tippen, um die Netzwerkliste zu öffnen</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Sprache</string>
+    <string name="menu_item_privacy_mode">Privatsphäre-Modus</string>
+    <string name="menu_item_all_settings">Alle Einstellungen</string>
 </resources>

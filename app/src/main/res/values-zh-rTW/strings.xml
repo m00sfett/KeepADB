@@ -543,4 +543,8 @@
     <string name="home_warning_limited_text">缺少讓 Keep-Alive 穩定運作所需的權限。</string>
     <string name="status_tap_to_decide">輕觸以決定</string>
     <string name="status_tap_to_open_list">輕觸以開啟網路清單</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">語言</string>
+    <string name="menu_item_privacy_mode">隱私模式</string>
+    <string name="menu_item_all_settings">所有設定</string>
 </resources>

@@ -1,1 +1,1 @@
-Settings sections can be opened directly. Language selection uses the same dialog on the home page and in settings, and the setup assistant opens directly.
+Settings sections can be opened directly. The home settings button opens a quick-link menu with language, privacy mode and direct section links.

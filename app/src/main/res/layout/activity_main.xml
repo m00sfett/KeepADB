@@ -36,11 +36,6 @@
             android:textSize="26sp"
             android:textStyle="bold" />
 
-        <include
-            layout="@layout/view_privacy_toggle"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="4dp" />
 
         <ImageButton
             android:id="@+id/btn_open_settings"

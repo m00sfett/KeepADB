@@ -27,6 +27,7 @@ are retrospective issue-version records and were never published as separate rel
 
 ### Changed
 - **Direct settings entries (#821):** Add one-shot Webhook and Other card entries, plus a network-heading entry for the menu while preserving the existing protection-row target. Share the language picker between home and settings, restore its lifecycle, and launch the full setup assistant directly from home.
+- **Home settings dropdown menu (#823):** The settings button on the main view now opens a quick-link dropdown menu (Language, inline Privacy mode toggle with live checkbox, All settings, Setup assistant, Network, Webhook Sync, USB-ADB, Other) and the privacy eye is removed from the home header to keep the title bar to at most two buttons. Toggling privacy mode from the menu updates the app-wide setting immediately without dismissing the menu.
 
 ## [1.9.45] - Unreleased
 

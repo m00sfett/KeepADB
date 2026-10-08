@@ -196,6 +196,11 @@ public class KeepADBAccessibilityContractTest {
         assertEquals(main.getString(R.string.action_settings),
                 main.findViewById(R.id.btn_open_settings).getContentDescription());
         assertTrue(main.findViewById(R.id.btn_open_settings).performClick());
+        KeepADBSettingsMenu menu = main.getSettingsMenu();
+        assertNotNull(menu);
+        assertTrue(menu.isShowing());
+        menu.onMenuItemClicked(new KeepADBSettingsMenu.MenuItem(
+                KeepADBSettingsMenu.ID_ALL_SETTINGS, R.string.menu_item_all_settings));
         Intent openedSettings = shadowOf(main).getNextStartedActivity();
         assertNotNull(openedSettings);
         assertEquals(SettingsActivity.class.getName(), openedSettings.getComponent().getClassName());

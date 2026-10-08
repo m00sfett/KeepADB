@@ -543,4 +543,8 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="home_warning_limited_text">Izin yang dibutuhkan agar Keep-Alive andal belum lengkap.</string>
     <string name="status_tap_to_decide">Ketuk untuk memutuskan</string>
     <string name="status_tap_to_open_list">Ketuk untuk membuka daftar jaringan</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Bahasa</string>
+    <string name="menu_item_privacy_mode">Mode privasi</string>
+    <string name="menu_item_all_settings">Semua pengaturan</string>
 </resources>
