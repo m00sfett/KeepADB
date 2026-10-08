@@ -127,8 +127,8 @@
     <string name="settings_section_misc">其他</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">常驻通知</string>
-    <string name="settings_hide_notification_subtext">在通知栏中显示状态通知。关闭它不会影响 Keep-Alive 或桌面小组件。</string>
-    <string name="settings_hide_notification_subtext_keepalive">Keep-Alive 处于活动状态时为必需项——Android 要求前台服务显示通知。</string>
+    <string name="settings_hide_notification_subtext">在通知栏中显示调试状态和快捷入口。关闭后仅隐藏此状态通知；Keep-Alive、小部件和快捷设置磁贴仍可正常使用。连接详情在下方单独设置，可能显示地址和网络名称。</string>
+    <string name="settings_hide_notification_subtext_keepalive">在通知栏中显示调试状态和快捷入口。关闭后仅隐藏此状态通知；Keep-Alive、小部件和快捷设置磁贴仍可正常使用。连接详情在下方单独设置，可能显示地址和网络名称。\n\nKeep-Alive 开启时，Android 要求前台服务显示此通知，因此开关被锁定。关闭 Keep-Alive 后将重新应用已保存的选择。</string>
     <string name="settings_notification_details_toggle">在通知中显示连接详情</string>
     <string name="settings_notification_details_subtext">在常驻状态通知中显示端口和 IP 地址，在通知中显示 USB 主机配置（名称、IP、主机）以及新 Wi-Fi 网络的名称和 BSSID。开启后，这些详情也可能显示在锁屏上。关闭时，仅在应用内显示。</string>
     <string name="settings_section_display">显示屏</string>
@@ -543,4 +543,8 @@
     <string name="home_warning_limited_text">缺少让 Keep-Alive 稳定运行所需的权限。</string>
     <string name="status_tap_to_decide">点按以决定</string>
     <string name="status_tap_to_open_list">点按以打开网络列表</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">语言</string>
+    <string name="menu_item_privacy_mode">隐私模式</string>
+    <string name="menu_item_all_settings">所有设置</string>
 </resources>

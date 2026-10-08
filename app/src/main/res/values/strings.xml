@@ -170,8 +170,8 @@
     <string name="settings_section_misc">Other</string>
     <string name="settings_section_notification">Notification</string>
     <string name="settings_hide_notification_toggle">Persistent notification</string>
-    <string name="settings_hide_notification_subtext">Shows the status notification in the drawer. Turning it off won’t affect Keep-Alive or widgets.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Required while Keep-Alive is active — Android needs it for the foreground service.</string>
+    <string name="settings_hide_notification_subtext">Shows the current debugging status and quick access in the notification drawer. Turning it off hides only this status notification; Keep-Alive, widgets and the Quick Settings tile still work. Connection details are controlled separately below and may reveal addresses and network names.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Shows the current debugging status and quick access in the notification drawer. Turning it off hides only this status notification; Keep-Alive, widgets and the Quick Settings tile still work. Connection details are controlled separately below and may reveal addresses and network names.\n\nWhile Keep-Alive is active, Android requires this notification for its foreground service. The switch is locked. Your saved choice applies again when Keep-Alive is off.</string>
     <string name="settings_notification_details_toggle">Show connection details in notifications</string>
     <string name="settings_notification_details_subtext">Shows the port and IP address in the persistent status notification, the USB host profile (name, IP, host), and the name and BSSID of new Wi-Fi networks in notifications. When on, these details may also be visible on the lock screen. When off, they are only shown in the app.</string>
     <string name="settings_section_display">Display</string>
@@ -552,4 +552,8 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="home_warning_limited_text">Keep-Alive needs more permissions to run reliably.</string>
     <string name="status_tap_to_decide">Tap to decide</string>
     <string name="status_tap_to_open_list">Tap to open the network list</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Language</string>
+    <string name="menu_item_privacy_mode">Privacy mode</string>
+    <string name="menu_item_all_settings">All settings</string>
 </resources>

@@ -127,8 +127,8 @@
     <string name="settings_section_misc">Прочее</string>
     <string name="settings_section_notification">Уведомление</string>
     <string name="settings_hide_notification_toggle">Постоянное уведомление</string>
-    <string name="settings_hide_notification_subtext">Показывает уведомление о статусе на панели. Отключение не влияет на Keep-Alive или виджеты.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Требуется, пока активен Keep-Alive — Android нужно это для службы переднего плана.</string>
+    <string name="settings_hide_notification_subtext">Показывает состояние отладки и быстрый доступ в уведомлениях. Выключение скрывает только это уведомление; Keep-Alive, виджеты и плитка быстрых настроек продолжают работать. Детали подключения настраиваются отдельно ниже и могут показывать адреса и названия сетей.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Показывает состояние отладки и быстрый доступ в уведомлениях. Выключение скрывает только это уведомление; Keep-Alive, виджеты и плитка быстрых настроек продолжают работать. Детали подключения настраиваются отдельно ниже и могут показывать адреса и названия сетей.\n\nПри активном Keep-Alive Android требует это уведомление для службы переднего плана. Переключатель заблокирован. После выключения Keep-Alive снова применяется сохранённый выбор.</string>
     <string name="settings_notification_details_toggle">Показывать сведения о подключении в уведомлениях</string>
     <string name="settings_notification_details_subtext">Показывает порт и IP-адрес в постоянном уведомлении о состоянии, профиль USB-хоста (имя, IP, хост), а также имя и BSSID новых сетей Wi-Fi в уведомлениях. Если включено, эти сведения могут быть видны и на экране блокировки. Если выключено, они отображаются только в приложении.</string>
     <string name="settings_section_display">Экран</string>
@@ -543,4 +543,8 @@
     <string name="home_warning_limited_text">Не хватает разрешений для надёжной работы Keep-Alive.</string>
     <string name="status_tap_to_decide">Нажмите, чтобы решить</string>
     <string name="status_tap_to_open_list">Нажмите, чтобы открыть список сетей</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Язык</string>
+    <string name="menu_item_privacy_mode">Режим конфиденциальности</string>
+    <string name="menu_item_all_settings">Все настройки</string>
 </resources>

@@ -127,8 +127,8 @@
     <string name="settings_section_misc">Diğer</string>
     <string name="settings_section_notification">Bildirim</string>
     <string name="settings_hide_notification_toggle">Kalıcı bildirim</string>
-    <string name="settings_hide_notification_subtext">Durum bildirimini panelde gösterir. Kapatmak Keep-Alive\'ı veya widget\'ları etkilemez.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Keep-Alive etkinken gereklidir — Android bunu ön plan hizmeti için zorunlu kılar.</string>
+    <string name="settings_hide_notification_subtext">Bildirim alanında hata ayıklama durumunu ve hızlı erişimi gösterir. Kapatmak yalnızca bu bildirimi gizler; Keep-Alive, widget’lar ve hızlı ayarlar kutucuğu çalışmaya devam eder. Bağlantı ayrıntıları aşağıda ayrı ayarlanır ve adresleri ve ağ adlarını gösterebilir.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Bildirim alanında hata ayıklama durumunu ve hızlı erişimi gösterir. Kapatmak yalnızca bu bildirimi gizler; Keep-Alive, widget’lar ve hızlı ayarlar kutucuğu çalışmaya devam eder. Bağlantı ayrıntıları aşağıda ayrı ayarlanır ve adresleri ve ağ adlarını gösterebilir.\n\nKeep-Alive etkinken Android ön plan hizmeti için bu bildirimi zorunlu tutar. Anahtar kilitlenir. Keep-Alive kapatıldığında kayıtlı tercihiniz yeniden uygulanır.</string>
     <string name="settings_notification_details_toggle">Bildirimlerde bağlantı ayrıntılarını göster</string>
     <string name="settings_notification_details_subtext">Kalıcı durum bildirimindeki bağlantı noktasını ve IP adresini, USB ana bilgisayar profilini (ad, IP, ana bilgisayar) ve yeni Wi-Fi ağlarının adını ve BSSID değerini bildirimlerde gösterir. Açıkken bu ayrıntılar kilit ekranında da görünebilir. Kapalıyken yalnızca uygulamada gösterilir.</string>
     <string name="settings_section_display">Ekran</string>
@@ -543,4 +543,8 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="home_warning_limited_text">Güvenilir Keep-Alive için bazı izinler eksik.</string>
     <string name="status_tap_to_decide">Karar vermek için dokunun</string>
     <string name="status_tap_to_open_list">Ağ listesini açmak için dokunun</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Dil</string>
+    <string name="menu_item_privacy_mode">Gizlilik modu</string>
+    <string name="menu_item_all_settings">Tüm ayarlar</string>
 </resources>

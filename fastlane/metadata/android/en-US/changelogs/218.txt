@@ -1,0 +1,1 @@
+The persistent notification switch is now only in Other settings. Keep-Alive explains why Android requires it and preserves your choice for when Keep-Alive is off. Settings sections can be opened directly. The home settings button opens a quick-link menu with language, privacy mode and direct section links.

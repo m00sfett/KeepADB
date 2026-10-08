@@ -127,8 +127,8 @@
     <string name="settings_section_misc">Overig</string>
     <string name="settings_section_notification">Melding</string>
     <string name="settings_hide_notification_toggle">Permanente melding</string>
-    <string name="settings_hide_notification_subtext">Toont de statusmelding in het paneel. Uitschakelen heeft geen invloed op Keep-Alive of widgets.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Vereist zolang Keep-Alive actief is — Android heeft deze nodig voor de voorgrondservice.</string>
+    <string name="settings_hide_notification_subtext">Toont de debugstatus en snelle toegang in het meldingenpaneel. Uitschakelen verbergt alleen deze statusmelding; Keep-Alive, widgets en de tegel voor snelle instellingen blijven werken. Verbindingsdetails worden hieronder apart ingesteld en kunnen adressen en netwerknamen tonen.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Toont de debugstatus en snelle toegang in het meldingenpaneel. Uitschakelen verbergt alleen deze statusmelding; Keep-Alive, widgets en de tegel voor snelle instellingen blijven werken. Verbindingsdetails worden hieronder apart ingesteld en kunnen adressen en netwerknamen tonen.\n\nAls Keep-Alive actief is, vereist Android deze melding voor de voorgrondservice. De schakelaar is geblokkeerd. Na uitschakelen van Keep-Alive geldt je opgeslagen keuze weer.</string>
     <string name="settings_notification_details_toggle">Verbindingsdetails in meldingen tonen</string>
     <string name="settings_notification_details_subtext">Toont de poort en het IP-adres in de blijvende statusmelding, het USB-hostprofiel (naam, IP, host) en de naam en BSSID van nieuwe wifi-netwerken in meldingen. Als dit aan staat, kunnen deze details ook op het vergrendelscherm zichtbaar zijn. Als het uit staat, zie je ze alleen in de app.</string>
     <string name="settings_section_display">Scherm</string>
@@ -543,4 +543,8 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="home_warning_limited_text">Er ontbreken machtigingen voor een betrouwbare Keep-Alive.</string>
     <string name="status_tap_to_decide">Tik om te beslissen</string>
     <string name="status_tap_to_open_list">Tik om de netwerklijst te openen</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Taal</string>
+    <string name="menu_item_privacy_mode">Privacymodus</string>
+    <string name="menu_item_all_settings">Alle instellingen</string>
 </resources>

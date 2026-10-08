@@ -127,8 +127,8 @@
     <string name="settings_section_misc">Lainnya</string>
     <string name="settings_section_notification">Notifikasi</string>
     <string name="settings_hide_notification_toggle">Notifikasi persisten</string>
-    <string name="settings_hide_notification_subtext">Menampilkan notifikasi status di panel. Mematikannya tidak memengaruhi Keep-Alive atau widget.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Diperlukan selama Keep-Alive aktif — Android memerlukannya untuk layanan latar depan.</string>
+    <string name="settings_hide_notification_subtext">Menampilkan status debugging dan akses cepat di panel notifikasi. Menonaktifkannya hanya menyembunyikan notifikasi ini; Keep-Alive, widget, dan ubin setelan cepat tetap berfungsi. Detail koneksi diatur terpisah di bawah dan dapat menampilkan alamat serta nama jaringan.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Menampilkan status debugging dan akses cepat di panel notifikasi. Menonaktifkannya hanya menyembunyikan notifikasi ini; Keep-Alive, widget, dan ubin setelan cepat tetap berfungsi. Detail koneksi diatur terpisah di bawah dan dapat menampilkan alamat serta nama jaringan.\n\nSaat Keep-Alive aktif, Android mewajibkan notifikasi ini untuk layanan latar depan. Sakelar dikunci. Setelah Keep-Alive dinonaktifkan, pilihan tersimpan berlaku kembali.</string>
     <string name="settings_notification_details_toggle">Tampilkan detail koneksi di notifikasi</string>
     <string name="settings_notification_details_subtext">Menampilkan port dan alamat IP di notifikasi status persisten, profil host USB (nama, IP, host), serta nama dan BSSID jaringan Wi-Fi baru di notifikasi. Jika aktif, detail ini juga dapat terlihat di layar kunci. Jika nonaktif, detail hanya ditampilkan di aplikasi.</string>
     <string name="settings_section_display">Layar</string>
@@ -543,4 +543,8 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="home_warning_limited_text">Izin yang dibutuhkan agar Keep-Alive andal belum lengkap.</string>
     <string name="status_tap_to_decide">Ketuk untuk memutuskan</string>
     <string name="status_tap_to_open_list">Ketuk untuk membuka daftar jaringan</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Bahasa</string>
+    <string name="menu_item_privacy_mode">Mode privasi</string>
+    <string name="menu_item_all_settings">Semua pengaturan</string>
 </resources>

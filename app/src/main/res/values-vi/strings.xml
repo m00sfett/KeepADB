@@ -127,8 +127,8 @@
     <string name="settings_section_misc">Khác</string>
     <string name="settings_section_notification">Thông báo</string>
     <string name="settings_hide_notification_toggle">Thông báo liên tục</string>
-    <string name="settings_hide_notification_subtext">Hiển thị thông báo trạng thái trên thanh thông báo. Tắt tùy chọn này không ảnh hưởng đến Keep-Alive hay tiện ích.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Bắt buộc khi Keep-Alive đang hoạt động — Android yêu cầu điều này cho dịch vụ nền trước.</string>
+    <string name="settings_hide_notification_subtext">Hiển thị trạng thái gỡ lỗi và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Chi tiết kết nối được đặt riêng bên dưới và có thể hiển thị địa chỉ và tên mạng.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Hiển thị trạng thái gỡ lỗi và lối truy cập nhanh trong bảng thông báo. Tắt chỉ ẩn thông báo này; Keep-Alive, tiện ích và ô cài đặt nhanh vẫn hoạt động. Chi tiết kết nối được đặt riêng bên dưới và có thể hiển thị địa chỉ và tên mạng.\n\nKhi Keep-Alive hoạt động, Android yêu cầu thông báo này cho dịch vụ tiền cảnh. Công tắc bị khóa. Khi tắt Keep-Alive, lựa chọn đã lưu sẽ được áp dụng lại.</string>
     <string name="settings_notification_details_toggle">Hiển thị chi tiết kết nối trong thông báo</string>
     <string name="settings_notification_details_subtext">Hiển thị cổng và địa chỉ IP trong thông báo trạng thái thường trực, hồ sơ máy chủ USB (tên, IP, máy chủ) cùng tên và BSSID của mạng Wi-Fi mới trong thông báo. Khi bật, các chi tiết này cũng có thể hiển thị trên màn hình khóa. Khi tắt, chúng chỉ hiển thị trong ứng dụng.</string>
     <string name="settings_section_display">Màn hình</string>
@@ -543,4 +543,8 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="home_warning_limited_text">Còn thiếu quyền để Keep-Alive hoạt động ổn định.</string>
     <string name="status_tap_to_decide">Chạm để quyết định</string>
     <string name="status_tap_to_open_list">Chạm để mở danh sách mạng</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Ngôn ngữ</string>
+    <string name="menu_item_privacy_mode">Chế độ riêng tư</string>
+    <string name="menu_item_all_settings">Tất cả cài đặt</string>
 </resources>

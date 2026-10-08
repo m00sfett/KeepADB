@@ -127,8 +127,8 @@
     <string name="settings_section_misc">Altro</string>
     <string name="settings_section_notification">Notifica</string>
     <string name="settings_hide_notification_toggle">Notifica permanente</string>
-    <string name="settings_hide_notification_subtext">Mostra la notifica di stato nel pannello. Disattivarla non influisce su Keep-Alive né sui widget.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Necessaria finché Keep-Alive è attivo — Android la richiede per il servizio in primo piano.</string>
+    <string name="settings_hide_notification_subtext">Mostra lo stato del debug e un accesso rapido nelle notifiche. Disattivandola si nasconde solo questo avviso; Keep-Alive, widget e riquadro delle impostazioni rapide continuano a funzionare. I dettagli di connessione si impostano separatamente sotto e possono mostrare indirizzi e nomi di rete.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Mostra lo stato del debug e un accesso rapido nelle notifiche. Disattivandola si nasconde solo questo avviso; Keep-Alive, widget e riquadro delle impostazioni rapide continuano a funzionare. I dettagli di connessione si impostano separatamente sotto e possono mostrare indirizzi e nomi di rete.\n\nQuando Keep-Alive è attivo, Android richiede questa notifica per il servizio in primo piano. L’interruttore è bloccato. Disattivando Keep-Alive si ripristina la scelta salvata.</string>
     <string name="settings_notification_details_toggle">Mostra i dettagli di connessione nelle notifiche</string>
     <string name="settings_notification_details_subtext">Mostra la porta e l’indirizzo IP nella notifica di stato persistente, il profilo host USB (nome, IP, host) e il nome e il BSSID delle nuove reti Wi-Fi nelle notifiche. Se attivo, questi dettagli possono essere visibili anche nella schermata di blocco. Se disattivato, sono visibili solo nell’app.</string>
     <string name="settings_section_display">Schermo</string>
@@ -543,4 +543,8 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="home_warning_limited_text">Mancano autorizzazioni per un Keep-Alive affidabile.</string>
     <string name="status_tap_to_decide">Tocca per decidere</string>
     <string name="status_tap_to_open_list">Tocca per aprire l\'elenco delle reti</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Lingua</string>
+    <string name="menu_item_privacy_mode">Modalità privacy</string>
+    <string name="menu_item_all_settings">Tutte le impostazioni</string>
 </resources>

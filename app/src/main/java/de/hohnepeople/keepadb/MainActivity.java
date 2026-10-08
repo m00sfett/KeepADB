@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -18,11 +19,13 @@ public class MainActivity extends Activity {
      */
     static final String EXTRA_SKIP_ASSISTANT_ONCE = "skip_assistant_once";
 
+    private static final String STATE_LANGUAGE_PICKER = "main_language_picker_showing";
+    private AlertDialog activeLanguageSelectionDialog;
+    private KeepADBSettingsMenu settingsMenu;
+
     private Switch toggle;
     private Switch keepAliveToggle;
     private TextView keepAliveSubtext;
-    private Switch hideNotificationToggle;
-    private TextView hideNotificationSubtext;
     private TextView status;
     private TextView endpoint;
     private TextView tailscaleStatus;
@@ -79,17 +82,9 @@ public class MainActivity extends Activity {
         // #324: keep header and content clear of the system bars under forced edge-to-edge.
         KeepADBWindowInsets.apply(
                 getWindow(), findViewById(R.id.header_bar), findViewById(R.id.content_scroll));
-        // #725: the shared eye button; the page-specific part is only the re-render below.
-        KeepADBPrivacyToggle.bind(this, () -> {
-            // #483: re-render the masked surfaces at once, without waiting for a discovery tick.
-            renderEndpoint();
-            refreshWebhookStatus();
-        });
         toggle = findViewById(R.id.toggle);
         keepAliveToggle = findViewById(R.id.keep_alive_toggle);
         keepAliveSubtext = findViewById(R.id.keep_alive_subtext);
-        hideNotificationToggle = findViewById(R.id.hide_notification_toggle);
-        hideNotificationSubtext = findViewById(R.id.hide_notification_subtext);
         status = findViewById(R.id.status);
         endpoint = findViewById(R.id.endpoint);
         tailscaleStatus = findViewById(R.id.tailscale_status);
@@ -114,8 +109,8 @@ public class MainActivity extends Activity {
             intent.putExtra(SettingsActivity.EXTRA_FOCUS_FORCE, true);
             startActivity(intent);
         });
-        findViewById(R.id.btn_open_settings).setOnClickListener(v ->
-                startActivity(new Intent(this, SettingsActivity.class)));
+        settingsMenu = new KeepADBSettingsMenu(this, findViewById(R.id.btn_open_settings));
+        findViewById(R.id.btn_open_settings).setOnClickListener(v -> settingsMenu.show());
         findViewById(R.id.btn_dismiss_advice_banner).setOnClickListener(v -> {
             KeepADBPreferences.setAdviceBannerVisible(this, false);
             updateAdviceBannerVisibility();
@@ -181,19 +176,45 @@ public class MainActivity extends Activity {
             refresh();
         });
 
-        hideNotificationToggle.setOnClickListener(v -> {
-            // #456: the switch shows positive framing ("persistent notification" ON = visible),
-            // while the underlying preference and its accessor names stay hide-framed. Invert here.
-            boolean wantVisible = hideNotificationToggle.isChecked();
-            boolean wantHidden = !wantVisible;
-            KeepADBDiagnostics.event(this, "user_action", "app", wantVisible ? "enable" : "disable", "hide_notification_toggle");
-            KeepADBPreferences.setNotificationHidden(this, wantHidden);
-            KeepADBEndpointCoordinator.refresh(this);
-            Toast.makeText(this,
-                    wantHidden ? R.string.settings_notification_hidden_toast : R.string.settings_notification_visible_toast,
-                    Toast.LENGTH_SHORT).show();
-            refresh();
+        if (savedInstanceState != null && savedInstanceState.getBoolean(STATE_LANGUAGE_PICKER, false)) {
+            showLanguageSelectionDialog();
+        }
+    }
+
+    void showLanguageSelectionDialog() {
+        if (activeLanguageSelectionDialog != null && activeLanguageSelectionDialog.isShowing()) return;
+        AlertDialog picker = KeepADBLanguagePicker.create(this);
+        activeLanguageSelectionDialog = picker;
+        picker.setOnDismissListener(dialog -> {
+            if (activeLanguageSelectionDialog == dialog) activeLanguageSelectionDialog = null;
         });
+        picker.show();
+    }
+
+    void openSetupAssistant() {
+        startActivity(OnboardingActivity.fullIntent(this));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_LANGUAGE_PICKER,
+                activeLanguageSelectionDialog != null && activeLanguageSelectionDialog.isShowing());
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (settingsMenu != null) {
+            settingsMenu.dismiss();
+            settingsMenu = null;
+        }
+        if (activeLanguageSelectionDialog != null) activeLanguageSelectionDialog.dismiss();
+        activeLanguageSelectionDialog = null;
+        super.onDestroy();
+    }
+
+    KeepADBSettingsMenu getSettingsMenu() {
+        return settingsMenu;
     }
 
     private android.database.ContentObserver adbContentObserver;
@@ -415,16 +436,8 @@ public class MainActivity extends Activity {
         keepAliveToggle.setEnabled(configured);
         keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
         renderKeepAliveSubtext();
-        hideNotificationToggle.setEnabled(configured);
-        // #456: positive framing — checked means the notification stays visible.
-        hideNotificationToggle.setChecked(!KeepADBPreferences.isNotificationHidden(this));
-        boolean keepAliveActive = KeepADBPreferences.isKeepAliveEnabled(this);
-        hideNotificationSubtext.setText(keepAliveActive
-                ? R.string.settings_hide_notification_subtext_keepalive
-                : R.string.settings_hide_notification_subtext);
         refreshWebhookStatus();
         renderTailscaleStatus();
-        KeepADBPrivacyToggle.update(this);
         renderTransportOverview();
     }
 
@@ -794,7 +807,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void refreshUiAndComponents() {
+    void refreshUiAndComponents() {
         refresh();
         KeepADBWidget.refreshAll(this);
         KeepADBEndpointCoordinator.refresh(this);

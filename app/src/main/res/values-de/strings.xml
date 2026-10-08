@@ -163,8 +163,8 @@
     <string name="settings_section_misc">Sonstiges</string>
     <string name="settings_section_notification">Benachrichtigung</string>
     <string name="settings_hide_notification_toggle">Dauerhafte Benachrichtigung</string>
-    <string name="settings_hide_notification_subtext">Zeigt die Status-Benachrichtigung in der Leiste. Das Ausschalten hat keinen Einfluss auf Keep-Alive oder Widgets.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Erforderlich, solange Keep-Alive aktiv ist — Android benötigt sie für den Hintergrunddienst.</string>
+    <string name="settings_hide_notification_subtext">Zeigt den aktuellen Debugging-Status und Schnellzugriff in der Benachrichtigungsleiste. Ausschalten blendet nur diese Statusmeldung aus; Keep-Alive, Widgets und die Schnellkachel funktionieren weiter. Verbindungsdetails werden unten separat eingestellt und können Adressen und WLAN-Namen zeigen.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Zeigt den aktuellen Debugging-Status und Schnellzugriff in der Benachrichtigungsleiste. Ausschalten blendet nur diese Statusmeldung aus; Keep-Alive, Widgets und die Schnellkachel funktionieren weiter. Verbindungsdetails werden unten separat eingestellt und können Adressen und WLAN-Namen zeigen.\n\nBei aktivem Keep-Alive verlangt Android diese Benachrichtigung für den Vordergrunddienst. Der Schalter ist gesperrt. Nach dem Ausschalten von Keep-Alive gilt wieder deine gespeicherte Auswahl.</string>
     <string name="settings_notification_details_toggle">Verbindungsdetails in Benachrichtigungen anzeigen</string>
     <string name="settings_notification_details_subtext">Zeigt Port und IP-Adresse in der dauerhaften Status-Benachrichtigung, das USB-Hostprofil (Name, IP, Host) sowie Name und BSSID neuer WLANs in Benachrichtigungen. Eingeschaltet können diese Details auch auf dem Sperrbildschirm sichtbar sein. Ausgeschaltet stehen sie nur in der App.</string>
     <string name="settings_section_display">Bildschirm</string>
@@ -543,4 +543,8 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="home_warning_limited_text">Für ein zuverlässiges Keep-Alive fehlen noch Berechtigungen.</string>
     <string name="status_tap_to_decide">Tippen, um zu entscheiden</string>
     <string name="status_tap_to_open_list">Tippen, um die Netzwerkliste zu öffnen</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">Sprache</string>
+    <string name="menu_item_privacy_mode">Privatsphäre-Modus</string>
+    <string name="menu_item_all_settings">Alle Einstellungen</string>
 </resources>

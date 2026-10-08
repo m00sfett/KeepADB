@@ -127,8 +127,8 @@
     <string name="settings_section_misc">अन्य</string>
     <string name="settings_section_notification">सूचना</string>
     <string name="settings_hide_notification_toggle">स्थायी सूचना</string>
-    <string name="settings_hide_notification_subtext">स्टेटस सूचना को पैनल में दिखाता है। इसे बंद करने से Keep-Alive या विजेट पर असर नहीं पड़ता।</string>
-    <string name="settings_hide_notification_subtext_keepalive">Keep-Alive सक्रिय होने पर आवश्यक — Android को अग्रभूमि सेवा के लिए इसकी आवश्यकता होती है।</string>
+    <string name="settings_hide_notification_subtext">सूचना पैनल में डिबगिंग की स्थिति और त्वरित पहुँच दिखाता है। बंद करने पर केवल यह सूचना छिपती है; Keep-Alive, विजेट और त्वरित सेटिंग टाइल काम करते रहते हैं। कनेक्शन विवरण नीचे अलग से तय होते हैं और पते तथा नेटवर्क नाम दिखा सकते हैं।</string>
+    <string name="settings_hide_notification_subtext_keepalive">सूचना पैनल में डिबगिंग की स्थिति और त्वरित पहुँच दिखाता है। बंद करने पर केवल यह सूचना छिपती है; Keep-Alive, विजेट और त्वरित सेटिंग टाइल काम करते रहते हैं। कनेक्शन विवरण नीचे अलग से तय होते हैं और पते तथा नेटवर्क नाम दिखा सकते हैं।\n\nKeep-Alive सक्रिय होने पर Android को अग्रभूमि सेवा के लिए यह सूचना चाहिए। स्विच लॉक रहता है। Keep-Alive बंद करने पर आपका सहेजा हुआ विकल्प फिर लागू होता है।</string>
     <string name="settings_notification_details_toggle">सूचनाओं में कनेक्शन विवरण दिखाएं</string>
     <string name="settings_notification_details_subtext">स्थायी स्टेटस सूचना में पोर्ट और IP पता, USB होस्ट प्रोफ़ाइल (नाम, IP, होस्ट) और नए Wi-Fi नेटवर्क का नाम व BSSID सूचनाओं में दिखाता है। चालू होने पर ये विवरण लॉक स्क्रीन पर भी दिख सकते हैं। बंद होने पर ये केवल ऐप में दिखते हैं।</string>
     <string name="settings_section_display">डिस्प्ले</string>
@@ -543,4 +543,8 @@
     <string name="home_warning_limited_text">भरोसेमंद Keep-Alive के लिए कुछ अनुमतियाँ अभी बाकी हैं।</string>
     <string name="status_tap_to_decide">निर्णय के लिए टैप करें</string>
     <string name="status_tap_to_open_list">नेटवर्क सूची खोलने के लिए टैप करें</string>
+    <!-- #823: Quick-link menu items opened from the header settings button on the main view -->
+    <string name="menu_item_language">भाषा</string>
+    <string name="menu_item_privacy_mode">गोपनीयता मोड</string>
+    <string name="menu_item_all_settings">सभी सेटिंग्स</string>
 </resources>

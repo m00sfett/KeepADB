@@ -17,11 +17,18 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.45` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.46` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.46] - 2026-10-08 (unreleased)
+
+### Changed
+- **Persistent notification settings (#822):** Remove the redundant main-page switch. In Other settings, show the enforced notification while Keep-Alive is active, disable changes, retain the saved choice for afterwards, and explain notification purpose and privacy in every supported language.
+- **Direct settings entries (#821):** Add one-shot Webhook and Other card entries, plus a network-heading entry for the menu while preserving the existing protection-row target. Share the language picker between home and settings, restore its lifecycle, and launch the full setup assistant directly from home.
+- **Home settings dropdown menu (#823):** The settings button on the main view now opens a quick-link dropdown menu (Language, inline Privacy mode toggle with live checkbox, All settings, Setup assistant, Network, Webhook Sync, USB-ADB, Other) and the privacy eye is removed from the home header to keep the title bar to at most two buttons. Toggling privacy mode from the menu updates the app-wide setting immediately without dismissing the menu.
 
 ## [1.9.45] - Unreleased
 
