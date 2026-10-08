@@ -127,8 +127,8 @@
     <string name="settings_section_misc">其他</string>
     <string name="settings_section_notification">通知</string>
     <string name="settings_hide_notification_toggle">常駐通知</string>
-    <string name="settings_hide_notification_subtext">在通知欄中顯示狀態通知。關閉它不會影響 Keep-Alive 或桌面小工具。</string>
-    <string name="settings_hide_notification_subtext_keepalive">Keep-Alive 處於啟用狀態時為必需項——Android 要求前景服務顯示通知。</string>
+    <string name="settings_hide_notification_subtext">在通知欄中顯示偵錯狀態和快捷入口。關閉後僅隱藏此狀態通知；Keep-Alive、小工具和快速設定圖塊仍可正常使用。連線詳細資訊在下方獨立設定，可能顯示位址和網路名稱。</string>
+    <string name="settings_hide_notification_subtext_keepalive">在通知欄中顯示偵錯狀態和快捷入口。關閉後僅隱藏此狀態通知；Keep-Alive、小工具和快速設定圖塊仍可正常使用。連線詳細資訊在下方獨立設定，可能顯示位址和網路名稱。\n\nKeep-Alive 開啟時，Android 要求前景服務顯示此通知，因此開關被鎖定。關閉 Keep-Alive 後將重新套用已儲存的選擇。</string>
     <string name="settings_notification_details_toggle">在通知中顯示連線詳細資料</string>
     <string name="settings_notification_details_subtext">在常駐狀態通知中顯示連接埠和 IP 位址，在通知中顯示 USB 主機設定檔（名稱、IP、主機）以及新 Wi-Fi 網路的名稱和 BSSID。開啟後，這些詳細資料也可能顯示在螢幕鎖定畫面上。關閉時，僅在應用程式中顯示。</string>
     <string name="settings_section_display">螢幕</string>

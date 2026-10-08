@@ -127,8 +127,8 @@
     <string name="settings_section_misc">Inne</string>
     <string name="settings_section_notification">Powiadomienie</string>
     <string name="settings_hide_notification_toggle">Stałe powiadomienie</string>
-    <string name="settings_hide_notification_subtext">Pokazuje powiadomienie o stanie w panelu. Wyłączenie go nie wpływa na Keep-Alive ani widżety.</string>
-    <string name="settings_hide_notification_subtext_keepalive">Wymagane, gdy Keep-Alive jest aktywne — Android wymaga go dla usługi na pierwszym planie.</string>
+    <string name="settings_hide_notification_subtext">Pokazuje stan debugowania i szybki dostęp w powiadomieniach. Wyłączenie ukrywa tylko to powiadomienie; Keep-Alive, widżety i kafelek szybkich ustawień nadal działają. Szczegóły połączenia ustawia się osobno poniżej; mogą ujawniać adresy i nazwy sieci.</string>
+    <string name="settings_hide_notification_subtext_keepalive">Pokazuje stan debugowania i szybki dostęp w powiadomieniach. Wyłączenie ukrywa tylko to powiadomienie; Keep-Alive, widżety i kafelek szybkich ustawień nadal działają. Szczegóły połączenia ustawia się osobno poniżej; mogą ujawniać adresy i nazwy sieci.\n\nGdy Keep-Alive działa, Android wymaga tego powiadomienia dla usługi pierwszoplanowej. Przełącznik jest zablokowany. Po wyłączeniu Keep-Alive ponownie obowiązuje zapisany wybór.</string>
     <string name="settings_notification_details_toggle">Pokazuj szczegóły połączenia w powiadomieniach</string>
     <string name="settings_notification_details_subtext">Wyświetla port i adres IP w trwałym powiadomieniu o stanie, profil hosta USB (nazwę, IP, hosta) oraz nazwę i BSSID nowych sieci Wi-Fi w powiadomieniach. Po włączeniu te szczegóły mogą być widoczne także na ekranie blokady. Po wyłączeniu są widoczne tylko w aplikacji.</string>
     <string name="settings_section_display">Ekran</string>

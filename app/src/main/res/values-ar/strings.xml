@@ -127,8 +127,8 @@
     <string name="settings_section_misc">أخرى</string>
     <string name="settings_section_notification">الإشعارات</string>
     <string name="settings_hide_notification_toggle">الإشعار الدائم</string>
-    <string name="settings_hide_notification_subtext">يعرض إشعار الحالة في الشريط. إيقافه لا يؤثر على Keep-Alive أو الأدوات.</string>
-    <string name="settings_hide_notification_subtext_keepalive">ضروري أثناء تفعيل Keep-Alive — يتطلبه Android لخدمة المقدمة.</string>
+    <string name="settings_hide_notification_subtext">يعرض حالة تصحيح الأخطاء والوصول السريع في لوحة الإشعارات. إيقافه يخفي هذا الإشعار فقط؛ يستمر Keep-Alive والأدوات ومربع الإعدادات السريعة في العمل. تُضبط تفاصيل الاتصال بشكل منفصل أدناه وقد تعرض العناوين وأسماء الشبكات.</string>
+    <string name="settings_hide_notification_subtext_keepalive">يعرض حالة تصحيح الأخطاء والوصول السريع في لوحة الإشعارات. إيقافه يخفي هذا الإشعار فقط؛ يستمر Keep-Alive والأدوات ومربع الإعدادات السريعة في العمل. تُضبط تفاصيل الاتصال بشكل منفصل أدناه وقد تعرض العناوين وأسماء الشبكات.\n\nعند تفعيل Keep-Alive، يتطلب Android هذا الإشعار لخدمة المقدمة. يكون المفتاح مقفلاً. بعد إيقاف Keep-Alive يُطبق اختيارك المحفوظ مجدداً.</string>
     <string name="settings_notification_details_toggle">إظهار تفاصيل الاتصال في الإشعارات</string>
     <string name="settings_notification_details_subtext">يعرض المنفذ وعنوان IP في إشعار الحالة الدائم، وملف تعريف مضيف USB (الاسم وعنوان IP والمضيف)، واسم شبكات Wi-Fi الجديدة ومعرّف BSSID الخاص بها في الإشعارات. عند التفعيل قد تظهر هذه التفاصيل أيضًا على شاشة القفل. عند الإيقاف تُعرض داخل التطبيق فقط.</string>
     <string name="settings_section_display">الشاشة</string>
