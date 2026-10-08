@@ -107,8 +107,10 @@ final class KeepADBRegisterClient {
     static synchronized void ensureStateInitializedLocked(Context context) {
         if (stateInitialized) return;
         if (context != null) {
-            lastRegisteredEndpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(context);
-            lastRegisteredUrl = KeepADBPreferences.getWebhookLastReportedUrl(context);
+            String endpoint = KeepADBPreferences.getWebhookLastReportedEndpoint(context);
+            lastRegisteredEndpoint = (endpoint != null && !endpoint.trim().isEmpty()) ? endpoint.trim() : null;
+            String url = KeepADBPreferences.getWebhookLastReportedUrl(context);
+            lastRegisteredUrl = (url != null && !url.trim().isEmpty()) ? url.trim() : null;
         }
         stateInitialized = true;
     }
@@ -161,7 +163,8 @@ final class KeepADBRegisterClient {
                 return;
             }
             boolean wasInFlight = wlanUpdateInFlight;
-            boolean hadPrior = (lastRegisteredEndpoint != null || lastRegisteredUrl != null);
+            boolean hadPrior = (lastRegisteredEndpoint != null && !lastRegisteredEndpoint.trim().isEmpty())
+                    || (lastRegisteredUrl != null && !lastRegisteredUrl.trim().isEmpty());
             if (!wasInFlight && !hadPrior) {
                 return;
             }

@@ -221,10 +221,10 @@ final class KeepADBPreferences {
 
     static void setWebhookLastReportedEndpoint(Context context, String endpoint) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        if (endpoint == null) {
+        if (endpoint == null || endpoint.trim().isEmpty()) {
             prefs.edit().remove(KEY_WEBHOOK_LAST_ENDPOINT).apply();
         } else {
-            prefs.edit().putString(KEY_WEBHOOK_LAST_ENDPOINT, endpoint).apply();
+            prefs.edit().putString(KEY_WEBHOOK_LAST_ENDPOINT, endpoint.trim()).apply();
         }
     }
 
