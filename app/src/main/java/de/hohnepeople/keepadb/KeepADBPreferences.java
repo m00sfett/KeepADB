@@ -120,6 +120,7 @@ final class KeepADBPreferences {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_NOTIFICATION_DETAILS_ENABLED, enabled).apply();
+        KeepADBWarningState.observe(context);
     }
 
     static boolean isNotificationHidden(Context context) {
@@ -157,6 +158,7 @@ final class KeepADBPreferences {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_KEEP_ALIVE, enabled).apply();
+        KeepADBWarningState.observe(context);
     }
 
     static boolean isRegisterWebhookEnabled(Context context) {
@@ -167,6 +169,7 @@ final class KeepADBPreferences {
     static void setRegisterWebhookEnabled(Context context, boolean enabled) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_WEBHOOK_ENABLED, enabled).apply();
+        KeepADBWarningState.observe(context);
     }
 
     static String getRegisterWebhookUrl(Context context) {
@@ -184,6 +187,7 @@ final class KeepADBPreferences {
         } else {
             prefs.edit().putString(KEY_REGISTER_URL, sanitized.trim()).apply();
         }
+        KeepADBWarningState.observe(context);
     }
 
     static long getWebhookLastReportedAt(Context context) {

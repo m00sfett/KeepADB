@@ -61,6 +61,7 @@ public class KeepADBService extends Service {
     }
 
     static void sync(Context context) {
+        KeepADBWarningState.observe(context);
         boolean shouldRun = shouldRun(context);
         Boolean adbEnabledOrNull = KeepADB.isEnabledOrNull(context, "service_sync");
         KeepADBDiagnostics.event(context, "service_sync", "state_change",
@@ -320,6 +321,7 @@ public class KeepADBService extends Service {
     }
 
     private void heartbeatNow() {
+        KeepADBWarningState.observe(this);
         KeepADBPreferences.setServiceLastHeartbeatNow(this);
         if (!foregroundReady) return;
         // #763: the minute tick finishes an expired force mode (state cleared, notice delivered).
@@ -514,6 +516,7 @@ public class KeepADBService extends Service {
 
                 @Override
                 public void onLost(Network network) {
+                    KeepADBWarningState.observe(KeepADBService.this);
                     if (network != null) {
                         availableWifiNetworks.remove(network);
                     }
@@ -611,6 +614,7 @@ public class KeepADBService extends Service {
      * disables anything on its own; it is purely a notification.
      */
     private void checkNetworkTrustWhileActive() {
+        KeepADBWarningState.observe(this);
         if (!foregroundReady) return;
         // #582: an unreadable value skips this check the same way a confirmed "off" already did --
         // there is nothing to warn about on a state that is not positively known to be "on".
@@ -621,6 +625,7 @@ public class KeepADBService extends Service {
     }
 
     synchronized void recheckAndEnable() {
+        KeepADBWarningState.observe(this);
         if (!foregroundReady) {
             Log.d(TAG, "Ignoring recheck before foreground promotion");
             return;

@@ -17,11 +17,19 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.46` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.48` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.48] - 2026-10-08 (unreleased)
+
+### Added
+- **Dismissible warnings and security overview (#826):** Each home warning has an independent close button and persistent acknowledgment of its exact reason set. A header triangle continues to list active security reasons with direct review links, including after a card is closed. Individual noncritical reasons can be muted and restored in Settings → Miscellaneous; system permission and Force can never be muted. At most three cards appear in priority order. Fresh installations also see less secure settings.
+
+### Security
+- **Warning episode persistence (#826):** Successful Force activations atomically receive a separate display token; clock rebasing preserves it. Unknown legacy Force writes conservatively invalidate an old acknowledgment once on upgrade. Warning storage is additive and versioned, rejects critical mute IDs, preserves unknown or malformed stored schemas, and never changes ADB, protection, Force duration or the advice banner preference.
 
 ## [1.9.47] - 2026-10-08 (unreleased)
 

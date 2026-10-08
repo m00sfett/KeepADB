@@ -137,6 +137,13 @@ public class MainActivityWarningsTest {
         assertEquals(item, intent.getStringExtra(OnboardingActivity.EXTRA_FOCUS_ITEM));
     }
 
+    private static void assertLeadsToSettings(MainActivity activity, int cardId, String extra) {
+        action(activity, cardId).performClick();
+        Intent intent = shadowOf(activity).getNextStartedActivity();
+        assertEquals(SettingsActivity.class.getName(), intent.getComponent().getClassName());
+        assertTrue(intent.getBooleanExtra(extra, false));
+    }
+
     // ---- The setup cards are gone ---------------------------------------------------------------
 
     @Test
@@ -224,9 +231,9 @@ public class MainActivityWarningsTest {
         MainActivity activity = open();
 
         assertTrue(shown(activity, R.id.warning_less_secure));
-        assertEquals(context.getString(R.string.onboarding_intro_less_secure),
+        assertEquals(context.getString(R.string.settings_notification_details_toggle),
                 text(activity, R.id.warning_less_secure).getText().toString());
-        assertLeadsToStep(activity, R.id.warning_less_secure, KeepADBOnboarding.Step.DETAILS, null);
+        assertLeadsToSettings(activity, R.id.warning_less_secure, SettingsActivity.EXTRA_FOCUS_DETAILS);
     }
 
     @Test
@@ -235,19 +242,19 @@ public class MainActivityWarningsTest {
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
         MainActivity activity = open();
 
-        assertEquals(context.getString(R.string.onboarding_intro_less_secure),
+        assertEquals(context.getString(R.string.network_mode_option_all_wifi) + "\n"
+                        + context.getString(R.string.settings_notification_details_toggle),
                 text(activity, R.id.warning_less_secure).getText().toString());
-        assertLeadsToStep(activity, R.id.warning_less_secure,
-                KeepADBOnboarding.Step.PROTECTION, null);
+        assertLeadsToSettings(activity, R.id.warning_less_secure, SettingsActivity.EXTRA_FOCUS_NETWORK);
     }
 
     @Test
-    public void aNewInstallationNeverGetsW3AndANeutralExistingOneNeitherDoes() {
+    public void aNewInstallationShowsMarkedValuesAndANeutralOneHasNoWarning() {
         // New: the assistant decided "new" while nothing was stored, then a value gets marked.
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
         assertFalse(KeepADBOnboarding.isExistingInstall(context));
         KeepADBPreferences.setNotificationDetailsEnabled(context, true);
-        assertFalse(shown(open(), R.id.warning_less_secure));
+        assertTrue(shown(open(), R.id.warning_less_secure));
 
         // Existing, but nothing marked.
         context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
@@ -302,7 +309,7 @@ public class MainActivityWarningsTest {
         MainActivity activity = open();
 
         assertTrue(shown(activity, R.id.warning_limited));
-        assertEquals(context.getString(R.string.home_warning_limited_text),
+        assertEquals(context.getString(R.string.onboarding_perm_battery_title),
                 text(activity, R.id.warning_limited).getText().toString());
         assertLeadsToStep(activity, R.id.warning_limited, KeepADBOnboarding.Step.PERMISSIONS,
                 OnboardingActionSteps.Permissions.ITEM_BATTERY);
@@ -312,8 +319,8 @@ public class MainActivityWarningsTest {
                 android.Manifest.permission.POST_NOTIFICATIONS,
                 android.Manifest.permission.ACCESS_BACKGROUND_LOCATION);
         MainActivity all = open();
-        assertEquals(context.getString(R.string.home_warning_limited_text),
-                text(all, R.id.warning_limited).getText().toString());
+        assertTrue(text(all, R.id.warning_limited).getText().toString()
+                .contains(context.getString(R.string.notification_permission_panel_title)));
         assertLeadsToStep(all, R.id.warning_limited, KeepADBOnboarding.Step.PERMISSIONS,
                 OnboardingActionSteps.Permissions.ITEM_NOTIFICATIONS);
     }

@@ -279,6 +279,7 @@ final class KeepADBTrustedNetwork {
 
     static void setTrustByNameEnabled(Context context, boolean enabled) {
         prefs(context).edit().putBoolean(KEY_TRUST_BY_NAME, enabled).apply();
+        KeepADBWarningState.observe(context);
     }
 
     /** Whether the pre-#760 name allowlist is in force: its opt-in is on and it holds entries. */
@@ -308,6 +309,7 @@ final class KeepADBTrustedNetwork {
 
     static void setSsidMatchingEnabled(Context context, boolean enabled) {
         prefs(context).edit().putBoolean(KEY_SSID_MATCHING, enabled).apply();
+        KeepADBWarningState.observe(context);
     }
 
     static List<SsidEntry> getSsidEntries(Context context) {
@@ -398,6 +400,7 @@ final class KeepADBTrustedNetwork {
                 .putString(KEY_MODE, mode)
                 .putBoolean(KEY_MODE_INITIALIZED, true)
                 .apply();
+        KeepADBWarningState.observe(context);
     }
 
     static boolean isAllowlistMode(Context context) {

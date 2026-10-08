@@ -547,4 +547,20 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="menu_item_language">Langue</string>
     <string name="menu_item_privacy_mode">Mode de confidentialité</string>
     <string name="menu_item_all_settings">Tous les paramètres</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">Alertes de sécurité</string>
+    <string name="warnings_count">Alertes de sécurité : %1$d raisons actives</string>
+    <string name="warnings_close">Fermer l’alerte : %1$s</string>
+    <string name="warnings_closed">Alerte fermée : %1$s</string>
+    <string name="warnings_undo">Annuler</string>
+    <string name="warnings_mute">Ne plus afficher</string>
+    <string name="warnings_mute_selected">Masquer les raisons sélectionnées</string>
+    <string name="warnings_muted">Alertes masquées</string>
+    <string name="warnings_muted_hint">Chaque interrupteur masque une raison. Activé signifie masqué.</string>
+    <string name="warnings_muted_state">Masqué</string>
+    <string name="warnings_unmuted_state">Non masqué</string>
+    <string name="warnings_inactive">Aucune alerte actuellement</string>
+    <string name="warnings_reset">Réafficher toutes les alertes masquées</string>
+    <string name="warnings_none">Aucune alerte de sécurité active</string>
 </resources>

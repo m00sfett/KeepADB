@@ -180,6 +180,7 @@ public class OnboardingActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        KeepADBWarningState.observe(this);
         if (!KeepADBLocaleHelper.isSelectedLanguageApplied(this)) {
             recreate();
             return;
@@ -198,6 +199,7 @@ public class OnboardingActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        KeepADBWarningState.observe(this);
         // The result arrays are not trusted (they can be empty): the step re-reads the platform.
         OnboardingStep current = currentStep();
         if (current != null) current.onPermissionResult(requestCode);

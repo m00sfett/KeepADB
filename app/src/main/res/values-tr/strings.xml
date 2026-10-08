@@ -547,4 +547,20 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="menu_item_language">Dil</string>
     <string name="menu_item_privacy_mode">Gizlilik modu</string>
     <string name="menu_item_all_settings">Tüm ayarlar</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">Güvenlik uyarıları</string>
+    <string name="warnings_count">Güvenlik uyarıları: %1$d etkin neden</string>
+    <string name="warnings_close">Uyarıyı kapat: %1$s</string>
+    <string name="warnings_closed">Uyarı kapatıldı: %1$s</string>
+    <string name="warnings_undo">Geri al</string>
+    <string name="warnings_mute">Bir daha gösterme</string>
+    <string name="warnings_mute_selected">Seçilen nedenleri sustur</string>
+    <string name="warnings_muted">Susturulan uyarılar</string>
+    <string name="warnings_muted_hint">Her anahtar bir nedeni susturur. Açık, susturulmuş demektir.</string>
+    <string name="warnings_muted_state">Susturulmuş</string>
+    <string name="warnings_unmuted_state">Susturulmamış</string>
+    <string name="warnings_inactive">Şu anda uyarı yok</string>
+    <string name="warnings_reset">Tüm susturmaları kaldır</string>
+    <string name="warnings_none">Etkin güvenlik uyarısı yok</string>
 </resources>

@@ -547,4 +547,20 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="menu_item_language">Język</string>
     <string name="menu_item_privacy_mode">Tryb prywatności</string>
     <string name="menu_item_all_settings">Wszystkie ustawienia</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">Ostrzeżenia bezpieczeństwa</string>
+    <string name="warnings_count">Ostrzeżenia bezpieczeństwa: %1$d aktywnych przyczyn</string>
+    <string name="warnings_close">Zamknij ostrzeżenie: %1$s</string>
+    <string name="warnings_closed">Ostrzeżenie zamknięte: %1$s</string>
+    <string name="warnings_undo">Cofnij</string>
+    <string name="warnings_mute">Nie pokazuj ponownie</string>
+    <string name="warnings_mute_selected">Wycisz wybrane przyczyny</string>
+    <string name="warnings_muted">Wyciszone ostrzeżenia</string>
+    <string name="warnings_muted_hint">Każdy przełącznik wycisza jedną przyczynę. Włączony oznacza wyciszenie.</string>
+    <string name="warnings_muted_state">Wyciszone</string>
+    <string name="warnings_unmuted_state">Niewyciszone</string>
+    <string name="warnings_inactive">Obecnie brak ostrzeżenia</string>
+    <string name="warnings_reset">Usuń wszystkie wyciszenia</string>
+    <string name="warnings_none">Brak aktywnych ostrzeżeń bezpieczeństwa</string>
 </resources>

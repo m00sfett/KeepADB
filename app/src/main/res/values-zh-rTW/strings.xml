@@ -547,4 +547,20 @@
     <string name="menu_item_language">語言</string>
     <string name="menu_item_privacy_mode">隱私模式</string>
     <string name="menu_item_all_settings">所有設定</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">安全警告</string>
+    <string name="warnings_count">安全警告：%1$d 個有效原因</string>
+    <string name="warnings_close">關閉警告：%1$s</string>
+    <string name="warnings_closed">已關閉警告：%1$s</string>
+    <string name="warnings_undo">復原</string>
+    <string name="warnings_mute">不再顯示</string>
+    <string name="warnings_mute_selected">隱藏所選原因</string>
+    <string name="warnings_muted">已隱藏的警告</string>
+    <string name="warnings_muted_hint">每個開關對應一個原因。開啟表示已隱藏。</string>
+    <string name="warnings_muted_state">已隱藏</string>
+    <string name="warnings_unmuted_state">未隱藏</string>
+    <string name="warnings_inactive">目前沒有警告</string>
+    <string name="warnings_reset">取消所有隱藏設定</string>
+    <string name="warnings_none">沒有有效的安全警告</string>
 </resources>

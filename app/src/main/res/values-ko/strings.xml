@@ -547,4 +547,20 @@
     <string name="menu_item_language">언어</string>
     <string name="menu_item_privacy_mode">개인정보 보호 모드</string>
     <string name="menu_item_all_settings">모든 설정</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">보안 경고</string>
+    <string name="warnings_count">보안 경고: 활성 사유 %1$d개</string>
+    <string name="warnings_close">경고 닫기: %1$s</string>
+    <string name="warnings_closed">경고를 닫았습니다: %1$s</string>
+    <string name="warnings_undo">실행 취소</string>
+    <string name="warnings_mute">다시 표시하지 않기</string>
+    <string name="warnings_mute_selected">선택한 사유 숨기기</string>
+    <string name="warnings_muted">숨긴 경고</string>
+    <string name="warnings_muted_hint">각 스위치는 하나의 사유를 숨깁니다. 켜짐은 숨김을 뜻합니다.</string>
+    <string name="warnings_muted_state">숨김</string>
+    <string name="warnings_unmuted_state">숨기지 않음</string>
+    <string name="warnings_inactive">현재 경고 없음</string>
+    <string name="warnings_reset">모든 숨김 설정 해제</string>
+    <string name="warnings_none">활성 보안 경고 없음</string>
 </resources>
