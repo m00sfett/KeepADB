@@ -86,8 +86,8 @@ public final class WarningsActivity extends Activity {
         content.addView(view, params);
     }
     private void focus(View view) {
-        view.setFocusableInTouchMode(true);
-        view.requestFocus();
+        view.setFocusable(true);
+        view.requestFocusFromTouch();
         view.performAccessibilityAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
     }
     private void render() {

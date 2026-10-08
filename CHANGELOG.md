@@ -34,6 +34,8 @@ are retrospective issue-version records and were never published as separate rel
 ### Fixed
 - **Integration regression coverage (#841):** Decode absent/null warning signatures conservatively, retain the operational warning explanation before concrete reasons, and align existing lifecycle and accessibility resource contracts with setter observation and independent close targets.
 
+- **First-touch warning controls (#842):** Return keyboard/accessibility focus without making buttons consume the next touch solely for focus acquisition. Native Touch events, rather than only programmatic clicks, cover the triangle path.
+
 ## [1.9.47] - 2026-10-08 (unreleased)
 
 ### Changed

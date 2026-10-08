@@ -667,8 +667,9 @@ public class MainActivity extends Activity {
     }
 
     private static void focusWarningView(View view) {
-        view.setFocusableInTouchMode(true);
-        view.requestFocus();
+        view.setFocusable(true);
+        // Preserve normal first-tap activation after returning keyboard/accessibility focus.
+        view.requestFocusFromTouch();
         view.performAccessibilityAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
     }
 

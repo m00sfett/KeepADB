@@ -448,8 +448,8 @@ public class SettingsActivity extends Activity {
             target.getDrawingRect(rect);
             scrollView.offsetDescendantRectToMyCoords(target, rect);
             scrollView.smoothScrollTo(0, rect.top);
-            target.setFocusableInTouchMode(true);
-            target.requestFocus();
+            target.setFocusable(true);
+            target.requestFocusFromTouch();
             target.performAccessibilityAction(
                     android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
         });

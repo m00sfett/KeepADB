@@ -78,6 +78,39 @@ public class MainActivityWarningInteractionTest {
         assertTrue(visible(activity, R.id.warning_less_secure));
         assertFalse(visible(activity, R.id.warning_feedback));
     }
+    @Test public void triangleActivatesOnFirstTouchAfterReturningFocusAndClosingAnotherCard() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        ActivityController<MainActivity> controller = open();
+        MainActivity activity = controller.get();
+        View triangle = activity.findViewById(R.id.btn_security_warnings);
+        triangle.performClick();
+        assertEquals(WarningsActivity.class.getName(), shadowOf(activity)
+                .getNextStartedActivity().getComponent().getClassName());
+        controller.pause().stop().start().resume();
+        shadowOf(android.os.Looper.getMainLooper()).idle();
+        close(activity, R.id.warning_less_secure);
+        assertFalse("the feedback owns focus before the next triangle touch", triangle.hasFocus());
+        long now = android.os.SystemClock.uptimeMillis();
+        android.view.MotionEvent down = android.view.MotionEvent.obtain(now, now,
+                android.view.MotionEvent.ACTION_DOWN, triangle.getWidth() / 2f,
+                triangle.getHeight() / 2f, 0);
+        android.view.MotionEvent up = android.view.MotionEvent.obtain(now, now + 10,
+                android.view.MotionEvent.ACTION_UP, triangle.getWidth() / 2f,
+                triangle.getHeight() / 2f, 0);
+        try {
+            triangle.dispatchTouchEvent(down);
+            triangle.dispatchTouchEvent(up);
+            shadowOf(android.os.Looper.getMainLooper()).idle();
+            Intent opened = shadowOf(activity).getNextStartedActivity();
+            assertNotNull("one touch must activate, rather than only take focus", opened);
+            assertEquals(WarningsActivity.class.getName(), opened.getComponent().getClassName());
+        } finally {
+            down.recycle();
+            up.recycle();
+            controller.pause().stop().destroy();
+        }
+    }
+
     @Test public void forceXDoesNotEndModeAndSettingsEndPathRemainsAccessible() {
         assertTrue(KeepADBForceMode.activate(context, KeepADBForceMode.Span.HOUR_1, false));
         MainActivity activity = open().get();
