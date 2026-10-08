@@ -1,0 +1,1 @@
+Settings sections can be opened directly. Language selection uses the same dialog on the home page and in settings, and the setup assistant opens directly.
