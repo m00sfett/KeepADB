@@ -39,10 +39,12 @@ public class MainActivityWebhookStatusTest {
                 .edit()
                 .clear()
                 .commit();
+        KeepADBRegisterClient.setHttpTransport(new KeepADBFakeHttpTransport(true));
     }
 
     @After
     public void tearDown() {
+        KeepADBRegisterClient.resetHttpTransport();
         RuntimeEnvironment.getApplication()
                 .getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE)
                 .edit()

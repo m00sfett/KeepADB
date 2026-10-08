@@ -23,6 +23,14 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.9.47] - 2026-10-08 (unreleased)
+
+### Changed
+- **Home advice banner position (#820):** Move the dismissible security & network advice banner to the top of the main screen content area (below optional warning cards and above the main toggle controls). When dismissed, it collapses with zero layout gap.
+
+### Fixed
+- **CI test flake & webhook register executor cleanup (#831):** Prevent spurious deregistration DELETE tasks during unit tests and activity lifecycles when no prior registration or an empty endpoint is present. In `MainActivityWebhookStatusTest`, isolate tests using `KeepADBFakeHttpTransport` so background activity lifecycle calls never reach real network sockets or exceed executor drain timeouts in CI.
+
 ## [1.9.46] - 2026-10-08 (unreleased)
 
 ### Changed

@@ -768,6 +768,29 @@ public class KeepADBRegisterClientTest {
         assertNull(KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
     }
 
+    /**
+     * #831: when the persisted report status is deregistered or the last reported endpoint is empty/blank,
+     * markUnavailableAsync must treat it as having no prior registration and remain a no-op instead of
+     * queueing a redundant DELETE transaction.
+     */
+    @Test
+    public void testMarkUnavailableAsyncWhenDeregisteredOrBlankEndpointIsNoOp() {
+        Context context = ApplicationProvider.getApplicationContext();
+        KeepADBPreferences.setRegisterWebhookUrl(context, "http://fake.url/register");
+        KeepADBPreferences.setRegisterWebhookEnabled(context, true);
+        KeepADBPreferences.setWebhookLastReportStatus(context, KeepADBPreferences.WEBHOOK_STATUS_DEREGISTERED);
+        KeepADBPreferences.setWebhookLastReportedAtNow(context);
+        KeepADBPreferences.setWebhookLastReportedEndpoint(context, "");
+
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
+
+        KeepADBRegisterClient.markUnavailableAsync(context);
+
+        assertEquals(0, transport.getRequestCount());
+        assertNull(KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
+    }
+
     @Test
     public void testDefaultHttpTransportPostFailureOnUnreachableHost() {
         String url = "http://127.0.0.1:1/register";
