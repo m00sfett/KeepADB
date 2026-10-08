@@ -105,10 +105,14 @@ final class KeepADBWarningState {
         } catch (Exception invalid) { return new JSONObject(); }
     }
     private static String string(SharedPreferences prefs, String key) {
-        try { return prefs.getString(key, ""); } catch (ClassCastException invalid) { return ""; }
+        try {
+            String value = prefs.getString(key, "");
+            return value == null ? "" : value;
+        } catch (ClassCastException invalid) { return ""; }
     }
     private static Set<Reason> decode(String signature, Card card, boolean mutes) {
         Set<Reason> result = EnumSet.noneOf(Reason.class);
+        if (signature == null) return result;
         for (Reason reason : Reason.values()) {
             if ((card == null || reason.card == card) && (!mutes || reason.mutable)) {
                 for (String id : signature.split("\\|")) if (reason.id.equals(id)) result.add(reason);

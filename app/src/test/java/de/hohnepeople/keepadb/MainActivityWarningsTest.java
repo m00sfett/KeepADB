@@ -406,7 +406,7 @@ public class MainActivityWarningsTest {
     }
 
     @Test
-    public void noWarningCanBeDismissed() {
+    public void warningHasAnIndependentDismissTarget() {
         shadowOf((Application) context).denyPermissions(
                 android.Manifest.permission.WRITE_SECURE_SETTINGS);
         MainActivity activity = open();
@@ -418,8 +418,10 @@ public class MainActivityWarningsTest {
                 buttons++;
             }
         }
-        assertEquals("one action, no dismiss", 1, buttons);
-        assertEquals(2, card.getChildCount());
+        assertEquals("one review action in the card content", 1, buttons);
+        assertEquals("icon, content and independent close target", 3, card.getChildCount());
+        assertTrue(card.findViewById(R.id.home_warning_dismiss).isClickable());
+        assertEquals(48, card.findViewById(R.id.home_warning_dismiss).getLayoutParams().width);
     }
 
     // ---- The status line -----------------------------------------------------------------------------

@@ -31,6 +31,9 @@ are retrospective issue-version records and were never published as separate rel
 ### Security
 - **Warning episode persistence (#826):** Successful Force activations atomically receive a separate display token; clock rebasing preserves it. Unknown legacy Force writes conservatively invalidate an old acknowledgment once on upgrade. Warning storage is additive and versioned, rejects critical mute IDs, preserves unknown or malformed stored schemas, and never changes ADB, protection, Force duration or the advice banner preference.
 
+### Fixed
+- **Integration regression coverage (#841):** Decode absent/null warning signatures conservatively, retain the operational warning explanation before concrete reasons, and align existing lifecycle and accessibility resource contracts with setter observation and independent close targets.
+
 ## [1.9.47] - 2026-10-08 (unreleased)
 
 ### Changed

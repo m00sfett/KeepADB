@@ -645,6 +645,9 @@ public class MainActivity extends Activity {
 
     private String warningReasonText(KeepADBWarningState.Card card) {
         java.util.List<String> labels = new java.util.ArrayList<>();
+        if (card == KeepADBWarningState.Card.LIMITED) {
+            labels.add(getString(R.string.home_warning_limited_text));
+        }
         for (KeepADBWarningState.Reason reason : warningSnapshot.reasons(card)) labels.add(getString(reason.label));
         return android.text.TextUtils.join("\n", labels);
     }
