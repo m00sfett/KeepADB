@@ -309,7 +309,8 @@ public class MainActivityWarningsTest {
         MainActivity activity = open();
 
         assertTrue(shown(activity, R.id.warning_limited));
-        assertEquals(context.getString(R.string.onboarding_perm_battery_title),
+        assertEquals(context.getString(R.string.home_warning_limited_text) + "\n"
+                        + context.getString(R.string.onboarding_perm_battery_title),
                 text(activity, R.id.warning_limited).getText().toString());
         assertLeadsToStep(activity, R.id.warning_limited, KeepADBOnboarding.Step.PERMISSIONS,
                 OnboardingActionSteps.Permissions.ITEM_BATTERY);
