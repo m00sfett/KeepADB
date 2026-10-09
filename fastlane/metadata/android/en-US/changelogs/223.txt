@@ -1,0 +1,1 @@
+Improves accessibility contrast for button focus and pressed states to meet WCAG AA standards. Your button actions and theme appearance remain intact.
