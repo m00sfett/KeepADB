@@ -20,6 +20,10 @@ den gezeigten Token mit dem aktuellen ab; gleiche Grund-IDs reichen dafür nicht
 Rückmeldung erhält ihre Tokens bei Rotation. Ein Update ergänzt fehlende Tokens, ohne gültige
 gespeicherte Bestätigungen oder Mutes zu löschen.
 
+Die System-Warnursache liest ausschließlich Berechtigung und den vorhandenen abgesicherten
+Settings-Wert. Sie fragt unter dem Anzeige-Monitor keinen Endpoint-Monitor ab; synchron auf
+dem UI-Thread ausgeführte Endpoint-Callbacks dürfen ihrerseits Warnungen rendern.
+
 Force-Aktivierung speichert einen neuen `warnings_force_episode`-Token atomar mit
 `force_state`. `warnings_force_fingerprint` enthält dessen SHA-256-Fingerabdruck. Eigenes
 Rebinding behält die Episode; eine unbekannte Änderung durch eine ältere App erzeugt einmal

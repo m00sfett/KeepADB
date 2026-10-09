@@ -53,6 +53,36 @@ public class KeepADBWarningStateTest {
         KeepADBPreferences.setRegisterWebhookUrl(context, "http://localhost/register/test");
         KeepADBPreferences.setRegisterWebhookEnabled(context, enabled);
     }
+    @Test public void warningObservationNeverWaitsForTheEndpointMonitor() throws Exception {
+        KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        java.util.concurrent.CountDownLatch held = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch release = new java.util.concurrent.CountDownLatch(1);
+        Thread coordinator = new Thread(() -> {
+            synchronized (KeepADBEndpointCoordinator.class) {
+                held.countDown();
+                try { release.await(); } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        java.util.concurrent.ExecutorService reader = java.util.concurrent.Executors.newSingleThreadExecutor();
+        coordinator.start();
+        try {
+            assertTrue(held.await(5, java.util.concurrent.TimeUnit.SECONDS));
+            java.util.concurrent.Future<KeepADBWarningState.Snapshot> reading = reader.submit(this::snapshot);
+            try {
+                assertFalse(reading.get(2, java.util.concurrent.TimeUnit.SECONDS).active
+                        .contains(KeepADBWarningState.Reason.SYSTEM_PERMISSION));
+            } catch (java.util.concurrent.TimeoutException deadlocked) {
+                throw new AssertionError("warning observation must not acquire the endpoint monitor", deadlocked);
+            }
+        } finally {
+            release.countDown();
+            coordinator.join(5_000);
+            reader.shutdownNow();
+        }
+    }
     @Test public void signaturesSurviveSameStateAndOnlyShrinkOnRemoval() {
         KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         http(true);

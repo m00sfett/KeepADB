@@ -60,7 +60,10 @@ final class KeepADBHomeWarnings {
     static java.util.Set<KeepADBWarningState.Reason> reasons(Context context) {
         java.util.Set<KeepADBWarningState.Reason> result = java.util.EnumSet.noneOf(
                 KeepADBWarningState.Reason.class);
-        if (KeepADB.getState(context) == KeepADB.State.PERMISSION_MISSING) {
+        // Called under the display-state monitor: do not query the endpoint coordinator here.
+        // These are exactly getState's permission/read-failure cases, independent of its endpoint.
+        Context app = context.getApplicationContext();
+        if (!KeepADB.hasPermission(app) || KeepADB.isEnabledOrNull(app, "get_state") == null) {
             result.add(KeepADBWarningState.Reason.SYSTEM_PERMISSION);
         }
         for (KeepADBOnboarding.LessSecure reason : KeepADBOnboarding.lessSecure(context)) {
