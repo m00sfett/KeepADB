@@ -547,4 +547,20 @@
     <string name="menu_item_language">言語</string>
     <string name="menu_item_privacy_mode">プライバシーモード</string>
     <string name="menu_item_all_settings">すべての設定</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">セキュリティ警告</string>
+    <string name="warnings_count">セキュリティ警告：有効な理由 %1$d 件</string>
+    <string name="warnings_close">警告を閉じる：%1$s</string>
+    <string name="warnings_closed">警告を閉じました：%1$s</string>
+    <string name="warnings_undo">元に戻す</string>
+    <string name="warnings_mute">今後表示しない</string>
+    <string name="warnings_mute_selected">選択した理由を非表示にする</string>
+    <string name="warnings_muted">非表示の警告</string>
+    <string name="warnings_muted_hint">各スイッチは一つの理由に対応します。オンは非表示を意味します。</string>
+    <string name="warnings_muted_state">非表示</string>
+    <string name="warnings_unmuted_state">表示</string>
+    <string name="warnings_inactive">現在、警告はありません</string>
+    <string name="warnings_reset">すべての非表示設定を解除</string>
+    <string name="warnings_none">有効なセキュリティ警告はありません</string>
 </resources>

@@ -80,7 +80,9 @@ public class MainActivityDisplayFindingsTest {
         MainActivity activity = Robolectric.buildActivity(MainActivity.class).setup().get();
         String shown = ((TextView) activity.findViewById(R.id.warning_limited)
                 .findViewById(R.id.home_warning_text)).getText().toString();
-        assertEquals(context.getString(R.string.home_warning_limited_text), shown);
+        assertTrue("keep the explanation before listing concrete missing permissions",
+                shown.startsWith(context.getString(R.string.home_warning_limited_text) + "\n"));
+        assertTrue(shown.contains(context.getString(R.string.onboarding_perm_battery_title)));
         assertFalse(shown, shown.matches(".*\\d.*"));
     }
 

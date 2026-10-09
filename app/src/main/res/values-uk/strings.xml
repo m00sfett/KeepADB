@@ -547,4 +547,20 @@
     <string name="menu_item_language">Мова</string>
     <string name="menu_item_privacy_mode">Режим конфіденційності</string>
     <string name="menu_item_all_settings">Усі налаштування</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">Попередження безпеки</string>
+    <string name="warnings_count">Попередження безпеки: %1$d активних причин</string>
+    <string name="warnings_close">Закрити попередження: %1$s</string>
+    <string name="warnings_closed">Попередження закрито: %1$s</string>
+    <string name="warnings_undo">Скасувати</string>
+    <string name="warnings_mute">Більше не показувати</string>
+    <string name="warnings_mute_selected">Приховати вибрані причини</string>
+    <string name="warnings_muted">Приховані попередження</string>
+    <string name="warnings_muted_hint">Кожен перемикач приховує одну причину. Увімкнений — приховано.</string>
+    <string name="warnings_muted_state">Приховано</string>
+    <string name="warnings_unmuted_state">Не приховано</string>
+    <string name="warnings_inactive">Зараз попередження немає</string>
+    <string name="warnings_reset">Скинути всі приховані попередження</string>
+    <string name="warnings_none">Немає активних попереджень безпеки</string>
 </resources>

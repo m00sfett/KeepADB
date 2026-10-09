@@ -1,0 +1,1 @@
+Prevents a possible app freeze when network updates and warning refreshes happen together. Your debugging and protection settings are preserved.

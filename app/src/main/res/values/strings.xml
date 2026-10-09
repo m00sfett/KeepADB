@@ -556,4 +556,20 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="menu_item_language">Language</string>
     <string name="menu_item_privacy_mode">Privacy mode</string>
     <string name="menu_item_all_settings">All settings</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">Security warnings</string>
+    <string name="warnings_count">Security warnings: %1$d active reasons</string>
+    <string name="warnings_close">Close warning: %1$s</string>
+    <string name="warnings_closed">Warning card closed: %1$s</string>
+    <string name="warnings_undo">Undo</string>
+    <string name="warnings_mute">Do not show again</string>
+    <string name="warnings_mute_selected">Mute selected reasons</string>
+    <string name="warnings_muted">Muted warnings</string>
+    <string name="warnings_muted_hint">Each switch mutes one reason. On means muted.</string>
+    <string name="warnings_muted_state">Muted</string>
+    <string name="warnings_unmuted_state">Not muted</string>
+    <string name="warnings_inactive">No warning at present</string>
+    <string name="warnings_reset">Reset all mutes</string>
+    <string name="warnings_none">No active security warnings</string>
 </resources>

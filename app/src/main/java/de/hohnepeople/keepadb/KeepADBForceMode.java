@@ -99,8 +99,8 @@ import java.util.Locale;
  * the rest of {@code keepadb_prefs} they are excluded from backup and device transfer.
  *
  * <h2>Locks</h2>
- * {@link #LOCK} guards only the preference read-modify-write and is never held while calling into
- * other classes; {@link #NOTICE_LOCK} serializes the delivery of the expiry notice. {@link
+ * {@link #LOCK} serializes preference writes with warning display snapshots (#826). Force
+ * transitions hold it only for storage; surface refreshes happen after releasing it; {@link #NOTICE_LOCK} serializes the delivery of the expiry notice. {@link
  * #isActive} and {@link #status} take no lock and have no side effect, so they are safe under
  * the coordinator and {@code KeepADB} monitors; {@link #finishIfExpired}, {@link #endNow} and
  * {@link #activate} refresh surfaces and must not be called from there.
@@ -250,7 +250,7 @@ final class KeepADBForceMode {
         }
     }
 
-    private static final Object LOCK = new Object();
+    private static final Object LOCK = KeepADBWarningState.LOCK;
     private static final Object NOTICE_LOCK = new Object();
     private static volatile Clock clock = SYSTEM_CLOCK;
     private static volatile Runnable stateListener;
@@ -374,7 +374,9 @@ final class KeepADBForceMode {
         State state = new State(span, span.millis, now.wallMs(), now.elapsedMs(), boot);
         boolean stored;
         synchronized (LOCK) {
-            stored = prefs(app).edit()
+            SharedPreferences preferences = prefs(app);
+            stored = KeepADBWarningState.forceWrite(preferences, preferences.edit(),
+                    preferences.getString(KEY_STATE, null), encode(state), true)
                     .putString(KEY_STATE, encode(state))
                     .remove(KEY_NOTICE_PENDING)
                     .remove(KEY_NOTICE_REASON)
@@ -407,7 +409,9 @@ final class KeepADBForceMode {
         boolean ended = false;
         synchronized (LOCK) {
             if (readState(app) != null) {
-                ended = prefs(app).edit().remove(KEY_STATE).remove(KEY_NOTICE_PENDING)
+                ended = KeepADBWarningState.forceWrite(prefs(app), prefs(app).edit(),
+                        prefs(app).getString(KEY_STATE, null), null, false)
+                        .remove(KEY_STATE).remove(KEY_NOTICE_PENDING)
                         .remove(KEY_NOTICE_REASON).commit();
             }
         }
@@ -450,7 +454,8 @@ final class KeepADBForceMode {
                 int boot = now.bootCount(app);
                 long remaining = remainingMs(state, wall, elapsed, boot);
                 if (remaining <= 0) {
-                    SharedPreferences.Editor ended = prefs(app).edit()
+                    SharedPreferences.Editor ended = KeepADBWarningState.forceWrite(prefs(app),
+                            prefs(app).edit(), prefs(app).getString(KEY_STATE, null), null, false)
                             .remove(KEY_STATE)
                             .putBoolean(KEY_NOTICE_PENDING, true);
                     if (endedForSafety(state, wall, elapsed, boot)) {
@@ -468,7 +473,9 @@ final class KeepADBForceMode {
                     }
                     if (reboundReason != null) {
                         State bound = new State(state.span, remaining, wall, elapsed, boot);
-                        rebound = prefs(app).edit().putString(KEY_STATE, encode(bound)).commit();
+                        rebound = KeepADBWarningState.forceWrite(prefs(app), prefs(app).edit(),
+                                prefs(app).getString(KEY_STATE, null), encode(bound), false)
+                                .putString(KEY_STATE, encode(bound)).commit();
                         reboundFailed = !rebound;
                     }
                 }
@@ -560,6 +567,7 @@ final class KeepADBForceMode {
     }
 
     private static void refreshSurfaces(Context app, boolean restartService) {
+        KeepADBWarningState.observe(app);
         // Starting the service is only needed when Keep-Alive was just switched on; an expiry or an
         // end leaves it exactly as it is (and must not start a foreground service from a broadcast).
         if (restartService) KeepADBService.sync(app);

@@ -21,8 +21,7 @@ import android.content.Intent;
  *       W5 share one slot (W4 wins), so there are never more than three cards at once.</li>
  * </ul>
  *
- * <p>Pure reads, nothing is written, and nothing here can be dismissed: a card is there exactly as
- * long as its cause is.
+ * <p>Pure reads. Display acknowledgments and mutes live in KeepADBWarningState.
  */
 final class KeepADBHomeWarnings {
     /** W1: the system permission is missing. */
@@ -57,6 +56,40 @@ final class KeepADBHomeWarnings {
         return keepAliveLimitedCount > 0;
     }
 
+    /** Raw causes, independent of display suppression. Never writes preferences. */
+    static java.util.Set<KeepADBWarningState.Reason> reasons(Context context) {
+        java.util.Set<KeepADBWarningState.Reason> result = java.util.EnumSet.noneOf(
+                KeepADBWarningState.Reason.class);
+        // Called under the display-state monitor: do not query the endpoint coordinator here.
+        // These are exactly getState's permission/read-failure cases, independent of its endpoint.
+        Context app = context.getApplicationContext();
+        if (!KeepADB.hasPermission(app) || KeepADB.isEnabledOrNull(app, "get_state") == null) {
+            result.add(KeepADBWarningState.Reason.SYSTEM_PERMISSION);
+        }
+        for (KeepADBOnboarding.LessSecure reason : KeepADBOnboarding.lessSecure(context)) {
+            result.add(KeepADBWarningState.Reason.valueOf(reason.name()));
+        }
+        if (KeepADBPreferences.isKeepAliveEnabled(context)) {
+            if (KeepADBService.isWifiConnected(context)
+                    && KeepADBTrustedNetwork.getBlockReason(context)
+                    == KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE) {
+                result.add(KeepADBWarningState.Reason.NETWORK_IDENTITY_UNAVAILABLE);
+            }
+            if (OnboardingPermissions.hasNotificationPermission()
+                    && OnboardingPermissions.isNotificationMissing(context)) {
+                result.add(KeepADBWarningState.Reason.NOTIFICATIONS_MISSING);
+            }
+            if (!KeepADBForceMode.isActive(context)
+                    && KeepADBBackgroundLocation.isSetupNeeded(context)) {
+                result.add(KeepADBWarningState.Reason.BACKGROUND_LOCATION_MISSING);
+            }
+            if (!KeepADBBatteryOptimization.isExempt(context)) {
+                result.add(KeepADBWarningState.Reason.BATTERY_EXEMPTION_MISSING);
+            }
+        }
+        return result;
+    }
+
     /** The warnings that hold right now. */
     static KeepADBHomeWarnings evaluate(Context context) {
         // The same read that disables the main switch, so card and switch can never disagree.
@@ -64,12 +97,10 @@ final class KeepADBHomeWarnings {
 
         int lessSecure = 0;
         KeepADBOnboarding.Step lessSecureStep = null;
-        if (KeepADBOnboarding.isExistingInstall(context)) {
-            for (KeepADBOnboarding.LessSecure value : KeepADBOnboarding.lessSecure(context)) {
-                if (value == KeepADBOnboarding.LessSecure.FORCE_MODE) continue;
-                lessSecure++;
-                if (lessSecureStep == null) lessSecureStep = stepOf(value);
-            }
+        for (KeepADBOnboarding.LessSecure value : KeepADBOnboarding.lessSecure(context)) {
+            if (value == KeepADBOnboarding.LessSecure.FORCE_MODE) continue;
+            lessSecure++;
+            if (lessSecureStep == null) lessSecureStep = stepOf(value);
         }
 
         boolean keepAlive = KeepADBPreferences.isKeepAliveEnabled(context);

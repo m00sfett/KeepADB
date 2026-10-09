@@ -547,4 +547,20 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="menu_item_language">Bahasa</string>
     <string name="menu_item_privacy_mode">Mode privasi</string>
     <string name="menu_item_all_settings">Semua pengaturan</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">Peringatan keamanan</string>
+    <string name="warnings_count">Peringatan keamanan: %1$d alasan aktif</string>
+    <string name="warnings_close">Tutup peringatan: %1$s</string>
+    <string name="warnings_closed">Peringatan ditutup: %1$s</string>
+    <string name="warnings_undo">Urungkan</string>
+    <string name="warnings_mute">Jangan tampilkan lagi</string>
+    <string name="warnings_mute_selected">Bisukan alasan yang dipilih</string>
+    <string name="warnings_muted">Peringatan dibisukan</string>
+    <string name="warnings_muted_hint">Setiap sakelar membisukan satu alasan. Aktif berarti dibisukan.</string>
+    <string name="warnings_muted_state">Dibisukan</string>
+    <string name="warnings_unmuted_state">Tidak dibisukan</string>
+    <string name="warnings_inactive">Tidak ada peringatan saat ini</string>
+    <string name="warnings_reset">Batalkan semua pembisuan</string>
+    <string name="warnings_none">Tidak ada peringatan keamanan aktif</string>
 </resources>

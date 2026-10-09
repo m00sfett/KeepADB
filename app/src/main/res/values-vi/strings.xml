@@ -547,4 +547,20 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="menu_item_language">Ngôn ngữ</string>
     <string name="menu_item_privacy_mode">Chế độ riêng tư</string>
     <string name="menu_item_all_settings">Tất cả cài đặt</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">Cảnh báo bảo mật</string>
+    <string name="warnings_count">Cảnh báo bảo mật: %1$d lý do đang có</string>
+    <string name="warnings_close">Đóng cảnh báo: %1$s</string>
+    <string name="warnings_closed">Đã đóng cảnh báo: %1$s</string>
+    <string name="warnings_undo">Hoàn tác</string>
+    <string name="warnings_mute">Không hiện lại</string>
+    <string name="warnings_mute_selected">Ẩn các lý do đã chọn</string>
+    <string name="warnings_muted">Cảnh báo đã ẩn</string>
+    <string name="warnings_muted_hint">Mỗi công tắc ẩn một lý do. Bật nghĩa là đã ẩn.</string>
+    <string name="warnings_muted_state">Đã ẩn</string>
+    <string name="warnings_unmuted_state">Không ẩn</string>
+    <string name="warnings_inactive">Hiện không có cảnh báo</string>
+    <string name="warnings_reset">Bỏ ẩn tất cả</string>
+    <string name="warnings_none">Không có cảnh báo bảo mật đang hoạt động</string>
 </resources>

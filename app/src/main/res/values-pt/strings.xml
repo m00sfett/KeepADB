@@ -547,4 +547,20 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="menu_item_language">Idioma</string>
     <string name="menu_item_privacy_mode">Modo de privacidade</string>
     <string name="menu_item_all_settings">Todas as configurações</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">Avisos de segurança</string>
+    <string name="warnings_count">Avisos de segurança: %1$d motivos ativos</string>
+    <string name="warnings_close">Fechar aviso: %1$s</string>
+    <string name="warnings_closed">Aviso fechado: %1$s</string>
+    <string name="warnings_undo">Desfazer</string>
+    <string name="warnings_mute">Não mostrar novamente</string>
+    <string name="warnings_mute_selected">Silenciar motivos selecionados</string>
+    <string name="warnings_muted">Avisos silenciados</string>
+    <string name="warnings_muted_hint">Cada interruptor silencia um motivo. Ligado significa silenciado.</string>
+    <string name="warnings_muted_state">Silenciado</string>
+    <string name="warnings_unmuted_state">Não silenciado</string>
+    <string name="warnings_inactive">Nenhum aviso no momento</string>
+    <string name="warnings_reset">Repor todos os avisos silenciados</string>
+    <string name="warnings_none">Nenhum aviso de segurança ativo</string>
 </resources>

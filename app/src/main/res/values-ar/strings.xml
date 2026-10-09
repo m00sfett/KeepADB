@@ -547,4 +547,20 @@
     <string name="menu_item_language">اللغة</string>
     <string name="menu_item_privacy_mode">وضع الخصوصية</string>
     <string name="menu_item_all_settings">جميع الإعدادات</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">تحذيرات الأمان</string>
+    <string name="warnings_count">تحذيرات الأمان: %1$d أسباب نشطة</string>
+    <string name="warnings_close">إغلاق التحذير: %1$s</string>
+    <string name="warnings_closed">تم إغلاق التحذير: %1$s</string>
+    <string name="warnings_undo">تراجع</string>
+    <string name="warnings_mute">عدم العرض مرة أخرى</string>
+    <string name="warnings_mute_selected">كتم الأسباب المحددة</string>
+    <string name="warnings_muted">التحذيرات المكتومة</string>
+    <string name="warnings_muted_hint">كل مفتاح يكتم سببًا واحدًا. التشغيل يعني الكتم.</string>
+    <string name="warnings_muted_state">مكتوم</string>
+    <string name="warnings_unmuted_state">غير مكتوم</string>
+    <string name="warnings_inactive">لا يوجد تحذير حاليًا</string>
+    <string name="warnings_reset">إلغاء كل عمليات الكتم</string>
+    <string name="warnings_none">لا توجد تحذيرات أمان نشطة</string>
 </resources>

@@ -547,4 +547,20 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="menu_item_language">Taal</string>
     <string name="menu_item_privacy_mode">Privacymodus</string>
     <string name="menu_item_all_settings">Alle instellingen</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">Beveiligingswaarschuwingen</string>
+    <string name="warnings_count">Beveiligingswaarschuwingen: %1$d actieve redenen</string>
+    <string name="warnings_close">Waarschuwing sluiten: %1$s</string>
+    <string name="warnings_closed">Waarschuwing gesloten: %1$s</string>
+    <string name="warnings_undo">Ongedaan maken</string>
+    <string name="warnings_mute">Niet meer tonen</string>
+    <string name="warnings_mute_selected">Geselecteerde redenen dempen</string>
+    <string name="warnings_muted">Gedempte waarschuwingen</string>
+    <string name="warnings_muted_hint">Elke schakelaar dempt één reden. Aan betekent gedempt.</string>
+    <string name="warnings_muted_state">Gedempt</string>
+    <string name="warnings_unmuted_state">Niet gedempt</string>
+    <string name="warnings_inactive">Momenteel geen waarschuwing</string>
+    <string name="warnings_reset">Alle dempingen opheffen</string>
+    <string name="warnings_none">Geen actieve beveiligingswaarschuwingen</string>
 </resources>

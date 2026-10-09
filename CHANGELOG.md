@@ -17,11 +17,36 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.46` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.50` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.50] - 2026-10-09 (unreleased)
+
+### Fixed
+- **Warning/endpoint lock order (#826, #846):** Warning observation reads only the permission and guarded settings value it needs, so synchronous endpoint callbacks cannot deadlock with a concurrent warning snapshot. Warning conditions and actual ADB, protection and Force behavior are preserved.
+
+## [1.9.49] - 2026-10-09 (unreleased)
+
+### Fixed
+- **Stale warning feedback (#826, #845):** A close or mute action from an older display cannot acknowledge a reason that disappeared and returned. Independent reason episodes preserve acknowledgments of unchanged reasons, and an old Undo cannot erase a newer dismissal. Rotation preserves the feedback's original episodes. Actual protection, Force and ADB state remain unchanged.
+
+## [1.9.48] - 2026-10-08 (unreleased)
+
+### Added
+- **Dismissible warnings and security overview (#826):** Each home warning has an independent close button and persistent acknowledgment of its exact reason set. A header triangle continues to list active security reasons with direct review links, including after a card is closed. Individual noncritical reasons can be muted and restored in Settings → Miscellaneous; system permission and Force can never be muted. At most three cards appear in priority order. Fresh installations also see less secure settings.
+
+### Security
+- **Warning episode persistence (#826):** Successful Force activations atomically receive a separate display token; clock rebasing preserves it. Unknown legacy Force writes conservatively invalidate an old acknowledgment once on upgrade. Warning storage is additive and versioned, rejects critical mute IDs, preserves unknown or malformed stored schemas, and never changes ADB, protection, Force duration or the advice banner preference.
+
+### Fixed
+- **Integration regression coverage (#841):** Decode absent/null warning signatures conservatively, retain the operational warning explanation before concrete reasons, and align existing lifecycle and accessibility resource contracts with setter observation and independent close targets.
+
+- **First-touch warning controls (#842):** Return keyboard/accessibility focus without making buttons consume the next touch solely for focus acquisition. Native Touch events, rather than only programmatic clicks, cover the triangle path.
+
+- **Late review-row focus (#842):** Reapply the exact Settings review target once when window focus arrives, so an Android 11 window entering touch mode cannot discard the early request.
 
 ## [1.9.47] - 2026-10-08 (unreleased)
 

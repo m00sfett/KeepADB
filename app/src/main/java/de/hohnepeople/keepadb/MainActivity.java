@@ -41,6 +41,10 @@ public class MainActivity extends Activity {
     private View webhookStatusPanel;
     private View adviceBanner;
     // #764: the warning cards (W1, W3, W4, W5); the force card (W2) is below.
+    private KeepADBWarningState.Snapshot warningSnapshot;
+    private KeepADBWarningState.Snapshot dismissedSnapshot;
+    private KeepADBWarningState.Card dismissedCard;
+    private boolean returningFromWarnings;
     private View warningSystem;
     private View warningLessSecure;
     private View warningPaused;
@@ -116,6 +120,25 @@ public class MainActivity extends Activity {
             updateAdviceBannerVisibility();
         });
 
+        findViewById(R.id.btn_security_warnings).setOnClickListener(v -> {
+            returningFromWarnings = true;
+            startActivity(new Intent(this, WarningsActivity.class));
+        });
+        findViewById(R.id.warning_undo).setOnClickListener(v -> {
+            if (dismissedCard != null && KeepADBWarningState.undo(this, dismissedCard, dismissedSnapshot)) {
+                KeepADBWarningState.Card restored = dismissedCard;
+                dismissedCard = null;
+                renderWarnings();
+                View card = warningCardView(restored);
+                if (card.getVisibility() == View.VISIBLE) focusWarningView(card);
+                else focusWarningView(findViewById(R.id.btn_open_settings));
+            }
+        });
+        findViewById(R.id.warning_mute).setOnClickListener(v -> chooseWarningMutes());
+        if (savedInstanceState != null) {
+            restoreWarningFeedback(savedInstanceState);
+            returningFromWarnings = savedInstanceState.getBoolean("warnings_return_to_triangle");
+        }
         updateAdviceBannerVisibility();
 
         // #764: no setup cards here any more. What is missing is shown as a warning (see
@@ -197,6 +220,20 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        if (dismissedCard != null) {
+            outState.putString("warnings_closed_card", dismissedCard.name());
+            java.util.ArrayList<String> reasons = new java.util.ArrayList<>();
+            for (KeepADBWarningState.Reason reason : dismissedSnapshot.reasons(dismissedCard)) reasons.add(reason.name());
+            outState.putStringArrayList("warnings_closed_reasons", reasons);
+            outState.putString("warnings_closed_episode", dismissedSnapshot.forceEpisode);
+            Bundle episodes = new Bundle();
+            for (KeepADBWarningState.Reason reason : dismissedSnapshot.reasons(dismissedCard)) {
+                episodes.putString(reason.name(), dismissedSnapshot.reasonEpisodes.get(reason));
+            }
+            outState.putBundle("warnings_closed_reason_episodes", episodes);
+        }
+
+        outState.putBoolean("warnings_return_to_triangle", returningFromWarnings);
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_LANGUAGE_PICKER,
                 activeLanguageSelectionDialog != null && activeLanguageSelectionDialog.isShowing());
@@ -320,9 +357,9 @@ public class MainActivity extends Activity {
         KeepADBForceMode.Status force = KeepADBForceMode.status(this);
         forceWarningPanel.setVisibility(force == null ? View.GONE : View.VISIBLE);
         if (force == null) return;
-        forceWarningText.setText(force.isUnlimited()
-                ? getString(R.string.force_card_text_unlimited)
-                : getString(R.string.force_card_text_until, KeepADBForceMode.formatEnd(this, force)));
+        String text = force.isUnlimited() ? getString(R.string.force_card_text_unlimited)
+                : getString(R.string.force_card_text_until, KeepADBForceMode.formatEnd(this, force));
+        if (!android.text.TextUtils.equals(forceWarningText.getText(), text)) forceWarningText.setText(text);
     }
 
     /**
@@ -571,25 +608,185 @@ public class MainActivity extends Activity {
      * others come from {@link KeepADBHomeWarnings}, each leading to the assistant's matching step.
      */
     private void renderWarnings() {
-        KeepADBHomeWarnings warnings = KeepADBHomeWarnings.evaluate(this);
-        bindWarning(warningSystem, warnings.systemPermissionMissing,
+        warningSnapshot = KeepADBWarningState.observe(this);
+        bindWarning(warningSystem, warningSnapshot.visible.contains(KeepADBWarningState.Card.SYSTEM),
                 R.string.home_warning_system_title, getString(R.string.home_warning_system_text),
                 R.string.home_warning_action_guide,
                 () -> startActivity(KeepADBHomeWarnings.systemIntent(this)));
-        bindWarning(warningLessSecure, warnings.showLessSecure(),
+        bindWarning(warningLessSecure, warningSnapshot.visible.contains(KeepADBWarningState.Card.LESS_SECURE),
                 R.string.home_warning_less_secure_title,
-                getString(R.string.onboarding_intro_less_secure),
+                warningReasonText(KeepADBWarningState.Card.LESS_SECURE),
                 R.string.home_warning_action_review,
-                () -> startActivity(warnings.lessSecureIntent(this)));
-        bindWarning(warningPaused, warnings.keepAlivePaused,
+                () -> startActivity(KeepADBWarningState.reviewIntent(this,
+                        warningSnapshot.reasons(KeepADBWarningState.Card.LESS_SECURE).iterator().next())));
+        bindWarning(warningPaused, warningSnapshot.visible.contains(KeepADBWarningState.Card.PAUSED),
                 R.string.home_warning_paused_title, getString(R.string.home_warning_paused_text),
                 R.string.home_warning_action_fix,
                 () -> startActivity(KeepADBNetworkTrustPrompt.identityUnavailableFixIntent(this)));
-        bindWarning(warningLimited, warnings.showLimited(),
+        bindWarning(warningLimited, warningSnapshot.visible.contains(KeepADBWarningState.Card.LIMITED),
                 R.string.home_warning_limited_title,
-                getString(R.string.home_warning_limited_text),
+                warningReasonText(KeepADBWarningState.Card.LIMITED),
                 R.string.home_warning_action_fix,
-                () -> startActivity(warnings.limitedIntent(this)));
+                () -> startActivity(KeepADBWarningState.reviewIntent(this,
+                        warningSnapshot.reasons(KeepADBWarningState.Card.LIMITED).iterator().next())));
+        forceWarningPanel.setVisibility(warningSnapshot.visible.contains(KeepADBWarningState.Card.FORCE)
+                ? View.VISIBLE : View.GONE);
+        bindWarningDismiss(warningSystem, KeepADBWarningState.Card.SYSTEM, R.string.home_warning_system_title);
+        bindWarningDismiss(warningLessSecure, KeepADBWarningState.Card.LESS_SECURE, R.string.home_warning_less_secure_title);
+        bindWarningDismiss(warningPaused, KeepADBWarningState.Card.PAUSED, R.string.home_warning_paused_title);
+        bindWarningDismiss(warningLimited, KeepADBWarningState.Card.LIMITED, R.string.home_warning_limited_title);
+        bindWarningDismiss(forceWarningPanel, KeepADBWarningState.Card.FORCE, R.string.force_card_title);
+        View triangle = findViewById(R.id.btn_security_warnings);
+        int count = warningSnapshot.security().size();
+        triangle.setVisibility(count == 0 ? View.GONE : View.VISIBLE);
+        triangle.setContentDescription(getString(R.string.warnings_count, count));
+        renderWarningFeedback();
+        if (returningFromWarnings && endpointSurfaceActive) {
+            returningFromWarnings = false;
+            View target = count == 0 ? findViewById(R.id.btn_open_settings) : triangle;
+            target.post(() -> focusWarningView(target));
+        }
+    }
+
+    private String warningReasonText(KeepADBWarningState.Card card) {
+        java.util.List<String> labels = new java.util.ArrayList<>();
+        if (card == KeepADBWarningState.Card.LIMITED) {
+            labels.add(getString(R.string.home_warning_limited_text));
+        }
+        for (KeepADBWarningState.Reason reason : warningSnapshot.reasons(card)) labels.add(getString(reason.label));
+        return android.text.TextUtils.join("\n", labels);
+    }
+
+    private void bindWarningDismiss(View card, KeepADBWarningState.Card kind, int title) {
+        View close = card.findViewById(kind == KeepADBWarningState.Card.FORCE
+                ? R.id.force_warning_dismiss : R.id.home_warning_dismiss);
+        close.setContentDescription(getString(R.string.warnings_close, getString(title)));
+        KeepADBWarningState.Snapshot shown = warningSnapshot;
+        close.setOnClickListener(v -> {
+            if (!KeepADBWarningState.dismiss(this, kind, shown)) return;
+            dismissedCard = kind;
+            dismissedSnapshot = shown;
+            renderWarnings();
+            focusWarningView(findViewById(R.id.warning_feedback_text));
+        });
+    }
+
+    private static void focusWarningView(View view) {
+        view.setFocusable(true);
+        // Preserve normal first-tap activation after returning keyboard/accessibility focus.
+        view.requestFocusFromTouch();
+        view.performAccessibilityAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
+    }
+
+    private View warningCardView(KeepADBWarningState.Card card) {
+        switch (card) {
+            case SYSTEM: return warningSystem;
+            case FORCE: return forceWarningPanel;
+            case LESS_SECURE: return warningLessSecure;
+            case PAUSED: return warningPaused;
+            default: return warningLimited;
+        }
+    }
+
+    private int warningTitle(KeepADBWarningState.Card card) {
+        switch (card) {
+            case SYSTEM: return R.string.home_warning_system_title;
+            case FORCE: return R.string.force_card_title;
+            case LESS_SECURE: return R.string.home_warning_less_secure_title;
+            case PAUSED: return R.string.home_warning_paused_title;
+            default: return R.string.home_warning_limited_title;
+        }
+    }
+
+    private void renderWarningFeedback() {
+        findViewById(R.id.warning_feedback).setVisibility(dismissedCard == null ? View.GONE : View.VISIBLE);
+        if (dismissedCard == null) return;
+        TextView feedback = findViewById(R.id.warning_feedback_text);
+        String text = getString(R.string.warnings_closed, getString(warningTitle(dismissedCard)));
+        if (!android.text.TextUtils.equals(feedback.getText(), text)) feedback.setText(text);
+        findViewById(R.id.warning_mute).setVisibility(mutableClosedReasons().isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+    private java.util.List<KeepADBWarningState.Reason> mutableClosedReasons() {
+        java.util.List<KeepADBWarningState.Reason> reasons = new java.util.ArrayList<>();
+        if (dismissedCard == null) return reasons;
+        for (KeepADBWarningState.Reason reason : dismissedSnapshot.reasons(dismissedCard)) {
+            if (reason.mutable && warningSnapshot.active.contains(reason) && !warningSnapshot.muted.contains(reason)
+                    && KeepADBWarningState.sameEpisode(dismissedSnapshot, warningSnapshot, reason)) {
+                reasons.add(reason);
+            }
+        }
+        return reasons;
+    }
+
+    private void chooseWarningMutes() {
+        java.util.List<KeepADBWarningState.Reason> reasons = mutableClosedReasons();
+        if (reasons.isEmpty()) return;
+        if (reasons.size() == 1) {
+            muteClosedReason(reasons.get(0));
+            renderWarnings();
+            return;
+        }
+        // A scrolling native list, with no default selections, can grow with the font size.
+        android.widget.LinearLayout content = new android.widget.LinearLayout(this);
+        content.setOrientation(android.widget.LinearLayout.VERTICAL);
+        android.widget.ScrollView scroll = new android.widget.ScrollView(this);
+        scroll.addView(content);
+        java.util.List<android.widget.CheckBox> choices = new java.util.ArrayList<>();
+        for (KeepADBWarningState.Reason reason : reasons) {
+            android.widget.CheckBox choice = new android.widget.CheckBox(this);
+            choice.setText(reason.label);
+            choice.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+            android.widget.LinearLayout.LayoutParams params = new android.widget.LinearLayout.LayoutParams(-1, -2);
+            params.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
+            content.addView(choice, params);
+            choices.add(choice);
+        }
+        Button apply = new Button(this);
+        apply.setText(R.string.warnings_mute_selected);
+        apply.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
+        apply.setEnabled(false);
+        android.widget.LinearLayout.LayoutParams params = new android.widget.LinearLayout.LayoutParams(-1, -2);
+        params.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
+        content.addView(apply, params);
+        for (android.widget.CheckBox choice : choices) choice.setOnCheckedChangeListener((button, checked) -> {
+            boolean any = false;
+            for (android.widget.CheckBox option : choices) any |= option.isChecked();
+            apply.setEnabled(any);
+        });
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle(R.string.warnings_mute)
+                .setView(scroll).setNegativeButton(android.R.string.cancel, null).create();
+        apply.setOnClickListener(v -> {
+            for (int i = 0; i < reasons.size(); i++) if (choices.get(i).isChecked()) muteClosedReason(reasons.get(i));
+            dialog.dismiss();
+            renderWarnings();
+            focusWarningView(findViewById(R.id.warning_feedback_text));
+        });
+        dialog.show();
+    }
+
+    private void muteClosedReason(KeepADBWarningState.Reason reason) {
+        KeepADBWarningState.muteClosed(this, reason, dismissedCard, dismissedSnapshot);
+    }
+
+    private void restoreWarningFeedback(Bundle saved) {
+        String name = saved.getString("warnings_closed_card");
+        if (name == null) return;
+        try {
+            dismissedCard = KeepADBWarningState.Card.valueOf(name);
+            java.util.Set<KeepADBWarningState.Reason> reasons = java.util.EnumSet.noneOf(KeepADBWarningState.Reason.class);
+            java.util.ArrayList<String> names = saved.getStringArrayList("warnings_closed_reasons");
+            if (names != null) for (String reason : names) reasons.add(KeepADBWarningState.Reason.valueOf(reason));
+            java.util.Map<KeepADBWarningState.Reason, String> episodes = new java.util.EnumMap<>(KeepADBWarningState.Reason.class);
+            Bundle savedEpisodes = saved.getBundle("warnings_closed_reason_episodes");
+            if (savedEpisodes != null) for (KeepADBWarningState.Reason reason : reasons) {
+                String episode = savedEpisodes.getString(reason.name());
+                if (episode != null) episodes.put(reason, episode);
+            }
+            dismissedSnapshot = new KeepADBWarningState.Snapshot(reasons,
+                    java.util.EnumSet.noneOf(KeepADBWarningState.Reason.class),
+                    java.util.EnumSet.noneOf(KeepADBWarningState.Card.class), saved.getString("warnings_closed_episode", ""), episodes);
+        } catch (IllegalArgumentException invalid) { dismissedCard = null; }
     }
 
     private void bindWarning(View card, boolean visible, int titleRes, String text, int actionRes,
@@ -597,7 +794,8 @@ public class MainActivity extends Activity {
         card.setVisibility(visible ? View.VISIBLE : View.GONE);
         if (!visible) return;
         ((TextView) card.findViewById(R.id.home_warning_title)).setText(titleRes);
-        ((TextView) card.findViewById(R.id.home_warning_text)).setText(text);
+        TextView body = card.findViewById(R.id.home_warning_text);
+        if (!android.text.TextUtils.equals(body.getText(), text)) body.setText(text);
         Button action = card.findViewById(R.id.home_warning_action);
         action.setText(actionRes);
         action.setOnClickListener(v -> onAction.run());

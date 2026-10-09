@@ -547,4 +547,20 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="menu_item_language">Sprache</string>
     <string name="menu_item_privacy_mode">Privatsphäre-Modus</string>
     <string name="menu_item_all_settings">Alle Einstellungen</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">Sicherheitswarnungen</string>
+    <string name="warnings_count">Sicherheitswarnungen: %1$d aktive Gründe</string>
+    <string name="warnings_close">Warnkarte schließen: %1$s</string>
+    <string name="warnings_closed">Warnkarte geschlossen: %1$s</string>
+    <string name="warnings_undo">Rückgängig</string>
+    <string name="warnings_mute">Nicht mehr anzeigen</string>
+    <string name="warnings_mute_selected">Ausgewählte Gründe stummschalten</string>
+    <string name="warnings_muted">Stummgeschaltete Warnungen</string>
+    <string name="warnings_muted_hint">Jeder Schalter gilt für einen Grund. An bedeutet stummgeschaltet.</string>
+    <string name="warnings_muted_state">Stummgeschaltet</string>
+    <string name="warnings_unmuted_state">Nicht stummgeschaltet</string>
+    <string name="warnings_inactive">Zurzeit kein Warnzustand</string>
+    <string name="warnings_reset">Alle Stummschaltungen zurücksetzen</string>
+    <string name="warnings_none">Keine aktiven Sicherheitswarnungen</string>
 </resources>

@@ -150,6 +150,7 @@ public class KeepADBServiceLifecycleRobolectricTest {
 
         ConnectivityManager connectivityManager = context.getSystemService(ConnectivityManager.class);
         ShadowConnectivityManager shadowConnectivityManager = shadowOf(connectivityManager);
+        int callbacksBeforeService = shadowConnectivityManager.getNetworkCallbacks().size();
 
         ServiceController<KeepADBService> controller = Robolectric.buildService(KeepADBService.class);
         try {
@@ -161,8 +162,8 @@ public class KeepADBServiceLifecycleRobolectricTest {
                     Service.START_NOT_STICKY, result);
             ShadowLooper.idleMainLooper();
 
-            assertTrue("NetworkCallback must not be registered when shouldRun is false",
-                    shadowConnectivityManager.getNetworkCallbacks().isEmpty());
+            assertEquals("a stopped service must not add a callback beyond existing warning observation",
+                    callbacksBeforeService, shadowConnectivityManager.getNetworkCallbacks().size());
 
             ShadowService shadowService = shadowOf(controller.get());
             assertTrue("stopForeground must have been called", shadowService.isForegroundStopped());

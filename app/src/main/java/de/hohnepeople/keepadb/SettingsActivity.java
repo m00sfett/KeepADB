@@ -31,6 +31,7 @@ public class SettingsActivity extends Activity {
      * {@code EXTRA_FOCUS_NETWORK} of #619: that one had no sender, this one has.
      */
     public static final String EXTRA_FOCUS_NETWORK = "focus_network";
+    public static final String EXTRA_FOCUS_DETAILS = "focus_notification_details";
     public static final String EXTRA_FOCUS_WEBHOOK = "focus_webhook";
     public static final String EXTRA_FOCUS_MISC = "focus_misc";
     // The menu opens the card heading; the existing Keep-Alive entry keeps its level-row target.
@@ -258,6 +259,8 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        findViewById(R.id.settings_muted_warnings).setOnClickListener(v -> startActivity(
+                new Intent(this, WarningsActivity.class).putExtra(WarningsActivity.EXTRA_MUTES, true)));
         webhookForm.ensureDraftInitialized();
         KeepADBPrivacyToggle.update(this);
         // #763: finish an expired force mode before drawing, and redraw when it starts or ends.
@@ -284,6 +287,11 @@ public class SettingsActivity extends Activity {
         if (consumeFocus(EXTRA_FOCUS_WEBHOOK)) {
             focusCard(R.id.settings_webhook_header, R.id.settings_webhook_body,
                     R.id.settings_webhook_arrow);
+            focusWarningTarget(findViewById(R.id.settings_webhook_url));
+        }
+        if (consumeFocus(EXTRA_FOCUS_DETAILS)) {
+            focusCard(R.id.settings_misc_header, R.id.settings_misc_body, R.id.settings_misc_arrow);
+            focusWarningTarget(findViewById(R.id.settings_notification_details_toggle));
         }
         if (consumeFocus(EXTRA_FOCUS_MISC)) {
             focusCard(R.id.settings_misc_header, R.id.settings_misc_body,
@@ -316,6 +324,7 @@ public class SettingsActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         networkCard.onRequestPermissionsResult(requestCode);
+        KeepADBWarningState.observe(this);
     }
 
     @Override
@@ -409,6 +418,8 @@ public class SettingsActivity extends Activity {
                 forcePanel.getDrawingRect(rect);
                 scrollView.offsetDescendantRectToMyCoords(forcePanel, rect);
                 scrollView.smoothScrollTo(0, rect.top);
+                focusWarningTarget(findViewById(KeepADBForceMode.isActive(this)
+                        ? R.id.settings_force_end : R.id.settings_force_activate));
             });
         }
     }
@@ -425,8 +436,37 @@ public class SettingsActivity extends Activity {
                 levelPanel.getDrawingRect(rect);
                 scrollView.offsetDescendantRectToMyCoords(levelPanel, rect);
                 scrollView.smoothScrollTo(0, rect.top);
+                focusWarningTarget(findViewById(R.id.network_level_line));
             });
         }
+    }
+
+    private void focusWarningTarget(View target) {
+        if (target == null) return;
+        target.post(() -> {
+            android.graphics.Rect rect = new android.graphics.Rect();
+            target.getDrawingRect(rect);
+            scrollView.offsetDescendantRectToMyCoords(target, rect);
+            scrollView.smoothScrollTo(0, rect.top);
+            target.setFocusable(true);
+            Runnable focusTarget = () -> {
+                target.requestFocusFromTouch();
+                target.performAccessibilityAction(
+                        android.view.accessibility.AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
+            };
+            focusTarget.run();
+            // A window arriving in touch mode can clear an early focus request on Android 11.
+            if (!target.hasWindowFocus()) {
+                target.getViewTreeObserver().addOnWindowFocusChangeListener(
+                        new android.view.ViewTreeObserver.OnWindowFocusChangeListener() {
+                            @Override public void onWindowFocusChanged(boolean hasFocus) {
+                                if (!hasFocus) return;
+                                target.getViewTreeObserver().removeOnWindowFocusChangeListener(this);
+                                focusTarget.run();
+                            }
+                        });
+            }
+        });
     }
 
     private void focusUsbPanel() {
@@ -578,6 +618,7 @@ public class SettingsActivity extends Activity {
     }
 
     void refresh() {
+        KeepADBWarningState.observe(this);
         boolean hasPermission = checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS)
                 == PackageManager.PERMISSION_GRANTED;
         permissionPanel.setVisibility(hasPermission ? View.GONE : View.VISIBLE);

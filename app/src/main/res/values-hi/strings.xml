@@ -547,4 +547,20 @@
     <string name="menu_item_language">भाषा</string>
     <string name="menu_item_privacy_mode">गोपनीयता मोड</string>
     <string name="menu_item_all_settings">सभी सेटिंग्स</string>
+
+    <!-- #826: warning display controls. -->
+    <string name="warnings_title">सुरक्षा चेतावनियाँ</string>
+    <string name="warnings_count">सुरक्षा चेतावनियाँ: %1$d सक्रिय कारण</string>
+    <string name="warnings_close">चेतावनी बंद करें: %1$s</string>
+    <string name="warnings_closed">चेतावनी बंद हुई: %1$s</string>
+    <string name="warnings_undo">पूर्ववत करें</string>
+    <string name="warnings_mute">दोबारा न दिखाएँ</string>
+    <string name="warnings_mute_selected">चुने हुए कारण म्यूट करें</string>
+    <string name="warnings_muted">म्यूट की गई चेतावनियाँ</string>
+    <string name="warnings_muted_hint">हर स्विच एक कारण को म्यूट करता है। चालू का मतलब म्यूट है।</string>
+    <string name="warnings_muted_state">म्यूट</string>
+    <string name="warnings_unmuted_state">म्यूट नहीं</string>
+    <string name="warnings_inactive">अभी कोई चेतावनी नहीं</string>
+    <string name="warnings_reset">सभी म्यूट हटाएँ</string>
+    <string name="warnings_none">कोई सक्रिय सुरक्षा चेतावनी नहीं</string>
 </resources>

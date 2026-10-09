@@ -138,11 +138,12 @@ public class KeepADBReadSecurityExceptionFallbackTest {
     @Test
     public void maybeSendRecoveryPulseDoesNotCrashWhenIsEnabledReadThrows() {
         KeepADBThrowingSettingsGateway gateway = new KeepADBThrowingSettingsGateway();
-        KeepADB.setGatewayForTesting(gateway);
         KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
         KeepADB.setSchedulerForTesting(scheduler);
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
         KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        // The setup setter observes warnings; install the throwing gateway for the endpoint action.
+        KeepADB.setGatewayForTesting(gateway);
 
         KeepADBEndpoint endpoint = new KeepADBEndpoint(context, new KeepADBFakeNsdProbe(), scheduler);
         // Must not throw: this runs as a Handler callback on the main looper in production,

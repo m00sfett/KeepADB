@@ -421,6 +421,9 @@ public class KeepADBResourceContractTest {
         String stringWitness = context.getPackageName();
         int integerWitness = context.getApplicationInfo().uid;
         long longWitness = integerWitness;
+        result.put("warnings_count", new Object[] {integerWitness});
+        result.put("warnings_close", new Object[] {stringWitness});
+        result.put("warnings_closed", new Object[] {stringWitness});
         result.put("endpoint_format", new Object[] {stringWitness, integerWitness});
         result.put("onboarding_step_counter", new Object[] {integerWitness, integerWitness});
         result.put("onboarding_pane_title", new Object[] {integerWitness, integerWitness, stringWitness});
