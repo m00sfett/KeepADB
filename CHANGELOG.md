@@ -17,11 +17,16 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.50` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.51` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.51] - 2026-10-09 (unreleased)
+
+### Fixed
+- **Button focus and pressed contrast states (#837):** Primary button background in `bg_btn_primary` switches to `@color/muted_red` in focused and pressed states and maintains a distinct 2dp `@color/bright_yellow` focus indicator stroke. This guarantees WCAG 2.1 AA relative luminance contrast (>= 4.5:1) for `title_yellow`, `night_text`, and white text across all primary button surfaces. Button actions, brand identity, and layout dimensions remain unchanged.
 
 ## [1.9.50] - 2026-10-09 (unreleased)
 
