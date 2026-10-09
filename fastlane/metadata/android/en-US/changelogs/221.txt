@@ -1,0 +1,1 @@
+Old warning actions no longer hide a warning that disappeared and returned. Closing, muting and Undo apply to the warning episode you actually saw.

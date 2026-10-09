@@ -226,6 +226,11 @@ public class MainActivity extends Activity {
             for (KeepADBWarningState.Reason reason : dismissedSnapshot.reasons(dismissedCard)) reasons.add(reason.name());
             outState.putStringArrayList("warnings_closed_reasons", reasons);
             outState.putString("warnings_closed_episode", dismissedSnapshot.forceEpisode);
+            Bundle episodes = new Bundle();
+            for (KeepADBWarningState.Reason reason : dismissedSnapshot.reasons(dismissedCard)) {
+                episodes.putString(reason.name(), dismissedSnapshot.reasonEpisodes.get(reason));
+            }
+            outState.putBundle("warnings_closed_reason_episodes", episodes);
         }
 
         outState.putBoolean("warnings_return_to_triangle", returningFromWarnings);
@@ -706,7 +711,8 @@ public class MainActivity extends Activity {
         java.util.List<KeepADBWarningState.Reason> reasons = new java.util.ArrayList<>();
         if (dismissedCard == null) return reasons;
         for (KeepADBWarningState.Reason reason : dismissedSnapshot.reasons(dismissedCard)) {
-            if (reason.mutable && warningSnapshot.active.contains(reason) && !warningSnapshot.muted.contains(reason)) {
+            if (reason.mutable && warningSnapshot.active.contains(reason) && !warningSnapshot.muted.contains(reason)
+                    && KeepADBWarningState.sameEpisode(dismissedSnapshot, warningSnapshot, reason)) {
                 reasons.add(reason);
             }
         }
@@ -771,9 +777,15 @@ public class MainActivity extends Activity {
             java.util.Set<KeepADBWarningState.Reason> reasons = java.util.EnumSet.noneOf(KeepADBWarningState.Reason.class);
             java.util.ArrayList<String> names = saved.getStringArrayList("warnings_closed_reasons");
             if (names != null) for (String reason : names) reasons.add(KeepADBWarningState.Reason.valueOf(reason));
+            java.util.Map<KeepADBWarningState.Reason, String> episodes = new java.util.EnumMap<>(KeepADBWarningState.Reason.class);
+            Bundle savedEpisodes = saved.getBundle("warnings_closed_reason_episodes");
+            if (savedEpisodes != null) for (KeepADBWarningState.Reason reason : reasons) {
+                String episode = savedEpisodes.getString(reason.name());
+                if (episode != null) episodes.put(reason, episode);
+            }
             dismissedSnapshot = new KeepADBWarningState.Snapshot(reasons,
                     java.util.EnumSet.noneOf(KeepADBWarningState.Reason.class),
-                    java.util.EnumSet.noneOf(KeepADBWarningState.Card.class), saved.getString("warnings_closed_episode", ""));
+                    java.util.EnumSet.noneOf(KeepADBWarningState.Card.class), saved.getString("warnings_closed_episode", ""), episodes);
         } catch (IllegalArgumentException invalid) { dismissedCard = null; }
     }
 

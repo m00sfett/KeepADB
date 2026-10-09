@@ -14,6 +14,12 @@ unbestätigt. Stummschaltungen gelten unabhängig davon und bleiben während der
 erhalten. Zurücksetzen entfernt nur Mutes und die Bestätigungen dieser Gründe. System und
 Force werden an beiden Mute-Grenzen zurückgewiesen.
 
+Je Grund hält ein additives `reason_episode_<id>`-Token die beobachtete Anzeigeepisode fest.
+Wegfall und Rückkehr erneuern diesen Token. X, Rückgängig und die Mute-Rückmeldung gleichen
+den gezeigten Token mit dem aktuellen ab; gleiche Grund-IDs reichen dafür nicht aus. Die
+Rückmeldung erhält ihre Tokens bei Rotation. Ein Update ergänzt fehlende Tokens, ohne gültige
+gespeicherte Bestätigungen oder Mutes zu löschen.
+
 Force-Aktivierung speichert einen neuen `warnings_force_episode`-Token atomar mit
 `force_state`. `warnings_force_fingerprint` enthält dessen SHA-256-Fingerabdruck. Eigenes
 Rebinding behält die Episode; eine unbekannte Änderung durch eine ältere App erzeugt einmal

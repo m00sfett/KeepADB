@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.EnumMap;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -52,11 +54,14 @@ final class KeepADBWarningState {
         final Set<Reason> muted;
         final Set<Card> visible;
         final String forceEpisode;
-        Snapshot(Set<Reason> active, Set<Reason> muted, Set<Card> visible, String episode) {
+        final Map<Reason, String> reasonEpisodes;
+        Snapshot(Set<Reason> active, Set<Reason> muted, Set<Card> visible, String episode,
+                Map<Reason, String> reasonEpisodes) {
             this.active = Collections.unmodifiableSet(EnumSet.copyOf(active));
             this.muted = Collections.unmodifiableSet(EnumSet.copyOf(muted));
             this.visible = Collections.unmodifiableSet(EnumSet.copyOf(visible));
             this.forceEpisode = episode;
+            this.reasonEpisodes = Collections.unmodifiableMap(new EnumMap<>(reasonEpisodes));
         }
         Set<Reason> reasons(Card card) {
             Set<Reason> result = EnumSet.noneOf(Reason.class);
@@ -173,10 +178,21 @@ final class KeepADBWarningState {
                 }
             }
             Set<Card> visible = EnumSet.noneOf(Card.class);
+            Map<Reason, String> reasonEpisodes = new EnumMap<>(Reason.class);
             for (Card card : Card.values()) {
                 String key = card.name();
                 Set<Reason> current = EnumSet.noneOf(Reason.class);
                 for (Reason reason : active) if (reason.card == card) current.add(reason);
+                Set<Reason> observed = decode(state.optString(key + "_observed"), card, false);
+                for (Reason reason : current) {
+                    String episodeKey = "reason_episode_" + reason.id;
+                    String reasonEpisode = state.optString(episodeKey);
+                    if (!observed.contains(reason) || reasonEpisode == null || reasonEpisode.isEmpty()) {
+                        reasonEpisode = UUID.randomUUID().toString();
+                        put(state, episodeKey, reasonEpisode);
+                    }
+                    reasonEpisodes.put(reason, reasonEpisode);
+                }
                 Set<Reason> acknowledged = decode(state.optString(key + "_dismissed"), card, false);
                 acknowledged.retainAll(current);
                 if (card == Card.FORCE && !episode.equals(state.optString("force_dismissed_episode"))) {
@@ -201,7 +217,7 @@ final class KeepADBWarningState {
             }
             int count = 0;
             for (Card card : Card.values()) if (visible.contains(card) && ++count > 3) visible.remove(card);
-            return new Snapshot(active, muted, visible, episode);
+            return new Snapshot(active, muted, visible, episode, reasonEpisodes);
         }
     }
     static boolean dismiss(Context context, Card card, Snapshot shown) {
@@ -210,6 +226,7 @@ final class KeepADBWarningState {
             JSONObject state = read(prefs(context));
             Set<Reason> acknowledged = shown.reasons(card);
             acknowledged.retainAll(current.active);
+            acknowledged.removeIf(reason -> !sameEpisode(shown, current, reason));
             if (card == Card.FORCE && !shown.forceEpisode.equals(current.forceEpisode)) return false;
             put(state, card.name() + "_dismissed", signature(acknowledged));
             if (card == Card.FORCE) put(state, "force_dismissed_episode", shown.forceEpisode);
@@ -222,7 +239,9 @@ final class KeepADBWarningState {
             if (card == Card.FORCE && !shown.forceEpisode.equals(current.forceEpisode)) return false;
             JSONObject state = read(prefs(context));
             Set<Reason> acknowledged = decode(state.optString(card.name() + "_dismissed"), card, false);
-            acknowledged.removeAll(shown.reasons(card));
+            for (Reason reason : shown.reasons(card)) {
+                if (sameEpisode(shown, current, reason)) acknowledged.remove(reason);
+            }
             put(state, card.name() + "_dismissed", signature(acknowledged));
             return save(prefs(context), state);
         }
@@ -249,9 +268,15 @@ final class KeepADBWarningState {
     static boolean muteClosed(Context context, Reason reason, Card card, Snapshot shown) {
         synchronized (LOCK) {
             Snapshot current = observe(context);
-            if (!shown.reasons(card).contains(reason) || !current.active.contains(reason)) return false;
+            if (!shown.reasons(card).contains(reason) || !current.active.contains(reason)
+                    || !sameEpisode(shown, current, reason)) return false;
             return mute(context, reason, true);
         }
+    }
+
+    static boolean sameEpisode(Snapshot shown, Snapshot current, Reason reason) {
+        String episode = shown.reasonEpisodes.get(reason);
+        return episode != null && episode.equals(current.reasonEpisodes.get(reason));
     }
 
     static void resetMutes(Context context) {

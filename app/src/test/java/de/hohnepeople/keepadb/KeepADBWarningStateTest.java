@@ -87,6 +87,27 @@ public class KeepADBWarningStateTest {
         http(false);
         assertFalse(shown(KeepADBWarningState.Card.LESS_SECURE));
     }
+    @Test public void staleCloseCannotAcknowledgeAReturnedEpisodeButKeepsUnchangedReasons() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        http(true);
+        KeepADBWarningState.Snapshot old = snapshot();
+        http(false);
+        http(true);
+        assertTrue(KeepADBWarningState.dismiss(context, KeepADBWarningState.Card.LESS_SECURE, old));
+        assertTrue("returned HTTP reason was never shown in this episode", shown(KeepADBWarningState.Card.LESS_SECURE));
+        assertFalse("old mute feedback cannot mute a returned episode", KeepADBWarningState.muteClosed(context,
+                KeepADBWarningState.Reason.WEBHOOK_CLEARTEXT, KeepADBWarningState.Card.LESS_SECURE, old));
+        http(false);
+        assertFalse("unchanged details reason was acknowledged", shown(KeepADBWarningState.Card.LESS_SECURE));
+        KeepADBPreferences.setNotificationDetailsEnabled(context, false);
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        assertTrue(KeepADBWarningState.dismiss(context, KeepADBWarningState.Card.LESS_SECURE, old));
+        assertTrue("full inactivity creates a new details episode", shown(KeepADBWarningState.Card.LESS_SECURE));
+        dismiss(KeepADBWarningState.Card.LESS_SECURE);
+        assertFalse(shown(KeepADBWarningState.Card.LESS_SECURE));
+        assertTrue(KeepADBWarningState.undo(context, KeepADBWarningState.Card.LESS_SECURE, old));
+        assertFalse("stale undo cannot erase the new episode's dismissal", shown(KeepADBWarningState.Card.LESS_SECURE));
+    }
     @Test public void mutedNewReasonDoesNotWakeAcknowledgedOtherReasons() {
         http(true);
         assertTrue(KeepADBWarningState.mute(context, KeepADBWarningState.Reason.WEBHOOK_CLEARTEXT, true));
