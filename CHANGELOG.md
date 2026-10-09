@@ -17,11 +17,16 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.50` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.51` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.9.51] - 2026-10-09 (unreleased)
+
+### Added
+- **Two-column task areas for wide displays (#838):** Main screen presents Wireless Debugging and Keep-Alive in two side-by-side task areas starting at 600 dp (tablets and landscape viewports). Warnings and security advice banners remain full-width above both columns. Content is capped with max-width and centered on wide viewports (840–1024 dp). Default single-column layout on narrow screens (< 600 dp) and all view IDs and bindings remain unchanged.
 
 ## [1.9.50] - 2026-10-09 (unreleased)
 

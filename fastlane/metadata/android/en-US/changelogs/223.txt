@@ -1,0 +1,1 @@
+Introduces a responsive two-column layout on wide screens (600 dp and wider) with centered content on very wide viewports. Warnings and security advice stay full-width at the top.
