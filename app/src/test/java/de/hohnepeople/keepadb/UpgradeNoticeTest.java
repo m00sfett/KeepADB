@@ -150,39 +150,16 @@ public class UpgradeNoticeTest {
             OnboardingActivity intro = handOver();
             TextView notice = intro.findViewById(R.id.onboarding_upgrade_notice);
             assertNotNull(locale, notice);
-            // Robolectric resolves the existing id resources as English. Exercise this new
-            // paragraph's Indonesian layout from its real source; device locale resolution is
-            // deliberately left to the separate AVD acceptance, not claimed by this assertion.
-            if ("id".equals(locale)) notice.setText(indonesianString("onboarding_upgrade_notice"));
             String text = notice.getText().toString();
             if (english == null) english = text;
             else assertNotEquals("real translation for " + locale, english, text);
-            assertTrue(locale + " uses visible overview label", text.contains("id".equals(locale) ? indonesianString("warnings_title")
-                    : intro.getString(R.string.warnings_title)));
+            assertTrue(locale + " uses visible overview label", text.contains(intro.getString(R.string.warnings_title)));
             assertEquals(2f, intro.getResources().getConfiguration().fontScale, 0.001f);
             OnboardingLayoutAssertions.assertFits(intro, 320, locale);
             assertEquals(R.id.onboarding_page_question, notice.getAccessibilityTraversalAfter());
             assertEquals(text, notice.createAccessibilityNodeInfo().getText().toString());
             assertEquals(View.IMPORTANT_FOR_ACCESSIBILITY_YES, notice.getImportantForAccessibility());
             assertEquals(notice, ((ViewGroup) intro.findViewById(R.id.onboarding_page_content)).getChildAt(0));
-        }
-    }
-
-    private String indonesianString(String name) {
-        try {
-            java.nio.file.Path root = java.nio.file.Paths.get("src/main/res/values-id/strings.xml");
-            if (!java.nio.file.Files.exists(root)) {
-                root = java.nio.file.Paths.get("app/src/main/res/values-id/strings.xml");
-            }
-            org.w3c.dom.NodeList strings = javax.xml.parsers.DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder().parse(root.toFile()).getElementsByTagName("string");
-            for (int i = 0; i < strings.getLength(); i++) {
-                org.w3c.dom.Element element = (org.w3c.dom.Element) strings.item(i);
-                if (name.equals(element.getAttribute("name"))) return element.getTextContent();
-            }
-            throw new AssertionError("missing Indonesian string: " + name);
-        } catch (Exception failure) {
-            throw new AssertionError(failure);
         }
     }
 

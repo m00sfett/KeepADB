@@ -59,7 +59,7 @@ public class KeepADBGlossaryContractTest {
                 "Фоновий доступ"));
         RETIRED.put("-vi", Arrays.asList("đáng tin cậy", "Truy cập nền", "Endpoint",
                 "danh sách được phép"));
-        RETIRED.put("-id", Arrays.asList("tepercaya", "Akses latar belakang", "daftar yang diizinkan"));
+        RETIRED.put("-in", Arrays.asList("tepercaya", "Akses latar belakang", "daftar yang diizinkan"));
         RETIRED.put("-ja", Arrays.asList("許可リスト", "バックグラウンドアクセス", "信頼できるネットワーク"));
         RETIRED.put("-ko", Arrays.asList("허용 목록", "백그라운드 액세스"));
         RETIRED.put("-zh-rCN", Arrays.asList("受信任", "允许列表", "后台访问"));

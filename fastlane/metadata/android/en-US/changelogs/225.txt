@@ -1,1 +1,2 @@
 Existing users see a one-time update note in setup. The old Wi-Fi observation history was removed permanently; protection, trust, Keep-Alive and webhook settings were kept. On first opening, warning cards explain active security issues or missing requirements; closing a card hides it for the same active reason. Active security reasons remain in Security warnings. Cards do not change your settings. Fresh installs receive no update note.
+Indonesian displays translated text correctly.

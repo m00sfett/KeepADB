@@ -88,13 +88,13 @@ ALLOWLIST = {
     # ("Синхронизация Webhook", "Webhook 同期", "مزامنة Webhook"). Hindi and
     # Korean transliterate it instead and are therefore NOT listed here.
     "webhook_status_title": {
-        "ar", "de", "es", "fr", "id", "it", "ja", "nl",
+        "ar", "de", "es", "fr", "in", "it", "ja", "nl",
         "pl", "pt", "ru", "tr", "uk", "vi", "zh-rCN", "zh-rTW",
     },
     # "Keep-Alive": TCP/HTTP term used verbatim. Chinese glosses it as
     # "保持常驻 (Keep-Alive)" and is therefore not listed.
     "settings_section_keep_alive": {
-        "ar", "fr", "hi", "id", "it", "ja", "ko",
+        "ar", "fr", "hi", "in", "it", "ja", "ko",
         "nl", "pl", "pt", "ru", "tr", "uk", "vi",
     },
     "settings_webhook_url_label": {"ja"},   # "Webhook URL" is the idiomatic Japanese form
@@ -114,11 +114,11 @@ ALLOWLIST = {
     # (comma in most European languages), so only the languages that keep the point are listed.
     "network_bssid_with_band": ALL_LANGUAGES,    # pure format string "%1$s (%2$s)"
     "network_band_5": {
-        "de", "es", "fr", "hi", "id", "it", "ja", "ko", "nl",
+        "de", "es", "fr", "hi", "in", "it", "ja", "ko", "nl",
         "pl", "pt", "tr", "vi", "zh-rCN", "zh-rTW",
     },
     "network_band_6": {
-        "de", "es", "fr", "hi", "id", "it", "ja", "ko", "nl",
+        "de", "es", "fr", "hi", "in", "it", "ja", "ko", "nl",
         "pl", "pt", "tr", "vi", "zh-rCN", "zh-rTW",
     },
     "network_band_24": {"hi", "ja", "ko", "zh-rCN", "zh-rTW"},  # these keep the decimal point

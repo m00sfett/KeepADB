@@ -28,6 +28,9 @@ are retrospective issue-version records and were never published as separate rel
 ### Added
 - **One-time upgrade notice in the setup intro (#828):** established installations entering their first assistant see the four-sentence #827/#848 audit notice once, with a persisted display marker. Fresh installations, completed assistants and standalone steps are excluded. It explains the irreversible removal of the old Wi-Fi observation history, preserved protection/trust, Keep-Alive and webhook settings, first-start warning cards, persisted dismissal for the same active reason and the security-warning overview. The notice changes no settings and is translated into all 19 supported languages.
 
+### Fixed
+- **Indonesian resource selection (#828 acceptance):** the translated resources use Android's legacy `values-in` qualifier while language selection keeps the public `id` tag. Indonesian now resolves the translated interface and upgrade notice instead of falling back to English. Runtime resource contracts and the 19-language intro test require actual translated resource resolution; the source-text injection workaround was removed.
+
 ## [1.9.52] - 2026-10-09 (unreleased)
 
 ### Changed
