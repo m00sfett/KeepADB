@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ground"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/header_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/banner_red"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="12dp">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="10dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_keepadb" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-condensed"
+            android:text="@string/title_keepadb"
+            android:textColor="@color/title_yellow"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btn_security_warnings"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_btn_header"
+            android:padding="10dp"
+            android:src="@drawable/ic_warning"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/btn_open_settings"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_btn_header"
+            android:contentDescription="@string/action_settings"
+            android:padding="8dp"
+            android:src="@drawable/ic_settings_gear" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/content_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/main_content_container"
+                style="@style/MainContentContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- #764: warnings first (system permission above everything), then the status. -->
+                <include
+                    android:id="@+id/warning_system"
+                    layout="@layout/view_home_warning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone" />
+
+                <!-- #826: display dismissal is independent of the force end action. -->
+                <LinearLayout
+                    android:id="@+id/force_warning_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/bg_panel_advice"
+                    android:gravity="top"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="12dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_warning" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:accessibilityHeading="true"
+                            android:fontFamily="sans-serif-condensed"
+                            android:text="@string/force_card_title"
+                            android:textColor="@color/title_yellow"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/force_warning_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="sans-serif"
+                            android:lineSpacingExtra="3dp"
+                            android:textColor="@color/night_text"
+                            android:textSize="13sp" />
+
+                        <Button
+                            android:id="@+id/btn_force_end"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:background="@drawable/bg_btn_primary"
+                            android:fontFamily="sans-serif-condensed"
+                            android:minHeight="48dp"
+                            android:paddingStart="16dp"
+                            android:paddingTop="8dp"
+                            android:paddingEnd="16dp"
+                            android:paddingBottom="8dp"
+                            android:text="@string/force_action_end"
+                            android:textColor="@color/title_yellow"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <Button
+                            android:id="@+id/btn_force_settings"
+                            android:nextFocusForward="@id/force_warning_dismiss"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/bg_btn_secondary"
+                            android:fontFamily="sans-serif-condensed"
+                            android:minHeight="48dp"
+                            android:paddingStart="16dp"
+                            android:paddingTop="8dp"
+                            android:paddingEnd="16dp"
+                            android:paddingBottom="8dp"
+                            android:text="@string/action_settings"
+                            android:textColor="@color/text_yellow"
+                            android:textSize="15sp" />
+                    </LinearLayout>
+
+                    <ImageButton
+                        android:id="@+id/force_warning_dismiss"
+                        android:accessibilityTraversalAfter="@id/btn_force_settings"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="8dp"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_close" />
+                </LinearLayout>
+
+                <include
+                    android:id="@+id/warning_less_secure"
+                    layout="@layout/view_home_warning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone" />
+
+                <include
+                    android:id="@+id/warning_paused"
+                    layout="@layout/view_home_warning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone" />
+
+                <include
+                    android:id="@+id/warning_limited"
+                    layout="@layout/view_home_warning"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/warning_feedback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/warning_feedback_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="true"
+                        android:accessibilityLiveRegion="polite"
+                        android:textColor="@color/night_text"
+                        android:textSize="16sp" />
+
+                    <Button
+                        android:id="@+id/warning_undo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:minHeight="48dp"
+                        android:text="@string/warnings_undo" />
+
+                    <Button
+                        android:id="@+id/warning_mute"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:minHeight="48dp"
+                        android:text="@string/warnings_mute" />
+                </LinearLayout>
+
+                <!-- #820: security & network advice banner placed above switches and below warnings. -->
+                <LinearLayout
+                    android:id="@+id/advice_banner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/bg_panel_advice"
+                    android:gravity="top"
+                    android:orientation="horizontal"
+                    android:visibility="visible">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginEnd="12dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_warning" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:accessibilityHeading="true"
+                            android:fontFamily="sans-serif-condensed"
+                            android:text="@string/advice_banner_title"
+                            android:textColor="@color/title_yellow"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="sans-serif"
+                            android:lineSpacingExtra="3dp"
+                            android:text="@string/advice_banner_text"
+                            android:textColor="@color/night_text"
+                            android:textSize="13sp" />
+
+                        <Button
+                            android:id="@+id/btn_dismiss_advice_banner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:background="@drawable/bg_btn_primary"
+                            android:fontFamily="sans-serif-condensed"
+                            android:minHeight="48dp"
+                            android:paddingStart="16dp"
+                            android:paddingTop="8dp"
+                            android:paddingEnd="16dp"
+                            android:paddingBottom="8dp"
+                            android:text="@string/security_notice_dismiss"
+                            android:textColor="@color/title_yellow"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- #838: two task areas side-by-side starting at 600 dp -->
+                <LinearLayout
+                    android:id="@+id/main_task_areas_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_panel"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <!-- Left column: Wireless Debugging toggle + status + transport card -->
+                    <LinearLayout
+                        android:id="@+id/panel_adb_column"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <Switch
+                            android:id="@+id/toggle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:minHeight="48dp"
+                            android:fontFamily="sans-serif-condensed"
+                            android:text="@string/toggle_label"
+                            android:textColor="@color/text_yellow"
+                            android:textSize="18sp" />
+
+                        <TextView
+                            android:id="@+id/toggle_subtext"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:fontFamily="sans-serif"
+                            android:text="@string/toggle_subtext"
+                            android:textColor="@color/night_muted"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="6dp"
+                            android:accessibilityLiveRegion="polite"
+                            android:fontFamily="sans-serif"
+                            android:text="@string/status_off"
+                            android:textColor="@color/night_text"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/endpoint"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:fontFamily="monospace"
+                            android:text="@string/endpoint_unavailable"
+                            android:textColor="@color/night_muted"
+                            android:textSize="15sp" />
+
+                        <!-- #537: optional, local-only Tailscale status. Gone entirely when
+                             Tailscale isn't installed; never an empty/error card. -->
+                        <TextView
+                            android:id="@+id/tailscale_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:fontFamily="sans-serif"
+                            android:text="@string/tailscale_status_unknown"
+                            android:textColor="@color/night_muted"
+                            android:textSize="13sp"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <!-- #538: additional verified transports (Tailscale/VPN, USB) beyond the
+                             WLAN/LAN endpoint above; populated dynamically, one row per transport,
+                             by MainActivity#renderTransportOverview(). Hidden while none apply, so
+                             the common WLAN-only case looks exactly as before. -->
+                        <LinearLayout
+                            android:id="@+id/transport_overview_panel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:orientation="vertical"
+                            android:visibility="gone"
+                            tools:visibility="visible">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="monospace"
+                                android:textColor="@color/night_muted"
+                                android:textSize="13sp"
+                                tools:text="Tailscale/VPN: 100.64.*.*:5555 · last checked …" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Vertical divider between the two task areas -->
+                    <View
+                        android:id="@+id/task_areas_divider"
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="@color/border_red"
+                        android:importantForAccessibility="no" />
+
+                    <!-- Right column: Keep-Alive toggle + descriptions -->
+                    <LinearLayout
+                        android:id="@+id/panel_keep_alive_column"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <Switch
+                            android:id="@+id/keep_alive_toggle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:fontFamily="sans-serif-condensed"
+                            android:text="@string/keep_alive_toggle"
+                            android:textColor="@color/text_yellow"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:id="@+id/keep_alive_subtext"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="sans-serif"
+                            android:text="@string/keep_alive_subtext"
+                            android:textColor="@color/night_muted"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/webhook_status_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_panel"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/webhook_status_title"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/webhook_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:accessibilityLiveRegion="polite"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/night_muted"
+                        android:textSize="13sp"
+                        tools:text="URL: http://example.com\nLast reported endpoint: 192.168.178.24:45149\nLast reported: never" />
+
+                    <TextView
+                        android:id="@+id/webhook_tailnet_hint"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:accessibilityLiveRegion="polite"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/webhook_status_tailnet_hint"
+                        android:textColor="@color/night_muted"
+                        android:textSize="13sp"
+                        android:textStyle="italic"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

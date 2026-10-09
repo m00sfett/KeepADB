@@ -25,6 +25,9 @@ are retrospective issue-version records and were never published as separate rel
 
 ## [1.9.51] - 2026-10-09 (unreleased)
 
+### Added
+- **Two-column task areas for wide displays (#838):** Main screen presents Wireless Debugging and Keep-Alive in two side-by-side task areas starting at 600 dp (tablets and landscape viewports). Warnings and security advice banners remain full-width above both columns. Content is capped with max-width and centered on wide viewports (840–1024 dp). Default single-column layout on narrow screens (< 600 dp) and all view IDs and bindings remain unchanged.
+
 ### Fixed
 - **Button focus and pressed contrast states (#837):** Primary button background in `bg_btn_primary` switches to `@color/muted_red` in focused and pressed states and maintains a distinct 2dp `@color/bright_yellow` focus indicator stroke. This guarantees WCAG 2.1 AA relative luminance contrast (>= 4.5:1) for `title_yellow`, `night_text`, and white text across all primary button surfaces. Button actions, brand identity, and layout dimensions remain unchanged.
 
