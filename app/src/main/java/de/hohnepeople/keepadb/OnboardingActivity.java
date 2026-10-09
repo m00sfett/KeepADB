@@ -65,7 +65,7 @@ public class OnboardingActivity extends Activity {
     private TextView headerTitle;
     private TextView headerCounter;
     private LinearLayout progress;
-    private LinearLayout pageRoot;
+    private OnboardingPageLayout pageRoot;
     private TextView pageTitle;
     private TextView pageQuestion;
     private LinearLayout pageContent;
@@ -300,6 +300,11 @@ public class OnboardingActivity extends Activity {
 
     private void showPage(int target) {
         page = target;
+        OnboardingStep current = currentStep();
+        pageRoot.setComparisonPage(current != null
+                && (current.id == KeepADBOnboarding.Step.KEEP_ALIVE
+                || current.id == KeepADBOnboarding.Step.PROTECTION
+                || current.id == KeepADBOnboarding.Step.DETAILS));
         pageContent.removeAllViews();
         findViewById(R.id.onboarding_page_icon).setVisibility(View.GONE);
         scroll.scrollTo(0, 0);

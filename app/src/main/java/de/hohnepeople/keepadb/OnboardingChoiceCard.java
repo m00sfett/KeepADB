@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -61,6 +62,30 @@ final class OnboardingChoiceCard {
         });
         parent.addView(card);
         return result;
+    }
+
+    /** A comparison pair; other tasks (legacy, force, customization) remain outside this row. */
+    static ViewGroup comparison(Activity host, ViewGroup parent) {
+        LinearLayout pair = new LinearLayout(host);
+        boolean wide = host.getResources().getConfiguration().screenWidthDp >= 600;
+        pair.setOrientation(wide ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
+        pair.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        parent.addView(pair, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        return pair;
+    }
+
+    /** Gives both options equal width and height, with source order retained for focus traversal. */
+    static void finishComparison(ViewGroup pair) {
+        if (((LinearLayout) pair).getOrientation() != LinearLayout.HORIZONTAL) return;
+        int gap = Math.round(12 * pair.getResources().getDisplayMetrics().density);
+        for (int i = 0; i < pair.getChildCount(); i++) {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+            params.topMargin = Math.round(8 * pair.getResources().getDisplayMetrics().density);
+            if (i > 0) params.setMarginStart(gap);
+            pair.getChildAt(i).setLayoutParams(params);
+        }
     }
 
     private void applyBadge(Context context, Badge value) {

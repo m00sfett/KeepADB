@@ -566,6 +566,143 @@ public class OnboardingActivityTest {
     }
 
     @Test
+    @Config(qualifiers = "w599dp-h900dp")
+    public void resizingReflowsThePendingChoiceWithoutSavingOrAdvancing() {
+        ActivityController<OnboardingActivity> controller = Robolectric.buildActivity(
+                OnboardingActivity.class, OnboardingActivity.fullIntent(context)).setup();
+        controllers.add(controller);
+        click(controller.get(), R.id.onboarding_next);
+        cards(controller.get()).get(1).performClick();
+        for (int width : new int[] {600, 840, 599}) {
+            RuntimeEnvironment.setQualifiers("w" + width + "dp-h900dp");
+            controller.recreate();
+            OnboardingActivity again = controller.get();
+            assertEquals(context.getString(R.string.settings_section_keep_alive), pageTitle(again));
+            assertEquals("On", checkedTitle(again));
+            assertFalse("resize does not commit", KeepADBPreferences.isKeepAliveEnabled(context));
+            assertComparison(again, width);
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "w599dp-h900dp")
+    public void standaloneWebhookDraftSurvivesWideResizeAndRotationWithoutSaving() {
+        ActivityController<OnboardingActivity> controller = Robolectric.buildActivity(
+                OnboardingActivity.class,
+                OnboardingActivity.stepIntent(context, KeepADBOnboarding.Step.WEBHOOK)).setup();
+        controllers.add(controller);
+        String draft = "https://example.org/register/pending";
+        android.widget.EditText input = controller.get().findViewById(R.id.settings_webhook_url);
+        input.setText(draft);
+        input.requestFocus();
+        for (String qualifiers : new String[] {"w840dp-h900dp", "w1024dp-h600dp-land",
+                "w599dp-h900dp-port"}) {
+            RuntimeEnvironment.setQualifiers(qualifiers);
+            controller.recreate();
+            OnboardingActivity again = controller.get();
+            assertEquals(draft, text(again, R.id.settings_webhook_url));
+            assertEquals(context.getString(R.string.onboarding_done),
+                    text(again, R.id.onboarding_next));
+            assertEquals(View.GONE, again.findViewById(R.id.onboarding_header_counter).getVisibility());
+            assertFalse("draft does not enable", KeepADBPreferences.isRegisterWebhookEnabled(context));
+            assertNull("draft does not save", KeepADBPreferences.getRegisterWebhookUrl(context));
+            assertTrue(again.findViewById(R.id.settings_webhook_url).isFocusable());
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "w840dp-h900dp")
+    public void legacyAndForceStayOutsideTheNormalProtectionComparison() {
+        seedExisting(1); // allowlist + name list
+        OnboardingActivity assistant = start(OnboardingActivity.stepIntent(context,
+                KeepADBOnboarding.Step.PROTECTION));
+        List<View> choices = cards(assistant);
+        ViewGroup content = assistant.findViewById(R.id.onboarding_page_content);
+        assertEquals(4, choices.size());
+        assertEquals(content, choices.get(0).getParent());
+        assertEquals(choices.get(1).getParent(), choices.get(2).getParent());
+        assertEquals(content, choices.get(3).getParent());
+        assertTrue(choices.get(0).isActivated());
+        choices.get(2).performClick();
+        assertTrue(choices.get(2).isActivated());
+        assertEquals("selection remains pending", KeepADBTrustedNetwork.ProtectionLevel.LEGACY_NAME_LIST,
+                KeepADBTrustedNetwork.getProtectionLevel(context));
+    }
+
+    @Test
+    @Config(qualifiers = "w599dp-h900dp")
+    public void protectionAndDetailsKeepTheirPendingChoicesAcrossTheWideBoundary() {
+        for (KeepADBOnboarding.Step step : new KeepADBOnboarding.Step[] {
+                KeepADBOnboarding.Step.PROTECTION, KeepADBOnboarding.Step.DETAILS}) {
+            RuntimeEnvironment.setQualifiers("w599dp-h900dp");
+            ActivityController<OnboardingActivity> controller = Robolectric.buildActivity(
+                    OnboardingActivity.class, OnboardingActivity.stepIntent(context, step)).setup();
+            controllers.add(controller);
+            cards(controller.get()).get(1).performClick();
+            String pendingTitle = checkedTitle(controller.get());
+            RuntimeEnvironment.setQualifiers("w840dp-h600dp-land");
+            controller.recreate();
+            assertEquals(pendingTitle, checkedTitle(controller.get()));
+            assertComparison(controller.get(), 840);
+            assertEquals(KeepADBTrustedNetwork.ProtectionLevel.MAXIMUM_SECURITY,
+                    KeepADBTrustedNetwork.getProtectionLevel(context));
+            assertFalse(KeepADBPreferences.isNotificationDetailsEnabled(context));
+        }
+    }
+
+    @Test
+    @Config(qualifiers = "w360dp-h900dp")
+    public void assistantWidthAndFontMatrixKeepsEveryTaskInsideItsReadablePage() {
+        for (int width : new int[] {360, 599, 600, 601, 840, 1024}) {
+            for (boolean landscape : new boolean[] {false, true}) {
+                RuntimeEnvironment.setQualifiers("w" + width + "dp-h"
+                        + (landscape ? 360 : 1100) + "dp-" + (landscape ? "land" : "port"));
+                for (float fontScale : new float[] {1f, 1.3f, 2f}) {
+                    RuntimeEnvironment.setFontScale(fontScale);
+                    OnboardingActivity assistant = start(OnboardingActivity.fullIntent(context));
+                    int steps = OnboardingActivity.buildSteps().size();
+                    for (int page = 0; page <= steps + 1; page++) {
+                        View root = assistant.getWindow().getDecorView();
+                        float density = assistant.getResources().getDisplayMetrics().density;
+                        int pixels = Math.round(width * density);
+                        root.measure(View.MeasureSpec.makeMeasureSpec(pixels, View.MeasureSpec.EXACTLY),
+                                View.MeasureSpec.makeMeasureSpec(Math.round(
+                                        (landscape ? 360 : 1100) * density), View.MeasureSpec.EXACTLY));
+                        root.layout(0, 0, root.getMeasuredWidth(), root.getMeasuredHeight());
+                        String where = width + "dp, " + fontScale + ", page " + page;
+                        assertInside(root, 0, pixels, where);
+                        View task = assistant.findViewById(R.id.onboarding_page);
+                        boolean comparison = page == 1 || page == 2 || page == 5;
+                        int maximum = Math.round((comparison ? 840 : 640) * density);
+                        assertTrue(where + ": bounded task", task.getWidth() <= maximum);
+                        View viewport = assistant.findViewById(R.id.onboarding_scroll);
+                        assertEquals(where + ": centered task", (viewport.getWidth() - task.getWidth()) / 2,
+                                task.getLeft(), 1);
+                        if (comparison) assertComparison(assistant, width);
+                        if (page <= steps) click(assistant, R.id.onboarding_next);
+                    }
+                }
+            }
+        }
+    }
+
+    private void assertComparison(OnboardingActivity assistant, int width) {
+        List<View> choices = cards(assistant);
+        View first = choices.get(0);
+        View second = choices.get(1);
+        assertEquals(first.getParent(), second.getParent());
+        android.widget.LinearLayout pair = (android.widget.LinearLayout) first.getParent();
+        assertEquals(width >= 600 ? android.widget.LinearLayout.HORIZONTAL
+                : android.widget.LinearLayout.VERTICAL, pair.getOrientation());
+        assertTrue("both cards remain focus targets", first.isFocusable() && second.isFocusable());
+        if (width >= 600 && first.getWidth() > 0) {
+            assertEquals("equal comparison widths", first.getWidth(), second.getWidth(), 1);
+            assertEquals("aligned options", first.getTop(), second.getTop());
+            assertTrue("options have a gap", second.getLeft() > first.getRight());
+        }
+    }
+
+    @Test
     public void choiceCardIsOneRadioButtonNodeWithItsTextAndState() {
         OnboardingActivity assistant = startHandedOver();
         click(assistant, R.id.onboarding_next);

@@ -77,10 +77,11 @@
             android:layout_weight="1"
             android:fillViewport="true">
 
-            <LinearLayout
+            <de.hohnepeople.keepadb.OnboardingPageLayout
                 android:id="@+id/onboarding_page"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -119,7 +120,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:orientation="vertical" />
-            </LinearLayout>
+            </de.hohnepeople.keepadb.OnboardingPageLayout>
         </ScrollView>
 
         <View
