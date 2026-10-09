@@ -1,0 +1,2 @@
+Introduces a responsive two-column layout on wide screens (600 dp and wider) with centered content on very wide viewports. Warnings and security advice stay full-width at the top.
+Improves accessibility contrast for button focus and pressed states to meet WCAG AA standards. Your button actions and theme appearance remain intact.
