@@ -1,0 +1,1 @@
+The setup assistant now places related choices side by side on windows 600 dp and wider. Longer explanations and forms stay centered at a readable width. Pending choices and webhook URL drafts remain available when resizing or rotating the window.

@@ -41,14 +41,16 @@ final class OnboardingSteps {
         @Override
         void build(Activity host, ViewGroup content) {
             group = new OnboardingChoiceCard.Group();
-            group.register(OnboardingChoiceCard.add(host, content,
+            ViewGroup comparison = OnboardingChoiceCard.comparison(host, content);
+            group.register(OnboardingChoiceCard.add(host, comparison,
                     host.getString(R.string.onboarding_value_off),
                     host.getString(R.string.onboarding_keep_alive_off_body),
                     OnboardingChoiceCard.Badge.NONE));
-            group.register(OnboardingChoiceCard.add(host, content,
+            group.register(OnboardingChoiceCard.add(host, comparison,
                     host.getString(R.string.onboarding_value_on),
                     host.getString(R.string.onboarding_keep_alive_on_body),
                     OnboardingChoiceCard.Badge.NONE));
+            OnboardingChoiceCard.finishComparison(comparison);
             boolean stored = KeepADBPreferences.isKeepAliveEnabled(host);
 
             // Keep-Alive runs as a foreground service and needs its permanent notification (API 33
@@ -158,15 +160,18 @@ final class OnboardingSteps {
                         R.string.onboarding_protection_legacy_names_body,
                         OnboardingChoiceCard.Badge.NOTE);
             }
-            addLevel(host, content, KeepADBTrustedNetwork.ProtectionLevel.MAXIMUM_SECURITY,
+            ViewGroup comparison = OnboardingChoiceCard.comparison(host, content);
+            addLevel(host, comparison, KeepADBTrustedNetwork.ProtectionLevel.MAXIMUM_SECURITY,
                     host.getString(R.string.force_level_maximum),
                     R.string.onboarding_protection_max_body,
                     OnboardingChoiceCard.Badge.RECOMMENDED);
-            addLevel(host, content, KeepADBTrustedNetwork.ProtectionLevel.BALANCED,
+            addLevel(host, comparison, KeepADBTrustedNetwork.ProtectionLevel.BALANCED,
                     host.getString(R.string.force_level_balanced),
                     R.string.onboarding_protection_balanced_body,
                     stored == KeepADBTrustedNetwork.ProtectionLevel.BALANCED
                             ? OnboardingChoiceCard.Badge.NOTE : OnboardingChoiceCard.Badge.NONE);
+
+            OnboardingChoiceCard.finishComparison(comparison);
 
             forceIndex = levels.size();
             forceCard = OnboardingChoiceCard.add(host, content,
@@ -371,15 +376,17 @@ final class OnboardingSteps {
         void build(Activity host, ViewGroup content) {
             boolean stored = KeepADBPreferences.isNotificationDetailsEnabled(host);
             group = new OnboardingChoiceCard.Group();
-            group.register(OnboardingChoiceCard.add(host, content,
+            ViewGroup comparison = OnboardingChoiceCard.comparison(host, content);
+            group.register(OnboardingChoiceCard.add(host, comparison,
                     host.getString(R.string.onboarding_value_off),
                     host.getString(R.string.onboarding_details_off_body),
                     OnboardingChoiceCard.Badge.RECOMMENDED));
-            group.register(OnboardingChoiceCard.add(host, content,
+            group.register(OnboardingChoiceCard.add(host, comparison,
                     host.getString(R.string.onboarding_value_on),
                     host.getString(R.string.onboarding_details_on_body),
                     stored ? OnboardingChoiceCard.Badge.LESS_SECURE
                             : OnboardingChoiceCard.Badge.NONE));
+            OnboardingChoiceCard.finishComparison(comparison);
             group.selectQuietly(restored >= 0 ? restored : (stored ? ON : OFF));
             restored = -1;
         }
