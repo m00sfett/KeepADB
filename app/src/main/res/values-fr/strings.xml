@@ -563,4 +563,5 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="warnings_inactive">Aucune alerte actuellement</string>
     <string name="warnings_reset">Réafficher toutes les alertes masquées</string>
     <string name="warnings_none">Aucune alerte de sécurité active</string>
+    <string name="onboarding_upgrade_notice">La mise à jour a supprimé l’ancien historique d’observation Wi-Fi ; il ne peut pas être restauré. Tes réglages de protection, tes choix concernant la confiance et tes réglages de Keep-Alive et de webhook ont été conservés. À la première ouverture, KeepADB affiche des cartes d’avertissement pour les problèmes de sécurité actifs ou les prérequis manquants ; une fois fermées, elles restent masquées tant que le même motif est actif. Tu peux toujours consulter les motifs de sécurité actifs dans « Alertes de sécurité » ; les cartes ne modifient pas tes réglages.</string>
 </resources>

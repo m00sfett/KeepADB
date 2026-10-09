@@ -563,4 +563,5 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="warnings_inactive">Tidak ada peringatan saat ini</string>
     <string name="warnings_reset">Batalkan semua pembisuan</string>
     <string name="warnings_none">Tidak ada peringatan keamanan aktif</string>
+    <string name="onboarding_upgrade_notice">Pembaruan menghapus riwayat pengamatan Wi-Fi lama; riwayat ini tidak dapat dipulihkan. Pengaturan perlindungan dan kepercayaan, Keep-Alive, serta webhook kamu tetap tersimpan. Saat pertama dibuka, KeepADB menampilkan kartu peringatan untuk masalah keamanan aktif atau persyaratan yang belum terpenuhi; setelah ditutup, kartu tetap tersembunyi selama alasan yang sama masih aktif. Kamu tetap dapat memeriksa alasan keamanan aktif di “Peringatan keamanan”; kartu tidak mengubah pengaturan kamu.</string>
 </resources>

@@ -66,10 +66,13 @@ und hält ausschließlich die noch zu meldende Ablaufbenachrichtigung fest. `for
 fehlt ohne vorzeitiges Sicherheitsende und hält nur dessen Grund (`safety`, #773) bis zur Zustellung
 der Meldung. Alle drei Schlüssel sind Laufzeitdaten, keine abweichenden Voreinstellungen.
 
-Der Einrichtungsassistent (#761) legt zwei Schlüssel an, beide Buchführung und keine Einstellung:
+Der Einrichtungsassistent (#761, #828) legt drei Schlüssel an, alle Buchführung und keine Einstellung:
 `onboarding_completed_version` fehlt, bis der Assistent mit „Später“ oder „Fertig“ geschlossen wurde
 (dann steht dort seine Version); `onboarding_existing_install` hält einmalig fest, ob beim ersten
 Öffnen schon Einstellungen gespeichert waren (nur dann zeigt das Intro „Neue Sicherheitseinstellungen“).
+`upgrade_notice_1_10_shown` fehlt bei Neuinstallationen und wird einmalig beim Anzeigen des Upgrade-Hinweises
+für Bestandsinstallationen ohne abgeschlossenen Assistenten gesetzt. Der Hinweis erklärt die belegten
+Änderungen aus #827/#848; er erscheint nach Neustart oder weiterem Update nicht erneut und ändert keine Einstellung.
 Die Schritte des Assistenten schreiben einen Wert nur, wenn der Nutzer ihn geändert hat; „Weiter“ ohne
 Eingabe lässt jeden Schlüssel unverändert, sodass eine Neuinstallation dieselben sicheren Standards behält.
 Das gilt auch für die Schritte „Berechtigungen“ und „Vertrautes WLAN“ (#767): ihre Aktionen (eine Berechtigung

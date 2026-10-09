@@ -165,6 +165,8 @@ public class OnboardingActivityNetworkTest {
             click(assistant, R.id.onboarding_next);
         }
         assertEquals(before, snapshotWithoutAssistantKeys());
+        assertTrue("the intro records its one-time notice separately from network settings",
+                prefs().getBoolean(KeepADBPreferences.KEY_UPGRADE_NOTICE_SHOWN, false));
     }
 
     // ---- Privacy mode: the name is shown here on purpose -------------------------------------------------
@@ -422,7 +424,8 @@ public class OnboardingActivityNetworkTest {
         Map<String, String> result = new TreeMap<>();
         for (Map.Entry<String, ?> entry : prefs().getAll().entrySet()) {
             if (KeepADBPreferences.KEY_ONBOARDING_COMPLETED_VERSION.equals(entry.getKey())
-                    || KeepADBPreferences.KEY_ONBOARDING_EXISTING_INSTALL.equals(entry.getKey())) {
+                    || KeepADBPreferences.KEY_ONBOARDING_EXISTING_INSTALL.equals(entry.getKey())
+                    || KeepADBPreferences.KEY_UPGRADE_NOTICE_SHOWN.equals(entry.getKey())) {
                 continue;
             }
             Object value = entry.getValue();

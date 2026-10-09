@@ -563,4 +563,5 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="warnings_inactive">Hiện không có cảnh báo</string>
     <string name="warnings_reset">Bỏ ẩn tất cả</string>
     <string name="warnings_none">Không có cảnh báo bảo mật đang hoạt động</string>
+    <string name="onboarding_upgrade_notice">Bản cập nhật đã xóa lịch sử quan sát Wi-Fi cũ; không thể khôi phục lịch sử này. Các cài đặt bảo vệ và tin cậy, Keep-Alive và webhook của bạn được giữ lại. Khi mở lần đầu, KeepADB hiển thị thẻ cảnh báo cho các vấn đề bảo mật đang tồn tại hoặc yêu cầu chưa đáp ứng; sau khi đóng, thẻ sẽ ẩn khi cùng nguyên nhân đó vẫn còn tồn tại. Bạn vẫn có thể kiểm tra các nguyên nhân bảo mật đang tồn tại trong “Cảnh báo bảo mật”; thẻ không thay đổi cài đặt của bạn.</string>
 </resources>

@@ -338,6 +338,18 @@ public class OnboardingActivity extends Activity {
         pageQuestion.setText(existing
                 ? getString(R.string.onboarding_intro_body_existing)
                 : getString(R.string.onboarding_intro_body_new));
+        if (KeepADBOnboarding.consumeUpgradeNotice(this)) {
+            TextView notice = new TextView(this);
+            notice.setId(R.id.onboarding_upgrade_notice);
+            notice.setText(R.string.onboarding_upgrade_notice);
+            notice.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+            notice.setTextColor(getColor(R.color.night_text));
+            notice.setAccessibilityTraversalAfter(R.id.onboarding_page_question);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.topMargin = dp(16);
+            pageContent.addView(notice, params);
+        }
         if (existing && !marked.isEmpty()) {
             pageContent.addView(adviceRow(getString(R.string.onboarding_intro_less_secure)));
         }

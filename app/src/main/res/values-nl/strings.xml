@@ -563,4 +563,5 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="warnings_inactive">Momenteel geen waarschuwing</string>
     <string name="warnings_reset">Alle dempingen opheffen</string>
     <string name="warnings_none">Geen actieve beveiligingswaarschuwingen</string>
+    <string name="onboarding_upgrade_notice">De update heeft de oude Wi-Fi-observatiegeschiedenis verwijderd; deze kan niet worden hersteld. Je instellingen voor bescherming en vertrouwen, Keep-Alive en webhooks zijn behouden. Bij de eerste opening toont KeepADB waarschuwingskaarten voor actieve beveiligingsproblemen of ontbrekende vereisten; na het sluiten blijven ze verborgen zolang dezelfde reden actief blijft. Je kunt actieve beveiligingsredenen nog bekijken onder “Beveiligingswaarschuwingen”; de kaarten veranderen je instellingen niet.</string>
 </resources>

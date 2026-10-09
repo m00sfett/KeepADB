@@ -563,4 +563,5 @@
     <string name="warnings_inactive">目前没有警告</string>
     <string name="warnings_reset">取消所有隐藏设置</string>
     <string name="warnings_none">没有有效的安全警告</string>
+    <string name="onboarding_upgrade_notice">更新已删除旧的 Wi-Fi 观察历史记录，且无法恢复。你的保护与信任设置、Keep-Alive 和 Webhook 设置已保留。首次打开时，KeepADB 会针对当前的安全问题或未满足的条件显示警告卡片；关闭后，只要同一原因仍然存在，卡片就会保持隐藏。你仍可在“安全警告”中查看当前的安全原因；警告卡片不会更改你的设置。</string>
 </resources>
