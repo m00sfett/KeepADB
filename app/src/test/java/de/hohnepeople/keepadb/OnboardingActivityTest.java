@@ -173,7 +173,26 @@ public class OnboardingActivityTest {
         assertTrue(assistant.isFinishing());
         // Both ends are followed by the same read of the home screen.
         KeepADBTrustedNetwork.getMode(context);
-        return snapshot();
+        Map<String, String> result = snapshot();
+        // Independent installs have independent display episodes, but identical settings/causes.
+        String warningState = result.get(KeepADBWarningState.KEY);
+        if (warningState != null) {
+            try {
+                org.json.JSONObject state = new org.json.JSONObject(warningState);
+                java.util.Iterator<String> keys = state.keys();
+                while (keys.hasNext()) {
+                    String key = keys.next();
+                    if (key.startsWith("reason_episode_")) {
+                        assertFalse("an observed episode has a token", state.getString(key).isEmpty());
+                        state.put(key, "independent-episode");
+                    }
+                }
+                result.put(KeepADBWarningState.KEY, state.toString());
+            } catch (org.json.JSONException invalid) {
+                throw new AssertionError("warning display state must remain valid", invalid);
+            }
+        }
+        return result;
     }
 
     // ---- Existing installation: Next changes nothing -----------------------------------------------
