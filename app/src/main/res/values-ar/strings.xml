@@ -120,6 +120,7 @@
     <string name="webhook_status_failed">فشل</string>
     <string name="webhook_status_tailnet_hint">قد يكون Tailscale غير متصل، أو لم يبدأ تلقائيًا بعد إعادة التشغيل. تحقق من إعداد أندرويد "VPN دائم التشغيل" الخاص بـ Tailscale.</string>
     <string name="settings_permission_warning">إذن النظام WRITE_SECURE_SETTINGS مفقود. لا يمكن لـ KeepADB تبديل تصحيح الأخطاء اللاسلكي حتى يتم منح الإذن.</string>
+    <string name="settings_language_menu_label">اللغة</string>
     <string name="settings_language_label">لغة التطبيق</string>
     <string name="settings_language_accessibility">لغة التطبيق: %1$s</string>
     <string name="settings_language_system_default">افتراضي النظام</string>

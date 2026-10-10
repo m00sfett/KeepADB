@@ -5,54 +5,52 @@
     android:background="@color/ground"
     android:orientation="vertical">
 
-    <!-- Top Header with Back Button and Title -->
-    <LinearLayout
+    <!-- Back navigation and the privacy action stay visible; Language is in native overflow. -->
+    <Toolbar
         android:id="@+id/header_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="56dp"
         android:background="@color/banner_red"
+        android:contentInsetStart="0dp"
+        android:contentInsetEnd="0dp"
         android:elevation="4dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:padding="12dp">
 
-        <ImageButton
-            android:id="@+id/btn_back"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_btn_header"
-            android:contentDescription="@string/back"
-            android:padding="12dp"
-            android:src="@drawable/ic_arrow_back" />
-
-        <TextView
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:fontFamily="sans-serif-condensed"
-            android:text="@string/title_settings"
-            android:textColor="@color/title_yellow"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <!-- #725: privacy-mode eye, same button and state as on the main view. -->
-        <include
-            layout="@layout/view_privacy_toggle"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="4dp" />
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_btn_header"
+                android:contentDescription="@string/back"
+                android:padding="12dp"
+                android:src="@drawable/ic_arrow_back" />
 
-        <!-- #518: compact language/translation entry point, replacing the former large
-             in-content language section. Opens the same language selection dialog. -->
-        <ImageButton
-            android:id="@+id/settings_language_toolbar_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_btn_header"
-            android:contentDescription="@string/settings_language_label"
-            android:padding="10dp"
-            android:src="@drawable/ic_translate" />
-    </LinearLayout>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-condensed"
+                android:text="@string/title_settings"
+                android:textColor="@color/title_yellow"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <!-- #725: privacy-mode eye, same button and state as on the main view. -->
+            <include
+                layout="@layout/view_privacy_toggle"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="4dp" />
+
+        </LinearLayout>
+    </Toolbar>
 
     <ScrollView
         android:id="@+id/settings_scroll_view"
