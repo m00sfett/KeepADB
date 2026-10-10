@@ -563,4 +563,5 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="warnings_inactive">Nessun avviso al momento</string>
     <string name="warnings_reset">Ripristina tutti gli avvisi silenziati</string>
     <string name="warnings_none">Nessun avviso di sicurezza attivo</string>
+    <string name="onboarding_upgrade_notice">L’aggiornamento ha eliminato la vecchia cronologia di osservazione Wi-Fi; non può essere ripristinata. Le tue impostazioni di protezione e fiducia, Keep-Alive e webhook sono state conservate. Alla prima apertura, KeepADB mostra schede di avviso per problemi di sicurezza attivi o requisiti mancanti; dopo la chiusura, restano nascoste finché lo stesso motivo rimane attivo. Puoi ancora controllare i motivi di sicurezza attivi in «Avvisi di sicurezza»; le schede non modificano le tue impostazioni.</string>
 </resources>

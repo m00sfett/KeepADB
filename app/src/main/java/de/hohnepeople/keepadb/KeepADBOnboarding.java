@@ -108,13 +108,32 @@ final class KeepADBOnboarding {
             String key = entry.getKey();
             // The marker of the one-time history discard (#778) is written on every installation.
             if (!KeepADBPreferences.KEY_ONBOARDING_COMPLETED_VERSION.equals(key)
-                    && !KeepADBBssidHistory.KEY_LEGACY_DISCARDED.equals(key)) {
+                    && !KeepADBBssidHistory.KEY_LEGACY_DISCARDED.equals(key)
+                    && !KeepADBPreferences.KEY_UPGRADE_NOTICE_SHOWN.equals(key)) {
                 existing = true;
                 break;
             }
         }
         prefs.edit().putBoolean(KeepADBPreferences.KEY_ONBOARDING_EXISTING_INSTALL, existing).apply();
         return existing;
+    }
+
+    /**
+     * The audited pre-assistant cohort (#827/#848): established settings, but no completed
+     * assistant yet. Both the history removal and warning initialization belong to that upgrade.
+     * Do not infer eligibility from remaining history/warning keys: receivers may already have
+     * migrated them before this intro opens. Completion excludes already adopted installations.
+     * The notice is consumed only by the full intro, never by a notification's single step.
+     */
+    static boolean consumeUpgradeNotice(Context context) {
+        SharedPreferences preferences = prefs(context);
+        if (!isExistingInstall(context)
+                || KeepADBPreferences.getOnboardingCompletedVersion(context) >= 1
+                || preferences.getBoolean(KeepADBPreferences.KEY_UPGRADE_NOTICE_SHOWN, false)) {
+            return false;
+        }
+        return preferences.edit().putBoolean(
+                KeepADBPreferences.KEY_UPGRADE_NOTICE_SHOWN, true).commit();
     }
 
     // ---- Markings ---------------------------------------------------------------------------------

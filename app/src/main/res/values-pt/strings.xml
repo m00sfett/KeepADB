@@ -563,4 +563,5 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="warnings_inactive">Nenhum aviso no momento</string>
     <string name="warnings_reset">Repor todos os avisos silenciados</string>
     <string name="warnings_none">Nenhum aviso de segurança ativo</string>
+    <string name="onboarding_upgrade_notice">A atualização removeu o antigo histórico de observação Wi-Fi; não pode ser recuperado. As tuas definições de proteção e confiança, Keep-Alive e webhook foram mantidas. Na primeira abertura, o KeepADB mostra cartões de aviso para problemas de segurança ativos ou requisitos em falta; depois de fechados, permanecem ocultos enquanto o mesmo motivo estiver ativo. Podes continuar a consultar os motivos de segurança ativos em «Avisos de segurança»; os cartões não alteram as tuas definições.</string>
 </resources>

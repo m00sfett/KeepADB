@@ -563,4 +563,5 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="warnings_inactive">Şu anda uyarı yok</string>
     <string name="warnings_reset">Tüm susturmaları kaldır</string>
     <string name="warnings_none">Etkin güvenlik uyarısı yok</string>
+    <string name="onboarding_upgrade_notice">Güncelleme eski Wi-Fi gözlem geçmişini kaldırdı; bu geçmiş geri yüklenemez. Koruma ve güven ayarların, Keep-Alive ve webhook ayarların korundu. İlk açılışta KeepADB, etkin güvenlik sorunları veya eksik gereksinimler için uyarı kartları gösterir; kapatıldıktan sonra aynı neden etkin kaldığı sürece gizli kalırlar. Etkin güvenlik nedenlerini “Güvenlik uyarıları” altında kontrol etmeye devam edebilirsin; kartlar ayarlarını değiştirmez.</string>
 </resources>

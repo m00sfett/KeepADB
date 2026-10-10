@@ -563,4 +563,5 @@
     <string name="warnings_inactive">لا يوجد تحذير حاليًا</string>
     <string name="warnings_reset">إلغاء كل عمليات الكتم</string>
     <string name="warnings_none">لا توجد تحذيرات أمان نشطة</string>
+    <string name="onboarding_upgrade_notice">أزال التحديث سجل رصد Wi-Fi القديم؛ ولا يمكن استعادته. تم الاحتفاظ بإعدادات الحماية والثقة وKeep-Alive وwebhook لديك. عند الفتح لأول مرة، يعرض KeepADB بطاقات تحذير لمشكلات الأمان النشطة أو المتطلبات الناقصة؛ وبعد إغلاقها تظل مخفية ما دام السبب نفسه نشطًا. يمكنك متابعة فحص أسباب الأمان النشطة ضمن «تحذيرات الأمان»؛ ولا تغيّر البطاقات إعداداتك.</string>
 </resources>

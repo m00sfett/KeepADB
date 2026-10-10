@@ -176,7 +176,7 @@ public class KeepADBDefaultsAuditTest {
             "wifi_aps_feature_enabled", "blocked_network_entries",
             "events", "location_permission_requested", "location_asked", "notification_permission_requested",
             "force_state", "force_expired_notice_pending", "force_expired_reason", "observation_history_discarded",
-            "onboarding_completed_version", "onboarding_existing_install")));
+            "onboarding_completed_version", "onboarding_existing_install", "upgrade_notice_1_10_shown")));
 
     @Before
     public void setUp() {

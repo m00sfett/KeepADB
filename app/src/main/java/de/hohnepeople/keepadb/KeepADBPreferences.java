@@ -52,6 +52,7 @@ final class KeepADBPreferences {
     // install kind is decided once, before anything else writes, and kept so that the intro stays
     // the same after a process death in the middle of the assistant.
     static final String KEY_ONBOARDING_COMPLETED_VERSION = "onboarding_completed_version";
+    static final String KEY_UPGRADE_NOTICE_SHOWN = "upgrade_notice_1_10_shown";
     static final String KEY_ONBOARDING_EXISTING_INSTALL = "onboarding_existing_install";
 
     // #168: optional USB-ADB -> Wifi-ADB handover offered from the USB notification.

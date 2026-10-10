@@ -563,4 +563,5 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="warnings_inactive">Zurzeit kein Warnzustand</string>
     <string name="warnings_reset">Alle Stummschaltungen zurücksetzen</string>
     <string name="warnings_none">Keine aktiven Sicherheitswarnungen</string>
+    <string name="onboarding_upgrade_notice">Beim Update wurde die alte WLAN-Beobachtungshistorie entfernt; sie lässt sich nicht wiederherstellen. Deine Schutz- und Vertrauenseinstellungen, Keep-Alive und Webhook-Einstellungen wurden übernommen. Beim ersten Öffnen zeigt KeepADB Warnkarten für aktive Sicherheitsprobleme oder fehlende Voraussetzungen; nach dem Schließen bleiben sie für denselben aktiven Grund verborgen. Unter „Sicherheitswarnungen“ kannst du aktive Sicherheitsgründe weiterhin prüfen; die Warnkarten ändern deine Einstellungen nicht.</string>
 </resources>

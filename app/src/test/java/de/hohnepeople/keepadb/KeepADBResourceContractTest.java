@@ -85,12 +85,8 @@ public class KeepADBResourceContractTest {
                         value.trim().isEmpty());
                 assertEquals(languageTag + " changed format arguments for " + field.getName(),
                         formatArguments(compiledValue(field.getName(), "")), formatArguments(value));
-                // All selectable buckets must agree with the actual linked table. Indonesian
-                // is checked below with an explicit guard for Robolectric 4.13's fallback.
-                if (!"id".equals(languageTag)) {
-                    assertEquals(languageTag + "/" + field.getName() + " compiled/runtime mismatch",
-                            value, resources.getString(id));
-                }
+                assertEquals(languageTag + "/" + field.getName() + " compiled/runtime mismatch",
+                        value, resources.getString(id));
             }
         }
     }
@@ -126,9 +122,9 @@ public class KeepADBResourceContractTest {
     /**
      * Checks the linked binary resource table rather than comparing rendered text with English.
      * This is the provenance contract: every generated string key has an actual entry in every
-     * supported locale bucket, including Indonesian. Robolectric 4.13 cannot select
-     * {@code values-id} reliably at runtime, so a runtime-only equality check would silently
-     * bless the wrong fallback and would miss this exact failure mode.
+     * supported locale bucket, including Indonesian's legacy {@code in} resource qualifier.
+     * The selectable language tag remains {@code id}; both compiled provenance and runtime
+     * selection are required, so English fallback cannot pass as a translated resource.
      */
     @Test
     public void compiledResourceTableContainsEveryStringKeyInEveryLocaleBucket()
@@ -299,18 +295,18 @@ public class KeepADBResourceContractTest {
     }
 
     @Test
-    public void indonesianFallbackAndDumpDecodingHaveExplicitProvenance() throws Exception {
-        // Guard the known Robolectric 4.13 limitation: when selection changes, remove the
-        // exception in the all-key runtime comparison, rather than silently keeping it.
+    public void indonesianRuntimeUsesCompiledTranslationAndDumpDecodingMatchesDefault()
+            throws Exception {
         Resources indonesian = resourcesFor("id");
         for (Field field : stringResourceFields()) {
             assertEquals("Default dump decoding must match Android for " + field.getName(),
                     context.getString(field.getInt(null)), compiledValue(field.getName(), ""));
-            assertEquals("Robolectric Indonesian selection changed; revisit the fallback exception",
-                    context.getString(field.getInt(null)), indonesian.getString(field.getInt(null)));
+            String bucket = BRAND_KEYS.contains(field.getName()) ? "" : "in";
+            assertEquals("Indonesian runtime must select its compiled translation",
+                    compiledValue(field.getName(), bucket), indonesian.getString(field.getInt(null)));
         }
         assertNotEquals(compiledValue("settings_language_accessibility", ""),
-                compiledValue("settings_language_accessibility", "id"));
+                compiledValue("settings_language_accessibility", "in"));
     }
 
     private String compiledValue(String name, String locale) throws Exception {
@@ -620,7 +616,8 @@ public class KeepADBResourceContractTest {
         result.put("zh-TW", "zh-rTW");
         result.put("ja", "ja");
         result.put("ko", "ko");
-        result.put("id", "id");
+        // Android AssetManager resolves the public id locale through the legacy in bucket.
+        result.put("id", "in");
         result.put("vi", "vi");
         return result;
     }

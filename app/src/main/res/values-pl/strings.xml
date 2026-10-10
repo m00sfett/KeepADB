@@ -563,4 +563,5 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="warnings_inactive">Obecnie brak ostrzeżenia</string>
     <string name="warnings_reset">Usuń wszystkie wyciszenia</string>
     <string name="warnings_none">Brak aktywnych ostrzeżeń bezpieczeństwa</string>
+    <string name="onboarding_upgrade_notice">Aktualizacja usunęła starą historię obserwacji Wi-Fi; nie można jej przywrócić. Zachowano Twoje ustawienia ochrony i zaufania, Keep-Alive oraz webhooka. Przy pierwszym otwarciu KeepADB wyświetla karty ostrzeżeń o aktywnych problemach bezpieczeństwa lub brakujących wymaganiach; po zamknięciu pozostają ukryte, dopóki ta sama przyczyna jest aktywna. Aktywne przyczyny związane z bezpieczeństwem nadal sprawdzisz w sekcji „Ostrzeżenia bezpieczeństwa”; karty nie zmieniają Twoich ustawień.</string>
 </resources>

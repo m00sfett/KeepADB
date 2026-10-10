@@ -563,4 +563,5 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="warnings_inactive">Sin advertencia actualmente</string>
     <string name="warnings_reset">Restablecer todos los silencios</string>
     <string name="warnings_none">Sin advertencias de seguridad activas</string>
+    <string name="onboarding_upgrade_notice">La actualización eliminó el antiguo historial de observación de Wi-Fi; no se puede recuperar. Se conservaron tus ajustes de protección y confianza, Keep-Alive y webhook. Al abrir por primera vez, KeepADB muestra tarjetas de advertencia por problemas de seguridad activos o requisitos pendientes; al cerrarlas, permanecen ocultas mientras siga activo el mismo motivo. Puedes seguir consultando los motivos de seguridad activos en «Advertencias de seguridad»; las tarjetas no cambian tus ajustes.</string>
 </resources>

@@ -572,4 +572,5 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="warnings_inactive">No warning at present</string>
     <string name="warnings_reset">Reset all mutes</string>
     <string name="warnings_none">No active security warnings</string>
+    <string name="onboarding_upgrade_notice">The update removed the old Wi-Fi observation history; it cannot be restored. Your protection and trust settings, Keep-Alive and webhook settings were kept. On first opening, KeepADB shows warning cards for active security issues or missing requirements; after closing them, they stay hidden for the same active reason. You can still check active security reasons under “Security warnings”; the warning cards do not change your settings.</string>
 </resources>

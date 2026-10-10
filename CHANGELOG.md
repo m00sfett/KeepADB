@@ -17,11 +17,19 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.10.0] - Unreleased
+
+### Added
+- **One-time upgrade notice in the setup intro (#828):** established installations entering their first assistant see the four-sentence #827/#848 audit notice once, with a persisted display marker. Fresh installations, completed assistants and standalone steps are excluded. It explains the irreversible removal of the old Wi-Fi observation history, preserved protection/trust, Keep-Alive and webhook settings, first-start warning cards, persisted dismissal for the same active reason and the security-warning overview. The notice changes no settings and is translated into all 19 supported languages.
+
+### Fixed
+- **Indonesian resource selection (#828 acceptance):** the translated resources use Android's legacy `values-in` qualifier while language selection keeps the public `id` tag. Indonesian now resolves the translated interface and upgrade notice instead of falling back to English. Runtime resource contracts and the 19-language intro test require actual translated resource resolution; the source-text injection workaround was removed.
 
 ## [1.9.52] - 2026-10-09 (unreleased)
 
