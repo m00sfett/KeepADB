@@ -639,7 +639,7 @@ public class MainActivity extends Activity {
         View triangle = findViewById(R.id.btn_security_warnings);
         int count = warningSnapshot.security().size();
         triangle.setVisibility(count == 0 ? View.GONE : View.VISIBLE);
-        triangle.setContentDescription(getString(R.string.warnings_count, count));
+        triangle.setContentDescription(getResources().getQuantityString(R.plurals.warnings_count, count, count));
         renderWarningFeedback();
         if (returningFromWarnings && endpointSurfaceActive) {
             returningFromWarnings = false;

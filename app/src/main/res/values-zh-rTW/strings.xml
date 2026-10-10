@@ -551,7 +551,9 @@
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">安全警告</string>
-    <string name="warnings_count">安全警告：%1$d 個有效原因</string>
+    <plurals name="warnings_count">
+        <item quantity="other">安全警告：%1$d 個有效原因</item>
+    </plurals>
     <string name="warnings_close">關閉警告：%1$s</string>
     <string name="warnings_closed">已關閉警告：%1$s</string>
     <string name="warnings_undo">復原</string>

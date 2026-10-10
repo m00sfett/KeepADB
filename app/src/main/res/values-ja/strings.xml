@@ -551,7 +551,9 @@
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">セキュリティ警告</string>
-    <string name="warnings_count">セキュリティ警告：有効な理由 %1$d 件</string>
+    <plurals name="warnings_count">
+        <item quantity="other">セキュリティ警告：有効な理由 %1$d 件</item>
+    </plurals>
     <string name="warnings_close">警告を閉じる：%1$s</string>
     <string name="warnings_closed">警告を閉じました：%1$s</string>
     <string name="warnings_undo">元に戻す</string>

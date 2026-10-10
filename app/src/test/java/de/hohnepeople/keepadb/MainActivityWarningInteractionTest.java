@@ -63,6 +63,9 @@ public class MainActivityWarningInteractionTest {
         KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         ActivityController<MainActivity> controller = open();
         MainActivity activity = controller.get();
+        assertEquals(1, KeepADBWarningState.observe(context).security().size());
+        assertEquals("Security warnings: 1 active reason",
+                activity.findViewById(R.id.btn_security_warnings).getContentDescription());
         assertTrue(visible(activity, R.id.warning_less_secure));
         close(activity, R.id.warning_less_secure);
         assertFalse(visible(activity, R.id.warning_less_secure));
@@ -160,7 +163,7 @@ public class MainActivityWarningInteractionTest {
         assertEquals(5, snapshot.security().size());
         assertEquals(3, snapshot.visible.size());
         MainActivity activity = open().get();
-        assertEquals(activity.getString(R.string.warnings_count, 5),
+        assertEquals("Security warnings: 5 active reasons",
                 activity.findViewById(R.id.btn_security_warnings).getContentDescription());
         activity.findViewById(R.id.btn_security_warnings).performClick();
         Intent listIntent = shadowOf(activity).getNextStartedActivity();

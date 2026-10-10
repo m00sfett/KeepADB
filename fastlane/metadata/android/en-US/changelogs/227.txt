@@ -1,0 +1,1 @@
+Screen readers now announce the security-warning count with the correct singular or plural form in every supported language.

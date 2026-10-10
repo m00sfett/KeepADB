@@ -551,7 +551,9 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Cảnh báo bảo mật</string>
-    <string name="warnings_count">Cảnh báo bảo mật: %1$d lý do đang có</string>
+    <plurals name="warnings_count">
+        <item quantity="other">Cảnh báo bảo mật: %1$d lý do đang có</item>
+    </plurals>
     <string name="warnings_close">Đóng cảnh báo: %1$s</string>
     <string name="warnings_closed">Đã đóng cảnh báo: %1$s</string>
     <string name="warnings_undo">Hoàn tác</string>
