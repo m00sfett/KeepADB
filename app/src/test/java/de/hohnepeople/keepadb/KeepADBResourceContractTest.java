@@ -193,15 +193,15 @@ public class KeepADBResourceContractTest {
                 resourcesFor("ru").getQuantityString(R.plurals.warnings_count, 11, 11));
         assertEquals("Предупреждения безопасности: 21 активная причина",
                 resourcesFor("ru").getQuantityString(R.plurals.warnings_count, 21, 21));
-        assertEquals("تحذيرات الأمان: 1 سبب نشط",
+        assertEquals("تحذيرات الأمان: ١ سبب نشط",
                 resourcesFor("ar").getQuantityString(R.plurals.warnings_count, 1, 1));
-        assertEquals("تحذيرات الأمان: سببان نشطان (2)",
+        assertEquals("تحذيرات الأمان: سببان نشطان (٢)",
                 resourcesFor("ar").getQuantityString(R.plurals.warnings_count, 2, 2));
-        assertEquals("تحذيرات الأمان: 5 أسباب نشطة",
+        assertEquals("تحذيرات الأمان: ٥ أسباب نشطة",
                 resourcesFor("ar").getQuantityString(R.plurals.warnings_count, 5, 5));
-        assertEquals("تحذيرات الأمان: 11 سببًا نشطًا",
+        assertEquals("تحذيرات الأمان: ١١ سببًا نشطًا",
                 resourcesFor("ar").getQuantityString(R.plurals.warnings_count, 11, 11));
-        assertEquals("تحذيرات الأمان: 21 سببًا نشطًا",
+        assertEquals("تحذيرات الأمان: ٢١ سببًا نشطًا",
                 resourcesFor("ar").getQuantityString(R.plurals.warnings_count, 21, 21));
         assertEquals("सुरक्षा चेतावनियाँ: 1 सक्रिय कारण",
                 resourcesFor("hi").getQuantityString(R.plurals.warnings_count, 1, 1));
