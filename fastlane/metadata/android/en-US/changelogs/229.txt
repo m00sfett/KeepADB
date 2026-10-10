@@ -1,0 +1,1 @@
+Removed unused Settings language resources left by the toolbar update. The language picker, supported languages and visible Settings UI are unchanged.

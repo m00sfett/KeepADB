@@ -121,7 +121,6 @@
     <string name="webhook_status_tailnet_hint">Tailscale 可能已中斷連線，或是在重新開機後未自動啟動。請檢查 Android 中 Tailscale 的「永久連線 VPN」設定。</string>
     <string name="settings_permission_warning">缺少系統權限 WRITE_SECURE_SETTINGS。在授予權限之前，KeepADB 無法切換無線偵錯。</string>
     <string name="settings_language_menu_label">語言</string>
-    <string name="settings_language_label">應用程式語言</string>
     <string name="settings_language_accessibility">應用程式語言：%1$s</string>
     <string name="settings_language_system_default">系統預設</string>
     <string name="settings_language_dialog_title">選擇語言</string>
