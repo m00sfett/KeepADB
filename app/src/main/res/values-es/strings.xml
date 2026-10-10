@@ -551,7 +551,11 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Advertencias de seguridad</string>
-    <string name="warnings_count">Advertencias de seguridad: %1$d motivos activos</string>
+    <plurals name="warnings_count">
+        <item quantity="one">Advertencias de seguridad: %1$d motivo activo</item>
+        <item quantity="many">Advertencias de seguridad: %1$d motivos activos</item>
+        <item quantity="other">Advertencias de seguridad: %1$d motivos activos</item>
+    </plurals>
     <string name="warnings_close">Cerrar advertencia: %1$s</string>
     <string name="warnings_closed">Advertencia cerrada: %1$s</string>
     <string name="warnings_undo">Deshacer</string>

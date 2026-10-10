@@ -560,7 +560,10 @@ You can end it at any time from the home screen or the notification.</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Security warnings</string>
-    <string name="warnings_count">Security warnings: %1$d active reasons</string>
+    <plurals name="warnings_count">
+        <item quantity="one">Security warnings: %1$d active reason</item>
+        <item quantity="other">Security warnings: %1$d active reasons</item>
+    </plurals>
     <string name="warnings_close">Close warning: %1$s</string>
     <string name="warnings_closed">Warning card closed: %1$s</string>
     <string name="warnings_undo">Undo</string>

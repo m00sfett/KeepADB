@@ -551,7 +551,12 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Ostrzeżenia bezpieczeństwa</string>
-    <string name="warnings_count">Ostrzeżenia bezpieczeństwa: %1$d aktywnych przyczyn</string>
+    <plurals name="warnings_count">
+        <item quantity="one">Ostrzeżenia bezpieczeństwa: %1$d aktywna przyczyna</item>
+        <item quantity="few">Ostrzeżenia bezpieczeństwa: %1$d aktywne przyczyny</item>
+        <item quantity="many">Ostrzeżenia bezpieczeństwa: %1$d aktywnych przyczyn</item>
+        <item quantity="other">Ostrzeżenia bezpieczeństwa: %1$d aktywnych przyczyn</item>
+    </plurals>
     <string name="warnings_close">Zamknij ostrzeżenie: %1$s</string>
     <string name="warnings_closed">Ostrzeżenie zamknięte: %1$s</string>
     <string name="warnings_undo">Cofnij</string>

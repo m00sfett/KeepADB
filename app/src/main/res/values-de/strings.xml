@@ -551,7 +551,10 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Sicherheitswarnungen</string>
-    <string name="warnings_count">Sicherheitswarnungen: %1$d aktive Gründe</string>
+    <plurals name="warnings_count">
+        <item quantity="one">Sicherheitswarnungen: %1$d aktiver Grund</item>
+        <item quantity="other">Sicherheitswarnungen: %1$d aktive Gründe</item>
+    </plurals>
     <string name="warnings_close">Warnkarte schließen: %1$s</string>
     <string name="warnings_closed">Warnkarte geschlossen: %1$s</string>
     <string name="warnings_undo">Rückgängig</string>

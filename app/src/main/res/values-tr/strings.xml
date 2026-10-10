@@ -551,7 +551,10 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Güvenlik uyarıları</string>
-    <string name="warnings_count">Güvenlik uyarıları: %1$d etkin neden</string>
+    <plurals name="warnings_count">
+        <item quantity="one">Güvenlik uyarıları: %1$d etkin neden</item>
+        <item quantity="other">Güvenlik uyarıları: %1$d etkin neden</item>
+    </plurals>
     <string name="warnings_close">Uyarıyı kapat: %1$s</string>
     <string name="warnings_closed">Uyarı kapatıldı: %1$s</string>
     <string name="warnings_undo">Geri al</string>

@@ -551,7 +551,10 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Beveiligingswaarschuwingen</string>
-    <string name="warnings_count">Beveiligingswaarschuwingen: %1$d actieve redenen</string>
+    <plurals name="warnings_count">
+        <item quantity="one">Beveiligingswaarschuwingen: %1$d actieve reden</item>
+        <item quantity="other">Beveiligingswaarschuwingen: %1$d actieve redenen</item>
+    </plurals>
     <string name="warnings_close">Waarschuwing sluiten: %1$s</string>
     <string name="warnings_closed">Waarschuwing gesloten: %1$s</string>
     <string name="warnings_undo">Ongedaan maken</string>

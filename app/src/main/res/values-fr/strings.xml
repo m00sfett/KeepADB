@@ -551,7 +551,11 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Alertes de sécurité</string>
-    <string name="warnings_count">Alertes de sécurité : %1$d raisons actives</string>
+    <plurals name="warnings_count">
+        <item quantity="one">Alertes de sécurité : %1$d raison active</item>
+        <item quantity="many">Alertes de sécurité : %1$d raisons actives</item>
+        <item quantity="other">Alertes de sécurité : %1$d raisons actives</item>
+    </plurals>
     <string name="warnings_close">Fermer l’alerte : %1$s</string>
     <string name="warnings_closed">Alerte fermée : %1$s</string>
     <string name="warnings_undo">Annuler</string>
