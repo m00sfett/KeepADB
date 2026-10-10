@@ -116,7 +116,7 @@ public class KeepADBAccessibilityContractTest {
         assertMinSize(systemWarningAction);
 
         int[] settingsControls = {
-                R.id.btn_back, R.id.settings_language_toolbar_button,
+                R.id.btn_back, R.id.btn_toggle_privacy_mode,
                 R.id.settings_webhook_header, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_url, R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_adb_header,
@@ -210,7 +210,7 @@ public class KeepADBAccessibilityContractTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity settings = settingsController.get();
         int[] settingsControls = {
-                R.id.btn_back, R.id.settings_language_toolbar_button, R.id.settings_webhook_toggle,
+                R.id.btn_back, R.id.btn_toggle_privacy_mode, R.id.settings_webhook_toggle,
                 R.id.settings_webhook_clear, R.id.settings_webhook_save,
                 R.id.settings_usb_notification_toggle, R.id.settings_usb_profile_notification_toggle,
                 R.id.settings_usb_profile_action, R.id.settings_usb_handover_selector,
@@ -235,7 +235,8 @@ public class KeepADBAccessibilityContractTest {
         String languageTag = KeepADBLocaleHelper.getSelectedLanguageTag(settings);
         String languageName = KeepADBLocaleHelper.getLanguageDisplayName(settings, languageTag);
         assertEquals(settings.getString(R.string.settings_language_accessibility, languageName),
-                settings.findViewById(R.id.settings_language_toolbar_button).getContentDescription());
+                ((android.widget.Toolbar) settings.findViewById(R.id.header_bar)).getMenu()
+                        .findItem(R.id.settings_language_menu_item).getContentDescription());
         assertEquals(settings.getString(R.string.settings_usb_handover_accessibility,
                         settings.getString(R.string.settings_usb_handover_mode_off)),
                 settings.findViewById(R.id.settings_usb_handover_selector).getContentDescription());
@@ -364,7 +365,7 @@ public class KeepADBAccessibilityContractTest {
         // with the four notice/display-preference sections shown directly inside its body,
         // matching #529's one-level USB-ADB structure.
         // #518: the language panel no longer exists in this content column at all -- it moved to
-        // the compact toolbar button in the header -- so it is no longer part of this table.
+        // native toolbar overflow in the header -- so it is no longer part of this table.
         int[] panels = {
                 R.id.settings_network_beta_panel,
                 R.id.settings_webhook_panel,

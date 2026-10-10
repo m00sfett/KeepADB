@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -21,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -658,7 +660,8 @@ public class SettingsActivityTest {
                 Robolectric.buildActivity(SettingsActivity.class).setup();
         SettingsActivity activity = controller.get();
 
-        View languageSelector = activity.findViewById(R.id.settings_language_toolbar_button);
+        MenuItem languageSelector = ((Toolbar) activity.findViewById(R.id.header_bar))
+                .getMenu().findItem(R.id.settings_language_menu_item);
         assertNotNull(languageSelector);
         String currentLanguageTag = KeepADBLocaleHelper.getSelectedLanguageTag(activity);
         String languageDisplayName = KeepADBLocaleHelper.getLanguageDisplayName(activity, currentLanguageTag);
@@ -670,6 +673,32 @@ public class SettingsActivityTest {
         assertEquals(activity.getString(R.string.settings_usb_handover_accessibility,
                         activity.getString(R.string.settings_usb_handover_mode_off)),
                 handoverSelector.getContentDescription());
+    }
+
+    @Test
+    public void languageIsOnlyInNativeOverflowAndOpensExistingDialog() {
+        ActivityController<SettingsActivity> controller =
+                Robolectric.buildActivity(SettingsActivity.class).setup();
+        SettingsActivity activity = controller.get();
+        Toolbar toolbar = activity.findViewById(R.id.header_bar);
+        assertEquals(1, toolbar.getMenu().size());
+        MenuItem language = toolbar.getMenu().findItem(R.id.settings_language_menu_item);
+        assertNotNull(language);
+        assertEquals(activity.getString(R.string.settings_language_menu_label), language.getTitle());
+        assertFalse((Boolean) org.robolectric.util.ReflectionHelpers.callInstanceMethod(
+                language, "requiresActionButton"));
+        assertFalse((Boolean) org.robolectric.util.ReflectionHelpers.callInstanceMethod(
+                language, "requestsActionButton"));
+        assertNotNull(activity.findViewById(R.id.btn_back));
+        assertTrue(activity.findViewById(R.id.btn_back).hasOnClickListeners());
+        assertNotNull(activity.findViewById(R.id.btn_toggle_privacy_mode));
+        assertTrue(activity.findViewById(R.id.btn_toggle_privacy_mode).hasOnClickListeners());
+        assertTrue(toolbar.getMenu().performIdentifierAction(R.id.settings_language_menu_item, 0));
+        assertDialogShowingWithTitle(R.string.settings_language_dialog_title, activity);
+        ShadowAlertDialog.getLatestAlertDialog().dismiss();
+        activity.findViewById(R.id.btn_back).performClick();
+        assertTrue(activity.isFinishing());
+        controller.pause().stop().destroy();
     }
 
     @Test
@@ -688,7 +717,8 @@ public class SettingsActivityTest {
                 .putExtra("adb", true);
         RuntimeEnvironment.getApplication().sendStickyBroadcast(stickyUsbState);
 
-        activity.findViewById(R.id.settings_language_toolbar_button).performClick();
+        ((Toolbar) activity.findViewById(R.id.header_bar)).getMenu()
+                .performIdentifierAction(R.id.settings_language_menu_item, 0);
         ShadowLooper.idleMainLooper();
 
         AlertDialog dialog = (AlertDialog) org.robolectric.shadows.ShadowDialog.getLatestDialog();
@@ -905,7 +935,7 @@ public class SettingsActivityTest {
     /**
      * #478: the last (version) settings entry is pinned -- always visible and never collapsible
      * -- unlike every other card in {@link #COLLAPSIBLE_CARDS}. #518: the former language entry
-     * was removed from this content column entirely (it is now the toolbar button in the
+     * was removed from this content column entirely (it is now in native toolbar overflow in the
      * header), so it is no longer part of this contract.
      */
     @Test
@@ -1459,7 +1489,8 @@ public class SettingsActivityTest {
     public void languageSelectionDialogSurvivesRotation() {
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup();
-        controller.get().findViewById(R.id.settings_language_toolbar_button).performClick();
+        ((Toolbar) controller.get().findViewById(R.id.header_bar)).getMenu()
+                .performIdentifierAction(R.id.settings_language_menu_item, 0);
         assertDialogShowingWithTitle(R.string.settings_language_dialog_title, controller.get());
 
         ActivityController<SettingsActivity> restored = rotate(controller);

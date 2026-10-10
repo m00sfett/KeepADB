@@ -17,11 +17,16 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.1` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.10.1] - Unreleased
+
+### Changed
+- **Settings language entry in native toolbar overflow (#840):** Language opens the existing selection dialog from the platform overflow menu. Back navigation and the shared privacy eye remain visible with their existing behavior. The wrapping title shares the remaining header width, and the menu retains the selected-language accessibility description.
 
 ## [1.10.0] - Unreleased
 
