@@ -12,12 +12,15 @@ import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 /** Central settings screen for KeepADB options (Keep-Alive, Language, Webhook, etc.). */
 public class SettingsActivity extends Activity {
@@ -52,7 +55,7 @@ public class SettingsActivity extends Activity {
 
     private ScrollView scrollView;
     private View permissionPanel;
-    private View languageToolbarButton;
+    private MenuItem languageMenuItem;
     private TextView onboardingSummary;
 
     private Switch hideNotificationToggle;
@@ -142,8 +145,15 @@ public class SettingsActivity extends Activity {
             bindCollapsibleCard(card[0], card[1], card[2]);
         }
 
-        languageToolbarButton = findViewById(R.id.settings_language_toolbar_button);
-        languageToolbarButton.setOnClickListener(v -> showLanguageSelectionDialog());
+        Toolbar toolbar = findViewById(R.id.header_bar);
+        languageMenuItem = toolbar.getMenu().add(Menu.NONE, R.id.settings_language_menu_item,
+                Menu.NONE, R.string.settings_language_menu_label);
+        languageMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        toolbar.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() != R.id.settings_language_menu_item) return false;
+            showLanguageSelectionDialog();
+            return true;
+        });
 
         hideNotificationToggle = findViewById(R.id.settings_hide_notification_toggle);
         hideNotificationSubtext = findViewById(R.id.settings_hide_notification_subtext);
@@ -625,7 +635,7 @@ public class SettingsActivity extends Activity {
 
         String currentLanguageTag = KeepADBLocaleHelper.getSelectedLanguageTag(this);
         String displayName = KeepADBLocaleHelper.getLanguageDisplayName(this, currentLanguageTag);
-        languageToolbarButton.setContentDescription(
+        languageMenuItem.setContentDescription(
                 getString(R.string.settings_language_accessibility, displayName));
 
         webhookForm.refreshVisual();

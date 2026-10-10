@@ -1,0 +1,1 @@
+Settings keeps Back and the privacy eye visible. Choose Language from the toolbar menu to open the existing language picker. The settings title wraps on narrow screens and with large text.

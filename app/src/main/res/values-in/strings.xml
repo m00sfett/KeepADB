@@ -120,6 +120,7 @@
     <string name="webhook_status_failed">gagal</string>
     <string name="webhook_status_tailnet_hint">Tailscale mungkin terputus, atau tidak dijalankan otomatis setelah reboot. Periksa pengaturan Android "VPN Selalu Aktif" untuk Tailscale.</string>
     <string name="settings_permission_warning">Izin sistem WRITE_SECURE_SETTINGS tidak ada. KeepADB tidak dapat beralih Debugging Nirkabel sampai izin diberikan.</string>
+    <string name="settings_language_menu_label">Bahasa</string>
     <string name="settings_language_label">Bahasa Aplikasi</string>
     <string name="settings_language_accessibility">Bahasa Aplikasi: %1$s</string>
     <string name="settings_language_system_default">Default sistem</string>
