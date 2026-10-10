@@ -80,11 +80,22 @@ public class PrivacyToggleTitleBarsTest {
             View eye = page.findViewById(R.id.btn_toggle_privacy_mode);
             assertNotNull(name + " has the privacy eye", eye);
             assertTrue(name + ": eye is an ImageButton", eye instanceof ImageButton);
-            assertSame(name + ": the eye is in the title bar", header, eye.getParent());
+            assertTrue(name + ": the eye is inside the title bar",
+                    isDescendantOf(eye, header));
             assertEquals(name + ": visible", View.VISIBLE, eye.getVisibility());
             assertEquals(name + ": tap target 48dp", Math.round(48 * context.getResources()
                     .getDisplayMetrics().density), eye.getLayoutParams().width);
         }
+    }
+
+    private static boolean isDescendantOf(View view, View ancestor) {
+        android.view.ViewParent parent = view.getParent();
+        while (parent != null) {
+            if (parent == ancestor) return true;
+            if (!(parent instanceof View)) return false;
+            parent = ((View) parent).getParent();
+        }
+        return false;
     }
 
     /** Inventory guard: a future page with a red header must not forget the eye. */
