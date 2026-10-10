@@ -53,9 +53,12 @@ public class KeepADBRegisterClientResetRuleTest {
             } catch (AssertionError expected) {
                 assertTrue(expected.getMessage(), expected.getMessage().contains("did not drain"));
             }
+            assertTrue("A timed-out reset must leave the in-flight client state intact",
+                    KeepADBRegisterClient.isWlanUpdateInFlightForTesting());
         } finally {
             release.countDown();
-            KeepADBRegisterClient.awaitIdleForTesting(5000);
+            assertTrue("The released register task must drain before fixture cleanup",
+                    KeepADBRegisterClient.awaitIdleForTesting(5000));
             KeepADBRegisterClient.resetForTesting();
             context.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
         }
