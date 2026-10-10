@@ -92,6 +92,200 @@ public class KeepADBResourceContractTest {
     }
 
     @Test
+    public void warningCountUsesLocalizedQuantityForms() {
+        assertEquals("Security warnings: 1 active reason",
+                resourcesFor("en").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Security warnings: 2 active reasons",
+                resourcesFor("en").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Security warnings: 5 active reasons",
+                resourcesFor("en").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Security warnings: 11 active reasons",
+                resourcesFor("en").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Security warnings: 21 active reasons",
+                resourcesFor("en").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("Sicherheitswarnungen: 1 aktiver Grund",
+                resourcesFor("de").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Sicherheitswarnungen: 2 aktive Gründe",
+                resourcesFor("de").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Sicherheitswarnungen: 5 aktive Gründe",
+                resourcesFor("de").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Sicherheitswarnungen: 11 aktive Gründe",
+                resourcesFor("de").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Sicherheitswarnungen: 21 aktive Gründe",
+                resourcesFor("de").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("Advertencias de seguridad: 1 motivo activo",
+                resourcesFor("es").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Advertencias de seguridad: 2 motivos activos",
+                resourcesFor("es").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Advertencias de seguridad: 5 motivos activos",
+                resourcesFor("es").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Advertencias de seguridad: 11 motivos activos",
+                resourcesFor("es").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Advertencias de seguridad: 21 motivos activos",
+                resourcesFor("es").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("Alertes de sécurité : 1 raison active",
+                resourcesFor("fr").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Alertes de sécurité : 2 raisons actives",
+                resourcesFor("fr").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Alertes de sécurité : 5 raisons actives",
+                resourcesFor("fr").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Alertes de sécurité : 11 raisons actives",
+                resourcesFor("fr").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Alertes de sécurité : 21 raisons actives",
+                resourcesFor("fr").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("Avisos de segurança: 1 motivo ativo",
+                resourcesFor("pt").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Avisos de segurança: 2 motivos ativos",
+                resourcesFor("pt").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Avisos de segurança: 5 motivos ativos",
+                resourcesFor("pt").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Avisos de segurança: 11 motivos ativos",
+                resourcesFor("pt").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Avisos de segurança: 21 motivos ativos",
+                resourcesFor("pt").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("Avvisi di sicurezza: 1 motivo attivo",
+                resourcesFor("it").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Avvisi di sicurezza: 2 motivi attivi",
+                resourcesFor("it").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Avvisi di sicurezza: 5 motivi attivi",
+                resourcesFor("it").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Avvisi di sicurezza: 11 motivi attivi",
+                resourcesFor("it").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Avvisi di sicurezza: 21 motivi attivi",
+                resourcesFor("it").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("Beveiligingswaarschuwingen: 1 actieve reden",
+                resourcesFor("nl").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Beveiligingswaarschuwingen: 2 actieve redenen",
+                resourcesFor("nl").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Beveiligingswaarschuwingen: 5 actieve redenen",
+                resourcesFor("nl").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Beveiligingswaarschuwingen: 11 actieve redenen",
+                resourcesFor("nl").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Beveiligingswaarschuwingen: 21 actieve redenen",
+                resourcesFor("nl").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("Ostrzeżenia bezpieczeństwa: 1 aktywna przyczyna",
+                resourcesFor("pl").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Ostrzeżenia bezpieczeństwa: 2 aktywne przyczyny",
+                resourcesFor("pl").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Ostrzeżenia bezpieczeństwa: 5 aktywnych przyczyn",
+                resourcesFor("pl").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Ostrzeżenia bezpieczeństwa: 11 aktywnych przyczyn",
+                resourcesFor("pl").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Ostrzeżenia bezpieczeństwa: 21 aktywnych przyczyn",
+                resourcesFor("pl").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("Попередження безпеки: 1 активна причина",
+                resourcesFor("uk").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Попередження безпеки: 2 активні причини",
+                resourcesFor("uk").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Попередження безпеки: 5 активних причин",
+                resourcesFor("uk").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Попередження безпеки: 11 активних причин",
+                resourcesFor("uk").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Попередження безпеки: 21 активна причина",
+                resourcesFor("uk").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("Предупреждения безопасности: 1 активная причина",
+                resourcesFor("ru").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Предупреждения безопасности: 2 активные причины",
+                resourcesFor("ru").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Предупреждения безопасности: 5 активных причин",
+                resourcesFor("ru").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Предупреждения безопасности: 11 активных причин",
+                resourcesFor("ru").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Предупреждения безопасности: 21 активная причина",
+                resourcesFor("ru").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("تحذيرات الأمان: ١ سبب نشط",
+                resourcesFor("ar").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("تحذيرات الأمان: سببان نشطان (٢)",
+                resourcesFor("ar").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("تحذيرات الأمان: ٥ أسباب نشطة",
+                resourcesFor("ar").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("تحذيرات الأمان: ١١ سببًا نشطًا",
+                resourcesFor("ar").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("تحذيرات الأمان: ٢١ سببًا نشطًا",
+                resourcesFor("ar").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("सुरक्षा चेतावनियाँ: 1 सक्रिय कारण",
+                resourcesFor("hi").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("सुरक्षा चेतावनियाँ: 2 सक्रिय कारण",
+                resourcesFor("hi").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("सुरक्षा चेतावनियाँ: 5 सक्रिय कारण",
+                resourcesFor("hi").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("सुरक्षा चेतावनियाँ: 11 सक्रिय कारण",
+                resourcesFor("hi").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("सुरक्षा चेतावनियाँ: 21 सक्रिय कारण",
+                resourcesFor("hi").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("Güvenlik uyarıları: 1 etkin neden",
+                resourcesFor("tr").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Güvenlik uyarıları: 2 etkin neden",
+                resourcesFor("tr").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Güvenlik uyarıları: 5 etkin neden",
+                resourcesFor("tr").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Güvenlik uyarıları: 11 etkin neden",
+                resourcesFor("tr").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Güvenlik uyarıları: 21 etkin neden",
+                resourcesFor("tr").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("Peringatan keamanan: 1 alasan aktif",
+                resourcesFor("id").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Peringatan keamanan: 2 alasan aktif",
+                resourcesFor("id").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Peringatan keamanan: 5 alasan aktif",
+                resourcesFor("id").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Peringatan keamanan: 11 alasan aktif",
+                resourcesFor("id").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Peringatan keamanan: 21 alasan aktif",
+                resourcesFor("id").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("セキュリティ警告：有効な理由 1 件",
+                resourcesFor("ja").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("セキュリティ警告：有効な理由 2 件",
+                resourcesFor("ja").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("セキュリティ警告：有効な理由 5 件",
+                resourcesFor("ja").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("セキュリティ警告：有効な理由 11 件",
+                resourcesFor("ja").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("セキュリティ警告：有効な理由 21 件",
+                resourcesFor("ja").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("보안 경고: 활성 사유 1개",
+                resourcesFor("ko").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("보안 경고: 활성 사유 2개",
+                resourcesFor("ko").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("보안 경고: 활성 사유 5개",
+                resourcesFor("ko").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("보안 경고: 활성 사유 11개",
+                resourcesFor("ko").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("보안 경고: 활성 사유 21개",
+                resourcesFor("ko").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("Cảnh báo bảo mật: 1 lý do đang có",
+                resourcesFor("vi").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("Cảnh báo bảo mật: 2 lý do đang có",
+                resourcesFor("vi").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("Cảnh báo bảo mật: 5 lý do đang có",
+                resourcesFor("vi").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("Cảnh báo bảo mật: 11 lý do đang có",
+                resourcesFor("vi").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("Cảnh báo bảo mật: 21 lý do đang có",
+                resourcesFor("vi").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("安全警告：1 个有效原因",
+                resourcesFor("zh-CN").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("安全警告：2 个有效原因",
+                resourcesFor("zh-CN").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("安全警告：5 个有效原因",
+                resourcesFor("zh-CN").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("安全警告：11 个有效原因",
+                resourcesFor("zh-CN").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("安全警告：21 个有效原因",
+                resourcesFor("zh-CN").getQuantityString(R.plurals.warnings_count, 21, 21));
+        assertEquals("安全警告：1 個有效原因",
+                resourcesFor("zh-TW").getQuantityString(R.plurals.warnings_count, 1, 1));
+        assertEquals("安全警告：2 個有效原因",
+                resourcesFor("zh-TW").getQuantityString(R.plurals.warnings_count, 2, 2));
+        assertEquals("安全警告：5 個有效原因",
+                resourcesFor("zh-TW").getQuantityString(R.plurals.warnings_count, 5, 5));
+        assertEquals("安全警告：11 個有效原因",
+                resourcesFor("zh-TW").getQuantityString(R.plurals.warnings_count, 11, 11));
+        assertEquals("安全警告：21 個有效原因",
+                resourcesFor("zh-TW").getQuantityString(R.plurals.warnings_count, 21, 21));
+    }
+
+    @Test
     public void repairedTurkishPermissionGuidanceContainsOneInstruction() throws Exception {
         assertEquals("İzin eksik. PC’den bir kez çalıştırın:\n"
                         + "adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS",
@@ -417,7 +611,6 @@ public class KeepADBResourceContractTest {
         String stringWitness = context.getPackageName();
         int integerWitness = context.getApplicationInfo().uid;
         long longWitness = integerWitness;
-        result.put("warnings_count", new Object[] {integerWitness});
         result.put("warnings_close", new Object[] {stringWitness});
         result.put("warnings_closed", new Object[] {stringWitness});
         result.put("endpoint_format", new Object[] {stringWitness, integerWitness});

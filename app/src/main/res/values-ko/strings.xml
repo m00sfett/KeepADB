@@ -551,7 +551,9 @@
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">보안 경고</string>
-    <string name="warnings_count">보안 경고: 활성 사유 %1$d개</string>
+    <plurals name="warnings_count">
+        <item quantity="other">보안 경고: 활성 사유 %1$d개</item>
+    </plurals>
     <string name="warnings_close">경고 닫기: %1$s</string>
     <string name="warnings_closed">경고를 닫았습니다: %1$s</string>
     <string name="warnings_undo">실행 취소</string>

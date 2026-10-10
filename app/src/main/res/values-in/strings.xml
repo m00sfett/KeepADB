@@ -551,7 +551,9 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Peringatan keamanan</string>
-    <string name="warnings_count">Peringatan keamanan: %1$d alasan aktif</string>
+    <plurals name="warnings_count">
+        <item quantity="other">Peringatan keamanan: %1$d alasan aktif</item>
+    </plurals>
     <string name="warnings_close">Tutup peringatan: %1$s</string>
     <string name="warnings_closed">Peringatan ditutup: %1$s</string>
     <string name="warnings_undo">Urungkan</string>

@@ -551,7 +551,10 @@
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">सुरक्षा चेतावनियाँ</string>
-    <string name="warnings_count">सुरक्षा चेतावनियाँ: %1$d सक्रिय कारण</string>
+    <plurals name="warnings_count">
+        <item quantity="one">सुरक्षा चेतावनियाँ: %1$d सक्रिय कारण</item>
+        <item quantity="other">सुरक्षा चेतावनियाँ: %1$d सक्रिय कारण</item>
+    </plurals>
     <string name="warnings_close">चेतावनी बंद करें: %1$s</string>
     <string name="warnings_closed">चेतावनी बंद हुई: %1$s</string>
     <string name="warnings_undo">पूर्ववत करें</string>

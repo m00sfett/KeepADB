@@ -551,7 +551,14 @@
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">تحذيرات الأمان</string>
-    <string name="warnings_count">تحذيرات الأمان: %1$d أسباب نشطة</string>
+    <plurals name="warnings_count">
+        <item quantity="zero">تحذيرات الأمان: %1$d من الأسباب النشطة</item>
+        <item quantity="one">تحذيرات الأمان: %1$d سبب نشط</item>
+        <item quantity="two">تحذيرات الأمان: سببان نشطان (%1$d)</item>
+        <item quantity="few">تحذيرات الأمان: %1$d أسباب نشطة</item>
+        <item quantity="many">تحذيرات الأمان: %1$d سببًا نشطًا</item>
+        <item quantity="other">تحذيرات الأمان: %1$d سبب نشط</item>
+    </plurals>
     <string name="warnings_close">إغلاق التحذير: %1$s</string>
     <string name="warnings_closed">تم إغلاق التحذير: %1$s</string>
     <string name="warnings_undo">تراجع</string>

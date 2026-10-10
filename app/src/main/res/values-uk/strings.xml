@@ -551,7 +551,12 @@
 
     <!-- #826: warning display controls. -->
     <string name="warnings_title">Попередження безпеки</string>
-    <string name="warnings_count">Попередження безпеки: %1$d активних причин</string>
+    <plurals name="warnings_count">
+        <item quantity="one">Попередження безпеки: %1$d активна причина</item>
+        <item quantity="few">Попередження безпеки: %1$d активні причини</item>
+        <item quantity="many">Попередження безпеки: %1$d активних причин</item>
+        <item quantity="other">Попередження безпеки: %1$d активної причини</item>
+    </plurals>
     <string name="warnings_close">Закрити попередження: %1$s</string>
     <string name="warnings_closed">Попередження закрито: %1$s</string>
     <string name="warnings_undo">Скасувати</string>
