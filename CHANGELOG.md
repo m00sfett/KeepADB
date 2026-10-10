@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.10.4] - Unreleased
+
+### Removed
+- **Orphaned Settings language resources (#852):** Remove `settings_language_label` from all 19 resource variants and the unused `ic_translate` drawable left behind after the Settings entry moved to the native overflow menu. The current language selection entry and translated UI remain unchanged.
+
 ## [1.10.3] - Unreleased
 
 ### Fixed
