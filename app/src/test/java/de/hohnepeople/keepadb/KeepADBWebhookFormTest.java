@@ -49,12 +49,13 @@ public class KeepADBWebhookFormTest {
 
     @After
     public void tearDown() {
+        KeepADBEndpointCoordinator.resetForTesting();
+        KeepADBRegisterClientResetRule.awaitIdle();
         RuntimeEnvironment.getApplication()
                 .getSharedPreferences("keepadb_prefs", android.content.Context.MODE_PRIVATE)
                 .edit().clear().commit();
-        KeepADBRegisterClient.resetHttpTransport();
+        KeepADBRegisterClient.resetForTesting();
         KeepADB.resetForTesting();
-        KeepADBEndpointCoordinator.resetForTesting();
     }
 
     private Activity newActivityWithSettingsLayout() {
@@ -250,6 +251,8 @@ public class KeepADBWebhookFormTest {
         org.robolectric.Shadows.shadowOf(app)
                 .grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS);
         KeepADB.setGatewayForTesting(new KeepADBFakeSettingsGateway(true));
+        KeepADBEndpointCoordinator.setReachabilityProbeForTesting((host, port, timeoutMs) -> true);
+        KeepADBEndpointCoordinator.setWorkerStarterForTesting(Thread::run);
         java.lang.reflect.Field host = KeepADBEndpointCoordinator.class.getDeclaredField("currentHost");
         host.setAccessible(true);
         host.set(null, "192.168.1.50");
@@ -268,7 +271,8 @@ public class KeepADBWebhookFormTest {
     @Test
     public void savingAValidUrlWhileDisabledAlsoActivatesTheWebhook() throws Exception {
         Activity activity = newActivityWithSettingsLayout();
-        KeepADBRegisterClient.setHttpTransport(new KeepADBFakeHttpTransport());
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
         int[] refreshes = observeCoordinatorRefreshes();
         int[] changeCount = {0};
         KeepADBWebhookForm form = new KeepADBWebhookForm(activity, () -> changeCount[0]++);
@@ -278,6 +282,8 @@ public class KeepADBWebhookFormTest {
         TextView error = activity.findViewById(R.id.settings_webhook_error);
         input.setText("http://user:pw@100.111.111.21:50829/register/s20");
         activity.findViewById(R.id.settings_webhook_save).performClick();
+        assertTrue("The register request must finish before test teardown replaces its transport",
+                KeepADBRegisterClient.awaitIdleForTesting(2000));
 
         assertEquals("http://100.111.111.21:50829/register/s20",
                 KeepADBPreferences.getRegisterWebhookUrl(activity));
@@ -286,6 +292,8 @@ public class KeepADBWebhookFormTest {
         assertEquals(View.GONE, error.getVisibility());
         assertEquals("The coordinator must be refreshed exactly once", 1, refreshes[0]);
         assertEquals(1, changeCount[0]);
+        assertEquals("The queued report must use this test's fake transport", 1,
+                transport.getRequestCount());
         assertEquals("Only the enabled toast, not a second 'saved' toast",
                 activity.getString(R.string.settings_webhook_enabled_toast),
                 org.robolectric.shadows.ShadowToast.getTextOfLatestToast());
@@ -295,7 +303,8 @@ public class KeepADBWebhookFormTest {
     @Test
     public void savingAValidUrlWhileAlreadyEnabledKeepsTheSavedToastAndRefreshes() throws Exception {
         Activity activity = newActivityWithSettingsLayout();
-        KeepADBRegisterClient.setHttpTransport(new KeepADBFakeHttpTransport());
+        KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
+        KeepADBRegisterClient.setHttpTransport(transport);
         KeepADBPreferences.setRegisterWebhookUrl(activity, "https://old.example/register/a");
         KeepADBPreferences.setRegisterWebhookEnabled(activity, true);
         int[] refreshes = observeCoordinatorRefreshes();
@@ -304,9 +313,12 @@ public class KeepADBWebhookFormTest {
         EditText input = activity.findViewById(R.id.settings_webhook_url);
         input.setText("https://new.example/register/a");
         activity.findViewById(R.id.settings_webhook_save).performClick();
+        assertTrue("The register request must finish before test teardown replaces its transport",
+                KeepADBRegisterClient.awaitIdleForTesting(2000));
 
         assertEquals("https://new.example/register/a", KeepADBPreferences.getRegisterWebhookUrl(activity));
         assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(activity));
+        assertEquals(1, transport.getRequestCount());
         assertEquals(1, refreshes[0]);
         assertEquals(activity.getString(R.string.settings_webhook_saved_toast),
                 org.robolectric.shadows.ShadowToast.getTextOfLatestToast());

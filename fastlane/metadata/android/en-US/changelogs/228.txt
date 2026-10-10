@@ -1,0 +1,1 @@
+Webhook synchronization tests now isolate background requests reliably under CI load.

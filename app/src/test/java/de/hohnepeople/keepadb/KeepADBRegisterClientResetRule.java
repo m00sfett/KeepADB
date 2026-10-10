@@ -34,16 +34,24 @@ final class KeepADBRegisterClientResetRule extends ExternalResource {
     }
 
     /**
-     * #806: a drain timeout means a register task is still running and would write into the next
-     * test's state, so it fails loudly instead of being swallowed.
+     * #806/#855: a drain timeout means a register task is still running and could write into the
+     * next test's preferences. Keep its static state and transport intact until it has finished.
      */
     static void reset(long drainTimeoutMs) {
-        boolean drained = KeepADBRegisterClient.awaitIdleForTesting(drainTimeoutMs);
+        awaitIdle(drainTimeoutMs);
         KeepADBRegisterClient.resetForTesting();
-        if (!drained) {
+    }
+
+    /** Drains queued client work before a test fixture clears preferences or replaces its transport. */
+    static void awaitIdle() {
+        awaitIdle(DRAIN_TIMEOUT_MS);
+    }
+
+    static void awaitIdle(long drainTimeoutMs) {
+        if (!KeepADBRegisterClient.awaitIdleForTesting(drainTimeoutMs)) {
             throw new AssertionError("KeepADBRegisterClient executor did not drain within "
-                    + drainTimeoutMs + " ms; a register task is still running and would leak"
-                    + " into the next test");
+                    + drainTimeoutMs + " ms; a register task is still running and may write"
+                    + " into later test preferences");
         }
     }
 }

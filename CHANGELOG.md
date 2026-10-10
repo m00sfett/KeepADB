@@ -23,6 +23,11 @@ record development snapshots; their dates describe implementation history, not p
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
 
+## [1.10.3] - Unreleased
+
+### Fixed
+- **Register-client test isolation (#855):** drain asynchronous test requests before clearing Preferences or replacing their fake transport. A timed-out reset preserves in-flight test state until a later drain succeeds, avoiding cross-test writes and accidental real HTTP requests under CI load.
+
 ## [1.10.2] - Unreleased
 
 ### Fixed
