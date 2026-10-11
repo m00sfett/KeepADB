@@ -258,8 +258,8 @@ public class KeepADBRecoveryBackoffSchedulingTest {
         assertTrue(KeepADB.setEnabled(ctx, true, AUTO).isSuccess());
         assertTrue(KeepADB.isAutomaticEnableBackoffBlocked());
 
-        // Acceptance criterion: "Manuelle Nutzeraktionen ... können einen blockierten
-        // automatischen Pfad bewusst erneut anstoßen." A manual tap, even one that itself ends
+        // Acceptance criterion: "Manual user actions ... can deliberately trigger a blocked
+        // automatic path again." A manual tap, even one that itself ends
         // in the very same mismatch, must reopen the path rather than leave it stuck.
         assertTrue("a manual source's own write must still be reported as accepted",
                 KeepADB.setEnabled(ctx, true, "app").isSuccess());

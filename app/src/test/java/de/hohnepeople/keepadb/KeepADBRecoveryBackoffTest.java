@@ -52,8 +52,8 @@ public class KeepADBRecoveryBackoffTest {
     }
 
     /**
-     * #536 acceptance criterion: "den nächsten Versuch nach ungefähr 2 Minuten einplanen; weitere
-     * Versuche höchstens im Abstand von 5 Minuten." The first retry after an unconfirmed attempt
+     * #536 acceptance criterion: "schedule the next attempt after about 2 minutes; later attempts
+     * no more than 5 minutes apart." The first retry after an unconfirmed attempt
      * is the short (~2 minute) delay; every attempt after that re-anchors at the longer, capped
      * 5-minute interval instead.
      */
@@ -197,8 +197,8 @@ public class KeepADBRecoveryBackoffTest {
     }
 
     /**
-     * #536 acceptance criterion: "den nächsten Versuch nach ungefähr 2 Minuten einplanen; weitere
-     * Versuche höchstens im Abstand von 5 Minuten."
+     * #536 acceptance criterion: "schedule the next attempt after about 2 minutes; later attempts
+     * no more than 5 minutes apart."
      */
     @Test
     public void retryDelaysMatchTheIssue536AcceptanceCriterionAndAreFarLongerThanTheToggleCooldown() {

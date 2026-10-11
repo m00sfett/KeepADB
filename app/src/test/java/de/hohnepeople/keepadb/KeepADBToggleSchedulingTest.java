@@ -497,8 +497,8 @@ public class KeepADBToggleSchedulingTest {
     // ---------------------------------------------------------------------------------------
 
     /**
-     * Acceptance criterion 2: "Manuelles Einschalten durch den Nutzer bleibt als expliziter
-     * Override ohne den langen Debounce erhalten." A rapid manual OFF -> ON pair gets only the
+     * Acceptance criterion 2: "A user's manual enable remains an explicit override without the
+     * long debounce." A rapid manual OFF -> ON pair gets only the
      * short technical teardown gap; other manual toggles still write straight away.
      */
     @Test

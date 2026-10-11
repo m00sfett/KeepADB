@@ -39,7 +39,7 @@ final class KeepADBRecoveryBackoff {
 
     /**
      * Spacing before the very first retry after an unconfirmed automatic attempt (#536's
-     * "ungefähr 2 Minuten" acceptance criterion). Deliberately long enough that it can never be
+     * "approximately 2 minutes" acceptance criterion). Deliberately long enough that it can never be
      * mistaken for the 1500ms {@code TOGGLE_COOLDOWN_MS} loop this class replaces, while still
      * short enough that a user who confirmed the pairing dialog without KeepADB noticing doesn't
      * wait long for automatic recovery to resume on its own.
@@ -48,7 +48,7 @@ final class KeepADBRecoveryBackoff {
 
     /**
      * Spacing for every retry after the first one, and the cap the cadence never exceeds (#536's
-     * "höchstens im Abstand von 5 Minuten" acceptance criterion). A cycle that keeps mismatching
+     * "at most every 5 minutes" acceptance criterion). A cycle that keeps mismatching
      * therefore retries at 2, 7, 12, 17, ... minutes after the first attempt -- bounded, never
      * growing further, so a stubborn dialog costs at most one controlled attempt every 5 minutes
      * instead of escalating.

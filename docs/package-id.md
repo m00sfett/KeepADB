@@ -1,34 +1,33 @@
-# Paketname (`applicationId`) bleibt `de.hohnepeople.keepadb`
+# Keep the package name (`applicationId`) as `de.hohnepeople.keepadb`
 
-Entscheidung vom 2026-10-05 (Nutzer, im Zuge des Website-Umzugs nach `keepadb.roteson.de`).
+Decision made on 2026-10-05 by the user during the website move to `keepadb.roteson.de`.
 
-## Entscheidung
+## Decision
 
-`applicationId` und `namespace` bleiben `de.hohnepeople.keepadb`. Der Paketname ist eine
-historische Kennung und muss nicht zu einer Domain passen. Er erscheint für Nutzer nirgends.
-Der Website-Umzug ändert nur URLs (Einstellungen, Feedback-Link, Store-Metadaten), nicht die
-App-Identität.
+Keep `applicationId` and `namespace` as `de.hohnepeople.keepadb`. The package name is a
+historical identifier and does not need to match a domain. It is not shown to users. The website
+move changes URLs only (Settings, feedback link, and store metadata), not the app identity.
 
-## Begründung
+## Rationale
 
-- Android behandelt eine neue `applicationId` als eine andere App: kein Update, keine
-  Übernahme von Einstellungen und vertrauenswürdigen Netzen, auch nicht mit demselben
-  Signaturschlüssel. Nutzer müssten neu einrichten und hätten zeitweise zwei Apps.
-- Eine neue Versionsnummer (auch 2.0.0) ändert daran nichts; die Identität hängt allein an der ID.
-- F-Droid führt den Eintrag pro Paketname. Eine neue ID bräuchte einen neuen Inclusion-MR samt
-  Review; der alte Eintrag ließe sich nicht umleiten. Update-Historie ginge verloren.
+- Android treats a new `applicationId` as a different app: there is no update or transfer of
+  settings and trusted networks, even with the same signing key. Users would have to set up the new
+  app and could temporarily have two apps installed.
+- A new version number, including 2.0.0, does not change this; the identity depends only on the ID.
+- F-Droid lists apps by package name. A new ID would need a new inclusion merge request and review;
+  the existing entry could not be redirected. The update history would be lost.
+## What changes instead
 
-## Was stattdessen gilt
+- New links (`https://keepadb.roteson.de` and feedback under `/feedback`) will ship with the
+  next regular release through the `release-fdroid` cycle (issue #754).
+- At release time, change `WebSite:` in
+  `fdroiddata/metadata/de.hohnepeople.keepadb.yml` from
+  `https://hohnepeople.de/keepadb` to `https://keepadb.roteson.de`. As of 2026-10-05, the
+  entry still points to hohnepeople.de.
+- Older installed versions (through 1.8.38) will continue opening hohnepeople.de; that site
+  redirects to the new website. For the TLS chain note, see issue #749.
 
-- Neue Links (`https://keepadb.roteson.de`, Feedback unter `/feedback`) kommen mit dem nächsten
-  regulären Release über den `release-fdroid`-Zyklus (Issue #754).
-- Beim Release `WebSite:` in `fdroiddata/metadata/de.hohnepeople.keepadb.yml` von
-  `https://hohnepeople.de/keepadb` auf `https://keepadb.roteson.de` ändern (Stand 2026-10-05
-  zeigt der Eintrag noch auf hohnepeople.de).
-- Ältere installierte Versionen (bis 1.8.38) öffnen weiter hohnepeople.de; die Seite leitet
-  dort auf die neue Website weiter. Hinweis zur TLS-Kette: Issue #749.
+## When to reconsider
 
-## Wann neu bewerten
-
-Nur bei einem bewusst geplanten harten Neustart der App (neue Identität, Datenbruch akzeptiert).
-Dafür liegt aktuell kein Anlass vor.
+Only as part of a deliberately planned hard reset of the app identity, with data breakage accepted.
+There is currently no reason to do this.

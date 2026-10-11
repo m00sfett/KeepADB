@@ -1,0 +1,1 @@
+Updated project documentation for clarity and consistency. No app behavior changes.

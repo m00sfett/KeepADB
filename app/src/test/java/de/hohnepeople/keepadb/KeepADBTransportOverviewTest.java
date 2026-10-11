@@ -56,7 +56,7 @@ public class KeepADBTransportOverviewTest {
         setUsbAdbConnected(false);
     }
 
-    /** Acceptance criterion: "Nur WLAN vorhanden: der verifizierte WLAN-Endpunkt wird angezeigt." */
+    /** Acceptance criterion: "Wi-Fi only: show the verified Wi-Fi endpoint." */
     @Test
     public void onlyWlanVerified_showsSingleWlanTransportAsPrimary() throws Exception {
         setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
@@ -73,8 +73,8 @@ public class KeepADBTransportOverviewTest {
         assertFalse(snapshot.vpnActiveNotAdbVerified);
     }
 
-    /** Acceptance criterion: "WLAN und Tailscale vorhanden: beide werden getrennt angezeigt,
-     * aber nur wenn beide tatsächlich verifiziert sind." */
+    /** Acceptance criterion: "Wi-Fi and Tailscale present: show them separately, but only when
+     * both are actually verified." */
     @Test
     public void wlanAndTailscaleBothVerified_areListedSeparatelyWithWlanPrimary() throws Exception {
         setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
@@ -96,8 +96,8 @@ public class KeepADBTransportOverviewTest {
         assertFalse(snapshot.vpnActiveNotAdbVerified);
     }
 
-    /** Acceptance criterion: "VPN aktiv, ADB dort nicht erreichbar: VPN-Status kann separat
-     * sichtbar sein, der VPN-Endpunkt wird nicht als ADB-Endpunkt behauptet." */
+    /** Acceptance criterion: "VPN active, ADB unreachable over it: the VPN status may be shown
+     * separately, but its endpoint must not be presented as an ADB endpoint." */
     @Test
     public void vpnActiveButAdbUnreachable_isNotSurfacedAsEndpoint() throws Exception {
         setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
@@ -129,8 +129,8 @@ public class KeepADBTransportOverviewTest {
         assertTrue("A non-Tailscale VPN is still worth a status line", snapshot.vpnActiveNotAdbVerified);
     }
 
-    /** Acceptance criterion: "USB allein: USB-ADB wird als eigener aktiver Transport angezeigt,
-     * ohne erfundenen Netzwerk-Endpunkt." */
+    /** Acceptance criterion: "USB only: show USB-ADB as its own active transport, without
+     * inventing a network endpoint." */
     @Test
     public void usbOnly_isSurfacedAsPrimaryWithoutFabricatedNetworkEndpoint() {
         setUsbAdbConnected(true);

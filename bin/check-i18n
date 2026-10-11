@@ -1,45 +1,41 @@
 #!/usr/bin/env python3
-"""Findet Strings, die in einer Sprachvariante wortidentisch zum englischen
-Referenzwert (values/strings.xml) geblieben sind -- die häufigste Ursache
-dafür: eine neue Sprachdatei wurde mit dem englischen Platzhalterwert
-angelegt und der Key nie tatsächlich übersetzt. Ein reiner Key-Existenz-Diff
-(Android Lint "MissingTranslation") erkennt das nicht, weil der Key ja
-vorhanden ist -- nur der Wert stimmt zufällig/versehentlich überein.
+"""Find strings that remain identical to the English reference value
+(values/strings.xml) in a locale variant. The most common cause is a new
+locale file created with the English placeholder value, leaving the key
+untranslated. A key-existence-only diff (Android Lint "MissingTranslation")
+does not detect this because the key exists; only its value is accidentally
+identical.
 
-Exit-Code 0: keine unerwarteten Treffer. Exit-Code 1: mindestens ein
-String ist identisch zur Referenz und steht nicht auf der Allowlist.
+Exit code 0: no unexpected findings. Exit code 1: at least one string is
+identical to the reference and is not on the allowlist.
 
-Erkennungsgrenze (#238):
-Das Skript beweist ausschließlich: Für keinen geparsten `<string>`-Key ist
-der Wert in einer Sprachdatei wortidentisch zum englischen Referenzwert
-(sofern nicht in der ALLOWLIST). Es garantiert damit den Ausschluss von
-Copy-Paste-Kopien der Referenz, sonst nichts. Es beweist ausdrücklich
-NICHT die Korrektheit, Vollständigkeit oder Sprachrichtigkeit einer
-Übersetzung. Zwei bekannte blinde Flecken:
+Detection limit (#238):
+The script proves only that no parsed `<string>` key in a locale file has a
+value identical to the English reference (unless it is in ALLOWLIST). It
+therefore rules out copy-and-paste copies of the reference, and nothing else.
+It explicitly does NOT prove that a translation is correct, complete, or in
+the right language. Two known blind spots remain:
 
-1. Teilübersetzung: Ein String mit stehen gelassenem englischem Fragment
-   (z. B. "Aktiviere Wireless debugging" statt "Aktiviere Drahtloses
-   Debugging") ist ungleich der Referenz und wird deshalb nicht gemeldet.
-2. Sprachverwechslung: Text der falschen Sprache in einer values-xx-Datei
-   (z. B. spanischer Text in values-it/strings.xml) gilt als "ungleich der
-   Referenz" und damit fälschlich als übersetzt.
+1. Partial translation: A string with an untranslated English fragment left
+   in place differs from the reference and is therefore not reported.
+2. Wrong locale: Text in the wrong language in a values-xx file (for example,
+   Spanish text in values-it/strings.xml) counts as "different from the
+   reference" and is therefore incorrectly treated as translated.
 
-Konsequenz für ./bin/verify: check-i18n ist ein notwendiges, aber kein
-hinreichendes Gate. Es schließt Copy-Paste aus, nicht aber alle
-Übersetzungsfehler. Fall 2 wird nicht automatisiert geprüft, sondern
-manuell beim Anlegen neuer Sprachen.
+For ./bin/verify, check-i18n is a necessary but insufficient gate. It rules
+out copy-and-paste, but not all translation errors. Case 2 is not checked
+automatically; it must be checked manually when adding locales.
 
-Zu Fall 1 wurde eine Heuristik geprüft (#238): In nicht-lateinischen
-Zielsprachen (ar, hi, ja, ko, ru, uk, zh-rCN, zh-rTW) lateinische
-Wortketten außerhalb einer Allowlist melden. Prototyp getestet gegen den
-aktuellen Bestand: 215 Treffer über 8 Sprachen bei 158 Referenz-Keys --
-fast ausschließlich Rauschen aus Shell-Befehlen, Permission-Konstanten
-(WRITE_SECURE_SETTINGS), Format-Platzhaltern (host:port, IP, HTTP-Verben)
-und Produkt-/Protokollbegriffen (USB-ADB, Wifi-ADB, Tailnet). Eine
-Allowlist, die das auf ein brauchbares Signal-Rausch-Verhältnis drückt,
-müsste praktisch jeden technischen String einzeln freischalten und wäre
-damit teurer als der Nutzen. Entscheidung: nicht implementiert, siehe
-AGENTS.md.
+A heuristic for case 1 was evaluated (#238): report Latin word sequences
+outside an allowlist in non-Latin target locales (ar, hi, ja, ko, ru, uk,
+zh-rCN, zh-rTW). A prototype run against the current content produced 215
+findings across 8 locales and 158 reference keys, almost entirely noise from
+shell commands, permission constants (WRITE_SECURE_SETTINGS), format
+placeholders (host:port, IP addresses, HTTP methods), and product/protocol
+terms (USB-ADB, Wi-Fi ADB, Tailnet). An allowlist large enough to provide a
+useful signal-to-noise ratio would need an exception for nearly every
+technical string, making it more costly than the benefit. Decision: not
+implemented; see AGENTS.md.
 """
 
 import glob

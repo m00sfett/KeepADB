@@ -408,9 +408,9 @@ final class KeepADB {
     }
 
     /**
-     * Schaltet Wireless Debugging um. Bei schnellen wiederholten Aufrufen aus einer
-     * <em>automatischen</em> Quelle innerhalb TOGGLE_COOLDOWN_MS wird die letzte gewünschte
-     * Absicht debounced eingeplant; manuelle Quellen ({@link #isManualSource}) schreiben sofort.
+     * Toggles Wireless Debugging. Rapid repeated calls from an <em>automatic</em> source within
+     * TOGGLE_COOLDOWN_MS are debounced to the latest requested state; manual sources
+     * ({@link #isManualSource}) write immediately.
      */
     static ToggleResult setEnabled(Context ctx, boolean on) {
         return setEnabled(ctx, on, "app");
@@ -467,8 +467,8 @@ final class KeepADB {
             }
             if (isManualSource(source)) {
                 // #496: a direct user action is the sanctioned way to re-open a blocked
-                // automatic path ("manuelle Nutzeraktionen ... können einen blockierten
-                // automatischen Pfad bewusst erneut anstoßen"). Reset unconditionally, for both
+                // automatic path ("manual user actions ... can deliberately trigger a blocked
+                // automatic path again"). Reset unconditionally, for both
                 // directions -- an explicit off is just as much evidence the user is in control
                 // as an explicit on.
                 recoveryBackoff.reset();
@@ -693,8 +693,8 @@ final class KeepADB {
     }
 
     /**
-     * Führt einen Recovery-Puls (AUS -> PAUSE -> AN) kontrolliert aus.
-     * Bricht ab, wenn der Nutzer während des Pulses manuell ausgeschaltet hat.
+     * Runs a recovery pulse (OFF -> PAUSE -> ON) in a controlled manner.
+     * Aborts if the user manually turns it off during the pulse.
      */
     static void performRecoveryPulse(Context ctx) {
         performRecoveryPulse(ctx, null);

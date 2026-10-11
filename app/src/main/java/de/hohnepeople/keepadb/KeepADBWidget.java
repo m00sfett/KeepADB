@@ -97,7 +97,7 @@ public class KeepADBWidget extends AppWidgetProvider {
         }
     }
 
-    /** Aktualisiert alle platzierten Widgets (auch nach Änderung via App/Tile aufrufbar). */
+    /** Refreshes all placed widgets (also callable after a change through the app or tile). */
     static void refreshAll(Context context) {
         refreshAll(context, true);
     }

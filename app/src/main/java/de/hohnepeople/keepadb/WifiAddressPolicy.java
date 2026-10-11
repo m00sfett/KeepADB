@@ -113,7 +113,7 @@ final class WifiAddressPolicy {
      * -- can be exercised in a unit test without needing two such real interfaces to exist on the
      * machine running the test. Loopback and down interfaces are skipped outright; among the
      * remaining eligible ones, a single match wins, but a second distinct match downgrades the
-     * result to {@code null} ("nicht auflösbar") instead of keeping the first one found.
+     * result to {@code null} ("unresolvable") instead of keeping the first one found.
      *
      * <p>The candidates are snapshots built by the caller ({@code
      * KeepADBNetwork#scopeCandidateOf}); this method only compares bytes and never touches a live

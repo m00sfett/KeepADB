@@ -1,44 +1,39 @@
-# KeepADB-Diagnosen
+# KeepADB diagnostics
 
-KeepADB protokolliert strukturierte Ereignisse mit dem Logcat-Tag KeepADBDiag. Ereignisse enthalten
-Zeitstempel, verstrichene Zeit, Prozess-ID, Android-SDK, Ereignistyp, Auslöser, Ergebnis und ein
-kurzes Detailfeld.
+KeepADB logs structured events with the Logcat tag `KeepADBDiag`. Events contain a timestamp,
+elapsed time, process ID, Android SDK level, event type, trigger, result, and a short detail field.
 
-## Anzeigen und Teilen
+## View and share
 
-In **Einstellungen → Diagnose & Wartung → Diagnose exportieren** öffnet Androids Teilen-Menü einen
-Text-Export. KeepADB lädt Diagnosen nicht automatisch hoch. Ein Export verlässt die App erst, wenn
-du selbst ein Ziel auswählst. Für einen flüchtigen Live-Auszug kann Androids Logcat verwendet
-werden:
+Under **Settings → Diagnostics & maintenance → Export diagnostics**, Android's share sheet opens
+a text export. KeepADB does not upload diagnostics automatically. An export leaves the app only
+after you select a destination. For a temporary live excerpt, use Android Logcat:
 
 ~~~sh
 adb logcat -s KeepADBDiag
 ~~~
 
-Release-Builds halten höchstens 128 Ereignisse in einem privaten Ringpuffer; ältere Einträge
-werden überschrieben. Debug-Builds verwenden stattdessen ein Journal mit einer 50-Stunden-
-Altersgrenze, zusätzlichen Größenbegrenzungen und periodischen Zustandsständen. Android-Cloud-
-Backup und Geräteübertragung sind deaktiviert.
+Release builds keep at most 128 events in a private ring buffer; older entries are overwritten.
+Debug builds use a journal instead, with a 50-hour age limit, additional size limits, and periodic
+state snapshots. Android cloud backup and device transfer are disabled.
 
-## Maskierung und enthaltene Daten
+## Redaction and included data
 
-Paarungscodes, Kennwörter, Tokens, Autorisierungswerte und URLs werden vor Speicherung und Export
-redigiert. Diagnoseausgaben können dennoch den WLAN-ADB-Endpunkt mit Host und Port enthalten,
-weil dieser Gegenstand der Diagnose ist.
+Pairing codes, passwords, tokens, authorization values, and URLs are redacted before storage and
+export. Diagnostics can still include the Wi-Fi ADB endpoint, including its host and port, because
+that is the subject of the diagnosis.
 
-Beim Export bleibt von einer gültigen BSSID nur der erste Dreierblock (OUI, Herstellerkennung)
-sichtbar; die restlichen drei Blöcke werden maskiert. Ungültige BSSID-Werte und SSIDs werden
-vollständig maskiert. Über **Einstellungen → Diagnose & Wartung → Fehler oder Übersetzung melden**
-öffnet sich ein editierbarer Berichtsentwurf. Werden Diagnosen darin eingefügt, maskiert der
-Bericht zusätzlich Host und Port sowie BSSID und SSID vollständig.
+In an export, a valid BSSID shows only its first three-octet block (the OUI, or manufacturer
+identifier); the remaining three blocks are masked. Invalid BSSID values and SSIDs are masked
+entirely. **Settings → Diagnostics & maintenance → Report a bug or translation** opens an editable
+report draft. If diagnostics are inserted there, the draft also masks the host and port and fully
+masks BSSID and SSID values.
 
-Logcat hat Androids eigene Aufbewahrungsdauer. Ein Diagnoseexport kann weiterhin private
-Netzwerkadressen enthalten. Prüfe die Vorschau und entferne vertrauliche Angaben, bevor du den
-Text an andere weitergibst.
+Logcat has Android's own retention period. A diagnostics export may still contain private network
+addresses. Review the preview and remove sensitive details before sharing the text with others.
 
-## Ereignisfolge lesen
+## Read the event sequence
 
-Typische Abläufe erscheinen als Benutzeraktion oder Umschaltversuch, beobachteter Zustand,
-Wiederherstellungsversuch oder Stopp und danach Service-Ereignisse. intentId verbindet geplante und
-abgeschlossene Umschalt- oder Wiederherstellungsschreibvorgänge. Prozess-ID und verstrichene Zeit
-helfen, einen Dienstneustart oder eine Lücke zwischen Ereignissen.
+Typical sequences show a user action or toggle attempt, an observed state, a recovery attempt or
+stop, and then service events. `intentId` links scheduled and completed toggle or recovery writes.
+The process ID and elapsed time help identify a service restart or a gap between events.

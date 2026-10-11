@@ -1,52 +1,48 @@
-# Anzeigezustand der Warnungen (#826)
+# Warning display state (#826)
 
-Die neun stabilen Grund-IDs in `KeepADBWarningState.Reason` bilden die vorhandenen
-Warnbedingungen ab. `KeepADBHomeWarnings.evaluate()` und `reasons()` bleiben reine
-Auswertungen. Die zweite Methode erfasst Betriebsursachen auch während ihrer Unterdrückung
-durch Systemberechtigung oder Pausiert-Karte. Unterdrückung beendet daher keine Episode.
+The nine stable base IDs in `KeepADBWarningState.Reason` represent the existing warning
+conditions. `KeepADBHomeWarnings.evaluate()` and `reasons()` remain pure evaluations. The latter
+also records operational causes while their display is suppressed by a system permission or a
+paused card. Suppression therefore does not end an episode.
 
-`warnings_v1_state` speichert Schema 1, kanonische beobachtete und bestätigte Signaturen je
-Karte sowie die ausdrücklich stummgeschalteten Gründe. Alle Anzeigeänderungen laufen über
-denselben Speichermonitor. Eine X-Bestätigung deckt nur den angezeigten Snapshot ab,
-geschnitten mit den weiterhin aktiven Ursachen. Beim Wegfall wird die Bestätigung dieses
-Grundes entfernt, ohne die übrigen Gründe erneut anzuzeigen. Eine spätere Rückkehr ist
-unbestätigt. Stummschaltungen gelten unabhängig davon und bleiben während der Inaktivität
-erhalten. Zurücksetzen entfernt nur Mutes und die Bestätigungen dieser Gründe. System und
-Force werden an beiden Mute-Grenzen zurückgewiesen.
+`warnings_v1_state` stores schema 1, canonical observed and acknowledged signatures per card,
+and explicitly muted reasons. All display-state changes go through the same storage monitor.
+Confirming the X covers only the displayed snapshot, intersected with the causes that remain
+active. When a cause goes away, its acknowledgement is removed without showing the other causes
+again. A later return is unacknowledged. Mutes are independent and persist while inactive. Reset
+removes only mutes and acknowledgements for those reasons. System and Force reasons are rejected at
+both mute boundaries.
 
-Je Grund hält ein additives `reason_episode_<id>`-Token die beobachtete Anzeigeepisode fest.
-Wegfall und Rückkehr erneuern diesen Token. X, Rückgängig und die Mute-Rückmeldung gleichen
-den gezeigten Token mit dem aktuellen ab; gleiche Grund-IDs reichen dafür nicht aus. Die
-Rückmeldung erhält ihre Tokens bei Rotation. Ein Update ergänzt fehlende Tokens, ohne gültige
-gespeicherte Bestätigungen oder Mutes zu löschen.
+For each reason, an additive `reason_episode_<id>` token records its observed display episode.
+When it goes away and returns, the token changes. X, Undo, and mute feedback compare the displayed
+token with the current one; matching reason IDs alone is not enough. Feedback retains its tokens
+through rotation. An update adds missing tokens without deleting valid saved acknowledgements or
+mutes.
 
-Die System-Warnursache liest ausschließlich Berechtigung und den vorhandenen abgesicherten
-Settings-Wert. Sie fragt unter dem Anzeige-Monitor keinen Endpoint-Monitor ab; synchron auf
-dem UI-Thread ausgeführte Endpoint-Callbacks dürfen ihrerseits Warnungen rendern.
+The system-warning cause reads only the permission and the existing guarded Settings value. It
+does not query an endpoint monitor while holding the display monitor; endpoint callbacks that run
+synchronously on the UI thread may render warnings in turn.
 
-Force-Aktivierung speichert einen neuen `warnings_force_episode`-Token atomar mit
-`force_state`. `warnings_force_fingerprint` enthält dessen SHA-256-Fingerabdruck. Eigenes
-Rebinding behält die Episode; eine unbekannte Änderung durch eine ältere App erzeugt einmal
-konservativ eine neue Episode. Eine aktive Sitzung ohne Warn-Keys wird ebenfalls einmal
-angezeigt. Zeitbasen dienen niemals als Episoden-ID. Der Monitor serialisiert Force-Schreiben
-mit Anzeige-Snapshots. Die eigentlichen Force-Übergänge aktualisieren Oberflächen weiterhin
-erst nach Freigabe des Monitors; Fristprüfung und Schutzregeln bleiben erhalten.
+Enabling Force mode atomically saves a new `warnings_force_episode` token with `force_state`.
+`warnings_force_fingerprint` contains its SHA-256 fingerprint. Rebinding the state keeps the
+episode; an unknown change by an older app conservatively creates a new episode once. An active
+session without warning keys is also shown once. Time bases are never used as episode IDs. The
+monitor serializes Force writes with display snapshots. Actual Force transitions still update
+surfaces only after releasing the monitor; expiry checks and protection rules remain in effect.
 
-Unbekannte Schemas, beschädigte Speicherwerte und unbekannte Grund-IDs bleiben erhalten und
-werden als unbestätigter, nicht stummer Anzeigezustand behandelt. Sie können kritische
-Warnungen nicht verbergen. Fehlgeschlagene Commits melden kein erfolgreiches Schließen.
-Die neuen Keys liegen in den vorhandenen, vom Backup ausgeschlossenen Preferences. Ältere
-Apps ignorieren sie. Tatsächliche Schutz- und Force-Parameter werden nicht gelöscht.
+Unknown schemas, corrupt stored values, and unknown reason IDs are preserved and treated as an
+unacknowledged, unmuted display state. They cannot hide critical warnings. Failed commits do not
+report a successful close. The new keys are in the existing preferences excluded from backup.
+Older apps ignore them. Actual protection and Force parameters are not deleted.
 
-Eigene Preference-Setter, Service-Sync, Heartbeat und Netzwerkpfade, Force-Übergänge,
-Activity-Resume und Berechtigungsresultate beobachten Ursachen auch bei geschlossener
-Hauptseite. Ein vollständig unbeobachteter externer Aus-/Ein-Wechsel bei gestoppter App ist
-bei identischem Snapshot nicht rekonstruierbar; zusätzliche Polling-Infrastruktur entsteht
-nicht.
+Preference setters, service sync, heartbeat and network paths, Force transitions, Activity resume,
+and permission results observe causes even while the home screen is closed. A completely
+unobserved external off/on change while the app is stopped cannot be reconstructed from an
+identical snapshot; no additional polling infrastructure is added.
 
-Die Prüfung liegt beim Integrator: `./bin/verify`, Sensitivitäts-Gegenproben für
-Signaturschnitt, kritische Mute-IDs und Force-Token sowie die freigegebene Tablet-/Fire-7-Matrix.
-Dazu gehören Hoch/Quer, 100 %/200 % Schrift, lange Übersetzungen, Nachtmodus und echte
-Tastatur-/TalkBack-Reihenfolge, einschließlich mehrfach eingebundener Karten-IDs. Die neuen
-Unit-Tests nutzen echte Setter, Preferences und Force-Treiber. Activity-Tests führen X,
-Rückgängig, Dreieck, Prüfen, Mute-Rücknahme, Neuanlage und Settings-Fokus aus.
+Verification remains the integrator's responsibility. It includes `./bin/verify`, sensitivity
+counter-checks for signature intersection, critical mute IDs, and Force tokens, plus the authorized
+tablet/Fire 7 matrix. The matrix covers portrait and landscape, 100% and 200% font scale, long
+translations, night mode, and real keyboard/TalkBack order, including cards with duplicate IDs.
+New unit tests use real setters, preferences, and Force drivers. Activity tests exercise X, Undo,
+triangle, Check, mute reversal, recreation, and Settings focus.
