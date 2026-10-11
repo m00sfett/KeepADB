@@ -664,8 +664,8 @@ public class KeepADBServiceLifecycleRobolectricTest {
     }
 
     /**
-     * #536 acceptance criterion: diagnostics must distinguish "warte auf Netzwerk" from "Retry
-     * zurückgestellt" -- no Wi-Fi transport at all is not the same waiting reason as a Wi-Fi
+     * #536 acceptance criterion: diagnostics must distinguish "waiting for network" from "retry
+     * deferred" -- no Wi-Fi transport at all is not the same waiting reason as a Wi-Fi
      * connection whose automatic re-enable is deferred by the #496 backoff.
      */
     @Test
@@ -1068,9 +1068,9 @@ public class KeepADBServiceLifecycleRobolectricTest {
     // -----------------------------------------------------------------------------------------
 
     /**
-     * Acceptance criterion: "Ein automatischer Enable-Versuch mit akzeptiertem Write, aber
-     * wiederholt adb_wifi_enabled == 0 im Readback, hat einen expliziten begrenzten
-     * Retry-/Backoff-/Abbruchpfad; keine unbegrenzten Versuche im 1,5s-Abstand." The 60s
+     * Acceptance criterion: "An automatic enable attempt whose write is accepted but whose
+     * readback repeatedly remains adb_wifi_enabled == 0 has an explicit bounded
+     * retry/backoff/abort path; no unlimited attempts every 1.5 seconds." The 60s
      * heartbeat is the call site this pins.
      */
     @Test
@@ -1119,8 +1119,8 @@ public class KeepADBServiceLifecycleRobolectricTest {
     }
 
     /**
-     * #536 acceptance criterion: "Das Ablaufen des Backoffs löst ohne manuelles Öffnen der App
-     * einen tatsächlichen Recheck aus." Unlike the test above, this one never calls {@code
+     * #536 acceptance criterion: "When the backoff expires, it triggers an actual recheck without
+     * manually opening the app." Unlike the test above, this one never calls {@code
      * recheckAndEnable()} itself -- it only starts the service and advances time, so the only
      * thing that can possibly make the second write happen is the production heartbeat ticker
      * ({@link KeepADBService#startHeartbeatTicker()}) actually re-invoking the recheck once the
@@ -1293,8 +1293,8 @@ public class KeepADBServiceLifecycleRobolectricTest {
     }
 
     /**
-     * Acceptance criterion: "Nach dem Abbruch bleibt Keep-Alive ... Ein klar definierter neuer
-     * Auslöser gibt den Zustand wieder frei" -- an app/service restart is one of the named
+     * Acceptance criterion: "After abort, Keep-Alive remains ... A clearly defined new trigger
+     * releases the state again" -- an app/service restart is one of the named
      * triggers. Deliberately blocks the backoff *outside* the service under test (a direct
      * KeepADB.setEnabled() call, like a keep-alive attempt that already happened in a previous
      * process) so this pins {@code onCreate()}'s own reset rather than accidentally passing via

@@ -1,33 +1,32 @@
-# Zu KeepADB beitragen
+# Contributing to KeepADB
 
-Danke für dein Interesse. Lies vor Änderungen an Berechtigungen, Netzwerkverhalten,
-Benachrichtigungen oder Keep-Alive auch die [Sicherheitsrichtlinie](SECURITY.md).
+Thank you for your interest. Before changing permissions, network behavior, notifications, or
+Keep-Alive, also read the [security policy](SECURITY.md).
 
-## Entwicklungsumgebung
+## Development environment
 
-Für die normale lokale Prüfung werden benötigt:
+The standard local verification requires:
 
 - JDK 17
 - Android SDK Platform 35
 - Android SDK Build Tools 35.0.0
-- Android 11 oder neuer als Mindestziel (minSdk 30)
+- Android 11 or newer as the minimum target (minSdk 30)
 
-Die App wird mit Java 17, compileSdk 35 und targetSdk 35 gebaut. Für Gradle-Aufrufe verwende
-`./bin/gradlew`; der Wrapper setzt JDK 17, sofern `JAVA_HOME` nicht bereits ausdrücklich gesetzt
-ist.
+The app is built with Java 17, compileSdk 35, and targetSdk 35. Use `./bin/gradlew` for Gradle
+commands; the wrapper selects JDK 17 unless `JAVA_HOME` has already been explicitly set.
 
-## Lokale Verifikation
+## Local verification
 
-Vor einem Pull Request den vollständigen Projekt-Gate ausführen:
+Run the full project gate before opening a pull request:
 
 ~~~sh
 ./bin/verify
 ~~~
 
-Das Skript prüft nacheinander `git diff --check`, Übersetzungen mit `bin/check-i18n`, Unit-Tests,
-Lint und Debug-Build, den Release-Build sowie Debug-/Release-Markierungen in den erzeugten APKs.
+The script runs `git diff --check`, translation checks with `bin/check-i18n`, unit tests, lint,
+debug and release builds, and debug/release markers in the generated APKs.
 
-Einzelne Schritte können mit dem Wrapper ausgeführt werden:
+Individual steps can be run with the wrapper:
 
 ~~~sh
 ./bin/gradlew testDebugUnitTest
@@ -36,54 +35,53 @@ Einzelne Schritte können mit dem Wrapper ausgeführt werden:
 python3 bin/check-i18n
 ~~~
 
-## Laufzeit- und Test-Abhängigkeiten
+## Runtime and test dependencies
 
-**Die ausgelieferte App hat keine Drittanbieter-Laufzeit-Abhängigkeiten.** Die einzigen
-Drittanbieter-Bibliotheken in `app/build.gradle` stehen im `testImplementation`-Bereich:
-JUnit, Robolectric und `androidx.test:core`. Sie werden für Tests verwendet und gelangen nicht in
-die Release-App.
+**The shipped app has no third-party runtime dependencies.** The only third-party libraries in
+`app/build.gradle` are under `testImplementation`: JUnit, Robolectric, and `androidx.test:core`.
+They are used for tests and are not included in the release app.
 
-Die Tests in `app/src/test/java` enthalten sowohl Android-freie Unit-Tests als auch Robolectric-
-Tests mit Android-Ressourcen. Contract-Tests sichern unter anderem Manifest-, Ressourcen- und
-Aufrufpfad-Invarianten. Ändere eine solche Prüfung gezielt, wenn sich der Vertrag wirklich ändert;
-entferne keine Assertion nur deshalb, weil eine Implementierung sie nicht mehr erfüllt.
+Tests in `app/src/test/java` include both Android-free unit tests and Robolectric tests with
+Android resources. Contract tests protect invariants in the manifest, resources, and call paths.
+Change a check deliberately when its contract really changes; do not remove an assertion merely
+because an implementation no longer satisfies it.
 
-## Code-Konventionen
+## Code conventions
 
-- Neue Laufzeitabhängigkeiten gehören nur nach begründetem Bedarf in den App-Code; nutze für
-  Tests die vorhandenen JUnit- und Robolectric-Möglichkeiten.
-- Ergänze oder passe Prüfungen unter `app/src/test/java/de/hohnepeople/keepadb` an. Contract-Tests
-  schützen Manifest-, Ressourcen- und Aufrufpfadregeln; entferne eine Assertion nur, wenn der
-  geprüfte Vertrag bewusst geändert wurde.
-- `KeepADB.java` enthält gemeinsam genutzten Zustand, Generationstoken und Sperren. Änderungen an
-  diesen Pfaden sollen die notwendige Reihenfolge und Synchronisierung direkt am Code erläutern.
+- Add runtime dependencies to the app code only when there is a justified need; use the existing
+  JUnit and Robolectric support for tests.
+- Add or update checks under `app/src/test/java/de/hohnepeople/keepadb`. Contract tests protect
+  manifest, resource, and call-path rules; remove an assertion only when the checked contract has
+  deliberately changed.
+- `KeepADB.java` contains shared state, generation tokens, and locks. Changes to these paths
+  should explain the required ordering and synchronization next to the code.
 
-## Übersetzungen und sichtbare Texte
+## Translations and visible text
 
-KeepADB enthält 19 Sprachvarianten. Lege neue Texte zuerst in `app/src/main/res/values/strings.xml`
-an und übersetze sie in allen vorhandenen `values-*/strings.xml`-Dateien. `KeepADBResourceContractTest`
-prüft die Schlüsselmengen; `bin/check-i18n` meldet Texte, die wortgleich aus dem englischen
-Referenzwert übernommen wurden. Zulässige identische Marken- oder Technikbegriffe benötigen eine
-begründete Ausnahme in der Allowlist des Skripts.
+KeepADB has 19 language variants. Add new text to `app/src/main/res/values/strings.xml` first,
+then translate it in every existing `values-*/strings.xml` file.
+`KeepADBResourceContractTest` checks key sets; `bin/check-i18n` reports strings copied
+word-for-word from the English reference value. Identical brand or technical terms are allowed
+only with a justified exception in the script's allowlist.
 
-## CI und Release-Werkzeugpfad
+## CI and release toolchain
 
-`.github/workflows/ci.yml` läuft automatisch bei Änderungen an `master`, bei Pull Requests und
-manuell über `workflow_dispatch`. Der Workflow verwendet JDK 17, Android Platform 35 sowie
-Build Tools 35.0.0 und führt `./bin/verify` aus.
+`.github/workflows/ci.yml` runs automatically for changes to `master`, for pull requests, and
+manually through `workflow_dispatch`. The workflow uses JDK 17, Android Platform 35, Build Tools
+35.0.0, and runs `./bin/verify`.
 
-Der davon getrennte Release-Workflow wird durch Tags mit Präfix `v` ausgelöst. Sein Build- und
-Signierpfad verwendet JDK 21; für die Signatur ruft er `apksigner` aus Android Build Tools 34.0.0
-auf. Diese apksigner-Version ist Teil des Signierpfads und ersetzt nicht die Build-Tools-
-Festlegung 35.0.0 des App-Projekts. Ein grüner lokaler Build oder CI-Lauf allein ist keine
-Aussage, dass zwei unabhängig signierte Store-Artefakte bytegleich sind. Ein Tag mit Präfix `v`
-kann den echten Release-Workflow auslösen; erstelle oder pushe ihn nur nach ausdrücklicher
-Release-Freigabe. Ein Release veröffentlicht Artefakte und startet den vorgesehenen F-Droid-Pfad.
+The separate release workflow is triggered by tags prefixed with `v`. Its build and signing path
+uses JDK 21; signing invokes `apksigner` from Android Build Tools 34.0.0. That apksigner version
+is part of the signing path and does not replace the app project's Build Tools 35.0.0 setting. A
+successful local build or CI run alone does not prove that two independently signed store artifacts
+are byte-identical. A tag prefixed with `v` can trigger the real release workflow; create or push
+one only after explicit release approval. A release publishes artifacts and starts the planned
+F-Droid path.
 
-## Pull Requests
+## Pull requests
 
-- Halte Änderungen auf einen klaren Zweck begrenzt.
-- Verknüpfe das bearbeitete Issue, falls vorhanden.
-- Führe `./bin/verify` vor dem Pull Request aus.
-- Beschreibe Sicherheits- und Datenschutzauswirkungen, wenn Berechtigungen, Netzwerkverkehr,
-  Datensicherung oder Wiederherstellung betroffen sind.
+- Keep each change focused on one clear purpose.
+- Link the issue being addressed, if there is one.
+- Run `./bin/verify` before opening the pull request.
+- Describe security and privacy effects when permissions, network traffic, backups, or recovery are
+  affected.

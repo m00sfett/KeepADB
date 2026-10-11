@@ -1,110 +1,103 @@
-# Sicherheitsrichtlinie
+# Security policy
 
-## Bedrohungsmodell
+## Threat model
 
-KeepADB soll Androids Drahtloses Debugging verfügbar halten. Damit kann `adbd` auf einem
-dynamischen Port im lokalen Netzwerk lauschen. Das ist der Zweck der App und zugleich die zentrale
-Sicherheitsabwägung: KeepADB schränkt vor allem ein, **wann eine automatische Wiederherstellung
-erfolgt**. Es umgeht weder Androids TLS-Kopplung noch bestätigt es Kopplungsanfragen für dich.
+KeepADB is intended to keep Android Wireless debugging available. This lets `adbd` listen on a
+dynamic port on the local network. That is the app's purpose and its central security trade-off:
+KeepADB primarily limits **when automatic recovery happens**. It neither bypasses Android's TLS
+pairing nor approves pairing requests for you.
 
-KeepADB schützt nicht vor einem bereits kompromittierten Gerät, vor einem Nutzer, der eine
-unerwartete Kopplungsabfrage bestätigt, oder vor einem Angreifer im selben WLAN, das ausdrücklich
-als vertrauenswürdig zugelassen wurde.
+KeepADB does not protect against a device that is already compromised, a user who approves an
+unexpected pairing prompt, or an attacker on a Wi-Fi network explicitly trusted by the user.
 
-## Automatische Wiederherstellung und Netzwerkvertrauen
+## Automatic recovery and network trust
 
-Eine Neuinstallation startet im Freigabelistenmodus: Automatisch wird nur dann wieder
-eingeschaltet, wenn KeepADB die aktuelle WLAN-Identität lesen und einem zugelassenen BSSID
-zuordnen kann. Eine unbekannte oder vom System maskierte Identität bleibt gesperrt.
-Bestehende Installationen behalten ihre bisherige Einstellung unverändert, auch „In allen WLANs“;
-**Einstellungen → Netzwerk** bietet weiterhin die Wahl zwischen allen WLANs und der Freigabeliste.
+A new installation starts in allowlist mode: automatic re-enabling occurs only when KeepADB can
+read the current Wi-Fi identity and match it to an allowed BSSID. An unknown or system-masked
+identity remains blocked. Existing installations retain their previous setting unchanged,
+including “All Wi-Fi networks”; **Settings → Network** still lets users choose between all Wi-Fi
+networks and the allowlist.
 
-Das Datenmodell kennt außerdem Sperren pro BSSID und pro WLAN-Name. Eine Sperre gewinnt in jedem
-Modus gegen Vertrauen, löst keine Nachfrage aus und schaltet nie automatisch ein; nur ein
-ausdrückliches Aufheben nimmt sie zurück, nie das Hinzufügen von Vertrauen. Gesperrt wird über den
-Hinweis auf ein unbekanntes WLAN und den Dialog „Diesem Netzwerk vertrauen?“; eine Bedienoberfläche
-zum Aufheben folgt mit der Netzwerkliste. Vorrang, Migration und Rückweg stehen im
-[Netzwerk-Leitfaden](docs/trusted-networks.md).
+The data model also supports blocks for individual BSSIDs and Wi-Fi names. In every mode, a block
+takes precedence over trust, does not prompt the user, and never enables Wireless debugging
+automatically. Only an explicit unblock action removes it; adding trust does not. Blocking occurs
+through the unknown-network notice and the “Trust this network?” dialog; the Networks list provides
+the interface for unblocking. Precedence, migration, and recovery behavior are documented in the
+[trusted-networks guide](docs/trusted-networks.md).
 
-Der optionale **Force-Modus** (Einstellungen → Netzwerk) hebt diesen Schutz bewusst auf: Für eine
-gewählte Zeit (1 Stunde, 24 Stunden, 7 Tage, 30 Tage oder ohne Ablaufzeit) schaltet Keep-Alive
-Drahtloses Debugging in jedem WLAN wieder ein und übergeht Sperren und Vertrauen. Er braucht eine
-Bestätigung mit gestaffelten Warnungen, ist auf der Startseite und in der Benachrichtigung
-dauerhaft sichtbar und lässt sich dort mit einem Tap beenden. Nach Ablauf gilt wieder genau die
-gespeicherte Einstellung; die Frist übersteht Neustart, App-Update und Zeit- oder Zeitzonenwechsel
-(eine gestellte Uhr verkürzt den Modus und verlängert ihn nur in den kurzen, im Leitfaden
-beschriebenen Fenstern), eine einmalige Meldung nennt das Ende. Er ist nie ein Standard und wird von
-keinem Assistenten, Update oder Import ohne den Dialog gestartet. Einzelheiten und Grenzen stehen im
-[Netzwerk-Leitfaden](docs/trusted-networks.md#force-modus).
+Optional **Force mode** (Settings → Network) deliberately overrides this protection. For a chosen
+duration (1 hour, 24 hours, 7 days, 30 days, or indefinitely), Keep-Alive re-enables Wireless
+debugging on every Wi-Fi network and overrides blocks and trust rules. It requires confirmation
+with staged warnings, remains visible on the home screen and in the notification, and can be ended
+there with one tap. When it expires, the exact saved setting applies again. The duration survives
+reboots, app updates, and clock or time-zone changes (a changed clock can shorten it or extend it
+only within the short windows described in the guide). A one-time notice reports its end. Force
+mode is never a default and cannot be enabled by an assistant, update, or import without the
+dialog. Details and limits are in the [trusted-networks guide](docs/trusted-networks.md#force-mode).
 
-Die Identität dient ausschließlich zur Wiedererkennung des WLANs; KeepADB ermittelt oder speichert
-keinen Gerätestandort. Dafür benötigt Android den präzisen Standortzugriff. Der optionale Zugriff
-„Immer zulassen“ wird nicht von KeepADB angefordert: Die App führt zu den Android-App-Einstellungen,
-in denen der Nutzer ihn selbst setzen kann. Ohne lesbare Identität bleibt die Freigabe fail-closed.
-Die beobachteten Plattformfälle und ihre offenen Grenzen stehen im
-[Netzwerk-Leitfaden](docs/trusted-networks.md) und in der
-[Messzusammenfassung](docs/trusted-networks-measurement.md).
+Network identity is used only to recognize the Wi-Fi network; KeepADB does not determine or store
+device location. Android requires precise location access for this. KeepADB does not request the
+optional “Allow all the time” permission: the app opens Android's app settings so the user can grant
+it there. Without a readable identity, access remains fail-closed. Observed platform cases and
+their remaining limits are documented in the
+[trusted-networks guide](docs/trusted-networks.md) and
+[measurement summary](docs/trusted-networks-measurement.md).
 
-Der Schalter „Auch nach Netzwerkname (SSID) freigeben“ ist eine separate, standardmäßig ausgeschaltete
-Erweiterung. Weil beliebige Zugangspunkte denselben frei gewählten Namen senden können, ist diese
-Regel schwächer als die Freigabe einer einzelnen BSSID. KeepADB zeigt den Hinweis direkt an der
-Option.
+The **Also trust by Wi-Fi name (SSID)** switch is a separate, disabled-by-default extension.
+Because unrelated access points can advertise the same user-chosen name, this rule is weaker than
+trusting an individual BSSID. KeepADB shows this warning next to the option.
 
-Das Netzwerkvertrauen steuert automatische Wiederherstellung. Die Kachel und andere manuelle
-Schaltflächen sind keine Freigabe einer neuen Netzwerkidentität. Zum Einschalten über die
-Schnelleinstellungskachel oder die USB-Benachrichtigung muss ein gesperrtes Gerät entsperrt werden;
-Ausschalten über die Kachel bleibt vom Sperrbildschirm aus möglich. Eine Netzwerkfreigabe über
-eine Benachrichtigung benötigt ebenfalls ein entsperrtes Gerät. Wenn Benachrichtigungsdetails
-verborgen sind, hat der Hinweis keine Aktionsknöpfe; ein Tippen öffnet in KeepADB den Dialog
-„Diesem Netzwerk vertrauen?“, der den Netzwerknamen zeigt, damit die Entscheidung mit sichtbarem
-Namen getroffen wird. Der Dialog zeigt den Namen auch im Privatsphäre-Modus, weil man wissen muss,
-wem man vertraut, aber nie auf einem gesperrten Display: Er erscheint erst nach dem Entsperren und
-prüft die Displaysperre zusätzlich selbst. Wegwischen des Hinweises entscheidet nichts; dasselbe
-Netz wird frühestens nach 24 Stunden erneut gefragt.
+Network trust controls automatic recovery. The tile and other manual controls do not approve a new
+network identity. A locked device must be unlocked before enabling Wireless debugging through the
+Quick Settings tile or USB notification; turning it off through the tile remains possible from the
+lock screen. Approving a network through a notification also requires an unlocked device. When
+notification details are hidden, the notice has no action buttons; tapping it opens KeepADB's
+“Trust this network?” dialog and shows the network name so the user can make an informed decision.
+The dialog shows the name even in privacy mode, because the user must know which network is being
+trusted. It never shows the name on a locked display: the dialog appears only after unlocking and
+checks the screen lock itself. Dismissing the notice does not make a decision; the same network is
+not prompted again for at least 24 hours.
 
-## Bedienregeln mit Sicherheitswirkung
+## Security-relevant interaction rules
 
-KeepADB benötigt die einmalige Berechtigung `WRITE_SECURE_SETTINGS`, die du von einem Computer
-über ADB vergibst. Die App kann sie nicht selbst erteilen. Automatische Wiederherstellung setzt
-WLAN-Verbindung, Keep-Alive und den zuletzt gespeicherten ausdrücklichen Benutzerwunsch voraus.
-Android kann zusätzlich eine eigene Bestätigung verlangen; wenn der Zustand nicht bestätigt wird,
-wartet KeepADB, statt schnell wiederholt einzuschalten.
+KeepADB requires the one-time `WRITE_SECURE_SETTINGS` permission, granted from a computer over
+ADB. The app cannot grant it itself. Automatic recovery requires a Wi-Fi connection, Keep-Alive,
+and the user's most recently saved explicit intent. Android may also require its own confirmation;
+if the state is not confirmed, KeepADB waits instead of repeatedly trying to enable it.
 
-Zum Einschalten über die Schnelleinstellungskachel oder eine USB-Übergabebenachrichtigung muss ein
-gesperrtes Gerät entsperrt werden. Ausschalten über die Kachel bleibt auf dem Sperrbildschirm
-möglich. Eine Freigabe im Hinweis auf ein unbekanntes WLAN verlangt ebenfalls Entsperrung und zeigt
-den Zugangspunktnamen in KeepADB an, wenn Android Benachrichtigungsdetails verbirgt.
+A locked device must be unlocked before enabling Wireless debugging through the Quick Settings
+tile or a USB handover notification. Turning it off through the tile remains possible from the lock
+screen. Approving an unknown network through a notice also requires unlocking and shows the access
+point name in KeepADB when Android hides notification details.
 
-## Benachrichtigungen, Webhook und lokale Daten
+## Notifications, webhook, and local data
 
-Netzwerkadressen und Zugangspunktnamen bleiben in Benachrichtigungen standardmäßig verborgen.
-Eine Einstellung kann Verbindungsdetails sichtbar machen; ob Android vertrauliche
-Benachrichtigungsinhalte auf dem Sperrbildschirm zeigt, hängt zusätzlich von den Android-
-Einstellungen dafür ab.
+Network addresses and access point names are hidden in notifications by default. A setting can
+show connection details; whether Android displays sensitive notification content on the lock screen
+also depends on Android's own settings.
 
-Webhook-Verkehr ist standardmäßig aus und geht nur an die vom Nutzer eingetragene URL. Der
-[Webhook-Vertrag](docs/webhook-register.md) beschreibt die vom App-Code erzeugte Nutzlast und
-grenzt sie von nicht überprüften Aussagen über einen externen Server ab. HTTPS wird empfohlen;
-HTTP bleibt für selbst betriebene LAN- oder VPN-Endpunkte möglich, ist aber unverschlüsselt und wird
-in der App kenntlich gemacht. KeepADB sendet keine Analyse- oder Absturzberichte.
+Webhook traffic is off by default and goes only to the URL entered by the user. The
+[webhook contract](docs/webhook-register.md) describes the payload created by the app code and
+distinguishes it from unverified claims about an external server. HTTPS is recommended; HTTP is
+available for self-hosted LAN or VPN endpoints, but is unencrypted and identified in the app.
+KeepADB sends no analytics or crash reports.
 
-Android-Cloud-Backup und Geräteübertragung sind deaktiviert. Dazu zählen Webhook-URL, gespeicherte
-Netzwerkfreigaben, USB-Profile und Diagnosedaten. Diese Daten gehen bei einer Deinstallation oder
-einem Gerätewechsel verloren. Diagnoseinformationen werden nicht automatisch hochgeladen; Details
-zur Freigabe und Maskierung stehen in [Diagnoseexport](docs/diagnostics.md).
+Android cloud backup and device transfer are disabled. This includes the webhook URL, saved
+network trusts, USB profiles, and diagnostics data. These data are lost when the app is uninstalled
+or the device is changed. Diagnostics are not uploaded automatically; see
+[Diagnostics export](docs/diagnostics.md) for sharing and redaction details.
 
-## Unterstützte Versionen
+## Supported versions
 
-Sicherheitskorrekturen gelten für die jeweils neueste veröffentlichte Version. Es gibt keinen
-separaten Langzeitpflege-Zweig.
+Security fixes apply to the latest published version. There is no separate long-term support branch.
 
-## Sicherheitslücke melden
+## Report a vulnerability
 
-Bitte veröffentliche keine Sicherheitslücke als öffentliches GitHub-Issue. Verwende die
-[private GitHub-Sicherheitsmeldung](https://github.com/m00sfett/KeepADB/security/advisories/new).
-Falls du GitHub nicht verwenden kannst, nutze das Feedback-Formular in den Einstellungen oder
-[keepadb.roteson.de/feedback](https://keepadb.roteson.de/feedback) und markiere den Bericht
-als sicherheitsrelevant.
+Please do not report a vulnerability through a public GitHub issue. Use
+[GitHub's private vulnerability reporting](https://github.com/m00sfett/KeepADB/security/advisories/new).
+If you cannot use GitHub, use the feedback form in Settings or
+[keepadb.roteson.de/feedback](https://keepadb.roteson.de/feedback) and mark the report as
+security-sensitive.
 
-Nenne KeepADB-Version, Android-Version/API-Level, Schritte zur Reproduktion und nötige
-Netzwerkbedingungen. Füge keine Webhook-URL, Kopplungsschlüssel oder sonstigen Zugangsdaten bei.
+Include the KeepADB version, Android version/API level, reproduction steps, and relevant network
+conditions. Do not include a webhook URL, pairing key, or other credentials.
