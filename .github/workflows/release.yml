@@ -33,6 +33,8 @@ jobs:
           fi
 
           tag_version="${ref_name#v}"
+          # Beta tags look like v1.10.5-beta.1; compare the base version against build metadata.
+          tag_version="${tag_version%%-beta.*}"
           if [[ -z "$tag_version" || "$tag_version" == "$ref_name" ]]; then
             echo "::error::Release tag does not start with 'v' followed by a version: $ref_name"
             exit 1
@@ -161,4 +163,6 @@ jobs:
           files: |
             KeepADB-${{ github.ref_name }}.apk
             KeepADB-${{ github.ref_name }}.apk.sha256
+          prerelease: ${{ contains(github.ref_name, '-beta.') }}
+          make_latest: ${{ !contains(github.ref_name, '-beta.') }}
           generate_release_notes: true
