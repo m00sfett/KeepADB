@@ -26,7 +26,7 @@ are retrospective issue-version records and were never published as separate rel
 ## [1.10.5] - Unreleased
 
 ### Changed
-- **Beta releases via GitHub prerelease tags:** `release.yml` now accepts tags of the form `vX.Y.Z-beta.N`. The `-beta.N` suffix is stripped before the tag is checked against `versionName`, `CHANGELOG.md` and the Fastlane changelog, and the GitHub release is created as a prerelease that is not marked as latest. Stable `vX.Y.Z` tags behave as before. The official F-Droid metadata ignores beta tags (fdroiddata MR !52391, `UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+$`). No app behavior changes and no version bump.
+- **Beta releases via GitHub prerelease tags:** `release.yml` now accepts tags of the form `vX.Y.Z-beta.N`. The `-beta.N` suffix is stripped before the tag is checked against `versionName`, `CHANGELOG.md` and the Fastlane changelog, and the GitHub release is created as a prerelease that is not marked as latest. Tags are matched strictly as `vX.Y.Z` or `vX.Y.Z-beta.N`; anything else fails the release check. Stable `vX.Y.Z` tags behave as before. A beta installs over the stable app (same package ID and signing key); a stable release must carry a higher `versionCode` than any beta of the same version so that beta users receive it as an update. The official F-Droid metadata ignores beta tags (fdroiddata MR !52391, `UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+$`). No app behavior changes and no version bump.
 
 ### Documentation
 - #858: English is the canonical language for maintained project documentation and code comments. The README and current technical guides are aligned with that rule; localized Android resources and store metadata remain localized. No app behavior changes.

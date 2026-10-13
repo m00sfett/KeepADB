@@ -33,10 +33,16 @@ jobs:
           fi
 
           tag_version="${ref_name#v}"
-          # Beta tags look like v1.10.5-beta.1; compare the base version against build metadata.
-          tag_version="${tag_version%%-beta.*}"
           if [[ -z "$tag_version" || "$tag_version" == "$ref_name" ]]; then
             echo "::error::Release tag does not start with 'v' followed by a version: $ref_name"
+            exit 1
+          fi
+
+          # Beta tags look like v1.10.5-beta.1; compare the base version against build metadata.
+          if [[ "$ref_name" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)(-beta\.[0-9]+)?$ ]]; then
+            tag_version="${BASH_REMATCH[1]}"
+          else
+            echo "::error::Release tag must be vX.Y.Z or vX.Y.Z-beta.N: $ref_name"
             exit 1
           fi
 
