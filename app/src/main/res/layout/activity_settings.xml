@@ -572,6 +572,113 @@
                 android:orientation="vertical"
                 android:visibility="gone">
                 <include layout="@layout/view_webhook_form" />
+
+                <!-- #866: retry series for a failed report; Settings only, not the assistant. -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_webhook_retry_title"
+                    android:textColor="@color/night_text"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_webhook_retry_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
+
+                <LinearLayout
+                    android:id="@+id/settings_webhook_retry_timing_selector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_card_clickable"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:id="@+id/settings_webhook_retry_timing_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="@string/settings_webhook_retry_timing_standard"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:importantForAccessibility="no"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="▼"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/settings_webhook_retry_count_selector"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_card_clickable"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:id="@+id/settings_webhook_retry_count_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-condensed"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:importantForAccessibility="no"
+                        android:fontFamily="sans-serif-condensed"
+                        android:text="▼"
+                        android:textColor="@color/title_yellow"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- #868: freshness wording of the webhook warning. -->
+                <Switch
+                    android:id="@+id/settings_webhook_freshness_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_webhook_freshness_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_webhook_freshness_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
             </LinearLayout>
         </LinearLayout>
 

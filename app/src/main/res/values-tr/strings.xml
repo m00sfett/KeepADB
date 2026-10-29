@@ -567,4 +567,23 @@ Bu sürede engellemeleriniz ve güvenilir ağlarınız geçerli olmaz.
     <string name="warnings_reset">Tüm susturmaları kaldır</string>
     <string name="warnings_none">Etkin güvenlik uyarısı yok</string>
     <string name="onboarding_upgrade_notice">Güncelleme eski Wi-Fi gözlem geçmişini kaldırdı; bu geçmiş geri yüklenemez. Koruma ve güven ayarların, Keep-Alive ve webhook ayarların korundu. İlk açılışta KeepADB, etkin güvenlik sorunları veya eksik gereksinimler için uyarı kartları gösterir; kapatıldıktan sonra aynı neden etkin kaldığı sürece gizli kalırlar. Etkin güvenlik nedenlerini “Güvenlik uyarıları” altında kontrol etmeye devam edebilirsin; kartlar ayarlarını değiştirmez.</string>
+    <string name="settings_webhook_retry_title">Başarısız bildirimden sonra yeniden denemeler</string>
+    <string name="settings_webhook_retry_subtext">Bir bildirim başarısız olursa KeepADB kısa aralıklarla en fazla dört kez yeniden dener. Daha sonraki bir ağ değişikliği yeni bir deneme başlatabilir. KeepADB sürekli sorgulama yapmaz.</string>
+    <string name="settings_webhook_retry_timing_label">Deneme aralıkları</string>
+    <string name="settings_webhook_retry_timing_dialog_title">Deneme aralıklarını seçin</string>
+    <string name="settings_webhook_retry_timing_fast">Hızlı (2, 5, 10, 20 sn)</string>
+    <string name="settings_webhook_retry_timing_standard">Standart (5, 15, 30, 60 sn)</string>
+    <string name="settings_webhook_retry_timing_gentle">Yavaş (15, 30, 60, 120 sn)</string>
+    <string name="settings_webhook_retry_count_label">Yeniden deneme sayısı</string>
+    <string name="settings_webhook_retry_count_dialog_title">Deneme sayısını seçin</string>
+    <string name="settings_webhook_retry_count_value">Yeniden deneme: %1$d</string>
+    <string name="webhook_alert_channel_name">Webhook uyarıları</string>
+    <string name="webhook_alert_channel_desc">Webhook bildirimleri başarısız olmaya devam ettiğinde uyarır</string>
+    <string name="webhook_alert_title">Webhook bildirimleri ulaşmıyor</string>
+    <string name="webhook_alert_text_failed">Son Webhook bildirimleri başarısız oldu.</string>
+    <string name="webhook_alert_text_since">%1$s tarihinden beri başarılı bildirim gözlemlenmedi.</string>
+    <string name="webhook_alert_text_never">Henüz başarılı bildirim gözlemlenmedi.</string>
+    <string name="webhook_alert_text_scope">Bu yalnızca KeepADB bildirimlerini açıklar; ağın veya sunucunun çalışmadığını göstermez.</string>
+    <string name="settings_webhook_freshness_toggle">Son başarılı bildirimi göster</string>
+    <string name="settings_webhook_freshness_subtext">Uyarı, başarılı bildirim olmadan bir dakika geçince görünür, bir saat sonra bir kez hatırlatılır; ardından bir bildirim başarılı olana kadar sessiz kalır. Açıksa son başarılı bildirimin zamanını da gösterir.</string>
 </resources>

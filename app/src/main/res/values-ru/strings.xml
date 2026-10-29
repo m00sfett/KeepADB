@@ -569,4 +569,23 @@
     <string name="warnings_reset">Сбросить все скрытые предупреждения</string>
     <string name="warnings_none">Нет активных предупреждений безопасности</string>
     <string name="onboarding_upgrade_notice">При обновлении старая история наблюдений за Wi-Fi была удалена; восстановить её нельзя. Настройки защиты и доверия, Keep-Alive и вебхука сохранены. При первом открытии KeepADB показывает карточки предупреждений об активных проблемах безопасности или невыполненных требованиях; после закрытия они остаются скрытыми, пока активна та же причина. Активные причины, связанные с безопасностью, по-прежнему доступны в разделе «Предупреждения безопасности»; карточки не меняют ваши настройки.</string>
+    <string name="settings_webhook_retry_title">Повторы после неудачного отчёта</string>
+    <string name="settings_webhook_retry_subtext">Если отчёт не удался, KeepADB повторяет попытку после коротких пауз, не более четырёх раз. Последующая смена сети может запустить новую попытку. KeepADB не опрашивает постоянно.</string>
+    <string name="settings_webhook_retry_timing_label">Темп повторов</string>
+    <string name="settings_webhook_retry_timing_dialog_title">Выберите темп повторов</string>
+    <string name="settings_webhook_retry_timing_fast">Быстро (2, 5, 10, 20 с)</string>
+    <string name="settings_webhook_retry_timing_standard">Стандартно (5, 15, 30, 60 с)</string>
+    <string name="settings_webhook_retry_timing_gentle">Щадяще (15, 30, 60, 120 с)</string>
+    <string name="settings_webhook_retry_count_label">Число повторов</string>
+    <string name="settings_webhook_retry_count_dialog_title">Выберите число повторов</string>
+    <string name="settings_webhook_retry_count_value">Повторы: %1$d</string>
+    <string name="webhook_alert_channel_name">Предупреждения Webhook</string>
+    <string name="webhook_alert_channel_desc">Предупреждает, если отчёты Webhook продолжают не доходить</string>
+    <string name="webhook_alert_title">Отчёты Webhook не доходят</string>
+    <string name="webhook_alert_text_failed">Последние отчёты Webhook не удались.</string>
+    <string name="webhook_alert_text_since">С %1$s не было замечено ни одного успешного отчёта.</string>
+    <string name="webhook_alert_text_never">Успешных отчётов пока не замечено.</string>
+    <string name="webhook_alert_text_scope">Это описывает только отчёты KeepADB, а не то, недоступны ли сеть или сервер.</string>
+    <string name="settings_webhook_freshness_toggle">Указывать последний успешный отчёт</string>
+    <string name="settings_webhook_freshness_subtext">Предупреждение появляется через минуту без успешного отчёта, напоминание — через час; затем ничего не появляется, пока отчёт не будет успешным. Если включено, также указывается время последнего успешного отчёта.</string>
 </resources>

@@ -112,6 +112,7 @@ public class KeepADBDefaultsAuditTest {
         /** Stores {@code value} the way the app stores it: a literal key, the stored type. */
         void store(SharedPreferences.Editor editor, Object value) {
             if (value instanceof Boolean) editor.putBoolean(key, (Boolean) value);
+            else if (value instanceof Integer) editor.putInt(key, (Integer) value);
             else editor.putString(key, (String) value);
         }
     }
@@ -153,6 +154,12 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBUsbProfile.isProfileNotificationEnabled(c)),
             new Setting("app_language", Kind.CONVENIENCE, "", "de",
                     c -> KeepADBPreferences.getAppLanguage(c)),
+            new Setting("register_webhook_retry_profile", Kind.CONVENIENCE, "standard", "gentle",
+                    c -> KeepADBPreferences.getWebhookRetryProfile(c)),
+            new Setting("register_webhook_retry_count", Kind.CONVENIENCE, 4, 1,
+                    c -> KeepADBPreferences.getWebhookRetryCount(c)),
+            new Setting("register_webhook_freshness_warning", Kind.CONVENIENCE, true, false,
+                    c -> KeepADBPreferences.isWebhookFreshnessWarningEnabled(c)),
             // Dismiss flag of the start screen (#764: the cards of the setup steps are gone)
             new Setting("advice_banner_visible", Kind.DISMISS_STATE, true, false,
                     c -> KeepADBPreferences.isAdviceBannerVisible(c)),
@@ -169,6 +176,7 @@ public class KeepADBDefaultsAuditTest {
             "register_webhook_last_url", "register_webhook_last_status",
             "register_webhook_last_success_at", "register_webhook_pending_cleanup",
             "register_webhook_pending_cleanup_retry_state", "service_last_heartbeat",
+            "register_webhook_failure_since", "register_webhook_alerts_shown",
             "trusted_network_next_id", "trusted_network_ids", "trusted_network_mode_initialized",
             "trusted_ssid_next_id", "trusted_ssid_ids", "blocked_bssids", "blocked_ssids",
             "usb_profile_next_id", "usb_profile_selected_id", "usb_profile_ids",

@@ -25,6 +25,8 @@ final class KeepADBRegisterClient {
     static final long MARK_UNAVAILABLE_MAX_BACKOFF_MS = 5L * 60L * 1000L;
     private static volatile Long pendingCleanupNowForTesting;
     private static volatile Long markUnavailableNowForTesting;
+    private static volatile String coordinatorEndpointForTesting;
+    private static volatile Runnable beforeResyncDispatchForTesting;
     private static Handler mainHandler;
 
     private static synchronized Handler mainHandler() {
@@ -102,6 +104,20 @@ final class KeepADBRegisterClient {
      * affected by it.
      */
     private static volatile long markUnavailableInFlightOpGen = 0L;
+    /**
+     * #866: the current POST series -- the URL/endpoint pair whose report is queued, running,
+     * waiting for its next retry or, once {@link #seriesExhausted}, given up on. A repeated call for
+     * the same pair joins the series instead of dispatching a parallel POST or postponing the
+     * scheduled retry. Only a different pair, a network event (#867) or a configuration change
+     * starts a new series.
+     */
+    private static String seriesUrl = null;
+    private static String seriesEndpoint = null;
+    private static boolean seriesExhausted = false;
+    /** #866: retries already scheduled in the current series; 0 before its first failure. */
+    private static int postRetryNumber = 0;
+    /** #866: the one scheduled retry of the current series on the main handler, or null. */
+    private static Runnable pendingPostRetry = null;
     private KeepADBRegisterClient() {}
 
     static synchronized void ensureStateInitializedLocked(Context context) {
@@ -132,14 +148,170 @@ final class KeepADBRegisterClient {
             if (targetUrl.equals(lastRegisteredUrl) && endpoint.equals(lastRegisteredEndpoint)) {
                 return;
             }
-            opGen = ++currentOpGeneration;
-            wlanUpdateInFlight = true;
+            // #866: the same report is already queued, running, waiting for its retry or was given
+            // up on. Coordinator refreshes repeat this call for an unchanged endpoint; they must
+            // neither send a parallel POST nor restart (and so postpone) the retry series.
+            if (targetUrl.equals(seriesUrl) && endpoint.equals(seriesEndpoint)
+                    && (wlanUpdateInFlight || pendingPostRetry != null || seriesExhausted)) {
+                return;
+            }
+            opGen = startSeriesLocked(targetUrl, endpoint);
         }
 
+        dispatchUpdate(appContext, targetUrl, endpoint, opGen);
+    }
+
+    /** #867: quiet period that coalesces a burst of network callbacks into one report. */
+    static final long RESYNC_DEBOUNCE_MS = 2_000L;
+    /** #867: the one debounced resync waiting on the main handler, or null. */
+    private static Runnable pendingResync = null;
+
+    /**
+     * #867: reports the current endpoint again after an Android network change, even when it is
+     * unchanged -- the previous report may have failed or been lost while the network moved.
+     * Bursts of callbacks are coalesced into one attempt {@link #RESYNC_DEBOUNCE_MS} after the last
+     * of them. That attempt joins a POST that is already running or a retry that is already
+     * scheduled (#866) instead of adding a parallel request or postponing that retry; otherwise it
+     * starts a new series. The callback is only a reason to try; it does not prove that the
+     * endpoint is reachable.
+     */
+    static void requestResyncAsync(Context context) {
+        if (context == null) return;
+        final Context appContext = context.getApplicationContext();
+        if (!KeepADBPreferences.isRegisterWebhookEnabled(appContext)) return;
+        synchronized (KeepADBRegisterClient.class) {
+            if (pendingResync != null) {
+                mainHandler().removeCallbacks(pendingResync);
+            }
+            Runnable resync = new Runnable() {
+                @Override
+                public void run() {
+                    runResync(appContext, this);
+                }
+            };
+            pendingResync = resync;
+            mainHandler().postDelayed(resync, RESYNC_DEBOUNCE_MS);
+        }
+    }
+
+    private static void runResync(Context appContext, Runnable self) {
+        // A disconnect between reading the endpoint and taking the monitor bumps the generation;
+        // the read endpoint is then stale and must not be posted after that cleanup.
+        long generationBefore = currentOpGeneration;
+        String endpoint = currentCoordinatorEndpoint();
+        Runnable hook = beforeResyncDispatchForTesting;
+        if (hook != null) hook.run();
+        boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(appContext);
+        String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
+        final long opGen;
+        synchronized (KeepADBRegisterClient.class) {
+            if (pendingResync != self) return;
+            pendingResync = null;
+            if (!enabled || endpoint == null || targetUrl == null || targetUrl.trim().isEmpty()) {
+                return;
+            }
+            ensureStateInitializedLocked(appContext);
+            if (wlanUpdateInFlight || pendingPostRetry != null
+                    || currentOpGeneration != generationBefore) {
+                return;
+            }
+            opGen = startSeriesLocked(targetUrl, endpoint);
+        }
+        dispatchUpdate(appContext, targetUrl, endpoint, opGen);
+    }
+
+    /** #866: caller must hold the class monitor. Starts a new POST series and returns its opGen. */
+    private static long startSeriesLocked(String targetUrl, String endpoint) {
+        cancelPostRetryLocked();
+        seriesUrl = targetUrl;
+        seriesEndpoint = endpoint;
+        wlanUpdateInFlight = true;
+        return ++currentOpGeneration;
+    }
+
+    private static void dispatchUpdate(Context appContext, String targetUrl, String endpoint, long opGen) {
         EXECUTOR.execute(() -> {
             if (opGen != currentOpGeneration) return;
             performUpdateTransaction(appContext, targetUrl, endpoint, opGen);
         });
+    }
+
+    /** #866: caller must hold the class monitor. Drops the scheduled retry and the series state. */
+    private static void cancelPostRetryLocked() {
+        if (pendingPostRetry != null) {
+            mainHandler().removeCallbacks(pendingPostRetry);
+            pendingPostRetry = null;
+        }
+        postRetryNumber = 0;
+        seriesUrl = null;
+        seriesEndpoint = null;
+        seriesExhausted = false;
+    }
+
+    /**
+     * #866: caller must hold the class monitor. Schedules the next retry of a failed POST once that
+     * attempt has completed, or marks the series exhausted after the selected number of retries.
+     */
+    private static void schedulePostRetryLocked(Context context, String targetUrl, String endpoint,
+            long opGen) {
+        if (postRetryNumber >= KeepADBPreferences.getWebhookRetryCount(context)) {
+            seriesExhausted = true;
+            return;
+        }
+        postRetryNumber++;
+        long delayMs = KeepADBPreferences.webhookRetryDelayMs(
+                KeepADBPreferences.getWebhookRetryProfile(context), postRetryNumber);
+        Runnable retry = new Runnable() {
+            @Override
+            public void run() {
+                runPostRetry(context, targetUrl, endpoint, opGen, this);
+            }
+        };
+        pendingPostRetry = retry;
+        mainHandler().postDelayed(retry, delayMs);
+    }
+
+    /**
+     * #866: rechecks the configuration and the current endpoint before the retry is sent. Disabled
+     * sync, a changed URL, an invalidated or changed endpoint or a newer operation make it
+     * obsolete; it then ends the series without a request.
+     */
+    private static void runPostRetry(Context context, String targetUrl, String endpoint, long opGen,
+            Runnable self) {
+        String currentEndpoint = currentCoordinatorEndpoint();
+        boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(context);
+        String currentUrl = KeepADBPreferences.getRegisterWebhookUrl(context);
+        synchronized (KeepADBRegisterClient.class) {
+            if (pendingPostRetry != self) return;
+            pendingPostRetry = null;
+            if (opGen != currentOpGeneration || !enabled || !targetUrl.equals(currentUrl)
+                    || !endpoint.equals(currentEndpoint)) {
+                cancelPostRetryLocked();
+                // #868: without sync or an endpoint there is nothing left to report, so the failure
+                // episode must not go on to warn about it.
+                if (!enabled || currentEndpoint == null) {
+                    KeepADBWebhookAlert.endEpisode(context);
+                }
+                return;
+            }
+            wlanUpdateInFlight = true;
+        }
+        dispatchUpdate(context, targetUrl, endpoint, opGen);
+    }
+
+    /**
+     * The endpoint the coordinator currently holds, formatted like a report, or null without one.
+     * Read outside this class's monitor: the coordinator calls into this class while holding its
+     * own monitor, so taking them in the opposite order could deadlock.
+     */
+    private static String currentCoordinatorEndpoint() {
+        String override = coordinatorEndpointForTesting;
+        if (override != null) {
+            return override.isEmpty() ? null : override;
+        }
+        KeepADBEndpointCoordinator.Snapshot snapshot = KeepADBEndpointCoordinator.snapshot();
+        return snapshot.hasEndpoint()
+                ? KeepADBEndpoint.formatEndpoint(snapshot.host, snapshot.port) : null;
     }
 
     static void markUnavailableAsync(Context context) {
@@ -152,6 +324,10 @@ final class KeepADBRegisterClient {
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
             ensureStateInitializedLocked(appContext);
+            // #866: the endpoint is gone, so a scheduled POST retry for it is obsolete.
+            cancelPostRetryLocked();
+            // #868: without an endpoint there is nothing to report, so no failure episode either.
+            KeepADBWebhookAlert.endEpisode(appContext);
             // #576 part C: a DELETE for this exact registered state is already queued or running
             // -- coalesce instead of dispatching another one. Comparing against
             // currentOpGeneration (not a plain flag) means a newer registration or disconnect
@@ -209,6 +385,8 @@ final class KeepADBRegisterClient {
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
             ensureStateInitializedLocked(appContext);
+            cancelPostRetryLocked();
+            KeepADBWebhookAlert.endEpisode(appContext);
             wlanUpdateInFlight = false;
             opGen = ++currentOpGeneration;
         }
@@ -423,6 +601,9 @@ final class KeepADBRegisterClient {
                     // so it cannot issue an outdated DELETE after the newer registration attempt.
                     removePendingCleanupsForResource(context, targetUrl);
                     wlanUpdateInFlight = false;
+                    // #866: success ends the retry series, #868 the failure episode.
+                    cancelPostRetryLocked();
+                    KeepADBWebhookAlert.endEpisode(context);
                     // A successful WLAN report supersedes any pending unavailable retry for the
                     // previous local report.
                     resetMarkUnavailableRetryLocked();
@@ -441,6 +622,8 @@ final class KeepADBRegisterClient {
                     wlanUpdateInFlight = false;
                     KeepADBPreferences.setWebhookLastReportStatus(
                             context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+                    schedulePostRetryLocked(context, targetUrl, targetEndpoint, opGen);
+                    KeepADBWebhookAlert.onReportFailed(context);
                     notifyRegisterStateListener(context);
                 }
             }
@@ -573,6 +756,14 @@ final class KeepADBRegisterClient {
         markUnavailableRetryAttempts = 0;
         markUnavailableNextAttemptAt = 0L;
         markUnavailableInFlightOpGen = 0L;
+        cancelPostRetryLocked();
+        if (pendingResync != null) {
+            mainHandler().removeCallbacks(pendingResync);
+            pendingResync = null;
+        }
+        coordinatorEndpointForTesting = null;
+        beforeResyncDispatchForTesting = null;
+        KeepADBWebhookAlert.resetForTesting();
         registerStateListener = null;
         pendingCleanupNowForTesting = null;
         markUnavailableNowForTesting = null;
@@ -643,6 +834,35 @@ final class KeepADBRegisterClient {
 
     static boolean isWlanUpdateInFlightForTesting() {
         return wlanUpdateInFlight;
+    }
+
+    /**
+     * #866: the endpoint a retry compares against, instead of the coordinator's; an empty string
+     * stands for "no endpoint". Null restores the coordinator.
+     */
+    static void setCoordinatorEndpointForTesting(String endpoint) {
+        coordinatorEndpointForTesting = endpoint;
+    }
+
+    /** #867: runs after the resync read its endpoint and before it takes the monitor. */
+    static void setBeforeResyncDispatchForTesting(Runnable hook) {
+        beforeResyncDispatchForTesting = hook;
+    }
+
+    static synchronized int getPostRetryNumberForTesting() {
+        return postRetryNumber;
+    }
+
+    static synchronized boolean hasPendingPostRetryForTesting() {
+        return pendingPostRetry != null;
+    }
+
+    static synchronized boolean hasPendingResyncForTesting() {
+        return pendingResync != null;
+    }
+
+    static synchronized boolean isSeriesExhaustedForTesting() {
+        return seriesExhausted;
     }
 
     static int getMarkUnavailableRetryAttemptsForTesting() {

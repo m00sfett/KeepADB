@@ -568,4 +568,23 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="warnings_reset">Repor todos os avisos silenciados</string>
     <string name="warnings_none">Nenhum aviso de segurança ativo</string>
     <string name="onboarding_upgrade_notice">A atualização removeu o antigo histórico de observação Wi-Fi; não pode ser recuperado. As tuas definições de proteção e confiança, Keep-Alive e webhook foram mantidas. Na primeira abertura, o KeepADB mostra cartões de aviso para problemas de segurança ativos ou requisitos em falta; depois de fechados, permanecem ocultos enquanto o mesmo motivo estiver ativo. Podes continuar a consultar os motivos de segurança ativos em «Avisos de segurança»; os cartões não alteram as tuas definições.</string>
+    <string name="settings_webhook_retry_title">Novas tentativas após um relatório com falha</string>
+    <string name="settings_webhook_retry_subtext">Se um relatório falhar, o KeepADB tenta novamente após pausas curtas, no máximo quatro vezes. Uma mudança de rede posterior pode iniciar uma nova tentativa. O KeepADB não consulta continuamente.</string>
+    <string name="settings_webhook_retry_timing_label">Ritmo das tentativas</string>
+    <string name="settings_webhook_retry_timing_dialog_title">Escolher ritmo das tentativas</string>
+    <string name="settings_webhook_retry_timing_fast">Rápido (2, 5, 10, 20 s)</string>
+    <string name="settings_webhook_retry_timing_standard">Padrão (5, 15, 30, 60 s)</string>
+    <string name="settings_webhook_retry_timing_gentle">Suave (15, 30, 60, 120 s)</string>
+    <string name="settings_webhook_retry_count_label">Número de tentativas</string>
+    <string name="settings_webhook_retry_count_dialog_title">Escolher número de tentativas</string>
+    <string name="settings_webhook_retry_count_value">Tentativas: %1$d</string>
+    <string name="webhook_alert_channel_name">Avisos do webhook</string>
+    <string name="webhook_alert_channel_desc">Avisa quando os relatórios do webhook continuam falhando</string>
+    <string name="webhook_alert_title">Os relatórios do webhook não estão chegando</string>
+    <string name="webhook_alert_text_failed">Os últimos relatórios do webhook falharam.</string>
+    <string name="webhook_alert_text_since">Nenhum relatório bem-sucedido observado desde %1$s.</string>
+    <string name="webhook_alert_text_never">Nenhum relatório bem-sucedido observado ainda.</string>
+    <string name="webhook_alert_text_scope">Isto descreve apenas os relatórios do KeepADB, não se a rede ou o servidor estão fora do ar.</string>
+    <string name="settings_webhook_freshness_toggle">Indicar o último relatório bem-sucedido</string>
+    <string name="settings_webhook_freshness_subtext">O aviso aparece após um minuto sem relatório bem-sucedido, com um lembrete após uma hora; depois fica em silêncio até um relatório ter sucesso. Quando ativado, também indica quando um relatório teve sucesso pela última vez.</string>
 </resources>

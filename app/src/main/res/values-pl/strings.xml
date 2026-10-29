@@ -569,4 +569,23 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="warnings_reset">Usuń wszystkie wyciszenia</string>
     <string name="warnings_none">Brak aktywnych ostrzeżeń bezpieczeństwa</string>
     <string name="onboarding_upgrade_notice">Aktualizacja usunęła starą historię obserwacji Wi-Fi; nie można jej przywrócić. Zachowano Twoje ustawienia ochrony i zaufania, Keep-Alive oraz webhooka. Przy pierwszym otwarciu KeepADB wyświetla karty ostrzeżeń o aktywnych problemach bezpieczeństwa lub brakujących wymaganiach; po zamknięciu pozostają ukryte, dopóki ta sama przyczyna jest aktywna. Aktywne przyczyny związane z bezpieczeństwem nadal sprawdzisz w sekcji „Ostrzeżenia bezpieczeństwa”; karty nie zmieniają Twoich ustawień.</string>
+    <string name="settings_webhook_retry_title">Ponowienia po nieudanym zgłoszeniu</string>
+    <string name="settings_webhook_retry_subtext">Jeśli zgłoszenie się nie powiedzie, KeepADB ponawia je po krótkich przerwach, najwyżej cztery razy. Późniejsza zmiana sieci może rozpocząć nową próbę. KeepADB nie odpytuje w sposób ciągły.</string>
+    <string name="settings_webhook_retry_timing_label">Tempo ponowień</string>
+    <string name="settings_webhook_retry_timing_dialog_title">Wybierz tempo ponowień</string>
+    <string name="settings_webhook_retry_timing_fast">Szybko (2, 5, 10, 20 s)</string>
+    <string name="settings_webhook_retry_timing_standard">Standardowo (5, 15, 30, 60 s)</string>
+    <string name="settings_webhook_retry_timing_gentle">Łagodnie (15, 30, 60, 120 s)</string>
+    <string name="settings_webhook_retry_count_label">Liczba ponowień</string>
+    <string name="settings_webhook_retry_count_dialog_title">Wybierz liczbę ponowień</string>
+    <string name="settings_webhook_retry_count_value">Ponowienia: %1$d</string>
+    <string name="webhook_alert_channel_name">Ostrzeżenia Webhook</string>
+    <string name="webhook_alert_channel_desc">Ostrzega, gdy zgłoszenia Webhook stale się nie udają</string>
+    <string name="webhook_alert_title">Zgłoszenia Webhook nie docierają</string>
+    <string name="webhook_alert_text_failed">Ostatnie zgłoszenia Webhook nie powiodły się.</string>
+    <string name="webhook_alert_text_since">Od %1$s nie zaobserwowano udanego zgłoszenia.</string>
+    <string name="webhook_alert_text_never">Nie zaobserwowano jeszcze udanego zgłoszenia.</string>
+    <string name="webhook_alert_text_scope">To opisuje tylko zgłoszenia KeepADB, a nie to, czy sieć lub serwer nie działają.</string>
+    <string name="settings_webhook_freshness_toggle">Podawaj ostatnie udane zgłoszenie</string>
+    <string name="settings_webhook_freshness_subtext">Ostrzeżenie pojawia się po minucie bez udanego zgłoszenia, z jednym przypomnieniem po godzinie; potem nic się nie pojawia, dopóki zgłoszenie się nie uda. Gdy ta opcja jest włączona, podaje też, kiedy ostatnio udało się zgłoszenie.</string>
 </resources>

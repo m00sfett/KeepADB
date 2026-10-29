@@ -17,11 +17,21 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.2` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.6` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.10.6] - Unreleased
+
+### Added
+- **Bounded retries for failed webhook reports (#866):** a failed endpoint-report POST starts a retry series. The next attempt is scheduled only after the previous one completed, using the Fast (2, 5, 10, 20 s), Standard (5, 15, 30, 60 s, default) or Gentle (15, 30, 60, 120 s) profile and at most four retries; Settings can choose fewer. Repeated coordinator refreshes for the same report join the series instead of sending parallel POSTs or postponing the retry, and an exhausted series stays quiet until a new endpoint, URL or enable change or a network event. Every retry rechecks sync state, URL and the current endpoint and is dropped when obsolete; deregistration and unavailability cancel it. The success time is stored only after a successful POST. Failed DELETE cleanup keeps its own mechanism.
+- **Webhook resynchronization on network changes (#867):** a Wi-Fi network becoming available or a change of the system default network (including a VPN coming up) requests a fresh report even when the endpoint is unchanged. Callback bursts are debounced into one attempt 2 s after the last callback; the attempt joins a running POST or a scheduled retry and otherwise starts a new series. No polling and no Tailscale-specific code; ADB and Keep-Alive behavior are unchanged.
+- **Balanced webhook warnings (#868):** a continuous period without a successful report shows one warning after one minute and one reminder after an hour on a new "Webhook warnings" channel, reusing a single notification, then stays quiet until a report succeeds. A new freshness setting (default on) names the last successful report or that none was observed; the text always states that it describes KeepADB's reports, not whether the network or server is down. The episode follows report outcomes only; success, deregistration, disabled sync or a lost endpoint end it and remove the warning. After a process restart, the next report outcome re-evaluates the persisted episode.
+
+### Changed
+- **Coalesced webhook reports (#866):** a repeated report for the same URL and endpoint while one is queued, running or waiting for its retry no longer dispatches an additional POST.
 
 ## [1.10.5] - Unreleased
 

@@ -567,4 +567,23 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="warnings_reset">Alle Stummschaltungen zurücksetzen</string>
     <string name="warnings_none">Keine aktiven Sicherheitswarnungen</string>
     <string name="onboarding_upgrade_notice">Beim Update wurde die alte WLAN-Beobachtungshistorie entfernt; sie lässt sich nicht wiederherstellen. Deine Schutz- und Vertrauenseinstellungen, Keep-Alive und Webhook-Einstellungen wurden übernommen. Beim ersten Öffnen zeigt KeepADB Warnkarten für aktive Sicherheitsprobleme oder fehlende Voraussetzungen; nach dem Schließen bleiben sie für denselben aktiven Grund verborgen. Unter „Sicherheitswarnungen“ kannst du aktive Sicherheitsgründe weiterhin prüfen; die Warnkarten ändern deine Einstellungen nicht.</string>
+    <string name="settings_webhook_retry_title">Wiederholungen nach fehlgeschlagener Meldung</string>
+    <string name="settings_webhook_retry_subtext">Schlägt eine Meldung fehl, versucht KeepADB es nach kurzen Pausen erneut, höchstens viermal. Ein späterer Netzwechsel kann einen neuen Versuch starten. KeepADB fragt nicht ständig ab.</string>
+    <string name="settings_webhook_retry_timing_label">Zeitplan der Wiederholungen</string>
+    <string name="settings_webhook_retry_timing_dialog_title">Zeitplan auswählen</string>
+    <string name="settings_webhook_retry_timing_fast">Schnell (2, 5, 10, 20 s)</string>
+    <string name="settings_webhook_retry_timing_standard">Normal (5, 15, 30, 60 s)</string>
+    <string name="settings_webhook_retry_timing_gentle">Schonend (15, 30, 60, 120 s)</string>
+    <string name="settings_webhook_retry_count_label">Anzahl der Wiederholungen</string>
+    <string name="settings_webhook_retry_count_dialog_title">Anzahl auswählen</string>
+    <string name="settings_webhook_retry_count_value">Wiederholungen: %1$d</string>
+    <string name="webhook_alert_channel_name">Webhook-Warnungen</string>
+    <string name="webhook_alert_channel_desc">Warnt, wenn Webhook-Meldungen dauerhaft fehlschlagen</string>
+    <string name="webhook_alert_title">Webhook-Meldungen kommen nicht an</string>
+    <string name="webhook_alert_text_failed">Die letzten Webhook-Meldungen sind fehlgeschlagen.</string>
+    <string name="webhook_alert_text_since">Seit %1$s wurde keine erfolgreiche Meldung beobachtet.</string>
+    <string name="webhook_alert_text_never">Bisher wurde keine erfolgreiche Meldung beobachtet.</string>
+    <string name="webhook_alert_text_scope">Das beschreibt nur die Meldungen von KeepADB, nicht, ob Netz oder Server ausgefallen sind.</string>
+    <string name="settings_webhook_freshness_toggle">Letzte erfolgreiche Meldung nennen</string>
+    <string name="settings_webhook_freshness_subtext">Die Warnung erscheint nach einer Minute ohne erfolgreiche Meldung, mit einer Erinnerung nach einer Stunde; danach bleibt es still, bis eine Meldung gelingt. Ist dies an, nennt sie auch, wann zuletzt eine Meldung gelang.</string>
 </resources>

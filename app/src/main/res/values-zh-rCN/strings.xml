@@ -566,4 +566,23 @@
     <string name="warnings_reset">取消所有隐藏设置</string>
     <string name="warnings_none">没有有效的安全警告</string>
     <string name="onboarding_upgrade_notice">更新已删除旧的 Wi-Fi 观察历史记录，且无法恢复。你的保护与信任设置、Keep-Alive 和 Webhook 设置已保留。首次打开时，KeepADB 会针对当前的安全问题或未满足的条件显示警告卡片；关闭后，只要同一原因仍然存在，卡片就会保持隐藏。你仍可在“安全警告”中查看当前的安全原因；警告卡片不会更改你的设置。</string>
+    <string name="settings_webhook_retry_title">报告失败后重试</string>
+    <string name="settings_webhook_retry_subtext">如果报告失败，KeepADB 会在短暂间隔后重试，最多四次。之后的网络变化可能会开始新的尝试。KeepADB 不会持续轮询。</string>
+    <string name="settings_webhook_retry_timing_label">重试间隔</string>
+    <string name="settings_webhook_retry_timing_dialog_title">选择重试间隔</string>
+    <string name="settings_webhook_retry_timing_fast">快速（2、5、10、20 秒）</string>
+    <string name="settings_webhook_retry_timing_standard">标准（5、15、30、60 秒）</string>
+    <string name="settings_webhook_retry_timing_gentle">缓和（15、30、60、120 秒）</string>
+    <string name="settings_webhook_retry_count_label">重试次数</string>
+    <string name="settings_webhook_retry_count_dialog_title">选择重试次数</string>
+    <string name="settings_webhook_retry_count_value">重试次数：%1$d</string>
+    <string name="webhook_alert_channel_name">Webhook 警告</string>
+    <string name="webhook_alert_channel_desc">Webhook 报告持续失败时发出警告</string>
+    <string name="webhook_alert_title">Webhook 报告未送达</string>
+    <string name="webhook_alert_text_failed">最近的 Webhook 报告失败了。</string>
+    <string name="webhook_alert_text_since">自 %1$s 以来未观察到成功的报告。</string>
+    <string name="webhook_alert_text_never">尚未观察到成功的报告。</string>
+    <string name="webhook_alert_text_scope">这仅描述 KeepADB 的报告，并不表示网络或服务器已中断。</string>
+    <string name="settings_webhook_freshness_toggle">显示上次成功的报告</string>
+    <string name="settings_webhook_freshness_subtext">一分钟内没有成功的报告时显示警告，一小时后再提醒一次；之后在报告成功之前不再提醒。开启后，还会显示上次报告成功的时间。</string>
 </resources>

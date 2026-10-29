@@ -566,4 +566,23 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="warnings_reset">Bỏ ẩn tất cả</string>
     <string name="warnings_none">Không có cảnh báo bảo mật đang hoạt động</string>
     <string name="onboarding_upgrade_notice">Bản cập nhật đã xóa lịch sử quan sát Wi-Fi cũ; không thể khôi phục lịch sử này. Các cài đặt bảo vệ và tin cậy, Keep-Alive và webhook của bạn được giữ lại. Khi mở lần đầu, KeepADB hiển thị thẻ cảnh báo cho các vấn đề bảo mật đang tồn tại hoặc yêu cầu chưa đáp ứng; sau khi đóng, thẻ sẽ ẩn khi cùng nguyên nhân đó vẫn còn tồn tại. Bạn vẫn có thể kiểm tra các nguyên nhân bảo mật đang tồn tại trong “Cảnh báo bảo mật”; thẻ không thay đổi cài đặt của bạn.</string>
+    <string name="settings_webhook_retry_title">Thử lại sau khi báo cáo thất bại</string>
+    <string name="settings_webhook_retry_subtext">Nếu một báo cáo thất bại, KeepADB sẽ thử lại sau những khoảng nghỉ ngắn, tối đa bốn lần. Một thay đổi mạng sau đó có thể bắt đầu lần thử mới. KeepADB không truy vấn liên tục.</string>
+    <string name="settings_webhook_retry_timing_label">Nhịp thử lại</string>
+    <string name="settings_webhook_retry_timing_dialog_title">Chọn nhịp thử lại</string>
+    <string name="settings_webhook_retry_timing_fast">Nhanh (2, 5, 10, 20 giây)</string>
+    <string name="settings_webhook_retry_timing_standard">Tiêu chuẩn (5, 15, 30, 60 giây)</string>
+    <string name="settings_webhook_retry_timing_gentle">Nhẹ nhàng (15, 30, 60, 120 giây)</string>
+    <string name="settings_webhook_retry_count_label">Số lần thử lại</string>
+    <string name="settings_webhook_retry_count_dialog_title">Chọn số lần thử lại</string>
+    <string name="settings_webhook_retry_count_value">Số lần thử lại: %1$d</string>
+    <string name="webhook_alert_channel_name">Cảnh báo Webhook</string>
+    <string name="webhook_alert_channel_desc">Cảnh báo khi báo cáo Webhook liên tục thất bại</string>
+    <string name="webhook_alert_title">Báo cáo Webhook không đến được</string>
+    <string name="webhook_alert_text_failed">Các báo cáo Webhook gần đây đã thất bại.</string>
+    <string name="webhook_alert_text_since">Không ghi nhận báo cáo thành công nào kể từ %1$s.</string>
+    <string name="webhook_alert_text_never">Chưa ghi nhận báo cáo thành công nào.</string>
+    <string name="webhook_alert_text_scope">Điều này chỉ mô tả các báo cáo của KeepADB, không cho biết mạng hay máy chủ có bị sập hay không.</string>
+    <string name="settings_webhook_freshness_toggle">Nêu báo cáo thành công gần nhất</string>
+    <string name="settings_webhook_freshness_subtext">Cảnh báo xuất hiện sau một phút không có báo cáo thành công, nhắc lại một lần sau một giờ; sau đó im lặng cho đến khi có báo cáo thành công. Khi bật, cảnh báo cũng nêu thời điểm báo cáo thành công gần nhất.</string>
 </resources>

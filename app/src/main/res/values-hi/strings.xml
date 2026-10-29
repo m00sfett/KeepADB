@@ -567,4 +567,23 @@
     <string name="warnings_reset">सभी म्यूट हटाएँ</string>
     <string name="warnings_none">कोई सक्रिय सुरक्षा चेतावनी नहीं</string>
     <string name="onboarding_upgrade_notice">अपडेट ने पुराना Wi-Fi निगरानी इतिहास हटा दिया है; इसे वापस नहीं लाया जा सकता। आपकी सुरक्षा और भरोसे की सेटिंग, Keep-Alive और webhook की सेटिंग सुरक्षित रखी गई हैं। पहली बार खोलने पर KeepADB सक्रिय सुरक्षा समस्याओं या अधूरी ज़रूरतों के लिए चेतावनी कार्ड दिखाता है; बंद करने के बाद उसी कारण के सक्रिय रहने तक वे छिपे रहते हैं। आप “सुरक्षा चेतावनियाँ” में सक्रिय सुरक्षा कारणों की जाँच अब भी कर सकते हैं; कार्ड आपकी सेटिंग नहीं बदलते।</string>
+    <string name="settings_webhook_retry_title">विफल रिपोर्ट के बाद दोबारा प्रयास</string>
+    <string name="settings_webhook_retry_subtext">अगर कोई रिपोर्ट विफल होती है, तो KeepADB छोटे अंतराल के बाद, अधिकतम चार बार, फिर से प्रयास करता है। बाद में नेटवर्क बदलने पर नया प्रयास शुरू हो सकता है। KeepADB लगातार पोलिंग नहीं करता।</string>
+    <string name="settings_webhook_retry_timing_label">दोबारा प्रयास का अंतराल</string>
+    <string name="settings_webhook_retry_timing_dialog_title">अंतराल चुनें</string>
+    <string name="settings_webhook_retry_timing_fast">तेज़ (2, 5, 10, 20 सेकंड)</string>
+    <string name="settings_webhook_retry_timing_standard">सामान्य (5, 15, 30, 60 सेकंड)</string>
+    <string name="settings_webhook_retry_timing_gentle">धीमा (15, 30, 60, 120 सेकंड)</string>
+    <string name="settings_webhook_retry_count_label">दोबारा प्रयासों की संख्या</string>
+    <string name="settings_webhook_retry_count_dialog_title">संख्या चुनें</string>
+    <string name="settings_webhook_retry_count_value">दोबारा प्रयास: %1$d</string>
+    <string name="webhook_alert_channel_name">Webhook चेतावनियाँ</string>
+    <string name="webhook_alert_channel_desc">Webhook रिपोर्ट लगातार विफल होने पर चेतावनी देता है</string>
+    <string name="webhook_alert_title">Webhook रिपोर्ट नहीं पहुँच रही हैं</string>
+    <string name="webhook_alert_text_failed">पिछली Webhook रिपोर्ट विफल रहीं।</string>
+    <string name="webhook_alert_text_since">%1$s के बाद से कोई सफल रिपोर्ट नहीं देखी गई।</string>
+    <string name="webhook_alert_text_never">अभी तक कोई सफल रिपोर्ट नहीं देखी गई।</string>
+    <string name="webhook_alert_text_scope">यह केवल KeepADB की रिपोर्ट के बारे में है, यह नहीं कि नेटवर्क या सर्वर बंद है।</string>
+    <string name="settings_webhook_freshness_toggle">पिछली सफल रिपोर्ट बताएँ</string>
+    <string name="settings_webhook_freshness_subtext">सफल रिपोर्ट के बिना एक मिनट बाद चेतावनी दिखती है, और एक घंटे बाद एक बार याद दिलाया जाता है; उसके बाद कोई रिपोर्ट सफल होने तक कुछ नहीं दिखता। चालू होने पर यह भी बताया जाता है कि पिछली बार रिपोर्ट कब सफल हुई।</string>
 </resources>
