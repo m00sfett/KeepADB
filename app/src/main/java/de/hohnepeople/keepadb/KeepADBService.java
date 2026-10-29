@@ -38,6 +38,10 @@ public class KeepADBService extends Service {
 
     private ContentObserver adbContentObserver;
     private ConnectivityManager.NetworkCallback networkCallback;
+    // #867: follows the system default network (also a VPN coming up or going away) so a webhook
+    // report can be repeated after a change; it does not drive any ADB or Keep-Alive decision.
+    private ConnectivityManager.NetworkCallback defaultNetworkCallback;
+    private Network lastDefaultNetwork;
     private boolean isRegisteredObserver = false;
     private boolean isRegisteredNetworkCallback = false;
     private boolean foregroundReady = false;
@@ -512,6 +516,9 @@ public class KeepADBService extends Service {
                             "available", "network generation=" + generation);
                     recheckAndEnable();
                     checkNetworkTrustWhileActive();
+                    // #867: the endpoint may be unchanged, but a report sent during the change
+                    // may have failed; try again once the callbacks have settled.
+                    KeepADBRegisterClient.requestResyncAsync(KeepADBService.this);
                 }
 
                 @Override
@@ -580,9 +587,41 @@ public class KeepADBService extends Service {
             };
             cm.registerNetworkCallback(request, networkCallback, new Handler(Looper.getMainLooper()));
             isRegisteredNetworkCallback = true;
+            registerDefaultNetworkCallback(cm);
         } catch (RuntimeException e) {
             Log.e(TAG, "Failed to register network callback", e);
             KeepADBDiagnostics.event(this, "wifi_change", "network_callback", "failed", "registration_exception");
+        }
+    }
+
+    /**
+     * #867: a new default network (Wi-Fi, mobile data or a VPN on top of them) asks the webhook
+     * client for a fresh report. Only a change of the default network counts -- capability updates
+     * of the same network (signal strength) do not -- and the client coalesces bursts, so this is
+     * event-driven, not polling.
+     */
+    private void registerDefaultNetworkCallback(ConnectivityManager cm) {
+        if (defaultNetworkCallback != null) return;
+        ConnectivityManager.NetworkCallback callback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+                if (network == null || network.equals(lastDefaultNetwork)) return;
+                lastDefaultNetwork = network;
+                KeepADBRegisterClient.requestResyncAsync(KeepADBService.this);
+            }
+
+            @Override
+            public void onLost(Network network) {
+                if (network != null && network.equals(lastDefaultNetwork)) {
+                    lastDefaultNetwork = null;
+                }
+            }
+        };
+        try {
+            cm.registerDefaultNetworkCallback(callback, new Handler(Looper.getMainLooper()));
+            defaultNetworkCallback = callback;
+        } catch (RuntimeException e) {
+            Log.w(TAG, "Failed to register default network callback", e);
         }
     }
 
@@ -592,10 +631,16 @@ public class KeepADBService extends Service {
         isRegisteredNetworkCallback = false;
         networkCallback = null;
         availableWifiNetworks.clear();
+        ConnectivityManager.NetworkCallback defaultCallback = defaultNetworkCallback;
+        defaultNetworkCallback = null;
+        lastDefaultNetwork = null;
         try {
             ConnectivityManager cm = getSystemService(ConnectivityManager.class);
             if (cm != null) {
                 cm.unregisterNetworkCallback(callback);
+                if (defaultCallback != null) {
+                    cm.unregisterNetworkCallback(defaultCallback);
+                }
             }
         } catch (RuntimeException e) {
             Log.w(TAG, "Failed to unregister network callback", e);

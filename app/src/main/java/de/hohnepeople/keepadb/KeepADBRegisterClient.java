@@ -160,6 +160,59 @@ final class KeepADBRegisterClient {
         dispatchUpdate(appContext, targetUrl, endpoint, opGen);
     }
 
+    /** #867: quiet period that coalesces a burst of network callbacks into one report. */
+    static final long RESYNC_DEBOUNCE_MS = 2_000L;
+    /** #867: the one debounced resync waiting on the main handler, or null. */
+    private static Runnable pendingResync = null;
+
+    /**
+     * #867: reports the current endpoint again after an Android network change, even when it is
+     * unchanged -- the previous report may have failed or been lost while the network moved.
+     * Bursts of callbacks are coalesced into one attempt {@link #RESYNC_DEBOUNCE_MS} after the last
+     * of them. That attempt joins a POST that is already running or a retry that is already
+     * scheduled (#866) instead of adding a parallel request or postponing that retry; otherwise it
+     * starts a new series. The callback is only a reason to try; it does not prove that the
+     * endpoint is reachable.
+     */
+    static void requestResyncAsync(Context context) {
+        if (context == null) return;
+        final Context appContext = context.getApplicationContext();
+        if (!KeepADBPreferences.isRegisterWebhookEnabled(appContext)) return;
+        synchronized (KeepADBRegisterClient.class) {
+            if (pendingResync != null) {
+                mainHandler().removeCallbacks(pendingResync);
+            }
+            Runnable resync = new Runnable() {
+                @Override
+                public void run() {
+                    runResync(appContext, this);
+                }
+            };
+            pendingResync = resync;
+            mainHandler().postDelayed(resync, RESYNC_DEBOUNCE_MS);
+        }
+    }
+
+    private static void runResync(Context appContext, Runnable self) {
+        String endpoint = currentCoordinatorEndpoint();
+        boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(appContext);
+        String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
+        final long opGen;
+        synchronized (KeepADBRegisterClient.class) {
+            if (pendingResync != self) return;
+            pendingResync = null;
+            if (!enabled || endpoint == null || targetUrl == null || targetUrl.trim().isEmpty()) {
+                return;
+            }
+            ensureStateInitializedLocked(appContext);
+            if (wlanUpdateInFlight || pendingPostRetry != null) {
+                return;
+            }
+            opGen = startSeriesLocked(targetUrl, endpoint);
+        }
+        dispatchUpdate(appContext, targetUrl, endpoint, opGen);
+    }
+
     /** #866: caller must hold the class monitor. Starts a new POST series and returns its opGen. */
     private static long startSeriesLocked(String targetUrl, String endpoint) {
         cancelPostRetryLocked();
@@ -687,6 +740,10 @@ final class KeepADBRegisterClient {
         markUnavailableNextAttemptAt = 0L;
         markUnavailableInFlightOpGen = 0L;
         cancelPostRetryLocked();
+        if (pendingResync != null) {
+            mainHandler().removeCallbacks(pendingResync);
+            pendingResync = null;
+        }
         coordinatorEndpointForTesting = null;
         registerStateListener = null;
         pendingCleanupNowForTesting = null;
@@ -774,6 +831,10 @@ final class KeepADBRegisterClient {
 
     static synchronized boolean hasPendingPostRetryForTesting() {
         return pendingPostRetry != null;
+    }
+
+    static synchronized boolean hasPendingResyncForTesting() {
+        return pendingResync != null;
     }
 
     static synchronized boolean isSeriesExhaustedForTesting() {
