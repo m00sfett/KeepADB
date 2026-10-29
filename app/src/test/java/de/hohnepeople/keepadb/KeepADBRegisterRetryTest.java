@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -238,5 +239,33 @@ public class KeepADBRegisterRetryTest {
         assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
         advance(10L * 60L * 1000L);
         assertEquals(1, posts());
+    }
+
+    @Test
+    public void repeatedCallWhileThePostIsRunningJoinsIt() throws Exception {
+        CountDownLatch started = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        transport.setPostSuccess(true);
+        transport.setRequestCallback(request -> {
+            if ("POST".equals(request.method)) {
+                started.countDown();
+                try {
+                    release.await(3, TimeUnit.SECONDS);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+        try {
+            KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
+            assertTrue(started.await(3, TimeUnit.SECONDS));
+            KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
+            KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
+        } finally {
+            release.countDown();
+        }
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        transport.setRequestCallback(null);
+        assertEquals("at most one POST queued or running", 1, posts());
+        assertEquals(ENDPOINT, KeepADBRegisterClient.getLastRegisteredEndpointForTesting());
     }
 }

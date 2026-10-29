@@ -176,4 +176,17 @@ public class KeepADBRegisterResyncTest {
         advance(KeepADBRegisterClient.RESYNC_DEBOUNCE_MS);
         assertEquals(0, posts());
     }
+
+    @Test
+    public void resyncDropsAnEndpointReadBeforeADisconnect() {
+        registerSuccessfully();
+        KeepADBRegisterClient.requestResyncAsync(context);
+        // The disconnect lands between the endpoint read and the dispatch: model it by letting
+        // the endpoint source bump the generation, as a concurrent markUnavailableAsync would.
+        KeepADBRegisterClient.setCoordinatorEndpointForTesting(ENDPOINT);
+        KeepADBRegisterClient.setBeforeResyncDispatchForTesting(
+                KeepADBRegisterClient::bumpOpGenerationForTesting);
+        advance(KeepADBRegisterClient.RESYNC_DEBOUNCE_MS);
+        assertEquals("no stale report after the cleanup", 1, posts());
+    }
 }

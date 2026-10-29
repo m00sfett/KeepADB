@@ -211,4 +211,38 @@ public class KeepADBWebhookAlertTest {
     public void freshnessWarningDefaultsToOn() {
         assertTrue(KeepADBPreferences.isWebhookFreshnessWarningEnabled(context));
     }
+
+    @Test
+    public void lostEndpointEndsTheEpisode() {
+        failReport();
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        ShadowLooper.idleMainLooper();
+        assertEquals(0L, KeepADBPreferences.getWebhookFailureSince(context));
+        advance(KeepADBWebhookAlert.REMINDER_AFTER_MS);
+        assertNull(alert());
+    }
+
+    @Test
+    public void obsoleteRetryWithoutEndpointEndsTheEpisode() {
+        KeepADBPreferences.setWebhookRetryCount(context, 4);
+        failReport();
+        assertTrue(KeepADBRegisterClient.hasPendingPostRetryForTesting());
+        KeepADBRegisterClient.setCoordinatorEndpointForTesting("");
+        advance(5_000L);
+        assertEquals(0L, KeepADBPreferences.getWebhookFailureSince(context));
+        advance(KeepADBWebhookAlert.REMINDER_AFTER_MS);
+        assertNull(alert());
+    }
+
+    @Test
+    public void clockMovedBackRestartsTheEpisodeInsteadOfStayingSilent() {
+        failReport();
+        now -= 10L * 60L * 1000L;
+        KeepADBWebhookAlert.setNowForTesting(now);
+        failReport();
+        assertEquals(now, KeepADBPreferences.getWebhookFailureSince(context));
+        advance(KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
+        assertNotNull(alert());
+    }
 }

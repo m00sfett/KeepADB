@@ -26,6 +26,7 @@ final class KeepADBRegisterClient {
     private static volatile Long pendingCleanupNowForTesting;
     private static volatile Long markUnavailableNowForTesting;
     private static volatile String coordinatorEndpointForTesting;
+    private static volatile Runnable beforeResyncDispatchForTesting;
     private static Handler mainHandler;
 
     private static synchronized Handler mainHandler() {
@@ -194,7 +195,12 @@ final class KeepADBRegisterClient {
     }
 
     private static void runResync(Context appContext, Runnable self) {
+        // A disconnect between reading the endpoint and taking the monitor bumps the generation;
+        // the read endpoint is then stale and must not be posted after that cleanup.
+        long generationBefore = currentOpGeneration;
         String endpoint = currentCoordinatorEndpoint();
+        Runnable hook = beforeResyncDispatchForTesting;
+        if (hook != null) hook.run();
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(appContext);
         String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
         final long opGen;
@@ -205,7 +211,8 @@ final class KeepADBRegisterClient {
                 return;
             }
             ensureStateInitializedLocked(appContext);
-            if (wlanUpdateInFlight || pendingPostRetry != null) {
+            if (wlanUpdateInFlight || pendingPostRetry != null
+                    || currentOpGeneration != generationBefore) {
                 return;
             }
             opGen = startSeriesLocked(targetUrl, endpoint);
@@ -280,6 +287,11 @@ final class KeepADBRegisterClient {
             if (opGen != currentOpGeneration || !enabled || !targetUrl.equals(currentUrl)
                     || !endpoint.equals(currentEndpoint)) {
                 cancelPostRetryLocked();
+                // #868: without sync or an endpoint there is nothing left to report, so the failure
+                // episode must not go on to warn about it.
+                if (!enabled || currentEndpoint == null) {
+                    KeepADBWebhookAlert.endEpisode(context);
+                }
                 return;
             }
             wlanUpdateInFlight = true;
@@ -750,6 +762,7 @@ final class KeepADBRegisterClient {
             pendingResync = null;
         }
         coordinatorEndpointForTesting = null;
+        beforeResyncDispatchForTesting = null;
         KeepADBWebhookAlert.resetForTesting();
         registerStateListener = null;
         pendingCleanupNowForTesting = null;
@@ -829,6 +842,11 @@ final class KeepADBRegisterClient {
      */
     static void setCoordinatorEndpointForTesting(String endpoint) {
         coordinatorEndpointForTesting = endpoint;
+    }
+
+    /** #867: runs after the resync read its endpoint and before it takes the monitor. */
+    static void setBeforeResyncDispatchForTesting(Runnable hook) {
+        beforeResyncDispatchForTesting = hook;
     }
 
     static synchronized int getPostRetryNumberForTesting() {
