@@ -571,4 +571,14 @@
     <string name="warnings_reset">إلغاء كل عمليات الكتم</string>
     <string name="warnings_none">لا توجد تحذيرات أمان نشطة</string>
     <string name="onboarding_upgrade_notice">أزال التحديث سجل رصد Wi-Fi القديم؛ ولا يمكن استعادته. تم الاحتفاظ بإعدادات الحماية والثقة وKeep-Alive وwebhook لديك. عند الفتح لأول مرة، يعرض KeepADB بطاقات تحذير لمشكلات الأمان النشطة أو المتطلبات الناقصة؛ وبعد إغلاقها تظل مخفية ما دام السبب نفسه نشطًا. يمكنك متابعة فحص أسباب الأمان النشطة ضمن «تحذيرات الأمان»؛ ولا تغيّر البطاقات إعداداتك.</string>
+    <string name="settings_webhook_retry_title">إعادة المحاولة بعد فشل التقرير</string>
+    <string name="settings_webhook_retry_subtext">إذا فشل تقرير، يعيد KeepADB المحاولة بعد فترات قصيرة، أربع مرات على الأكثر. يمكن أن يبدأ تغيير لاحق في الشبكة محاولة جديدة. لا يستعلم KeepADB بشكل مستمر.</string>
+    <string name="settings_webhook_retry_timing_label">توقيت إعادة المحاولة</string>
+    <string name="settings_webhook_retry_timing_dialog_title">اختر توقيت إعادة المحاولة</string>
+    <string name="settings_webhook_retry_timing_fast">سريع (2، 5، 10، 20 ث)</string>
+    <string name="settings_webhook_retry_timing_standard">قياسي (5، 15، 30، 60 ث)</string>
+    <string name="settings_webhook_retry_timing_gentle">هادئ (15، 30، 60، 120 ث)</string>
+    <string name="settings_webhook_retry_count_label">عدد مرات إعادة المحاولة</string>
+    <string name="settings_webhook_retry_count_dialog_title">اختر عدد مرات إعادة المحاولة</string>
+    <string name="settings_webhook_retry_count_value">مرات إعادة المحاولة: %1$d</string>
 </resources>

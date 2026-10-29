@@ -576,4 +576,14 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="warnings_reset">Reset all mutes</string>
     <string name="warnings_none">No active security warnings</string>
     <string name="onboarding_upgrade_notice">The update removed the old Wi-Fi observation history; it cannot be restored. Your protection and trust settings, Keep-Alive and webhook settings were kept. On first opening, KeepADB shows warning cards for active security issues or missing requirements; after closing them, they stay hidden for the same active reason. You can still check active security reasons under “Security warnings”; the warning cards do not change your settings.</string>
+    <string name="settings_webhook_retry_title">Retries after a failed report</string>
+    <string name="settings_webhook_retry_subtext">If a report fails, KeepADB tries again after short pauses, at most four times. A later network change can start a new attempt. KeepADB does not poll continuously.</string>
+    <string name="settings_webhook_retry_timing_label">Retry timing</string>
+    <string name="settings_webhook_retry_timing_dialog_title">Select retry timing</string>
+    <string name="settings_webhook_retry_timing_fast">Fast (2, 5, 10, 20 s)</string>
+    <string name="settings_webhook_retry_timing_standard">Standard (5, 15, 30, 60 s)</string>
+    <string name="settings_webhook_retry_timing_gentle">Gentle (15, 30, 60, 120 s)</string>
+    <string name="settings_webhook_retry_count_label">Number of retries</string>
+    <string name="settings_webhook_retry_count_dialog_title">Select number of retries</string>
+    <string name="settings_webhook_retry_count_value">Retries: %1$d</string>
 </resources>

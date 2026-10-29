@@ -567,4 +567,14 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="warnings_reset">Alle dempingen opheffen</string>
     <string name="warnings_none">Geen actieve beveiligingswaarschuwingen</string>
     <string name="onboarding_upgrade_notice">De update heeft de oude Wi-Fi-observatiegeschiedenis verwijderd; deze kan niet worden hersteld. Je instellingen voor bescherming en vertrouwen, Keep-Alive en webhooks zijn behouden. Bij de eerste opening toont KeepADB waarschuwingskaarten voor actieve beveiligingsproblemen of ontbrekende vereisten; na het sluiten blijven ze verborgen zolang dezelfde reden actief blijft. Je kunt actieve beveiligingsredenen nog bekijken onder “Beveiligingswaarschuwingen”; de kaarten veranderen je instellingen niet.</string>
+    <string name="settings_webhook_retry_title">Herhalingen na een mislukte melding</string>
+    <string name="settings_webhook_retry_subtext">Als een melding mislukt, probeert KeepADB het na korte pauzes opnieuw, maximaal vier keer. Een latere netwerkwijziging kan een nieuwe poging starten. KeepADB vraagt niet voortdurend op.</string>
+    <string name="settings_webhook_retry_timing_label">Tempo van herhalingen</string>
+    <string name="settings_webhook_retry_timing_dialog_title">Tempo kiezen</string>
+    <string name="settings_webhook_retry_timing_fast">Snel (2, 5, 10, 20 s)</string>
+    <string name="settings_webhook_retry_timing_standard">Standaard (5, 15, 30, 60 s)</string>
+    <string name="settings_webhook_retry_timing_gentle">Rustig (15, 30, 60, 120 s)</string>
+    <string name="settings_webhook_retry_count_label">Aantal herhalingen</string>
+    <string name="settings_webhook_retry_count_dialog_title">Aantal kiezen</string>
+    <string name="settings_webhook_retry_count_value">Herhalingen: %1$d</string>
 </resources>

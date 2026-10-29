@@ -566,4 +566,14 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="warnings_reset">Batalkan semua pembisuan</string>
     <string name="warnings_none">Tidak ada peringatan keamanan aktif</string>
     <string name="onboarding_upgrade_notice">Pembaruan menghapus riwayat pengamatan Wi-Fi lama; riwayat ini tidak dapat dipulihkan. Pengaturan perlindungan dan kepercayaan, Keep-Alive, serta webhook kamu tetap tersimpan. Saat pertama dibuka, KeepADB menampilkan kartu peringatan untuk masalah keamanan aktif atau persyaratan yang belum terpenuhi; setelah ditutup, kartu tetap tersembunyi selama alasan yang sama masih aktif. Kamu tetap dapat memeriksa alasan keamanan aktif di “Peringatan keamanan”; kartu tidak mengubah pengaturan kamu.</string>
+    <string name="settings_webhook_retry_title">Percobaan ulang setelah laporan gagal</string>
+    <string name="settings_webhook_retry_subtext">Jika laporan gagal, KeepADB mencoba lagi setelah jeda singkat, paling banyak empat kali. Perubahan jaringan berikutnya dapat memulai percobaan baru. KeepADB tidak melakukan polling terus-menerus.</string>
+    <string name="settings_webhook_retry_timing_label">Jeda percobaan ulang</string>
+    <string name="settings_webhook_retry_timing_dialog_title">Pilih jeda percobaan ulang</string>
+    <string name="settings_webhook_retry_timing_fast">Cepat (2, 5, 10, 20 dtk)</string>
+    <string name="settings_webhook_retry_timing_standard">Standar (5, 15, 30, 60 dtk)</string>
+    <string name="settings_webhook_retry_timing_gentle">Santai (15, 30, 60, 120 dtk)</string>
+    <string name="settings_webhook_retry_count_label">Jumlah percobaan ulang</string>
+    <string name="settings_webhook_retry_count_dialog_title">Pilih jumlah percobaan ulang</string>
+    <string name="settings_webhook_retry_count_value">Percobaan ulang: %1$d</string>
 </resources>

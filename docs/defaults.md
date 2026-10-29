@@ -50,6 +50,8 @@ reason for each documented here.
 | USB notification | `usb_notification_enabled` | off | Opt-in; the following switch has no effect while this is off |
 | Profile in USB notification | `usb_profile_notification_enabled` | on | Controls only the USB notification layout (profile row and actions); its contents remain hidden by `notification_details_enabled` (“Profile hidden”). Changing this to “off” for installations that have never saved the key would silently change what their USB notification shows without protecting anything |
 | App language | `app_language` | empty (system language) | No security impact |
+| Webhook retry timing | `register_webhook_retry_profile` | standard (5, 15, 30, 60 s) | Only used while webhook sync is on and a report failed; bounded, no polling (#866) |
+| Webhook retries | `register_webhook_retry_count` | 4 | The hard maximum per series; fewer retries are a user choice (#866) |
 | Home-screen advice card | `advice_banner_visible` | visible | “Do not show again” flag; display only. The flags for the other cards (`notification_permission_panel_visible`, `battery_optimization_panel_visible`, `network_onboarding_panel_visible`, `background_location_panel_visible`) were removed in #764 and are cleared on first start |
 
 ### Not a setting

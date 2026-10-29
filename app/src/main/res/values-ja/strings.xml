@@ -566,4 +566,14 @@
     <string name="warnings_reset">すべての非表示設定を解除</string>
     <string name="warnings_none">有効なセキュリティ警告はありません</string>
     <string name="onboarding_upgrade_notice">更新により以前のWi-Fi観測履歴が削除され、復元できなくなりました。保護と信頼の設定、Keep-AliveとWebhookの設定は引き継がれています。初回起動時に、KeepADBは現在のセキュリティ上の問題や不足している条件を警告カードで表示し、閉じたカードは同じ原因が続く間は非表示になります。「セキュリティ警告」では現在のセキュリティ上の原因を引き続き確認でき、警告カードが設定を変更することはありません。</string>
+    <string name="settings_webhook_retry_title">報告失敗後の再試行</string>
+    <string name="settings_webhook_retry_subtext">報告に失敗すると、KeepADB は短い間隔をあけて最大 4 回まで再試行します。後でネットワークが変わると、新たな試行が始まることがあります。KeepADB は常時ポーリングしません。</string>
+    <string name="settings_webhook_retry_timing_label">再試行の間隔</string>
+    <string name="settings_webhook_retry_timing_dialog_title">再試行の間隔を選択</string>
+    <string name="settings_webhook_retry_timing_fast">速い（2、5、10、20 秒）</string>
+    <string name="settings_webhook_retry_timing_standard">標準（5、15、30、60 秒）</string>
+    <string name="settings_webhook_retry_timing_gentle">ゆっくり（15、30、60、120 秒）</string>
+    <string name="settings_webhook_retry_count_label">再試行回数</string>
+    <string name="settings_webhook_retry_count_dialog_title">再試行回数を選択</string>
+    <string name="settings_webhook_retry_count_value">再試行回数: %1$d</string>
 </resources>

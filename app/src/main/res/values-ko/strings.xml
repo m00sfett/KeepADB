@@ -566,4 +566,14 @@
     <string name="warnings_reset">모든 숨김 설정 해제</string>
     <string name="warnings_none">활성 보안 경고 없음</string>
     <string name="onboarding_upgrade_notice">업데이트로 이전 Wi-Fi 관찰 기록이 삭제되었으며 복원할 수 없습니다. 보호 및 신뢰 설정, Keep-Alive와 웹훅 설정은 유지되었습니다. 처음 열 때 KeepADB는 활성 보안 문제나 충족되지 않은 요구 사항에 대한 경고 카드를 표시하며, 닫은 카드는 같은 원인이 활성 상태인 동안 숨겨집니다. “보안 경고”에서 활성 보안 원인을 계속 확인할 수 있으며, 경고 카드는 설정을 변경하지 않습니다.</string>
+    <string name="settings_webhook_retry_title">보고 실패 후 재시도</string>
+    <string name="settings_webhook_retry_subtext">보고가 실패하면 KeepADB는 짧은 간격을 두고 최대 4번까지 다시 시도합니다. 이후 네트워크가 바뀌면 새 시도가 시작될 수 있습니다. KeepADB는 계속 폴링하지 않습니다.</string>
+    <string name="settings_webhook_retry_timing_label">재시도 간격</string>
+    <string name="settings_webhook_retry_timing_dialog_title">재시도 간격 선택</string>
+    <string name="settings_webhook_retry_timing_fast">빠르게 (2, 5, 10, 20초)</string>
+    <string name="settings_webhook_retry_timing_standard">표준 (5, 15, 30, 60초)</string>
+    <string name="settings_webhook_retry_timing_gentle">느긋하게 (15, 30, 60, 120초)</string>
+    <string name="settings_webhook_retry_count_label">재시도 횟수</string>
+    <string name="settings_webhook_retry_count_dialog_title">재시도 횟수 선택</string>
+    <string name="settings_webhook_retry_count_value">재시도 횟수: %1$d</string>
 </resources>

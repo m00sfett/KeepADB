@@ -16,6 +16,8 @@ final class KeepADBPreferences {
     /** #734: epoch-millis of the last SUCCESSFUL report only; never touched by failures or deregistration. */
     private static final String KEY_WEBHOOK_LAST_SUCCESS_AT = "register_webhook_last_success_at";
     private static final String KEY_WEBHOOK_PENDING_CLEANUP = "register_webhook_pending_cleanup";
+    private static final String KEY_WEBHOOK_RETRY_PROFILE = "register_webhook_retry_profile";
+    private static final String KEY_WEBHOOK_RETRY_COUNT = "register_webhook_retry_count";
     private static final String KEY_APP_LANGUAGE = "app_language";
     private static final String KEY_SERVICE_LAST_HEARTBEAT = "service_last_heartbeat";
     private static final String KEY_HIDE_NOTIFICATION = "hide_notification_enabled";
@@ -328,6 +330,55 @@ final class KeepADBPreferences {
             }
         }
         editor.apply();
+    }
+
+    // ---- #866: bounded retry series for a failed endpoint-report POST. ----
+
+    static final String WEBHOOK_RETRY_PROFILE_FAST = "fast";
+    static final String WEBHOOK_RETRY_PROFILE_STANDARD = "standard";
+    static final String WEBHOOK_RETRY_PROFILE_GENTLE = "gentle";
+    /** Hard upper bound of retries per series; the user may only choose fewer. */
+    static final int WEBHOOK_MAX_RETRIES = 4;
+
+    static String getWebhookRetryProfile(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String value = prefs.getString(KEY_WEBHOOK_RETRY_PROFILE, WEBHOOK_RETRY_PROFILE_STANDARD);
+        if (WEBHOOK_RETRY_PROFILE_FAST.equals(value) || WEBHOOK_RETRY_PROFILE_GENTLE.equals(value)) {
+            return value;
+        }
+        return WEBHOOK_RETRY_PROFILE_STANDARD;
+    }
+
+    static void setWebhookRetryProfile(Context context, String profile) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putString(KEY_WEBHOOK_RETRY_PROFILE, profile).apply();
+    }
+
+    /** Selected retries per series, clamped to 0..{@link #WEBHOOK_MAX_RETRIES}; defaults to the maximum. */
+    static int getWebhookRetryCount(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        int value = prefs.getInt(KEY_WEBHOOK_RETRY_COUNT, WEBHOOK_MAX_RETRIES);
+        return Math.max(0, Math.min(WEBHOOK_MAX_RETRIES, value));
+    }
+
+    static void setWebhookRetryCount(Context context, int count) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putInt(KEY_WEBHOOK_RETRY_COUNT,
+                Math.max(0, Math.min(WEBHOOK_MAX_RETRIES, count))).apply();
+    }
+
+    /** Delay before retry {@code retryNumber} (1-based) of the given profile, in milliseconds. */
+    static long webhookRetryDelayMs(String profile, int retryNumber) {
+        long[] delays;
+        if (WEBHOOK_RETRY_PROFILE_FAST.equals(profile)) {
+            delays = new long[] {2_000L, 5_000L, 10_000L, 20_000L};
+        } else if (WEBHOOK_RETRY_PROFILE_GENTLE.equals(profile)) {
+            delays = new long[] {15_000L, 30_000L, 60_000L, 120_000L};
+        } else {
+            delays = new long[] {5_000L, 15_000L, 30_000L, 60_000L};
+        }
+        int index = Math.max(1, Math.min(delays.length, retryNumber)) - 1;
+        return delays[index];
     }
 
     // ---- #317: retryable cleanups for registrations left behind on a previous webhook URL. ----

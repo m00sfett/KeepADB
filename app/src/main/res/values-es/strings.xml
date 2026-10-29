@@ -568,4 +568,14 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="warnings_reset">Restablecer todos los silencios</string>
     <string name="warnings_none">Sin advertencias de seguridad activas</string>
     <string name="onboarding_upgrade_notice">La actualización eliminó el antiguo historial de observación de Wi-Fi; no se puede recuperar. Se conservaron tus ajustes de protección y confianza, Keep-Alive y webhook. Al abrir por primera vez, KeepADB muestra tarjetas de advertencia por problemas de seguridad activos o requisitos pendientes; al cerrarlas, permanecen ocultas mientras siga activo el mismo motivo. Puedes seguir consultando los motivos de seguridad activos en «Advertencias de seguridad»; las tarjetas no cambian tus ajustes.</string>
+    <string name="settings_webhook_retry_title">Reintentos tras un informe fallido</string>
+    <string name="settings_webhook_retry_subtext">Si un informe falla, KeepADB lo intenta de nuevo tras pausas cortas, como máximo cuatro veces. Un cambio de red posterior puede iniciar un nuevo intento. KeepADB no consulta de forma continua.</string>
+    <string name="settings_webhook_retry_timing_label">Ritmo de reintentos</string>
+    <string name="settings_webhook_retry_timing_dialog_title">Seleccionar ritmo de reintentos</string>
+    <string name="settings_webhook_retry_timing_fast">Rápido (2, 5, 10, 20 s)</string>
+    <string name="settings_webhook_retry_timing_standard">Estándar (5, 15, 30, 60 s)</string>
+    <string name="settings_webhook_retry_timing_gentle">Suave (15, 30, 60, 120 s)</string>
+    <string name="settings_webhook_retry_count_label">Número de reintentos</string>
+    <string name="settings_webhook_retry_count_dialog_title">Seleccionar número de reintentos</string>
+    <string name="settings_webhook_retry_count_value">Reintentos: %1$d</string>
 </resources>

@@ -384,6 +384,7 @@ public class KeepADBRegisterClientTest {
         KeepADBFakeHttpTransport transport = new KeepADBFakeHttpTransport();
         transport.setPostSuccess(false);
         KeepADBRegisterClient.setHttpTransport(transport);
+        KeepADBRegisterClient.setCoordinatorEndpointForTesting("192.168.178.24:41649");
 
         KeepADBRegisterClient.updateEndpointAsync(context, "192.168.178.24", 41649);
         waitUntil(() -> transport.getRequestCount() >= 1, 3000);
@@ -391,10 +392,9 @@ public class KeepADBRegisterClientTest {
 
         Thread.sleep(5);
 
-        // A failed POST never marks the endpoint as registered, so a second call for the exact
-        // same, still-unchanged host:port is not short-circuited by the "already registered"
-        // in-memory guard and re-sends its own event.
-        KeepADBRegisterClient.updateEndpointAsync(context, "192.168.178.24", 41649);
+        // #866: a failed POST never marks the endpoint as registered; the scheduled retry for the
+        // exact same, still-unchanged host:port re-sends its own event.
+        ShadowLooper.idleMainLooper(5_000L, TimeUnit.MILLISECONDS);
         waitUntil(() -> transport.getRequestCount() >= 2, 3000);
         KeepADBRegisterClient.awaitIdleForTesting(3000);
 

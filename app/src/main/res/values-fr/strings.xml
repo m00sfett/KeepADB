@@ -568,4 +568,14 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="warnings_reset">Réafficher toutes les alertes masquées</string>
     <string name="warnings_none">Aucune alerte de sécurité active</string>
     <string name="onboarding_upgrade_notice">La mise à jour a supprimé l’ancien historique d’observation Wi-Fi ; il ne peut pas être restauré. Tes réglages de protection, tes choix concernant la confiance et tes réglages de Keep-Alive et de webhook ont été conservés. À la première ouverture, KeepADB affiche des cartes d’avertissement pour les problèmes de sécurité actifs ou les prérequis manquants ; une fois fermées, elles restent masquées tant que le même motif est actif. Tu peux toujours consulter les motifs de sécurité actifs dans « Alertes de sécurité » ; les cartes ne modifient pas tes réglages.</string>
+    <string name="settings_webhook_retry_title">Nouvelles tentatives après un signalement échoué</string>
+    <string name="settings_webhook_retry_subtext">Si un signalement échoue, KeepADB réessaie après de courtes pauses, au maximum quatre fois. Un changement de réseau ultérieur peut lancer une nouvelle tentative. KeepADB n\'interroge pas en continu.</string>
+    <string name="settings_webhook_retry_timing_label">Rythme des tentatives</string>
+    <string name="settings_webhook_retry_timing_dialog_title">Choisir le rythme des tentatives</string>
+    <string name="settings_webhook_retry_timing_fast">Rapide (2, 5, 10, 20 s)</string>
+    <string name="settings_webhook_retry_timing_standard">Normal (5, 15, 30, 60 s)</string>
+    <string name="settings_webhook_retry_timing_gentle">Modéré (15, 30, 60, 120 s)</string>
+    <string name="settings_webhook_retry_count_label">Nombre de tentatives</string>
+    <string name="settings_webhook_retry_count_dialog_title">Choisir le nombre de tentatives</string>
+    <string name="settings_webhook_retry_count_value">Tentatives : %1$d</string>
 </resources>

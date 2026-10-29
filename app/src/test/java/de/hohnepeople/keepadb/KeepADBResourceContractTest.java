@@ -621,6 +621,7 @@ public class KeepADBResourceContractTest {
         result.put("onboarding_keep_alive_notification_hint", new Object[] {integerWitness});
         result.put("onboarding_permissions_summary_missing", new Object[] {integerWitness});
         result.put("widget_text_connected_format", new Object[] {integerWitness});
+        result.put("settings_webhook_retry_count_value", new Object[] {integerWitness});
         result.put("tile_state_connected_format", new Object[] {stringWitness, integerWitness});
         result.put("permission_error_toast", new Object[] {stringWitness});
         result.put("notification_title_active", new Object[] {stringWitness});

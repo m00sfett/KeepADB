@@ -566,4 +566,14 @@
     <string name="warnings_reset">取消所有隱藏設定</string>
     <string name="warnings_none">沒有有效的安全警告</string>
     <string name="onboarding_upgrade_notice">更新已刪除舊的 Wi-Fi 觀察歷史紀錄，且無法復原。你的保護與信任設定、Keep-Alive 和 Webhook 設定已保留。首次開啟時，KeepADB 會針對目前的安全問題或未滿足的條件顯示警告卡片；關閉後，只要同一原因仍然存在，卡片就會保持隱藏。你仍可在「安全警告」中查看目前的安全原因；警告卡片不會變更你的設定。</string>
+    <string name="settings_webhook_retry_title">回報失敗後重試</string>
+    <string name="settings_webhook_retry_subtext">如果回報失敗，KeepADB 會在短暫間隔後重試，最多四次。之後的網路變化可能會開始新的嘗試。KeepADB 不會持續輪詢。</string>
+    <string name="settings_webhook_retry_timing_label">重試間隔</string>
+    <string name="settings_webhook_retry_timing_dialog_title">選擇重試間隔</string>
+    <string name="settings_webhook_retry_timing_fast">快速（2、5、10、20 秒）</string>
+    <string name="settings_webhook_retry_timing_standard">標準（5、15、30、60 秒）</string>
+    <string name="settings_webhook_retry_timing_gentle">緩和（15、30、60、120 秒）</string>
+    <string name="settings_webhook_retry_count_label">重試次數</string>
+    <string name="settings_webhook_retry_count_dialog_title">選擇重試次數</string>
+    <string name="settings_webhook_retry_count_value">重試次數：%1$d</string>
 </resources>

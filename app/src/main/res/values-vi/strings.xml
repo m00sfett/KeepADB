@@ -566,4 +566,14 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="warnings_reset">Bỏ ẩn tất cả</string>
     <string name="warnings_none">Không có cảnh báo bảo mật đang hoạt động</string>
     <string name="onboarding_upgrade_notice">Bản cập nhật đã xóa lịch sử quan sát Wi-Fi cũ; không thể khôi phục lịch sử này. Các cài đặt bảo vệ và tin cậy, Keep-Alive và webhook của bạn được giữ lại. Khi mở lần đầu, KeepADB hiển thị thẻ cảnh báo cho các vấn đề bảo mật đang tồn tại hoặc yêu cầu chưa đáp ứng; sau khi đóng, thẻ sẽ ẩn khi cùng nguyên nhân đó vẫn còn tồn tại. Bạn vẫn có thể kiểm tra các nguyên nhân bảo mật đang tồn tại trong “Cảnh báo bảo mật”; thẻ không thay đổi cài đặt của bạn.</string>
+    <string name="settings_webhook_retry_title">Thử lại sau khi báo cáo thất bại</string>
+    <string name="settings_webhook_retry_subtext">Nếu một báo cáo thất bại, KeepADB sẽ thử lại sau những khoảng nghỉ ngắn, tối đa bốn lần. Một thay đổi mạng sau đó có thể bắt đầu lần thử mới. KeepADB không truy vấn liên tục.</string>
+    <string name="settings_webhook_retry_timing_label">Nhịp thử lại</string>
+    <string name="settings_webhook_retry_timing_dialog_title">Chọn nhịp thử lại</string>
+    <string name="settings_webhook_retry_timing_fast">Nhanh (2, 5, 10, 20 giây)</string>
+    <string name="settings_webhook_retry_timing_standard">Tiêu chuẩn (5, 15, 30, 60 giây)</string>
+    <string name="settings_webhook_retry_timing_gentle">Nhẹ nhàng (15, 30, 60, 120 giây)</string>
+    <string name="settings_webhook_retry_count_label">Số lần thử lại</string>
+    <string name="settings_webhook_retry_count_dialog_title">Chọn số lần thử lại</string>
+    <string name="settings_webhook_retry_count_value">Số lần thử lại: %1$d</string>
 </resources>
