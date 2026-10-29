@@ -1,0 +1,1 @@
+Webhook sync is more robust: a failed report is retried a few times (timing and count adjustable in Settings), and a network change, such as a VPN reconnecting, triggers a new report. If reports keep failing, KeepADB warns once after a minute and once after an hour, then stays quiet until a report succeeds.
