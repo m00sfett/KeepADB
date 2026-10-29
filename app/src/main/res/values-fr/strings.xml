@@ -578,4 +578,13 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="settings_webhook_retry_count_label">Nombre de tentatives</string>
     <string name="settings_webhook_retry_count_dialog_title">Choisir le nombre de tentatives</string>
     <string name="settings_webhook_retry_count_value">Tentatives : %1$d</string>
+    <string name="webhook_alert_channel_name">Alertes du webhook</string>
+    <string name="webhook_alert_channel_desc">Avertit lorsque les signalements du webhook échouent de manière répétée</string>
+    <string name="webhook_alert_title">Les signalements du webhook ne passent pas</string>
+    <string name="webhook_alert_text_failed">Les derniers signalements du webhook ont échoué.</string>
+    <string name="webhook_alert_text_since">Aucun signalement réussi observé depuis %1$s.</string>
+    <string name="webhook_alert_text_never">Aucun signalement réussi observé pour l\'instant.</string>
+    <string name="webhook_alert_text_scope">Cela décrit uniquement les signalements de KeepADB, pas une panne du réseau ou du serveur.</string>
+    <string name="settings_webhook_freshness_toggle">Indiquer le dernier signalement réussi</string>
+    <string name="settings_webhook_freshness_subtext">L\'alerte apparaît après une minute sans signalement réussi, avec un rappel après une heure ; ensuite, elle reste silencieuse jusqu\'à ce qu\'un signalement réussisse. Si cette option est activée, elle indique aussi quand un signalement a réussi pour la dernière fois.</string>
 </resources>

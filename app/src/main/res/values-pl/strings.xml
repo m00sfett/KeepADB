@@ -579,4 +579,13 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="settings_webhook_retry_count_label">Liczba ponowień</string>
     <string name="settings_webhook_retry_count_dialog_title">Wybierz liczbę ponowień</string>
     <string name="settings_webhook_retry_count_value">Ponowienia: %1$d</string>
+    <string name="webhook_alert_channel_name">Ostrzeżenia Webhook</string>
+    <string name="webhook_alert_channel_desc">Ostrzega, gdy zgłoszenia Webhook stale się nie udają</string>
+    <string name="webhook_alert_title">Zgłoszenia Webhook nie docierają</string>
+    <string name="webhook_alert_text_failed">Ostatnie zgłoszenia Webhook nie powiodły się.</string>
+    <string name="webhook_alert_text_since">Od %1$s nie zaobserwowano udanego zgłoszenia.</string>
+    <string name="webhook_alert_text_never">Nie zaobserwowano jeszcze udanego zgłoszenia.</string>
+    <string name="webhook_alert_text_scope">To opisuje tylko zgłoszenia KeepADB, a nie to, czy sieć lub serwer nie działają.</string>
+    <string name="settings_webhook_freshness_toggle">Podawaj ostatnie udane zgłoszenie</string>
+    <string name="settings_webhook_freshness_subtext">Ostrzeżenie pojawia się po minucie bez udanego zgłoszenia, z jednym przypomnieniem po godzinie; potem nic się nie pojawia, dopóki zgłoszenie się nie uda. Gdy ta opcja jest włączona, podaje też, kiedy ostatnio udało się zgłoszenie.</string>
 </resources>

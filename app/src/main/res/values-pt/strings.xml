@@ -578,4 +578,13 @@ Pode terminá-lo a qualquer momento no ecrã inicial ou na notificação.</strin
     <string name="settings_webhook_retry_count_label">Número de tentativas</string>
     <string name="settings_webhook_retry_count_dialog_title">Escolher número de tentativas</string>
     <string name="settings_webhook_retry_count_value">Tentativas: %1$d</string>
+    <string name="webhook_alert_channel_name">Avisos do webhook</string>
+    <string name="webhook_alert_channel_desc">Avisa quando os relatórios do webhook continuam falhando</string>
+    <string name="webhook_alert_title">Os relatórios do webhook não estão chegando</string>
+    <string name="webhook_alert_text_failed">Os últimos relatórios do webhook falharam.</string>
+    <string name="webhook_alert_text_since">Nenhum relatório bem-sucedido observado desde %1$s.</string>
+    <string name="webhook_alert_text_never">Nenhum relatório bem-sucedido observado ainda.</string>
+    <string name="webhook_alert_text_scope">Isto descreve apenas os relatórios do KeepADB, não se a rede ou o servidor estão fora do ar.</string>
+    <string name="settings_webhook_freshness_toggle">Indicar o último relatório bem-sucedido</string>
+    <string name="settings_webhook_freshness_subtext">O aviso aparece após um minuto sem relatório bem-sucedido, com um lembrete após uma hora; depois fica em silêncio até um relatório ter sucesso. Quando ativado, também indica quando um relatório teve sucesso pela última vez.</string>
 </resources>

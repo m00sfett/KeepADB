@@ -581,4 +581,13 @@
     <string name="settings_webhook_retry_count_label">عدد مرات إعادة المحاولة</string>
     <string name="settings_webhook_retry_count_dialog_title">اختر عدد مرات إعادة المحاولة</string>
     <string name="settings_webhook_retry_count_value">مرات إعادة المحاولة: %1$d</string>
+    <string name="webhook_alert_channel_name">تحذيرات Webhook</string>
+    <string name="webhook_alert_channel_desc">يحذّر عندما تستمر تقارير Webhook في الفشل</string>
+    <string name="webhook_alert_title">تقارير Webhook لا تصل</string>
+    <string name="webhook_alert_text_failed">فشلت آخر تقارير Webhook.</string>
+    <string name="webhook_alert_text_since">لم يُرصد أي تقرير ناجح منذ %1$s.</string>
+    <string name="webhook_alert_text_never">لم يُرصد أي تقرير ناجح بعد.</string>
+    <string name="webhook_alert_text_scope">يصف هذا تقارير KeepADB فقط، ولا يبيّن ما إذا كانت الشبكة أو الخادم متوقفين.</string>
+    <string name="settings_webhook_freshness_toggle">ذكر آخر تقرير ناجح</string>
+    <string name="settings_webhook_freshness_subtext">يظهر التحذير بعد دقيقة بلا تقرير ناجح، مع تذكير واحد بعد ساعة؛ ثم يبقى صامتًا حتى ينجح تقرير. عند تفعيل هذا الخيار، يذكر أيضًا متى نجح آخر تقرير.</string>
 </resources>

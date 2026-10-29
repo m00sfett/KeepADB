@@ -576,4 +576,13 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="settings_webhook_retry_count_label">Jumlah percobaan ulang</string>
     <string name="settings_webhook_retry_count_dialog_title">Pilih jumlah percobaan ulang</string>
     <string name="settings_webhook_retry_count_value">Percobaan ulang: %1$d</string>
+    <string name="webhook_alert_channel_name">Peringatan Webhook</string>
+    <string name="webhook_alert_channel_desc">Memperingatkan saat laporan Webhook terus gagal</string>
+    <string name="webhook_alert_title">Laporan Webhook tidak sampai</string>
+    <string name="webhook_alert_text_failed">Laporan Webhook terakhir gagal.</string>
+    <string name="webhook_alert_text_since">Tidak ada laporan berhasil yang teramati sejak %1$s.</string>
+    <string name="webhook_alert_text_never">Belum ada laporan berhasil yang teramati.</string>
+    <string name="webhook_alert_text_scope">Ini hanya menjelaskan laporan KeepADB, bukan apakah jaringan atau server sedang mati.</string>
+    <string name="settings_webhook_freshness_toggle">Sebutkan laporan berhasil terakhir</string>
+    <string name="settings_webhook_freshness_subtext">Peringatan muncul setelah satu menit tanpa laporan berhasil, dengan satu pengingat setelah satu jam; setelah itu tetap diam sampai ada laporan yang berhasil. Jika aktif, peringatan juga menyebutkan kapan laporan terakhir berhasil.</string>
 </resources>

@@ -579,4 +579,13 @@
     <string name="settings_webhook_retry_count_label">Число повторов</string>
     <string name="settings_webhook_retry_count_dialog_title">Выберите число повторов</string>
     <string name="settings_webhook_retry_count_value">Повторы: %1$d</string>
+    <string name="webhook_alert_channel_name">Предупреждения Webhook</string>
+    <string name="webhook_alert_channel_desc">Предупреждает, если отчёты Webhook продолжают не доходить</string>
+    <string name="webhook_alert_title">Отчёты Webhook не доходят</string>
+    <string name="webhook_alert_text_failed">Последние отчёты Webhook не удались.</string>
+    <string name="webhook_alert_text_since">С %1$s не было замечено ни одного успешного отчёта.</string>
+    <string name="webhook_alert_text_never">Успешных отчётов пока не замечено.</string>
+    <string name="webhook_alert_text_scope">Это описывает только отчёты KeepADB, а не то, недоступны ли сеть или сервер.</string>
+    <string name="settings_webhook_freshness_toggle">Указывать последний успешный отчёт</string>
+    <string name="settings_webhook_freshness_subtext">Предупреждение появляется через минуту без успешного отчёта, напоминание — через час; затем ничего не появляется, пока отчёт не будет успешным. Если включено, также указывается время последнего успешного отчёта.</string>
 </resources>

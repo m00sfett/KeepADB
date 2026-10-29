@@ -52,6 +52,7 @@ reason for each documented here.
 | App language | `app_language` | empty (system language) | No security impact |
 | Webhook retry timing | `register_webhook_retry_profile` | standard (5, 15, 30, 60 s) | Only used while webhook sync is on and a report failed; bounded, no polling (#866) |
 | Webhook retries | `register_webhook_retry_count` | 4 | The hard maximum per series; fewer retries are a user choice (#866) |
+| Webhook freshness wording | `register_webhook_freshness_warning` | on | The warning then names when a report last succeeded; it never claims that the network or server is down. Off keeps the warning but only says that reports failed (#868) |
 | Home-screen advice card | `advice_banner_visible` | visible | “Do not show again” flag; display only. The flags for the other cards (`notification_permission_panel_visible`, `battery_optimization_panel_visible`, `network_onboarding_panel_visible`, `background_location_panel_visible`) were removed in #764 and are cleared on first start |
 
 ### Not a setting

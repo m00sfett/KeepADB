@@ -658,6 +658,27 @@
                         android:textColor="@color/title_yellow"
                         android:textSize="14sp" />
                 </LinearLayout>
+
+                <!-- #868: freshness wording of the webhook warning. -->
+                <Switch
+                    android:id="@+id/settings_webhook_freshness_toggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:minHeight="48dp"
+                    android:fontFamily="sans-serif-condensed"
+                    android:text="@string/settings_webhook_freshness_toggle"
+                    android:textColor="@color/text_yellow"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/settings_webhook_freshness_subtext"
+                    android:textColor="@color/night_muted"
+                    android:textSize="13sp" />
             </LinearLayout>
         </LinearLayout>
 

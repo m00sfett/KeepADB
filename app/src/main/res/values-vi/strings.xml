@@ -576,4 +576,13 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="settings_webhook_retry_count_label">Số lần thử lại</string>
     <string name="settings_webhook_retry_count_dialog_title">Chọn số lần thử lại</string>
     <string name="settings_webhook_retry_count_value">Số lần thử lại: %1$d</string>
+    <string name="webhook_alert_channel_name">Cảnh báo Webhook</string>
+    <string name="webhook_alert_channel_desc">Cảnh báo khi báo cáo Webhook liên tục thất bại</string>
+    <string name="webhook_alert_title">Báo cáo Webhook không đến được</string>
+    <string name="webhook_alert_text_failed">Các báo cáo Webhook gần đây đã thất bại.</string>
+    <string name="webhook_alert_text_since">Không ghi nhận báo cáo thành công nào kể từ %1$s.</string>
+    <string name="webhook_alert_text_never">Chưa ghi nhận báo cáo thành công nào.</string>
+    <string name="webhook_alert_text_scope">Điều này chỉ mô tả các báo cáo của KeepADB, không cho biết mạng hay máy chủ có bị sập hay không.</string>
+    <string name="settings_webhook_freshness_toggle">Nêu báo cáo thành công gần nhất</string>
+    <string name="settings_webhook_freshness_subtext">Cảnh báo xuất hiện sau một phút không có báo cáo thành công, nhắc lại một lần sau một giờ; sau đó im lặng cho đến khi có báo cáo thành công. Khi bật, cảnh báo cũng nêu thời điểm báo cáo thành công gần nhất.</string>
 </resources>

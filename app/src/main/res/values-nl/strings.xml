@@ -577,4 +577,13 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="settings_webhook_retry_count_label">Aantal herhalingen</string>
     <string name="settings_webhook_retry_count_dialog_title">Aantal kiezen</string>
     <string name="settings_webhook_retry_count_value">Herhalingen: %1$d</string>
+    <string name="webhook_alert_channel_name">Webhook-waarschuwingen</string>
+    <string name="webhook_alert_channel_desc">Waarschuwt wanneer webhookmeldingen blijven mislukken</string>
+    <string name="webhook_alert_title">Webhookmeldingen komen niet aan</string>
+    <string name="webhook_alert_text_failed">De laatste webhookmeldingen zijn mislukt.</string>
+    <string name="webhook_alert_text_since">Sinds %1$s is geen geslaagde melding waargenomen.</string>
+    <string name="webhook_alert_text_never">Nog geen geslaagde melding waargenomen.</string>
+    <string name="webhook_alert_text_scope">Dit beschrijft alleen de meldingen van KeepADB, niet of het netwerk of de server uitgevallen is.</string>
+    <string name="settings_webhook_freshness_toggle">Laatste geslaagde melding noemen</string>
+    <string name="settings_webhook_freshness_subtext">De waarschuwing verschijnt na een minuut zonder geslaagde melding, met één herinnering na een uur; daarna blijft het stil tot een melding slaagt. Als dit aan staat, noemt ze ook wanneer een melding voor het laatst slaagde.</string>
 </resources>

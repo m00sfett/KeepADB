@@ -577,4 +577,13 @@
     <string name="settings_webhook_retry_count_label">दोबारा प्रयासों की संख्या</string>
     <string name="settings_webhook_retry_count_dialog_title">संख्या चुनें</string>
     <string name="settings_webhook_retry_count_value">दोबारा प्रयास: %1$d</string>
+    <string name="webhook_alert_channel_name">Webhook चेतावनियाँ</string>
+    <string name="webhook_alert_channel_desc">Webhook रिपोर्ट लगातार विफल होने पर चेतावनी देता है</string>
+    <string name="webhook_alert_title">Webhook रिपोर्ट नहीं पहुँच रही हैं</string>
+    <string name="webhook_alert_text_failed">पिछली Webhook रिपोर्ट विफल रहीं।</string>
+    <string name="webhook_alert_text_since">%1$s के बाद से कोई सफल रिपोर्ट नहीं देखी गई।</string>
+    <string name="webhook_alert_text_never">अभी तक कोई सफल रिपोर्ट नहीं देखी गई।</string>
+    <string name="webhook_alert_text_scope">यह केवल KeepADB की रिपोर्ट के बारे में है, यह नहीं कि नेटवर्क या सर्वर बंद है।</string>
+    <string name="settings_webhook_freshness_toggle">पिछली सफल रिपोर्ट बताएँ</string>
+    <string name="settings_webhook_freshness_subtext">सफल रिपोर्ट के बिना एक मिनट बाद चेतावनी दिखती है, और एक घंटे बाद एक बार याद दिलाया जाता है; उसके बाद कोई रिपोर्ट सफल होने तक कुछ नहीं दिखता। चालू होने पर यह भी बताया जाता है कि पिछली बार रिपोर्ट कब सफल हुई।</string>
 </resources>

@@ -314,6 +314,8 @@ final class KeepADBRegisterClient {
             ensureStateInitializedLocked(appContext);
             // #866: the endpoint is gone, so a scheduled POST retry for it is obsolete.
             cancelPostRetryLocked();
+            // #868: without an endpoint there is nothing to report, so no failure episode either.
+            KeepADBWebhookAlert.endEpisode(appContext);
             // #576 part C: a DELETE for this exact registered state is already queued or running
             // -- coalesce instead of dispatching another one. Comparing against
             // currentOpGeneration (not a plain flag) means a newer registration or disconnect
@@ -372,6 +374,7 @@ final class KeepADBRegisterClient {
         synchronized (KeepADBRegisterClient.class) {
             ensureStateInitializedLocked(appContext);
             cancelPostRetryLocked();
+            KeepADBWebhookAlert.endEpisode(appContext);
             wlanUpdateInFlight = false;
             opGen = ++currentOpGeneration;
         }
@@ -586,8 +589,9 @@ final class KeepADBRegisterClient {
                     // so it cannot issue an outdated DELETE after the newer registration attempt.
                     removePendingCleanupsForResource(context, targetUrl);
                     wlanUpdateInFlight = false;
-                    // #866: success ends the retry series.
+                    // #866: success ends the retry series, #868 the failure episode.
                     cancelPostRetryLocked();
+                    KeepADBWebhookAlert.endEpisode(context);
                     // A successful WLAN report supersedes any pending unavailable retry for the
                     // previous local report.
                     resetMarkUnavailableRetryLocked();
@@ -607,6 +611,7 @@ final class KeepADBRegisterClient {
                     KeepADBPreferences.setWebhookLastReportStatus(
                             context, KeepADBPreferences.WEBHOOK_STATUS_FAILED);
                     schedulePostRetryLocked(context, targetUrl, targetEndpoint, opGen);
+                    KeepADBWebhookAlert.onReportFailed(context);
                     notifyRegisterStateListener(context);
                 }
             }
@@ -745,6 +750,7 @@ final class KeepADBRegisterClient {
             pendingResync = null;
         }
         coordinatorEndpointForTesting = null;
+        KeepADBWebhookAlert.resetForTesting();
         registerStateListener = null;
         pendingCleanupNowForTesting = null;
         markUnavailableNowForTesting = null;

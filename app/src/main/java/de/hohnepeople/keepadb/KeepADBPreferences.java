@@ -18,6 +18,9 @@ final class KeepADBPreferences {
     private static final String KEY_WEBHOOK_PENDING_CLEANUP = "register_webhook_pending_cleanup";
     private static final String KEY_WEBHOOK_RETRY_PROFILE = "register_webhook_retry_profile";
     private static final String KEY_WEBHOOK_RETRY_COUNT = "register_webhook_retry_count";
+    private static final String KEY_WEBHOOK_FRESHNESS_WARNING = "register_webhook_freshness_warning";
+    private static final String KEY_WEBHOOK_FAILURE_SINCE = "register_webhook_failure_since";
+    private static final String KEY_WEBHOOK_ALERTS_SHOWN = "register_webhook_alerts_shown";
     private static final String KEY_APP_LANGUAGE = "app_language";
     private static final String KEY_SERVICE_LAST_HEARTBEAT = "service_last_heartbeat";
     private static final String KEY_HIDE_NOTIFICATION = "hide_notification_enabled";
@@ -379,6 +382,43 @@ final class KeepADBPreferences {
         }
         int index = Math.max(1, Math.min(delays.length, retryNumber)) - 1;
         return delays[index];
+    }
+
+    // ---- #868: warnings for a continuous period without a successful report. ----
+
+    /** Whether the warning names the age of the last successful report; on by default. */
+    static boolean isWebhookFreshnessWarningEnabled(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_WEBHOOK_FRESHNESS_WARNING, true);
+    }
+
+    static void setWebhookFreshnessWarningEnabled(Context context, boolean enabled) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_WEBHOOK_FRESHNESS_WARNING, enabled).apply();
+    }
+
+    /** Epoch-millis of the first failed report of the current failure episode, or 0 without one. */
+    static long getWebhookFailureSince(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getLong(KEY_WEBHOOK_FAILURE_SINCE, 0L);
+    }
+
+    static int getWebhookAlertsShown(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getInt(KEY_WEBHOOK_ALERTS_SHOWN, 0);
+    }
+
+    /** One editor transaction, so an episode start is never stored without its alert count. */
+    static void setWebhookFailureEpisode(Context context, long failureSince, int alertsShown) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        if (failureSince <= 0L) {
+            editor.remove(KEY_WEBHOOK_FAILURE_SINCE).remove(KEY_WEBHOOK_ALERTS_SHOWN);
+        } else {
+            editor.putLong(KEY_WEBHOOK_FAILURE_SINCE, failureSince)
+                    .putInt(KEY_WEBHOOK_ALERTS_SHOWN, alertsShown);
+        }
+        editor.apply();
     }
 
     // ---- #317: retryable cleanups for registrations left behind on a previous webhook URL. ----

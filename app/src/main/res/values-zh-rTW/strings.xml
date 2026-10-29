@@ -576,4 +576,13 @@
     <string name="settings_webhook_retry_count_label">重試次數</string>
     <string name="settings_webhook_retry_count_dialog_title">選擇重試次數</string>
     <string name="settings_webhook_retry_count_value">重試次數：%1$d</string>
+    <string name="webhook_alert_channel_name">Webhook 警告</string>
+    <string name="webhook_alert_channel_desc">Webhook 回報持續失敗時發出警告</string>
+    <string name="webhook_alert_title">Webhook 回報未送達</string>
+    <string name="webhook_alert_text_failed">最近的 Webhook 回報失敗了。</string>
+    <string name="webhook_alert_text_since">自 %1$s 以來未觀察到成功的回報。</string>
+    <string name="webhook_alert_text_never">尚未觀察到成功的回報。</string>
+    <string name="webhook_alert_text_scope">這僅描述 KeepADB 的回報，並不表示網路或伺服器已中斷。</string>
+    <string name="settings_webhook_freshness_toggle">顯示上次成功的回報</string>
+    <string name="settings_webhook_freshness_subtext">一分鐘內沒有成功的回報時顯示警告，一小時後再提醒一次；之後在回報成功之前不再提醒。開啟後，也會顯示上次回報成功的時間。</string>
 </resources>

@@ -576,4 +576,13 @@
     <string name="settings_webhook_retry_count_label">재시도 횟수</string>
     <string name="settings_webhook_retry_count_dialog_title">재시도 횟수 선택</string>
     <string name="settings_webhook_retry_count_value">재시도 횟수: %1$d</string>
+    <string name="webhook_alert_channel_name">Webhook 경고</string>
+    <string name="webhook_alert_channel_desc">Webhook 보고가 계속 실패하면 경고합니다</string>
+    <string name="webhook_alert_title">Webhook 보고가 전달되지 않습니다</string>
+    <string name="webhook_alert_text_failed">최근 Webhook 보고가 실패했습니다.</string>
+    <string name="webhook_alert_text_since">%1$s 이후 성공한 보고가 확인되지 않았습니다.</string>
+    <string name="webhook_alert_text_never">아직 성공한 보고가 확인되지 않았습니다.</string>
+    <string name="webhook_alert_text_scope">이는 KeepADB의 보고에 대한 설명일 뿐, 네트워크나 서버가 중단되었는지를 나타내지 않습니다.</string>
+    <string name="settings_webhook_freshness_toggle">마지막 성공 보고 표시</string>
+    <string name="settings_webhook_freshness_subtext">성공한 보고 없이 1분이 지나면 경고가 표시되고, 1시간 후 한 번 다시 알립니다. 그 후에는 보고가 성공할 때까지 알리지 않습니다. 켜면 마지막으로 보고가 성공한 시각도 표시합니다.</string>
 </resources>

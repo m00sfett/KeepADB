@@ -586,4 +586,13 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="settings_webhook_retry_count_label">Number of retries</string>
     <string name="settings_webhook_retry_count_dialog_title">Select number of retries</string>
     <string name="settings_webhook_retry_count_value">Retries: %1$d</string>
+    <string name="webhook_alert_channel_name">Webhook warnings</string>
+    <string name="webhook_alert_channel_desc">Warns when webhook reports keep failing</string>
+    <string name="webhook_alert_title">Webhook reports are not getting through</string>
+    <string name="webhook_alert_text_failed">The last webhook reports failed.</string>
+    <string name="webhook_alert_text_since">No successful report observed since %1$s.</string>
+    <string name="webhook_alert_text_never">No successful report observed yet.</string>
+    <string name="webhook_alert_text_scope">This only describes KeepADB\'s reports, not whether the network or the server is down.</string>
+    <string name="settings_webhook_freshness_toggle">Name the last successful report</string>
+    <string name="settings_webhook_freshness_subtext">The warning appears after one minute without a successful report, with one reminder after an hour; then it stays quiet until a report succeeds. When this is on, it also names when a report last succeeded.</string>
 </resources>

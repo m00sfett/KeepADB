@@ -579,4 +579,13 @@
     <string name="settings_webhook_retry_count_label">Кількість повторів</string>
     <string name="settings_webhook_retry_count_dialog_title">Виберіть кількість повторів</string>
     <string name="settings_webhook_retry_count_value">Повтори: %1$d</string>
+    <string name="webhook_alert_channel_name">Попередження Webhook</string>
+    <string name="webhook_alert_channel_desc">Попереджає, якщо звіти Webhook і далі не доходять</string>
+    <string name="webhook_alert_title">Звіти Webhook не доходять</string>
+    <string name="webhook_alert_text_failed">Останні звіти Webhook не вдалися.</string>
+    <string name="webhook_alert_text_since">З %1$s не помічено жодного успішного звіту.</string>
+    <string name="webhook_alert_text_never">Успішних звітів поки не помічено.</string>
+    <string name="webhook_alert_text_scope">Це описує лише звіти KeepADB, а не те, чи недоступні мережа або сервер.</string>
+    <string name="settings_webhook_freshness_toggle">Вказувати останній успішний звіт</string>
+    <string name="settings_webhook_freshness_subtext">Попередження з’являється через хвилину без успішного звіту, нагадування — через годину; потім нічого не з’являється, доки звіт не буде успішним. Якщо увімкнено, також вказується час останнього успішного звіту.</string>
 </resources>

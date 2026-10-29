@@ -578,4 +578,13 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="settings_webhook_retry_count_label">Numero di tentativi</string>
     <string name="settings_webhook_retry_count_dialog_title">Scegli il numero di tentativi</string>
     <string name="settings_webhook_retry_count_value">Tentativi: %1$d</string>
+    <string name="webhook_alert_channel_name">Avvisi del webhook</string>
+    <string name="webhook_alert_channel_desc">Avvisa quando le segnalazioni del webhook continuano a non riuscire</string>
+    <string name="webhook_alert_title">Le segnalazioni del webhook non arrivano</string>
+    <string name="webhook_alert_text_failed">Le ultime segnalazioni del webhook non sono riuscite.</string>
+    <string name="webhook_alert_text_since">Nessuna segnalazione riuscita osservata dal %1$s.</string>
+    <string name="webhook_alert_text_never">Ancora nessuna segnalazione riuscita osservata.</string>
+    <string name="webhook_alert_text_scope">Questo descrive solo le segnalazioni di KeepADB, non se la rete o il server sono fuori servizio.</string>
+    <string name="settings_webhook_freshness_toggle">Indica l\'ultima segnalazione riuscita</string>
+    <string name="settings_webhook_freshness_subtext">L\'avviso compare dopo un minuto senza segnalazioni riuscite, con un promemoria dopo un\'ora; poi resta in silenzio finché una segnalazione non riesce. Se attivo, indica anche quando una segnalazione è riuscita l\'ultima volta.</string>
 </resources>
