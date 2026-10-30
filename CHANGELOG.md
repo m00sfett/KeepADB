@@ -17,11 +17,16 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.6` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.7` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.10.7] - Unreleased
+
+### Fixed
+- **No false "Current Wi-Fi is not readable" notification during access-point roaming (#872):** switching between access points of the same network drops the association for a few seconds while the network callback still reports Wi-Fi, so a single read could find the BSSID unreadable and post the identity-unavailable notification at once (seen on s20: a 3.4 s reassociation, about once a day because of the 24 h throttle). The first unreadable read now only starts a confirmation that checks again after 5 s and after a further 10 s; the notification is posted only if the identity is still unreadable on Wi-Fi at all three checks. A readable identity, lost Wi-Fi or a changed policy ends the confirmation silently without consuming the 24 h throttle, and further blocks during the about 15 s join it instead of restarting it. Automatic re-enable stays fail-closed throughout; only the notification waits.
 
 ## [1.10.6] - Unreleased
 
