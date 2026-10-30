@@ -272,13 +272,17 @@ final class KeepADBNetworkTrustPrompt {
     }
 
     /**
-     * The situation the first call reported, re-derived now: still on Wi-Fi and the current
-     * evaluation still ends at an unreadable identity. Anything else (Wi-Fi gone, readable
-     * identity, force mode, policy changed) ends the confirmation silently; a readable but
-     * untrusted network is left to the next callback or heartbeat, which raises its own prompt.
+     * The situation the first call reported, re-derived now: Keep-Alive still wants automatic
+     * re-enable, still on Wi-Fi, and the current evaluation still ends at an unreadable identity.
+     * Anything else (Keep-Alive or Wireless Debugging switched off, Wi-Fi gone, readable identity,
+     * force mode, policy changed) ends the confirmation silently, so an irrelevant notification
+     * cannot consume the throttle; a readable but untrusted network is left to the next callback
+     * or heartbeat, which raises its own prompt.
      */
     private static boolean isIdentityStillUnavailable(Context context) {
-        return KeepADBService.isWifiConnected(context)
+        return KeepADBPreferences.isKeepAliveEnabled(context)
+                && !KeepADB.wasLastExplicitIntentOff(context)
+                && KeepADBService.isWifiConnected(context)
                 && KeepADBTrustedNetwork.getBlockReason(context)
                         == KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE;
     }

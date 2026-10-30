@@ -468,6 +468,27 @@ public class KeepADBNetworkTrustPromptTest {
     }
 
     /**
+     * Review finding (Codex, P2): switching Keep-Alive or Wireless Debugging off during the
+     * confirmation makes the warning irrelevant. It must not be posted, and must not consume the
+     * throttle that a later, relevant warning needs.
+     */
+    @Test
+    public void switchingKeepAliveOffDuringTheConfirmationPostsNothing() {
+        KeepADBFakeScheduler scheduler = startConfirmation();
+        KeepADBPreferences.setKeepAliveEnabled(context, false);
+        scheduler.advanceBy(KeepADBIdentityRecheckDriver.totalDelayMs());
+        assertNull(postedPrompt());
+
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        scheduler = startConfirmation();
+        KeepADBPreferences.setLastDesiredOn(context, false);
+        scheduler.advanceBy(KeepADBIdentityRecheckDriver.totalDelayMs());
+        assertNull("An explicit off ends it too", postedPrompt());
+        assertTrue(KeepADBNetworkTrustPrompt.shouldPrompt(context, "identity_unavailable",
+                System.currentTimeMillis()));
+    }
+
+    /**
      * The network callback reports every few seconds during a roam. Further blocks join the
      * running confirmation: neither a second schedule that would post twice nor a restart that
      * would postpone the result forever.
@@ -495,6 +516,8 @@ public class KeepADBNetworkTrustPromptTest {
         KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
         KeepADBNetworkTrustPrompt.setSchedulerForTesting(scheduler);
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        KeepADBPreferences.setKeepAliveEnabled(context, true);
+        KeepADBPreferences.setLastDesiredOn(context, true);
         assertFalse(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
         assertTrue(scheduler.hasAnyPending());
         return scheduler;
