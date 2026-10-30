@@ -489,6 +489,26 @@ public class KeepADBNetworkTrustPromptTest {
     }
 
     /**
+     * Review finding (Codex, round 2): the while-active check also runs after an explicit off in
+     * the app when Wireless Debugging was then switched on outside it -- the service runs on
+     * "debugging on" alone. A lasting unreadable identity must still be reported there.
+     */
+    @Test
+    public void anExplicitOffFollowedByAnOutsideEnableStillGetsTheWarning() {
+        android.provider.Settings.Global.putInt(context.getContentResolver(),
+                "adb_wifi_enabled", 1);
+        KeepADBFakeScheduler scheduler = startConfirmation();
+        KeepADBPreferences.setLastDesiredOn(context, false);
+        assertTrue("Precondition: the service still runs", KeepADBService.shouldRun(context));
+
+        for (long delay : KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS) {
+            scheduler.advanceBy(delay);
+        }
+
+        assertNotNull(postedPrompt());
+    }
+
+    /**
      * The network callback reports every few seconds during a roam. Further blocks join the
      * running confirmation: neither a second schedule that would post twice nor a restart that
      * would postpone the result forever.
