@@ -365,9 +365,9 @@ public class KeepADBBlockedNetworkCallPathTest {
         context.getSystemService(NotificationManager.class).cancelAll();
         KeepADBNetworkTrustPrompt.clearPromptState(context);
         connectTo(SSID, KeepADBNetworkIdentity.REDACTED_BSSID);
-        assertTrue("An unreadable network keeps its fix-it notification",
-                KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
-        assertNotNull(postedPrompt());
+        // #872: posted only once the confirmation found it unreadable at every check.
+        KeepADBIdentityRecheckDriver.blockAndConfirm(context);
+        assertNotNull("An unreadable network keeps its fix-it notification", postedPrompt());
     }
 
     @Test

@@ -94,6 +94,15 @@ instead. If the user taps “Trust” in a dialog opened before a block was adde
 A block made from a notice or dialog is lifted in the **Networks** list (next section). Lifting a
 name block preserves saved trust, which becomes effective again.
 
+**Unreadable network.** If the identity cannot be read, there is nothing to trust or block, so
+KeepADB shows the separate “Current Wi-Fi is not readable” notice instead (#460), which leads to
+the likely fix. Roaming between access points briefly makes the identity unreadable while Wi-Fi
+still counts as connected, so the notice is not posted on the first unreadable read (#872): KeepADB
+checks again after 5 seconds and after a further 10 seconds, and posts it only if the identity is
+still unreadable on Wi-Fi at all three checks. Automatic enabling stays paused during these checks.
+If the network becomes readable or Wi-Fi is lost, nothing is posted and the 24-hour throttle is not
+used up.
+
 ## The “Networks” list
 
 The list (#762, part a; Settings → Network → “Networks”) shows trust and blocks in one place: the

@@ -1,0 +1,1 @@
+No more false "Current Wi-Fi is not readable" alerts when your phone switches between access points of the same network. KeepADB now checks again after 5 and 15 seconds and only warns if the network is still not readable.
