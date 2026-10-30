@@ -14,11 +14,15 @@ import android.content.Context;
 final class KeepADBIdentityRecheckDriver {
     private KeepADBIdentityRecheckDriver() {}
 
-    /** Total wait of the confirmation: the sum of every recheck delay. */
-    static long totalDelayMs() {
-        long total = 0;
-        for (long delay : KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS) total += delay;
-        return total;
+    /**
+     * Runs every recheck at its due time. Advance step by step, never by the total in one go:
+     * {@link KeepADBFakeScheduler#advanceTo} schedules a follow-up from the already advanced
+     * clock, so one large step would run only the first recheck and hide the rest.
+     */
+    static void runAllChecks(KeepADBFakeScheduler scheduler) {
+        for (long delay : KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS) {
+            scheduler.advanceBy(delay);
+        }
     }
 
     /**
@@ -33,9 +37,7 @@ final class KeepADBIdentityRecheckDriver {
         KeepADBPreferences.setKeepAliveEnabled(context, true);
         KeepADBPreferences.setLastDesiredOn(context, true);
         KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context);
-        for (long delay : KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS) {
-            scheduler.advanceBy(delay);
-        }
+        runAllChecks(scheduler);
         return scheduler;
     }
 }

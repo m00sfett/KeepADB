@@ -272,18 +272,17 @@ final class KeepADBNetworkTrustPrompt {
     }
 
     /**
-     * The situation the first call reported, re-derived now: Keep-Alive still applies, still on
-     * Wi-Fi, and the current evaluation still ends at an unreadable identity. "Keep-Alive still
-     * applies" is exactly {@link KeepADBService#shouldRun}, the condition every caller runs under:
-     * Keep-Alive on, and either Wireless Debugging on (the while-active check, even after an
-     * explicit off in the app followed by an outside enable) or no explicit off (the re-enable
-     * paths). Anything else (Keep-Alive switched off, an explicit off, Wi-Fi gone, readable
-     * identity, force mode, policy changed) ends the confirmation silently, so an irrelevant
-     * notification cannot consume the throttle; a readable but untrusted network is left to the
-     * next callback or heartbeat, which raises its own prompt.
+     * The situation the first call reported, re-derived now: Keep-Alive still on, still on Wi-Fi,
+     * and the current evaluation still ends at an unreadable identity. Keep-Alive on is the one
+     * condition all callers share; the explicit-off intent is deliberately not checked, because
+     * the Keep-Alive switch in {@link MainActivity} and the while-active check both report after
+     * an explicit off. Anything else (Keep-Alive switched off, Wi-Fi gone, readable identity,
+     * force mode, policy changed) ends the confirmation silently, so an irrelevant notification
+     * cannot consume the throttle; a readable but untrusted network is left to the next callback
+     * or heartbeat, which raises its own prompt.
      */
     private static boolean isIdentityStillUnavailable(Context context) {
-        return KeepADBService.shouldRun(context)
+        return KeepADBPreferences.isKeepAliveEnabled(context)
                 && KeepADBService.isWifiConnected(context)
                 && KeepADBTrustedNetwork.getBlockReason(context)
                         == KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE;

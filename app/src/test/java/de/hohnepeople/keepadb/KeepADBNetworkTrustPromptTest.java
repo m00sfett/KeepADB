@@ -390,7 +390,7 @@ public class KeepADBNetworkTrustPromptTest {
         assertFalse(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
         assertFalse("A throttled state does not even start a new confirmation",
                 scheduler.hasAnyPending());
-        scheduler.advanceBy(KeepADBIdentityRecheckDriver.totalDelayMs());
+        KeepADBIdentityRecheckDriver.runAllChecks(scheduler);
         assertNull(postedPrompt());
     }
 
@@ -407,7 +407,7 @@ public class KeepADBNetworkTrustPromptTest {
         assertFalse("The first unreadable read alone never posts", postedPromptExists());
 
         connectTo("Cafe-WLAN", BSSID);
-        scheduler.advanceBy(KeepADBIdentityRecheckDriver.totalDelayMs());
+        KeepADBIdentityRecheckDriver.runAllChecks(scheduler);
 
         assertNull(postedPrompt());
         assertFalse(scheduler.hasAnyPending());
@@ -461,31 +461,43 @@ public class KeepADBNetworkTrustPromptTest {
         KeepADBFakeScheduler scheduler = startConfirmation();
 
         KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
-        scheduler.advanceBy(KeepADBIdentityRecheckDriver.totalDelayMs());
+        KeepADBIdentityRecheckDriver.runAllChecks(scheduler);
 
         assertNull(postedPrompt());
         assertFalse(scheduler.hasAnyPending());
     }
 
     /**
-     * Review finding (Codex, P2): switching Keep-Alive or Wireless Debugging off during the
-     * confirmation makes the warning irrelevant. It must not be posted, and must not consume the
-     * throttle that a later, relevant warning needs.
+     * Review finding (Codex, P2): switching Keep-Alive off during the confirmation makes the
+     * warning irrelevant. It must not be posted, and must not consume the throttle that a later,
+     * relevant warning needs.
      */
     @Test
     public void switchingKeepAliveOffDuringTheConfirmationPostsNothing() {
         KeepADBFakeScheduler scheduler = startConfirmation();
         KeepADBPreferences.setKeepAliveEnabled(context, false);
-        scheduler.advanceBy(KeepADBIdentityRecheckDriver.totalDelayMs());
-        assertNull(postedPrompt());
+        KeepADBIdentityRecheckDriver.runAllChecks(scheduler);
 
-        KeepADBPreferences.setKeepAliveEnabled(context, true);
-        scheduler = startConfirmation();
-        KeepADBPreferences.setLastDesiredOn(context, false);
-        scheduler.advanceBy(KeepADBIdentityRecheckDriver.totalDelayMs());
-        assertNull("An explicit off ends it too", postedPrompt());
+        assertNull(postedPrompt());
         assertTrue(KeepADBNetworkTrustPrompt.shouldPrompt(context, "identity_unavailable",
                 System.currentTimeMillis()));
+    }
+
+    /**
+     * Review finding (Codex, round 3): switching Keep-Alive on after an explicit off in the app
+     * reports the block from {@link MainActivity} while Wireless Debugging is off and the explicit
+     * off is still stored. The warning that explains the pause must still arrive.
+     */
+    @Test
+    public void enablingKeepAliveAfterAnExplicitOffStillGetsTheWarning() {
+        KeepADBFakeScheduler scheduler = startConfirmation();
+        KeepADBPreferences.setLastDesiredOn(context, false);
+        assertFalse("Precondition: the service itself would not run",
+                KeepADBService.shouldRun(context));
+
+        KeepADBIdentityRecheckDriver.runAllChecks(scheduler);
+
+        assertNotNull(postedPrompt());
     }
 
     /**
@@ -501,9 +513,7 @@ public class KeepADBNetworkTrustPromptTest {
         KeepADBPreferences.setLastDesiredOn(context, false);
         assertTrue("Precondition: the service still runs", KeepADBService.shouldRun(context));
 
-        for (long delay : KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS) {
-            scheduler.advanceBy(delay);
-        }
+        KeepADBIdentityRecheckDriver.runAllChecks(scheduler);
 
         assertNotNull(postedPrompt());
     }
