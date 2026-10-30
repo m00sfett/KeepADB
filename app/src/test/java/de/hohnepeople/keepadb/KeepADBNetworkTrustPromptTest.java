@@ -321,7 +321,8 @@ public class KeepADBNetworkTrustPromptTest {
     public void anUnreadableIdentityRaisesItsOwnNotificationInsteadOfBeingSwallowed() {
         connectTo("Cafe-WLAN", KeepADBNetworkIdentity.REDACTED_BSSID);
 
-        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBIdentityRecheckDriver.blockAndConfirm(context);
 
         Notification notification = postedPrompt();
         assertNotNull("The unreadable identity must raise its own notification", notification);
@@ -364,7 +365,7 @@ public class KeepADBNetworkTrustPromptTest {
 
         assertEquals(KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE,
                 KeepADBTrustedNetwork.getBlockReason(context));
-        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        KeepADBIdentityRecheckDriver.blockAndConfirm(context);
 
         Notification notification = postedPrompt();
         assertNotNull(notification);
@@ -379,11 +380,128 @@ public class KeepADBNetworkTrustPromptTest {
      */
     @Test
     public void aSecondBlockOnAnUnreadableIdentityDoesNotNotifyAgain() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
         connectTo("Cafe-WLAN", KeepADBNetworkIdentity.REDACTED_BSSID);
+        KeepADBFakeScheduler scheduler = KeepADBIdentityRecheckDriver.blockAndConfirm(context);
+        assertNotNull(postedPrompt());
+        context.getSystemService(NotificationManager.class).cancelAll();
 
-        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
         assertFalse(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
         assertFalse(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        assertFalse("A throttled state does not even start a new confirmation",
+                scheduler.hasAnyPending());
+        scheduler.advanceBy(KeepADBIdentityRecheckDriver.totalDelayMs());
+        assertNull(postedPrompt());
+    }
+
+    // --- #872: confirmation of an unreadable identity -----------------------------------------
+
+    /**
+     * The roam measured on s20: the first read is unreadable, the access point is readable again
+     * before the first recheck. Nothing may be posted, and nothing may be throttled either -- a
+     * later lasting problem must still be reported.
+     */
+    @Test
+    public void anIdentityUnreadableOnlyDuringARoamPostsNothing() {
+        KeepADBFakeScheduler scheduler = startConfirmation();
+        assertFalse("The first unreadable read alone never posts", postedPromptExists());
+
+        connectTo("Cafe-WLAN", BSSID);
+        scheduler.advanceBy(KeepADBIdentityRecheckDriver.totalDelayMs());
+
+        assertNull(postedPrompt());
+        assertFalse(scheduler.hasAnyPending());
+        assertTrue("A resolved confirmation must not consume the 24 h throttle",
+                KeepADBNetworkTrustPrompt.shouldPrompt(context, "identity_unavailable",
+                        System.currentTimeMillis()));
+    }
+
+    /** Readable again only at the third check: still a transient state, still nothing posted. */
+    @Test
+    public void anIdentityReadableAgainAtTheLastCheckPostsNothing() {
+        KeepADBFakeScheduler scheduler = startConfirmation();
+        long[] delays = KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS;
+        scheduler.advanceBy(delays[0]);
+        assertNull("Still unreadable at the second check: not yet", postedPrompt());
+
+        connectTo("Cafe-WLAN", BSSID);
+        scheduler.advanceBy(delays[1]);
+
+        assertNull(postedPrompt());
+        assertFalse(scheduler.hasAnyPending());
+    }
+
+    /**
+     * A lasting problem is reported after exactly three unreadable checks: immediately, 5 s and
+     * 10 s later -- not a moment earlier.
+     */
+    @Test
+    public void aLastingUnreadableIdentityIsPostedOnlyAfterTheThirdCheck() {
+        assertEquals(2, KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS.length);
+        assertEquals(5_000L, KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS[0]);
+        assertEquals(10_000L, KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS[1]);
+        KeepADBFakeScheduler scheduler = startConfirmation();
+
+        scheduler.advanceBy(5_000L);
+        assertNull(postedPrompt());
+        scheduler.advanceBy(9_999L);
+        assertNull("The third check is due only 15 s after the first", postedPrompt());
+        scheduler.advanceBy(1L);
+
+        Notification notification = postedPrompt();
+        assertNotNull(notification);
+        assertEquals(context.getString(R.string.network_prompt_identity_unavailable_title),
+                String.valueOf(notification.extras.getCharSequence(Notification.EXTRA_TITLE)));
+        assertFalse(scheduler.hasAnyPending());
+    }
+
+    /** Leaving Wi-Fi during the confirmation is not an unreadable network. */
+    @Test
+    public void losingWifiDuringTheConfirmationPostsNothing() {
+        KeepADBFakeScheduler scheduler = startConfirmation();
+
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> false);
+        scheduler.advanceBy(KeepADBIdentityRecheckDriver.totalDelayMs());
+
+        assertNull(postedPrompt());
+        assertFalse(scheduler.hasAnyPending());
+    }
+
+    /**
+     * The network callback reports every few seconds during a roam. Further blocks join the
+     * running confirmation: neither a second schedule that would post twice nor a restart that
+     * would postpone the result forever.
+     */
+    @Test
+    public void furtherBlocksDuringTheConfirmationJoinIt() {
+        KeepADBFakeScheduler scheduler = startConfirmation();
+        scheduler.advanceBy(3_000L);
+        assertFalse(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        scheduler.advanceBy(2_000L);
+        assertFalse(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        scheduler.advanceBy(6_000L);
+        assertFalse(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        scheduler.advanceBy(4_000L);
+
+        assertNotNull("Joining must not postpone the 15 s result", postedPrompt());
+        assertFalse(scheduler.hasAnyPending());
+        assertTrue(diagnosticsExport().contains("outcome=joined"));
+    }
+
+    private KeepADBFakeScheduler startConfirmation() {
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        connectTo("Cafe-WLAN", KeepADBNetworkIdentity.REDACTED_BSSID);
+        KeepADBFakeScheduler scheduler = new KeepADBFakeScheduler();
+        KeepADBNetworkTrustPrompt.setSchedulerForTesting(scheduler);
+        KeepADBNetwork.setWifiConnectivityOverrideForTesting(() -> true);
+        assertFalse(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        assertTrue(scheduler.hasAnyPending());
+        return scheduler;
+    }
+
+    private boolean postedPromptExists() {
+        return postedPrompt() != null;
     }
 
     /**
@@ -397,7 +515,8 @@ public class KeepADBNetworkTrustPromptTest {
         shadowOf((Application) context).denyPermissions(
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
 
-        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBIdentityRecheckDriver.blockAndConfirm(context);
 
         Notification notification = postedPrompt();
         Intent target = shadowOf(notification.contentIntent).getSavedIntent();
@@ -420,7 +539,8 @@ public class KeepADBNetworkTrustPromptTest {
                 (android.location.LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         shadowOf(locationManager).setLocationEnabled(false);
 
-        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBIdentityRecheckDriver.blockAndConfirm(context);
 
         Notification notification = postedPrompt();
         Intent target = shadowOf(notification.contentIntent).getSavedIntent();
@@ -450,7 +570,8 @@ public class KeepADBNetworkTrustPromptTest {
                 (android.location.LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         shadowOf(locationManager).setLocationEnabled(true);
 
-        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBIdentityRecheckDriver.blockAndConfirm(context);
 
         Notification notification = postedPrompt();
         Intent target = shadowOf(notification.contentIntent).getSavedIntent();

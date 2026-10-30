@@ -122,6 +122,29 @@ final class KeepADBNetworkTrustPrompt {
      */
     private static final String IDENTITY_UNAVAILABLE_KEY = "identity_unavailable";
 
+    /**
+     * #872: waits between the checks of an unreadable identity before its notification is posted:
+     * the first check is the call that found it unreadable, then one after 5 s and one 10 s later.
+     * About 15 s in total covers the few seconds of an access-point roam (measured on s20: 3.4 s).
+     */
+    static final long[] IDENTITY_RECHECK_DELAYS_MS = {5_000L, 10_000L};
+
+    private static volatile KeepADBScheduler recheckScheduler = new KeepADBAndroidScheduler();
+    /** The scheduled recheck of a running confirmation, or null; guarded by the class lock. */
+    private static Runnable pendingIdentityRecheck;
+
+    static void setSchedulerForTesting(KeepADBScheduler testScheduler) {
+        recheckScheduler = testScheduler;
+    }
+
+    static synchronized void resetForTesting() {
+        if (pendingIdentityRecheck != null) {
+            recheckScheduler.removeCallbacks(pendingIdentityRecheck);
+            pendingIdentityRecheck = null;
+        }
+        recheckScheduler = new KeepADBAndroidScheduler();
+    }
+
     private static final class PromptEntry {
         final String bssid;
         final long promptedAt;
@@ -191,9 +214,76 @@ final class KeepADBNetworkTrustPrompt {
      * {@link #shouldPrompt}/{@link #markPrompted} under {@link #IDENTITY_UNAVAILABLE_KEY} so the
      * same throttle interval and history mechanism applies -- no separate throttling logic.
      *
-     * @return true if a notification was actually posted by this call.
+     * <p>#872: an access-point roam drops the association for a few seconds while the network
+     * callback still reports Wi-Fi, so a single unreadable read is not proof of a lasting problem.
+     * This call only starts a confirmation: the identity is checked again after each delay in
+     * {@link #IDENTITY_RECHECK_DELAYS_MS}, and the notification is posted only if every check
+     * still finds it unreadable. Further calls while a confirmation runs join it.
+     *
+     * @return always false: a notification is never posted by this call itself.
      */
     private static boolean onIdentityUnavailable(Context context) {
+        if (!shouldPrompt(context, IDENTITY_UNAVAILABLE_KEY, System.currentTimeMillis())) {
+            KeepADBDiagnostics.event(context, "network_trust_prompt", "identity_unavailable",
+                    "throttled", "already_notified");
+            return false;
+        }
+        synchronized (KeepADBNetworkTrustPrompt.class) {
+            if (pendingIdentityRecheck != null) {
+                KeepADBDiagnostics.event(context, "network_trust_prompt", "identity_unavailable",
+                        "joined", "recheck_pending");
+                return false;
+            }
+            scheduleIdentityRecheck(context, 0);
+        }
+        return false;
+    }
+
+    /** Must be called while holding the class lock. */
+    private static void scheduleIdentityRecheck(Context context, int attempt) {
+        long delayMs = IDENTITY_RECHECK_DELAYS_MS[attempt];
+        Runnable recheck = new Runnable() {
+            @Override
+            public void run() {
+                runIdentityRecheck(context, attempt, this);
+            }
+        };
+        pendingIdentityRecheck = recheck;
+        recheckScheduler.postDelayed(recheck, delayMs);
+        KeepADBDiagnostics.event(context, "network_trust_prompt", "identity_unavailable",
+                "recheck_scheduled", "attempt=" + (attempt + 2) + " delayMs=" + delayMs);
+    }
+
+    private static void runIdentityRecheck(Context context, int attempt, Runnable self) {
+        synchronized (KeepADBNetworkTrustPrompt.class) {
+            if (pendingIdentityRecheck != self) return;
+            pendingIdentityRecheck = null;
+            if (!isIdentityStillUnavailable(context)) {
+                KeepADBDiagnostics.event(context, "network_trust_prompt", "identity_unavailable",
+                        "resolved", "attempt=" + (attempt + 2));
+                return;
+            }
+            if (attempt + 1 < IDENTITY_RECHECK_DELAYS_MS.length) {
+                scheduleIdentityRecheck(context, attempt + 1);
+                return;
+            }
+        }
+        notifyIdentityUnavailable(context);
+    }
+
+    /**
+     * The situation the first call reported, re-derived now: still on Wi-Fi and the current
+     * evaluation still ends at an unreadable identity. Anything else (Wi-Fi gone, readable
+     * identity, force mode, policy changed) ends the confirmation silently; a readable but
+     * untrusted network is left to the next callback or heartbeat, which raises its own prompt.
+     */
+    private static boolean isIdentityStillUnavailable(Context context) {
+        return KeepADBService.isWifiConnected(context)
+                && KeepADBTrustedNetwork.getBlockReason(context)
+                        == KeepADBTrustedNetwork.BlockReason.IDENTITY_UNAVAILABLE;
+    }
+
+    private static boolean notifyIdentityUnavailable(Context context) {
         long now = System.currentTimeMillis();
         if (!shouldPrompt(context, IDENTITY_UNAVAILABLE_KEY, now)) {
             KeepADBDiagnostics.event(context, "network_trust_prompt", "identity_unavailable",

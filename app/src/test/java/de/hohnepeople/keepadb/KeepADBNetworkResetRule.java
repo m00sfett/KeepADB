@@ -25,6 +25,7 @@ final class KeepADBNetworkResetRule extends ExternalResource {
     @Override
     protected void before() {
         KeepADBNetwork.resetForTesting();
+        KeepADBNetworkTrustPrompt.resetForTesting();
         // #761: the home screen hands over to the setup assistant until it was closed once. The
         // home screen's tests are about the home screen, so they start without that hand-over; the
         // assistant's own tests switch it back on.
@@ -34,6 +35,7 @@ final class KeepADBNetworkResetRule extends ExternalResource {
     @Override
     protected void after() {
         KeepADBNetwork.resetForTesting();
+        KeepADBNetworkTrustPrompt.resetForTesting();
         KeepADBOnboarding.setAutoStartEnabledForTesting(true);
     }
 }

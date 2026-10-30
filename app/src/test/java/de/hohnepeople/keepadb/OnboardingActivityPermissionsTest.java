@@ -544,7 +544,8 @@ public class OnboardingActivityPermissionsTest {
                 .setConnectionInfo(info);
         shadowOf((android.location.LocationManager)
                 context.getSystemService(Context.LOCATION_SERVICE)).setLocationEnabled(true);
-        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBIdentityRecheckDriver.blockAndConfirm(context);
         Intent tap = tapTarget(KeepADBNetworkTrustPrompt.NOTIFICATION_ID);
 
         OnboardingActivity assistant = open(tap);
@@ -572,7 +573,8 @@ public class OnboardingActivityPermissionsTest {
                 .setConnectionInfo(info);
         shadowOf((android.location.LocationManager)
                 context.getSystemService(Context.LOCATION_SERVICE)).setLocationEnabled(true);
-        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALLOWLIST);
+        KeepADBIdentityRecheckDriver.blockAndConfirm(context);
         KeepADBNotification.showPermissionMissing(context);
 
         android.app.NotificationManager manager =
