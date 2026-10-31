@@ -1,0 +1,1 @@
+Webhook sync: the warning about failed reports now also arrives on time after the phone slept, and it is no longer lost when notifications were not allowed yet. If reports had given up, tapping Save URL in Settings reports right away again.

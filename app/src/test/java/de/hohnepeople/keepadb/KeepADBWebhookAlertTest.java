@@ -7,10 +7,13 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
+import android.os.SystemClock;
 import androidx.test.core.app.ApplicationProvider;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -22,10 +25,14 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowAlarmManager;
 import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowNotificationManager;
 
-/** #868: at most two warnings per continuous failure episode, with truthful freshness wording. */
+/**
+ * #868: at most two warnings per continuous failure episode, with truthful freshness wording.
+ * #870: the next check is an allow-while-idle alarm, and only a posted alert counts.
+ */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
 public class KeepADBWebhookAlertTest {
@@ -46,6 +53,7 @@ public class KeepADBWebhookAlertTest {
     @Before
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
+        ShadowAlarmManager.reset();
         Shadows.shadowOf((Application) context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS);
         clearPreferences();
         KeepADBRegisterClient.resetForTesting();
@@ -76,13 +84,27 @@ public class KeepADBWebhookAlertTest {
         ctx.getSharedPreferences("keepadb_prefs", Context.MODE_PRIVATE).edit().clear().commit();
     }
 
-    /** Moves the alert clock and the main looper together. */
+    /** Moves the alert clock and the main looper together and delivers a due alert alarm. */
     private void advance(long ms) {
         now += ms;
         KeepADBWebhookAlert.setNowForTesting(now);
         ShadowLooper.idleMainLooper(ms, TimeUnit.MILLISECONDS);
         assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
         ShadowLooper.idleMainLooper();
+        ShadowAlarmManager.ScheduledAlarm alarm = nextAlarm();
+        if (alarm != null && alarm.getTriggerAtMs() <= SystemClock.elapsedRealtime()) {
+            fireAlarm();
+        }
+    }
+
+    private ShadowAlarmManager.ScheduledAlarm nextAlarm() {
+        return Shadows.shadowOf(context.getSystemService(AlarmManager.class)).peekNextScheduledAlarm();
+    }
+
+    /** What AlarmManager delivers: the receiver, on the main thread, without any posted callback. */
+    private void fireAlarm() {
+        new KeepADBReceiver().onReceive(context,
+                new Intent(KeepADBReceiver.ACTION_WEBHOOK_ALERT_CHECK));
     }
 
     /** A failed report for a new endpoint each time, so none of them joins an exhausted series. */
@@ -244,5 +266,94 @@ public class KeepADBWebhookAlertTest {
         assertEquals(now, KeepADBPreferences.getWebhookFailureSince(context));
         advance(KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
         assertNotNull(alert());
+    }
+
+    @Test
+    public void nextCheckIsAnAllowWhileIdleAlarmOnElapsedRealtime() {
+        long elapsedAtFailure = SystemClock.elapsedRealtime();
+        failReport();
+        ShadowAlarmManager.ScheduledAlarm alarm = nextAlarm();
+        assertNotNull("the first warning is armed as an alarm", alarm);
+        assertEquals(AlarmManager.ELAPSED_REALTIME_WAKEUP, alarm.getType());
+        assertTrue(alarm.isAllowWhileIdle());
+        assertEquals(elapsedAtFailure + KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS, alarm.getTriggerAtMs());
+
+        advance(KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
+        assertEquals("then the reminder", SystemClock.elapsedRealtime()
+                + KeepADBWebhookAlert.REMINDER_AFTER_MS - KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS,
+                nextAlarm().getTriggerAtMs());
+
+        advance(KeepADBWebhookAlert.REMINDER_AFTER_MS);
+        assertNull("nothing armed after the last alert of the episode", nextAlarm());
+    }
+
+    @Test
+    public void reminderArrivesAfterDeepSleepWithoutTheMainLooper() {
+        failReport();
+        advance(KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
+        assertEquals(1, alertsShown());
+
+        // Deep sleep: wall clock and elapsed realtime move on, uptime and the main looper do not.
+        now += KeepADBWebhookAlert.REMINDER_AFTER_MS;
+        KeepADBWebhookAlert.setNowForTesting(now);
+        fireAlarm();
+
+        assertEquals("the alarm alone delivers the reminder", 2, alertsShown());
+    }
+
+    @Test
+    public void alarmAfterProcessDeathEvaluatesThePersistedEpisode() {
+        failReport();
+        // Process death: every in-memory field is gone, the episode survives in preferences.
+        KeepADBRegisterClient.resetForTesting();
+        KeepADBWebhookAlert.setNowForTesting(now + KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
+        fireAlarm();
+        assertNotNull(alert());
+        assertEquals(1, alertsShown());
+    }
+
+    @Test
+    public void missingNotificationPermissionDoesNotConsumeTheAlertBudget() {
+        Shadows.shadowOf((Application) context).denyPermissions(Manifest.permission.POST_NOTIFICATIONS);
+        failReport();
+        advance(KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
+        assertNull(alert());
+        assertEquals("nothing posted, nothing counted", 0, alertsShown());
+        ShadowAlarmManager.ScheduledAlarm alarm = nextAlarm();
+        assertNotNull("no immediate re-check loop: the reminder is the next level", alarm);
+        assertTrue(alarm.getTriggerAtMs() > SystemClock.elapsedRealtime());
+
+        Shadows.shadowOf((Application) context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS);
+        KeepADBWebhookAlert.onAppResumed(context);
+        ShadowLooper.idleMainLooper();
+
+        assertNotNull("granted later in the same episode, the warning is shown", alert());
+        assertEquals(1, alertsShown());
+    }
+
+    @Test
+    public void permissionGrantedAfterTheReminderShowsOneAlert() {
+        Shadows.shadowOf((Application) context).denyPermissions(Manifest.permission.POST_NOTIFICATIONS);
+        failReport();
+        advance(KeepADBWebhookAlert.FIRST_ALERT_AFTER_MS);
+        advance(KeepADBWebhookAlert.REMINDER_AFTER_MS);
+        assertEquals(0, alertsShown());
+        assertNull("both levels are due, no timer is left", nextAlarm());
+
+        Shadows.shadowOf((Application) context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS);
+        KeepADBWebhookAlert.onAppResumed(context);
+        ShadowLooper.idleMainLooper();
+
+        assertEquals(1, notifications.size());
+        assertEquals(KeepADBWebhookAlert.MAX_ALERTS_PER_EPISODE, alertsShown());
+    }
+
+    @Test
+    public void successCancelsTheArmedAlarm() {
+        failReport();
+        assertNotNull(nextAlarm());
+        succeedReport();
+        ShadowLooper.idleMainLooper();
+        assertNull(nextAlarm());
     }
 }

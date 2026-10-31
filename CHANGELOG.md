@@ -17,11 +17,19 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.7` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.8` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.10.8] - Unreleased
+
+### Fixed
+- **Webhook warning on time after deep sleep, and not lost without notification permission (#870):** the next check of the #868 failure episode (warning after 1 min, reminder after 1 h) was a main-thread timer on uptime, which stands still in deep sleep and Doze, so the reminder could arrive hours late or only at the next report outcome. It is now one inexact `AlarmManager.setAndAllowWhileIdle` alarm on elapsed realtime, delivered through `KeepADBReceiver` (`ACTION_WEBHOOK_ALERT_CHECK`); it also survives a process death and only re-reads the persisted episode. Inexact on purpose: no exact-alarm permission, and the text names no exact time. An alert now counts against the episode only once it was actually posted: without `POST_NOTIFICATIONS` nothing is counted, no immediate re-check loop is armed, and the alert that is due is shown at the next report outcome or when the app comes to the foreground (for example after the permission was granted). The #866 retry delays stay uptime-based by decision: the series is short and bounded, and the network event on wake-up (#867) starts a fresh report anyway.
+
+### Changed
+- **Saving the webhook URL reports again, also after the retries were given up (#869):** once a #866 retry series was exhausted, refreshes for the same URL and endpoint no longer sent anything, so after repairing the server the device stayed unreported until the next network event. Tapping **Save URL** in Settings, with the URL unchanged, now reports the current endpoint at once through `KeepADBRegisterClient.requestResyncNow`. It skips the #867 debounce and replaces a waiting debounced resync, but joins a POST that is running or a retry that is scheduled, so there is no parallel request and no postponed retry. Ordinary refreshes keep joining the exhausted series; there is no timer and no polling.
 
 ## [1.10.7] - Unreleased
 
