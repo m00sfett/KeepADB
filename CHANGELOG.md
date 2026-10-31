@@ -17,11 +17,19 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.9` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.10` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.10.10] - Unreleased
+
+### Changed
+- **VPN handling is product-neutral; no Tailscale-specific behavior or wording (#877):** KeepADB is meant to work with whatever VPN or overlay network runs in the background (Tailscale, NetBird, Headscale, plain WireGuard, ZeroTier, a corporate VPN, ...), and an address range does not identify a product: NetBird, for example, also assigns addresses from `100.64.0.0/10`. `KeepADBVpnTransport` now takes the first usable IPv4 address (not wildcard, loopback or link-local) of any active VPN network instead of only `100.64.0.0/10`, and still lists it only after the real ADB socket probe on the known port succeeded. The transport type is `VPN`, labeled "ADB via VPN"; the held-back register event method is `vpn-adb` (formerly `tailscale-adb`, never transmitted because the sender allowlist permits `wlan-adb` only). The VPN row stays debug-only (#548). The USB profile field "Tailnet hostname" is now "VPN/remote hostname"; its stored preference key is unchanged, so existing values are kept. The diagnostics snapshot reports `vpn=on|off` instead of `tailscale=...`. The security advice and the onboarding webhook text no longer name Tailscale.
+
+### Removed
+- **Tailscale status card and "Tailscale may be disconnected" hint (#877):** the debug-only status card (#537/#581, `KeepADBTailscaleStatus`) with its package-visibility query for `com.tailscale.ipn`, and the webhook-card hint (#561/#875, `KeepADBTailnetHeuristic`) that guessed a Tailscale outage from the URL. The webhook card now reports only whether the last report was delivered; it does not guess a network cause. The #868 failure alert is unchanged.
 
 ## [1.10.9] - Unreleased
 
