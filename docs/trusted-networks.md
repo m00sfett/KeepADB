@@ -54,6 +54,35 @@ as it did before #760. A block cannot identify it without a readable identity. I
 the same network is paused. Force mode does not change this behavior: while active it overrides
 blocks and trust, and afterward the exact saved setting applies again.
 
+## Limits of network identity (#863)
+
+Trust decisions are only as strong as the identifiers they compare.
+
+- **Both identifiers can be imitated.** An SSID is a freely chosen name. A BSSID is the access
+  point's MAC address: it recognizes an access point, but it does not authenticate it
+  cryptographically, and an access point can be configured with a copied BSSID. Matching by BSSID is
+  therefore stronger than matching by name, but it is not proof of identity.
+- **Imitating an identifier is not the same as being joined.** A copied BSSID alone does not defeat
+  WPA2/WPA3 authentication or make Android connect to that access point. Whether the phone joins
+  depends on the saved network, the credentials and platform behavior. With WPA2/WPA3-Personal,
+  anyone who knows the shared password can run an access point the phone cannot tell apart from the
+  real one. KeepADB does not and will not collect Wi-Fi passwords.
+- **ADB has its own protection.** Android authenticates paired hosts and encrypts Wireless
+  debugging with TLS. Imitating an access point identifier does not by itself give anyone an ADB
+  shell; a host still has to be paired.
+- **Trust gates automatic actions, not shutdown.** A trusted network allows automatic enabling and
+  recovery. If Wireless debugging is already on when the phone moves to an untrusted network,
+  KeepADB shows a notice but does not switch it off. An optional shutdown is proposed separately in
+  #864.
+- **Security type as an extra signal.** #860 evaluates comparing the connection's security type
+  with what was seen when an access point was trusted. That can reveal some downgrades (WPA3 to
+  WPA2, or to an open network), but not prove that an access point is genuine. Mesh networks can mix
+  security types per access point, so a baseline would have to be kept per BSSID.
+
+The in-app texts already describe name matching as weaker and easy to imitate, and they do not
+promise more than recognition of an access point. No additional localized explanation was added
+for #863.
+
 ## Prompt and decision dialog
 
 When automatic enabling encounters a readable access point that is neither trusted nor blocked,
