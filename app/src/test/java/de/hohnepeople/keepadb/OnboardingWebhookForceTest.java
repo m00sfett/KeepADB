@@ -81,26 +81,31 @@ public class OnboardingWebhookForceTest {
         KeepADBForceMode.resetForTesting();
     }
 
-    // ---- Webhook: Next and Skip write nothing ---------------------------------------------------------------
+    // ---- Webhook: Skip writes nothing, Next applies a typed URL (#888) -----------------------------------
 
     @Test
-    public void nextAndSkipNeverSaveATypedUrlButTheFormsOwnButtonDoes() {
-        for (int id : new int[] {R.id.onboarding_next, R.id.onboarding_secondary}) {
-            prefs().edit().clear().commit();
-            OnboardingActivity assistant = start(OnboardingActivity.fullIntent(context));
-            advanceTo(assistant, KeepADBOnboarding.Step.WEBHOOK);
-            type(assistant, HTTPS_URL);
-            Map<String, String> before = snapshot();
+    public void skipNeverSavesATypedUrlButNextAndTheFormsOwnButtonDo() {
+        prefs().edit().clear().commit();
+        OnboardingActivity assistant = start(OnboardingActivity.fullIntent(context));
+        advanceTo(assistant, KeepADBOnboarding.Step.WEBHOOK);
+        type(assistant, HTTPS_URL);
+        Map<String, String> before = snapshot();
+        click(assistant, R.id.onboarding_secondary);
+        assertEquals("skipping writes nothing", before, snapshot());
+        assertNull(KeepADBPreferences.getRegisterWebhookUrl(context));
 
-            click(assistant, id);
-
-            assertEquals("leaving the step writes nothing", before, snapshot());
-            assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
-            assertNull(KeepADBPreferences.getRegisterWebhookUrl(context));
-        }
+        prefs().edit().clear().commit();
+        assistant = start(OnboardingActivity.fullIntent(context));
+        advanceTo(assistant, KeepADBOnboarding.Step.WEBHOOK);
+        type(assistant, HTTPS_URL);
+        click(assistant, R.id.onboarding_next);
+        // #888: "Next" saves like "Save URL", which also switches sync on.
+        assertEquals(HTTPS_URL, KeepADBPreferences.getRegisterWebhookUrl(context));
+        assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(context));
+        prefs().edit().clear().commit();
 
         // The other side: the form's own "Save URL" stores and enables.
-        OnboardingActivity assistant = start(OnboardingActivity.fullIntent(context));
+        assistant = start(OnboardingActivity.fullIntent(context));
         advanceTo(assistant, KeepADBOnboarding.Step.WEBHOOK);
         type(assistant, HTTPS_URL);
         click(assistant, R.id.settings_webhook_save);
@@ -228,14 +233,15 @@ public class OnboardingWebhookForceTest {
     }
 
     @Test
-    public void singleStepDoneStoresNoTypedUrl() {
+    public void singleStepDoneStoresTheTypedUrl() {
         OnboardingActivity assistant = start(OnboardingActivity.stepIntent(context,
                 KeepADBOnboarding.Step.WEBHOOK));
         type(assistant, HTTPS_URL);
         click(assistant, R.id.onboarding_next);
         assertTrue(assistant.isFinishing());
-        assertFalse(KeepADBPreferences.isRegisterWebhookEnabled(context));
-        assertNull(KeepADBPreferences.getRegisterWebhookUrl(context));
+        // #888: "Done" in single-step mode applies the typed URL like "Save URL".
+        assertTrue(KeepADBPreferences.isRegisterWebhookEnabled(context));
+        assertEquals(HTTPS_URL, KeepADBPreferences.getRegisterWebhookUrl(context));
     }
 
     // ---- Force preset: only the dialog's confirmation starts it -----------------------------------------------

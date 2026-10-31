@@ -36,6 +36,14 @@ abstract class OnboardingStep {
     /** Writes the user's choice, if it differs from what {@link #build} loaded. Never throws on "no input". */
     abstract void commit(Context context);
 
+    /**
+     * #888: called on "Next" before {@link #commit}; false keeps the step open (a step that
+     * applies typed input shows its own error). "Skip" never calls it.
+     */
+    boolean beforeNext() {
+        return true;
+    }
+
     /** The stored value in words, for the closing summary. */
     abstract String summary(Context context);
 

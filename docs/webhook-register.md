@@ -8,7 +8,8 @@ design in [issue 539](design/issue-539-multi-transport-register-contract.md).
 ## Setup and enabling or disabling
 
 Webhook synchronization is off by default. Users enter the target URL and enable synchronization
-themselves in app Settings. Both values are stored in private app preferences and are not restored
+themselves in app Settings or in the setup assistant. Saving a valid URL also enables
+synchronization; in the assistant, "Next" applies a newly typed URL the same way (#888). Both values are stored in private app preferences and are not restored
 through Android cloud backup or device transfer. They must be entered again after reinstalling.
 KeepADB sends only to the URL saved by the user.
 

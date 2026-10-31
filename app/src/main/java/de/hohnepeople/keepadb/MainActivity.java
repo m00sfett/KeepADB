@@ -42,6 +42,12 @@ public class MainActivity extends Activity {
     private KeepADBWarningState.Snapshot warningSnapshot;
     private KeepADBWarningState.Snapshot dismissedSnapshot;
     private KeepADBWarningState.Card dismissedCard;
+    /** #889: the feedback bar after closing a card goes away by itself, like a snackbar. */
+    static final int WARNING_FEEDBACK_TIMEOUT_MS = 10_000;
+    private final Runnable expireWarningFeedback = () -> {
+        dismissedCard = null;
+        renderWarningFeedback();
+    };
     private boolean returningFromWarnings;
     private View warningSystem;
     private View warningLessSecure;
@@ -134,6 +140,7 @@ public class MainActivity extends Activity {
         if (savedInstanceState != null) {
             restoreWarningFeedback(savedInstanceState);
             returningFromWarnings = savedInstanceState.getBoolean("warnings_return_to_triangle");
+            if (dismissedCard != null) armWarningFeedbackTimeout();
         }
         updateAdviceBannerVisibility();
 
@@ -237,6 +244,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        View feedbackBar = findViewById(R.id.warning_feedback);
+        if (feedbackBar != null) feedbackBar.removeCallbacks(expireWarningFeedback);
         if (settingsMenu != null) {
             settingsMenu.dismiss();
             settingsMenu = null;
@@ -632,7 +641,24 @@ public class MainActivity extends Activity {
             dismissedSnapshot = shown;
             renderWarnings();
             focusWarningView(findViewById(R.id.warning_feedback_text));
+            armWarningFeedbackTimeout();
         });
+    }
+
+    /**
+     * #889: (re)starts the timeout of the feedback bar. Android lengthens it for users who asked
+     * for more time to react (accessibility setting), as for any message with controls.
+     */
+    private void armWarningFeedbackTimeout() {
+        View bar = findViewById(R.id.warning_feedback);
+        bar.removeCallbacks(expireWarningFeedback);
+        android.view.accessibility.AccessibilityManager accessibility =
+                getSystemService(android.view.accessibility.AccessibilityManager.class);
+        int timeout = accessibility == null ? WARNING_FEEDBACK_TIMEOUT_MS
+                : accessibility.getRecommendedTimeoutMillis(WARNING_FEEDBACK_TIMEOUT_MS,
+                        android.view.accessibility.AccessibilityManager.FLAG_CONTENT_TEXT
+                                | android.view.accessibility.AccessibilityManager.FLAG_CONTENT_CONTROLS);
+        bar.postDelayed(expireWarningFeedback, timeout);
     }
 
     private static void focusWarningView(View view) {
@@ -664,7 +690,10 @@ public class MainActivity extends Activity {
 
     private void renderWarningFeedback() {
         findViewById(R.id.warning_feedback).setVisibility(dismissedCard == null ? View.GONE : View.VISIBLE);
-        if (dismissedCard == null) return;
+        if (dismissedCard == null) {
+            findViewById(R.id.warning_feedback).removeCallbacks(expireWarningFeedback);
+            return;
+        }
         TextView feedback = findViewById(R.id.warning_feedback_text);
         String text = getString(R.string.warnings_closed, getString(warningTitle(dismissedCard)));
         if (!android.text.TextUtils.equals(feedback.getText(), text)) feedback.setText(text);

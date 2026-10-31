@@ -235,6 +235,7 @@ public class OnboardingActivity extends Activity {
 
     private void goForward() {
         if (single != null) {
+            if (!single.beforeNext()) return;
             single.commit(this);
             leave();
             return;
@@ -247,6 +248,7 @@ public class OnboardingActivity extends Activity {
             close();
             return;
         }
+        if (!steps.get(page - 1).beforeNext()) return;
         steps.get(page - 1).commit(this);
         showPage(page + 1);
     }

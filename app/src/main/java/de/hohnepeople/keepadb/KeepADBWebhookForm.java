@@ -199,30 +199,51 @@ final class KeepADBWebhookForm {
         onChange.run();
     }
 
+    /**
+     * #888: "Next" in the setup assistant. A typed URL that differs from the stored one is saved
+     * exactly like "Save URL"; an empty or unchanged field is left alone. Returns false when the URL
+     * was invalid and the error is shown, so the step stays open instead of discarding the input.
+     */
+    boolean applyTypedUrl() {
+        String typed = urlInput.getText() != null ? urlInput.getText().toString().trim() : "";
+        if (typed.isEmpty()) return true;
+        String sanitized = KeepADBPreferences.sanitizeWebhookUrl(typed);
+        if (sanitized != null && sanitized.equals(KeepADBPreferences.getRegisterWebhookUrl(activity))) {
+            return true;
+        }
+        return save();
+    }
+
     private void onSaveClicked() {
+        save();
+    }
+
+    /** "Save URL"; returns false when it showed an error instead of saving. */
+    private boolean save() {
         String inputUrl = readAndNormalizeInput();
         if (inputUrl.isEmpty()) {
             if (KeepADBPreferences.isRegisterWebhookEnabled(activity)) {
                 error.setText(R.string.settings_webhook_error_missing_url);
                 error.setVisibility(View.VISIBLE);
-                return;
+                return false;
             }
             KeepADBPreferences.setRegisterWebhookUrl(activity, null);
             error.setVisibility(View.GONE);
             Toast.makeText(activity, R.string.settings_webhook_saved_toast, Toast.LENGTH_SHORT).show();
             onChange.run();
-            return;
+            return true;
         }
         if (!KeepADBPreferences.isValidWebhookUrl(inputUrl)) {
             error.setText(R.string.settings_webhook_error_invalid_url);
             error.setVisibility(View.VISIBLE);
-            return;
+            urlInput.requestFocus();
+            return false;
         }
         if (!KeepADBPreferences.isRegisterWebhookEnabled(activity)) {
             // #733: saving a valid URL also switches the webhook on; its toast replaces "saved".
             activateWebhook(inputUrl);
             onChange.run();
-            return;
+            return true;
         }
         error.setVisibility(View.GONE);
         KeepADBPreferences.setRegisterWebhookUrl(activity, inputUrl);
@@ -232,6 +253,7 @@ final class KeepADBWebhookForm {
         KeepADBRegisterClient.requestResyncNow(activity);
         Toast.makeText(activity, R.string.settings_webhook_saved_toast, Toast.LENGTH_SHORT).show();
         onChange.run();
+        return true;
     }
 
     private void onClearClicked() {
