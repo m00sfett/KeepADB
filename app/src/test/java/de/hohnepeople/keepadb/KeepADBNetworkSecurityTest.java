@@ -227,6 +227,26 @@ public class KeepADBNetworkSecurityTest {
         KeepADBNetworkCardState.Snapshot snapshot = cardState();
         assertEquals(KeepADBNetworkCardState.Connection.NOT_ALLOWED, snapshot.connection);
         assertEquals(KeepADBNetworkCardState.Action.ALLOW_ACCESS_POINT, snapshot.action);
+        // #887: the card names the security change, not just "not trusted".
+        assertEquals(KeepADBNetworkCardState.Cause.SECURITY_MISMATCH, snapshot.cause);
+    }
+
+    /** #887 (s20 device test): the prompt title names the security change, not a new network. */
+    @Test
+    public void thePromptTitleNamesTheSecurityChange() {
+        shadowOf((android.app.Application) context).grantPermissions(
+                android.Manifest.permission.POST_NOTIFICATIONS);
+        trustWhileConnected(HOME, PSK);
+        KeepADBTrustedNetwork.setSecurityCheckEnabled(context, true);
+        connectTo(HOME, OPEN);
+
+        assertTrue(KeepADBNetworkTrustPrompt.onBlockedByUntrustedNetwork(context));
+
+        android.app.NotificationManager manager =
+                context.getSystemService(android.app.NotificationManager.class);
+        android.app.Notification posted = shadowOf(manager).getAllNotifications().get(0);
+        assertEquals(context.getString(R.string.network_prompt_security_title),
+                posted.extras.getString(android.app.Notification.EXTRA_TITLE));
     }
 
     private KeepADBNetworkCardState.Snapshot cardState() {

@@ -331,6 +331,8 @@
     <string name="security_check_hint">في Android 12 والإصدارات الأحدث: عندما تثق بنقطة اتصال، يحفظ KeepADB مستوى أمانها (مفتوح أو شخصي أو مؤسسي). إذا اتصلت لاحقًا بمستوى أدنى أو غير قابل للقراءة، فلن يشغّل Keep-Alive تصحيح الأخطاء اللاسلكي هناك من تلقاء نفسه حتى تثق بها مجددًا. هذا لا يثبت أن نقطة الاتصال حقيقية. نقاط الاتصال التي وثقت بها قبل هذا الخيار تبقى مُتحقَّقًا منها بالعنوان فقط حتى تثق بها مجددًا.</string>
     <string name="network_prompt_security_text">%1$s (%2$s) موثوقة، لكن أمان Wi-Fi لها أصبح أدنى مما كان عند الثقة بها، أو غير قابل للقراءة. ثق بها مجددًا فقط إذا كنت تتوقع هذا التغيير.</string>
     <string name="network_prompt_security_confirm_in_app_text">تغيّر أمان Wi-Fi لنقطة اتصال موثوقة — انقر للتحقق منه في التطبيق.</string>
+    <string name="network_prompt_security_title">تغيّر أمان Wi-Fi لنقطة اتصال موثوقة</string>
+    <string name="network_cause_security_mismatch">إعادة التشغيل التلقائي متوقفة مؤقتًا: أمان Wi-Fi لنقطة الاتصال هذه أدنى مما كان عند الثقة بها، أو غير قابل للقراءة.</string>
     <string name="networks_level">مستوى الحماية: %1$s</string>
     <string name="networks_force_note">أثناء تفعيل الوضع الإجباري لا تسري الشبكات الموثوقة ولا المحظورة. وتسري مجددًا بعده.</string>
     <string name="networks_section_current">الشبكة الحالية</string>

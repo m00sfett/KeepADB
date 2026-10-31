@@ -338,6 +338,8 @@
     <string name="security_check_hint">Android 12 and later: when you trust an access point, KeepADB records its security level (open, personal or enterprise). If it later connects with a lower or unreadable level, Keep-Alive does not turn Wireless Debugging on there by itself until you trust it again. This does not prove that the access point is genuine. Access points trusted before this option keep the address-only check until you trust them again.</string>
     <string name="network_prompt_security_text">%1$s (%2$s) is trusted, but its Wi-Fi security is now lower than when you trusted it, or cannot be read. Trust it again only if you expect this change.</string>
     <string name="network_prompt_security_confirm_in_app_text">The Wi-Fi security of a trusted access point has changed — tap to check it in the app.</string>
+    <string name="network_prompt_security_title">Wi-Fi security of a trusted access point changed</string>
+    <string name="network_cause_security_mismatch">Keep-Alive auto re-enable is paused: this access point’s Wi-Fi security is lower than when you trusted it, or cannot be read.</string>
     <string name="networks_level">Protection level: %1$s</string>
     <string name="networks_force_note">While force mode is on, trusted and blocked networks do not apply. They apply again afterwards.</string>
     <string name="networks_section_current">Current network</string>

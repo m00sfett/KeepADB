@@ -58,6 +58,8 @@ final class KeepADBNetworkCardState {
         NOT_ALLOWED,
         /** #762: a block holds; nothing the card could offer (allow) would change that. */
         BLOCKED,
+        /** #887: a trusted access point failed the #860 security check; trusting it again helps. */
+        SECURITY_MISMATCH,
         ALLOWED,
         ALLOWED_BY_NAME,
         /** "All Wi-Fi networks" is active: the lists are not consulted. */
@@ -93,6 +95,8 @@ final class KeepADBNetworkCardState {
         final boolean backgroundGranted;
         /** #760: the access point or its name is blocked; a block beats every kind of trust. */
         final boolean blocked;
+        /** #887: a trusted access point that fails the #860 security check. */
+        final boolean securityMismatch;
 
         Inputs(boolean allowlistMode, boolean ssidMatching, boolean wifiConnected,
                boolean identityKnown, boolean bssidListed, boolean ssidListed,
@@ -106,7 +110,16 @@ final class KeepADBNetworkCardState {
                boolean identityKnown, boolean bssidListed, boolean ssidListed,
                boolean fineLocationGranted, boolean locationServicesOn,
                boolean backgroundGranted, boolean blocked) {
+            this(allowlistMode, ssidMatching, wifiConnected, identityKnown, bssidListed, ssidListed,
+                    fineLocationGranted, locationServicesOn, backgroundGranted, blocked, false);
+        }
+
+        Inputs(boolean allowlistMode, boolean ssidMatching, boolean wifiConnected,
+               boolean identityKnown, boolean bssidListed, boolean ssidListed,
+               boolean fineLocationGranted, boolean locationServicesOn,
+               boolean backgroundGranted, boolean blocked, boolean securityMismatch) {
             this.blocked = blocked;
+            this.securityMismatch = securityMismatch;
             this.allowlistMode = allowlistMode;
             this.ssidMatching = ssidMatching;
             this.wifiConnected = wifiConnected;
@@ -156,6 +169,7 @@ final class KeepADBNetworkCardState {
         boolean known = identity != null && identity.isKnown();
         boolean bssidListed = false;
         boolean ssidListed = false;
+        boolean securityMismatch = false;
         // #760: the same block store the policy consults, with the same matching.
         // #762: a block on a readable Wi-Fi name holds without a readable address too, exactly as
         // the policy applies it ("never" holds whenever there is evidence of the network).
@@ -174,6 +188,7 @@ final class KeepADBNetworkCardState {
             // #860: an access point that fails the security check is not allowed, whatever the
             // lists say; the card then offers to trust it again, like the policy (Codex review).
             if (KeepADBTrustedNetwork.isSecurityMismatch(context, identity)) {
+                securityMismatch = true;
                 bssidListed = false;
                 ssidListed = false;
             }
@@ -183,7 +198,7 @@ final class KeepADBNetworkCardState {
                         || KeepADBTrustedNetwork.isTrustByNameEnabled(context),
                 wifiConnected, known,
                 bssidListed, ssidListed, fineLocationGranted, locationServicesOn,
-                backgroundGranted, blocked);
+                backgroundGranted, blocked, securityMismatch);
     }
 
     static Mode mode(boolean allowlistMode, boolean ssidMatching) {
@@ -258,7 +273,8 @@ final class KeepADBNetworkCardState {
                 action = Action.NONE;
                 break;
             case NOT_ALLOWED:
-                cause = in.allowlistMode ? Cause.NOT_ALLOWED : Cause.ALL_WIFI;
+                cause = in.securityMismatch ? Cause.SECURITY_MISMATCH
+                        : (in.allowlistMode ? Cause.NOT_ALLOWED : Cause.ALL_WIFI);
                 action = Action.ALLOW_ACCESS_POINT;
                 break;
             case ALLOWED_NAME:

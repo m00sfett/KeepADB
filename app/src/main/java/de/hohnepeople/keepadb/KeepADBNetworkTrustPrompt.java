@@ -471,7 +471,8 @@ final class KeepADBNetworkTrustPrompt {
         // allowed, the private text above is shown, hence the opt-in check there.
         Notification publicVersion = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
-                .setContentTitle(localized.getString(R.string.network_prompt_title))
+                .setContentTitle(localized.getString(security
+                        ? R.string.network_prompt_security_title : R.string.network_prompt_title))
                 .setContentText(details
                         ? localized.getString(R.string.network_prompt_public_text)
                         : text)
@@ -479,7 +480,8 @@ final class KeepADBNetworkTrustPrompt {
                 .build();
         Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
-                .setContentTitle(localized.getString(R.string.network_prompt_title))
+                .setContentTitle(localized.getString(security
+                        ? R.string.network_prompt_security_title : R.string.network_prompt_title))
                 .setContentText(text)
                 .setStyle(new Notification.BigTextStyle().bigText(text))
                 .setContentIntent(contentIntent)
