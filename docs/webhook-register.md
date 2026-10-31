@@ -49,6 +49,12 @@ retry rules. The separate builder for an event with `active=false` is not curren
 production path. This repository therefore documents outgoing methods and contents, not the meaning
 an external receiver assigns to a POST or DELETE.
 
+When a report fails, a short bounded retry series follows (#866). If it is given up on while the
+endpoint stays the same, a later network change (#867), saving the URL again (#869), or, while the
+failure lasts, one single re-attempt at most every 15 minutes on the Keep-Alive service heartbeat
+(#881) reports again. A healthy webhook is never polled: without a failure episode nothing is sent
+until the endpoint changes.
+
 The HTTP client does not follow redirects. An HTTP status from 200 through 299 counts locally as a
 successful request. This does not prove that a receiver accepted the data semantically, stored it
 permanently, or made it available to clients.

@@ -114,6 +114,12 @@ final class KeepADBRegisterClient {
     private static String seriesUrl = null;
     private static String seriesEndpoint = null;
     private static boolean seriesExhausted = false;
+    /** #881: the current series is an episode re-attempt: one request, never a retry. */
+    private static boolean singleShotSeries = false;
+    /** #881: elapsed realtime when the series was given up on, or of the last episode re-attempt. */
+    private static long lastGiveUpOrReattemptAt = 0L;
+    /** #881: the sparse re-attempt while a failure episode lasts and nothing else reports. */
+    static final long EPISODE_REATTEMPT_INTERVAL_MS = 15L * 60L * 1000L;
     /** #866: retries already scheduled in the current series; 0 before its first failure. */
     private static int postRetryNumber = 0;
     /** #866: the one scheduled retry of the current series on the main handler, or null. */
@@ -240,6 +246,64 @@ final class KeepADBRegisterClient {
     }
 
     /**
+     * #881: called on the service heartbeat. While a failure episode lasts and the retry series
+     * has been given up on, nothing else reports until the endpoint or the default network
+     * changes, which left s20 unreported for about two hours. This sends one report at most every
+     * {@link #EPISODE_REATTEMPT_INTERVAL_MS} after the series was given up on: a single attempt,
+     * not a new series, so a lasting outage costs one request per quarter hour. It joins nothing
+     * and never starts while a POST runs or a retry is scheduled; a success ends the episode.
+     */
+    static void reattemptStaleEpisode(Context context) {
+        if (context == null) return;
+        final Context appContext = context.getApplicationContext();
+        if (!KeepADBPreferences.isRegisterWebhookEnabled(appContext)) return;
+        if (KeepADBPreferences.getWebhookFailureSince(appContext) <= 0L) return;
+        long generationBefore = currentOpGeneration;
+        String endpoint = currentCoordinatorEndpoint();
+        String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
+        final long opGen;
+        synchronized (KeepADBRegisterClient.class) {
+            if (!seriesExhausted || pendingResync != null) return;
+            long now = SystemClock.elapsedRealtime();
+            if (now - lastGiveUpOrReattemptAt < EPISODE_REATTEMPT_INTERVAL_MS) return;
+            opGen = startResyncSeriesLocked(appContext, true, targetUrl, endpoint, generationBefore);
+            if (opGen == 0L) return;
+            lastGiveUpOrReattemptAt = now;
+            // One attempt only, independent of the retry-count setting, which may change while
+            // the attempt runs (Codex review): a failure ends this series at once.
+            singleShotSeries = true;
+        }
+        dispatchUpdate(appContext, targetUrl, endpoint, opGen, true);
+    }
+
+    /** #881: reachability check of the cached endpoint before an episode re-attempt. */
+    interface EndpointProbe {
+        boolean isReachable(String endpoint);
+    }
+
+    private static final int REATTEMPT_PROBE_WAIT_MILLIS = 400;
+    private static volatile EndpointProbe endpointProbe = KeepADBRegisterClient::probeEndpoint;
+
+    static void setEndpointProbeForTesting(EndpointProbe probe) {
+        endpointProbe = probe != null ? probe : KeepADBRegisterClient::probeEndpoint;
+    }
+
+    /** Parses {@code host:port} or {@code [v6]:port} as written by {@link KeepADBEndpoint#formatEndpoint}. */
+    private static boolean probeEndpoint(String endpoint) {
+        if (endpoint == null) return false;
+        int colon = endpoint.lastIndexOf(':');
+        if (colon <= 0) return false;
+        String host = endpoint.substring(0, colon);
+        if (host.startsWith("[") && host.endsWith("]")) host = host.substring(1, host.length() - 1);
+        try {
+            int port = Integer.parseInt(endpoint.substring(colon + 1));
+            return KeepADBEndpoint.isPortReachable(host, port, REATTEMPT_PROBE_WAIT_MILLIS);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    /**
      * #867/#869: caller must hold the class monitor. Starts a series that reports the endpoint
      * again, or returns 0 when there is nothing to report, a POST is running or a retry is
      * scheduled (joined), or a newer operation made the endpoint read before the monitor stale.
@@ -267,8 +331,30 @@ final class KeepADBRegisterClient {
     }
 
     private static void dispatchUpdate(Context appContext, String targetUrl, String endpoint, long opGen) {
+        dispatchUpdate(appContext, targetUrl, endpoint, opGen, false);
+    }
+
+    /**
+     * @param probeFirst #881: probe the endpoint before reporting it. Codex review: adbd may have
+     *         rotated its port without a network callback, and the cached endpoint is only
+     *         re-verified asynchronously. An episode re-attempt never reports an address that does
+     *         not answer; the endpoint health check reports the new one itself.
+     */
+    private static void dispatchUpdate(Context appContext, String targetUrl, String endpoint,
+            long opGen, boolean probeFirst) {
         EXECUTOR.execute(() -> {
             if (opGen != currentOpGeneration) return;
+            if (probeFirst && !endpointProbe.isReachable(endpoint)) {
+                synchronized (KeepADBRegisterClient.class) {
+                    if (opGen == currentOpGeneration) {
+                        wlanUpdateInFlight = false;
+                        seriesExhausted = true;
+                    }
+                }
+                KeepADBDiagnostics.event(appContext, "register_report", "webhook", "skipped",
+                        "method=post reason=endpoint_unreachable reattempt=true");
+                return;
+            }
             performUpdateTransaction(appContext, targetUrl, endpoint, opGen);
         });
     }
@@ -280,6 +366,7 @@ final class KeepADBRegisterClient {
             pendingPostRetry = null;
         }
         postRetryNumber = 0;
+        singleShotSeries = false;
         seriesUrl = null;
         seriesEndpoint = null;
         seriesExhausted = false;
@@ -295,8 +382,9 @@ final class KeepADBRegisterClient {
      */
     private static void schedulePostRetryLocked(Context context, String targetUrl, String endpoint,
             long opGen) {
-        if (postRetryNumber >= KeepADBPreferences.getWebhookRetryCount(context)) {
+        if (singleShotSeries || postRetryNumber >= KeepADBPreferences.getWebhookRetryCount(context)) {
             seriesExhausted = true;
+            lastGiveUpOrReattemptAt = SystemClock.elapsedRealtime();
             return;
         }
         postRetryNumber++;
@@ -796,6 +884,8 @@ final class KeepADBRegisterClient {
     }
 
     static synchronized void resetForTesting() {
+        lastGiveUpOrReattemptAt = 0L;
+        endpointProbe = KeepADBRegisterClient::probeEndpoint;
         lastRegisteredUrl = null;
         lastRegisteredEndpoint = null;
         stateInitialized = false;
