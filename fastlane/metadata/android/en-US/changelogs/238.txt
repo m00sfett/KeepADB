@@ -1,0 +1,1 @@
+If webhook reports keep failing, KeepADB now tries again once every 15 minutes instead of waiting for the next network change.
