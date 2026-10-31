@@ -16,11 +16,8 @@
     <string name="endpoint_format">Punkt końcowy: %1$s:%2$d</string>
     <string name="endpoint_searching">Wyszukiwanie punktu końcowego…</string>
     <string name="endpoint_unavailable">Punkt końcowy niedostępny</string>
-    <string name="tailscale_status_active">Tailscale: aktywny</string>
-    <string name="tailscale_status_inactive">Tailscale: nieaktywny</string>
-    <string name="tailscale_status_unknown">Tailscale: nieznany</string>
 
-    <string name="transport_tailscale_label">ADB przez Tailscale/VPN</string>
+    <string name="transport_vpn_label">ADB przez VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · ostatnio sprawdzono %3$s</string>
     <string name="transport_usb_active_value">USB-ADB aktywne</string>
@@ -118,7 +115,6 @@
     <string name="webhook_status_no_endpoint">jeszcze brak</string>
     <string name="webhook_status_deregistered">wyrejestrowany</string>
     <string name="webhook_status_failed">niepowodzenie</string>
-    <string name="webhook_status_tailnet_hint">Tailscale może być rozłączony lub nie uruchomił się automatycznie po restarcie. Sprawdź ustawienie Androida „Zawsze włączone VPN” dla Tailscale.</string>
     <string name="settings_permission_warning">Brak uprawnienia systemowego WRITE_SECURE_SETTINGS. KeepADB nie może sterować debugowaniem bezprzewodowym przed nadaniem uprawnień.</string>
     <string name="settings_language_menu_label">Język</string>
     <string name="settings_language_accessibility">Język aplikacji: %1$s</string>
@@ -162,7 +158,7 @@
     <string name="usb_profile_name_hint">Nazwa profilu (wymagana)</string>
     <string name="usb_profile_ip_hint">Adres IP hosta (opcjonalny)</string>
     <string name="usb_profile_hostname_hint">Nazwa hosta (opcjonalna)</string>
-    <string name="usb_profile_tailnet_hint">Nazwa hosta Tailnet (opcjonalna)</string>
+    <string name="usb_profile_remote_host_hint">Nazwa hosta VPN/zdalnego (opcjonalna)</string>
     <string name="usb_profile_name_required">Wprowadź nazwę profilu.</string>
     <string name="usb_profile_edit_button">Edytuj</string>
     <string name="usb_profile_delete_button">Usuń</string>
@@ -284,7 +280,7 @@
     <string name="issue_report_placeholder_notes">Dodaj inne przydatne informacje.</string>
     <string name="issue_report_diagnostics_section">Opcjonalne zredagowane dane diagnostyczne KeepADB (sprawdź przed wysłaniem)</string>
     <string name="advice_banner_title">Bezpieczeństwo i sieć</string>
-    <string name="advice_banner_text">Debugowanie bezprzewodowe otwiera port ADB w Twojej sieci. Korzystaj z zaufanej sieci Wi-Fi lub VPN (np. Tailscale) i wyłączaj je w publicznych hotspotach. Nigdy nie udostępniaj publicznie swojego punktu końcowego ani nie akceptuj nieoczekiwanych próśb o parowanie.</string>
+    <string name="advice_banner_text">Debugowanie bezprzewodowe otwiera port ADB w Twojej sieci. Korzystaj z zaufanej sieci Wi-Fi lub VPN i wyłączaj je w publicznych hotspotach. Nigdy nie udostępniaj publicznie swojego punktu końcowego ani nie akceptuj nieoczekiwanych próśb o parowanie.</string>
     <string name="security_notice_dismiss">Zamknij powiadomienie</string>
     <string name="settings_advice_banner_toggle">Pokaż wskazówki dotyczące bezpieczeństwa i sieci</string>
     <string name="settings_advice_banner_subtext">Wyświetla baner ostrzeżenia o bezpieczeństwie u góry głównego ekranu.</string>
@@ -524,7 +520,7 @@ Możesz zakończyć tryb w dowolnej chwili z ekranu głównego lub z powiadomien
     <string name="onboarding_network_question">Czy KeepADB ma ufać sieci Wi-Fi, z którą jesteś teraz połączony?</string>
     <string name="onboarding_network_privacy_note">W trybie prywatności nazwa jest pokazywana tylko tutaj i przy nadawaniu zaufania.</string>
     <string name="onboarding_network_open_list">Zmień na liście Sieci</string>
-    <string name="onboarding_webhook_question">Opcjonalnie. Zgłasza bieżący adres debugowania bezprzewodowego do własnego serwera, na przykład w Twoim tailnecie. Większość osób tego nie potrzebuje. Nic nie zostanie zapisane, dopóki nie dotkniesz „Zapisz URL”.</string>
+    <string name="onboarding_webhook_question">Opcjonalnie. Zgłasza bieżący adres debugowania bezprzewodowego do własnego serwera, na przykład w Twojej sieci domowej lub VPN. Większość osób tego nie potrzebuje. Nic nie zostanie zapisane, dopóki nie dotkniesz „Zapisz URL”.</string>
     <string name="onboarding_protection_force_title">Maksymalna wygoda (tryb wymuszony)</string>
     <string name="onboarding_protection_force_body">W każdej sieci, także nieznanej, przez wybrany przez Ciebie czas. Najpierw musisz potwierdzić.</string>
     <string name="onboarding_protection_force_keep_alive">Tryb wymuszony działa tylko z Keep-Alive. Keep-Alive zostanie włączony razem z nim.</string>

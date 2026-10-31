@@ -27,18 +27,17 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 
 /**
- * Issue #548: Tailscale stays a debug-only beta diagnostic. A release build must show neither
- * the #537 Tailscale status card nor a #538 Tailscale/VPN transport row on {@code MainActivity},
- * even while both signals independently say Tailscale is active/verified; a debug build keeps
- * showing both, unchanged. Unit tests here always execute under the debug variant's
+ * Issue #548: the VPN transport row is a debug-only diagnostic. A release build must not show a
+ * #538 VPN transport row on {@code MainActivity} even while ADB is verified over the VPN; a debug
+ * build keeps showing it. Unit tests here always execute under the debug variant's
  * applicationId, so the real package-name check alone cannot exercise the release path -- this
- * test drives {@link KeepADBBuildFlags#setOverrideForTesting} directly instead, which is exactly
- * the seam #548 requires so the release-hides-Tailscale behavior is proven by an automated test
- * rather than incidentally passing because of the test build's own package name.
+ * test drives {@link KeepADBBuildFlags#setOverrideForTesting} directly instead.
+ *
+ * <p>#877: the VPN address is deliberately outside 100.64.0.0/10 -- any VPN product counts.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
-public class MainActivityTailscaleBuildVariantTest {
+public class MainActivityVpnBuildVariantTest {
 
     @Rule
     public final KeepADBNetworkResetRule keepADBNetworkResetRule = new KeepADBNetworkResetRule();
@@ -48,11 +47,6 @@ public class MainActivityTailscaleBuildVariantTest {
     @Before
     public void setUp() {
         clearPreferences();
-        KeepADBTailscaleStatus.setPackageInstalledCheckForTesting((ctx, packageName) -> true);
-        // Realistic Android shape (#581): a tun0 interface with a CGNAT address, not the
-        // Linux-style tailscale0 name.
-        KeepADBTailscaleStatus.setInterfacesProviderForTesting(() -> java.util.Collections.singletonList(
-                new KeepADBTailscaleStatus.InterfaceSnapshot("tun0", true, new byte[]{100, 101, 2, 3})));
     }
 
     @After
@@ -64,46 +58,37 @@ public class MainActivityTailscaleBuildVariantTest {
         setNotificationStatic("currentPort", 0);
         setNotificationStatic("currentEndpointVerifiedAtMs", 0L);
         KeepADBVpnTransport.setReachabilityProbeForTesting(null);
-        KeepADBTailscaleStatus.setPackageInstalledCheckForTesting(null);
-        KeepADBTailscaleStatus.setInterfacesProviderForTesting(null);
         KeepADB.resetForTesting();
     }
 
     @Test
-    public void releaseBuildHidesTailscaleStatusAndTransportRowEvenWhenBothAreActive()
-            throws Exception {
+    public void releaseBuildHidesTheVerifiedVpnTransportRow() throws Exception {
         KeepADBBuildFlags.setOverrideForTesting(false);
         setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
-        addVpnNetwork("100.101.2.3");
+        addVpnNetwork("10.8.0.2");
         KeepADBVpnTransport.setReachabilityProbeForTesting((host, port, timeoutMs) -> true);
 
         MainActivity activity = launch();
-        TextView tailscaleStatus = activity.findViewById(R.id.tailscale_status);
         ViewGroup panel = transportOverviewPanel(activity);
         awaitSnapshotApplied(activity);
 
-        assertEquals("release build must hide the Tailscale status card",
-                View.GONE, tailscaleStatus.getVisibility());
-        assertEquals("release build must not add a Tailscale/VPN transport row",
+        assertEquals("release build must not add a VPN transport row",
                 0, panel.getChildCount());
         assertEquals(View.GONE, panel.getVisibility());
     }
 
     @Test
-    public void debugBuildKeepsShowingTailscaleStatusAndTransportRow() throws Exception {
+    public void debugBuildShowsTheVerifiedVpnTransportRow() throws Exception {
         KeepADBBuildFlags.setOverrideForTesting(true);
         setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
-        addVpnNetwork("100.101.2.3");
+        addVpnNetwork("10.8.0.2");
         KeepADBVpnTransport.setReachabilityProbeForTesting((host, port, timeoutMs) -> true);
 
         MainActivity activity = launch();
-        TextView tailscaleStatus = activity.findViewById(R.id.tailscale_status);
         ViewGroup panel = transportOverviewPanel(activity);
         awaitSnapshotApplied(activity);
 
-        assertEquals("debug build must keep showing the Tailscale status card",
-                View.VISIBLE, tailscaleStatus.getVisibility());
-        assertEquals("debug build must keep the verified Tailscale/VPN transport row",
+        assertEquals("debug build must keep the verified VPN transport row",
                 1, panel.getChildCount());
         assertEquals(View.VISIBLE, panel.getVisibility());
     }
@@ -116,9 +101,6 @@ public class MainActivityTailscaleBuildVariantTest {
         Method render = MainActivity.class.getDeclaredMethod("renderTransportOverview");
         render.setAccessible(true);
         render.invoke(activity);
-        Method renderStatus = MainActivity.class.getDeclaredMethod("renderTailscaleStatus");
-        renderStatus.setAccessible(true);
-        renderStatus.invoke(activity);
         return activity;
     }
 

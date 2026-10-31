@@ -20,13 +20,8 @@
     <string name="endpoint_format">Endpoint: %1$s:%2$d</string>
     <string name="endpoint_searching">Searching for endpoint…</string>
     <string name="endpoint_unavailable">Endpoint unavailable</string>
-    <!-- #537: optional, read-only Tailscale status. Hidden entirely when Tailscale isn\'t
-         installed, so no string is needed for that state. -->
-    <string name="tailscale_status_active">Tailscale: active</string>
-    <string name="tailscale_status_inactive">Tailscale: not active</string>
-    <string name="tailscale_status_unknown">Tailscale: unknown</string>
 
-    <string name="transport_tailscale_label">ADB via Tailscale/VPN</string>
+    <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · last checked %3$s</string>
     <string name="transport_usb_active_value">USB-ADB active</string>
@@ -153,7 +148,6 @@
     <string name="webhook_status_no_endpoint">none yet</string>
     <string name="webhook_status_deregistered">deregistered</string>
     <string name="webhook_status_failed">failed</string>
-    <string name="webhook_status_tailnet_hint">Tailscale may be disconnected, or was not auto-started after a reboot. Check Android\'s "Always-on VPN" setting for Tailscale.</string>
     <string name="settings_permission_warning">System permission WRITE_SECURE_SETTINGS missing. KeepADB cannot toggle Wireless Debugging until permission is granted.</string>
     <string name="settings_language_menu_label">Language</string>
     <string name="settings_language_accessibility">App Language: %1$s</string>
@@ -205,7 +199,7 @@
     <string name="usb_profile_name_hint">Profile name (required)</string>
     <string name="usb_profile_ip_hint">Host IP address (optional)</string>
     <string name="usb_profile_hostname_hint">Hostname (optional)</string>
-    <string name="usb_profile_tailnet_hint">Tailnet hostname (optional)</string>
+    <string name="usb_profile_remote_host_hint">VPN/remote hostname (optional)</string>
     <string name="usb_profile_name_required">Enter a profile name.</string>
     <string name="usb_profile_edit_button">Edit</string>
     <string name="usb_profile_edit_title">Edit host profile</string>
@@ -292,7 +286,7 @@
     <string name="issue_report_placeholder_notes">Add any other useful information here.</string>
     <string name="issue_report_diagnostics_section">Optional redacted KeepADB diagnostics (review before submitting)</string>
     <string name="advice_banner_title">Security &amp; network advice</string>
-    <string name="advice_banner_text">Wireless Debugging opens an ADB port on your network. Use trusted private Wi-Fi or a VPN (e.g. Tailscale), and turn it off on public hotspots. Never share your endpoint publicly or accept an unexpected pairing prompt.</string>
+    <string name="advice_banner_text">Wireless Debugging opens an ADB port on your network. Use trusted private Wi-Fi or a VPN, and turn it off on public hotspots. Never share your endpoint publicly or accept an unexpected pairing prompt.</string>
     <string name="security_notice_dismiss">Dismiss notice</string>
     <string name="settings_advice_banner_toggle">Show Security &amp; Network Advice</string>
     <string name="settings_advice_banner_subtext">Display a security warning banner at the top of the main screen.</string>
@@ -533,7 +527,7 @@ You can end it at any time from the home screen or the notification.</string>
     <string name="onboarding_network_question">Should KeepADB trust the Wi-Fi you are connected to right now?</string>
     <string name="onboarding_network_privacy_note">In privacy mode, the name is only shown here and when you trust a network.</string>
     <string name="onboarding_network_open_list">Change in the Networks list</string>
-    <string name="onboarding_webhook_question">Optional. Reports the current address of Wireless Debugging to a server of your own, for example in your tailnet. Most people do not need this. Nothing is saved until you tap “Save URL”.</string>
+    <string name="onboarding_webhook_question">Optional. Reports the current address of Wireless Debugging to a server of your own, for example in your home network or VPN. Most people do not need this. Nothing is saved until you tap “Save URL”.</string>
     <string name="onboarding_protection_force_title">Maximum convenience (force)</string>
     <string name="onboarding_protection_force_body">In every network, including unknown ones, for a time you choose. Asks you to confirm first.</string>
     <string name="onboarding_protection_force_keep_alive">Force only works with Keep-Alive. Keep-Alive is switched on with it.</string>

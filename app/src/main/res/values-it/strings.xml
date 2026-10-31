@@ -16,11 +16,8 @@
     <string name="endpoint_format">Endpoint: %1$s:%2$d</string>
     <string name="endpoint_searching">Ricerca dell’endpoint…</string>
     <string name="endpoint_unavailable">Endpoint non disponibile</string>
-    <string name="tailscale_status_active">Tailscale: attivo</string>
-    <string name="tailscale_status_inactive">Tailscale: non attivo</string>
-    <string name="tailscale_status_unknown">Tailscale: sconosciuto</string>
 
-    <string name="transport_tailscale_label">ADB tramite Tailscale/VPN</string>
+    <string name="transport_vpn_label">ADB tramite VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · ultima verifica %3$s</string>
     <string name="transport_usb_active_value">USB-ADB attivo</string>
@@ -118,7 +115,6 @@
     <string name="webhook_status_no_endpoint">nessuno ancora</string>
     <string name="webhook_status_deregistered">non più registrato</string>
     <string name="webhook_status_failed">non riuscito</string>
-    <string name="webhook_status_tailnet_hint">Tailscale potrebbe essere disconnesso o non essersi avviato automaticamente dopo un riavvio. Controlla l\'impostazione Android "VPN sempre attiva" per Tailscale.</string>
     <string name="settings_permission_warning">Autorizzazione di sistema WRITE_SECURE_SETTINGS mancante. KeepADB non può attivare il debug wireless finché l’autorizzazione non viene concessa.</string>
     <string name="settings_language_menu_label">Lingua</string>
     <string name="settings_language_accessibility">Lingua dell’app: %1$s</string>
@@ -162,7 +158,7 @@
     <string name="usb_profile_name_hint">Nome profilo (obbligatorio)</string>
     <string name="usb_profile_ip_hint">Indirizzo IP host (facoltativo)</string>
     <string name="usb_profile_hostname_hint">Nome host (facoltativo)</string>
-    <string name="usb_profile_tailnet_hint">Nome host Tailnet (facoltativo)</string>
+    <string name="usb_profile_remote_host_hint">Nome host VPN/remoto (facoltativo)</string>
     <string name="usb_profile_name_required">Inserisci un nome per il profilo.</string>
     <string name="usb_profile_edit_button">Modifica</string>
     <string name="usb_profile_delete_button">Elimina</string>
@@ -284,7 +280,7 @@
     <string name="issue_report_placeholder_notes">Aggiungi qualsiasi altra informazione utile.</string>
     <string name="issue_report_diagnostics_section">Dati diagnostici KeepADB opzionali e oscurati (controllali prima dell’invio)</string>
     <string name="advice_banner_title">Sicurezza e rete</string>
-    <string name="advice_banner_text">Il debug wireless apre una porta ADB sulla tua rete. Usa una rete Wi-Fi affidabile o una VPN (es. Tailscale) e disattivalo sugli hotspot pubblici. Non condividere mai il tuo endpoint pubblicamente né accettare richieste di associazione impreviste.</string>
+    <string name="advice_banner_text">Il debug wireless apre una porta ADB sulla tua rete. Usa una rete Wi-Fi affidabile o una VPN e disattivalo sugli hotspot pubblici. Non condividere mai il tuo endpoint pubblicamente né accettare richieste di associazione impreviste.</string>
     <string name="security_notice_dismiss">Chiudi avviso</string>
     <string name="settings_advice_banner_toggle">Mostra consigli su sicurezza e rete</string>
     <string name="settings_advice_banner_subtext">Mostra un banner di avviso di sicurezza nella parte superiore della schermata principale.</string>
@@ -524,7 +520,7 @@ Puoi terminarla in qualsiasi momento dalla schermata iniziale o dalla notifica.<
     <string name="onboarding_network_question">KeepADB deve considerare affidabile il Wi-Fi a cui sei collegato in questo momento?</string>
     <string name="onboarding_network_privacy_note">In modalità privacy il nome viene mostrato solo qui e quando consideri affidabile una rete.</string>
     <string name="onboarding_network_open_list">Modifica nell’elenco Reti</string>
-    <string name="onboarding_webhook_question">Facoltativo. Comunica l’indirizzo attuale del debug wireless a un tuo server, per esempio nella tua tailnet. La maggior parte delle persone non ne ha bisogno. Non viene salvato nulla finché non tocchi «Salva URL».</string>
+    <string name="onboarding_webhook_question">Facoltativo. Comunica l’indirizzo attuale del debug wireless a un tuo server, per esempio nella tua rete domestica o VPN. La maggior parte delle persone non ne ha bisogno. Non viene salvato nulla finché non tocchi «Salva URL».</string>
     <string name="onboarding_protection_force_title">Massimo comfort (modalità forzata)</string>
     <string name="onboarding_protection_force_body">In ogni rete, anche sconosciuta, per un tempo che scegli tu. Prima ti viene chiesta una conferma.</string>
     <string name="onboarding_protection_force_keep_alive">La modalità forzata funziona solo con Keep-Alive. Keep-Alive viene attivato insieme.</string>

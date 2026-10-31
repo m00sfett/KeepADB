@@ -6,16 +6,18 @@ import android.net.LinkProperties;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
- * Minimal, self-contained Tailscale/VPN transport verification for #538.
+ * Product-neutral VPN transport verification (#538, made product-neutral in #877).
  *
- * <p>#537 (parallel work on Tailscale status detection) had no Tailscale-specific detection
- * class visible on a shared branch/PR when this was written (checked at the start of this
- * issue's work: only a local, unpushed worktree existed, and its diff touched notification-panel
- * preferences, not network detection). This class is therefore independent, deliberately narrow,
- * and does not depend on or wait for that work; reconciling the two is left to the later
- * cross-branch review the parent orchestration already plans for.
+ * <p>KeepADB works with whatever VPN or overlay network the user runs (Tailscale, NetBird,
+ * WireGuard, ZeroTier, a corporate VPN, ...). It never detects, names, starts or configures a
+ * particular product; an address range does not identify one either -- several overlay networks
+ * share 100.64.0.0/10.
  *
  * <p>Since #676 the VPN networks come from {@link KeepADBNetwork}'s callback-based VPN tracking
  * instead of the network enumeration deprecated since API 31.
@@ -23,18 +25,16 @@ import java.net.InetAddress;
  * <p>Detection is two-staged, matching the #538 acceptance criterion that an active VPN
  * interface alone must never be presented as an ADB endpoint:
  * <ol>
- *   <li>{@link #findTailscaleIpv4Address(Context)} identifies a VPN-transport network whose
- *       IPv4 address falls inside Tailscale's documented CGNAT allocation range
- *       (100.64.0.0/10) -- the range every device on a tailnet gets its address from. A
- *       different (non-Tailscale) VPN simply has no address in that range and is correctly
- *       not reported here.</li>
- *   <li>{@link #verifyAdbReachable(String, int)} is a real socket-connect probe against that
- *       address on the already-known WLAN/LAN ADB port (a TCP server such as adbd listens on
+ *   <li>{@link #findVpnIpv4Addresses(Context)} lists the usable IPv4 addresses of every active
+ *       VPN-transport network.</li>
+ *   <li>{@link #verifyAdbReachable(String, int)} is a real socket-connect probe against each
+ *       address in turn, until one answers, on the already-known WLAN/LAN ADB port (a TCP server such as adbd listens on
  *       the same port across every one of the device's own interfaces, so the WLAN-discovered
- *       port is the correct one to probe on the Tailscale interface too), reusing
+ *       port is the correct one to probe on the VPN interface too), reusing
  *       {@link KeepADBEndpoint#isPortReachable}. Without an already-known port (no verified
  *       WLAN/LAN endpoint) reachability cannot be established here at all -- exactly the "VPN
- *       active, ADB not reachable there" acceptance criterion.</li>
+ *       active, ADB not reachable there" acceptance criterion. The probe shows that ADB listens
+ *       on the VPN address; whether other peers of that VPN can reach it is up to the VPN.</li>
  * </ol>
  */
 final class KeepADBVpnTransport {
@@ -56,23 +56,32 @@ final class KeepADBVpnTransport {
 
     private KeepADBVpnTransport() {}
 
-    /** First IPv4 address of an active VPN-transport network that falls inside Tailscale's
-     * 100.64.0.0/10 CGNAT range, or {@code null} if no such network is currently active. */
-    static String findTailscaleIpv4Address(Context context) {
-        if (context == null) return null;
+    /** Every usable IPv4 address (see {@link #isUsableVpnAddress}) of the active VPN-transport
+     * networks, without duplicates and in tracking order; empty if there is none. Each one is a
+     * candidate only -- the caller probes them in turn, since the first may not accept ADB while
+     * a later one does. */
+    static List<String> findVpnIpv4Addresses(Context context) {
+        Set<String> addresses = new LinkedHashSet<>();
+        if (context == null) return new ArrayList<>(addresses);
         try {
             for (LinkProperties linkProperties : KeepADBNetwork.get(context).vpnLinkPropertiesSnapshot()) {
                 if (linkProperties == null) continue;
                 for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
                     InetAddress address = linkAddress.getAddress();
-                    if (isTailscaleCgnatAddress(address)) {
-                        return address.getHostAddress();
+                    if (isUsableVpnAddress(address)) {
+                        addresses.add(address.getHostAddress());
                     }
                 }
             }
         } catch (Exception ignored) {
         }
-        return null;
+        return new ArrayList<>(addresses);
+    }
+
+    /** First of {@link #findVpnIpv4Addresses}, or {@code null} if there is none. */
+    static String findVpnIpv4Address(Context context) {
+        List<String> addresses = findVpnIpv4Addresses(context);
+        return addresses.isEmpty() ? null : addresses.get(0);
     }
 
     /** Whether any active VPN-transport network exists at all, regardless of address range --
@@ -86,16 +95,13 @@ final class KeepADBVpnTransport {
         }
     }
 
-    /** Tailscale's documented CGNAT allocation range for tailnet device addresses:
-     * 100.64.0.0/10, i.e. first octet 100 and the second octet's upper six bits fixed
-     * (64-127 inclusive). */
-    static boolean isTailscaleCgnatAddress(InetAddress address) {
-        if (!(address instanceof Inet4Address)) return false;
-        byte[] bytes = address.getAddress();
-        if (bytes.length != 4) return false;
-        int first = bytes[0] & 0xFF;
-        int second = bytes[1] & 0xFF;
-        return first == 100 && second >= 64 && second <= 127;
+    /** An IPv4 address a peer could address the device by: not wildcard, loopback or
+     * link-local. IPv6 is left out to keep the endpoint format to plain {@code host:port}. */
+    static boolean isUsableVpnAddress(InetAddress address) {
+        return address instanceof Inet4Address
+                && !address.isAnyLocalAddress()
+                && !address.isLoopbackAddress()
+                && !address.isLinkLocalAddress();
     }
 
     /** Real socket-connect ADB reachability probe against {@code host:port}, blocking -- callers

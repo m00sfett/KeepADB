@@ -48,12 +48,12 @@ public class KeepADBVpnTrackingTest {
         Network vpn = KeepADBVpnTestSupport.deliverVpnNetwork(context, 9101, linkPropertiesWithIpv4("100.101.2.3"));
 
         assertTrue(KeepADBVpnTransport.hasActiveVpnTransport(context));
-        assertEquals("100.101.2.3", KeepADBVpnTransport.findTailscaleIpv4Address(context));
+        assertEquals("100.101.2.3", KeepADBVpnTransport.findVpnIpv4Address(context));
 
         KeepADBVpnTestSupport.lose(context, vpn);
 
         assertFalse(KeepADBVpnTransport.hasActiveVpnTransport(context));
-        assertNull(KeepADBVpnTransport.findTailscaleIpv4Address(context));
+        assertNull(KeepADBVpnTransport.findVpnIpv4Address(context));
     }
 
     @Test
@@ -64,15 +64,16 @@ public class KeepADBVpnTrackingTest {
         KeepADBVpnTestSupport.lose(context, first);
 
         assertTrue(KeepADBVpnTransport.hasActiveVpnTransport(context));
-        assertEquals("100.101.2.3", KeepADBVpnTransport.findTailscaleIpv4Address(context));
+        assertEquals("100.101.2.3", KeepADBVpnTransport.findVpnIpv4Address(context));
     }
 
     @Test
-    public void nonTailscaleVpnIsActiveButNotATailscaleAddress() throws Exception {
+    public void anyVpnProductIsDetectedByItsAddressNotByARange() throws Exception {
+        // #877: a VPN outside 100.64.0.0/10 (plain WireGuard, a corporate VPN, ...) counts too.
         KeepADBVpnTestSupport.deliverVpnNetwork(context, 9101, linkPropertiesWithIpv4("10.8.0.5"));
 
         assertTrue(KeepADBVpnTransport.hasActiveVpnTransport(context));
-        assertNull(KeepADBVpnTransport.findTailscaleIpv4Address(context));
+        assertEquals("10.8.0.5", KeepADBVpnTransport.findVpnIpv4Address(context));
     }
 
     @Test
@@ -84,7 +85,7 @@ public class KeepADBVpnTrackingTest {
         KeepADBVpnTestSupport.deliver(context, wifi, capabilities, linkPropertiesWithIpv4("100.101.2.3"));
 
         assertFalse(KeepADBVpnTransport.hasActiveVpnTransport(context));
-        assertNull(KeepADBVpnTransport.findTailscaleIpv4Address(context));
+        assertNull(KeepADBVpnTransport.findVpnIpv4Address(context));
     }
 
     @Test
@@ -95,7 +96,7 @@ public class KeepADBVpnTrackingTest {
 
         assertFalse("Detection must come from callback tracking, not a synchronous enumeration",
                 KeepADBVpnTransport.hasActiveVpnTransport(context));
-        assertNull(KeepADBVpnTransport.findTailscaleIpv4Address(context));
+        assertNull(KeepADBVpnTransport.findVpnIpv4Address(context));
     }
 
     /** Before the first callback delivery the tracker knows nothing; a VPN that is the current
@@ -105,7 +106,7 @@ public class KeepADBVpnTrackingTest {
         addShadowOnlyVpn("100.101.2.3");
 
         assertTrue(KeepADBVpnTransport.hasActiveVpnTransport(context));
-        assertEquals("100.101.2.3", KeepADBVpnTransport.findTailscaleIpv4Address(context));
+        assertEquals("100.101.2.3", KeepADBVpnTransport.findVpnIpv4Address(context));
     }
 
     private void addShadowOnlyVpn(String ipv4) throws Exception {

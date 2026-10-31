@@ -180,7 +180,7 @@ final class KeepADBDiagnostics {
 
     /**
      * #566: debug-build-only per-minute state snapshot, fed by the service's 60s heartbeat. It
-     * only reads state and never changes Keep-Alive, recovery, endpoint or Tailscale settings.
+     * only reads state and never changes Keep-Alive, recovery, endpoint or VPN settings.
      * Unchanged consecutive minutes are counted into one journal entry; any field change starts a
      * new, timestamped entry naming the changed fields.
      */
@@ -205,7 +205,7 @@ final class KeepADBDiagnostics {
         KeepADBEndpointCoordinator.Snapshot endpoint = KeepADBEndpointCoordinator.snapshot();
         String state = snapshotState(describeActiveNetwork(context),
                 KeepADBService.isWifiConnected(context),
-                KeepADBTailscaleStatus.detect(context),
+                KeepADBVpnTransport.hasActiveVpnTransport(context),
                 adbWifiOrNull != null && adbWifiOrNull,
                 KeepADBPreferences.isKeepAliveEnabled(context),
                 endpoint.host, endpoint.port, endpoint.verifiedAtMs, System.currentTimeMillis());
@@ -221,7 +221,7 @@ final class KeepADBDiagnostics {
     private static volatile String lastSnapshotState;
 
     static String snapshotState(String network, boolean wifiEligible,
-            KeepADBTailscaleStatus.Status tailscale, boolean adbWifi, boolean keepAlive,
+            boolean vpnActive, boolean adbWifi, boolean keepAlive,
             String shownHost, int shownPort, long verifiedAtMs, long nowMs) {
         boolean shown = shownHost != null && shownPort > 0;
         String reachability;
@@ -236,7 +236,8 @@ final class KeepADBDiagnostics {
         }
         return "net=" + network
                 + " wifiEligible=" + wifiEligible
-                + " tailscale=" + (tailscale == null ? "unknown" : tailscale.name().toLowerCase(Locale.ROOT))
+                // #877: any active VPN, product-neutral -- also one that is not the default network.
+                + " vpn=" + (vpnActive ? "on" : "off")
                 + " adbWifi=" + (adbWifi ? "on" : "off")
                 + " keepAlive=" + (keepAlive ? "on" : "off")
                 + " shownEndpoint=" + (shown ? "host=" + shownHost + " port=" + shownPort : "none")

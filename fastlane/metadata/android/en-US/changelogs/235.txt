@@ -1,0 +1,1 @@
+KeepADB no longer assumes a particular VPN. Any VPN works the same way, and the app no longer mentions or checks for Tailscale. The webhook card only shows whether the last report arrived.

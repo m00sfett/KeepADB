@@ -71,7 +71,7 @@ ALLOWLIST = {
     "settings_website_link": ALL_LANGUAGES,      # domain name, not prose
     "issue_report_placeholder_steps": ALL_LANGUAGES,  # deliberately empty string
     "settings_section_usb_adb": ALL_LANGUAGES,   # protocol term "USB-ADB", not prose (#520)
-    "transport_tailscale_label": ALL_LANGUAGES,  # brand name "Tailscale/VPN", not prose (#538)
+    "transport_vpn_label": ALL_LANGUAGES,        # "ADB via VPN": protocol terms, not prose (#538, #877)
     "transport_usb_label": ALL_LANGUAGES,        # protocol term "USB", not prose (#538)
     "usb_notification_enable_wlan_handover": ALL_LANGUAGES,  # product term "Wifi-ADB" only:
     # One UI gives each of the three USB notification actions an equal ~8-character slot,

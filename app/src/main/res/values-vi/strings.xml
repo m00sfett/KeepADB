@@ -16,11 +16,8 @@
     <string name="endpoint_format">Điểm cuối: %1$s:%2$d</string>
     <string name="endpoint_searching">Đang tìm điểm cuối…</string>
     <string name="endpoint_unavailable">Điểm cuối không khả dụng</string>
-    <string name="tailscale_status_active">Tailscale: đang hoạt động</string>
-    <string name="tailscale_status_inactive">Tailscale: không hoạt động</string>
-    <string name="tailscale_status_unknown">Tailscale: không xác định</string>
 
-    <string name="transport_tailscale_label">ADB qua Tailscale/VPN</string>
+    <string name="transport_vpn_label">ADB qua VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · kiểm tra lần cuối %3$s</string>
     <string name="transport_usb_active_value">USB-ADB đang hoạt động</string>
@@ -118,7 +115,6 @@
     <string name="webhook_status_no_endpoint">chưa có</string>
     <string name="webhook_status_deregistered">đã hủy đăng ký</string>
     <string name="webhook_status_failed">thất bại</string>
-    <string name="webhook_status_tailnet_hint">Tailscale có thể đã bị ngắt kết nối hoặc không tự khởi động sau khi khởi động lại. Hãy kiểm tra cài đặt "VPN luôn bật" của Android cho Tailscale.</string>
     <string name="settings_permission_warning">Thiếu quyền hệ thống WRITE_SECURE_SETTINGS. KeepADB không thể chuyển đổi Gỡ lỗi không dây cho đến khi được cấp quyền.</string>
     <string name="settings_language_menu_label">Ngôn ngữ</string>
     <string name="settings_language_accessibility">Ngôn ngữ ứng dụng: %1$s</string>
@@ -162,7 +158,7 @@
     <string name="usb_profile_name_hint">Tên hồ sơ (bắt buộc)</string>
     <string name="usb_profile_ip_hint">Địa chỉ IP máy chủ (không bắt buộc)</string>
     <string name="usb_profile_hostname_hint">Tên máy chủ (không bắt buộc)</string>
-    <string name="usb_profile_tailnet_hint">Tên máy chủ Tailnet (không bắt buộc)</string>
+    <string name="usb_profile_remote_host_hint">Tên máy chủ VPN/từ xa (không bắt buộc)</string>
     <string name="usb_profile_name_required">Nhập tên hồ sơ.</string>
     <string name="usb_profile_edit_button">Chỉnh sửa</string>
     <string name="usb_profile_delete_button">Xóa</string>
@@ -284,7 +280,7 @@
     <string name="issue_report_placeholder_notes">Thêm bất kỳ thông tin hữu ích nào khác.</string>
     <string name="issue_report_diagnostics_section">Dữ liệu chẩn đoán KeepADB tùy chọn đã loại bỏ thông tin nhạy cảm (xem lại trước khi gửi)</string>
     <string name="advice_banner_title">Bảo mật và mạng</string>
-    <string name="advice_banner_text">Gỡ lỗi không dây mở một cổng ADB trên mạng của bạn. Hãy dùng Wi-Fi tin cậy hoặc VPN (ví dụ: Tailscale) và tắt khi ở điểm phát sóng công cộng. Đừng chia sẻ điểm cuối công khai hay chấp nhận yêu cầu ghép nối bất ngờ.</string>
+    <string name="advice_banner_text">Gỡ lỗi không dây mở một cổng ADB trên mạng của bạn. Hãy dùng Wi-Fi tin cậy hoặc VPN và tắt khi ở điểm phát sóng công cộng. Đừng chia sẻ điểm cuối công khai hay chấp nhận yêu cầu ghép nối bất ngờ.</string>
     <string name="security_notice_dismiss">Đóng thông báo</string>
     <string name="settings_advice_banner_toggle">Hiển thị lời khuyên bảo mật &amp; mạng</string>
     <string name="settings_advice_banner_subtext">Hiển thị biểu ngữ cảnh báo bảo mật ở đầu màn hình chính.</string>
@@ -524,7 +520,7 @@ Bạn có thể kết thúc bất cứ lúc nào từ màn hình chính hoặc t
     <string name="onboarding_network_question">KeepADB có nên tin cậy mạng Wi-Fi bạn đang kết nối không?</string>
     <string name="onboarding_network_privacy_note">Ở chế độ riêng tư, tên chỉ hiện ở đây và khi bạn tin cậy một mạng.</string>
     <string name="onboarding_network_open_list">Đổi trong danh sách Mạng</string>
-    <string name="onboarding_webhook_question">Tùy chọn. Báo địa chỉ hiện tại của Gỡ lỗi không dây tới máy chủ riêng của bạn, ví dụ trong tailnet của bạn. Hầu hết mọi người không cần. Sẽ không lưu gì cho đến khi bạn chạm “Lưu URL”.</string>
+    <string name="onboarding_webhook_question">Tùy chọn. Báo địa chỉ hiện tại của Gỡ lỗi không dây tới máy chủ riêng của bạn, ví dụ trong mạng gia đình hoặc VPN của bạn. Hầu hết mọi người không cần. Sẽ không lưu gì cho đến khi bạn chạm “Lưu URL”.</string>
     <string name="onboarding_protection_force_title">Tiện nhất (chế độ cưỡng chế)</string>
     <string name="onboarding_protection_force_body">Trong mọi mạng, kể cả mạng lạ, trong khoảng thời gian bạn chọn. Bạn cần xác nhận trước.</string>
     <string name="onboarding_protection_force_keep_alive">Chế độ cưỡng chế chỉ hoạt động cùng Keep-Alive. Keep-Alive được bật cùng.</string>

@@ -16,11 +16,8 @@
     <string name="endpoint_format">نقطة النهاية: %1$s:%2$d</string>
     <string name="endpoint_searching">جارٍ البحث عن نقطة النهاية…</string>
     <string name="endpoint_unavailable">نقطة النهاية غير متوفرة</string>
-    <string name="tailscale_status_active">Tailscale: نشط</string>
-    <string name="tailscale_status_inactive">Tailscale: غير نشط</string>
-    <string name="tailscale_status_unknown">Tailscale: غير معروف</string>
 
-    <string name="transport_tailscale_label">ADB عبر Tailscale/VPN</string>
+    <string name="transport_vpn_label">ADB عبر VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · آخر فحص %3$s</string>
     <string name="transport_usb_active_value">USB-ADB نشط</string>
@@ -118,7 +115,6 @@
     <string name="webhook_status_no_endpoint">لا يوجد بعد</string>
     <string name="webhook_status_deregistered">تم إلغاء التسجيل</string>
     <string name="webhook_status_failed">فشل</string>
-    <string name="webhook_status_tailnet_hint">قد يكون Tailscale غير متصل، أو لم يبدأ تلقائيًا بعد إعادة التشغيل. تحقق من إعداد أندرويد "VPN دائم التشغيل" الخاص بـ Tailscale.</string>
     <string name="settings_permission_warning">إذن النظام WRITE_SECURE_SETTINGS مفقود. لا يمكن لـ KeepADB تبديل تصحيح الأخطاء اللاسلكي حتى يتم منح الإذن.</string>
     <string name="settings_language_menu_label">اللغة</string>
     <string name="settings_language_accessibility">لغة التطبيق: %1$s</string>
@@ -162,7 +158,7 @@
     <string name="usb_profile_name_hint">اسم الملف التعريفي (مطلوب)</string>
     <string name="usb_profile_ip_hint">عنوان IP للمضيف (اختياري)</string>
     <string name="usb_profile_hostname_hint">اسم المضيف (اختياري)</string>
-    <string name="usb_profile_tailnet_hint">اسم مضيف Tailnet (اختياري)</string>
+    <string name="usb_profile_remote_host_hint">اسم مضيف VPN/بعيد (اختياري)</string>
     <string name="usb_profile_name_required">أدخل اسمًا للملف التعريفي.</string>
     <string name="usb_profile_edit_button">تعديل</string>
     <string name="usb_profile_delete_button">حذف</string>
@@ -284,7 +280,7 @@
     <string name="issue_report_placeholder_notes">أضف أي معلومات أخرى مفيدة هنا.</string>
     <string name="issue_report_diagnostics_section">بيانات تشخيصية اختيارية منقّحة لـ KeepADB (راجعها قبل الإرسال)</string>
     <string name="advice_banner_title">الأمان والشبكة</string>
-    <string name="advice_banner_text">يفتح تصحيح الأخطاء اللاسلكي منفذ ADB على شبكتك. استخدم شبكة Wi-Fi موثوقة أو VPN مثل Tailscale، وأوقفه في نقاط الاتصال العامة. لا تشارك عنوان نقطة النهاية علنًا أبدًا ولا تقبل طلبات اقتران غير متوقعة.</string>
+    <string name="advice_banner_text">يفتح تصحيح الأخطاء اللاسلكي منفذ ADB على شبكتك. استخدم شبكة Wi-Fi موثوقة أو VPN، وأوقفه في نقاط الاتصال العامة. لا تشارك عنوان نقطة النهاية علنًا أبدًا ولا تقبل طلبات اقتران غير متوقعة.</string>
     <string name="security_notice_dismiss">إغلاق الإشعار</string>
     <string name="settings_advice_banner_toggle">إظهار نصائح الأمان والشبكة</string>
     <string name="settings_advice_banner_subtext">عرض شريط تحذير أمني أعلى الشاشة الرئيسية.</string>
@@ -524,7 +520,7 @@
     <string name="onboarding_network_question">هل يثق KeepADB بشبكة Wi-Fi المتصل بها الآن؟</string>
     <string name="onboarding_network_privacy_note">في وضع الخصوصية يُعرض الاسم هنا وعند الوثوق بشبكة فقط.</string>
     <string name="onboarding_network_open_list">التغيير في قائمة الشبكات</string>
-    <string name="onboarding_webhook_question">اختياري. يُبلغ عن العنوان الحالي للتصحيح اللاسلكي إلى خادم خاص بك، مثلًا في tailnet الخاص بك. معظم الناس لا يحتاجون إليه. لا يُحفظ شيء حتى تضغط «حفظ الرابط».</string>
+    <string name="onboarding_webhook_question">اختياري. يُبلغ عن العنوان الحالي للتصحيح اللاسلكي إلى خادم خاص بك، مثلًا في شبكتك المنزلية أو شبكة VPN. معظم الناس لا يحتاجون إليه. لا يُحفظ شيء حتى تضغط «حفظ الرابط».</string>
     <string name="onboarding_protection_force_title">أقصى راحة (الوضع الإجباري)</string>
     <string name="onboarding_protection_force_body">في كل شبكة، بما فيها المجهولة، للمدة التي تختارها. يُطلب منك التأكيد أولًا.</string>
     <string name="onboarding_protection_force_keep_alive">يعمل الوضع الإجباري مع Keep-Alive فقط. يُفعَّل Keep-Alive معه.</string>

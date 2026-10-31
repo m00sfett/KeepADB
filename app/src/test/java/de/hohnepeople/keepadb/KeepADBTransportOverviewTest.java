@@ -27,15 +27,15 @@ import org.robolectric.annotation.Config;
 
 /**
  * End-to-end aggregation coverage for #538's four required transport scenarios (only WLAN; WLAN
- * + Tailscale both verified; VPN active but ADB not reachable there; USB only) plus the
+ * + VPN both verified; VPN active but ADB not reachable there; USB only) plus the
  * privacy-masking states of the values {@link KeepADBTransportOverview} hands to the UI.
  *
- * <p>The Tailscale-range address itself is never really dialed here: a real socket connect to an
- * artificial 100.64.0.0/10 address cannot be exercised deterministically in a sandboxed test run
+ * <p>The VPN address itself is never really dialed here: a real socket connect to an
+ * artificial VPN address cannot be exercised deterministically in a sandboxed test run
  * (there is no such local interface to bind), so {@link KeepADBVpnTransport}'s reachability
  * probe is substituted via its test seam. {@code addVpnNetwork} below still drives the real
  * {@link ConnectivityManager}/{@link NetworkCapabilities}/{@link LinkProperties} detection path
- * that decides whether a VPN network counts as Tailscale in the first place.
+ * that decides whether a VPN network yields a candidate address in the first place.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -73,10 +73,10 @@ public class KeepADBTransportOverviewTest {
         assertFalse(snapshot.vpnActiveNotAdbVerified);
     }
 
-    /** Acceptance criterion: "Wi-Fi and Tailscale present: show them separately, but only when
-     * both are actually verified." */
+    /** Acceptance criterion: "Wi-Fi and VPN present: show them separately, but only when both
+     * are actually verified." */
     @Test
-    public void wlanAndTailscaleBothVerified_areListedSeparatelyWithWlanPrimary() throws Exception {
+    public void wlanAndVpnBothVerified_areListedSeparatelyWithWlanPrimary() throws Exception {
         setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
         addVpnNetwork("100.101.2.3");
         KeepADBVpnTransport.setReachabilityProbeForTesting((host, port, timeoutMs) -> true);
@@ -85,14 +85,14 @@ public class KeepADBTransportOverviewTest {
 
         assertEquals(2, snapshot.transports.size());
         assertEquals(KeepADBTransportEndpoint.Type.WLAN_LAN, snapshot.transports.get(0).type);
-        assertTrue("WLAN/LAN outranks Tailscale/VPN as primary", snapshot.transports.get(0).primary);
-        KeepADBTransportEndpoint tailscale = snapshot.transports.get(1);
-        assertEquals(KeepADBTransportEndpoint.Type.TAILSCALE_VPN, tailscale.type);
-        assertEquals("100.101.2.3", tailscale.host);
+        assertTrue("WLAN/LAN outranks VPN as primary", snapshot.transports.get(0).primary);
+        KeepADBTransportEndpoint vpn = snapshot.transports.get(1);
+        assertEquals(KeepADBTransportEndpoint.Type.VPN, vpn.type);
+        assertEquals("100.101.2.3", vpn.host);
         // adbd listens on the same port across every one of the device's own interfaces, so the
-        // WLAN-discovered port is reused as the Tailscale-side probe target.
-        assertEquals(40000, tailscale.port);
-        assertFalse("A non-primary transport must not also claim primary", tailscale.primary);
+        // WLAN-discovered port is reused as the VPN-side probe target.
+        assertEquals(40000, vpn.port);
+        assertFalse("A non-primary transport must not also claim primary", vpn.primary);
         assertFalse(snapshot.vpnActiveNotAdbVerified);
     }
 
@@ -110,23 +110,62 @@ public class KeepADBTransportOverviewTest {
         assertEquals(KeepADBTransportEndpoint.Type.WLAN_LAN, snapshot.transports.get(0).type);
         for (KeepADBTransportEndpoint transport : snapshot.transports) {
             assertFalse("An unverified VPN interface must never appear as an ADB endpoint",
-                    transport.type == KeepADBTransportEndpoint.Type.TAILSCALE_VPN);
+                    transport.type == KeepADBTransportEndpoint.Type.VPN);
         }
         assertTrue("The active-but-unverified VPN must still be surfaced as a status, "
                 + "separately from the endpoint list", snapshot.vpnActiveNotAdbVerified);
     }
 
-    /** A VPN whose address never falls in Tailscale's CGNAT range (a different VPN product, or
-     * no address assigned yet) must never be treated as an ADB endpoint candidate either -- an
-     * active VPN interface alone is never enough. */
+    /** #877: a VPN outside 100.64.0.0/10 (plain WireGuard, a corporate VPN, ...) is verified
+     * the same way -- no product or address range decides whether it counts. */
     @Test
-    public void genericNonTailscaleVpn_isNeverTreatedAsAnAdbEndpointCandidate() throws Exception {
-        addVpnNetwork("10.8.0.5"); // outside 100.64.0.0/10
+    public void anyVpnProductWithReachableAdb_isListedAsVpnTransport() throws Exception {
+        setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
+        addVpnNetwork("10.8.0.5");
+        KeepADBVpnTransport.setReachabilityProbeForTesting(
+                (host, port, timeoutMs) -> "10.8.0.5".equals(host) && port == 40000);
+
+        KeepADBTransportOverview.Snapshot snapshot = KeepADBTransportOverview.current(context);
+
+        assertEquals(2, snapshot.transports.size());
+        assertEquals(KeepADBTransportEndpoint.Type.VPN, snapshot.transports.get(1).type);
+        assertEquals("10.8.0.5", snapshot.transports.get(1).host);
+        assertFalse(snapshot.vpnActiveNotAdbVerified);
+    }
+
+    /** Codex review on #877: the first VPN address may refuse ADB while a later one answers;
+     * every candidate is probed in turn instead of only the first. */
+    @Test
+    public void laterVpnAddressThatAnswers_isListedWhenTheFirstDoesNot() throws Exception {
+        setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
+        LinkProperties properties = linkPropertiesWithIpv4("10.8.0.5");
+        Constructor<LinkAddress> constructor = LinkAddress.class.getConstructor(String.class);
+        LinkProperties.class.getMethod("addLinkAddress", LinkAddress.class)
+                .invoke(properties, constructor.newInstance("100.101.2.3/32"));
+        KeepADBVpnTestSupport.deliverVpnNetwork(context, 9001, properties);
+        assertEquals(java.util.Arrays.asList("10.8.0.5", "100.101.2.3"),
+                KeepADBVpnTransport.findVpnIpv4Addresses(context));
+        KeepADBVpnTransport.setReachabilityProbeForTesting(
+                (host, port, timeoutMs) -> "100.101.2.3".equals(host));
+
+        KeepADBTransportOverview.Snapshot snapshot = KeepADBTransportOverview.current(context);
+
+        assertEquals(2, snapshot.transports.size());
+        assertEquals("100.101.2.3", snapshot.transports.get(1).host);
+        assertFalse(snapshot.vpnActiveNotAdbVerified);
+    }
+
+    /** Without a verified WLAN port there is nothing to probe: an active VPN alone is never an
+     * ADB endpoint, whatever its address. */
+    @Test
+    public void vpnWithoutKnownAdbPort_isNeverTreatedAsAnAdbEndpoint() throws Exception {
+        addVpnNetwork("10.8.0.5");
+        KeepADBVpnTransport.setReachabilityProbeForTesting((host, port, timeoutMs) -> true);
 
         KeepADBTransportOverview.Snapshot snapshot = KeepADBTransportOverview.current(context);
 
         assertTrue(snapshot.transports.isEmpty());
-        assertTrue("A non-Tailscale VPN is still worth a status line", snapshot.vpnActiveNotAdbVerified);
+        assertTrue(snapshot.vpnActiveNotAdbVerified);
     }
 
     /** Acceptance criterion: "USB only: show USB-ADB as its own active transport, without
@@ -169,7 +208,7 @@ public class KeepADBTransportOverviewTest {
         assertFalse(snapshot.vpnActiveNotAdbVerified);
     }
 
-    /** Privacy-mode masking (#483's rule) must apply to a Tailscale endpoint exactly like it
+    /** Privacy-mode masking (#483's rule) must apply to a VPN endpoint exactly like it
      * already applies to the WLAN/LAN one -- KeepADBTransportOverview hands back the raw host so
      * MainActivity's existing masking call sites (unchanged by #538) can mask it consistently;
      * this pins that the raw value survives the aggregation step unmasked, so masking stays a
@@ -185,11 +224,11 @@ public class KeepADBTransportOverviewTest {
     }
 
     /** {@link KeepADBTransportOverview#currentAsync} must resolve synchronously, on the calling
-     * thread, whenever there is no Tailscale-range VPN address to probe -- the common case for
+     * thread, whenever there is no VPN address to probe -- the common case for
      * essentially every caller, and the property {@code MainActivity#renderTransportOverview()}
      * relies on to stay deterministic for callers unaware of this class (see its javadoc). */
     @Test
-    public void currentAsyncResolvesSynchronouslyWithoutAnActiveTailscaleAddress() throws Exception {
+    public void currentAsyncResolvesSynchronouslyWithoutAnActiveVpnAddress() throws Exception {
         setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
         long callingThreadId = Thread.currentThread().getId();
         java.util.concurrent.atomic.AtomicLong deliveredOnThreadId = new java.util.concurrent.atomic.AtomicLong(-1);
@@ -197,15 +236,15 @@ public class KeepADBTransportOverviewTest {
         KeepADBTransportOverview.currentAsync(context,
                 snapshot -> deliveredOnThreadId.set(Thread.currentThread().getId()));
 
-        assertEquals("No background thread should be needed without a Tailscale-range address",
+        assertEquals("No background thread should be needed without a VPN address",
                 callingThreadId, deliveredOnThreadId.get());
     }
 
-    /** The counterpart of the test above: a real Tailscale-range address does dispatch the
+    /** The counterpart of the test above: a real VPN address does dispatch the
      * blocking probe to a background thread, and the snapshot still arrives correctly once it
      * finishes. */
     @Test
-    public void currentAsyncHopsToABackgroundThreadOnlyWhenATailscaleAddressExists() throws Exception {
+    public void currentAsyncHopsToABackgroundThreadOnlyWhenAVpnAddressExists() throws Exception {
         setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
         addVpnNetwork("100.101.2.3");
         KeepADBVpnTransport.setReachabilityProbeForTesting((host, port, timeoutMs) -> true);
@@ -223,7 +262,7 @@ public class KeepADBTransportOverviewTest {
 
         assertTrue("The worker must finish within a generous bound",
                 latch.await(5, java.util.concurrent.TimeUnit.SECONDS));
-        assertFalse("A real Tailscale-range address must dispatch off the calling thread",
+        assertFalse("A real VPN address must dispatch off the calling thread",
                 callingThreadId == deliveredOnThreadId.get());
         assertEquals(2, result.get().transports.size());
     }

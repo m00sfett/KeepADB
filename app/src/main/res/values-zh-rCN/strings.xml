@@ -16,11 +16,8 @@
     <string name="endpoint_format">端点：%1$s:%2$d</string>
     <string name="endpoint_searching">正在搜索端点…</string>
     <string name="endpoint_unavailable">端点不可用</string>
-    <string name="tailscale_status_active">Tailscale：已启用</string>
-    <string name="tailscale_status_inactive">Tailscale：未启用</string>
-    <string name="tailscale_status_unknown">Tailscale：未知</string>
 
-    <string name="transport_tailscale_label">通过 Tailscale/VPN 的 ADB</string>
+    <string name="transport_vpn_label">通过 VPN 的 ADB</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s：%2$s · 上次检查 %3$s</string>
     <string name="transport_usb_active_value">USB-ADB 已启用</string>
@@ -118,7 +115,6 @@
     <string name="webhook_status_no_endpoint">尚无</string>
     <string name="webhook_status_deregistered">已取消注册</string>
     <string name="webhook_status_failed">失败</string>
-    <string name="webhook_status_tailnet_hint">Tailscale 可能已断开连接，或者在重启后没有自动启动。请检查 Android 中 Tailscale 的"始终开启的 VPN"设置。</string>
     <string name="settings_permission_warning">缺少系统权限 WRITE_SECURE_SETTINGS。在授予权限之前，KeepADB 无法切换无线调试。</string>
     <string name="settings_language_menu_label">语言</string>
     <string name="settings_language_accessibility">应用语言：%1$s</string>
@@ -162,7 +158,7 @@
     <string name="usb_profile_name_hint">配置名称（必填）</string>
     <string name="usb_profile_ip_hint">主机 IP 地址（可选）</string>
     <string name="usb_profile_hostname_hint">主机名（可选）</string>
-    <string name="usb_profile_tailnet_hint">Tailnet 主机名（可选）</string>
+    <string name="usb_profile_remote_host_hint">VPN/远程主机名（可选）</string>
     <string name="usb_profile_name_required">请输入配置名称。</string>
     <string name="usb_profile_edit_button">编辑</string>
     <string name="usb_profile_delete_button">删除</string>
@@ -284,7 +280,7 @@
     <string name="issue_report_placeholder_notes">添加其他有用的信息。</string>
     <string name="issue_report_diagnostics_section">可选的已脱敏 KeepADB 诊断数据（发送前请检查）</string>
     <string name="advice_banner_title">安全与网络</string>
-    <string name="advice_banner_text">无线调试会在你的网络上开放一个 ADB 端口。请使用已信任的 Wi-Fi 或 VPN（如 Tailscale），并在公共热点关闭它。切勿公开分享你的端点，也不要接受意外的配对请求。</string>
+    <string name="advice_banner_text">无线调试会在你的网络上开放一个 ADB 端口。请使用已信任的 Wi-Fi 或 VPN，并在公共热点关闭它。切勿公开分享你的端点，也不要接受意外的配对请求。</string>
     <string name="security_notice_dismiss">关闭提示</string>
     <string name="settings_advice_banner_toggle">显示安全与网络提示</string>
     <string name="settings_advice_banner_subtext">在主屏幕顶部显示安全警告横幅。</string>
@@ -524,7 +520,7 @@
     <string name="onboarding_network_question">KeepADB 是否应信任你当前连接的 Wi-Fi？</string>
     <string name="onboarding_network_privacy_note">在隐私模式下，名称仅在此处和信任网络时显示。</string>
     <string name="onboarding_network_open_list">在网络列表中更改</string>
-    <string name="onboarding_webhook_question">可选。把无线调试的当前地址报告给你自己的服务器,例如你的 tailnet 中的服务器。大多数人不需要。点按“保存 URL”之前不会保存任何内容。</string>
+    <string name="onboarding_webhook_question">可选。把无线调试的当前地址报告给你自己的服务器,例如你家庭网络或 VPN 中的服务器。大多数人不需要。点按“保存 URL”之前不会保存任何内容。</string>
     <string name="onboarding_protection_force_title">最大便利(强制模式)</string>
     <string name="onboarding_protection_force_body">在所有网络中生效,包括陌生网络,时长由你选择。需要先确认。</string>
     <string name="onboarding_protection_force_keep_alive">强制模式只能与保持常驻 (Keep-Alive) 一起工作。保持常驻会随之开启。</string>

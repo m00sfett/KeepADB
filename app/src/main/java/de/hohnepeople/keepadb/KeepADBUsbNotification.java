@@ -116,7 +116,7 @@ final class KeepADBUsbNotification {
         if (profileNotificationEnabled) {
             List<KeepADBUsbProfile.Profile> profiles = KeepADBUsbProfile.getProfiles(context);
             KeepADBUsbProfile.Profile selected = KeepADBUsbProfile.getSelected(context);
-            // #592: the profile summary (name, IP, host, tailnet host) only goes into the
+            // #592: the profile summary (name, IP, host, remote host) only goes into the
             // notification when the user opted in -- Android shows the private content on the lock
             // screen whenever sensitive lock-screen content is allowed, ignoring publicVersion.
             String profileText = selected == null

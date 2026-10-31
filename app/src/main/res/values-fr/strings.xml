@@ -16,11 +16,8 @@
     <string name="endpoint_format">Point de terminaison : %1$s:%2$d</string>
     <string name="endpoint_searching">Recherche du point de terminaison…</string>
     <string name="endpoint_unavailable">Point de terminaison indisponible</string>
-    <string name="tailscale_status_active">Tailscale : actif</string>
-    <string name="tailscale_status_inactive">Tailscale : inactif</string>
-    <string name="tailscale_status_unknown">Tailscale : inconnu</string>
 
-    <string name="transport_tailscale_label">ADB via Tailscale/VPN</string>
+    <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s : %2$s · dernière vérification %3$s</string>
     <string name="transport_usb_active_value">USB-ADB actif</string>
@@ -118,7 +115,6 @@
     <string name="webhook_status_no_endpoint">aucun pour l’instant</string>
     <string name="webhook_status_deregistered">désenregistré</string>
     <string name="webhook_status_failed">échec</string>
-    <string name="webhook_status_tailnet_hint">Il se peut que Tailscale soit déconnecté ou ne se soit pas relancé automatiquement après un redémarrage. Vérifiez le paramètre Android « VPN permanent » pour Tailscale.</string>
     <string name="settings_permission_warning">Autorisation système WRITE_SECURE_SETTINGS manquante. KeepADB ne peut pas basculer le débogage sans fil tant que l’autorisation n’est pas accordée.</string>
     <string name="settings_language_menu_label">Langue</string>
     <string name="settings_language_accessibility">Langue de l’application : %1$s</string>
@@ -162,7 +158,7 @@
     <string name="usb_profile_name_hint">Nom du profil (obligatoire)</string>
     <string name="usb_profile_ip_hint">Adresse IP de l’hôte (facultatif)</string>
     <string name="usb_profile_hostname_hint">Nom d’hôte (facultatif)</string>
-    <string name="usb_profile_tailnet_hint">Nom d’hôte Tailnet (facultatif)</string>
+    <string name="usb_profile_remote_host_hint">Nom d’hôte VPN/distant (facultatif)</string>
     <string name="usb_profile_name_required">Saisissez un nom de profil.</string>
     <string name="usb_profile_edit_button">Modifier</string>
     <string name="usb_profile_delete_button">Supprimer</string>
@@ -284,7 +280,7 @@
     <string name="issue_report_placeholder_notes">Ajoutez toute autre information utile.</string>
     <string name="issue_report_diagnostics_section">Données de diagnostic KeepADB facultatives et expurgées (à vérifier avant l’envoi)</string>
     <string name="advice_banner_title">Sécurité et réseau</string>
-    <string name="advice_banner_text">Le débogage sans fil ouvre un port ADB sur votre réseau. Utilisez un Wi-Fi approuvé ou un VPN (p. ex. Tailscale), et désactivez-le sur les points d’accès publics. Ne partagez jamais votre point de terminaison publiquement et n’acceptez pas de demande de couplage inattendue.</string>
+    <string name="advice_banner_text">Le débogage sans fil ouvre un port ADB sur votre réseau. Utilisez un Wi-Fi approuvé ou un VPN, et désactivez-le sur les points d’accès publics. Ne partagez jamais votre point de terminaison publiquement et n’acceptez pas de demande de couplage inattendue.</string>
     <string name="security_notice_dismiss">Fermer l\'avis</string>
     <string name="settings_advice_banner_toggle">Afficher les conseils de sécurité et réseau</string>
     <string name="settings_advice_banner_subtext">Affiche une bannière d’avertissement de sécurité en haut de l’écran principal.</string>
@@ -524,7 +520,7 @@ Vous pouvez l\'arrêter à tout moment depuis l\'écran d\'accueil ou la notific
     <string name="onboarding_network_question">KeepADB doit-il faire confiance au Wi-Fi auquel vous êtes connecté en ce moment ?</string>
     <string name="onboarding_network_privacy_note">En mode confidentialité, le nom n’est affiché qu’ici et lorsque vous approuvez un réseau.</string>
     <string name="onboarding_network_open_list">Modifier dans la liste des réseaux</string>
-    <string name="onboarding_webhook_question">Facultatif. Signale l’adresse actuelle du débogage sans fil à un serveur à toi, par exemple dans ton tailnet. La plupart n’en ont pas besoin. Rien n’est enregistré tant que tu n’appuies pas sur « Enregistrer l’URL ».</string>
+    <string name="onboarding_webhook_question">Facultatif. Signale l’adresse actuelle du débogage sans fil à un serveur à toi, par exemple dans ton réseau domestique ou ton VPN. La plupart n’en ont pas besoin. Rien n’est enregistré tant que tu n’appuies pas sur « Enregistrer l’URL ».</string>
     <string name="onboarding_protection_force_title">Confort maximal (mode forcé)</string>
     <string name="onboarding_protection_force_body">Dans tous les réseaux, y compris inconnus, pendant une durée que tu choisis. Une confirmation est demandée avant.</string>
     <string name="onboarding_protection_force_keep_alive">Le mode forcé ne fonctionne qu’avec Keep-Alive. Keep-Alive est activé avec lui.</string>

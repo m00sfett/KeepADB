@@ -3,7 +3,7 @@
     <!--
       Cleartext HTTP is permitted globally because it is exercised by exactly one code
       path: the optional developer webhook (KeepADBRegisterClient), whose target URL is
-      entered by the user at runtime and may point at any LAN/VPN/Tailnet host. Android's
+      entered by the user at runtime and may point at any LAN or VPN host. Android's
       network-security-config only supports scoping cleartext by literal domain names in
       <domain-config>, not by IP range or "any private address"; since the webhook host
       is unknown at build time, a per-domain allowlist cannot express this use case, so
