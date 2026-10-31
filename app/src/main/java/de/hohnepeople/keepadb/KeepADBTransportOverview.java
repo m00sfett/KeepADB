@@ -61,7 +61,7 @@ final class KeepADBTransportOverview {
      * already special-cases "already on the UI thread" as an immediate, synchronous call.
      *
      * <p>This duplicates one cheap, side-effect-free {@link
-     * KeepADBVpnTransport#findVpnIpv4Address} lookup between this dispatch check and
+     * KeepADBVpnTransport#findVpnIpv4Addresses} lookup between this dispatch check and
      * {@link #current}'s own call to it, deliberately: keeping {@link #current} as the single
      * aggregation code path (used directly by tests) is worth more than saving one extra
      * {@code ConnectivityManager} query.
@@ -69,7 +69,7 @@ final class KeepADBTransportOverview {
     static void currentAsync(Context context, Listener listener) {
         if (context == null || listener == null) return;
         Context appContext = context.getApplicationContext();
-        if (KeepADBVpnTransport.findVpnIpv4Address(appContext) == null) {
+        if (KeepADBVpnTransport.findVpnIpv4Addresses(appContext).isEmpty()) {
             listener.onSnapshot(current(appContext));
             return;
         }
@@ -98,13 +98,22 @@ final class KeepADBTransportOverview {
         }
 
         boolean vpnActiveNotAdbVerified = false;
-        String vpnIp = KeepADBVpnTransport.findVpnIpv4Address(context);
-        if (vpnIp != null) {
+        List<String> vpnIps = KeepADBVpnTransport.findVpnIpv4Addresses(context);
+        if (!vpnIps.isEmpty()) {
             int wlanPort = wlan.hasEndpoint() ? wlan.port : 0;
-            if (wlanPort > 0 && KeepADBVpnTransport.verifyAdbReachable(vpnIp, wlanPort)) {
+            String verifiedIp = null;
+            // The first candidate may not accept ADB while a later one does (several addresses
+            // or several VPNs): probe them in turn and list the first that answers.
+            for (String vpnIp : vpnIps) {
+                if (wlanPort > 0 && KeepADBVpnTransport.verifyAdbReachable(vpnIp, wlanPort)) {
+                    verifiedIp = vpnIp;
+                    break;
+                }
+            }
+            if (verifiedIp != null) {
                 transports.add(new KeepADBTransportEndpoint(
                         KeepADBTransportEndpoint.Type.VPN,
-                        vpnIp, wlanPort, System.currentTimeMillis(), false));
+                        verifiedIp, wlanPort, System.currentTimeMillis(), false));
             } else {
                 vpnActiveNotAdbVerified = true;
             }

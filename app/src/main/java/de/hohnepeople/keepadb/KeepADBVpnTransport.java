@@ -6,6 +6,10 @@ import android.net.LinkProperties;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Product-neutral VPN transport verification (#538, made product-neutral in #877).
@@ -21,10 +25,10 @@ import java.net.InetAddress;
  * <p>Detection is two-staged, matching the #538 acceptance criterion that an active VPN
  * interface alone must never be presented as an ADB endpoint:
  * <ol>
- *   <li>{@link #findVpnIpv4Address(Context)} picks the first usable IPv4 address of any active
+ *   <li>{@link #findVpnIpv4Addresses(Context)} lists the usable IPv4 addresses of every active
  *       VPN-transport network.</li>
- *   <li>{@link #verifyAdbReachable(String, int)} is a real socket-connect probe against that
- *       address on the already-known WLAN/LAN ADB port (a TCP server such as adbd listens on
+ *   <li>{@link #verifyAdbReachable(String, int)} is a real socket-connect probe against each
+ *       address in turn, until one answers, on the already-known WLAN/LAN ADB port (a TCP server such as adbd listens on
  *       the same port across every one of the device's own interfaces, so the WLAN-discovered
  *       port is the correct one to probe on the VPN interface too), reusing
  *       {@link KeepADBEndpoint#isPortReachable}. Without an already-known port (no verified
@@ -52,23 +56,32 @@ final class KeepADBVpnTransport {
 
     private KeepADBVpnTransport() {}
 
-    /** First usable IPv4 address (see {@link #isUsableVpnAddress}) of an active VPN-transport
-     * network, or {@code null} if no such network is currently active. */
-    static String findVpnIpv4Address(Context context) {
-        if (context == null) return null;
+    /** Every usable IPv4 address (see {@link #isUsableVpnAddress}) of the active VPN-transport
+     * networks, without duplicates and in tracking order; empty if there is none. Each one is a
+     * candidate only -- the caller probes them in turn, since the first may not accept ADB while
+     * a later one does. */
+    static List<String> findVpnIpv4Addresses(Context context) {
+        Set<String> addresses = new LinkedHashSet<>();
+        if (context == null) return new ArrayList<>(addresses);
         try {
             for (LinkProperties linkProperties : KeepADBNetwork.get(context).vpnLinkPropertiesSnapshot()) {
                 if (linkProperties == null) continue;
                 for (LinkAddress linkAddress : linkProperties.getLinkAddresses()) {
                     InetAddress address = linkAddress.getAddress();
                     if (isUsableVpnAddress(address)) {
-                        return address.getHostAddress();
+                        addresses.add(address.getHostAddress());
                     }
                 }
             }
         } catch (Exception ignored) {
         }
-        return null;
+        return new ArrayList<>(addresses);
+    }
+
+    /** First of {@link #findVpnIpv4Addresses}, or {@code null} if there is none. */
+    static String findVpnIpv4Address(Context context) {
+        List<String> addresses = findVpnIpv4Addresses(context);
+        return addresses.isEmpty() ? null : addresses.get(0);
     }
 
     /** Whether any active VPN-transport network exists at all, regardless of address range --

@@ -133,6 +133,28 @@ public class KeepADBTransportOverviewTest {
         assertFalse(snapshot.vpnActiveNotAdbVerified);
     }
 
+    /** Codex review on #877: the first VPN address may refuse ADB while a later one answers;
+     * every candidate is probed in turn instead of only the first. */
+    @Test
+    public void laterVpnAddressThatAnswers_isListedWhenTheFirstDoesNot() throws Exception {
+        setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
+        LinkProperties properties = linkPropertiesWithIpv4("10.8.0.5");
+        Constructor<LinkAddress> constructor = LinkAddress.class.getConstructor(String.class);
+        LinkProperties.class.getMethod("addLinkAddress", LinkAddress.class)
+                .invoke(properties, constructor.newInstance("100.101.2.3/32"));
+        KeepADBVpnTestSupport.deliverVpnNetwork(context, 9001, properties);
+        assertEquals(java.util.Arrays.asList("10.8.0.5", "100.101.2.3"),
+                KeepADBVpnTransport.findVpnIpv4Addresses(context));
+        KeepADBVpnTransport.setReachabilityProbeForTesting(
+                (host, port, timeoutMs) -> "100.101.2.3".equals(host));
+
+        KeepADBTransportOverview.Snapshot snapshot = KeepADBTransportOverview.current(context);
+
+        assertEquals(2, snapshot.transports.size());
+        assertEquals("100.101.2.3", snapshot.transports.get(1).host);
+        assertFalse(snapshot.vpnActiveNotAdbVerified);
+    }
+
     /** Without a verified WLAN port there is nothing to probe: an active VPN alone is never an
      * ADB endpoint, whatever its address. */
     @Test
