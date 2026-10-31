@@ -16,11 +16,8 @@
     <string name="endpoint_format">Punto final: %1$s:%2$d</string>
     <string name="endpoint_searching">Buscando punto final…</string>
     <string name="endpoint_unavailable">Punto final no disponible</string>
-    <string name="tailscale_status_active">Tailscale: activo</string>
-    <string name="tailscale_status_inactive">Tailscale: inactivo</string>
-    <string name="tailscale_status_unknown">Tailscale: desconocido</string>
 
-    <string name="transport_tailscale_label">ADB por Tailscale/VPN</string>
+    <string name="transport_vpn_label">ADB por VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · última verificación %3$s</string>
     <string name="transport_usb_active_value">USB-ADB activo</string>
@@ -118,7 +115,6 @@
     <string name="webhook_status_no_endpoint">aún ninguno</string>
     <string name="webhook_status_deregistered">desregistrado</string>
     <string name="webhook_status_failed">fallido</string>
-    <string name="webhook_status_tailnet_hint">Es posible que Tailscale esté desconectado o no se haya iniciado automáticamente tras un reinicio. Comprueba el ajuste de Android "VPN siempre activa" para Tailscale.</string>
     <string name="settings_permission_warning">Falta el permiso del sistema WRITE_SECURE_SETTINGS. KeepADB no puede alternar la depuración inalámbrica hasta que se conceda el permiso.</string>
     <string name="settings_language_menu_label">Idioma</string>
     <string name="settings_language_accessibility">Idioma de la aplicación: %1$s</string>
@@ -162,7 +158,7 @@
     <string name="usb_profile_name_hint">Nombre del perfil (obligatorio)</string>
     <string name="usb_profile_ip_hint">Dirección IP del host (opcional)</string>
     <string name="usb_profile_hostname_hint">Nombre del host (opcional)</string>
-    <string name="usb_profile_tailnet_hint">Nombre del host de Tailnet (opcional)</string>
+    <string name="usb_profile_remote_host_hint">Nombre de host VPN/remoto (opcional)</string>
     <string name="usb_profile_name_required">Introduce un nombre de perfil.</string>
     <string name="usb_profile_edit_button">Editar</string>
     <string name="usb_profile_delete_button">Eliminar</string>
@@ -284,7 +280,7 @@
     <string name="issue_report_placeholder_notes">Añade cualquier otra información útil.</string>
     <string name="issue_report_diagnostics_section">Datos de diagnóstico opcionales redactados de KeepADB (revísalos antes de enviarlos)</string>
     <string name="advice_banner_title">Seguridad y red</string>
-    <string name="advice_banner_text">La depuración inalámbrica abre un puerto ADB en tu red. Usa una red Wi-Fi de confianza o una VPN (p. ej. Tailscale) y desactívala en puntos de acceso públicos. Nunca compartas tu punto final públicamente ni aceptes solicitudes de vinculación inesperadas.</string>
+    <string name="advice_banner_text">La depuración inalámbrica abre un puerto ADB en tu red. Usa una red Wi-Fi de confianza o una VPN y desactívala en puntos de acceso públicos. Nunca compartas tu punto final públicamente ni aceptes solicitudes de vinculación inesperadas.</string>
     <string name="security_notice_dismiss">Cerrar aviso</string>
     <string name="settings_advice_banner_toggle">Mostrar aviso de seguridad y red</string>
     <string name="settings_advice_banner_subtext">Muestra un aviso de seguridad en la parte superior de la pantalla principal.</string>
@@ -524,7 +520,7 @@ Puedes terminarlo en cualquier momento desde la pantalla de inicio o la notifica
     <string name="onboarding_network_question">¿Debe KeepADB confiar en el Wi-Fi al que estás conectado ahora mismo?</string>
     <string name="onboarding_network_privacy_note">En el modo de privacidad, el nombre solo se muestra aquí y al confiar en una red.</string>
     <string name="onboarding_network_open_list">Cambiar en la lista Redes</string>
-    <string name="onboarding_webhook_question">Opcional. Informa de la dirección actual de la depuración inalámbrica a un servidor propio, por ejemplo en tu tailnet. La mayoría no lo necesita. No se guarda nada hasta que pulses «Guardar URL».</string>
+    <string name="onboarding_webhook_question">Opcional. Informa de la dirección actual de la depuración inalámbrica a un servidor propio, por ejemplo en tu red doméstica o VPN. La mayoría no lo necesita. No se guarda nada hasta que pulses «Guardar URL».</string>
     <string name="onboarding_protection_force_title">Máxima comodidad (modo forzado)</string>
     <string name="onboarding_protection_force_body">En cualquier red, también en las desconocidas, durante el tiempo que elijas. Antes tienes que confirmarlo.</string>
     <string name="onboarding_protection_force_keep_alive">El modo forzado solo funciona con «Mantener activo». «Mantener activo» se activa con él.</string>

@@ -16,11 +16,8 @@
     <string name="endpoint_format">Eindpunt: %1$s:%2$d</string>
     <string name="endpoint_searching">Zoeken naar eindpunt…</string>
     <string name="endpoint_unavailable">Eindpunt niet beschikbaar</string>
-    <string name="tailscale_status_active">Tailscale: actief</string>
-    <string name="tailscale_status_inactive">Tailscale: niet actief</string>
-    <string name="tailscale_status_unknown">Tailscale: onbekend</string>
 
-    <string name="transport_tailscale_label">ADB via Tailscale/VPN</string>
+    <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · laatst gecontroleerd %3$s</string>
     <string name="transport_usb_active_value">USB-ADB actief</string>
@@ -118,7 +115,6 @@
     <string name="webhook_status_no_endpoint">nog geen</string>
     <string name="webhook_status_deregistered">afgemeld</string>
     <string name="webhook_status_failed">mislukt</string>
-    <string name="webhook_status_tailnet_hint">Tailscale is mogelijk niet verbonden of niet automatisch gestart na een herstart. Controleer de Android-instelling "Always-on VPN" voor Tailscale.</string>
     <string name="settings_permission_warning">Systeemtoestemming WRITE_SECURE_SETTINGS ontbreekt. KeepADB kan draadloze foutopsporing pas schakelen nadat toestemming is verleend.</string>
     <string name="settings_language_menu_label">Taal</string>
     <string name="settings_language_accessibility">App-taal: %1$s</string>
@@ -162,7 +158,7 @@
     <string name="usb_profile_name_hint">Profielnaam (verplicht)</string>
     <string name="usb_profile_ip_hint">IP-adres van host (optioneel)</string>
     <string name="usb_profile_hostname_hint">Hostnaam (optioneel)</string>
-    <string name="usb_profile_tailnet_hint">Tailnet-hostnaam (optioneel)</string>
+    <string name="usb_profile_remote_host_hint">VPN-/externe hostnaam (optioneel)</string>
     <string name="usb_profile_name_required">Voer een profielnaam in.</string>
     <string name="usb_profile_edit_button">Bewerken</string>
     <string name="usb_profile_delete_button">Verwijderen</string>
@@ -284,7 +280,7 @@
     <string name="issue_report_placeholder_notes">Voeg andere nuttige informatie toe.</string>
     <string name="issue_report_diagnostics_section">Optionele geredigeerde KeepADB-diagnostische gegevens (controleer vóór verzending)</string>
     <string name="advice_banner_title">Beveiliging &amp; netwerk</string>
-    <string name="advice_banner_text">Draadloze foutopsporing opent een ADB-poort op je netwerk. Gebruik vertrouwde wifi of een vpn (bijv. Tailscale) en schakel het uit op openbare hotspots. Deel je eindpunt nooit openbaar en accepteer geen onverwachte koppelingsverzoeken.</string>
+    <string name="advice_banner_text">Draadloze foutopsporing opent een ADB-poort op je netwerk. Gebruik vertrouwde wifi of een vpn en schakel het uit op openbare hotspots. Deel je eindpunt nooit openbaar en accepteer geen onverwachte koppelingsverzoeken.</string>
     <string name="security_notice_dismiss">Melding sluiten</string>
     <string name="settings_advice_banner_toggle">Beveiligings- en netwerkadvies tonen</string>
     <string name="settings_advice_banner_subtext">Toont een beveiligingswaarschuwing bovenaan het hoofdscherm.</string>
@@ -524,7 +520,7 @@ Je kunt het op elk moment beëindigen via het startscherm of de melding.</string
     <string name="onboarding_network_question">Moet KeepADB het wifi-netwerk vertrouwen waarmee je nu verbonden bent?</string>
     <string name="onboarding_network_privacy_note">In de privacymodus wordt de naam alleen hier en bij het vertrouwen van een netwerk getoond.</string>
     <string name="onboarding_network_open_list">Wijzigen in de lijst Netwerken</string>
-    <string name="onboarding_webhook_question">Optioneel. Meldt het huidige adres van draadloos foutopsporen aan een eigen server, bijvoorbeeld in je tailnet. De meeste mensen hebben dit niet nodig. Er wordt niets opgeslagen tot je op “URL opslaan” tikt.</string>
+    <string name="onboarding_webhook_question">Optioneel. Meldt het huidige adres van draadloos foutopsporen aan een eigen server, bijvoorbeeld in je thuisnetwerk of vpn. De meeste mensen hebben dit niet nodig. Er wordt niets opgeslagen tot je op “URL opslaan” tikt.</string>
     <string name="onboarding_protection_force_title">Maximaal comfortabel (geforceerde modus)</string>
     <string name="onboarding_protection_force_body">In elk netwerk, ook onbekende, voor een tijd die je kiest. Eerst moet je bevestigen.</string>
     <string name="onboarding_protection_force_keep_alive">De geforceerde modus werkt alleen met Keep-Alive. Keep-Alive wordt samen ingeschakeld.</string>

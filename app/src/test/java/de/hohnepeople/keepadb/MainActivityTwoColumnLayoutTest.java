@@ -73,7 +73,6 @@ public class MainActivityTwoColumnLayoutTest {
         TextView subtext = activity.findViewById(R.id.toggle_subtext);
         TextView status = activity.findViewById(R.id.status);
         TextView endpoint = activity.findViewById(R.id.endpoint);
-        TextView tailscaleStatus = activity.findViewById(R.id.tailscale_status);
         View transportOverview = activity.findViewById(R.id.transport_overview_panel);
         Switch keepAliveToggle = activity.findViewById(R.id.keep_alive_toggle);
         TextView keepAliveSubtext = activity.findViewById(R.id.keep_alive_subtext);
@@ -84,7 +83,6 @@ public class MainActivityTwoColumnLayoutTest {
         assertNotNull(subtext);
         assertNotNull(status);
         assertNotNull(endpoint);
-        assertNotNull(tailscaleStatus);
         assertNotNull(transportOverview);
         assertNotNull(keepAliveToggle);
         assertNotNull(keepAliveSubtext);
@@ -110,7 +108,6 @@ public class MainActivityTwoColumnLayoutTest {
         TextView subtext = activity.findViewById(R.id.toggle_subtext);
         TextView status = activity.findViewById(R.id.status);
         TextView endpoint = activity.findViewById(R.id.endpoint);
-        TextView tailscaleStatus = activity.findViewById(R.id.tailscale_status);
         View transportOverview = activity.findViewById(R.id.transport_overview_panel);
         Switch keepAliveToggle = activity.findViewById(R.id.keep_alive_toggle);
         TextView keepAliveSubtext = activity.findViewById(R.id.keep_alive_subtext);
@@ -123,7 +120,6 @@ public class MainActivityTwoColumnLayoutTest {
         assertNotNull(subtext);
         assertNotNull(status);
         assertNotNull(endpoint);
-        assertNotNull(tailscaleStatus);
         assertNotNull(transportOverview);
         assertNotNull(keepAliveToggle);
         assertNotNull(keepAliveSubtext);
@@ -146,7 +142,6 @@ public class MainActivityTwoColumnLayoutTest {
         assertEquals(adbColumn, subtext.getParent());
         assertEquals(adbColumn, status.getParent());
         assertEquals(adbColumn, endpoint.getParent());
-        assertEquals(adbColumn, tailscaleStatus.getParent());
         assertEquals(adbColumn, transportOverview.getParent());
 
         // 4. Vertical divider

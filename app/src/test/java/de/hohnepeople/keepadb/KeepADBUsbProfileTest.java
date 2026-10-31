@@ -34,7 +34,7 @@ public class KeepADBUsbProfileTest {
         assertEquals("Updated", updated.name);
         assertEquals("198.51.100.2", updated.ipAddress);
         assertEquals("new.local", updated.hostname);
-        assertEquals("new.ts.net", updated.tailnetHostname);
+        assertEquals("new.ts.net", updated.remoteHostname);
         assertEquals(selected.id, KeepADBUsbProfile.getSelected(context).id);
 
         TestContext restartedContext = new TestContext(preferences);
@@ -43,7 +43,7 @@ public class KeepADBUsbProfileTest {
         assertEquals("Updated", persisted.name);
         assertEquals("198.51.100.2", persisted.ipAddress);
         assertEquals("new.local", persisted.hostname);
-        assertEquals("new.ts.net", persisted.tailnetHostname);
+        assertEquals("new.ts.net", persisted.remoteHostname);
         assertEquals(selected.id, KeepADBUsbProfile.getSelected(restartedContext).id);
 
         KeepADBUsbProfile.Profile updatedSelected = KeepADBUsbProfile.update(
@@ -52,7 +52,7 @@ public class KeepADBUsbProfileTest {
         assertEquals(selected.id, KeepADBUsbProfile.getSelected(restartedContext).id);
         assertEquals("", updatedSelected.ipAddress);
         assertEquals("", updatedSelected.hostname);
-        assertEquals("", updatedSelected.tailnetHostname);
+        assertEquals("", updatedSelected.remoteHostname);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class KeepADBUsbProfileTest {
         assertEquals("Original", unchanged.name);
         assertEquals("192.0.2.3", unchanged.ipAddress);
         assertEquals("host.local", unchanged.hostname);
-        assertEquals("host.ts.net", unchanged.tailnetHostname);
+        assertEquals("host.ts.net", unchanged.remoteHostname);
         assertEquals(1, KeepADBUsbProfile.getProfiles(context).size());
         assertFalse(KeepADBUsbProfile.getSelected(context) == null);
     }

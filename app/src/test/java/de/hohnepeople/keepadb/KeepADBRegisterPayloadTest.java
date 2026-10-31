@@ -24,9 +24,9 @@ public class KeepADBRegisterPayloadTest {
                 KeepADBRegisterPayload.Type.WLAN_LAN, "192.168.1.50", 41234, 1_700_000_000_000L);
     }
 
-    private static KeepADBRegisterPayload.VerifiedTransport tailscale() {
+    private static KeepADBRegisterPayload.VerifiedTransport vpn() {
         return new KeepADBRegisterPayload.VerifiedTransport(
-                KeepADBRegisterPayload.Type.TAILSCALE_VPN, "100.111.111.30", 41234,
+                KeepADBRegisterPayload.Type.VPN, "100.111.111.30", 41234,
                 1_700_000_001_000L);
     }
 
@@ -38,15 +38,15 @@ public class KeepADBRegisterPayloadTest {
     @Test
     public void everyVerifiedTransportBecomesItsOwnEventWithItsOwnMethod() {
         List<KeepADBRegisterPayload.Event> events =
-                KeepADBRegisterPayload.buildEvents(Arrays.asList(wlan(), tailscale(), usb()));
+                KeepADBRegisterPayload.buildEvents(Arrays.asList(wlan(), vpn(), usb()));
 
         assertEquals(3, events.size());
         assertEquals("wlan-adb", events.get(0).method);
-        assertEquals("tailscale-adb", events.get(1).method);
+        assertEquals("vpn-adb", events.get(1).method);
         assertEquals("usb-adb", events.get(2).method);
 
         // Separate slots: no event carries a peer transport's endpoint, and none of them asks the
-        // server to clear anything. That is what keeps WLAN/Tailscale/USB from erasing each other.
+        // server to clear anything. That is what keeps WLAN/VPN/USB from erasing each other.
         for (KeepADBRegisterPayload.Event event : events) {
             assertTrue(event.json.contains("\"active\":true"));
             assertFalse(event.json.contains("\"action\""));
@@ -59,9 +59,9 @@ public class KeepADBRegisterPayloadTest {
     }
 
     @Test
-    public void tailscaleAndUsbAreHeldBackUntilTheServerAcceptsThem() {
+    public void vpnAndUsbAreHeldBackUntilTheServerAcceptsThem() {
         List<KeepADBRegisterPayload.Event> events =
-                KeepADBRegisterPayload.buildEvents(Arrays.asList(wlan(), tailscale(), usb()));
+                KeepADBRegisterPayload.buildEvents(Arrays.asList(wlan(), vpn(), usb()));
 
         assertTrue(events.get(0).serverSupported);
         assertFalse(events.get(1).serverSupported);
@@ -73,10 +73,10 @@ public class KeepADBRegisterPayloadTest {
     @Test
     public void onlyTheVerifiedTransportIsReported() {
         List<KeepADBRegisterPayload.Event> events =
-                KeepADBRegisterPayload.buildEvents(Collections.singletonList(tailscale()));
+                KeepADBRegisterPayload.buildEvents(Collections.singletonList(vpn()));
 
         assertEquals(1, events.size());
-        assertEquals("tailscale-adb", events.get(0).method);
+        assertEquals("vpn-adb", events.get(0).method);
         // No placeholder or clearing event is fabricated for the transports that are not verified.
         assertFalse(events.get(0).json.contains("wlan-adb"));
     }
@@ -96,7 +96,7 @@ public class KeepADBRegisterPayloadTest {
                 new KeepADBRegisterPayload.VerifiedTransport(
                         KeepADBRegisterPayload.Type.WLAN_LAN, "192.168.1.50", 0, 1L),
                 new KeepADBRegisterPayload.VerifiedTransport(
-                        KeepADBRegisterPayload.Type.TAILSCALE_VPN, "   ", 41234, 1L));
+                        KeepADBRegisterPayload.Type.VPN, "   ", 41234, 1L));
 
         assertTrue(KeepADBRegisterPayload.buildEvents(broken).isEmpty());
     }
@@ -127,7 +127,7 @@ public class KeepADBRegisterPayloadTest {
         assertNotEquals(base,
                 KeepADBRegisterPayload.eventIdFor("wlan-adb", "192.168.1.50:41234", false));
         assertNotEquals(base,
-                KeepADBRegisterPayload.eventIdFor("tailscale-adb", "192.168.1.50:41234", true));
+                KeepADBRegisterPayload.eventIdFor("vpn-adb", "192.168.1.50:41234", true));
     }
 
     @Test
@@ -164,7 +164,7 @@ public class KeepADBRegisterPayloadTest {
                 Arrays.asList(
                         new KeepADBTransportEndpoint(KeepADBTransportEndpoint.Type.WLAN_LAN,
                                 "192.168.1.50", 41234, 1_700_000_000_000L, true),
-                        new KeepADBTransportEndpoint(KeepADBTransportEndpoint.Type.TAILSCALE_VPN,
+                        new KeepADBTransportEndpoint(KeepADBTransportEndpoint.Type.VPN,
                                 "100.111.111.30", 41234, 1_700_000_001_000L, false),
                         new KeepADBTransportEndpoint(KeepADBTransportEndpoint.Type.USB,
                                 null, 0, 1_700_000_002_000L, false)),
@@ -178,7 +178,7 @@ public class KeepADBRegisterPayloadTest {
         assertEquals("192.168.1.50", verified.get(0).host);
         assertEquals(41234, verified.get(0).port);
         assertEquals(1_700_000_000_000L, verified.get(0).verifiedAtMs);
-        assertEquals(KeepADBRegisterPayload.Type.TAILSCALE_VPN, verified.get(1).type);
+        assertEquals(KeepADBRegisterPayload.Type.VPN, verified.get(1).type);
         assertEquals(KeepADBRegisterPayload.Type.USB, verified.get(2).type);
 
         // The adapted snapshot must produce exactly the three independent slots the contract
@@ -186,7 +186,7 @@ public class KeepADBRegisterPayloadTest {
         List<KeepADBRegisterPayload.Event> events = KeepADBRegisterPayload.buildEvents(verified);
         assertEquals(3, events.size());
         assertEquals("wlan-adb", events.get(0).method);
-        assertEquals("tailscale-adb", events.get(1).method);
+        assertEquals("vpn-adb", events.get(1).method);
         assertEquals("usb-adb", events.get(2).method);
     }
 

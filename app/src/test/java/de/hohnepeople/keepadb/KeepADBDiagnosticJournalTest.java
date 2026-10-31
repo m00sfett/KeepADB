@@ -152,11 +152,11 @@ public class KeepADBDiagnosticJournalTest {
     public void snapshotDistinguishesShownEndpointFromConfirmedReachability() {
         long t = START;
         String confirmed = KeepADBDiagnostics.snapshotState("wifi", true,
-                KeepADBTailscaleStatus.Status.ACTIVE, true, true, "192.0.2.4", 37123, t - MINUTE, t);
+                true, true, true, "192.0.2.4", 37123, t - MINUTE, t);
         String stale = KeepADBDiagnostics.snapshotState("cellular", false,
-                KeepADBTailscaleStatus.Status.ACTIVE, true, true, "192.0.2.4", 37123, t - 30 * MINUTE, t);
+                true, true, true, "192.0.2.4", 37123, t - 30 * MINUTE, t);
         String none = KeepADBDiagnostics.snapshotState("cellular", false,
-                KeepADBTailscaleStatus.Status.UNKNOWN, false, true, null, 0, 0, t);
+                false, false, true, null, 0, 0, t);
 
         assertTrue(confirmed.contains("shownEndpoint=host=192.0.2.4 port=37123"));
         assertTrue(confirmed.contains("endpointReachability=confirmed"));
@@ -165,18 +165,19 @@ public class KeepADBDiagnosticJournalTest {
                         && stale.contains("endpointReachability=stale"));
         assertTrue(stale.contains("net=cellular") && stale.contains("wifiEligible=false"));
         assertTrue(none.contains("shownEndpoint=none") && none.contains("endpointReachability=none"));
-        assertTrue("unreadable Tailscale state stays unknown", none.contains("tailscale=unknown"));
+        assertTrue(confirmed.contains("vpn=on") && none.contains("vpn=off"));
+        assertFalse("#877: no VPN product is named", confirmed.contains("tailscale"));
     }
 
     @Test
-    public void changedFieldsNamesTailscaleAndNetworkTransitions() {
+    public void changedFieldsNamesVpnAndNetworkTransitions() {
         String before = KeepADBDiagnostics.snapshotState("wifi", true,
-                KeepADBTailscaleStatus.Status.INACTIVE, true, true, null, 0, 0, START);
+                false, true, true, null, 0, 0, START);
         String after = KeepADBDiagnostics.snapshotState("cellular", false,
-                KeepADBTailscaleStatus.Status.ACTIVE, true, true, null, 0, 0, START);
+                true, true, true, null, 0, 0, START);
         assertEquals("initial", KeepADBDiagnostics.changedFields(null, before));
         assertEquals("none", KeepADBDiagnostics.changedFields(before, before));
-        assertEquals("net,wifiEligible,tailscale", KeepADBDiagnostics.changedFields(before, after));
+        assertEquals("net,wifiEligible,vpn", KeepADBDiagnostics.changedFields(before, after));
     }
 
     @Test
@@ -201,7 +202,7 @@ public class KeepADBDiagnosticJournalTest {
         assertTrue(export.startsWith(KeepADBDiagnosticJournal.EXPORT_HEADER));
         assertTrue(export.contains("coverageFrom="));
         assertTrue(export.contains("event=state_snapshot"));
-        assertTrue(export.contains("tailscale="));
+        assertTrue(export.contains("vpn="));
         assertTrue(export.contains("debug-marker"));
         assertTrue("the issue report keeps a compact v1-sized excerpt",
                 KeepADBDiagnostics.exportForIssueReport(context).startsWith(KeepADBDiagnostics.EXPORT_HEADER));

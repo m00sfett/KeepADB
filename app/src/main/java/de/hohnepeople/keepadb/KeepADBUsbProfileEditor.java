@@ -35,7 +35,7 @@ final class KeepADBUsbProfileEditor {
     static final String STATE_PROFILE_EDIT_NAME = "settings_profile_edit_name";
     static final String STATE_PROFILE_EDIT_IP = "settings_profile_edit_ip";
     static final String STATE_PROFILE_EDIT_HOSTNAME = "settings_profile_edit_hostname";
-    static final String STATE_PROFILE_EDIT_TAILNET = "settings_profile_edit_tailnet";
+    static final String STATE_PROFILE_EDIT_REMOTE_HOST = "settings_profile_edit_remote_host";
 
     private final Activity activity;
     private final Runnable onProfileChanged;
@@ -45,7 +45,7 @@ final class KeepADBUsbProfileEditor {
     private EditText activeEditName;
     private EditText activeEditIp;
     private EditText activeEditHostname;
-    private EditText activeEditTailnet;
+    private EditText activeEditRemoteHost;
 
     private AlertDialog activeSwitchDialog;
     private AlertDialog activeDeleteDialog;
@@ -79,8 +79,8 @@ final class KeepADBUsbProfileEditor {
         String draftName = savedInstanceState.getString(STATE_PROFILE_EDIT_NAME);
         String draftIp = savedInstanceState.getString(STATE_PROFILE_EDIT_IP);
         String draftHostname = savedInstanceState.getString(STATE_PROFILE_EDIT_HOSTNAME);
-        String draftTailnet = savedInstanceState.getString(STATE_PROFILE_EDIT_TAILNET);
-        showEditDialog(editingProfile, draftName, draftIp, draftHostname, draftTailnet);
+        String draftRemoteHost = savedInstanceState.getString(STATE_PROFILE_EDIT_REMOTE_HOST);
+        showEditDialog(editingProfile, draftName, draftIp, draftHostname, draftRemoteHost);
     }
 
     /** Call from {@code SettingsActivity#onSaveInstanceState}. */
@@ -100,9 +100,9 @@ final class KeepADBUsbProfileEditor {
         outState.putString(STATE_PROFILE_EDIT_HOSTNAME,
                 activeEditHostname != null && activeEditHostname.getText() != null
                         ? activeEditHostname.getText().toString() : "");
-        outState.putString(STATE_PROFILE_EDIT_TAILNET,
-                activeEditTailnet != null && activeEditTailnet.getText() != null
-                        ? activeEditTailnet.getText().toString() : "");
+        outState.putString(STATE_PROFILE_EDIT_REMOTE_HOST,
+                activeEditRemoteHost != null && activeEditRemoteHost.getText() != null
+                        ? activeEditRemoteHost.getText().toString() : "");
     }
 
     /** Call from {@code SettingsActivity#onDestroy} to dismiss any showing dialog and drop refs. */
@@ -117,7 +117,7 @@ final class KeepADBUsbProfileEditor {
         activeEditName = null;
         activeEditIp = null;
         activeEditHostname = null;
-        activeEditTailnet = null;
+        activeEditRemoteHost = null;
 
         if (activeSwitchDialog != null) {
             if (activeSwitchDialog.isShowing()) {
@@ -174,7 +174,7 @@ final class KeepADBUsbProfileEditor {
             int minTouch = (int) (48 * activity.getResources().getDisplayMetrics().density);
 
             // #593: name and details stacked in two lines instead of one radio label, so a
-            // profile with a long IP/host/tailnet combination wraps as whole words instead of
+            // profile with a long IP/host/remote-host combination wraps as whole words instead of
             // character-by-character.
             LinearLayout textColumn = new LinearLayout(activity);
             textColumn.setOrientation(LinearLayout.VERTICAL);
@@ -266,7 +266,7 @@ final class KeepADBUsbProfileEditor {
     }
 
     private void showEditDialog(KeepADBUsbProfile.Profile profile,
-            String draftName, String draftIp, String draftHostname, String draftTailnet) {
+            String draftName, String draftIp, String draftHostname, String draftRemoteHost) {
         ScrollView scroll = new ScrollView(activity);
         LinearLayout fields = new LinearLayout(activity);
         fields.setOrientation(LinearLayout.VERTICAL);
@@ -275,12 +275,12 @@ final class KeepADBUsbProfileEditor {
         EditText name = profileField(R.string.usb_profile_name_hint);
         EditText ip = profileField(R.string.usb_profile_ip_hint);
         EditText hostname = profileField(R.string.usb_profile_hostname_hint);
-        EditText tailnet = profileField(R.string.usb_profile_tailnet_hint);
+        EditText remoteHost = profileField(R.string.usb_profile_remote_host_hint);
         if (profile != null) {
             name.setText(profile.name);
             ip.setText(profile.ipAddress);
             hostname.setText(profile.hostname);
-            tailnet.setText(profile.tailnetHostname);
+            remoteHost.setText(profile.remoteHostname);
         }
         if (draftName != null) {
             name.setText(draftName);
@@ -291,13 +291,13 @@ final class KeepADBUsbProfileEditor {
         if (draftHostname != null) {
             hostname.setText(draftHostname);
         }
-        if (draftTailnet != null) {
-            tailnet.setText(draftTailnet);
+        if (draftRemoteHost != null) {
+            remoteHost.setText(draftRemoteHost);
         }
         fields.addView(name);
         fields.addView(ip);
         fields.addView(hostname);
-        fields.addView(tailnet);
+        fields.addView(remoteHost);
         scroll.addView(fields);
         AlertDialog dialog = new AlertDialog.Builder(activity)
                 .setTitle(profile == null ? R.string.usb_profile_create_title
@@ -311,14 +311,14 @@ final class KeepADBUsbProfileEditor {
         activeEditName = name;
         activeEditIp = ip;
         activeEditHostname = hostname;
-        activeEditTailnet = tailnet;
+        activeEditRemoteHost = remoteHost;
         dialog.setOnDismissListener(d -> {
             activeEditDialog = null;
             activeEditId = null;
             activeEditName = null;
             activeEditIp = null;
             activeEditHostname = null;
-            activeEditTailnet = null;
+            activeEditRemoteHost = null;
         });
         dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             if (name.getText().toString().trim().isEmpty()) {
@@ -327,10 +327,10 @@ final class KeepADBUsbProfileEditor {
             }
             if (profile == null) {
                 KeepADBUsbProfile.add(activity, name.getText().toString(), ip.getText().toString(),
-                        hostname.getText().toString(), tailnet.getText().toString());
+                        hostname.getText().toString(), remoteHost.getText().toString());
             } else if (KeepADBUsbProfile.update(activity, profile.id, name.getText().toString(),
                     ip.getText().toString(), hostname.getText().toString(),
-                    tailnet.getText().toString()) == null) {
+                    remoteHost.getText().toString()) == null) {
                 name.setError(activity.getString(R.string.usb_profile_name_required));
                 return;
             }

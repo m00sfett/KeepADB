@@ -60,7 +60,7 @@ public class KeepADBUsbProfileEditorTest {
         assertEquals("Draft-Host", saved.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_NAME));
         assertEquals("10.1.2.3", saved.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_IP));
         assertEquals("draft.local", saved.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_HOSTNAME));
-        assertEquals("draft.tailnet", saved.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_TAILNET));
+        assertEquals("draft.tailnet", saved.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_REMOTE_HOST));
 
         // A brand new editor instance, standing in for the fresh instance SettingsActivity#onCreate
         // creates on every real recreation -- no shared state with the editor above.

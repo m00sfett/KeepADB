@@ -28,7 +28,7 @@ public class KeepADBTransportEndpointTest {
     @Test
     public void withPrimaryReturnsACopyWithOnlyThePrimaryFlagChanged() {
         KeepADBTransportEndpoint original = new KeepADBTransportEndpoint(
-                KeepADBTransportEndpoint.Type.TAILSCALE_VPN, "100.64.1.2", 5555, 123L, false);
+                KeepADBTransportEndpoint.Type.VPN, "100.64.1.2", 5555, 123L, false);
 
         KeepADBTransportEndpoint primary = original.withPrimary(true);
 

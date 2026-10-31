@@ -28,16 +28,14 @@ public class MainActivity extends Activity {
     private TextView keepAliveSubtext;
     private TextView status;
     private TextView endpoint;
-    private TextView tailscaleStatus;
     // #761: set when onCreate handed over to the setup assistant; nothing of the screen exists then.
     private boolean handedOverToAssistant;
 
-    // #538: container for additional verified transports (Tailscale/VPN, USB) beyond the WLAN/LAN
+    // #538: container for additional verified transports (VPN, USB) beyond the WLAN/LAN
     // endpoint already shown by `endpoint` above; populated dynamically by renderTransportOverview().
     private ViewGroup transportOverviewPanel;
     private long transportOverviewGeneration;
     private TextView webhookStatus;
-    private TextView webhookTailnetHint;
     private View webhookStatusPanel;
     private View adviceBanner;
     // #764: the warning cards (W1, W3, W4, W5); the force card (W2) is below.
@@ -91,11 +89,9 @@ public class MainActivity extends Activity {
         keepAliveSubtext = findViewById(R.id.keep_alive_subtext);
         status = findViewById(R.id.status);
         endpoint = findViewById(R.id.endpoint);
-        tailscaleStatus = findViewById(R.id.tailscale_status);
 
         transportOverviewPanel = findViewById(R.id.transport_overview_panel);
         webhookStatus = findViewById(R.id.webhook_status);
-        webhookTailnetHint = findViewById(R.id.webhook_tailnet_hint);
         webhookStatusPanel = findViewById(R.id.webhook_status_panel);
         warningSystem = findViewById(R.id.warning_system);
         warningLessSecure = findViewById(R.id.warning_less_secure);
@@ -481,43 +477,6 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * #537: optional, purely local Tailscale status in the existing network/endpoint view.
-     * Display-only -- reading it never touches {@link KeepADB}'s toggle state, Keep-Alive, or the
-     * endpoint/transport discovery above, and an active Tailscale interface is never treated as
-     * an ADB endpoint. Hidden entirely rather than shown as neutral/empty when Tailscale isn't
-     * installed, per the acceptance criterion that a device without Tailscale stays quiet.
-     *
-     * <p>#548: Tailscale remains a debug-only diagnostic while its status/transport detection can
-     * still disagree with itself (a Tailscale status of "not active" next to a verified
-     * Tailscale/VPN transport row). A release build never shows this card at all, regardless of
-     * detection state.
-     */
-    private void renderTailscaleStatus() {
-        renderTailscaleStatus(KeepADBTailscaleStatus.detect(this));
-    }
-
-    private void renderTailscaleStatus(KeepADBTailscaleStatus.Status tailscale) {
-        if (!KeepADBBuildFlags.isDebugBuild(this)) {
-            tailscaleStatus.setVisibility(View.GONE);
-            return;
-        }
-        if (tailscale == KeepADBTailscaleStatus.Status.NOT_INSTALLED) {
-            tailscaleStatus.setVisibility(View.GONE);
-            return;
-        }
-        int textRes;
-        if (tailscale == KeepADBTailscaleStatus.Status.ACTIVE) {
-            textRes = R.string.tailscale_status_active;
-        } else if (tailscale == KeepADBTailscaleStatus.Status.INACTIVE) {
-            textRes = R.string.tailscale_status_inactive;
-        } else {
-            textRes = R.string.tailscale_status_unknown;
-        }
-        tailscaleStatus.setText(textRes);
-        tailscaleStatus.setVisibility(View.VISIBLE);
-    }
-
-    /**
      * #458: why {@link KeepADB.State#OFF_KEEP_ALIVE_WAITING} currently applies, for the status
      * card only. Deliberately not on {@link KeepADB} itself: {@code
      * KeepADBTrustedNetworkContractTest#keepAdbFacadeNeverReferencesTheAllowlist} pins the toggle
@@ -806,22 +765,11 @@ public class MainActivity extends Activity {
         action.setOnClickListener(v -> onAction.run());
     }
 
-    /**
-     * #875: the Tailscale line and the webhook hint are drawn from one status snapshot, also when
-     * only the register listener fires (a report completed), so the two can never disagree.
-     */
     private void refreshWebhookStatus() {
-        KeepADBTailscaleStatus.Status tailscale = KeepADBTailscaleStatus.detect(this);
-        renderTailscaleStatus(tailscale);
-        renderWebhookStatus(tailscale);
-    }
-
-    private void renderWebhookStatus(KeepADBTailscaleStatus.Status tailscale) {
         String url = KeepADBPreferences.getRegisterWebhookUrl(this);
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
         if (!enabled || url == null || url.trim().isEmpty()) {
             webhookStatusPanel.setVisibility(View.GONE);
-            webhookTailnetHint.setVisibility(View.GONE);
             return;
         }
         String reportStatus = KeepADBPreferences.getWebhookLastReportStatus(this);
@@ -852,18 +800,6 @@ public class MainActivity extends Activity {
         webhookStatus.setText(getString(R.string.webhook_status_hint,
                 KeepADBPreferences.maskWebhookUrlForDisplay(this, url), lastEndpoint, lastReported));
         webhookStatusPanel.setVisibility(View.VISIBLE);
-
-        // #561: only a possible-cause hint, never a diagnosis -- only shown while the last report
-        // is still failing (cleared again the moment a later attempt reports success) and only for
-        // a configured URL that looks tailnet-bound per KeepADBTailnetHeuristic. KeepADB never
-        // starts or configures Tailscale/VPN itself; see #537/#548.
-        // #875: the read-only Tailscale status this screen already shows rules the hint out when
-        // the tunnel is clearly up -- the failure then lies elsewhere (e.g. the register server),
-        // and a "Tailscale may be disconnected" line next to "Tailscale: active" misleads.
-        boolean showTailnetHint = KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(reportStatus)
-                && KeepADBTailnetHeuristic.looksLikeTailnetTarget(url)
-                && tailscale != KeepADBTailscaleStatus.Status.ACTIVE;
-        webhookTailnetHint.setVisibility(showTailnetHint ? View.VISIBLE : View.GONE);
     }
 
     private void postEndpointAvailable(long listenerGeneration, String host, int port) {
@@ -948,16 +884,11 @@ public class MainActivity extends Activity {
      * beyond the WLAN/LAN case to show, so the common single-WLAN scenario renders exactly as
      * before.
      *
-     * <p>A merely active Tailscale/VPN interface deliberately produces no row here. Saying
-     * "Tailscale is up" is #537's job, and that status card is the app's single answer to it;
-     * a second line built from this class' own, differently derived detection (CGNAT range plus
-     * ADB socket probe) could contradict it. This panel therefore only ever speaks about
-     * transports whose ADB reachability {@link KeepADBTransportOverview} actually verified --
-     * which is exactly what it adds over #537's status.
+     * <p>A merely active VPN interface deliberately produces no row here: this panel only ever
+     * speaks about transports whose ADB reachability {@link KeepADBTransportOverview} actually
+     * verified. KeepADB does not detect, name or advise on any particular VPN product (#877).
      *
-     * <p>#548: a Tailscale/VPN row is additionally suppressed on a release build, same as the
-     * #537 status card above -- Tailscale stays a debug-only diagnostic until its detection
-     * semantics are corrected in a separate follow-up.
+     * <p>#548: a VPN row stays suppressed on a release build; it is a debug-only diagnostic.
      */
     private void applyTransportOverview(KeepADBTransportOverview.Snapshot snapshot) {
         transportOverviewPanel.removeAllViews();
@@ -968,7 +899,7 @@ public class MainActivity extends Activity {
                 wlanPrimary = transport.primary;
                 continue;
             }
-            if (transport.type == KeepADBTransportEndpoint.Type.TAILSCALE_VPN && !debugBuild) {
+            if (transport.type == KeepADBTransportEndpoint.Type.VPN && !debugBuild) {
                 continue;
             }
             transportOverviewPanel.addView(buildTransportRow(transport));
@@ -983,8 +914,8 @@ public class MainActivity extends Activity {
      * transport" content description on the transport currently holding {@link
      * KeepADBTransportEndpoint#primary}. */
     private TextView buildTransportRow(KeepADBTransportEndpoint transport) {
-        String label = getString(transport.type == KeepADBTransportEndpoint.Type.TAILSCALE_VPN
-                ? R.string.transport_tailscale_label : R.string.transport_usb_label);
+        String label = getString(transport.type == KeepADBTransportEndpoint.Type.VPN
+                ? R.string.transport_vpn_label : R.string.transport_usb_label);
         String value = transport.hasNetworkEndpoint()
                 ? KeepADBPreferences.maskEndpointForDisplay(this,
                         KeepADBEndpoint.formatEndpoint(transport.host, transport.port))

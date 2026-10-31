@@ -16,11 +16,8 @@
     <string name="endpoint_format">Endpoint: %1$s:%2$d</string>
     <string name="endpoint_searching">Mencari endpoint…</string>
     <string name="endpoint_unavailable">Endpoint tidak tersedia</string>
-    <string name="tailscale_status_active">Tailscale: aktif</string>
-    <string name="tailscale_status_inactive">Tailscale: tidak aktif</string>
-    <string name="tailscale_status_unknown">Tailscale: tidak diketahui</string>
 
-    <string name="transport_tailscale_label">ADB via Tailscale/VPN</string>
+    <string name="transport_vpn_label">ADB via VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · terakhir diperiksa %3$s</string>
     <string name="transport_usb_active_value">USB-ADB aktif</string>
@@ -118,7 +115,6 @@
     <string name="webhook_status_no_endpoint">belum ada</string>
     <string name="webhook_status_deregistered">tidak terdaftar lagi</string>
     <string name="webhook_status_failed">gagal</string>
-    <string name="webhook_status_tailnet_hint">Tailscale mungkin terputus, atau tidak dijalankan otomatis setelah reboot. Periksa pengaturan Android "VPN Selalu Aktif" untuk Tailscale.</string>
     <string name="settings_permission_warning">Izin sistem WRITE_SECURE_SETTINGS tidak ada. KeepADB tidak dapat beralih Debugging Nirkabel sampai izin diberikan.</string>
     <string name="settings_language_menu_label">Bahasa</string>
     <string name="settings_language_accessibility">Bahasa Aplikasi: %1$s</string>
@@ -162,7 +158,7 @@
     <string name="usb_profile_name_hint">Nama profil (wajib)</string>
     <string name="usb_profile_ip_hint">Alamat IP host (opsional)</string>
     <string name="usb_profile_hostname_hint">Nama host (opsional)</string>
-    <string name="usb_profile_tailnet_hint">Nama host Tailnet (opsional)</string>
+    <string name="usb_profile_remote_host_hint">Nama host VPN/jarak jauh (opsional)</string>
     <string name="usb_profile_name_required">Masukkan nama profil.</string>
     <string name="usb_profile_edit_button">Ubah</string>
     <string name="usb_profile_delete_button">Hapus</string>
@@ -284,7 +280,7 @@
     <string name="issue_report_placeholder_notes">Tambahkan informasi berguna lainnya.</string>
     <string name="issue_report_diagnostics_section">Data diagnostik KeepADB opsional yang telah disamarkan (tinjau sebelum mengirim)</string>
     <string name="advice_banner_title">Keamanan &amp; jaringan</string>
-    <string name="advice_banner_text">Debugging nirkabel membuka port ADB di jaringan Anda. Gunakan Wi-Fi dipercaya atau VPN (mis. Tailscale), dan matikan di hotspot publik. Jangan pernah membagikan endpoint Anda secara publik atau menyetujui permintaan penyandingan yang tidak terduga.</string>
+    <string name="advice_banner_text">Debugging nirkabel membuka port ADB di jaringan Anda. Gunakan Wi-Fi dipercaya atau VPN, dan matikan di hotspot publik. Jangan pernah membagikan endpoint Anda secara publik atau menyetujui permintaan penyandingan yang tidak terduga.</string>
     <string name="security_notice_dismiss">Tutup pemberitahuan</string>
     <string name="settings_advice_banner_toggle">Tampilkan Saran Keamanan &amp; Jaringan</string>
     <string name="settings_advice_banner_subtext">Menampilkan spanduk peringatan keamanan di bagian atas layar utama.</string>
@@ -524,7 +520,7 @@ Anda dapat mengakhirinya kapan saja dari layar utama atau notifikasi.</string>
     <string name="onboarding_network_question">Apakah KeepADB perlu mempercayai Wi-Fi yang sedang tersambung saat ini?</string>
     <string name="onboarding_network_privacy_note">Dalam mode privasi, nama hanya ditampilkan di sini dan saat Anda mempercayai jaringan.</string>
     <string name="onboarding_network_open_list">Ubah di daftar Jaringan</string>
-    <string name="onboarding_webhook_question">Opsional. Melaporkan alamat Debugging Nirkabel saat ini ke server milikmu sendiri, misalnya di tailnet-mu. Kebanyakan orang tidak memerlukannya. Tidak ada yang disimpan sampai kamu mengetuk “Simpan URL”.</string>
+    <string name="onboarding_webhook_question">Opsional. Melaporkan alamat Debugging Nirkabel saat ini ke server milikmu sendiri, misalnya di jaringan rumah atau VPN-mu. Kebanyakan orang tidak memerlukannya. Tidak ada yang disimpan sampai kamu mengetuk “Simpan URL”.</string>
     <string name="onboarding_protection_force_title">Paling nyaman (mode paksa)</string>
     <string name="onboarding_protection_force_body">Di setiap jaringan, termasuk yang tidak dikenal, selama waktu yang kamu pilih. Kamu diminta mengonfirmasi dulu.</string>
     <string name="onboarding_protection_force_keep_alive">Mode paksa hanya bekerja dengan Keep-Alive. Keep-Alive ikut dinyalakan.</string>

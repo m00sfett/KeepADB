@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
@@ -28,14 +29,9 @@ import org.robolectric.android.controller.ActivityController;
 import org.robolectric.annotation.Config;
 
 /**
- * Pins what the #538 transport panel is allowed to say about Tailscale/VPN.
- *
- * <p>#537 already owns the "Tailscale is up" statement, derived from the installed package plus
- * the {@code tailscale0} interface. This panel derives its own view from the CGNAT range plus a
- * real ADB socket probe. Two independently derived answers to the same question can disagree, so
- * the panel is only allowed to speak once its own ADB verification succeeded -- which is exactly
- * the extra information it contributes. These tests fail if a merely active VPN ever grows a row
- * here again.
+ * Pins what the #538 transport panel is allowed to say about a VPN: it only speaks once its own
+ * ADB verification succeeded. These tests fail if a merely active VPN ever grows a row here
+ * again. #877: no VPN product is named or detected; any VPN address counts.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -49,8 +45,6 @@ public class MainActivityTransportOverviewTest {
     @Before
     public void setUp() {
         clearPreferences();
-        // Tailscale's own #537 card is a separate surface; keep it out of this test's way.
-        KeepADBTailscaleStatus.setPackageInstalledCheckForTesting((ctx, packageName) -> false);
     }
 
     @After
@@ -61,15 +55,10 @@ public class MainActivityTransportOverviewTest {
         setNotificationStatic("currentPort", 0);
         setNotificationStatic("currentEndpointVerifiedAtMs", 0L);
         KeepADBVpnTransport.setReachabilityProbeForTesting(null);
-        KeepADBTailscaleStatus.setPackageInstalledCheckForTesting(null);
-        KeepADBTailscaleStatus.setInterfacesProviderForTesting(null);
         KeepADB.resetForTesting();
     }
 
-    /**
-     * The exact state that used to produce a duplicated, potentially contradicting Tailscale
-     * line: a live Tailscale-range VPN address whose ADB port does not answer.
-     */
+    /** A live VPN address whose ADB port does not answer. */
     @Test
     public void vpnActiveButAdbUnverified_rendersNoTransportRowAtAll() throws Exception {
         setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
@@ -84,11 +73,12 @@ public class MainActivityTransportOverviewTest {
         assertEquals(View.GONE, panel.getVisibility());
     }
 
-    /** A non-Tailscale VPN is likewise no reason for this panel to say anything. */
+    /** Any VPN product is treated alike: unverified means no row, whatever the address range. */
     @Test
-    public void genericVpnWithoutTailscaleRange_rendersNoTransportRow() throws Exception {
+    public void otherVpnAddressButAdbUnverified_rendersNoTransportRow() throws Exception {
         setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
         addVpnNetwork("10.8.0.5");
+        KeepADBVpnTransport.setReachabilityProbeForTesting((host, port, timeoutMs) -> false);
 
         MainActivity activity = launch();
         ViewGroup panel = transportOverviewPanel(activity);
@@ -99,14 +89,13 @@ public class MainActivityTransportOverviewTest {
     }
 
     /**
-     * The counterpart: once ADB really answers over the Tailscale address, the panel does show
-     * the endpoint -- and its label states the ADB relationship rather than repeating #537's
-     * "Tailscale: active" wording.
+     * The counterpart: once ADB really answers over the VPN address, the panel does show the
+     * endpoint under the product-neutral "ADB via VPN" label (#877).
      */
     @Test
-    public void tailscaleAdbVerified_rendersAnAdbLabelledEndpointRow() throws Exception {
+    public void vpnAdbVerified_rendersAnAdbLabelledEndpointRow() throws Exception {
         setWlanEndpoint("192.168.1.50", 40000, 1_700_000_000_000L);
-        addVpnNetwork("100.101.2.3");
+        addVpnNetwork("10.8.0.5");
         KeepADBVpnTransport.setReachabilityProbeForTesting((host, port, timeoutMs) -> true);
 
         MainActivity activity = launch();
@@ -116,12 +105,11 @@ public class MainActivityTransportOverviewTest {
         assertEquals(1, panel.getChildCount());
         assertEquals(View.VISIBLE, panel.getVisibility());
         String row = ((TextView) panel.getChildAt(0)).getText().toString();
-        String label = context.getString(R.string.transport_tailscale_label);
+        String label = context.getString(R.string.transport_vpn_label);
         assertTrue("The row must carry the ADB-verified transport label: " + row,
                 row.contains(label));
-        assertTrue("The row must carry the verified endpoint: " + row, row.contains("100.101.2.3"));
-        assertTrue("The panel label must not be the plain #537 status wording",
-                !label.equals(context.getString(R.string.tailscale_status_active)));
+        assertTrue("The row must carry the verified endpoint: " + row, row.contains("10.8.0.5"));
+        assertFalse("No VPN product is named: " + row, row.toLowerCase(java.util.Locale.ROOT).contains("tailscale"));
     }
 
     /**
@@ -149,7 +137,7 @@ public class MainActivityTransportOverviewTest {
     }
 
     /**
-     * A Tailscale-range address makes {@code KeepADBTransportOverview.currentAsync} hop to a real
+     * A VPN address makes {@code KeepADBTransportOverview.currentAsync} hop to a real
      * background thread, so the snapshot lands after {@code setup()} returns. Waiting for a fixed
      * duration would only hide that; instead this waits for the one side effect that proves the
      * snapshot was applied: {@code updateEndpointPrimaryAccessibility} marks the verified WLAN

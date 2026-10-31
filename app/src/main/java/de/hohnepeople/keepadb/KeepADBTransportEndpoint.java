@@ -1,7 +1,7 @@
 package de.hohnepeople.keepadb;
 
 /**
- * A single verified ADB transport surfaced to the UI (#538): WLAN/LAN, Tailscale/VPN or USB.
+ * A single verified ADB transport surfaced to the UI (#538): WLAN/LAN, VPN or USB.
  * Immutable value object, always built fresh by {@link KeepADBTransportOverview#current} --
  * never cached beyond that one snapshot, matching the project convention that every surface
  * reads live state instead of keeping its own persistent app state.
@@ -13,7 +13,7 @@ package de.hohnepeople.keepadb;
  */
 final class KeepADBTransportEndpoint {
 
-    enum Type { WLAN_LAN, TAILSCALE_VPN, USB }
+    enum Type { WLAN_LAN, VPN, USB }
 
     final Type type;
     /** Host (an IPv4/IPv6 literal). {@code null} for {@link Type#USB}, which has no network
@@ -27,7 +27,7 @@ final class KeepADBTransportEndpoint {
     final long verifiedAtMs;
     /** Whether this is the transport a client would use by default among every transport in the
      * same {@link KeepADBTransportOverview.Snapshot}, in priority order WLAN/LAN, then
-     * Tailscale/VPN, then USB. Exactly one entry in a non-empty snapshot carries {@code true}. */
+     * VPN, then USB. Exactly one entry in a non-empty snapshot carries {@code true}. */
     final boolean primary;
 
     KeepADBTransportEndpoint(Type type, String host, int port, long verifiedAtMs, boolean primary) {

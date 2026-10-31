@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * #538: aggregates the currently verified ADB transports (WLAN/LAN, Tailscale/VPN, USB) into a
+ * #538: aggregates the currently verified ADB transports (WLAN/LAN, VPN, USB) into a
  * single, display-ready snapshot. Builds a fresh {@link Snapshot} on every call -- this class
  * holds no state of its own, matching the project convention that every surface reads live state
  * rather than keeping a persistent app state. A transport that stops being verified between two
@@ -18,7 +18,7 @@ import java.util.List;
  * <ul>
  *   <li>WLAN/LAN reuses {@link KeepADBEndpointCoordinator}'s already-verified cached endpoint (its
  *       background reachability probe and mDNS discovery are unchanged by this class).</li>
- *   <li>Tailscale/VPN uses {@link KeepADBVpnTransport}'s own independent verification.</li>
+ *   <li>VPN uses {@link KeepADBVpnTransport}'s own independent verification.</li>
  *   <li>USB reuses {@link KeepADBUsbReceiver}'s system connected+configured+adb broadcast
  *       extras, the same signal the USB notification already relies on.</li>
  * </ul>
@@ -34,9 +34,7 @@ final class KeepADBTransportOverview {
      * interface must never be presented as an ADB endpoint on its own).
      *
      * <p>{@link #vpnActiveNotAdbVerified} is model state only: it records why a present VPN did
-     * not become a transport and keeps that distinction testable, but no surface renders it.
-     * The user-facing "Tailscale is up" statement belongs to #537's status card alone, so that
-     * the app never shows two independently derived answers to the same question. */
+     * not become a transport and keeps that distinction testable, but no surface renders it. */
     static final class Snapshot {
         final List<KeepADBTransportEndpoint> transports;
         final boolean vpnActiveNotAdbVerified;
@@ -53,17 +51,17 @@ final class KeepADBTransportOverview {
 
     /**
      * Delivers {@link #current(Context)} to {@code listener}, on the calling thread whenever
-     * possible -- only hopping to a background worker thread when a Tailscale-range VPN address
-     * is actually present, since only then does {@link #current} reach {@link
+     * possible -- only hopping to a background worker thread when a usable VPN address is
+     * actually present, since only then does {@link #current} reach {@link
      * KeepADBVpnTransport#verifyAdbReachable}'s blocking socket connect. The large majority of
-     * calls (no active Tailscale-range VPN at all) therefore run synchronously and
+     * calls (no active VPN at all) therefore run synchronously and
      * deterministically, which matters for a caller like {@code MainActivity} that drives this
      * from {@code refresh()} -- itself reachable from many call sites, some already under test
      * without any awareness of this class -- since {@link android.app.Activity#runOnUiThread}
      * already special-cases "already on the UI thread" as an immediate, synchronous call.
      *
      * <p>This duplicates one cheap, side-effect-free {@link
-     * KeepADBVpnTransport#findTailscaleIpv4Address} lookup between this dispatch check and
+     * KeepADBVpnTransport#findVpnIpv4Address} lookup between this dispatch check and
      * {@link #current}'s own call to it, deliberately: keeping {@link #current} as the single
      * aggregation code path (used directly by tests) is worth more than saving one extra
      * {@code ConnectivityManager} query.
@@ -71,7 +69,7 @@ final class KeepADBTransportOverview {
     static void currentAsync(Context context, Listener listener) {
         if (context == null || listener == null) return;
         Context appContext = context.getApplicationContext();
-        if (KeepADBVpnTransport.findTailscaleIpv4Address(appContext) == null) {
+        if (KeepADBVpnTransport.findVpnIpv4Address(appContext) == null) {
             listener.onSnapshot(current(appContext));
             return;
         }
@@ -88,7 +86,7 @@ final class KeepADBTransportOverview {
     static Snapshot current(Context context) {
         List<KeepADBTransportEndpoint> transports = new ArrayList<>();
 
-        // #594: one consistent snapshot for both the WLAN entry and the Tailscale port below.
+        // #594: one consistent snapshot for both the WLAN entry and the VPN port below.
         KeepADBEndpointCoordinator.Snapshot wlan = KeepADBEndpointCoordinator.snapshot();
         if (wlan.hasEndpoint()) {
             transports.add(new KeepADBTransportEndpoint(
@@ -100,13 +98,13 @@ final class KeepADBTransportOverview {
         }
 
         boolean vpnActiveNotAdbVerified = false;
-        String tailscaleIp = KeepADBVpnTransport.findTailscaleIpv4Address(context);
-        if (tailscaleIp != null) {
+        String vpnIp = KeepADBVpnTransport.findVpnIpv4Address(context);
+        if (vpnIp != null) {
             int wlanPort = wlan.hasEndpoint() ? wlan.port : 0;
-            if (wlanPort > 0 && KeepADBVpnTransport.verifyAdbReachable(tailscaleIp, wlanPort)) {
+            if (wlanPort > 0 && KeepADBVpnTransport.verifyAdbReachable(vpnIp, wlanPort)) {
                 transports.add(new KeepADBTransportEndpoint(
-                        KeepADBTransportEndpoint.Type.TAILSCALE_VPN,
-                        tailscaleIp, wlanPort, System.currentTimeMillis(), false));
+                        KeepADBTransportEndpoint.Type.VPN,
+                        vpnIp, wlanPort, System.currentTimeMillis(), false));
             } else {
                 vpnActiveNotAdbVerified = true;
             }

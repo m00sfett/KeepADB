@@ -29,7 +29,7 @@ import org.robolectric.shadows.ShadowLooper;
  * {@code postTransports}.
  *
  * <p>The live {@code phone-register-server} currently accepts only {@code wlan-adb} (see
- * {@link KeepADBRegisterPayload#SERVER_SUPPORTED_METHODS}). Reporting a verified USB or Tailscale
+ * {@link KeepADBRegisterPayload#SERVER_SUPPORTED_METHODS}). Reporting a verified USB or VPN
  * transport to it would earn a guaranteed HTTP 400 on every endpoint change, so these tests pin
  * that such events are built but held back -- and that widening the constant is all it takes to
  * start sending them.

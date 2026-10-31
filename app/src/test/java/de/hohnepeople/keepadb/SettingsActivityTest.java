@@ -501,7 +501,7 @@ public class SettingsActivityTest {
         restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_NAME, "My Workstation");
         restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_IP, "192.168.1.100");
         restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_HOSTNAME, "workstation.local");
-        restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_TAILNET, "workstation.tailnet");
+        restoreBundle.putString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_REMOTE_HOST, "workstation.tailnet");
 
         ActivityController<SettingsActivity> controller =
                 Robolectric.buildActivity(SettingsActivity.class).setup(restoreBundle);
@@ -518,7 +518,7 @@ public class SettingsActivityTest {
         assertEquals("My Workstation", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_NAME));
         assertEquals("192.168.1.100", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_IP));
         assertEquals("workstation.local", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_HOSTNAME));
-        assertEquals("workstation.tailnet", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_TAILNET));
+        assertEquals("workstation.tailnet", reSavedState.getString(KeepADBUsbProfileEditor.STATE_PROFILE_EDIT_REMOTE_HOST));
 
         dialog.dismiss();
         ShadowLooper.idleMainLooper();

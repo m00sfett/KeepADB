@@ -16,8 +16,8 @@ KeepADB sends only to the URL saved by the user.
 
 After successfully verifying a Wi-Fi ADB endpoint, the app code creates a JSON POST with the
 header **Content-Type: application/json; charset=utf-8**. Currently, only the **wlan-adb** method
-is allowed to be transmitted. The code also creates drafts for Tailscale and USB events but blocks
-them before the HTTP call. This local allowlist documents the sender's behavior; it does not say
+is allowed to be transmitted. The code also creates drafts for VPN (`vpn-adb`, any VPN product;
+named `tailscale-adb` before #877) and USB events but blocks them before the HTTP call. This local allowlist documents the sender's behavior; it does not say
 which methods an external server currently accepts.
 
 The Wi-Fi event contains:

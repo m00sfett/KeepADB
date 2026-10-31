@@ -21,34 +21,34 @@ final class KeepADBUsbProfile {
         final String name;
         final String ipAddress;
         final String hostname;
-        final String tailnetHostname;
+        final String remoteHostname;
 
-        Profile(int id, String name, String ipAddress, String hostname, String tailnetHostname) {
+        Profile(int id, String name, String ipAddress, String hostname, String remoteHostname) {
             this.id = id;
             this.name = name;
             this.ipAddress = ipAddress;
             this.hostname = hostname;
-            this.tailnetHostname = tailnetHostname;
+            this.remoteHostname = remoteHostname;
         }
 
         String summary() {
             StringBuilder value = new StringBuilder(name);
             append(value, ipAddress);
             append(value, hostname);
-            append(value, tailnetHostname);
+            append(value, remoteHostname);
             return value.toString();
         }
 
         /**
          * #593: the endpoint part of {@link #summary()} without the name, for UI that already
          * shows the name on its own line (the "switch host profile" dialog rows) and only needs
-         * the "IP · Host · Tailnet" remainder underneath. Empty when none of the three are set.
+         * the "IP · Host · remote host" remainder underneath. Empty when none of the three are set.
          */
         String details() {
             StringBuilder value = new StringBuilder();
             append(value, ipAddress);
             append(value, hostname);
-            append(value, tailnetHostname);
+            append(value, remoteHostname);
             return value.length() > 3 ? value.substring(3) : value.toString();
         }
 
@@ -99,11 +99,11 @@ final class KeepADBUsbProfile {
     }
 
     static Profile add(Context context, String name, String ipAddress, String hostname,
-                       String tailnetHostname) {
+                       String remoteHostname) {
         SharedPreferences preferences = prefs(context);
         int id = preferences.getInt(KEY_NEXT_ID, 1);
         Profile profile = new Profile(id, clean(name), clean(ipAddress), clean(hostname),
-                clean(tailnetHostname));
+                clean(remoteHostname));
         write(preferences, profile);
         String ids = preferences.getString(KEY_IDS, "");
         preferences.edit()
@@ -124,14 +124,14 @@ final class KeepADBUsbProfile {
     }
 
     static Profile update(Context context, int id, String name, String ipAddress, String hostname,
-                          String tailnetHostname) {
+                          String remoteHostname) {
         String cleanedName = clean(name);
         if (cleanedName.isEmpty()) return null;
         SharedPreferences preferences = prefs(context);
         Profile existing = read(context, id);
         if (existing == null) return null;
         Profile updated = new Profile(id, cleanedName, clean(ipAddress), clean(hostname),
-                clean(tailnetHostname));
+                clean(remoteHostname));
         write(preferences, updated);
         return updated;
     }
@@ -179,6 +179,7 @@ final class KeepADBUsbProfile {
         if (name == null || name.trim().isEmpty()) return null;
         return new Profile(id, name, preferences.getString(PREFIX + id + "_ip", ""),
                 preferences.getString(PREFIX + id + "_host", ""),
+                // #877: the stored key keeps its historic "_tailnet" name so existing values survive.
                 preferences.getString(PREFIX + id + "_tailnet", ""));
     }
 
@@ -187,7 +188,7 @@ final class KeepADBUsbProfile {
                 .putString(PREFIX + profile.id + "_name", profile.name)
                 .putString(PREFIX + profile.id + "_ip", profile.ipAddress)
                 .putString(PREFIX + profile.id + "_host", profile.hostname)
-                .putString(PREFIX + profile.id + "_tailnet", profile.tailnetHostname)
+                .putString(PREFIX + profile.id + "_tailnet", profile.remoteHostname)
                 .apply();
     }
 

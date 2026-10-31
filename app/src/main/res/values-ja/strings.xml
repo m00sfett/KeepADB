@@ -16,11 +16,8 @@
     <string name="endpoint_format">エンドポイント: %1$s:%2$d</string>
     <string name="endpoint_searching">エンドポイントを検索中…</string>
     <string name="endpoint_unavailable">エンドポイントは利用できません</string>
-    <string name="tailscale_status_active">Tailscale: アクティブ</string>
-    <string name="tailscale_status_inactive">Tailscale: 非アクティブ</string>
-    <string name="tailscale_status_unknown">Tailscale: 不明</string>
 
-    <string name="transport_tailscale_label">Tailscale/VPN 経由の ADB</string>
+    <string name="transport_vpn_label">VPN 経由の ADB</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · 最終確認 %3$s</string>
     <string name="transport_usb_active_value">USB-ADB 有効</string>
@@ -118,7 +115,6 @@
     <string name="webhook_status_no_endpoint">まだなし</string>
     <string name="webhook_status_deregistered">登録解除済み</string>
     <string name="webhook_status_failed">失敗</string>
-    <string name="webhook_status_tailnet_hint">Tailscale が切断されているか、再起動後に自動起動していない可能性があります。Tailscale の Android の「常時接続 VPN」設定を確認してください。</string>
     <string name="settings_permission_warning">システム権限 WRITE_SECURE_SETTINGS がありません。権限が付与されるまで KeepADB はワイヤレスデバッグを切り替えられません。</string>
     <string name="settings_language_menu_label">言語</string>
     <string name="settings_language_accessibility">アプリの言語: %1$s</string>
@@ -162,7 +158,7 @@
     <string name="usb_profile_name_hint">プロファイル名（必須）</string>
     <string name="usb_profile_ip_hint">ホスト IP アドレス（任意）</string>
     <string name="usb_profile_hostname_hint">ホスト名（任意）</string>
-    <string name="usb_profile_tailnet_hint">Tailnet ホスト名（任意）</string>
+    <string name="usb_profile_remote_host_hint">VPN/リモートのホスト名（任意）</string>
     <string name="usb_profile_name_required">プロファイル名を入力してください。</string>
     <string name="usb_profile_edit_button">編集</string>
     <string name="usb_profile_delete_button">削除</string>
@@ -284,7 +280,7 @@
     <string name="issue_report_placeholder_notes">その他の役立つ情報を追加してください。</string>
     <string name="issue_report_diagnostics_section">任意の編集済み KeepADB 診断データ（送信前に確認してください）</string>
     <string name="advice_banner_title">セキュリティとネットワーク</string>
-    <string name="advice_banner_text">ワイヤレスデバッグはネットワーク上にADBポートを開きます。信頼済みのWi-Fiまたは VPN（Tailscaleなど）を使用し、公共のホットスポットではオフにしてください。エンドポイントを公開せず、身に覚えのないペアリング要求は許可しないでください。</string>
+    <string name="advice_banner_text">ワイヤレスデバッグはネットワーク上にADBポートを開きます。信頼済みのWi-Fiまたは VPNを使用し、公共のホットスポットではオフにしてください。エンドポイントを公開せず、身に覚えのないペアリング要求は許可しないでください。</string>
     <string name="security_notice_dismiss">通知を閉じる</string>
     <string name="settings_advice_banner_toggle">セキュリティとネットワークのアドバイスを表示</string>
     <string name="settings_advice_banner_subtext">メイン画面の上部にセキュリティ警告バナーを表示します。</string>
@@ -524,7 +520,7 @@
     <string name="onboarding_network_question">現在接続している Wi-Fi を KeepADB で信頼しますか？</string>
     <string name="onboarding_network_privacy_note">プライバシーモードでは、名前はここと信頼するときにのみ表示されます。</string>
     <string name="onboarding_network_open_list">ネットワーク一覧で変更</string>
-    <string name="onboarding_webhook_question">任意です。ワイヤレスデバッグの現在のアドレスを、たとえばtailnet内の自分のサーバーに通知します。多くの方には不要です。「URLを保存」をタップするまで何も保存されません。</string>
+    <string name="onboarding_webhook_question">任意です。ワイヤレスデバッグの現在のアドレスを、たとえば自宅のネットワークやVPN内の自分のサーバーに通知します。多くの方には不要です。「URLを保存」をタップするまで何も保存されません。</string>
     <string name="onboarding_protection_force_title">最大の利便性(強制モード)</string>
     <string name="onboarding_protection_force_body">未知のネットワークを含むすべてのネットワークで、選んだ時間だけ有効にします。事前に確認が必要です。</string>
     <string name="onboarding_protection_force_keep_alive">強制モードはKeep-Aliveと一緒にのみ動作します。Keep-Aliveも同時にオンになります。</string>

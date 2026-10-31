@@ -16,11 +16,8 @@
     <string name="endpoint_format">Кінцева точка: %1$s:%2$d</string>
     <string name="endpoint_searching">Пошук кінцевої точки…</string>
     <string name="endpoint_unavailable">Кінцева точка недоступна</string>
-    <string name="tailscale_status_active">Tailscale: активний</string>
-    <string name="tailscale_status_inactive">Tailscale: неактивний</string>
-    <string name="tailscale_status_unknown">Tailscale: невідомо</string>
 
-    <string name="transport_tailscale_label">ADB через Tailscale/VPN</string>
+    <string name="transport_vpn_label">ADB через VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · остання перевірка %3$s</string>
     <string name="transport_usb_active_value">USB-ADB активний</string>
@@ -118,7 +115,6 @@
     <string name="webhook_status_no_endpoint">поки що немає</string>
     <string name="webhook_status_deregistered">реєстрацію скасовано</string>
     <string name="webhook_status_failed">помилка</string>
-    <string name="webhook_status_tailnet_hint">Можливо, Tailscale від\'єднано або він не запустився автоматично після перезавантаження. Перевірте налаштування Android «Постійно активний VPN» для Tailscale.</string>
     <string name="settings_permission_warning">Відсутній системний дозвіл WRITE_SECURE_SETTINGS. KeepADB не може перемикати бездротове налагодження до надання дозволу.</string>
     <string name="settings_language_menu_label">Мова</string>
     <string name="settings_language_accessibility">Мова програми: %1$s</string>
@@ -162,7 +158,7 @@
     <string name="usb_profile_name_hint">Назва профілю (обов’язково)</string>
     <string name="usb_profile_ip_hint">IP-адреса хоста (необов’язково)</string>
     <string name="usb_profile_hostname_hint">Ім’я хоста (необов’язково)</string>
-    <string name="usb_profile_tailnet_hint">Ім’я хоста Tailnet (необов’язково)</string>
+    <string name="usb_profile_remote_host_hint">Ім’я хоста VPN/віддаленого доступу (необов’язково)</string>
     <string name="usb_profile_name_required">Введіть назву профілю.</string>
     <string name="usb_profile_edit_button">Редагувати</string>
     <string name="usb_profile_delete_button">Видалити</string>
@@ -284,7 +280,7 @@
     <string name="issue_report_placeholder_notes">Додайте будь-яку іншу корисну інформацію.</string>
     <string name="issue_report_diagnostics_section">Додаткові відредаговані діагностичні дані KeepADB (перевірте перед надсиланням)</string>
     <string name="advice_banner_title">Безпека та мережа</string>
-    <string name="advice_banner_text">Бездротове налагодження відкриває порт ADB у вашій мережі. Використовуйте довірену мережу Wi-Fi або VPN (наприклад, Tailscale) і вимикайте її в публічних точках доступу. Ніколи не публікуйте свою кінцеву точку та не приймайте неочікувані запити на створення пари.</string>
+    <string name="advice_banner_text">Бездротове налагодження відкриває порт ADB у вашій мережі. Використовуйте довірену мережу Wi-Fi або VPN і вимикайте її в публічних точках доступу. Ніколи не публікуйте свою кінцеву точку та не приймайте неочікувані запити на створення пари.</string>
     <string name="security_notice_dismiss">Закрити повідомлення</string>
     <string name="settings_advice_banner_toggle">Показувати поради з безпеки та мережі</string>
     <string name="settings_advice_banner_subtext">Показує банер попередження про безпеку вгорі головного екрана.</string>
@@ -524,7 +520,7 @@
     <string name="onboarding_network_question">Чи має KeepADB довіряти мережі Wi-Fi, до якої ви зараз підключені?</string>
     <string name="onboarding_network_privacy_note">У режимі приватності назва показується лише тут і під час надання довіри.</string>
     <string name="onboarding_network_open_list">Змінити в списку мереж</string>
-    <string name="onboarding_webhook_question">Необов’язково. Повідомляє поточну адресу бездротового налагодження вашому власному серверу, наприклад у вашому tailnet. Більшості це не потрібно. Нічого не зберігається, доки ви не торкнетеся «Зберегти URL».</string>
+    <string name="onboarding_webhook_question">Необов’язково. Повідомляє поточну адресу бездротового налагодження вашому власному серверу, наприклад у вашій домашній мережі або VPN. Більшості це не потрібно. Нічого не зберігається, доки ви не торкнетеся «Зберегти URL».</string>
     <string name="onboarding_protection_force_title">Максимальна зручність (примусовий режим)</string>
     <string name="onboarding_protection_force_body">У будь-якій мережі, зокрема незнайомій, на обраний вами час. Спершу потрібно підтвердити.</string>
     <string name="onboarding_protection_force_keep_alive">Примусовий режим працює лише з Keep-Alive. Keep-Alive вмикається разом із ним.</string>

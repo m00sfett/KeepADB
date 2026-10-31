@@ -17,7 +17,7 @@ import java.util.Set;
  *
  * <p>This class performs no I/O. KeepADBRegisterPayloadTest checks the generated data without a
  * device or live receiver. The current sender gate permits only WLAN-ADB events; locally built
- * Tailscale and USB candidates are held back before transmission. See docs/webhook-register.md.
+ * VPN and USB candidates are held back before transmission. See docs/webhook-register.md.
  */
 final class KeepADBRegisterPayload {
 
@@ -30,12 +30,12 @@ final class KeepADBRegisterPayload {
     private KeepADBRegisterPayload() {}
 
     /**
-     * Locally generated transport labels. The app can build WLAN, Tailscale and USB candidates,
+     * Locally generated transport labels. The app can build WLAN, VPN and USB candidates,
      * while the separate sender allowlist currently permits WLAN-ADB only.
      */
     enum Type {
         WLAN_LAN("wlan-adb"),
-        TAILSCALE_VPN("tailscale-adb"),
+        VPN("vpn-adb"),
         USB("usb-adb");
 
         final String method;
@@ -129,8 +129,8 @@ final class KeepADBRegisterPayload {
         switch (type) {
             case WLAN_LAN:
                 return Type.WLAN_LAN;
-            case TAILSCALE_VPN:
-                return Type.TAILSCALE_VPN;
+            case VPN:
+                return Type.VPN;
             case USB:
                 return Type.USB;
             default:

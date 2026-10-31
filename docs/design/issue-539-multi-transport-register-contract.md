@@ -81,6 +81,9 @@ Transportklassen:
 | `tailscale-adb` | Tailscale/VPN | `IP:Port` (CGNAT-Adresse `100.64.0.0/10`) | eigener Socket-ADB-Nachweis |
 | `usb-adb` | USB | keiner | System-Broadcast `connected` + `configured` + `adb` |
 
+> Nachtrag #877 (1.10.10): `tailscale-adb` heißt jetzt `vpn-adb` und gilt produktneutral für
+> jede VPN-Adresse, nicht nur `100.64.0.0/10`. Die App erkennt oder benennt kein VPN-Produkt mehr.
+
 WLAN und Tailscale bleiben **getrennte Slots**, auch wenn sie momentan denselben ADB-Port teilen.
 Sie sind über verschiedene Wege erreichbar und verfallen unabhängig voneinander; ein gemeinsamer
 Slot würde genau die Überschreibung wiederherstellen, die #539 beseitigen soll.

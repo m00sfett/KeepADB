@@ -18,11 +18,8 @@
     <string name="endpoint_format">Endpunkt: %1$s:%2$d</string>
     <string name="endpoint_searching">Endpunkt wird gesucht …</string>
     <string name="endpoint_unavailable">Endpunkt nicht verfügbar</string>
-    <string name="tailscale_status_active">Tailscale: aktiv</string>
-    <string name="tailscale_status_inactive">Tailscale: nicht aktiv</string>
-    <string name="tailscale_status_unknown">Tailscale: unbekannt</string>
 
-    <string name="transport_tailscale_label">ADB über Tailscale/VPN</string>
+    <string name="transport_vpn_label">ADB über VPN</string>
     <string name="transport_usb_label">USB</string>
     <string name="transport_row_format">%1$s: %2$s · zuletzt geprüft %3$s</string>
     <string name="transport_usb_active_value">USB-ADB aktiv</string>
@@ -146,7 +143,6 @@
     <string name="webhook_status_no_endpoint">noch keiner</string>
     <string name="webhook_status_deregistered">abgemeldet</string>
     <string name="webhook_status_failed">fehlgeschlagen</string>
-    <string name="webhook_status_tailnet_hint">Tailscale ist möglicherweise getrennt oder wurde nach einem Neustart nicht automatisch gestartet. Prüfe die Android-Einstellung „Durchgehend aktives VPN“ für Tailscale.</string>
     <string name="settings_permission_warning">Systemberechtigung WRITE_SECURE_SETTINGS fehlt. KeepADB kann Drahtloses Debugging erst nach Berechtigungsvergabe steuern.</string>
     <string name="settings_language_menu_label">Sprache</string>
     <string name="settings_language_accessibility">App-Sprache: %1$s</string>
@@ -198,7 +194,7 @@
     <string name="usb_profile_name_hint">Profilname (erforderlich)</string>
     <string name="usb_profile_ip_hint">IP-Adresse des Hosts (optional)</string>
     <string name="usb_profile_hostname_hint">Hostname (optional)</string>
-    <string name="usb_profile_tailnet_hint">Tailnet-Hostname (optional)</string>
+    <string name="usb_profile_remote_host_hint">VPN-/Fern-Hostname (optional)</string>
     <string name="usb_profile_name_required">Bitte einen Profilnamen eingeben.</string>
     <string name="usb_profile_edit_button">Bearbeiten</string>
     <string name="usb_profile_edit_title">Hostprofil bearbeiten</string>
@@ -284,7 +280,7 @@
     <string name="issue_report_placeholder_notes">Füge weitere hilfreiche Informationen hinzu.</string>
     <string name="issue_report_diagnostics_section">Optionale redigierte KeepADB-Diagnosedaten (vor dem Senden prüfen)</string>
     <string name="advice_banner_title">Sicherheit &amp; Netzwerk</string>
-    <string name="advice_banner_text">Drahtloses Debugging öffnet einen ADB-Port im Netzwerk. Nutze ein vertrautes WLAN oder ein VPN (z. B. Tailscale) und schalte es in öffentlichen Hotspots aus. Gib deine Endpunkt-Adresse nie öffentlich weiter und bestätige keine unerwarteten Kopplungsanfragen.</string>
+    <string name="advice_banner_text">Drahtloses Debugging öffnet einen ADB-Port im Netzwerk. Nutze ein vertrautes WLAN oder ein VPN und schalte es in öffentlichen Hotspots aus. Gib deine Endpunkt-Adresse nie öffentlich weiter und bestätige keine unerwarteten Kopplungsanfragen.</string>
     <string name="security_notice_dismiss">Hinweis schließen</string>
     <string name="settings_advice_banner_toggle">Sicherheits- &amp; Netzwerkhinweis anzeigen</string>
     <string name="settings_advice_banner_subtext">Zeigt oben auf dem Hauptbildschirm einen Sicherheitshinweis an.</string>
@@ -524,7 +520,7 @@ Beenden kannst du jederzeit über die Startseite oder die Benachrichtigung.</str
     <string name="onboarding_network_question">Soll KeepADB dem WLAN vertrauen, mit dem du gerade verbunden bist?</string>
     <string name="onboarding_network_privacy_note">Im Privatsphäre-Modus wird der Name nur hier und beim Vertrauen gezeigt.</string>
     <string name="onboarding_network_open_list">In der Netzwerkliste ändern</string>
-    <string name="onboarding_webhook_question">Optional. Meldet die aktuelle Adresse von Drahtlosem Debugging an einen eigenen Server, zum Beispiel in deinem Tailnet. Die meisten brauchen das nicht. Gespeichert wird erst mit „URL speichern“.</string>
+    <string name="onboarding_webhook_question">Optional. Meldet die aktuelle Adresse von Drahtlosem Debugging an einen eigenen Server, zum Beispiel in deinem Heimnetz oder VPN. Die meisten brauchen das nicht. Gespeichert wird erst mit „URL speichern“.</string>
     <string name="onboarding_protection_force_title">Maximal komfortabel (Force)</string>
     <string name="onboarding_protection_force_body">In jedem Netzwerk, auch in fremden, für eine Zeit, die du wählst. Vorher musst du bestätigen.</string>
     <string name="onboarding_protection_force_keep_alive">Force wirkt nur mit Keep-Alive. Keep-Alive wird mit eingeschaltet.</string>

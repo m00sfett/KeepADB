@@ -499,7 +499,7 @@ public class KeepADBAccessibilityContractTest {
         assertEquals("EditedHost", saved.name);
         assertEquals("192.0.2.20", saved.ipAddress);
         assertEquals("edited.local", saved.hostname);
-        assertEquals("edited.tail", saved.tailnetHostname);
+        assertEquals("edited.tail", saved.remoteHostname);
         assertEquals(settings.getString(R.string.usb_profile_selected,
                         "EditedHost · 192.0.2.20 · edited.local · edited.tail"),
                 ((TextView) settings.findViewById(R.id.settings_usb_profile_summary)).getText().toString());
