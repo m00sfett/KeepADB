@@ -16,7 +16,8 @@ both mute boundaries.
 For each reason, an additive `reason_episode_<id>` token records its observed display episode.
 When it goes away and returns, the token changes. X, Undo, and mute feedback compare the displayed
 token with the current one; matching reason IDs alone is not enough. Feedback retains its tokens
-through rotation. An update adds missing tokens without deleting valid saved acknowledgements or
+through rotation. The feedback bar goes away by itself after 10 seconds, or after the longer time
+Android recommends for the user's accessibility settings (#889); the card stays closed. An update adds missing tokens without deleting valid saved acknowledgements or
 mutes.
 
 The system-warning cause reads only the permission and the existing guarded Settings value. It

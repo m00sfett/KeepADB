@@ -81,6 +81,23 @@ public class MainActivityWarningInteractionTest {
         assertTrue(visible(activity, R.id.warning_less_secure));
         assertFalse(visible(activity, R.id.warning_feedback));
     }
+    /** #889 (s20 beta test): the bar after closing a card goes away by itself. */
+    @Test public void feedbackBarExpiresAfterItsTimeoutAndTheCardStaysClosed() {
+        KeepADBPreferences.setNotificationDetailsEnabled(context, true);
+        MainActivity activity = open().get();
+        close(activity, R.id.warning_less_secure);
+        assertTrue(visible(activity, R.id.warning_feedback));
+
+        org.robolectric.shadows.ShadowLooper.idleMainLooper(
+                MainActivity.WARNING_FEEDBACK_TIMEOUT_MS - 1_000, java.util.concurrent.TimeUnit.MILLISECONDS);
+        assertTrue("still there before the timeout", visible(activity, R.id.warning_feedback));
+        org.robolectric.shadows.ShadowLooper.idleMainLooper(
+                1_000, java.util.concurrent.TimeUnit.MILLISECONDS);
+
+        assertFalse(visible(activity, R.id.warning_feedback));
+        assertFalse("the card stays closed", visible(activity, R.id.warning_less_secure));
+        assertTrue(visible(activity, R.id.btn_security_warnings));
+    }
     @Test public void triangleActivatesOnFirstTouchAfterReturningFocusAndClosingAnotherCard() {
         KeepADBPreferences.setNotificationDetailsEnabled(context, true);
         ActivityController<MainActivity> controller = open();
