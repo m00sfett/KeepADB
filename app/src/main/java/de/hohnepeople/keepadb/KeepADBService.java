@@ -302,6 +302,8 @@ public class KeepADBService extends Service {
         Log.w(TAG, "onDestroy: service stopping");
         foregroundReady = false;
         stopHeartbeatTicker();
+        // #864: no shutdown confirmation may outlive the observation it belongs to.
+        KeepADBUntrustedShutdown.onObservationStopped();
         unregisterAdbObserver();
         unregisterNetworkCallback();
         try {

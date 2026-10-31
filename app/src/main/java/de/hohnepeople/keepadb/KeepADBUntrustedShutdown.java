@@ -102,7 +102,25 @@ final class KeepADBUntrustedShutdown {
         } else {
             KeepADBPreferences.setUntrustedShutdownManualBssid(app, bssid, scheduler.elapsedRealtimeMs());
         }
-        if (on) cancelRecheck();
+        if (!on) return;
+        if (bssid != null) {
+            cancelRecheck();
+            return;
+        }
+        // Codex review: no exemption could be established, so a manual enable on an unreadable
+        // identity starts (or keeps) the usual confirmation instead of waiting for the heartbeat.
+        // Only scheduled here -- this runs inside KeepADB's lock; the recheck decides later.
+        if (KeepADBPreferences.isUntrustedShutdownEnabled(app)
+                && KeepADBPreferences.isKeepAliveEnabled(app)) {
+            synchronized (KeepADBUntrustedShutdown.class) {
+                if (pendingRecheck == null) scheduleRecheckLocked(app, 0);
+            }
+        }
+    }
+
+    /** The Keep-Alive service stops observing: pending confirmations end with it. */
+    static void onObservationStopped() {
+        cancelRecheck();
     }
 
     /** Wi-Fi lost or Wireless Debugging observed off: a manual exemption ends here. */

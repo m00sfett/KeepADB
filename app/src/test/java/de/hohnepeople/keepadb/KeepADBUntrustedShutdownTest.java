@@ -393,6 +393,30 @@ public class KeepADBUntrustedShutdownTest {
         assertTrue(KeepADBUntrustedShutdown.isManuallyExempt(context));
     }
 
+    /** Codex review round 4: a pending confirmation ends when the service stops observing. */
+    @Test
+    public void serviceStopCancelsAPendingConfirmation() {
+        connectTo("", null);
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+
+        KeepADBUntrustedShutdown.onObservationStopped();
+        for (long delay : KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS) scheduler.advanceBy(delay);
+
+        assertEquals(Collections.emptyList(), gateway.writes);
+    }
+
+    /** Codex review round 4: a manual enable without an exemption starts the confirmation itself. */
+    @Test
+    public void manualEnableOnAnUnreadableIdentityStartsTheConfirmationAtOnce() {
+        KeepADB.setGatewayForTesting(gateway = new KeepADBFakeSettingsGateway(false));
+        connectTo("", null);
+
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        for (long delay : KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS) scheduler.advanceBy(delay);
+
+        assertEquals("no network callback or heartbeat needed", Arrays.asList(true, false), gateway.writes);
+    }
+
     private void connectTo(String ssid, String bssid) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = ShadowWifiInfo.newInstance();
