@@ -100,7 +100,8 @@ identified, instead of only notifying:
   revive it. An unreadable identity cannot prove the same access point: switching on there grants
   no exemption, and while the identity is unreadable an existing exemption does not apply. Only
   switching on in KeepADB (app, tile, widget, notification, USB handover action) counts; switching
-  on in Android's own settings grants no exemption. A restart of the Keep-Alive service ends an
+  on in Android's own settings grants no exemption. Switching on in KeepADB that Android does not
+  carry out (the setting reads back off) grants none either (#880). A restart of the Keep-Alive service ends an
   exemption recorded before it, because what happened while nothing observed it is unknown.
 - **Force mode** suspends the policy while it runs.
 - **Recheck before writing:** every condition is checked again immediately before the OFF write, so

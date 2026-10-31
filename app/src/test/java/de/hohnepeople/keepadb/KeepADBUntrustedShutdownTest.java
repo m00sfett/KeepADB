@@ -417,6 +417,32 @@ public class KeepADBUntrustedShutdownTest {
         assertEquals("no network callback or heartbeat needed", Arrays.asList(true, false), gateway.writes);
     }
 
+    /** #880: a manual enable that Android reverts grants no exemption to a later settings enable. */
+    @Test
+    public void manualEnableThatDoesNotStick_grantsNoExemption() {
+        boolean[] on = {false};
+        KeepADB.setGatewayForTesting(new KeepADBSettingsGateway() {
+            @Override
+            public boolean isEnabled(Context context) {
+                return on[0];
+            }
+
+            @Override
+            public boolean write(Context appContext, boolean value) {
+                if (!value) on[0] = false;
+                return true;
+            }
+        });
+        connectTo("Cafe", CAFE);
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        assertNull(KeepADBPreferences.getUntrustedShutdownManualBssid(context));
+
+        on[0] = true; // enabled later in Android's own settings
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+
+        assertFalse("an Android-settings enable is not exempt", on[0]);
+    }
+
     private void connectTo(String ssid, String bssid) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = ShadowWifiInfo.newInstance();
