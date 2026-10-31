@@ -128,7 +128,8 @@ It is defense in depth for automatic enabling, not authentication of the access 
   or unreadable is treated as not trusted for automatic enabling: Keep-Alive does not switch
   Wireless debugging on there, the prompt explains the security change, and the decision dialog
   and the Networks list offer to trust it again. A trusted Wi-Fi name does not override it; blocks
-  and force mode keep their precedence. With "Turn off on untrusted Wi-Fi" (#864) on, the access
+  and force mode keep their precedence. This also holds under the legacy "all networks" policy,
+  which otherwise allows every network that is not blocked. With "Turn off on untrusted Wi-Fi" (#864) on, the access
   point counts as untrusted there too.
 - **Unchanged:** access points trusted before this version, or without a baseline, keep the
   address-only check until trusted again. Switching the check off restores the address-only check

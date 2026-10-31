@@ -234,6 +234,28 @@ public class KeepADBNetworkSecurityTest {
                 KeepADBNetworkIdentity.current(context), true, true, true, true));
     }
 
+    /** Codex review: the legacy "all networks" policy does not bypass an opted-in check. */
+    @Test
+    public void legacyAllNetworksPolicy_stillHonorsTheCheck() {
+        trustWhileConnected(HOME, PSK);
+        KeepADBTrustedNetwork.setMode(context, KeepADBTrustedNetwork.MODE_ALL_WIFI);
+        KeepADBTrustedNetwork.setSecurityCheckEnabled(context, true);
+
+        connectTo(HOME, OPEN);
+        assertEquals(KeepADBTrustedNetwork.Decision.SECURITY_MISMATCH,
+                KeepADBTrustedNetwork.evaluateCurrent(context));
+
+        connectTo(MESH, OPEN);
+        assertEquals("other networks keep the legacy policy",
+                KeepADBTrustedNetwork.Decision.LEGACY_ALL_WIFI,
+                KeepADBTrustedNetwork.evaluateCurrent(context));
+
+        KeepADBTrustedNetwork.setSecurityCheckEnabled(context, false);
+        connectTo(HOME, OPEN);
+        assertEquals(KeepADBTrustedNetwork.Decision.LEGACY_ALL_WIFI,
+                KeepADBTrustedNetwork.evaluateCurrent(context));
+    }
+
     private void trustWhileConnected(String bssid, int securityType) {
         connectTo(bssid, securityType);
         KeepADBReceiver.allowBssidOnly(context, bssid, "Home");

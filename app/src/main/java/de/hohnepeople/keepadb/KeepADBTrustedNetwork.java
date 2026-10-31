@@ -662,7 +662,9 @@ final class KeepADBTrustedNetwork {
         if (KeepADBForceMode.isActive(context)) {
             return Decision.FORCE_MODE;
         }
-        if (!isAllowlistMode(context) && KeepADBNetworkBlocklist.isEmpty(context)) {
+        // #860: with the security check on, the identity is read here too (Codex review).
+        if (!isAllowlistMode(context) && KeepADBNetworkBlocklist.isEmpty(context)
+                && !isSecurityCheckEnabled(context)) {
             return Decision.LEGACY_ALL_WIFI;
         }
         return evaluate(context, KeepADBNetworkIdentity.current(context));
@@ -677,7 +679,12 @@ final class KeepADBTrustedNetwork {
      */
     static Decision evaluate(Context context, KeepADBNetworkIdentity identity) {
         Decision decision = evaluateLists(context, identity);
-        if (decision.isBlocked() || decision.allowsAutomaticEnable) return decision;
+        // #860: like a block, a failed security check of a trusted access point holds under the
+        // legacy "all networks" policy too; the opted-in check must not be bypassed (Codex review).
+        if (decision.isBlocked() || decision.allowsAutomaticEnable
+                || decision == Decision.SECURITY_MISMATCH) {
+            return decision;
+        }
         return isAllowlistMode(context) ? decision : Decision.LEGACY_ALL_WIFI;
     }
 
