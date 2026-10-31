@@ -1,0 +1,1 @@
+Webhook failures now leave a clearer diagnostic trace (error type and HTTP status, without addresses), so connection problems can be traced afterwards.

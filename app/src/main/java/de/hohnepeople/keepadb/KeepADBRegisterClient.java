@@ -612,7 +612,11 @@ final class KeepADBRegisterClient {
 
         // POST to new target URL
         final String cleanupToRemember = unfinishedCleanupUrl;
-        if (postEndpoint(targetUrl, targetEndpoint)) {
+        boolean failingBefore = isReportFailing(context);
+        lastTransportOutcome = "unknown";
+        boolean posted = postEndpoint(targetUrl, targetEndpoint);
+        recordReportOutcome(context, "post", posted, failingBefore, opGen);
+        if (posted) {
             // #671: the primary POST can block for seconds, during which a disconnect or a newer
             // endpoint may have superseded this transaction. Abort before any secondary transport
             // is sent, so a stale snapshot never goes out for an outdated target. Same outcome as
@@ -688,7 +692,10 @@ final class KeepADBRegisterClient {
             }
         }
 
+        boolean failingBefore = isReportFailing(context);
+        lastTransportOutcome = "unknown";
         boolean cleanupCompleted = deleteEndpoint(urlToDelete);
+        recordReportOutcome(context, "delete", cleanupCompleted, failingBefore, opGen);
         if (cleanupCompleted) {
             // Record the successful DELETE response before the generation check, so a newer
             // operation does not leave the local report snapshot pointing at the old URL.
@@ -931,6 +938,21 @@ final class KeepADBRegisterClient {
         boolean delete(String targetUrl);
     }
 
+    /**
+     * #881: how the last request ended, for diagnostics only: {@code http=<code>} or {@code
+     * error=<exception class>}, reported by the transport, which itself stays stateless (#700).
+     * Never a URL or an endpoint. Written and read on the single register executor.
+     */
+    private static volatile String lastTransportOutcome = "unknown";
+
+    static void noteTransportOutcome(String outcome) {
+        lastTransportOutcome = outcome;
+    }
+
+    static String lastTransportOutcomeForTesting() {
+        return lastTransportOutcome;
+    }
+
     private static final HttpTransport DEFAULT_TRANSPORT = new KeepADBHttpTransport();
     private static volatile HttpTransport httpTransport = DEFAULT_TRANSPORT;
 
@@ -987,6 +1009,31 @@ final class KeepADBRegisterClient {
         }
         if (additional.isEmpty()) return;
         postTransports(targetUrl, additional);
+    }
+
+    private static boolean isReportFailing(Context context) {
+        return KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(
+                KeepADBPreferences.getWebhookLastReportStatus(context));
+    }
+
+    /**
+     * #881: a diagnostics event for every failed primary report and for the success that ends a
+     * failure episode, so an episode can be explained afterwards (timeout, refused, unknown host,
+     * HTTP status). Routine successes add nothing, which keeps a successful report one
+     * preference write (#317). No URL and no endpoint.
+     */
+    private static void recordReportOutcome(Context context, String method, boolean ok,
+            boolean failingBefore, long opGen) {
+        if (ok && !failingBefore) return;
+        int retry;
+        synchronized (KeepADBRegisterClient.class) {
+            // A success of a superseded transaction ends nothing: the newer operation owns the
+            // report status (Codex review).
+            if (ok && opGen != currentOpGeneration) return;
+            retry = "delete".equals(method) ? markUnavailableRetryAttempts : postRetryNumber;
+        }
+        KeepADBDiagnostics.event(context, "register_report", "webhook", ok ? "success" : "failed",
+                "method=" + method + " " + lastTransportOutcome + " retry=" + retry);
     }
 
     private static boolean sendJsonPost(String targetUrl, String payload, String logLabel) {
