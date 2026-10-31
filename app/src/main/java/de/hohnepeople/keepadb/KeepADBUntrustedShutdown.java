@@ -26,9 +26,11 @@ import java.util.Locale;
  *   <li>A readable untrusted or blocked network switches off at once. An unreadable identity is
  *       checked again after {@link KeepADBNetworkTrustPrompt#IDENTITY_RECHECK_DELAYS_MS} (as in
  *       #872), so the few seconds of an access-point roam trigger nothing.</li>
- *   <li>A session the user switched on manually stays on while the Wi-Fi identity is the one it
- *       was switched on in. A different access point, a lost Wi-Fi or Wireless Debugging going
- *       off ends that exemption.</li>
+ *   <li>A session the user switched on manually stays on while the phone is on the access point
+ *       (readable BSSID) it was switched on at. Any other readable access point -- trusted ones
+ *       included --, a lost Wi-Fi or Wireless Debugging going off ends that exemption for good.
+ *       An unreadable identity never proves the same access point: a manual enable on it grants
+ *       no exemption, and while the identity is unreadable an existing one does not apply.</li>
  *   <li>The OFF write ({@link KeepADB#applyPolicyOff}) records no user intent, so Keep-Alive
  *       re-enables as usual once the network is trusted. Every condition is re-checked inside
  *       the toggle lock immediately before the write.</li>
@@ -63,6 +65,7 @@ final class KeepADBUntrustedShutdown {
     static void evaluate(Context context, String trigger) {
         if (context == null) return;
         Context app = context.getApplicationContext();
+        endExemptionOnOtherAccessPoint(app);
         if (!preconditionsHold(app)) {
             cancelRecheck();
             return;
@@ -88,7 +91,8 @@ final class KeepADBUntrustedShutdown {
     /** #864: called by {@link KeepADB} after a manual toggle was applied. */
     static void onManualToggleApplied(Context context, boolean on) {
         Context app = context.getApplicationContext();
-        KeepADBPreferences.setUntrustedShutdownManualBssid(app, on ? currentIdentityKey(app) : null);
+        // Only a readable access point can carry an exemption (see the class javadoc).
+        KeepADBPreferences.setUntrustedShutdownManualBssid(app, on ? currentBssidOrNull(app) : null);
         if (on) cancelRecheck();
     }
 
@@ -116,13 +120,28 @@ final class KeepADBUntrustedShutdown {
 
     static boolean isManuallyExempt(Context app) {
         String recorded = KeepADBPreferences.getUntrustedShutdownManualBssid(app);
-        return recorded != null && recorded.equals(currentIdentityKey(app));
+        String current = currentBssidOrNull(app);
+        return recorded != null && !recorded.isEmpty() && recorded.equals(current);
     }
 
-    /** The current BSSID in lower case, or "" when the identity cannot be read. */
-    private static String currentIdentityKey(Context app) {
+    /**
+     * A readable access point other than the recorded one ends the exemption for good, whatever
+     * its trust: coming back to the first access point later must not revive it. An unreadable
+     * identity proves nothing either way and leaves the record alone.
+     */
+    private static void endExemptionOnOtherAccessPoint(Context app) {
+        String recorded = KeepADBPreferences.getUntrustedShutdownManualBssid(app);
+        if (recorded == null) return;
+        String current = currentBssidOrNull(app);
+        if (recorded.isEmpty() || (current != null && !recorded.equals(current))) {
+            KeepADBPreferences.setUntrustedShutdownManualBssid(app, null);
+        }
+    }
+
+    /** The current BSSID in lower case, or null when the identity cannot be read. */
+    private static String currentBssidOrNull(Context app) {
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(app);
-        return identity.isKnown() ? identity.bssid.toLowerCase(Locale.ROOT) : "";
+        return identity.isKnown() ? identity.bssid.toLowerCase(Locale.ROOT) : null;
     }
 
     private static void scheduleRecheckLocked(Context app, int attempt) {
@@ -147,6 +166,7 @@ final class KeepADBUntrustedShutdown {
             if (pendingRecheck != self) return;
             pendingRecheck = null;
         }
+        endExemptionOnOtherAccessPoint(app);
         if (!preconditionsHold(app) || isManuallyExempt(app)) return;
         KeepADBTrustedNetwork.Decision decision = KeepADBTrustedNetwork.evaluateCurrent(app);
         if (decision.allowsAutomaticEnable) {

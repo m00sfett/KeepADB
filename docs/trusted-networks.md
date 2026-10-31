@@ -95,8 +95,10 @@ identified, instead of only notifying:
 - **Unreadable identity:** checked again after 5 s and after a further 10 s, so the few seconds of
   an access-point roam do not switch anything off.
 - **Your own session:** if you switched Wireless debugging on yourself, it stays on while the phone
-  stays on that access point. Another access point, a lost Wi-Fi or Wireless debugging going off
-  ends that exemption.
+  stays on that access point. Any other access point (a trusted one too), a lost Wi-Fi or Wireless
+  debugging going off ends that exemption for good; returning to the first access point does not
+  revive it. An unreadable identity cannot prove the same access point: switching on there grants
+  no exemption, and while the identity is unreadable an existing exemption does not apply.
 - **Force mode** suspends the policy while it runs.
 - **Recheck before writing:** every condition is checked again immediately before the OFF write, so
   a stale event cannot switch off a session that has become trusted meanwhile.

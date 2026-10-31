@@ -240,6 +240,75 @@ public class KeepADBUntrustedShutdownTest {
                 notification.extras.getString(Notification.EXTRA_TITLE));
     }
 
+    /** Codex review: a trusted access point in between must not revive the exemption later. */
+    @Test
+    public void exemptionEndsOnAnyOtherAccessPointAndDoesNotReviveOnReturn() {
+        KeepADB.setGatewayForTesting(gateway = new KeepADBFakeSettingsGateway(false));
+        connectTo("Cafe", CAFE);
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+
+        connectTo("Home", HOME);
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+        assertEquals(Collections.singletonList(true), gateway.writes);
+
+        connectTo("Cafe", CAFE);
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+        assertEquals(Arrays.asList(true, false), gateway.writes);
+    }
+
+    /** Codex review: an unreadable identity cannot prove the same access point. */
+    @Test
+    public void manualEnableOnAnUnreadableIdentityGrantsNoExemption() {
+        KeepADB.setGatewayForTesting(gateway = new KeepADBFakeSettingsGateway(false));
+        connectTo("", null);
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        assertFalse(KeepADBUntrustedShutdown.isManuallyExempt(context));
+
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+        for (long delay : KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS) scheduler.advanceBy(delay);
+
+        assertEquals(Arrays.asList(true, false), gateway.writes);
+    }
+
+    /** A brief unreadable phase (a roam back to the same access point) keeps the exemption. */
+    @Test
+    public void briefUnreadablePhaseOnTheSameAccessPointKeepsTheExemption() {
+        KeepADB.setGatewayForTesting(gateway = new KeepADBFakeSettingsGateway(false));
+        connectTo("Cafe", CAFE);
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+
+        connectTo("", null);
+        assertFalse("no exemption while the identity is unreadable",
+                KeepADBUntrustedShutdown.isManuallyExempt(context));
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+        connectTo("Cafe", CAFE);
+        for (long delay : KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS) scheduler.advanceBy(delay);
+
+        assertEquals(Collections.singletonList(true), gateway.writes);
+    }
+
+    /** Codex review: an accepted write that leaves debugging on is a failure, not "turned off". */
+    @Test
+    public void acceptedButIneffectiveWrite_reportsTheFailure() {
+        KeepADB.setGatewayForTesting(new KeepADBSettingsGateway() {
+            @Override
+            public boolean isEnabled(Context context) {
+                return true;
+            }
+
+            @Override
+            public boolean write(Context appContext, boolean on) {
+                return true;
+            }
+        });
+        connectTo("Cafe", CAFE);
+
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+
+        assertEquals(context.getString(R.string.untrusted_shutdown_failed_title),
+                posted().extras.getString(Notification.EXTRA_TITLE));
+    }
+
     private void connectTo(String ssid, String bssid) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = ShadowWifiInfo.newInstance();
