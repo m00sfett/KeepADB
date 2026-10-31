@@ -1,6 +1,7 @@
 package de.hohnepeople.keepadb;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 
 /**
  * #868: warns about a continuous period without a successful webhook report. The first failed
@@ -19,9 +21,15 @@ import android.os.Looper;
  * the user never collects a stream of them.
  *
  * <p>The state follows report outcomes and the stored time of the last success only -- no network
- * probe, extra request or polling. The two one-shot timers only re-read that state; after a process
- * death the next report outcome re-evaluates it from the persisted episode. The text says what was
- * observed and never claims that the network or the endpoint is down.
+ * probe, extra request or polling. The next due check is one inexact
+ * {@link AlarmManager#setAndAllowWhileIdle} alarm (#870): unlike a main-thread timer on uptime, it
+ * also runs after deep sleep or Doze and after a process death, and it only re-reads the persisted
+ * episode. Being inexact, it may arrive a little late; the text names no exact time. The text says
+ * what was observed and never claims that the network or the endpoint is down.
+ *
+ * <p>An alert counts against the episode only once it was actually posted (#870): without the
+ * notification permission nothing is counted, and the next evaluation -- a report outcome or the
+ * app coming to the foreground -- shows the alert that is due by then.
  *
  * <p>All entry points post to the main thread: they are called from the register executor while
  * {@link KeepADBRegisterClient}'s monitor is held.
@@ -32,9 +40,9 @@ final class KeepADBWebhookAlert {
     static final long FIRST_ALERT_AFTER_MS = 60_000L;
     static final long REMINDER_AFTER_MS = 60L * 60L * 1000L;
     static final int MAX_ALERTS_PER_EPISODE = 2;
+    private static final int REQUEST_CODE_CHECK_ALARM = 5;
 
     private static Handler mainHandler;
-    private static Runnable pendingCheck;
     private static volatile Long nowForTesting;
 
     private KeepADBWebhookAlert() {}
@@ -62,8 +70,17 @@ final class KeepADBWebhookAlert {
         main().post(() -> endEpisodeNow(app));
     }
 
+    /**
+     * #870: the app came to the foreground. Shows an alert that is due but could not be posted
+     * before, for example because the notification permission has been granted since.
+     */
+    static void onAppResumed(Context context) {
+        final Context app = context.getApplicationContext();
+        main().post(() -> evaluate(app));
+    }
+
     private static void endEpisodeNow(Context app) {
-        cancelCheck();
+        cancelCheck(app);
         if (KeepADBPreferences.getWebhookFailureSince(app) > 0L) {
             KeepADBPreferences.setWebhookFailureEpisode(app, 0L, 0);
         }
@@ -71,9 +88,9 @@ final class KeepADBWebhookAlert {
         if (manager != null) manager.cancel(NOTIFICATION_ID);
     }
 
-    /** Shows the alert that is due, if any, and arms the one-shot timer for the next one. */
+    /** Shows the alert that is due, if any, and arms the alarm for the next one. */
     static void evaluate(Context app) {
-        cancelCheck();
+        cancelCheck(app);
         if (!KeepADBPreferences.isRegisterWebhookEnabled(app)) {
             endEpisodeNow(app);
             return;
@@ -90,23 +107,36 @@ final class KeepADBWebhookAlert {
         }
         int shown = KeepADBPreferences.getWebhookAlertsShown(app);
         int due = elapsed >= REMINDER_AFTER_MS ? 2 : elapsed >= FIRST_ALERT_AFTER_MS ? 1 : 0;
-        if (due > shown && shown < MAX_ALERTS_PER_EPISODE) {
-            show(app);
+        if (due > shown && shown < MAX_ALERTS_PER_EPISODE && show(app)) {
             shown = due;
             KeepADBPreferences.setWebhookFailureEpisode(app, since, shown);
         }
-        if (shown < MAX_ALERTS_PER_EPISODE) {
-            long nextAt = shown == 0 ? FIRST_ALERT_AFTER_MS : REMINDER_AFTER_MS;
-            pendingCheck = () -> evaluate(app);
-            main().postDelayed(pendingCheck, Math.max(0L, nextAt - elapsed));
+        // The next alert level after both what was shown and what is already due: an alert that
+        // could not be posted is retried by the next evaluation, never by an immediate timer.
+        int next = Math.max(shown, due) + 1;
+        if (next <= MAX_ALERTS_PER_EPISODE) {
+            long nextAt = next == 1 ? FIRST_ALERT_AFTER_MS : REMINDER_AFTER_MS;
+            scheduleCheck(app, nextAt - elapsed);
         }
     }
 
-    private static void cancelCheck() {
-        if (pendingCheck != null) {
-            main().removeCallbacks(pendingCheck);
-            pendingCheck = null;
-        }
+    private static void scheduleCheck(Context app, long delayMs) {
+        AlarmManager alarms = app.getSystemService(AlarmManager.class);
+        if (alarms == null) return;
+        alarms.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + Math.max(0L, delayMs), checkIntent(app));
+    }
+
+    private static void cancelCheck(Context app) {
+        AlarmManager alarms = app.getSystemService(AlarmManager.class);
+        if (alarms != null) alarms.cancel(checkIntent(app));
+    }
+
+    private static PendingIntent checkIntent(Context app) {
+        Intent intent = new Intent(app, KeepADBReceiver.class)
+                .setAction(KeepADBReceiver.ACTION_WEBHOOK_ALERT_CHECK);
+        return PendingIntent.getBroadcast(app, REQUEST_CODE_CHECK_ALARM, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     /**
@@ -134,10 +164,11 @@ final class KeepADBWebhookAlert {
         return format.format(new java.util.Date(epochMillis));
     }
 
-    private static void show(Context app) {
+    /** @return true if the alert was posted; false without a manager or notification permission. */
+    private static boolean show(Context app) {
         Context localized = KeepADBLocaleHelper.wrapContext(app);
         NotificationManager manager = localized.getSystemService(NotificationManager.class);
-        if (manager == null || !hasNotificationPermission(localized)) return;
+        if (manager == null || !hasNotificationPermission(localized)) return false;
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
                 localized.getString(R.string.webhook_alert_channel_name),
                 NotificationManager.IMPORTANCE_DEFAULT);
@@ -164,6 +195,7 @@ final class KeepADBWebhookAlert {
                         .build())
                 .build();
         manager.notify(NOTIFICATION_ID, notification);
+        return true;
     }
 
     private static boolean hasNotificationPermission(Context context) {
@@ -182,7 +214,6 @@ final class KeepADBWebhookAlert {
     }
 
     static synchronized void resetForTesting() {
-        cancelCheck();
         nowForTesting = null;
         mainHandler = null;
     }

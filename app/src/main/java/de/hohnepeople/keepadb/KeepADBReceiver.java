@@ -24,6 +24,8 @@ public final class KeepADBReceiver extends BroadcastReceiver {
     static final String ACTION_FORCE_END = "de.hohnepeople.keepadb.ACTION_FORCE_END";
     /** #763: the expiry alarm. Only re-evaluates; it cannot start or extend the force mode. */
     static final String ACTION_FORCE_EXPIRE = "de.hohnepeople.keepadb.ACTION_FORCE_EXPIRE";
+    /** #870: the webhook alert's next check. Only re-reads the persisted failure episode. */
+    static final String ACTION_WEBHOOK_ALERT_CHECK = "de.hohnepeople.keepadb.ACTION_WEBHOOK_ALERT_CHECK";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -44,6 +46,8 @@ public final class KeepADBReceiver extends BroadcastReceiver {
             handleForceEndAction(context);
         } else if (ACTION_FORCE_EXPIRE.equals(action)) {
             KeepADBForceMode.restore(context);
+        } else if (ACTION_WEBHOOK_ALERT_CHECK.equals(action)) {
+            KeepADBWebhookAlert.evaluate(context.getApplicationContext());
         }
     }
 

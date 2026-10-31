@@ -297,6 +297,9 @@ public class MainActivity extends Activity {
         // Register before refreshing the notification: a cached endpoint can trigger a webhook
         // report during refresh(), and the completed background report must reach this screen.
         KeepADBRegisterClient.setRegisterStateListener(this::refreshWebhookStatus);
+        // #870: a webhook alert that could not be posted (no notification permission yet) is shown
+        // once the app is back in front, e.g. after the permission was granted.
+        KeepADBWebhookAlert.onAppResumed(this);
         // Keep-Alive is a persisted preference, but the foreground service backing it can die
         // (OEM battery optimization, process kill) without the preference changing. Only the
         // toggle's own click listener called sync() before; without it here, reopening the app
