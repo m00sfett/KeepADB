@@ -52,6 +52,8 @@ public class MainActivityTailnetHintTest {
                 .commit();
         KeepADBTailscaleStatus.setPackageInstalledCheckForTesting(null);
         KeepADBTailscaleStatus.setInterfacesProviderForTesting(null);
+        KeepADBBuildFlags.setOverrideForTesting(null);
+        KeepADBRegisterClient.clearRegisterStateListener();
         KeepADB.resetForTesting();
     }
 
@@ -157,5 +159,29 @@ public class MainActivityTailnetHintTest {
         TextView hint = activity.findViewById(R.id.webhook_tailnet_hint);
         assertNotNull(hint);
         assertEquals(View.VISIBLE, hint.getVisibility());
+    }
+
+    /**
+     * #875 review: Tailscale comes up while the screen is open, then a report completes. Only the
+     * register listener fires; the hint and the Tailscale line must follow the same new status.
+     */
+    @Test
+    public void reportCallbackRedrawsHintAndTailscaleLineFromOneStatus() throws Exception {
+        KeepADBBuildFlags.setOverrideForTesting(true);
+        tailscale(false);
+        MainActivity activity = launchWithWebhook("http://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        TextView hint = activity.findViewById(R.id.webhook_tailnet_hint);
+        TextView line = activity.findViewById(R.id.tailscale_status);
+        assertEquals(View.VISIBLE, hint.getVisibility());
+        assertEquals(activity.getString(R.string.tailscale_status_inactive), line.getText().toString());
+
+        tailscale(true);
+        java.lang.reflect.Field field = KeepADBRegisterClient.class.getDeclaredField("registerStateListener");
+        field.setAccessible(true);
+        ((KeepADBRegisterClient.RegisterStateListener) field.get(null)).onRegisterStateChanged();
+
+        assertEquals(View.GONE, hint.getVisibility());
+        assertEquals(activity.getString(R.string.tailscale_status_active), line.getText().toString());
     }
 }
