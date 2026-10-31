@@ -201,6 +201,39 @@ public class KeepADBNetworkSecurityTest {
                 KeepADBNetworkDecision.resolve(context, HOME).status);
     }
 
+    /** Codex review: a trusted name does not make a failed check "decided" in the dialog. */
+    @Test
+    public void aTrustedNameDoesNotSettleAFailedCheckInTheDecisionDialog() {
+        trustWhileConnected(HOME, PSK);
+        KeepADBTrustedNetwork.setTrustByNameEnabled(context, true);
+        KeepADBTrustedNetwork.setSecurityCheckEnabled(context, true);
+        connectTo(HOME, OPEN);
+        KeepADBBlockedNetworkHistory.record(context, KeepADBNetworkIdentity.current(context),
+                System.currentTimeMillis());
+
+        assertEquals(KeepADBNetworkDecision.Status.PENDING,
+                KeepADBNetworkDecision.resolve(context, HOME).status);
+    }
+
+    /** Codex review: the Settings card agrees with the policy and offers to trust again. */
+    @Test
+    public void theNetworkCardShowsAFailedCheckAsNotAllowed() {
+        trustWhileConnected(HOME, PSK);
+        KeepADBTrustedNetwork.setSecurityCheckEnabled(context, true);
+        assertEquals(KeepADBNetworkCardState.Connection.ALLOWED_AP, cardState().connection);
+
+        connectTo(HOME, OPEN);
+
+        KeepADBNetworkCardState.Snapshot snapshot = cardState();
+        assertEquals(KeepADBNetworkCardState.Connection.NOT_ALLOWED, snapshot.connection);
+        assertEquals(KeepADBNetworkCardState.Action.ALLOW_ACCESS_POINT, snapshot.action);
+    }
+
+    private KeepADBNetworkCardState.Snapshot cardState() {
+        return KeepADBNetworkCardState.derive(KeepADBNetworkCardState.read(context,
+                KeepADBNetworkIdentity.current(context), true, true, true, true));
+    }
+
     private void trustWhileConnected(String bssid, int securityType) {
         connectTo(bssid, securityType);
         KeepADBReceiver.allowBssidOnly(context, bssid, "Home");

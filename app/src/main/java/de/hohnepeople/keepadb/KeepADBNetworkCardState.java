@@ -171,6 +171,12 @@ final class KeepADBNetworkCardState {
             // #760: the name rules (derived comfort switch, legacy name list) as the policy
             // applies them, each only while its own switch is on.
             ssidListed = KeepADBTrustedNetwork.isNameTrusted(context, identity.displaySsid());
+            // #860: an access point that fails the security check is not allowed, whatever the
+            // lists say; the card then offers to trust it again, like the policy (Codex review).
+            if (KeepADBTrustedNetwork.isSecurityMismatch(context, identity)) {
+                bssidListed = false;
+                ssidListed = false;
+            }
         }
         return new Inputs(KeepADBTrustedNetwork.isAllowlistMode(context),
                 KeepADBTrustedNetwork.isSsidMatchingEnabled(context)

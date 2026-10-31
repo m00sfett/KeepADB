@@ -361,7 +361,13 @@ final class KeepADBTrustedNetwork {
     static boolean isSecurityMismatchForCurrent(Context context, String bssid) {
         if (bssid == null) return false;
         KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
-        return identity.isKnown() && identity.bssid.equalsIgnoreCase(bssid)
+        return identity.bssid != null && identity.bssid.equalsIgnoreCase(bssid)
+                && isSecurityMismatch(context, identity);
+    }
+
+    /** #860: whether {@code identity} is a trusted access point that fails the security check. */
+    static boolean isSecurityMismatch(Context context, KeepADBNetworkIdentity identity) {
+        return identity != null && identity.isKnown()
                 && evaluateLists(context, identity) == Decision.SECURITY_MISMATCH;
     }
 
