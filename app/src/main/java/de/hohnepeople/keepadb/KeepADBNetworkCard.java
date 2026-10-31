@@ -171,6 +171,9 @@ final class KeepADBNetworkCard {
             KeepADBTrustedNetwork.setSecurityCheckEnabled(activity, enabled);
             KeepADBDiagnostics.event(activity, "user_action", "settings_network",
                     enabled ? "enable" : "disable", "security_check");
+            // #885: the check can make the current access point untrusted; the #864 shutdown
+            // reacts at once instead of on the next callback or heartbeat.
+            if (enabled) KeepADBUntrustedShutdown.evaluate(activity, "settings_network");
             onChange.run();
         });
     }

@@ -130,7 +130,8 @@ It is defense in depth for automatic enabling, not authentication of the access 
   and the Networks list offer to trust it again. A trusted Wi-Fi name does not override it; blocks
   and force mode keep their precedence. This also holds under the legacy "all networks" policy,
   which otherwise allows every network that is not blocked. With "Turn off on untrusted Wi-Fi" (#864) on, the access
-  point counts as untrusted there too.
+  point counts as untrusted there too, and switching the check on applies that shutdown at once
+  (#885).
 - **Unchanged:** access points trusted before this version, or without a baseline, keep the
   address-only check until trusted again. Switching the check off restores the address-only check
   for every entry; the recorded tiers stay and apply again when it is switched back on. Manual
