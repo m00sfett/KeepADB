@@ -309,6 +309,62 @@ public class KeepADBUntrustedShutdownTest {
                 posted().extras.getString(Notification.EXTRA_TITLE));
     }
 
+    /** Codex review round 2: an unreadable readback after the write is no confirmed "off". */
+    @Test
+    public void unreadableReadbackAfterTheWrite_reportsTheFailure() {
+        boolean[] written = {false};
+        KeepADB.setGatewayForTesting(new KeepADBSettingsGateway() {
+            @Override
+            public boolean isEnabled(Context context) {
+                if (written[0]) throw new SecurityException("read restricted");
+                return true;
+            }
+
+            @Override
+            public boolean write(Context appContext, boolean on) {
+                written[0] = true;
+                return true;
+            }
+        });
+        connectTo("Cafe", CAFE);
+
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+
+        assertTrue(written[0]);
+        assertEquals(context.getString(R.string.untrusted_shutdown_failed_title),
+                posted().extras.getString(Notification.EXTRA_TITLE));
+    }
+
+    /**
+     * Codex review round 2: an identity that turns unreadable between the readable decision and
+     * the guarded write gets the confirmation period, not an immediate shutdown.
+     */
+    @Test
+    public void identityTurningUnreadableBeforeTheWrite_isConfirmedFirst() {
+        int[] reads = {0};
+        KeepADBFakeSettingsGateway inner = new KeepADBFakeSettingsGateway(true);
+        KeepADB.setGatewayForTesting(new KeepADBSettingsGateway() {
+            @Override
+            public boolean isEnabled(Context context) {
+                // The second read is the guard's: the access point drops out right before it.
+                if (++reads[0] == 2) connectTo("", null);
+                return inner.isEnabled(context);
+            }
+
+            @Override
+            public boolean write(Context appContext, boolean on) {
+                return inner.write(appContext, on);
+            }
+        });
+        connectTo("Cafe", CAFE);
+
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+        assertEquals("no immediate write", Collections.emptyList(), inner.writes);
+
+        for (long delay : KeepADBNetworkTrustPrompt.IDENTITY_RECHECK_DELAYS_MS) scheduler.advanceBy(delay);
+        assertEquals(Collections.singletonList(false), inner.writes);
+    }
+
     private void connectTo(String ssid, String bssid) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = ShadowWifiInfo.newInstance();

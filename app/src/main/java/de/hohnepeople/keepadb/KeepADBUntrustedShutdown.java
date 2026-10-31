@@ -111,11 +111,16 @@ final class KeepADBUntrustedShutdown {
                 && Boolean.TRUE.equals(KeepADB.isEnabledOrNull(app, SOURCE));
     }
 
-    /** The full policy, re-derived; used as the guard of the OFF write. */
-    private static boolean stillApplies(Context app) {
-        return preconditionsHold(app)
-                && !KeepADBTrustedNetwork.evaluateCurrent(app).allowsAutomaticEnable
-                && !isManuallyExempt(app);
+    /**
+     * The full policy, re-derived; used as the guard of the OFF write. An identity that turned
+     * unreadable since a readable untrusted decision aborts the write ({@code
+     * unreadableConfirmed} false): it gets its own confirmation first, see {@link #shutDown}.
+     */
+    private static boolean stillApplies(Context app, boolean unreadableConfirmed) {
+        if (!preconditionsHold(app) || isManuallyExempt(app)) return false;
+        KeepADBTrustedNetwork.Decision decision = KeepADBTrustedNetwork.evaluateCurrent(app);
+        if (decision.allowsAutomaticEnable) return false;
+        return unreadableConfirmed || decision != KeepADBTrustedNetwork.Decision.IDENTITY_UNAVAILABLE;
     }
 
     static boolean isManuallyExempt(Context app) {
@@ -198,8 +203,9 @@ final class KeepADBUntrustedShutdown {
     }
 
     private static void shutDown(Context app, KeepADBTrustedNetwork.Decision decision) {
+        boolean unreadableConfirmed = decision == KeepADBTrustedNetwork.Decision.IDENTITY_UNAVAILABLE;
         KeepADB.ToggleResult result = KeepADB.applyPolicyOff(app, SOURCE,
-                KeepADBUntrustedShutdown::stillApplies);
+                guarded -> stillApplies(guarded, unreadableConfirmed));
         KeepADBDiagnostics.event(app, "untrusted_shutdown", "policy", result.name().toLowerCase(Locale.ROOT),
                 "decision=" + decision.name().toLowerCase(Locale.ROOT));
         switch (result) {
@@ -212,8 +218,19 @@ final class KeepADBUntrustedShutdown {
                 notify(app, R.string.untrusted_shutdown_failed_title,
                         R.string.untrusted_shutdown_failed_text);
                 break;
+            case GUARD_ABORTED:
+                // The identity may have turned unreadable since the readable decision: that is a
+                // possible roam, so it gets the same confirmation as any unreadable identity.
+                if (!unreadableConfirmed && preconditionsHold(app) && !isManuallyExempt(app)
+                        && KeepADBTrustedNetwork.evaluateCurrent(app)
+                        == KeepADBTrustedNetwork.Decision.IDENTITY_UNAVAILABLE) {
+                    synchronized (KeepADBUntrustedShutdown.class) {
+                        if (pendingRecheck == null) scheduleRecheckLocked(app, 0);
+                    }
+                }
+                break;
             default:
-                // Aborted or superseded: the situation changed, the next trigger decides again.
+                // Superseded: the situation changed, the next trigger decides again.
                 break;
         }
     }

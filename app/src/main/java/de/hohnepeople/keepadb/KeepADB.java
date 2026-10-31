@@ -664,9 +664,9 @@ final class KeepADB {
                 Boolean.FALSE.equals(actualOrNull) ? "success" : "state_mismatch",
                 "actual=" + actualOrNull);
         surfaces.refreshAll(appContext);
-        // An accepted write that leaves Wireless Debugging confirmed on did not take effect: the
-        // caller must report a failure, not "turned off".
-        return Boolean.TRUE.equals(actualOrNull) ? ToggleResult.WRITE_REJECTED : ToggleResult.APPLIED;
+        // Only a readback that confirms "off" counts: an accepted write that still reads as on, or
+        // whose state cannot be read, must be reported as a failure, never as "turned off".
+        return Boolean.FALSE.equals(actualOrNull) ? ToggleResult.APPLIED : ToggleResult.WRITE_REJECTED;
     }
 
     /**
