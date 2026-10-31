@@ -417,6 +417,62 @@ public class KeepADBUntrustedShutdownTest {
         assertEquals("no network callback or heartbeat needed", Arrays.asList(true, false), gateway.writes);
     }
 
+    /** #880: a manual enable that Android reverts grants no exemption to a later settings enable. */
+    @Test
+    public void manualEnableThatDoesNotStick_grantsNoExemption() {
+        boolean[] on = {false};
+        KeepADB.setGatewayForTesting(new KeepADBSettingsGateway() {
+            @Override
+            public boolean isEnabled(Context context) {
+                return on[0];
+            }
+
+            @Override
+            public boolean write(Context appContext, boolean value) {
+                if (!value) on[0] = false;
+                return true;
+            }
+        });
+        connectTo("Cafe", CAFE);
+        KeepADB.setEnabled(context, true, KeepADB.SOURCE_APP);
+        assertNull(KeepADBPreferences.getUntrustedShutdownManualBssid(context));
+
+        on[0] = true; // enabled later in Android's own settings
+        KeepADBUntrustedShutdown.evaluate(context, "test");
+
+        assertFalse("an Android-settings enable is not exempt", on[0]);
+    }
+
+    /** #885: switching the #860 security check on applies the shutdown at once. */
+    @Test
+    public void switchingTheSecurityCheckOnOverADowngradedAccessPoint_switchesOffAtOnce() {
+        connectTo("Home", HOME);
+        setSecurityType(2); // PSK
+        KeepADBReceiver.allowBssidOnly(context, HOME, "Home"); // records the baseline
+        setSecurityType(0); // now open
+        gateway.writes.clear();
+        SettingsActivity activity = org.robolectric.Robolectric.buildActivity(SettingsActivity.class)
+                .setup().get();
+        android.widget.Switch toggle = activity.findViewById(R.id.settings_security_check_toggle);
+        assertFalse(toggle.isChecked());
+
+        toggle.performClick();
+
+        assertTrue(KeepADBTrustedNetwork.isSecurityCheckEnabled(context));
+        assertEquals(Collections.singletonList(false), gateway.writes);
+    }
+
+    private void setSecurityType(int type) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = wifiManager.getConnectionInfo();
+        try {
+            WifiInfo.class.getMethod("setCurrentSecurityType", int.class).invoke(info, type);
+        } catch (ReflectiveOperationException e) {
+            throw new AssertionError(e);
+        }
+        shadowOf(wifiManager).setConnectionInfo(info);
+    }
+
     private void connectTo(String ssid, String bssid) {
         WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = ShadowWifiInfo.newInstance();

@@ -74,10 +74,9 @@ Trust decisions are only as strong as the identifiers they compare.
   enabling and recovery. If Wireless debugging is already on when the phone moves to an untrusted
   network, KeepADB shows a notice and, by default, leaves it on. See "Turn off on untrusted Wi-Fi"
   below for the optional shutdown (#864).
-- **Security type as an extra signal.** #860 evaluates comparing the connection's security type
-  with what was seen when an access point was trusted. That can reveal some downgrades (WPA3 to
-  WPA2, or to an open network), but not prove that an access point is genuine. Mesh networks can mix
-  security types per access point, so a baseline would have to be kept per BSSID.
+- **Security type as an extra signal.** The optional security check (#860, below) compares the
+  connection's security tier with the one seen when an access point was trusted. It can reveal a
+  downgrade (for example to an open network), but it cannot prove that an access point is genuine.
 
 The in-app texts already describe name matching as weaker and easy to imitate, and they do not
 promise more than recognition of an access point. No additional localized explanation was added
@@ -100,7 +99,8 @@ identified, instead of only notifying:
   revive it. An unreadable identity cannot prove the same access point: switching on there grants
   no exemption, and while the identity is unreadable an existing exemption does not apply. Only
   switching on in KeepADB (app, tile, widget, notification, USB handover action) counts; switching
-  on in Android's own settings grants no exemption. A restart of the Keep-Alive service ends an
+  on in Android's own settings grants no exemption. Switching on in KeepADB that Android does not
+  carry out (the setting reads back off) grants none either (#880). A restart of the Keep-Alive service ends an
   exemption recorded before it, because what happened while nothing observed it is unknown.
 - **Force mode** suspends the policy while it runs.
 - **Recheck before writing:** every condition is checked again immediately before the OFF write, so
@@ -109,6 +109,38 @@ identified, instead of only notifying:
   Wireless debugging back on once the phone is on a trusted network again.
 - **Notices:** "Wireless Debugging turned off" after a shutdown, or "Could not turn off Wireless
   Debugging" when the write failed. The trust prompt for the network appears as before.
+
+## Check Wi-Fi security of trusted access points (#860)
+
+An optional setting in the network section, off by default and shown on Android 12 and later only.
+It is defense in depth for automatic enabling, not authentication of the access point.
+
+- **Baseline:** whenever you trust the access point the phone is connected to (prompt, decision
+  dialog, Networks list), KeepADB records the security tier Android reports for that connection
+  (`WifiInfo.getCurrentSecurityType`). Trusting an already trusted access point again records the
+  current tier, which is the re-confirmation. An access point trusted while not connected to it (a
+  mesh sibling) gets no baseline, and an unreadable tier at trust time leaves none.
+- **Tiers, not exact types:** open, OWE and WEP < Personal (WPA2-PSK, WPA3-SAE, WAPI-PSK, DPP) <
+  Enterprise (EAP variants, WAPI-CERT, Passpoint). Only a lower tier is a downgrade, so PSK on a
+  WPA2/WPA3 transition access point after SAE is not one, and a higher tier is accepted. The
+  baseline is kept per BSSID, because mesh networks mix security types per access point.
+- **Effect with the check on:** a trusted access point with a baseline whose current tier is lower
+  or unreadable is treated as not trusted for automatic enabling: Keep-Alive does not switch
+  Wireless debugging on there, the prompt explains the security change, and the decision dialog
+  and the Networks list offer to trust it again. A trusted Wi-Fi name does not override it; blocks
+  and force mode keep their precedence. This also holds under the legacy "all networks" policy,
+  which otherwise allows every network that is not blocked. With "Turn off on untrusted Wi-Fi" (#864) on, the access
+  point counts as untrusted there too, and switching the check on applies that shutdown at once
+  (#885).
+- **Unchanged:** access points trusted before this version, or without a baseline, keep the
+  address-only check until trusted again. Switching the check off restores the address-only check
+  for every entry; the recorded tiers stay and apply again when it is switched back on. Manual
+  controls are never affected. Android 11 has no reliable source for the negotiated security type
+  and keeps the address-only check.
+- **Limits:** a lookalike access point with the same BSSID and the same security tier passes. The
+  tier is read at the moment of the decision; the evaluation is repeated immediately before an
+  automatic write, as for every trust check. How OEM builds report the type has not yet been
+  validated through the app on real devices.
 
 ## Prompt and decision dialog
 

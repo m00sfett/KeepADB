@@ -25,16 +25,28 @@ final class KeepADBNetworkIdentity {
 
     final String ssid;
     final String bssid;
+    /**
+     * #860: the association's security tier ({@link KeepADBNetworkSecurity}), or null when it was
+     * not read: before Android 12, and for identities built from stored data, which no security
+     * check applies to.
+     */
+    final Integer securityTier;
 
     /** Package-visible so tests can construct known/unknown identities without a real WifiInfo. */
     KeepADBNetworkIdentity(String ssid, String bssid) {
+        this(ssid, bssid, null);
+    }
+
+    KeepADBNetworkIdentity(String ssid, String bssid, Integer securityTier) {
         this.ssid = ssid;
         this.bssid = bssid;
+        this.securityTier = securityTier;
     }
 
     static KeepADBNetworkIdentity from(WifiInfo info) {
         if (info == null) return new KeepADBNetworkIdentity(null, null);
-        return new KeepADBNetworkIdentity(info.getSSID(), info.getBSSID());
+        return new KeepADBNetworkIdentity(info.getSSID(), info.getBSSID(),
+                KeepADBNetworkSecurity.tierOf(info));
     }
 
     static KeepADBNetworkIdentity current(Context context) {

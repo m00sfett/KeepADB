@@ -66,9 +66,11 @@ on and the phone moves to a network that is not trusted, KeepADB shows a notice;
 not switch Wireless debugging off. The opt-in setting "Turn off on untrusted Wi-Fi" (#864) does, while
 Keep-Alive runs: it is a best-effort reaction to network callbacks and the one-minute heartbeat, not
 an instantaneous guarantee, and a failed write is reported rather than hidden.
-Checking the connection's security type in addition to the BSSID is being evaluated in #860; such a
-check could detect some downgrades (for example WPA3 to WPA2 or to an open network), but it would
-still not prove that an access point is genuine.
+The opt-in setting "Check Wi-Fi security of trusted access points" (#860, Android 12 and later)
+compares the connection's security tier with the one recorded when the access point was trusted and
+blocks automatic enabling after a downgrade (for example from WPA2/WPA3-Personal to an open network)
+or when the tier cannot be read. It does not prove that an access point is genuine: a lookalike with
+the same BSSID and security tier passes.
 
 Network trust controls automatic recovery. The tile and other manual controls do not approve a new
 network identity. A locked device must be unlocked before enabling Wireless debugging through the

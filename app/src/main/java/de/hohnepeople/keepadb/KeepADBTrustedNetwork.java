@@ -84,6 +84,8 @@ final class KeepADBTrustedNetwork {
     private static final String SSID_PREFIX = "trusted_ssid_";
     /** #760: the derived comfort switch ("also trust by Wi-Fi name"), default off. */
     static final String KEY_TRUST_BY_NAME = "trust_by_name";
+    /** #860: opt-in security check of trusted access points, Android 12 and later. */
+    static final String KEY_SECURITY_CHECK = "trusted_network_security_check";
 
     static final String MODE_ALL_WIFI = "all_wifi";
     static final String MODE_ALLOWLIST = "allowlist";
@@ -109,7 +111,13 @@ final class KeepADBTrustedNetwork {
         /** Readable identity that is neither trusted nor blocked: the user is asked. */
         UNKNOWN_NETWORK(false),
         /** The identity cannot be read: pause rather than guess. */
-        IDENTITY_UNAVAILABLE(false);
+        IDENTITY_UNAVAILABLE(false),
+        /**
+         * #860: a trusted access point whose security tier is below the one recorded when it was
+         * trusted, or unreadable, while the opt-in security check is on. Trusting it again
+         * records the current tier.
+         */
+        SECURITY_MISMATCH(false);
 
         final boolean allowsAutomaticEnable;
 
@@ -303,6 +311,66 @@ final class KeepADBTrustedNetwork {
      * opt-in, default off, on top of {@link #MODE_ALLOWLIST} -- it only ever *widens* what
      * allowlist mode accepts and is meaningless without it.
      */
+    /** #860: whether the opt-in security check is on; it only has an effect on Android 12+. */
+    static boolean isSecurityCheckEnabled(Context context) {
+        return prefs(context).getBoolean(KEY_SECURITY_CHECK, false);
+    }
+
+    static void setSecurityCheckEnabled(Context context, boolean enabled) {
+        prefs(context).edit().putBoolean(KEY_SECURITY_CHECK, enabled).apply();
+    }
+
+    /** #860: the tier recorded for the entry {@code id}, or null when none is recorded. */
+    static Integer getSecurityBaseline(Context context, int id) {
+        int tier = prefs(context).getInt(PREFIX + id + "_security", KeepADBNetworkSecurity.TIER_UNKNOWN);
+        return tier == KeepADBNetworkSecurity.TIER_UNKNOWN ? null : tier;
+    }
+
+    /**
+     * #860: records the current security tier as the baseline of {@code bssid}'s entry, when the
+     * device is connected to exactly that access point right now. Called from every explicit trust
+     * (including trusting an already trusted access point again, which is the re-confirmation).
+     * A tier that cannot be read removes the baseline, so the user's explicit choice leaves the
+     * entry on the address-only check rather than blocked for good. Before Android 12 nothing is
+     * recorded; trusting another access point (a mesh sibling) records nothing for it either.
+     */
+    static void recordSecurityBaseline(Context context, String bssid) {
+        if (bssid == null) return;
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
+        if (!identity.isKnown() || !identity.bssid.equalsIgnoreCase(bssid)
+                || identity.securityTier == null) {
+            return;
+        }
+        for (Entry entry : getEntries(context)) {
+            if (!entry.bssid.equalsIgnoreCase(bssid)) continue;
+            SharedPreferences.Editor editor = prefs(context).edit();
+            if (identity.securityTier == KeepADBNetworkSecurity.TIER_UNKNOWN) {
+                editor.remove(PREFIX + entry.id + "_security");
+            } else {
+                editor.putInt(PREFIX + entry.id + "_security", identity.securityTier);
+            }
+            editor.apply();
+            return;
+        }
+    }
+
+    /**
+     * #860: whether the device is on {@code bssid} right now and that trusted access point fails
+     * the security check. For the decision flows, which treat such an access point as undecided.
+     */
+    static boolean isSecurityMismatchForCurrent(Context context, String bssid) {
+        if (bssid == null) return false;
+        KeepADBNetworkIdentity identity = KeepADBNetworkIdentity.current(context);
+        return identity.bssid != null && identity.bssid.equalsIgnoreCase(bssid)
+                && isSecurityMismatch(context, identity);
+    }
+
+    /** #860: whether {@code identity} is a trusted access point that fails the security check. */
+    static boolean isSecurityMismatch(Context context, KeepADBNetworkIdentity identity) {
+        return identity != null && identity.isKnown()
+                && evaluateLists(context, identity) == Decision.SECURITY_MISMATCH;
+    }
+
     static boolean isSsidMatchingEnabled(Context context) {
         return prefs(context).getBoolean(KEY_SSID_MATCHING, false);
     }
@@ -504,7 +572,8 @@ final class KeepADBTrustedNetwork {
                 .remove(PREFIX + id + "_label")
                 .remove(PREFIX + id + "_bssid")
                 .remove(PREFIX + id + "_name")
-                .remove(PREFIX + id + "_ssid");
+                .remove(PREFIX + id + "_ssid")
+                .remove(PREFIX + id + "_security");
         if (entries.isEmpty()) {
             editor.remove(KEY_IDS);
         } else {
@@ -593,7 +662,9 @@ final class KeepADBTrustedNetwork {
         if (KeepADBForceMode.isActive(context)) {
             return Decision.FORCE_MODE;
         }
-        if (!isAllowlistMode(context) && KeepADBNetworkBlocklist.isEmpty(context)) {
+        // #860: with the security check on, the identity is read here too (Codex review).
+        if (!isAllowlistMode(context) && KeepADBNetworkBlocklist.isEmpty(context)
+                && !isSecurityCheckEnabled(context)) {
             return Decision.LEGACY_ALL_WIFI;
         }
         return evaluate(context, KeepADBNetworkIdentity.current(context));
@@ -608,7 +679,12 @@ final class KeepADBTrustedNetwork {
      */
     static Decision evaluate(Context context, KeepADBNetworkIdentity identity) {
         Decision decision = evaluateLists(context, identity);
-        if (decision.isBlocked() || decision.allowsAutomaticEnable) return decision;
+        // #860: like a block, a failed security check of a trusted access point holds under the
+        // legacy "all networks" policy too; the opted-in check must not be bypassed (Codex review).
+        if (decision.isBlocked() || decision.allowsAutomaticEnable
+                || decision == Decision.SECURITY_MISMATCH) {
+            return decision;
+        }
         return isAllowlistMode(context) ? decision : Decision.LEGACY_ALL_WIFI;
     }
 
@@ -628,7 +704,11 @@ final class KeepADBTrustedNetwork {
             return Decision.BLOCKED_NAME;
         }
         if (!known) return Decision.IDENTITY_UNAVAILABLE;
-        if (matchesAllowlist(context, identity.bssid)) return Decision.TRUSTED_ACCESS_POINT;
+        if (matchesAllowlist(context, identity.bssid)) {
+            // #860: a failed security check is not rescued by a trusted name either.
+            return isSecurityDowngraded(context, identity)
+                    ? Decision.SECURITY_MISMATCH : Decision.TRUSTED_ACCESS_POINT;
+        }
         if (matchesTrustedName(context, ssid)) return Decision.TRUSTED_NAME;
         return Decision.UNKNOWN_NETWORK;
     }
@@ -640,6 +720,23 @@ final class KeepADBTrustedNetwork {
      */
     static boolean isNameTrusted(Context context, String ssid) {
         return matchesTrustedName(context, ssid);
+    }
+
+    /**
+     * #860: only with the check on, a tier read live (Android 12+) and a baseline recorded for this
+     * access point. Entries trusted before the check existed keep the address-only rule until they
+     * are trusted again. Only a lower tier is a downgrade; an unreadable tier fails closed.
+     */
+    private static boolean isSecurityDowngraded(Context context, KeepADBNetworkIdentity identity) {
+        if (identity.securityTier == null || !isSecurityCheckEnabled(context)) return false;
+        for (Entry entry : getEntries(context)) {
+            if (!entry.bssid.equalsIgnoreCase(identity.bssid)) continue;
+            Integer baseline = getSecurityBaseline(context, entry.id);
+            if (baseline == null) return false;
+            return identity.securityTier == KeepADBNetworkSecurity.TIER_UNKNOWN
+                    || identity.securityTier < baseline;
+        }
+        return false;
     }
 
     private static boolean matchesAllowlist(Context context, String bssid) {

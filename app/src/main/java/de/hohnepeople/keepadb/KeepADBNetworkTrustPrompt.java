@@ -452,9 +452,13 @@ final class KeepADBNetworkTrustPrompt {
         String displayBssid = bssid.toUpperCase(Locale.ROOT);
         String displayLabel = label != null && label.equalsIgnoreCase(bssid)
                 ? displayBssid : label;
+        // #860: a trusted access point that failed the security check gets its own explanation.
+        boolean security = KeepADBTrustedNetwork.isSecurityMismatchForCurrent(context, bssid);
         String text = details
-                ? localized.getString(R.string.network_prompt_text, displayLabel, displayBssid)
-                : localized.getString(R.string.network_prompt_confirm_in_app_text);
+                ? localized.getString(security ? R.string.network_prompt_security_text
+                        : R.string.network_prompt_text, displayLabel, displayBssid)
+                : localized.getString(security ? R.string.network_prompt_security_confirm_in_app_text
+                        : R.string.network_prompt_confirm_in_app_text);
         // #759/#766: both forms open the decision dialog for exactly this access point. With
         // details on, the user already saw the name in the notification.
         PendingIntent contentIntent = PendingIntent.getActivity(context,
@@ -467,7 +471,8 @@ final class KeepADBNetworkTrustPrompt {
         // allowed, the private text above is shown, hence the opt-in check there.
         Notification publicVersion = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
-                .setContentTitle(localized.getString(R.string.network_prompt_title))
+                .setContentTitle(localized.getString(security
+                        ? R.string.network_prompt_security_title : R.string.network_prompt_title))
                 .setContentText(details
                         ? localized.getString(R.string.network_prompt_public_text)
                         : text)
@@ -475,7 +480,8 @@ final class KeepADBNetworkTrustPrompt {
                 .build();
         Notification.Builder builder = new Notification.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_keepadb)
-                .setContentTitle(localized.getString(R.string.network_prompt_title))
+                .setContentTitle(localized.getString(security
+                        ? R.string.network_prompt_security_title : R.string.network_prompt_title))
                 .setContentText(text)
                 .setStyle(new Notification.BigTextStyle().bigText(text))
                 .setContentIntent(contentIntent)

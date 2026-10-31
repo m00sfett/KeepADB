@@ -327,6 +327,12 @@
     <string name="untrusted_shutdown_off_text">Wi-Fi saat ini tidak dipercaya atau tidak dapat dikenali. Keep-Alive menyalakannya lagi di Wi-Fi yang dipercaya.</string>
     <string name="untrusted_shutdown_failed_title">Tidak dapat mematikan Debugging Nirkabel</string>
     <string name="untrusted_shutdown_failed_text">Wi-Fi saat ini tidak dipercaya, tetapi gagal mematikan Debugging Nirkabel. Matikan secara manual.</string>
+    <string name="security_check_title">Periksa keamanan Wi-Fi titik Wi-Fi yang dipercaya</string>
+    <string name="security_check_hint">Android 12 dan yang lebih baru: saat kamu memercayai sebuah titik Wi-Fi, KeepADB mencatat tingkat keamanannya (terbuka, pribadi, atau perusahaan). Jika nanti tersambung dengan tingkat yang lebih rendah atau tidak terbaca, Keep-Alive tidak menyalakan Debugging Nirkabel di sana dengan sendirinya sampai kamu memercayainya lagi. Ini tidak membuktikan bahwa titik Wi-Fi itu asli. Titik Wi-Fi yang dipercaya sebelum opsi ini tetap diperiksa hanya berdasarkan alamat sampai kamu memercayainya lagi.</string>
+    <string name="network_prompt_security_text">%1$s (%2$s) dipercaya, tetapi keamanan Wi-Fi-nya kini lebih rendah daripada saat kamu memercayainya, atau tidak terbaca. Percayai lagi hanya jika kamu memang mengharapkan perubahan ini.</string>
+    <string name="network_prompt_security_confirm_in_app_text">Keamanan Wi-Fi dari titik Wi-Fi yang dipercaya telah berubah — ketuk untuk memeriksanya di aplikasi.</string>
+    <string name="network_prompt_security_title">Keamanan Wi-Fi titik Wi-Fi yang dipercaya berubah</string>
+    <string name="network_cause_security_mismatch">Pengaktifan ulang otomatis dijeda: keamanan Wi-Fi titik Wi-Fi ini lebih rendah daripada saat kamu memercayainya, atau tidak terbaca.</string>
     <string name="networks_level">Tingkat perlindungan: %1$s</string>
     <string name="networks_force_note">Selama mode paksa aktif, jaringan yang dipercaya dan yang diblokir tidak berlaku. Setelahnya berlaku lagi.</string>
     <string name="networks_section_current">Jaringan saat ini</string>

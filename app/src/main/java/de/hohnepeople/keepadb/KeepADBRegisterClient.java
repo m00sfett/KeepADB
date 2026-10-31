@@ -252,6 +252,10 @@ final class KeepADBRegisterClient {
      * {@link #EPISODE_REATTEMPT_INTERVAL_MS} after the series was given up on: a single attempt,
      * not a new series, so a lasting outage costs one request per quarter hour. It joins nothing
      * and never starts while a POST runs or a retry is scheduled; a success ends the episode.
+     *
+     * <p>#884: the episode is persisted, the series state is not. After a process restart during an
+     * episode no series exists, and an unchanged endpoint never starts one, so the absence of any
+     * series counts as given up on as well. The interval then runs from boot, not from the restart.
      */
     static void reattemptStaleEpisode(Context context) {
         if (context == null) return;
@@ -263,7 +267,7 @@ final class KeepADBRegisterClient {
         String targetUrl = KeepADBPreferences.getRegisterWebhookUrl(appContext);
         final long opGen;
         synchronized (KeepADBRegisterClient.class) {
-            if (!seriesExhausted || pendingResync != null) return;
+            if ((!seriesExhausted && seriesUrl != null) || pendingResync != null) return;
             long now = SystemClock.elapsedRealtime();
             if (now - lastGiveUpOrReattemptAt < EPISODE_REATTEMPT_INTERVAL_MS) return;
             opGen = startResyncSeriesLocked(appContext, true, targetUrl, endpoint, generationBefore);

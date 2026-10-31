@@ -293,6 +293,8 @@ public final class KeepADBReceiver extends BroadcastReceiver {
         }
         KeepADBTrustedNetwork.Entry entry =
                 KeepADBTrustedNetwork.addBssid(context, bssid, label, knownSsid);
+        // #860: every explicit trust (re)records the security baseline of the current access point.
+        if (entry != null) KeepADBTrustedNetwork.recordSecurityBaseline(context, entry.bssid);
         KeepADBBlockedNetworkHistory.remove(context, bssid);
         KeepADBNetworkTrustPrompt.cancel(context);
         // #474: only forget the marker for the access point just trusted -- a global clear would

@@ -327,6 +327,12 @@
     <string name="untrusted_shutdown_off_text">De huidige wifi is niet vertrouwd of niet herkenbaar. Keep-Alive zet het weer aan op vertrouwde wifi.</string>
     <string name="untrusted_shutdown_failed_title">Draadloze foutopsporing kon niet worden uitgeschakeld</string>
     <string name="untrusted_shutdown_failed_text">De huidige wifi is niet vertrouwd, maar het uitschakelen van draadloze foutopsporing is mislukt. Schakel het zelf uit.</string>
+    <string name="security_check_title">Wifi-beveiliging van vertrouwde wifi-punten controleren</string>
+    <string name="security_check_hint">Android 12 en hoger: als je een wifi-punt vertrouwt, onthoudt KeepADB het beveiligingsniveau (open, persoonlijk of zakelijk). Maakt het later verbinding met een lager of onleesbaar niveau, dan zet Keep-Alive draadloze foutopsporing daar niet zelf aan totdat je het opnieuw vertrouwt. Dit bewijst niet dat het wifi-punt echt is. Wifi-punten die je vóór deze optie vertrouwde, worden alleen op adres gecontroleerd totdat je ze opnieuw vertrouwt.</string>
+    <string name="network_prompt_security_text">%1$s (%2$s) is vertrouwd, maar de wifi-beveiliging is nu lager dan toen je het vertrouwde, of onleesbaar. Vertrouw het alleen opnieuw als je deze wijziging verwacht.</string>
+    <string name="network_prompt_security_confirm_in_app_text">De wifi-beveiliging van een vertrouwd wifi-punt is gewijzigd — tik om dit in de app te controleren.</string>
+    <string name="network_prompt_security_title">Wifi-beveiliging van een vertrouwd wifi-punt gewijzigd</string>
+    <string name="network_cause_security_mismatch">Automatisch opnieuw inschakelen gepauzeerd: de wifi-beveiliging van dit wifi-punt is lager dan toen je het vertrouwde, of onleesbaar.</string>
     <string name="networks_level">Beveiligingsniveau: %1$s</string>
     <string name="networks_force_note">Zolang de geforceerde modus aan staat, gelden vertrouwde en geblokkeerde netwerken niet. Daarna gelden ze weer.</string>
     <string name="networks_section_current">Huidig netwerk</string>

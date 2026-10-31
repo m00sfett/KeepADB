@@ -186,8 +186,11 @@ final class KeepADBNetworkDecision {
     }
 
     private static boolean isDecided(Context context, String bssid, String ssid) {
-        return KeepADBNetworkBlocklist.isBlocked(context, bssid, ssid)
-                || isListedAsTrusted(context, bssid)
+        if (KeepADBNetworkBlocklist.isBlocked(context, bssid, ssid)) return true;
+        // #860: a trusted access point that fails the security check is asked about again; neither
+        // its own entry nor a trusted name settles it (Codex review).
+        if (KeepADBTrustedNetwork.isSecurityMismatchForCurrent(context, bssid)) return false;
+        return isListedAsTrusted(context, bssid)
                 || (ssid != null && KeepADBTrustedNetwork.isNameTrusted(context, ssid));
     }
 

@@ -87,6 +87,8 @@ final class KeepADBNetworkCardText {
                 return R.string.network_cause_blocked;
             case ALL_WIFI:
                 return R.string.network_cause_all_wifi;
+            case SECURITY_MISMATCH:
+                return R.string.network_cause_security_mismatch;
             case NOT_ALLOWED:
             default:
                 return R.string.network_cause_not_allowed;

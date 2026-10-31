@@ -190,4 +190,32 @@ public class KeepADBRegisterEpisodeReattemptTest {
         heartbeat();
         assertEquals(2, posts());
     }
+
+    /** #884: a process restart during an episode with an unchanged endpoint still re-attempts. */
+    @Test
+    public void reattemptResumesAfterAProcessRestartWithAnUnchangedEndpoint() {
+        KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
+        advance(0);
+        transport.setPostSuccess(false);
+        KeepADBPreferences.setWebhookRetryCount(context, 0);
+        KeepADBRegisterClient.requestResyncNow(context);
+        advance(0);
+        assertEquals(2, posts());
+        assertTrue(KeepADBPreferences.getWebhookFailureSince(context) > 0L);
+
+        // Restart: in-memory state is gone, the preferences (episode, last report) remain.
+        KeepADBRegisterClient.resetForTesting();
+        KeepADBRegisterClient.setHttpTransport(transport);
+        KeepADBRegisterClient.setCoordinatorEndpointForTesting(HOST + ":" + PORT);
+        KeepADBRegisterClient.setEndpointProbeForTesting(endpoint -> true);
+        KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
+        advance(0);
+        assertEquals("the unchanged endpoint starts no series", 2, posts());
+
+        transport.setPostSuccess(true);
+        advance(INTERVAL);
+        heartbeat();
+        assertEquals("the heartbeat re-attempts after the restart", 3, posts());
+        assertEquals(0L, KeepADBPreferences.getWebhookFailureSince(context));
+    }
 }

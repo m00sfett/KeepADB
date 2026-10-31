@@ -606,7 +606,11 @@ final class KeepADB {
             if (isManualSource(source)) {
                 // #864: a manual enable on this Wi-Fi exempts it from the untrusted-network
                 // shutdown until the network changes; a manual disable ends the exemption.
-                KeepADBUntrustedShutdown.onManualToggleApplied(appContext, on);
+                // #880: an enable the readback shows as off created no session, so it exempts
+                // nothing -- a later enable in Android's settings must not inherit it. An
+                // unreadable readback is not a confirmed off and keeps the exemption.
+                boolean confirmedOff = actualConfirmed && !actual;
+                KeepADBUntrustedShutdown.onManualToggleApplied(appContext, on && !confirmedOff);
             }
             surfaces.refreshAll(appContext);
             return ToggleResult.APPLIED;

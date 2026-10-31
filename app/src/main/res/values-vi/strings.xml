@@ -327,6 +327,12 @@
     <string name="untrusted_shutdown_off_text">Wi-Fi hiện tại không được tin cậy hoặc không xác định được. Keep-Alive sẽ bật lại trên Wi-Fi tin cậy.</string>
     <string name="untrusted_shutdown_failed_title">Không thể tắt Gỡ lỗi không dây</string>
     <string name="untrusted_shutdown_failed_text">Wi-Fi hiện tại không được tin cậy nhưng không thể tắt Gỡ lỗi không dây. Hãy tự tắt.</string>
+    <string name="security_check_title">Kiểm tra bảo mật Wi-Fi của các điểm Wi-Fi được tin cậy</string>
+    <string name="security_check_hint">Android 12 trở lên: khi bạn tin cậy một điểm Wi-Fi, KeepADB ghi lại mức bảo mật của nó (mở, cá nhân hoặc doanh nghiệp). Nếu sau đó nó kết nối với mức thấp hơn hoặc không đọc được, Keep-Alive sẽ không tự bật Gỡ lỗi không dây ở đó cho đến khi bạn tin cậy lại. Điều này không chứng minh điểm Wi-Fi là thật. Các điểm Wi-Fi được tin cậy trước tùy chọn này vẫn chỉ được kiểm tra theo địa chỉ cho đến khi bạn tin cậy lại.</string>
+    <string name="network_prompt_security_text">%1$s (%2$s) được tin cậy, nhưng bảo mật Wi-Fi của nó giờ thấp hơn lúc bạn tin cậy, hoặc không đọc được. Chỉ tin cậy lại nếu bạn mong đợi thay đổi này.</string>
+    <string name="network_prompt_security_confirm_in_app_text">Bảo mật Wi-Fi của một điểm Wi-Fi được tin cậy đã thay đổi — nhấn để kiểm tra trong ứng dụng.</string>
+    <string name="network_prompt_security_title">Bảo mật Wi-Fi của một điểm Wi-Fi được tin cậy đã thay đổi</string>
+    <string name="network_cause_security_mismatch">Tự động bật lại đang tạm dừng: bảo mật Wi-Fi của điểm Wi-Fi này thấp hơn lúc bạn tin cậy, hoặc không đọc được.</string>
     <string name="networks_level">Mức bảo vệ: %1$s</string>
     <string name="networks_force_note">Khi chế độ buộc bật đang chạy, mạng tin cậy và mạng đã chặn không có hiệu lực. Sau đó chúng có hiệu lực trở lại.</string>
     <string name="networks_section_current">Mạng hiện tại</string>

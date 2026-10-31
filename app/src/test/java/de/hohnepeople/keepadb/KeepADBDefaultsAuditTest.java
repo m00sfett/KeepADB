@@ -134,6 +134,9 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBTrustedNetwork.isSsidMatchingEnabled(c)),
             new Setting("usb_wlan_handover_mode", Kind.SECURITY, "off", "automatic",
                     c -> KeepADBPreferences.getUsbWlanHandoverMode(c)),
+            // #860: opt-in hardening, off by user decision so no trust entry is tightened silently
+            new Setting("trusted_network_security_check", Kind.SECURITY, false, true,
+                    c -> KeepADBTrustedNetwork.isSecurityCheckEnabled(c)),
             // #864: opt-in hardening, off by user decision so no installation changes silently
             new Setting("untrusted_shutdown_enabled", Kind.SECURITY, false, true,
                     c -> KeepADBPreferences.isUntrustedShutdownEnabled(c)),

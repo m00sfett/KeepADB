@@ -74,6 +74,7 @@ final class KeepADBNetworkCard {
     private final Switch trustByNameToggle;
 
     private final Switch untrustedShutdownToggle;
+    private final Switch securityCheckToggle;
     private final TextView comfortNoEffect;
     private final TextView backgroundLocationStatus;
     private final TextView networkDetectionNow;
@@ -115,6 +116,7 @@ final class KeepADBNetworkCard {
         networkLevelLine = activity.findViewById(R.id.network_level_line);
         trustByNameToggle = activity.findViewById(R.id.settings_trust_by_name_toggle);
         untrustedShutdownToggle = activity.findViewById(R.id.settings_untrusted_shutdown_toggle);
+        securityCheckToggle = activity.findViewById(R.id.settings_security_check_toggle);
         comfortNoEffect = activity.findViewById(R.id.network_comfort_no_effect);
         backgroundLocationStatus = activity.findViewById(R.id.settings_background_location_status);
         networkDetectionNow = activity.findViewById(R.id.network_detection_now);
@@ -155,6 +157,22 @@ final class KeepADBNetworkCard {
             KeepADBPreferences.setUntrustedShutdownEnabled(activity, enabled);
             KeepADBDiagnostics.event(activity, "user_action", "settings_network",
                     enabled ? "enable" : "disable", "untrusted_shutdown");
+            if (enabled) KeepADBUntrustedShutdown.evaluate(activity, "settings_network");
+            onChange.run();
+        });
+
+        // #860: opt-in security check of trusted access points; Android 12 and later only.
+        if (!KeepADBNetworkSecurity.isSupported()) {
+            securityCheckToggle.setVisibility(View.GONE);
+            activity.findViewById(R.id.settings_security_check_hint).setVisibility(View.GONE);
+        }
+        securityCheckToggle.setOnClickListener(v -> {
+            boolean enabled = securityCheckToggle.isChecked();
+            KeepADBTrustedNetwork.setSecurityCheckEnabled(activity, enabled);
+            KeepADBDiagnostics.event(activity, "user_action", "settings_network",
+                    enabled ? "enable" : "disable", "security_check");
+            // #885: the check can make the current access point untrusted; the #864 shutdown
+            // reacts at once instead of on the next callback or heartbeat.
             if (enabled) KeepADBUntrustedShutdown.evaluate(activity, "settings_network");
             onChange.run();
         });
@@ -342,6 +360,7 @@ final class KeepADBNetworkCard {
                 KeepADBForceNotice.levelLabel(activity)));
         trustByNameToggle.setChecked(KeepADBTrustedNetwork.isTrustByNameEnabled(activity));
         untrustedShutdownToggle.setChecked(KeepADBPreferences.isUntrustedShutdownEnabled(activity));
+        securityCheckToggle.setChecked(KeepADBTrustedNetwork.isSecurityCheckEnabled(activity));
         comfortNoEffect.setVisibility(KeepADBTrustedNetwork.getProtectionLevel(activity)
                 == KeepADBTrustedNetwork.ProtectionLevel.LEGACY_ALL_WIFI
                 ? View.VISIBLE : View.GONE);

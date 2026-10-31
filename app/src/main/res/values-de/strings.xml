@@ -327,6 +327,12 @@
     <string name="untrusted_shutdown_off_text">Das aktuelle WLAN ist nicht vertraut oder nicht erkennbar. Keep-Alive schaltet es in einem vertrauten WLAN wieder ein.</string>
     <string name="untrusted_shutdown_failed_title">Drahtloses Debugging konnte nicht ausgeschaltet werden</string>
     <string name="untrusted_shutdown_failed_text">Das aktuelle WLAN ist nicht vertraut, aber das Ausschalten von Drahtlosem Debugging ist fehlgeschlagen. Schalte es selbst aus.</string>
+    <string name="security_check_title">WLAN-Sicherheit vertrauter Access Points prüfen</string>
+    <string name="security_check_hint">Ab Android 12: Wenn du einem Access Point vertraust, merkt sich KeepADB seine Sicherheitsstufe (offen, privat oder Enterprise). Verbindet er sich später mit einer niedrigeren oder nicht lesbaren Stufe, schaltet Keep-Alive Drahtloses Debugging dort nicht selbst ein, bis du ihm erneut vertraust. Das beweist nicht, dass der Access Point echt ist. Access Points, denen du vor dieser Option vertraut hast, werden weiter nur über die Adresse geprüft, bis du ihnen erneut vertraust.</string>
+    <string name="network_prompt_security_text">%1$s (%2$s) ist vertraut, aber seine WLAN-Sicherheit ist jetzt niedriger als beim Vertrauen oder nicht lesbar. Vertraue ihm nur erneut, wenn du diese Änderung erwartest.</string>
+    <string name="network_prompt_security_confirm_in_app_text">Die WLAN-Sicherheit eines vertrauten Access Points hat sich geändert — tippen, um sie in der App zu prüfen.</string>
+    <string name="network_prompt_security_title">WLAN-Sicherheit eines vertrauten Access Points geändert</string>
+    <string name="network_cause_security_mismatch">Automatisches Wiedereinschalten pausiert: Die WLAN-Sicherheit dieses Access Points ist niedriger als beim Vertrauen oder nicht lesbar.</string>
     <string name="networks_level">Schutzstufe: %1$s</string>
     <string name="networks_force_note">Solange der Force-Modus an ist, gelten Vertrauen und Sperren nicht. Danach gelten sie wieder.</string>
     <string name="networks_section_current">Aktuelles Netzwerk</string>

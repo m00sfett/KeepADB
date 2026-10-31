@@ -327,6 +327,12 @@
     <string name="untrusted_shutdown_off_text">Текущая сеть Wi-Fi не является доверенной или не может быть определена. Keep-Alive снова включит её в доверенной сети Wi-Fi.</string>
     <string name="untrusted_shutdown_failed_title">Не удалось отключить беспроводную отладку</string>
     <string name="untrusted_shutdown_failed_text">Текущая сеть Wi-Fi не является доверенной, но отключить беспроводную отладку не удалось. Отключите её вручную.</string>
+    <string name="security_check_title">Проверять защиту Wi-Fi доверенных роутеров</string>
+    <string name="security_check_hint">Android 12 и новее: когда вы доверяете роутеру Wi-Fi, KeepADB запоминает уровень его защиты (открытая, личная или корпоративная). Если позже он подключится с более низким или нечитаемым уровнем, Keep-Alive не будет сам включать там беспроводную отладку, пока вы снова ему не доверитесь. Это не доказывает подлинность роутера. Роутеры, которым вы доверились до этой опции, проверяются только по адресу, пока вы снова им не доверитесь.</string>
+    <string name="network_prompt_security_text">%1$s (%2$s) — доверенный, но его защита Wi-Fi теперь ниже, чем при доверии, или не читается. Доверьтесь ему снова, только если ожидаете это изменение.</string>
+    <string name="network_prompt_security_confirm_in_app_text">Защита Wi-Fi доверенного роутера изменилась — нажмите, чтобы проверить в приложении.</string>
+    <string name="network_prompt_security_title">Защита Wi-Fi доверенного роутера изменилась</string>
+    <string name="network_cause_security_mismatch">Автоматическое повторное включение приостановлено: защита Wi-Fi этого роутера ниже, чем при доверии, или не читается.</string>
     <string name="networks_level">Уровень защиты: %1$s</string>
     <string name="networks_force_note">Пока включён принудительный режим, доверенные и заблокированные сети не действуют. После его окончания они снова действуют.</string>
     <string name="networks_section_current">Текущая сеть</string>
