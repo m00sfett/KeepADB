@@ -270,7 +270,51 @@ final class KeepADBRegisterClient {
             // One attempt only: a failure ends this series at once instead of retrying.
             postRetryNumber = KeepADBPreferences.getWebhookRetryCount(appContext);
         }
-        dispatchUpdate(appContext, targetUrl, endpoint, opGen);
+        EXECUTOR.execute(() -> {
+            if (opGen != currentOpGeneration) return;
+            // Codex review: adbd may have rotated its port without a network callback, and the
+            // cached endpoint is only re-verified asynchronously. Never report an address that
+            // does not answer; the endpoint health check reports the new one itself.
+            if (!endpointProbe.isReachable(endpoint)) {
+                synchronized (KeepADBRegisterClient.class) {
+                    if (opGen == currentOpGeneration) {
+                        wlanUpdateInFlight = false;
+                        seriesExhausted = true;
+                    }
+                }
+                KeepADBDiagnostics.event(appContext, "register_report", "webhook", "skipped",
+                        "method=post reason=endpoint_unreachable reattempt=true");
+                return;
+            }
+            performUpdateTransaction(appContext, targetUrl, endpoint, opGen);
+        });
+    }
+
+    /** #881: reachability check of the cached endpoint before an episode re-attempt. */
+    interface EndpointProbe {
+        boolean isReachable(String endpoint);
+    }
+
+    private static final int REATTEMPT_PROBE_TIMEOUT_MS = 400;
+    private static volatile EndpointProbe endpointProbe = KeepADBRegisterClient::probeEndpoint;
+
+    static void setEndpointProbeForTesting(EndpointProbe probe) {
+        endpointProbe = probe != null ? probe : KeepADBRegisterClient::probeEndpoint;
+    }
+
+    /** Parses {@code host:port} or {@code [v6]:port} as written by {@link KeepADBEndpoint#formatEndpoint}. */
+    private static boolean probeEndpoint(String endpoint) {
+        if (endpoint == null) return false;
+        int colon = endpoint.lastIndexOf(':');
+        if (colon <= 0) return false;
+        String host = endpoint.substring(0, colon);
+        if (host.startsWith("[") && host.endsWith("]")) host = host.substring(1, host.length() - 1);
+        try {
+            int port = Integer.parseInt(endpoint.substring(colon + 1));
+            return KeepADBEndpoint.isPortReachable(host, port, REATTEMPT_PROBE_TIMEOUT_MS);
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     /**
@@ -832,6 +876,7 @@ final class KeepADBRegisterClient {
 
     static synchronized void resetForTesting() {
         lastGiveUpOrReattemptAt = 0L;
+        endpointProbe = KeepADBRegisterClient::probeEndpoint;
         lastRegisteredUrl = null;
         lastRegisteredEndpoint = null;
         stateInitialized = false;
