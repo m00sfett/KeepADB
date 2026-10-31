@@ -319,6 +319,14 @@
     <string name="networks_comfort_title">Auch nach WLAN-Name vertrauen</string>
     <string name="networks_comfort_hint">Bequemer bei Mesh und Repeatern. Ein Name lässt sich leicht nachahmen.</string>
     <string name="networks_comfort_no_effect">Ohne Wirkung, solange die bisherige Einstellung „In allen WLANs“ gilt.</string>
+    <string name="untrusted_shutdown_title">In nicht vertrauten WLANs ausschalten</string>
+    <string name="untrusted_shutdown_hint">Solange Keep-Alive an ist, schaltet KeepADB Drahtloses Debugging in einem WLAN aus, das nicht vertraut, gesperrt oder nicht erkennbar ist, statt dich nur zu benachrichtigen. Hast du es an diesem Access Point selbst in KeepADB eingeschaltet, bleibt es an. Der Force-Modus setzt das aus.</string>
+    <string name="untrusted_shutdown_channel_name">Abschaltung in nicht vertrauten WLANs</string>
+    <string name="untrusted_shutdown_channel_desc">Meldet, wenn KeepADB Drahtloses Debugging in einem nicht vertrauten WLAN ausgeschaltet hat.</string>
+    <string name="untrusted_shutdown_off_title">Drahtloses Debugging ausgeschaltet</string>
+    <string name="untrusted_shutdown_off_text">Das aktuelle WLAN ist nicht vertraut oder nicht erkennbar. Keep-Alive schaltet es in einem vertrauten WLAN wieder ein.</string>
+    <string name="untrusted_shutdown_failed_title">Drahtloses Debugging konnte nicht ausgeschaltet werden</string>
+    <string name="untrusted_shutdown_failed_text">Das aktuelle WLAN ist nicht vertraut, aber das Ausschalten von Drahtlosem Debugging ist fehlgeschlagen. Schalte es selbst aus.</string>
     <string name="networks_level">Schutzstufe: %1$s</string>
     <string name="networks_force_note">Solange der Force-Modus an ist, gelten Vertrauen und Sperren nicht. Danach gelten sie wieder.</string>
     <string name="networks_section_current">Aktuelles Netzwerk</string>

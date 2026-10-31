@@ -319,6 +319,14 @@
     <string name="networks_comfort_title">Wi-Fi adına göre de güven</string>
     <string name="networks_comfort_hint">Mesh ve tekrarlayıcılarda daha rahat. Bir ad kolayca taklit edilebilir.</string>
     <string name="networks_comfort_no_effect">Önceki “Tüm Wi-Fi ağlarında” ayarı geçerli olduğu sürece etkisi yoktur.</string>
+    <string name="untrusted_shutdown_title">Güvenilmeyen Wi-Fi\'de kapat</string>
+    <string name="untrusted_shutdown_hint">Keep-Alive açıkken KeepADB, güvenilmeyen, engellenmiş veya tanımlanamayan bir Wi-Fi\'de yalnızca bildirim göndermek yerine Kablosuz Hata Ayıklama\'yı kapatır. KeepADB\'de kendin açtığın bir oturum o Wi-Fi noktasında açık kalır. Zorunlu mod bunu askıya alır.</string>
+    <string name="untrusted_shutdown_channel_name">Güvenilmeyen Wi-Fi\'de kapatma</string>
+    <string name="untrusted_shutdown_channel_desc">KeepADB güvenilmeyen bir Wi-Fi\'de Kablosuz Hata Ayıklama\'yı kapattığında bildirir.</string>
+    <string name="untrusted_shutdown_off_title">Kablosuz Hata Ayıklama kapatıldı</string>
+    <string name="untrusted_shutdown_off_text">Geçerli Wi-Fi güvenilir değil veya tanımlanamıyor. Keep-Alive güvenilir bir Wi-Fi\'de tekrar açar.</string>
+    <string name="untrusted_shutdown_failed_title">Kablosuz Hata Ayıklama kapatılamadı</string>
+    <string name="untrusted_shutdown_failed_text">Geçerli Wi-Fi güvenilir değil ancak Kablosuz Hata Ayıklama kapatılamadı. Elle kapat.</string>
     <string name="networks_level">Koruma düzeyi: %1$s</string>
     <string name="networks_force_note">Zorlama modu açıkken güvenilir ve engellenen ağlar geçerli olmaz. Sonrasında yeniden geçerli olur.</string>
     <string name="networks_section_current">Geçerli ağ</string>

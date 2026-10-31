@@ -19,6 +19,12 @@ final class KeepADBPreferences {
     private static final String KEY_WEBHOOK_RETRY_PROFILE = "register_webhook_retry_profile";
     private static final String KEY_WEBHOOK_RETRY_COUNT = "register_webhook_retry_count";
     private static final String KEY_WEBHOOK_FRESHNESS_WARNING = "register_webhook_freshness_warning";
+    /** #864: opt-in policy that turns Wireless Debugging off on an untrusted Wi-Fi; default off. */
+    private static final String KEY_UNTRUSTED_SHUTDOWN = "untrusted_shutdown_enabled";
+    /** #864: the Wi-Fi identity a manual enable was made on ("" when unreadable), or absent. */
+    private static final String KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID = "untrusted_shutdown_manual_bssid";
+    /** #864: elapsed-realtime millis when that manual exemption was recorded. */
+    private static final String KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT = "untrusted_shutdown_manual_at";
     private static final String KEY_WEBHOOK_FAILURE_SINCE = "register_webhook_failure_since";
     private static final String KEY_WEBHOOK_ALERTS_SHOWN = "register_webhook_alerts_shown";
     private static final String KEY_APP_LANGUAGE = "app_language";
@@ -395,6 +401,46 @@ final class KeepADBPreferences {
     static void setWebhookFreshnessWarningEnabled(Context context, boolean enabled) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().putBoolean(KEY_WEBHOOK_FRESHNESS_WARNING, enabled).apply();
+    }
+
+    /** #864: whether Wireless Debugging is turned off on an untrusted Wi-Fi; off by default. */
+    static boolean isUntrustedShutdownEnabled(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_UNTRUSTED_SHUTDOWN, false);
+    }
+
+    static void setUntrustedShutdownEnabled(Context context, boolean enabled) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_UNTRUSTED_SHUTDOWN, enabled).apply();
+    }
+
+    /**
+     * #864: the readable BSSID a manual enable was made on, or null when no manual exemption is
+     * recorded.
+     */
+    static String getUntrustedShutdownManualBssid(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID, null);
+    }
+
+    /** Clears the manual exemption. */
+    static void clearUntrustedShutdownManualBssid(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().remove(KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID)
+                .remove(KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT).apply();
+    }
+
+    /** Records the manual exemption for {@code bssid} at elapsed-realtime {@code atElapsedMs}. */
+    static void setUntrustedShutdownManualBssid(Context context, String bssid, long atElapsedMs) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putString(KEY_UNTRUSTED_SHUTDOWN_MANUAL_BSSID, bssid)
+                .putLong(KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT, atElapsedMs).apply();
+    }
+
+    /** Elapsed-realtime millis of the recorded manual exemption, or -1 without one. */
+    static long getUntrustedShutdownManualAt(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getLong(KEY_UNTRUSTED_SHUTDOWN_MANUAL_AT, -1L);
     }
 
     /** Epoch-millis of the first failed report of the current failure episode, or 0 without one. */

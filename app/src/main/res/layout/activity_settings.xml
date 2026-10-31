@@ -365,6 +365,27 @@
                         android:textColor="@color/text_yellow"
                         android:textSize="13sp"
                         android:visibility="gone" />
+
+                    <!-- #864: opt-in, off by default; effective while Keep-Alive runs. -->
+                    <Switch
+                        android:id="@+id/settings_untrusted_shutdown_toggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:fontFamily="sans-serif-condensed"
+                        android:minHeight="48dp"
+                        android:text="@string/untrusted_shutdown_title"
+                        android:textColor="@color/text_yellow"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans-serif"
+                        android:text="@string/untrusted_shutdown_hint"
+                        android:textColor="@color/night_muted"
+                        android:textSize="13sp" />
                 </LinearLayout>
 
                 <View

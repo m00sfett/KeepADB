@@ -70,10 +70,10 @@ Trust decisions are only as strong as the identifiers they compare.
 - **ADB has its own protection.** Android authenticates paired hosts and encrypts Wireless
   debugging with TLS. Imitating an access point identifier does not by itself give anyone an ADB
   shell; a host still has to be paired.
-- **Trust gates automatic actions, not shutdown.** A trusted network allows automatic enabling and
-  recovery. If Wireless debugging is already on when the phone moves to an untrusted network,
-  KeepADB shows a notice but does not switch it off. An optional shutdown is proposed separately in
-  #864.
+- **Trust gates automatic actions; shutdown is opt-in.** A trusted network allows automatic
+  enabling and recovery. If Wireless debugging is already on when the phone moves to an untrusted
+  network, KeepADB shows a notice and, by default, leaves it on. See "Turn off on untrusted Wi-Fi"
+  below for the optional shutdown (#864).
 - **Security type as an extra signal.** #860 evaluates comparing the connection's security type
   with what was seen when an access point was trusted. That can reveal some downgrades (WPA3 to
   WPA2, or to an open network), but not prove that an access point is genuine. Mesh networks can mix
@@ -82,6 +82,33 @@ Trust decisions are only as strong as the identifiers they compare.
 The in-app texts already describe name matching as weaker and easy to imitate, and they do not
 promise more than recognition of an access point. No additional localized explanation was added
 for #863.
+
+## Turn off on untrusted Wi-Fi (#864)
+
+An optional setting in the network section, off by default. While Keep-Alive runs, KeepADB turns
+Wireless debugging off when it is on in a Wi-Fi that is not trusted, is blocked, or cannot be
+identified, instead of only notifying:
+
+- **When:** on network callbacks (new Wi-Fi, roam, capability change), on the one-minute heartbeat,
+  and right when the setting is switched on. It is a best-effort reaction, not an instantaneous
+  guarantee: a delayed callback or a suspended app delays it.
+- **Unreadable identity:** checked again after 5 s and after a further 10 s, so the few seconds of
+  an access-point roam do not switch anything off.
+- **Your own session:** if you switched Wireless debugging on yourself, it stays on while the phone
+  stays on that access point. Any other access point (a trusted one too), a lost Wi-Fi or Wireless
+  debugging going off ends that exemption for good; returning to the first access point does not
+  revive it. An unreadable identity cannot prove the same access point: switching on there grants
+  no exemption, and while the identity is unreadable an existing exemption does not apply. Only
+  switching on in KeepADB (app, tile, widget, notification, USB handover action) counts; switching
+  on in Android's own settings grants no exemption. A restart of the Keep-Alive service ends an
+  exemption recorded before it, because what happened while nothing observed it is unknown.
+- **Force mode** suspends the policy while it runs.
+- **Recheck before writing:** every condition is checked again immediately before the OFF write, so
+  a stale event cannot switch off a session that has become trusted meanwhile.
+- **Not your "off":** the policy does not record a user OFF. Keep-Alive stays armed and switches
+  Wireless debugging back on once the phone is on a trusted network again.
+- **Notices:** "Wireless Debugging turned off" after a shutdown, or "Could not turn off Wireless
+  Debugging" when the write failed. The trust prompt for the network appears as before.
 
 ## Prompt and decision dialog
 

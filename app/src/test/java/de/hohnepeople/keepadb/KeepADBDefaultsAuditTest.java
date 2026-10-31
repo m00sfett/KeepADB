@@ -134,6 +134,9 @@ public class KeepADBDefaultsAuditTest {
                     c -> KeepADBTrustedNetwork.isSsidMatchingEnabled(c)),
             new Setting("usb_wlan_handover_mode", Kind.SECURITY, "off", "automatic",
                     c -> KeepADBPreferences.getUsbWlanHandoverMode(c)),
+            // #864: opt-in hardening, off by user decision so no installation changes silently
+            new Setting("untrusted_shutdown_enabled", Kind.SECURITY, false, true,
+                    c -> KeepADBPreferences.isUntrustedShutdownEnabled(c)),
             // Data leaving the device or the lock screen
             new Setting("register_webhook_enabled", Kind.SECURITY, false, true,
                     c -> KeepADBPreferences.isRegisterWebhookEnabled(c)),
@@ -184,7 +187,8 @@ public class KeepADBDefaultsAuditTest {
             "wifi_aps_feature_enabled", "blocked_network_entries",
             "events", "location_permission_requested", "location_asked", "notification_permission_requested",
             "force_state", "force_expired_notice_pending", "force_expired_reason", "observation_history_discarded",
-            "onboarding_completed_version", "onboarding_existing_install", "upgrade_notice_1_10_shown")));
+            "onboarding_completed_version", "onboarding_existing_install", "upgrade_notice_1_10_shown",
+            "untrusted_shutdown_manual_bssid", "untrusted_shutdown_manual_at")));
 
     @Before
     public void setUp() {

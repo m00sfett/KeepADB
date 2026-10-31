@@ -319,6 +319,14 @@
     <string name="networks_comfort_title">Доверять также по имени Wi-Fi</string>
     <string name="networks_comfort_hint">Удобнее при mesh и репитерах. Имя легко подделать.</string>
     <string name="networks_comfort_no_effect">Не действует, пока применяется прежняя настройка «Во всех сетях Wi-Fi».</string>
+    <string name="untrusted_shutdown_title">Отключать в недоверенных сетях Wi-Fi</string>
+    <string name="untrusted_shutdown_hint">Пока Keep-Alive включён, KeepADB отключает беспроводную отладку в сети Wi-Fi, которая не является доверенной, заблокирована или не может быть определена, а не только уведомляет вас. Сеанс, который вы включили сами в KeepADB, остаётся включённым у этого роутера Wi-Fi. Принудительный режим приостанавливает это.</string>
+    <string name="untrusted_shutdown_channel_name">Отключение в недоверенных сетях Wi-Fi</string>
+    <string name="untrusted_shutdown_channel_desc">Сообщает, когда KeepADB отключил беспроводную отладку в недоверенной сети Wi-Fi.</string>
+    <string name="untrusted_shutdown_off_title">Беспроводная отладка отключена</string>
+    <string name="untrusted_shutdown_off_text">Текущая сеть Wi-Fi не является доверенной или не может быть определена. Keep-Alive снова включит её в доверенной сети Wi-Fi.</string>
+    <string name="untrusted_shutdown_failed_title">Не удалось отключить беспроводную отладку</string>
+    <string name="untrusted_shutdown_failed_text">Текущая сеть Wi-Fi не является доверенной, но отключить беспроводную отладку не удалось. Отключите её вручную.</string>
     <string name="networks_level">Уровень защиты: %1$s</string>
     <string name="networks_force_note">Пока включён принудительный режим, доверенные и заблокированные сети не действуют. После его окончания они снова действуют.</string>
     <string name="networks_section_current">Текущая сеть</string>
