@@ -1,0 +1,2 @@
+In setup, tapping Next now saves a webhook URL you typed and turns sync on, instead of discarding it.
+The bar shown after closing a warning card now disappears by itself after a few seconds.
