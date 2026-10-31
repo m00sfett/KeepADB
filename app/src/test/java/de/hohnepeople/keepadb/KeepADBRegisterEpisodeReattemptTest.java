@@ -138,6 +138,21 @@ public class KeepADBRegisterEpisodeReattemptTest {
         assertEquals("no episode, no re-attempt", 2, posts());
     }
 
+    /** Codex review round 2: raising the retry count during the attempt keeps it single-shot. */
+    @Test
+    public void retryCountChangedDuringTheAttemptKeepsItSingleShot() {
+        giveUp();
+        transport.setRequestCallback(request -> KeepADBPreferences.setWebhookRetryCount(context, 4));
+
+        advance(INTERVAL);
+        heartbeat();
+        transport.setRequestCallback(null);
+        for (int i = 0; i < 3; i++) advance(60_000L);
+
+        assertEquals("one request, no retry series", 2, posts());
+        assertTrue(KeepADBRegisterClient.isSeriesExhaustedForTesting());
+    }
+
     /** Codex review: an endpoint that no longer answers is not reported by a re-attempt. */
     @Test
     public void unreachableCachedEndpointIsNotReported() {

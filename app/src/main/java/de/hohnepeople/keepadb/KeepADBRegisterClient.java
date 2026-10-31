@@ -114,6 +114,8 @@ final class KeepADBRegisterClient {
     private static String seriesUrl = null;
     private static String seriesEndpoint = null;
     private static boolean seriesExhausted = false;
+    /** #881: the current series is an episode re-attempt: one request, never a retry. */
+    private static boolean singleShotSeries = false;
     /** #881: elapsed realtime when the series was given up on, or of the last episode re-attempt. */
     private static long lastGiveUpOrReattemptAt = 0L;
     /** #881: the sparse re-attempt while a failure episode lasts and nothing else reports. */
@@ -267,8 +269,9 @@ final class KeepADBRegisterClient {
             opGen = startResyncSeriesLocked(appContext, true, targetUrl, endpoint, generationBefore);
             if (opGen == 0L) return;
             lastGiveUpOrReattemptAt = now;
-            // One attempt only: a failure ends this series at once instead of retrying.
-            postRetryNumber = KeepADBPreferences.getWebhookRetryCount(appContext);
+            // One attempt only, independent of the retry-count setting, which may change while
+            // the attempt runs (Codex review): a failure ends this series at once.
+            singleShotSeries = true;
         }
         dispatchUpdate(appContext, targetUrl, endpoint, opGen, true);
     }
@@ -363,6 +366,7 @@ final class KeepADBRegisterClient {
             pendingPostRetry = null;
         }
         postRetryNumber = 0;
+        singleShotSeries = false;
         seriesUrl = null;
         seriesEndpoint = null;
         seriesExhausted = false;
@@ -378,7 +382,7 @@ final class KeepADBRegisterClient {
      */
     private static void schedulePostRetryLocked(Context context, String targetUrl, String endpoint,
             long opGen) {
-        if (postRetryNumber >= KeepADBPreferences.getWebhookRetryCount(context)) {
+        if (singleShotSeries || postRetryNumber >= KeepADBPreferences.getWebhookRetryCount(context)) {
             seriesExhausted = true;
             lastGiveUpOrReattemptAt = SystemClock.elapsedRealtime();
             return;
