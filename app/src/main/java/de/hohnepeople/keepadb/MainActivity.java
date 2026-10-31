@@ -844,9 +844,13 @@ public class MainActivity extends Activity {
         // #561: only a possible-cause hint, never a diagnosis -- only shown while the last report
         // is still failing (cleared again the moment a later attempt reports success) and only for
         // a configured URL that looks tailnet-bound per KeepADBTailnetHeuristic. KeepADB never
-        // inspects, starts or configures Tailscale/VPN state itself; see #537/#548.
+        // starts or configures Tailscale/VPN itself; see #537/#548.
+        // #875: the read-only Tailscale status this screen already shows rules the hint out when
+        // the tunnel is clearly up -- the failure then lies elsewhere (e.g. the register server),
+        // and a "Tailscale may be disconnected" line next to "Tailscale: active" misleads.
         boolean showTailnetHint = KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(reportStatus)
-                && KeepADBTailnetHeuristic.looksLikeTailnetTarget(url);
+                && KeepADBTailnetHeuristic.looksLikeTailnetTarget(url)
+                && KeepADBTailscaleStatus.detect(this) != KeepADBTailscaleStatus.Status.ACTIVE;
         webhookTailnetHint.setVisibility(showTailnetHint ? View.VISIBLE : View.GONE);
     }
 
