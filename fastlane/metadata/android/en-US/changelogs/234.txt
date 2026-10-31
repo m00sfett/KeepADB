@@ -1,0 +1,1 @@
+The webhook card no longer suggests that Tailscale may be disconnected while KeepADB itself shows Tailscale as active.

@@ -477,7 +477,6 @@ public class MainActivity extends Activity {
         keepAliveToggle.setChecked(KeepADBPreferences.isKeepAliveEnabled(this));
         renderKeepAliveSubtext();
         refreshWebhookStatus();
-        renderTailscaleStatus();
         renderTransportOverview();
     }
 
@@ -494,11 +493,14 @@ public class MainActivity extends Activity {
      * detection state.
      */
     private void renderTailscaleStatus() {
+        renderTailscaleStatus(KeepADBTailscaleStatus.detect(this));
+    }
+
+    private void renderTailscaleStatus(KeepADBTailscaleStatus.Status tailscale) {
         if (!KeepADBBuildFlags.isDebugBuild(this)) {
             tailscaleStatus.setVisibility(View.GONE);
             return;
         }
-        KeepADBTailscaleStatus.Status tailscale = KeepADBTailscaleStatus.detect(this);
         if (tailscale == KeepADBTailscaleStatus.Status.NOT_INSTALLED) {
             tailscaleStatus.setVisibility(View.GONE);
             return;
@@ -804,7 +806,17 @@ public class MainActivity extends Activity {
         action.setOnClickListener(v -> onAction.run());
     }
 
+    /**
+     * #875: the Tailscale line and the webhook hint are drawn from one status snapshot, also when
+     * only the register listener fires (a report completed), so the two can never disagree.
+     */
     private void refreshWebhookStatus() {
+        KeepADBTailscaleStatus.Status tailscale = KeepADBTailscaleStatus.detect(this);
+        renderTailscaleStatus(tailscale);
+        renderWebhookStatus(tailscale);
+    }
+
+    private void renderWebhookStatus(KeepADBTailscaleStatus.Status tailscale) {
         String url = KeepADBPreferences.getRegisterWebhookUrl(this);
         boolean enabled = KeepADBPreferences.isRegisterWebhookEnabled(this);
         if (!enabled || url == null || url.trim().isEmpty()) {
@@ -844,9 +856,13 @@ public class MainActivity extends Activity {
         // #561: only a possible-cause hint, never a diagnosis -- only shown while the last report
         // is still failing (cleared again the moment a later attempt reports success) and only for
         // a configured URL that looks tailnet-bound per KeepADBTailnetHeuristic. KeepADB never
-        // inspects, starts or configures Tailscale/VPN state itself; see #537/#548.
+        // starts or configures Tailscale/VPN itself; see #537/#548.
+        // #875: the read-only Tailscale status this screen already shows rules the hint out when
+        // the tunnel is clearly up -- the failure then lies elsewhere (e.g. the register server),
+        // and a "Tailscale may be disconnected" line next to "Tailscale: active" misleads.
         boolean showTailnetHint = KeepADBPreferences.WEBHOOK_STATUS_FAILED.equals(reportStatus)
-                && KeepADBTailnetHeuristic.looksLikeTailnetTarget(url);
+                && KeepADBTailnetHeuristic.looksLikeTailnetTarget(url)
+                && tailscale != KeepADBTailscaleStatus.Status.ACTIVE;
         webhookTailnetHint.setVisibility(showTailnetHint ? View.VISIBLE : View.GONE);
     }
 

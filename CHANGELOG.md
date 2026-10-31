@@ -17,11 +17,19 @@ project history rather than a product change.
 
 ## Release status
 
-`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.8` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
+`v1.8.38` is the latest public release before the unreleased `1.9.1` through `1.9.52` and `1.10.0` through `1.10.9` candidates below, one section each (`1.9.1` was never published on its own). `v1.4.5` was the
 latest public release before `v1.8.38` was published. Sections from `1.4.6` through `1.7.3`
 record development snapshots; their dates describe implementation history, not publication proof.
 A version is released only when a corresponding tag or public release exists. `1.4.1` and `1.4.2`
 are retrospective issue-version records and were never published as separate releases.
+
+## [1.10.9] - Unreleased
+
+### Fixed
+- **No "Tailscale may be disconnected" hint while Tailscale is active (#875):** the webhook card showed the #561 hint for every failed report to a tailnet-looking URL, even while the same screen reported `Tailscale: active` (observed on s20 while the register server itself was stopped). `MainActivity.refreshWebhookStatus()` now also requires the read-only `KeepADBTailscaleStatus` to be anything other than `ACTIVE`; for inactive, unknown or not installed the hint shows as before. The Tailscale line and the hint are drawn from one status snapshot, also when only the register listener fires after a report (Codex review), so they cannot disagree.
+
+### Documentation
+- **Limits of network identity (#863):** `SECURITY.md` and `docs/trusted-networks.md` now state that SSID and BSSID can both be imitated and that a BSSID match recognizes but does not authenticate an access point; that a copied BSSID alone neither defeats WPA2/WPA3 nor grants an ADB shell (paired hosts, TLS); that network trust gates automatic enabling only and does not switch already enabled Wireless debugging off (#864); and that a security-type check (#860) could reveal some downgrades without proving identity. The in-app texts already make no stronger claim, so no new localized text was added.
 
 ## [1.10.8] - Unreleased
 

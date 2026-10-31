@@ -23,6 +23,9 @@ import org.robolectric.annotation.Config;
  * currently failing AND whose configured URL looks tailnet-bound -- never for a merely unusual
  * host, never while the last report still succeeded, and it must clear again once a later report
  * succeeds. See {@link KeepADBTailnetHeuristicTest} for the classifier itself.
+ *
+ * <p>#875: it must also stay hidden while Tailscale is detected as active, and show for every
+ * other status (inactive, unknown, not installed).
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -47,7 +50,18 @@ public class MainActivityTailnetHintTest {
                 .edit()
                 .clear()
                 .commit();
+        KeepADBTailscaleStatus.setPackageInstalledCheckForTesting(null);
+        KeepADBTailscaleStatus.setInterfacesProviderForTesting(null);
+        KeepADBBuildFlags.setOverrideForTesting(null);
+        KeepADBRegisterClient.clearRegisterStateListener();
         KeepADB.resetForTesting();
+    }
+
+    /** #875: Tailscale installed, with a tun interface that is up (with a CGNAT address) or not. */
+    private static void tailscale(boolean tunnelUp) {
+        KeepADBTailscaleStatus.setPackageInstalledCheckForTesting((ctx, packageName) -> true);
+        KeepADBTailscaleStatus.setInterfacesProviderForTesting(() -> java.util.Collections.singletonList(
+                new KeepADBTailscaleStatus.InterfaceSnapshot("tun0", tunnelUp, new byte[]{100, 101, 2, 3})));
     }
 
     private MainActivity launchWithWebhook(String url, String reportStatus) {
@@ -111,5 +125,63 @@ public class MainActivityTailnetHintTest {
         String text = hint.getText().toString();
         org.junit.Assert.assertFalse("Hint must not leak the host: " + text,
                 text.contains("100.111.111.21"));
+    }
+
+    @Test
+    public void hintStaysHiddenForFailedTailnetTargetWhileTailscaleIsActive() {
+        tailscale(true);
+        MainActivity activity = launchWithWebhook("http://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+
+        TextView hint = activity.findViewById(R.id.webhook_tailnet_hint);
+        assertNotNull(hint);
+        assertEquals("an active tunnel rules Tailscale out as the cause",
+                View.GONE, hint.getVisibility());
+    }
+
+    @Test
+    public void hintShowsForFailedTailnetTargetWhileTailscaleIsInactive() {
+        tailscale(false);
+        MainActivity activity = launchWithWebhook("http://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+
+        TextView hint = activity.findViewById(R.id.webhook_tailnet_hint);
+        assertNotNull(hint);
+        assertEquals(View.VISIBLE, hint.getVisibility());
+    }
+
+    @Test
+    public void hintShowsForFailedTailnetTargetWhenTheTailscaleStatusIsUnknown() {
+        KeepADBTailscaleStatus.setPackageInstalledCheckForTesting((ctx, packageName) -> null);
+        MainActivity activity = launchWithWebhook("http://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+
+        TextView hint = activity.findViewById(R.id.webhook_tailnet_hint);
+        assertNotNull(hint);
+        assertEquals(View.VISIBLE, hint.getVisibility());
+    }
+
+    /**
+     * #875 review: Tailscale comes up while the screen is open, then a report completes. Only the
+     * register listener fires; the hint and the Tailscale line must follow the same new status.
+     */
+    @Test
+    public void reportCallbackRedrawsHintAndTailscaleLineFromOneStatus() throws Exception {
+        KeepADBBuildFlags.setOverrideForTesting(true);
+        tailscale(false);
+        MainActivity activity = launchWithWebhook("http://100.111.111.21:50829/register/s20",
+                KeepADBPreferences.WEBHOOK_STATUS_FAILED);
+        TextView hint = activity.findViewById(R.id.webhook_tailnet_hint);
+        TextView line = activity.findViewById(R.id.tailscale_status);
+        assertEquals(View.VISIBLE, hint.getVisibility());
+        assertEquals(activity.getString(R.string.tailscale_status_inactive), line.getText().toString());
+
+        tailscale(true);
+        java.lang.reflect.Field field = KeepADBRegisterClient.class.getDeclaredField("registerStateListener");
+        field.setAccessible(true);
+        ((KeepADBRegisterClient.RegisterStateListener) field.get(null)).onRegisterStateChanged();
+
+        assertEquals(View.GONE, hint.getVisibility());
+        assertEquals(activity.getString(R.string.tailscale_status_active), line.getText().toString());
     }
 }

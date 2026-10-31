@@ -47,6 +47,27 @@ The **Also trust by Wi-Fi name (SSID)** switch is a separate, disabled-by-defaul
 Because unrelated access points can advertise the same user-chosen name, this rule is weaker than
 trusting an individual BSSID. KeepADB shows this warning next to the option.
 
+### What a network identity can and cannot prove
+
+Both identifiers KeepADB matches can be imitated. An SSID is a name anyone can broadcast. A BSSID
+is the access point's MAC address: it lets KeepADB *recognize* an access point, but it is not a
+cryptographic identity and does not *authenticate* it. Someone can configure their own access point
+with a copied BSSID.
+
+A copied BSSID alone does not defeat WPA2/WPA3 authentication, and it does not make Android join a
+rogue access point by itself. Whether the phone connects depends on the saved Wi-Fi configuration,
+the credentials (for example, someone who knows the shared WPA2/WPA3-Personal password can run an
+access point that the phone cannot tell apart from the legitimate one) and platform behavior.
+Wireless debugging is a separate layer: Android authenticates paired hosts and encrypts the ADB
+connection with TLS, so imitating an access point identifier does not by itself grant an ADB shell.
+
+Network trust gates **automatic** enabling and recovery only. When Wireless debugging is already
+on and the phone moves to a network that is not trusted, KeepADB shows a notice; it does not switch
+Wireless debugging off. An optional shutdown on untrusted networks is a separate proposal (#864).
+Checking the connection's security type in addition to the BSSID is being evaluated in #860; such a
+check could detect some downgrades (for example WPA3 to WPA2 or to an open network), but it would
+still not prove that an access point is genuine.
+
 Network trust controls automatic recovery. The tile and other manual controls do not approve a new
 network identity. A locked device must be unlocked before enabling Wireless debugging through the
 Quick Settings tile or USB notification; turning it off through the tile remains possible from the
