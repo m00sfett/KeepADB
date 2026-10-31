@@ -135,11 +135,13 @@ final class KeepADBFakeHttpTransport implements KeepADBRegisterClient.HttpTransp
         }
 
         if (!postSuccess || targetUrl != null && targetUrl.equals(failingUrl)) {
+            KeepADBRegisterClient.noteTransportOutcome("error=FakeIOException");
             if (failureCallback != null) {
                 failureCallback.run();
             }
             return false;
         }
+        KeepADBRegisterClient.noteTransportOutcome("http=200");
         return true;
     }
 

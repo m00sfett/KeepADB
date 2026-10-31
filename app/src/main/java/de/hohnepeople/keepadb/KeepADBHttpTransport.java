@@ -42,11 +42,15 @@ final class KeepADBHttpTransport implements KeepADBRegisterClient.HttpTransport 
             }
 
             int code = conn.getResponseCode();
+            KeepADBRegisterClient.noteTransportOutcome("http=" + code);
             Log.d(TAG, "Register update for " + KeepADBAddressMask.maskEndpointForDisplay(logLabel)
                     + " returned HTTP " + code);
             return code >= 200 && code < 300;
         } catch (IOException e) {
-            Log.w(TAG, "Could not update register at " + KeepADBRegisterClient.sanitizeUrl(targetUrl));
+            // #881: the exception class only -- its message can carry the host or the URL.
+            KeepADBRegisterClient.noteTransportOutcome("error=" + e.getClass().getSimpleName());
+            Log.w(TAG, "Could not update register at " + KeepADBRegisterClient.sanitizeUrl(targetUrl)
+                    + " (" + e.getClass().getSimpleName() + ")");
             return false;
         } finally {
             if (conn != null) {
@@ -67,10 +71,13 @@ final class KeepADBHttpTransport implements KeepADBRegisterClient.HttpTransport 
             conn.setReadTimeout(TIMEOUT_MS);
 
             int code = conn.getResponseCode();
+            KeepADBRegisterClient.noteTransportOutcome("http=" + code);
             Log.d(TAG, "Register delete returned HTTP " + code);
             return code >= 200 && code < 300;
         } catch (IOException e) {
-            Log.w(TAG, "Could not reach register to unregister at " + KeepADBRegisterClient.sanitizeUrl(targetUrl));
+            KeepADBRegisterClient.noteTransportOutcome("error=" + e.getClass().getSimpleName());
+            Log.w(TAG, "Could not reach register to unregister at "
+                    + KeepADBRegisterClient.sanitizeUrl(targetUrl) + " (" + e.getClass().getSimpleName() + ")");
             return false;
         } finally {
             if (conn != null) {
