@@ -187,7 +187,8 @@ final class KeepADBNetworkDecision {
 
     private static boolean isDecided(Context context, String bssid, String ssid) {
         return KeepADBNetworkBlocklist.isBlocked(context, bssid, ssid)
-                || isListedAsTrusted(context, bssid)
+                || (isListedAsTrusted(context, bssid)
+                        && !KeepADBTrustedNetwork.isSecurityMismatchForCurrent(context, bssid))
                 || (ssid != null && KeepADBTrustedNetwork.isNameTrusted(context, ssid));
     }
 

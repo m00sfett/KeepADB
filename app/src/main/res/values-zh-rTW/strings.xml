@@ -327,6 +327,10 @@
     <string name="untrusted_shutdown_off_text">目前的 Wi-Fi 未信任或無法識別。在已信任的 Wi-Fi 上，Keep-Alive 會重新開啟它。</string>
     <string name="untrusted_shutdown_failed_title">無法關閉無線偵錯</string>
     <string name="untrusted_shutdown_failed_text">目前的 Wi-Fi 未信任，但關閉無線偵錯失敗。請手動關閉。</string>
+    <string name="security_check_title">檢查已信任 Wi-Fi 基地台的安全性</string>
+    <string name="security_check_hint">Android 12 以上版本：當你信任一個基地台時，KeepADB 會記錄其安全等級（開放、個人或企業）。如果之後它以較低或無法讀取的等級連線，在你再次信任它之前，Keep-Alive 不會在那裡自動開啟無線偵錯。這不能證明基地台是真的。在此選項之前信任的基地台，在你再次信任之前仍只依位址檢查。</string>
+    <string name="network_prompt_security_text">%1$s（%2$s）已信任，但其 Wi-Fi 安全性現在低於你信任它時，或無法讀取。只有在你預期此變更時才再次信任它。</string>
+    <string name="network_prompt_security_confirm_in_app_text">已信任基地台的 Wi-Fi 安全性已變更 — 輕觸以在應用程式中檢查。</string>
     <string name="networks_level">保護等級：%1$s</string>
     <string name="networks_force_note">強制模式開啟期間，已信任和已封鎖的網路均不生效，結束後會重新生效。</string>
     <string name="networks_section_current">目前網路</string>

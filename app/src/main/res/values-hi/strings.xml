@@ -327,6 +327,10 @@
     <string name="untrusted_shutdown_off_text">मौजूदा Wi-Fi भरोसेमंद नहीं है या पहचाना नहीं जा सकता। Keep-Alive भरोसेमंद Wi-Fi पर इसे फिर से चालू करता है।</string>
     <string name="untrusted_shutdown_failed_title">वायरलेस डीबगिंग बंद नहीं की जा सकी</string>
     <string name="untrusted_shutdown_failed_text">मौजूदा Wi-Fi भरोसेमंद नहीं है, लेकिन वायरलेस डीबगिंग बंद करना विफल रहा। इसे स्वयं बंद करें।</string>
+    <string name="security_check_title">भरोसेमंद Wi-Fi राउटरों की Wi-Fi सुरक्षा जाँचें</string>
+    <string name="security_check_hint">Android 12 और बाद के संस्करण: जब आप किसी Wi-Fi राउटर पर भरोसा करते हैं, तो KeepADB उसका सुरक्षा स्तर (खुला, निजी या एंटरप्राइज़) सहेजता है। अगर बाद में वह कम या न पढ़े जा सकने वाले स्तर से जुड़ता है, तो जब तक आप फिर से भरोसा न करें, Keep-Alive वहाँ अपने-आप वायरलेस डीबगिंग चालू नहीं करता। इससे यह साबित नहीं होता कि राउटर असली है। इस विकल्प से पहले भरोसा किए गए राउटर फिर से भरोसा करने तक केवल पते से जाँचे जाते हैं।</string>
+    <string name="network_prompt_security_text">%1$s (%2$s) भरोसेमंद है, लेकिन उसकी Wi-Fi सुरक्षा अब भरोसा करते समय से कम है या पढ़ी नहीं जा सकती। फिर से भरोसा तभी करें जब आपको यह बदलाव अपेक्षित हो।</string>
+    <string name="network_prompt_security_confirm_in_app_text">एक भरोसेमंद Wi-Fi राउटर की Wi-Fi सुरक्षा बदल गई है — ऐप में जाँचने के लिए टैप करें।</string>
     <string name="networks_level">सुरक्षा स्तर: %1$s</string>
     <string name="networks_force_note">फ़ोर्स मोड चालू रहने तक भरोसेमंद और रोके गए नेटवर्क लागू नहीं होते। बाद में वे फिर लागू हो जाते हैं।</string>
     <string name="networks_section_current">मौजूदा नेटवर्क</string>

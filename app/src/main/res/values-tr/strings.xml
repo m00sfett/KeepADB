@@ -327,6 +327,10 @@
     <string name="untrusted_shutdown_off_text">Geçerli Wi-Fi güvenilir değil veya tanımlanamıyor. Keep-Alive güvenilir bir Wi-Fi\'de tekrar açar.</string>
     <string name="untrusted_shutdown_failed_title">Kablosuz Hata Ayıklama kapatılamadı</string>
     <string name="untrusted_shutdown_failed_text">Geçerli Wi-Fi güvenilir değil ancak Kablosuz Hata Ayıklama kapatılamadı. Elle kapat.</string>
+    <string name="security_check_title">Güvenilen Wi-Fi noktalarının Wi-Fi güvenliğini denetle</string>
+    <string name="security_check_hint">Android 12 ve üzeri: Bir Wi-Fi noktasına güvendiğinde KeepADB onun güvenlik düzeyini (açık, kişisel veya kurumsal) kaydeder. Daha sonra daha düşük veya okunamayan bir düzeyle bağlanırsa, ona yeniden güvenene kadar Keep-Alive orada Kablosuz Hata Ayıklama\'yı kendiliğinden açmaz. Bu, Wi-Fi noktasının gerçek olduğunu kanıtlamaz. Bu seçenekten önce güvenilen Wi-Fi noktaları, onlara yeniden güvenene kadar yalnızca adresle denetlenir.</string>
+    <string name="network_prompt_security_text">%1$s (%2$s) güvenilen bir nokta, ancak Wi-Fi güvenliği güvendiğin zamandakinden düşük veya okunamıyor. Ona yalnızca bu değişikliği bekliyorsan yeniden güven.</string>
+    <string name="network_prompt_security_confirm_in_app_text">Güvenilen bir Wi-Fi noktasının Wi-Fi güvenliği değişti — uygulamada kontrol etmek için dokun.</string>
     <string name="networks_level">Koruma düzeyi: %1$s</string>
     <string name="networks_force_note">Zorlama modu açıkken güvenilir ve engellenen ağlar geçerli olmaz. Sonrasında yeniden geçerli olur.</string>
     <string name="networks_section_current">Geçerli ağ</string>

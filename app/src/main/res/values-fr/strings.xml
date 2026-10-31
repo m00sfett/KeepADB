@@ -327,6 +327,10 @@
     <string name="untrusted_shutdown_off_text">Le Wi-Fi actuel n’est pas approuvé ou ne peut pas être identifié. Keep-Alive le réactive sur un Wi-Fi approuvé.</string>
     <string name="untrusted_shutdown_failed_title">Impossible de désactiver le débogage sans fil</string>
     <string name="untrusted_shutdown_failed_text">Le Wi-Fi actuel n’est pas approuvé, mais la désactivation du débogage sans fil a échoué. Désactivez-le manuellement.</string>
+    <string name="security_check_title">Vérifier la sécurité Wi-Fi des points d’accès approuvés</string>
+    <string name="security_check_hint">Android 12 et versions ultérieures : lorsque vous approuvez un point d’accès, KeepADB enregistre son niveau de sécurité (ouvert, personnel ou entreprise). S’il se connecte ensuite avec un niveau inférieur ou illisible, Keep-Alive n’y active pas le débogage sans fil de lui-même tant que vous ne l’approuvez pas à nouveau. Cela ne prouve pas que le point d’accès est authentique. Les points d’accès approuvés avant cette option restent vérifiés par leur seule adresse jusqu’à ce que vous les approuviez à nouveau.</string>
+    <string name="network_prompt_security_text">%1$s (%2$s) est approuvé, mais sa sécurité Wi-Fi est maintenant inférieure à celle du moment de l’approbation, ou illisible. Approuvez-le à nouveau seulement si vous attendez ce changement.</string>
+    <string name="network_prompt_security_confirm_in_app_text">La sécurité Wi-Fi d’un point d’accès approuvé a changé — touchez pour la vérifier dans l’app.</string>
     <string name="networks_level">Niveau de protection : %1$s</string>
     <string name="networks_force_note">Tant que le mode forcé est actif, les réseaux approuvés et les blocages ne s’appliquent pas. Ils s’appliquent de nouveau ensuite.</string>
     <string name="networks_section_current">Réseau actuel</string>

@@ -327,6 +327,10 @@
     <string name="untrusted_shutdown_off_text">現在のWi-Fiは信頼されていないか、識別できません。信頼済みのWi-FiではKeep-Aliveが再びオンにします。</string>
     <string name="untrusted_shutdown_failed_title">ワイヤレスデバッグをオフにできませんでした</string>
     <string name="untrusted_shutdown_failed_text">現在のWi-Fiは信頼されていませんが、ワイヤレスデバッグをオフにできませんでした。手動でオフにしてください。</string>
+    <string name="security_check_title">信頼済みWi-Fiアクセス先のセキュリティを確認</string>
+    <string name="security_check_hint">Android 12以降：Wi-Fiアクセス先を信頼すると、KeepADBはそのセキュリティレベル（オープン、パーソナル、エンタープライズ）を記録します。後でより低いレベルや読み取れないレベルで接続した場合、もう一度信頼するまでKeep-Aliveはそこでワイヤレスデバッグを自動でオンにしません。これはアクセス先が本物であることを証明するものではありません。このオプションより前に信頼したアクセス先は、もう一度信頼するまでアドレスだけで確認されます。</string>
+    <string name="network_prompt_security_text">%1$s（%2$s）は信頼済みですが、Wi-Fiセキュリティが信頼した時より低いか、読み取れません。この変更に心当たりがある場合だけ、もう一度信頼してください。</string>
+    <string name="network_prompt_security_confirm_in_app_text">信頼済みWi-Fiアクセス先のセキュリティが変わりました — タップしてアプリで確認してください。</string>
     <string name="networks_level">保護レベル：%1$s</string>
     <string name="networks_force_note">強制モードがオンの間は、信頼済みやブロック中のネットワークは適用されません。終了後に再び適用されます。</string>
     <string name="networks_section_current">現在のネットワーク</string>

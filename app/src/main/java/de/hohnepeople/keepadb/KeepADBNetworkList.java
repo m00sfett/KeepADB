@@ -310,6 +310,7 @@ final class KeepADBNetworkList {
             case TRUSTED_NAME:
                 return new Current(Status.TRUSTED_BY_NAME, Reason.NONE, ssid, bssid, false, null);
             case UNKNOWN_NETWORK:
+            case SECURITY_MISMATCH: // #860: undecided again until trusted again
                 return new Current(Status.UNKNOWN, Reason.NONE, ssid, bssid, false, null);
             case LEGACY_ALL_WIFI:
                 if (live.isKnown()) {

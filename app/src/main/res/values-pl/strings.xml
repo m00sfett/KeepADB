@@ -327,6 +327,10 @@
     <string name="untrusted_shutdown_off_text">Bieżąca sieć Wi-Fi nie jest zaufana lub nie da się jej rozpoznać. Keep-Alive włączy je ponownie w zaufanej sieci Wi-Fi.</string>
     <string name="untrusted_shutdown_failed_title">Nie udało się wyłączyć debugowania bezprzewodowego</string>
     <string name="untrusted_shutdown_failed_text">Bieżąca sieć Wi-Fi nie jest zaufana, ale wyłączenie debugowania bezprzewodowego się nie powiodło. Wyłącz je ręcznie.</string>
+    <string name="security_check_title">Sprawdzaj zabezpieczenia Wi-Fi zaufanych routerów</string>
+    <string name="security_check_hint">Android 12 i nowsze: gdy uznasz router Wi-Fi za zaufany, KeepADB zapisuje jego poziom zabezpieczeń (otwarta, osobista lub firmowa). Jeśli później połączy się z niższym lub nieczytelnym poziomem, Keep-Alive nie włączy tam samodzielnie debugowania bezprzewodowego, dopóki ponownie go nie zaufasz. Nie dowodzi to, że router jest prawdziwy. Routery zaufane przed włączeniem tej opcji są sprawdzane tylko po adresie, dopóki ponownie ich nie zaufasz.</string>
+    <string name="network_prompt_security_text">%1$s (%2$s) jest zaufany, ale jego zabezpieczenia Wi-Fi są teraz niższe niż w chwili zaufania lub nieczytelne. Zaufaj mu ponownie tylko wtedy, gdy spodziewasz się tej zmiany.</string>
+    <string name="network_prompt_security_confirm_in_app_text">Zmieniły się zabezpieczenia Wi-Fi zaufanego routera — dotknij, aby sprawdzić w aplikacji.</string>
     <string name="networks_level">Poziom ochrony: %1$s</string>
     <string name="networks_force_note">Gdy tryb wymuszony jest włączony, zaufane i zablokowane sieci nie obowiązują. Po jego zakończeniu znów obowiązują.</string>
     <string name="networks_section_current">Bieżąca sieć</string>

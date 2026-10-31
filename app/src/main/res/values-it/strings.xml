@@ -327,6 +327,10 @@
     <string name="untrusted_shutdown_off_text">La rete Wi-Fi attuale non è affidabile o non è identificabile. Keep-Alive lo riattiva su una rete Wi-Fi affidabile.</string>
     <string name="untrusted_shutdown_failed_title">Impossibile disattivare il debug wireless</string>
     <string name="untrusted_shutdown_failed_text">La rete Wi-Fi attuale non è affidabile, ma la disattivazione del debug wireless non è riuscita. Disattivalo manualmente.</string>
+    <string name="security_check_title">Controlla la sicurezza Wi-Fi dei punti Wi-Fi affidabili</string>
+    <string name="security_check_hint">Android 12 e successivi: quando consideri affidabile un punto Wi-Fi, KeepADB ne registra il livello di sicurezza (aperto, personale o enterprise). Se in seguito si connette con un livello inferiore o illeggibile, Keep-Alive non attiva da solo il debug wireless lì finché non lo consideri di nuovo affidabile. Questo non dimostra che il punto Wi-Fi sia autentico. I punti Wi-Fi resi affidabili prima di questa opzione restano controllati solo tramite indirizzo finché non li confermi di nuovo.</string>
+    <string name="network_prompt_security_text">%1$s (%2$s) è affidabile, ma la sua sicurezza Wi-Fi ora è inferiore rispetto a quando lo hai reso affidabile, oppure illeggibile. Confermalo di nuovo solo se ti aspetti questa modifica.</string>
+    <string name="network_prompt_security_confirm_in_app_text">La sicurezza Wi-Fi di un punto Wi-Fi affidabile è cambiata — tocca per controllarla nell’app.</string>
     <string name="networks_level">Livello di protezione: %1$s</string>
     <string name="networks_force_note">Finché la modalità forzata è attiva, le reti affidabili e i blocchi non si applicano. Dopo tornano in vigore.</string>
     <string name="networks_section_current">Rete attuale</string>

@@ -327,6 +327,10 @@
     <string name="untrusted_shutdown_off_text">La red Wi-Fi actual no es de confianza o no se puede identificar. Keep-Alive la vuelve a activar en una red Wi-Fi de confianza.</string>
     <string name="untrusted_shutdown_failed_title">No se pudo desactivar la depuración inalámbrica</string>
     <string name="untrusted_shutdown_failed_text">La red Wi-Fi actual no es de confianza, pero no se pudo desactivar la depuración inalámbrica. Desactívala manualmente.</string>
+    <string name="security_check_title">Comprobar la seguridad Wi-Fi de los puntos de acceso de confianza</string>
+    <string name="security_check_hint">Android 12 o posterior: cuando confías en un punto de acceso, KeepADB guarda su nivel de seguridad (abierto, personal o empresarial). Si después se conecta con un nivel inferior o ilegible, Keep-Alive no activa la depuración inalámbrica allí por sí solo hasta que vuelvas a confiar en él. Esto no demuestra que el punto de acceso sea auténtico. Los puntos de acceso de confianza anteriores a esta opción siguen comprobándose solo por la dirección hasta que vuelvas a confiar en ellos.</string>
+    <string name="network_prompt_security_text">%1$s (%2$s) es de confianza, pero su seguridad Wi-Fi ahora es inferior a cuando confiaste en él o no se puede leer. Vuelve a confiar en él solo si esperas este cambio.</string>
+    <string name="network_prompt_security_confirm_in_app_text">La seguridad Wi-Fi de un punto de acceso de confianza ha cambiado — toca para revisarla en la app.</string>
     <string name="networks_level">Nivel de protección: %1$s</string>
     <string name="networks_force_note">Mientras el modo forzado esté activo, no se aplican las redes de confianza ni los bloqueos. Después vuelven a aplicarse.</string>
     <string name="networks_section_current">Red actual</string>

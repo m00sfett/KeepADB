@@ -327,6 +327,10 @@
     <string name="untrusted_shutdown_off_text">当前 Wi-Fi 未信任或无法识别。在已信任的 Wi-Fi 上，Keep-Alive 会重新开启它。</string>
     <string name="untrusted_shutdown_failed_title">无法关闭无线调试</string>
     <string name="untrusted_shutdown_failed_text">当前 Wi-Fi 未信任，但关闭无线调试失败。请手动关闭。</string>
+    <string name="security_check_title">检查已信任 Wi-Fi 接入点的安全性</string>
+    <string name="security_check_hint">Android 12 及更高版本：当你信任一个接入点时，KeepADB 会记录其安全级别（开放、个人或企业）。如果之后它以更低或无法读取的级别连接，在你再次信任它之前，Keep-Alive 不会在那里自动开启无线调试。这不能证明接入点是真实的。在此选项之前信任的接入点，在你再次信任之前仍只按地址检查。</string>
+    <string name="network_prompt_security_text">%1$s（%2$s）已信任，但其 Wi-Fi 安全性现在低于你信任它时，或无法读取。只有在你预期此变化时才再次信任它。</string>
+    <string name="network_prompt_security_confirm_in_app_text">已信任接入点的 Wi-Fi 安全性已更改 — 点按以在应用中检查。</string>
     <string name="networks_level">保护级别：%1$s</string>
     <string name="networks_force_note">强制模式开启期间，已信任和已拦截的网络均不生效，结束后会重新生效。</string>
     <string name="networks_section_current">当前网络</string>

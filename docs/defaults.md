@@ -30,6 +30,7 @@ changes here; #765 documents them and protects them against unnoticed changes (s
 | Also trust by Wi-Fi name | `trust_by_name` | off | An access point with a matching name is not considered trusted | Safe (convenience switch, available only in “Balanced”) |
 | Name matching (legacy) | `trusted_network_ssid_matching` | off | The legacy SSID list has no effect | Safe; available only through the previous network-card switch |
 | USB handover | `usb_wlan_handover_mode` | `off` | Plugging in does not enable anything or offer an action; an unknown saved value is treated as `off` | Safe |
+| Check Wi-Fi security of trusted access points | `trusted_network_security_check` | off | Trusted access points are matched by address only, as before | Off by user decision (#860): an opt-in hardening for Android 12 and later; existing trust entries are never tightened silently |
 | Turn off on untrusted Wi-Fi | `untrusted_shutdown_enabled` | off | Wireless debugging that is already on stays on in an untrusted network; KeepADB only notifies, as before | Off by user decision (#864): an opt-in hardening that must not change any installation silently; turning it on adds protection |
 | Webhook | `register_webhook_enabled`, `register_webhook_url` | off, no URL | No outgoing traffic; there is no built-in destination URL (issue #64) | Safe |
 | Notification details | `notification_details_enabled` | off | Network name, BSSID, and USB profile are omitted from notifications so they do not appear on the lock screen | Safe (#592) |
@@ -61,6 +62,8 @@ reason for each documented here.
 | Key | Default | Reason |
 |---|---|---|
 | `last_desired_on` | on | Stores the last explicit on/off intent; it is not a switch. On a new installation it does not trigger anything on its own: the service and boot receivers first require `keep_alive_enabled`, USB handover first requires its mode (default `off`), and enabling Keep-Alive writes the “on” intent. An “off” default would instead affect existing installations that enabled Keep-Alive before this key existed and would silently disable their recovery |
+
+`trusted_network_<id>_security` (#860) is absent until the access point of that trust entry is trusted while the phone is connected to it on Android 12 or later; it records the security tier seen then, is replaced when the access point is trusted again and removed with the entry. Bookkeeping, not a setting.
 
 `untrusted_shutdown_manual_bssid` and `untrusted_shutdown_manual_at` (#864) are absent until Wireless debugging is switched on manually in KeepADB on a readable access point; they record that access point and the time of the manual session so the optional untrusted-Wi-Fi shutdown leaves it alone there, and are cleared when Wi-Fi is lost, Wireless debugging goes off, another access point is seen or the Keep-Alive service restarts. Bookkeeping, not settings.
 
