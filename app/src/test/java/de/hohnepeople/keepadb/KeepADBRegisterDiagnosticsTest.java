@@ -91,6 +91,45 @@ public class KeepADBRegisterDiagnosticsTest {
         assertTrue(last, last.contains("method=post http=200"));
     }
 
+    /** Codex review: DELETE events count the deregistration retries, not the POST series. */
+    @Test
+    public void deleteEventsCarryTheDeregistrationRetryNumber() {
+        KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        transport.setDeleteSuccess(false);
+
+        KeepADBRegisterClient.setMarkUnavailableNowForTesting(1_000L);
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        KeepADBRegisterClient.setMarkUnavailableNowForTesting(10_000_000L);
+        KeepADBRegisterClient.markUnavailableAsync(context);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+
+        String last = lastReportEvent();
+        assertTrue(last, last.contains("method=delete error=FakeIOException retry=1"));
+    }
+
+    /** Codex review: a success of a superseded POST is not recorded as the end of the episode. */
+    @Test
+    public void supersededSuccessIsNotRecordedAsRecovery() {
+        transport.setPostSuccess(false);
+        KeepADBRegisterClient.updateEndpointAsync(context, HOST, PORT);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+
+        transport.setPostSuccess(true);
+        transport.setRequestCallback(request -> {
+            if ("POST".equals(request.method)) KeepADBRegisterClient.markUnavailableAsync(context);
+        });
+        KeepADBRegisterClient.requestResyncNow(context);
+        assertTrue(KeepADBRegisterClient.awaitIdleForTesting(3000));
+        transport.setRequestCallback(null);
+
+        for (String line : KeepADBDiagnostics.export(context).split("\n")) {
+            assertFalse("stale success logged as recovery: " + line,
+                    line.contains("event=register_report") && line.contains("method=post http=200"));
+        }
+    }
+
     /** The real transport, against a closed local port: the class is recorded, not the message. */
     @Test
     public void realTransportReportsOnlyTheExceptionClass() {

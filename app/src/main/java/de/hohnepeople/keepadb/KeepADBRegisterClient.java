@@ -615,7 +615,7 @@ final class KeepADBRegisterClient {
         boolean failingBefore = isReportFailing(context);
         lastTransportOutcome = "unknown";
         boolean posted = postEndpoint(targetUrl, targetEndpoint);
-        recordReportOutcome(context, "post", posted, failingBefore);
+        recordReportOutcome(context, "post", posted, failingBefore, opGen);
         if (posted) {
             // #671: the primary POST can block for seconds, during which a disconnect or a newer
             // endpoint may have superseded this transaction. Abort before any secondary transport
@@ -695,7 +695,7 @@ final class KeepADBRegisterClient {
         boolean failingBefore = isReportFailing(context);
         lastTransportOutcome = "unknown";
         boolean cleanupCompleted = deleteEndpoint(urlToDelete);
-        recordReportOutcome(context, "delete", cleanupCompleted, failingBefore);
+        recordReportOutcome(context, "delete", cleanupCompleted, failingBefore, opGen);
         if (cleanupCompleted) {
             // Record the successful DELETE response before the generation check, so a newer
             // operation does not leave the local report snapshot pointing at the old URL.
@@ -1023,11 +1023,14 @@ final class KeepADBRegisterClient {
      * preference write (#317). No URL and no endpoint.
      */
     private static void recordReportOutcome(Context context, String method, boolean ok,
-            boolean failingBefore) {
+            boolean failingBefore, long opGen) {
         if (ok && !failingBefore) return;
         int retry;
         synchronized (KeepADBRegisterClient.class) {
-            retry = postRetryNumber;
+            // A success of a superseded transaction ends nothing: the newer operation owns the
+            // report status (Codex review).
+            if (ok && opGen != currentOpGeneration) return;
+            retry = "delete".equals(method) ? markUnavailableRetryAttempts : postRetryNumber;
         }
         KeepADBDiagnostics.event(context, "register_report", "webhook", ok ? "success" : "failed",
                 "method=" + method + " " + lastTransportOutcome + " retry=" + retry);
